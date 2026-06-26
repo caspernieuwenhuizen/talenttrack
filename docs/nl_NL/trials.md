@@ -7,6 +7,7 @@ Een **stagedossier** is een gestructureerde manier om gedurende 2–6 weken naar
 ## Wie ziet wat
 
 - **Hoofd opleiding / Clubbeheer** — volledig beheer. Dossiers openen, verlengen, besluiten, archiveren. Trajecten en briefsjablonen aanpassen. Staf-input vrijgeven.
+- **Hoofdcoaches** — kunnen de tegel **Stagedossiers** openen en de lijst met dossiers bekijken voor spelers van hun eigen teams. Ze kunnen geen dossiers aanmaken of verwijderen (geen knop *Nieuw stagedossier*), maar houden het leesrecht dat hun rol geeft. Aanmaken, besluiten en archiveren blijven bij het hoofd opleiding.
 - **Coaches die zijn toegewezen aan een dossier** — zien het overzicht plus de uitvoering, en geven op het tabblad **Staf-input** hun eigen input. Andere inputs zien ze pas nadat het hoofd opleiding heeft vrijgegeven.
 - **Overige coaches** — zien het dossier niet, tenzij ze zijn toegewezen.
 

@@ -145,6 +145,25 @@ class TrialCasesRepository {
             $where[]  = 'decision = %s';
             $params[] = (string) $filters['decision'];
         }
+        // #2005 — caller-supplied player allow-list. The frontend view
+        // passes the players on a head coach's own teams so the list is
+        // team-scoped (the matrix grants head_coach `trial_cases [rc]` at
+        // team scope). An empty array means "no players in scope" and
+        // yields zero rows; an absent key means "no player restriction".
+        if ( isset( $filters['player_ids'] ) && is_array( $filters['player_ids'] ) ) {
+            $player_ids = array_values( array_unique( array_filter(
+                array_map( 'intval', $filters['player_ids'] ),
+                static fn( $v ) => $v > 0
+            ) ) );
+            if ( ! $player_ids ) {
+                return [];
+            }
+            $placeholders = implode( ', ', array_fill( 0, count( $player_ids ), '%d' ) );
+            $where[]      = "player_id IN ( $placeholders )";
+            foreach ( $player_ids as $pid ) {
+                $params[] = $pid;
+            }
+        }
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'end_date >= %s';
             $params[] = (string) $filters['date_from'];

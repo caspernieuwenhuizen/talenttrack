@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
@@ -27,10 +28,17 @@ class FrontendTrialsManageView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         $trials_label = __( 'Trials', 'talenttrack' );
 
-        if ( ! current_user_can( 'tt_manage_trials' ) ) {
+        // #2005 — entry is gated on READ, matching the dashboard tile
+        // (which lets a user in when the matrix grants `trial_cases:read`
+        // at any scope). The previous gate demanded `tt_manage_trials`
+        // (→ `trial_cases:create_delete`), so a head coach — who holds
+        // `trial_cases [read, change]` at team scope but NOT
+        // `create_delete` — passed the tile yet hit a 403 on the view.
+        // Create / delete actions below stay gated on `tt_manage_trials`.
+        if ( ! self::canRead( $user_id, $is_admin ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( $trials_label );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage trial cases.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view trial cases.', 'talenttrack' ) . '</p>';
             return;
         }
 
@@ -48,11 +56,26 @@ class FrontendTrialsManageView extends FrontendViewBase {
             return;
         }
 
+        $can_manage = self::canManage( $user_id, $is_admin );
+
         self::enqueueAssets();
-        self::handlePost( $user_id );
+        self::handlePost( $user_id, $can_manage );
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         if ( $action === 'new' ) {
+            // #2005 — creating a case requires `tt_manage_trials`
+            // (`trial_cases:create_delete`). A read-only head coach who
+            // reaches `&action=new` via a stale link gets a denial, not
+            // the create form.
+            if ( ! $can_manage ) {
+                \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                    __( 'Not authorized', 'talenttrack' ),
+                    [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ]
+                );
+                self::renderHeader( __( 'New trial case', 'talenttrack' ) );
+                echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to create trial cases.', 'talenttrack' ) . '</p>';
+                return;
+            }
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'New trial case', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ]
@@ -64,11 +87,40 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $trials_label );
         self::renderHeader( __( 'Trial cases', 'talenttrack' ) );
-        self::renderList();
+        self::renderList( $user_id, $is_admin, $can_manage );
     }
 
-    private static function handlePost( int $user_id ): void {
+    /**
+     * Entry gate — true when the user may READ trial cases. Mirrors the
+     * dashboard tile (`trial_cases:read` at any scope) so the tile and
+     * the view agree on who gets in. Managers and admins read implicitly.
+     */
+    private static function canRead( int $user_id, bool $is_admin ): bool {
+        if ( $is_admin || self::canManage( $user_id, $is_admin ) ) {
+            return true;
+        }
+        if ( class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, 'trial_cases', 'read' );
+        }
+        return false;
+    }
+
+    /**
+     * Write gate — create / delete of trial cases. Maps to
+     * `trial_cases:create_delete` via `tt_manage_trials`. Resolved
+     * through the matrix bridge so a matrix-granted manager is not
+     * denied when the `user_has_cap` filter is dormant.
+     */
+    private static function canManage( int $user_id, bool $is_admin ): bool {
+        return $is_admin || AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' );
+    }
+
+    private static function handlePost( int $user_id, bool $can_manage ): void {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
+        // #2005 — only managers may create cases; a read-only head coach
+        // who forges a POST is rejected here even if they reached the
+        // surface.
+        if ( ! $can_manage ) return;
         if ( ! isset( $_POST['tt_trials_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_trials_nonce'] ) ), 'tt_trials_create' ) ) return;
 
         $player_id = isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0;
@@ -162,7 +214,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         exit;
     }
 
-    private static function renderList(): void {
+    private static function renderList( int $user_id, bool $is_admin, bool $can_manage ): void {
         $cases_repo = new TrialCasesRepository();
         $tracks_repo = new TrialTracksRepository();
 
@@ -172,13 +224,37 @@ class FrontendTrialsManageView extends FrontendViewBase {
             'decision' => isset( $_GET['decision'] ) ? sanitize_key( (string) $_GET['decision'] ) : '',
             'include_archived' => ! empty( $_GET['include_archived'] ),
         ];
+
+        // #2005 — read-only coaches see only cases for players on their
+        // own teams. The matrix grants head_coach `trial_cases [rc]` at
+        // TEAM scope, so the list must honour that boundary (matching the
+        // team-scoping in CoachDashboardView / FrontendEvaluationsView).
+        // Managers (`tt_manage_trials` → academy-wide create_delete) and
+        // admins keep the unscoped, full view they had before. An empty
+        // allow-list yields zero rows — a coach with no team sees nothing.
+        if ( ! $is_admin && ! $can_manage ) {
+            $team_ids = array_map(
+                static fn( $t ) => (int) $t->id,
+                QueryHelpers::get_teams_for_coach( $user_id )
+            );
+            $player_ids = array_map(
+                static fn( $p ) => (int) $p->id,
+                QueryHelpers::get_players_for_teams( $team_ids )
+            );
+            $filters['player_ids'] = $player_ids;
+        }
+
         $rows   = $cases_repo->search( $filters );
         $tracks = $tracks_repo->listAll( true );
 
         $base_url = remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] );
         $new_url  = add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url );
 
-        echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
+        // #2005 — the "New trial case" CTA is create-gated. A read-only
+        // head coach sees the list but not the create button.
+        if ( $can_manage ) {
+            echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
+        }
 
         echo '<form method="get" class="tt-filter-row tt-trials-filters">';
         echo '<input type="hidden" name="tt_view" value="trials"/>';
