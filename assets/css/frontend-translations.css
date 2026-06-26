@@ -1,0 +1,188 @@
+/*
+ * frontend-translations.css — FrontendTranslationsView (#1935).
+ *
+ * Engine-configuration form + read-only usage table + clear-cache
+ * action for the auto-translation layer, ported from the wp-admin
+ * Configuration → Translations tab to `?tt_view=translations`.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale
+ * up. Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-translations {
+    max-width: 780px;
+}
+
+.tt-dashboard .tt-translations__intro {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+/* ---- Flash / validation notice -------------------------------------- */
+.tt-dashboard .tt-translations__notice {
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+    border-left: 3px solid var(--tt-danger);
+    background: var(--tt-danger-subtle);
+    color: var(--tt-ink);
+}
+
+/* ---- Field grid ----------------------------------------------------- */
+.tt-dashboard .tt-translations__panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-translations__field {
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-translations__legend {
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin: 0;
+}
+
+.tt-dashboard .tt-translations__hint {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Checkbox / radio rows — keep targets ≥48px and tappable. */
+.tt-dashboard .tt-translations__choice {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 48px;
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-translations__choice input {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+}
+
+.tt-dashboard .tt-translations__choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2) var(--tt-sp-5);
+}
+
+/* Inputs: ≥16px font to defeat iOS auto-zoom; full-width on phones. */
+.tt-dashboard .tt-translations__input,
+.tt-dashboard .tt-translations__textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    color: var(--tt-ink);
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-translations__textarea {
+    min-height: 7rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    line-height: 1.4;
+}
+
+.tt-dashboard .tt-translations__input--narrow {
+    max-width: 12rem;
+}
+
+.tt-dashboard .tt-translations__input:focus-visible,
+.tt-dashboard .tt-translations__textarea:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* "(set)" credential indicator. */
+.tt-dashboard .tt-translations__set-flag {
+    color: var(--tt-success);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* ---- Sub-processor disclosure --------------------------------------- */
+.tt-dashboard .tt-translations__disclosure {
+    background: var(--tt-bg-soft);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0;
+    line-height: 1.6;
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-translations__disclosure a {
+    word-break: break-word;
+}
+
+/* ---- Usage + cache sections ----------------------------------------- */
+.tt-dashboard .tt-translations__section {
+    margin-top: var(--tt-sp-6);
+}
+
+.tt-dashboard .tt-translations__section h2 {
+    font-size: 1.125rem;
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-translations__usage {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.tt-dashboard .tt-translations__usage th,
+.tt-dashboard .tt-translations__usage td {
+    text-align: left;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-bottom: 1px solid var(--tt-line);
+}
+
+.tt-dashboard .tt-translations__usage thead th {
+    color: var(--tt-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-translations__usage td:nth-child(n+2) {
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-translations__role {
+    color: var(--tt-muted);
+    font-size: 0.8125rem;
+}
+
+.tt-dashboard .tt-translations__form-msg {
+    margin-top: var(--tt-sp-3);
+    min-height: 1.25rem;
+}
+
+.tt-dashboard .tt-translations__form-msg.tt-success {
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-translations__form-msg.tt-error {
+    color: var(--tt-danger);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-translations__field--inline {
+        grid-template-columns: 14rem 1fr;
+        align-items: start;
+        gap: var(--tt-sp-3) var(--tt-sp-5);
+    }
+}

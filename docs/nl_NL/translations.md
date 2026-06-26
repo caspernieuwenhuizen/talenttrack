@@ -19,7 +19,23 @@ Als één van beide ontbreekt weigert het formulier de schakelaar op AAN te zett
 
 ## Waar je hem vindt
 
-`wp-admin → TalentTrack → Configuration → Translations`.
+Open het dashboard, ga naar **Configuratie** en klik op de tegel
+**Vertalingen** (`?tt_view=translations`). Het hele scherm — de
+aan/uit-schakelaar, de keuze van de engine, de inloggegevens, de
+maandelijkse limiet, de gebruikstabel en de knop **Cache wissen** — staat
+in de frontend; er is geen omweg meer via wp-admin. De instellingen worden
+opgeslagen via de REST-API (`POST /translations/settings`) en de cache
+wordt gewist via `POST /translations/clear-cache`, zodat hetzelfde gedrag
+beschikbaar is voor elke toekomstige niet-WordPress-frontend.
+
+Inloggegevens worden nooit teruggetoond: zodra een DeepL-sleutel of
+Google-service-account-JSON is opgeslagen, toont het veld de indicator
+**(ingesteld)** en blijft het leeg. Laat het veld leeg om de opgeslagen
+waarde te behouden; typ een nieuwe waarde om die te vervangen.
+
+Het oude wp-admin-tabblad (`wp-admin → TalentTrack → Configuratie →
+Vertalingen`) blijft bestaan als fallback voor gevorderde gebruikers, maar
+wordt niet meer vanuit de configuratietegels gelinkt.
 
 ## Engines
 

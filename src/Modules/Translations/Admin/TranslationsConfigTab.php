@@ -240,50 +240,23 @@ final class TranslationsConfigTab {
         if ( ! current_user_can( 'tt_edit_translations' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( self::SAVE_ACTION, 'tt_translations_nonce' );
 
-        $keys      = TranslationLayer::configKeys();
-        $enabled   = ! empty( $_POST['enabled'] );
-        $confirmed = ! empty( $_POST['subprocessor_confirmed'] );
-        $primary   = sanitize_key( (string) ( $_POST['primary_engine'] ?? 'deepl' ) );
-        if ( ! in_array( $primary, [ 'deepl', 'google' ], true ) ) $primary = 'deepl';
-        $fallback  = sanitize_key( (string) ( $_POST['fallback_engine'] ?? '' ) );
-        if ( ! in_array( $fallback, [ '', 'deepl', 'google' ], true ) ) $fallback = '';
+        // Domain layer owns validation + keep-on-blank credentials + the
+        // GDPR opt-out purge; this handler only unslashes the raw POST.
+        $result = TranslationLayer::saveSettings( [
+            'enabled'                => ! empty( $_POST['enabled'] ),
+            'subprocessor_confirmed' => ! empty( $_POST['subprocessor_confirmed'] ),
+            'primary_engine'         => (string) ( $_POST['primary_engine'] ?? 'deepl' ),
+            'fallback_engine'        => (string) ( $_POST['fallback_engine'] ?? '' ),
+            'deepl_key'              => (string) wp_unslash( $_POST['deepl_key'] ?? '' ),
+            'google_service_account' => (string) wp_unslash( $_POST['google_service_account'] ?? '' ),
+            'site_default_lang'      => (string) wp_unslash( $_POST['site_default_lang'] ?? '' ),
+            'monthly_cap'            => (int) ( $_POST['monthly_cap'] ?? TranslationLayer::DEFAULT_MONTHLY_CAP ),
+            'threshold_pct'          => (int) ( $_POST['threshold_pct'] ?? TranslationLayer::DEFAULT_THRESHOLD_PCT ),
+        ] );
 
-        $deepl_key  = trim( (string) wp_unslash( $_POST['deepl_key'] ?? '' ) );
-        $google_sa  = trim( (string) wp_unslash( $_POST['google_service_account'] ?? '' ) );
-        $site_lang  = TranslationLayer::shortCode( (string) wp_unslash( $_POST['site_default_lang'] ?? '' ) );
-        $cap        = max( 1000, (int) ( $_POST['monthly_cap'] ?? TranslationLayer::DEFAULT_MONTHLY_CAP ) );
-        $threshold  = max( 1, min( 100, (int) ( $_POST['threshold_pct'] ?? TranslationLayer::DEFAULT_THRESHOLD_PCT ) ) );
-
-        // Persist credentials only when supplied. Empty = keep existing.
-        if ( $deepl_key !== '' ) QueryHelpers::set_config( $keys['deepl_key'], $deepl_key );
-        if ( $google_sa !== '' ) QueryHelpers::set_config( $keys['google_service_account'], $google_sa );
-        QueryHelpers::set_config( $keys['primary_engine'],         $primary );
-        QueryHelpers::set_config( $keys['fallback_engine'],        $fallback );
-        QueryHelpers::set_config( $keys['site_default_lang'],      $site_lang );
-        QueryHelpers::set_config( $keys['monthly_cap'],            (string) $cap );
-        QueryHelpers::set_config( $keys['threshold_pct'],          (string) $threshold );
-        QueryHelpers::set_config( $keys['subprocessor_confirmed'], $confirmed ? '1' : '0' );
-
-        // Validate before flipping enabled to ON.
-        if ( $enabled ) {
-            if ( ! $confirmed ) {
-                self::redirectWithError( 'subprocessor_required' );
-                return;
-            }
-            $has_creds = ( $primary === 'deepl'  && QueryHelpers::get_config( $keys['deepl_key'], '' ) !== '' )
-                       || ( $primary === 'google' && QueryHelpers::get_config( $keys['google_service_account'], '' ) !== '' );
-            if ( ! $has_creds ) {
-                self::redirectWithError( 'credentials_required' );
-                return;
-            }
-        }
-
-        $was_enabled = TranslationLayer::isEnabled();
-        QueryHelpers::set_config( $keys['enabled'], $enabled ? '1' : '0' );
-
-        // Opt-out → erase cache + source meta (GDPR posture).
-        if ( $was_enabled && ! $enabled ) {
-            TranslationLayer::purgeAllCaches();
+        if ( ! $result['ok'] ) {
+            self::redirectWithError( (string) $result['error_code'] );
+            return;
         }
 
         wp_safe_redirect( admin_url( 'admin.php?page=tt-config&tab=' . self::TAB_KEY . '&tt_msg=saved' ) );

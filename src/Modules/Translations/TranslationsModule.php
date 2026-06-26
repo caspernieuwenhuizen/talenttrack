@@ -35,6 +35,11 @@ final class TranslationsModule implements ModuleInterface {
             Admin\UserProfilePreference::init();
         }
 
+        // #1935 — write surface for the frontend Translations config view
+        // (`?tt_view=translations`). Registered on every request (not
+        // admin-only) so the REST routes exist for the frontend fetch.
+        \TT\Infrastructure\REST\TranslationsRestController::init();
+
         // Append a sub-processor paragraph to the WP privacy policy
         // editor so admins can copy it into the published page. Fires
         // on every page load — wp_add_privacy_policy_content() is
