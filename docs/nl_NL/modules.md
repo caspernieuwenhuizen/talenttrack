@@ -24,6 +24,7 @@ Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 fun
 - **Pre-launch dev.** Schakel Backup uit totdat de cron-job op de host is geconfigureerd.
 - **Per-club productoppervlak.** Een jeugdclub heeft geen Methodologie nodig, dus de Methodology-tab maakt hun setup rommelig.
 - **Feature-debug.** Een nieuwe beheerder heeft de Workflow-tab even uit nodig om de rest van het product te doorgronden.
+- **Het spelerdashboard inkorten.** De Players-module bevat een feature per spelertegel — Mijn reis, Mijn team, Mijn evaluaties, Mijn activiteiten, Mijn doelen, Mijn POP. Zet een ervan uit (ze staan standaard aan) om die tegel te verbergen *én* de bijbehorende `?tt_view`-URL voor spelers in deze academie te blokkeren. Het spelerprofiel is het altijd-aanwezige anker en heeft geen toggle.
 
 ## Wat de toggle daadwerkelijk doet
 

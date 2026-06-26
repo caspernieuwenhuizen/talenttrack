@@ -296,6 +296,54 @@ msgstr "Huidige filters opslaan"
 msgid "Cohort transitions"
 msgstr "Cohort-overgangen"
 
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My journey"
+msgstr "Spelertegel: Mijn reis"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's journey timeline tile and view. Turn off to hide it from players in this academy."
+msgstr "De tijdlijntegel en -weergave van de reis van de speler. Zet uit om deze voor spelers in deze academie te verbergen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My team"
+msgstr "Spelertegel: Mijn team"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's team tile and view (teammates and podium). Turn off to hide it from players in this academy."
+msgstr "De teamtegel en -weergave van de speler (teamgenoten en podium). Zet uit om deze voor spelers in deze academie te verbergen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My evaluations"
+msgstr "Spelertegel: Mijn evaluaties"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's evaluations tile and view (ratings and feedback). Turn off to hide it from players in this academy."
+msgstr "De evaluatietegel en -weergave van de speler (beoordelingen en feedback). Zet uit om deze voor spelers in deze academie te verbergen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My activities"
+msgstr "Spelertegel: Mijn activiteiten"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's activities tile and view (trainings and games attended). Turn off to hide it from players in this academy."
+msgstr "De activiteitentegel en -weergave van de speler (gevolgde trainingen en wedstrijden). Zet uit om deze voor spelers in deze academie te verbergen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My goals"
+msgstr "Spelertegel: Mijn doelen"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's goals tile and view. Turn off to hide it from players in this academy."
+msgstr "De doelentegel en -weergave van de speler. Zet uit om deze voor spelers in deze academie te verbergen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player tile: My PDP"
+msgstr "Spelertegel: Mijn POP"
+
+#: src/Core/FeatureRegistry.php
+msgid "The player's PDP tile and view (talks, reflections, season verdict). Turn off to hide it from players in this academy."
+msgstr "De POP-tegel en -weergave van de speler (gesprekken, reflecties, seizoensoordeel). Zet uit om deze voor spelers in deze academie te verbergen."
+
 #: src/Core/FeatureRegistry.php:61
 msgid ""
 "Find players academy-wide by journey event and date range. Player timeline, "

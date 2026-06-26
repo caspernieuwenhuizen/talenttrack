@@ -247,6 +247,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_TEAMS,
             'view_slug'    => 'my-team',
+            'feature'      => 'player_team',
             'entity'       => 'my_team',
             'group'        => $me_group,
             'kind'         => 'work',
@@ -268,6 +269,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'my-evaluations',
+            'feature'      => 'player_evaluations',
             'entity'       => 'my_evaluations_panel',
             'group'        => $me_group,
             'kind'         => 'work',
@@ -281,6 +283,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_ACTIVITIES,
             'view_slug'    => 'my-activities',
+            'feature'      => 'player_activities',
             'entity'       => 'my_activities',
             'group'        => $me_group,
             'kind'         => 'work',
@@ -294,6 +297,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_GOALS,
             'view_slug'    => 'my-goals',
+            'feature'      => 'player_goals',
             'entity'       => 'my_goals',
             'group'        => $me_group,
             'kind'         => 'work',
@@ -313,6 +317,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PDP,
             'view_slug'    => 'my-pdp',
+            'feature'      => 'player_pdp',
             'entity'       => 'my_pdp_panel',
             'group'        => $me_group,
             'kind'         => 'work',
@@ -332,6 +337,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_JOURNEY,
             'view_slug'    => 'my-journey',
+            'feature'      => 'player_journey',
             'entity'       => 'my_journey',
             'group'        => $me_group,
             'kind'         => 'work',

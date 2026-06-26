@@ -56,6 +56,60 @@ class FeatureRegistry {
      */
     private static function catalog(): array {
         $catalog = [
+            // #1987 — player dashboard tiles modelled as per-academy features
+            // so an academy admin can switch any of them off from the feature
+            // toggle UI. Default on; turning one off hides the tile AND blocks
+            // its ?tt_view route (viewSlugDisabled(), consulted by the
+            // dashboard dispatcher). The always-on player profile/anchor is
+            // deliberately not listed — it can't be disabled.
+            'player_journey' => [
+                'label'           => __( 'Player tile: My journey', 'talenttrack' ),
+                'description'     => __( 'The player\'s journey timeline tile and view. Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-journey' ],
+                'entities'        => [],
+            ],
+            'player_team' => [
+                'label'           => __( 'Player tile: My team', 'talenttrack' ),
+                'description'     => __( 'The player\'s team tile and view (teammates and podium). Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-team' ],
+                'entities'        => [],
+            ],
+            'player_evaluations' => [
+                'label'           => __( 'Player tile: My evaluations', 'talenttrack' ),
+                'description'     => __( 'The player\'s evaluations tile and view (ratings and feedback). Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-evaluations' ],
+                'entities'        => [],
+            ],
+            'player_activities' => [
+                'label'           => __( 'Player tile: My activities', 'talenttrack' ),
+                'description'     => __( 'The player\'s activities tile and view (trainings and games attended). Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-activities' ],
+                'entities'        => [],
+            ],
+            'player_goals' => [
+                'label'           => __( 'Player tile: My goals', 'talenttrack' ),
+                'description'     => __( 'The player\'s goals tile and view. Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-goals' ],
+                'entities'        => [],
+            ],
+            'player_pdp' => [
+                'label'           => __( 'Player tile: My PDP', 'talenttrack' ),
+                'description'     => __( 'The player\'s PDP tile and view (talks, reflections, season verdict). Turn off to hide it from players in this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayersModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'my-pdp' ],
+                'entities'        => [],
+            ],
             'cohort_transitions' => [
                 'label'           => __( 'Cohort transitions', 'talenttrack' ),
                 'description'     => __( 'Find players academy-wide by journey event and date range. Player timeline, injuries and safeguarding stay available when this is off.', 'talenttrack' ),

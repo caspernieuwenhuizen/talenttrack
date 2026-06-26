@@ -24,6 +24,7 @@ Where a module owns sub-features, the card carries a feature count (e.g. "2 feat
 - **Pre-launch dev.** Disable Backup until the cron job is configured on the host.
 - **Per-club product surface.** A youth club doesn't run a Methodology, so the Methodology tab clutters their setup.
 - **Feature debug.** A new admin needs the Workflow tab disabled while they figure out the rest of the product.
+- **Trim the player dashboard.** The Players module owns a feature per player tile — My journey, My team, My evaluations, My activities, My goals, My PDP. Switch any of them off (they ship on) to hide that tile *and* block its `?tt_view` URL for players in this academy. The player profile is the always-on anchor and has no toggle.
 
 ## What the toggle actually does
 
