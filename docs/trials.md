@@ -7,6 +7,7 @@ A **trial case** is a structured way to run a 2–6 week look at a prospective p
 ## Who sees what
 
 - **Head of development / Club admin** — full management. Open / extend / decide / archive cases. Edit tracks and letter templates. Release staff inputs.
+- **Head coaches** — can open the **Trial cases** tile and browse the list of cases for players on their own teams. They cannot create or delete cases (no *New trial case* button), but they keep the read view their role grants. Creating, deciding and archiving stay with the head of development.
 - **Coaches assigned to a case** — see the case overview + execution view, submit their own input on the **Staff inputs** tab. They see other coaches' inputs only after the head of development releases.
 - **Other coaches** — do not see the case at all unless they are assigned to it.
 

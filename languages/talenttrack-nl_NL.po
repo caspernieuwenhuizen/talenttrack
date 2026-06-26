@@ -42512,9 +42512,13 @@ msgstr "Brief e-mailen"
 msgid "Enter fullscreen"
 msgstr "Volledig scherm"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:33
-msgid "You do not have permission to manage trial cases."
-msgstr "Je hebt geen rechten om stagedossiers te beheren."
+#: src/Shared/Frontend/FrontendTrialsManageView.php:41
+msgid "You do not have permission to view trial cases."
+msgstr "Je hebt geen rechten om stagedossiers te bekijken."
+
+#: src/Shared/Frontend/FrontendTrialsManageView.php:76
+msgid "You do not have permission to create trial cases."
+msgstr "Je hebt geen rechten om stagedossiers aan te maken."
 
 #: src/Shared/Frontend/FrontendTrialsManageView.php:57
 #: src/Shared/Frontend/FrontendTrialsManageView.php:60
