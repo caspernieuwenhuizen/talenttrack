@@ -41915,6 +41915,64 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Chemistry insight (reworked engine)"
+msgstr "Chemie-inzicht (vernieuwde engine)"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Team (recent)"
+msgstr "Team (recent)"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Strongest partnerships"
+msgstr "Sterkste partnerschappen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Weakest partnerships"
+msgstr "Zwakste partnerschappen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Recommendations"
+msgstr "Aanbevelingen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Not enough chemistry-attribute data yet — rate more players to see the reworked insight."
+msgstr "Nog niet genoeg chemie-attribuutgegevens — beoordeel meer spelers om het vernieuwde inzicht te zien."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "Rate %1$s & %2$s — not enough data to score their partnership."
+msgstr "Beoordeel %1$s & %2$s — niet genoeg gegevens om hun partnerschap te scoren."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "Improve the %1$s between %2$s and %3$s."
+msgstr "Verbeter de %1$s tussen %2$s en %3$s."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "compatibility"
+msgstr "compatibiliteit"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "familiarity"
+msgstr "vertrouwdheid"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "development fit"
+msgstr "ontwikkelingsmatch"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "behaviour fit"
+msgstr "gedragsmatch"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "shared performance"
+msgstr "gedeelde prestaties"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "chemistry"
+msgstr "chemie"
+
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
 msgid "Chemistry settings"
 msgstr "Chemie-instellingen"
