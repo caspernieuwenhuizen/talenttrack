@@ -1,4 +1,4 @@
-# My journey: position changes read as friendly names, not raw codes (#1983)
+# My journey: position-change events show friendly position names (#1983)
 
 Bump: patch
 

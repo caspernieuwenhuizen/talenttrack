@@ -156,7 +156,7 @@ final class JourneyEventSubscriber {
                 $player_id,
                 JourneyEventType::POSITION_CHANGED,
                 current_time( 'mysql' ),
-                sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'unset', 'talenttrack' ), $new_pos ),
+                sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'none', 'talenttrack' ), $new_pos !== '' ? $new_pos : __( 'none', 'talenttrack' ) ),
                 [ 'from' => $old_pos, 'to' => $new_pos ],
                 'Players',
                 'position_change',

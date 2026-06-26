@@ -35,6 +35,13 @@ return new class extends Migration {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_events';
 
+        // Resolve the long forms in the site locale — load the textdomain
+        // so positionLabel() returns the localised label (e.g. nl_NL
+        // "Centrale verdediger") rather than the English fallback.
+        if ( function_exists( 'load_plugin_textdomain' ) && defined( 'TT_PLUGIN_FILE' ) ) {
+            load_plugin_textdomain( 'talenttrack', false, dirname( plugin_basename( TT_PLUGIN_FILE ) ) . '/languages' );
+        }
+
         $rows = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT id, summary, payload FROM {$table} WHERE source_entity_type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix

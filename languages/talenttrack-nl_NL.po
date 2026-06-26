@@ -913,6 +913,10 @@ msgstr "Positie: %1$s → %2$s"
 msgid "unset"
 msgstr "leeg"
 
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:159
+msgid "none"
+msgstr "geen"
+
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:220
 msgid "Signed after trial"
 msgstr "Vastgelegd na stage"
