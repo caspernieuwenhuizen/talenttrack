@@ -34,6 +34,15 @@ final class FrontendHolidaysView extends FrontendViewBase {
             return;
         }
 
+        // #1997 — read-only detail view replaces the list when ?id={id}
+        // is present. Available to every `tt_view_holidays` viewer, so
+        // clicking any holiday row opens a scheduling-centric summary.
+        $detail_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        if ( $detail_id > 0 ) {
+            self::renderDetail( $detail_id );
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard( __( 'Holidays', 'talenttrack' ) );
         self::renderHeader( __( 'Academy holidays', 'talenttrack' ) );
 
@@ -179,6 +188,123 @@ final class FrontendHolidaysView extends FrontendViewBase {
             <div class="tt-form-msg" style="margin-top:10px;"></div>
         </form>
         <?php
+    }
+
+    /**
+     * #1997 — read-only, scheduling-centric detail view for a single
+     * holiday at `?tt_view=holidays&id=N`. Read-gated on
+     * `tt_view_holidays` (every viewer, not just managers). Composes the
+     * record via the repository; the inclusive day-count comes from
+     * `HolidaysRepository::dayCount()` (business logic stays out of the
+     * view — SaaS §4). Read-only, so CLAUDE.md §6 Save/Cancel does not
+     * apply; the only nav affordances are the breadcrumb chain + the
+     * auto-rendered `tt_back` pill (§5). Managers additionally get an
+     * Edit button into the existing flat edit form.
+     */
+    private static function renderDetail( int $id ): void {
+        $holidays_crumb = [ FrontendBreadcrumbs::viewCrumb( 'holidays', __( 'Holidays', 'talenttrack' ) ) ];
+
+        $holiday = ( new HolidaysRepository() )->findById( $id );
+        if ( $holiday === null ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Holiday not found', 'talenttrack' ), $holidays_crumb );
+            echo '<p class="tt-notice">' . esc_html__( 'That holiday no longer exists.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-holiday-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-holiday-detail.css',
+            [],
+            TT_VERSION
+        );
+
+        $name  = (string) $holiday->name;
+        $start = (string) $holiday->start_date;
+        $end   = (string) $holiday->end_date;
+        $note  = $holiday->note !== null ? (string) $holiday->note : '';
+        $color = $holiday->color !== null ? (string) $holiday->color : '';
+
+        FrontendBreadcrumbs::fromDashboard( $name, $holidays_crumb );
+
+        // Edit button (manage cap only) → existing flat edit form.
+        $actions_html = '';
+        if ( current_user_can( 'tt_manage_holidays' ) ) {
+            $edit_url = BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'holidays', 'edit' => $id ],
+                RecordLink::dashboardUrl()
+            ) );
+            $actions_html = self::pageActionsHtml( [
+                [
+                    'label'   => __( 'Edit', 'talenttrack' ),
+                    'href'    => $edit_url,
+                    'primary' => true,
+                    'cap'     => 'tt_manage_holidays',
+                ],
+            ] );
+        }
+
+        self::renderHeader( $name, $actions_html );
+
+        $date_fmt = (string) get_option( 'date_format', 'j M Y' );
+        $start_ts = strtotime( $start );
+        $end_ts   = strtotime( $end );
+        $period   = ( $start_ts !== false && $end_ts !== false )
+            ? sprintf(
+                /* translators: 1: start date, 2: end date */
+                _x( '%1$s – %2$s', 'holiday period range', 'talenttrack' ),
+                date_i18n( $date_fmt, $start_ts ),
+                date_i18n( $date_fmt, $end_ts )
+            )
+            : '—';
+
+        $day_count = HolidaysRepository::dayCount( $start, $end );
+        $duration  = $day_count > 0
+            ? sprintf(
+                /* translators: %d: number of days */
+                _n( '%d day', '%d days', $day_count, 'talenttrack' ),
+                $day_count
+            )
+            : '—';
+
+        echo '<div class="tt-holiday-detail">';
+
+        echo '<dl class="tt-holiday-detail__facts">';
+
+        echo '<div class="tt-holiday-detail__row">';
+        echo '<dt>' . esc_html__( 'Period', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . esc_html( $period ) . '</dd>';
+        echo '</div>';
+
+        echo '<div class="tt-holiday-detail__row">';
+        echo '<dt>' . esc_html__( 'Duration', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . esc_html( $duration ) . '</dd>';
+        echo '</div>';
+
+        echo '<div class="tt-holiday-detail__row">';
+        echo '<dt>' . esc_html__( 'Note', 'talenttrack' ) . '</dt>';
+        echo '<dd>' . ( $note !== '' ? esc_html( $note ) : '<span class="tt-holiday-detail__empty">—</span>' ) . '</dd>';
+        echo '</div>';
+
+        if ( $color !== '' ) {
+            echo '<div class="tt-holiday-detail__row">';
+            echo '<dt>' . esc_html__( 'Colour', 'talenttrack' ) . '</dt>';
+            echo '<dd class="tt-holiday-detail__colour">';
+            // The swatch fill is a per-record dynamic value that can't
+            // live in a static sheet — grandfathered per CLAUDE.md §2.
+            echo '<span class="tt-holiday-detail__swatch" style="background:' . esc_attr( $color ) . ';" aria-hidden="true"></span>'; /* tt-inline-ok */
+            echo '<span class="tt-holiday-detail__swatch-label">' . esc_html( $color ) . '</span>';
+            echo '</dd>';
+            echo '</div>';
+        }
+
+        echo '</dl>';
+
+        echo '<p class="tt-holiday-detail__banner-note">'
+            . esc_html__( 'This holiday shows as a banner across these days on every team planner, so coaches plan around the closed days.', 'talenttrack' )
+            . '</p>';
+
+        echo '</div>';
     }
 
     private static function enqueueHolidaysJs( string $list_url ): void {

@@ -210,24 +210,28 @@ final class HolidaysRestController {
 
     /** @return array<string,mixed> */
     private static function serialize( object $row ): array {
-        // #1602 — `detail_url` powers the FrontendListTable row-link
-        // (row_url_key) and points at the in-place edit form. Only emit
-        // it for users who can actually edit; a read-only viewer gets a
-        // null and the row stays non-clickable.
+        // #1997 — `detail_url` powers the FrontendListTable row-link
+        // (row_url_key) and now points at the read-only DETAIL view for
+        // EVERY `tt_view_holidays` user, so read-only viewers get
+        // clickable rows that open an enriched, scheduling-centric
+        // summary (not the edit form). The Edit row action stays
+        // manager-only and lands on the flat edit form.
         $id         = (int) $row->id;
-        $detail_url = null;
-        if ( current_user_can( 'tt_manage_holidays' ) ) {
-            $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'holidays', 'edit' => $id ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            ) );
-        }
+        $start      = (string) $row->start_date;
+        $end        = (string) $row->end_date;
+        $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'holidays', 'id' => $id ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        ) );
         return [
             'id'         => $id,
             'uuid'       => (string) $row->uuid,
             'name'       => (string) $row->name,
-            'start_date' => (string) $row->start_date,
-            'end_date'   => (string) $row->end_date,
+            'start_date' => $start,
+            'end_date'   => $end,
+            // #1997 — inclusive day span; computed in the repository so
+            // the REST payload and the PHP detail view stay in lockstep.
+            'day_count'  => HolidaysRepository::dayCount( $start, $end ),
             'note'       => $row->note !== null ? (string) $row->note : null,
             'color'      => $row->color !== null ? (string) $row->color : null,
             'detail_url' => $detail_url,
