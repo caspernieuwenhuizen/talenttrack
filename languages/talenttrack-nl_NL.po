@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T01:38:57+00:00\n"
+"POT-Creation-Date: 2026-06-26T01:42:15+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1071,7 +1071,7 @@ msgstr "In uitvoering"
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:583
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1429
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1739
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1747
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:291
@@ -1322,7 +1322,7 @@ msgstr "Overig"
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
 #: src/Modules/Goals/Admin/GoalsPage.php:85
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:584
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1740
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1748
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/People/Admin/PeoplePage.php:201
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
@@ -16259,9 +16259,9 @@ msgstr "POP / ontwikkelplan (PDF)"
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:686
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:764
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:797
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:56
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:85
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:102
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:55
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:84
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:101
 msgid "PDP file not found."
 msgstr "POP-dossier niet gevonden."
 
@@ -21602,10 +21602,10 @@ msgid "Edit season"
 msgstr "Seizoen bewerken"
 
 #: src/Modules/Pdp/Admin/SeasonsPage.php:138
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:77
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:133
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:156
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:181
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:84
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:139
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:162
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:187
 msgid "Season not found."
 msgstr "Seizoen niet gevonden."
 
@@ -21628,9 +21628,9 @@ msgstr "De database wees de actie af."
 # #0044 — PDP cycle (Sprint 1)
 #: src/Modules/Pdp/Admin/SeasonsPage.php:213
 #: src/Modules/Pdp/Admin/SeasonsPage.php:242
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:114
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:151
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:176
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:120
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:157
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:182
 msgid "Invalid season id."
 msgstr "Ongeldig seizoens-id."
 
@@ -21875,27 +21875,27 @@ msgid "Signed off on %s"
 msgstr "Ondertekend op %s"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:453
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1747
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1755
 msgid "Start of season"
 msgstr "Begin seizoen"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:454
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1748
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1756
 msgid "Mid season"
 msgstr "Mid-seizoen"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:455
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1749
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1757
 msgid "Mid-season A"
 msgstr "Mid-seizoen A"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:456
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1750
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1758
 msgid "Mid-season B"
 msgstr "Mid-seizoen B"
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:457
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1751
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1759
 msgid "End of season"
 msgstr "Einde seizoen"
 
@@ -22492,7 +22492,7 @@ msgstr "speler & coach"
 msgid "Football action"
 msgstr "Voetbalhandeling"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1738
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1746
 msgctxt "PDP file status"
 msgid "Open"
 msgstr "Open"
@@ -22625,9 +22625,9 @@ msgstr " · gepland %s"
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:727
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:758
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:789
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:52
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:81
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:98
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:51
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:80
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:97
 msgid "Invalid PDP file id."
 msgstr "Ongeldig POP-dossier-id."
 
@@ -22739,40 +22739,40 @@ msgstr "Uitsluiten"
 msgid "Transfer"
 msgstr "Transfer"
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:59
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:72
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:66
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:79
 #: src/Modules/Vct/Rest/VctMacroBlocksRestController.php:81
 #: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:62
 #: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:77
 msgid "season_id is required."
 msgstr "season_id is verplicht."
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:83
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:90
 msgid "blocks must be an array of { sequence, start_date, end_date } entries."
 msgstr ""
 "blocks moet een array zijn van { sequence, start_date, end_date }-items."
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:106
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:113
 msgid "The blocks could not be saved. Please retry."
 msgstr "De blokken konden niet worden opgeslagen. Probeer het opnieuw."
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:122
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:129
 msgid "A cycle must have between 1 and 4 blocks."
 msgstr "Een cyclus moet tussen 1 en 4 blokken hebben."
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:128
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:135
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:55
 msgid "Block sequence numbers must be contiguous starting from 1 (1, 2, … N)."
 msgstr "Blok-volgnummers moeten aaneensluitend zijn vanaf 1 (1, 2, … N)."
 
 #. translators: %d = block number
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:139
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:146
 #, php-format
 msgid "Block %d has an invalid date format. Use YYYY-MM-DD."
 msgstr "Blok %d heeft een ongeldig datumformaat. Gebruik JJJJ-MM-DD."
 
 #. translators: %d = block number
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:146
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:153
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:77
 #: src/Shared/Frontend/FrontendConfigurationView.php:2324
@@ -22781,36 +22781,36 @@ msgid "Block %d ends before it starts."
 msgstr "Blok %d eindigt voordat het begint."
 
 #. translators: 1: block number, 2: season start, 3: season end
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:153
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:160
 #: src/Shared/Frontend/FrontendConfigurationView.php:2318
 #, php-format
 msgid "Block %1$d extends outside the season window (%2$s – %3$s)."
 msgstr "Blok %1$d valt buiten het seizoensvenster (%2$s – %3$s)."
 
 #. translators: 1: block A sequence, 2: block B sequence
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:165
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:172
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:88
 #, php-format
 msgid "Block %1$d overlaps with block %2$d. Blocks must not share dates."
 msgstr "Blok %1$d overlapt met blok %2$d. Blokken mogen geen datums delen."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:47
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:56
 msgid "Invalid conversation id."
 msgstr "Ongeldig gespreks-id."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:52
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:61
 msgid "Conversation not found."
 msgstr "Gesprek niet gevonden."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:56
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:65
 msgid "Parent PDP file not found."
 msgstr "Bovenliggend POP-dossier niet gevonden."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:62
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:71
 msgid "You do not have permission to update this conversation."
 msgstr "Je hebt geen toestemming om dit gesprek bij te werken."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:112
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:121
 msgid ""
 "This conversation is read-only — it carries a signature. Open a new "
 "conversation if a follow-up edit is needed."
@@ -22819,7 +22819,7 @@ msgstr ""
 "gesprek als een vervolg-bewerking nodig is."
 
 # v3.110.52 — REST-side enforcement of the same gate (defence in depth)
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:134
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:143
 msgid ""
 "You can add your self-reflection up to 2 weeks before the planned meeting. "
 "Check back closer to the planned date."
@@ -22827,7 +22827,7 @@ msgstr ""
 "Je kunt je zelfreflectie toevoegen tot 2 weken vóór het geplande gesprek. "
 "Kom dichter bij de geplande datum terug."
 
-#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:142
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php:151
 msgid "The conversation could not be updated."
 msgstr "Het gesprek kon niet worden bijgewerkt."
 
@@ -22923,24 +22923,24 @@ msgstr ""
 "Kon het PDP-bestand niet permanent verwijderen. De transactie is "
 "teruggedraaid; er is niets gewijzigd."
 
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:59
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:58
 msgid "You do not have access to this evidence packet."
 msgstr "Je hebt geen toegang tot dit bewijsdossier."
 
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:63
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:62
 msgid "Could not assemble the evidence packet."
 msgstr "Kon het bewijsdossier niet samenstellen."
 
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:89
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:88
 msgid "You do not have access to this PDP verdict."
 msgstr "Je hebt geen toegang tot dit POP-eindoordeel."
 
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:108
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:107
 msgid "Decision must be one of promote, retain, release, transfer."
 msgstr "Beslissing moet promote, retain, release of transfer zijn."
 
 # v3.52.0 — PDP integration (#0057 Sprint 5)
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:143
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:147
 msgid ""
 "A divergence note is required when the human decision differs from the "
 "system recommendation."
@@ -22948,36 +22948,36 @@ msgstr ""
 "Een afwijkings-notitie is verplicht wanneer het menselijke besluit afwijkt "
 "van de systeemaanbeveling."
 
-#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:154
+#: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:158
 msgid "The verdict could not be saved."
 msgstr "Het eindoordeel kon niet worden opgeslagen."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:91
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:123
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:97
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:129
 msgid "Name, start date, and end date are required."
 msgstr "Naam, startdatum en einddatum zijn verplicht."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:95
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:127
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:101
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:133
 msgid "End date must be after start date."
 msgstr "De einddatum moet na de startdatum liggen."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:106
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:112
 msgid "The season could not be created."
 msgstr "Het seizoen kon niet worden aangemaakt."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:143
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:149
 msgid "The season could not be updated."
 msgstr "Het seizoen kon niet worden bijgewerkt."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:160
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:166
 msgid ""
 "The current season can’t be deleted. Set another season as current first."
 msgstr ""
 "Het huidige seizoen kan niet worden verwijderd. Stel eerst een ander seizoen "
 "in als huidig."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:164
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:170
 msgid ""
 "This season has linked records (PDP files, staff development or schedules). "
 "Edit it instead of deleting."
@@ -22985,7 +22985,7 @@ msgstr ""
 "Dit seizoen heeft gekoppelde records (PDP-dossiers, stafontwikkeling of "
 "schema’s). Bewerk het in plaats van te verwijderen."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:168
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:174
 msgid "The season could not be deleted."
 msgstr "Het seizoen kon niet worden verwijderd."
 
