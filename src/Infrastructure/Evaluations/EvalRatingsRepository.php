@@ -66,6 +66,48 @@ class EvalRatingsRepository {
     }
 
     /**
+     * Full rating rows for many evaluations in a single query — the batch
+     * counterpart to QueryHelpers::get_evaluation()'s per-eval ratings
+     * fetch. Collapses a 1+N pattern (one detail query per eval row) into
+     * one roundtrip. SELECT / JOIN / ORDER mirror get_evaluation() exactly,
+     * so callers can attach the result in place of `$full->ratings` with
+     * byte-identical rendering.
+     *
+     * @param int[] $eval_ids
+     * @return array<int, object[]>  Keyed by evaluation_id; each value is the
+     *         ordered rating rows for that evaluation (empty array if none).
+     */
+    public function ratingsForEvaluations( array $eval_ids ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $clean = array_values( array_unique( array_filter( array_map( 'intval', $eval_ids ), fn( $v ) => $v > 0 ) ) );
+        if ( empty( $clean ) ) return [];
+
+        $placeholders = implode( ',', array_fill( 0, count( $clean ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT r.*,
+                    c.label        AS category_name,
+                    c.parent_id    AS category_parent_id,
+                    c.category_key AS category_key
+             FROM {$p}tt_eval_ratings r
+             LEFT JOIN {$p}tt_eval_categories c ON r.category_id = c.id AND c.club_id = r.club_id
+             WHERE r.evaluation_id IN ($placeholders) AND r.club_id = %d
+             ORDER BY r.evaluation_id ASC, c.parent_id IS NULL DESC, c.display_order ASC",
+            ...array_merge( $clean, [ CurrentClub::id() ] )
+        ) );
+
+        $out = [];
+        foreach ( $clean as $eid ) {
+            $out[ $eid ] = [];
+        }
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) $r->evaluation_id ][] = $r;
+        }
+        return $out;
+    }
+
+    /**
      * Effective rating for a main category on a single evaluation.
      *
      * Return shape:
