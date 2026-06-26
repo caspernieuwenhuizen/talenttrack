@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T08:30:34+00:00\n"
+"POT-Creation-Date: 2026-06-26T08:52:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -2840,7 +2840,7 @@ msgstr "Título"
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
 #: src/Modules/Wizards/Player/ReviewStep.php:30
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:197
 #: src/Shared/Frontend/CoachForms.php:217
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:490
@@ -3071,7 +3071,7 @@ msgstr ""
 #: src/Modules/Wizards/Goal/PlayerStep.php:76
 #: src/Modules/Wizards/Player/ReviewStep.php:33
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:34
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:27
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:45
 #: src/Shared/Frontend/CoachDashboardView.php:253
 #: src/Shared/Frontend/CoachForms.php:525
@@ -4628,7 +4628,7 @@ msgstr ""
 #: src/Modules/Wizards/Person/ReviewStep.php:33
 #: src/Modules/Wizards/Player/ReviewStep.php:31
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
 #: src/Shared/Frontend/FrontendConfigurationView.php:978
 #: src/Shared/Frontend/FrontendHolidaysView.php:56
@@ -15048,7 +15048,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:274
 #: src/Modules/Tournaments/Wizard/FormationStep.php:21
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:57
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:485
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:201
@@ -21217,7 +21217,7 @@ msgstr ""
 #: src/Modules/Wizards/Player/ReviewStep.php:24
 #: src/Modules/Wizards/Prospect/ReviewStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:13
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:18
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:19
 msgid "Review"
 msgstr ""
 
@@ -27736,7 +27736,7 @@ msgid "Update Team"
 msgstr ""
 
 #. translators: %s: blueprint name
-#: src/Modules/Threads/Adapters/BlueprintThreadAdapter.php:62
+#: src/Modules/Threads/Adapters/BlueprintThreadAdapter.php:66
 #, php-format
 msgid "Comments — %s"
 msgstr ""
@@ -30612,29 +30612,29 @@ msgstr ""
 msgid "New blueprint"
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:21
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:22
 msgid ""
 "Check the details before creating the blueprint. You will land on the editor "
 "next to drag players onto slots."
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:24
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:25
 msgid "Squad plan (3 tiers per slot, trial overlay)"
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:25
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:26
 msgid "Match-day lineup (single starting XI)"
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:45
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:46
 msgid "You do not have permission to create blueprints."
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:52
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:53
 msgid "Setup is incomplete. Go back to fill in all fields."
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:56
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:57
 msgid "Could not create the blueprint."
 msgstr ""
 
