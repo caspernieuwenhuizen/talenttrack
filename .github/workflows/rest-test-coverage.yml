@@ -1,0 +1,65 @@
+name: REST endpoint-test mandate
+
+# #1388 — enforces the endpoint-test mandate (docs/contributing.md §
+# "Mandatory: a smoke test for every new REST endpoint"). The Tier 2 REST
+# smoke suite freezes the routes it names, but nothing stops the NEXT
+# controller from shipping a `register_rest_route(...)` with no smoke test —
+# re-opening the authorization-coverage bug class one endpoint at a time.
+#
+# This guard is diff-based and forward-only: it grandfathers the existing
+# ~167 routes and only fails when a PR's diff ADDS a `register_rest_route(`
+# line under src/ WITHOUT also adding/modifying a file under tests/php/.
+#
+# Escape hatch: label the PR `rest-test-exempt` (mirrors the i18n gate's
+# `i18n-drift-acceptable`) for the rare case that needs no new test — e.g. a
+# route moved verbatim between files, or a trivial copy-only change.
+#
+# The check is a standalone PHP script (scripts/rest-test-coverage.php) that
+# does the merge-base diff, matching the audit-1-coverage.php pattern.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/php/**'
+      - 'scripts/rest-test-coverage.php'
+      - '.github/workflows/rest-test-coverage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  mandate:
+    name: New-route smoke-test mandate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check for the rest-test-exempt label
+        id: exempt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          if jq -e '[.pull_request.labels[]?.name] | index("rest-test-exempt")' \
+               "$GITHUB_EVENT_PATH" >/dev/null; then
+            echo "Label 'rest-test-exempt' present — the mandate gate will be skipped."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run REST endpoint-test mandate guard
+        if: steps.exempt.outputs.skip != 'true'
+        shell: bash
+        run: |
+          git fetch origin "${{ github.base_ref }}":refs/remotes/origin/"${{ github.base_ref }}"
+          php scripts/rest-test-coverage.php "origin/${{ github.base_ref }}"
