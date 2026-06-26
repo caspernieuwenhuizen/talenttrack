@@ -120,6 +120,14 @@ final class MatchPrepPrintableRenderer {
             $pgoal_by_pid[ (int) $g->player_id ] = $g;
         }
 
+        // #1873 — roles (captain + set-piece takers) + half length, the
+        // two pieces the on-screen view shows that the print was missing.
+        $roles_by_key = [];
+        foreach ( $repo->listRoles( $prep_id ) as $r ) {
+            $roles_by_key[ (string) $r->role_key ] = (int) $r->player_id;
+        }
+        $half_length = (int) ( $prep->half_length_minutes ?? 35 );
+
         // Resolve formation shape via the on-screen view's resolver so
         // the print uses the same default-slot layout. When the
         // activity has a `formation` string (e.g. "4-3-3") that wins;
@@ -147,6 +155,45 @@ final class MatchPrepPrintableRenderer {
             <p><strong><?php esc_html_e( 'Bank 1e helft:', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_1 !== [] ? implode( ', ', $bench_1 ) : '—' ); ?></p>
             <p><strong><?php esc_html_e( 'Bank 2e helft:', 'talenttrack' ); ?></strong> <?php echo esc_html( $bench_2 !== [] ? implode( ', ', $bench_2 ) : '—' ); ?></p>
         </div>
+
+        <?php if ( $available_ids ) :
+            // #1873 — Selectie · minuten, mirroring the on-screen left rail:
+            // per-player minutes per half (full half length when on the
+            // pitch that half) + the total, plus column totals.
+            $tot1 = 0; $tot2 = 0; ?>
+            <h2><?php esc_html_e( 'Selection · minutes', 'talenttrack' ); ?></h2>
+            <table class="tt-mpp-minutes-table">
+                <thead><tr>
+                    <th><?php esc_html_e( 'Speler', 'talenttrack' ); ?></th>
+                    <th class="tt-mpp-num-col"><?php esc_html_e( 'min', 'talenttrack' ); ?> 1e</th>
+                    <th class="tt-mpp-num-col"><?php esc_html_e( 'min', 'talenttrack' ); ?> 2e</th>
+                    <th class="tt-mpp-num-col"><?php esc_html_e( 'tot', 'talenttrack' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ( $available_ids as $pid ) :
+                    if ( ! isset( $players_by_id[ $pid ] ) ) continue;
+                    $on1  = in_array( $pid, $lineup_by_half[1], true );
+                    $on2  = in_array( $pid, $lineup_by_half[2], true );
+                    $min1 = $on1 ? $half_length : 0;
+                    $min2 = $on2 ? $half_length : 0;
+                    $tot1 += $min1; $tot2 += $min2;
+                    ?>
+                    <tr>
+                        <td><?php echo esc_html( QueryHelpers::player_display_name( $players_by_id[ $pid ] ) ); ?></td>
+                        <td class="tt-mpp-num-col"><?php echo (int) $min1; ?></td>
+                        <td class="tt-mpp-num-col"><?php echo (int) $min2; ?></td>
+                        <td class="tt-mpp-num-col"><?php echo (int) ( $min1 + $min2 ); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+                <tfoot><tr>
+                    <th><?php esc_html_e( 'tot', 'talenttrack' ); ?></th>
+                    <th class="tt-mpp-num-col"><?php echo (int) $tot1; ?></th>
+                    <th class="tt-mpp-num-col"><?php echo (int) $tot2; ?></th>
+                    <th class="tt-mpp-num-col"><?php echo (int) ( $tot1 + $tot2 ); ?></th>
+                </tr></tfoot>
+            </table>
+        <?php endif; ?>
 
         <div class="tt-mpp-bottom">
             <div class="tt-mpp-bottom-col">
@@ -224,6 +271,29 @@ final class MatchPrepPrintableRenderer {
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php
+        // #1873 — Rollen & standaardsituaties: captain + set-piece takers,
+        // reusing the on-screen role definitions + labels.
+        $role_defs = FrontendMatchPrepView::roleDefinitions();
+        ?>
+        <h2><?php esc_html_e( 'Roles & set pieces', 'talenttrack' ); ?></h2>
+        <table class="tt-mpp-roles-table">
+            <tbody>
+            <?php foreach ( $role_defs as $role ) :
+                $key   = (string) $role['key'];
+                $rpid  = (int) ( $roles_by_key[ $key ] ?? 0 );
+                $rname = ( $rpid > 0 && isset( $players_by_id[ $rpid ] ) )
+                    ? QueryHelpers::player_display_name( $players_by_id[ $rpid ] )
+                    : '—';
+                ?>
+                <tr>
+                    <th><?php echo esc_html( (string) $role['label'] ); ?></th>
+                    <td><?php echo esc_html( $rname ); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
         <?php
         return (string) ob_get_clean();
     }
@@ -260,6 +330,10 @@ final class MatchPrepPrintableRenderer {
         .tt-mpp-empty { color: #5b6e75; font-style: italic; margin: 4px 0; }
         .tt-mpp-absent { margin: 4px 0 0; padding-left: 18px; }
         .tt-mpp-absent li { margin-bottom: 2px; font-size: 10pt; }
+        .tt-mpp-num-col { width: 40px; text-align: center; }
+        .tt-mpp-minutes-table tfoot th, .tt-mpp-roles-table th { background: #f3f4f6; }
+        .tt-mpp-minutes-table, .tt-mpp-roles-table { page-break-inside: avoid; }
+        .tt-mpp-roles-table th { width: 45%; }
 CSS;
     }
 

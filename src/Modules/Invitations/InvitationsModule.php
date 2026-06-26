@@ -36,6 +36,8 @@ class InvitationsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCaps' ] );
         add_action( 'init', [ InvitationAuditLogger::class, 'register' ] );
+        // #1902 — email the accept link on invite creation (via Comms).
+        InvitationEmailNotifier::register();
 
         // #0052 PR-B — REST surface so the future SaaS frontend can drive
         // invitation create / accept / revoke without going through the
@@ -45,6 +47,8 @@ class InvitationsModule implements ModuleInterface {
         // Form-post handlers — frontend posts to admin-post.php for a
         // clean redirect after the write.
         add_action( 'admin_post_tt_invitation_create',   [ Frontend\InvitationCreateHandler::class, 'handle' ] );
+        // #1770 — bulk invite every unlinked player on a team in one action.
+        add_action( 'admin_post_tt_invitation_bulk_create', [ Frontend\InvitationBulkCreateHandler::class, 'handle' ] );
         add_action( 'admin_post_tt_invitation_accept',   [ Frontend\InvitationAcceptHandler::class, 'handle' ] );
         add_action( 'admin_post_tt_invitation_revoke',   [ Frontend\InvitationRevokeHandler::class, 'handle' ] );
         add_action( 'admin_post_tt_invitation_message_save', [ Frontend\MessageSaveHandler::class, 'handle' ] );

@@ -87,11 +87,39 @@ class NavigationTileWidget extends AbstractWidget {
             : $ctx->viewUrl( $slug );
 
         $inner = '<a class="tt-pd-tile-link" href="' . esc_url( $url ) . '">'
+            . $this->badgeHtml( $tile, $ctx->user_id )
             . '<span class="tt-pd-tile-label">' . esc_html( $label ) . '</span>'
             . ( $desc !== '' ? '<span class="tt-pd-tile-desc">' . esc_html( $desc ) . '</span>' : '' )
             . '<span class="tt-pd-tile-arrow" aria-hidden="true">&rarr;</span>'
             . '</a>';
         return $this->wrap( $slot, $inner );
+    }
+
+    /**
+     * #1846 Phase 6 — generic tile badge. A tile may carry a
+     * `badge_callback` (callable(int $user_id): int) computed live per
+     * user, or a static `badge_count` int. A positive count renders as a
+     * small bubble; zero / absent renders nothing.
+     *
+     * @param array<string,mixed> $tile
+     */
+    private function badgeHtml( array $tile, int $user_id ): string {
+        $count = 0;
+        if ( isset( $tile['badge_callback'] ) && is_callable( $tile['badge_callback'] ) ) {
+            $count = (int) call_user_func( $tile['badge_callback'], $user_id );
+        } elseif ( isset( $tile['badge_count'] ) ) {
+            $count = (int) $tile['badge_count'];
+        }
+        if ( $count <= 0 ) return '';
+
+        $shown = $count > 99 ? '99+' : (string) $count;
+        $aria  = sprintf(
+            /* translators: %d: number of pending items on this tile */
+            _n( '%d pending', '%d pending', $count, 'talenttrack' ),
+            $count
+        );
+        return '<span class="tt-pd-tile-badge" aria-label="' . esc_attr( $aria ) . '">'
+            . esc_html( $shown ) . '</span>';
     }
 
     /** @return array<string,mixed>|null */

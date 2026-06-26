@@ -218,10 +218,17 @@ class EvaluationsRestController {
         // a non-zero badge over an empty list. The `canViewPlayer` gate
         // keeps this from widening access beyond players already visible.
         $player_filter_id = ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
+        // #1867 — a parent only sees a child's evaluations when the child
+        // shares that section; parentCanViewSection is a no-op for self/staff.
         $player_file_access = $player_filter_id > 0
             && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
                 get_current_user_id(),
                 $player_filter_id
+            )
+            && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection(
+                get_current_user_id(),
+                $player_filter_id,
+                'evaluations'
             );
 
         // Coach-scoping: non-global-readers see evals for players on

@@ -279,3 +279,19 @@
     outline: 2px solid var(--tt-accent, #2563eb);
     outline-offset: 2px;
 }
+
+/* #1899 — "Everyone was here" one-tap fast path above the roster. */
+.tt-att-allhere {
+    margin: 0 0 14px;
+}
+.tt-att-allhere-btn {
+    width: 100%;
+    min-height: 48px;
+    font-weight: 600;
+}
+.tt-att-allhere-hint {
+    margin: 6px 0 0;
+    font-size: 13px;
+    color: var(--tt-muted, #5b6e75);
+    text-align: center;
+}

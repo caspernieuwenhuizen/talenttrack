@@ -8,7 +8,10 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
+use TT\Modules\MatchExecution\Services\MatchEventFeedService;
+use TT\Modules\MatchExecution\Services\PitchLayoutService;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * MatchExecutionRestController (#847) — live-match REST surface.
@@ -62,10 +65,128 @@ class MatchExecutionRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+
+        // #1713 — read-only feed + pitch lineup for the live surface
+        // (vertical positional pitch + chronological "Live verloop").
+        register_rest_route( self::NS, $base . '/event-feed', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'route_event_feed' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, $base . '/pitch-lineup', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'route_pitch_lineup' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
     }
 
     public static function can_edit(): bool {
         return current_user_can( 'tt_edit_activities' );
+    }
+    // -----------------------------------------------------------------
+    // #1713 — read endpoints (vertical pitch + chronological feed)
+    // -----------------------------------------------------------------
+
+    /**
+     * GET /<activity_id>/event-feed — the merged, time-ordered list of
+     * goals + substitutions with a running score. Business logic lives
+     * in MatchEventFeedService; this controller only adapts the shape.
+     */
+    public static function route_event_feed( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        $feed = ( new MatchEventFeedService() )->feedForActivity( $activity_id );
+        return RestResponse::success( [
+            'activity_id' => $activity_id,
+            'events'      => $feed,
+        ] );
+    }
+
+    /**
+     * GET /<activity_id>/pitch-lineup — the first-half starting XI laid
+     * out by position for the vertical pitch. Requires a Match Prep
+     * (#838 hard dependency); returns an empty layout when none exists.
+     */
+    public static function route_pitch_lineup( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        $prep = ( new MatchPrepRepository() )->findByActivity( $activity_id );
+        if ( ! $prep ) {
+            return RestResponse::success( [
+                'activity_id' => $activity_id,
+                'slots'       => [],
+            ] );
+        }
+
+        $prep_repo = new MatchPrepRepository();
+        $lineup    = $prep_repo->listLineup( (int) $prep->id );
+
+        $slot_to_player = [];
+        $player_ids     = [];
+        foreach ( $lineup as $l ) {
+            if ( (int) $l->half !== 1 ) {
+                continue;
+            }
+            $slot = (int) $l->slot_number;
+            $pid  = (int) $l->player_id;
+            if ( $slot >= 1 && $slot <= 11 && $pid > 0 ) {
+                $slot_to_player[ $slot ] = $pid;
+                $player_ids[]            = $pid;
+            }
+        }
+
+        $player_meta = self::playerMeta( $player_ids );
+
+        $slots = ( new PitchLayoutService() )->positionedXi(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            $slot_to_player,
+            $player_meta
+        );
+
+        return RestResponse::success( [
+            'activity_id' => $activity_id,
+            'slots'       => $slots,
+        ] );
+    }
+
+    /**
+     * Load display name + jersey for a set of players, club-scoped.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, array{name:string, jersey:?int}>
+     */
+    private static function playerMeta( array $player_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ) ) ) );
+        if ( empty( $ids ) ) {
+            return [];
+        }
+        global $wpdb;
+        /** @var \wpdb $wpdb */
+        $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT * FROM {$wpdb->prefix}tt_players WHERE id IN ($in) AND club_id = %d",
+            array_merge( $ids, [ CurrentClub::id() ] )
+        );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $sql );
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $out[ (int) $row->id ] = [
+                'name'   => QueryHelpers::player_display_name( $row ),
+                'jersey' => $row->jersey_number !== null ? (int) $row->jersey_number : null,
+            ];
+        }
+        return $out;
     }
 
     // -----------------------------------------------------------------

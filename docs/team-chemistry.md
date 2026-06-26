@@ -120,3 +120,14 @@ Per-player fit scores are cached for 24 hours. Saving any evaluation for a playe
 ## Trust the rationale
 
 If a score doesn't match your gut, hover it. Every contribution is right there: rating × weight per category, plus the side modifier. The numbers are a tool; the coach decides.
+
+## Chemistry attributes (reworked engine)
+
+The reworked chemistry engine reads a structured set of per-player
+attributes (physical, technical, tactical, mental, behaviour, development —
+each 0–100). To enter them, open a player's profile, choose **Chemistry
+attributes** from the ⋯ menu, rate each attribute, and **Save**. Staff who
+can record evaluations can edit them. The more attributes you fill in, the
+more the engine has to work with; un-rated attributes simply don't count
+rather than scoring zero. The reworked scores stay behind a per-academy
+toggle until you switch over.

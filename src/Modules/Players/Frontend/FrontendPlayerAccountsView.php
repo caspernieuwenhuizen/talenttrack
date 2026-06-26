@@ -57,7 +57,48 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
         }
 
         self::renderFilters( $status, $search );
+        self::renderBulkInvite();
         self::renderList( $status, $search );
+    }
+
+    /**
+     * #1770 — bulk invite every unlinked player on a team in one action.
+     * Posts to admin-post.php (InvitationBulkCreateHandler) for a clean
+     * redirect + flash summary. Only shown to users who can send invites.
+     */
+    private static function renderBulkInvite(): void {
+        if ( ! current_user_can( 'tt_send_invitation' ) ) return;
+
+        global $wpdb;
+        $teams = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, name FROM {$wpdb->prefix}tt_teams
+              WHERE club_id = %d AND archived_at IS NULL
+              ORDER BY name ASC",
+            CurrentClub::id()
+        ) );
+        if ( empty( $teams ) ) return;
+
+        $self_url = add_query_arg( [ 'tt_view' => 'player-accounts' ], RecordLink::dashboardUrl() );
+        ?>
+        <form class="tt-pa-filters tt-pa-bulk" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <input type="hidden" name="action" value="tt_invitation_bulk_create" />
+            <input type="hidden" name="kind" value="player" />
+            <input type="hidden" name="_redirect" value="<?php echo esc_url( $self_url ); ?>" />
+            <?php wp_nonce_field( 'tt_invitation_bulk_create' ); ?>
+            <label class="tt-pa-filter">
+                <span class="tt-pa-filter-label"><?php esc_html_e( 'Bulk invite a team', 'talenttrack' ); ?></span>
+                <select name="team_id" class="tt-input" required>
+                    <option value="0"><?php esc_html_e( '— choose a team —', 'talenttrack' ); ?></option>
+                    <?php foreach ( $teams as $t ) : ?>
+                        <option value="<?php echo (int) $t->id; ?>"><?php echo esc_html( (string) $t->name ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <button type="submit" class="tt-btn tt-btn-secondary">
+                <?php esc_html_e( 'Generate invites', 'talenttrack' ); ?>
+            </button>
+        </form>
+        <?php
     }
 
     private static function enqueuePageAssets(): void {

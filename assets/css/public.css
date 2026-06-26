@@ -97,6 +97,13 @@
     margin: 0 0 .25rem; color: var(--tt-primary, #0b3d2e);
 }
 .tt-login-subtitle { color: var(--tt-muted); font-style: italic; margin: 0 0 1.5rem; font-size: .95rem; }
+/* #1866 — branded password reset screens reuse the login card. */
+.tt-login-help { color: var(--tt-muted); font-size: .9rem; text-align: left; margin: 0 0 1.25rem; line-height: 1.45; }
+.tt-login-error {
+    text-align: left; margin: 0 0 1rem; padding: .65rem .85rem;
+    background: #fdecea; border-left: 3px solid #c0392b; color: #a13225;
+    font-size: .9rem; border-radius: 2px;
+}
 .tt-login-form { text-align: left; }
 .tt-login-form .tt-form-row { flex-direction: column; align-items: stretch; gap: 4px; margin-bottom: .8rem; }
 .tt-login-form .tt-form-row label { flex: none; font-size: .72rem; }

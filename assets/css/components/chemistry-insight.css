@@ -1,0 +1,105 @@
+/*
+ * chemistry-insight.css (#1017 Phase 6) — the reworked-engine explainability
+ * panel on the team-chemistry board. Mobile-first.
+ */
+
+.tt-chem-insight {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin: 0 0 1.25rem;
+    background: #fff;
+}
+
+.tt-chem-insight__title {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+}
+
+.tt-chem-insight__scores {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tt-chem-insight__chip {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 4rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.6rem;
+    background: #f1f5f4;
+}
+
+.tt-chem-insight__chip-label {
+    font-size: 0.7rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.tt-chem-insight__chip-val {
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-chem-insight__list,
+.tt-chem-insight__recs {
+    margin-bottom: 0.75rem;
+}
+
+.tt-chem-insight__list h3,
+.tt-chem-insight__recs h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+.tt-chem-insight__list ul,
+.tt-chem-insight__recs ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-chem-insight__list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.4rem;
+    border-left: 3px solid #9ca3af;
+    margin-bottom: 0.25rem;
+    background: #f9fafb;
+}
+
+.tt-chem-insight__score {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-chem-insight__recs li {
+    padding: 0.2rem 0;
+    font-size: 0.9rem;
+    color: #374151;
+}
+
+.tt-chem-cat-exceptional { border-left-color: #166534; }
+.tt-chem-cat-strong      { border-left-color: #15803d; }
+.tt-chem-cat-good        { border-left-color: #65a30d; }
+.tt-chem-cat-moderate    { border-left-color: #ca8a04; }
+.tt-chem-cat-weak        { border-left-color: #ea580c; }
+.tt-chem-cat-poor        { border-left-color: #b91c1c; }
+
+@media (prefers-color-scheme: dark) {
+    .tt-chem-insight {
+        background: #1b211f;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .tt-chem-insight__chip { background: #232a27; }
+    .tt-chem-insight__list li { background: #232a27; }
+}

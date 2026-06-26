@@ -60,8 +60,11 @@ admin. An academy admin or head of development can change any value.
 Players and parents get a **My measurements** tile that opens the
 *Metingen* view: every test grouped by category, each showing its latest
 value, a green/amber/red flag against the player's age-group target, a
-small trend line, and how often it runs. A parent sees their child's view;
-staff open a player's measurements from the player's profile.
+small trend line, and how often it runs. A parent sees their child's view.
+
+Staff see the same thing **in context** on the player's profile: open a
+player and switch to the **Measurements** tab (beside Evaluations). The
+tab badge counts how many tests the player has results for.
 
 ## Recording results
 
@@ -72,3 +75,31 @@ testing session for that date. Numeric tests show a number field with the
 unit; pass/fail tests show a dropdown. A coach can only record for their
 own teams; the head of development and academy admin can record for any
 team.
+
+## Testing coverage (who's due)
+
+Staff also get a **Testing coverage** tile. Pick a team and the screen
+shows, for every test that has a recurrence, how many of the squad are
+**up to date** versus the gap — and names the players who are **overdue**,
+**due soon**, or have **never** been tested. It's player-centric: it starts
+from the roster and surfaces exactly who still needs a test this cycle, so
+you can plan a session. Tests with no recurrence (*ad hoc*) don't count
+toward coverage. A coach sees their own teams; the head of development and
+academy admin see every team. The same data is available over REST at
+`GET /wp-json/talenttrack/v1/teams/{team_id}/measurement-coverage`.
+
+## Creating a test
+
+The head of development (or an academy admin) creates tests with the
+**+ New test** wizard — reachable from the *Record measurements* screen.
+It walks through three steps:
+
+1. **Details** — the category, a name, and the value type (a number, a
+   scale score, or pass/fail).
+2. **Unit & recurrence** — the unit (from the unit list or a custom one),
+   whether higher or lower is better, and how often the test runs.
+3. **Targets** — optional per-age-group green and amber bands; a recorded
+   value flags against the band for the player's age group. You can leave
+   these blank and add them later.
+
+Finishing creates the test and its targets in one go.

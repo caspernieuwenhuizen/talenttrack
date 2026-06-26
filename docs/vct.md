@@ -63,7 +63,7 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 
 ## What's not shipped (parked)
 
-- **VCT-8 — Exercise catalogue seed**. The 80-exercise per-club starter catalogue with diagrams + coaching points × 5 locales. Content-heavy ship; gated on pilot-coach catalogue review. Tracked as a follow-up issue.
+- **VCT-8 — Exercise catalogue seed (full 80)**. A starter *scaffold* has shipped (migration 0177): a representative draft of 12 exercises — two per category across warmup / technical / sided_game / conditioning / finishing / cool_down — each with three coaching points authored in all five shipped locales (canonical English + nl_NL / fr_FR / de_DE / es_ES). The migration is idempotent and forward-only: it existence-checks `(club_id, code)` before each insert, so re-running on an already-seeded club is a no-op, and a later catalogue correction can bump `seed_revision` without trampling operator edits. Still pending: the full 80-exercise catalogue, per-exercise diagrams, and the HoD / pilot-coach methodology review of the exercise picks, intensity bands, and age ranges. Tracked on #1129.
 - **Wizard step 2 MD-context chip-bar visualization** — `PreviewStep` already surfaces the auto-resolved context as a header chip; the colour-band palette ships in a follow-up if pilot reports needing it.
 - **Bottom-sheet exercise picker** on the wizard's block-builder step — coach override per slot is a substantial step 3 UI rebuild.
 - **A4/A6 print mockup-fidelity polish** on the coach view — `FrontendVctSessionPrintView` exists and prints the session; mockup polish ships in a follow-up.

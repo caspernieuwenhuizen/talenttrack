@@ -70,13 +70,23 @@ final class PlayerFileCounts {
             ) );
         }
 
+        // #1892 — measurements badge. Distinct tests this player has a
+        // non-archived result for, club-scoped, so the badge agrees with
+        // the Measurements tab's per-test rows.
+        $measurements = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(DISTINCT definition_id) FROM {$p}tt_measurement_results
+              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+
         return [
-            'goals'       => $goals,
-            'evaluations' => $evaluations,
-            'activities'  => $activities,
-            'pdp'         => $pdp,
-            'trials'      => $trials,
-            'notes'       => $notes,
+            'goals'        => $goals,
+            'evaluations'  => $evaluations,
+            'activities'   => $activities,
+            'pdp'          => $pdp,
+            'trials'       => $trials,
+            'notes'        => $notes,
+            'measurements' => $measurements,
         ];
     }
 }

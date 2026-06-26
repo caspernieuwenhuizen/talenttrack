@@ -24,6 +24,10 @@ The plugin generates an invitation **automatically** when a person joins a team:
 
 The popover shows the acceptance URL, a live preview of the message text, and three share buttons: **WhatsApp** (default — opens `wa.me/?text=...`), **Email** (opt-in — opens the recipient's mail client), **Copy link**.
 
+## Automatic email (#1902)
+
+When an invitation is created **with an email address**, the accept link is also **emailed to the invitee automatically** — the admin no longer has to hand-carry every link. The email goes out through the Comms module (so it's audit-logged like any other message) in the invitee's locale, with a "set your password" call to action and the link's expiry. It's transactional: it bypasses opt-out / quiet-hours / rate-limits, so an invitee is never withheld their invite. The WhatsApp / copy-link share buttons still work for cases without an email or where the admin prefers to share by hand.
+
 ## Acceptance flow
 
 The recipient taps the link → lands on the dashboard's accept-invite route → sees a tiny form with three sections:
@@ -35,7 +39,7 @@ The recipient taps the link → lands on the dashboard's accept-invite route →
    - Staff → confirmation of role + team (set by the inviter; not editable here).
 3. **Submit** — the plugin creates the WP user, runs the linking step, signs them in, redirects to their dashboard.
 
-If the recipient is **already signed in and their email matches** the invitation, the silent-link path runs: no form, just a one-click "Accept and continue" button.
+If the recipient is **already signed in and their email matches** the invitation, the silent-link path runs: no full form, just a one-click "Accept and continue" button. For a **parent** invitation it still asks for the relationship (parent / mother / father / guardian) so a carer is never linked with an assumed role. On the full accept form, the recovery email is pre-filled from the invitation with a short note explaining it's only used for password recovery (and can be changed).
 
 ## Capabilities
 

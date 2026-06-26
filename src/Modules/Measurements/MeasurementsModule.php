@@ -7,7 +7,9 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\MeasurementsRestController;
+use TT\Modules\Measurements\Wizards\NewMeasurementWizard;
 use TT\Shared\Tiles\TileRegistry;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * MeasurementsModule (#1856, epic #1854).
@@ -31,6 +33,12 @@ class MeasurementsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         MeasurementsRestController::init();
+
+        if ( class_exists( WizardRegistry::class ) ) {
+            // §3 wizard-first: creating a test definition runs through the
+            // "+ New test" wizard.
+            WizardRegistry::register( new NewMeasurementWizard() );
+        }
 
         if ( class_exists( TileRegistry::class ) ) {
             // The player/parent "Mijn metingen" tile. Gated on the
@@ -72,6 +80,24 @@ class MeasurementsModule implements ModuleInterface {
                 'order'             => 46,
                 'label'             => __( 'Record measurements', 'talenttrack' ),
                 'description'       => __( 'Enter test results for a team.', 'talenttrack' ),
+                'icon'              => 'activity',
+                'color'             => '#0e7c66',
+                'hide_for_personas' => [ 'player', 'parent' ],
+                'cap_callback'      => static function ( int $uid ): bool {
+                    return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
+                },
+            ] );
+
+            // #1882 — staff insights: due/overdue testing coverage per team.
+            TileRegistry::register( [
+                'module_class'      => self::class,
+                'view_slug'         => 'measurements-coverage',
+                'entity'            => 'measurements',
+                'group'             => __( 'Performance', 'talenttrack' ),
+                'kind'              => 'work',
+                'order'             => 47,
+                'label'             => __( 'Testing coverage', 'talenttrack' ),
+                'description'       => __( 'See who is due or overdue for each test.', 'talenttrack' ),
                 'icon'              => 'activity',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [ 'player', 'parent' ],

@@ -155,6 +155,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( MatrixGate::canAnyScope( $user_id, 'evaluations', MatrixGate::READ ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
+        // #1892 — measurements in context, beside evaluations (dev-data).
+        if ( MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ ) ) {
+            $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
+        }
         $tabs['activities'] = __( 'Activities', 'talenttrack' );
         if ( MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ ) ) {
             $tabs['pdp'] = __( 'PDP cycle', 'talenttrack' );
@@ -271,6 +275,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     switch ( $active_tab ) {
                         case 'goals':       self::renderGoalsTab( $player_id ); break;
                         case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
+                        case 'measurements': self::renderMeasurementsTab( $player_id ); break;
                         case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
@@ -408,6 +413,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php if ( empty( $player->team_id ) ) : ?>
                             <a class="tt-player-action" href="<?php echo esc_url( $assign_url ); ?>" role="menuitem">
                                 <?php esc_html_e( 'Assign to team', 'talenttrack' ); ?>
+                            </a>
+                        <?php endif; ?>
+                        <?php
+                        // #1017 Phase 7 — chemistry-attribute entry for staff
+                        // who can rate players.
+                        if ( current_user_can( 'tt_edit_evaluations' ) ) :
+                            $attr_url = add_query_arg(
+                                [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
+                                RecordLink::dashboardUrl()
+                            );
+                            ?>
+                            <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
+                                <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
                             </a>
                         <?php endif; ?>
                         <button type="button"
@@ -1157,6 +1175,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // v3.110.148 — inline row-level archive/delete intentionally
         // not re-added: destructive actions live on the evaluation
         // detail page.
+    }
+
+    /**
+     * Measurements tab (#1892) — the player's tests, flags, and trends in
+     * context. Delegates to the shared FrontendMeasurementsView body so it
+     * renders identically to the standalone Metingen view (no duplicated
+     * grouping / flag logic). Defense-in-depth gate mirrors evaluations:
+     * tabs() hides this for users without `measurements:read`, but a
+     * direct `?tab=measurements` URL still routes here.
+     */
+    private static function renderMeasurementsTab( int $player_id ): void {
+        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::renderBody( $player_id );
     }
 
     /** Activities tab — recent attended + planned activities for the player. */

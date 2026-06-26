@@ -1,0 +1,72 @@
+/*
+ * chemistry-config.css (#1017 Phase 5) — the chemistry engine settings
+ * form (component weights + position matrix + v2 toggle). Mobile-first.
+ */
+
+.tt-chem-cfg-block {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0 0 1rem;
+    background: #fff;
+}
+
+.tt-chem-cfg-block > legend {
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0 0.4rem;
+}
+
+.tt-chem-cfg-hint {
+    margin: 0.25rem 0 0.75rem;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.tt-chem-cfg-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+}
+
+.tt-chem-cfg-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tt-chem-cfg-block .tt-chem-cfg-row:last-child {
+    border-bottom: 0;
+}
+
+.tt-chem-cfg-num {
+    width: 5rem;
+    min-height: 44px;
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.tt-chem-cfg-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.tt-chem-cfg-footer .tt-btn {
+    min-height: 48px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .tt-chem-cfg-block {
+        background: #1b211f;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .tt-chem-cfg-row {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+}

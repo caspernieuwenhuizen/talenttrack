@@ -124,6 +124,10 @@ There is one documented exception: `AudienceResolver` legitimately needs to know
 
 Player records reference `wp_user_id` directly today. The future SaaS auth model will substitute a portable identity (UUID, JWT subject, …) and `wp_user_id` becomes one of several mappings. The resolver isn't built yet; documented here so the intent isn't lost.
 
+## Player-controlled parent visibility (#1867)
+
+A player can hide individual development sections (evaluations, goals, journey, measurements, PDP) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. Both the rendered views and the section REST reads consult the gate.
+
 ## Operator-facing security and privacy guides
 
 Two cap-and-matrix-adjacent operator guides shipped in v3.97.2 (#0086 Workstream A):

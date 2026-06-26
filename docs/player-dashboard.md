@@ -23,7 +23,7 @@ The **My check-ins** tile is where your weekly self-evaluation and any other tas
 ## Your tiles
 
 ### My development
-Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view. The seven deep-view tiles below (My card, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement.
+Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view. The seven deep-view tiles below (My card, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement. The first time you open it, a short **welcome** card greets you (a parent sees a version for their child); tap **Got it** to dismiss it for good.
 
 Parents who open their child's dashboard land on **&lt;Child&gt;'s development** — the same home, read-only and scoped to their own child.
 
@@ -66,6 +66,10 @@ Click your name in the top-right corner of the dashboard to open the user menu. 
 - Change password (with current-password confirmation)
 
 Application passwords, admin colour palettes and other WordPress-internal toggles stay in wp-admin where they belong; ignore them unless you're managing your own developer integrations.
+
+### What your parent can see
+
+If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Development plan**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
 
 ## Reports
 

@@ -25,6 +25,8 @@ Click an activity to select it, then **Continue**. Or click **→ Rate a player 
 
 Skipped silently when attendance is already recorded for the activity. If shown: tick each player's status (present / late / absent / excused). Default is **present**. The step writes real attendance rows, so the activity itself reflects them afterwards.
 
+For the common "everyone was here" case there's a one-tap shortcut at the top — **Everyone was here - continue** marks the whole roster present and moves straight on to rating in a single tap. Mark any absences on the cards below first if you need to, then use it (or the normal **Next**).
+
 Only **present** + **late** players flow into the rating step. Absent and excused players are recorded for reports but skipped from rating.
 
 ### Step 3 · Rate players
@@ -34,6 +36,8 @@ For each present/late player, you get a row per **quick-rate** category (Technic
 Each player has a **Skip** checkbox if you genuinely don't want to evaluate them this round — skipping writes no evaluation row, but the player still shows up in attendance.
 
 Add per-player notes inline. The deep-rate panel for a single player is a follow-up — for v1, the quick-rate row + the notes textarea are the surface.
+
+**Finding a player on a big roster:** above the list, a **search box** filters the players by name as you type, and an **Only not-yet-rated** toggle hides everyone you've already rated or skipped so you can see who's left at a glance. The toggle works off the same live per-player status as the *"N of M players rated"* progress line, so a player drops out of the not-yet-rated view the moment you rate them. Both are instant, on-device filters — they never change what gets submitted.
 
 **Training default:** when the activity is a training session, the **Mental** category is surfaced first and pre-expanded (its detailed sub-categories shown). This is a presentation default only — you can still rate every other category and you are never required to enter a Mental rating to submit.
 

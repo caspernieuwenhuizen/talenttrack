@@ -474,3 +474,25 @@
 .tt-dashboard .tt-pdp-selfreview--done { color: #2c8a2c; }
 .tt-dashboard .tt-pdp-selfreview--pending { color: #c9962a; }
 .tt-dashboard .tt-pdp-selfreview--none { color: var(--tt-muted, #5b6e75); }
+
+/* #1853 — goal ↔ conversation link ("the combine"). Coach multi-select
+   on the conversation form + the read list on My PDP. */
+.tt-dashboard .tt-pdp-goal-links__list {
+    list-style: none;
+    margin: 0.3rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.tt-dashboard .tt-pdp-goal-links__list .tt-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+}
+.tt-dashboard .tt-pop-goal-discussed {
+    margin: 0.25rem 0 0;
+    padding-left: 1.1rem;
+}
+.tt-dashboard .tt-pop-goal-discussed li { margin: 0.1rem 0; }

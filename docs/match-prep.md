@@ -118,11 +118,13 @@ If a save fails, retry the edit; the network may have hiccuped.
 ## Print to paper (or PDF)
 
 The **Print / export PDF** button in the toolbar opens a clean print
-page in a new tab. That page shows only the lineup + per-player
-attention + tactical goals — no dashboard chrome (brand banner, DEMO
-strip, user menu, breadcrumbs, back-pill, toolbar). The slot numbers,
-player names, the `!` icon (red) and the camera icon (green) all keep
-their colours.
+page in a new tab. That page mirrors everything below the toolbar on the
+match-prep screen — both formation pitches, the **Selection · minutes**
+table (per-half minutes + totals), the benches, the **Wedstrijddoelen**,
+**Doen per speler**, and the **Roles & set pieces** — with no dashboard
+chrome (brand banner, DEMO strip, user menu, breadcrumbs, back-pill,
+toolbar) and no summary tiles. The slot numbers, player names, the `!`
+icon (red) and the camera icon (green) all keep their colours.
 
 On that page you have two ways to get a file:
 

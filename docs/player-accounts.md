@@ -31,6 +31,14 @@ Filter by status, or search by player name, with the controls above the list.
   Linking also grants that account the player role.
 - **Invite instead.** Use **Generate invite / Share invite** on the same
   row to send the player (or their guardian) a self-service sign-up link.
+- **Create a new account directly.** On the **Parent accounts** view, the
+  *Create a new parent account* panel provisions a brand-new account
+  (name + email), links it to the chosen player, and emails the person a
+  **"set your password"** link — you never see or set a password. For the
+  rare case where there's no usable email, tick *No usable email* to set a
+  temporary password instead (share it securely). Every direct-create is
+  audit-logged. Inviting remains the low-friction default; direct-create is
+  the admin-convenience path.
 - **Unlink.** On a *Linked* row, press **Unlink** and confirm. The player
   record stays; only the connection is removed. The player role is removed
   from the account **only** if that account isn't also linked to another
@@ -43,6 +51,16 @@ A login is connected to **at most one** player. The system enforces this so
 a parent, player, or coach opening "their" record can never land on the
 wrong child's data. If you try to link an account that's already in use,
 the view tells you so rather than silently moving the link.
+
+## Bulk invite a team
+
+Above the list, **Bulk invite a team** generates a player invitation for
+every player on a chosen team who doesn't already have an account or a
+pending invite. Pick the team and click **Generate invites** — you get a
+summary of how many new invites were created and how many players already
+had one. The daily invite limit still applies; if a big team hits it, the
+summary tells you how many went out so you can invite the rest the next
+day (or raise the cap).
 
 ## Who can use it
 

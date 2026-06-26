@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView;
 use TT\Modules\TeamDevelopment\Frontend\PlayerTeamFitPanel;
+use TT\Modules\TeamDevelopment\Rest\PlayerAttributesRestController;
 use TT\Modules\TeamDevelopment\Rest\TeamDevelopmentRestController;
 
 /**
@@ -36,7 +37,28 @@ class TeamDevelopmentModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
         TeamDevelopmentRestController::init();
+        // #1912 — chemistry rework Phase 1: player-attribute model + the
+        // position-matrix / component-weights config contract.
+        PlayerAttributesRestController::init();
         PlayerTeamFitPanel::init();
+
+        // #1017 Phase 5 — chemistry engine settings (weights + matrix + v2
+        // toggle). A setup surface for HoD / academy admin.
+        if ( class_exists( \TT\Shared\Tiles\TileRegistry::class ) ) {
+            \TT\Shared\Tiles\TileRegistry::register( [
+                'module_class' => self::class,
+                'view_slug'    => 'chemistry-config',
+                'entity'       => 'team_chemistry',
+                'group'        => __( 'Configuration', 'talenttrack' ),
+                'kind'         => 'setup',
+                'order'        => 60,
+                'label'        => __( 'Chemistry settings', 'talenttrack' ),
+                'description'  => __( 'Component weights, position matrix, and the reworked-engine toggle.', 'talenttrack' ),
+                'icon'         => 'sliders',
+                'color'        => '#0e7c66',
+                'cap'          => 'tt_manage_team_chemistry',
+            ] );
+        }
 
         // Sprint 2 — invalidate per-player fit cache whenever an
         // evaluation save crosses the boundary. The eval REST + admin

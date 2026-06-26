@@ -6,6 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
+use TT\Modules\TeamDevelopment\Chemistry\ChemistryExplainer;
+use TT\Modules\TeamDevelopment\Chemistry\LineupChemistryAggregator;
+use TT\Modules\TeamDevelopment\Chemistry\TeamChemistryAggregator;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -199,6 +202,11 @@ class FrontendTeamChemistryView extends FrontendViewBase {
 
         // Toolbar: formation / style summary / mode toggle / save-as-blueprint.
         self::renderToolbar( (int) $team->id, $template_id, (string) ( $template->name ?? '' ), $poss, $cntr, $prss, $can_manage, $loaded_blueprint );
+
+        // #1017 Phase 6 — reworked-engine insight panel (behind the
+        // chemistry_engine_v2 toggle): lineup / unit scores + strongest /
+        // weakest relationships + recommendations.
+        self::renderChemistryInsight( (int) $team->id, $slots, (array) ( $chem['suggested_xi'] ?? [] ) );
 
         // #1325 — loaded-blueprint banner: shows what's loaded + clear link.
         if ( $loaded_blueprint !== null ) {
@@ -938,5 +946,152 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             </a>
         </div>
         <?php
+    }
+
+    /**
+     * #1017 Phase 6 — the reworked-engine explainability panel. Only when
+     * the `chemistry_engine_v2` toggle is on; computes the lineup aggregate
+     * for the suggested XI and renders scores + strongest/weakest
+     * partnerships + recommendations. Degrades silently on any error.
+     *
+     * @param list<array<string,mixed>>          $slots
+     * @param array<string, array<string,mixed>> $suggested slot → entry
+     */
+    private static function renderChemistryInsight( int $team_id, array $slots, array $suggested ): void {
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) return;
+        if ( ! ( new \TT\Infrastructure\Config\ConfigService() )->getBool( 'chemistry_engine_v2', false ) ) return;
+
+        wp_enqueue_style(
+            'tt-chemistry-insight',
+            TT_PLUGIN_URL . 'assets/css/components/chemistry-insight.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+
+        $lineup = [];
+        foreach ( $suggested as $label => $entry ) {
+            $pid = is_array( $entry ) ? (int) ( $entry['player_id'] ?? 0 ) : 0;
+            $lineup[ (string) $label ] = $pid > 0 ? $pid : null;
+        }
+
+        try {
+            $result = ( new LineupChemistryAggregator() )->aggregate( $team_id, $slots, $lineup );
+        } catch ( \Throwable $e ) {
+            return;
+        }
+        if ( ( $result['lineup_score'] ?? null ) === null ) {
+            echo '<section class="tt-chem-insight"><p class="tt-notice">'
+                . esc_html__( 'Not enough chemistry-attribute data yet — rate more players to see the reworked insight.', 'talenttrack' )
+                . '</p></section>';
+            return;
+        }
+
+        $explain    = ( new ChemistryExplainer() )->explain( $result );
+        $team_score = ( new TeamChemistryAggregator() )->teamChemistry( $team_id );
+
+        $ids = [];
+        foreach ( array_merge( $explain['strongest'], $explain['weakest'], $explain['recommendations'] ) as $p ) {
+            $ids[ (int) $p['a_player_id'] ] = true;
+            $ids[ (int) $p['b_player_id'] ] = true;
+        }
+        $names = self::resolveNames( array_keys( $ids ) );
+
+        echo '<section class="tt-chem-insight">';
+        echo '<h2 class="tt-chem-insight__title">' . esc_html__( 'Chemistry insight (reworked engine)', 'talenttrack' ) . '</h2>';
+
+        echo '<div class="tt-chem-insight__scores">';
+        self::scoreChip( __( 'Lineup', 'talenttrack' ), $result['lineup_score'] );
+        $unit = $result['unit_scores'] ?? [];
+        foreach ( [ 'gk' => __( 'Goalkeeper', 'talenttrack' ), 'def' => __( 'Defence', 'talenttrack' ), 'mid' => __( 'Midfield', 'talenttrack' ), 'att' => __( 'Attack', 'talenttrack' ) ] as $g => $glabel ) {
+            if ( ( $unit[ $g ] ?? null ) !== null ) self::scoreChip( $glabel, $unit[ $g ] );
+        }
+        if ( $team_score !== null ) self::scoreChip( __( 'Team (recent)', 'talenttrack' ), $team_score );
+        echo '</div>';
+
+        self::renderPairList( __( 'Strongest partnerships', 'talenttrack' ), $explain['strongest'], $names );
+        self::renderPairList( __( 'Weakest partnerships', 'talenttrack' ), $explain['weakest'], $names );
+
+        if ( ! empty( $explain['recommendations'] ) ) {
+            echo '<div class="tt-chem-insight__recs"><h3>' . esc_html__( 'Recommendations', 'talenttrack' ) . '</h3><ul>';
+            foreach ( $explain['recommendations'] as $rec ) {
+                echo '<li>' . esc_html( self::recommendationText( $rec, $names ) ) . '</li>';
+            }
+            echo '</ul></div>';
+        }
+
+        echo '</section>';
+    }
+
+    private static function scoreChip( string $label, ?int $score ): void {
+        echo '<span class="tt-chem-insight__chip"><span class="tt-chem-insight__chip-label">'
+            . esc_html( $label ) . '</span><span class="tt-chem-insight__chip-val">'
+            . ( $score === null ? '—' : (int) $score ) . '</span></span>';
+    }
+
+    /**
+     * @param list<array<string,mixed>> $pairs
+     * @param array<int,string>         $names
+     */
+    private static function renderPairList( string $title, array $pairs, array $names ): void {
+        if ( empty( $pairs ) ) return;
+        echo '<div class="tt-chem-insight__list"><h3>' . esc_html( $title ) . '</h3><ul>';
+        foreach ( $pairs as $p ) {
+            $a = $names[ (int) $p['a_player_id'] ] ?? ( '#' . (int) $p['a_player_id'] );
+            $b = $names[ (int) $p['b_player_id'] ] ?? ( '#' . (int) $p['b_player_id'] );
+            echo '<li class="tt-chem-cat-' . esc_attr( (string) $p['category'] ) . '">'
+                . esc_html( $a . ' & ' . $b ) . ' <span class="tt-chem-insight__score">' . (int) round( (float) $p['score'] ) . '</span></li>';
+        }
+        echo '</ul></div>';
+    }
+
+    /**
+     * @param array<string,mixed> $rec
+     * @param array<int,string>   $names
+     */
+    private static function recommendationText( array $rec, array $names ): string {
+        $a = $names[ (int) $rec['a_player_id'] ] ?? ( '#' . (int) $rec['a_player_id'] );
+        $b = $names[ (int) $rec['b_player_id'] ] ?? ( '#' . (int) $rec['b_player_id'] );
+        if ( ! empty( $rec['needs_data'] ) ) {
+            return sprintf(
+                /* translators: 1,2: player names */
+                __( 'Rate %1$s & %2$s — not enough data to score their partnership.', 'talenttrack' ),
+                $a, $b
+            );
+        }
+        $component = self::componentLabel( (string) ( $rec['weakest_component'] ?? '' ) );
+        return sprintf(
+            /* translators: 1: component, 2,3: player names */
+            __( 'Improve the %1$s between %2$s and %3$s.', 'talenttrack' ),
+            $component, $a, $b
+        );
+    }
+
+    private static function componentLabel( string $key ): string {
+        switch ( $key ) {
+            case 'compatibility': return __( 'compatibility', 'talenttrack' );
+            case 'familiarity':   return __( 'familiarity', 'talenttrack' );
+            case 'development':   return __( 'development fit', 'talenttrack' );
+            case 'behaviour':     return __( 'behaviour fit', 'talenttrack' );
+            case 'performance':   return __( 'shared performance', 'talenttrack' );
+            default:              return __( 'chemistry', 'talenttrack' );
+        }
+    }
+
+    /**
+     * @param list<int> $ids
+     * @return array<int,string>
+     */
+    private static function resolveNames( array $ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ), static fn( $i ) => $i > 0 ) ) );
+        if ( empty( $ids ) ) return [];
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $in  = implode( ',', $ids );
+        $rows = $wpdb->get_results( "SELECT id, first_name, last_name FROM {$p}tt_players WHERE id IN ($in)" );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) $r->id ] = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
+        }
+        return $out;
     }
 }

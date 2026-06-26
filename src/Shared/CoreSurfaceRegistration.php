@@ -357,16 +357,15 @@ final class CoreSurfaceRegistration {
             'icon'         => 'inbox',
             'color'        => '#5b6e75',
             'cap'          => 'tt_view_own_tasks',
-            'label_callback' => static function ( int $user_id ): string {
+            // #1846 Phase 6 — the open-task count renders as a tile badge
+            // bubble (NavigationTileWidget) instead of a "(%d)" suffix on
+            // the label, so the label stays clean and the count reads at a
+            // glance. color_callback keeps the red accent when pending.
+            'badge_callback' => static function ( int $user_id ): int {
                 if ( ! class_exists( '\\TT\\Modules\\Workflow\\Frontend\\FrontendMyTasksView' ) ) {
-                    return __( 'My tasks', 'talenttrack' );
+                    return 0;
                 }
-                $count = \TT\Modules\Workflow\Frontend\FrontendMyTasksView::openCountForUser( $user_id );
-                if ( $count > 0 ) {
-                    /* translators: %d: number of open tasks */
-                    return sprintf( __( 'My tasks (%d)', 'talenttrack' ), $count );
-                }
-                return __( 'My tasks', 'talenttrack' );
+                return \TT\Modules\Workflow\Frontend\FrontendMyTasksView::openCountForUser( $user_id );
             },
             'color_callback' => static function ( int $user_id ): string {
                 if ( ! class_exists( '\\TT\\Modules\\Workflow\\Frontend\\FrontendMyTasksView' ) ) {
@@ -552,6 +551,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'kanban',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_plan',
+            // #1538 — gated by the planning_calendar_view feature (default on);
+            // the route itself is gated via the feature's view_slugs.
+            'feature'      => 'planning_calendar_view',
         ]);
         // #1373 — the VCT session designer was reachable only by typing
         // the URL. The coach entry point is the new-vct-session wizard

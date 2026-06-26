@@ -65,8 +65,11 @@ Spelers en ouders krijgen een tegel **Mijn metingen** die de
 *Metingen*-weergave opent: elke test gegroepeerd per categorie, met de
 laatste waarde, een groen/oranje/rood vlaggetje ten opzichte van de
 streefwaarde voor de leeftijdsgroep, een kleine trendlijn en de
-frequentie. Een ouder ziet de weergave van het kind; staf opent de
-metingen van een speler vanuit het spelersprofiel.
+frequentie. Een ouder ziet de weergave van het kind.
+
+Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
+en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
+het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
 ## Resultaten vastleggen
 
@@ -77,3 +80,33 @@ overgeslagen) en gekoppeld aan een testsessie voor die datum. Numerieke
 tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
 keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
 hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.
+
+## Testdekking (wie is aan de beurt)
+
+Staf krijgt ook een tegel **Testdekking**. Kies een team en het scherm
+toont, voor elke test met een herhaling, hoeveel van de selectie
+**up-to-date** is versus het tekort - en noemt de spelers die **te laat**,
+**binnenkort aan de beurt** of **nooit** getest zijn. Het is spelergericht:
+het begint bij de selectie en laat precies zien wie deze cyclus nog een test
+nodig heeft, zodat je een sessie kunt plannen. Tests zonder herhaling
+(*ad hoc*) tellen niet mee voor de dekking. Een coach ziet de eigen teams;
+het hoofd opleiding en de academiebeheerder zien elk team. Dezelfde gegevens
+zijn beschikbaar via REST op
+`GET /wp-json/talenttrack/v1/teams/{team_id}/measurement-coverage`.
+
+## Een test aanmaken
+
+Het hoofd opleiding (of een academiebeheerder) maakt tests aan met de
+wizard **Nieuwe test** — bereikbaar vanaf het scherm *Metingen
+vastleggen*. De wizard kent drie stappen:
+
+1. **Gegevens** — de categorie, een naam en het type waarde (een getal,
+   een schaalscore of geslaagd/niet).
+2. **Eenheid & frequentie** — de eenheid (uit de lijst of een eigen
+   eenheid), of hoger of lager beter is, en hoe vaak de test plaatsvindt.
+3. **Streefwaarden** — optionele groene en oranje banden per
+   leeftijdsgroep; een geregistreerde waarde krijgt een vlaggetje ten
+   opzichte van de band voor de leeftijdsgroep van de speler. Je kunt deze
+   leeg laten en later toevoegen.
+
+Bij voltooien worden de test en de streefwaarden in één keer aangemaakt.

@@ -82,6 +82,10 @@ Een doel kan nu gekoppeld worden aan Ã©Ã©n of meer methodische entiteiten:
 
 De koppelingen verschijnen op het spelerprofiel en in de printsjabloon; ze maken queries mogelijk als "alle doelen gekoppeld aan *veerkracht* in de academie" of "elke speler die werkt aan *opbouwen vanaf achteren*".
 
+### Doelen en ontwikkelgesprekken (de "combinatie", #1853)
+
+Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksformulier vinkt de coach onder **Doelen besproken in dit gesprek** de actieve doelen van de speler aan die zijn behandeld; die koppelingen worden bij het gesprek opgeslagen. Op *Mijn POP* toont elke gesprekskaart vervolgens een lijst **Besproken doelen**, zodat de zelfreflectie van de speler ingaat op de doelen die echt aan bod kwamen - POP en doelen worden zo echt gecombineerd in plaats van naast elkaar te staan. (Een afgesproken actie omzetten in een gloednieuw doel is een geplande vervolgstap; deze stap is het lees-/koppelweefsel.)
+
 ## Printen
 
 De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekeningÂ­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met recente evaluaties en activiteiten.

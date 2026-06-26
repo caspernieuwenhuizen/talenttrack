@@ -143,6 +143,28 @@ class DashboardShortcode {
             return (string) ob_get_clean();
         }
 
+        // #1866 — branded password reset flow renders before the login
+        // guard: a logged-out visitor resetting their password must reach
+        // these screens. The secure key mechanics live in
+        // PasswordResetHandler; these views own the chrome only.
+        if ( $tt_view_param === 'lost-password' ) {
+            return \TT\Modules\Auth\PasswordResetView::renderRequest();
+        }
+        if ( $tt_view_param === 'reset-password' ) {
+            $rp_key   = isset( $_GET['key'] )   ? trim( (string) wp_unslash( $_GET['key'] ) )   : '';
+            $rp_login = isset( $_GET['login'] ) ? trim( (string) wp_unslash( $_GET['login'] ) ) : '';
+            $rp_error = isset( $_GET['rp_error'] ) ? sanitize_key( (string) $_GET['rp_error'] ) : '';
+            $rp_msg   = '';
+            if ( $rp_error === 'mismatch' ) {
+                $rp_msg = __( 'The two passwords did not match. Please try again.', 'talenttrack' );
+            } elseif ( $rp_error === 'weak' ) {
+                $rp_msg = __( 'Please choose a password of at least 8 characters.', 'talenttrack' );
+            } elseif ( $rp_error === 'empty' ) {
+                $rp_msg = __( 'Please fill in both password fields.', 'talenttrack' );
+            }
+            return \TT\Modules\Auth\PasswordResetView::renderReset( $rp_key, $rp_login, $rp_msg );
+        }
+
         // Route guard — no partial render for logged-out users.
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
@@ -152,7 +174,12 @@ class DashboardShortcode {
             $reset_notice = '';
             if ( isset( $_GET['checkemail'] ) && $_GET['checkemail'] === 'confirm' ) {
                 $reset_notice = '<div class="tt-notice-inline">'
-                    . esc_html__( 'Check your email for a password reset link.', 'talenttrack' )
+                    . esc_html__( 'If that account exists, we\'ve sent a password reset link to its email.', 'talenttrack' )
+                    . '</div>';
+            } elseif ( isset( $_GET['password'] ) && $_GET['password'] === 'reset' ) {
+                // #1866 — landed back here after setting a new password.
+                $reset_notice = '<div class="tt-notice-inline">'
+                    . esc_html__( 'Your password has been updated. You can sign in now.', 'talenttrack' )
                     . '</div>';
             }
             return $reset_notice . $form->render( $error );
@@ -370,6 +397,20 @@ class DashboardShortcode {
         // viewer's own player record. `teammate` keeps `$player` (the viewer's
         // own) because it reads player_id as the teammate id, not the subject.
         $target = self::resolveMePlayer( get_current_user_id(), $player );
+
+        // #1867 — a player can hide development sections from a linked
+        // parent. The gate only ever restricts a parent (self + staff
+        // pass through); when a section is hidden, show the dignified
+        // "kept private" state instead of the section.
+        if ( $target !== null ) {
+            $section = self::meViewSection( $view );
+            if ( $section !== ''
+                && ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( get_current_user_id(), (int) $target->id, $section ) ) {
+                \TT\Shared\Frontend\Components\FrontendPrivateSection::render( self::meViewSectionLabel( $view ) );
+                return true;
+            }
+        }
+
         switch ( $view ) {
             case 'my-development':
                 // #1850 — the player + parent development home. Same scoped
@@ -454,6 +495,34 @@ class DashboardShortcode {
      * `FrontendMy*` views the player sees (the views already detect
      * is_self / is_parent). Scope is the #1725 gate — own children only.
      */
+    /**
+     * #1867 — map a Me-view slug to the visibility section it belongs to
+     * (empty string = not a gateable section). Card / team / settings /
+     * the development home are always visible.
+     */
+    private static function meViewSection( string $view ): string {
+        switch ( $view ) {
+            case 'my-evaluations': return 'evaluations';
+            case 'my-goals':       return 'goals';
+            case 'my-journey':     return 'journey';
+            case 'my-pdp':         return 'pdp';
+            case 'measurements':   return 'measurements';
+            default:               return '';
+        }
+    }
+
+    /** Section label for the "kept private" breadcrumb. */
+    private static function meViewSectionLabel( string $view ): string {
+        switch ( $view ) {
+            case 'my-evaluations': return __( 'Evaluations', 'talenttrack' );
+            case 'my-goals':       return __( 'Goals', 'talenttrack' );
+            case 'my-journey':     return __( 'Journey', 'talenttrack' );
+            case 'my-pdp':         return __( 'Development plan', 'talenttrack' );
+            case 'measurements':   return __( 'Measurements', 'talenttrack' );
+            default:               return __( 'Section', 'talenttrack' );
+        }
+    }
+
     private static function resolveMePlayer( int $user_id, ?object $own ): ?object {
         $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         if ( $pid > 0
@@ -652,6 +721,11 @@ class DashboardShortcode {
             case 'team-behaviour-capture':
                 FrontendTeamBehaviourCaptureView::render( $user_id, $is_admin );
                 return true;
+            // #1017 Phase 7 — populate a player's chemistry attributes.
+            // Gated (canEvaluatePlayer) inside the view.
+            case 'player-attributes':
+                \TT\Modules\TeamDevelopment\Frontend\FrontendPlayerAttributesView::render( $user_id, $is_admin );
+                return true;
             case 'functional-roles':
                 FrontendFunctionalRolesView::render( $user_id, $is_admin );
                 return true;
@@ -662,6 +736,9 @@ class DashboardShortcode {
             // gated on `measurements` change inside the view.
             case 'measurements-entry':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementEntryView::render( $user_id, $is_admin );
+                return true;
+            case 'measurements-coverage':
+                \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
@@ -798,6 +875,11 @@ class DashboardShortcode {
         switch ( $view ) {
             case 'configuration':
                 FrontendConfigurationView::render( $user_id, $is_admin );
+                return true;
+            // #1017 Phase 5 — chemistry engine settings (component weights +
+            // position matrix + v2 toggle). Gated inside the view.
+            case 'chemistry-config':
+                \TT\Modules\TeamDevelopment\Frontend\FrontendChemistryConfigView::render( $user_id, $is_admin );
                 return true;
             case 'holidays':
                 // #1480 — academy-wide holiday management.

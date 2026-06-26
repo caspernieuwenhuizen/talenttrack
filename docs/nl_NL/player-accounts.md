@@ -37,6 +37,15 @@ de lijst.
 - **In plaats daarvan uitnodigen.** Gebruik **Uitnodiging genereren /
   Uitnodiging delen** op dezelfde rij om de speler (of zijn ouder) een
   zelfaanmeldlink te sturen.
+- **Direct een nieuw account aanmaken.** Op de weergave **Ouderaccounts**
+  maakt het paneel *Een nieuw ouderaccount aanmaken* een gloednieuw account
+  aan (naam + e-mail), koppelt het aan de gekozen speler en mailt de persoon
+  een link om een **wachtwoord in te stellen** - jij ziet of stelt nooit een
+  wachtwoord in. Voor het zeldzame geval zonder bruikbaar e-mailadres vink je
+  *Geen bruikbaar e-mailadres* aan om een tijdelijk wachtwoord in te stellen
+  (deel dit veilig). Elke directe aanmaak wordt gelogd. Uitnodigen blijft de
+  standaard met weinig frictie; direct aanmaken is het gemakspad voor de
+  beheerder.
 - **Ontkoppelen.** Druk op een *Gekoppelde* rij op **Ontkoppelen** en
   bevestig. Het spelersrecord blijft; alleen de koppeling verdwijnt. De
   spelersrol wordt **alleen** van het account verwijderd als dat account
@@ -50,6 +59,17 @@ af zodat een ouder, speler of coach die "hun" record opent nooit op de
 gegevens van het verkeerde kind belandt. Als je een account probeert te
 koppelen dat al in gebruik is, meldt de weergave dit in plaats van de
 koppeling stilletjes te verplaatsen.
+
+## Een team in bulk uitnodigen
+
+Boven de lijst genereert **Een team in bulk uitnodigen** een
+speleruitnodiging voor elke speler in een gekozen team die nog geen account
+of openstaande uitnodiging heeft. Kies het team en klik op **Uitnodigingen
+genereren** — je krijgt een samenvatting van hoeveel nieuwe uitnodigingen
+zijn aangemaakt en hoeveel spelers er al een hadden. De dagelijkse
+uitnodigingslimiet geldt nog steeds; als een groot team die bereikt, vertelt
+de samenvatting hoeveel er verstuurd zijn zodat je de rest de volgende dag
+kunt uitnodigen (of de limiet verhoogt).
 
 ## Wie het kan gebruiken
 

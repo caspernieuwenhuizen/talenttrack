@@ -220,14 +220,16 @@ class InvitationService {
      * email matches the invitation's prefill_email. Just run the
      * linking step against their existing user, mark accepted.
      */
-    public function silentLink( object $invitation, int $existingUserId ): array {
+    public function silentLink( object $invitation, int $existingUserId, array $payload = [] ): array {
         if ( (string) $invitation->status !== InvitationStatus::PENDING ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
         }
         if ( ! $this->repo->claimForAcceptance( (int) $invitation->id, $existingUserId ) ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'Already accepted.', 'talenttrack' ) ];
         }
-        $this->runLinking( $invitation, $existingUserId, [] );
+        // #1904 — thread the payload so a parent's relationship choice is
+        // applied on the silent-link path (previously always empty).
+        $this->runLinking( $invitation, $existingUserId, $payload );
         do_action( 'tt_invitation_accepted', (int) $invitation->id, (string) $invitation->kind, $existingUserId );
         return [ 'ok' => true, 'user_id' => $existingUserId, 'error' => null ];
     }

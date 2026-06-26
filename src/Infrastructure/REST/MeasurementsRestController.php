@@ -107,6 +107,14 @@ class MeasurementsRestController {
                 'permission_callback' => [ __CLASS__, 'can_read_team_sessions' ],
             ],
         ]);
+        // #1882 — due/overdue coverage for a team (insights).
+        register_rest_route( self::NS, '/teams/(?P<team_id>\d+)/measurement-coverage', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_team_coverage' ],
+                'permission_callback' => [ __CLASS__, 'can_read_team_sessions' ],
+            ],
+        ]);
         register_rest_route( self::NS, '/measurements/sessions', [
             [
                 'methods'             => 'POST',
@@ -119,7 +127,11 @@ class MeasurementsRestController {
     // ── permission helpers ──────────────────────────────────────────
 
     public static function can_view_player_from_route( \WP_REST_Request $r ): bool {
-        return AuthorizationService::canViewPlayer( get_current_user_id(), absint( $r['player_id'] ) );
+        $uid = get_current_user_id();
+        $pid = absint( $r['player_id'] );
+        // #1867 — a parent only reads a section the child hasn't hidden.
+        return AuthorizationService::canViewPlayer( $uid, $pid )
+            && AuthorizationService::parentCanViewSection( $uid, $pid, 'measurements' );
     }
 
     public static function can_edit_player_from_route( \WP_REST_Request $r ): bool {
@@ -152,6 +164,13 @@ class MeasurementsRestController {
         $player_id = absint( $r['player_id'] );
         $profile   = ( new PlayerMeasurementProfile() )->forPlayer( $player_id );
         return new \WP_REST_Response( [ 'player_id' => $player_id, 'categories' => $profile ], 200 );
+    }
+
+    /** #1882 — per-team due/overdue coverage across scheduled tests. */
+    public static function get_team_coverage( \WP_REST_Request $r ) {
+        $team_id  = absint( $r['team_id'] );
+        $coverage = ( new \TT\Modules\Measurements\Services\MeasurementCoverageService() )->forTeam( $team_id );
+        return new \WP_REST_Response( array_merge( [ 'team_id' => $team_id ], $coverage ), 200 );
     }
 
     public static function get_series( \WP_REST_Request $r ) {

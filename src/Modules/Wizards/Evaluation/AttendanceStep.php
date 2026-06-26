@@ -104,6 +104,21 @@ final class AttendanceStep implements WizardStepInterface {
             <?php esc_html_e( "Mark each player's attendance. Present is the default — tap a card only if it differs. Only present + late players appear in the rating step.", 'talenttrack' ); ?>
         </p>
 
+        <?php
+        // #1899 — one-tap-through the common "everyone was here" case: a
+        // prominent submit that marks all present and advances in a single
+        // tap (it posts the same `next` action as the chrome's Next button,
+        // so the roster's present-by-default hidden inputs are persisted and
+        // the wizard routes on per its nextStep). Per-player toggles below
+        // stay for marking the exceptions.
+        ?>
+        <div class="tt-att-allhere">
+            <button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary tt-att-allhere-btn" data-tt-att-all-here>
+                <?php esc_html_e( 'Everyone was here - continue', 'talenttrack' ); ?>
+            </button>
+            <p class="tt-att-allhere-hint"><?php esc_html_e( 'Or mark any absences below first, then continue.', 'talenttrack' ); ?></p>
+        </div>
+
         <div class="tt-att-toolbar">
             <button type="button" class="tt-button tt-button-secondary" data-tt-mark-all-present>
                 <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
@@ -276,6 +291,19 @@ final class AttendanceStep implements WizardStepInterface {
             var markAll = document.querySelector( '[data-tt-mark-all-present]' );
             if ( markAll ) {
                 markAll.addEventListener( 'click', function () {
+                    roster.querySelectorAll( '[data-tt-att-card]' ).forEach( function ( c ) {
+                        setStatus( c, 'present' );
+                    } );
+                } );
+            }
+
+            // #1899 — "Everyone was here" fast path: force every card to
+            // present, then let the native submit (tt_wizard_action=next)
+            // advance. No preventDefault, so the form posts the all-present
+            // state in the same tap.
+            var allHere = document.querySelector( '[data-tt-att-all-here]' );
+            if ( allHere ) {
+                allHere.addEventListener( 'click', function () {
                     roster.querySelectorAll( '[data-tt-att-card]' ).forEach( function ( c ) {
                         setStatus( c, 'present' );
                     } );

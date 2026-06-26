@@ -49,6 +49,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'theme'       => __( 'Appearance', 'talenttrack' ),
                 'rating'      => __( 'Rating scale', 'talenttrack' ),
                 'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
+                // #1727 — central per-age-category default match minutes.
+                'match-minutes' => __( 'Match minutes', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -86,6 +88,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'PDP cycle blocks', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderPdpBlocksForm();
+                return;
+            case 'match-minutes':
+                // #1727 — central per-age-category default match minutes.
+                self::renderHeader( __( 'Match minutes', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderMatchMinutesForm();
                 return;
             case 'menus':
                 self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
@@ -1506,6 +1514,8 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         // Methodology & cycles
         $sections['methodology']['tiles'][] = [ 'title' => __( 'PDP cycle blocks', 'talenttrack' ), 'desc' => __( 'Date ranges for each block in a PDP cycle, per season. Configure 2, 3 or 4 blocks with date pairs validated against the season window.', 'talenttrack' ), 'url' => $sub( 'pdp-blocks' ), 'icon' => 'calendar' ];
+        // #1727 — central per-age-category default match minutes.
+        $sections['methodology']['tiles'][] = [ 'title' => __( 'Match minutes', 'talenttrack' ), 'desc' => __( 'Default match length per age category (minutes per half, total 2 x N). Prefills match prep and the match-completion minutes entry.', 'talenttrack' ), 'url' => $sub( 'match-minutes' ), 'icon' => 'hourglass' ];
         $sections['methodology']['tiles'][] = [ 'title' => __( 'Seasons', 'talenttrack' ), 'desc' => __( 'Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season.', 'talenttrack' ), 'url' => $view( 'seasons' ), 'icon' => 'calendar' ];
         if ( current_user_can( 'tt_edit_settings' ) ) {
             // #1548 — Player status methodology lives here, off the dashboard.
@@ -1520,7 +1530,11 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         // System
         $sections['system']['tiles'][] = [ 'title' => __( 'General', 'talenttrack' ), 'desc' => __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'url' => $sub( 'general' ), 'icon' => 'settings' ];
-        $sections['system']['tiles'][] = [ 'title' => __( 'Feature toggles', 'talenttrack' ), 'desc' => __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'toggles' ], $admin_url ), 'icon' => 'gear' ];
+        // #1533 — the wp-admin "Feature toggles" tile (tab=toggles) is
+        // retired: the frontend Modules view (?tt_view=modules, contributed
+        // via FrontendModulesView::addConfigTile) is the canonical
+        // per-module enable/disable surface, so Configuration no longer
+        // bounces here into wp-admin.
         $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'backups' ], $admin_url ), 'icon' => 'migrations' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'translations' ], $admin_url ), 'icon' => 'docs' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Settings + sensitive data change history.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'audit' ], $admin_url ), 'icon' => 'audit-log' ];
@@ -2015,6 +2029,143 @@ class FrontendConfigurationView extends FrontendViewBase {
         </form>
         <?php
         self::renderConfigJs( false );
+    }
+
+    /**
+     * #1727 — central per-age-category default match minutes.
+     *
+     * One row per `age_group` lookup value, each with a "minutes per
+     * half (N)" numeric input and a live "= 2 x N total" readout. The
+     * per-row values are assembled client-side into a single JSON map
+     * and saved under the `match_minutes_by_age_group` config key via
+     * `POST /v1/config` (the standard config-form handler).
+     *
+     * Save-only — settings sub-form (CLAUDE.md §6a exemption).
+     */
+    private static function renderMatchMinutesForm(): void {
+        wp_enqueue_style(
+            'tt-frontend-match-minutes',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-minutes.css',
+            [],
+            TT_VERSION
+        );
+
+        $age_groups = QueryHelpers::get_lookup_names( 'age_group' );
+        $current    = ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )->configuredMap();
+        $fallback   = \TT\Modules\MatchPrep\Services\MatchLengthResolver::FALLBACK_HALF_MINUTES;
+        ?>
+        <p class="tt-mm-intro">
+            <?php echo esc_html( sprintf(
+                /* translators: %d is the global fallback minutes per half. */
+                __( 'Set the default match length for each age category, in minutes per half. The full match is twice that (2 x N). Leave a row blank to use the global fallback of %d minutes per half.', 'talenttrack' ),
+                (int) $fallback
+            ) ); ?>
+        </p>
+
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="match-minutes" data-tt-match-minutes-form>
+            <input type="hidden" name="config[match_minutes_by_age_group]" value="" data-tt-match-minutes-json />
+            <div class="tt-panel">
+                <?php if ( empty( $age_groups ) ) : ?>
+                    <?php
+                    $lookups_url = add_query_arg(
+                        [ 'config_sub' => 'lookups', 'category' => 'age_groups' ],
+                        remove_query_arg( [ 'config_sub', 'category' ] )
+                    );
+                    ?>
+                    <p class="tt-notice">
+                        <?php esc_html_e( 'No age categories configured yet. Add age groups first, then come back to set their default match minutes.', 'talenttrack' ); ?>
+                        <a href="<?php echo esc_url( $lookups_url ); ?>"><?php esc_html_e( 'Manage age groups', 'talenttrack' ); ?></a>
+                    </p>
+                <?php else : ?>
+                    <div class="tt-mm-list" role="group" aria-label="<?php esc_attr_e( 'Default match minutes per age category', 'talenttrack' ); ?>">
+                        <div class="tt-mm-head" aria-hidden="true">
+                            <span class="tt-mm-head-group"><?php esc_html_e( 'Age category', 'talenttrack' ); ?></span>
+                            <span class="tt-mm-head-half"><?php esc_html_e( 'Minutes per half (N)', 'talenttrack' ); ?></span>
+                            <span class="tt-mm-head-total"><?php esc_html_e( 'Total (2 x N)', 'talenttrack' ); ?></span>
+                        </div>
+                        <?php foreach ( $age_groups as $i => $group ) :
+                            $group = (string) $group;
+                            $value = isset( $current[ $group ] ) ? (int) $current[ $group ] : 0;
+                            $field_id = 'tt-mm-' . sanitize_html_class( (string) $i );
+                            $total = $value > 0 ? $value * 2 : 0;
+                        ?>
+                            <div class="tt-mm-row" data-tt-mm-row>
+                                <label class="tt-mm-group" for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $group ); ?></label>
+                                <input
+                                    type="number"
+                                    inputmode="numeric"
+                                    min="0"
+                                    max="60"
+                                    step="1"
+                                    id="<?php echo esc_attr( $field_id ); ?>"
+                                    class="tt-input tt-mm-input"
+                                    data-tt-mm-half
+                                    data-tt-mm-group="<?php echo esc_attr( $group ); ?>"
+                                    value="<?php echo $value > 0 ? esc_attr( (string) $value ) : ''; ?>"
+                                    placeholder="<?php echo esc_attr( (string) $fallback ); ?>"
+                                    aria-describedby="<?php echo esc_attr( $field_id ); ?>-total"
+                                />
+                                <output
+                                    class="tt-mm-total"
+                                    id="<?php echo esc_attr( $field_id ); ?>-total"
+                                    for="<?php echo esc_attr( $field_id ); ?>"
+                                    data-tt-mm-total
+                                ><?php echo $total > 0 ? esc_html( (string) $total ) : esc_html( '—' ); // em dash placeholder ?></output>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="tt-form-actions tt-mm-actions">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save match minutes', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderMatchMinutesJs();
+        self::renderConfigJs( false );
+    }
+
+    /**
+     * #1727 — keep the hidden JSON field + per-row totals in sync with
+     * the per-age-category inputs, so the standard config-form submit
+     * handler ships a single `match_minutes_by_age_group` JSON value.
+     */
+    private static function renderMatchMinutesJs(): void {
+        $em_dash = '—';
+        ?>
+        <script>
+        (function(){
+            var form = document.querySelector('[data-tt-match-minutes-form]');
+            if (!form) return;
+            var hidden = form.querySelector('[data-tt-match-minutes-json]');
+            var rows   = form.querySelectorAll('[data-tt-mm-row]');
+
+            function sync(){
+                var map = {};
+                rows.forEach(function(row){
+                    var input = row.querySelector('[data-tt-mm-half]');
+                    var out   = row.querySelector('[data-tt-mm-total]');
+                    if (!input) return;
+                    var group = input.getAttribute('data-tt-mm-group') || '';
+                    var n = parseInt(input.value, 10);
+                    if (!isNaN(n) && n > 0 && group) {
+                        map[group] = n;
+                        if (out) out.textContent = String(n * 2);
+                    } else if (out) {
+                        out.textContent = '<?php echo $em_dash; ?>';
+                    }
+                });
+                if (hidden) hidden.value = JSON.stringify(map);
+            }
+
+            form.addEventListener('input', function(e){
+                if (e.target && e.target.hasAttribute('data-tt-mm-half')) sync();
+            });
+            sync();
+        })();
+        </script>
+        <?php
     }
 
     private static function renderMenusForm(): void {
