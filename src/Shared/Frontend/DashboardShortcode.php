@@ -940,6 +940,14 @@ class DashboardShortcode {
                 // gate on tt_edit_spond_credentials at the REST layer.
                 FrontendSpondView::render( $user_id, $is_admin );
                 return true;
+            case 'setup':
+                // #1938 — frontend port of the wp-admin first-run onboarding
+                // wizard (?page=tt-welcome). Multi-step academy → first team
+                // → first admin → dashboard → done, plus "Run again". Gates
+                // on tt_edit_settings internally; every mutation re-checks
+                // the same cap at the REST layer (OnboardingRestController).
+                FrontendSetupView::render( $user_id, $is_admin );
+                return true;
             case 'lookup-normalisation':
                 // #987 v4.12.0 — canonical-language drift review tool.
                 FrontendLookupNormalisationView::render( $user_id, $is_admin );

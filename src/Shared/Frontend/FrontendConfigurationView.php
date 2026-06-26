@@ -1561,7 +1561,16 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_view_audit_log' ) ) {
             $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Who changed what, when. Filterable, paginated.', 'talenttrack' ), 'url' => $view( 'audit-log' ), 'icon' => 'audit-log' ];
         }
-        $sections['system']['tiles'][] = [ 'title' => __( 'Setup wizard', 'talenttrack' ), 'desc' => __( 'Re-run the first-run onboarding wizard.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'wizard' ], $admin_url ), 'icon' => 'lightbulb' ];
+        // #1938 — the wp-admin Setup wizard (?page=tt-welcome, surfaced via
+        // tab=wizard) is retired in favour of the frontend Setup flow
+        // (?tt_view=setup, FrontendSetupView), mirroring the #1533
+        // Translations / Spond retirements above. Configuration no longer
+        // bounces into wp-admin; the wp-admin wizard stays as the
+        // power-user fallback. Cap-gated to tt_edit_settings (the flow's
+        // own gate, matching OnboardingPage::CAP).
+        if ( current_user_can( 'tt_edit_settings' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Setup', 'talenttrack' ), 'desc' => __( 'Run or re-run first-time setup: academy basics, your first team, your admin profile, and the dashboard page.', 'talenttrack' ), 'url' => $view( 'setup' ), 'icon' => 'lightbulb' ];
+        }
         $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
 
         // #1539 — tiles contributed via the tt_config_tile_groups filter
