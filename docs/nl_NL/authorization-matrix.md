@@ -140,9 +140,36 @@ De PlayerStatus-handelings-capability "potentieel-band instellen" was matrix-bli
 
 - **`tt_set_player_potential` → `player_potential:change`** (gebrugd). De ruwe WP-toekenning (`PlayerStatusModule`: administrator + head_dev + club_admin) komt exact overeen met de begunstigden van `player_potential:change` in de matrix (`head_of_development` + `academy_admin` globaal; geen andere persona houdt `change`), dus de brug is toegangsbehoudend.
 
-Eén verwante handelings-capability wordt **bewust niet gebrugd** omdat dat de effectieve toegang zou wijzigen:
+Eén verwante handelings-capability werd onder #1939 **bewust niet gebrugd** omdat dat de effectieve toegang zou wijzigen; #1941 (hieronder) maakt die goedgekeurde wijziging en brugt hem alsnog:
 
-- **`tt_rate_player_behaviour`** blijft op de native WP-capability-evaluatie. De ruwe toekenning omvat `tt_assistant_coach`, maar de seed van `player_behaviour_ratings` heeft geen `assistant_coach`-rij (verwijderd door #1060). Brugging zou de assistent-coach-toegang intrekken — een effectieve-toegangswijziging, geen handhaving-alleen herverwijzing — dus is dit op #1939 gemarkeerd voor een productbeslissing (de les van #1922: verplaats nooit stilletjes toegang terwijl je "slechts" een capability brugt).
+- **`tt_rate_player_behaviour`** bleef onder #1939 op de native WP-capability-evaluatie. De ruwe toekenning omvat `tt_assistant_coach`, maar de seed van `player_behaviour_ratings` heeft geen `assistant_coach`-rij (verwijderd door #1060). Brugging zou de assistent-coach-toegang intrekken — een effectieve-toegangswijziging, geen handhaving-alleen herverwijzing — dus werd dit gemarkeerd voor een productbeslissing (de les van #1922: verplaats nooit stilletjes toegang terwijl je "slechts" een capability brugt). De beslissing landde in #1941.
+
+## Mappingrij-bruggen + twee goedgekeurde toegangswijzigingen (#1941)
+
+#1941 (kind van #1757) brugt zes verouderde handelings-capabilities naar matrixtupels waarvan de entiteit + activiteit **al geseed** is, zodat de frontend- en REST-oppervlakken die op elke capability gaten nu vanuit hetzelfde `MatrixGate`-antwoord oplossen (`current_user_can()` loopt via `LegacyCapMapper` wanneer de matrix actief is). Vier zijn toegangsbehoudend; twee dragen een goedgekeurde effectieve-toegangswijziging.
+
+Toegangsbehoudende bruggen (de matrix-begunstigden komen overeen met de eerdere ruwe toekenning):
+
+- **`tt_manage_staff_development` → `staff_development:create_delete`.** Geseed aan Head of Development + Academy Admin globaal, overeenkomend met de ruwe toekenning. (Gebrugd naar `create_delete`, **niet** `change` — `change` heeft elke coach op self/team-scope, wat het beheeroppervlak zou verbreden.)
+- **`tt_manage_modules` → `feature_toggles:change`.** Geseed aan alleen Academy Admin; Head of Development heeft `feature_toggles [read]` en wint niets. Modulebeheer blijft alleen-admin.
+- **`tt_view_scout_assignments` → `scout_my_players:read`.** Geseed aan alleen de Scout-persona, overeenkomend met de scout-only ruwe toekenning. (De capability opent alleen het "Mijn spelers"-oppervlak; de toewijzingslijst staat in user meta.)
+- **`tt_manage_invitations` → `settings:create_delete`.** De administratieve uitnodigingslijst / bulkbeheer-endpoints. Gebrugd naar de admin-niveau-entiteit `settings` (geseed aan alleen Academy Admin; Head of Development heeft geen `settings`-rij), zodat alleen de Academy Admin (en WP-beheerders, die omzeilen) uitnodigingen beheert. Bewust **niet** `invitations:create_delete` — dat tupel is doorgeseed naar coaches/ouders (zodat zij een uitnodiging kunnen *versturen*) en is veel te breed voor het beheeroppervlak. De per-uitnodiging-verstuurcapabilities houden hun `invitations`-tupel.
+
+Goedgekeurde toegangswijzigingen:
+
+- **`tt_manage_teams` → `team:create_delete`** (Head of Development krijgt alle-teams-exports). `team:create_delete` is globaal geseed aan Head of Development + Academy Admin. De capability gate'te de cross-team-exportkeuzelijst (`FrontendExportsView`) en was een alleen-admin-fantoom; onder de matrix ziet de Head of Development nu ook de alle-teams-exportkeuzelijst — bedoeld, want de HoD overziet de hele academie. Hoofdcoaches houden `team [rc, team]` (geen `create_delete`) en zien dus nog steeds alleen hun eigen teams in de keuzelijst.
+- **`tt_rate_player_behaviour` → `player_behaviour_ratings:change`** (assistent-coaches verliezen gedragsbeoordeling). De matrix-seed voor `player_behaviour_ratings` heeft geen `assistant_coach`-rij (#1060 "AC is operationeel, HC is ontwikkeling"). Gedragsbeoordeling is een ontwikkelingsoordeel, dus onder de matrix kunnen assistent-coaches geen gedragsbeoordelingen meer schrijven — ze blijven de speler-status-uitsplitsing lezen, ze beoordelen alleen niet. De verouderde ruwe `tt_rate_player_behaviour`-toekenning op de rol `tt_assistant_coach` wordt bij upgrade ingetrokken (`PlayerStatusModule::ensureCapabilities`, naar het voorbeeld van #1922's waarnemer-intrekking) zodat installaties met een nog sluimerende matrix ook samenvallen. Brugging sluit ook de frontend/REST-afwijking waar de data-capability `tt_edit_player_behaviour_ratings` matrix-bewust was maar de handelings-capability niet.
+
+Effectieve toegang voor / na:
+
+| Persona | `tt_manage_teams` (alle-teams-exports) | `tt_rate_player_behaviour` (gedrag beoordelen) |
+| - | - | - |
+| Hoofdcoach | nee → nee (alleen teamscope, ongewijzigd) | ja → ja |
+| Assistent-coach | nee → nee | **ja → nee** (verliest het) |
+| Teammanager | nee → nee | nee → nee |
+| Scout | nee → nee | nee → nee |
+| Head of Development | **nee → ja** (krijgt het) | ja → ja |
+| Academy Admin | ja → ja | ja → ja |
 
 ## Zie ook
 

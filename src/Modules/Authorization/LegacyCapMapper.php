@@ -44,6 +44,16 @@ final class LegacyCapMapper {
         // Core domain entities
         'tt_view_teams'                  => [ 'team',           'read' ],
         'tt_edit_teams'                  => [ 'team',           'change' ],
+        // #1941 — `tt_manage_teams` (the all-teams management act-cap that
+        // gates the cross-team exports dropdown). Bridges to
+        // `team:create_delete`, seeded global to head_of_development +
+        // academy_admin. APPROVED access change: the cap was an admin-only
+        // phantom (no role explicitly held it beyond the legacy view+edit
+        // derivation), so under the matrix HoD gains the all-teams exports
+        // affordance — intended, HoD oversees the whole academy. Head coaches
+        // hold `team [rc, team]` (no create_delete) and so still see only
+        // their own teams in the exports picker (the team-scope fallback).
+        'tt_manage_teams'                => [ 'team',           'create_delete' ],
         'tt_view_players'                => [ 'players',        'read' ],
         'tt_edit_players'                => [ 'players',        'change' ],
         'tt_manage_players'              => [ 'players',        'create_delete' ],
@@ -95,6 +105,16 @@ final class LegacyCapMapper {
         // Invitations (#0032)
         'tt_send_invitation'             => [ 'invitations',    'create_delete' ],
         'tt_revoke_invitation'           => [ 'invitations',    'create_delete' ],
+        // #1941 — `tt_manage_invitations` gates the administrative invitation
+        // list / bulk-manage endpoints (InvitationsRestController list+create).
+        // Bridged to the ADMIN-level `settings:create_delete` tuple — seeded
+        // global to academy_admin ONLY (HoD has no `settings` entity row) — so
+        // only the academy admin (and WP administrators, who bypass) manage
+        // invitations. Deliberately NOT `invitations:create_delete`: that is
+        // seeded down to coach/parent at team/player scope (so they can SEND
+        // an invite), which is far too broad for the management surface. The
+        // per-invite send caps above keep their `invitations` tuple.
+        'tt_manage_invitations'          => [ 'settings',       'create_delete' ],
         'tt_manage_invite_messages'      => [ 'invitations_config', 'change' ],
         'tt_view_parent_dashboard'       => [ 'my_card',        'read' ],
 
@@ -111,6 +131,12 @@ final class LegacyCapMapper {
         'tt_edit_branding'               => [ 'branding',               'change' ],
         'tt_view_feature_toggles'        => [ 'feature_toggles',        'read' ],
         'tt_edit_feature_toggles'        => [ 'feature_toggles',        'change' ],
+        // #1941 — `tt_manage_modules` (the Modules / Features admin surface
+        // act-cap). Bridges to `feature_toggles:change` (toggling a module
+        // on/off IS a feature-toggle write). Seeded `change` to academy_admin
+        // only; head_of_development holds `feature_toggles [r]` so gains
+        // nothing — access-preserving (admin-only management is unchanged).
+        'tt_manage_modules'              => [ 'feature_toggles',        'change' ],
         'tt_view_audit_log'              => [ 'audit_log',              'read' ],
         'tt_view_translations'           => [ 'translations_config',    'read' ],
         'tt_edit_translations'           => [ 'translations_config',    'change' ],
@@ -151,12 +177,21 @@ final class LegacyCapMapper {
         'tt_set_player_potential'              => [ 'player_potential',        'change' ],
         'tt_view_player_behaviour_ratings'     => [ 'player_behaviour_ratings','read' ],
         'tt_edit_player_behaviour_ratings'     => [ 'player_behaviour_ratings','change' ],
-        // #1939 — `tt_rate_player_behaviour` (the behaviour-rating act-cap)
-        // deliberately NOT bridged: its raw WP grant includes
-        // tt_assistant_coach, but the `player_behaviour_ratings` matrix seed
-        // has NO assistant_coach row (#1060 removed it). Bridging would
-        // revoke AC access — an effective-access change, not enforcement-
-        // only. Flagged on #1939 for a product decision (the #1922 lesson).
+        // #1941 — `tt_rate_player_behaviour` (the behaviour-rating act-cap)
+        // bridged with an APPROVED tighten-to-matrix access change. Its raw
+        // WP grant includes tt_assistant_coach, but the
+        // `player_behaviour_ratings` matrix seed has NO assistant_coach row
+        // (#1060 removed it: "AC is operational, HC is development"). The
+        // #1939 note flagged the AC loss for a product decision; that
+        // decision (parent #1757) is to converge on the matrix — assistant
+        // coaches lose behaviour-rating. Routing it through the matrix also
+        // closes the frontend/REST divergence where the data-cap
+        // `tt_edit_player_behaviour_ratings` was matrix-aware but the act-cap
+        // was not (both surfaces now resolve from the same entity). The stale
+        // raw `tt_rate_player_behaviour` grant on the assistant_coach role is
+        // revoked on upgrade (PlayerStatusModule::ensureCapabilities, mirroring
+        // #1922's observer revoke) so matrix-dormant installs converge too.
+        'tt_rate_player_behaviour'             => [ 'player_behaviour_ratings','change' ],
         'tt_view_player_status'                => [ 'player_status',           'read' ],
         'tt_view_player_status_breakdown'      => [ 'player_status_breakdown', 'read' ],
         'tt_view_pdp_evidence_packet'          => [ 'pdp_evidence_packet',     'read' ],
@@ -174,6 +209,14 @@ final class LegacyCapMapper {
         'tt_submit_trial_input'          => [ 'trial_inputs',          'change' ],
         'tt_view_trial_synthesis'        => [ 'trial_synthesis',       'read' ],
         'tt_view_staff_development'      => [ 'staff_development',     'read' ],
+        // #1941 — `tt_manage_staff_development` (full edit on any staff
+        // member's records). Bridges to `staff_development:create_delete`
+        // (NOT `change`: change is seeded broadly — every coach holds
+        // `staff_development [rc]` at self/team scope, so bridging to change
+        // would widen manage to every coach). create_delete is seeded only to
+        // head_of_development + academy_admin globally, matching the raw grant
+        // (administrator + tt_head_dev + tt_club_admin). Access-preserving.
+        'tt_manage_staff_development'    => [ 'staff_development',     'create_delete' ],
         'tt_view_staff_certifications_expiry' => [ 'staff_overview',   'read' ],
         'tt_admin_styling'               => [ 'custom_css',            'create_delete' ],
         'tt_edit_persona_templates'      => [ 'persona_templates',     'change' ],
@@ -185,6 +228,12 @@ final class LegacyCapMapper {
         // translation editing. Granted to HoD + admin via ensureCapabilities().
         'tt_edit_translations'           => [ 'translations',          'change' ],
         'tt_generate_scout_report'       => [ 'scout_access',          'create_delete' ],
+        // #1941 — `tt_view_scout_assignments` (scout-side "My players" gate;
+        // the assignment list lives in user meta, so this cap only opens the
+        // surface, not any specific player). Bridges to `scout_my_players:read`,
+        // seeded `r` to the scout persona only. Raw grant is scout-only
+        // (RolesService `tt_scout`) — access-preserving.
+        'tt_view_scout_assignments'      => [ 'scout_my_players',      'read' ],
         'tt_view_pdp'                    => [ 'pdp_file',              'read' ],
         'tt_edit_pdp'                    => [ 'pdp_file',              'change' ],
         'tt_edit_pdp_verdict'            => [ 'pdp_verdict',           'change' ],

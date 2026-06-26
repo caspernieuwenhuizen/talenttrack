@@ -152,9 +152,36 @@ The PlayerStatus "set the potential band" act-cap was matrix-blind while its dat
 
 - **`tt_set_player_potential` → `player_potential:change`** (bridged). The raw WP grant (`PlayerStatusModule`: administrator + head_dev + club_admin) matches the `player_potential:change` matrix grantees exactly (`head_of_development` + `academy_admin` globally; no other persona holds `change`), so the bridge is access-preserving.
 
-One sibling act-cap is **deliberately not bridged** because doing so would change effective access:
+One sibling act-cap was **deliberately not bridged** under #1939 because doing so would change effective access; #1941 (below) makes that approved change and bridges it:
 
-- **`tt_rate_player_behaviour`** stays on native WP capability evaluation. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it is flagged on #1939 for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap).
+- **`tt_rate_player_behaviour`** was left on native WP capability evaluation under #1939. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it was flagged for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap). The decision landed in #1941.
+
+## Mapping-row bridges + two approved access changes (#1941)
+
+#1941 (child of #1757) bridges six legacy act-caps to matrix tuples whose entity + activity are **already seeded**, so the frontend and REST surfaces that gate on each cap now resolve from the same `MatrixGate` answer (`current_user_can()` routes through `LegacyCapMapper` when the matrix is active). Four are access-preserving; two carry an approved effective-access change.
+
+Access-preserving bridges (the matrix grantees match the prior raw grant):
+
+- **`tt_manage_staff_development` → `staff_development:create_delete`.** Seeded to Head of Development + Academy Admin globally, matching the raw grant. (Bridged to `create_delete`, **not** `change` — `change` is held by every coach at self/team scope, which would widen the management surface.)
+- **`tt_manage_modules` → `feature_toggles:change`.** Seeded to Academy Admin only; Head of Development holds `feature_toggles [read]` and gains nothing. Module management stays admin-only.
+- **`tt_view_scout_assignments` → `scout_my_players:read`.** Seeded to the Scout persona only, matching the scout-only raw grant. (The cap only opens the "My players" surface; the assignment list lives in user meta.)
+- **`tt_manage_invitations` → `settings:create_delete`.** The administrative invitation list / bulk-manage endpoints. Bridged to the admin-level `settings` entity (seeded to Academy Admin only; Head of Development has no `settings` row), so only the Academy Admin (and WP administrators, who bypass) manage invitations. Deliberately **not** `invitations:create_delete` — that tuple is seeded down to coaches/parents (so they can *send* an invite) and is far too broad for the management surface. The per-invite send caps keep their `invitations` tuple.
+
+Approved access changes:
+
+- **`tt_manage_teams` → `team:create_delete`** (Head of Development gains all-teams exports). `team:create_delete` is seeded global to Head of Development + Academy Admin. The cap gated the cross-team exports dropdown (`FrontendExportsView`) and was an admin-only phantom; under the matrix the Head of Development now also sees the all-teams exports picker — intended, since the HoD oversees the whole academy. Head coaches hold `team [rc, team]` (no `create_delete`) and so still see only their own teams in the picker.
+- **`tt_rate_player_behaviour` → `player_behaviour_ratings:change`** (assistant coaches lose behaviour-rating). The matrix seed for `player_behaviour_ratings` has no `assistant_coach` row (#1060 "AC is operational, HC is development"). Behaviour-rating is a development judgment, so under the matrix assistant coaches can no longer author behaviour ratings — they keep reading the player-status breakdown, they just don't rate. The stale raw `tt_rate_player_behaviour` grant on the `tt_assistant_coach` role is revoked on upgrade (`PlayerStatusModule::ensureCapabilities`, mirroring #1922's observer revoke) so installs whose matrix is still dormant converge too. Bridging this also closes the frontend/REST divergence where the data-cap `tt_edit_player_behaviour_ratings` was matrix-aware but the act-cap was not.
+
+Before / after effective access:
+
+| Persona | `tt_manage_teams` (all-teams exports) | `tt_rate_player_behaviour` (rate behaviour) |
+| - | - | - |
+| Head coach | no → no (team-scope only, unchanged) | yes → yes |
+| Assistant coach | no → no | **yes → no** (loses it) |
+| Team manager | no → no | no → no |
+| Scout | no → no | no → no |
+| Head of Development | **no → yes** (gains it) | yes → yes |
+| Academy Admin | yes → yes | yes → yes |
 
 ## See also
 
