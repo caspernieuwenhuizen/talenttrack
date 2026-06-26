@@ -39,10 +39,33 @@ tests_add_filter( 'muplugin_loaded', static function () use ( $_root ) {
 
 require $_tests_dir . '/includes/bootstrap.php';
 
+// Belt-and-braces: ensure the plugin bootstrap file is loaded so its
+// constants (TT_VERSION / TT_PLUGIN_DIR) and the kernel-boot hook exist.
+// The muplugin_loaded filter above is the normal path; this guards the
+// case where the test suite didn't fire it (which leaves TT_VERSION
+// undefined and Kernel::boot() fatal). Guarded so it never double-defines.
+if ( ! defined( 'TT_VERSION' ) && file_exists( $_root . '/talenttrack.php' ) ) {
+    require $_root . '/talenttrack.php';
+}
+
 // Materialise the plugin schema in the test DB so integration tests
 // (e.g. the authorization-matrix repository) run against real tables.
 // Migrations are idempotent; a failed seed migration is recorded but
 // doesn't abort the suite (the tables under test still get created).
 if ( class_exists( '\\TT\\Infrastructure\\Database\\MigrationRunner' ) ) {
     ( new \TT\Infrastructure\Database\MigrationRunner() )->run();
+    // Stamp the installed version so Kernel::boot() below doesn't re-run
+    // the full migration set a second time.
+    if ( defined( 'TT_VERSION' ) ) {
+        update_option( 'tt_installed_version', TT_VERSION );
+    }
+}
+
+// Boot the plugin Kernel so every module's boot() runs and its REST
+// controllers register their `rest_api_init` listeners. The plugin boots
+// on `init` in a real request; the WP test bootstrap doesn't reliably fire
+// that for the plugin, so REST integration tests (RestSmokeTest) would
+// otherwise see zero routes (404). boot() is guarded against double-boot.
+if ( class_exists( '\\TT\\Core\\Kernel' ) ) {
+    \TT\Core\Kernel::instance()->boot();
 }

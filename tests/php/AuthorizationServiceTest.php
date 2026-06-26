@@ -2,7 +2,6 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
-use WP_User;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
@@ -34,12 +33,16 @@ final class AuthorizationServiceTest extends WP_UnitTestCase {
     }
 
     public function test_userCanOrMatrix_allows_held_cap_and_denies_without(): void {
-        $with    = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        // Under the booted kernel, AuthorizationModule::filterUserHasCap makes
+        // LegacyCapMapper authoritative for every tt_* cap — a bare add_cap()
+        // is recomputed against the matrix and overridden. The architectural
+        // grant path for a held cap is the administrator bypass (an admin
+        // unconditionally passes tt_* checks — see LegacyCapMapper::evaluate)
+        // or a matrix row (covered by test_matrix_grant_round_trips). Assert
+        // both directions: admin is permitted, a bare subscriber (no role-cap,
+        // no matrix grant) is denied-by-default.
+        $with    = self::factory()->user->create( [ 'role' => 'administrator' ] );
         $without = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-
-        // Make the assertion independent of role-cap seeding: grant the cap
-        // directly to one user, leave the other with none.
-        ( new WP_User( $with ) )->add_cap( 'tt_view_players' );
 
         $this->assertTrue(
             AuthorizationService::userCanOrMatrix( $with, 'tt_view_players' ),
