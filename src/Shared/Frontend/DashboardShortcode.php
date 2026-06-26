@@ -1190,6 +1190,9 @@ class DashboardShortcode {
             case 'minutes-report-team':
                 \TT\Modules\Analytics\Frontend\FrontendMinutesTeamReportView::render( $user_id, $is_admin );
                 return true;
+            case 'eval-coverage':
+                \TT\Modules\Analytics\Frontend\FrontendEvalCoverageView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

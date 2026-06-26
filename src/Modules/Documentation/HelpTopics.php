@@ -88,6 +88,11 @@ class HelpTopics {
                 'group'   => 'analytics',
                 'summary' => __( 'The tile launcher — progress charts, team ratings, coach activity.', 'talenttrack' ),
             ],
+            'eval-coverage' => [
+                'title'   => __( 'Evaluation coverage', 'talenttrack' ),
+                'group'   => 'analytics',
+                'summary' => __( 'Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance.', 'talenttrack' ),
+            ],
             'trials' => [
                 'title'   => __( 'Trial cases', 'talenttrack' ),
                 'group'   => 'people',

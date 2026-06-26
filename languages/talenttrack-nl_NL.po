@@ -42309,3 +42309,76 @@ msgstr[1] "%d attributen opgeslagen."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Expected a list of windows."
+msgstr "Een lijst met periodes verwacht."
+
+msgid "Evaluation-window coverage"
+msgstr "Evaluatieperiode-dekking"
+
+msgid "Add at least one evaluation window above to see coverage."
+msgstr "Voeg hierboven minstens één evaluatieperiode toe om dekking te zien."
+
+msgid "Evaluation windows saved."
+msgstr "Evaluatieperiodes opgeslagen."
+
+msgid "Evaluation windows"
+msgstr "Evaluatieperiodes"
+
+msgid "Define the periods each player should be evaluated in this season. Leave a row blank to remove it."
+msgstr "Bepaal de periodes waarin elke speler dit seizoen geëvalueerd hoort te worden. Maak een rij leeg om die te verwijderen."
+
+msgid "e.g. Autumn review"
+msgstr "bijv. Najaarsbeoordeling"
+
+msgid "Save windows"
+msgstr "Periodes opslaan"
+
+msgid "Windows"
+msgstr "Periodes"
+
+msgid "Gaps"
+msgstr "Gaten"
+
+msgid "Every player is covered in every window."
+msgstr "Elke speler is gedekt in elke periode."
+
+msgid "Gaps by coach"
+msgstr "Gaten per coach"
+
+msgid "Open evaluations by coach"
+msgstr "Evaluaties openen per coach"
+
+msgid "Coverage matrix"
+msgstr "Dekkingsmatrix"
+
+msgid "Not evaluated"
+msgstr "Niet geëvalueerd"
+
+msgid "Evaluated by %s"
+msgstr "Geëvalueerd door %s"
+
+msgid "No evaluation in this window"
+msgstr "Geen evaluatie in deze periode"
+
+msgid "Attendance-recording compliance"
+msgstr "Naleving aanwezigheidsregistratie"
+
+msgid "Share of completed activities in each window that have any attendance recorded."
+msgstr "Aandeel afgeronde activiteiten per periode waarvoor enige aanwezigheid is geregistreerd."
+
+msgid "No teams to report."
+msgstr "Geen teams om te tonen."
+
+msgid "No activity"
+msgstr "Geen activiteit"
+
+msgid "%1$d of %2$d activities"
+msgstr "%1$d van %2$d activiteiten"
+
+msgid "Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance."
+msgstr "Welke spelers deze periode niet geëvalueerd zijn, welke coach verantwoordelijk is voor het gat, en de naleving van aanwezigheidsregistratie per team."
+
+msgid "Which players are unevaluated this window, and which coach owns the gap."
+msgstr "Welke spelers deze periode niet geëvalueerd zijn, en welke coach verantwoordelijk is voor het gat."
+

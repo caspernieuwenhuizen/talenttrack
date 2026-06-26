@@ -172,6 +172,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'analytics', 'TT\\Modules\\Analytics\\AnalyticsModule' );
         // #0083 Child 6 — scheduled reports management (Analytics module).
         TileRegistry::registerSlugOwnership( 'scheduled-reports', 'TT\\Modules\\Analytics\\AnalyticsModule' );
+        // #1380 — evaluation-window coverage report (Analytics module).
+        TileRegistry::registerSlugOwnership( 'eval-coverage', 'TT\\Modules\\Analytics\\AnalyticsModule' );
         // `accept-invite` and `audit-log` are intentionally absent —
         // the first must keep working for not-yet-registered
         // recipients, the second is infrastructure (no module owner).
@@ -810,6 +812,23 @@ final class CoreSurfaceRegistration {
             'icon'         => 'reports',
             'color'        => '#00a32a',
             'cap'          => 'tt_view_reports',
+        ]);
+        // #1380 — Evaluation coverage (HoD): which players have not been
+        // evaluated this window, and which coach owns the gap. Shares the
+        // `analytics` entity + `tt_view_analytics` cap with the central
+        // Analytics tile, so the same HoD scope gates it.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+            'view_slug'    => 'eval-coverage',
+            'entity'       => 'analytics',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 26,
+            'label'        => __( 'Evaluation coverage', 'talenttrack' ),
+            'description'  => __( 'Which players are unevaluated this window, and which coach owns the gap.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#0ea5e9',
+            'cap'          => 'tt_view_analytics',
         ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.

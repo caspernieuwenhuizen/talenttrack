@@ -291,6 +291,13 @@ class EvaluationsRestController {
             $where[]  = 'e.eval_type_id = %d';
             $params[] = absint( $filter['eval_type_id'] );
         }
+        // #1380 — coach (evaluator) filter, driven from the evaluation-
+        // coverage report's per-coach chips. Filters on the evaluation's
+        // author (`e.coach_id`).
+        if ( ! empty( $filter['coach_id'] ) ) {
+            $where[]  = 'e.coach_id = %d';
+            $params[] = absint( $filter['coach_id'] );
+        }
         if ( ! empty( $filter['date_from'] ) ) {
             $where[]  = 'e.eval_date >= %s';
             $params[] = sanitize_text_field( (string) $filter['date_from'] );
