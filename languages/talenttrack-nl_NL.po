@@ -41915,6 +41915,66 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Chemistry settings"
+msgstr "Chemie-instellingen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "You do not have permission to manage chemistry settings."
+msgstr "Je hebt geen toestemming om de chemie-instellingen te beheren."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Use the reworked chemistry engine for this academy"
+msgstr "Gebruik de vernieuwde chemie-engine voor deze academie"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Off by default. Turn on once you have populated player chemistry attributes."
+msgstr "Standaard uit. Schakel in zodra je de chemie-attributen van spelers hebt ingevuld."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Component weights"
+msgstr "Componentgewichten"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "How much each component counts toward a pair score. Saved values are normalised to total 100."
+msgstr "Hoeveel elk component meetelt voor een paarscore. Opgeslagen waarden worden genormaliseerd naar in totaal 100."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Position relationship matrix"
+msgstr "Positierelatiematrix"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "How strongly two lines interact (0–1): 1.0 adjacent, 0.8 connected, 0.5 indirect, 0.2 minimal."
+msgstr "Hoe sterk twee linies op elkaar inwerken (0–1): 1.0 aangrenzend, 0.8 verbonden, 0.5 indirect, 0.2 minimaal."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Chemistry settings saved."
+msgstr "Chemie-instellingen opgeslagen."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Compatibility"
+msgstr "Compatibiliteit"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Familiarity"
+msgstr "Vertrouwdheid"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Defence"
+msgstr "Verdediging"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Midfield"
+msgstr "Middenveld"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php
+msgid "Attack"
+msgstr "Aanval"
+
+#: src/Modules/TeamDevelopment/TeamDevelopmentModule.php
+msgid "Component weights, position matrix, and the reworked-engine toggle."
+msgstr "Componentgewichten, positiematrix en de schakelaar voor de vernieuwde engine."
+
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
 msgid "Chemistry attributes"
 msgstr "Chemie-attributen"

@@ -42,6 +42,24 @@ class TeamDevelopmentModule implements ModuleInterface {
         PlayerAttributesRestController::init();
         PlayerTeamFitPanel::init();
 
+        // #1017 Phase 5 — chemistry engine settings (weights + matrix + v2
+        // toggle). A setup surface for HoD / academy admin.
+        if ( class_exists( \TT\Shared\Tiles\TileRegistry::class ) ) {
+            \TT\Shared\Tiles\TileRegistry::register( [
+                'module_class' => self::class,
+                'view_slug'    => 'chemistry-config',
+                'entity'       => 'team_chemistry',
+                'group'        => __( 'Configuration', 'talenttrack' ),
+                'kind'         => 'setup',
+                'order'        => 60,
+                'label'        => __( 'Chemistry settings', 'talenttrack' ),
+                'description'  => __( 'Component weights, position matrix, and the reworked-engine toggle.', 'talenttrack' ),
+                'icon'         => 'sliders',
+                'color'        => '#0e7c66',
+                'cap'          => 'tt_manage_team_chemistry',
+            ] );
+        }
+
         // Sprint 2 — invalidate per-player fit cache whenever an
         // evaluation save crosses the boundary. The eval REST + admin
         // forms both fire `tt_evaluation_saved` with the player id.
