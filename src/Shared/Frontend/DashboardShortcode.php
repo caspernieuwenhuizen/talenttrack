@@ -876,6 +876,11 @@ class DashboardShortcode {
             case 'configuration':
                 FrontendConfigurationView::render( $user_id, $is_admin );
                 return true;
+            // #1017 Phase 5 — chemistry engine settings (component weights +
+            // position matrix + v2 toggle). Gated inside the view.
+            case 'chemistry-config':
+                \TT\Modules\TeamDevelopment\Frontend\FrontendChemistryConfigView::render( $user_id, $is_admin );
+                return true;
             case 'holidays':
                 // #1480 — academy-wide holiday management.
                 \TT\Shared\Frontend\FrontendHolidaysView::render( $user_id, $is_admin );
