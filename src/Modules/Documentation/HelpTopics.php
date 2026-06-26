@@ -93,6 +93,11 @@ class HelpTopics {
                 'group'   => 'analytics',
                 'summary' => __( 'Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance.', 'talenttrack' ),
             ],
+            'cohort-board' => [
+                'title'   => __( 'Cohort decision board', 'talenttrack' ),
+                'group'   => 'analytics',
+                'summary' => __( 'One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player.', 'talenttrack' ),
+            ],
             'trials' => [
                 'title'   => __( 'Trial cases', 'talenttrack' ),
                 'group'   => 'people',

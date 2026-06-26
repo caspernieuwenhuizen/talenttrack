@@ -1161,6 +1161,20 @@ class DashboardShortcode {
     }
 
     /**
+     * #1383 — cohort decision board. Independent of the explorer feature
+     * flag; the view self-gates on `tt_view_analytics`.
+     */
+    private static function dispatchCohortBoardView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'cohort-board':
+                \TT\Modules\Analytics\Frontend\FrontendCohortBoardView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * #0083 Child 5 — central analytics surface.
      */
     private static function dispatchAnalyticsCentralView( string $view, int $user_id, bool $is_admin ): bool {
@@ -1253,6 +1267,7 @@ class DashboardShortcode {
             || self::dispatchMfaView( $view, $user_id, $is_admin )
             || self::dispatchMobileView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )
+            || self::dispatchCohortBoardView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsCentralView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsReportView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsScheduleView( $view, $user_id, $is_admin );

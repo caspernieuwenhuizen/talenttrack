@@ -1,0 +1,252 @@
+/*
+ * frontend-cohort-board.css (#1383)
+ * Read-only end-of-season cohort decision board.
+ * Mobile-first: base styles target ~360px; the table scrolls
+ * horizontally inside its card. Reads the shared design tokens
+ * (assets/css/tokens.css) — no raw hex. Classes are tt-cb- prefixed.
+ */
+
+.tt-cb-intro {
+    color: var(--tt-muted);
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.tt-cb-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+    margin: 0 0 1rem;
+}
+
+.tt-cb-picker__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 14rem;
+    min-width: 12rem;
+}
+
+.tt-cb-picker__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+.tt-cb-picker__submit {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-cb-actions {
+    margin: 0 0 0.75rem;
+}
+
+.tt-cb-actions .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+/* Card + horizontal-scroll wrapper so the table never overflows the
+   viewport at 360px. */
+.tt-cb-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+
+.tt-cb-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tt-cb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 44rem;
+}
+
+.tt-cb-table thead th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid var(--tt-line);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-cb-th--num {
+    text-align: right;
+}
+
+.tt-cb-th.is-sorted {
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-cb-sort {
+    color: inherit;
+    text-decoration: none;
+    display: inline-block;
+    min-height: 40px;
+    line-height: 40px;
+    touch-action: manipulation;
+}
+
+.tt-cb-sort:hover,
+.tt-cb-sort:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-cb-cell {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--tt-line-soft);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.tt-cb-cell--num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-cb-cell--name {
+    white-space: normal;
+    min-width: 9rem;
+}
+
+.tt-cb-table tbody tr:hover {
+    background: var(--tt-bg-soft);
+}
+
+.tt-cb-link {
+    color: var(--tt-info);
+    text-decoration: none;
+}
+
+.tt-cb-link:hover,
+.tt-cb-link:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-cb-muted {
+    color: var(--tt-muted);
+}
+
+/* Status = colour dot + text (never colour alone). */
+.tt-cb-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.tt-cb-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--tt-muted);
+    flex: 0 0 auto;
+}
+
+.tt-cb-status--active   .tt-cb-dot { background: var(--tt-success); }
+.tt-cb-status--trial    .tt-cb-dot { background: var(--tt-warning); }
+.tt-cb-status--inactive .tt-cb-dot { background: var(--tt-muted); }
+.tt-cb-status--released .tt-cb-dot { background: var(--tt-danger); }
+.tt-cb-status--graduated .tt-cb-dot { background: var(--tt-info); }
+
+.tt-cb-status__text {
+    color: var(--tt-ink);
+}
+
+/* Trend arrow — colour PLUS glyph + screen-reader text. */
+.tt-cb-trend {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 700;
+}
+
+.tt-cb-trend--up   { color: var(--tt-success); }
+.tt-cb-trend--down { color: var(--tt-danger); }
+.tt-cb-trend--flat { color: var(--tt-muted); }
+
+.tt-cb-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tt-cb-att.is-low {
+    color: var(--tt-danger);
+    font-weight: 600;
+}
+
+.tt-cb-att-note {
+    color: var(--tt-muted);
+    font-size: 0.78rem;
+}
+
+/* Verdict pill. */
+.tt-cb-verdict {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    border: 1px solid var(--tt-line);
+}
+
+.tt-cb-verdict--pending {
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+}
+
+.tt-cb-verdict--promote {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+    border-color: var(--tt-success);
+}
+
+.tt-cb-verdict--retain {
+    background: var(--tt-info-subtle);
+    color: var(--tt-info);
+    border-color: var(--tt-info);
+}
+
+.tt-cb-verdict--release {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+    border-color: var(--tt-danger);
+}
+
+.tt-cb-verdict--transfer {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+    border-color: var(--tt-warning);
+}
+
+@media (min-width: 768px) {
+    .tt-cb-table {
+        font-size: 0.95rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-cb-table tbody tr {
+        transition: none;
+    }
+}

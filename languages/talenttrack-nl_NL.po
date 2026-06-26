@@ -42487,3 +42487,63 @@ msgstr "Afstuderen"
 msgid "Move whole squads up an age group at season end."
 msgstr "Verplaats hele teams aan het einde van het seizoen een leeftijdsgroep omhoog."
 
+msgid "A team is required."
+msgstr "Een team is vereist."
+
+msgid "You do not have permission to view the cohort decision board."
+msgstr "Je hebt geen toestemming om het cohortbeslissingsbord te bekijken."
+
+msgid "Cohort decision board"
+msgstr "Cohortbeslissingsbord"
+
+msgid "No current season is set. Configure a season under Configuration → Seasons before using the decision board."
+msgstr "Er is geen huidig seizoen ingesteld. Stel een seizoen in onder Configuratie → Seizoenen voordat je het beslissingsbord gebruikt."
+
+msgid "End-of-season decisions for the current season (%s). Verdicts are set in each PDP file; this board is read-only."
+msgstr "Eindeseizoensbeslissingen voor het huidige seizoen (%s). Eindoordelen worden per POP-dossier ingesteld; dit bord is alleen-lezen."
+
+msgid "Pick a team or age group to see its players."
+msgstr "Kies een team of leeftijdsgroep om de spelers te zien."
+
+msgid "Team / age group"
+msgstr "Team / leeftijdsgroep"
+
+msgid "— Select a team —"
+msgstr "— Selecteer een team —"
+
+msgid "PDP talks"
+msgstr "POP-gesprekken"
+
+msgid "Start PDP"
+msgstr "POP starten"
+
+msgid "Trending up"
+msgstr "Stijgende lijn"
+
+msgid "Trending down"
+msgstr "Dalende lijn"
+
+msgid "Based on few activities"
+msgstr "Gebaseerd op weinig activiteiten"
+
+msgid "(low)"
+msgstr "(laag)"
+
+msgid "You do not have access to this export."
+msgstr "Je hebt geen toegang tot deze export."
+
+msgid "This export link has expired. Reload the board and try again."
+msgstr "Deze exportlink is verlopen. Herlaad het bord en probeer het opnieuw."
+
+msgid "Up"
+msgstr "Omhoog"
+
+msgid "Down"
+msgstr "Omlaag"
+
+msgid "One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player."
+msgstr "Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, trend, aanwezigheid, POP-gesprekken en eindoordeel per speler."
+
+msgid "End-of-season decisions: rating, trend, attendance, verdict per player."
+msgstr "Eindeseizoensbeslissingen: beoordeling, trend, aanwezigheid, eindoordeel per speler."
+

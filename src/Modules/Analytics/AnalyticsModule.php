@@ -80,6 +80,9 @@ class AnalyticsModule implements ModuleInterface {
         // #1380 — evaluation-window coverage report (HoD). REST surface
         // shares EvalCoverageService with the PHP renderer.
         \TT\Infrastructure\REST\EvalCoverageRestController::init();
+        // #1383 — REST surface for the end-of-season cohort decision board
+        // (the PHP renderer + this endpoint share CohortBoardService).
+        \TT\Infrastructure\REST\CohortBoardRestController::init();
     }
 
     /**

@@ -847,6 +847,23 @@ final class CoreSurfaceRegistration {
             'color'        => '#0ea5e9',
             'cap'          => 'tt_view_analytics',
         ]);
+        // #1383 — Cohort decision board (HoD): one read-only screen of
+        // rating / trend / attendance / verdict per player for end-of-season
+        // promote/retain/release decisions. Shares the `analytics` entity +
+        // `tt_view_analytics` cap with the Analytics tile.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+            'view_slug'    => 'cohort-board',
+            'entity'       => 'analytics',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 28,
+            'label'        => __( 'Cohort decision board', 'talenttrack' ),
+            'description'  => __( 'End-of-season decisions: rating, trend, attendance, verdict per player.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#0b3d2e',
+            'cap'          => 'tt_view_analytics',
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([
