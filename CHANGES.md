@@ -1,3 +1,73 @@
+# TalentTrack v4.58.0 — VCT exercise catalogue — full 80 (#1129)
+
+The VCT exercise catalogue now ships its full 80-exercise spread.
+Migration 0181 adds 68 exercises on top of the 0177 scaffold's 12,
+reaching the target per-category counts: warmup 10, technical 20,
+sided_game 20, conditioning 10, finishing 10, cool_down 10. Each
+exercise carries three to four coaching points in canonical English
+plus native Dutch, and every intensity band respects the per-age
+workload ceilings so no exercise exceeds the envelope for the youngest
+age it's offered to. The seed is idempotent and forward-only.
+
+The fr_FR / de_DE / es_ES coaching-point translations, per-exercise
+diagrams, and the HoD / pilot-coach methodology review of the picks,
+intensity bands, and age ranges are a deliberate follow-up — #1129
+stays open until they land.
+
+# TalentTrack v4.58.0 — Spond integration moves to a frontend view (#1936)
+
+The Spond integration now lives on the frontend at **Configuration → Spond
+integration** (`?tt_view=spond`) instead of bouncing to wp-admin. The full
+surface ported across: per-team sync status with a "Refresh now" button,
+the next-automatic-sync time, encrypted account credentials (save / test /
+disconnect), and the collapsible API base-URL override. The Spond password
+stays encrypted at rest via `CredentialsManager` and is never shown back —
+a connected account displays "Connected as <email>" with a blank password
+field. New REST endpoints back every action: `POST/DELETE /spond/credentials`,
+`POST /spond/test`, `POST /spond/base-url` (gated on `tt_edit_spond_credentials`)
+plus the existing `POST /teams/{id}/spond/sync` (gated on `tt_edit_teams`).
+The wp-admin page stays as the power-user fallback.
+
+# TalentTrack v4.58.0 — Authorization: give the exercise library a matrix entity (#1944)
+
+The club-global exercise / drill library now has its own `exercises`
+authorization-matrix entity, distinct from the `activities` session calendar. The
+previously unmapped `tt_manage_exercises` write capability is bridged through
+`LegacyCapMapper`, so the library's REST write paths resolve access from the matrix
+once it is active instead of from raw WordPress capabilities. The seed grants
+read + create + delete to head coaches, assistant coaches, the Head of Development,
+and the Academy Admin — exactly reproducing today's raw cap holders, so no persona
+gains or loses access. In particular, assistant coaches keep their library write
+access (the `tt_coach` role backs both coach personas). A backfill migration adds
+the entity to existing installs.
+
+# TalentTrack v4.58.0 — Authorization: give the in-product mailer a matrix entity (#1945)
+
+The in-product email composer now has its own `email_compose` authorization-matrix
+action-entity. Sending an email is an act rather than a record — like impersonation
+— so the previously unmapped `tt_send_email` capability is bridged through
+`LegacyCapMapper` to `email_compose:create_delete`, resolving access from the matrix
+once it is active instead of from raw WordPress capabilities. The seed grants
+read + create + delete (academy-wide scope) to head coaches, assistant coaches, the
+Head of Development, and the Academy Admin — exactly reproducing today's raw cap
+holders, so no persona gains or loses access. In particular, assistant coaches keep
+the composer (the `tt_coach` role backs both coach personas). A backfill migration
+adds the entity to existing installs.
+
+# TalentTrack v4.58.0 — Authorization: bridge report generation to the matrix (#1946)
+
+The report-generation capability `tt_generate_report` (distinct from
+`tt_generate_scout_report`) is now resolved from the authorization matrix once it is
+active. Generating a report is a create act, so the cap is bridged through
+`LegacyCapMapper` to `reports:create_delete`. Because the `reports` matrix entity
+previously granted coaches and the Head of Development only read access, a naive
+bridge would have revoked generation from them — so access is preserved by adding
+the `create_delete` grant instead: head coaches and assistant coaches at team scope,
+the Head of Development globally (the Academy Admin already held it). Both coach
+personas are seeded so assistant coaches keep generation (the `tt_coach` role backs
+both). Team managers, scouts, players and parents keep read-only and gain nothing.
+A backfill migration adds the new grants to existing installs.
+
 # TalentTrack v4.57.0 — MFA QR encoder — independent round-trip verification + CI gate (#1393)
 
 Closes out the MFA-enrollment-QR bug. The payload + render fixes shipped earlier
