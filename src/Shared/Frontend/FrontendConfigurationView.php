@@ -1542,7 +1542,15 @@ class FrontendConfigurationView extends FrontendViewBase {
         // via FrontendModulesView::addConfigTile) is the canonical
         // per-module enable/disable surface, so Configuration no longer
         // bounces here into wp-admin.
-        $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'backups' ], $admin_url ), 'icon' => 'migrations' ];
+        // #1937 — the wp-admin "Backups" tile (tab=backups) is retired in
+        // favour of the frontend view (?tt_view=backups, FrontendBackupsView),
+        // mirroring the #1533 Feature-toggles / Audit-log / Translations /
+        // Spond retirements above. The wp-admin tab stays as the power-user
+        // fallback (and still owns the partial-restore picker). Cap-gated to
+        // tt_manage_backups (the view's own gate).
+        if ( current_user_can( 'tt_manage_backups' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Scheduled and on-demand database backups: download, restore, and the .ttmig data migration export and import flow.', 'talenttrack' ), 'url' => $view( 'backups' ), 'icon' => 'migrations' ];
+        }
         // #1935 — the wp-admin "Translations" tile (tab=translations) is
         // retired in favour of the frontend view (?tt_view=translations,
         // FrontendTranslationsView), mirroring the #1533 Feature-toggles +

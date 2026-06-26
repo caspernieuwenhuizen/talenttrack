@@ -43026,6 +43026,78 @@ msgid ""
 msgstr ""
 "Voer de eerste installatie uit of opnieuw uit: basisgegevens van de "
 "academie, je eerste team, je beheerdersprofiel en de dashboardpagina."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Scheduled and on-demand database backups: download, restore, and the .ttmig "
+"data migration export and import flow."
+msgstr ""
+"Geplande en handmatige databaseback-ups: downloaden, terugzetten en de "
+".ttmig-gegevensmigratie voor export en import."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Backup settings saved."
+msgstr "Back-upinstellingen opgeslagen."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Running backup…"
+msgstr "Back-up wordt uitgevoerd…"
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Backup created. Reload to see it in the list."
+msgstr "Back-up gemaakt. Herlaad de pagina om deze in de lijst te zien."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Backup deleted."
+msgstr "Back-up verwijderd."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Restore complete. Reload the page to see the restored data."
+msgstr ""
+"Terugzetten voltooid. Herlaad de pagina om de teruggezette gegevens te zien."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Snapshot created %1$s on plugin version %2$s."
+msgstr "Snapshot gemaakt op %1$s met pluginversie %2$s."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Restoring…"
+msgstr "Bezig met terugzetten…"
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Reading archive…"
+msgstr "Archief wordt gelezen…"
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Running dry run…"
+msgstr "Proefuitvoering wordt uitgevoerd…"
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Importing…"
+msgstr "Bezig met importeren…"
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid ""
+"Upload a .ttmig file exported from another TalentTrack install. The preview "
+"only inspects the archive — nothing is written until you dry-run and confirm "
+"the import."
+msgstr ""
+"Upload een .ttmig-bestand dat is geëxporteerd vanaf een andere TalentTrack-"
+"installatie. De voorbeeldweergave inspecteert alleen het archief — er wordt "
+"niets weggeschreven totdat je een proefuitvoering doet en de import bevestigt."
+
+#: src/Infrastructure/REST/BackupRestController.php
+msgid "The backup could not be completed."
+msgstr "De back-up kon niet worden voltooid."
+
+#: src/Infrastructure/REST/BackupRestController.php
+msgid "Type RESTORE to confirm before any data is replaced."
+msgstr "Typ RESTORE om te bevestigen voordat er gegevens worden vervangen."
+
+#: src/Infrastructure/REST/BackupRestController.php
+msgid "The restore could not be completed."
+msgstr "Het terugzetten kon niet worden voltooid."
+
 #~ msgid ""
 #~ "Per-team iCal sync status and \"Refresh now\" buttons. Lives in wp-admin."
 #~ msgstr ""

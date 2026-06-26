@@ -948,6 +948,18 @@ class DashboardShortcode {
                 // the same cap at the REST layer (OnboardingRestController).
                 FrontendSetupView::render( $user_id, $is_admin );
                 return true;
+            case 'backups':
+                // #1937 — frontend port of the wp-admin Backups page
+                // (Configuration → Backups). Settings, stored-backups list
+                // (download/delete), Run now, DESTRUCTIVE full restore
+                // (typed-confirm RESTORE), and the .ttmig migration
+                // export → upload → preview → dry-run → commit (typed-confirm
+                // IMPORT) flow. Gates on tt_manage_backups internally; every
+                // mutation re-checks the same cap at the REST layer
+                // (BackupRestController), restore + import are audit-logged
+                // and refuse to run while impersonating.
+                FrontendBackupsView::render( $user_id, $is_admin );
+                return true;
             case 'lookup-normalisation':
                 // #987 v4.12.0 — canonical-language drift review tool.
                 FrontendLookupNormalisationView::render( $user_id, $is_admin );

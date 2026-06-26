@@ -6,7 +6,15 @@ TalentTrack ships its own backup module (separate from any general-purpose WordP
 
 ## Where to find it
 
-`Configuration → Backups`. Visible to administrators and the **Head of Development** role; the underlying capability is `tt_manage_backups`.
+`Configuration → Backups` (the frontend view at `?tt_view=backups`). Visible to administrators and the **Head of Development** role; the underlying capability is `tt_manage_backups`.
+
+## Frontend view (#1937)
+
+From this release the Backups surface is a frontend view at `?tt_view=backups` — no wp-admin bounce. It covers settings, the stored-backups list (download / restore / delete), Run now, and the full `.ttmig` data migration export + import flow. Each action runs through a capability-gated, nonce-protected REST endpoint (`tt_manage_backups`); the two destructive writes — full restore and migration import — keep the typed-confirmation gate ("RESTORE" / "IMPORT"), refuse to run while you are impersonating another user, and are written to the audit log (`backup.restored` / `migration.imported`).
+
+Backup downloads come back as a URL (object-storage-ready), so the list keeps working unchanged if the storage backend moves off the local filesystem in a future SaaS deployment.
+
+The wp-admin Backups tab (`?page=tt-config&tab=backups`) stays as the power-user fallback and still owns the **Partial restore** scope-picker (a Standard+ licensed two-step diff flow); the frontend list links to it.
 
 ## Settings
 

@@ -1,0 +1,275 @@
+/*
+ * frontend-backups.css — FrontendBackupsView (#1937).
+ *
+ * Frontend port of the wp-admin Backups page: settings, stored-backups
+ * list (download / restore / partial / delete), run-now, and the .ttmig
+ * data migration export + import flow at ?tt_view=backups.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale up.
+ * Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
+ * Destructive actions use the danger token and are visually separated.
+ */
+
+.tt-dashboard .tt-backups {
+    max-width: 880px;
+}
+
+.tt-dashboard .tt-backups__intro {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-backups__status {
+    background: var(--tt-info-subtle);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-5);
+    color: var(--tt-ink);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-backups__msg:not(:empty) {
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-backups__msg.tt-success {
+    background: var(--tt-success-subtle);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-backups__msg.tt-error {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-ink);
+}
+
+/* ---- Sections ------------------------------------------------------- */
+.tt-dashboard .tt-backups__section {
+    margin-top: var(--tt-sp-6);
+    padding-top: var(--tt-sp-5);
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-dashboard .tt-backups__section h2 {
+    font-size: var(--tt-fs-h3);
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-backups__section h3 {
+    font-size: var(--tt-fs-lg);
+    margin: var(--tt-sp-4) 0 var(--tt-sp-2);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-backups__hint {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: 0 0 var(--tt-sp-3);
+    line-height: 1.45;
+}
+
+.tt-dashboard .tt-backups__empty {
+    color: var(--tt-muted);
+}
+
+/* ---- Form fields ---------------------------------------------------- */
+.tt-dashboard .tt-backups__field {
+    display: grid;
+    gap: var(--tt-sp-2);
+    margin-bottom: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-backups__legend {
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin: 0;
+}
+
+/* Inputs: ≥16px font to defeat iOS auto-zoom; full-width on phones. */
+.tt-dashboard .tt-backups__input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-backups__input--narrow {
+    max-width: 12rem;
+}
+
+.tt-dashboard .tt-backups__textarea {
+    min-height: 7rem;
+    font-family: monospace;
+    resize: vertical;
+}
+
+.tt-dashboard .tt-backups__input:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 1px;
+}
+
+/* Checkbox rows — 48px tap target, 8px gap. */
+.tt-dashboard .tt-backups__check {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 48px;
+    color: var(--tt-ink);
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-backups__check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+
+.tt-dashboard .tt-backups__entities {
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-backups__radio {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1);
+    min-height: 44px;
+    margin-right: var(--tt-sp-4);
+    color: var(--tt-ink);
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-backups__conflict {
+    margin: 0 0 var(--tt-sp-3);
+}
+
+/* ---- Stored-backups table ------------------------------------------- */
+.tt-dashboard .tt-backups__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--tt-sp-2) 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-backups__table th,
+.tt-dashboard .tt-backups__table td {
+    text-align: left;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-bottom: 1px solid var(--tt-line-soft);
+    vertical-align: middle;
+}
+
+.tt-dashboard .tt-backups__table th {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-backups__table code {
+    word-break: break-all;
+}
+
+.tt-dashboard .tt-backups__row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-btn--sm {
+    min-height: 40px;
+    padding: var(--tt-sp-1) var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+}
+
+/* Mobile: stack the table into labelled cards so the 5 columns don't
+   overflow 360px. The data-label attribute carries the column heading. */
+@media (max-width: 767px) {
+    .tt-dashboard .tt-backups__table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    .tt-dashboard .tt-backups__table tr {
+        display: block;
+        border: 1px solid var(--tt-line);
+        border-radius: var(--tt-radius);
+        margin-bottom: var(--tt-sp-3);
+        padding: var(--tt-sp-2);
+    }
+
+    .tt-dashboard .tt-backups__table td {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--tt-sp-3);
+        border-bottom: 1px solid var(--tt-line-soft);
+        padding: var(--tt-sp-2);
+    }
+
+    .tt-dashboard .tt-backups__table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--tt-muted);
+        font-size: var(--tt-fs-sm);
+    }
+
+    .tt-dashboard .tt-backups__row-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tt-dashboard .tt-backups__row-actions::before {
+        display: none;
+    }
+}
+
+/* ---- Destructive panels (restore + import confirm) ------------------ */
+.tt-dashboard .tt-backups__restore-panel,
+.tt-dashboard .tt-backups__import-panel {
+    margin-top: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-backups__danger-note {
+    background: var(--tt-danger-subtle);
+    border: 1px solid var(--tt-danger);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    color: var(--tt-ink);
+    line-height: 1.5;
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-backups__warn {
+    background: var(--tt-warning-subtle);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    color: var(--tt-ink);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-backups__confirm-form {
+    margin-top: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-backups__export-form {
+    margin-bottom: var(--tt-sp-4);
+}
+
+/* Wider viewports: keep tables comfortably wide, not full-bleed. */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-backups__textarea {
+        max-width: 30rem;
+    }
+}
