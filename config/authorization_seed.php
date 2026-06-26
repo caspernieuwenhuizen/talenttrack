@@ -83,6 +83,10 @@ $mod_vct              = class_exists( '\TT\Modules\Vct\VctModule' )             
 // until its class autoloads the seed falls back to $mod_authorization,
 // mirroring the trials/journey/vct fallback pattern above.
 $mod_measurements     = class_exists( '\TT\Modules\Measurements\MeasurementsModule' )     ? \TT\Modules\Measurements\MeasurementsModule::class     : $mod_authorization;
+// #1943 — Tournaments. Admin-only fair-share planner (#0093). Falls
+// back to $mod_authorization if the module class hasn't autoloaded yet,
+// mirroring the trials/journey/vct/measurements fallback pattern above.
+$mod_tournaments      = class_exists( '\TT\Modules\Tournaments\TournamentsModule' )       ? \TT\Modules\Tournaments\TournamentsModule::class       : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -770,6 +774,14 @@ return array_merge(
         'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
         'wp_admin_portal'               => [ 'r',   'global', $mod_authorization ],
+        // #1943 — Tournaments fair-share planner. Admin-only in v1
+        // (#0093 design): only academy_admin (and WP administrators, who
+        // bypass) reach the surface. The single legacy `tt_edit_tournaments`
+        // cap historically covered view + edit + create + delete, so the
+        // grant is full `rcd` to preserve create/delete parity. No other
+        // persona — the coach/HoD/scout persona-expansion (docs §99-104)
+        // is a separate, deliberate future change.
+        'tournaments'                   => [ 'rcd', 'global', $mod_tournaments ],
         // #0081 — Onboarding pipeline. Admin RCD global; same as HoD.
         'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],

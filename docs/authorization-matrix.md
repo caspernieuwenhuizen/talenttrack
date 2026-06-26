@@ -96,6 +96,17 @@ The Tournament planner ships with two new capabilities — `tt_view_tournaments`
 
 The caps are intentionally **not** in `RolesService::VIEW_CAPS` / `EDIT_CAPS` so they don't auto-propagate to HoD via `allViewCapsTrue()`. They live in their own `TOURNAMENTS_CAPS` constant; `ensureCapabilities()` grants them to WP `administrator` and the role definition for `tt_club_admin` lists them explicitly.
 
+### Matrix entity `tournaments` (#1943)
+
+Since #1943 the feature has a matrix entity: `tournaments`. The seed grants **academy_admin `rcd[global]` only** — reproducing the admin-only v1 design above (WP administrators bypass via the matrix administrator-override). No other persona holds a row. `LegacyCapMapper` bridges the raw caps so the existing `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )` call sites resolve through the matrix once it is active:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_view_tournaments` | `tournaments` / `read` |
+| `tt_edit_tournaments` | `tournaments` / `change` |
+
+`tt_edit_tournaments` historically covers edit **and** create **and** delete (there is no separate manage cap), so the seed grant is full `rcd` — bridging edit to `change` preserves create/delete coverage because the sole grantee holds all three activities. The raw cap holders (administrator + `tt_club_admin`) map cleanly onto the seed grantee (administrator bypass + academy_admin persona), so routing through the matrix is **access-preserving** — no persona gains or loses access. Migration `0179_authorization_seed_topup_tournaments` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`).
+
 When the persona-expansion ship lands:
 
 1. Map `tt_view_tournaments` → Coach + HoD + Scout, `tt_edit_tournaments` → Coach (own tournaments) + HoD.
