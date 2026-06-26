@@ -32,7 +32,9 @@ final class PlayerStatusModule implements ModuleInterface {
     /**
      * Idempotent capability assignment.
      *
-     *   tt_rate_player_behaviour  — coach + head_dev + administrator.
+     *   tt_rate_player_behaviour  — head_coach + head_dev + administrator.
+     *                               #1941: assistant_coach NO LONGER holds
+     *                               it (matrix tighten — see below).
      *   tt_set_player_potential   — head_dev + administrator. Coaches
      *                               of a team don't set potential
      *                               (HoD-level call).
@@ -50,13 +52,31 @@ final class PlayerStatusModule implements ModuleInterface {
         $view         = 'tt_view_player_status';
         $view_detail  = 'tt_view_player_status_breakdown';
 
+        // #1941 — `tt_rate_player_behaviour` no longer goes to
+        // assistant_coach. `tt_rate_player_behaviour` now bridges to
+        // `player_behaviour_ratings:change` (LegacyCapMapper), whose matrix
+        // seed omits assistant_coach (#1060 "AC is operational"). Behaviour-
+        // rating is a development judgment that belongs to head coaches +
+        // development staff. The breakdown-view caps still go to AC (they
+        // SEE the status, they just don't author behaviour ratings).
+        $rate_roles     = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_head_coach' ];
         $coach_roles    = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_head_coach', 'tt_assistant_coach' ];
         $hod_roles      = [ 'administrator', 'tt_head_dev', 'tt_club_admin' ];
         $any_view_roles = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_head_coach', 'tt_assistant_coach', 'tt_scout', 'tt_parent' ];
 
-        foreach ( $coach_roles as $r ) {
+        foreach ( $rate_roles as $r ) {
             $role = get_role( $r );
             if ( $role && ! $role->has_cap( $rate ) ) $role->add_cap( $rate );
+        }
+
+        // #1941 — revoke the stale raw grant from assistant_coach so that
+        // matrix-dormant installs converge on the matrix authority too
+        // (mirrors #1922's readonly_observer team_chemistry revoke). Without
+        // this, an install that hasn't applied the matrix keeps letting AC
+        // rate behaviour via the native WP cap.
+        $ac_role = get_role( 'tt_assistant_coach' );
+        if ( $ac_role && $ac_role->has_cap( $rate ) ) {
+            $ac_role->remove_cap( $rate );
         }
         foreach ( $hod_roles as $r ) {
             $role = get_role( $r );
