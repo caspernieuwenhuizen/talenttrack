@@ -197,6 +197,56 @@
     color: var(--tt-ink, #0e1a14);
 }
 
+/* ---- Fixtures: next match + recent results (#1989) ---------------- */
+.tt-dashboard .tt-mt-fixtures-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-mt-fixture {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+}
+.tt-dashboard .tt-mt-fixture__date { font-weight: 700; color: var(--tt-ink, #0e1a14); }
+.tt-dashboard .tt-mt-fixture__opp { color: var(--tt-ink, #0e1a14); }
+.tt-dashboard .tt-mt-fixture__ha,
+.tt-dashboard .tt-mt-fixture__loc { color: var(--tt-muted, #6a6d66); font-size: 0.82rem; }
+.tt-dashboard .tt-mt-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+}
+.tt-dashboard .tt-mt-form__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    line-height: 1;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-mt-form__letter { font-weight: 700; }
+.tt-dashboard .tt-mt-form__chip--win {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-color: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-mt-form__chip--loss {
+    background: var(--tt-danger-subtle, #fde2e2);
+    border-color: var(--tt-danger, #d8453b);
+}
+.tt-dashboard .tt-mt-form__chip--draw {
+    background: var(--tt-line-soft, #eef0ec);
+    border-color: var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-mt-form__chip--win .tt-mt-form__letter { color: #1c6e3f; }
+.tt-dashboard .tt-mt-form__chip--loss .tt-mt-form__letter { color: #a32820; }
+
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 768px) {
     .tt-dashboard .tt-mt-card {

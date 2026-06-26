@@ -366,6 +366,12 @@ class ActivitiesRestController {
             // #1729 — optional arrival/presence time (match activities).
             'time_of_presence'         => isset( $row->time_of_presence ) && $row->time_of_presence !== null ? (string) $row->time_of_presence : null,
             'location'                 => (string) ( $row->location ?? '' ),
+            // #1989 — match result fields (present on the single-activity
+            // a.* fetch; null on list shapes that don't select them).
+            'opponent'                 => isset( $row->opponent ) ? (string) $row->opponent : null,
+            'home_away'                => isset( $row->home_away ) ? (string) $row->home_away : null,
+            'home_score'               => isset( $row->home_score ) && $row->home_score !== null ? (int) $row->home_score : null,
+            'away_score'               => isset( $row->away_score ) && $row->away_score !== null ? (int) $row->away_score : null,
             'team_id'                  => (int) ( $row->team_id ?? 0 ),
             'team_name'                => (string) ( $row->team_name ?? '' ),
             'team_link_html'           => $team_link_html,
