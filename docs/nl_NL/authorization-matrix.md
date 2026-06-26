@@ -125,6 +125,25 @@ Omdat de matrix nu de enige bron van waarheid is, krijgen twee persona's die voo
 
 Persona's die toegang houden: `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
 
+### Resterende blauwdruk-oppervlakken via `TeamChemistryAccess` (#1939)
+
+Twee blauwdruk-codepaden bepaalden na #1922 hun autoriteit nog met de ruwe capabilities `tt_view_team_chemistry` / `tt_manage_team_chemistry`; #1939 leidt ook deze via `TeamChemistryAccess`, zodat de hele blauwdruk-functie nu antwoordt vanuit de matrixentiteit `team_chemistry`:
+
+- De aanmaak-wizard voor teamblauwdrukken (`Modules\Wizards\TeamBlueprint\ReviewStep::submit()`) gate't "blauwdruk aanmaken" op `TeamChemistryAccess::canManage()`.
+- De blauwdruk-commentaarthread (`Modules\Threads\Adapters\BlueprintThreadAdapter`) gate't lezen op `canRead()` en posten op `canManage()`.
+
+Dit zijn handhaving-alleen herverwijzingen — ze landen exact op de `team_chemistry`-toegang die #1922 vestigde (dezelfde personatabel hierboven).
+
+## Handelings-capability-bruggen naar bestaande speler-status-entiteiten (#1939)
+
+De PlayerStatus-handelings-capability "potentieel-band instellen" was matrix-blind terwijl zijn data-capability-broer matrix-bewust was, waardoor de frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) en REST (`PlayerStatusRestController`) konden afwijken. #1939 brugt de handelings-capability zodat beide oppervlakken vanuit dezelfde matrixentiteit antwoorden:
+
+- **`tt_set_player_potential` → `player_potential:change`** (gebrugd). De ruwe WP-toekenning (`PlayerStatusModule`: administrator + head_dev + club_admin) komt exact overeen met de begunstigden van `player_potential:change` in de matrix (`head_of_development` + `academy_admin` globaal; geen andere persona houdt `change`), dus de brug is toegangsbehoudend.
+
+Eén verwante handelings-capability wordt **bewust niet gebrugd** omdat dat de effectieve toegang zou wijzigen:
+
+- **`tt_rate_player_behaviour`** blijft op de native WP-capability-evaluatie. De ruwe toekenning omvat `tt_assistant_coach`, maar de seed van `player_behaviour_ratings` heeft geen `assistant_coach`-rij (verwijderd door #1060). Brugging zou de assistent-coach-toegang intrekken — een effectieve-toegangswijziging, geen handhaving-alleen herverwijzing — dus is dit op #1939 gemarkeerd voor een productbeslissing (de les van #1922: verplaats nooit stilletjes toegang terwijl je "slechts" een capability brugt).
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.

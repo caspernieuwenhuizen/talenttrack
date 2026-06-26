@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\TeamBlueprint;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
+use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -41,7 +42,7 @@ final class ReviewStep implements WizardStepInterface {
     public function nextStep( array $state ): ?string { return null; }
 
     public function submit( array $state ) {
-        if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) {
+        if ( ! TeamChemistryAccess::canManage( get_current_user_id() ) ) {
             return new \WP_Error( 'denied', __( 'You do not have permission to create blueprints.', 'talenttrack' ) );
         }
         $team_id     = (int) ( $state['team_id']               ?? 0 );

@@ -140,8 +140,23 @@ final class LegacyCapMapper {
         'tt_view_authorization_changelog'      => [ 'authorization_changelog', 'read' ],
         'tt_view_player_potential'             => [ 'player_potential',        'read' ],
         'tt_edit_player_potential'             => [ 'player_potential',        'change' ],
+        // #1939 — act-cap bridge. `tt_set_player_potential` is the
+        // PlayerStatus "set the potential band" act-cap (data entity is
+        // `player_potential`). Raw WP grants (PlayerStatusModule: admin +
+        // head_dev + club_admin) exactly match the `player_potential:change`
+        // seed grantees (head_of_development + academy_admin globally; no
+        // other persona has change), so routing it through the matrix is
+        // access-preserving — it closes the frontend/REST divergence where
+        // `tt_edit_player_potential` was matrix-aware but the act-cap was not.
+        'tt_set_player_potential'              => [ 'player_potential',        'change' ],
         'tt_view_player_behaviour_ratings'     => [ 'player_behaviour_ratings','read' ],
         'tt_edit_player_behaviour_ratings'     => [ 'player_behaviour_ratings','change' ],
+        // #1939 — `tt_rate_player_behaviour` (the behaviour-rating act-cap)
+        // deliberately NOT bridged: its raw WP grant includes
+        // tt_assistant_coach, but the `player_behaviour_ratings` matrix seed
+        // has NO assistant_coach row (#1060 removed it). Bridging would
+        // revoke AC access — an effective-access change, not enforcement-
+        // only. Flagged on #1939 for a product decision (the #1922 lesson).
         'tt_view_player_status'                => [ 'player_status',           'read' ],
         'tt_view_player_status_breakdown'      => [ 'player_status_breakdown', 'read' ],
         'tt_view_pdp_evidence_packet'          => [ 'pdp_evidence_packet',     'read' ],
