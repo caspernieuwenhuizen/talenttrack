@@ -106,3 +106,27 @@ WP_LOAD=/path/to/wp-load.php php bin/contract-test.php
 ```
 
 Auth-required endpoints register as `SKIP` when run unauthenticated; that's expected. The script exits non-zero if any endpoint fails the envelope check or returns ≥ 400 unauthenticated.
+
+## PHP tests (PHPUnit + wp-env) — #1388
+
+The plugin has a PHPUnit test floor that runs against a **real** WordPress + MySQL via wp-env (the same environment the Playwright E2E job uses), so tests exercise actual DB + WP behaviour rather than mocks. The suite lives in `tests/php/`; config in `phpunit.xml.dist`; bootstrap in `tests/php/bootstrap.php`.
+
+**What's covered (Tier 1):**
+- `MigrationRunner` — failure surfacing, the failed-migration-re-runs contract, `FAILURES_OPTION`.
+- `AuthorizationService` + the authorization-matrix repository — the authz decision contract and grant round-trip (the regression class that bit the board six times: #1143/#1105/#1106/#1147/#1159/#1189).
+
+Tier 2 (a ~20-endpoint REST smoke suite asserting status codes + envelope shape on the historically-buggy denial paths) is added under the same suite.
+
+**Running locally** (requires Docker):
+
+```
+npm install                 # first time — installs @wordpress/env
+npm run wp-env:start        # boots the WordPress + MySQL test env
+npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/phpunit
+```
+
+**CI:** `.github/workflows/php-tests.yml` runs the suite on every code PR and is a **required, blocking gate** — a red suite blocks merge. A deliberately broken authz grant or a migration that stops surfacing failures fails the build.
+
+### Mandatory: a smoke test for every new REST endpoint
+
+When you add a `register_rest_route(...)`, add a smoke test for it in `tests/php/` in the same PR. The bar is low — assert the **status code** and the **envelope shape** for at least the **denial path** (an unauthorised caller gets the expected 401/403) and the happy path. This is the cheapest insurance against the authorization-coverage bug class; full-content assertions are not required. (Trivial copy-only changes to an existing endpoint don't.)

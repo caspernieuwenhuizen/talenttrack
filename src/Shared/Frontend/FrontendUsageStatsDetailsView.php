@@ -78,13 +78,25 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
     private static function renderLogins( int $days ): void {
         global $wpdb;
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+
+        // #1963 — bound the per-load fetch. Count first, then window the
+        // rows with LIMIT/OFFSET instead of dumping up to 500 rows into PHP
+        // on every page view.
+        $total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+             FROM {$wpdb->prefix}tt_usage_events e
+             WHERE e.event_type = 'login' AND e.created_at >= %s AND e.club_id = %d",
+            $cutoff, CurrentClub::id()
+        ) );
+        $page   = self::currentPage();
+        $offset = ( $page - 1 ) * self::PAGE_SIZE;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.user_id, e.created_at
              FROM {$wpdb->prefix}tt_usage_events e
              WHERE e.event_type = 'login' AND e.created_at >= %s AND e.club_id = %d
              ORDER BY e.created_at DESC
-             LIMIT 500",
-            $cutoff, CurrentClub::id()
+             LIMIT %d OFFSET %d",
+            $cutoff, CurrentClub::id(), self::PAGE_SIZE, $offset
         ) );
         ?>
         <h1 class="tt-fview-title"><?php
@@ -96,12 +108,13 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         ?></h1>
         <p class="tt-usage-count"><?php
             printf(
-                esc_html( _n( '%d login event.', '%d login events.', count( (array) $rows ), 'talenttrack' ) ),
-                count( (array) $rows )
+                esc_html( _n( '%d login event.', '%d login events.', $total, 'talenttrack' ) ),
+                $total
             );
         ?></p>
         <div class="tt-usage-card"><div class="tt-table-wrap"><?php self::renderUserTimeTable( (array) $rows ); ?></div></div>
         <?php
+        self::renderPager( 'logins', $page, $total, [ 'days' => $days ] );
     }
 
     private static function renderActiveUsers( int $days ): void {
@@ -438,12 +451,21 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         $name = $user ? $user->display_name : sprintf( '(user %d)', $uid );
 
         global $wpdb;
+        // #1963 — bound the per-load fetch. Count first, then window the
+        // event rows with LIMIT/OFFSET instead of pulling up to 500 rows.
+        $total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_usage_events
+             WHERE user_id = %d AND club_id = %d",
+            $uid, CurrentClub::id()
+        ) );
+        $page   = self::currentPage();
+        $offset = ( $page - 1 ) * self::PAGE_SIZE;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tt_usage_events
              WHERE user_id = %d AND club_id = %d
              ORDER BY created_at DESC
-             LIMIT 500",
-            $uid, CurrentClub::id()
+             LIMIT %d OFFSET %d",
+            $uid, CurrentClub::id(), self::PAGE_SIZE, $offset
         ) );
         ?>
         <h1 class="tt-fview-title"><?php
@@ -455,8 +477,8 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         ?></h1>
         <p class="tt-usage-count"><?php
             printf(
-                esc_html( _n( '%d event in the retention window (last 90 days).', '%d events in the retention window (last 90 days).', count( (array) $rows ), 'talenttrack' ) ),
-                count( (array) $rows )
+                esc_html( _n( '%d event in the retention window (last 90 days).', '%d events in the retention window (last 90 days).', $total, 'talenttrack' ) ),
+                $total
             );
         ?></p>
         <?php if ( empty( $rows ) ) : ?>
@@ -482,9 +504,67 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             </div></div>
         <?php endif; ?>
         <?php
+        self::renderPager( 'user_timeline', $page, $total, [ 'uid' => $uid ] );
     }
 
     // Helpers
+
+    /**
+     * #1963 — page-size for the windowed login / timeline event lists.
+     * Caps the per-load fetch (was an unconditional LIMIT 500).
+     */
+    private const PAGE_SIZE = 50;
+
+    /**
+     * Read the `&p` page param off the request. Clamped to >= 1; the
+     * upper bound is enforced by the caller against the row count.
+     */
+    private static function currentPage(): int {
+        return isset( $_GET['p'] ) ? max( 1, absint( $_GET['p'] ) ) : 1;
+    }
+
+    /**
+     * Render a prev / next pager for a windowed list. Renders nothing
+     * when the result set fits on a single page. Prev/next are real
+     * links (GET round-trip, no-JS safe); the disabled edge is a
+     * non-interactive span. Mobile-first, ≥48px targets — styled in
+     * frontend-usage-stats-details.css (.tt-usage-pager).
+     *
+     * @param string                 $metric drill-down metric key.
+     * @param int                    $page   current 1-based page.
+     * @param int                    $total  total row count.
+     * @param array<string,scalar>   $extra  extra params to preserve (e.g. uid).
+     */
+    private static function renderPager( string $metric, int $page, int $total, array $extra = [] ): void {
+        $pages = (int) max( 1, (int) ceil( $total / self::PAGE_SIZE ) );
+        if ( $pages <= 1 ) {
+            return;
+        }
+        $page = min( $page, $pages );
+        $base = array_merge( [ 'metric' => $metric ], $extra );
+        ?>
+        <nav class="tt-usage-pager" aria-label="<?php esc_attr_e( 'Pagination', 'talenttrack' ); ?>">
+            <?php if ( $page > 1 ) : ?>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::detailsUrl( array_merge( $base, [ 'p' => $page - 1 ] ) ) ); ?>" rel="prev"><?php esc_html_e( '← Previous', 'talenttrack' ); ?></a>
+            <?php else : ?>
+                <span class="tt-btn tt-btn-secondary tt-is-disabled" aria-disabled="true"><?php esc_html_e( '← Previous', 'talenttrack' ); ?></span>
+            <?php endif; ?>
+            <span class="tt-usage-pager__status"><?php
+                printf(
+                    /* translators: 1: current page number, 2: total page count */
+                    esc_html__( 'Page %1$d of %2$d', 'talenttrack' ),
+                    $page,
+                    $pages
+                );
+            ?></span>
+            <?php if ( $page < $pages ) : ?>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::detailsUrl( array_merge( $base, [ 'p' => $page + 1 ] ) ) ); ?>" rel="next"><?php esc_html_e( 'Next →', 'talenttrack' ); ?></a>
+            <?php else : ?>
+                <span class="tt-btn tt-btn-secondary tt-is-disabled" aria-disabled="true"><?php esc_html_e( 'Next →', 'talenttrack' ); ?></span>
+            <?php endif; ?>
+        </nav>
+        <?php
+    }
 
     private static function renderUserTimeTable( array $rows ): void {
         ?>
@@ -533,7 +613,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         // Strip every drill-down param we know about so we get a clean
         // shortcode-page URL to rebuild from.
         return remove_query_arg(
-            [ 'tt_view', 'metric', 'days', 'date', 'role', 'slug', 'uid' ],
+            [ 'tt_view', 'metric', 'days', 'date', 'role', 'slug', 'uid', 'p' ],
             $base
         );
     }

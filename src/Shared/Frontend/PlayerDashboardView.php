@@ -108,14 +108,20 @@ class PlayerDashboardView {
                 . '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>'
                 . '<th>' . esc_html__( 'Ratings', 'talenttrack' ) . '</th>'
                 . '</tr></thead><tbody>';
+            // #1961 — hydrate every eval's ratings in one batched query
+            // instead of a per-row QueryHelpers::get_evaluation() detail
+            // fetch (1+N → O(1)). Ratings rows are identical in shape and
+            // per-eval order to get_evaluation()'s `$full->ratings`.
+            $ratings_by_eval = ( new \TT\Infrastructure\Evaluations\EvalRatingsRepository() )
+                ->ratingsForEvaluations( array_map( fn( $e ) => (int) $e->id, $evals ) );
             foreach ( $evals as $ev ) {
-                $full = QueryHelpers::get_evaluation( (int) $ev->id );
+                $ratings = $ratings_by_eval[ (int) $ev->id ] ?? [];
                 echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $ev->eval_date ) ) . '</td><td>' . esc_html( $ev->type_name ?: '—' ) . '</td><td>' . esc_html( $ev->coach_name ) . '</td><td>';
                 if ( $ev->opponent ) {
                     echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->game_result ?: '—' ) ) . '</small><br/>';
                 }
                 $show_subs = EvalDisplayMode::showSubcategories( get_current_user_id() );
-                if ( $full && ! empty( $full->ratings ) ) foreach ( $full->ratings as $r ) {
+                if ( ! empty( $ratings ) ) foreach ( $ratings as $r ) {
                     if ( ! $show_subs && ! empty( $r->category_parent_id ) ) continue;
                     echo '<span class="tt-rating-pill">' . esc_html( EvalCategoriesRepository::displayLabel( (string) $r->category_name ) ) . ': ' . esc_html( (string) $r->rating ) . '</span> ';
                 }

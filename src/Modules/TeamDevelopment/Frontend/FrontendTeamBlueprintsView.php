@@ -450,11 +450,9 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             . ' data-list-url="' . esc_attr( $list_url ) . '">';
 
         // --- Formation selector (stays a labelled dropdown). ---
-        global $wpdb; $p = $wpdb->prefix;
-        $templates = $wpdb->get_results(
-            "SELECT id, name, formation_shape FROM {$p}tt_formation_templates
-              WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
-        );
+        // #1649 — shared, request-memoised fetch (see formationTemplates());
+        // the dropdown reads id/name/formation_shape, a subset of the row.
+        $templates = self::formationTemplates();
         $current_template_id = (int) ( $bp['formation_template_id'] ?? 0 );
         echo '<div class="tt-bpe-ab-formation">';
         echo '<label class="tt-bpe-ab-formation-label" for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
@@ -1062,6 +1060,31 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         return false;
     }
 
+    /**
+     * Active formation templates, fetched once per request and reused.
+     *
+     * #1649 — the editor load read `tt_formation_templates` twice per
+     * page (a lightweight `id, name, formation_shape` list for the
+     * toolbar dropdown in renderActionBar(), plus a hydrated read that
+     * also pulls `slots_json` for the JS payload in
+     * localiseBlueprintEditor()). Both consumers want the same rows in
+     * the same order; the dropdown's columns are a subset of the
+     * hydrated read's. Fetch the superset once and memoise it so the
+     * editor fires a single formation-template query.
+     *
+     * @return object[]
+     */
+    private static function formationTemplates(): array {
+        static $cache = null;
+        if ( $cache !== null ) return $cache;
+        global $wpdb; $p = $wpdb->prefix;
+        $cache = (array) $wpdb->get_results(
+            "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
+              WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
+        );
+        return $cache;
+    }
+
     private static function enqueueBlueprintAssets(): void {
         // Single editor stylesheet (mobile-first). The legacy
         // `frontend-team-blueprint.css` + `frontend-team-blueprint.js`
@@ -1160,11 +1183,24 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $picker_teams = $is_admin
             ? QueryHelpers::get_teams()
             : QueryHelpers::get_teams_for_coach( get_current_user_id() );
+        // #1649 — one batched player query for all sibling teams, grouped
+        // in PHP, instead of get_players() per team inside the loop. The
+        // batched helper orders by (last_name, first_name) just like the
+        // per-team query, so each group's order matches the old output.
+        $sibling_team_ids = [];
+        foreach ( $picker_teams as $t ) {
+            if ( (int) $t->id === $team_id ) continue;
+            $sibling_team_ids[] = (int) $t->id;
+        }
+        $players_by_team = [];
+        foreach ( QueryHelpers::get_players_for_teams( $sibling_team_ids ) as $pl ) {
+            $players_by_team[ (int) $pl->team_id ][] = $pl;
+        }
         $other_teams = [];
         foreach ( $picker_teams as $t ) {
             if ( (int) $t->id === $team_id ) continue;
             $players = [];
-            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+            foreach ( $players_by_team[ (int) $t->id ] ?? [] as $pl ) {
                 $players[] = [
                     'id'   => (int) $pl->id,
                     'name' => QueryHelpers::player_display_name( $pl ),
@@ -1184,11 +1220,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // REST round-trip on every formation switch. Slots dropped
         // from the previous formation stay in `assignment_refs` —
         // round-tripping back to the old formation restores them.
-        global $wpdb; $p = $wpdb->prefix;
-        $tpl_rows = $wpdb->get_results(
-            "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
-              WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
-        );
+        // #1649 — shared, request-memoised fetch (see formationTemplates()).
+        $tpl_rows = self::formationTemplates();
         $formation_templates = [];
         foreach ( (array) $tpl_rows as $row ) {
             $decoded = json_decode( (string) ( $row->slots_json ?? '[]' ), true );
