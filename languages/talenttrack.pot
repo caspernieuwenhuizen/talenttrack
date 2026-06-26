@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-26T11:44:59+00:00\n"
+"POT-Creation-Date: 2026-06-26T12:40:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -429,71 +429,79 @@ msgstr ""
 msgid "Allow the A4 match-preparation sheet to be exported/printed as a PDF. The match-prep screen stays available when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:220
+#: src/Core/FeatureRegistry.php:212
+msgid "Tournament auto-balance"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:213
+msgid "The greedy fair-share auto-planner that fills a match grid by eligibility, equal-share minutes and starts distribution. Manual click-to-swap planning stays available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:233
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:86
 msgid "Players list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:221
+#: src/Core/FeatureRegistry.php:234
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:155
 msgid "Team roster + season stats"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:222
+#: src/Core/FeatureRegistry.php:235
 #: src/Shared/Frontend/FrontendExportsView.php:230
 msgid "Federation registration (JSON)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:223
+#: src/Core/FeatureRegistry.php:236
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:32
 #: src/Shared/Frontend/FrontendExportsView.php:102
 msgid "Attendance register"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:224
+#: src/Core/FeatureRegistry.php:237
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:167
 msgid "Team activity history"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:225
+#: src/Core/FeatureRegistry.php:238
 #: src/Modules/Export/Exporters/TeamIcalExporter.php:36
 #: src/Shared/Frontend/FrontendExportsView.php:219
 msgid "Team activity calendar (iCal)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:226
+#: src/Core/FeatureRegistry.php:239
 #: src/Shared/Frontend/FrontendExportsView.php:131
 msgid "Evaluations export"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:227
+#: src/Core/FeatureRegistry.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:32
 #: src/Shared/Frontend/FrontendExportsView.php:143
 msgid "Player evaluations (flat)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:228
+#: src/Core/FeatureRegistry.php:241
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:114
 msgid "Goals list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:229
+#: src/Core/FeatureRegistry.php:242
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
 #: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "KPI snapshot"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:230
+#: src/Core/FeatureRegistry.php:243
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:190
 msgid "Coach / staff directory"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:231
+#: src/Core/FeatureRegistry.php:244
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:41
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:114
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
@@ -507,22 +515,22 @@ msgstr ""
 msgid "Audit log"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:232
+#: src/Core/FeatureRegistry.php:245
 #: src/Shared/Frontend/FrontendExportsView.php:246
 msgid "Full club-data backup"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:233
+#: src/Core/FeatureRegistry.php:246
 #: src/Shared/Frontend/FrontendExportsView.php:260
 msgid "Demo-data round-trip"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:235
+#: src/Core/FeatureRegistry.php:248
 msgid "Show this export tile and allow it to run. When off, the tile is hidden from the Exports page and its export is rejected even via a direct link."
 msgstr ""
 
 #. translators: %s = export tile name, e.g. "Players list".
-#: src/Core/FeatureRegistry.php:239
+#: src/Core/FeatureRegistry.php:252
 #, php-format
 msgid "Export: %s"
 msgstr ""
@@ -2466,91 +2474,91 @@ msgstr ""
 msgid "The player could not be removed from the team."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:356
-#: src/Infrastructure/REST/TournamentsRestController.php:419
+#: src/Infrastructure/REST/TournamentsRestController.php:362
+#: src/Infrastructure/REST/TournamentsRestController.php:425
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:77
 msgid "Tournament name is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:359
+#: src/Infrastructure/REST/TournamentsRestController.php:365
 msgid "An anchor team is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:362
+#: src/Infrastructure/REST/TournamentsRestController.php:368
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:85
 msgid "Start date is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:372
+#: src/Infrastructure/REST/TournamentsRestController.php:378
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:151
 msgid "The tournament could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:429
+#: src/Infrastructure/REST/TournamentsRestController.php:435
 msgid "The tournament could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:454
+#: src/Infrastructure/REST/TournamentsRestController.php:460
 msgid "The tournament could not be archived."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:463
-#: src/Infrastructure/REST/TournamentsRestController.php:478
+#: src/Infrastructure/REST/TournamentsRestController.php:469
+#: src/Infrastructure/REST/TournamentsRestController.php:484
 msgid "Invalid tournament id."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:519
+#: src/Infrastructure/REST/TournamentsRestController.php:525
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:264
 msgid "The match could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:598
+#: src/Infrastructure/REST/TournamentsRestController.php:604
 msgid "Match already completed. Pass force=1 to edit a locked lineup."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:603
+#: src/Infrastructure/REST/TournamentsRestController.php:609
 msgid "Assignments payload must be an array."
 msgstr ""
 
 #. translators: %s is the tournament name
-#: src/Infrastructure/REST/TournamentsRestController.php:725
+#: src/Infrastructure/REST/TournamentsRestController.php:731
 #, php-format
 msgid "Tournament match — %s"
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:745
+#: src/Infrastructure/REST/TournamentsRestController.php:751
 msgid "Could not create the match activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:806
+#: src/Infrastructure/REST/TournamentsRestController.php:812
 msgid "Could not promote match to activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:912
+#: src/Infrastructure/REST/TournamentsRestController.php:918
 msgid "Cannot auto-plan a completed match."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:920
+#: src/Infrastructure/REST/TournamentsRestController.php:926
 msgid "Match has no formation. Set a formation on the match or tournament before auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:925
+#: src/Infrastructure/REST/TournamentsRestController.php:931
 msgid "Add players to the squad before auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1174
+#: src/Infrastructure/REST/TournamentsRestController.php:1180
 msgid "The match could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1195
+#: src/Infrastructure/REST/TournamentsRestController.php:1201
 msgid "The match could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1215
+#: src/Infrastructure/REST/TournamentsRestController.php:1221
 msgid "Squad payload must be an array."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1281
+#: src/Infrastructure/REST/TournamentsRestController.php:1287
 msgid "The squad member could not be removed."
 msgstr ""
 
@@ -3349,7 +3357,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:587
 #: src/Shared/Frontend/FrontendTeamsManageView.php:247
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:93
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:515
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:516
 #: src/Shared/Frontend/FrontendTrialCaseView.php:599
 #: src/Shared/Frontend/FrontendTrialCaseView.php:635
 #: src/Shared/Frontend/FrontendTrialsManageView.php:348
@@ -5374,7 +5382,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/DebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:188
 #: src/Modules/Authorization/Admin/DebugPage.php:225
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:508
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:509
 msgid "(none)"
 msgstr ""
 
@@ -5470,7 +5478,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:914
 #: src/Shared/Frontend/FrontendConfigurationView.php:1782
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:447
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:448
 msgid "Default"
 msgstr ""
 
@@ -7018,7 +7026,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:354
 #: src/Shared/Frontend/FrontendHolidaysView.php:161
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:496
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:497
 #: src/Shared/Frontend/FrontendTrialsManageView.php:331
 msgid "Start date"
 msgstr ""
@@ -7032,7 +7040,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
 #: src/Shared/Frontend/FrontendHolidaysView.php:165
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:502
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:503
 #: src/Shared/Frontend/FrontendTrialsManageView.php:332
 msgid "End date"
 msgstr ""
@@ -9832,7 +9840,7 @@ msgid "Inserts after"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:98
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:445
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:446
 msgid "Sort"
 msgstr ""
 
@@ -14371,7 +14379,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:63
 #: src/Modules/Tournaments/Wizard/SquadStep.php:29
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:302
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:410
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:411
 msgid "Squad"
 msgstr ""
 
@@ -17405,7 +17413,7 @@ msgid "Test details"
 msgstr ""
 
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:26
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:488
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:489
 msgid "— choose —"
 msgstr ""
 
@@ -17574,7 +17582,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:865
 #: src/Shared/Frontend/FrontendConfigurationView.php:1053
 #: src/Shared/Frontend/FrontendConfigurationView.php:1199
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:522
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:523
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:120
 msgid "Save changes"
 msgstr ""
@@ -18215,7 +18223,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:121
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:91
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:55
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:506
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:507
 msgid "Default formation"
 msgstr ""
 
@@ -26470,7 +26478,7 @@ msgid "%1$s's goal: %2$s"
 msgstr ""
 
 #. translators: %s: player display name
-#: src/Modules/Threads/Adapters/PlayerThreadAdapter.php:113
+#: src/Modules/Threads/Adapters/PlayerThreadAdapter.php:101
 #, php-format
 msgid "Notes — %s"
 msgstr ""
@@ -26678,7 +26686,7 @@ msgid "The headline information about the tournament. Anchor team is the club te
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:40
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:482
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:483
 msgid "Tournament name"
 msgstr ""
 
@@ -26688,7 +26696,7 @@ msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:46
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:47
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:486
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:487
 msgid "Anchor team"
 msgstr ""
 
@@ -26823,7 +26831,7 @@ msgid "+%d more"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:258
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:421
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:422
 msgid "(no positions set)"
 msgstr ""
 
@@ -31068,7 +31076,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:147
 #: src/Shared/Frontend/DashboardShortcode.php:73
 #: src/Shared/Frontend/DashboardShortcode.php:1499
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:455
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:456
 #: src/Shared/Frontend/FrontendWizardView.php:308
 msgid "Loading…"
 msgstr ""
@@ -31751,7 +31759,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2093
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2120
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:443
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:444
 msgid "Minutes"
 msgstr ""
 
@@ -36472,44 +36480,44 @@ msgstr ""
 msgid "Open planner grid"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:390
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:391
 msgid "Auto-balance"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:395
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:396
 msgid "Kick off"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:398
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:399
 msgid "Complete match"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:412
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:413
 msgid "No players in the squad yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:423
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:424
 #, php-format
 msgid "%d min target"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:441
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:442
 msgid "Minutes ticker"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:448
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:449
 msgid "Fewest minutes"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:449
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:450
 msgid "Fewest starts"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:450
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:451
 msgid "No full matches"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:522
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:523
 msgid "Create tournament"
 msgstr ""
 
