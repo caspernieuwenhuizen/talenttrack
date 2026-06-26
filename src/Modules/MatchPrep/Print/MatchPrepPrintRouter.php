@@ -42,6 +42,10 @@ class MatchPrepPrintRouter {
 
     public static function maybeRender(): void {
         if ( empty( $_GET['tt_match_prep_print'] ) ) return;
+        // #1538 — the client-side print path bypasses ExportService, so it
+        // has to honour the `export_match_prep_pdf` toggle itself; without
+        // this the PDF export would still be reachable via the print URL.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) return;
         $activity_id = isset( $_GET['activity_id'] ) ? absint( $_GET['activity_id'] ) : 0;
         if ( $activity_id <= 0 ) return;
 

@@ -353,6 +353,11 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
                 <?php
+                // #1538 — the print / PDF buttons honour the
+                // export_match_prep_pdf sub-feature; when off, the match-prep
+                // screen stays but the PDF artefacts are hidden (the print
+                // router enforces the same toggle server-side).
+                if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) :
                 // #1031, #1475 — Print opens the dedicated print route in a
                 // new tab. The standalone document skips the theme + WP
                 // admin bar entirely, so the captured sheet is clean. On
@@ -391,6 +396,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                    rel="noopener">
                     <?php esc_html_e( 'Print team sheet', 'talenttrack' ); ?>
                 </a>
+                <?php endif; // #1538 export_match_prep_pdf ?>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>

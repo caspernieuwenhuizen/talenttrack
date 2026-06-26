@@ -133,6 +133,28 @@ class FeatureRegistry {
                 'view_slugs'      => [],
                 'entities'        => [],
             ],
+            // #1538 — per-academy sub-feature toggles. Each gates one
+            // optional, heavy or cost/privacy-sensitive behaviour without
+            // disabling the whole module. All default ON to preserve
+            // current behaviour on upgrade; academies opt out. Gating
+            // sites are inline `FeatureRegistry::isEnabled()` checks at
+            // the owning module/repository (no unique view-slug/entity).
+            'comms_sms_channel' => [
+                'label'           => __( 'SMS channel', 'talenttrack' ),
+                'description'     => __( 'Offer SMS as a messaging channel. SMS delivery still needs a provider plugin. The other channels (email, push, WhatsApp link, in-app) stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Comms\\CommsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            'comms_scheduled_sends' => [
+                'label'           => __( 'Scheduled messaging', 'talenttrack' ),
+                'description'     => __( 'Daily automated reminders (goal nudges, attendance flags, onboarding nudges, staff-development reminders). Event-driven messaging stays available when this is off; only the scheduled cron stops.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Comms\\CommsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
             // #1538 — the week-by-week Team planner calendar. Default on (no
             // behaviour change on upgrade); an academy that works activity by
             // activity can switch it off. The Activities log — the backward-
@@ -143,6 +165,42 @@ class FeatureRegistry {
                 'module_class'    => 'TT\\Modules\\Planning\\PlanningModule',
                 'default_enabled' => true,
                 'view_slugs'      => [ 'team-planner' ],
+                'entities'        => [],
+            ],
+            'journey_medical_visibility' => [
+                'label'           => __( 'Medical events on timeline', 'talenttrack' ),
+                'description'     => __( 'Show injury and medical events on the player timeline to staff who already hold the medical-view permission. When off, medical events are hidden from the timeline even for authorised staff. The permission itself is unchanged.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Journey\\JourneyModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            'pdp_calendar_integration' => [
+                'label'           => __( 'PDP calendar integration', 'talenttrack' ),
+                'description'     => __( 'Write scheduled PDP conversations to the calendar feed when a development plan is created or carried over. The PDP plans, conversations and verdicts stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Pdp\\PdpModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            'persona_dashboard_editor' => [
+                'label'           => __( 'Dashboard layout editor', 'talenttrack' ),
+                'description'     => __( 'The drag-and-drop builder for persona dashboard layouts. The rendered dashboards keep working from their saved layouts when this is off; only the editor is hidden.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\PersonaDashboard\\PersonaDashboardModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            // Keyed `export_match_prep_pdf` so ExportService::run()'s
+            // `export_<exporterKey>` gate matches the exporter key
+            // `match_prep_pdf`. The print router is guarded in tandem so
+            // the toggle isn't bypassed by the client-side print path.
+            'export_match_prep_pdf' => [
+                'label'           => __( 'Match prep PDF export', 'talenttrack' ),
+                'description'     => __( 'Allow the A4 match-preparation sheet to be exported/printed as a PDF. The match-prep screen stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
                 'entities'        => [],
             ],
         ];

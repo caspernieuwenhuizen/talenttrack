@@ -34,7 +34,12 @@ final class PlayerEventsRepository {
         if ( user_can( $user_id, 'tt_edit_evaluations' ) || user_can( $user_id, 'tt_edit_settings' ) ) {
             $out[] = EventTypeDefinition::VISIBILITY_COACHING_STAFF;
         }
-        if ( user_can( $user_id, 'tt_view_player_medical' ) ) {
+        // #1538 — the medical-events sub-feature gates timeline visibility
+        // on top of the permission. When off, medical events are hidden
+        // from the timeline even for staff who hold the cap; the cap
+        // itself is untouched. Both must hold to surface medical events.
+        if ( user_can( $user_id, 'tt_view_player_medical' )
+            && \TT\Core\FeatureRegistry::isEnabled( 'journey_medical_visibility' ) ) {
             $out[] = EventTypeDefinition::VISIBILITY_MEDICAL;
         }
         if ( user_can( $user_id, 'tt_view_player_safeguarding' ) ) {
