@@ -45,7 +45,10 @@
 }
 
 /* ---- List: elevate the shared component's mobile cards ------------- */
-.tt-dashboard .tt-myact-list { max-width: 860px; }
+/* #1986 — the list fills the dashboard width on desktop (the dashboard
+   container already caps at min(94vw, 1600px)); the previous 860px cap left
+   a narrow column with empty space to the right. */
+.tt-dashboard .tt-myact-list { max-width: none; }
 
 @media (max-width: 639px) {
     .tt-dashboard .tt-myact-list .tt-list-table-table tbody tr {

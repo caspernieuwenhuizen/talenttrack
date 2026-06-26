@@ -68,11 +68,16 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             'static_filters' => [
                 'player_id' => (int) $player->id,
             ],
+            // #1986 — player surface: rows are NOT clickable (the only detail
+            // link pointed at the staff `?tt_view=activities` view, which a
+            // player isn't authorised for). All player-allowed information is
+            // surfaced inline instead, so there's nothing to click through to.
             'columns' => [
                 'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
-                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
+                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
                 'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
-                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
+                'location'            => [ 'label' => __( 'Location', 'talenttrack' ), 'sortable' => false ],
                 'your_attendance_status' => [ 'label' => __( 'Your status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'your_attendance_pill_html' ],
             ],
             'filters' => [
@@ -95,10 +100,6 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                 'headline'  => __( 'No activities recorded for you yet', 'talenttrack' ),
                 'explainer' => __( 'When your coach plans trainings or matches for your team, they show up here together with your attendance.', 'talenttrack' ),
             ],
-            // v3.110.170 — row-link standard. Same destination as the
-            // title cell (`?tt_view=activities&id=N` — see the slug-
-            // selection note in ActivitiesRestController::format_row).
-            'row_url_key'  => 'detail_url',
         ] );
         echo '</div>';
     }
