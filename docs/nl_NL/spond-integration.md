@@ -14,9 +14,9 @@ Spond heeft nooit een iCal-feed gepubliceerd — de URL-flow die oudere TalentTr
 
 Je hebt **één** Spond-account nodig dat lid is van elke ploeg die je wilt synchroniseren. De meeste clubs hebben hier al een toegewijd trainer-/manager-account voor. Tweestapsverificatie wordt **niet** ondersteund in v1 — schakel die op dit account uit, of gebruik een apart account zonder 2FA.
 
-1. Ga naar **Configuratie → Spond** in wp-admin.
-2. Vul het Spond-e-mailadres + wachtwoord in en klik **Credentials opslaan**. Het wachtwoord wordt versleuteld bewaard; bij rotatie van WordPress' `AUTH_KEY`-salt wordt het ongeldig en moet je het opnieuw invoeren.
-3. Klik **Verbinding testen** om te bevestigen dat Spond de login accepteert. Een groene melding betekent klaar.
+1. Ga naar **Configuratie → Spond-integratie** (de tegel opent de frontend-Spond-weergave op `?tt_view=spond` — sinds v4.57.0 / #1936 geen wp-admin-omweg meer).
+2. Vul het Spond-e-mailadres + wachtwoord in en klik **Credentials opslaan**. Het wachtwoord wordt versleuteld bewaard; bij rotatie van WordPress' `AUTH_KEY`-salt wordt het ongeldig en moet je het opnieuw invoeren. Is er al een account verbonden, dan toont de pagina **Verbonden als &lt;e-mail&gt;** en blijft het wachtwoordveld leeg — laat het leeg om het opgeslagen wachtwoord te behouden, of typ een nieuw wachtwoord om het te wijzigen. Het opgeslagen wachtwoord wordt nooit teruggetoond.
+3. Klik **Verbinding testen** om te bevestigen dat Spond de login accepteert. Een groene melding betekent klaar; een mislukte login toont de reden meteen.
 4. Open per TalentTrack-ploeg het team-formulier (of gebruik de nieuwe-team-wizard) en kies de bijbehorende **Spond-groep** uit de dropdown. De dropdown wordt live gevuld met de groepen waar je account lid van is.
 
 Klaar. Binnen een uur verschijnt elk Spond-event voor elke gekoppelde groep als TalentTrack-activiteit. In het overzicht herken je ze aan de **Spond**-bron-pil.
@@ -36,18 +36,23 @@ Het sync-window is **30 dagen terug + 180 dagen vooruit** rollend, dus historisc
 
 ## Sync-schema
 
-- **Automatische uurlijkse sync** via WP-Cron.
-- **Nu vernieuwen**-knop op het team-formulier én op het Spond-overzicht voor een directe sync.
+- **Automatische uurlijkse sync** via WP-Cron. De Spond-weergave toont ongeveer hoelang het nog duurt tot de volgende automatische tick.
+- **Nu vernieuwen**-knop op het team-formulier én per team op de Spond-weergave voor een directe sync.
 - **WP-CLI**: `wp tt spond sync` (alle teams) of `wp tt spond sync --team=<id>`.
 
-Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond** — groen bij ok, rood met de reden bij een mislukking. Sinds v4.20.109 (#1368) tonen ook de dashboards van hoofd opleidingen en beheerder een waarschuwingsbanner wanneer de meest recente geslaagde sync ouder is dan 24 uur of de laatste sync van een gekoppeld team mislukte — zo valt een kapotte sync op waar iemand het daadwerkelijk ziet, niet alleen op deze beheerpagina.
+Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond-integratie** — groen bij ok, rood met de reden bij een mislukking. Sinds v4.20.109 (#1368) tonen ook de dashboards van hoofd opleidingen en beheerder een waarschuwingsbanner wanneer de meest recente geslaagde sync ouder is dan 24 uur of de laatste sync van een gekoppeld team mislukte — zo valt een kapotte sync op waar iemand het daadwerkelijk ziet, niet alleen op deze beheerpagina.
 
 ## Privacy + beveiliging
 
 - **E-mail + wachtwoord** staan in de TalentTrack-configuratietabel, scoped op je club, met het wachtwoord versleuteld via dezelfde envelope die VAPID-push-keys ook gebruikt (`CredentialEncryption`).
 - **Spond's login-token** wordt ~12 uur gecached. Bij verloop (of intrekking door Spond) logt de volgende sync transparant opnieuw in.
 - **Credentials komen nooit voor in een phone-home-payload** — het v1-payload-schema sluit Spond-credentials en groep-ID's expliciet uit.
-- **Loskoppelen**: klik op **Loskoppelen** op de Spond-pagina. Bestaande geïmporteerde activiteiten blijven staan; toekomstige sync's pauzeren. Per-team groep-selecties blijven bewaard, zodat heropnieuw verbinden naadloos doorgaat.
+- **Loskoppelen**: klik op **Loskoppelen** op de Spond-weergave. Bestaande geïmporteerde activiteiten blijven staan; toekomstige sync's pauzeren. Per-team groep-selecties blijven bewaard, zodat heropnieuw verbinden naadloos doorgaat.
+- Credentials opslaan, de verbinding testen, loskoppelen en de API-endpoint-override lopen allemaal via de REST-API (`POST/DELETE /spond/credentials`, `POST /spond/test`, `POST /spond/base-url`), afgeschermd met de capability `tt_edit_spond_credentials`. De pagina bekijken en per team **Nu vernieuwen** zijn afgeschermd met `tt_edit_teams`.
+
+## API-endpoint-override
+
+Verhuist Spond ooit zijn API naar een nieuw adres, dan kan een beheerder TalentTrack omleiden zonder code-release: open de inklapbare sectie **API-endpoint** op de Spond-weergave, voer de nieuwe basis-URL in en sla op. Laat het leeg en sla op om terug te keren naar de meegeleverde standaard. Een verkeerde URL laat elke sync mislukken, dus wijzig dit alleen als Spond een nieuw endpoint aankondigt of om tegen een privé-mock te testen.
 
 ## Wat (nog) niet wordt ondersteund
 

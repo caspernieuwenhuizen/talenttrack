@@ -42858,6 +42858,79 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Per-locale string overrides and the .po/.mo refresh job."
 #~ msgstr "Stringoverschrijvingen per taal en de .po/.mo-vernieuwingstaak."
 
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid ""
+"One Spond login per club syncs each connected team's calendar into the "
+"player timeline. Use a dedicated coach/manager account that's a member of "
+"every Spond group you want to sync. Two-factor authentication is not "
+"supported — disable it on this account or use a non-2FA account."
+msgstr ""
+"Eén Spond-login per club synct de agenda van elke gekoppelde ploeg naar de "
+"spelerstijdlijn. Gebruik een toegewijd trainer-/manager-account dat lid is "
+"van elke Spond-groep die je wilt synchroniseren. Tweestapsverificatie wordt "
+"niet ondersteund — schakel die op dit account uit of gebruik een account "
+"zonder 2FA."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Connected"
+msgstr "Verbonden"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "as %s"
+msgstr "als %s"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Leave blank to keep current password"
+msgstr "Laat leeg om het huidige wachtwoord te behouden"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Pick a group on the team edit form"
+msgstr "Kies een groep op het team-formulier"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Credentials saved."
+msgstr "Credentials opgeslagen."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Spond login successful."
+msgstr "Spond-login geslaagd."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Spond disconnected."
+msgstr "Spond losgekoppeld."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "API endpoint saved."
+msgstr "API-endpoint opgeslagen."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Refreshing…"
+msgstr "Vernieuwen…"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid ""
+"Disconnect Spond? Existing imported activities are kept; per-team group "
+"selections stay on file."
+msgstr ""
+"Spond loskoppelen? Bestaande geïmporteerde activiteiten blijven staan; "
+"per-team groep-selecties blijven bewaard."
+
+#: src/Infrastructure/REST/SpondRestController.php
+msgid "A Spond email address is required."
+msgstr "Een Spond-e-mailadres is verplicht."
+
+#: src/Infrastructure/REST/SpondRestController.php
+msgid "A Spond password is required."
+msgstr "Een Spond-wachtwoord is verplicht."
+
+#: src/Infrastructure/REST/SpondRestController.php
+msgid "That URL does not look like a valid http(s) endpoint."
+msgstr "Die URL lijkt geen geldig http(s)-endpoint te zijn."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1535
+msgid "Per-team calendar sync status, \"Refresh now\", encrypted account credentials, and the API endpoint override."
+msgstr "Synchronisatiestatus per team, \"Nu vernieuwen\", versleutelde accountgegevens en de API-endpoint-override."
+
 #~ msgid "The activity could not be deleted."
 #~ msgstr "De activiteit kon niet worden verwijderd."
 

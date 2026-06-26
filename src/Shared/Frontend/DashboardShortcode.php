@@ -932,6 +932,14 @@ class DashboardShortcode {
                 // + clear-cache). Gates on tt_view_translations internally.
                 FrontendTranslationsView::render( $user_id, $is_admin );
                 return true;
+            case 'spond':
+                // #1936 — frontend port of the wp-admin Spond integration
+                // page (per-team sync status + "Refresh now" + encrypted
+                // credential save/test/clear + API base-URL override).
+                // Gates on tt_edit_teams internally; credential mutations
+                // gate on tt_edit_spond_credentials at the REST layer.
+                FrontendSpondView::render( $user_id, $is_admin );
+                return true;
             case 'lookup-normalisation':
                 // #987 v4.12.0 — canonical-language drift review tool.
                 FrontendLookupNormalisationView::render( $user_id, $is_admin );

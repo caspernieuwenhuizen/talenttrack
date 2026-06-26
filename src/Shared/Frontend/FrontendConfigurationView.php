@@ -1526,7 +1526,14 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
 
         // Integrations
-        $sections['integrations']['tiles'][] = [ 'title' => __( 'Spond integration', 'talenttrack' ), 'desc' => __( 'Per-team iCal sync status and "Refresh now" buttons. Lives in wp-admin.', 'talenttrack' ), 'url' => admin_url( 'admin.php?page=tt-spond' ), 'icon' => 'sessions' ];
+        // #1936 — the wp-admin Spond page (?page=tt-spond) is retired in
+        // favour of the frontend view (?tt_view=spond, FrontendSpondView),
+        // mirroring the #1533 Feature-toggles / Audit-log / Translations
+        // retirements. The wp-admin page stays as the power-user fallback.
+        // Cap-gated to tt_edit_teams (the view's own gate).
+        if ( current_user_can( 'tt_edit_teams' ) ) {
+            $sections['integrations']['tiles'][] = [ 'title' => __( 'Spond integration', 'talenttrack' ), 'desc' => __( 'Per-team calendar sync status, "Refresh now", encrypted account credentials, and the API endpoint override.', 'talenttrack' ), 'url' => $view( 'spond' ), 'icon' => 'sessions' ];
+        }
 
         // System
         $sections['system']['tiles'][] = [ 'title' => __( 'General', 'talenttrack' ), 'desc' => __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'url' => $sub( 'general' ), 'icon' => 'settings' ];
