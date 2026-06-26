@@ -884,6 +884,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $period_filter = '';
         }
 
+        // #1555 — Active / Archived / All status filter. 'active' (the
+        // default) keeps the timeline as-is; 'archived' replaces the
+        // buckets with a flat restore/delete list; 'all' shows the
+        // active timeline with the archived list appended below it.
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+            isset( $_GET['archived'] ) ? (string) $_GET['archived'] : 'active'
+        );
+
         // Lookup-backed type options for the Type filter.
         $type_rows = QueryHelpers::get_lookups( 'activity_type' );
 
@@ -901,19 +909,31 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         // Pull the row set for THIS list — server-side query mirroring
         // the REST WHERE/scope so other surfaces (dashboard widgets,
-        // team detail) reading the same rows stay consistent.
-        $rows = self::loadActivitiesForList(
+        // team detail) reading the same rows stay consistent. #1555 — the
+        // timeline buckets only ever hold active rows; archived rows go
+        // to their own flat section, so each status is queried apart.
+        $bucket_rows = ( $archived_view === 'archived' ) ? [] : self::loadActivitiesForList(
             $team_filter,
             $type_filter,
             $window['from'] ?? '',
             $window['to'] ?? '',
-            $show_cancelled
+            $show_cancelled,
+            'active'
+        );
+        $archived_rows = ( $archived_view === 'active' ) ? [] : self::loadActivitiesForList(
+            $team_filter,
+            $type_filter,
+            $window['from'] ?? '',
+            $window['to'] ?? '',
+            $show_cancelled,
+            'archived'
         );
 
-        // Bucket the rows.
-        $buckets = self::bucketize( $rows, $today_str );
+        // Bucket the (active) rows.
+        $buckets = self::bucketize( $bucket_rows, $today_str );
 
-        $past_total = count( $buckets['past'] );
+        $past_total      = count( $buckets['past'] );
+        $archived_total  = count( $archived_rows );
 
         // ---- HEADER + FILTERS ---------------------------------------
         echo '<div class="tt-act-surface" data-tt-act-surface>';
@@ -994,6 +1014,34 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
         echo '</nav>';
 
+        // #1555 — Active / Archived / All status control. Same link-based
+        // pattern as the period pills (noscript-resilient, 48px targets),
+        // preserving the team / type / period / cancelled state.
+        $status_labels = [
+            'active'   => __( 'Active', 'talenttrack' ),
+            'archived' => __( 'Archived', 'talenttrack' ),
+            'all'      => __( 'All', 'talenttrack' ),
+        ];
+        $status_base = $pill_base;
+        if ( $period_filter !== '' ) $status_base['period'] = $period_filter;
+        echo '<nav class="tt-act-status" aria-label="' . esc_attr__( 'Filter by archive status', 'talenttrack' ) . '">';
+        foreach ( $status_labels as $key => $label ) {
+            $args = $status_base;
+            // 'active' is the default — keep its URL clean (no param).
+            if ( $key === 'active' ) {
+                unset( $args['archived'] );
+            } else {
+                $args['archived'] = $key;
+            }
+            $url    = add_query_arg( $args, $dash_url );
+            $active = ( $archived_view === $key );
+            $cls    = 'tt-act-status__tab' . ( $active ? ' tt-act-status__tab--active' : '' );
+            echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '"'
+                . ( $active ? ' aria-current="true"' : '' ) . '>'
+                . esc_html( $label ) . '</a>';
+        }
+        echo '</nav>';
+
         // ---- EMPTY STATE --------------------------------------------
         $forward_total = $buckets['attention_count']
             + count( $buckets['today'] )
@@ -1002,25 +1050,43 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             + count( $buckets['later_this_month'] )
             + count( $buckets['later'] );
 
-        if ( $forward_total === 0 && $past_total === 0 ) {
+        $nothing_to_show = $archived_view === 'archived'
+            ? ( $archived_total === 0 )
+            : ( $forward_total === 0 && $past_total === 0 && $archived_total === 0 );
+        if ( $nothing_to_show ) {
             // #1362 — guided empty state with a cap-gated create CTA
             // (same wizard entry point as the header's "New activity").
+            // #1555 — the archived view gets a plain "nothing archived"
+            // message instead of a create CTA (creating doesn't help).
             echo '<div class="tt-act-empty">';
-            \TT\Shared\Frontend\Components\EmptyStateCard::render( [
-                'icon'      => 'activities',
-                'headline'  => __( 'No activities to show', 'talenttrack' ),
-                'explainer' => __( 'Try changing the team or type filter, or create a new activity to get started.', 'talenttrack' ),
-                'cta_label' => __( 'Plan your first activity', 'talenttrack' ),
-                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                    'new-activity',
-                    add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
-                ),
-                'cta_cap'   => 'tt_edit_activities',
-            ] );
+            if ( $archived_view === 'archived' ) {
+                \TT\Shared\Frontend\Components\EmptyStateCard::render( [
+                    'icon'      => 'activities',
+                    'headline'  => __( 'No archived activities', 'talenttrack' ),
+                    'explainer' => __( 'Activities you archive will appear here, where you can restore them or delete them permanently.', 'talenttrack' ),
+                ] );
+            } else {
+                \TT\Shared\Frontend\Components\EmptyStateCard::render( [
+                    'icon'      => 'activities',
+                    'headline'  => __( 'No activities to show', 'talenttrack' ),
+                    'explainer' => __( 'Try changing the team or type filter, or create a new activity to get started.', 'talenttrack' ),
+                    'cta_label' => __( 'Plan your first activity', 'talenttrack' ),
+                    'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                        'new-activity',
+                        add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                    ),
+                    'cta_cap'   => 'tt_edit_activities',
+                ] );
+            }
             echo '</div>';
             echo '</div>'; // .tt-act-surface
             return;
         }
+
+        // ---- TIMELINE (active rows) ---------------------------------
+        // #1555 — the pure 'archived' view skips the timeline entirely and
+        // renders only the flat archived list below.
+        if ( $archived_view !== 'archived' ) {
 
         // ---- PAST TOGGLE --------------------------------------------
         if ( $past_total > 0 ) {
@@ -1127,7 +1193,71 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</ul>';
 
+        } // end timeline guard (#1555)
+
+        // ---- ARCHIVED LIST ------------------------------------------
+        // #1555 — flat archived section with per-row restore + gated
+        // permanent-delete actions. Shown for the 'archived' and 'all'
+        // status views.
+        if ( $archived_total > 0 ) {
+            $archived_redirect = add_query_arg( $status_base + [ 'archived' => 'archived' ], $dash_url );
+            self::renderArchivedList( $archived_rows, $archived_redirect );
+        }
+
         echo '</div>'; // .tt-act-surface
+    }
+
+    /**
+     * #1555 — render the archived-activities section: a header plus one
+     * card per archived row, each carrying a Restore and (cap-gated)
+     * Delete-permanently action wired to the REST archive lifecycle.
+     *
+     * @param array<int,object> $rows
+     */
+    private static function renderArchivedList( array $rows, string $redirect_url ): void {
+        $can_hard_delete = current_user_can( 'tt_edit_settings' );
+        $can_restore     = current_user_can( 'tt_edit_activities' );
+
+        echo '<ul class="tt-act-list tt-act-list--archived" aria-label="' . esc_attr__( 'Archived activities', 'talenttrack' ) . '">';
+        echo '<li><div class="tt-act-bucket-head"><span>' . esc_html__( 'Archived', 'talenttrack' ) . '</span>';
+        echo '<span class="tt-act-bucket-head__count">' . esc_html( sprintf(
+            /* translators: %d: count of archived activities */
+            _n( '%d activity', '%d activities', count( $rows ), 'talenttrack' ),
+            count( $rows )
+        ) ) . '</span></div></li>';
+
+        foreach ( $rows as $row ) {
+            $id = (int) ( $row->id ?? 0 );
+            if ( $id <= 0 ) continue;
+
+            echo self::renderActivityCard( $row, 'archived' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within helper.
+
+            // Action row, rendered as a sibling of the card link so the
+            // buttons aren't nested inside the card's <a>.
+            echo '<li class="tt-act-archived-actions">';
+            if ( $can_restore ) {
+                echo '<button type="button" class="tt-btn tt-btn-secondary tt-act-archived-actions__btn"'
+                    . ' data-tt-archive-rest-path="' . esc_attr( 'activities/' . $id . '/restore' ) . '"'
+                    . ' data-tt-archive-method="POST"'
+                    . ' data-tt-archive-variant="primary"'
+                    . ' data-tt-archive-confirm-label="' . esc_attr__( 'Restore', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm="' . esc_attr__( 'Restore this activity? It will reappear in the active list.', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-redirect="' . esc_url( $redirect_url ) . '">'
+                    . esc_html__( 'Restore', 'talenttrack' ) . '</button>';
+            }
+            if ( $can_hard_delete ) {
+                echo '<button type="button" class="tt-btn tt-btn-danger tt-act-archived-actions__btn"'
+                    . ' data-tt-archive-rest-path="' . esc_attr( 'activities/' . $id . '/permanent' ) . '"'
+                    . ' data-tt-archive-method="DELETE"'
+                    . ' data-tt-archive-variant="danger"'
+                    . ' data-tt-archive-confirm-label="' . esc_attr__( 'Delete permanently', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this activity? This cannot be undone.', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-redirect="' . esc_url( $redirect_url ) . '">'
+                    . esc_html__( 'Delete permanently', 'talenttrack' ) . '</button>';
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
     }
 
     /**
@@ -1263,7 +1393,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $tail[] = esc_html( $location );
         }
 
-        $card_cls = 'tt-act-card' . ( $is_cancelled ? ' tt-act-card--cancelled' : '' );
+        $card_cls = 'tt-act-card'
+            . ( $is_cancelled ? ' tt-act-card--cancelled' : '' )
+            . ( $mode === 'archived' ? ' tt-act-card--archived' : '' );
         $card  = '<li class="' . esc_attr( $card_cls ) . '" data-type="' . esc_attr( $type_pill_key ) . '">';
         $card .= '<a class="tt-act-card__link" href="' . esc_url( $detail_url ) . '">';
         $card .= '<div class="' . esc_attr( $date_cls ) . '">';
@@ -1518,12 +1650,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         return null;
     }
 
-    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false ): array {
+    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active' ): array {
         // #1320 — the query (incl. demo + coach-scope authorization) lives
         // in ActivitiesRepository so the REST list and this surface share
         // one source of truth and the view holds no SQL or permission logic.
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled );
+            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled, $archived_view );
     }
 
     /**
