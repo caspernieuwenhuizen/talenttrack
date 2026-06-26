@@ -45,4 +45,18 @@ require $_tests_dir . '/includes/bootstrap.php';
 // doesn't abort the suite (the tables under test still get created).
 if ( class_exists( '\\TT\\Infrastructure\\Database\\MigrationRunner' ) ) {
     ( new \TT\Infrastructure\Database\MigrationRunner() )->run();
+    // Stamp the installed version so Kernel::boot() below doesn't re-run
+    // the full migration set a second time.
+    if ( defined( 'TT_VERSION' ) ) {
+        update_option( 'tt_installed_version', TT_VERSION );
+    }
+}
+
+// Boot the plugin Kernel so every module's boot() runs and its REST
+// controllers register their `rest_api_init` listeners. The plugin boots
+// on `init` in a real request; the WP test bootstrap doesn't reliably fire
+// that for the plugin, so REST integration tests (RestSmokeTest) would
+// otherwise see zero routes (404). boot() is guarded against double-boot.
+if ( class_exists( '\\TT\\Core\\Kernel' ) ) {
+    \TT\Core\Kernel::instance()->boot();
 }
