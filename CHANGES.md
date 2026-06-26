@@ -1,3 +1,46 @@
+# TalentTrack v4.61.0 — Holiday rows now open an enriched read-only detail view (#1997)
+
+Clicking a holiday row used to drop managers straight into the edit form and
+left read-only viewers with inert rows. It now opens a scheduling-centric,
+read-only detail page at `?tt_view=holidays&id=N` for every viewer who can see
+holidays. The page shows the holiday name, the period formatted in the active
+locale (e.g. "21 dec 2026 – 4 jan 2027"), the inclusive duration in days, the
+note (or a dash), the colour swatch when one is set, and a one-liner reminding
+the user the holiday banners across these days on every team planner. Managers
+get an Edit button into the existing edit form; non-managers see the summary
+only. The list-table row link points read-only viewers at the detail view, so
+their rows are clickable for the first time.
+
+A computed `day_count` (inclusive day span) is now exposed on the holiday REST
+payload (`GET /holidays` and `GET /holidays/{id}`); the day-count maths lives
+in `HolidaysRepository::dayCount()` so the REST API and the rendered view stay
+in lockstep.
+
+# TalentTrack v4.61.0 — Head coaches can open the Trial cases tile again (#2005)
+
+The Trial cases list view gated entry on `tt_manage_trials`, which maps to
+`trial_cases:create_delete`. Head coaches hold `trial_cases [read, change]`
+at team scope in the authorization matrix but not `create_delete`, so the
+tile let them in but the view returned a "no permission" page. The view now
+gates entry on a matrix read check (matching the tile), scopes the list to
+the players on the head coach's own teams, and keeps the "New trial case"
+create action plus the create/delete write paths gated on `tt_manage_trials`.
+Head coaches can now view and edit trial cases for their teams; only managers
+can create or delete them. Scout, head-of-development and admin behaviour is
+unchanged.
+
+# TalentTrack v4.61.0 — Player comparison selectors now respect coach context (#2006)
+
+The Player comparison team and player selectors no longer expose the whole
+academy roster to a team-scoped coach. Both the frontend tile and the
+wp-admin Player Comparison page now narrow the selectors to the coach's own
+teams, exactly like the standard reports surface and the `reports/player-radar`
+REST endpoint: staff with academy-wide reporting access (head of development,
+academy admin, scout) still see every team and player, while a team-scoped
+coach sees only their assigned teams and the players on them. The scope is
+also enforced on players addressed directly by `?pN=` link, so an
+out-of-context player can't be pulled into a comparison.
+
 # TalentTrack v4.60.0 — My journey: position-change events show friendly position names (#1983)
 
 A position-change entry on a player's journey timeline now reads the
