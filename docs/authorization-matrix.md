@@ -137,6 +137,25 @@ Because the matrix is now the single source of truth, two personas that previous
 
 Personas that keep access: `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
 
+### Remaining blueprint surfaces routed through `TeamChemistryAccess` (#1939)
+
+Two blueprint code paths still resolved authority with the raw `tt_view_team_chemistry` / `tt_manage_team_chemistry` capabilities after #1922; #1939 routes them through `TeamChemistryAccess` too, so the entire blueprint feature now answers from the `team_chemistry` matrix entity:
+
+- The Team-blueprint creation wizard (`Modules\Wizards\TeamBlueprint\ReviewStep::submit()`) gates "create blueprint" on `TeamChemistryAccess::canManage()`.
+- The blueprint comment thread (`Modules\Threads\Adapters\BlueprintThreadAdapter`) gates read on `canRead()` and post on `canManage()`.
+
+These are enforcement-only re-points — they land on exactly the `team_chemistry` access #1922 established (the same persona table above).
+
+## Act-cap bridges to existing player-status entities (#1939)
+
+The PlayerStatus "set the potential band" act-cap was matrix-blind while its data-cap sibling was matrix-aware, so the frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) and REST (`PlayerStatusRestController`) could drift. #1939 bridges the act-cap so both surfaces resolve from the same matrix entity:
+
+- **`tt_set_player_potential` → `player_potential:change`** (bridged). The raw WP grant (`PlayerStatusModule`: administrator + head_dev + club_admin) matches the `player_potential:change` matrix grantees exactly (`head_of_development` + `academy_admin` globally; no other persona holds `change`), so the bridge is access-preserving.
+
+One sibling act-cap is **deliberately not bridged** because doing so would change effective access:
+
+- **`tt_rate_player_behaviour`** stays on native WP capability evaluation. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it is flagged on #1939 for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap).
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

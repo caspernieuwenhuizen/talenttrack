@@ -4,6 +4,7 @@ namespace TT\Modules\Threads\Adapters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 use TT\Modules\Threads\Domain\ThreadTypeAdapter;
 
 /**
@@ -11,9 +12,12 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  * type after `goal` and `player`. Anchors a discussion thread on
  * one row of `tt_team_blueprints`.
  *
- * Staff-only by design (mirrors `PlayerThreadAdapter`):
- *   - Read = `tt_view_team_chemistry` (the editor cap).
- *   - Post = `tt_manage_team_chemistry` (the lock / status-change cap).
+ * Staff-only by design (mirrors `PlayerThreadAdapter`). Authority is the
+ * `team_chemistry` matrix entity, resolved through `TeamChemistryAccess`
+ * (#1922 / #1939) so the thread gate can't drift from the blueprint
+ * surfaces that own the same data:
+ *   - Read  = `team_chemistry` READ authority   (the editor surfaces).
+ *   - Post  = `team_chemistry` CHANGE authority (the lock / status-change cap).
  *
  * Parents reaching the public share-link in Phase 4 never see the
  * comments — the share-link's read-only render explicitly skips the
@@ -46,13 +50,13 @@ final class BlueprintThreadAdapter implements ThreadTypeAdapter {
     public function canRead( int $user_id, int $thread_id ): bool {
         if ( $user_id <= 0 ) return false;
         if ( ! $this->findEntity( $thread_id ) ) return false;
-        return user_can( $user_id, 'tt_view_team_chemistry' );
+        return TeamChemistryAccess::canRead( $user_id );
     }
 
     public function canPost( int $user_id, int $thread_id ): bool {
         if ( $user_id <= 0 ) return false;
         if ( ! $this->findEntity( $thread_id ) ) return false;
-        return user_can( $user_id, 'tt_manage_team_chemistry' );
+        return TeamChemistryAccess::canManage( $user_id );
     }
 
     public function entityLabel( int $thread_id ): string {
