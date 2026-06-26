@@ -310,6 +310,18 @@ final class LegacyCapMapper {
         'tt_vct_plan'                    => [ 'vct',                  'read' ],
         'tt_vct_admin_library'           => [ 'vct_library',          'read' ],
         'tt_vct_view_load'               => [ 'vct_workload',         'read' ],
+
+        // #1943 — Tournaments fair-share planner. Admin-only in v1 (#0093).
+        // `tt_view_tournaments` → read; `tt_edit_tournaments` → change. The
+        // single `tt_edit_tournaments` cap historically gated edit AND
+        // create AND delete (no separate manage cap), so the `tournaments`
+        // seed grants academy_admin full `rcd` — bridging edit to `change`
+        // preserves today's create/delete coverage because the grantee
+        // holds all three activities. Raw cap holders are administrator
+        // (bypass) + tt_club_admin (= academy_admin persona), which map
+        // cleanly onto the seed grantee. No other persona — access-preserving.
+        'tt_view_tournaments'            => [ 'tournaments',          'read' ],
+        'tt_edit_tournaments'            => [ 'tournaments',          'change' ],
     ];
 
     public static function isKnown( string $cap ): bool {

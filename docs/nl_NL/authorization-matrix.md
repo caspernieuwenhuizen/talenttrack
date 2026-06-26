@@ -90,6 +90,19 @@ Acht persona's worden meegeleverd in de seed:
 
 Een gebruiker kan meerdere persona's tegelijk vasthouden (een ouder die ook hoofdcoach is). De matrix gebruikt de **unie** standaard — elke persona die toestemming verleent wint. De persona-switcher in het gebruikersmenu laat multi-persona-gebruikers het dashboard tijdelijk filteren naar de visie van één persona; dat is een UI-lens, geen autorisatiebeperking.
 
+## Toernooien — alleen-beheerder in v1 (#0093, #1943)
+
+De toernooiplanner levert twee capabilities mee — `tt_view_tournaments` en `tt_edit_tournaments`. In v1 houden alleen `administrator` + `tt_club_admin` (de Academy Admin-persona) ze vast. Geen enkele andere persona (Coach, HoD, Scout, Speler, Ouder) ziet de functie tot de persona-uitbreiding-vervolglevering.
+
+Sinds #1943 heeft de functie een matrix-entiteit: `tournaments`. De seed verleent **alleen academy_admin `rcd[global]`** — dit reproduceert het alleen-beheerder-ontwerp van v1 (WP-administrators passeren via de matrix-administrator-uitzondering). Geen enkele andere persona heeft een rij. `LegacyCapMapper` overbrugt de ruwe capabilities zodat de bestaande `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )`-controlepunten via de matrix worden opgelost zodra die actief is:
+
+| Ruwe capability | Matrix-tuple |
+| - | - |
+| `tt_view_tournaments` | `tournaments` / `read` |
+| `tt_edit_tournaments` | `tournaments` / `change` |
+
+`tt_edit_tournaments` dekte historisch bewerken **én** aanmaken **én** verwijderen (er is geen aparte beheer-capability), dus de seed-toekenning is volledig `rcd` — het overbruggen van bewerken naar `change` behoudt de aanmaak/verwijder-dekking omdat de enige begunstigde alle drie de handelingen heeft. De ruwe capability-houders (administrator + `tt_club_admin`) komen netjes overeen met de seed-begunstigde, dus routering via de matrix is **toegangsbehoudend** — geen enkele persona wint of verliest toegang. Migratie `0179_authorization_seed_topup_tournaments` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`).
+
 ## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST (#1923)
 
 De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pdp\PdpAccess`. Zowel het gerenderde dossiers-tabblad (`FrontendPdpManageView`) als elke REST-ingang (`PdpFilesRestController`, `PdpVerdictsRestController`) roepen `PdpAccess::canSeeFile( $user_id, $player_id )` aan, zodat beide kanten niet langer verschillend kunnen antwoorden — de oorzaak van het verschil tussen hoofdcoach en HoD in #1758.
