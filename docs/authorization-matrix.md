@@ -121,6 +121,22 @@ The previously login-only PDP REST callbacks were tightened to capability checks
 
 Effective access is unchanged — every actor who could read or edit a PDP before lands on the same answer; the work removed the frontend/REST drift and the role-name compare, it did not widen or narrow any persona.
 
+## Team chemistry — one shared decision, frontend and REST (#1922)
+
+Team-chemistry and Team-blueprint authorization is decided in a single place: `TT\Modules\TeamDevelopment\TeamChemistryAccess`. The rendered blueprint view (`FrontendTeamBlueprintsView`), the dashboard dispatcher gate for the `team-chemistry` / `team-blueprints` views, the share-link rotation handler, and every REST `permission_callback` on `TeamDevelopmentRestController` all call into it, so the frontend and the REST API can no longer answer differently.
+
+The decision resolves through the `team_chemistry` matrix entity (`MatrixGate`), not the raw `tt_view_team_chemistry` / `tt_manage_team_chemistry` capabilities:
+
+- `TeamChemistryAccess::canRead()` / `canManage()` — matrix `read` / `change` authority on `team_chemistry`, **ignoring** the `team_chemistry` sub-feature toggle (the Team blueprint editor deliberately stays available when the chemistry board feature is off).
+- `TeamChemistryAccess::canReadChemistry()` / `canManageChemistry()` — the same authority **plus** the `team_chemistry` sub-feature being on (the chemistry-board surfaces, which honour the feature switch — #1485).
+
+Because the matrix is now the single source of truth, two personas that previously held the raw read capability are no longer granted `team_chemistry` access:
+
+- **Assistant coaches lose `team_chemistry` read.** The matrix omits `team_chemistry` from `assistant_coach` (removed by the #1060 "AC is operational, HC is development" editorial decision). Assistant coaches share the `tt_coach` WP role with head coaches, so the role still carries the cap, but the persona-aware matrix gate denies them. Head coaches (also `tt_coach`) keep access via their `team_chemistry [rc, team]` row.
+- **Readonly observers lose `team_chemistry` read.** The all-areas observer (`tt_readonly_observer`) has no `team_chemistry` matrix row, so the gate denies it. The stale `tt_view_team_chemistry` role grant is revoked on upgrade so WP caps converge on the matrix authority.
+
+Personas that keep access: `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

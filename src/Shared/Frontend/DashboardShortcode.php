@@ -774,7 +774,9 @@ class DashboardShortcode {
                 \TT\Modules\Players\Frontend\FrontendPlayerStatusMethodologyView::render( $user_id, $is_admin );
                 return true;
             case 'team-chemistry':
-                if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
+                // #1922 — read gate via the team_chemistry matrix (single
+                // source of truth), not the raw tt_view_team_chemistry cap.
+                if ( ! \TT\Modules\TeamDevelopment\TeamChemistryAccess::canRead( $user_id ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team chemistry boards.', 'talenttrack' ) . '</p>';
                     return true;
@@ -782,7 +784,8 @@ class DashboardShortcode {
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView::render( $user_id, $is_admin );
                 return true;
             case 'team-blueprints':
-                if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
+                // #1922 — read gate via the team_chemistry matrix.
+                if ( ! \TT\Modules\TeamDevelopment\TeamChemistryAccess::canRead( $user_id ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team blueprints.', 'talenttrack' ) . '</p>';
                     return true;

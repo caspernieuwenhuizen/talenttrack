@@ -76,21 +76,33 @@ class TeamDevelopmentModule implements ModuleInterface {
     }
 
     /**
-     * Idempotent capability assignment.
+     * Idempotent capability assignment, reconciled with the
+     * `team_chemistry` authorization matrix (#1922).
      *
      *   tt_view_team_chemistry        — read formation boards + chemistry scores.
-     *                                   Coaches, head dev, club admins, observers.
+     *                                   Head dev, club admins, coaches.
      *   tt_manage_team_chemistry      — edit formation assignments + style blends +
      *                                   pairing overrides. Head dev + club admins.
      *   tt_manage_formation_templates — author / edit formation templates (Sprint 4
      *                                   admin surface). Head dev + administrator.
+     *
+     * The matrix is the single source of truth for `team_chemistry`
+     * authorization (the render gates + REST permission callbacks resolve
+     * through `TeamChemistryAccess` / `MatrixGate`). The matrix omits
+     * `readonly_observer` (no entity rows) and `assistant_coach` (removed
+     * by the #1060 "AC is operational" decision), so the read cap is no
+     * longer granted to the `tt_readonly_observer` role — and the stale
+     * grant is actively revoked on upgrade so WP caps align with matrix
+     * authority. Assistant coaches share the `tt_coach` WP role with head
+     * coaches, so they keep the raw cap but are now denied by the matrix
+     * persona gate; head coaches (also `tt_coach`) retain access.
      */
     public static function ensureCapabilities(): void {
         $view   = 'tt_view_team_chemistry';
         $manage = 'tt_manage_team_chemistry';
         $admin  = 'tt_manage_formation_templates';
 
-        $view_roles   = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach', 'tt_readonly_observer' ];
+        $view_roles   = [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach' ];
         $manage_roles = [ 'administrator', 'tt_head_dev', 'tt_club_admin' ];
         $admin_roles  = [ 'administrator', 'tt_head_dev' ];
 
@@ -105,6 +117,15 @@ class TeamDevelopmentModule implements ModuleInterface {
         foreach ( $admin_roles as $r ) {
             $role = get_role( $r );
             if ( $role && ! $role->has_cap( $admin ) ) $role->add_cap( $admin );
+        }
+
+        // #1922 — revoke the read cap the matrix no longer projects to
+        // the all-areas observer, so existing installs converge on the
+        // matrix authority (Option 3: readonly_observer loses chemistry
+        // read).
+        $observer = get_role( 'tt_readonly_observer' );
+        if ( $observer && $observer->has_cap( $view ) ) {
+            $observer->remove_cap( $view );
         }
     }
 }

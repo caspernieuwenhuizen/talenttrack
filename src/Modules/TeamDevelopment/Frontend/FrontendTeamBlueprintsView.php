@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\BlueprintShareToken;
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
+use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendThreadView;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -106,7 +107,9 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
         $rows = ( new TeamBlueprintsRepository() )->listForTeam( (int) $team->id );
 
-        $can_manage = current_user_can( 'tt_manage_team_chemistry' );
+        // #1922 — manage authority via the team_chemistry matrix (single
+        // source of truth), not the raw tt_manage_team_chemistry cap.
+        $can_manage = TeamChemistryAccess::canManage( get_current_user_id() );
         $base_url   = remove_query_arg( [ 'team_id', 'id', 'action' ] );
 
         if ( $can_manage ) {
@@ -195,7 +198,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
-        $can_manage = current_user_can( 'tt_manage_team_chemistry' );
+        // #1922 — manage authority via the team_chemistry matrix.
+        $can_manage = TeamChemistryAccess::canManage( $user_id );
         $is_locked  = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
         $is_squad   = (string) ( $bp['flavour'] ?? '' ) === TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN;
         $heatmap    = $is_squad && isset( $_GET['heatmap'] ) && $_GET['heatmap'] === '1';
@@ -831,16 +835,16 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
     /**
      * `admin-post.php?action=tt_blueprint_rotate_share&id=N` — operator
-     * action behind a per-row nonce. Cap-gated on
-     * `tt_manage_team_chemistry`. Sets a fresh seed; every prior URL
-     * for this blueprint immediately fails verification.
+     * action behind a per-row nonce. Gated on `team_chemistry` manage
+     * authority via the matrix (#1922). Sets a fresh seed; every prior
+     * URL for this blueprint immediately fails verification.
      */
     public static function handleRotateShareLink(): void {
         // #1537 — rotation is meaningless when sharing is off.
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'team_blueprints_sharing' ) ) {
             wp_die( esc_html__( 'Blueprint sharing is turned off.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
-        if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) {
+        if ( ! TeamChemistryAccess::canManage( get_current_user_id() ) ) {
             wp_die( esc_html__( 'You do not have permission to rotate the share link.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
         $id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
@@ -1228,7 +1232,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             'team_id'             => $team_id,
             'list_url'            => $list_url,
             'locked'              => $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED,
-            'can_manage'          => current_user_can( 'tt_manage_team_chemistry' ),
+            // #1922 — manage authority via the team_chemistry matrix.
+            'can_manage'          => TeamChemistryAccess::canManage( get_current_user_id() ),
             'formation'           => [
                 'template_id' => (int) ( $bp['formation_template_id'] ?? 0 ),
                 'slots'       => $slots,

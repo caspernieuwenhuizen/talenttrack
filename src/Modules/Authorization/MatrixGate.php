@@ -62,13 +62,37 @@ class MatrixGate {
      * Order: global → team (any assignment) → player (any link) → self.
      */
     public static function canAnyScope( int $user_id, string $entity, string $activity ): bool {
-        if ( $user_id <= 0 ) return false;
-
         // #1485 — an entity owned by a disabled sub-feature is denied at
         // every scope, mirroring the per-row owning-module short-circuit
-        // below. One check, no parallel "is the feature on?" branch in
-        // callers.
+        // in the shared resolver. One check, no parallel "is the feature
+        // on?" branch in callers.
         if ( self::featureDenies( $entity ) ) return false;
+
+        return self::resolveAnyScope( $user_id, $entity, $activity );
+    }
+
+    /**
+     * Persona/scope authority for the entity, IGNORING the sub-feature
+     * toggle (#1485). Use this when a surface deliberately survives the
+     * feature switch yet must still consult the matrix for *who* may act
+     * — e.g. the Team blueprint editor stays available when the
+     * `team_chemistry` feature is off, but blueprint edit authority still
+     * follows the `team_chemistry` matrix rows (#1922).
+     *
+     * Callers that also want the feature gate use `canAnyScope()` instead.
+     */
+    public static function hasAuthorityAnyScope( int $user_id, string $entity, string $activity ): bool {
+        return self::resolveAnyScope( $user_id, $entity, $activity );
+    }
+
+    /**
+     * Shared persona/scope resolution for the "any scope" question, with
+     * no feature-toggle short-circuit (the public wrappers decide whether
+     * to apply it). Order: global → team (any assignment) → player (any
+     * link) → self.
+     */
+    private static function resolveAnyScope( int $user_id, string $entity, string $activity ): bool {
+        if ( $user_id <= 0 ) return false;
 
         $personas = PersonaResolver::effectivePersonas( $user_id );
         if ( empty( $personas ) ) return false;
