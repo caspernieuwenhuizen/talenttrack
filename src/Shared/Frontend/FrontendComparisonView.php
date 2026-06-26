@@ -100,15 +100,27 @@ class FrontendComparisonView extends FrontendViewBase {
             if ( $pl ) $players[] = $pl;
         }
 
-        // All players for slot selectors. Tenant boundary is enforced at the
-        // request layer in SaaS (#1188) — per-helper `club_id` WHERE clauses
-        // were deliberately not added here per that direction. Demo-mode
-        // scope applied so demo runs only show demo-tagged players.
-        // v4.20.51 (#1232) — comment rewritten from the pre-#0038 "cross-club
-        // — observer's scope" framing, which was misleading and risked
-        // becoming an anti-precedent for new picker code.
+        // Coach-context scope (#2006). The compare selectors previously
+        // loaded every active player and every team, ignoring the coach's
+        // assignment — a head coach saw the whole academy roster in the
+        // picker. Mirror the `reports/player-radar` REST endpoint and the
+        // standard-reports view: global-scope read on `reports` (HoD,
+        // academy admin, scout) or the WP settings admin sees all teams;
+        // a team-scoped coach is narrowed to `get_teams_for_coach`, and the
+        // player list is filtered to those teams. Demo-mode scope still
+        // applies so demo runs only show demo-tagged players.
         global $wpdb;
         $p = $wpdb->prefix;
+        $user_id = get_current_user_id();
+        $is_scope_admin = current_user_can( 'tt_edit_settings' )
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map(
+                'intval',
+                array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
+            ) );
+
         $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $all_players = $wpdb->get_results(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.team_id, t.name AS team_name, t.age_group
@@ -128,6 +140,25 @@ class FrontendComparisonView extends FrontendViewBase {
         );
         foreach ( $team_rows as $tr ) {
             $teams_by_id[ (int) $tr->id ] = (string) $tr->name;
+        }
+
+        // #2006 — narrow both selector data sets to the coach's teams when
+        // they aren't a scope admin. A null `$allowed_team_ids` means "no
+        // restriction"; an empty list means "scope-limited with no teams"
+        // and correctly collapses both selectors to nothing.
+        if ( $allowed_team_ids !== null ) {
+            $allowed_lookup = array_flip( $allowed_team_ids );
+            $all_players = array_values( array_filter(
+                $all_players,
+                static fn( $pl ) => isset( $allowed_lookup[ (int) $pl->team_id ] )
+            ) );
+            $teams_by_id = array_intersect_key( $teams_by_id, $allowed_lookup );
+            // Drop any directly-URL-supplied (`?pN=`) player outside scope so
+            // a coach can't hand-craft an out-of-context comparison.
+            $players = array_values( array_filter(
+                $players,
+                static fn( $pl ) => isset( $allowed_lookup[ (int) $pl->team_id ] )
+            ) );
         }
 
         // Slot visibility: 2 by default; grow as picks land. Empty slots

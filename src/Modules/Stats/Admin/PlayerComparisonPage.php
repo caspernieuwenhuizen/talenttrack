@@ -63,6 +63,22 @@ class PlayerComparisonPage {
             if ( $pl ) $players[] = $pl;
         }
 
+        // Coach-context scope (#2006). `tt_view_reports` is a surface gate,
+        // not a club-wide data grant — so the selectors must narrow to the
+        // coach's own teams. Mirror the `reports/player-radar` REST endpoint
+        // and FrontendStandardReportsView: global-scope read on `reports`
+        // (HoD, academy admin, scout) or the WP settings admin sees all
+        // teams; a team-scoped coach sees only `get_teams_for_coach`.
+        $user_id = get_current_user_id();
+        $is_scope_admin = current_user_can( 'tt_edit_settings' )
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map(
+                'intval',
+                array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
+            ) );
+
         // All players list for the slot selectors.
         global $wpdb;
         $p = $wpdb->prefix;
@@ -81,6 +97,22 @@ class PlayerComparisonPage {
         );
         foreach ( $team_rows as $tr ) {
             $teams_by_id[ (int) $tr->id ] = (string) $tr->name;
+        }
+
+        // #2006 — narrow both selectors and any directly-URL-supplied picks
+        // to the coach's teams. A null `$allowed_team_ids` means "no
+        // restriction"; an empty list collapses both selectors to nothing.
+        if ( $allowed_team_ids !== null ) {
+            $allowed_lookup = array_flip( $allowed_team_ids );
+            $all_players = array_values( array_filter(
+                $all_players,
+                static fn( $pl ) => isset( $allowed_lookup[ (int) $pl->team_id ] )
+            ) );
+            $teams_by_id = array_intersect_key( $teams_by_id, $allowed_lookup );
+            $players = array_values( array_filter(
+                $players,
+                static fn( $pl ) => isset( $allowed_lookup[ (int) $pl->team_id ] )
+            ) );
         }
 
         ?>
