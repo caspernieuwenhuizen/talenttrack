@@ -14,9 +14,9 @@ Spond never published an iCal feed — the URL-pasting flow that earlier version
 
 You need **one** Spond account that's a member of every team you want to sync. Most clubs already have a dedicated coach/manager account for this. Two-factor authentication is **not** supported in v1 — disable it on this account or use a non-2FA dedicated account.
 
-1. Go to **Configuration → Spond** in wp-admin.
-2. Enter the Spond email + password and click **Save credentials**. The password is stored encrypted at rest; rotating WordPress's `AUTH_KEY` salt invalidates it and forces re-entry.
-3. Click **Test connection** to confirm Spond accepts the login. A green notice means you're set.
+1. Go to **Configuration → Spond integration** (the tile opens the frontend Spond view at `?tt_view=spond` — no wp-admin bounce since v4.57.0 / #1936).
+2. Enter the Spond email + password and click **Save credentials**. The password is stored encrypted at rest; rotating WordPress's `AUTH_KEY` salt invalidates it and forces re-entry. When an account is already connected the page shows **Connected as &lt;email&gt;** and the password field stays blank — leave it blank to keep the stored password, or type a new one to rotate it. The stored password is never shown back.
+3. Click **Test connection** to confirm Spond accepts the login. A green message means you're set; a failed login surfaces the reason inline.
 4. For each TalentTrack team, open the team edit form (or use the new-team wizard) and pick the matching **Spond group** from the dropdown. The dropdown is populated live from the groups your account belongs to.
 
 That's it. Within an hour, every Spond event for each linked group appears as a TalentTrack activity. The list view shows them with the **Spond** source pill so coaches know they came from outside.
@@ -36,18 +36,23 @@ The sync window is **30 days back + 180 days forward** rolling, so historical ev
 
 ## Sync schedule
 
-- **Hourly automatic sync** via WP-Cron.
-- **Refresh now** button on the team edit page and on the Spond admin overview for an immediate sync.
+- **Hourly automatic sync** via WP-Cron. The Spond view shows roughly how long until the next automatic tick.
+- **Refresh now** button on the team edit page and per team on the Spond view for an immediate sync.
 - **WP-CLI**: `wp tt spond sync` (all teams) or `wp tt spond sync --team=<id>`.
 
-Last-sync status appears in the **Configuration → Spond** table — green when OK, red with the reason if a sync failed. Since v4.20.109 (#1368) the head-of-academy and admin dashboards also show a warning banner when the freshest successful sync is older than 24 hours or any linked team's last sync failed — so a broken sync surfaces where someone will actually see it, not only on this admin page.
+Last-sync status appears in the **Configuration → Spond integration** table — green when OK, red with the reason if a sync failed. Since v4.20.109 (#1368) the head-of-academy and admin dashboards also show a warning banner when the freshest successful sync is older than 24 hours or any linked team's last sync failed — so a broken sync surfaces where someone will actually see it, not only on this admin page.
 
 ## Privacy + security
 
 - **Email + password** are stored in the TalentTrack config table, scoped to your club, with the password encrypted at rest using the same envelope used for VAPID push keys (`CredentialEncryption`).
 - **Spond's login token** is cached for ~12 hours. When it expires (or Spond revokes it), the next sync transparently re-logs in.
 - **Credentials never appear in any phone-home payload** — the v1 phone-home schema explicitly excludes Spond credentials and group IDs.
-- To **disconnect**: click **Disconnect** on the Spond admin page. Existing imported activities are kept; future syncs are paused. Per-team group selections are kept on file so reconnecting later resumes seamlessly.
+- To **disconnect**: click **Disconnect** on the Spond view. Existing imported activities are kept; future syncs are paused. Per-team group selections are kept on file so reconnecting later resumes seamlessly.
+- Saving credentials, testing the connection, disconnecting, and the API-endpoint override all run over the REST API (`POST/DELETE /spond/credentials`, `POST /spond/test`, `POST /spond/base-url`) gated on the `tt_edit_spond_credentials` capability. Viewing the page and triggering a per-team **Refresh now** are gated on `tt_edit_teams`.
+
+## API endpoint override
+
+If Spond ever moves its API to a new address, an operator can redirect TalentTrack without a code release: open the collapsible **API endpoint** section on the Spond view, enter the new base URL, and save. Leave it blank and save to revert to the shipped default. A wrong URL makes every sync fail, so change it only when Spond announces a new endpoint or for testing against a private mock.
 
 ## What's not supported (yet)
 
