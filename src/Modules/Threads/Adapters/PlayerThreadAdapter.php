@@ -56,19 +56,12 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter {
         if ( $user_id <= 0 ) return false;
         if ( ! $this->findEntity( $thread_id ) ) return false;
 
-        // Capability check first; matrix bridge resolves scope.
+        // Capability check first; matrix bridge resolves scope. The
+        // matrix seed grants no `player_notes` read to the player /
+        // parent personas, so this cap check alone denies them — no
+        // role-name compare needed (a coach who is also a parent of
+        // an academy child must keep their coach access).
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return false;
-
-        // Player + parent are explicitly excluded — they never read
-        // notes about themselves / their child via this adapter.
-        // The matrix seed has no grant for those personas; this is the
-        // belt-and-braces version in case a future seed edit drifts.
-        $u = get_user_by( 'id', $user_id );
-        if ( $u instanceof \WP_User ) {
-            $roles = (array) $u->roles;
-            if ( in_array( 'tt_player', $roles, true ) ) return false;
-            if ( in_array( 'tt_parent', $roles, true ) ) return false;
-        }
 
         // Coach scope: must own the player's team. Matches the
         // `r[team]` grant on the seed.
@@ -85,15 +78,10 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter {
     public function canPost( int $user_id, int $thread_id ): bool {
         if ( $user_id <= 0 ) return false;
         if ( ! $this->findEntity( $thread_id ) ) return false;
+        // The matrix seed grants no `player_notes` change to the
+        // player / parent personas, so this cap check alone denies
+        // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
-
-        // Same scope check as canRead; players + parents never post.
-        $u = get_user_by( 'id', $user_id );
-        if ( $u instanceof \WP_User ) {
-            $roles = (array) $u->roles;
-            if ( in_array( 'tt_player', $roles, true ) ) return false;
-            if ( in_array( 'tt_parent', $roles, true ) ) return false;
-        }
 
         if ( ! current_user_can( 'tt_view_settings' )
              && ! user_can( $user_id, 'tt_view_settings' )
