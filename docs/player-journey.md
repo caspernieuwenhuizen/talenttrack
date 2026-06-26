@@ -28,6 +28,7 @@ Most entries appear without anyone typing them in. The journey watches the rest 
 - A **goal set** for a player → *"Goal set: Improve weak foot"*.
 - A **PDP verdict signed off** → *"PDP verdict: promote"*.
 - A **player joins a team or moves to a new age group** → *"Team: U13 → U14"* or *"Age group: U13 → U14"*.
+- A **player's preferred positions change** → *"Position: none → Centre back, Left back"* (positions read as their full names, not codes).
 - A **trial case is opened** → *"Trial started"*.
 - A **trial decision** → *"Trial ended: admit"* (and *"Signed"* on admit, *"Released"* on a final no).
 - A **player's status changes** to active, released, or graduated → matching journey entries.

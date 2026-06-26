@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -155,7 +156,7 @@ final class JourneyEventSubscriber {
                 $player_id,
                 JourneyEventType::POSITION_CHANGED,
                 current_time( 'mysql' ),
-                sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'unset', 'talenttrack' ), $new_pos ),
+                sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'none', 'talenttrack' ), $new_pos !== '' ? $new_pos : __( 'none', 'talenttrack' ) ),
                 [ 'from' => $old_pos, 'to' => $new_pos ],
                 'Players',
                 'position_change',
@@ -165,22 +166,26 @@ final class JourneyEventSubscriber {
     }
 
     /**
-     * #1818 — turn a stored `preferred_positions` value (a JSON array like
-     * `["CB","LB"]`, or a plain string) into a readable comma-separated
-     * list. Falls back to the raw string when it isn't JSON.
+     * #1818 / #1983 — turn a stored `preferred_positions` value (a JSON
+     * array like `["CB","LB"]`, or a plain comma-separated string) into a
+     * readable, human-friendly list. Each position code is resolved to its
+     * long form via LabelTranslator::positionLabel() ("CB" → "Centre back"
+     * / "Centrale verdediger"); unknown / custom positions pass through
+     * unchanged. Falls back to the raw string when it holds nothing usable.
      */
     private static function formatPositions( string $raw ): string {
         $raw = trim( $raw );
         if ( $raw === '' ) return '';
         $decoded = json_decode( $raw, true );
-        if ( is_array( $decoded ) ) {
-            $parts = array_values( array_filter(
-                array_map( static fn ( $v ): string => trim( (string) $v ), $decoded ),
-                static fn ( string $v ): bool => $v !== ''
-            ) );
-            return implode( ', ', $parts );
-        }
-        return $raw;
+        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $raw );
+        $parts   = array_values( array_filter(
+            array_map(
+                static fn ( $v ): string => LabelTranslator::positionLabel( trim( (string) $v ) ),
+                $codes
+            ),
+            static fn ( string $v ): bool => $v !== ''
+        ) );
+        return $parts !== [] ? implode( ', ', $parts ) : $raw;
     }
 
     public static function on_trial_started( int $case_id, int $player_id ): void {
