@@ -39,6 +39,15 @@ tests_add_filter( 'muplugin_loaded', static function () use ( $_root ) {
 
 require $_tests_dir . '/includes/bootstrap.php';
 
+// Belt-and-braces: ensure the plugin bootstrap file is loaded so its
+// constants (TT_VERSION / TT_PLUGIN_DIR) and the kernel-boot hook exist.
+// The muplugin_loaded filter above is the normal path; this guards the
+// case where the test suite didn't fire it (which leaves TT_VERSION
+// undefined and Kernel::boot() fatal). Guarded so it never double-defines.
+if ( ! defined( 'TT_VERSION' ) && file_exists( $_root . '/talenttrack.php' ) ) {
+    require $_root . '/talenttrack.php';
+}
+
 // Materialise the plugin schema in the test DB so integration tests
 // (e.g. the authorization-matrix repository) run against real tables.
 // Migrations are idempotent; a failed seed migration is recorded but
