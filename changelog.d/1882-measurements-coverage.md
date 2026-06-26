@@ -1,5 +1,0 @@
-# Measurements insights: testing coverage — who's due / overdue (#1882)
-
-Bump: minor
-
-Staff get a new **Testing coverage** screen (Performance group): pick a team and see, for every test that has a recurrence, how many of the squad are up to date versus the gap — with the players who are **overdue**, **due soon**, or have **never** been tested named so a coach can plan a session. Player-centric: it starts from the roster and surfaces exactly who still needs testing this cycle; *ad hoc* tests don't count toward coverage. Built on the #1856 foundation — a pure `MeasurementScheduleService` (frequency → due/overdue) + a `MeasurementCoverageService` composing the existing definitions/results repositories, exposed over REST (`GET /teams/{id}/measurement-coverage`, team/global matrix-scoped) so logic stays out of the view (§4). Coach sees their own teams; HoD/admin see every team. First slice of the Measurements insights work (#1854); per-definition distribution + growth/maturation curves and overdue reminders are the next increment.

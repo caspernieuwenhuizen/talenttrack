@@ -1,5 +1,0 @@
-# Measurements & Testing — REST contract (#1856)
-
-Bump: minor
-
-Adds the SaaS-ready REST contract for the Measurements module (epic #1854) at `talenttrack/v1`: a player's measurement profile (`GET /players/{id}/measurements` — categories → tests → latest value + green/amber/red flag + trend), result recording + editing + soft-archive, one test's trend series, the test catalogue (`/measurements/definitions`), and team testing sessions. Every endpoint is matrix-gated — player reads resolve through `canViewPlayer` (a player sees only their own, a parent only their child's, staff their team's, HoD/admin everything), writes through `canEvaluatePlayer`, and the catalogue/sessions through the `measurement_definitions` / `measurement_sessions` matrix entities — never a role-string compare. The grouping + flag logic lives in a shared `PlayerMeasurementProfile` service so the upcoming frontend renders exactly what the API returns. The frontend Metingen view, the result-entry screen, and the "+ New test" wizard follow in the next slice.

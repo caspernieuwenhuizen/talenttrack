@@ -1,5 +1,0 @@
-# Players can choose which sections their parent sees (#1867)
-
-Bump: minor
-
-A player (child) can now control **which sections of their record a linked parent can see** — per section, default visible. In **My settings**, a player with a linked parent gets a "What your parent can see" card with toggles for **Evaluations**, **Goals**, **Journey**, **Measurements** and **Development plan**; everything is shared by default, and turning a section off hides it from the parent across both the rendered views and the REST reads. The parent sees a calm "kept private" note rather than an error or a broken view, and the development-home previews respect the same choice. The player always sees their own record, coaches and the academy are unaffected, and safeguarding/medical stays cap-gated and outside player control. Enforced in the authorization layer (`AuthorizationService::parentCanViewSection`), not in views (§4); new `tt_player_parent_visibility` table carries `club_id`. Part of the development-hub epic (#1846) and the player/parent dignity work (CLAUDE.md §1).

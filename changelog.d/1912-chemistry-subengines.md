@@ -1,5 +1,0 @@
-# Chemistry rework — five component sub-engines (#1017)
-
-Bump: minor
-
-Phase 2 of the chemistry rework (epic #1017): the five weighted component scorers the new pair-chemistry formula is built from, as standalone, independently-reviewable classes — **Compatibility** (core attribute groups + footedness), **Familiarity** (shared training + tenure), **Development** (age + potential alignment), **Behaviour** (behaviour group, team-orientation weighted), **Performance** (shared games). Each takes two player profiles + their shared-history context and returns a 0–100 score with human reasons for the explainability panel, falling back to a neutral 50 (flagged `has_data: false`) when its inputs aren't recorded yet — so an un-populated player never drags a lineup to zero. The locked spec fixes which attribute groups feed each component and the top-level weights; the internal formulas here are a documented v1, tunable per scorer. No engine integration yet (Phase 3 orchestrates them); `BlueprintChemistryEngine` is untouched.
