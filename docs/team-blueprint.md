@@ -107,8 +107,8 @@ Reopen requires the same manage permission as creating a blueprint, so a head co
 
 ## Permissions
 
-- **View** — coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board.
-- **Create / edit / lock / delete** — gated on `tt_manage_team_chemistry` (head coach by default; head-of-academy / admin globally).
+- **View** — head coaches see blueprints for teams they head-coach; head-of-academy / academy admin see all teams. Same scope as the Team chemistry board. Access follows the `team_chemistry` authorization matrix (#1922): assistant coaches and read-only observers do **not** have access.
+- **Create / edit / lock / delete** — gated on `team_chemistry` **manage** authority in the matrix (head coach at team scope; head-of-academy / admin globally), resolved via `TeamChemistryAccess` so the frontend and REST agree.
 
 ## Squad plan flavour
 

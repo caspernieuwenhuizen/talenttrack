@@ -13,7 +13,7 @@ Every score on the board is **explainable**. Hover any number to see the exact r
 
 ## Where to find it
 
-Coaches and head-of-academy users see a **Team chemistry** tile in the *Performance* group on the dashboard. Pick a team and the board opens. Read-only observers see the same board but can't edit pairings.
+Head coaches and head-of-academy users see a **Team chemistry** tile in the *Performance* group on the dashboard. Pick a team and the board opens. Access follows the `team_chemistry` authorization matrix (#1922): assistant coaches and read-only observers do **not** have access to the chemistry board.
 
 A second surface is per-player: every player profile has a **Best fit positions** card listing the player's top three positions in the team's current formation, again with hoverable rationale.
 
@@ -111,7 +111,7 @@ When you're done:
 - **Reset to suggested XI** discards every swap and restores the board to its analysis baseline.
 - **Save as blueprint** prompts for a name, then promotes your sandbox into a real Team Blueprint — the same surface coaches use to share match-day lineups. You're redirected straight into the blueprint editor with all your swaps preserved as assignments.
 
-Read-only viewers see the board without the Try-a-lineup affordance. The sandbox is gated on the *Manage team chemistry* capability — the same capability that gates pairings.
+Read-only personas (team manager, scout, head of development) see the board without the Try-a-lineup affordance. The sandbox is gated on `team_chemistry` **manage** authority in the matrix — the same authority that gates pairings.
 
 ## Cache + recompute
 

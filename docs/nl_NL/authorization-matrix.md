@@ -109,6 +109,22 @@ De voorheen alleen-ingelogd POP-REST-callbacks zijn aangescherpt naar capability
 
 De effectieve toegang blijft ongewijzigd — iedereen die een POP eerder kon lezen of bewerken krijgt hetzelfde antwoord; het werk verwijderde de frontend/REST-afwijking en de rolnaamvergelijking, het verbreedde of versmalde geen enkele persona.
 
+## Teamchemie — één gedeelde beslissing, frontend en REST (#1922)
+
+Teamchemie- en teamblauwdruk-autorisatie wordt op één plek beslist: `TT\Modules\TeamDevelopment\TeamChemistryAccess`. De gerenderde blauwdrukweergave (`FrontendTeamBlueprintsView`), de dashboard-dispatchercontrole voor de weergaven `team-chemistry` / `team-blueprints`, de deellink-rotatiehandler en elke REST-`permission_callback` op `TeamDevelopmentRestController` roepen deze aan, zodat de frontend en de REST-API niet langer verschillend kunnen antwoorden.
+
+De beslissing wordt opgelost via de matrixentiteit `team_chemistry` (`MatrixGate`), niet via de ruwe capabilities `tt_view_team_chemistry` / `tt_manage_team_chemistry`:
+
+- `TeamChemistryAccess::canRead()` / `canManage()` — matrix-autoriteit `read` / `change` op `team_chemistry`, **met negeren** van de subfunctie-schakelaar `team_chemistry` (de teamblauwdruk-editor blijft bewust beschikbaar wanneer de chemiebord-functie uit staat).
+- `TeamChemistryAccess::canReadChemistry()` / `canManageChemistry()` — dezelfde autoriteit **plus** dat de subfunctie `team_chemistry` aan staat (de chemiebord-oppervlakken, die de functieschakelaar respecteren — #1485).
+
+Omdat de matrix nu de enige bron van waarheid is, krijgen twee persona's die voorheen de ruwe leescapability hadden geen `team_chemistry`-toegang meer:
+
+- **Assistent-coaches verliezen `team_chemistry`-leestoegang.** De matrix laat `team_chemistry` weg bij `assistant_coach` (verwijderd door de redactionele beslissing #1060 "AC is operationeel, HC is ontwikkeling"). Assistent-coaches delen de WP-rol `tt_coach` met hoofdcoaches, dus de rol draagt de capability nog, maar de persona-bewuste matrixcontrole weigert hen. Hoofdcoaches (ook `tt_coach`) houden toegang via hun rij `team_chemistry [rc, team]`.
+- **Alleen-lezen-waarnemers verliezen `team_chemistry`-leestoegang.** De alles-ziende waarnemer (`tt_readonly_observer`) heeft geen `team_chemistry`-matrixrij, dus de controle weigert hem. De verouderde `tt_view_team_chemistry`-roltoekenning wordt bij upgrade ingetrokken zodat de WP-capabilities samenvallen met de matrixautoriteit.
+
+Persona's die toegang houden: `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.

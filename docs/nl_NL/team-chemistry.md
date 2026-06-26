@@ -13,7 +13,7 @@ Elke score op het bord is **uitlegbaar**. Houd de muis boven elk getal om de exa
 
 ## Waar te vinden
 
-Coaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*-groep op het dashboard. Kies een team en het bord opent. Read-only observers zien hetzelfde bord maar kunnen geen koppelingen bewerken.
+Hoofdcoaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*-groep op het dashboard. Kies een team en het bord opent. Toegang volgt de `team_chemistry`-autorisatiematrix (#1922): assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang tot het chemiebord.
 
 Een tweede oppervlak is per speler: elk spelerprofiel heeft een **Beste posities**-kaart die de top drie posities van de speler in de huidige formatie van het team toont, opnieuw met onderbouwing bij hoveren.
 
@@ -111,7 +111,7 @@ Klaar?
 - **Terug naar voorgestelde XI** gooit elke wissel weg en zet het bord terug op het analytische uitgangspunt.
 - **Opslaan als blueprint** vraagt om een naam en promoveert je sandbox tot een echte Team Blueprint — hetzelfde scherm dat coaches gebruiken om wedstrijd­opstellingen te delen. Je springt direct in de blueprint-editor met al je wissels als opstelling.
 
-Alleen-lezen kijkers zien het bord zonder de Probeer-een-opstelling-knop. De sandbox is afgeschermd door de *Teamchemie beheren*-rechten — dezelfde rechten die ook pairings afschermen.
+Alleen-lezen persona's (teammanager, scout, hoofd-ontwikkeling) zien het bord zonder de Probeer-een-opstelling-knop. De sandbox is afgeschermd door `team_chemistry` **beheer**-autoriteit in de matrix — dezelfde autoriteit die ook koppels afschermt.
 
 ## Cache + herberekening
 

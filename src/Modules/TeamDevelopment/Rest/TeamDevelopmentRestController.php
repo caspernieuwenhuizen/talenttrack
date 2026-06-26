@@ -11,6 +11,7 @@ use TT\Modules\TeamDevelopment\ChemistryAggregator;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
 use TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository;
+use TT\Modules\TeamDevelopment\TeamChemistryAccess;
 
 /**
  * TeamDevelopmentRestController — sprint 1 stubs.
@@ -184,30 +185,35 @@ class TeamDevelopmentRestController {
         ] );
     }
 
+    /**
+     * #1922 — blueprint / formation read access. Routed through the
+     * `team_chemistry` authorization matrix (via TeamChemistryAccess) so
+     * frontend + REST answer identically and the matrix stays the single
+     * source of truth. Ignores the `team_chemistry` sub-feature toggle —
+     * the blueprint surfaces survive the feature switch (#1485).
+     */
     public static function can_view(): bool {
-        return current_user_can( 'tt_view_team_chemistry' );
+        return TeamChemistryAccess::canRead( get_current_user_id() );
     }
 
+    /** #1922 — blueprint / formation write access via the matrix. */
     public static function can_manage(): bool {
-        return current_user_can( 'tt_manage_team_chemistry' );
+        return TeamChemistryAccess::canManage( get_current_user_id() );
     }
 
     /**
-     * #1485 — chemistry-board read access: the view cap AND the
-     * team_chemistry sub-feature being on. Blueprint / formation routes
-     * keep using can_view() so they survive the feature switch.
+     * #1485 / #1922 — chemistry-board read access: matrix `team_chemistry`
+     * read authority AND the team_chemistry sub-feature being on.
+     * Blueprint / formation routes use can_view() so they survive the
+     * feature switch.
      */
     public static function can_view_chemistry(): bool {
-        if ( ! current_user_can( 'tt_view_team_chemistry' ) ) return false;
-        if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return true;
-        return \TT\Core\FeatureRegistry::isEnabled( 'team_chemistry' );
+        return TeamChemistryAccess::canReadChemistry( get_current_user_id() );
     }
 
-    /** #1485 — chemistry-board write access, feature-gated. */
+    /** #1485 / #1922 — chemistry-board write access, feature-gated. */
     public static function can_manage_chemistry(): bool {
-        if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) return false;
-        if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return true;
-        return \TT\Core\FeatureRegistry::isEnabled( 'team_chemistry' );
+        return TeamChemistryAccess::canManageChemistry( get_current_user_id() );
     }
 
     public static function get_formation( \WP_REST_Request $r ): \WP_REST_Response {

@@ -107,8 +107,8 @@ Heropenen vereist hetzelfde rechtenniveau als het aanmaken van een blauwdruk, du
 
 ## Rechten
 
-- **Bekijken** — coaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord.
-- **Aanmaken / bewerken / vergrendelen / verwijderen** — gated op `tt_manage_team_chemistry` (standaard hoofdcoach; hoofd-academie / admin globaal).
+- **Bekijken** — hoofdcoaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord. Toegang volgt de `team_chemistry`-autorisatiematrix (#1922): assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang.
+- **Aanmaken / bewerken / vergrendelen / verwijderen** — afgeschermd op `team_chemistry` **beheer**-autoriteit in de matrix (hoofdcoach op teamscope; hoofd-academie / admin globaal), opgelost via `TeamChemistryAccess` zodat de frontend en REST overeenkomen.
 
 ## Selectie-plan-variant
 
