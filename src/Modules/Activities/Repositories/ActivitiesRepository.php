@@ -935,6 +935,89 @@ final class ActivitiesRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
+    /**
+     * #1989 — upcoming MATCHES for a team (player "My team" next-match peek).
+     * Future-dated, match-type, not completed/cancelled, soonest first.
+     * Carries the opponent + home/away so the surface can show a fixture
+     * line. Club- + demo-scoped like the rest of this repository.
+     *
+     * @return array<int, object> rows with id, title, session_date, location,
+     *                            opponent, home_away
+     */
+    public function upcomingMatchesForTeam( int $team_id, int $limit = 3 ): array {
+        if ( $team_id <= 0 ) return [];
+        $limit = max( 1, min( 20, $limit ) );
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date, a.location, a.opponent, a.home_away
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.activity_type_key = 'match'
+                AND a.session_date >= CURDATE()
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                {$scope}
+           ORDER BY a.session_date ASC, a.id ASC
+              LIMIT %d",
+            $team_id, CurrentClub::id(), $limit
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1989 — recent finished MATCHES for a team with the result framed from
+     * the team's perspective (player "My team" form line). Only matches with
+     * both scores recorded; most recent first. Each row gains `team_score`,
+     * `opp_score` and `outcome` ('W' | 'D' | 'L'). Club- + demo-scoped.
+     *
+     * @return array<int, object> rows with id, title, session_date, opponent,
+     *                            team_score, opp_score, outcome
+     */
+    public function recentResultsForTeam( int $team_id, int $limit = 5 ): array {
+        if ( $team_id <= 0 ) return [];
+        $limit = max( 1, min( 20, $limit ) );
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date, a.opponent, a.home_away, a.home_score, a.away_score
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.activity_type_key = 'match'
+                AND a.session_date <= CURDATE()
+                AND a.home_score IS NOT NULL
+                AND a.away_score IS NOT NULL
+                {$scope}
+           ORDER BY a.session_date DESC, a.id DESC
+              LIMIT %d",
+            $team_id, CurrentClub::id(), $limit
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        foreach ( $rows as $r ) {
+            // The academy team is 'home' unless the row says 'away'.
+            $is_home          = ( (string) ( $r->home_away ?? '' ) ) !== 'away';
+            $r->team_score    = (int) ( $is_home ? $r->home_score : $r->away_score );
+            $r->opp_score     = (int) ( $is_home ? $r->away_score : $r->home_score );
+            $r->outcome       = $r->team_score > $r->opp_score ? 'W'
+                              : ( $r->team_score < $r->opp_score ? 'L' : 'D' );
+        }
+
+        return $rows;
+    }
+
     // ──────────────────────────────────────────────────────────────
     // #1712 — REST query-shape methods. The activities REST controller
     // previously inlined ~19 `$wpdb` sites against tt_activities /

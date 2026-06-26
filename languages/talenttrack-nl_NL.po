@@ -16811,6 +16811,34 @@ msgstr "Aanwezig %s"
 msgid "vs %s"
 msgstr "vs %s"
 
+#: src/Shared/Frontend/FrontendMyTeamView.php
+msgid "Next match"
+msgstr "Volgende wedstrijd"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php
+msgid "Recent results"
+msgstr "Recente resultaten"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php
+#, php-format
+msgid "%1$s — %2$d–%3$d"
+msgstr "%1$s — %2$d–%3$d"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php
+msgctxt "match result: win"
+msgid "W"
+msgstr "W"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php
+msgctxt "match result: loss"
+msgid "L"
+msgstr "V"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php
+msgctxt "match result: draw"
+msgid "D"
+msgstr "G"
+
 #. translators: %d: duration in minutes
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:691
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:570

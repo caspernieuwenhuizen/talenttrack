@@ -86,6 +86,63 @@ class FrontendMyTeamView extends FrontendViewBase {
                 <?php endif; ?>
             </div>
 
+            <?php
+            // #1989 — non-sensitive team fixtures the player may see: the next
+            // match and a recent-results form line. No teammate ratings.
+            $acts           = new \TT\Modules\Activities\Repositories\ActivitiesRepository();
+            $next_matches   = $acts->upcomingMatchesForTeam( $team_id, 1 );
+            $recent_results = $acts->recentResultsForTeam( $team_id, 5 );
+            if ( ! empty( $next_matches ) || ! empty( $recent_results ) ) :
+                $date_fmt = (string) get_option( 'date_format', 'j M Y' );
+                ?>
+                <div class="tt-mt-card tt-mt-fixtures-block">
+                    <?php if ( ! empty( $next_matches ) ) :
+                        $nm     = $next_matches[0];
+                        $nm_opp = trim( (string) ( $nm->opponent ?? '' ) );
+                        ?>
+                        <h3 class="tt-mt-card__title"><?php esc_html_e( 'Next match', 'talenttrack' ); ?></h3>
+                        <div class="tt-mt-fixture">
+                            <span class="tt-mt-fixture__date"><?php echo esc_html( date_i18n( $date_fmt, (int) strtotime( (string) $nm->session_date ) ) ); ?></span>
+                            <span class="tt-mt-fixture__opp"><?php
+                                /* translators: %s is the opponent name. */
+                                echo esc_html( $nm_opp !== '' ? sprintf( __( 'vs %s', 'talenttrack' ), $nm_opp ) : (string) $nm->title );
+                            ?></span>
+                            <?php if ( (string) ( $nm->home_away ?? '' ) !== '' ) : ?>
+                                <span class="tt-mt-fixture__ha"><?php echo esc_html( (string) $nm->home_away === 'away' ? __( 'Away', 'talenttrack' ) : __( 'Home', 'talenttrack' ) ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( trim( (string) ( $nm->location ?? '' ) ) !== '' ) : ?>
+                                <span class="tt-mt-fixture__loc"><?php echo esc_html( (string) $nm->location ); ?></span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $recent_results ) ) : ?>
+                        <h3 class="tt-mt-card__title"><?php esc_html_e( 'Recent results', 'talenttrack' ); ?></h3>
+                        <div class="tt-mt-form">
+                            <?php foreach ( $recent_results as $res ) :
+                                $cls    = $res->outcome === 'W' ? 'win' : ( $res->outcome === 'L' ? 'loss' : 'draw' );
+                                $letter = $res->outcome === 'W' ? _x( 'W', 'match result: win', 'talenttrack' )
+                                        : ( $res->outcome === 'L' ? _x( 'L', 'match result: loss', 'talenttrack' )
+                                        : _x( 'D', 'match result: draw', 'talenttrack' ) );
+                                $opp    = trim( (string) ( $res->opponent ?? '' ) );
+                                $tip    = sprintf(
+                                    /* translators: 1: opponent, 2: own score, 3: opponent score */
+                                    __( '%1$s — %2$d–%3$d', 'talenttrack' ),
+                                    $opp !== '' ? $opp : (string) $res->title,
+                                    (int) $res->team_score,
+                                    (int) $res->opp_score
+                                );
+                                ?>
+                                <span class="tt-mt-form__chip tt-mt-form__chip--<?php echo esc_attr( $cls ); ?>" title="<?php echo esc_attr( $tip ); ?>">
+                                    <span class="tt-mt-form__letter"><?php echo esc_html( $letter ); ?></span>
+                                    <span class="tt-mt-form__score"><?php echo esc_html( (int) $res->team_score . '–' . (int) $res->opp_score ); ?></span>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="tt-mt-card tt-mt-own-card-wrap">
                 <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
                 <?php if ( $show_rank ) : ?>
