@@ -1,0 +1,100 @@
+/*
+ * frontend-holiday-detail.css — FrontendHolidaysView read-only detail
+ * view (#1997). Scheduling-centric summary of a single academy holiday
+ * at `?tt_view=holidays&id=N`.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale
+ * up. Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-holiday-detail {
+    max-width: 640px;
+}
+
+/* Key facts as a definition list. Stacked on phones, two-column from
+ * the large-phone breakpoint up. */
+.tt-dashboard .tt-holiday-detail__facts {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-bg-soft);
+    overflow: hidden;
+}
+
+.tt-dashboard .tt-holiday-detail__row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    padding: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-holiday-detail__row + .tt-holiday-detail__row {
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-dashboard .tt-holiday-detail__row dt {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tt-dashboard .tt-holiday-detail__row dd {
+    margin: 0;
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-lg);
+    line-height: var(--tt-lh-body, 1.5);
+    word-break: break-word;
+}
+
+.tt-dashboard .tt-holiday-detail__empty {
+    color: var(--tt-muted);
+}
+
+/* Colour swatch row. */
+.tt-dashboard .tt-holiday-detail__colour {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-holiday-detail__swatch {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--tt-radius);
+    border: 1px solid var(--tt-line);
+    flex: 0 0 auto;
+}
+
+.tt-dashboard .tt-holiday-detail__swatch-label {
+    font-size: var(--tt-fs-body);
+    color: var(--tt-ink-soft);
+}
+
+/* One-liner explaining where the holiday surfaces. */
+.tt-dashboard .tt-holiday-detail__banner-note {
+    margin: var(--tt-sp-4) 0 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-holiday-detail__row {
+        flex-direction: row;
+        align-items: baseline;
+        gap: var(--tt-sp-4);
+    }
+
+    .tt-dashboard .tt-holiday-detail__row dt {
+        flex: 0 0 8rem;
+    }
+
+    .tt-dashboard .tt-holiday-detail__row dd {
+        flex: 1 1 auto;
+    }
+}

@@ -97,6 +97,26 @@ final class HolidaysRepository {
         );
     }
 
+    /**
+     * #1997 — inclusive day span of a holiday: the number of calendar
+     * days the period covers counting BOTH the start and the end date.
+     * A single-day holiday (start === end) is 1; "21 dec – 4 jan" is 15.
+     *
+     * Business logic lives here (not the view) so the REST serializer
+     * and the PHP detail view derive the same number — SaaS §4. Returns
+     * 0 when either date is missing or malformed, or when the range is
+     * inverted.
+     */
+    public static function dayCount( string $start_date, string $end_date ): int {
+        $start = strtotime( $start_date . ' 00:00:00' );
+        $end   = strtotime( $end_date . ' 00:00:00' );
+        if ( $start === false || $end === false || $end < $start ) {
+            return 0;
+        }
+        $days = (int) floor( ( $end - $start ) / DAY_IN_SECONDS );
+        return $days + 1; // inclusive of both endpoints.
+    }
+
     public function archive( int $id ): bool {
         if ( $id <= 0 ) return false;
         return false !== $this->wpdb->update(
