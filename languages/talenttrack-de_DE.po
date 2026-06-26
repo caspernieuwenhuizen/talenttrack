@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T08:09:36+00:00\n"
+"POT-Creation-Date: 2026-06-26T08:30:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -53,7 +53,7 @@ msgstr ""
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:505
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:315
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:320
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:285
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:340
 #: src/Modules/Players/Admin/PlayersPage.php:127
@@ -117,7 +117,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:612
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:633
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:733
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:314
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:319
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:284
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:339
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
@@ -191,7 +191,7 @@ msgstr "Spieler"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:154
 #: src/Modules/People/Admin/PeoplePage.php:497
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:380
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:385
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/Reports/Admin/ReportsPage.php:271
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:271
@@ -218,7 +218,7 @@ msgstr "Trainer"
 #: src/Infrastructure/Security/RolesService.php:243
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:501
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:319
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:324
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:289
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:344
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
@@ -376,8 +376,30 @@ msgid ""
 "view stays available when this is off; only new task automation stops."
 msgstr ""
 
+#: src/Core/FeatureRegistry.php:143
+msgid "SMS channel"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:144
+msgid ""
+"Offer SMS as a messaging channel. SMS delivery still needs a provider "
+"plugin. The other channels (email, push, WhatsApp link, in-app) stay "
+"available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:151
+msgid "Scheduled messaging"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:152
+msgid ""
+"Daily automated reminders (goal nudges, attendance flags, onboarding nudges, "
+"staff-development reminders). Event-driven messaging stays available when "
+"this is off; only the scheduled cron stops."
+msgstr ""
+
 # v3.99.1 — #0006 team-planning module
-#: src/Core/FeatureRegistry.php:141
+#: src/Core/FeatureRegistry.php:163
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:153
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:47
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:93
@@ -388,77 +410,120 @@ msgstr ""
 msgid "Team planner"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:142
+#: src/Core/FeatureRegistry.php:164
 msgid ""
 "The week-by-week team-planning calendar. The Activities log stays available "
 "when this is off."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:162
+#: src/Core/FeatureRegistry.php:171
+msgid "Medical events on timeline"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:172
+msgid ""
+"Show injury and medical events on the player timeline to staff who already "
+"hold the medical-view permission. When off, medical events are hidden from "
+"the timeline even for authorised staff. The permission itself is unchanged."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:179
+msgid "PDP calendar integration"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:180
+msgid ""
+"Write scheduled PDP conversations to the calendar feed when a development "
+"plan is created or carried over. The PDP plans, conversations and verdicts "
+"stay available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:187
+msgid "Dashboard layout editor"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:188
+msgid ""
+"The drag-and-drop builder for persona dashboard layouts. The rendered "
+"dashboards keep working from their saved layouts when this is off; only the "
+"editor is hidden."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:199
+msgid "Match prep PDF export"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:200
+msgid ""
+"Allow the A4 match-preparation sheet to be exported/printed as a PDF. The "
+"match-prep screen stays available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:220
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:86
 msgid "Players list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:163
+#: src/Core/FeatureRegistry.php:221
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:155
 msgid "Team roster + season stats"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:164
+#: src/Core/FeatureRegistry.php:222
 #: src/Shared/Frontend/FrontendExportsView.php:230
 msgid "Federation registration (JSON)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:165
+#: src/Core/FeatureRegistry.php:223
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:32
 #: src/Shared/Frontend/FrontendExportsView.php:102
 msgid "Attendance register"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:166
+#: src/Core/FeatureRegistry.php:224
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:167
 msgid "Team activity history"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:167
+#: src/Core/FeatureRegistry.php:225
 #: src/Modules/Export/Exporters/TeamIcalExporter.php:36
 #: src/Shared/Frontend/FrontendExportsView.php:219
 msgid "Team activity calendar (iCal)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:168
+#: src/Core/FeatureRegistry.php:226
 #: src/Shared/Frontend/FrontendExportsView.php:131
 msgid "Evaluations export"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:169
+#: src/Core/FeatureRegistry.php:227
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:32
 #: src/Shared/Frontend/FrontendExportsView.php:143
 msgid "Player evaluations (flat)"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:170
+#: src/Core/FeatureRegistry.php:228
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:114
 msgid "Goals list"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:171
+#: src/Core/FeatureRegistry.php:229
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
 #: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "KPI snapshot"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:172
+#: src/Core/FeatureRegistry.php:230
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:190
 msgid "Coach / staff directory"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:173
+#: src/Core/FeatureRegistry.php:231
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:41
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:114
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
@@ -472,24 +537,24 @@ msgstr ""
 msgid "Audit log"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:174
+#: src/Core/FeatureRegistry.php:232
 #: src/Shared/Frontend/FrontendExportsView.php:246
 msgid "Full club-data backup"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:175
+#: src/Core/FeatureRegistry.php:233
 #: src/Shared/Frontend/FrontendExportsView.php:260
 msgid "Demo-data round-trip"
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:177
+#: src/Core/FeatureRegistry.php:235
 msgid ""
 "Show this export tile and allow it to run. When off, the tile is hidden from "
 "the Exports page and its export is rejected even via a direct link."
 msgstr ""
 
 #. translators: %s = export tile name, e.g. "Players list".
-#: src/Core/FeatureRegistry.php:181
+#: src/Core/FeatureRegistry.php:239
 #, php-format
 msgid "Export: %s"
 msgstr ""
@@ -601,7 +666,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:172
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:147
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:299
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:394
 msgid "KPI"
 msgstr ""
 
@@ -1128,7 +1193,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:56
 #: src/Modules/Analytics/AnalyticsModule.php:120
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:777
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:783
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:153
 msgid "Present"
 msgstr "Anwesend"
@@ -1146,7 +1211,7 @@ msgid "Late"
 msgstr "Verspätet"
 
 #: src/Infrastructure/Query/LabelTranslator.php:59
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:779
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:785
 msgid "Injured"
 msgstr "Verletzt"
 
@@ -1158,7 +1223,7 @@ msgstr "Entschuldigt"
 #: src/Infrastructure/Query/LabelTranslator.php:77
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:499
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:316
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:321
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:286
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:341
 #: src/Modules/Teams/Admin/TeamsPage.php:51
@@ -1171,7 +1236,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:78
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
 #: src/Modules/People/Admin/PeoplePage.php:498
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:317
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:322
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:342
 #: src/Modules/Teams/Admin/TeamsPage.php:52
@@ -1184,7 +1249,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:79
 #: src/Infrastructure/Query/LabelTranslator.php:80
 #: src/Modules/Mfa/Settings/MfaSettings.php:107
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:318
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:323
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:288
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:343
 #: src/Modules/Teams/Admin/TeamsPage.php:53
@@ -1213,7 +1278,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
 #: src/Modules/People/Admin/PeoplePage.php:504
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:320
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:325
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:290
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:345
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:199
@@ -1553,12 +1618,12 @@ msgid "Counter-attack"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:381
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:515
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:521
 msgid "Defending"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:383
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:566
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:572
 msgid "Set pieces"
 msgstr ""
 
@@ -5411,7 +5476,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:320
 #: src/Modules/Authorization/Admin/MatrixPage.php:556
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:41
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:46
 #: src/Shared/Frontend/FrontendConfigurationView.php:2396
 msgid "Persona"
 msgstr ""
@@ -6599,7 +6664,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:357
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:791
 #: src/Modules/People/Admin/PeoplePage.php:58
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:371
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:376
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:307
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:116
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:361
@@ -7009,7 +7074,7 @@ msgstr "Benutzer"
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:102
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:142
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:103
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:109
 msgid "Personas"
 msgstr ""
 
@@ -7827,7 +7892,7 @@ msgstr "Erstellt"
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:298
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:779
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:359
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:364
 msgid "Size"
 msgstr "Größe"
 
@@ -9556,7 +9621,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:435
 #: src/Modules/Development/IdeaStatus.php:102
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:692
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:698
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:373
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:955
 msgid "Done"
@@ -9629,7 +9694,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:505
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:772
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:778
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:945
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
@@ -9685,7 +9750,7 @@ msgstr ""
 # ===== v2.19.0 — Lookup drag, back button, clickable KPIs, delta stats =====
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:573
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:798
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:358
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:363
 #: src/Shared/Frontend/FrontendConfigurationView.php:562
 #: src/Shared/Frontend/FrontendConfigurationView.php:932
 msgid "Drag to reorder"
@@ -11724,7 +11789,7 @@ msgid "No custom widgets yet. Build one to surface it on a persona dashboard."
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:73
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:362
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:367
 msgid "Data source"
 msgstr ""
 
@@ -11817,7 +11882,7 @@ msgid "Save widget"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:766
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:772
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1274
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:267
 #: src/Shared/Frontend/FrontendConfigurationView.php:479
@@ -15327,7 +15392,7 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:178
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:294
 #: src/Modules/License/Admin/AccountPage.php:194
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:172
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:176
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:82
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:75
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:153
@@ -15336,8 +15401,8 @@ msgstr "Drucken"
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:179
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:295
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:687
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:175
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:693
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:179
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:83
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
@@ -17427,7 +17492,7 @@ msgid "✓ %1$s on for %2$s · %3$s'"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:925
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:54
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:59
 msgid "Undo"
 msgstr ""
 
@@ -17594,8 +17659,8 @@ msgid "Half length"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:350
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:408
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:409
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:414
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:415
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:168
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:169
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:173
@@ -17604,127 +17669,127 @@ msgid "min"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:353
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:686
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:692
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:29
 msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:372
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:377
 msgid "Print / export PDF"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:392
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:397
 msgid "Print team sheet"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:395
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:767
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:401
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:773
 msgid "All changes saved."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:402
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:403
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:408
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:409
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:164
 msgid "Selection · minutes"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:410
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:459
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:465
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:170
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:190
 msgid "tot"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:599
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:422
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:605
 msgid "No availability captured yet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:417
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:423
 msgid "Open availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:474
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:480
 msgid "First half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:489
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:490
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:495
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:496
 msgid "Copy 1st half lineup to 2nd half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:496
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:502
 msgid "Second half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:509
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:515
 msgid "Match goals"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:513
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:519
 #: src/Shared/Frontend/FrontendConfigurationView.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:66
 #: src/Shared/Frontend/FrontendConfigurationView.php:1532
 msgid "General"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:514
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:520
 msgid "Attacking"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:516
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:522
 msgid "Set pieces (attack)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:517
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:523
 msgid "Set pieces (defend)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:537
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:543
 #, php-format
 msgid "Goal %d…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:554
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:573
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:618
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:560
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:579
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:624
 msgid "…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:585
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:591
 msgid "Player focus"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:591
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:625
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:597
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:631
 msgid "Specific goal"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:592
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:631
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:598
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:637
 msgid "Video analyst appointed"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:613
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:619
 msgid "Attention text"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:644
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:650
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:280
 msgid "Roles & set pieces"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:662
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:781
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:668
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:787
 msgid "— Pick player —"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:667
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:668
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:673
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:674
 msgid "Clear role"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:691
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:697
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:124
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:336
@@ -17732,52 +17797,52 @@ msgstr ""
 msgid "Mark all present"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:768
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:774
 msgid "Unsaved changes…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:769
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:376
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:775
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:381
 msgid "Save failed. Try again."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:770
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:776
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:492
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:642
 msgid "Search player…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:771
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:777
 msgid "No available players found."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:773
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:779
 msgid "on pitch"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:774
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:780
 #, php-format
 msgid "Slot %1$s — %2$s half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:775
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:781
 msgid "1st"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:776
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:782
 msgid "2nd"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:778
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:784
 msgid "Absent (excused)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:780
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:786
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:114
 msgid "Reason (optional)…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:782
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:788
 msgid "Pick player for role"
 msgstr ""
 
@@ -17863,39 +17928,39 @@ msgstr ""
 msgid "vs %1$s · %2$s · KO %3$s · %4$s"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:54
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:58
 msgid "Log in to print this match sheet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:61
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:65
 msgid "You do not have access to print this match sheet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:91
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:95
 msgid "Match prep — afdrukken"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:104
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:108
 msgid "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:132
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:136
 msgid "Team sheet — print"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:144
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:148
 msgid "No team sheet found for this activity."
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:170
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:174
 msgid "Export as PDF (A4 landscape)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:209
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:213
 msgid "Preparing PDF…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:210
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:214
 msgid "Could not generate the PDF. Use Print instead."
 msgstr ""
 
@@ -19576,7 +19641,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:102
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:321
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:326
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:291
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:346
 #: src/Shared/Frontend/FrontendConfigurationView.php:2345
@@ -19588,7 +19653,7 @@ msgid "Head of development"
 msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:110
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:322
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:327
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:292
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:347
 #: src/Shared/Frontend/FrontendConfigurationView.php:2353
@@ -21657,93 +21722,97 @@ msgstr ""
 msgid "You do not have permission to edit persona dashboard layouts."
 msgstr ""
 
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:33
+msgid "The dashboard layout editor is turned off for this academy."
+msgstr ""
+
 # #0060 sprint 2 — dashboard layout editor
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:37
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:42
 msgid "Editor toolbar"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:39
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:65
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:66
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:86
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:44
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:70
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:71
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:92
 msgid "Dashboard layouts"
 msgstr ""
 
 # #0061 follow-up — q2 polish gap
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:51
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:56
 msgid "Library"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:56
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:61
 msgid "Redo"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:59
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:64
 msgid "Mobile preview"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:61
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:66
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:377
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:288
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:177
 msgid "Reset to default"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:63
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:68
 #: src/Shared/Frontend/FrontendTrialCaseView.php:637
 msgid "Save draft"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:65
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:70
 msgid "Publish"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:74
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:79
 msgid "Widget and KPI palette"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:77
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:82
 msgid "Widgets"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:79
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:84
 msgid "KPIs"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:86
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:91
 msgid "Layout canvas"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:89
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:94
 msgid "Hero band"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:90
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:95
 msgid "Task band"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:91
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:96
 msgid "Bento grid"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:97
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:102
 msgid "Selected widget properties"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:99
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:364
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:104
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:369
 msgid "Select a widget on the canvas to edit its properties."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:354
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:359
 msgid "Add widget"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:355
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:360
 msgid "Add KPI"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:356
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:261
@@ -21758,151 +21827,151 @@ msgstr ""
 msgid "Remove"
 msgstr "Entfernen"
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:357
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:362
 msgid "Resize"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:360
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:365
 msgid "Mobile priority"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:366
 msgid "Show on mobile"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:363
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:368
 msgid "Persona label override"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:365
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:370
 msgid "Reset this persona to the ship default?"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:366
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:371
 msgid ""
 "Your published layout for this persona will be replaced by the TalentTrack "
 "default. This cannot be undone."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:367
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
 msgid "Publish layout"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:368
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
 #, php-format
 msgid ""
 "This will replace the live %1$s dashboard for ~%2$d users on their next page "
 "load."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:369
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
 #, php-format
 msgid ""
 "This will replace the live %s dashboard on the next page load for users "
 "matching this persona."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:370
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:375
 msgid "Publish now"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:373
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:378
 msgid "Draft saved."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:374
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:379
 msgid "Layout published."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:375
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:380
 msgid "Reset to default."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:377
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:382
 msgid "You have unsaved changes."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:378
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:383
 msgid ""
 "No widgets placed. Drag from the palette on the left, or use the keyboard: "
 "focus a palette item and press Enter to add it."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:379
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:384
 msgid "Academy-wide"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:381
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:386
 msgid "Player / parent"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:383
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:388
 msgid "Intended for"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:384
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
 msgid "Capability required"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:386
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:391
 #, php-format
 msgid "Visible to %s users by default."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:387
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:392
 #, php-format
 msgid ""
 "Hidden — %1$s users lack `%2$s` by default. Grant via Authorization → Matrix "
 "or remove from this layout."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:388
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:393
 msgid ""
 "Based on the persona's default WordPress role only — per-user matrix scopes "
 "can override this."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:390
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:395
 msgid "Use widget default"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:391
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:396
 msgid "Mobile preview · 360 px"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:392
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:397
 msgid "Desktop · 12 columns"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:393
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:398
 msgid ""
 "Press space to grab, arrow keys to move, space to drop, escape to cancel."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:394
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:399
 #, php-format
 msgid "Grabbed %s. Use arrow keys to move, space to drop, escape to cancel."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:395
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:400
 #, php-format
 msgid "Dropped %1$s at column %2$d, row %3$d."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:396
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:401
 msgid "Move cancelled."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:397
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:402
 msgid "Preview as"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:398
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:403
 #, php-format
 msgid "Added %s to the canvas."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Admin/EditorPage.php:400
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php:405
 msgid "Swapped."
 msgstr ""
 
@@ -22281,7 +22350,7 @@ msgstr ""
 msgid "Players in trial group"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:87
+#: src/Modules/PersonaDashboard/PersonaDashboardModule.php:93
 msgid ""
 "Drag-and-drop editor — tune what each persona sees on their landing page."
 msgstr ""
