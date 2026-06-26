@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.54.1
+Stable tag: 4.54.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.54.2 — Team chemistry access now follows the authorization matrix (#1922) Team chemistry and Team blueprint access is now decided by the authorization matrix instead of hardcoded role capabilities, with a single shared decision (`TeamChemistryAccess`) behind both the rendered screens and the REST API so the two can no longer disagree.  As a result, two roles that previously had access no longer do: **assistant coaches and read-only observers no longer have access to team chemistry** (the chemistry board and the team blueprint screens). This matches the academy roles the matrix already grants the feature to — head coaches, team managers, scouts, head of development, and academy admins keep their access unchanged. The stale read capability is removed from the read-only-observer role automatically on upgrade. =
 
 = 4.54.1 — Audit log: Configuration tile now opens the frontend view (#1918) The **Audit log** tile in Configuration → System no longer bounces into wp-admin. It now opens the read-only frontend Audit log view (`?tt_view=audit-log`) — a paginated, filterable browser over the academy's `tt_audit_log` trail (who changed what, when), with an All-entries tab and a Failed-logins aggregate. The tile is cap-gated to `tt_view_audit_log`, so it only appears for holders who can read the log. The wp-admin tab (`?page=tt-config&tab=audit`) stays as a power-user fallback. =
 
