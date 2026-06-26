@@ -415,6 +415,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                 <?php esc_html_e( 'Assign to team', 'talenttrack' ); ?>
                             </a>
                         <?php endif; ?>
+                        <?php
+                        // #1017 Phase 7 — chemistry-attribute entry for staff
+                        // who can rate players.
+                        if ( current_user_can( 'tt_edit_evaluations' ) ) :
+                            $attr_url = add_query_arg(
+                                [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
+                                RecordLink::dashboardUrl()
+                            );
+                            ?>
+                            <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
+                                <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
+                            </a>
+                        <?php endif; ?>
                         <button type="button"
                                 class="tt-player-action tt-player-action--danger"
                                 role="menuitem"
