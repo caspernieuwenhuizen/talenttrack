@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T15:04:32+00:00\n"
+"POT-Creation-Date: 2026-06-26T22:20:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2864,9 +2864,9 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:305
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:172
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:204
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
-#: src/Shared/Frontend/FrontendComparisonView.php:215
+#: src/Shared/Frontend/FrontendComparisonView.php:246
 msgid "All types"
 msgstr ""
 
@@ -3310,7 +3310,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:441
 #: src/Modules/Reports/Admin/ReportsPage.php:186
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:247
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:279
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:351
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:152
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
@@ -3329,7 +3329,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:114
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:957
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1845
-#: src/Shared/Frontend/FrontendComparisonView.php:299
+#: src/Shared/Frontend/FrontendComparisonView.php:330
 #: src/Shared/Frontend/FrontendEvaluationsView.php:186
 #: src/Shared/Frontend/FrontendEvaluationsView.php:194
 #: src/Shared/Frontend/FrontendEvaluationsView.php:390
@@ -3876,7 +3876,7 @@ msgstr ""
 #: src/Modules/Reports/Admin/ReportsPage.php:190
 #: src/Modules/Reports/Admin/ReportsPage.php:285
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:334
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:526
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118 src/Shared/Admin/Menu.php:217
@@ -3884,7 +3884,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1455
 #: src/Shared/CoreSurfaceRegistration.php:1816
 #: src/Shared/Frontend/DashboardShortcode.php:517
-#: src/Shared/Frontend/FrontendComparisonView.php:321
+#: src/Shared/Frontend/FrontendComparisonView.php:352
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
 #: src/Shared/Frontend/FrontendEvaluationsView.php:124
@@ -7802,8 +7802,8 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Authorization/Admin/UserComparisonPage.php:103
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:182
-#: src/Shared/Frontend/FrontendComparisonView.php:226
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:214
+#: src/Shared/Frontend/FrontendComparisonView.php:257
 msgid "Compare"
 msgstr ""
 
@@ -10181,8 +10181,8 @@ msgid "Translated description"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:760
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:170
-#: src/Shared/Frontend/FrontendComparisonView.php:213
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:202
+#: src/Shared/Frontend/FrontendComparisonView.php:244
 msgid "Evaluation Type"
 msgstr ""
 
@@ -10921,7 +10921,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:150
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
 #: src/Modules/Wizards/Player/ReviewStep.php:32
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:32
@@ -11046,10 +11046,10 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:136
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:251
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:283
 #: src/Modules/Wizards/Team/BasicsStep.php:31
 #: src/Modules/Wizards/Team/ReviewStep.php:20
-#: src/Shared/Frontend/FrontendComparisonView.php:300
+#: src/Shared/Frontend/FrontendComparisonView.php:331
 #: src/Shared/Frontend/FrontendMyProfileView.php:99
 #: src/Shared/Frontend/FrontendPlayersManageView.php:235
 #: src/Shared/Frontend/FrontendSetupView.php:190
@@ -11715,8 +11715,8 @@ msgid "Content elements"
 msgstr ""
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:280
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:224
-#: src/Shared/Frontend/FrontendComparisonView.php:285
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:256
+#: src/Shared/Frontend/FrontendComparisonView.php:316
 msgid "Cards"
 msgstr ""
 
@@ -12404,15 +12404,15 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:32
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:32
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:162
-#: src/Shared/Frontend/FrontendComparisonView.php:205
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:194
+#: src/Shared/Frontend/FrontendComparisonView.php:236
 msgid "Date from"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:33
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:33
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:166
-#: src/Shared/Frontend/FrontendComparisonView.php:209
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:198
+#: src/Shared/Frontend/FrontendComparisonView.php:240
 msgid "Date to"
 msgstr ""
 
@@ -12662,12 +12662,12 @@ msgstr ""
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:25
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:54
 #: src/Modules/Reports/PlayerReportRenderer.php:240
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:371
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:403
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:350
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:161
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:207
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:316
-#: src/Shared/Frontend/FrontendComparisonView.php:582
+#: src/Shared/Frontend/FrontendComparisonView.php:613
 #: src/Shared/Frontend/FrontendEvaluationsView.php:436
 msgid "Category"
 msgstr "Catégorie"
@@ -15199,9 +15199,9 @@ msgstr ""
 # ===== v3.0.0 slice 5 — Analytics-group frontend views =====
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:138
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:143
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:261
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:293
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:61
-#: src/Shared/Frontend/FrontendComparisonView.php:303
+#: src/Shared/Frontend/FrontendComparisonView.php:334
 msgid "Jersey"
 msgstr ""
 
@@ -15317,7 +15317,7 @@ msgid "Owner"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:134
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:290
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:322
 msgid "Metric"
 msgstr ""
 
@@ -24028,17 +24028,17 @@ msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:128
 #: src/Modules/Players/Admin/PlayersPage.php:442
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:254
-#: src/Shared/Frontend/FrontendComparisonView.php:301
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:286
+#: src/Shared/Frontend/FrontendComparisonView.php:332
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:765
 msgid "Position(s)"
 msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:128
 #: src/Modules/Players/Admin/PlayersPage.php:443
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:258
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:290
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:63
-#: src/Shared/Frontend/FrontendComparisonView.php:302
+#: src/Shared/Frontend/FrontendComparisonView.php:333
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:478
 #: src/Shared/Frontend/FrontendPlayersManageView.php:215
 #: src/Shared/Frontend/FrontendPlayersManageView.php:230
@@ -25120,7 +25120,7 @@ msgid "Evaluations saved per coach, last 30 / 90 days."
 msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:85
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:92
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:124
 #: src/Shared/Admin/HelpLink.php:35
 msgid "? Help on this topic"
 msgstr ""
@@ -25442,10 +25442,10 @@ msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:198
 #: src/Modules/Reports/PlayerReportRenderer.php:242
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:299
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:331
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:304
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:352
-#: src/Shared/Frontend/FrontendComparisonView.php:318
+#: src/Shared/Frontend/FrontendComparisonView.php:349
 msgid "Most recent"
 msgstr ""
 
@@ -25480,9 +25480,9 @@ msgstr[0] "Gebaseerd op %d evaluatie"
 msgstr[1] "Gebaseerd op %d evaluaties"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:241
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:301
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:333
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:351
-#: src/Shared/Frontend/FrontendComparisonView.php:320
+#: src/Shared/Frontend/FrontendComparisonView.php:351
 #: src/Shared/Frontend/FrontendOverviewView.php:142
 #: src/Shared/Frontend/FrontendOverviewView.php:231
 msgid "All-time"
@@ -26275,7 +26275,7 @@ msgstr ""
 msgid "Unrated"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:90
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:122
 #: src/Shared/Admin/BackNavigator.php:130
 #: src/Shared/CoreSurfaceRegistration.php:1561
 #: src/Shared/CoreSurfaceRegistration.php:1863
@@ -26283,85 +26283,85 @@ msgstr ""
 msgid "Player Comparison"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:96
-#: src/Shared/Frontend/FrontendComparisonView.php:141
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:128
+#: src/Shared/Frontend/FrontendComparisonView.php:172
 msgid ""
 "Compare up to 4 players side-by-side. Cross-team is supported — pick any "
 "players from any team or age group."
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:102
-#: src/Shared/Frontend/FrontendComparisonView.php:156
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:134
+#: src/Shared/Frontend/FrontendComparisonView.php:187
 msgid "Select players"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:130
-#: src/Shared/Frontend/FrontendComparisonView.php:174
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:162
+#: src/Shared/Frontend/FrontendComparisonView.php:205
 msgid "Add another player"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:133
-#: src/Shared/Frontend/FrontendComparisonView.php:177
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:165
+#: src/Shared/Frontend/FrontendComparisonView.php:208
 msgid "Maximum of 4 players."
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:187
-#: src/Shared/Frontend/FrontendComparisonView.php:232
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:219
+#: src/Shared/Frontend/FrontendComparisonView.php:263
 msgid "Pick at least one player above and click Compare."
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:218
-#: src/Shared/Frontend/FrontendComparisonView.php:258
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:250
+#: src/Shared/Frontend/FrontendComparisonView.php:289
 msgid ""
 "Mixed age groups in this comparison. Overall ratings use age-group-specific "
 "category weights, so the numbers below are not perfectly apples-to-apples — "
 "they reflect what each player's own coaching staff uses."
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:234
-#: src/Shared/Frontend/FrontendComparisonView.php:296
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:266
+#: src/Shared/Frontend/FrontendComparisonView.php:327
 msgid "Basic facts"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:238
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
 msgid "Attribute"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:264
-#: src/Shared/Frontend/FrontendComparisonView.php:304
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:296
+#: src/Shared/Frontend/FrontendComparisonView.php:335
 #: src/Shared/Frontend/FrontendMyProfileView.php:115
 msgid "Height"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:267
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:299
 #: src/Shared/Frontend/FrontendMyProfileView.php:118
 msgid "Weight"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:286
-#: src/Shared/Frontend/FrontendComparisonView.php:315
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:318
+#: src/Shared/Frontend/FrontendComparisonView.php:346
 msgid "Headline numbers"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:300
-#: src/Shared/Frontend/FrontendComparisonView.php:319
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:332
+#: src/Shared/Frontend/FrontendComparisonView.php:350
 msgid "Rolling (last 5)"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:321
-#: src/Shared/Frontend/FrontendComparisonView.php:336
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:353
+#: src/Shared/Frontend/FrontendComparisonView.php:367
 msgid "Main category averages"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:325
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:357
 msgid "Radar overlay"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:333
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:365
 msgid "Trend overlay"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:364
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:396
 msgid "No rated evaluations in the current filter window."
 msgstr ""
 
@@ -28863,7 +28863,7 @@ msgid "Never translate. Always show source text."
 msgstr ""
 
 #: src/Modules/Translations/Admin/UserProfilePreference.php:62
-#: src/Shared/Frontend/FrontendComparisonView.php:272
+#: src/Shared/Frontend/FrontendComparisonView.php:303
 msgid "Side-by-side"
 msgstr ""
 
@@ -34047,16 +34047,16 @@ msgstr ""
 msgid "Importing…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:341
+#: src/Shared/Frontend/FrontendComparisonView.php:372
 msgid "Radar profile"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:346
+#: src/Shared/Frontend/FrontendComparisonView.php:377
 msgid "Rating trend"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendComparisonView.php:532
-#: src/Shared/Frontend/FrontendComparisonView.php:574
+#: src/Shared/Frontend/FrontendComparisonView.php:563
+#: src/Shared/Frontend/FrontendComparisonView.php:605
 msgid "No category data yet for these filters."
 msgstr ""
 
