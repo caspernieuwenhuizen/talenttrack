@@ -263,6 +263,16 @@ final class LegacyCapMapper {
         // admin-on-admin block enforced in ImpersonationService.
         'tt_impersonate_users'           => [ 'impersonation_action',  'create_delete' ],
 
+        // #1945 — Email compose (in-product mailer, #0063). An act-cap with
+        // no record entity (sending IS the act), so it bridges to a
+        // dedicated `email_compose` action-entity at `create_delete` —
+        // mirroring `tt_impersonate_users → impersonation_action:create_delete`.
+        // Seeded `rcd` global to head_coach + assistant_coach (BOTH coach
+        // personas — the tt_coach dual-persona trap) + head_of_development +
+        // academy_admin, matching the raw cap holders (administrator [bypass]
+        // + tt_head_dev + tt_coach + tt_club_admin). Access-preserving.
+        'tt_send_email'                  => [ 'email_compose',         'create_delete' ],
+
         // #0081 — Onboarding pipeline (child 1: prospects entity).
         'tt_view_prospects'              => [ 'prospects',             'read' ],
         'tt_edit_prospects'              => [ 'prospects',             'change' ],

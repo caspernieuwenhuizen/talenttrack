@@ -129,6 +129,22 @@ Both coach personas are seeded deliberately. The raw `tt_manage_exercises` cap i
 
 Migration `0180_authorization_seed_topup_exercises` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `exercises` rows).
 
+## Matrix entity `email_compose` — the in-product mailer (#1945)
+
+The in-product email composer (`FrontendMailComposeView`, reachable via `?tt_view=mail-compose&person_id=N`) sends through `wp_mail()` and writes an audit row per send. Sending an email is an **act**, not a record — there is no "email entity" to read or edit — so, like `impersonation_action`, it gets a dedicated **action-entity** `email_compose` rather than borrowing an existing data entity.
+
+Before #1945 the act-cap `tt_send_email` was unmapped, so once the matrix is active the composer would resolve to false for everyone. #1945 adds the entity + seed and the `LegacyCapMapper` bridge:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_send_email` | `email_compose` / `create_delete` |
+
+`create_delete` is the operative verb — sending is the act — mirroring `tt_impersonate_users → impersonation_action:create_delete`. The cap is seeded `rcd[global]` to **head_coach + assistant_coach + head_of_development + academy_admin**. Scope is `global` because the People-page mailer is academy-wide (not team-scoped).
+
+Both coach personas are seeded deliberately. The raw `tt_send_email` cap is held by `administrator` (matrix bypass) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — and `tt_coach` is the WordPress role that backs **both** the head_coach **and** the assistant_coach personas. Seeding only head_coach would silently revoke email-compose from assistant coaches (the #1944 dual-persona trap). Both are seeded, so routing through the matrix is **access-preserving** — every raw cap holder, including assistant coaches, keeps the composer.
+
+Migration `0181_authorization_seed_topup_email_compose` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `email_compose` rows).
+
 ## PDP visibility — one shared decision, frontend and REST (#1923)
 
 PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Both the rendered files tab (`FrontendPdpManageView`) and every REST surface (`PdpFilesRestController`, `PdpVerdictsRestController`) call `PdpAccess::canSeeFile( $user_id, $player_id )`, so the two sides can no longer answer differently — the cause of the head-coach-vs-HoD divergence in #1758.
