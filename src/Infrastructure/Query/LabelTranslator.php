@@ -20,12 +20,17 @@ use TT\Modules\I18n\TranslationsRepository;
 class LabelTranslator {
 
     public static function goalStatus( string $code ): string {
+        // #1985 — goal statuses carry their own 'goal status' gettext context
+        // so their youth-oriented labels can diverge from the generic
+        // Pending/In Progress vocabulary other modules share. The Dutch
+        // `pending` reads "In ontwikkeling" here without renaming the generic
+        // "Pending" elsewhere.
         switch ( $code ) {
-            case 'pending':      return __( 'Pending', 'talenttrack' );
-            case 'in_progress':  return __( 'In Progress', 'talenttrack' );
-            case 'completed':    return __( 'Completed', 'talenttrack' );
-            case 'on_hold':      return __( 'On Hold', 'talenttrack' );
-            case 'cancelled':    return __( 'Cancelled', 'talenttrack' );
+            case 'pending':      return _x( 'Pending', 'goal status', 'talenttrack' );
+            case 'in_progress':  return _x( 'In Progress', 'goal status', 'talenttrack' );
+            case 'completed':    return _x( 'Completed', 'goal status', 'talenttrack' );
+            case 'on_hold':      return _x( 'On Hold', 'goal status', 'talenttrack' );
+            case 'cancelled':    return _x( 'Cancelled', 'goal status', 'talenttrack' );
             default:             return self::humanise( $code );
         }
     }

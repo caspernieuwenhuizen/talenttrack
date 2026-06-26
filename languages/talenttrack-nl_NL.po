@@ -1162,6 +1162,31 @@ msgstr "Eerste beeld opbouwen"
 msgid "Pending"
 msgstr "In behandeling"
 
+#: src/Infrastructure/Query/LabelTranslator.php:29
+msgctxt "goal status"
+msgid "Pending"
+msgstr "In ontwikkeling"
+
+#: src/Infrastructure/Query/LabelTranslator.php:30
+msgctxt "goal status"
+msgid "In Progress"
+msgstr "In uitvoering"
+
+#: src/Infrastructure/Query/LabelTranslator.php:31
+msgctxt "goal status"
+msgid "Completed"
+msgstr "Voltooid"
+
+#: src/Infrastructure/Query/LabelTranslator.php:32
+msgctxt "goal status"
+msgid "On Hold"
+msgstr "In de wacht"
+
+#: src/Infrastructure/Query/LabelTranslator.php:33
+msgctxt "goal status"
+msgid "Cancelled"
+msgstr "Geannuleerd"
+
 #: src/Infrastructure/Query/LabelTranslator.php:25
 msgid "In Progress"
 msgstr "In uitvoering"
