@@ -42879,6 +42879,10 @@ msgstr "Een Spond-wachtwoord is verplicht."
 msgid "That URL does not look like a valid http(s) endpoint."
 msgstr "Die URL lijkt geen geldig http(s)-endpoint te zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1535
+msgid "Per-team calendar sync status, \"Refresh now\", encrypted account credentials, and the API endpoint override."
+msgstr "Synchronisatiestatus per team, \"Nu vernieuwen\", versleutelde accountgegevens en de API-endpoint-override."
+
 #~ msgid "The activity could not be deleted."
 #~ msgstr "De activiteit kon niet worden verwijderd."
 
