@@ -42806,6 +42806,10 @@ msgstr "Cache gewist."
 msgid "Could not save. Please try again."
 msgstr "Opslaan mislukt. Probeer het opnieuw."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1545
+msgid "Auto-translation engine (DeepL / Google), monthly usage, and cache."
+msgstr "Automatische vertaalengine (DeepL / Google), maandelijks gebruik en cache."
+
 #~ msgid "The activity could not be deleted."
 #~ msgstr "De activiteit kon niet worden verwijderd."
 
