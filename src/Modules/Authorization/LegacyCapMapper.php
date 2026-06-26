@@ -79,6 +79,17 @@ final class LegacyCapMapper {
         // preserving: every raw holder keeps library write.
         'tt_manage_exercises'            => [ 'exercises',      'create_delete' ],
         'tt_view_reports'                => [ 'reports',        'read' ],
+        // #1946 — `tt_generate_report` (report-generation act-cap; distinct
+        // from `tt_generate_scout_report → scout_access:create_delete`).
+        // Bridges to `reports:create_delete` — generation is a create-a-row
+        // act. Raw cap holders today are tt_head_dev + tt_coach (BOTH coach
+        // personas) + tt_club_admin (+ administrator [bypass]). The #1946 seed
+        // migration adds `reports:create_delete` to head_coach + assistant_coach
+        // ([team]) + head_of_development ([global]); academy_admin already holds
+        // `reports:rcd [global]`. Access-preserving — every raw holder keeps
+        // generation; team_manager/scout/player/parent (reports:read only)
+        // gain nothing.
+        'tt_generate_report'             => [ 'reports',        'create_delete' ],
 
         // #1480 — academy-wide holidays.
         'tt_view_holidays'               => [ 'holidays',       'read' ],

@@ -234,7 +234,13 @@ return array_merge(
         'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
-        'reports'                    => [ 'r',   'team',   $mod_reports ],
+        // #1946 — `rd` (read + create_delete). The `tt_generate_report`
+        // act-cap (report generation) is held by tt_coach today and bridges
+        // to `reports:create_delete`; without the `d` grant assistant coaches
+        // would lose generation under the matrix. `team` scope — per-player
+        // team-scope gating lives in FrontendReportWizardView. `change` is
+        // deliberately omitted (no edit-existing-report surface).
+        'reports'                    => [ 'rd',  'team',   $mod_reports ],
         // #1106 — `rate_cards` + `compare` removed. Both aggregate
         // evaluation data #1060 stripped from AC; same loophole #1105
         // closed for `podium_panel`. `reports` stays — it's a surface
@@ -332,7 +338,11 @@ return array_merge(
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'player_status_methodology'  => [ 'r',   'global', $mod_methodology ],
-        'reports'                    => [ 'r',   'team',   $mod_reports ],
+        // #1946 — `rd` (read + create_delete). `tt_generate_report` bridges
+        // to `reports:create_delete`; the `d` grant preserves report
+        // generation for head coaches under the matrix. `team` scope —
+        // per-player gating lives in FrontendReportWizardView. No `change`.
+        'reports'                    => [ 'rd',  'team',   $mod_reports ],
         'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
         'compare'                    => [ 'r',   'team',   $mod_stats ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
@@ -576,8 +586,12 @@ return array_merge(
         // academy and reaches every person via the People page, so holds
         // the action-entity `rcd` globally. Raw holder today: tt_head_dev.
         'email_compose'                 => [ 'rcd', 'global', $mod_comms ],
-        // ── narrowed to R ──
-        'reports'                       => [ 'r',   'global', $mod_reports ],
+        // ── narrowed to R, plus #1946 generate grant ──
+        // #1946 — `rd` (read + create_delete). HoD holds `tt_generate_report`
+        // today; the `d` grant keeps report generation under the matrix.
+        // `global` scope (HoD oversees the whole academy). No `change` — there
+        // is no edit-existing-report surface, only generate (create) + read.
+        'reports'                       => [ 'rd',  'global', $mod_reports ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
