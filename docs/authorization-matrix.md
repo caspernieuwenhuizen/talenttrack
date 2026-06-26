@@ -129,6 +129,43 @@ Both coach personas are seeded deliberately. The raw `tt_manage_exercises` cap i
 
 Migration `0180_authorization_seed_topup_exercises` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `exercises` rows).
 
+## Matrix entity `email_compose` — the in-product mailer (#1945)
+
+The in-product email composer (`FrontendMailComposeView`, reachable via `?tt_view=mail-compose&person_id=N`) sends through `wp_mail()` and writes an audit row per send. Sending an email is an **act**, not a record — there is no "email entity" to read or edit — so, like `impersonation_action`, it gets a dedicated **action-entity** `email_compose` rather than borrowing an existing data entity.
+
+Before #1945 the act-cap `tt_send_email` was unmapped, so once the matrix is active the composer would resolve to false for everyone. #1945 adds the entity + seed and the `LegacyCapMapper` bridge:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_send_email` | `email_compose` / `create_delete` |
+
+`create_delete` is the operative verb — sending is the act — mirroring `tt_impersonate_users → impersonation_action:create_delete`. The cap is seeded `rcd[global]` to **head_coach + assistant_coach + head_of_development + academy_admin**. Scope is `global` because the People-page mailer is academy-wide (not team-scoped).
+
+Both coach personas are seeded deliberately. The raw `tt_send_email` cap is held by `administrator` (matrix bypass) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — and `tt_coach` is the WordPress role that backs **both** the head_coach **and** the assistant_coach personas. Seeding only head_coach would silently revoke email-compose from assistant coaches (the #1944 dual-persona trap). Both are seeded, so routing through the matrix is **access-preserving** — every raw cap holder, including assistant coaches, keeps the composer.
+
+Migration `0181_authorization_seed_topup_email_compose` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `email_compose` rows).
+
+## Report generation — `tt_generate_report` is now matrix-bridged (#1946)
+
+Report generation (`FrontendReportWizardView`, reachable via `?tt_view=report-wizard`; plus the "Generate report…" button on the player file in `FrontendPlayersManageView`) is gated by the act-cap `tt_generate_report` — distinct from `tt_generate_scout_report`, which bridges to `scout_access:create_delete`. Generating a report is a **create** act, so `tt_generate_report` bridges to `reports:create_delete`:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_generate_report` | `reports` / `create_delete` |
+
+The raw cap is held today by `administrator` (matrix bypass) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** (the role backing **both** head_coach and assistant_coach). The `reports` matrix entity previously seeded those personas only `read`, so a naive bridge to `create_delete` would silently **revoke** generation from coaches and HoD. #1946 preserves access by **adding** `create_delete` grants rather than tightening:
+
+| Persona | New grant | Scope |
+| - | - | - |
+| head_coach | `reports` / `create_delete` | team |
+| assistant_coach | `reports` / `create_delete` | team |
+| head_of_development | `reports` / `create_delete` | global |
+| academy_admin | (already held `reports:rcd[global]`) | global |
+
+Both coach personas are seeded — `tt_coach` is the dual-persona trap (#1944): seeding only head_coach would lose generation for assistant coaches. Coaches get `team` scope because per-player team-scope gating already lives in `FrontendReportWizardView`; HoD gets `global` (oversees the whole academy). `change` is deliberately omitted — there is no edit-existing-report surface, only read + generate. `team_manager`, `scout`, `player` and `parent` hold only `reports:read` and gain nothing, so the bridge is **access-preserving** — exactly today's holders keep generation.
+
+Migration `0182_authorization_seed_topup_report_generation` backfills the three new grants into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `reports:create_delete` rows for head_coach / assistant_coach / head_of_development).
+
 ## PDP visibility — one shared decision, frontend and REST (#1923)
 
 PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Both the rendered files tab (`FrontendPdpManageView`) and every REST surface (`PdpFilesRestController`, `PdpVerdictsRestController`) call `PdpAccess::canSeeFile( $user_id, $player_id )`, so the two sides can no longer answer differently — the cause of the head-coach-vs-HoD divergence in #1758.

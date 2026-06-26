@@ -119,6 +119,43 @@ Beide coach-persona's worden bewust geseed. De ruwe `tt_manage_exercises`-capabi
 
 Migratie `0180_authorization_seed_topup_exercises` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `exercises`-rijen loopt).
 
+## Matrix-entiteit `email_compose` — de in-product mailer (#1945)
+
+De in-product e-mailcomposer (`FrontendMailComposeView`, bereikbaar via `?tt_view=mail-compose&person_id=N`) verstuurt via `wp_mail()` en schrijft per verzending een auditregel weg. Een e-mail versturen is een **handeling**, geen record — er is geen "e-mail-entiteit" om te lezen of te bewerken — dus krijgt zij, net als `impersonation_action`, een eigen **handelings-entiteit** `email_compose` in plaats van een bestaande data-entiteit te lenen.
+
+Vóór #1945 was de handelings-capability `tt_send_email` niet gekoppeld, zodat de composer zodra de matrix actief is voor iedereen op `false` zou uitkomen. #1945 voegt de entiteit + seed en de `LegacyCapMapper`-brug toe:
+
+| Ruwe capability | Matrix-tupel |
+| - | - |
+| `tt_send_email` | `email_compose` / `create_delete` |
+
+`create_delete` is het operatieve werkwoord — versturen is de handeling — naar analogie van `tt_impersonate_users → impersonation_action:create_delete`. De capability wordt `rcd[global]` geseed aan **head_coach + assistant_coach + head_of_development + academy_admin**. De scope is `global` omdat de mailer op de Personen-pagina academiebreed is (niet teamgebonden).
+
+Beide coach-persona's worden bewust geseed. De ruwe `tt_send_email`-capability is in handen van `administrator` (matrix-uitzondering) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — en `tt_coach` is de WordPress-rol achter **zowel** de head_coach- **als** de assistant_coach-persona. Alleen head_coach seeden zou stilzwijgend de e-mailcomposer van assistent-coaches intrekken (de dubbel-persona-val uit #1944). Beide worden geseed, dus routering via de matrix is **toegangsbehoudend** — elke ruwe capability-houder, inclusief assistent-coaches, behoudt de composer.
+
+Migratie `0181_authorization_seed_topup_email_compose` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `email_compose`-rijen loopt).
+
+## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld (#1946)
+
+Rapportgeneratie (`FrontendReportWizardView`, bereikbaar via `?tt_view=report-wizard`; plus de knop "Rapport genereren…" op het spelerdossier in `FrontendPlayersManageView`) wordt afgeschermd door de handelings-capability `tt_generate_report` — los van `tt_generate_scout_report`, die naar `scout_access:create_delete` koppelt. Een rapport genereren is een **create**-handeling, dus `tt_generate_report` koppelt naar `reports:create_delete`:
+
+| Ruwe capability | Matrix-tupel |
+| - | - |
+| `tt_generate_report` | `reports` / `create_delete` |
+
+De ruwe capability is vandaag in handen van `administrator` (matrix-uitzondering) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** (de rol achter **zowel** head_coach als assistant_coach). De `reports`-matrix-entiteit gaf die persona's voorheen alleen `read`, dus een naïeve koppeling naar `create_delete` zou generatie stilzwijgend **intrekken** voor coaches en HoD. #1946 behoudt de toegang door `create_delete`-rechten toe te **voegen** in plaats van te verkrappen:
+
+| Persona | Nieuw recht | Scope |
+| - | - | - |
+| head_coach | `reports` / `create_delete` | team |
+| assistant_coach | `reports` / `create_delete` | team |
+| head_of_development | `reports` / `create_delete` | global |
+| academy_admin | (had al `reports:rcd[global]`) | global |
+
+Beide coach-persona's worden geseed — `tt_coach` is de dubbel-persona-val (#1944): alleen head_coach seeden zou generatie voor assistent-coaches verliezen. Coaches krijgen `team`-scope omdat de per-speler team-scope-afscherming al in `FrontendReportWizardView` zit; HoD krijgt `global` (overziet de hele academie). `change` is bewust weggelaten — er is geen oppervlak om een bestaand rapport te bewerken, alleen lezen + genereren. `team_manager`, `scout`, `player` en `parent` houden enkel `reports:read` en winnen niets, dus de koppeling is **toegangsbehoudend** — precies de huidige houders behouden generatie.
+
+Migratie `0182_authorization_seed_topup_report_generation` vult de drie nieuwe rechten op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `reports:create_delete`-rijen voor head_coach / assistant_coach / head_of_development loopt).
+
 ## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST (#1923)
 
 De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pdp\PdpAccess`. Zowel het gerenderde dossiers-tabblad (`FrontendPdpManageView`) als elke REST-ingang (`PdpFilesRestController`, `PdpVerdictsRestController`) roepen `PdpAccess::canSeeFile( $user_id, $player_id )` aan, zodat beide kanten niet langer verschillend kunnen antwoorden — de oorzaak van het verschil tussen hoofdcoach en HoD in #1758.

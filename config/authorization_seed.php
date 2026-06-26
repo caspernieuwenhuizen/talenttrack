@@ -92,6 +92,12 @@ $mod_tournaments      = class_exists( '\TT\Modules\Tournaments\TournamentsModule
 // $mod_authorization if the module class hasn't autoloaded yet, mirroring
 // the trials/journey/vct/measurements/tournaments fallback pattern above.
 $mod_exercises        = class_exists( '\TT\Modules\Exercises\ExercisesModule' )           ? \TT\Modules\Exercises\ExercisesModule::class           : $mod_authorization;
+// #1945 — Email compose (in-product mailer, #0063). Action-entity for
+// the `tt_send_email` act-cap — sending is an act with no record entity,
+// like impersonation. Falls back to $mod_authorization if the Comms
+// module class hasn't autoloaded yet, mirroring the
+// trials/measurements/exercises fallback pattern above.
+$mod_comms            = class_exists( '\TT\Modules\Comms\CommsModule' )                     ? \TT\Modules\Comms\CommsModule::class                   : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -228,7 +234,13 @@ return array_merge(
         'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
-        'reports'                    => [ 'r',   'team',   $mod_reports ],
+        // #1946 — `rd` (read + create_delete). The `tt_generate_report`
+        // act-cap (report generation) is held by tt_coach today and bridges
+        // to `reports:create_delete`; without the `d` grant assistant coaches
+        // would lose generation under the matrix. `team` scope — per-player
+        // team-scope gating lives in FrontendReportWizardView. `change` is
+        // deliberately omitted (no edit-existing-report surface).
+        'reports'                    => [ 'rd',  'team',   $mod_reports ],
         // #1106 — `rate_cards` + `compare` removed. Both aggregate
         // evaluation data #1060 stripped from AC; same loophole #1105
         // closed for `podium_panel`. `reports` stays — it's a surface
@@ -298,6 +310,13 @@ return array_merge(
         // (#1060-style narrowing). The library is club-wide (a drill an AC
         // authors is reusable by everyone), so scope is `global`, not `team`.
         'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
+        // #1945 — Email compose (in-product mailer). The raw `tt_send_email`
+        // cap is held by the tt_coach WP role, which backs BOTH coach
+        // personas — so AC must hold the action-entity too or it silently
+        // loses email-compose (the same #1944 dual-persona trap). The People
+        // page mailer is academy-wide, so scope is `global`. `create_delete`
+        // is the operative verb (sending is an act, like impersonation).
+        'email_compose'              => [ 'rcd', 'global', $mod_comms ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -319,7 +338,11 @@ return array_merge(
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'player_status_methodology'  => [ 'r',   'global', $mod_methodology ],
-        'reports'                    => [ 'r',   'team',   $mod_reports ],
+        // #1946 — `rd` (read + create_delete). `tt_generate_report` bridges
+        // to `reports:create_delete`; the `d` grant preserves report
+        // generation for head coaches under the matrix. `team` scope —
+        // per-player gating lives in FrontendReportWizardView. No `change`.
+        'reports'                    => [ 'rd',  'team',   $mod_reports ],
         'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
         'compare'                    => [ 'r',   'team',   $mod_stats ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
@@ -392,6 +415,12 @@ return array_merge(
         // team scoping today). See the assistant_coach note above — BOTH
         // coach personas are seeded so neither loses library write.
         'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
+        // #1945 — Email compose (in-product mailer). Raw `tt_send_email`
+        // is held by the tt_coach role behind this persona; seed `rcd` at
+        // `global` (the People-page mailer is academy-wide). See the
+        // assistant_coach note above — BOTH coach personas are seeded so
+        // neither loses email-compose.
+        'email_compose'              => [ 'rcd', 'global', $mod_comms ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -553,8 +582,16 @@ return array_merge(
         // #1944 — Exercises (club-global drill library). HoD curates the
         // academy's methodology, so owns the drill library `rcd` globally.
         'exercises'                     => [ 'rcd', 'global', $mod_exercises ],
-        // ── narrowed to R ──
-        'reports'                       => [ 'r',   'global', $mod_reports ],
+        // #1945 — Email compose (in-product mailer). HoD oversees the whole
+        // academy and reaches every person via the People page, so holds
+        // the action-entity `rcd` globally. Raw holder today: tt_head_dev.
+        'email_compose'                 => [ 'rcd', 'global', $mod_comms ],
+        // ── narrowed to R, plus #1946 generate grant ──
+        // #1946 — `rd` (read + create_delete). HoD holds `tt_generate_report`
+        // today; the `d` grant keeps report generation under the matrix.
+        // `global` scope (HoD oversees the whole academy). No `change` — there
+        // is no edit-existing-report surface, only generate (create) + read.
+        'reports'                       => [ 'rd',  'global', $mod_reports ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],
         'usage_stats'                   => [ 'r',   'global', $mod_authorization ],
@@ -691,6 +728,9 @@ return array_merge(
         // #1944 — Exercises (club-global drill library). Admin has full
         // control of the drill library `rcd` globally.
         'exercises'                     => [ 'rcd', 'global', $mod_exercises ],
+        // #1945 — Email compose (in-product mailer). Admin sends academy-wide
+        // from the People page; full `rcd` globally. Raw holder: tt_club_admin.
+        'email_compose'                 => [ 'rcd', 'global', $mod_comms ],
         'reports'                       => [ 'rcd', 'global', $mod_reports ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],
