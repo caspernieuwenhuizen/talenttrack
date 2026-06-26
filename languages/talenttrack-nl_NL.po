@@ -43103,62 +43103,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#~ msgid "Re-run the first-run onboarding wizard."
-#~ msgstr "Doorloop de eerste-keer-onboardingwizard opnieuw."
-
-#: src/Shared/Frontend/FrontendSetupView.php
-msgid "Skip this step"
-msgstr "Deze stap overslaan"
-
-#: src/Shared/Frontend/FrontendSetupView.php
-msgid ""
-"This flow sets up your academy basics, your first team, your admin profile, "
-"and the frontend dashboard page. Stop and resume any time — your progress is "
-"saved automatically."
-msgstr ""
-"Deze flow stelt de basisgegevens van je academie in, je eerste team, je "
-"beheerdersprofiel en de dashboardpagina aan de voorkant. Je kunt op elk "
-"moment stoppen en hervatten — je voortgang wordt automatisch opgeslagen."
-
-#: src/Shared/Frontend/FrontendSetupView.php
-msgid ""
-"TalentTrack is a youth football talent management plugin. This flow creates "
-"your first team, your admin profile, and a few defaults so you can start "
-"tracking players today. Each step takes about a minute."
-msgstr ""
-"TalentTrack is een plugin voor talentbeheer in het jeugdvoetbal. Deze flow "
-"maakt je eerste team, je beheerdersprofiel en een paar standaardinstellingen "
-"aan, zodat je vandaag nog spelers kunt volgen. Elke stap duurt ongeveer een "
-"minuut."
-
-#: src/Infrastructure/REST/OnboardingRestController.php
-msgid "An academy name is required."
-msgstr "Een academienaam is verplicht."
-
-#: src/Infrastructure/REST/OnboardingRestController.php
-msgid "A team name is required, or skip this step."
-msgstr "Een teamnaam is verplicht, of sla deze stap over."
-
-#: src/Infrastructure/REST/OnboardingRestController.php
-msgid "A first and last name are required."
-msgstr "Een voor- en achternaam zijn verplicht."
-
-#: src/Shared/Frontend/FrontendSetupView.php
-msgid ""
-"Start over? Your saved progress for this flow is cleared. Data you already "
-"created (teams, staff, pages) is kept."
-msgstr ""
-"Opnieuw beginnen? Je opgeslagen voortgang voor deze flow wordt gewist. "
-"Gegevens die je al hebt aangemaakt (teams, medewerkers, pagina's) blijven "
-"behouden."
-
-#: src/Shared/Frontend/FrontendConfigurationView.php
-msgid ""
-"Run or re-run first-time setup: academy basics, your first team, your admin "
-"profile, and the dashboard page."
-msgstr ""
-"Voer de eerste installatie uit of opnieuw uit: basisgegevens van de "
-"academie, je eerste team, je beheerdersprofiel en de dashboardpagina."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid ""
@@ -43238,6 +43182,9 @@ msgstr "De back-up kon niet worden gelezen."
 #: src/Shared/Frontend/FrontendBackupsView.php
 msgid "Settings"
 msgstr "Instellingen"
+
+#~ msgid "Re-run the first-run onboarding wizard."
+#~ msgstr "Doorloop de eerste-keer-onboardingwizard opnieuw."
 
 #~ msgid ""
 #~ "Per-team iCal sync status and \"Refresh now\" buttons. Lives in wp-admin."
