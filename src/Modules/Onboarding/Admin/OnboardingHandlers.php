@@ -58,11 +58,63 @@ class OnboardingHandlers {
     public static function handleAcademy(): void {
         self::guard( 'tt_onboarding_academy' );
 
+        self::saveAcademy( [
+            'academy_name'  => (string) ( $_POST['academy_name']  ?? '' ),
+            'primary_color' => (string) ( $_POST['primary_color'] ?? '' ),
+            'season_label'  => (string) ( $_POST['season_label']  ?? '' ),
+            'date_format'   => (string) ( $_POST['date_format']   ?? 'Y-m-d' ),
+        ] );
+
+        self::redirectToPage( [ 'tt_ob_msg' => 'saved' ] );
+    }
+
+    public static function handleFirstTeam(): void {
+        self::guard( 'tt_onboarding_first_team' );
+
+        $name = sanitize_text_field( wp_unslash( (string) ( $_POST['team_name'] ?? '' ) ) );
+        if ( $name === '' ) {
+            self::redirectToPage();
+            return;
+        }
+
+        self::createFirstTeam( [
+            'team_name' => (string) ( $_POST['team_name'] ?? '' ),
+            'age_group' => (string) ( $_POST['age_group'] ?? '' ),
+        ] );
+
+        self::redirectToPage( [ 'tt_ob_msg' => 'team_made' ] );
+    }
+
+    public static function handleFirstAdmin(): void {
+        self::guard( 'tt_onboarding_first_admin' );
+
+        self::createFirstAdmin( [
+            'first_name' => (string) ( $_POST['first_name'] ?? '' ),
+            'last_name'  => (string) ( $_POST['last_name']  ?? '' ),
+            'grant_role' => ! empty( $_POST['grant_role'] ),
+        ] );
+
+        self::redirectToPage( [ 'tt_ob_msg' => 'admin_made' ] );
+    }
+
+    // Domain side-effects — shared between the wp-admin handlers above and
+    // the frontend REST controller (OnboardingRestController, #1938). The
+    // request-shape parsing (nonce, $_POST, redirect) stays in the handlers;
+    // the persistence + state advance + step-completed hook live here so the
+    // two surfaces never drift.
+
+    /**
+     * Persist the academy basics, advance to first_team, fire the hook.
+     *
+     * @param array{academy_name?:string,primary_color?:string,season_label?:string,date_format?:string} $input
+     * @return array<string,mixed> The recorded payload.
+     */
+    public static function saveAcademy( array $input ): array {
         $payload = [
-            'academy_name'  => sanitize_text_field( wp_unslash( (string) ( $_POST['academy_name']  ?? '' ) ) ),
-            'primary_color' => sanitize_hex_color( (string) wp_unslash( (string) ( $_POST['primary_color'] ?? '' ) ) ) ?: '#0b3d2e',
-            'season_label'  => sanitize_text_field( wp_unslash( (string) ( $_POST['season_label']  ?? '' ) ) ),
-            'date_format'   => sanitize_text_field( wp_unslash( (string) ( $_POST['date_format']   ?? 'Y-m-d' ) ) ),
+            'academy_name'  => sanitize_text_field( wp_unslash( (string) ( $input['academy_name']  ?? '' ) ) ),
+            'primary_color' => sanitize_hex_color( (string) wp_unslash( (string) ( $input['primary_color'] ?? '' ) ) ) ?: '#0b3d2e',
+            'season_label'  => sanitize_text_field( wp_unslash( (string) ( $input['season_label']  ?? '' ) ) ),
+            'date_format'   => sanitize_text_field( wp_unslash( (string) ( $input['date_format']   ?? 'Y-m-d' ) ) ),
         ];
 
         QueryHelpers::set_config( 'academy_name',     $payload['academy_name'] );
@@ -74,19 +126,18 @@ class OnboardingHandlers {
         OnboardingState::setStep( 'first_team' );
         do_action( 'tt_onboarding_step_completed', 'academy', $payload );
 
-        self::redirectToPage( [ 'tt_ob_msg' => 'saved' ] );
+        return $payload;
     }
 
-    public static function handleFirstTeam(): void {
-        self::guard( 'tt_onboarding_first_team' );
-
-        $name      = sanitize_text_field( wp_unslash( (string) ( $_POST['team_name'] ?? '' ) ) );
-        $age_group = sanitize_text_field( wp_unslash( (string) ( $_POST['age_group'] ?? '' ) ) );
-
-        if ( $name === '' ) {
-            self::redirectToPage();
-            return;
-        }
+    /**
+     * Create the first team, advance to first_admin, fire the hook.
+     *
+     * @param array{team_name?:string,age_group?:string} $input
+     * @return array<string,mixed> The recorded payload (incl. team_id).
+     */
+    public static function createFirstTeam( array $input ): array {
+        $name      = sanitize_text_field( wp_unslash( (string) ( $input['team_name'] ?? '' ) ) );
+        $age_group = sanitize_text_field( wp_unslash( (string) ( $input['age_group'] ?? '' ) ) );
 
         global $wpdb;
         $wpdb->insert(
@@ -105,15 +156,31 @@ class OnboardingHandlers {
         OnboardingState::setStep( 'first_admin' );
         do_action( 'tt_onboarding_step_completed', 'first_team', $payload );
 
-        self::redirectToPage( [ 'tt_ob_msg' => 'team_made' ] );
+        return $payload;
     }
 
-    public static function handleFirstAdmin(): void {
-        self::guard( 'tt_onboarding_first_admin' );
+    /**
+     * Skip the first-team step (no team created), advance to first_admin.
+     *
+     * @return array<string,mixed>
+     */
+    public static function skipFirstTeam(): array {
+        OnboardingState::setStep( 'first_admin' );
+        do_action( 'tt_onboarding_step_completed', 'first_team', [ 'skipped' => true ] );
+        return [ 'skipped' => true ];
+    }
 
-        $first_name = sanitize_text_field( wp_unslash( (string) ( $_POST['first_name'] ?? '' ) ) );
-        $last_name  = sanitize_text_field( wp_unslash( (string) ( $_POST['last_name']  ?? '' ) ) );
-        $grant_role = ! empty( $_POST['grant_role'] );
+    /**
+     * Create the first-admin staff record (+ optional Club Admin grant),
+     * advance to dashboard, fire the hook.
+     *
+     * @param array{first_name?:string,last_name?:string,grant_role?:bool} $input
+     * @return array<string,mixed> The recorded payload (incl. person_id).
+     */
+    public static function createFirstAdmin( array $input ): array {
+        $first_name = sanitize_text_field( wp_unslash( (string) ( $input['first_name'] ?? '' ) ) );
+        $last_name  = sanitize_text_field( wp_unslash( (string) ( $input['last_name']  ?? '' ) ) );
+        $grant_role = ! empty( $input['grant_role'] );
 
         $user_id = get_current_user_id();
         $user    = $user_id > 0 ? get_userdata( $user_id ) : null;
@@ -143,7 +210,7 @@ class OnboardingHandlers {
         OnboardingState::setStep( 'dashboard' );
         do_action( 'tt_onboarding_step_completed', 'first_admin', $payload );
 
-        self::redirectToPage( [ 'tt_ob_msg' => 'admin_made' ] );
+        return $payload;
     }
 
     // Auxiliary handlers
@@ -174,7 +241,17 @@ class OnboardingHandlers {
 
     public static function handleCreateDashboardPage(): void {
         self::guard( 'tt_onboarding_create_dashboard_page' );
+        self::createDashboardPage();
+        self::redirectToPage( [ 'tt_ob_msg' => 'page_made' ] );
+    }
 
+    /**
+     * Create (or reuse) the frontend dashboard page, set it as the site
+     * homepage, finish the wizard. Shared with OnboardingRestController.
+     *
+     * @return array<string,mixed> The recorded payload (page_id + page_url).
+     */
+    public static function createDashboardPage(): array {
         // Reuse an existing page that already holds the shortcode so
         // re-running never produces duplicates.
         $existing = get_posts( [
@@ -213,15 +290,26 @@ class OnboardingHandlers {
             $page_url = (string) get_permalink( $page_id );
         }
 
-        OnboardingState::recordPayload( 'dashboard', [
-            'page_id'  => $page_id,
-            'page_url' => $page_url,
-        ] );
+        $payload = [ 'page_id' => $page_id, 'page_url' => $page_url ];
+        OnboardingState::recordPayload( 'dashboard', $payload );
         OnboardingState::setStep( 'done' );
         OnboardingState::markCompleted();
         do_action( 'tt_onboarding_step_completed', 'dashboard', [ 'page_id' => $page_id ] );
 
-        self::redirectToPage( [ 'tt_ob_msg' => 'page_made' ] );
+        return $payload;
+    }
+
+    /**
+     * Skip the dashboard-page step — still finishes the wizard. Shared
+     * with OnboardingRestController.
+     *
+     * @return array<string,mixed>
+     */
+    public static function skipDashboardPage(): array {
+        OnboardingState::setStep( 'done' );
+        OnboardingState::markCompleted();
+        do_action( 'tt_onboarding_step_completed', 'dashboard', [ 'skipped' => true ] );
+        return [ 'skipped' => true ];
     }
 
     // Helpers

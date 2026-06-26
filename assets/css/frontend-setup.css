@@ -1,0 +1,219 @@
+/*
+ * frontend-setup.css — FrontendSetupView (#1938).
+ *
+ * Frontend port of the wp-admin first-run onboarding wizard
+ * (?page=tt-welcome) to ?tt_view=setup: a multi-step academy → first team
+ * → first admin → dashboard → done flow with a stepper, plus "Run again".
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale up.
+ * Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-setup {
+    max-width: 760px;
+}
+
+.tt-dashboard .tt-setup__intro {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-setup__heading {
+    font-size: 1.125rem;
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-setup__lead {
+    color: var(--tt-ink-soft, var(--tt-ink));
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+/* ---- Stepper -------------------------------------------------------- */
+.tt-dashboard .tt-setup__stepper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2) var(--tt-sp-4);
+    list-style: none;
+    margin: 0 0 var(--tt-sp-5);
+    padding: 0;
+}
+
+.tt-dashboard .tt-setup__step-item {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    color: var(--tt-muted);
+    font-size: 0.9375rem;
+}
+
+.tt-dashboard .tt-setup__step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--tt-line);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    flex: 0 0 auto;
+}
+
+.tt-dashboard .tt-setup__step-item.is-current {
+    color: var(--tt-ink);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-setup__step-item.is-current .tt-setup__step-num {
+    border-color: var(--tt-primary);
+    color: var(--tt-primary);
+}
+
+.tt-dashboard .tt-setup__step-item.is-done {
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-setup__step-item.is-done .tt-setup__step-num {
+    border-color: var(--tt-success);
+    color: var(--tt-success);
+}
+
+/* ---- Form fields ---------------------------------------------------- */
+.tt-dashboard .tt-setup__field {
+    display: grid;
+    gap: var(--tt-sp-2);
+    margin-bottom: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-setup__legend {
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin: 0;
+}
+
+.tt-dashboard .tt-setup__hint {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Inputs: ≥16px font to defeat iOS auto-zoom; ≥48px tap height. */
+.tt-dashboard .tt-setup__input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    color: var(--tt-ink);
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-setup__input:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 1px;
+}
+
+.tt-dashboard .tt-setup__color {
+    width: 4rem;
+    min-height: 48px;
+    padding: var(--tt-sp-1);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-setup__field--check {
+    gap: var(--tt-sp-1);
+}
+
+.tt-dashboard .tt-setup__check {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 48px;
+    color: var(--tt-ink);
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-setup__check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+}
+
+/* ---- Actions -------------------------------------------------------- */
+.tt-dashboard .tt-setup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-setup__actions .tt-btn {
+    min-height: 48px;
+}
+
+.tt-dashboard .tt-setup__skip-row {
+    margin: var(--tt-sp-3) 0 0;
+}
+
+.tt-dashboard .tt-setup__skip-row .tt-btn {
+    min-height: 48px;
+}
+
+/* ---- Summary -------------------------------------------------------- */
+.tt-dashboard .tt-setup__summary {
+    list-style: disc;
+    margin: 0 0 var(--tt-sp-4);
+    padding-left: var(--tt-sp-5);
+    color: var(--tt-ink);
+    line-height: 1.6;
+}
+
+/* ---- Reset ---------------------------------------------------------- */
+.tt-dashboard .tt-setup__reset {
+    margin-top: var(--tt-sp-6);
+}
+
+.tt-dashboard .tt-setup__reset-btn {
+    background: none;
+    border: 0;
+    padding: var(--tt-sp-2) 0;
+    min-height: 48px;
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-setup__reset-btn:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+/* ---- Messages ------------------------------------------------------- */
+.tt-dashboard .tt-setup__form-msg {
+    margin: var(--tt-sp-3) 0;
+    min-height: 1.25rem;
+}
+
+.tt-dashboard .tt-setup__form-msg.tt-success {
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-setup__form-msg.tt-error {
+    color: var(--tt-danger);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-setup__field {
+        max-width: 28rem;
+    }
+}

@@ -28,6 +28,14 @@ class OnboardingModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
+        // #1938 — write surface for the frontend Setup flow
+        // (`?tt_view=setup`, FrontendSetupView). Registered on every
+        // request (not admin-only) so the REST routes exist for the
+        // frontend fetch; the controller delegates to the same
+        // OnboardingHandlers / OnboardingState domain layer the wp-admin
+        // wizard uses, so the bespoke flow is never reimplemented.
+        \TT\Infrastructure\REST\OnboardingRestController::init();
+
         if ( ! is_admin() ) return;
         Admin\OnboardingPage::init();
         Admin\OnboardingHandlers::init();
