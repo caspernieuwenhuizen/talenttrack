@@ -105,8 +105,18 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
         $this->assertInstanceOf( \WP_User::class, $user );
         $user->add_role( 'tt_parent' );
 
+        // Grant the coach's player-notes caps directly. In production the
+        // `tt_coach` role carries them (RolesService), but the wp-env
+        // harness can leave the role without its seeded caps — `add_role`
+        // is a no-op once the role is process-cached, so installRoles() in
+        // set_up() doesn't re-seed it. The unit under test here is the
+        // ADAPTER's role-name handling, not role installation, so we pin
+        // the caps the coach hat confers and keep the test deterministic.
+        $user->add_cap( 'tt_view_player_notes' );
+        $user->add_cap( 'tt_edit_player_notes' );
+
         // Sanity: the user really carries the parent role (the condition
-        // that used to trip the exclude) AND the notes caps (from coach).
+        // that used to trip the exclude) AND the notes caps (coach hat).
         $this->assertContains( 'tt_parent', (array) $user->roles );
         $this->assertTrue( user_can( $uid, 'tt_view_player_notes' ) );
         $this->assertTrue( user_can( $uid, 'tt_edit_player_notes' ) );
