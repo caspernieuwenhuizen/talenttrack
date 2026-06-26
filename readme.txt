@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.54.0
+Stable tag: 4.54.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.54.1 — Audit log: Configuration tile now opens the frontend view (#1918) The **Audit log** tile in Configuration → System no longer bounces into wp-admin. It now opens the read-only frontend Audit log view (`?tt_view=audit-log`) — a paginated, filterable browser over the academy's `tt_audit_log` trail (who changed what, when), with an All-entries tab and a Failed-logins aggregate. The tile is cap-gated to `tt_view_audit_log`, so it only appears for holders who can read the log. The wp-admin tab (`?page=tt-config&tab=audit`) stays as a power-user fallback. =
+
+= 4.54.1 — PDP visibility: unify frontend and REST behind one matrix-aware check (#1923) PDP-file access is now decided in a single place (`PdpAccess`), so the rendered files tab and every REST surface answer the same question. This closes the frontend/REST divergence (#1758) where a Head of Development who does not personally coach a player was denied the files tab even though the API let them through. The PDP REST endpoints that previously authorised on "is the user logged in?" now check capabilities via the authorization matrix, and the verdict sign-off attribution no longer relies on a role-name string compare. Effective access is unchanged for every persona — this removes drift and a legacy auth smell without widening or narrowing anyone. =
 
 = 4.54.0 — Chemistry rework — admin settings (#1017) Phase 5 of the chemistry rework (epic #1017): a **Chemistry settings** surface (Configuration → tile) where a head of development or academy admin tunes the reworked engine — the **enable toggle** (`chemistry_engine_v2`, off by default), the **five component weights** (normalised to total 100), and the **Position Relationship Matrix** (how strongly each pair of lines interacts, 0–1). All persist via the Phase-1 contract (`tt_config` + the matrix table). Matrix-gated on `team_chemistry` change at global scope; a Save-only settings sub-form (§6 exemption); mobile-first; nl_NL strings. =
 
