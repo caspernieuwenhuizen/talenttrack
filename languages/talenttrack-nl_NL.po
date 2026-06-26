@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T12:40:01+00:00\n"
+"POT-Creation-Date: 2026-06-26T14:39:18+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -44,8 +44,8 @@ msgid "https://github.com/caspernieuwenhuizen"
 msgstr ""
 
 #: database/migrations/0025_invitations.php:129
-#: src/Infrastructure/Query/LabelTranslator.php:85
-#: src/Infrastructure/Query/LabelTranslator.php:134
+#: src/Infrastructure/Query/LabelTranslator.php:90
+#: src/Infrastructure/Query/LabelTranslator.php:139
 #: src/Infrastructure/Security/RolesService.php:402
 #: src/Modules/Authorization/Admin/MatrixPage.php:587
 #: src/Modules/Authorization/Admin/RolesPage.php:439
@@ -186,7 +186,7 @@ msgstr "Team Manager"
 msgid "Player"
 msgstr "Speler"
 
-#: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:72
+#: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:77
 #: src/Infrastructure/Security/RolesService.php:313
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:149
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
@@ -214,9 +214,9 @@ msgstr "Speler"
 msgid "Coach"
 msgstr "Trainer"
 
-#: includes/Activator.php:182 src/Infrastructure/Query/LabelTranslator.php:81
-#: src/Infrastructure/Query/LabelTranslator.php:127
-#: src/Infrastructure/Query/LabelTranslator.php:165
+#: includes/Activator.php:182 src/Infrastructure/Query/LabelTranslator.php:86
+#: src/Infrastructure/Query/LabelTranslator.php:132
+#: src/Infrastructure/Query/LabelTranslator.php:170
 #: src/Infrastructure/Security/RolesService.php:243
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:501
@@ -233,7 +233,7 @@ msgstr "Trainer"
 msgid "Head of Development"
 msgstr "Hoofd opleiding"
 
-#: includes/Activator.php:186 src/Infrastructure/Query/LabelTranslator.php:82
+#: includes/Activator.php:186 src/Infrastructure/Query/LabelTranslator.php:87
 #: src/Infrastructure/Security/RolesService.php:374
 #: src/Infrastructure/Teams/TeamDetailSections.php:57
 #: src/Modules/Invitations/InvitationKind.php:54
@@ -862,76 +862,68 @@ msgstr ""
 "echte clubgegevens zijn."
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:90
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:47
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:48
 #, php-format
 msgid "Evaluation on %s"
 msgstr "Evaluatie op %s"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:123
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:90
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:91
 #, php-format
 msgid "PDP verdict: %s"
 msgstr "POP-eindbeoordeling: %s"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:150
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:67
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:68
 #, php-format
 msgid "Goal set: %s"
 msgstr "Doel gesteld: %s"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:150
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:67
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:68
 msgid "Goal set"
 msgstr "Doel gesteld"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:177
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:113
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:114
 msgid "Joined the academy"
 msgstr "Bij de academie gekomen"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:210
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:191
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:196
 msgid "Trial started"
 msgstr "Stage gestart"
 
 #: src/Infrastructure/Journey/JourneyBackfillService.php:222
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:204
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:209
 #, php-format
 msgid "Trial ended: %s"
 msgstr "Stage afgerond: %s"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:158
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:159
 #, php-format
 msgid "Position: %1$s → %2$s"
 msgstr "Positie: %1$s → %2$s"
-
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:158
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:276
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:293
-#: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:205
-#: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:206
-msgid "unset"
-msgstr "leeg"
 
 #: src/Infrastructure/Journey/JourneyEventSubscriber.php:159
 msgid "none"
 msgstr "geen"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:220
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:225
 msgid "Signed after trial"
 msgstr "Vastgelegd na stage"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:231
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:236
 msgid "Released after trial"
 msgstr "Afscheid genomen na stage"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:246
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:251
 msgid "Signed"
 msgstr "Vastgelegd"
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:248
-#: src/Infrastructure/Query/LabelTranslator.php:47
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:253
+#: src/Infrastructure/Query/LabelTranslator.php:52
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:204
 #: src/Modules/Players/Admin/PlayersPage.php:234
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:444
@@ -940,20 +932,27 @@ msgid "Released"
 msgstr "Vrijgegeven"
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:250
-#: src/Infrastructure/Query/LabelTranslator.php:48
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:255
+#: src/Infrastructure/Query/LabelTranslator.php:53
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:446
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:247
 msgid "Graduated"
 msgstr "Doorgestroomd"
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:276
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:281
 #, php-format
 msgid "Team: %1$s → %2$s"
 msgstr "Team: %1$s → %2$s"
 
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:281
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:298
+#: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:205
+#: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:206
+msgid "unset"
+msgstr "leeg"
+
 #. translators: 1: from age group, 2: to age group
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:293
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:298
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:204
 #, php-format
 msgid "Age group: %1$s → %2$s"
@@ -1152,16 +1151,6 @@ msgstr "Kan nu extra ondersteuning gebruiken"
 msgid "Building first picture"
 msgstr "Eerste beeld opbouwen"
 
-#: src/Infrastructure/Query/LabelTranslator.php:24
-#: src/Modules/Analytics/CohortBoardService.php:112
-#: src/Modules/Configuration/Admin/MigrationsPage.php:122
-#: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:339
-#: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendWizardView.php:782
-msgid "Pending"
-msgstr "In behandeling"
-
 #: src/Infrastructure/Query/LabelTranslator.php:29
 msgctxt "goal status"
 msgid "Pending"
@@ -1187,70 +1176,27 @@ msgctxt "goal status"
 msgid "Cancelled"
 msgstr "Geannuleerd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:25
-msgid "In Progress"
-msgstr "In uitvoering"
-
-#: src/Infrastructure/Query/LabelTranslator.php:26
-#: src/Infrastructure/Query/LabelTranslator.php:435
-#: src/Modules/Analytics/AnalyticsModule.php:182
-#: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
-#: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
-#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:36
-#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:583
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1429
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1747
-#: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:291
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:376
-#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
-#: src/Modules/Workflow/TaskStatus.php:66
-#: src/Shared/Frontend/FrontendExportsView.php:123
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:361
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:167
-#: src/Shared/Frontend/FrontendWizardView.php:780
-msgid "Completed"
-msgstr "Voltooid"
-
-#: src/Infrastructure/Query/LabelTranslator.php:27
-msgid "On Hold"
-msgstr "In de wacht"
-
-#: src/Infrastructure/Query/LabelTranslator.php:28
-#: src/Modules/Analytics/Domain/DimensionValueResolver.php:151
-#: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:296
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
-#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
-#: src/Modules/Workflow/TaskStatus.php:69
-msgid "Cancelled"
-msgstr "Geannuleerd"
-
-#: src/Infrastructure/Query/LabelTranslator.php:35
+#: src/Infrastructure/Query/LabelTranslator.php:40
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:157
 #: src/Modules/Wizards/Goal/DetailsStep.php:20
 msgid "Low"
 msgstr "Laag"
 
-#: src/Infrastructure/Query/LabelTranslator.php:36
+#: src/Infrastructure/Query/LabelTranslator.php:41
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:156
 #: src/Modules/DemoData/Admin/DemoDataPage.php:560
 #: src/Modules/Wizards/Goal/DetailsStep.php:20
 msgid "Medium"
 msgstr "Gemiddeld"
 
-#: src/Infrastructure/Query/LabelTranslator.php:37
+#: src/Infrastructure/Query/LabelTranslator.php:42
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:155
 #: src/Modules/Wizards/Goal/DetailsStep.php:20
 msgid "High"
 msgstr "Hoog"
 
-#: src/Infrastructure/Query/LabelTranslator.php:44
-#: src/Infrastructure/Query/LabelTranslator.php:97
+#: src/Infrastructure/Query/LabelTranslator.php:49
+#: src/Infrastructure/Query/LabelTranslator.php:102
 #: src/Modules/Analytics/ScheduledReportsRepository.php:67
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:122
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:92
@@ -1292,8 +1238,8 @@ msgstr "Hoog"
 msgid "Active"
 msgstr "Actief"
 
-#: src/Infrastructure/Query/LabelTranslator.php:45
-#: src/Infrastructure/Query/LabelTranslator.php:98
+#: src/Infrastructure/Query/LabelTranslator.php:50
+#: src/Infrastructure/Query/LabelTranslator.php:103
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:124
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:94
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:119
@@ -1306,7 +1252,7 @@ msgstr "Actief"
 msgid "Inactive"
 msgstr "Inactief"
 
-#: src/Infrastructure/Query/LabelTranslator.php:46
+#: src/Infrastructure/Query/LabelTranslator.php:51
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:203
 #: src/Modules/Players/Admin/PlayersPage.php:233
 #: src/Modules/Tournaments/Wizard/SquadStep.php:125
@@ -1314,12 +1260,12 @@ msgstr "Inactief"
 msgid "Trial"
 msgstr "Stage"
 
-#: src/Infrastructure/Query/LabelTranslator.php:49
+#: src/Infrastructure/Query/LabelTranslator.php:54
 msgid "Deleted"
 msgstr "Verwijderd"
 
 #. translators: %s: player name
-#: src/Infrastructure/Query/LabelTranslator.php:56
+#: src/Infrastructure/Query/LabelTranslator.php:61
 #: src/Modules/Analytics/AnalyticsModule.php:120
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:783
@@ -1327,29 +1273,29 @@ msgstr "Verwijderd"
 msgid "Present"
 msgstr "Aanwezig"
 
-#: src/Infrastructure/Query/LabelTranslator.php:57
+#: src/Infrastructure/Query/LabelTranslator.php:62
 #: src/Modules/Analytics/AnalyticsModule.php:121
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:145
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:154
 msgid "Absent"
 msgstr "Afwezig"
 
-#: src/Infrastructure/Query/LabelTranslator.php:58
+#: src/Infrastructure/Query/LabelTranslator.php:63
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:147
 msgid "Late"
 msgstr "Laat"
 
-#: src/Infrastructure/Query/LabelTranslator.php:59
+#: src/Infrastructure/Query/LabelTranslator.php:64
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:785
 msgid "Injured"
 msgstr "Geblesseerd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:60
+#: src/Infrastructure/Query/LabelTranslator.php:65
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:146
 msgid "Excused"
 msgstr "Afgemeld"
 
-#: src/Infrastructure/Query/LabelTranslator.php:77
+#: src/Infrastructure/Query/LabelTranslator.php:82
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:499
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:321
@@ -1362,7 +1308,7 @@ msgstr "Afgemeld"
 msgid "Head coach"
 msgstr "Hoofdtrainer"
 
-#: src/Infrastructure/Query/LabelTranslator.php:78
+#: src/Infrastructure/Query/LabelTranslator.php:83
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
 #: src/Modules/People/Admin/PeoplePage.php:498
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:322
@@ -1375,8 +1321,8 @@ msgstr "Hoofdtrainer"
 msgid "Assistant coach"
 msgstr "Assistent-trainer"
 
-#: src/Infrastructure/Query/LabelTranslator.php:79
-#: src/Infrastructure/Query/LabelTranslator.php:80
+#: src/Infrastructure/Query/LabelTranslator.php:84
+#: src/Infrastructure/Query/LabelTranslator.php:85
 #: src/Modules/Mfa/Settings/MfaSettings.php:107
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:323
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:288
@@ -1387,9 +1333,9 @@ msgstr "Assistent-trainer"
 msgid "Team manager"
 msgstr "Teammanager"
 
-#: src/Infrastructure/Query/LabelTranslator.php:83
-#: src/Infrastructure/Query/LabelTranslator.php:131
-#: src/Infrastructure/Query/LabelTranslator.php:164
+#: src/Infrastructure/Query/LabelTranslator.php:88
+#: src/Infrastructure/Query/LabelTranslator.php:136
+#: src/Infrastructure/Query/LabelTranslator.php:169
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:320
 #: src/Modules/Authorization/Admin/RolesPage.php:436
 #: src/Modules/People/Admin/PeoplePage.php:503
@@ -1398,9 +1344,9 @@ msgstr "Teammanager"
 msgid "Physio"
 msgstr "Fysio"
 
-#: src/Infrastructure/Query/LabelTranslator.php:84
-#: src/Infrastructure/Query/LabelTranslator.php:133
-#: src/Infrastructure/Query/LabelTranslator.php:237
+#: src/Infrastructure/Query/LabelTranslator.php:89
+#: src/Infrastructure/Query/LabelTranslator.php:138
+#: src/Infrastructure/Query/LabelTranslator.php:242
 #: src/Infrastructure/Security/RolesService.php:347
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/Authorization/Admin/MatrixPage.php:591
@@ -1422,8 +1368,8 @@ msgstr "Fysio"
 msgid "Scout"
 msgstr "Scout"
 
-#: src/Infrastructure/Query/LabelTranslator.php:86
-#: src/Infrastructure/Query/LabelTranslator.php:167
+#: src/Infrastructure/Query/LabelTranslator.php:91
+#: src/Infrastructure/Query/LabelTranslator.php:172
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:287
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:321
 #: src/Modules/Authorization/Admin/MatrixPage.php:727
@@ -1442,8 +1388,8 @@ msgstr "Scout"
 msgid "Other"
 msgstr "Overig"
 
-#: src/Infrastructure/Query/LabelTranslator.php:99
-#: src/Infrastructure/Query/LabelTranslator.php:436
+#: src/Infrastructure/Query/LabelTranslator.php:104
+#: src/Infrastructure/Query/LabelTranslator.php:441
 #: src/Modules/Activities/Admin/ActivitiesPage.php:118
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
@@ -1479,7 +1425,7 @@ msgstr "Overig"
 msgid "Archived"
 msgstr "Gearchiveerd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:126
+#: src/Infrastructure/Query/LabelTranslator.php:131
 #: src/Infrastructure/Security/RolesService.php:286
 #: src/Modules/Authorization/Admin/RolesPage.php:431
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:153
@@ -1487,8 +1433,8 @@ msgstr "Gearchiveerd"
 msgid "Club Admin"
 msgstr "Clubbeheerder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:128
-#: src/Infrastructure/Query/LabelTranslator.php:161
+#: src/Infrastructure/Query/LabelTranslator.php:133
+#: src/Infrastructure/Query/LabelTranslator.php:166
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:317
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
@@ -1498,8 +1444,8 @@ msgid "Head Coach"
 msgstr "Hoofdtrainer"
 
 # ─── v2.9.1 — Role labels & descriptions translated at display time ───
-#: src/Infrastructure/Query/LabelTranslator.php:129
-#: src/Infrastructure/Query/LabelTranslator.php:162
+#: src/Infrastructure/Query/LabelTranslator.php:134
+#: src/Infrastructure/Query/LabelTranslator.php:167
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:318
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
@@ -1508,8 +1454,8 @@ msgstr "Hoofdtrainer"
 msgid "Assistant Coach"
 msgstr "Assistent-trainer"
 
-#: src/Infrastructure/Query/LabelTranslator.php:130
-#: src/Infrastructure/Query/LabelTranslator.php:163
+#: src/Infrastructure/Query/LabelTranslator.php:135
+#: src/Infrastructure/Query/LabelTranslator.php:168
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:319
 #: src/Modules/Authorization/Admin/RolesPage.php:435
 #: src/Modules/People/Admin/PeoplePage.php:500
@@ -1517,35 +1463,35 @@ msgstr "Assistent-trainer"
 msgid "Manager"
 msgstr "Manager"
 
-#: src/Infrastructure/Query/LabelTranslator.php:132
+#: src/Infrastructure/Query/LabelTranslator.php:137
 #: src/Modules/Authorization/Admin/RolesPage.php:437
 msgid "Team Member"
 msgstr "Teamlid"
 
 # v3.82.0 / i18n audit (May 2026) Bundles 3 + 4 + 7 — stored content backfill via LabelTranslator + lookup translations
-#: src/Infrastructure/Query/LabelTranslator.php:166
+#: src/Infrastructure/Query/LabelTranslator.php:171
 msgid "Mentor"
 msgstr "Mentor"
 
-#: src/Infrastructure/Query/LabelTranslator.php:212
+#: src/Infrastructure/Query/LabelTranslator.php:217
 msgid "Training"
 msgstr "Training"
 
-#: src/Infrastructure/Query/LabelTranslator.php:213
+#: src/Infrastructure/Query/LabelTranslator.php:218
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
 #: src/Shared/Frontend/FrontendStandardReportsView.php:276
 msgid "Match"
 msgstr "Wedstrijd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:214
+#: src/Infrastructure/Query/LabelTranslator.php:219
 msgid "Clinic"
 msgstr "Clinic"
 
-#: src/Infrastructure/Query/LabelTranslator.php:215
+#: src/Infrastructure/Query/LabelTranslator.php:220
 msgid "Team meeting"
 msgstr "Teamvergadering"
 
-#: src/Infrastructure/Query/LabelTranslator.php:216
+#: src/Infrastructure/Query/LabelTranslator.php:221
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
 #: src/Modules/Documentation/HelpTopics.php:222
 #: src/Modules/Methodology/Admin/MethodologyPage.php:73
@@ -1561,25 +1507,25 @@ msgstr "Teamvergadering"
 msgid "Methodology"
 msgstr "Methodologie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:218
+#: src/Infrastructure/Query/LabelTranslator.php:223
 msgid "Friendly match"
 msgstr "Oefenwedstrijd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:219
+#: src/Infrastructure/Query/LabelTranslator.php:224
 msgid "Cup match"
 msgstr "Bekerwedstrijd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:220
+#: src/Infrastructure/Query/LabelTranslator.php:225
 msgid "League match"
 msgstr "Competitiewedstrijd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:221
+#: src/Infrastructure/Query/LabelTranslator.php:226
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2446
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2508
 msgid "Tournament"
 msgstr "Toernooi"
 
-#: src/Infrastructure/Query/LabelTranslator.php:236
+#: src/Infrastructure/Query/LabelTranslator.php:241
 #: src/Modules/Backup/PresetRegistry.php:78
 #: src/Modules/License/FeatureMap.php:159
 #: src/Modules/Reports/AudienceType.php:87
@@ -1587,215 +1533,239 @@ msgstr "Toernooi"
 msgid "Standard"
 msgstr "Standard"
 
-#: src/Infrastructure/Query/LabelTranslator.php:238
-#: src/Infrastructure/Query/LabelTranslator.php:314
+#: src/Infrastructure/Query/LabelTranslator.php:243
+#: src/Infrastructure/Query/LabelTranslator.php:319
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:150
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:1005
 #: src/Modules/Tournaments/Wizard/SquadStep.php:40
 msgid "Goalkeeper"
 msgstr "Keeper"
 
-#: src/Infrastructure/Query/LabelTranslator.php:251
+#: src/Infrastructure/Query/LabelTranslator.php:256
 msgid "Neutral 4-3-3"
 msgstr "Neutraal 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:252
+#: src/Infrastructure/Query/LabelTranslator.php:257
 msgid "Possession 4-3-3"
 msgstr "Balbezit 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:253
+#: src/Infrastructure/Query/LabelTranslator.php:258
 msgid "Counter 4-3-3"
 msgstr "Omschakeling 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:254
+#: src/Infrastructure/Query/LabelTranslator.php:259
 msgid "Press-heavy 4-3-3"
 msgstr "Druk zetten 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:257
+#: src/Infrastructure/Query/LabelTranslator.php:262
 msgid "Neutral 4-4-2"
 msgstr "Neutraal 4-4-2"
 
-#: src/Infrastructure/Query/LabelTranslator.php:258
+#: src/Infrastructure/Query/LabelTranslator.php:263
 msgid "Neutral 3-5-2"
 msgstr "Neutraal 3-5-2"
 
-#: src/Infrastructure/Query/LabelTranslator.php:259
+#: src/Infrastructure/Query/LabelTranslator.php:264
 msgid "Neutral 4-2-3-1"
 msgstr "Neutraal 4-2-3-1"
 
-#: src/Infrastructure/Query/LabelTranslator.php:260
+#: src/Infrastructure/Query/LabelTranslator.php:265
 msgid "Offensive 3-4-3 (diamond)"
 msgstr "Aanvallend 3-4-3 (ruit)"
 
 # v3.110.101 — football position long-form labels for tt_lookups.name codes
 # (Activator seeds GK/CB/LB/RB/CDM/CM/CAM/LW/RW/ST/CF; LabelTranslator::positionLabel
 # maps each to a localised long name surfaced in the new-goal wizard cascade).
-#: src/Infrastructure/Query/LabelTranslator.php:315
+#: src/Infrastructure/Query/LabelTranslator.php:320
 #: src/Modules/Tournaments/Wizard/SquadStep.php:41
 msgid "Centre back"
 msgstr "Centrale verdediger"
 
-#: src/Infrastructure/Query/LabelTranslator.php:316
+#: src/Infrastructure/Query/LabelTranslator.php:321
 #: src/Modules/Tournaments/Wizard/SquadStep.php:42
 msgid "Left back"
 msgstr "Linksback"
 
-#: src/Infrastructure/Query/LabelTranslator.php:317
+#: src/Infrastructure/Query/LabelTranslator.php:322
 #: src/Modules/Tournaments/Wizard/SquadStep.php:43
 msgid "Right back"
 msgstr "Rechtsback"
 
-#: src/Infrastructure/Query/LabelTranslator.php:318
+#: src/Infrastructure/Query/LabelTranslator.php:323
 msgid "Defensive midfielder"
 msgstr "Verdedigende middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:319
+#: src/Infrastructure/Query/LabelTranslator.php:324
 msgid "Central midfielder"
 msgstr "Middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:320
+#: src/Infrastructure/Query/LabelTranslator.php:325
 msgid "Attacking midfielder"
 msgstr "Aanvallende middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:321
+#: src/Infrastructure/Query/LabelTranslator.php:326
 msgid "Left winger"
 msgstr "Linksbuiten"
 
-#: src/Infrastructure/Query/LabelTranslator.php:322
+#: src/Infrastructure/Query/LabelTranslator.php:327
 msgid "Right winger"
 msgstr "Rechtsbuiten"
 
-#: src/Infrastructure/Query/LabelTranslator.php:323
+#: src/Infrastructure/Query/LabelTranslator.php:328
 #: src/Modules/Tournaments/Wizard/SquadStep.php:49
 msgid "Striker"
 msgstr "Spits"
 
-#: src/Infrastructure/Query/LabelTranslator.php:324
+#: src/Infrastructure/Query/LabelTranslator.php:329
 msgid "Centre forward"
 msgstr "Centrumspits"
 
-#: src/Infrastructure/Query/LabelTranslator.php:336
+#: src/Infrastructure/Query/LabelTranslator.php:341
 msgid "Warm-up"
 msgstr "Warming-up"
 
 # Canonical main category labels (seed)
-#: src/Infrastructure/Query/LabelTranslator.php:337
+#: src/Infrastructure/Query/LabelTranslator.php:342
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:150
 msgid "Technical"
 msgstr "Technisch"
 
-#: src/Infrastructure/Query/LabelTranslator.php:338
+#: src/Infrastructure/Query/LabelTranslator.php:343
 msgid "Sided game"
 msgstr "Partijspel"
 
-#: src/Infrastructure/Query/LabelTranslator.php:339
+#: src/Infrastructure/Query/LabelTranslator.php:344
 msgid "Conditioning"
 msgstr "Conditie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:340
-#: src/Infrastructure/Query/LabelTranslator.php:382
+#: src/Infrastructure/Query/LabelTranslator.php:345
+#: src/Infrastructure/Query/LabelTranslator.php:387
 msgid "Finishing"
 msgstr "Afronden"
 
-#: src/Infrastructure/Query/LabelTranslator.php:341
+#: src/Infrastructure/Query/LabelTranslator.php:346
 msgid "Cool-down"
 msgstr "Cooling-down"
 
-#: src/Infrastructure/Query/LabelTranslator.php:360
+#: src/Infrastructure/Query/LabelTranslator.php:365
 msgid "Commitment"
 msgstr "Toewijding"
 
-#: src/Infrastructure/Query/LabelTranslator.php:361
+#: src/Infrastructure/Query/LabelTranslator.php:366
 msgid "Coachability"
 msgstr "Coachbaarheid"
 
-#: src/Infrastructure/Query/LabelTranslator.php:362
+#: src/Infrastructure/Query/LabelTranslator.php:367
 msgid "Leadership"
 msgstr "Leiderschap"
 
-#: src/Infrastructure/Query/LabelTranslator.php:363
+#: src/Infrastructure/Query/LabelTranslator.php:368
 msgid "Resilience"
 msgstr "Veerkracht"
 
-#: src/Infrastructure/Query/LabelTranslator.php:364
+#: src/Infrastructure/Query/LabelTranslator.php:369
 #: src/Shared/Modules/ModuleMetadata.php:48
 msgid "Communication"
 msgstr "Communicatie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:365
+#: src/Infrastructure/Query/LabelTranslator.php:370
 msgid "Work ethic"
 msgstr "Werkethos"
 
-#: src/Infrastructure/Query/LabelTranslator.php:366
+#: src/Infrastructure/Query/LabelTranslator.php:371
 msgid "Fair play"
 msgstr "Fair play"
 
-#: src/Infrastructure/Query/LabelTranslator.php:367
+#: src/Infrastructure/Query/LabelTranslator.php:372
 msgid "Ambition"
 msgstr "Ambitie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:377
+#: src/Infrastructure/Query/LabelTranslator.php:382
 msgid "Build-up"
 msgstr "Opbouw"
 
-#: src/Infrastructure/Query/LabelTranslator.php:378
+#: src/Infrastructure/Query/LabelTranslator.php:383
 msgid "Pressing"
 msgstr "Pressing"
 
-#: src/Infrastructure/Query/LabelTranslator.php:379
+#: src/Infrastructure/Query/LabelTranslator.php:384
 msgid "Transition"
 msgstr "Omschakeling"
 
-#: src/Infrastructure/Query/LabelTranslator.php:380
+#: src/Infrastructure/Query/LabelTranslator.php:385
 msgid "Counter-attack"
 msgstr "Counter"
 
-#: src/Infrastructure/Query/LabelTranslator.php:381
+#: src/Infrastructure/Query/LabelTranslator.php:386
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:521
 msgid "Defending"
 msgstr "Verdedigen"
 
-#: src/Infrastructure/Query/LabelTranslator.php:383
+#: src/Infrastructure/Query/LabelTranslator.php:388
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:572
 msgid "Set pieces"
 msgstr "Spelhervattingen"
 
-#: src/Infrastructure/Query/LabelTranslator.php:384
+#: src/Infrastructure/Query/LabelTranslator.php:389
 msgid "1v1 duels"
 msgstr "1-tegen-1 duels"
 
-#: src/Infrastructure/Query/LabelTranslator.php:385
+#: src/Infrastructure/Query/LabelTranslator.php:390
 msgid "Possession"
 msgstr "Balbezit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:386
+#: src/Infrastructure/Query/LabelTranslator.php:391
 msgid "Mixed"
 msgstr "Gemengd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:406
+#: src/Infrastructure/Query/LabelTranslator.php:411
 msgid "Match day"
 msgstr "Wedstrijddag"
 
-#: src/Infrastructure/Query/LabelTranslator.php:407
+#: src/Infrastructure/Query/LabelTranslator.php:412
 msgid "No match context"
 msgstr "Geen wedstrijdcontext"
 
 #. translators: %d is the band number (1-10).
 #. translators: %d = intensity band 1-10
-#: src/Infrastructure/Query/LabelTranslator.php:421
+#: src/Infrastructure/Query/LabelTranslator.php:426
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:232
 #, php-format
 msgid "Intensity band %d"
 msgstr "Intensiteitsniveau %d"
 
-#: src/Infrastructure/Query/LabelTranslator.php:433
+#: src/Infrastructure/Query/LabelTranslator.php:438
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1047
 msgid "Draft"
 msgstr "Concept"
 
-#: src/Infrastructure/Query/LabelTranslator.php:434
+#: src/Infrastructure/Query/LabelTranslator.php:439
 msgid "Published"
 msgstr "Gepubliceerd"
+
+#: src/Infrastructure/Query/LabelTranslator.php:440
+#: src/Modules/Analytics/AnalyticsModule.php:182
+#: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
+#: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
+#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:36
+#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:583
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1429
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1747
+#: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:291
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:376
+#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
+#: src/Modules/Workflow/TaskStatus.php:66
+#: src/Shared/Frontend/FrontendExportsView.php:123
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:361
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:167
+#: src/Shared/Frontend/FrontendWizardView.php:780
+msgid "Completed"
+msgstr "Voltooid"
 
 #: src/Infrastructure/Query/QueryHelpers.php:544
 #: src/Modules/License/Admin/AccountPage.php:814
@@ -3042,7 +3012,7 @@ msgstr "Filteren"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1828
 #: src/Shared/Frontend/FrontendEvaluationsView.php:184
 #: src/Shared/Frontend/FrontendEvaluationsView.php:361
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:72
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:76
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
 #: src/Shared/Frontend/FrontendStandardReportsView.php:276
 #: src/Shared/Frontend/FrontendStandardReportsView.php:690
@@ -3088,7 +3058,7 @@ msgstr "Datum"
 #: src/Shared/Frontend/CoachForms.php:589
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1792
 #: src/Shared/Frontend/FrontendGoalsManageView.php:416
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:73
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:77
 #: src/Shared/Frontend/FrontendTeamDetailView.php:687
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
 msgid "Title"
@@ -3130,7 +3100,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:204
 #: src/Shared/Frontend/FrontendEvaluationsView.php:381
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:74
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:78
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:109
 #: src/Shared/Frontend/FrontendPeopleManageView.php:115
@@ -3376,7 +3346,7 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:295
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:324
 #: src/Shared/Frontend/FrontendGoalsManageView.php:303
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:75
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:79
 #: src/Shared/Frontend/FrontendMyProfileView.php:97
 #: src/Shared/Frontend/FrontendPeopleManageView.php:120
 #: src/Shared/Frontend/FrontendPeopleManageView.php:253
@@ -3558,6 +3528,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:260
 #: src/Shared/Frontend/CoachForms.php:530
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1874
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:80
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
 msgid "Location"
 msgstr "Locatie"
@@ -3593,7 +3564,6 @@ msgstr "— Alle —"
 #: src/Modules/Wizards/Activity/DetailsStep.php:79
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:105
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:275
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
 #: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php:62
@@ -3601,7 +3571,6 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/CoachDashboardView.php:229
 #: src/Shared/Frontend/CoachDashboardView.php:261
 #: src/Shared/Frontend/CoachDashboardView.php:263
-#: src/Shared/Frontend/CoachForms.php:342
 #: src/Shared/Frontend/CoachForms.php:531
 #: src/Shared/Frontend/CoachForms.php:536
 #: src/Shared/Frontend/DashboardShortcode.php:115
@@ -4106,7 +4075,7 @@ msgstr "Evaluatie-dekking"
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:271
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:407
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:141
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:142
 #: src/Shared/Frontend/PlayerDashboardView.php:177
 msgid "Activity"
 msgstr "Activiteit"
@@ -4156,6 +4125,15 @@ msgstr "Aanwezigheid versus selectie"
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:83
 msgid "Prospects logged per scout"
 msgstr "Prospects per scout vastgelegd"
+
+#: src/Modules/Analytics/CohortBoardService.php:112
+#: src/Modules/Configuration/Admin/MigrationsPage.php:122
+#: src/Modules/Invitations/InvitationStatus.php:61
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:339
+#: src/Shared/Frontend/FrontendExportsView.php:121
+#: src/Shared/Frontend/FrontendWizardView.php:782
+msgid "Pending"
+msgstr "In behandeling"
 
 #. translators: 1: schedule name, 2: KPI label
 #: src/Modules/Analytics/Cron/ScheduledReportsRunner.php:68
@@ -4209,6 +4187,15 @@ msgstr "Openen"
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:363
 msgid "In progress"
 msgstr "In uitvoering"
+
+#: src/Modules/Analytics/Domain/DimensionValueResolver.php:151
+#: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:296
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
+#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
+#: src/Modules/Workflow/TaskStatus.php:69
+msgid "Cancelled"
+msgstr "Geannuleerd"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:406
@@ -4634,7 +4621,7 @@ msgstr "Alle teams"
 #: src/Shared/Frontend/FrontendAuditLogView.php:334
 #: src/Shared/Frontend/FrontendConfigurationView.php:2343
 #: src/Shared/Frontend/FrontendEvaluationsView.php:212
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:83
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:88
 #: src/Shared/Frontend/FrontendReportWizardView.php:209
 #: src/Shared/Frontend/FrontendStandardReportsView.php:760
 msgid "From"
@@ -4654,7 +4641,7 @@ msgstr "Vanaf"
 #: src/Shared/Frontend/FrontendConfigurationView.php:2344
 #: src/Shared/Frontend/FrontendEvaluationsView.php:213
 #: src/Shared/Frontend/FrontendMailComposeView.php:117
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:84
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:89
 #: src/Shared/Frontend/FrontendStandardReportsView.php:762
 msgid "To"
 msgstr "T/m"
@@ -27327,7 +27314,7 @@ msgstr "Coach:"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:495
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:165
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:166
 msgid "Date:"
 msgstr "Datum:"
 
@@ -32686,24 +32673,24 @@ msgstr "Geleend van een ander team voor deze wedstrijd."
 msgid "%s detail mode"
 msgstr "%s detail-modus"
 
-# #1386 - player-visible evaluation feedback (v4.20.130). i18n-sync will
-# merge these into the proper position on next run.
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:289
-#: src/Shared/Frontend/CoachForms.php:344
-msgid "Feedback for the player"
-msgstr "Feedback voor de speler"
-
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:275
 #: src/Shared/Frontend/CoachForms.php:342
 msgid "Internal notes (staff only)"
 msgstr "Interne notities (alleen staf)"
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:280
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:281
 #: src/Shared/Frontend/CoachForms.php:342
 msgid "Not shown to the player — staff-only."
 msgstr "Niet zichtbaar voor de speler — alleen staf."
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:295
+# #1386 - player-visible evaluation feedback (v4.20.130). i18n-sync will
+# merge these into the proper position on next run.
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:290
+#: src/Shared/Frontend/CoachForms.php:344
+msgid "Feedback for the player"
+msgstr "Feedback voor de speler"
+
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:296
 #: src/Shared/Frontend/CoachForms.php:344
 msgid ""
 "Optional — what they did well and what to work on next. Shown to the player "
@@ -32712,7 +32699,7 @@ msgstr ""
 "Optioneel — wat ging goed en waaraan nog gewerkt kan worden. Zichtbaar voor "
 "de speler en de ouders."
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:303
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:304
 msgid "Skip this player (no evaluation written)"
 msgstr "Speler overslaan (geen evaluatie geschreven)"
 
@@ -35121,7 +35108,7 @@ msgstr ""
 "beheren wijst doelen toe en volgt deze."
 
 #: src/Shared/Frontend/CoachDashboardView.php:143
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:168
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:169
 #: src/Shared/Frontend/FrontendPlayersManageView.php:624
 #: src/Shared/Frontend/PlayerDashboardView.php:296
 msgid "Team:"
@@ -35906,7 +35893,7 @@ msgstr "Activiteit bewerken — %s"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:109
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:242
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:122
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:123
 msgid "Activity not found"
 msgstr "Activiteit niet gevonden"
 
@@ -38863,23 +38850,23 @@ msgid "Turn TalentTrack modules on or off."
 msgstr "Schakel TalentTrack-modules in of uit."
 
 # v3.92.7 — FrontendListTable migration of ?tt_view=my-activities + LookupTranslator::activityType helper
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:76
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:81
 msgid "Your status"
 msgstr "Jouw status"
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:87
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:92
 msgid "Search title, location, team…"
 msgstr "Zoek op titel, locatie of team…"
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:89
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:94
 msgid "No activities recorded for you yet."
 msgstr "Nog geen activiteiten voor je geregistreerd."
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:95
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:100
 msgid "No activities recorded for you yet"
 msgstr "Nog geen activiteiten voor jou vastgelegd"
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:96
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:101
 msgid ""
 "When your coach plans trainings or matches for your team, they show up here "
 "together with your attendance."
@@ -38887,26 +38874,26 @@ msgstr ""
 "Als je coach trainingen of wedstrijden voor je team plant, verschijnen ze "
 "hier samen met je aanwezigheid."
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:123
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:124
 msgid "That activity is no longer available."
 msgstr "Deze activiteit is niet meer beschikbaar."
 
 # v3.92.5 — Activity detail polish (PR 3 of pilot batch)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:171
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:172
 msgid "Opponent:"
 msgstr "Tegenstander:"
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:174
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:175
 msgid "Location:"
 msgstr "Locatie:"
 
 #. translators: %s = attendance status label (Present / Absent / Late / etc.)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:190
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:191
 #, php-format
 msgid "Your attendance: %s"
 msgstr "Jouw aanwezigheid: %s"
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:200
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:201
 msgid "Notes from your coach"
 msgstr "Opmerkingen van je coach"
 
@@ -43333,6 +43320,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "In Progress"
+#~ msgstr "In uitvoering"
+
+#~ msgid "On Hold"
+#~ msgstr "In de wacht"
 
 #~ msgid "Manual + scheduled database backups. Lives in wp-admin."
 #~ msgstr "Handmatige + geplande databaseback-ups. Beheerd in wp-admin."
