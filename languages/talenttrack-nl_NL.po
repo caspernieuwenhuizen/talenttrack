@@ -42913,28 +42913,6 @@ msgstr ""
 "Voer de eerste installatie uit of opnieuw uit: basisgegevens van de "
 "academie, je eerste team, je beheerdersprofiel en de dashboardpagina."
 
-#: src/Shared/Frontend/FrontendSetupView.php:65
-msgid ""
-"This flow sets up your academy basics, your first team, your admin profile, "
-"and the frontend dashboard page. Stop and resume any time — your progress is "
-"saved automatically."
-msgstr ""
-"Deze flow stelt de basisgegevens van je academie, je eerste team, je "
-"beheerdersprofiel en de frontend-dashboardpagina in. Stop en hervat wanneer "
-"je wilt — je voortgang wordt automatisch opgeslagen."
-
-#: src/Shared/Frontend/FrontendSetupView.php:276
-msgid ""
-"TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] "
-"shortcode. This creates that page and sets it as the site homepage, so "
-"coaches, players, and parents land straight on the dashboard when they sign "
-"in."
-msgstr ""
-"TalentTrack draait op een frontendpagina met de [talenttrack_dashboard] "
-"shortcode. Dit maakt die pagina aan en stelt deze in als de homepage van de "
-"site, zodat coaches, spelers en ouders meteen op het dashboard belanden "
-"wanneer ze inloggen."
-
 #~ msgid "Per-locale string overrides and the .po/.mo refresh job."
 #~ msgstr "Stringoverschrijvingen per taal en de .po/.mo-vernieuwingstaak."
 
