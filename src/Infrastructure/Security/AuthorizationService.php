@@ -441,12 +441,6 @@ class AuthorizationService {
         return $map;
     }
 
-    public static function userHasRole( int $user_id, string $role_slug ): bool {
-        $user = $user_id > 0 ? get_userdata( $user_id ) : false;
-        if ( ! $user ) return false;
-        return in_array( $role_slug, (array) $user->roles, true );
-    }
-
     /**
      * Debug diagnostic: return every active scope a user resolves to,
      * annotated with source (role_scope | legacy_team_people |
