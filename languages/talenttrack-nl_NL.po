@@ -43090,6 +43090,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php
+msgid "Pagination"
+msgstr "Paginering"
+
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php
+msgid "← Previous"
+msgstr "← Vorige"
+
 #~ msgid "Re-run the first-run onboarding wizard."
 #~ msgstr "Doorloop de eerste-keer-onboardingwizard opnieuw."
 
