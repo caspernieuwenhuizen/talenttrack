@@ -42,6 +42,14 @@ final class RestSmokeTest extends WP_UnitTestCase {
         // permission_callbacks. Idempotent.
         ( new RolesService() )->ensureCapabilities();
 
+        // A smoke test asserts on the response envelope, not on noise a
+        // downstream hook subscriber may emit. Suppress wpdb error echo so a
+        // secondary query inside a `do_action` listener (e.g. the journey
+        // subscriber on `tt_evaluation_saved`) can't flip the test to "risky"
+        // via unexpected output.
+        global $wpdb;
+        $wpdb->hide_errors();
+
         // Rebuild the REST server so every plugin route registers freshly
         // for this test (WP_UnitTestCase otherwise shares one across the
         // process and may have registered before the plugin booted).
@@ -114,7 +122,17 @@ final class RestSmokeTest extends WP_UnitTestCase {
     public function test_unauthenticated_request_is_denied( string $method, string $route ): void {
         wp_set_current_user( 0 );
 
-        $response = rest_do_request( new WP_REST_Request( $method, $route ) );
+        $request = new WP_REST_Request( $method, $route );
+        // Some routes validate a required arg (e.g. cohort-board's `team_id`)
+        // BEFORE the permission_callback runs; without it WP short-circuits to
+        // 400 and we never exercise the auth gate we're actually testing. Seed
+        // the common required params so every route reaches its
+        // permission_callback, where the unauthenticated denial lives. Unused
+        // params on the other routes are harmless.
+        $request->set_param( 'team_id', 1 );
+        $request->set_param( 'id', 1 );
+
+        $response = rest_do_request( $request );
         $status   = $response->get_status();
 
         $label = "$method $route";
