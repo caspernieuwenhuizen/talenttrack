@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T10:43:46+00:00\n"
+"POT-Creation-Date: 2026-06-26T10:59:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -160,9 +160,9 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2267
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2322
 #: src/Shared/Frontend/FrontendConfigurationView.php:2374
-#: src/Shared/Frontend/FrontendEvaluationsView.php:183
-#: src/Shared/Frontend/FrontendEvaluationsView.php:197
-#: src/Shared/Frontend/FrontendEvaluationsView.php:382
+#: src/Shared/Frontend/FrontendEvaluationsView.php:185
+#: src/Shared/Frontend/FrontendEvaluationsView.php:199
+#: src/Shared/Frontend/FrontendEvaluationsView.php:384
 #: src/Shared/Frontend/FrontendGoalsManageView.php:283
 #: src/Shared/Frontend/FrontendGoalsManageView.php:308
 #: src/Shared/Frontend/FrontendGoalsManageView.php:400
@@ -198,9 +198,9 @@ msgstr "Jugador"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:501
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
-#: src/Shared/Frontend/FrontendEvaluationsView.php:173
-#: src/Shared/Frontend/FrontendEvaluationsView.php:185
-#: src/Shared/Frontend/FrontendEvaluationsView.php:395
+#: src/Shared/Frontend/FrontendEvaluationsView.php:175
+#: src/Shared/Frontend/FrontendEvaluationsView.php:187
+#: src/Shared/Frontend/FrontendEvaluationsView.php:397
 #: src/Shared/Frontend/FrontendPeopleManageView.php:281
 #: src/Shared/Frontend/FrontendReportDetailView.php:192
 #: src/Shared/Frontend/FrontendRolesView.php:75
@@ -642,7 +642,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:760
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:77
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:132
-#: src/Shared/Frontend/FrontendEvaluationsView.php:319
+#: src/Shared/Frontend/FrontendEvaluationsView.php:321
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:93
 #: src/Shared/Frontend/FrontendHolidaysView.php:79
@@ -1148,7 +1148,7 @@ msgstr ""
 #: src/Shared/Admin/BulkActionsHelper.php:98
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1021
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
-#: src/Shared/Frontend/FrontendEvaluationsView.php:218
+#: src/Shared/Frontend/FrontendEvaluationsView.php:220
 #: src/Shared/Frontend/FrontendGoalsManageView.php:334
 #: src/Shared/Frontend/FrontendHolidaysView.php:68
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
@@ -1337,7 +1337,7 @@ msgstr "Otro"
 #: src/Shared/Admin/BulkActionsHelper.php:99
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1022
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1222
-#: src/Shared/Frontend/FrontendEvaluationsView.php:219
+#: src/Shared/Frontend/FrontendEvaluationsView.php:221
 #: src/Shared/Frontend/FrontendExportsView.php:124
 #: src/Shared/Frontend/FrontendGoalsManageView.php:335
 #: src/Shared/Frontend/FrontendHolidaysView.php:69
@@ -2806,8 +2806,8 @@ msgstr "Filtrar"
 #: src/Shared/Frontend/Components/DateInputComponent.php:30
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:487
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1828
-#: src/Shared/Frontend/FrontendEvaluationsView.php:182
-#: src/Shared/Frontend/FrontendEvaluationsView.php:359
+#: src/Shared/Frontend/FrontendEvaluationsView.php:184
+#: src/Shared/Frontend/FrontendEvaluationsView.php:361
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:72
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
 #: src/Shared/Frontend/FrontendStandardReportsView.php:276
@@ -2894,8 +2894,8 @@ msgstr "Título"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1770
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:95
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
-#: src/Shared/Frontend/FrontendEvaluationsView.php:202
-#: src/Shared/Frontend/FrontendEvaluationsView.php:379
+#: src/Shared/Frontend/FrontendEvaluationsView.php:204
+#: src/Shared/Frontend/FrontendEvaluationsView.php:381
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:74
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:109
@@ -3127,9 +3127,9 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:957
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1845
 #: src/Shared/Frontend/FrontendComparisonView.php:299
-#: src/Shared/Frontend/FrontendEvaluationsView.php:184
-#: src/Shared/Frontend/FrontendEvaluationsView.php:192
-#: src/Shared/Frontend/FrontendEvaluationsView.php:388
+#: src/Shared/Frontend/FrontendEvaluationsView.php:186
+#: src/Shared/Frontend/FrontendEvaluationsView.php:194
+#: src/Shared/Frontend/FrontendEvaluationsView.php:390
 #: src/Shared/Frontend/FrontendExportsView.php:91
 #: src/Shared/Frontend/FrontendExportsView.php:107
 #: src/Shared/Frontend/FrontendExportsView.php:119
@@ -3368,8 +3368,8 @@ msgstr "— Todos —"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2246
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2277
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2324
-#: src/Shared/Frontend/FrontendEvaluationsView.php:187
-#: src/Shared/Frontend/FrontendEvaluationsView.php:474
+#: src/Shared/Frontend/FrontendEvaluationsView.php:189
+#: src/Shared/Frontend/FrontendEvaluationsView.php:476
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:122
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:170
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1724
@@ -3683,8 +3683,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
 #: src/Shared/Frontend/FrontendEvaluationsView.php:124
-#: src/Shared/Frontend/FrontendEvaluationsView.php:287
-#: src/Shared/Frontend/FrontendEvaluationsView.php:299
+#: src/Shared/Frontend/FrontendEvaluationsView.php:289
+#: src/Shared/Frontend/FrontendEvaluationsView.php:301
 #: src/Shared/Frontend/FrontendExportsView.php:366
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:157
 #: src/Shared/Frontend/FrontendMySettingsView.php:204
@@ -4374,7 +4374,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:336
 #: src/Shared/Frontend/FrontendAuditLogView.php:334
 #: src/Shared/Frontend/FrontendConfigurationView.php:2335
-#: src/Shared/Frontend/FrontendEvaluationsView.php:210
+#: src/Shared/Frontend/FrontendEvaluationsView.php:212
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:83
 #: src/Shared/Frontend/FrontendReportWizardView.php:209
 #: src/Shared/Frontend/FrontendStandardReportsView.php:760
@@ -4393,7 +4393,7 @@ msgstr "Desde"
 #: src/Shared/Frontend/Components/FrontendListTable.php:337
 #: src/Shared/Frontend/FrontendAuditLogView.php:338
 #: src/Shared/Frontend/FrontendConfigurationView.php:2336
-#: src/Shared/Frontend/FrontendEvaluationsView.php:211
+#: src/Shared/Frontend/FrontendEvaluationsView.php:213
 #: src/Shared/Frontend/FrontendMailComposeView.php:117
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:84
 #: src/Shared/Frontend/FrontendStandardReportsView.php:762
@@ -4537,7 +4537,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:791
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:147
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
-#: src/Shared/Frontend/FrontendEvaluationsView.php:435
+#: src/Shared/Frontend/FrontendEvaluationsView.php:437
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:118
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:160
 msgid "Rating"
@@ -5197,8 +5197,8 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:259
 #: src/Shared/Admin/BulkActionsHelper.php:169
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:232
-#: src/Shared/Frontend/FrontendEvaluationsView.php:216
-#: src/Shared/Frontend/FrontendEvaluationsView.php:325
+#: src/Shared/Frontend/FrontendEvaluationsView.php:218
+#: src/Shared/Frontend/FrontendEvaluationsView.php:327
 #: src/Shared/Frontend/FrontendGoalsManageView.php:117
 #: src/Shared/Frontend/FrontendGoalsManageView.php:332
 #: src/Shared/Frontend/FrontendHolidaysView.php:84
@@ -10825,7 +10825,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:209
 #: src/Shared/Frontend/CoachForms.php:225
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:471
-#: src/Shared/Frontend/FrontendEvaluationsView.php:408
+#: src/Shared/Frontend/FrontendEvaluationsView.php:410
 msgid "Opponent"
 msgstr "Rival"
 
@@ -12394,7 +12394,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:207
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:316
 #: src/Shared/Frontend/FrontendComparisonView.php:582
-#: src/Shared/Frontend/FrontendEvaluationsView.php:434
+#: src/Shared/Frontend/FrontendEvaluationsView.php:436
 msgid "Category"
 msgstr "Categoría"
 
@@ -14783,7 +14783,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:219
 #: src/Shared/Frontend/CoachForms.php:235
-#: src/Shared/Frontend/FrontendEvaluationsView.php:412
+#: src/Shared/Frontend/FrontendEvaluationsView.php:414
 msgid "Result"
 msgstr "Resultado"
 
@@ -14811,7 +14811,7 @@ msgstr "Visitante"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:406
 #: src/Shared/Frontend/CoachDashboardView.php:221
 #: src/Shared/Frontend/CoachForms.php:237
-#: src/Shared/Frontend/FrontendEvaluationsView.php:420
+#: src/Shared/Frontend/FrontendEvaluationsView.php:422
 msgid "Minutes Played"
 msgstr ""
 
@@ -14820,7 +14820,7 @@ msgstr ""
 #: src/Modules/Reports/AudienceDefaults.php:106
 #: src/Shared/Frontend/CoachDashboardView.php:223
 #: src/Shared/Frontend/CoachForms.php:239
-#: src/Shared/Frontend/FrontendEvaluationsView.php:427
+#: src/Shared/Frontend/FrontendEvaluationsView.php:429
 #: src/Shared/Frontend/FrontendStandardReportsView.php:792
 #: src/Shared/Frontend/PlayerDashboardView.php:109
 msgid "Ratings"
@@ -16077,7 +16077,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:326
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:989
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1023
-#: src/Shared/Frontend/FrontendEvaluationsView.php:220
+#: src/Shared/Frontend/FrontendEvaluationsView.php:222
 #: src/Shared/Frontend/FrontendExportsView.php:96
 #: src/Shared/Frontend/FrontendExportsView.php:125
 #: src/Shared/Frontend/FrontendExportsView.php:196
@@ -35020,63 +35020,63 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:77
 #: src/Shared/Frontend/FrontendEvaluationsView.php:80
-#: src/Shared/Frontend/FrontendEvaluationsView.php:286
-#: src/Shared/Frontend/FrontendEvaluationsView.php:289
+#: src/Shared/Frontend/FrontendEvaluationsView.php:288
+#: src/Shared/Frontend/FrontendEvaluationsView.php:291
 msgid "Evaluation not found"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:81
-#: src/Shared/Frontend/FrontendEvaluationsView.php:290
+#: src/Shared/Frontend/FrontendEvaluationsView.php:292
 msgid "That evaluation no longer exists, or you do not have access."
 msgstr ""
 
 # v3.110.11 — Evaluations list table headers + eval detail "Evaluation of %s"
 # (Note: "Actions" already translated earlier in this file — only the
 # new strings are added here.)
-#: src/Shared/Frontend/FrontendEvaluationsView.php:186
+#: src/Shared/Frontend/FrontendEvaluationsView.php:188
 msgid "Average"
 msgstr "Promedio"
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:226
+#: src/Shared/Frontend/FrontendEvaluationsView.php:228
 msgid "Search player, notes…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:228
+#: src/Shared/Frontend/FrontendEvaluationsView.php:230
 msgid "No evaluations match your filters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:232
+#: src/Shared/Frontend/FrontendEvaluationsView.php:234
 msgid "No evaluations yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:233
+#: src/Shared/Frontend/FrontendEvaluationsView.php:235
 msgid ""
 "Evaluations capture how each player performed in a training or match. Record "
 "the first one after your next activity."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:234
+#: src/Shared/Frontend/FrontendEvaluationsView.php:236
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1107
 msgid "Record first evaluation"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Shared/Frontend/FrontendEvaluationsView.php:298
+#: src/Shared/Frontend/FrontendEvaluationsView.php:300
 #, php-format
 msgid "Evaluation — %s"
 msgstr ""
 
 #. translators: %s = player display name
-#: src/Shared/Frontend/FrontendEvaluationsView.php:303
+#: src/Shared/Frontend/FrontendEvaluationsView.php:305
 #, php-format
 msgid "Evaluation of %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:329
+#: src/Shared/Frontend/FrontendEvaluationsView.php:331
 msgid "Archive this evaluation? It will be hidden but the data is preserved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:429
+#: src/Shared/Frontend/FrontendEvaluationsView.php:431
 msgid "No ratings recorded for this evaluation."
 msgstr ""
 
