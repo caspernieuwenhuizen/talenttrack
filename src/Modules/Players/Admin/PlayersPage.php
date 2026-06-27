@@ -47,7 +47,7 @@ class PlayersPage {
 
         // v2.17.0: archive view filter.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pl' );
 
         // v3.85.4 — `?demo_scope=all` bypasses the demo-mode scope so an
         // admin can see every row, including the ones that never got
@@ -56,7 +56,7 @@ class PlayersPage {
         // and the admin has no way to clean them up.
         $demo_scope_mode = isset( $_GET['demo_scope'] ) && $_GET['demo_scope'] === 'all' ? 'all' : 'filtered';
         $scope = $demo_scope_mode === 'all' ? '' : QueryHelpers::apply_demo_scope( 'pl', 'player' );
-        $where = "WHERE pl.status='active' AND pl.{$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
+        $where = "WHERE pl.status='active' AND {$view_clause}" . $wpdb->prepare( " AND pl.club_id=%d", CurrentClub::id() ) . ( $ft ? $wpdb->prepare( " AND pl.team_id=%d", $ft ) : '' ) . $scope;
         // #0070 — also resolve the parent name + id so the list can show
         // it as a clickable column. Left join keeps the row when no
         // parent is set or the parent record was removed.

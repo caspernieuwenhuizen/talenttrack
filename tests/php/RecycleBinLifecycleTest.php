@@ -279,6 +279,30 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
         $this->assertSame( 'trashed_at IS NOT NULL', ArchiveRepository::filterClause( 'trashed' ) );
     }
 
+    /**
+     * The clause now references TWO columns (archived_at + trashed_at), and
+     * #2020 put trashed_at on all 20 archivable tables — so a list query that
+     * JOINs a second archivable table must qualify BOTH columns or MySQL
+     * raises "Column 'trashed_at' in where clause is ambiguous". The $alias
+     * argument qualifies EVERY column (regression for the players/goals/
+     * evaluations/activities list crash where only the first column was
+     * hand-prefixed).
+     */
+    public function test_filterClause_alias_qualifies_every_column(): void {
+        $this->assertSame(
+            'pl.archived_at IS NULL AND pl.trashed_at IS NULL',
+            ArchiveRepository::filterClause( 'active', 'pl' )
+        );
+        $this->assertSame(
+            'g.archived_at IS NOT NULL AND g.trashed_at IS NULL',
+            ArchiveRepository::filterClause( 'archived', 'g' )
+        );
+        $this->assertSame( 'a.trashed_at IS NULL', ArchiveRepository::filterClause( 'all', 'a' ) );
+        $this->assertSame( 'e.trashed_at IS NOT NULL', ArchiveRepository::filterClause( 'trashed', 'e' ) );
+        // No alias → unqualified (single-FROM-table callers keep working).
+        $this->assertSame( 'archived_at IS NULL AND trashed_at IS NULL', ArchiveRepository::filterClause( 'active' ) );
+    }
+
     public function test_sanitizeView_accepts_the_three_state_vocabulary(): void {
         $this->assertSame( 'trashed', ArchiveRepository::sanitizeView( 'trashed' ) );
         $this->assertSame( 'all', ArchiveRepository::sanitizeView( 'all' ) );

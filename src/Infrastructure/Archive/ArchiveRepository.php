@@ -641,11 +641,19 @@ class ArchiveRepository {
 
     /**
      * SQL fragment appending the 3-state lifecycle filter (#2021). Callers
-     * build their WHERE clauses; this returns one of:
+     * build their WHERE clauses; this returns one of (with $alias = ''):
      *   'active'   →  'archived_at IS NULL AND trashed_at IS NULL'
      *   'archived' →  'archived_at IS NOT NULL AND trashed_at IS NULL'
      *   'trashed'  →  'trashed_at IS NOT NULL'
      *   'all'      →  'trashed_at IS NULL'   (active + archived, NEVER trashed)
+     *
+     * Pass $alias (e.g. 'pl') when the host query JOINs another table — the
+     * clause now references TWO columns (archived_at + trashed_at), and since
+     * #2020 added `trashed_at` to all 20 archivable tables, an unqualified
+     * `trashed_at` is ambiguous the moment the query joins a second archivable
+     * table. $alias qualifies EVERY column so callers must NOT hand-prepend a
+     * prefix (doing both yields `pl.pl.archived_at`). Callers without a join
+     * (single FROM table) may omit it.
      *
      * The contract that makes the bin safe: EVERY per-entity list view
      * (active / archived / all) excludes trashed rows. A trashed minor's row
@@ -657,13 +665,14 @@ class ArchiveRepository {
      * the only behavioural change is that `all` and `archived` now also hide
      * trashed rows, which is the intended bin isolation.
      */
-    public static function filterClause( string $view ): string {
+    public static function filterClause( string $view, string $alias = '' ): string {
+        $q = $alias !== '' ? rtrim( $alias, '.' ) . '.' : '';
         switch ( $view ) {
-            case 'archived': return 'archived_at IS NOT NULL AND trashed_at IS NULL';
-            case 'trashed':  return 'trashed_at IS NOT NULL';
-            case 'all':      return 'trashed_at IS NULL';
+            case 'archived': return "{$q}archived_at IS NOT NULL AND {$q}trashed_at IS NULL";
+            case 'trashed':  return "{$q}trashed_at IS NOT NULL";
+            case 'all':      return "{$q}trashed_at IS NULL";
             case 'active':
-            default:         return 'archived_at IS NULL AND trashed_at IS NULL';
+            default:         return "{$q}archived_at IS NULL AND {$q}trashed_at IS NULL";
         }
     }
 

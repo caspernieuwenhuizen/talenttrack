@@ -42,7 +42,7 @@ class EvaluationsPage {
 
         // v2.17.0: archive view filter + bulk actions.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'e' );
 
         // #0063 — rich selection criteria pattern (mirrors People page).
         $f_search    = isset( $_GET['s'] )         ? sanitize_text_field( wp_unslash( (string) $_GET['s'] ) )         : '';
@@ -50,7 +50,7 @@ class EvaluationsPage {
         $f_date_to   = isset( $_GET['date_to'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['date_to'] ) )   : '';
         $f_type_id   = isset( $_GET['eval_type'] ) ? absint( $_GET['eval_type'] )                                     : 0;
 
-        $where  = [ "e.{$view_clause}" ];
+        $where  = [ "{$view_clause}" ];
         $params = [];
         if ( $f_search !== '' ) {
             $like   = '%' . $wpdb->esc_like( $f_search ) . '%';
