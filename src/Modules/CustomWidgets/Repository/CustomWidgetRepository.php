@@ -195,7 +195,8 @@ final class CustomWidgetRepository {
             isset( $row['updated_by'] ) ? (int) $row['updated_by'] : null,
             (string) ( $row['created_at'] ?? '' ),
             $row['updated_at'] ?? null,
-            $row['archived_at'] ?? null
+            $row['archived_at'] ?? null,
+            $row['trashed_at'] ?? null
         );
     }
 }

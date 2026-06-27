@@ -127,6 +127,13 @@ class DashboardShortcode {
                 'confirm_delete_goal_title' => __( 'Delete goal?', 'talenttrack' ),
                 'delete_label'              => __( 'Delete', 'talenttrack' ),
                 'deleted_goal'              => __( 'Goal deleted.', 'talenttrack' ),
+                // #2023 — recycle-bin move: Undo banner + cascade-preview dialog.
+                'undo'              => __( 'Undo', 'talenttrack' ),
+                'cascade_none'      => __( 'No linked records.', 'talenttrack' ),
+                'cascade_removed'   => __( 'Linked records that will be removed on purge:', 'talenttrack' ),
+                'cascade_kept'      => __( 'References that will be cleared:', 'talenttrack' ),
+                'cascade_zeroed'    => __( 'References that will be reset:', 'talenttrack' ),
+                'cascade_blockers'  => __( 'Records that currently block a permanent delete:', 'talenttrack' ),
             ],
         ]);
 

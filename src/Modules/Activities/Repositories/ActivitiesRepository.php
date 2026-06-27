@@ -509,16 +509,14 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // #1555 — Active / Archived / All status filter, mirroring the
+        // #1555 — Active / Archived status filter, mirroring the
         // goals/players/teams archive lifecycle. 'active' (default) keeps
         // the historical behaviour of hiding archived rows.
+        // #2023 — through filterClause (alias 's') so every state also hides
+        // trashed (recycle-bin) rows; the query joins tt_teams (also
+        // archivable), so the alias keeps trashed_at unambiguous.
         $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $archived_view );
-        $where  = [ 's.club_id = %d' ];
-        if ( $archived_view === 'active' ) {
-            $where[] = 's.archived_at IS NULL';
-        } elseif ( $archived_view === 'archived' ) {
-            $where[] = 's.archived_at IS NOT NULL';
-        }
+        $where  = [ 's.club_id = %d', \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 's' ) ];
         $params = [ CurrentClub::id() ];
 
         // #1862 — cancelled activities are noise on the schedule, so hide

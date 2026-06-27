@@ -195,7 +195,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // separate destination-gating issue tracks that for the same
         // architectural pattern as #1106.
         // #1470 — Restore + gated permanent-delete on archived rows.
-        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'players', 'tt_edit_players' );
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'players', 'tt_edit_players', 'player' );
 
         echo '<div class="tt-players-manage">';
         echo FrontendListTable::render( [
@@ -239,9 +239,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'type'    => 'select',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
+                        // #2023 — "All" dropped: trashed rows never appear in
+                        // per-entity lists (the bin is the only surface for
+                        // them), so Active | Archived is the full vocabulary.
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
-                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
                 // #0093 — "Unassigned" lens. Surfaces active players who

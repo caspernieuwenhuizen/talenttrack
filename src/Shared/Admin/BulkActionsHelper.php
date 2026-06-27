@@ -94,10 +94,11 @@ class BulkActionsHelper {
         $counts = $repo->counts( $entity );
         $base   = remove_query_arg( [ 'tt_view', 'paged' ], $base_url );
 
+        // #2023 — "All" dropped: trashed rows never appear in per-entity
+        // lists; the recycle bin is their only surface. Active | Archived.
         $views = [
             'active'   => __( 'Active', 'talenttrack' ),
             'archived' => __( 'Archived', 'talenttrack' ),
-            'all'      => __( 'All', 'talenttrack' ),
         ];
         ?>
         <ul class="subsubsub" style="margin:10px 0 8px;">

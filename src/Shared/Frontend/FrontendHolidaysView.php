@@ -99,7 +99,7 @@ final class FrontendHolidaysView extends FrontendViewBase {
                 ],
                 // #1784 — Restore + referential-integrity permanent delete,
                 // shown only on archived rows.
-            ], ArchiveRowActions::build( 'holidays', 'tt_manage_holidays' ) ),
+            ], ArchiveRowActions::build( 'holidays', 'tt_manage_holidays', 'holiday' ) ),
             'search'       => [ 'placeholder' => __( 'Search holidays…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'start_date', 'order' => 'asc' ],
             'empty_state'  => __( 'No holidays match your search.', 'talenttrack' ),

@@ -212,19 +212,19 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     'label_from' => __( 'From', 'talenttrack' ),
                     'label_to'   => __( 'To',   'talenttrack' ),
                 ],
-                // #1470 — Active / Archived / All status filter.
+                // #1470 — Active / Archived status filter. #2023 — "All"
+                // dropped: trashed rows live only in the recycle bin.
                 'archived' => [
                     'type'    => 'select',
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
-                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
             ] ),
             // #1470 — Restore + gated permanent-delete on archived rows.
-            'row_actions'  => \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'evaluations', 'tt_edit_evaluations' ),
+            'row_actions'  => \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'evaluations', 'tt_edit_evaluations', 'evaluation' ),
             'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No evaluations match your filters.', 'talenttrack' ),

@@ -180,9 +180,10 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     'type'    => 'select',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
+                        // #2023 — "All" dropped: trashed rows never appear in
+                        // per-entity lists; Active | Archived is the full set.
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
-                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
             ],

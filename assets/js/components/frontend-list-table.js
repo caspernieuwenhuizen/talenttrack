@@ -114,6 +114,12 @@
                                 ' data-rest-path="' + escapeHtml(fillTemplate(a.rest_path, row)) + '"' +
                                 ' data-row-id="' + escapeHtml(row.id == null ? '' : row.id) + '"';
                 if (a.confirm) dataAttrs += ' data-confirm="' + escapeHtml(a.confirm) + '"';
+                // #2023 — recycle-bin "Move to recycle bin" affordances:
+                // confirm_cascade triggers the itemized cascade-preview
+                // dialog; success_message + undo_path drive the Undo banner.
+                if (a.confirm_cascade) dataAttrs += ' data-confirm-cascade="' + escapeHtml(a.confirm_cascade) + '"';
+                if (a.success_message) dataAttrs += ' data-success-message="' + escapeHtml(a.success_message) + '"';
+                if (a.undo_path) dataAttrs += ' data-undo-path="' + escapeHtml(fillTemplate(a.undo_path, row)) + '"';
                 var cls = 'tt-list-table-action' + (a.variant === 'danger' ? ' tt-list-table-action-danger' : '');
                 out += '<button type="button" class="' + cls + '"' + dataAttrs + '>' + label + '</button>';
             }
@@ -356,6 +362,69 @@
         });
     }
 
+    function i18n(key, fallback) {
+        return (window.TT && TT.i18n && TT.i18n[key]) || fallback;
+    }
+
+    /**
+     * #2023 — build the itemized cascade-preview HTML (caller-escaped) for
+     * the "Move to recycle bin" confirm dialog. Renders the rows a later
+     * purge would remove / null / zero, plus any current blockers (shown
+     * informationally; the move itself is never blocked).
+     */
+    function buildCascadeDetails(preview) {
+        if (!preview) return '';
+        var removals = (preview.removals || []);
+        var nulls    = (preview.nullifications || []);
+        var zeros    = (preview.zeroings || []);
+        var blockers = preview.blockers || {};
+        var blockerKeys = Object.keys(blockers);
+
+        function tidy(name) { return String(name).replace(/^tt_/, '').replace(/_/g, ' '); }
+        function listFrom(items, withColumn) {
+            var li = items.map(function(it) {
+                var label = tidy(it.table) + (withColumn && it.column ? ' (' + escapeHtml(it.column) + ')' : '');
+                return '<li>' + escapeHtml(label) + ' — ' + escapeHtml(String(it.count)) + '</li>';
+            });
+            return li.join('');
+        }
+
+        var out = '';
+        if (!removals.length && !nulls.length && !zeros.length && !blockerKeys.length) {
+            out += '<p class="tt-cascade-empty">' + escapeHtml(i18n('cascade_none', 'No linked records.')) + '</p>';
+            return out;
+        }
+        if (removals.length) {
+            out += '<p class="tt-cascade-heading">' + escapeHtml(i18n('cascade_removed', 'Linked records that will be removed on purge:')) + '</p>';
+            out += '<ul class="tt-cascade-list">' + listFrom(removals, false) + '</ul>';
+        }
+        if (nulls.length) {
+            out += '<p class="tt-cascade-heading">' + escapeHtml(i18n('cascade_kept', 'References that will be cleared:')) + '</p>';
+            out += '<ul class="tt-cascade-list">' + listFrom(nulls, true) + '</ul>';
+        }
+        if (zeros.length) {
+            out += '<p class="tt-cascade-heading">' + escapeHtml(i18n('cascade_zeroed', 'References that will be reset:')) + '</p>';
+            out += '<ul class="tt-cascade-list">' + listFrom(zeros, true) + '</ul>';
+        }
+        if (blockerKeys.length) {
+            var bItems = blockerKeys.map(function(t) { return { table: t, count: blockers[t] }; });
+            out += '<p class="tt-cascade-heading tt-cascade-heading-blocker">' + escapeHtml(i18n('cascade_blockers', 'Records that currently block a permanent delete:')) + '</p>';
+            out += '<ul class="tt-cascade-list tt-cascade-list-blocker">' + listFrom(bItems, false) + '</ul>';
+        }
+        return out;
+    }
+
+    function fetchCascadePreview(entity, id) {
+        var rest = getRest();
+        var headers = { 'Accept': 'application/json' };
+        if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
+        var url = rest.url + 'recycle-bin/preview/' + encodeURIComponent(entity) + '/' + encodeURIComponent(id);
+        return fetch(url, { credentials: 'same-origin', headers: headers })
+            .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
+            .then(function(r) { return (r.ok && r.json && r.json.success) ? r.json.data : null; })
+            .catch(function() { return null; });
+    }
+
     function bindRowActions(root) {
         var tbody = root.querySelector('[data-tt-list-body="1"]');
         if (!tbody) return;
@@ -366,6 +435,29 @@
             var method = btn.getAttribute('data-rest-method') || 'POST';
             var confirmText = btn.getAttribute('data-confirm');
             var successMsg = btn.getAttribute('data-success-message');
+            var cascadeEntity = btn.getAttribute('data-confirm-cascade');
+            var undoPath = btn.getAttribute('data-undo-path');
+            var rowId = btn.getAttribute('data-row-id');
+
+            // After a successful trash, offer an Undo banner that restores the
+            // row straight out of the bin (POST {plural}/{id}/restore).
+            var offerUndo = function() {
+                if (!undoPath || !window.ttFlash || !window.ttFlash.addAction) {
+                    if (successMsg && window.ttFlash && window.ttFlash.add) {
+                        window.ttFlash.add('success', successMsg);
+                    }
+                    return;
+                }
+                window.ttFlash.addAction('success', successMsg || '', i18n('undo', 'Undo'), function() {
+                    var rest = getRest();
+                    var headers = { 'Accept': 'application/json' };
+                    if (rest.nonce) headers['X-WP-Nonce'] = rest.nonce;
+                    fetch(rest.url + undoPath.replace(/^\/+/, ''), { method: 'POST', credentials: 'same-origin', headers: headers })
+                        .then(function() { refresh(root); })
+                        .catch(function() { setStatus(root, 'error', root._ttListConfig.i18n.error); });
+                });
+            };
+
             var doAction = function() {
                 var rest = getRest();
                 var headers = { 'Accept': 'application/json' };
@@ -375,12 +467,14 @@
                     .then(function(res) { return res.json().then(function(json) { return { ok: res.ok, json: json }; }); })
                     .then(function(r) {
                         if (r.ok && r.json && r.json.success) {
-                            if (successMsg && window.ttFlash && window.ttFlash.addNear) {
+                            if (undoPath) {
+                                offerUndo();
+                            } else if (successMsg && window.ttFlash && window.ttFlash.addNear) {
                                 window.ttFlash.addNear(btn, 'success', successMsg);
                             }
                             refresh(root);
                         } else {
-                            var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || (window.TT && TT.i18n && TT.i18n.error_generic) || 'Error.';
+                            var msg = (r.json && r.json.errors && r.json.errors[0] && r.json.errors[0].message) || i18n('error_generic', 'Error.');
                             setStatus(root, 'error', msg);
                             btn.disabled = false;
                         }
@@ -390,6 +484,23 @@
                         btn.disabled = false;
                     });
             };
+
+            // #2023 — recycle-bin move: fetch + show the itemized cascade
+            // preview in the shared confirm dialog before trashing.
+            if (cascadeEntity && rowId) {
+                if (typeof window.ttConfirm !== 'function') { if (window.confirm(confirmText || '')) doAction(); return; }
+                fetchCascadePreview(cascadeEntity, rowId).then(function(preview) {
+                    window.ttConfirm({
+                        title: btn.textContent,
+                        message: confirmText || '',
+                        detailsHtml: buildCascadeDetails(preview),
+                        confirmLabel: btn.textContent,
+                        danger: true
+                    }).then(function(ok) { if (ok) doAction(); });
+                });
+                return;
+            }
+
             if (!confirmText) { doAction(); return; }
             if (typeof window.ttConfirm === 'function') {
                 window.ttConfirm({ message: confirmText, danger: true }).then(function(ok) { if (ok) doAction(); });

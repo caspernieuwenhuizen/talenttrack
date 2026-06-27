@@ -47,6 +47,7 @@ final class CustomWidget {
     public string $createdAt;
     public ?string $updatedAt;
     public ?string $archivedAt;
+    public ?string $trashedAt;
 
     /**
      * @param array<string,mixed> $definition
@@ -63,7 +64,8 @@ final class CustomWidget {
         ?int $updatedBy = null,
         string $createdAt = '',
         ?string $updatedAt = null,
-        ?string $archivedAt = null
+        ?string $archivedAt = null,
+        ?string $trashedAt = null
     ) {
         $this->id           = $id;
         $this->clubId       = $clubId;
@@ -77,6 +79,7 @@ final class CustomWidget {
         $this->createdAt    = $createdAt;
         $this->updatedAt    = $updatedAt;
         $this->archivedAt   = $archivedAt;
+        $this->trashedAt    = $trashedAt;
     }
 
     /**
@@ -94,7 +97,7 @@ final class CustomWidget {
             'updated_by'     => $this->updatedBy,
             'created_at'     => $this->createdAt,
             'updated_at'     => $this->updatedAt,
-            'archived_at'    => $this->archivedAt,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::fromValues( $this->archivedAt, $this->trashedAt );
     }
 }

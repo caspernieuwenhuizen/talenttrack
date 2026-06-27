@@ -373,7 +373,7 @@ class TrialsRestController {
             'extension_count' => (int) $row->extension_count,
             'decision'        => $row->decision ? (string) $row->decision : null,
             'created_at'      => (string) $row->created_at,
-            'archived_at'     => $row->archived_at ? (string) $row->archived_at : null,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 }

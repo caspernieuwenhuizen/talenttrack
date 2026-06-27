@@ -43596,6 +43596,53 @@ msgid ""
 msgstr ""
 "Alleen de geplande datum kan worden gewijzigd totdat het vorige gesprek is "
 "afgetekend."
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Move to recycle bin"
+msgstr "Naar prullenbak"
+
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Move this record to the recycle bin? You can restore it from the bin until it is purged."
+msgstr "Dit record naar de prullenbak verplaatsen? Je kunt het herstellen vanuit de prullenbak totdat het definitief wordt verwijderd."
+
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Moved to the recycle bin."
+msgstr "Naar de prullenbak verplaatst."
+
+#: src/Infrastructure/Archive/RecycleBinRestActions.php
+msgid "Only archived records can be moved to the recycle bin."
+msgstr "Alleen gearchiveerde records kunnen naar de prullenbak worden verplaatst."
+
+#: src/Infrastructure/Archive/RecycleBinRestActions.php
+msgid "Invalid id."
+msgstr "Ongeldig id."
+
+#: src/Infrastructure/REST/RecycleBinRestController.php
+msgid "Unknown entity or id."
+msgstr "Onbekend type of id."
+
+#: src/Infrastructure/REST/RecycleBinRestController.php
+msgid "Record not found."
+msgstr "Record niet gevonden."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "No linked records."
+msgstr "Geen gekoppelde records."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Linked records that will be removed on purge:"
+msgstr "Gekoppelde records die bij definitief verwijderen worden gewist:"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "References that will be cleared:"
+msgstr "Verwijzingen die worden gewist:"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "References that will be reset:"
+msgstr "Verwijzingen die worden teruggezet:"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Records that currently block a permanent delete:"
+msgstr "Records die definitief verwijderen op dit moment blokkeren:"
 
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"

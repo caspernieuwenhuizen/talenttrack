@@ -989,11 +989,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ];
         }
 
-        // --- Active / Archived / All status (#1555). Link-based, same base.
+        // --- Active / Archived status (#1555). Link-based, same base.
+        // #2023 — "All" dropped: trashed rows never appear in per-entity
+        // lists (the recycle bin is the only surface for them).
         $status_labels = [
             'active'   => __( 'Active', 'talenttrack' ),
             'archived' => __( 'Archived', 'talenttrack' ),
-            'all'      => __( 'All', 'talenttrack' ),
         ];
         $status_base = $pill_base;
         if ( $period_filter !== '' ) $status_base['period'] = $period_filter;
