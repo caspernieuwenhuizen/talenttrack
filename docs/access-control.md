@@ -128,6 +128,21 @@ Player records reference `wp_user_id` directly today. The future SaaS auth model
 
 A player can hide individual development sections (evaluations, goals, journey, measurements, PDP) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. Both the rendered views and the section REST reads consult the gate.
 
+## Parent → child link model (#1993)
+
+The `tt_player_parents` pivot (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is the **single authoritative** answer to "which children does this parent have". `ParentChildResolver` reads this pivot — club-scoped, `status = 'active'`, ordered most-recent link first — and every consumer (the dashboard child switcher, the me-view authorization, the goal-thread participant graph, the parent KPI) calls into it, so they all agree on who is a parent of whom.
+
+`tt_players.guardian_email` is **not** a live linkage source. It is an invite/seed hint: it may *create* a `tt_player_parents` row when a parent is invited, imported, or seeded, but it is never queried at runtime to decide access. A parent linked only by a matching `guardian_email` (and no pivot row) will not surface until they are re-linked through the invite/seed path or by an admin — there is no backfill.
+
+## Parent dashboard and child-scoped me-views (#1991 / #1992)
+
+A guardian who is linked to a player but has no own player record now reaches **their child's** record:
+
+- **Landing dashboard** — the legacy tile grid renders a parent-specific, child-scoped surface for a parent viewer: the child's name + photo anchor the screen, only a curated tile subset (development, player card, evaluations, activities, development plan) is shown, each tile carries the child's `?player_id=N`, and the "work of today" column is hidden (the screen is the child's record, not a task list). A **child switcher** appears when the parent is linked to more than one child.
+- **Me-views** — opening `?tt_view=my-development` (and the other `my-*` slugs) resolves the subject from the parent's linked child via `ParentChildResolver`. Single-child parents auto-resolve; multi-child parents see a child picker first (the most-recent child is the default once chosen). The dispatch gate authorizes the **resolved target** through `AuthorizationService::canViewPlayer( $user_id, $target_id )` — not "is the viewer a player" — so a parent passes for their own child via the parent scope, and a user with no own player and no linked child is still denied. The same `canViewPlayer` authority backs `GET /players/{id}` (REST parity), so a SaaS front end gets the same answer.
+
+The persona dashboard (`persona_dashboard.enabled`) ships a parallel, richer parent experience; when it is switched off on an install, the legacy grid's parent-awareness above is what a parent sees.
+
 ## Operator-facing security and privacy guides
 
 Two cap-and-matrix-adjacent operator guides shipped in v3.97.2 (#0086 Workstream A):

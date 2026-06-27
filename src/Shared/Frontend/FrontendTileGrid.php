@@ -36,6 +36,17 @@ class FrontendTileGrid {
      */
     public static function render(): void {
         $user_id = get_current_user_id();
+
+        // #1992 — a parent (no own player row, ≥1 linked child) gets a
+        // CHILD-SCOPED rail, not the player-self Me-tiles, and no empty
+        // "work of today" column. The decision (who is a parent viewer,
+        // which child, which tiles) lives in the domain layer (§4); this
+        // view only paints.
+        if ( \TT\Infrastructure\Players\ParentChildResolver::isParentViewer( $user_id ) ) {
+            self::renderParentGrid( $user_id );
+            return;
+        }
+
         $greeting = self::greeting( $user_id );
 
         // #0033 finalisation — tiles come from `TileRegistry`. The
@@ -612,6 +623,93 @@ class FrontendTileGrid {
         }
     }
 
+
+    /**
+     * #1992 — the parent's child-scoped landing. Anchored on the child's
+     * name + photo (§1), it renders ONLY the curated parent tile subset
+     * (child-framed labels, each carrying the child's ?player_id) and a
+     * child switcher when the parent has more than one linked child. The
+     * legacy "work of today" column is intentionally absent — the parent's
+     * screen is the child's record, not a task list.
+     *
+     * Active-child resolution + tile-set selection are domain decisions
+     * (ParentChildResolver / ParentDashboardTiles, §4); this method paints.
+     */
+    private static function renderParentGrid( int $user_id ): void {
+        $children = \TT\Infrastructure\Players\ParentChildResolver::children( $user_id );
+        if ( empty( $children ) ) {
+            // Defensive — isParentViewer() already guaranteed ≥1, but never
+            // render a broken anchor.
+            return;
+        }
+
+        // Active child: explicit ?tt_child when it's one of THIS parent's
+        // children, else the most-recent (children[0]).
+        $requested = isset( $_GET['tt_child'] ) ? absint( $_GET['tt_child'] ) : 0;
+        $active    = $children[0];
+        if ( $requested > 0 ) {
+            foreach ( $children as $c ) {
+                if ( (int) $c->id === $requested ) { $active = $c; break; }
+            }
+        }
+        $child_id   = (int) $active->id;
+        $child_name = trim( QueryHelpers::player_display_name( $active ) );
+        $photo      = (string) ( $active->photo_url ?? '' );
+
+        $base  = self::shortcodeBaseUrl();
+        $tiles = \TT\Infrastructure\Players\ParentDashboardTiles::tiles();
+
+        echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
+        echo '<div class="tt-parent-dash">';
+
+        // Child anchor — name + photo (§1).
+        echo '<div class="tt-parent-dash-anchor">';
+        if ( $photo !== '' ) {
+            echo '<img class="tt-parent-dash-photo" src="' . esc_url( $photo ) . '" alt="" loading="lazy" width="56" height="56" />';
+        } else {
+            echo '<span class="tt-parent-dash-photo tt-parent-dash-photo--blank" aria-hidden="true">'
+                . esc_html( self::childInitials( $active ) ) . '</span>';
+        }
+        echo '<div class="tt-parent-dash-anchor-text">';
+        echo '<div class="tt-parent-dash-eyebrow">' . esc_html__( 'My child', 'talenttrack' ) . '</div>';
+        echo '<h2 class="tt-parent-dash-name">' . esc_html( $child_name !== '' ? $child_name : __( 'Player', 'talenttrack' ) ) . '</h2>';
+        echo '</div>';
+        echo '</div>';
+
+        // Child switcher (only when >1 linked child).
+        \TT\Shared\Frontend\Components\ParentChildSwitcher::renderInlineSwitcher( $children, $child_id, $base );
+
+        // Curated, child-scoped tile rail.
+        echo '<div class="tt-parent-dash-grid">';
+        foreach ( $tiles as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? '' );
+            if ( $slug === '' ) continue;
+            $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => $slug, 'player_id' => $child_id ],
+                $base
+            ) );
+            $chip  = TileIconChip::render(
+                (string) ( $tile['icon'] ?? '' ),
+                (string) ( $tile['color'] ?? '#0b3d2e' )
+            );
+            $label = esc_html( (string) ( $tile['label'] ?? '' ) );
+            echo '<a class="tt-parent-dash-tile" href="' . esc_url( $url ) . '">';
+            echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs; IconRenderer returns trusted SVG.
+            echo '<span class="tt-parent-dash-tile-label">' . $label . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above.
+            echo '</a>';
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+
+    private static function childInitials( object $child ): string {
+        $first = (string) ( $child->first_name ?? '' );
+        $last  = (string) ( $child->last_name ?? '' );
+        $a = $first !== '' ? mb_substr( $first, 0, 1 ) : '';
+        $b = $last !== ''  ? mb_substr( $last, 0, 1 )  : '';
+        $out = strtoupper( $a . $b );
+        return $out !== '' ? $out : '?';
+    }
 
     private static function greeting( int $user_id ): string {
         $user = get_userdata( $user_id );

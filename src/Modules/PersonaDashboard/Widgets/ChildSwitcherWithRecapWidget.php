@@ -13,11 +13,10 @@ use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 /**
  * ChildSwitcherWithRecapWidget — Parent landing hero.
  *
- * Resolves the parent's children by matching the parent user's email
- * against tt_players.guardian_email (the canonical link until a richer
- * tt_player_parents table lands). For each child, counts evaluations
- * created since tt_user_meta.tt_last_visited_at — the "since you last
- * visited" recap.
+ * Resolves the parent's children from the canonical tt_player_parents
+ * pivot via ParentChildResolver (#1993 — guardian_email is no longer a
+ * live linkage source). For each child, counts evaluations created since
+ * tt_user_meta.tt_last_visited_at — the "since you last visited" recap.
  */
 class ChildSwitcherWithRecapWidget extends AbstractWidget {
 
@@ -44,7 +43,7 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
     public function personaContext(): string { return PersonaContext::PLAYER_PARENT; }
 
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
-        $children = self::fetchChildren( $ctx->user_id, $ctx->club_id );
+        $children = self::fetchChildren( $ctx->user_id );
         $since    = self::lastVisited( $ctx->user_id );
         $recap    = self::recap( $children, $since );
 
@@ -99,34 +98,18 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
     }
 
     /**
+     * #1993 — resolve the parent's children from the canonical
+     * `tt_player_parents` pivot via ParentChildResolver, NOT by matching
+     * `tt_players.guardian_email` to the parent's WP email. This is what
+     * keeps the switcher in agreement with the me-view authorization
+     * (both read the same pivot): a parent linked in the pivot sees their
+     * child even when guardian_email is blank or different. The resolver
+     * already scopes to the current club and `status = 'active'`.
+     *
      * @return list<object>
      */
-    private static function fetchChildren( int $user_id, int $club_id ): array {
-        global $wpdb;
-        $user = get_user_by( 'id', $user_id );
-        if ( ! $user instanceof \WP_User ) return [];
-        $email = (string) $user->user_email;
-        if ( $email === '' ) return [];
-
-        $table = $wpdb->prefix . 'tt_players';
-        $has_club = null !== $wpdb->get_var( $wpdb->prepare(
-            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'club_id'",
-            $table
-        ) );
-        $club_clause = $has_club ? ' AND club_id = ' . (int) $club_id : '';
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, photo_url
-               FROM {$table}
-              WHERE guardian_email = %s
-                AND status = 'active'
-                {$club_clause}
-              ORDER BY last_name, first_name",
-            $email
-        ) );
-        return is_array( $rows ) ? $rows : [];
+    private static function fetchChildren( int $user_id ): array {
+        return \TT\Infrastructure\Players\ParentChildResolver::children( $user_id );
     }
 
     private static function lastVisited( int $user_id ): ?string {

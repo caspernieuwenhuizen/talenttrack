@@ -391,12 +391,29 @@ class DashboardShortcode {
      * "needs player record" notice and claim the slug.
      */
     private static function dispatchMeView( string $view, ?object $player ): bool {
+        $user_id = get_current_user_id();
+
+        // #1991 — multi-child parent gate. A parent with no own player row
+        // and >1 linked child who opens a Me-view with no explicit
+        // ?player_id must CHOOSE which child to view — we never silently
+        // pick one. `teammate` is exempt (it reads player_id as the
+        // teammate id, not the subject). The picker is only for the slugs
+        // that resolve a subject from the parent's children.
+        if ( $view !== 'teammate' && self::needsChildPicker( $user_id, $player ) ) {
+            $children = \TT\Infrastructure\Players\ParentChildResolver::children( $user_id );
+            \TT\Shared\Frontend\Components\ParentChildSwitcher::renderPickerPage( $view, $children );
+            return true;
+        }
+
         // #1849 — a parent (or any authorised viewer) opens a CHILD's My-X
         // section via ?player_id=N, scoped by canViewPlayer (own children
         // only). `$target` is that child when supplied + authorised, else the
-        // viewer's own player record. `teammate` keeps `$player` (the viewer's
-        // own) because it reads player_id as the teammate id, not the subject.
-        $target = self::resolveMePlayer( get_current_user_id(), $player );
+        // viewer's own player record. #1991 — when the viewer has no own
+        // player row, `$target` resolves to the parent's (single / most-
+        // recent) linked child via tt_player_parents. `teammate` keeps
+        // `$player` (the viewer's own) because it reads player_id as the
+        // teammate id, not the subject.
+        $target = self::resolveMePlayer( $user_id, $player );
 
         // #1867 — a player can hide development sections from a linked
         // parent. The gate only ever restricts a parent (self + staff
@@ -530,17 +547,50 @@ class DashboardShortcode {
             $child = QueryHelpers::get_player( $pid );
             if ( $child ) return $child;
         }
-        return $own;
+        if ( $own ) return $own;
+
+        // #1991 — no explicit ?player_id and no own player record: resolve
+        // the parent's linked child from the canonical tt_player_parents
+        // pivot. Single child → that child; multi-child → the most-recent
+        // (the multi-child picker in dispatchMeView fires first, so we only
+        // reach here for the single-child case or when a child was already
+        // chosen). canViewPlayer below is the authority — this only picks
+        // the default subject.
+        return \TT\Infrastructure\Players\ParentChildResolver::defaultChild( $user_id );
+    }
+
+    /**
+     * #1991 — true when the viewer is a parent (no own player row) linked
+     * to more than one child AND has not yet chosen one via ?player_id.
+     * Those users get the child picker instead of a silently-picked child.
+     */
+    private static function needsChildPicker( int $user_id, ?object $own ): bool {
+        if ( $own ) return false;
+        $explicit = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+        if ( $explicit > 0 ) return false;
+        return \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 1;
     }
 
     /**
      * v3.110.172 — shared precondition helper for Me-group dispatch.
-     * Returns true when a player is linked and rendering can proceed.
+     * Returns true when a player is linked and the current user is
+     * authorised to view it; rendering can then proceed.
+     *
+     * #1991 — the gate now authorizes the RESOLVED TARGET via
+     * `AuthorizationService::canViewPlayer`, not merely "is the viewer a
+     * player". A parent viewing their own child passes (parent scope on
+     * the pivot); a stranger supplying someone else's player_id is denied
+     * even though a record loaded. Self + staff are unaffected (own-record
+     * / team / global scopes all satisfy canViewPlayer).
+     *
      * Returns false after emitting the breadcrumb + notice — the caller
      * still returns true so the dispatcher claims the slug.
      */
     private static function requirePlayerOrDeny( ?object $player ): bool {
-        if ( $player ) return true;
+        if ( $player
+            && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( get_current_user_id(), (int) $player->id ) ) {
+            return true;
+        }
         FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
         echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
         return false;

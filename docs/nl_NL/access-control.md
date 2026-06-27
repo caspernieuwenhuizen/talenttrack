@@ -112,6 +112,21 @@ Hetzelfde bevestigingspatroon wordt overal gebruikt waar een destructieve actie 
 
 Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, POP) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.
 
+## Ouder → kind-koppelmodel (#1993)
+
+De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is het **enige gezaghebbende** antwoord op de vraag "welke kinderen heeft deze ouder". `ParentChildResolver` leest deze pivot — afgebakend per club, `status = 'active'`, gesorteerd op meest recente koppeling eerst — en elke afnemer (de kindwisselaar op het dashboard, de me-view-autorisatie, de deelnemersgraaf van doel-threads, de ouder-KPI) roept hem aan, zodat ze het allemaal eens zijn over wie ouder van wie is.
+
+`tt_players.guardian_email` is **geen** live koppelbron. Het is een uitnodigings-/seed-hint: het mag een rij in `tt_player_parents` *aanmaken* wanneer een ouder wordt uitgenodigd, geïmporteerd of geseed, maar wordt nooit tijdens runtime bevraagd om toegang te bepalen. Een ouder die alleen via een overeenkomende `guardian_email` is gekoppeld (en zonder pivotrij) verschijnt pas wanneer hij opnieuw wordt gekoppeld via de uitnodigings-/seed-route of door een beheerder — er is geen migratie.
+
+## Ouderdashboard en kindgerichte me-views (#1991 / #1992)
+
+Een verzorger die aan een speler gekoppeld is maar zelf geen spelerrecord heeft, bereikt nu het dossier van **zijn of haar kind**:
+
+- **Startdashboard** — het oude tegelraster toont een ouderspecifiek, kindgericht scherm voor een ouder: de naam en foto van het kind verankeren het scherm, alleen een samengestelde subset van tegels (ontwikkeling, spelerskaart, evaluaties, activiteiten, ontwikkelplan) is zichtbaar, elke tegel draagt de `?player_id=N` van het kind, en de kolom "Werk van vandaag" is verborgen (het scherm is het dossier van het kind, geen takenlijst). Een **kindwisselaar** verschijnt wanneer de ouder aan meer dan één kind is gekoppeld.
+- **Me-views** — het openen van `?tt_view=my-development` (en de andere `my-*`-slugs) leidt het onderwerp af uit het gekoppelde kind van de ouder via `ParentChildResolver`. Ouders met één kind worden automatisch herleid; ouders met meerdere kinderen zien eerst een kindkiezer (het meest recente kind is daarna de standaard). De dispatch-poort autoriseert het **herleide doel** via `AuthorizationService::canViewPlayer( $user_id, $target_id )` — niet "is de bezoeker een speler" — zodat een ouder voor zijn eigen kind slaagt via de ouder-scope, en een gebruiker zonder eigen speler en zonder gekoppeld kind nog steeds geweigerd wordt. Dezelfde `canViewPlayer`-autoriteit ligt onder `GET /players/{id}` (REST-pariteit).
+
+Het persona-dashboard (`persona_dashboard.enabled`) levert een parallelle, rijkere ouderervaring; wanneer het op een installatie is uitgeschakeld, is de ouderbewustheid van het oude raster hierboven wat een ouder ziet.
+
 ## Operator-handleidingen voor beveiliging en privacy
 
 Twee cap-en-matrix-aanpalende operator-handleidingen zijn in v3.97.2 (#0086 Workstream A) gepubliceerd:
