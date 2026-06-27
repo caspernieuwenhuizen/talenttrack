@@ -43637,6 +43637,18 @@ msgstr ""
 "Bevestig alleen als de ouder dit gesprek persoonlijk met u heeft bevestigd. "
 "Dit legt het namens hen vast."
 
+#. translators: 1: signed-off conversation count, 2: cycle size
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Record verdict (%1$d/%2$d conversations closed)"
+msgstr "Eindoordeel vastleggen (%1$d/%2$d gesprekken afgerond)"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The verdict opens once every conversation in the cycle is signed off."
+msgstr ""
+"Het eindoordeel komt beschikbaar zodra elk gesprek in de cyclus is "
+"afgetekend."
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 
