@@ -28,11 +28,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   'threads'      => thread_type value whose tt_thread_messages /
  *                     tt_thread_reads rows are owned by this entity, or null.
  *   'set_null'     => [[bare_table, column], ...] references cleared (not
- *                     deleted) — facts that outlive the record.
- *   'block_only'   => true to declare NO cascades (#1783 defers the full
- *                     cascades for team/activity — they BLOCK on any
- *                     dependent, which safely fixes the orphaning by
- *                     prevention until their plans are completed).
+ *                     deleted) — facts that outlive the record. The column
+ *                     MUST be nullable.
+ *   'set_zero'     => [[bare_table, column], ...] references reset to 0
+ *                     (not NULL, not deleted) — orphan columns that are
+ *                     `NOT NULL DEFAULT 0` and so can't take NULL. The
+ *                     referencing row outlives the record, re-homed to the
+ *                     0 sentinel (unassigned / club-level). Use this instead
+ *                     of set_null for non-nullable FK-style columns whose
+ *                     row must be preserved (e.g. tt_players.team_id).
+ *   'children'     => [[child, child_fk, parent, parent_pk, parent_ref], ...]
+ *                     parent-keyed grandchildren that hang off a cascaded
+ *                     child (no direct ref column of their own); deleted
+ *                     ahead of that child.
+ *   'block_only'   => true to declare NO cascades — the entity BLOCKS on
+ *                     any dependent (fail-closed). Used for templates /
+ *                     vocabularies that must never cascade-delete the
+ *                     records using them (e.g. trial_track, measurement
+ *                     definition). NOT used for team/activity since #2027
+ *                     completed their full orphan-preserving plans.
  */
 final class CascadeRegistry {
 
@@ -188,36 +202,94 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
-        // Team — deferred (#1784): block-only. A team carries player /
-        // activity / match references (some denormalized); auto-cascading
-        // those risks deleting player rows, so until the plan is verified
-        // with a test harness, a team hard-delete simply refuses while
-        // anything still references it.
+        // Team (#2027) — player-centric orphan-preserving purge. Deleting a
+        // team must never destroy player development data: players, their
+        // team-history rows, the team's activities (+ their attendance /
+        // evaluations), tournaments and team-scoped measurement sessions all
+        // SURVIVE as unassigned (team_id → 0). Pure team-owned config
+        // (formations, playing styles, chemistry, blueprints, staff
+        // assignments, per-team exercise overrides, the whole VCT
+        // periodization stack) is cascaded. Nullable transient links (an
+        // open invitation's target team, a workflow task's team, a staged
+        // dev idea's team) are cleared.
+        //
+        // `target_team_id` is a REAL nullable column on tt_invitations. The
+        // legacy `player_team_id` / `activity_team_id` aliases from migration
+        // 0145 are query-only (not physical columns) and so are absent here.
+        // The exercise↔team link lives on tt_exercise_team_overrides (a
+        // per-team opt-in/out table that IS cascaded) — tt_exercises itself
+        // has no team_id column.
         'team' => [
             'table'        => 'tt_teams',
-            'ref_columns'  => [ 'team_id', 'player_team_id', 'activity_team_id', 'target_team_id', 'to_team_id' ],
-            'cascade'      => [],
+            'ref_columns'  => [ 'team_id', 'target_team_id' ],
+            'cascade'      => [
+                [ 'tt_team_formations', 'team_id' ],
+                [ 'tt_team_playing_styles', 'team_id' ],
+                [ 'tt_team_chemistry_pairings', 'team_id' ],
+                [ 'tt_team_chemistry_snapshots', 'team_id' ],
+                [ 'tt_team_blueprints', 'team_id' ],
+                [ 'tt_team_people', 'team_id' ],
+                [ 'tt_exercise_team_overrides', 'team_id' ],
+                [ 'tt_vct_team_schedules', 'team_id' ],
+                [ 'tt_vct_macro_blocks', 'team_id' ],
+                [ 'tt_vct_sessions', 'team_id' ],
+                [ 'tt_vct_microcycles', 'team_id' ],
+            ],
             'cascade_poly' => [],
             'threads'      => null,
-            'set_null'     => [],
-            'block_only'   => true,
+            'set_null'     => [
+                [ 'tt_invitations', 'target_team_id' ],
+                [ 'tt_workflow_tasks', 'team_id' ],
+                [ 'tt_dev_ideas', 'team_id' ],
+            ],
+            'set_zero'     => [
+                [ 'tt_players', 'team_id' ],
+                [ 'tt_player_team_history', 'team_id' ],
+                [ 'tt_activities', 'team_id' ],
+                [ 'tt_tournaments', 'team_id' ],
+                [ 'tt_measurement_sessions', 'team_id' ],
+            ],
+            'block_only'   => false,
         ],
 
-        // Activity — deferred (#1784): block-only. Activities own
-        // attendance / exercises / match rows; cascading them is left to
-        // the follow-up (which also routes ActivitiesRestController's own
-        // delete path through this framework).
+        // Activity (#2027) — execution data that only exists inside the
+        // activity (attendance, planned exercises, principles, the match
+        // prep + match execution trees) is cascaded; activity-sourced
+        // journey events are cascaded polymorphically. Records that outlive
+        // the activity keep their row with the link cleared: evaluations
+        // (the assessment is a fact about the player), tournament-match
+        // bindings, VCT session bindings, and behaviour ratings.
+        //
+        // The match_prep and match_execution children hang off their parent
+        // by `match_prep_id` / `execution_id` (no activity_id of their own),
+        // so they're parent-keyed `children` removed ahead of the parent.
         'activity' => [
             'table'        => 'tt_activities',
-            // The legacy session-keyed FK is intentionally not listed here;
-            // activity is block-only until #1784 builds its full cascade
-            // (which discovers legacy columns from information_schema).
-            'ref_columns'  => [ 'activity_id', 'related_activity_id', 'vct_session_id' ],
-            'cascade'      => [],
-            'cascade_poly' => [],
+            'ref_columns'  => [ 'activity_id', 'related_activity_id' ],
+            'children'     => [
+                [ 'tt_match_execution_goal_events', 'execution_id', 'tt_match_execution', 'id', 'activity_id' ],
+                [ 'tt_match_execution_substitutions', 'execution_id', 'tt_match_execution', 'id', 'activity_id' ],
+                [ 'tt_match_prep_availability', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
+                [ 'tt_match_prep_lineup', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
+                [ 'tt_match_prep_player_goals', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
+                [ 'tt_match_prep_roles', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
+            ],
+            'cascade'      => [
+                [ 'tt_attendance', 'activity_id' ],
+                [ 'tt_activity_exercises', 'activity_id' ],
+                [ 'tt_activity_principles', 'activity_id' ],
+                [ 'tt_match_prep', 'activity_id' ],
+                [ 'tt_match_execution', 'activity_id' ],
+            ],
+            'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'activity' ] ],
             'threads'      => null,
-            'set_null'     => [],
-            'block_only'   => true,
+            'set_null'     => [
+                [ 'tt_evaluations', 'activity_id' ],
+                [ 'tt_tournament_matches', 'activity_id' ],
+                [ 'tt_vct_sessions', 'activity_id' ],
+                [ 'tt_player_behaviour_ratings', 'related_activity_id' ],
+            ],
+            'block_only'   => false,
         ],
 
         // Measurement definition (#1856) — the schema a test hangs off.

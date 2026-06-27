@@ -647,9 +647,11 @@ class ActivitiesRestController {
      *
      * Capability-gated behind `tt_edit_settings` and routed through
      * ArchiveRepository, which fail-closes via the CascadeRegistry. The
-     * activity entity is block-only (full cascade deferred to #1784), so
-     * an activity that still owns attendance / exercise / match rows
-     * surfaces as a 409 dependency report rather than stranding orphans.
+     * activity cascade plan (#2027) cascades execution data (attendance,
+     * exercises, principles, the match-prep / match-execution trees) and
+     * clears the link on records that outlive the activity (evaluations,
+     * behaviour ratings); an undeclared reference still surfaces as a 409
+     * dependency report rather than stranding orphans.
      */
     public static function delete_session_permanently( \WP_REST_Request $r ) {
         $activity_id = absint( $r['id'] );

@@ -13,10 +13,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Fail-closed: before deleting anything it scans every tt_* table that
  * references the entity (via the plan's ref_columns). References the plan
  * declares as owned are cascaded; references declared as outliving facts
- * are set to NULL; ANY OTHER reference BLOCKS the delete with a
- * dependency report (DeleteBlockedException). The whole operation runs in
- * one transaction and is club-scoped on the final delete, mirroring
- * PlayerDeletionCascade / PersonDeletionCascade.
+ * are set to NULL (nullable columns) or reset to 0 (NOT NULL DEFAULT 0
+ * orphan columns — see `set_zero`); ANY OTHER reference BLOCKS the delete
+ * with a dependency report (DeleteBlockedException). The whole operation
+ * runs in one transaction and is club-scoped on the final delete,
+ * mirroring PlayerDeletionCascade / PersonDeletionCascade.
  */
 final class GenericCascadeDeleter {
 
@@ -27,6 +28,7 @@ final class GenericCascadeDeleter {
      * @return array{
      *   removals: list<array{table:string,count:int}>,
      *   nullifications: list<array{table:string,column:string,count:int}>,
+     *   zeroings: list<array{table:string,column:string,count:int}>,
      *   blockers: array<string,int>
      * }
      */
@@ -34,11 +36,12 @@ final class GenericCascadeDeleter {
         $plan = CascadeRegistry::plan( $entity );
         $ids  = $this->cleanIds( $ids );
         if ( $plan === null || empty( $ids ) ) {
-            return [ 'removals' => [], 'nullifications' => [], 'blockers' => [] ];
+            return [ 'removals' => [], 'nullifications' => [], 'zeroings' => [], 'blockers' => [] ];
         }
 
         $removals = [];
         $nulls    = [];
+        $zeros    = [];
         $blockers = [];
 
         // Declared owned children discovered by the ref-column scan.
@@ -49,6 +52,8 @@ final class GenericCascadeDeleter {
                 $removals[] = [ 'table' => $ref['table'], 'count' => $ref['count'] ];
             } elseif ( $this->isSetNull( $plan, $ref['table'], $ref['column'] ) ) {
                 $nulls[] = [ 'table' => $ref['table'], 'column' => $ref['column'], 'count' => $ref['count'] ];
+            } elseif ( $this->isSetZero( $plan, $ref['table'], $ref['column'] ) ) {
+                $zeros[] = [ 'table' => $ref['table'], 'column' => $ref['column'], 'count' => $ref['count'] ];
             } else {
                 $blockers[ $ref['table'] ] = ( $blockers[ $ref['table'] ] ?? 0 ) + $ref['count'];
             }
@@ -69,7 +74,7 @@ final class GenericCascadeDeleter {
             if ( $n > 0 ) $removals[] = [ 'table' => 'tt_thread_messages', 'count' => $n ];
         }
 
-        return [ 'removals' => $removals, 'nullifications' => $nulls, 'blockers' => $blockers ];
+        return [ 'removals' => $removals, 'nullifications' => $nulls, 'zeroings' => $zeros, 'blockers' => $blockers ];
     }
 
     /**
@@ -77,13 +82,13 @@ final class GenericCascadeDeleter {
      * undeclared reference exists.
      *
      * @param int[] $ids
-     * @return array{deleted:int, per_table:array<string,int>, nulled:array<string,int>}
+     * @return array{deleted:int, per_table:array<string,int>, nulled:array<string,int>, zeroed:array<string,int>}
      */
     public function cascade( string $entity, array $ids ): array {
         $plan = CascadeRegistry::plan( $entity );
         $ids  = $this->cleanIds( $ids );
         if ( $plan === null || empty( $ids ) ) {
-            return [ 'deleted' => 0, 'per_table' => [], 'nulled' => [] ];
+            return [ 'deleted' => 0, 'per_table' => [], 'nulled' => [], 'zeroed' => [] ];
         }
 
         global $wpdb;
@@ -98,6 +103,7 @@ final class GenericCascadeDeleter {
             if ( $ref['count'] <= 0 ) continue;
             if ( $this->isCascade( $plan, $ref['table'], $ref['column'] ) ) continue;
             if ( $this->isSetNull( $plan, $ref['table'], $ref['column'] ) ) continue;
+            if ( $this->isSetZero( $plan, $ref['table'], $ref['column'] ) ) continue;
             $blockers[ $ref['table'] ] = ( $blockers[ $ref['table'] ] ?? 0 ) + $ref['count'];
         }
         if ( ! empty( $blockers ) ) {
@@ -107,6 +113,7 @@ final class GenericCascadeDeleter {
 
         $per_table = [];
         $nulled    = [];
+        $zeroed    = [];
 
         $wpdb->query( 'START TRANSACTION' );
         try {
@@ -164,6 +171,20 @@ final class GenericCascadeDeleter {
                 if ( (int) $n > 0 ) $nulled[ "{$table}.{$col}" ] = (int) $n;
             }
 
+            // 5b) Set-zero the orphan references — `NOT NULL DEFAULT 0`
+            // columns that can't take NULL but should not block or
+            // cascade. The referencing row outlives the entity, re-homed
+            // to the 0 sentinel (unassigned / club-level). e.g. a player's
+            // team_id resets to 0 when their team is deleted, so the player
+            // survives as unassigned rather than being deleted or stranded.
+            foreach ( (array) ( $plan['set_zero'] ?? [] ) as [ $table, $col ] ) {
+                if ( ! $this->tableExists( $table ) ) continue;
+                $sql = "UPDATE {$p}{$table} SET {$col} = 0 WHERE {$col} IN ({$ph})";
+                $n   = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                $this->guard( $n, $table );
+                if ( (int) $n > 0 ) $zeroed[ "{$table}.{$col}" ] = (int) $n;
+            }
+
             // 6) The entity rows themselves — club-scoped.
             $entity_table = (string) $plan['table'];
             $sql_final = "DELETE FROM {$p}{$entity_table} WHERE id IN ({$ph}) AND club_id = %d";
@@ -179,10 +200,11 @@ final class GenericCascadeDeleter {
                 'deleted'   => (int) $deleted,
                 'per_table' => $per_table,
                 'nulled'    => $nulled,
+                'zeroed'    => $zeroed,
                 'by_user'   => get_current_user_id(),
             ] );
 
-            return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled ];
+            return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled, 'zeroed' => $zeroed ];
         } catch ( \Throwable $e ) {
             $wpdb->query( 'ROLLBACK' );
             Logger::error( 'entity.cascade.failed', [
@@ -303,6 +325,13 @@ final class GenericCascadeDeleter {
 
     private function isSetNull( array $plan, string $table, string $col ): bool {
         foreach ( (array) ( $plan['set_null'] ?? [] ) as [ $t, $c ] ) {
+            if ( $t === $table && $c === $col ) return true;
+        }
+        return false;
+    }
+
+    private function isSetZero( array $plan, string $table, string $col ): bool {
+        foreach ( (array) ( $plan['set_zero'] ?? [] ) as [ $t, $c ] ) {
             if ( $t === $table && $c === $col ) return true;
         }
         return false;
