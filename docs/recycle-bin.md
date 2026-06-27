@@ -105,6 +105,37 @@ and the legacy per-entity endpoints — requires the same capability. (The
 re-gating itself ships in the bin's REST work, issue #2024; this foundation
 records the decision and registers the capability the re-gating will use.)
 
+## Moving a record to the bin from a list
+
+You do not need to open the recycle bin to put something in it. Every
+per-entity list (players, teams, evaluations, goals, tournaments, holidays,
+and the rest) has two status views:
+
+- **Active** — live records.
+- **Archived** — soft-hidden records, recoverable.
+
+A previous third tab, **All**, has been removed: trashed records never appear
+in a per-entity list, so "All" was misleading. Archived rows are the only
+place the destructive affordance lives.
+
+On an **archived** row you see two actions:
+
+- **Restore** — returns the record to the active list.
+- **Move to recycle bin** — stages the record for permanent deletion. This is
+  **reversible**: the record drops into the bin and can be restored from
+  there until it is purged. It replaces the old "Delete permanently" button,
+  which destroyed data immediately from the list; the real permanent purge now
+  lives only inside the bin.
+
+Before the record moves, a confirmation dialog shows the **full cascade
+preview** — every linked record a later purge would remove, every reference
+it would clear, and anything that currently blocks a permanent delete. The
+move itself is never blocked (it is reversible); the blockers are shown for
+information so you know what an eventual purge would face.
+
+Right after a record moves to the bin, a banner offers **Undo** — one click
+restores it straight back out of the bin.
+
 ## Audit trail
 
 Every bin action is recorded in the audit log with a stable action key per

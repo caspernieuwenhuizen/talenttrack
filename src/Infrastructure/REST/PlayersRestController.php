@@ -106,6 +106,24 @@ class PlayersRestController {
                 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
             ],
         ] );
+        // #2023 — reversible "Move to recycle bin" (archived → trashed).
+        // Replaces the archived-tier permanent delete in the list UI; the
+        // real purge stays bin-only (#2024). Cap matches the destructive-op
+        // gate; ownership re-checked in the handler.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/trash', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'trash_player' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
+    }
+
+    /** #2023 — move an archived player into the recycle bin (reversible). */
+    public static function trash_player( \WP_REST_Request $r ) {
+        return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
+            'player', absint( $r['id'] ), __( 'Player not found.', 'talenttrack' )
+        );
     }
 
     /** #1470 — restore an archived player. */
@@ -190,12 +208,14 @@ class PlayersRestController {
         $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        // #2023 — go through filterClause so the archived/active views also
+        // exclude trashed (recycle-bin) rows. A trashed minor's row must
+        // never surface in an ordinary list — only in the bin view.
         $archived = isset( $filter['archived'] ) ? sanitize_key( (string) $filter['archived'] ) : 'active';
-        if ( $archived === 'archived' ) {
-            $where[] = 'p.archived_at IS NOT NULL';
-        } else {
-            $where[] = 'p.archived_at IS NULL';
-        }
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause(
+            $archived === 'archived' ? 'archived' : 'active',
+            'p'
+        );
 
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 'p.team_id = %d';
@@ -426,11 +446,11 @@ class PlayersRestController {
                 : '',
             'photo_url'        => (string) ( $pl->photo_url ?? '' ),
             'date_of_birth'    => $pl->date_of_birth ?: null,
-            'archived_at'      => $pl->archived_at ?? null,
             'status'           => (string) ( $pl->status ?? 'active' ),
             // v3.110.170 — row-link standard (#758).
             'detail_url'       => $detail_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $pl );
     }
 
     public static function get_player( \WP_REST_Request $r ) {

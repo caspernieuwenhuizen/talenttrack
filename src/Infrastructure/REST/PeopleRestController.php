@@ -109,12 +109,13 @@ class PeopleRestController {
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
 
+        // #2023 — through filterClause (alias 'p') so archived/active views
+        // also exclude trashed (recycle-bin) rows.
         $archived = isset( $filter['archived'] ) ? sanitize_key( (string) $filter['archived'] ) : 'active';
-        if ( $archived === 'archived' ) {
-            $where[] = 'p.archived_at IS NOT NULL';
-        } else {
-            $where[] = 'p.archived_at IS NULL';
-        }
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause(
+            $archived === 'archived' ? 'archived' : 'active',
+            'p'
+        );
 
         if ( ! empty( $filter['role_type'] ) ) {
             $where[]  = 'p.role_type = %s';
@@ -326,12 +327,12 @@ class PeopleRestController {
             'role_type'       => (string) ( $row->role_type ?? 'other' ),
             'wp_user_id'      => $row->wp_user_id !== null ? (int) $row->wp_user_id : null,
             'status'          => (string) ( $row->status ?? 'active' ),
-            'archived_at'     => $row->archived_at ?? null,
             'team_count'      => isset( $row->team_count ) ? (int) $row->team_count : count( $assignments ),
             'current_roles'   => implode( ' · ', array_filter( $parts ) ),
             // v3.110.170 — row-link standard (#758).
             'detail_url'      => $detail_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
     private static function humanRoleLabel( string $key ): string {

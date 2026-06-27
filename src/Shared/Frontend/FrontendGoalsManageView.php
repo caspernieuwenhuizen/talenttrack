@@ -272,7 +272,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // v3.110.53 — Edit / Delete moved to the goal detail page; the
         // clickable goal title is the only active-row affordance.
         // #1470 — Restore + gated permanent-delete on archived rows.
-        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'goals', 'tt_edit_goals' );
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'goals', 'tt_edit_goals', 'goal' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'goals',
@@ -325,15 +325,15 @@ class FrontendGoalsManageView extends FrontendViewBase {
                     'label_from' => __( 'Due from', 'talenttrack' ),
                     'label_to'   => __( 'Due to',   'talenttrack' ),
                 ],
-                // #1470 — Active / Archived / All. Labelled "Archive" to
-                // avoid clashing with the goal-status filter above.
+                // #1470 — Active / Archived. Labelled "Archive" to avoid
+                // clashing with the goal-status filter above. #2023 — "All"
+                // dropped: trashed rows live only in the recycle bin.
                 'archived' => [
                     'type'    => 'select',
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
-                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
             ],

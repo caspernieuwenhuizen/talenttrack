@@ -93,6 +93,50 @@
         },
 
         /**
+         * #2023 — a flash banner carrying a single action button (e.g.
+         * "Undo" after moving a row to the recycle bin). Clicking the
+         * action runs the supplied callback and dismisses the banner.
+         * Keyboard-operable (the action is a real <button>); does NOT
+         * auto-dismiss, so the undo window stays available until the user
+         * acts or dismisses.
+         */
+        addAction: function(type, message, actionLabel, onAction) {
+            var stack = document.querySelector('.tt-dashboard .tt-flash-stack');
+            if (!stack) {
+                var dashboard = document.querySelector('.tt-dashboard');
+                if (!dashboard) return;
+                stack = document.createElement('div');
+                stack.className = 'tt-flash-stack';
+                dashboard.insertBefore(stack, dashboard.children[1] || null);
+            }
+            var flash = document.createElement('div');
+            flash.className = 'tt-flash tt-flash-' + (type || 'info');
+            flash.setAttribute('role', 'status');
+            var msgSpan = document.createElement('span');
+            msgSpan.className = 'tt-flash-text';
+            msgSpan.textContent = message;
+            var actionBtn = document.createElement('button');
+            actionBtn.type = 'button';
+            actionBtn.className = 'tt-btn tt-btn-secondary tt-flash-action';
+            actionBtn.textContent = actionLabel;
+            var dismissLabel = (window.TT && window.TT.i18n && window.TT.i18n.dismiss) || 'Dismiss';
+            var dismissBtn = document.createElement('button');
+            dismissBtn.type = 'button';
+            dismissBtn.className = 'tt-flash-dismiss';
+            dismissBtn.setAttribute('aria-label', dismissLabel);
+            dismissBtn.textContent = '×';
+            flash.appendChild(msgSpan);
+            flash.appendChild(actionBtn);
+            flash.appendChild(dismissBtn);
+            actionBtn.addEventListener('click', function() {
+                if (typeof onAction === 'function') onAction();
+                dismissFlash(flash);
+            });
+            dismissBtn.addEventListener('click', function(e) { e.preventDefault(); dismissFlash(flash); });
+            stack.appendChild(flash);
+        },
+
+        /**
          * #1478 — queue a one-shot flash to show after the next page
          * load. Used by the save handler so the "Saved" confirmation
          * survives the post-save redirect and appears on the

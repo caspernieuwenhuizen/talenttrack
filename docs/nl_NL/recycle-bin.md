@@ -116,6 +116,38 @@ vereist. (De herafscherming zelf landt in het REST-werk van de prullenbak,
 issue #2024; deze basis legt de beslissing vast en registreert het recht dat
 de herafscherming zal gebruiken.)
 
+## Een record vanuit een lijst naar de prullenbak verplaatsen
+
+Je hoeft de prullenbak niet te openen om er iets in te plaatsen. Elke
+per-entiteit-lijst (spelers, teams, evaluaties, doelen, toernooien,
+vakanties en de rest) heeft twee statusweergaven:
+
+- **Actief** — actieve records.
+- **Gearchiveerd** — verborgen, herstelbare records.
+
+Een eerder derde tabblad, **Alle**, is verwijderd: records in de prullenbak
+verschijnen nooit in een per-entiteit-lijst, dus "Alle" was misleidend.
+Gearchiveerde rijen zijn de enige plek waar de verwijderactie staat.
+
+Op een **gearchiveerde** rij zie je twee acties:
+
+- **Herstellen** — zet het record terug in de actieve lijst.
+- **Naar prullenbak** — markeert het record voor definitieve verwijdering.
+  Dit is **omkeerbaar**: het record komt in de prullenbak en kan vandaaruit
+  worden hersteld totdat het wordt opgeschoond. Het vervangt de oude knop
+  "Definitief verwijderen", die gegevens direct vanuit de lijst vernietigde;
+  de echte definitieve verwijdering staat nu alleen nog in de prullenbak.
+
+Voordat het record wordt verplaatst, toont een bevestigingsvenster de
+**volledige cascadevoorbeeldweergave** — elk gekoppeld record dat een latere
+opschoning zou verwijderen, elke verwijzing die zou worden gewist, en alles
+wat een definitieve verwijdering momenteel blokkeert. De verplaatsing zelf
+wordt nooit geblokkeerd (ze is omkeerbaar); de blokkades worden ter
+informatie getoond.
+
+Direct nadat een record naar de prullenbak is verplaatst, biedt een melding
+**Ongedaan maken** — met één klik staat het record weer buiten de prullenbak.
+
 ## Auditspoor
 
 Elke prullenbakactie wordt vastgelegd in het auditlogboek met een stabiele

@@ -119,6 +119,9 @@ class Kernel {
         // footer / sidebar never render around the TalentTrack UI.
         \TT\Shared\Frontend\CanvasShell::init();
         \TT\Shared\Frontend\FlashMessages::init();
+        // #2023 — shared recycle-bin cascade-preview REST endpoint that the
+        // "Move to recycle bin" confirm dialog renders before a trash.
+        \TT\Infrastructure\REST\RecycleBinRestController::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();
         // #1486 — read-only Features status view (REST endpoint).

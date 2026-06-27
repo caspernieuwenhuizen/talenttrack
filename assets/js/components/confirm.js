@@ -42,6 +42,10 @@
             '<div class="tt-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="tt-confirm-title">',
             '  <h2 class="tt-confirm-title" id="tt-confirm-title"></h2>',
             '  <p class="tt-confirm-message"></p>',
+            // #2023 — optional structured details slot (e.g. the recycle-bin
+            // cascade preview). Populated only when the caller passes
+            // detailsHtml; the caller is responsible for escaping its content.
+            '  <div class="tt-confirm-details" hidden></div>',
             '  <div class="tt-confirm-actions">',
             '    <button type="button" class="button tt-confirm-cancel"></button>',
             '    <button type="button" class="button button-primary tt-confirm-ok"></button>',
@@ -71,6 +75,8 @@
         if (!modal) return;
         modal.setAttribute('hidden', '');
         modal.classList.remove('tt-confirm-danger');
+        var details = modal.querySelector('.tt-confirm-details');
+        if (details) { details.setAttribute('hidden', ''); details.innerHTML = ''; }
         if (pendingResolve) {
             var fn = pendingResolve;
             pendingResolve = null;
@@ -97,6 +103,17 @@
             m.querySelector('.tt-confirm-title').textContent = opts.title || '';
             m.querySelector('.tt-confirm-title').style.display = opts.title ? '' : 'none';
             m.querySelector('.tt-confirm-message').textContent = opts.message || '';
+            // #2023 — optional structured details (caller-escaped HTML).
+            var details = m.querySelector('.tt-confirm-details');
+            if (details) {
+                if (opts.detailsHtml) {
+                    details.innerHTML = opts.detailsHtml;
+                    details.removeAttribute('hidden');
+                } else {
+                    details.innerHTML = '';
+                    details.setAttribute('hidden', '');
+                }
+            }
             var okBtn = m.querySelector('.tt-confirm-ok');
             okBtn.textContent = opts.confirmLabel || DEFAULT_OK;
             m.querySelector('.tt-confirm-cancel').textContent = opts.cancelLabel || DEFAULT_CANCEL;

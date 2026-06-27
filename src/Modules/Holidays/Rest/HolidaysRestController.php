@@ -3,6 +3,7 @@ namespace TT\Modules\Holidays\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\LifecycleFields;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Holidays\Repositories\HolidaysRepository;
 use WP_REST_Request;
@@ -76,6 +77,15 @@ final class HolidaysRestController {
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
             ],
         ] );
+
+        // #2023 — reversible "Move to recycle bin" (archived → trashed).
+        register_rest_route( self::NS, '/holidays/(?P<id>\d+)/trash', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'trash_holiday' ],
+                'permission_callback' => self::can( 'tt_edit_settings' ),
+            ],
+        ] );
     }
 
     /** #1784 — restore an archived holiday. */
@@ -85,6 +95,13 @@ final class HolidaysRestController {
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'holiday', [ $id ] );
         if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Holiday not found.', 'talenttrack' ), 404 );
         return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
+    }
+
+    /** #2023 — move an archived holiday into the recycle bin (reversible). */
+    public static function trash_holiday( WP_REST_Request $req ): WP_REST_Response {
+        return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
+            'holiday', (int) $req['id'], __( 'Holiday not found.', 'talenttrack' )
+        );
     }
 
     private static function can( string $cap ): \Closure {
@@ -235,6 +252,10 @@ final class HolidaysRestController {
             'note'       => $row->note !== null ? (string) $row->note : null,
             'color'      => $row->color !== null ? (string) $row->color : null,
             'detail_url' => $detail_url,
-        ];
+            // #2023 (Bug 2) — Holidays was the only entity that omitted
+            // `archived_at`, so the FrontendListTable `show_if` hid both
+            // archived-row actions (Restore + Move to recycle bin). The
+            // shared helper restores it and adds the new `trashed_at`.
+        ] + LifecycleFields::forRow( $row );
     }
 }
