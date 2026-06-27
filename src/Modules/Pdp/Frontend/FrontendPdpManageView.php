@@ -102,6 +102,27 @@ class FrontendPdpManageView extends FrontendViewBase {
                     ],
                 ]
             );
+        } elseif ( $file_id > 0 && $conv_id > 0 ) {
+            // #2038 — a conversation sits one level below the PDP file.
+            // Without its own crumb it reused the file-detail chain, whose
+            // only clickable intermediate is the PDP *list* — so "back"
+            // dropped the user out to every player's PDPs instead of the
+            // file they were in. Add the file-detail crumb as the
+            // intermediate (back-to-file) affordance per CLAUDE.md §5:
+            // "PDP → PDP file detail → Conversation".
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Conversation', 'talenttrack' ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ),
+                    [
+                        'label' => __( 'PDP file detail', 'talenttrack' ),
+                        'url'   => add_query_arg(
+                            [ 'tt_view' => 'pdp', 'id' => $file_id ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        ),
+                    ],
+                ]
+            );
         } elseif ( $file_id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'PDP file detail', 'talenttrack' ),
