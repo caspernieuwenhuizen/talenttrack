@@ -171,7 +171,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         [ $status_chip_class, $card_accent ] = self::statusChipClasses( $status );
         $priority_chip_class = self::priorityChipClass( $priority );
 
-        echo '<div class="tt-record-detail" style="display:grid; gap:16px;">';
+        echo '<div class="tt-record-detail tt-goal-detail-grid">';
         echo '<article class="tt-goal-card tt-goal-detail-card ' . esc_attr( $card_accent ) . '">';
 
         // Chip row — status + priority + due.
@@ -221,8 +221,8 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // slot rendered by render() before this method runs.
 
         if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
-            echo '<section class="tt-pde-section" style="margin-top:16px;">';
-            echo '<h3 style="margin:0 0 8px;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
+            echo '<section class="tt-pde-section">';
+            echo '<h3>' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
             echo '</section>';
         }
