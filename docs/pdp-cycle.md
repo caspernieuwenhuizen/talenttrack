@@ -45,6 +45,8 @@ Each conversation has two halves:
 
 The form's **evidence sidebar** lists every evaluation, activity, and goal change for that player since the previous conversation — read-only, just there to anchor the discussion.
 
+The conversations run in order: only the **active** conversation — the earliest one not yet signed off — is fully editable. Later conversations in the cycle are read-only except for their **planned date**, so a coach can schedule the whole season ahead without filling in a talk out of turn. A later conversation opens for full editing once the one before it is signed off.
+
 The player can fill in their self-reflection any time before the coach signs off. Once the coach signs off, the field locks.
 
 ### 3. Acknowledgement

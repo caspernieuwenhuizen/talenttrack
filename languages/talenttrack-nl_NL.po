@@ -43577,6 +43577,26 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Planned date only."
+msgstr "Alleen geplande datum."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid ""
+"Until the previous conversation is signed off, only the planned date can be "
+"changed here."
+msgstr ""
+"Totdat het vorige gesprek is afgetekend, kan hier alleen de geplande datum "
+"worden gewijzigd."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid ""
+"Only the planned date can be changed until the previous conversation is "
+"signed off."
+msgstr ""
+"Alleen de geplande datum kan worden gewijzigd totdat het vorige gesprek is "
+"afgetekend."
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 

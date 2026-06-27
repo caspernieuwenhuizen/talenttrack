@@ -79,6 +79,24 @@ class PdpConversationsRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
+    /**
+     * #2041 — the "active" conversation in a cycle is the earliest by
+     * sequence that hasn't been signed off yet. Only it is fully
+     * editable; later conversations are content-locked (the coach can
+     * still adjust their planned date to schedule ahead). Returns that
+     * conversation's id, or 0 when every conversation is signed off or
+     * the file has none. listForFile() is already ordered by sequence,
+     * so the first un-signed row is the active one.
+     */
+    public function activeConversationId( int $file_id ): int {
+        foreach ( $this->listForFile( $file_id ) as $c ) {
+            if ( empty( $c->coach_signoff_at ) ) {
+                return (int) $c->id;
+            }
+        }
+        return 0;
+    }
+
     /** @return object[] */
     public function listForFile( int $file_id ): array {
         if ( $file_id <= 0 ) return [];

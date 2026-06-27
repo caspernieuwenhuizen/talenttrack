@@ -45,6 +45,8 @@ Elk gesprek heeft twee fases:
 
 De **bewijszijbalk** in het formulier toont elke evaluatie, activiteit en doelenÂ­wijziging voor de speler sinds het vorige gesprek â€” alleen-lezen, puur ter verankering van het gesprek.
 
+De gesprekken verlopen op volgorde: alleen het **actieve** gesprek — het eerste dat nog niet is afgetekend — is volledig bewerkbaar. Latere gesprekken in de cyclus zijn alleen-lezen, behalve hun **geplande datum**, zodat een coach het hele seizoen vooruit kan plannen zonder een gesprek buiten de beurt in te vullen. Een later gesprek komt vrij voor volledige bewerking zodra het voorgaande gesprek is afgetekend.
+
 De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen. Zodra de coach ondertekent, wordt het veld vergrendeld.
 
 ### 3. Bevestiging

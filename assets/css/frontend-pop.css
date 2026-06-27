@@ -830,3 +830,19 @@
 @media (prefers-reduced-motion: reduce) {
     .tt-dashboard .tt-pdp-fill { transition: none; }
 }
+
+/*
+ * #2041 — content-locked conversation banner. A later conversation in
+ * the cycle (not the active one) can only have its planned date changed;
+ * this neutral notice explains why the other fields are read-only. Less
+ * severe than the amber signature-lock banner (.tt-pdp-conv-locked).
+ */
+.tt-pdp-conv-future {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    color: var(--tt-ink, #1f2a2e);
+}
+.tt-pdp-conv-future strong { color: var(--tt-primary, #0b3d2e); }
