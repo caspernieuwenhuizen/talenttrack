@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T22:24:09+00:00\n"
+"POT-Creation-Date: 2026-06-27T21:55:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -842,7 +842,7 @@ msgid "Module"
 msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:39
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:88
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:89
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:219
 msgid "Score"
 msgstr ""
@@ -1790,6 +1790,7 @@ msgstr ""
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:36
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:471
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:583
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1429
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1747
@@ -2886,7 +2887,7 @@ msgstr ""
 #: src/Modules/DemoData/Admin/DemoDataPage.php:710
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:47
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:267
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1344
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:95
@@ -2990,7 +2991,7 @@ msgstr "Filter"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:113
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:397
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:85
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
@@ -3289,8 +3290,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:45
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:132
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:323
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:239
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:87
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:88
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:114
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
@@ -3305,7 +3306,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:956
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:957
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:373
 #: src/Modules/Players/Admin/PlayersPage.php:441
@@ -3544,7 +3545,7 @@ msgstr "— Alle —"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/MethodologyView.php:581
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:290
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:229
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:786
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:897
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
@@ -4183,6 +4184,7 @@ msgid "Cancelled"
 msgstr "Abgebrochen"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:406
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:287
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:375
@@ -4241,7 +4243,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:30
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:50
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:40
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:42
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:148
 #: src/Modules/Methodology/Frontend/MethodologyView.php:42
@@ -4570,7 +4572,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:201
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:263
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:242
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:726
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
@@ -4592,7 +4594,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:192
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:127
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:249
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/People/Admin/PeoplePage.php:389
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
@@ -4614,7 +4616,7 @@ msgstr "Von"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:301
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:251
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:260
 #: src/Shared/Frontend/Components/FrontendListTable.php:337
@@ -4637,7 +4639,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:177
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:318
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:746
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:268
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:269
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:175
@@ -6058,7 +6060,7 @@ msgstr "Schlüssel"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:237
 #: src/Shared/Frontend/FrontendGoalsManageView.php:213
 #: src/Shared/Frontend/FrontendGoalsManageView.php:449
-#: src/Shared/Frontend/FrontendMyGoalsView.php:226
+#: src/Shared/Frontend/FrontendMyGoalsView.php:227
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 msgid "Description"
 msgstr "Beschreibung"
@@ -9907,8 +9909,8 @@ msgid "Enable or disable specific TalentTrack features without code changes."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:393
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:89
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:260
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:90
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:261
 msgid "State"
 msgstr "Bundesland"
 
@@ -11096,7 +11098,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:155
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:402
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:87
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:88
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:119
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:163
 #: src/Shared/Frontend/CoachDashboardView.php:209
@@ -15068,7 +15070,7 @@ msgstr "Ergebnis"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:168
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:984
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:985
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:310
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
@@ -15079,7 +15081,7 @@ msgstr "Heim"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:985
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:986
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:311
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
@@ -15565,7 +15567,7 @@ msgstr ""
 #. translators: 1: first day of the week, 2: last day.
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:152
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:468
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:947
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:948
 #, php-format
 msgid "Week of %1$s — %2$s"
 msgstr ""
@@ -17482,45 +17484,45 @@ msgid ""
 "enable it."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:42
 msgid "You do not have permission to view match executions."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:46
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:51
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:47
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:52
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:266
 msgid "Match executions"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:55
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:56
 msgid "No teams visible to you yet."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:79
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:80
 msgid "No match executions match the current filters."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:255
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:256
 msgid "All states"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:256
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:274
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:257
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:275
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:233
 msgid "Live"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:257
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:277
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:258
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:278
 msgid "Pending review"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:258
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:280
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:259
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:281
 msgid "Finalized"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:283
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:284
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:406
 msgid "Not started"
 msgstr ""
@@ -20590,211 +20592,179 @@ msgstr ""
 msgid "Could not set current season."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:48
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:68
 msgid "My development plan"
 msgstr ""
 
 #. translators: %s = the child's name (parent viewing their child)
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:51
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:71
 #, php-format
 msgid "%s's development plan"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:59
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:79
 msgid "No current season is set."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:67
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:87
 msgid "No PDP file has been opened for you this season yet."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:68
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:88
 msgid "No PDP file has been opened for this player this season yet."
 msgstr ""
 
 #. translators: %s = season name
-#. translators: %s: season name (e.g. "2025/2026").
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:78
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:266
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:419
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:132
 #, php-format
-msgid "Season: %s"
+msgid "Season %s"
 msgstr ""
 
-# #0028 — Conversational goals (thread primitive + goal adapter)
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:95
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1078
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1589
-#: src/Shared/Frontend/Components/FrontendThreadView.php:52
-#: src/Shared/Frontend/FrontendGoalsManageView.php:225
-#: src/Shared/Frontend/FrontendGoalsManageView.php:559
-#: src/Shared/Frontend/FrontendMyGoalsView.php:243
-msgid "Conversation"
-msgstr "Unterhaltung"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:159
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:79
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:219
-msgid "Your focus"
-msgstr ""
-
-#. translators: %s = date of the next development talk
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:163
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:202
+#. translators: %d = number of development conversations in the season
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:137
 #, php-format
-msgid "Next development talk: %s"
+msgid "%d development conversation"
+msgid_plural "%d development conversations"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:143
+msgid "No development conversations have been planned yet."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:167
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:205
-msgid "Your next development talk will be planned soon."
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:171
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:287
-msgid "Coming up"
-msgstr ""
-
-#. translators: %s = date of the upcoming development talk
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:175
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:182
-#, php-format
-msgid "Prepare for your talk on %s"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:178
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:185
-msgid "Prepare for your upcoming development talk"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:181
-msgid ""
-"Adding a short self-reflection before your talk helps your coach. It is "
-"optional, never required. You can find it on the talk just below."
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:182
-msgid ""
-"A self-reflection can be added before the talk to help the coach. It is "
-"optional, never required."
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:185
-msgid "Your last development talk"
-msgstr ""
-
-#. translators: %s = date of the most recent development talk
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:189
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:193
-#, php-format
-msgid "Your talk on %s is ready to review"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:192
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:196
-msgid "Your last talk is ready to review"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:194
-msgid ""
-"See the notes and agreed actions below, and acknowledge the talk. These are "
-"the goals to carry forward."
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:210
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:221
-msgid "No active goals yet. Your coach will set some during your next talk."
-msgstr ""
-
-#. translators: %s = goal due date
-#. translators: %s: due date in YYYY-MM-DD
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:222
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:231
-#: src/Shared/Frontend/FrontendMyProfileView.php:210
-#, php-format
-msgid "Due %s"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:230
-#: src/Shared/Frontend/FrontendMyDevelopmentView.php:219
-msgid "See all goals"
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:148
+msgid "Season timeline with development conversations"
 msgstr ""
 
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:257
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:200
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1044
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:274
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:212
 #, php-format
 msgid "Scheduled %s"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:281
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:219
 #, php-format
 msgid "Conducted %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:294
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1170
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:300
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:237
 msgid "Agenda"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:316
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:251
 msgid "Goals discussed"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:326
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:263
 msgid "Self-reflection"
 msgstr "Selbstreflexion"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:348
-msgid "Add or update your self-reflection"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:351
-msgid "Save reflection"
-msgstr ""
-
-# v3.110.24 — My PDP self-reflection 2-week pre-meeting gate
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:358
-msgid ""
-"You can add your self-reflection up to 2 weeks before this meeting. Check "
-"back closer to the planned date."
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:370
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:275
 msgid "I acknowledge this conversation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:378
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:280
 msgid "You acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:384
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:286
 msgid "Acknowledge as parent / guardian"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:389
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:291
 msgid "A parent acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:398
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:308
+msgid "Your active goals"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:309
+msgid "What you are working on now"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:312
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:221
+msgid "No active goals yet. Your coach will set some during your next talk."
+msgstr ""
+
+#. translators: %s = goal due date
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:331
+#, php-format
+msgid "Target date: %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:358
+msgid "Preparing for your talk"
+msgstr ""
+
+#. translators: %1$s = conversation template label, %2$s = talk date
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:362
+#, php-format
+msgid "Self-reflection · %1$s (%2$s)"
+msgstr ""
+
+#. translators: %s = conversation template label
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:367
+#, php-format
+msgid "Self-reflection · %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:377
+msgid "No self-reflection has been added for this talk yet."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:383
+msgid ""
+"Write your own reflection before the talk. Only the next planned talk can "
+"take a reflection — the other talks cannot. It is optional, never required."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:386
+msgid ""
+"The reflection window opens 2 weeks before the talk. Check back closer to "
+"the planned date."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:396
+msgid "Add or update your self-reflection"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
+msgid "Save reflection"
+msgstr ""
+
+#. translators: %s = last-saved timestamp
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
+#, php-format
+msgid "Last saved · %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:418
+msgid "No reflection saved yet."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:427
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1013
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:403
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:428
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1015
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 msgid "Decision:"
@@ -20802,33 +20772,38 @@ msgstr ""
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:436
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1025
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:453
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:474
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1184
+msgid "Later"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:487
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1755
 msgid "Start of season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:454
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:488
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1756
 msgid "Mid season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:455
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:489
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1757
 msgid "Mid-season A"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:456
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:490
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1758
 msgid "Mid-season B"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:457
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:491
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1759
 msgid "End of season"
 msgstr ""
@@ -20952,6 +20927,14 @@ msgstr ""
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:35
 #, php-format
 msgid "Player: %s"
+msgstr ""
+
+#. translators: %s = season name
+#. translators: %s: season name (e.g. "2025/2026").
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:266
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:419
+#, php-format
+msgid "Season: %s"
 msgstr ""
 
 #. translators: %d = count
@@ -21214,6 +21197,16 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1074
 msgid "Conversation sections"
 msgstr ""
+
+# #0028 — Conversational goals (thread primitive + goal adapter)
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1078
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1589
+#: src/Shared/Frontend/Components/FrontendThreadView.php:52
+#: src/Shared/Frontend/FrontendGoalsManageView.php:225
+#: src/Shared/Frontend/FrontendGoalsManageView.php:559
+#: src/Shared/Frontend/FrontendMyGoalsView.php:245
+msgid "Conversation"
+msgstr "Unterhaltung"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1082
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1298
@@ -23324,12 +23317,12 @@ msgstr ""
 msgid "%1$de %2$d'"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:40
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:81
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:41
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:82
 msgid "Matches needing review"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:43
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:44
 msgid ""
 "Lists match executions that have ended but not yet been finalised, on teams "
 "the coach can edit. Empty state renders nothing — the widget disappears when "
@@ -23338,24 +23331,24 @@ msgid ""
 msgstr ""
 
 #. translators: %d = number of matches awaiting finalize
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:87
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:88
 #, php-format
 msgid "%d match ended, waiting for finalize."
 msgid_plural "%d matches ended, waiting for finalize."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:115
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:116
 msgid "Review ›"
 msgstr ""
 
 #. translators: %d = number of extra matches not shown
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:126
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:127
 #, php-format
 msgid "All match executions (%d more)"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:135
+#: src/Modules/PersonaDashboard/Widgets/MatchesNeedingReviewWidget.php:136
 msgid "All match executions"
 msgstr ""
 
@@ -23948,37 +23941,37 @@ msgid_plural "%d activities"
 msgstr[0] "%d activiteit"
 msgstr[1] "%d activiteiten"
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:792
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:793
 msgid "Previous week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:795
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:796
 #, php-format
 msgid "Previous %d week"
 msgid_plural "Previous %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:801
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:802
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:991
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1158
 msgid "Next week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:804
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:805
 #, php-format
 msgid "Next %d week"
 msgid_plural "Next %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:930
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:931
 msgid "No activities for the selected teams in this period."
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:954
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:955
 msgid "Cross-team week overview"
 msgstr ""
 
@@ -27505,7 +27498,7 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:251
 #: src/Shared/Frontend/FrontendGoalsManageView.php:569
-#: src/Shared/Frontend/FrontendMyGoalsView.php:246
+#: src/Shared/Frontend/FrontendMyGoalsView.php:248
 msgid "How does this work?"
 msgstr ""
 
@@ -33735,10 +33728,6 @@ msgstr[1] ""
 msgid "Later this month"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1184
-msgid "Later"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1221
 msgid "Archived activities"
 msgstr ""
@@ -35788,7 +35777,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:190
 #: src/Shared/Frontend/FrontendMyGoalsView.php:102
-#: src/Shared/Frontend/FrontendMyGoalsView.php:221
+#: src/Shared/Frontend/FrontendMyGoalsView.php:222
 #: src/Shared/Frontend/PlayerDashboardView.php:147
 msgid "Due:"
 msgstr ""
@@ -36338,6 +36327,11 @@ msgstr ""
 msgid "%s's development"
 msgstr ""
 
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:79
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:219
+msgid "Your focus"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:84
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:251
 msgid "How you're doing"
@@ -36366,6 +36360,16 @@ msgstr ""
 msgid "Got it"
 msgstr ""
 
+#. translators: %s = date of the upcoming development talk
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:182
+#, php-format
+msgid "Prepare for your talk on %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:185
+msgid "Prepare for your upcoming development talk"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:187
 msgid "Start your self-review"
 msgstr ""
@@ -36375,8 +36379,40 @@ msgstr ""
 msgid "Open the development plan"
 msgstr ""
 
+#. translators: %s = date of the most recent development talk
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:193
+#, php-format
+msgid "Your talk on %s is ready to review"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:196
+msgid "Your last talk is ready to review"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:197
 msgid "Review and acknowledge"
+msgstr ""
+
+#. translators: %s = date of the next development talk
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:202
+#, php-format
+msgid "Next development talk: %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:205
+msgid "Your next development talk will be planned soon."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:219
+msgid "See all goals"
+msgstr ""
+
+#. translators: %s = goal due date
+#. translators: %s: due date in YYYY-MM-DD
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:231
+#: src/Shared/Frontend/FrontendMyProfileView.php:210
+#, php-format
+msgid "Due %s"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:251
@@ -36403,6 +36439,10 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:275
 msgid "Steady with your average"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyDevelopmentView.php:287
+msgid "Coming up"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:287
