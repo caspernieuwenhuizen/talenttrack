@@ -227,6 +227,12 @@
         on('.tt-ajax-form', 'submit', function(e) {
             e.preventDefault();
             var form = this;
+            // #2042 — optional confirm gate. A form carrying
+            // data-confirm-msg (e.g. the PDP proxy-acknowledgement) asks
+            // for confirmation before it submits. No attribute = no prompt,
+            // so every existing form is unaffected.
+            var confirmMsg = form.getAttribute('data-confirm-msg');
+            if (confirmMsg && !window.confirm(confirmMsg)) { return; }
             var path = form.getAttribute('data-rest-path');
             if (!path) {
                 showMsg(form, 'error', i18n.error_generic);

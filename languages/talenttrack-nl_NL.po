@@ -43597,6 +43597,46 @@ msgstr ""
 "Alleen de geplande datum kan worden gewijzigd totdat het vorige gesprek is "
 "afgetekend."
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Acknowledgements"
+msgstr "Bevestigingen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Record player acknowledgement"
+msgstr "Bevestiging speler vastleggen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Record parent acknowledgement"
+msgstr "Bevestiging ouder vastleggen"
+
+#. translators: %s = acknowledgement timestamp
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Player acknowledged on %s"
+msgstr "Speler heeft bevestigd op %s"
+
+#. translators: %s = acknowledgement timestamp
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Parent acknowledged on %s"
+msgstr "Ouder heeft bevestigd op %s"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid ""
+"Confirm only if the player acknowledged this conversation with you in "
+"person. This records it on their behalf."
+msgstr ""
+"Bevestig alleen als de speler dit gesprek persoonlijk met u heeft bevestigd. "
+"Dit legt het namens hen vast."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid ""
+"Confirm only if the parent acknowledged this conversation with you in "
+"person. This records it on their behalf."
+msgstr ""
+"Bevestig alleen als de ouder dit gesprek persoonlijk met u heeft bevestigd. "
+"Dit legt het namens hen vast."
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 

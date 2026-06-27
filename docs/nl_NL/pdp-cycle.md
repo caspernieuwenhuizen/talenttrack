@@ -53,6 +53,8 @@ De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen
 
 Na ondertekening verschijnt het gesprek op het *Mijn POP*-overzicht van de speler (en de ouder, indien gekoppeld). Beiden kunnen op *Bevestigen* klikken â€” een lichte "ik heb het gezien"-timestamp.
 
+Als het gesprek persoonlijk plaatsvindt, kan de coach die bevestigingen ook op het gespreksformulier vastleggen — *Bevestiging speler vastleggen* / *Bevestiging ouder vastleggen*, elk achter een bevestigingsdialoog. Het legt dezelfde bevestiging vast alsof de speler of ouder er zelf op had geklikt. Bevestig alleen wanneer zij het gesprek daadwerkelijk met u hebben bevestigd.
+
 ### Wat de speler ziet: een tijdlijn-eerst Mijn POP (#1990)
 
 *Mijn POP* is de **voorbereidings- en zelfreflectieruimte** van de speler, opgebouwd rond het seizoen als een tijdlijn.
