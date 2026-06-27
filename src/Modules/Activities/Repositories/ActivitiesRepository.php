@@ -458,7 +458,7 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $view_clause = ArchiveRepository::filterClause( ArchiveRepository::sanitizeView( $view ) );
+        $view_clause = ArchiveRepository::filterClause( ArchiveRepository::sanitizeView( $view ), 'a' );
         $scope       = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         $limit       = max( 1, min( 200, $limit ) );
 
@@ -482,7 +482,7 @@ final class ActivitiesRepository {
                FROM {$p}tt_activities a
                LEFT JOIN {$p}tt_teams t ON a.team_id = t.id AND t.club_id = a.club_id
                LEFT JOIN {$wpdb->users} u ON a.coach_id = u.ID
-              WHERE a.{$view_clause}
+              WHERE {$view_clause}
                 AND a.club_id = %d
                 {$scope}
                 {$type_clause}
