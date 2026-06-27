@@ -43624,6 +43624,10 @@ msgstr "Onbekend type of id."
 msgid "Record not found."
 msgstr "Record niet gevonden."
 
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "Tournament not found."
+msgstr "Toernooi niet gevonden."
+
 #: src/Shared/Frontend/DashboardShortcode.php
 msgid "No linked records."
 msgstr "Geen gekoppelde records."
