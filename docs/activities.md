@@ -27,17 +27,17 @@ Past **planned** activities (not closed off) are NOT in this collapsed bucket �
 
 ### Filters
 
-Two filters sit above the list:
+A single **filter bar** sits above the list. On a desktop screen it shows everything on one line; on a phone or tablet it collapses to a **Filters** button (with a badge counting how many filters are active) and a row of summary chips — tap **Filters** to open a bottom sheet holding the same controls, then **Apply** or **Clear**.
+
+The bar holds five controls, each under its own label:
 
 - **Team** — narrow to one team. Defaults to all teams the coach has access to.
 - **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added).
-- **Show cancelled** — off by default. Cancelled activities are hidden from the list so the schedule stays clean; tick this to bring them back. When shown, a cancelled activity is dimmed and struck through with a Cancelled pill, in whichever date bucket it falls.
+- **Period** — a date window: **All · This week · Next week · This month · Next month · This season**. Picking one scopes the list without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season.
+- **Status** — an **Active · Archived · All** control. **Active** is the default — the timeline you normally see. **Archived** replaces the timeline with a flat list of the activities you've archived, each with a **Restore** button and (for admins) a **Delete permanently** button. **All** shows the active timeline with the archived list appended below it.
+- **Cancelled** — a **Show** switch, off by default. Cancelled activities are hidden so the schedule stays clean; flip it on to bring them back, dimmed and struck through with a Cancelled pill in whichever date bucket they fall.
 
-The filters survive in the URL (`?team_id=N&activity_type_key=match&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view.
-
-A row of **period pills** sits below the filters: **All · This week · Next week · This month · Next month · This season**. Tapping one narrows the list to that date window without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season. The choice survives in the URL (`?period=this_week`) and combines with the Team and Type filters.
-
-Below the period pills is an **Active · Archived · All** status control. **Active** is the default — the timeline you normally see. **Archived** replaces the timeline with a flat list of the activities you've archived, each with a **Restore** button and (for admins) a **Delete permanently** button. **All** shows the active timeline with the archived list appended below it. The choice survives in the URL (`?archived=archived`).
+Every choice survives in the URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view, and the controls combine freely.
 
 ## The activity detail page
 

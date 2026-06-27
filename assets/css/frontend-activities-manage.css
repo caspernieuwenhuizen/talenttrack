@@ -14,10 +14,8 @@
  *
  *   List redesign (v4.7.0):
  *     .tt-act-surface              — top-level wrapper around filter + lists
- *     .tt-act-filters              — 2-column filter row (Team + Type)
- *     .tt-act-filters__field       — label + select stack
- *     .tt-act-filters__label       — small caps field label
- *     .tt-act-filters__select      — 48px-tall <select>
+ *     (#2026 — the filter row / period pills / status tabs moved to the
+ *      shared FilterBar; see assets/css/frontend-filter-bar.css)
  *     .tt-act-empty                — no-activities empty state
  *     .tt-act-past-toggle          — pinned-top "N past activities … Show ▼" link
  *     .tt-act-past-toggle__count   — leading count text
@@ -67,64 +65,12 @@
 }
 
 /* ---- Filter row -------------------------------------------- */
-/* #1793 — Team/Type bar adopts the shared #1753 "register" card
- * (white surface, full border, large radius, soft shadow, sp-4 padding)
- * so the activities toolbar matches the players list. The period
- * quick-filter chips render below it, unchanged. */
-.tt-dashboard .tt-act-filters {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--tt-sp-3, 12px);
-    padding: var(--tt-sp-4, 16px);
-    background: var(--tt-paper, #fff);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
-    margin: 0 0 var(--tt-sp-4, 16px);
-}
-.tt-dashboard .tt-act-filters__field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 0;
-}
-.tt-dashboard .tt-act-filters__label {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--tt-ink-soft, #5b6e75);
-}
-.tt-dashboard .tt-act-filters__select {
-    min-height: 48px;
-    border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: var(--tt-radius, 8px);
-    background: #fff;
-    font: inherit;
-    font-size: 16px;          /* iOS auto-zoom floor per CLAUDE.md §2 */
-    padding: 0 12px;
-    color: var(--tt-ink, #1a1d21);
-    touch-action: manipulation;
-}
-
-/* #1862 — "Show cancelled" checkbox filter: row layout, 48px target. */
-.tt-dashboard .tt-act-filters__field--check {
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    min-height: 48px;
-    align-self: end;
-}
-.tt-dashboard .tt-act-filters__check {
-    width: 24px;
-    height: 24px;
-    touch-action: manipulation;
-    flex-shrink: 0;
-}
-.tt-dashboard .tt-act-filters__field--check .tt-act-filters__label {
-    text-transform: none;
-    letter-spacing: 0;
-}
+/* #2026 — the bespoke Team/Type filter row, the "Show cancelled" check,
+ * the period quick-filter pills (#1648) and the archive-status tabs
+ * (#1555) are retired here: the activities surface now renders the shared
+ * FilterBar component (assets/css/frontend-filter-bar.css, epic #2017
+ * Phase 1). The archived-list styles below (.tt-act-card--archived,
+ * .tt-act-archived-actions) are NOT filter controls and stay put. */
 
 /* ---- Empty state ------------------------------------------- */
 .tt-dashboard .tt-act-empty {
@@ -792,83 +738,10 @@
     font-size: 0.75rem;
 }
 
-/* ---- Period quick-filter pills (#1648) ---------------------- */
-.tt-dashboard .tt-act-periods {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0 0 1rem;
-    padding-bottom: 0.25rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-x: contain;
-}
-.tt-dashboard .tt-act-period {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0 0.9rem;
-    flex: 0 0 auto;
-    border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--tt-ink, #1a1d21);
-    font-size: 0.875rem;
-    line-height: 1.2;
-    text-decoration: none;
-    white-space: nowrap;
-    touch-action: manipulation;
-}
-.tt-dashboard .tt-act-period:active {
-    background: var(--tt-surface-2, #f1f4f6);
-}
-.tt-dashboard .tt-act-period--active {
-    background: var(--tt-accent, #1f6feb);
-    border-color: var(--tt-accent, #1f6feb);
-    color: #fff;
-    font-weight: 600;
-}
-.tt-dashboard .tt-act-period:focus-visible {
-    outline: 2px solid var(--tt-accent, #1f6feb);
-    outline-offset: 2px;
-}
-
-/* ---- Archive status control (#1555) ------------------------- */
-.tt-dashboard .tt-act-status {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0 0 1rem;
-}
-.tt-dashboard .tt-act-status__tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    padding: 0 0.9rem;
-    flex: 0 0 auto;
-    border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--tt-ink, #1a1d21);
-    font-size: 0.875rem;
-    line-height: 1.2;
-    text-decoration: none;
-    white-space: nowrap;
-    touch-action: manipulation;
-}
-.tt-dashboard .tt-act-status__tab:active {
-    background: var(--tt-surface-2, #f1f4f6);
-}
-.tt-dashboard .tt-act-status__tab--active {
-    background: var(--tt-accent, #1f6feb);
-    border-color: var(--tt-accent, #1f6feb);
-    color: #fff;
-    font-weight: 600;
-}
-.tt-dashboard .tt-act-status__tab:focus-visible {
-    outline: 2px solid var(--tt-accent, #1f6feb);
-    outline-offset: 2px;
-}
+/* #2026 — the period quick-filter pills (#1648) and the archive-status
+ * tabs (#1555) moved to the shared FilterBar
+ * (assets/css/frontend-filter-bar.css). The archived-list row styles
+ * below remain — they style the list, not the filter control. */
 
 /* ---- Archived list + per-row actions (#1555) ---------------- */
 .tt-dashboard .tt-act-card--archived {

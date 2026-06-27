@@ -43589,6 +43589,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Je kunt je zelfreflectie toevoegen tot 2 weken voor deze afspraak. Kom "
 #~ "terug dichter bij de geplande datum."
 
+#: src/Shared/Frontend/Components/FilterBar.php
+msgid "Open filters"
+msgstr "Filters openen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Cancelled shown"
+msgstr "Geannuleerde getoond"
+
 #~ msgid "In Progress"
 #~ msgstr "In uitvoering"
 

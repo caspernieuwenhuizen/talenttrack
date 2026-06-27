@@ -1,0 +1,543 @@
+/*
+ * frontend-filter-bar.css — shared FilterBar component (#2026, epic #2017).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target the smallest viewport
+ * (~360px) where the bar collapses to a "Filters" button + summary chips
+ * that open a bottom sheet; a single `min-width:1024px` query upgrades to
+ * the inline single-line bar. Tokens only (tokens.css / BrandStyles); no
+ * raw hex except the gold-tint accents that have no token (kept as the
+ * mockup specifies). All classes are `tt-`-prefixed.
+ *
+ * Mirrors .local-mockups/filter-bar/index.html. Owned by
+ * \TT\Shared\Frontend\Components\FilterBar.
+ *
+ * Class contract:
+ *   .tt-filterbar              — white card wrapper
+ *   .tt-filterbar__form        — the GET form (whole bar is one form)
+ *   .tt-filterbar__row         — inline single-line row (desktop only)
+ *   .tt-filterbar__group       — one labelled group
+ *   .tt-filterbar__div         — vertical divider between groups
+ *   .tt-filter__glabel         — small-caps group label
+ *   .tt-filsel / __select      — select control (chevron box)
+ *   .tt-perdrop / __menu       — period pill-dropdown (inline)
+ *   .tt-segtrack / .tt-seg     — period segmented track (sheet)
+ *   .tt-statset / .tt-statpill — status pills
+ *   .tt-switch                 — boolean toggle
+ *   .tt-filterbar__mobile      — collapsed trigger + chips (mobile)
+ *   .tt-filterbtn / __badge    — "Filters" button + active count
+ *   .tt-chips / .tt-chip       — scrollable summary chips
+ *   .tt-filter-sheet*          — bottom sheet (mobile)
+ */
+
+/* =============================================================
+   Card frame
+   ============================================================= */
+.tt-dashboard .tt-filterbar {
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius-lg, 14px);
+	box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
+	padding: var(--tt-sp-3, 12px);
+	margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* Shared group label (small caps). */
+.tt-dashboard .tt-filter__glabel {
+	display: block;
+	font-size: 0.6875rem; /* 11px */
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--tt-ink-soft, #5b6e75);
+	margin: 0 0 var(--tt-sp-1, 4px) 2px;
+}
+
+/* =============================================================
+   Control type 1 — SELECT (chevron box)
+   ============================================================= */
+.tt-dashboard .tt-filsel {
+	position: relative;
+}
+.tt-dashboard .tt-filsel__select {
+	appearance: none;
+	-webkit-appearance: none;
+	font: inherit;
+	font-size: 16px; /* iOS auto-zoom floor (CLAUDE.md §2) */
+	color: var(--tt-ink, #0e1a14);
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	min-height: 48px;
+	padding: 0 36px 0 12px;
+	width: 100%;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-filsel::after {
+	content: "";
+	position: absolute;
+	right: 14px;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	border-right: 2px solid var(--tt-primary, #0b3d2e);
+	border-bottom: 2px solid var(--tt-primary, #0b3d2e);
+	transform: translateY(-70%) rotate(45deg);
+	pointer-events: none;
+}
+.tt-dashboard .tt-filsel__select:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
+   Control type 2 — PERIOD pill-dropdown (inline) + segmented (sheet)
+   ============================================================= */
+.tt-dashboard .tt-perdrop-wrap {
+	position: relative;
+}
+/* Strip the native <summary> disclosure triangle (all engines). */
+.tt-dashboard .tt-perdrop-wrap > summary {
+	list-style: none;
+}
+.tt-dashboard .tt-perdrop-wrap > summary::-webkit-details-marker {
+	display: none;
+}
+.tt-dashboard .tt-perdrop {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	font: inherit;
+	font-size: 0.9375rem; /* 15px */
+	font-weight: 600;
+	color: var(--tt-primary, #0b3d2e);
+	background: #fffdf5;
+	border: 1px solid #e3cf85;
+	border-left: 4px solid var(--tt-secondary, #e8b624);
+	border-radius: 999px;
+	min-height: 48px;
+	padding: 0 14px;
+	cursor: pointer;
+	white-space: nowrap;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-perdrop::before {
+	content: "\1F5D3\FE0F"; /* spiral calendar */
+	font-size: 0.875rem;
+}
+.tt-dashboard .tt-perdrop__chev {
+	width: 7px;
+	height: 7px;
+	border-right: 2px solid var(--tt-primary, #0b3d2e);
+	border-bottom: 2px solid var(--tt-primary, #0b3d2e);
+	transform: translateY(-2px) rotate(45deg);
+	margin-left: 2px;
+}
+.tt-dashboard .tt-perdrop:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+.tt-dashboard .tt-perdrop-wrap[open] > .tt-perdrop .tt-perdrop__chev {
+	transform: translateY(2px) rotate(-135deg);
+}
+/* Inline popover menu — period links. */
+.tt-dashboard .tt-perdrop__menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	min-width: 180px;
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+	padding: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-perdrop__opt {
+	display: flex;
+	align-items: center;
+	min-height: 48px;
+	padding: 0 12px;
+	border-radius: var(--tt-radius, 8px);
+	font-size: 0.875rem;
+	color: var(--tt-ink, #0e1a14);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.tt-dashboard .tt-perdrop__opt:hover {
+	background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-perdrop__opt--on {
+	font-weight: 700;
+	color: var(--tt-primary, #0b3d2e);
+	background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-perdrop__opt:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: -2px;
+}
+
+/* Segmented track — used inside the sheet (room to wrap). */
+.tt-dashboard .tt-segtrack {
+	display: flex;
+	flex-wrap: wrap;
+	background: var(--tt-bg-soft, #f4f6f3);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius-lg, 14px);
+	padding: var(--tt-sp-1, 4px);
+	gap: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-seg {
+	font: inherit;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--tt-ink-soft, #5b6e75);
+	background: transparent;
+	border: 0;
+	border-radius: 999px;
+	min-height: 48px;
+	padding: 0 14px;
+	white-space: nowrap;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	text-decoration: none;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-seg--on {
+	background: var(--tt-paper, #fff);
+	color: var(--tt-primary, #0b3d2e);
+	box-shadow: 0 1px 3px rgba(11, 61, 46, 0.18);
+}
+.tt-dashboard .tt-seg:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
+   Control type 3 — STATUS pills
+   ============================================================= */
+.tt-dashboard .tt-statset {
+	display: inline-flex;
+	gap: var(--tt-sp-2, 8px);
+	flex-wrap: wrap;
+}
+.tt-dashboard .tt-statpill {
+	font: inherit;
+	font-size: 0.8125rem; /* 13px */
+	font-weight: 700;
+	color: var(--tt-primary, #0b3d2e);
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	min-height: 48px;
+	padding: 0 13px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	text-decoration: none;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-statpill__dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--tt-line, #e3e6e1);
+	flex-shrink: 0;
+}
+.tt-dashboard .tt-statpill[data-k="active"] .tt-statpill__dot {
+	background: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-statpill[data-k="archived"] .tt-statpill__dot {
+	background: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-statpill[data-k="all"] .tt-statpill__dot {
+	background: linear-gradient(90deg, var(--tt-success, #2f9e5e) 50%, var(--tt-muted, #6a6d66) 50%);
+}
+.tt-dashboard .tt-statpill--on {
+	background: var(--tt-secondary, #e8b624);
+	border-color: var(--tt-secondary, #e8b624);
+	color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-statpill:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
+   Control type 4 — TOGGLE switch
+   ============================================================= */
+.tt-dashboard .tt-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 9px;
+	min-height: 48px;
+	cursor: pointer;
+	user-select: none;
+	font-size: 0.875rem;
+	color: var(--tt-ink, #0e1a14);
+	position: relative;
+}
+/* The checkbox is the accessible control; visually hidden but focusable. */
+.tt-dashboard .tt-switch__input {
+	position: absolute;
+	opacity: 0;
+	width: 44px;
+	height: 26px;
+	margin: 0;
+	cursor: pointer;
+}
+.tt-dashboard .tt-switch__track {
+	width: 44px;
+	height: 26px;
+	border-radius: 999px;
+	background: var(--tt-line, #e3e6e1);
+	position: relative;
+	transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
+	flex-shrink: 0;
+}
+.tt-dashboard .tt-switch__track::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background: var(--tt-paper, #fff);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+	transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
+}
+.tt-dashboard .tt-switch--on .tt-switch__track,
+.tt-dashboard .tt-switch__input:checked + .tt-switch__track {
+	background: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-switch--on .tt-switch__track::after,
+.tt-dashboard .tt-switch__input:checked + .tt-switch__track::after {
+	transform: translateX(18px);
+}
+.tt-dashboard .tt-switch__input:focus-visible + .tt-switch__track {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
+   MOBILE BASE (<1024px) — collapsed trigger + chips + bottom sheet.
+   The inline row is hidden here; it appears only at >=1024px.
+   ============================================================= */
+.tt-dashboard .tt-filterbar__row {
+	display: none;
+}
+.tt-dashboard .tt-filterbar__mobile {
+	display: block;
+}
+.tt-dashboard .tt-filtertrigger {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-2, 8px);
+	width: 100%;
+}
+.tt-dashboard .tt-filterbtn {
+	position: relative;
+	background: var(--tt-paper, #fff);
+	color: var(--tt-primary, #0b3d2e);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	flex: 0 0 auto;
+	min-height: 48px;
+}
+.tt-dashboard .tt-filterbtn__icon {
+	font-size: 1rem;
+	line-height: 1;
+}
+.tt-dashboard .tt-filterbtn__badge {
+	background: var(--tt-secondary, #e8b624);
+	color: var(--tt-primary, #0b3d2e);
+	font-size: 0.6875rem;
+	font-weight: 800;
+	border-radius: 999px;
+	min-width: 20px;
+	height: 20px;
+	display: inline-grid;
+	place-items: center;
+	padding: 0 5px;
+}
+.tt-dashboard .tt-chips {
+	display: flex;
+	gap: 7px;
+	overflow-x: auto;
+	scrollbar-width: none;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-x: contain;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.tt-dashboard .tt-chips::-webkit-scrollbar {
+	display: none;
+}
+.tt-dashboard .tt-chip {
+	font-size: 0.78125rem; /* 12.5px */
+	font-weight: 600;
+	color: var(--tt-primary, #0b3d2e);
+	background: var(--tt-success-subtle, #e3f4ea);
+	border: 1px solid #bfe4cf;
+	border-radius: 999px;
+	padding: 6px 11px;
+	white-space: nowrap;
+	min-height: 34px;
+	display: inline-flex;
+	align-items: center;
+}
+
+/* =============================================================
+   BOTTOM SHEET (mobile)
+   ============================================================= */
+.tt-dashboard .tt-filter-sheet-scrim {
+	position: fixed;
+	inset: 0;
+	background: rgba(7, 38, 28, 0.45);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.18s ease;
+	z-index: 1000;
+}
+.tt-dashboard .tt-filter-sheet-scrim[hidden] {
+	display: none;
+}
+.tt-dashboard .tt-filter-sheet {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: var(--tt-paper, #fff);
+	border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
+	box-shadow: 0 -10px 30px rgba(7, 38, 28, 0.22);
+	transform: translateY(100%);
+	transition: transform 0.2s ease;
+	z-index: 1001;
+	max-height: 92%;
+	display: flex;
+	flex-direction: column;
+	overscroll-behavior: contain;
+	padding-bottom: env(safe-area-inset-bottom);
+}
+.tt-dashboard .tt-filter-sheet[hidden] {
+	display: none;
+}
+.tt-dashboard .tt-filterbar.is-sheet-open .tt-filter-sheet-scrim {
+	opacity: 1;
+	pointer-events: auto;
+}
+.tt-dashboard .tt-filterbar.is-sheet-open .tt-filter-sheet {
+	transform: translateY(0);
+}
+.tt-dashboard .tt-filter-sheet__grip {
+	width: 40px;
+	height: 4px;
+	border-radius: 999px;
+	background: var(--tt-line, #e3e6e1);
+	margin: 10px auto 4px;
+}
+.tt-dashboard .tt-filter-sheet__head {
+	display: flex;
+	align-items: center;
+	padding: 6px 16px 10px;
+	border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-filter-sheet__title {
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--tt-primary, #0b3d2e);
+	margin: 0 auto 0 0;
+}
+.tt-dashboard .tt-filter-sheet__close {
+	background: none;
+	border: 0;
+	font-size: 1.25rem;
+	color: var(--tt-muted, #6a6d66);
+	cursor: pointer;
+	width: 48px;
+	height: 48px;
+	line-height: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+.tt-dashboard .tt-filter-sheet__close:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: -2px;
+}
+.tt-dashboard .tt-filter-sheet__body {
+	padding: 14px 16px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+.tt-dashboard .tt-filter-sheet__body .tt-filterbar__div {
+	display: none; /* dividers belong to the inline row only */
+}
+.tt-dashboard .tt-filter-sheet__body .tt-filsel__select {
+	width: 100%;
+}
+.tt-dashboard .tt-filter-sheet__foot {
+	display: flex;
+	gap: 10px;
+	padding: 12px 16px;
+	border-top: 1px solid var(--tt-line-soft, #eef0ec);
+	padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+.tt-dashboard .tt-filter-sheet__foot .tt-btn {
+	flex: 1 1 0;
+	justify-content: center;
+	min-height: 48px; /* CLAUDE.md §2 touch target */
+}
+
+/* =============================================================
+   DESKTOP (>=1024px) — single-line inline bar.
+   ============================================================= */
+@media (min-width: 1024px) {
+	.tt-dashboard .tt-filterbar {
+		padding: 14px;
+	}
+	.tt-dashboard .tt-filterbar__row {
+		display: flex;
+		align-items: flex-end;
+		gap: 16px;
+		flex-wrap: wrap;
+	}
+	.tt-dashboard .tt-filterbar__group {
+		flex: 0 0 auto;
+		min-width: 0;
+	}
+	.tt-dashboard .tt-filterbar__div {
+		align-self: stretch;
+		width: 1px;
+		background: var(--tt-line, #e3e6e1);
+		margin: 2px 0;
+	}
+	/* Mobile chrome hidden on desktop. */
+	.tt-dashboard .tt-filterbar__mobile,
+	.tt-dashboard .tt-filter-sheet,
+	.tt-dashboard .tt-filter-sheet-scrim {
+		display: none;
+	}
+	.tt-dashboard .tt-filterbar__group--team .tt-filsel__select {
+		min-width: 150px;
+	}
+	.tt-dashboard .tt-filterbar__group--type .tt-filsel__select {
+		min-width: 140px;
+	}
+}
+
+/* Respect reduced-motion. */
+@media (prefers-reduced-motion: reduce) {
+	.tt-dashboard .tt-filter-sheet,
+	.tt-dashboard .tt-filter-sheet-scrim,
+	.tt-dashboard .tt-switch__track,
+	.tt-dashboard .tt-switch__track::after {
+		transition: none;
+	}
+}
