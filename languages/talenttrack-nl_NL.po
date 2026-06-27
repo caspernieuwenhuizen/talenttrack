@@ -43603,29 +43603,6 @@ msgstr "Voor dit gesprek is nog geen zelfreflectie toegevoegd."
 msgid "Last saved · %s"
 msgstr "Laatst opgeslagen · %s"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid "Period"
-msgstr "Periode"
-
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid "Colour"
-msgstr "Kleur"
-
-#. translators: 1: start date, 2: end date
-#: src/Shared/Frontend/FrontendHolidaysView.php
-#, php-format
-msgctxt "holiday period range"
-msgid "%1$s – %2$s"
-msgstr "%1$s – %2$s"
-
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid ""
-"This holiday shows as a banner across these days on every team planner, so "
-"coaches plan around the closed days."
-msgstr ""
-"Deze vakantie verschijnt als banner over deze dagen op elke teamplanner, "
-"zodat coaches rondom de gesloten dagen plannen."
-
 #~ msgid "In Progress"
 #~ msgstr "In uitvoering"
 
