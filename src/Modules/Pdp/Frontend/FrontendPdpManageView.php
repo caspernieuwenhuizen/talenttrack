@@ -1076,7 +1076,18 @@ class FrontendPdpManageView extends FrontendViewBase {
         // read-only end-to-end: form inputs disabled, Save hidden,
         // signoff checkbox hidden, top banner explaining why.
         $is_locked  = PdpConversationsRepository::isLocked( $conv );
-        $lock_attr  = $is_locked ? ' readonly disabled' : '';
+        // #2041 — only the "active" conversation (earliest by sequence not
+        // yet signed off) is fully editable. Later conversations are
+        // content-locked: every field is read-only EXCEPT the planned date,
+        // so the coach can schedule the cycle ahead without filling in a
+        // talk out of order. A signature still trumps this with a full lock.
+        $is_active      = ( (int) $conv->id === $convs_repo->activeConversationId( (int) $file->id ) );
+        $content_locked = ! $is_locked && ! $is_active;
+        // scheduled_at honours only the signature lock (date stays editable
+        // on a content-locked conversation); every other field honours both.
+        $date_attr    = $is_locked ? ' readonly disabled' : '';
+        $content_attr = ( $is_locked || $content_locked ) ? ' readonly disabled' : '';
+        $lock_attr    = $content_attr;
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
         // v3.92.5 — after save / sign, land back on the parent PDP file
         // so the user sees their work in context. Public.js honours
@@ -1166,12 +1177,21 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '. ' . esc_html__( 'Open a new conversation if a follow-up edit is needed.', 'talenttrack' );
             echo '</div>';
         }
+        // #2041 — content-locked (a later conversation in the cycle): only
+        // the planned date is editable until the active conversation ahead
+        // of it is signed off. Distinct from the signature lock above.
+        if ( $content_locked ) {
+            echo '<div class="tt-notice tt-pdp-conv-future" role="status">';
+            echo '<strong>' . esc_html__( 'Planned date only.', 'talenttrack' ) . '</strong> ';
+            echo esc_html__( 'Until the previous conversation is signed off, only the planned date can be changed here.', 'talenttrack' );
+            echo '</div>';
+        }
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
-                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>"<?php echo $lock_attr; ?> />
+                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>"<?php echo $date_attr; ?> />
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-conducted"><?php esc_html_e( 'Conducted at', 'talenttrack' ); ?></label>
@@ -1229,7 +1249,7 @@ class FrontendPdpManageView extends FrontendViewBase {
 
             <?php if ( $is_signed ) : ?>
                 <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) ); ?></p>
-            <?php elseif ( ! $is_locked ) : ?>
+            <?php elseif ( ! $is_locked && ! $content_locked ) : ?>
                 <div class="tt-field">
                     <label class="tt-checkbox">
                         <input type="checkbox" name="coach_signoff_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />

@@ -71,13 +71,21 @@ class PdpConversationsRestController {
                 __( 'You do not have permission to update this conversation.', 'talenttrack' ), 403 );
         }
 
+        // #2041 — a conversation that isn't the active one (earliest by
+        // sequence not yet signed off) is content-locked: only its planned
+        // date may change, so the coach can schedule ahead without authoring
+        // a talk out of order. Player/parent reflection + acks keep their own
+        // gates; the signature lock below still trumps everything.
+        $content_locked = ! PdpConversationsRepository::isLocked( $conv )
+            && (int) $conv->id !== $repo->activeConversationId( (int) $conv->pdp_file_id );
+
         // #1853 — the coach links the goals discussed in this talk. It's a
         // separate table (tt_goal_links), handled independently of the
         // column patch and only for callers who can edit conversation
         // content (the coach/admin whitelist includes `notes`). The hidden
         // `linked_goal_ids_present` flag lets an empty selection clear them.
         $goal_links_touched = false;
-        if ( in_array( 'notes', $allowed, true ) && ! empty( $r->get_param( 'linked_goal_ids_present' ) ) ) {
+        if ( in_array( 'notes', $allowed, true ) && ! $content_locked && ! empty( $r->get_param( 'linked_goal_ids_present' ) ) ) {
             $raw = $r->get_param( 'linked_goal_ids' );
             $ids = self::filterPlayerGoalIds( (int) $file->player_id, is_array( $raw ) ? $raw : [] );
             ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->setGoalsForConversation( $id, $ids );
@@ -119,6 +127,22 @@ class PdpConversationsRestController {
                     return RestResponse::error(
                         'conversation_locked',
                         __( 'This conversation is read-only — it carries a signature. Open a new conversation if a follow-up edit is needed.', 'talenttrack' ),
+                        409
+                    );
+                }
+            }
+        }
+
+        // #2041 — content-locked backstop: reject the coach's talk-authoring
+        // fields on a non-active conversation; only scheduled_at may change.
+        // Mirrors the frontend's per-field lock in case the form is bypassed.
+        if ( $content_locked ) {
+            $blocked = [ 'conducted_at', 'agenda', 'notes', 'agreed_actions', 'coach_signoff_at' ];
+            foreach ( array_keys( $patch ) as $field ) {
+                if ( in_array( $field, $blocked, true ) ) {
+                    return RestResponse::error(
+                        'conversation_not_active',
+                        __( 'Only the planned date can be changed until the previous conversation is signed off.', 'talenttrack' ),
                         409
                     );
                 }
