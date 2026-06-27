@@ -269,8 +269,37 @@ Effect on personas (from the shipped seed):
 
 The WordPress settings-admin / administrator path is preserved as a fallback on the rendered surfaces, so an operator running the WP install never loses access while a club's matrix is still dormant. No matrix entity, seed, or migration changed — this is a call-site refactor onto the existing grants.
 
+## Matrix entity `recycle_bin` — permanent deletion (#2020)
+
+The recycle bin (archive → trash → purge) introduces one new matrix entity:
+`recycle_bin`. Managing the bin — viewing trashed rows, restoring them, and
+permanently purging them — is gated by the single capability
+`tt_manage_recycle_bin`. Purging is the operative destructive act, so the cap
+bridges to `recycle_bin / create_delete`:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_manage_recycle_bin` | `recycle_bin` / `create_delete` |
+
+The seed grants **academy_admin `rcd[global]` only** — reproducing the
+admin-only design (WP administrators bypass via the matrix administrator
+override). No other persona holds a row. The cap ships academy-admin-only in
+`RolesService` (`RECYCLE_BIN_CAPS` → `tt_club_admin` + administrator), so the
+raw cap holders map cleanly onto the seed grantee: routing through the matrix
+is **access-preserving** — no persona gains or loses access.
+
+The cap is intentionally **not** in `RolesService::VIEW_CAPS` / `EDIT_CAPS`,
+so it does not auto-propagate to HoD via `allViewCapsTrue()` — exactly the
+`tournaments` design above.
+
+Migration `0187_authorization_seed_topup_recycle_bin` backfills the entity
+into `tt_authorization_matrix` on existing installs (idempotent `INSERT
+IGNORE`, walking only the new `recycle_bin` rows). The schema + retention
+config land in the paired migration `0186_recycle_bin_foundation`.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.
+- [Recycle bin](recycle-bin.md) — retention window, purge-owner decision, GDPR.
 - [Modules](modules.md) — disabling a module short-circuits its matrix rows.
 - [Tournaments](tournaments.md) — user-facing guide for the planner.

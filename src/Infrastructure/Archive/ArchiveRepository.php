@@ -58,6 +58,19 @@ class ArchiveRepository {
     // Public API
 
     /**
+     * The entity-key → table-name map (table names un-prefixed). Exposed
+     * read-only so callers that need the canonical list of archivable /
+     * bin-archivable entities (the recycle-bin audit vocabulary #2020, the
+     * bin list view #2022) anchor to one source of truth rather than
+     * re-listing the entities. Returns a copy — the constant stays private.
+     *
+     * @return array<string,string>
+     */
+    public static function entityMap(): array {
+        return self::TABLE_MAP;
+    }
+
+    /**
      * Archive N rows. Stamps archived_at + archived_by. Rows that are
      * already archived are left untouched (idempotent).
      *

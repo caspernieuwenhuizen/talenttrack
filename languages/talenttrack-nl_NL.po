@@ -43557,6 +43557,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Documentation/HelpTopics.php:186
+msgid "Recycle bin"
+msgstr "Prullenbak"
+
+#: src/Modules/Documentation/HelpTopics.php:188
+msgid ""
+"Archive → trash → purge: the retention window, who can permanently delete, "
+"and the GDPR right-to-erasure path."
+msgstr ""
+"Archiveren → prullenbak → opschonen: de bewaartermijn, wie definitief mag "
+"verwijderen en het AVG-pad voor het recht op vergetelheid."
+
 #~ msgid ""
 #~ "Adding a short self-reflection before your talk helps your coach. It is "
 #~ "optional, never required. You can find it on the talk just below."

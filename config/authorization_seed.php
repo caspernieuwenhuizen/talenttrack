@@ -846,6 +846,14 @@ return array_merge(
         // persona — the coach/HoD/scout persona-expansion (docs §99-104)
         // is a separate, deliberate future change.
         'tournaments'                   => [ 'rcd', 'global', $mod_tournaments ],
+        // #2020 (epic #2018) — recycle bin. The single owner of permanent
+        // deletion (archive → trash → purge). Admin-only: only academy_admin
+        // (and WP administrators, who bypass) reach the bin. No purge path may
+        // be gated more weakly than this, so the legacy per-entity /permanent
+        // endpoints are re-gated onto the same cap in #2024. Bridged from
+        // `tt_manage_recycle_bin` via LegacyCapMapper to `recycle_bin:create_delete`.
+        // No other persona — access-preserving (the cap ships academy-admin-only).
+        'recycle_bin'                   => [ 'rcd', 'global', $mod_authorization ],
         // #0081 — Onboarding pipeline. Admin RCD global; same as HoD.
         'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
