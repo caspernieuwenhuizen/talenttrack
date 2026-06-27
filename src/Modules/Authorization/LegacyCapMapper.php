@@ -353,6 +353,16 @@ final class LegacyCapMapper {
         // cleanly onto the seed grantee. No other persona — access-preserving.
         'tt_view_tournaments'            => [ 'tournaments',          'read' ],
         'tt_edit_tournaments'            => [ 'tournaments',          'change' ],
+
+        // #2020 (epic #2018) — recycle bin. The single owner of permanent
+        // deletion (archive → trash → purge). `tt_manage_recycle_bin` is the
+        // sole cap and gates view + restore + purge on the bin, so it bridges
+        // to `recycle_bin:create_delete` (purge is the operative destructive
+        // act). Seeded `rcd` global to academy_admin ONLY (RolesService
+        // RECYCLE_BIN_CAPS: tt_club_admin role + administrator bypass), which
+        // maps cleanly onto the seed grantee — access-preserving, no persona
+        // gains or loses access. Coaches / HoD / scouts hold no recycle_bin row.
+        'tt_manage_recycle_bin'          => [ 'recycle_bin',          'create_delete' ],
     ];
 
     public static function isKnown( string $cap ): bool {

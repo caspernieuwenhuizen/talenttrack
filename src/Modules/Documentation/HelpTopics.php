@@ -183,6 +183,11 @@ class HelpTopics {
                 'group'   => 'frontend',
                 'summary' => __( 'Persona × entity × activity × scope grid — what each persona can do, with shadow-mode preview before applying.', 'talenttrack' ),
             ],
+            'recycle-bin' => [
+                'title'   => __( 'Recycle bin', 'talenttrack' ),
+                'group'   => 'frontend',
+                'summary' => __( 'Archive → trash → purge: the retention window, who can permanently delete, and the GDPR right-to-erasure path.', 'talenttrack' ),
+            ],
             'modules' => [
                 'title'   => __( 'Modules', 'talenttrack' ),
                 'group'   => 'frontend',

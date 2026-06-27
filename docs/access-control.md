@@ -98,6 +98,28 @@ The recruitment funnel introduces two new matrix entities, scoped consent-sensit
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
 
+## Recycle-bin management — `tt_manage_recycle_bin` (#2020)
+
+Permanent deletion is the most destructive act in the product, so it lives
+behind its own capability: **`tt_manage_recycle_bin`**. It gates viewing the
+recycle bin, restoring trashed records, and purging them for good.
+
+The capability is granted to **the WordPress administrator and the Academy
+Admin role (`tt_club_admin`) only**. It is deliberately **not** part of
+`RolesService::VIEW_CAPS` / `EDIT_CAPS` — those propagate to the Head of
+Development and the Read-Only Observer via `allViewCapsTrue()`, which would
+hand the bin to roles that must not purge data. Instead it lives in its own
+`RECYCLE_BIN_CAPS` constant: `ensureCapabilities()` grants it to WP
+`administrator`, and the `tt_club_admin` role definition lists it explicitly.
+No other role definition references it, so coaches, HoD, scouts, staff, and
+observers never hold it. Holding `tt_edit_settings` does **not** grant it.
+
+This is the **single owner of permanent deletion**: the legacy per-entity
+`DELETE /{entity}/{id}/permanent` endpoints (which previously gated on the
+weaker `tt_edit_settings`) are re-gated onto this same capability, so no
+purge path is weaker than the bin. See [Recycle bin](recycle-bin.md) for the
+retention window and GDPR basis.
+
 ## Permission debug
 
 **Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
