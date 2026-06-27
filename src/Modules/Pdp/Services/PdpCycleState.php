@@ -109,6 +109,50 @@ class PdpCycleState {
     }
 
     /**
+     * #1990 — the single next-planned conversation: the first not-yet-
+     * conducted, not-signed-off talk by sequence. This is the only
+     * conversation that may carry an editable self-reflection on the
+     * My PDP surface — past talks (conducted / signed) and future talks
+     * beyond it never get a reflection input. Returns null when every
+     * talk has been conducted (no upcoming talk to prepare for).
+     *
+     * Domain logic, not rendering: the My PDP view composes this so a
+     * future SaaS front end derives the same single target from the
+     * same rows.
+     *
+     * @param array<int, object> $convs Conversations for the file,
+     *        ordered by sequence ASC.
+     */
+    public static function nextPlanned( array $convs ): ?object {
+        foreach ( $convs as $c ) {
+            if ( ! empty( $c->conducted_at ) ) continue;
+            if ( ! empty( $c->coach_signoff_at ) ) continue;
+            return $c;
+        }
+        return null;
+    }
+
+    /**
+     * #1990 — is the self-reflection window open for $conv? True when the
+     * conversation has a `scheduled_at` and that time is at most 14 days
+     * away (the 2-week pre-talk window). Mirrors windowOpen()'s
+     * scheduled-at fallback but is the canonical guard the My PDP view
+     * uses for the single reflection input, so the rule lives in the
+     * domain layer rather than the view.
+     *
+     * Once the meeting passes, the window stays open (no upper bound) —
+     * the caller's "not signed off" check is the close condition.
+     */
+    public static function reflectionWindowOpen( object $conv, ?int $now_ts = null ): bool {
+        $scheduled = (string) ( $conv->scheduled_at ?? '' );
+        if ( $scheduled === '' ) return false;
+        $ts = strtotime( $scheduled . ' UTC' );
+        if ( $ts === false ) return false;
+        $now = $now_ts !== null ? $now_ts : (int) current_time( 'timestamp', true );
+        return ( $ts - $now ) <= 14 * DAY_IN_SECONDS;
+    }
+
+    /**
      * Is the next talk's planning window open as of $today?
      *
      * Primary signal is the seeded `planning_window_start` (migration

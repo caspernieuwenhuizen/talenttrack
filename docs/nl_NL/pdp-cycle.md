@@ -8,7 +8,7 @@ Een **POP-dossier** is een seizoensÂ­gebonden ontwikkelplan voor Ã©Ã©n spe
 
 - **Coaches** â€” volledige bewerking van POP-dossiers voor spelers in hun eigen teams. Tegel: **Performance â†’ POP**.
 - **Hoofd academie** â€” globale bewerking van alle dossiers plus exclusieve schrijftoegang tot het eindeseizoensÂ­oordeel.
-- **Spelers** â€” alleen-lezen op het eigen dossier, plus een bewerkbare zelfreflectieÂ­sectie vÃ³Ã³r elk gesprek. Tegel: **Mijn â†’ Mijn POP**.
+- **Spelers** â€” alleen-lezen op het eigen dossier, gepresenteerd als een seizoenstijdlijn, plus een bewerkbare zelfreflectie voor het ene eerstvolgende geplande gesprek. Tegel: **Mijn â†’ Mijn POP**.
 - **Ouders / verzorgers** â€” alleen-lezen op het dossier van hun kind (na ondertekening) plus een per-gesprek bevestigingsÂ­knop.
 - **Read-only observer** â€” alleen-lezen op alle dossiers; geen bewerking, geen bevestiging.
 
@@ -51,15 +51,16 @@ De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen
 
 Na ondertekening verschijnt het gesprek op het *Mijn POP*-overzicht van de speler (en de ouder, indien gekoppeld). Beiden kunnen op *Bevestigen* klikken â€” een lichte "ik heb het gezien"-timestamp.
 
-### Wat de speler ziet: een statusbewust Mijn POP (#1851)
+### Wat de speler ziet: een tijdlijn-eerst Mijn POP (#1990)
 
-*Mijn POP* opent nu met een kort leidend blok dat de speler vertelt **wat nu te doen**, afgeleid van waar de speler in de gesprekscyclus zit. Het herschikt en accentueert alleen wat er al is - elke gesprekskaart, de zelfreflectie-editor en de bevestigingsknoppen blijven hieronder precies waar ze stonden.
+*Mijn POP* is de **voorbereidings- en zelfreflectieruimte** van de speler, opgebouwd rond het seizoen als een tijdlijn.
 
-- **Werkperiode** (voor het planvenster van het volgende gesprek) - de pagina begint met **Jouw focus**: de belangrijkste actieve doelen van de speler en de datum van het **volgende ontwikkelgesprek**. De gesprekslijst schuift naar de achtergrond.
-- **Reviewvenster** (het planvenster is open) - de pagina begint met **Bereid je voor op je gesprek op &lt;datum&gt;**, en het komende gesprek wordt naar boven gehaald zodat de zelfreflectie-editor en de agenda vooraan staan. De zelfreflectie is bedoeld als hulp, nooit verplicht - er wordt niets geblokkeerd als de speler het overslaat.
-- **Na het gesprek** (ondertekend, wacht op bevestiging) - de pagina begint met **Je laatste ontwikkelgesprek**, en wijst naar de notities, afgesproken acties en de bevestigingsknop hieronder, met de doelen om mee verder te gaan.
+- **Seizoenstijdlijn bovenaan.** De ontwikkelgesprekken van het seizoen staan als markers op een horizontale rail, elk in een van drie toestanden: **afgerond** (een groene ✓), **gepland** (het gouden eerstvolgende gesprek) en **later** (gedempt). Een voortgangsvulling loopt langs de rail tot aan het laatst afgeronde gesprek. Op een marker tikken **vouwt het gespreksdetail ter plekke uit** - notities, afgesproken acties, agenda, de besproken doelen, een eventueel opgeslagen reflectie en de bevestigingsknop - zodat lang scrollen niet nodig is. De markers zijn bedienbaar met het toetsenbord (Tab om te focussen, Enter/Spatie om te openen, Escape om te sluiten).
+- **Actieve doelen onder de tijdlijn.** De huidige focusdoelen van de speler (niet het volledige archief), elk met het doelspecifieke statuslabel (bijv. *In ontwikkeling*) en de streefdatum.
+- **Eén zelfreflectie-invoer.** Alleen het **ene eerstvolgende geplande** gesprek kan een reflectie krijgen - eerdere en latere gesprekken tonen nooit een invoerveld. Het veld verschijnt zodra het reflectievenster van 2 weken vóór het gesprek opent; daarvóór legt een melding uit wanneer het verschijnt. Een eerder opgeslagen reflectie staat **rechts** van de invoer op bredere schermen en **eronder gestapeld** op mobiel. De zelfreflectie is bedoeld als hulp, nooit verplicht - er wordt niets geblokkeerd als de speler het overslaat.
+- **Eindeseizoensoordeel** sluit de pagina af zodra het is vastgelegd.
 
-Ouders zien hetzelfde statusoverzicht voor hun kind, alleen-lezen en bezittelijk ("ontwikkelplan van &lt;kind&gt;"). De status wordt afgeleid uit de ingeplande gesprekken en hun planvensters - er verandert niets aan de planning of de vensterdata.
+Ouders zien dezelfde tijdlijn voor hun kind, alleen-lezen en bezittelijk ("ontwikkelplan van &lt;kind&gt;"): de opgeslagen reflectie is zichtbaar maar er is geen bewerkbaar veld, en zij bevestigen via hun eigen knop. De tijdlijnstatus wordt afgeleid uit de ingeplande gesprekken en hun planvensters - er verandert niets aan de planning of de vensterdata.
 
 ### 4. EindeseizoensÂ­oordeel
 
@@ -84,7 +85,7 @@ De koppelingen verschijnen op het spelerprofiel en in de printsjabloon; ze maken
 
 ### Doelen en ontwikkelgesprekken (de "combinatie", #1853)
 
-Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksformulier vinkt de coach onder **Doelen besproken in dit gesprek** de actieve doelen van de speler aan die zijn behandeld; die koppelingen worden bij het gesprek opgeslagen. Op *Mijn POP* toont elke gesprekskaart vervolgens een lijst **Besproken doelen**, zodat de zelfreflectie van de speler ingaat op de doelen die echt aan bod kwamen - POP en doelen worden zo echt gecombineerd in plaats van naast elkaar te staan. (Een afgesproken actie omzetten in een gloednieuw doel is een geplande vervolgstap; deze stap is het lees-/koppelweefsel.)
+Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksformulier vinkt de coach onder **Doelen besproken in dit gesprek** de actieve doelen van de speler aan die zijn behandeld; die koppelingen worden bij het gesprek opgeslagen. Op *Mijn POP* toont een uitgevouwen gespreksmarker vervolgens een lijst **Besproken doelen**, zodat de zelfreflectie van de speler ingaat op de doelen die echt aan bod kwamen - POP en doelen worden zo echt gecombineerd in plaats van naast elkaar te staan. (Een afgesproken actie omzetten in een gloednieuw doel is een geplande vervolgstap; deze stap is het lees-/koppelweefsel.)
 
 ## Printen
 

@@ -43520,6 +43520,112 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s = season name
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "Season %s"
+msgstr "Seizoen %s"
+
+#. translators: %d = number of development conversations in the season
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "%d development conversation"
+msgid_plural "%d development conversations"
+msgstr[0] "%d ontwikkelgesprek"
+msgstr[1] "%d ontwikkelgesprekken"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "Season timeline with development conversations"
+msgstr "Seizoenstijdlijn met ontwikkelgesprekken"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "No development conversations have been planned yet."
+msgstr "Er zijn nog geen ontwikkelgesprekken gepland."
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "Your active goals"
+msgstr "Jouw actieve doelen"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "What you are working on now"
+msgstr "Waar je nu aan werkt"
+
+#. translators: %s = goal due date
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "Target date: %s"
+msgstr "Streefdatum: %s"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "Preparing for your talk"
+msgstr "Voorbereiding op je gesprek"
+
+#. translators: %1$s = conversation template label, %2$s = talk date
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "Self-reflection · %1$s (%2$s)"
+msgstr "Zelfreflectie · %1$s (%2$s)"
+
+#. translators: %s = conversation template label
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "Self-reflection · %s"
+msgstr "Zelfreflectie · %s"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid ""
+"Write your own reflection before the talk. Only the next planned talk can "
+"take a reflection — the other talks cannot. It is optional, never required."
+msgstr ""
+"Schrijf hier je eigen reflectie vóór het gesprek. Alleen het eerstvolgende "
+"geplande gesprek kan een reflectie krijgen — de andere gesprekken niet. Het "
+"is optioneel, nooit verplicht."
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid ""
+"The reflection window opens 2 weeks before the talk. Check back closer to "
+"the planned date."
+msgstr ""
+"Het reflectievenster opent 2 weken vóór het gesprek. Kom dichter bij de "
+"geplande datum terug."
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "No reflection saved yet."
+msgstr "Nog geen reflectie opgeslagen."
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "No self-reflection has been added for this talk yet."
+msgstr "Voor dit gesprek is nog geen zelfreflectie toegevoegd."
+
+#. translators: %s = last-saved timestamp
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "Last saved · %s"
+msgstr "Laatst opgeslagen · %s"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Period"
+msgstr "Periode"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Colour"
+msgstr "Kleur"
+
+#. translators: 1: start date, 2: end date
+#: src/Shared/Frontend/FrontendHolidaysView.php
+#, php-format
+msgctxt "holiday period range"
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid ""
+"This holiday shows as a banner across these days on every team planner, so "
+"coaches plan around the closed days."
+msgstr ""
+"Deze vakantie verschijnt als banner over deze dagen op elke teamplanner, "
+"zodat coaches rondom de gesloten dagen plannen."
+
 #~ msgid "In Progress"
 #~ msgstr "In uitvoering"
 
