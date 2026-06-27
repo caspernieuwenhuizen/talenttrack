@@ -43603,6 +43603,14 @@ msgstr "Voor dit gesprek is nog geen zelfreflectie toegevoegd."
 msgid "Last saved · %s"
 msgstr "Laatst opgeslagen · %s"
 
+#: src/Shared/Frontend/Components/FilterBar.php
+msgid "Open filters"
+msgstr "Filters openen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Cancelled shown"
+msgstr "Geannuleerde getoond"
+
 #~ msgid "In Progress"
 #~ msgstr "In uitvoering"
 

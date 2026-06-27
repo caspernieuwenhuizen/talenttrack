@@ -27,17 +27,17 @@ Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingekl
 
 ### Filters
 
-Boven de lijst staan twee filters:
+Boven de lijst staat één **filterbalk**. Op een desktopscherm staat alles op één regel; op een telefoon of tablet klapt de balk in tot een knop **Filters** (met een telbadge voor het aantal actieve filters) en een rij samenvattingschips — tik op **Filters** om een onderpaneel te openen met dezelfde knoppen, en kies daarna **Toepassen** of **Wissen**.
+
+De balk heeft vijf knoppen, elk onder een eigen label:
 
 - **Team** — beperk tot één team. Standaard staan alle teams aan waar de coach toegang toe heeft.
 - **Type** — beperk tot één activiteittype (Training / Wedstrijd / Oefen / Overig / elk eigen type dat je academie heeft toegevoegd).
-- **Geannuleerde tonen** — standaard uit. Geannuleerde activiteiten worden uit de lijst verborgen zodat het schema overzichtelijk blijft; vink dit aan om ze terug te halen. Wanneer ze worden getoond, is een geannuleerde activiteit gedimd en doorgestreept met een Geannuleerd-label, in welk datumvak hij ook valt.
+- **Periode** — een datumvenster: **Alle · Deze week · Volgende week · Deze maand · Volgende maand · Dit seizoen**. Eén kiezen beperkt de lijst zonder datums te typen — weken lopen van maandag tot zondag, maanden zijn kalendermaanden, en **Dit seizoen** gebruikt je ingestelde huidige seizoen.
+- **Status** — een keuze **Actief · Gearchiveerd · Alle**. **Actief** is de standaard — de tijdlijn die je normaal ziet. **Gearchiveerd** vervangt de tijdlijn door een platte lijst van de activiteiten die je hebt gearchiveerd, elk met een knop **Herstellen** en (voor beheerders) een knop **Definitief verwijderen**. **Alle** toont de actieve tijdlijn met de gearchiveerde lijst eronder.
+- **Geannuleerd** — een schakelaar **Toon**, standaard uit. Geannuleerde activiteiten worden verborgen zodat het schema overzichtelijk blijft; zet hem aan om ze terug te halen, gedimd en doorgestreept met een Geannuleerd-label in welk datumvak ze ook vallen.
 
-De filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
-
-Onder de filters staat een rij **periodeknoppen**: **Alle · Deze week · Volgende week · Deze maand · Volgende maand · Dit seizoen**. Tik op één om de lijst tot dat datumvenster te beperken zonder datums te typen — weken lopen van maandag tot zondag, maanden zijn kalendermaanden, en **Dit seizoen** gebruikt je ingestelde huidige seizoen. De keuze blijft bewaard in de URL (`?period=this_week`) en combineert met de Team- en Type-filters.
-
-Onder de periodeknoppen staat een statuskeuze **Actief · Gearchiveerd · Alle**. **Actief** is de standaard — de tijdlijn die je normaal ziet. **Gearchiveerd** vervangt de tijdlijn door een platte lijst van de activiteiten die je hebt gearchiveerd, elk met een knop **Herstellen** en (voor beheerders) een knop **Definitief verwijderen**. **Alle** toont de actieve tijdlijn met de gearchiveerde lijst eronder. De keuze blijft bewaard in de URL (`?archived=archived`).
+Elke keuze blijft bewaard in de URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen, en de knoppen vrij combineren.
 
 ## De activiteitdetailpagina
 
