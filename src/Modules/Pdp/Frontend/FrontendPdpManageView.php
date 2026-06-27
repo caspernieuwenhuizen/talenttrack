@@ -1266,6 +1266,46 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+        // #2042 — proxy acknowledgement. A coach who ran the talk in person
+        // can record the player's / parent's acknowledgement on their behalf,
+        // each behind a confirm dialog. Plain proxy: it writes the same
+        // *_ack_at column as a self-ack (and trips the end-to-end lock, by
+        // design). Offered once the coach has signed off — the same point at
+        // which the player / parent would normally get their own Acknowledge
+        // button — and only for a coach who can edit the file.
+        $can_proxy_ack = $is_admin || current_user_can( 'tt_edit_pdp' );
+        if ( $is_signed && $can_proxy_ack ) {
+            $now_utc = current_time( 'mysql', true );
+            echo '<div class="tt-pdp-proxy-ack">';
+            echo '<h3 class="tt-pdp-proxy-ack__title">' . esc_html__( 'Acknowledgements', 'talenttrack' ) . '</h3>';
+
+            if ( ! empty( $conv->player_ack_at ) ) {
+                echo '<p class="tt-pdp-proxy-ack__done">' . esc_html( sprintf(
+                    /* translators: %s = acknowledgement timestamp */
+                    __( 'Player acknowledged on %s', 'talenttrack' ),
+                    \TT\Shared\Dates\TTDate::dateTime( (string) $conv->player_ack_at )
+                ) ) . '</p>';
+            } else {
+                self::renderProxyAckForm( $rest_path, 'player_ack_at', $now_utc,
+                    __( 'Record player acknowledgement', 'talenttrack' ),
+                    __( 'Confirm only if the player acknowledged this conversation with you in person. This records it on their behalf.', 'talenttrack' )
+                );
+            }
+
+            if ( ! empty( $conv->parent_ack_at ) ) {
+                echo '<p class="tt-pdp-proxy-ack__done">' . esc_html( sprintf(
+                    /* translators: %s = acknowledgement timestamp */
+                    __( 'Parent acknowledged on %s', 'talenttrack' ),
+                    \TT\Shared\Dates\TTDate::dateTime( (string) $conv->parent_ack_at )
+                ) ) . '</p>';
+            } else {
+                self::renderProxyAckForm( $rest_path, 'parent_ack_at', $now_utc,
+                    __( 'Record parent acknowledgement', 'talenttrack' ),
+                    __( 'Confirm only if the parent acknowledged this conversation with you in person. This records it on their behalf.', 'talenttrack' )
+                );
+            }
+            echo '</div>';
+        }
         echo '</div>'; // /conversation pane
 
         // Evidence pane — same content as the old sidebar, hidden by
@@ -1273,6 +1313,23 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="evidence" role="tabpanel" hidden>';
         self::renderEvidenceSidebar( (int) $file->player_id, $conv );
         echo '</div>';
+    }
+
+    /**
+     * #2042 — one proxy-acknowledgement mini-form. PATCHes the conversation
+     * with the given ack column set to now, behind a JS confirm dialog
+     * (`data-confirm-msg`), then reloads so the recorded state shows. Kept
+     * separate from the main conversation form so it stays available once a
+     * signature has locked that form.
+     */
+    private static function renderProxyAckForm( string $rest_path, string $field, string $now_utc, string $label, string $confirm ): void {
+        ?>
+        <form class="tt-ajax-form tt-pdp-proxy-ack__form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" data-confirm-msg="<?php echo esc_attr( $confirm ); ?>">
+            <input type="hidden" name="<?php echo esc_attr( $field ); ?>" value="<?php echo esc_attr( $now_utc ); ?>" />
+            <button type="submit" class="tt-btn tt-btn-secondary"><?php echo esc_html( $label ); ?></button>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
     }
 
     private static function renderVerdictForm( object $file, int $user_id, bool $is_admin ): void {

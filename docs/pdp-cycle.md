@@ -53,6 +53,8 @@ The player can fill in their self-reflection any time before the coach signs off
 
 After sign-off the conversation appears on the player's *My PDP* view (and the parent's, if they're linked). Both can click *Acknowledge* — a lightweight "I've seen this" timestamp.
 
+When the talk happens in person, the coach can also record those acknowledgements on the conversation form — *Record player acknowledgement* / *Record parent acknowledgement*, each behind a confirm dialog. It writes the same acknowledgement as if the player or parent had clicked it themselves. Confirm only when they actually acknowledged the conversation with you.
+
 ### What the player sees: a timeline-first My PDP (#1990)
 
 *My PDP* is the player's **preparation and self-review** space, built around the season as a timeline.

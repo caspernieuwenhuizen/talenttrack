@@ -846,3 +846,21 @@
     color: var(--tt-ink, #1f2a2e);
 }
 .tt-pdp-conv-future strong { color: var(--tt-primary, #0b3d2e); }
+
+/*
+ * #2042 — proxy-acknowledgement block on the coach conversation form.
+ * Lets a coach record the player's / parent's acknowledgement on their
+ * behalf (each behind a confirm dialog) once the talk is signed off.
+ */
+.tt-pdp-proxy-ack {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--tt-line, #e5e7ea);
+}
+.tt-pdp-proxy-ack__title {
+    font-size: 0.95rem;
+    margin: 0 0 10px;
+    color: var(--tt-ink, #1f2a2e);
+}
+.tt-pdp-proxy-ack__form { margin: 0 0 10px; }
+.tt-pdp-proxy-ack__done { color: var(--tt-muted, #5b6e75); margin: 0 0 8px; }
