@@ -389,8 +389,10 @@ class PdpFilesRestController {
                 : __( 'PDP ✓', 'talenttrack' );
             $coverage_html = '<a href="' . esc_url( $detail_url ) . '" class="tt-status-badge tt-status-completed" style="text-decoration:none;display:inline-flex;align-items:center;min-height:28px;">'
                 . esc_html( $pill_label ) . '</a>';
-            $action_html = '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $detail_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
-                . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            // #2039 — no redundant "Open" button: the whole row already
+            // navigates to $detail_url (row_url_key), and the coverage pill
+            // above is an <a> to the same target for the keyboard / AT path.
+            $action_html = '';
             $row_url = $detail_url;
         } else {
             $create_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
