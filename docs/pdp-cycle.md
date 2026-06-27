@@ -8,7 +8,7 @@ A **PDP file** is a per-season development plan for a single player. It pulls to
 
 - **Coaches** — full edit on PDP files for players on their own teams. Tile: **Performance → PDP**.
 - **Head of academy** — global edit on every file plus exclusive write access to the end-of-season verdict.
-- **Players** — read-only of their own file, plus an editable self-reflection section before each conversation. Tile: **Me → My PDP**.
+- **Players** — read-only of their own file, presented as a season timeline, plus an editable self-reflection for the single next-planned conversation. Tile: **Me → My PDP**.
 - **Parents / guardians** — read-only of their child's file (after sign-off) plus a per-conversation acknowledgement button.
 - **Read-only observer** — read-only across all files; no edit, no acknowledgement.
 
@@ -51,15 +51,16 @@ The player can fill in their self-reflection any time before the coach signs off
 
 After sign-off the conversation appears on the player's *My PDP* view (and the parent's, if they're linked). Both can click *Acknowledge* — a lightweight "I've seen this" timestamp.
 
-### What the player sees: a state-aware My PDP (#1851)
+### What the player sees: a timeline-first My PDP (#1990)
 
-*My PDP* now opens with a short lead block that tells the player **what to do now**, derived from where they are in the talk cycle. It only re-orders and highlights what is already there — every conversation card, the self-reflection editor and the acknowledgement buttons stay exactly where they were below.
+*My PDP* is the player's **preparation and self-review** space, built around the season as a timeline.
 
-- **Working period** (before the next talk's planning window) — the page leads with **Your focus**: the player's top active goals and the **next development talk** date. The conversation list recedes underneath.
-- **Review window** (the planning window is open) — the page leads with **Prepare for your talk on &lt;date&gt;**, and the upcoming conversation is promoted to the top so its self-reflection editor and agenda are front-and-centre. The self-review is framed as helpful, never required — nothing is blocked if the player skips it.
-- **After the talk** (signed off, awaiting acknowledgement) — the page leads with **Your last development talk**, pointing at the notes, agreed actions and the acknowledgement button below, with the goals to carry forward.
+- **Season timeline on top.** The season's development conversations sit on a horizontal rail as markers, each in one of three states: **completed** (a green ✓), **planned** (the gold next-up talk), and **later** (muted). A progress fill runs along the rail up to the most recent completed talk. Tapping a marker **expands that conversation's detail in place** — notes, agreed actions, agenda, the goals discussed, any saved reflection, and the acknowledgement button — so there is no long scroll. The markers are keyboard-operable (Tab to focus, Enter/Space to open, Escape to close).
+- **Active goals below the timeline.** The player's current focus goals (not the full archive), each with its goal-specific status label (e.g. *In ontwikkeling*) and target date.
+- **One self-reflection input.** Only the **single next-planned** conversation can take a reflection — past and future talks never show an input. The input appears once its 2-week pre-talk window opens; before that, a guard line explains when it will appear. Any previously-saved reflection shows **to the right** of the input on wider screens and **stacked below** it on mobile. The self-review is helpful, never required — nothing is blocked if the player skips it.
+- **End-of-season verdict** closes the page once recorded.
 
-Parents see the same state surface for their child, read-only and possessive ("&lt;Child&gt;'s development plan"). The state is derived from the seeded conversations and their planning windows — no schedule or window data changes.
+Parents see the same timeline for their child, read-only and possessive ("&lt;Child&gt;'s development plan"): the saved reflection is shown but there is no editable input, and they acknowledge via their own button. The timeline state is derived from the seeded conversations and their planning windows — no schedule or window data changes.
 
 ### 4. End-of-season verdict
 
@@ -84,7 +85,7 @@ The links are surfaced on the player profile and in the print template; they let
 
 ### Goals ↔ development talks (the "combine", #1853)
 
-A goal can also link to a **development talk**. On the conversation form, the coach ticks **Goals discussed in this talk** from the player's active goals; those links are saved alongside the talk. On *My PDP*, each conversation card then shows a **Goals discussed** list, so the player's self-review reflects on the goals that were actually covered — PDP and goals become genuinely combined rather than sitting side by side. (Turning an agreed action into a brand-new goal is a planned follow-up; this step is the read/link connective tissue.)
+A goal can also link to a **development talk**. On the conversation form, the coach ticks **Goals discussed in this talk** from the player's active goals; those links are saved alongside the talk. On *My PDP*, expanding a conversation marker shows a **Goals discussed** list, so the player's self-review reflects on the goals that were actually covered — PDP and goals become genuinely combined rather than sitting side by side. (Turning an agreed action into a brand-new goal is a planned follow-up; this step is the read/link connective tissue.)
 
 ## Print
 
