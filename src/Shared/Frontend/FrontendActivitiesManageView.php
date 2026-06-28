@@ -2091,17 +2091,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // match prep's explicit half, else the per-age-category
             // default (#1727), else the global 35'/half fallback. The
             // resolution itself lives in the domain layer (§4).
+            // `renderForm` has no `$id` of its own — resolve the activity id
+            // from the loaded session. Create-mode matches have no id yet, so
+            // they skip the prep/participation lookups (which take a
+            // non-nullable int and would fatal on a null id).
+            $match_id      = ( $is_edit && $session ) ? (int) $session->id : 0;
             $match_length  = (int) ( $session->match_length_minutes ?? 0 );
             $participation = [ 'subs_on' => 0, 'subs_off' => 0 ];
-            if ( $is_match_type ) {
+            if ( $is_match_type && $match_id > 0 ) {
                 if ( $match_length <= 0 ) {
-                    $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $id );
+                    $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $match_id );
                     $prep_half = $prep_row ? (int) ( $prep_row->half_length_minutes ?? 0 ) : 0;
                     $match_length = ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )
-                        ->matchMinutesForActivity( $id, $prep_half );
+                        ->matchMinutesForActivity( $match_id, $prep_half );
                 }
                 $participation = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-                    ->matchParticipationSummary( $id, $match_length );
+                    ->matchParticipationSummary( $match_id, $match_length );
             }
             ?>
             <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
