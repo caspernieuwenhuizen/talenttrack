@@ -254,6 +254,60 @@ class FrontendEvaluationsView extends FrontendViewBase {
      * every rating grouped by main category with sub-ratings indented
      * underneath, then notes.
      */
+    /**
+     * #2022 — compact read-only surface for an archived / trashed evaluation.
+     * Reached only via the not-found retry in renderDetail(). The resolved row
+     * is the raw `tt_evaluations` row (SELECT *); the player name is looked up
+     * separately for the identity anchor.
+     *
+     * @param array{row:object,state:string} $resolved
+     */
+    private static function renderArchivedReadOnly( array $resolved ): void {
+        $eval = $resolved['row'];
+
+        $player_name = '';
+        $player_id   = (int) ( $eval->player_id ?? 0 );
+        if ( $player_id > 0 ) {
+            $player = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
+            if ( $player ) {
+                $player_name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player );
+            }
+        }
+        if ( $player_name === '' ) {
+            $player_name = $player_id > 0 ? '#' . $player_id : __( 'Unknown player', 'talenttrack' );
+        }
+
+        /* translators: %s = player display name */
+        $title = sprintf( __( 'Evaluation of %s', 'talenttrack' ), $player_name );
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            $title,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'evaluations', __( 'Evaluations', 'talenttrack' ) ) ]
+        );
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::enqueue();
+
+        $list_url = add_query_arg( [ 'tt_view' => 'evaluations' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        $self_url = add_query_arg( [ 'tt_view' => 'evaluations', 'id' => (int) $eval->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+
+        $fields = [];
+        $fields[] = [ __( 'Player', 'talenttrack' ), esc_html( $player_name ) ];
+        $eval_date = (string) ( $eval->eval_date ?? '' );
+        if ( $eval_date !== '' && $eval_date !== '0000-00-00' ) {
+            $fields[] = [ __( 'Date', 'talenttrack' ), esc_html( $eval_date ) ];
+        }
+        $opponent = (string) ( $eval->opponent ?? '' );
+        if ( $opponent !== '' ) {
+            $fields[] = [ __( 'Opponent', 'talenttrack' ), esc_html( $opponent ) ];
+        }
+
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::render( 'evaluation', $resolved, [
+            'title'            => $title,
+            'fields'           => $fields,
+            'list_url'         => $list_url,
+            'restore_redirect' => $self_url,
+        ] );
+    }
+
     private static function renderDetail( int $eval_id, int $user_id, bool $is_admin ): void {
         global $wpdb;
         $p = $wpdb->prefix;
@@ -284,6 +338,15 @@ class FrontendEvaluationsView extends FrontendViewBase {
         ) );
 
         if ( ! $eval ) {
+            // #2022 — the detail query ends in `archived_at IS NULL`, so an
+            // archived / trashed evaluation never reaches it. Retry through the
+            // archive-aware gate before falling to not-found; a null return
+            // stays a clean 404 (honours the trashed-visibility gate).
+            $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'evaluation', $eval_id );
+            if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+                self::renderArchivedReadOnly( $resolved );
+                return;
+            }
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Evaluation not found', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'evaluations', __( 'Evaluations', 'talenttrack' ) ) ]

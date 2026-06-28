@@ -203,6 +203,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $player = QueryHelpers::get_player( $player_id );
 
         if ( ! $player ) {
+            // #2022 — the active lookup ends in `archived_at IS NULL`, so an
+            // archived / trashed player never reaches it. Retry through the
+            // archive-aware gate before falling to not-found. A null return
+            // (genuinely absent OR a trashed record the caller may not see)
+            // stays a clean 404 — never a page that confirms it exists.
+            $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'player', $player_id );
+            if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+                self::renderArchivedReadOnly( $resolved );
+                return;
+            }
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Player not found', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ) ]
@@ -288,6 +298,56 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             </div>
         </article>
         <?php
+    }
+
+    /**
+     * #2022 — compact read-only surface for an archived / trashed player.
+     * Reached only via the not-found retry in render(): the active lookup
+     * already failed, the archive-aware gate returned a non-active row, and
+     * the trashed-visibility check passed inside the domain method. Shows the
+     * identity anchor + a handful of key facts + the lifecycle banner; no Edit
+     * affordance (restore first, then edit).
+     *
+     * @param array{row:object,state:string} $resolved
+     */
+    private static function renderArchivedReadOnly( array $resolved ): void {
+        $player = $resolved['row'];
+        $name   = QueryHelpers::player_display_name( $player );
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            $name,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'players', __( 'Players', 'talenttrack' ) ) ]
+        );
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::enqueue();
+
+        $players_url = add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() );
+        $self_url    = add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $player->id ], RecordLink::dashboardUrl() );
+
+        $fields = [];
+        $dob = (string) ( $player->date_of_birth ?? '' );
+        if ( $dob !== '' && $dob !== '0000-00-00' ) {
+            $fields[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob ) ) ];
+        }
+        $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
+        if ( is_array( $positions ) && ! empty( $positions ) ) {
+            $fields[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', array_map( 'strval', $positions ) ) ) ];
+        }
+        if ( ! empty( $player->status ) ) {
+            $fields[] = [ __( 'Status', 'talenttrack' ), esc_html( \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ) ) ];
+        }
+        $team = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
+        if ( $team ) {
+            $fields[] = [ __( 'Team', 'talenttrack' ), esc_html( (string) $team->name ) ];
+        }
+
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::render( 'player', $resolved, [
+            'title'            => $name,
+            'initials'         => self::initialsFor( $name ),
+            'photo_url'        => (string) ( $player->photo_url ?? '' ),
+            'fields'           => $fields,
+            'list_url'         => $players_url,
+            'restore_redirect' => $self_url,
+        ] );
     }
 
     /**

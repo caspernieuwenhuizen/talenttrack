@@ -43838,6 +43838,56 @@ msgstr "Metingresultaat"
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php
 msgid "Player attribute"
 msgstr "Spelerkenmerk"
+msgid "This record is archived."
+msgstr "Dit record is gearchiveerd."
+
+msgid "Restore this record? It returns to the active list."
+msgstr "Dit record herstellen? Het keert terug naar de actieve lijst."
+
+msgid ""
+"Move this record to the recycle bin? It will be permanently deleted after the "
+"retention window unless restored."
+msgstr ""
+"Dit record naar de prullenbak verplaatsen? Het wordt na de bewaartermijn "
+"definitief verwijderd, tenzij het wordt hersteld."
+
+msgid "In the recycle bin — deletes in %d day."
+msgid_plural "In the recycle bin — deletes in %d days."
+msgstr[0] "In de prullenbak — wordt over %d dag verwijderd."
+msgstr[1] "In de prullenbak — wordt over %d dagen verwijderd."
+
+msgid "In the recycle bin."
+msgstr "In de prullenbak."
+
+msgid "Restore to archive"
+msgstr "Terugzetten naar archief"
+
+msgid "Restore this record out of the recycle bin? It returns to the archive."
+msgstr ""
+"Dit record uit de prullenbak herstellen? Het keert terug naar het archief."
+
+msgid "Delete permanently now"
+msgstr "Nu definitief verwijderen"
+
+msgid "Permanently delete this record now? This cannot be undone."
+msgstr "Dit record nu definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "by %1$s on %2$s"
+msgstr "door %1$s op %2$s"
+
+msgid "on %s"
+msgstr "op %s"
+
+msgid "That record is not in the recycle bin."
+msgstr "Dat record staat niet in de prullenbak."
+
+msgid "This record still has dependent data and cannot be permanently deleted."
+msgstr ""
+"Dit record heeft nog afhankelijke gegevens en kan niet definitief worden "
+"verwijderd."
+
+msgid "Unknown player"
+msgstr "Onbekende speler"
 
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
