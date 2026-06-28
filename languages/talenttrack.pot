@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T11:12:32+00:00\n"
+"POT-Creation-Date: 2026-06-28T11:21:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -2938,11 +2938,11 @@ msgstr ""
 msgid "That URL does not look like a valid http(s) endpoint."
 msgstr ""
 
-#: src/Infrastructure/REST/StravaRestController.php:122
+#: src/Infrastructure/REST/StravaRestController.php:143
 msgid "Strava is not set up for this academy yet. Ask an administrator to add the Strava app credentials."
 msgstr ""
 
-#: src/Infrastructure/REST/StravaRestController.php:247
+#: src/Infrastructure/REST/StravaRestController.php:294
 msgid "A Strava Client ID is required."
 msgstr ""
 

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-28T11:12:32+00:00\n"
+"POT-Creation-Date: 2026-06-28T11:21:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -3037,13 +3037,13 @@ msgstr ""
 msgid "That URL does not look like a valid http(s) endpoint."
 msgstr ""
 
-#: src/Infrastructure/REST/StravaRestController.php:122
+#: src/Infrastructure/REST/StravaRestController.php:143
 msgid ""
 "Strava is not set up for this academy yet. Ask an administrator to add the "
 "Strava app credentials."
 msgstr ""
 
-#: src/Infrastructure/REST/StravaRestController.php:247
+#: src/Infrastructure/REST/StravaRestController.php:294
 msgid "A Strava Client ID is required."
 msgstr ""
 
