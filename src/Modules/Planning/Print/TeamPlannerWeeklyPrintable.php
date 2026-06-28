@@ -274,8 +274,17 @@ final class TeamPlannerWeeklyPrintable {
         // Title line.
         $title = '';
         if ( $is_match ) {
-            $opp = trim( (string) ( $a->opponent ?? '' ) );
-            $title = $opp !== '' ? trim( $team_name . ' — ' . $opp ) : $team_name;
+            // The activity form's required Title field is the match's
+            // canonical name (e.g. "Candia 66 – Vv hedel 14-1"). Prefer it;
+            // synthesize "Team — Opponent" only when no title was entered,
+            // falling back to the team name when there's no opponent either.
+            $own = trim( (string) ( $a->title ?? '' ) );
+            if ( $own !== '' ) {
+                $title = $own;
+            } else {
+                $opp   = trim( (string) ( $a->opponent ?? '' ) );
+                $title = $opp !== '' ? trim( $team_name . ' — ' . $opp ) : $team_name;
+            }
         } elseif ( ! empty( $fields['theme'] ) ) {
             $title = (string) ( $a->title ?? '' );
         }
