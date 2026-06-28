@@ -102,6 +102,27 @@ class FrontendPdpManageView extends FrontendViewBase {
                     ],
                 ]
             );
+        } elseif ( $file_id > 0 && $conv_id > 0 ) {
+            // #2038 — a conversation sits one level below the PDP file.
+            // Without its own crumb it reused the file-detail chain, whose
+            // only clickable intermediate is the PDP *list* — so "back"
+            // dropped the user out to every player's PDPs instead of the
+            // file they were in. Add the file-detail crumb as the
+            // intermediate (back-to-file) affordance per CLAUDE.md §5:
+            // "PDP → PDP file detail → Conversation".
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Conversation', 'talenttrack' ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ),
+                    [
+                        'label' => __( 'PDP file detail', 'talenttrack' ),
+                        'url'   => add_query_arg(
+                            [ 'tt_view' => 'pdp', 'id' => $file_id ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        ),
+                    ],
+                ]
+            );
         } elseif ( $file_id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'PDP file detail', 'talenttrack' ),
@@ -401,25 +422,6 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * #1617 — the two PDP-setup tabs. "Coverage" (player-first, the
-     * default) and "Files" (the historical file-by-file list). Renders
-     * a simple link tab strip; the active tab carries `is-active`.
-     * Whole strip is a nav contract-neutral sub-affordance (it switches
-     * a query param on the same view, not a breadcrumb / back pill).
-     */
-    private static function renderSetupTabs( bool $files_active ): void {
-        $base = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'files', 'only_missing', 'include_archived' ] );
-        $coverage_url = $base;
-        $files_url    = add_query_arg( 'files', '1', $base );
-        echo '<div role="tablist" aria-label="' . esc_attr__( 'PDP setup views', 'talenttrack' ) . '" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin:0 0 16px;">';
-        echo '<a role="tab"' . ( $files_active ? '' : ' aria-selected="true"' ) . ' href="' . esc_url( $coverage_url ) . '" class="tt-pdp-setup-tab' . ( $files_active ? '' : ' is-active' ) . '" style="min-height:48px; display:inline-flex; align-items:center; padding:10px 16px; text-decoration:none; border-bottom:2px solid ' . ( $files_active ? 'transparent' : 'var(--tt-primary,#0b3d2e)' ) . '; font-weight:' . ( $files_active ? '400' : '600' ) . '; touch-action:manipulation;">'
-            . esc_html__( 'Coverage', 'talenttrack' ) . '</a>';
-        echo '<a role="tab"' . ( $files_active ? ' aria-selected="true"' : '' ) . ' href="' . esc_url( $files_url ) . '" class="tt-pdp-setup-tab' . ( $files_active ? ' is-active' : '' ) . '" style="min-height:48px; display:inline-flex; align-items:center; padding:10px 16px; text-decoration:none; border-bottom:2px solid ' . ( $files_active ? 'var(--tt-primary,#0b3d2e)' : 'transparent' ) . '; font-weight:' . ( $files_active ? '600' : '400' ) . '; touch-action:manipulation;">'
-            . esc_html__( 'Files', 'talenttrack' ) . '</a>';
-        echo '</div>';
-    }
-
-    /**
      * #1617 — player-centric PDP coverage list for the current season.
      * One row per coach-scoped player with a created / not-started
      * indicator + one-click create for the missing ones. Coverage data
@@ -429,8 +431,10 @@ class FrontendPdpManageView extends FrontendViewBase {
      * PdpFilesRepository::coverageForSeason() per CLAUDE.md §4.
      */
     private static function renderCoverageList( int $user_id, bool $is_admin, object $current ): void {
-        $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'files' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new' ], $base_url );
+        $new_url = add_query_arg(
+            [ 'tt_view' => 'pdp', 'action' => 'new' ],
+            remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] )
+        );
         $page_actions = [];
         if ( current_user_can( 'tt_edit_pdp' ) ) {
             $page_actions[] = [
@@ -442,35 +446,54 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
         self::renderHeader( __( 'Player Development Plans', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
 
-        self::renderSetupTabs( false );
-
-        // Coverage summary line ("M of N players have a PDP this
-        // season"). Scoped the same way the REST endpoint scopes:
-        // admins see every active player; coaches only their rosters.
-        $summary_filters = [];
-        if ( ! $is_admin ) {
-            $summary_filters['player_ids'] = self::coachScopedPlayerIds( $user_id );
+        // #2040 — team-selection gate. Users who span multiple teams (or hold
+        // global PDP scope, so TeamPickerComponent hands them every team) pick
+        // a team before the roster loads, instead of facing an unscoped
+        // all-players list. A single-team coach (one option) skips the gate.
+        $team_options  = TeamPickerComponent::filterOptions( $user_id, $is_admin );
+        $selected_team = isset( $_GET['filter']['team_id'] ) ? absint( $_GET['filter']['team_id'] ) : 0;
+        if ( count( $team_options ) > 1 && $selected_team <= 0 ) {
+            self::renderTeamGate( $team_options );
+            return;
         }
-        $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( (int) $current->id, $summary_filters );
-        echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
-            /* translators: 1: covered player count, 2: total player count, 3: season name */
-            __( '%1$d of %2$d players have a PDP for the current season (%3$s).', 'talenttrack' ),
-            (int) $summary['covered'],
-            (int) $summary['total'],
-            (string) $current->name
-        ) ) . '</p>';
 
-        // "Only missing" quick filter — flips `only_missing=1` in the
-        // querystring, forwarded to the REST endpoint as a static
-        // filter so the table only shows players without a PDP.
-        $only_missing = ! empty( $_GET['only_missing'] );
-        $toggle_url   = $only_missing
-            ? remove_query_arg( 'only_missing' )
-            : add_query_arg( 'only_missing', '1' );
-        $toggle_label = $only_missing
-            ? __( 'Show all players', 'talenttrack' )
-            : __( 'Only players without a PDP', 'talenttrack' );
-        echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '" style="min-height:48px;padding:8px 14px;display:inline-flex;align-items:center;touch-action:manipulation;">' . esc_html( $toggle_label ) . '</a></p>';
+        // #2040 — Active / Archived record-state pills, for operators who can
+        // act on archived files. 'archived' swaps the coverage list for the
+        // scoped players whose season PDP is archived (Restore / delete).
+        $archived_view    = ( ( $_GET['archived'] ?? 'active' ) === 'archived' ) ? 'archived' : 'active';
+        $can_see_archived = current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' );
+        if ( ! $can_see_archived ) {
+            $archived_view = 'active';
+        } else {
+            echo '<div class="tt-pdp-statepills" role="group" aria-label="' . esc_attr__( 'Record state', 'talenttrack' ) . '">';
+            echo '<a class="tt-pdp-statepill' . ( $archived_view === 'active' ? ' is-on' : '' ) . '" href="' . esc_url( remove_query_arg( 'archived' ) ) . '">' . esc_html__( 'Active', 'talenttrack' ) . '</a>';
+            echo '<a class="tt-pdp-statepill' . ( $archived_view === 'archived' ? ' is-on' : '' ) . '" href="' . esc_url( add_query_arg( 'archived', 'archived' ) ) . '">' . esc_html__( 'Archived', 'talenttrack' ) . '</a>';
+            echo '</div>';
+        }
+
+        $only_missing = false;
+        if ( $archived_view === 'active' ) {
+            // Coverage summary line ("M of N players have a PDP this season"),
+            // scoped the same way the REST endpoint scopes.
+            $summary_filters = [ 'team_id' => $selected_team ];
+            if ( ! $is_admin ) {
+                $summary_filters['player_ids'] = self::coachScopedPlayerIds( $user_id );
+            }
+            $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( (int) $current->id, $summary_filters );
+            echo '<p class="tt-pdp-coverage-summary">' . esc_html( sprintf(
+                /* translators: 1: covered player count, 2: total player count, 3: season name */
+                __( '%1$d of %2$d players have a PDP for the current season (%3$s).', 'talenttrack' ),
+                (int) $summary['covered'],
+                (int) $summary['total'],
+                (string) $current->name
+            ) ) . '</p>';
+
+            // "Only missing" quick filter (active view only).
+            $only_missing = ! empty( $_GET['only_missing'] );
+            $toggle_url   = $only_missing ? remove_query_arg( 'only_missing' ) : add_query_arg( 'only_missing', '1' );
+            $toggle_label = $only_missing ? __( 'Show all players', 'talenttrack' ) : __( 'Only players without a PDP', 'talenttrack' );
+            echo '<p class="tt-pdp-coverage-toggle"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '">' . esc_html( $toggle_label ) . '</a></p>';
+        }
 
         $columns = [
             'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'player_link_html' ],
@@ -486,18 +509,57 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'team_id' => [
                     'type'    => 'select',
                     'label'   => __( 'Team', 'talenttrack' ),
-                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
+                    'options' => $team_options,
                 ],
             ],
             'search'      => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
-            'empty_state' => __( 'No players match your filters.', 'talenttrack' ),
+            'empty_state' => $archived_view === 'archived'
+                ? __( 'No archived PDP files.', 'talenttrack' )
+                : __( 'No players match your filters.', 'talenttrack' ),
             'row_url_key' => 'detail_url',
         ];
+        $static = [];
         if ( $only_missing ) {
-            $list_config['static_filters'] = [ 'only_missing' => '1' ];
+            $static['only_missing'] = '1';
+        }
+        if ( $archived_view === 'archived' ) {
+            $static['archived'] = 'archived';
+        }
+        if ( $static ) {
+            $list_config['static_filters'] = $static;
         }
 
         echo FrontendListTable::render( $list_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+    }
+
+    /**
+     * #2040 — team-selection gate. Renders a single team picker + prompt for
+     * multi-team / global-scope users so they choose a team before the roster
+     * loads. The select submits `filter[team_id]`, which both this gate and
+     * FrontendListTable read, so the list lands scoped on submit.
+     *
+     * @param array<int,string> $team_options id => name
+     */
+    private static function renderTeamGate( array $team_options ): void {
+        $action = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'only_missing', 'archived' ] );
+        echo '<div class="tt-pdp-team-gate">';
+        echo '<p class="tt-pdp-team-gate__hint">' . esc_html__( 'Select a team to see its players.', 'talenttrack' ) . '</p>';
+        echo '<form method="get" action="' . esc_url( $action ) . '" class="tt-pdp-team-gate__form">';
+        echo '<input type="hidden" name="tt_view" value="pdp" />';
+        $back = isset( $_GET['tt_back'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['tt_back'] ) ) : '';
+        if ( $back !== '' ) {
+            echo '<input type="hidden" name="tt_back" value="' . esc_attr( $back ) . '" />';
+        }
+        echo '<label class="tt-field-label" for="tt-pdp-gate-team">' . esc_html__( 'Team', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-pdp-gate-team" name="filter[team_id]" class="tt-input">';
+        echo '<option value="">' . esc_html__( 'Choose a team…', 'talenttrack' ) . '</option>';
+        foreach ( $team_options as $tid => $tname ) {
+            echo '<option value="' . esc_attr( (string) (int) $tid ) . '">' . esc_html( (string) $tname ) . '</option>';
+        }
+        echo '</select>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Show players', 'talenttrack' ) . '</button>';
+        echo '</form>';
+        echo '</div>';
     }
 
     /**
@@ -524,142 +586,10 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        // #1617 — the PDP setup landing is now a player-centric
-        // COVERAGE list (who has a PDP this season, who doesn't). The
-        // historical files-only list stays reachable as a secondary
-        // tab (`?files=1`) for power users who want the file-by-file
-        // view with archive controls.
-        $show_files = ! empty( $_GET['files'] );
-        if ( ! $show_files ) {
-            self::renderCoverageList( $user_id, $is_admin, $current );
-            return;
-        }
-
-        // v3.110.110 — page-header CTA + FrontendListTable parity with
-        // the goals + evaluations pages (per pilot ask: "the table list
-        // POP is not using the same formatting as the standard used in
-        // goals list page"). Filter bar: Team / Player / Status. Search
-        // matches player name. Sortable columns. Pagination + per-page
-        // selector. Parent/player ack columns surface grey/green
-        // checkmarks rolled up from the file's conversations.
-        $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] );
-        $new_url  = add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new' ], $base_url );
-        $page_actions = [];
-        if ( current_user_can( 'tt_edit_pdp' ) ) {
-            $page_actions[] = [
-                'label'   => __( 'Open new PDP file', 'talenttrack' ),
-                'href'    => $new_url,
-                'primary' => true,
-                'icon'    => '+',
-            ];
-        }
-        self::renderHeader( __( 'Player Development Plans', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
-
-        self::renderSetupTabs( true );
-
-        echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
-            /* translators: %s = season name */
-            __( 'Showing PDP files for the current season (%s).', 'talenttrack' ),
-            (string) $current->name
-        ) ) . '</p>';
-
-        // Player + team filter options scoped the same way the REST
-        // endpoint scopes (admins see everything; coaches see their
-        // own teams' rosters).
-        $player_options = [];
-        if ( $is_admin ) {
-            foreach ( QueryHelpers::get_players() as $pl ) {
-                $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
-            }
-        } else {
-            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
-                    $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
-                }
-            }
-        }
-        $status_options = [
-            PdpStatus::OPEN      => __( 'Open',      'talenttrack' ),
-            PdpStatus::COMPLETED => __( 'Completed', 'talenttrack' ),
-            PdpStatus::ARCHIVED  => __( 'Archived',  'talenttrack' ),
-        ];
-
-        // #1293 — Show-archived toggle. The REST list endpoint hides
-        // archived rows by default; the toggle flips `include_archived=1`
-        // in the querystring, which the FrontendListTable hydrator
-        // forwards as a static filter on every fetch. The link only
-        // renders for users who hold `tt_unarchive_pdp` — there's no
-        // point offering "Show archived" to operators who can't act
-        // on archived rows. #1610 — `tt_delete_pdp` holders also see the
-        // toggle so they can reach the archived list to permanently
-        // delete a file (per-row "Delete permanently" action).
-        $include_archived = ! empty( $_GET['include_archived'] );
-        if ( current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' ) ) {
-            $toggle_url = $include_archived
-                ? remove_query_arg( 'include_archived' )
-                : add_query_arg( 'include_archived', '1' );
-            $toggle_label = $include_archived
-                ? __( 'Hide archived', 'talenttrack' )
-                : __( 'Show archived', 'talenttrack' );
-            echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '" style="min-height:48px;padding:8px 14px;touch-action:manipulation;">' . esc_html( $toggle_label ) . '</a></p>';
-        }
-
-        // #1293 — Actions column hosts the per-row Archive / Restore
-        // button. Cap-gating is applied server-side in
-        // PdpFilesRestController::row_actions_html(); the cell prints
-        // empty for viewers without the matching capability.
-        $columns = [
-            'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
-            'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-            'status'      => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'status_pill_html' ],
-            'cycle_size'  => [ 'label' => __( 'Cycle',  'talenttrack' ), 'sortable' => true ],
-            'parent_ack'  => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
-            'player_ack'  => [ 'label' => __( 'Player confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
-            'updated_at'  => [ 'label' => __( 'Updated', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
-            'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html' ],
-        ];
-
-        $list_config = [
-            'rest_path' => 'pdp-files',
-            'columns'   => $columns,
-            'filters' => [
-                'team_id' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Team', 'talenttrack' ),
-                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
-                ],
-                'player_id' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Player', 'talenttrack' ),
-                    'options' => $player_options,
-                ],
-                'status' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Status', 'talenttrack' ),
-                    'options' => $status_options,
-                ],
-            ],
-            'search'       => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
-            'default_sort' => [ 'orderby' => 'updated_at', 'order' => 'desc' ],
-            'empty_state'  => __( 'No PDP files match your filters.', 'talenttrack' ),
-            // v3.110.169 — whole-row click navigates to the PDP file detail
-            // page. Inline links to player / team cells keep working
-            // (cross-entity links override the row link). Standard
-            // applied here first; other list views will adopt the same
-            // `row_url_key` config + REST `detail_url` field pattern.
-            'row_url_key'  => 'detail_url',
-        ];
-        // #1293 — when the operator opts in, surface archived rows via
-        // a static filter on the REST request. FrontendListTable's JS
-        // hydrator forwards static_filters as `filter[<key>]` params;
-        // the list endpoint reads `include_archived` from either the
-        // top-level query string or the filter map, so this round-trips
-        // cleanly without polluting the user-facing filter UI.
-        if ( $include_archived ) {
-            $list_config['static_filters'] = [ 'include_archived' => '1' ];
-        }
-
-        echo FrontendListTable::render( $list_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+        // #2040 — single player-centric list. The old Coverage / Files tab
+        // split is gone; archived files are reached via the Active / Archived
+        // state pills inside the coverage list itself, not a separate tab.
+        self::renderCoverageList( $user_id, $is_admin, $current );
     }
 
     private static function renderCreateForm( int $user_id, bool $is_admin ): void {
@@ -838,10 +768,11 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">'
             . esc_html__( 'Print / PDF', 'talenttrack' ) . '</a>';
-        if ( $can_verdict && $verdict === null ) {
-            $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
-            echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $vurl ) . '">' . esc_html__( 'Record verdict', 'talenttrack' ) . '</a>';
-        }
+        // #2043 — the "Record verdict" CTA moved out of the top action bar to
+        // sit by the conversation list + cycle progress (rendered after the
+        // conversations table below), where its "all conversations closed"
+        // precondition is visible. It stays disabled, with the reason, until
+        // every conversation is signed off.
         // #1294 — irreversible hard-delete entry point. Cap-gated on
         // `tt_delete_pdp` (admin-only by seed). Routes to the typed-name
         // confirm subview at ?tt_view=pdp&action=permanent-delete.
@@ -1005,6 +936,32 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
         echo '</tbody></table>';
 
+        // #2043 — verdict CTA, by the conversation list + cycle progress. The
+        // end-of-season verdict can only be recorded once every conversation
+        // is signed off; until then it renders disabled with the reason
+        // (X/N closed) so the operator sees why it isn't available.
+        if ( $can_verdict && $verdict === null ) {
+            $all_closed = ( $cycle_size > 0 && $signed_count >= $cycle_size );
+            echo '<div class="tt-pdp-verdict-cta">';
+            if ( $all_closed ) {
+                $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
+                echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $vurl ) . '">'
+                    . esc_html__( 'Record verdict', 'talenttrack' ) . '</a>';
+            } else {
+                echo '<button type="button" class="tt-btn tt-btn-primary" disabled aria-disabled="true">'
+                    . esc_html( sprintf(
+                        /* translators: 1: signed-off conversation count, 2: cycle size */
+                        __( 'Record verdict (%1$d/%2$d conversations closed)', 'talenttrack' ),
+                        (int) $signed_count,
+                        (int) $cycle_size
+                    ) ) . '</button>';
+                echo '<p class="tt-pdp-verdict-cta__hint">'
+                    . esc_html__( 'The verdict opens once every conversation in the cycle is signed off.', 'talenttrack' )
+                    . '</p>';
+            }
+            echo '</div>';
+        }
+
         // Goals linked to this player (current season)
         self::renderGoalsBlock( (int) $file->player_id );
 
@@ -1055,7 +1012,18 @@ class FrontendPdpManageView extends FrontendViewBase {
         // read-only end-to-end: form inputs disabled, Save hidden,
         // signoff checkbox hidden, top banner explaining why.
         $is_locked  = PdpConversationsRepository::isLocked( $conv );
-        $lock_attr  = $is_locked ? ' readonly disabled' : '';
+        // #2041 — only the "active" conversation (earliest by sequence not
+        // yet signed off) is fully editable. Later conversations are
+        // content-locked: every field is read-only EXCEPT the planned date,
+        // so the coach can schedule the cycle ahead without filling in a
+        // talk out of order. A signature still trumps this with a full lock.
+        $is_active      = ( (int) $conv->id === $convs_repo->activeConversationId( (int) $file->id ) );
+        $content_locked = ! $is_locked && ! $is_active;
+        // scheduled_at honours only the signature lock (date stays editable
+        // on a content-locked conversation); every other field honours both.
+        $date_attr    = $is_locked ? ' readonly disabled' : '';
+        $content_attr = ( $is_locked || $content_locked ) ? ' readonly disabled' : '';
+        $lock_attr    = $content_attr;
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
         // v3.92.5 — after save / sign, land back on the parent PDP file
         // so the user sees their work in context. Public.js honours
@@ -1145,12 +1113,21 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '. ' . esc_html__( 'Open a new conversation if a follow-up edit is needed.', 'talenttrack' );
             echo '</div>';
         }
+        // #2041 — content-locked (a later conversation in the cycle): only
+        // the planned date is editable until the active conversation ahead
+        // of it is signed off. Distinct from the signature lock above.
+        if ( $content_locked ) {
+            echo '<div class="tt-notice tt-pdp-conv-future" role="status">';
+            echo '<strong>' . esc_html__( 'Planned date only.', 'talenttrack' ) . '</strong> ';
+            echo esc_html__( 'Until the previous conversation is signed off, only the planned date can be changed here.', 'talenttrack' );
+            echo '</div>';
+        }
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
-                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>"<?php echo $lock_attr; ?> />
+                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>"<?php echo $date_attr; ?> />
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-conducted"><?php esc_html_e( 'Conducted at', 'talenttrack' ); ?></label>
@@ -1208,7 +1185,7 @@ class FrontendPdpManageView extends FrontendViewBase {
 
             <?php if ( $is_signed ) : ?>
                 <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) ); ?></p>
-            <?php elseif ( ! $is_locked ) : ?>
+            <?php elseif ( ! $is_locked && ! $content_locked ) : ?>
                 <div class="tt-field">
                     <label class="tt-checkbox">
                         <input type="checkbox" name="coach_signoff_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
@@ -1225,6 +1202,46 @@ class FrontendPdpManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
         <?php
+        // #2042 — proxy acknowledgement. A coach who ran the talk in person
+        // can record the player's / parent's acknowledgement on their behalf,
+        // each behind a confirm dialog. Plain proxy: it writes the same
+        // *_ack_at column as a self-ack (and trips the end-to-end lock, by
+        // design). Offered once the coach has signed off — the same point at
+        // which the player / parent would normally get their own Acknowledge
+        // button — and only for a coach who can edit the file.
+        $can_proxy_ack = $is_admin || current_user_can( 'tt_edit_pdp' );
+        if ( $is_signed && $can_proxy_ack ) {
+            $now_utc = current_time( 'mysql', true );
+            echo '<div class="tt-pdp-proxy-ack">';
+            echo '<h3 class="tt-pdp-proxy-ack__title">' . esc_html__( 'Acknowledgements', 'talenttrack' ) . '</h3>';
+
+            if ( ! empty( $conv->player_ack_at ) ) {
+                echo '<p class="tt-pdp-proxy-ack__done">' . esc_html( sprintf(
+                    /* translators: %s = acknowledgement timestamp */
+                    __( 'Player acknowledged on %s', 'talenttrack' ),
+                    \TT\Shared\Dates\TTDate::dateTime( (string) $conv->player_ack_at )
+                ) ) . '</p>';
+            } else {
+                self::renderProxyAckForm( $rest_path, 'player_ack_at', $now_utc,
+                    __( 'Record player acknowledgement', 'talenttrack' ),
+                    __( 'Confirm only if the player acknowledged this conversation with you in person. This records it on their behalf.', 'talenttrack' )
+                );
+            }
+
+            if ( ! empty( $conv->parent_ack_at ) ) {
+                echo '<p class="tt-pdp-proxy-ack__done">' . esc_html( sprintf(
+                    /* translators: %s = acknowledgement timestamp */
+                    __( 'Parent acknowledged on %s', 'talenttrack' ),
+                    \TT\Shared\Dates\TTDate::dateTime( (string) $conv->parent_ack_at )
+                ) ) . '</p>';
+            } else {
+                self::renderProxyAckForm( $rest_path, 'parent_ack_at', $now_utc,
+                    __( 'Record parent acknowledgement', 'talenttrack' ),
+                    __( 'Confirm only if the parent acknowledged this conversation with you in person. This records it on their behalf.', 'talenttrack' )
+                );
+            }
+            echo '</div>';
+        }
         echo '</div>'; // /conversation pane
 
         // Evidence pane — same content as the old sidebar, hidden by
@@ -1232,6 +1249,23 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="evidence" role="tabpanel" hidden>';
         self::renderEvidenceSidebar( (int) $file->player_id, $conv );
         echo '</div>';
+    }
+
+    /**
+     * #2042 — one proxy-acknowledgement mini-form. PATCHes the conversation
+     * with the given ack column set to now, behind a JS confirm dialog
+     * (`data-confirm-msg`), then reloads so the recorded state shows. Kept
+     * separate from the main conversation form so it stays available once a
+     * signature has locked that form.
+     */
+    private static function renderProxyAckForm( string $rest_path, string $field, string $now_utc, string $label, string $confirm ): void {
+        ?>
+        <form class="tt-ajax-form tt-pdp-proxy-ack__form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save="reload" data-confirm-msg="<?php echo esc_attr( $confirm ); ?>">
+            <input type="hidden" name="<?php echo esc_attr( $field ); ?>" value="<?php echo esc_attr( $now_utc ); ?>" />
+            <button type="submit" class="tt-btn tt-btn-secondary"><?php echo esc_html( $label ); ?></button>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
     }
 
     private static function renderVerdictForm( object $file, int $user_id, bool $is_admin ): void {

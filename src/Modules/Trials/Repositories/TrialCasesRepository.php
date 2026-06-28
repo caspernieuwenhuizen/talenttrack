@@ -172,8 +172,13 @@ class TrialCasesRepository {
             $where[]  = 'start_date <= %s';
             $params[] = (string) $filters['date_to'];
         }
+        // #2023 — trashed (recycle-bin) rows never surface in the list, even
+        // with include_archived; the bin is their only surface. Single FROM
+        // table, so no alias is needed on filterClause.
         if ( empty( $filters['include_archived'] ) ) {
-            $where[] = 'archived_at IS NULL';
+            $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' );
+        } else {
+            $where[] = 'trashed_at IS NULL';
         }
 
         $sql = "SELECT * FROM {$this->table}

@@ -64,6 +64,18 @@ class GoalsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_goal_permanently' ],
+                // #2024 security #6 — no purge path weaker than the bin: the
+                // permanent delete re-gates onto tt_manage_recycle_bin so it
+                // matches the bin's own purge. (The reversible /trash route
+                // below keeps the destructive-op gate — it's not a purge.)
+                'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
+            ],
+        ] );
+        // #2023 — reversible "Move to recycle bin" (archived → trashed).
+        register_rest_route( self::NS, '/goals/(?P<id>\d+)/trash', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'trash_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
             ],
         ] );
@@ -149,12 +161,10 @@ class GoalsRestController {
         if ( ! empty( $r['include_archived'] ) ) {
             $archived_view = 'all';
         }
-        if ( $archived_view === 'active' ) {
-            $where[] = 'g.archived_at IS NULL';
-        } elseif ( $archived_view === 'archived' ) {
-            $where[] = 'g.archived_at IS NOT NULL';
-        }
-        // 'all' → no archived clause.
+        // #2023 — through filterClause (alias 'g') so every state also hides
+        // trashed (recycle-bin) rows; the query joins tt_players + tt_teams
+        // (also archivable), so the alias keeps trashed_at unambiguous.
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 'g' );
 
         // v3.91.2 — bypass coach-scope filter for personas with matrix
         // `goals:r[global]` (scout, head_of_development, academy_admin).
@@ -314,11 +324,11 @@ class GoalsRestController {
             'due_date'            => $row->due_date,
             'created_at'        => $row->created_at,
             'created_by'        => (int) ( $row->created_by ?? 0 ),
-            'archived_at'       => $row->archived_at ?? null,
             // v3.110.170 — row-link standard (#758). Same URL the title
             // cell already links to.
             'detail_url'        => $title_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
     public static function create_goal( \WP_REST_Request $r ) {
@@ -617,6 +627,13 @@ class GoalsRestController {
             return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
         }
         return RestResponse::success( [ 'deleted' => true, 'id' => $goal_id ] );
+    }
+
+    /** #2023 — move an archived goal into the recycle bin (reversible). */
+    public static function trash_goal( \WP_REST_Request $r ) {
+        return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
+            'goal', absint( $r['id'] ), __( 'Goal not found.', 'talenttrack' )
+        );
     }
 
     /** #1470 — permanent delete is gated behind the settings cap, like wp-admin. */

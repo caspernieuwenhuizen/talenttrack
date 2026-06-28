@@ -105,6 +105,18 @@ class TournamentsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_tournament_permanently' ],
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
+                'permission_callback' => function () {
+                    return current_user_can( 'tt_manage_recycle_bin' );
+                },
+            ],
+        ] );
+        // #2023 — reversible "Move to recycle bin" (archived → trashed).
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/trash', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'trash_tournament' ],
                 'permission_callback' => function () {
                     return current_user_can( 'tt_edit_settings' );
                 },
@@ -305,12 +317,13 @@ class TournamentsRestController {
         $where  = [ 't.club_id = %d' ];
         $params = [ CurrentClub::id() ];
 
+        // #2023 — through filterClause (alias 't') so archived/active views
+        // also exclude trashed (recycle-bin) rows.
         $status = isset( $filter['status'] ) ? sanitize_key( (string) $filter['status'] ) : 'active';
-        if ( $status === 'archived' ) {
-            $where[] = 't.archived_at IS NOT NULL';
-        } else {
-            $where[] = 't.archived_at IS NULL';
-        }
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause(
+            $status === 'archived' ? 'archived' : 'active',
+            't'
+        );
 
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 't.team_id = %d';
@@ -489,6 +502,13 @@ class TournamentsRestController {
         }
         if ( $n === 0 ) return RestResponse::notFound( 'tournament_not_found' );
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
+    }
+
+    /** #2023 — move an archived tournament into the recycle bin (reversible). */
+    public static function trash_tournament( \WP_REST_Request $r ) {
+        return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
+            'tournament', (int) $r['id'], __( 'Tournament not found.', 'talenttrack' )
+        );
     }
 
     /**
@@ -1673,9 +1693,9 @@ class TournamentsRestController {
             'team_id'           => (int) $row->team_id,
             'team_name'         => (string) ( $row->team_name ?? '' ),
             'created_at'        => $row->created_at,
-            'archived_at'       => $row->archived_at,
             'detail_url'        => $detail_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
     /**

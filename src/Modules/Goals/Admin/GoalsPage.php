@@ -36,10 +36,10 @@ class GoalsPage {
 
         // v2.17.0: archive view filter + bulk actions.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'g' );
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
-        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id AND pl.club_id = g.club_id WHERE g.{$view_clause} AND g.club_id = %d {$scope} ORDER BY g.created_at DESC LIMIT 50", CurrentClub::id() ) );
+        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.*, CONCAT(pl.first_name,' ',pl.last_name) AS player_name FROM {$p}tt_goals g LEFT JOIN {$p}tt_players pl ON g.player_id=pl.id AND pl.club_id = g.club_id WHERE {$view_clause} AND g.club_id = %d {$scope} ORDER BY g.created_at DESC LIMIT 50", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-goals' );
         ?>
         <div class="wrap">

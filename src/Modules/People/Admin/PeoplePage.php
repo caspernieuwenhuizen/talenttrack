@@ -117,7 +117,7 @@ class PeoplePage {
         // archive/all views and fall back to the repo for active. A full
         // PeopleRepository refactor is deferred to a future sprint.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 'pe' );
 
         if ( $view === 'active' ) {
             $people = $repo->list( [

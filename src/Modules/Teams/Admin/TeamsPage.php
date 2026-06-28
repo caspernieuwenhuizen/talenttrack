@@ -29,10 +29,10 @@ class TeamsPage {
 
         // v2.17.0: archive view filter + bulk actions.
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
+        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view, 't' );
 
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
-        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.* FROM {$p}tt_teams t WHERE t.{$view_clause} AND t.club_id = %d {$scope} ORDER BY t.name ASC", CurrentClub::id() ) );
+        $teams = $wpdb->get_results( $wpdb->prepare( "SELECT t.* FROM {$p}tt_teams t WHERE {$view_clause} AND t.club_id = %d {$scope} ORDER BY t.name ASC", CurrentClub::id() ) );
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">

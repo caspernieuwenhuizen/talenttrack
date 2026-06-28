@@ -10,6 +10,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Frontend\Components\DateInputComponent;
+use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\GuestAddModal;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -938,53 +939,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // ---- HEADER + FILTERS ---------------------------------------
         echo '<div class="tt-act-surface" data-tt-act-surface>';
 
-        // Filter row — Team + Type. GET form so query state survives in URL.
-        echo '<form method="get" class="tt-act-filters" data-tt-act-filters>';
-        // Preserve `tt_view=activities` + any back-target on submit.
-        echo '<input type="hidden" name="tt_view" value="activities" />';
-        if ( $period_filter !== '' ) {
-            // Keep the active period when the Team/Type selects auto-submit.
-            echo '<input type="hidden" name="period" value="' . esc_attr( $period_filter ) . '" />';
-        }
-        if ( ! empty( $_GET['tt_back'] ) ) {
-            echo '<input type="hidden" name="tt_back" value="' . esc_attr( (string) $_GET['tt_back'] ) . '" />';
-        }
-        if ( $include_past ) {
-            echo '<input type="hidden" name="include_past" value="1" />';
-        }
+        // #2026 — the bespoke Team/Type form + period/status pill rows are
+        // replaced by the shared, data-driven FilterBar component (epic
+        // #2017 Phase 1). The query params and filtering behaviour are
+        // unchanged: Team / Type / Show-cancelled live in the bar's GET
+        // form (auto-submit), Period and archive-Status are link-based
+        // options. The component owns chrome only; this view supplies the
+        // options + active state (CLAUDE.md §4).
+        $dash_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
 
-        echo '<label class="tt-act-filters__field">';
-        echo '<span class="tt-act-filters__label">' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<select class="tt-act-filters__select" name="team_id" onchange="this.form.submit()">';
-        echo '<option value="">' . esc_html__( '— all teams —', 'talenttrack' ) . '</option>';
+        // --- Team select options (id => name), with an "all" placeholder.
+        $team_select_options = [];
         foreach ( $team_options as $tid => $tname ) {
-            echo '<option value="' . esc_attr( (string) (int) $tid ) . '"' . selected( $team_filter, (int) $tid, false ) . '>' . esc_html( (string) $tname ) . '</option>';
+            $team_select_options[ (string) (int) $tid ] = (string) $tname;
         }
-        echo '</select>';
-        echo '</label>';
 
-        echo '<label class="tt-act-filters__field">';
-        echo '<span class="tt-act-filters__label">' . esc_html__( 'Type', 'talenttrack' ) . '</span>';
-        echo '<select class="tt-act-filters__select" name="activity_type_key" onchange="this.form.submit()">';
-        echo '<option value="">' . esc_html__( '— all types —', 'talenttrack' ) . '</option>';
+        // --- Type select options (lookup name => translated label).
+        $type_select_options = [];
         foreach ( $type_rows as $tr ) {
-            $name  = (string) ( $tr->name ?? '' );
-            $label = LookupTranslator::name( $tr );
-            echo '<option value="' . esc_attr( $name ) . '"' . selected( $type_filter, $name, false ) . '>' . esc_html( $label ) . '</option>';
+            $type_select_options[ (string) ( $tr->name ?? '' ) ] = (string) LookupTranslator::name( $tr );
         }
-        echo '</select>';
-        echo '</label>';
-        // #1862 — opt back into cancelled rows (hidden by default).
-        echo '<label class="tt-act-filters__field tt-act-filters__field--check">';
-        echo '<input type="checkbox" class="tt-act-filters__check" name="show_cancelled" value="1"' . checked( $show_cancelled, true, false ) . ' onchange="this.form.submit()" />';
-        echo '<span class="tt-act-filters__label">' . esc_html__( 'Show cancelled', 'talenttrack' ) . '</span>';
-        echo '</label>';
-        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
-        echo '</form>';
 
-        // #1648 — period quick-filter pills. Plain links (no JS) that set
-        // ?period=… while preserving the team / type / past state, so the
-        // list scopes to a window without manual date entry.
+        // --- Period quick-windows (#1648). Link-based: each sets ?period=…
+        // while preserving team / type / past / cancelled / tt_back state.
         $period_labels = [
             ''            => __( 'All', 'talenttrack' ),
             'this_week'   => __( 'This week', 'talenttrack' ),
@@ -999,32 +976,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $include_past )         $pill_base['include_past']      = '1';
         if ( $show_cancelled )       $pill_base['show_cancelled']    = '1';
         if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']     = (string) $_GET['tt_back'];
-        $dash_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
 
-        echo '<nav class="tt-act-periods" aria-label="' . esc_attr__( 'Filter by period', 'talenttrack' ) . '">';
+        $period_options = [];
         foreach ( $period_labels as $key => $label ) {
             $args = $pill_base;
             if ( $key !== '' ) $args['period'] = $key;
-            $url      = add_query_arg( $args, $dash_url );
-            $active   = ( $period_filter === $key );
-            $cls      = 'tt-act-period' . ( $active ? ' tt-act-period--active' : '' );
-            echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '"'
-                . ( $active ? ' aria-current="true"' : '' ) . '>'
-                . esc_html( $label ) . '</a>';
+            $period_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $period_filter === $key ),
+            ];
         }
-        echo '</nav>';
 
-        // #1555 — Active / Archived / All status control. Same link-based
-        // pattern as the period pills (noscript-resilient, 48px targets),
-        // preserving the team / type / period / cancelled state.
+        // --- Active / Archived status (#1555). Link-based, same base.
+        // #2023 — "All" dropped: trashed rows never appear in per-entity
+        // lists (the recycle bin is the only surface for them).
         $status_labels = [
             'active'   => __( 'Active', 'talenttrack' ),
             'archived' => __( 'Archived', 'talenttrack' ),
-            'all'      => __( 'All', 'talenttrack' ),
         ];
         $status_base = $pill_base;
         if ( $period_filter !== '' ) $status_base['period'] = $period_filter;
-        echo '<nav class="tt-act-status" aria-label="' . esc_attr__( 'Filter by archive status', 'talenttrack' ) . '">';
+        $status_options = [];
         foreach ( $status_labels as $key => $label ) {
             $args = $status_base;
             // 'active' is the default — keep its URL clean (no param).
@@ -1033,14 +1007,100 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             } else {
                 $args['archived'] = $key;
             }
-            $url    = add_query_arg( $args, $dash_url );
-            $active = ( $archived_view === $key );
-            $cls    = 'tt-act-status__tab' . ( $active ? ' tt-act-status__tab--active' : '' );
-            echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '"'
-                . ( $active ? ' aria-current="true"' : '' ) . '>'
-                . esc_html( $label ) . '</a>';
+            $status_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $archived_view === $key ),
+                'dot'    => $key,
+            ];
         }
-        echo '</nav>';
+
+        // --- Hidden fields the GET form must carry so the auto-submitting
+        // Team / Type / Show-cancelled controls preserve the link-based
+        // state (period / archived status / past / back-target).
+        $hidden = [ 'tt_view' => 'activities' ];
+        if ( $period_filter !== '' )       $hidden['period']       = $period_filter;
+        if ( $archived_view !== 'active' ) $hidden['archived']     = $archived_view;
+        if ( $include_past )               $hidden['include_past'] = '1';
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back']      = (string) $_GET['tt_back'];
+
+        // --- Active-count + summary chips for the mobile collapsed state.
+        $active_count = 0;
+        $chips = [];
+        if ( $team_filter > 0 && isset( $team_select_options[ (string) $team_filter ] ) ) {
+            $active_count++;
+            $chips[] = $team_select_options[ (string) $team_filter ];
+        }
+        if ( $type_filter !== '' && isset( $type_select_options[ $type_filter ] ) ) {
+            $active_count++;
+            $chips[] = $type_select_options[ $type_filter ];
+        }
+        if ( $period_filter !== '' ) {
+            $active_count++;
+            $chips[] = (string) ( $period_labels[ $period_filter ] ?? '' );
+        }
+        if ( $archived_view !== 'active' ) {
+            $active_count++;
+            $chips[] = (string) ( $status_labels[ $archived_view ] ?? '' );
+        }
+        if ( $show_cancelled ) {
+            $active_count++;
+            $chips[] = __( 'Cancelled shown', 'talenttrack' );
+        }
+
+        // --- "Clear" target: the bare list with no filter params.
+        $reset_args = [ 'tt_view' => 'activities' ];
+        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = (string) $_GET['tt_back'];
+
+        FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'groups'       => [
+                [
+                    'type'        => 'select',
+                    'key'         => 'team',
+                    'label'       => __( 'Team', 'talenttrack' ),
+                    'name'        => 'team_id',
+                    'selected'    => $team_filter > 0 ? (string) $team_filter : '',
+                    'placeholder' => __( '— all teams —', 'talenttrack' ),
+                    'options'     => $team_select_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'type',
+                    'label'       => __( 'Type', 'talenttrack' ),
+                    'name'        => 'activity_type_key',
+                    'selected'    => $type_filter,
+                    'placeholder' => __( '— all types —', 'talenttrack' ),
+                    'options'     => $type_select_options,
+                ],
+                [
+                    'type'         => 'period',
+                    'key'          => 'period',
+                    'label'        => __( 'Period', 'talenttrack' ),
+                    'active_label' => (string) ( $period_labels[ $period_filter ] ?? $period_labels[''] ),
+                    'options'      => $period_options,
+                ],
+                [
+                    'type'    => 'status',
+                    'key'     => 'status',
+                    'label'   => __( 'Status', 'talenttrack' ),
+                    'options' => $status_options,
+                ],
+                [
+                    'type'     => 'toggle',
+                    'key'      => 'cancelled',
+                    'label'    => __( 'Cancelled', 'talenttrack' ),
+                    'name'     => 'show_cancelled',
+                    'on'       => $show_cancelled,
+                    'on_label' => __( 'Show', 'talenttrack' ),
+                    'value'    => '1',
+                ],
+            ],
+        ] );
 
         // ---- EMPTY STATE --------------------------------------------
         $forward_total = $buckets['attention_count']

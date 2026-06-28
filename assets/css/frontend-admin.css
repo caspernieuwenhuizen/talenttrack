@@ -348,6 +348,26 @@
     margin: 0;
     border-width: 0;
 }
+/* #2023 — flash banner carrying an inline action (e.g. Undo). */
+.tt-dashboard .tt-flash .tt-flash-text { flex: 1; align-self: center; }
+.tt-dashboard .tt-flash .tt-flash-action {
+    flex: 0 0 auto;
+    min-height: 44px;
+    align-self: center;
+}
+.tt-dashboard .tt-flash .tt-flash-dismiss {
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.7;
+}
+.tt-dashboard .tt-flash .tt-flash-dismiss:hover { opacity: 1; }
 
 /* Component-specific styles */
 
@@ -1190,6 +1210,27 @@
     line-height: 1.5;
     color: var(--tt-muted, #4a5258);
 }
+/* #2023 — itemized cascade preview inside the confirm dialog. */
+.tt-confirm-details {
+    margin: 0 0 20px;
+    max-height: 40vh;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--tt-muted, #4a5258);
+}
+.tt-confirm-details .tt-cascade-heading {
+    margin: 12px 0 4px;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-confirm-details .tt-cascade-heading-blocker { color: var(--tt-danger, #b32d2e); }
+.tt-confirm-details .tt-cascade-list {
+    margin: 0 0 4px;
+    padding-left: 1.25rem;
+    list-style: disc;
+}
+.tt-confirm-details .tt-cascade-empty { margin: 0; font-style: italic; }
 .tt-confirm-actions {
     display: flex;
     justify-content: flex-end;

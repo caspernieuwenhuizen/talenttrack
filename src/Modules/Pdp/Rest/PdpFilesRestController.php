@@ -291,6 +291,14 @@ class PdpFilesRestController {
         if ( $only_missing ) {
             $coverage_filters['only_missing'] = true;
         }
+        // #2040 — Active / Archived record-state view. Only operators who can
+        // act on archived files (unarchive or delete) may switch to the
+        // archived view; everyone else is pinned to active.
+        $archived_raw = (string) ( $r['archived'] ?? ( $filter['archived'] ?? 'active' ) );
+        $can_see_archived = current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' );
+        if ( $archived_raw === 'archived' && $can_see_archived ) {
+            $coverage_filters['archived_view'] = 'archived';
+        }
 
         $files   = new PdpFilesRepository();
         $rows    = $files->coverageForSeason( $season_id, $coverage_filters );
@@ -360,14 +368,24 @@ class PdpFilesRestController {
             );
         }
 
-        $file_id   = (int) ( $row->pdp_file_id ?? 0 );
-        $has_pdp   = $file_id > 0;
-        $conducted = (int) ( $row->conv_conducted ?? 0 );
-        $total     = (int) ( $row->conv_total ?? 0 );
+        $file_id     = (int) ( $row->pdp_file_id ?? 0 );
+        $has_pdp     = $file_id > 0;
+        $is_archived = $has_pdp && ! empty( $row->archived_at );
+        $conducted   = (int) ( $row->conv_conducted ?? 0 );
+        $total       = (int) ( $row->conv_total ?? 0 );
 
         $dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
 
-        if ( $has_pdp ) {
+        if ( $is_archived ) {
+            // #2040 — archived-view row: the player's PDP for this season is
+            // soft-archived. Show an Archived pill + the shared Restore /
+            // permanent-delete row actions. No whole-row navigation — the
+            // actions are explicit.
+            $coverage_html = '<span class="tt-status-badge tt-pdp-archived-pill">'
+                . esc_html__( 'Archived', 'talenttrack' ) . '</span>';
+            $action_html = self::row_actions_html( $file_id, $player_name, true );
+            $row_url     = '';
+        } elseif ( $has_pdp ) {
             $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
                 [ 'tt_view' => 'pdp', 'id' => $file_id ],
                 $dash
@@ -389,8 +407,10 @@ class PdpFilesRestController {
                 : __( 'PDP ✓', 'talenttrack' );
             $coverage_html = '<a href="' . esc_url( $detail_url ) . '" class="tt-status-badge tt-status-completed" style="text-decoration:none;display:inline-flex;align-items:center;min-height:28px;">'
                 . esc_html( $pill_label ) . '</a>';
-            $action_html = '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $detail_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
-                . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            // #2039 — no redundant "Open" button: the whole row already
+            // navigates to $detail_url (row_url_key), and the coverage pill
+            // above is an <a> to the same target for the keyboard / AT path.
+            $action_html = '';
             $row_url = $detail_url;
         } else {
             $create_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(

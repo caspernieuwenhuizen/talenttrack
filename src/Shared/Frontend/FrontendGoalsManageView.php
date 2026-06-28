@@ -78,6 +78,16 @@ class FrontendGoalsManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $goal = self::loadGoal( $id );
+            // #2022 — loadGoal() ends in `archived_at IS NULL`, so an archived
+            // / trashed goal never reaches it. Retry through the archive-aware
+            // gate before falling to not-found; a null return stays a clean 404.
+            if ( ! $goal ) {
+                $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'goal', $id );
+                if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+                    self::renderArchivedReadOnly( $resolved );
+                    return;
+                }
+            }
             // v3.110.53 — Edit + Archive page-header actions on the
             // goal detail page (replaces the inline Edit button that
             // used to sit below the dl + the row Delete action that
@@ -171,7 +181,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         [ $status_chip_class, $card_accent ] = self::statusChipClasses( $status );
         $priority_chip_class = self::priorityChipClass( $priority );
 
-        echo '<div class="tt-record-detail" style="display:grid; gap:16px;">';
+        echo '<div class="tt-record-detail tt-goal-detail-grid">';
         echo '<article class="tt-goal-card tt-goal-detail-card ' . esc_attr( $card_accent ) . '">';
 
         // Chip row — status + priority + due.
@@ -221,13 +231,65 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // slot rendered by render() before this method runs.
 
         if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
-            echo '<section class="tt-pde-section" style="margin-top:16px;">';
-            echo '<h3 style="margin:0 0 8px;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
+            echo '<section class="tt-pde-section">';
+            echo '<h3>' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
             echo '</section>';
         }
 
         echo '</div>';
+    }
+
+    /**
+     * #2022 — compact read-only surface for an archived / trashed goal.
+     * The breadcrumb chain is already emitted by render() before this runs,
+     * so this method only renders the header + the shared card.
+     *
+     * @param array{row:object,state:string} $resolved
+     */
+    private static function renderArchivedReadOnly( array $resolved ): void {
+        $goal  = $resolved['row'];
+        $title = (string) ( $goal->title ?? __( 'Goal', 'talenttrack' ) );
+
+        self::renderHeader( $title );
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::enqueue();
+
+        $goals_url = add_query_arg( [ 'tt_view' => 'goals' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        $self_url  = add_query_arg( [ 'tt_view' => 'goals', 'id' => (int) $goal->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+
+        $fields = [];
+        $status = (string) ( $goal->status ?? '' );
+        if ( $status !== '' ) {
+            $fields[] = [
+                __( 'Status', 'talenttrack' ),
+                esc_html( LabelTranslator::goalStatus( strtolower( str_replace( ' ', '_', $status ) ) ) ),
+            ];
+        }
+        $priority = (string) ( $goal->priority ?? '' );
+        if ( $priority !== '' ) {
+            $fields[] = [
+                __( 'Priority', 'talenttrack' ),
+                esc_html( LabelTranslator::goalPriority( strtolower( $priority ) ) ),
+            ];
+        }
+        $due = (string) ( $goal->due_date ?? '' );
+        if ( $due !== '' && $due !== '0000-00-00' ) {
+            $fields[] = [ __( 'Due', 'talenttrack' ), esc_html( \TT\Shared\Dates\TTDate::date( $due ) ) ];
+        }
+        $player_id = (int) ( $goal->player_id ?? 0 );
+        if ( $player_id > 0 ) {
+            $player = QueryHelpers::get_player( $player_id );
+            if ( $player ) {
+                $fields[] = [ __( 'Player', 'talenttrack' ), esc_html( QueryHelpers::player_display_name( $player ) ) ];
+            }
+        }
+
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::render( 'goal', $resolved, [
+            'title'            => $title,
+            'fields'           => $fields,
+            'list_url'         => $goals_url,
+            'restore_redirect' => $self_url,
+        ] );
     }
 
     /**
@@ -272,7 +334,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // v3.110.53 — Edit / Delete moved to the goal detail page; the
         // clickable goal title is the only active-row affordance.
         // #1470 — Restore + gated permanent-delete on archived rows.
-        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'goals', 'tt_edit_goals' );
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'goals', 'tt_edit_goals', 'goal' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'goals',
@@ -325,15 +387,15 @@ class FrontendGoalsManageView extends FrontendViewBase {
                     'label_from' => __( 'Due from', 'talenttrack' ),
                     'label_to'   => __( 'Due to',   'talenttrack' ),
                 ],
-                // #1470 — Active / Archived / All. Labelled "Archive" to
-                // avoid clashing with the goal-status filter above.
+                // #1470 — Active / Archived. Labelled "Archive" to avoid
+                // clashing with the goal-status filter above. #2023 — "All"
+                // dropped: trashed rows live only in the recycle bin.
                 'archived' => [
                     'type'    => 'select',
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
-                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
             ],

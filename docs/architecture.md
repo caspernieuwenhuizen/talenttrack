@@ -55,6 +55,29 @@ Conventions:
 
 Tracking table: `<prefix>tt_migrations` with columns `id`, `migration` (UNIQUE), `applied_at`.
 
+## Soft-delete tiers — archive → recycle bin → purge (#2018)
+
+Deletion is three-tiered, not a single hard delete. Every bin-archivable entity (the 20 in `ArchiveRepository::TABLE_MAP`) carries two column pairs: `archived_at` / `archived_by` (the archive tier, migration 0010) and `trashed_at` / `trashed_by` (the recycle-bin tier, migration 0186). The states are:
+
+- **active** — `archived_at IS NULL AND trashed_at IS NULL`.
+- **archived** — `archived_at IS NOT NULL AND trashed_at IS NULL`. Removed from default lists, recoverable, still queryable.
+- **trashed (in the bin)** — `trashed_at IS NOT NULL`. Pending permanent deletion after a retention window.
+- **purged** — gone. The only state that issues a real `DELETE`.
+
+`ArchiveRepository` (`src/Infrastructure/Archive/ArchiveRepository.php`) is the single domain core for the whole lifecycle — all business logic lives here, none in views (§4). Transitions:
+
+- `trash()` — archived → bin. Rejects rows that aren't archived first, so the tiers stay ordered. Cap (at the boundary): `tt_edit_settings`.
+- `restoreFromTrash()` — bin → **archived** (not active; the row returns to the tier it came from). Cap: `tt_manage_recycle_bin`.
+- `purge()` — bin → gone, routed exclusively through the existing fail-closed cascade (`PlayerDeletionCascade` / `PersonDeletionCascade` / `GenericCascadeDeleter`). A `DeleteBlockedException` from an undeclared reference propagates unchanged. Only ids genuinely in this club's bin are eligible. Cap: `tt_manage_recycle_bin`.
+
+Security-critical invariants (these rows are soft-deleted minors' PII):
+
+- **Visibility gate** lives in `findIncludingArchived()`: a trashed row returns `null` (→ caller renders 404) unless the user holds `tt_manage_recycle_bin`. No view re-implements this — they can only leak by ignoring the return.
+- **Tenant scope on every branch**: `ownedByCurrentClub()` is the IDOR backstop for REST permission-callbacks (0-row = not-found, never success); the cross-entity aggregation (`trashedAcrossEntities()`) appends `QueryHelpers::clubScopeWhere()` centrally to every entity branch.
+- **Audit trail**: `trash` / `restore` / `purge` each write a `{entity}.trashed|restored|purged` row via `AuditService` (keys from `RecycleBinAuditActions`). `trashed_by` alone is insufficient — it's destroyed on purge, so the audit log is the surviving record.
+
+The 3-state filter vocabulary is `active | archived | trashed | all` (`ArchiveRepository::filterClause()` / `sanitizeView()`), where **`all` = active + archived, never trashed**. Per-entity list views never offer the `trashed` tab; only the recycle-bin view does, gated on `tt_manage_recycle_bin`. The retention window is the `tt_config` key `tt_recycle_bin_retention_days` (per club, default 30); `trashedRowsFor()` computes `days_until_purge` from it.
+
 ## Capability model (v3.0.0+)
 
 The plugin ships granular caps split into view + edit pairs (`tt_view_<resource>` / `tt_edit_<resource>`) instead of the older single `tt_manage_<resource>` form.

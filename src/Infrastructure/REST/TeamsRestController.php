@@ -97,7 +97,9 @@ class TeamsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_team_permanently' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
+                'permission_callback' => function () { return current_user_can( 'tt_manage_recycle_bin' ); },
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/players/(?P<player_id>\d+)', [
@@ -150,12 +152,13 @@ class TeamsRestController {
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        // #2023 — through filterClause (alias 't') so archived/active views
+        // also exclude trashed (recycle-bin) rows.
         $archived = isset( $filter['archived'] ) ? sanitize_key( (string) $filter['archived'] ) : 'active';
-        if ( $archived === 'archived' ) {
-            $where[] = 't.archived_at IS NOT NULL';
-        } else {
-            $where[] = 't.archived_at IS NULL';
-        }
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause(
+            $archived === 'archived' ? 'archived' : 'active',
+            't'
+        );
 
         if ( ! empty( $filter['age_group'] ) ) {
             $where[]  = 't.age_group = %s';
@@ -512,9 +515,9 @@ class TeamsRestController {
             // #1614 — next-14-day activity count + pre-rendered card.
             'upcoming_count'  => $upcoming_count,
             'card_html'       => $card_html,
-            'archived_at'     => $t->archived_at ?? null,
             // v3.110.170 — row-link standard (#758).
             'detail_url'      => $detail_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $t );
     }
 }

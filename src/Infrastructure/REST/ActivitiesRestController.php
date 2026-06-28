@@ -73,7 +73,10 @@ class ActivitiesRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_session_permanently' ],
-                'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+                // #2024 security #6 — re-gate the permanent delete onto
+                // tt_manage_recycle_bin so no purge path is weaker than the
+                // bin's own purge.
+                'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
             ],
         ] );
         // #0026 — guest attendance endpoints. Guests live alongside
@@ -419,12 +422,12 @@ class ActivitiesRestController {
             'your_attendance_pill_html' => isset( $row->your_attendance_status ) && $row->your_attendance_status !== null
                 ? \TT\Infrastructure\Query\LookupPill::render( 'attendance_status', (string) $row->your_attendance_status )
                 : '',
-            'archived_at'              => $row->archived_at ?? null,
             // v3.110.170 — row-link standard (#758). Same URL the title
             // cell links to; exposed as a top-level field so FrontendListTable's
             // `row_url_key` config can navigate the whole row.
             'detail_url'               => $title_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
     public static function create_session( \WP_REST_Request $r ) {
@@ -647,9 +650,11 @@ class ActivitiesRestController {
      *
      * Capability-gated behind `tt_edit_settings` and routed through
      * ArchiveRepository, which fail-closes via the CascadeRegistry. The
-     * activity entity is block-only (full cascade deferred to #1784), so
-     * an activity that still owns attendance / exercise / match rows
-     * surfaces as a 409 dependency report rather than stranding orphans.
+     * activity cascade plan (#2027) cascades execution data (attendance,
+     * exercises, principles, the match-prep / match-execution trees) and
+     * clears the link on records that outlive the activity (evaluations,
+     * behaviour ratings); an undeclared reference still surfaces as a 409
+     * dependency report rather than stranding orphans.
      */
     public static function delete_session_permanently( \WP_REST_Request $r ) {
         $activity_id = absint( $r['id'] );

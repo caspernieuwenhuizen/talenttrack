@@ -236,6 +236,27 @@ class RolesService {
         'tt_vct_view_load',
     ];
 
+    /**
+     * #2020 (epic #2018) — recycle-bin management. The single owner of
+     * permanent deletion: emptying the bin / purging a trashed row is the
+     * most destructive act in the product, so it lives behind its own cap
+     * rather than riding on `tt_edit_settings` (which any settings-tab
+     * editor holds). Granted to academy admin only.
+     *
+     * DELIBERATELY NOT in VIEW_CAPS / EDIT_CAPS — those propagate to Head
+     * of Development + Read-Only Observer via `allViewCapsTrue()`. The bin
+     * stays admin-only (mirrors the TOURNAMENTS_CAPS / DATA_BROWSER_CAPS
+     * design): `ensureCapabilities()` grants it to WP `administrator`, and
+     * the `tt_club_admin` role definition lists it explicitly. No other
+     * role definition references it, so coaches / HoD / scouts never hold
+     * it (security review #6).
+     *
+     * @var list<string>
+     */
+    public const RECYCLE_BIN_CAPS = [
+        'tt_manage_recycle_bin',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -305,6 +326,7 @@ class RolesService {
                         'tt_manage_settings' => true,
                         'tt_access_frontend_admin' => true,
                         'tt_view_data_browser'     => true, // #1859 — academy admin
+                        'tt_manage_recycle_bin'    => true, // #2020 — academy admin only
                     ],
                     array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
@@ -452,6 +474,7 @@ class RolesService {
             self::TOURNAMENTS_CAPS,
             self::VCT_CAPS,
             self::DATA_BROWSER_CAPS,
+            self::RECYCLE_BIN_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

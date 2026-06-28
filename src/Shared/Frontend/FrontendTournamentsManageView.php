@@ -189,7 +189,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         }
         // #1784 — Restore + referential-integrity permanent delete on
         // archived rows (each action carries its own cap + show_if).
-        $row_actions += ArchiveRowActions::build( 'tournaments', 'tt_edit_tournaments' );
+        $row_actions += ArchiveRowActions::build( 'tournaments', 'tt_edit_tournaments', 'tournament' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'tournaments',

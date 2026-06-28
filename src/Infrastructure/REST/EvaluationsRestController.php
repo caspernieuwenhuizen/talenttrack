@@ -46,7 +46,12 @@ class EvaluationsRestController {
             [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'restore_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/permanent', [
-            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval_permanently' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
+            // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no purge path weaker than the bin's own purge.
+            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval_permanently' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_recycle_bin' ); } ],
+        ]);
+        // #2023 — reversible "Move to recycle bin" (archived → trashed).
+        register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/trash', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'trash_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
         ]);
 
         // #920 — "My evaluations" feed. Mirrors what
@@ -187,16 +192,14 @@ class EvaluationsRestController {
         $where  = [ 'e.club_id = %d' ];
         $params = [ CurrentClub::id() ];
 
-        // #1470 — Active / Archived / All status filter (default Active).
+        // #1470 — Active / Archived status filter (default Active).
+        // #2023 — through filterClause (alias 'e') so every state also hides
+        // trashed (recycle-bin) rows; the query joins tt_players (also
+        // archivable), so the alias keeps trashed_at unambiguous.
         $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
             is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
         );
-        if ( $archived_view === 'active' ) {
-            $where[] = 'e.archived_at IS NULL';
-        } elseif ( $archived_view === 'archived' ) {
-            $where[] = 'e.archived_at IS NOT NULL';
-        }
-        // 'all' → no archived clause.
+        $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 'e' );
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
@@ -449,13 +452,13 @@ class EvaluationsRestController {
             'avg_rating'      => $avg,
             'avg_link_html'   => $avg_link_html,
             'notes_excerpt'   => esc_html( wp_trim_words( (string) ( $row->notes ?? '' ), 14 ) ),
-            'archived_at'     => $row->archived_at ?? null,
             // v3.110.170 — row-link standard (#758). Same URL the inline
             // date / avg links use; now exposed as a top-level field so
             // FrontendListTable's `row_url_key` config can pick it up
             // and make the whole row clickable.
             'detail_url'      => $eval_url,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
     /**
@@ -684,6 +687,13 @@ class EvaluationsRestController {
         }
         if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
+    }
+
+    /** #2023 — move an archived evaluation into the recycle bin (reversible). */
+    public static function trash_eval( \WP_REST_Request $r ) {
+        return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
+            'evaluation', (int) $r['id'], __( 'Evaluation not found.', 'talenttrack' )
+        );
     }
 
     /**

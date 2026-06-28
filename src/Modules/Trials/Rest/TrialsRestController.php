@@ -73,8 +73,10 @@ class TrialsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_case_permanently' ],
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
                 'permission_callback' => function () {
-                    return current_user_can( 'tt_edit_settings' );
+                    return current_user_can( 'tt_manage_recycle_bin' );
                 },
             ],
         ] );
@@ -129,8 +131,10 @@ class TrialsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_track_permanently' ],
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
                 'permission_callback' => function () {
-                    return current_user_can( 'tt_edit_settings' );
+                    return current_user_can( 'tt_manage_recycle_bin' );
                 },
             ],
         ] );
@@ -373,7 +377,7 @@ class TrialsRestController {
             'extension_count' => (int) $row->extension_count,
             'decision'        => $row->decision ? (string) $row->decision : null,
             'created_at'      => (string) $row->created_at,
-            'archived_at'     => $row->archived_at ? (string) $row->archived_at : null,
-        ];
+            // #2023 — archived_at + trashed_at via the shared lifecycle helper.
+        ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 }

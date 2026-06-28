@@ -4,6 +4,7 @@ namespace TT\Modules\MatchExecution\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -116,8 +117,11 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
     }
 
     /**
-     * Coach sees executions on teams they own (via the existing
-     * tt_user_team_link join used by `coach_owns_player`). HoD/Admin
+     * Coach sees executions on teams they own, resolved through
+     * `QueryHelpers::get_teams_for_coach()` — the single source of
+     * truth for a coach's team grants (active `tt_user_role_scopes`
+     * team rows, plus legacy `head_coach_id` / `tt_team_people` via the
+     * 0171 backfill). HoD/Admin (or the academy-wide activities scope)
      * see club-wide.
      *
      * @return list<object>
@@ -140,16 +144,13 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             return is_array( $rows ) ? $rows : [];
         }
 
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT t.id, t.name
-               FROM {$p}tt_teams t
-               JOIN {$p}tt_user_team_link l ON l.team_id = t.id
-              WHERE t.club_id = %d AND t.archived_at IS NULL
-                AND l.user_id = %d
-              ORDER BY t.name ASC",
-            $club_id, $user_id
-        ) );
-        return is_array( $rows ) ? $rows : [];
+        $teams = QueryHelpers::get_teams_for_coach( $user_id );
+        $out = [];
+        foreach ( $teams as $t ) {
+            if ( ! empty( $t->archived_at ) ) continue;
+            $out[] = (object) [ 'id' => (int) $t->id, 'name' => (string) $t->name ];
+        }
+        return $out;
     }
 
     /**

@@ -92,6 +92,30 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
+## Prullenbakbeheer — `tt_manage_recycle_bin` (#2020)
+
+Definitief verwijderen is de meest destructieve actie in het product en zit
+daarom achter een eigen capability: **`tt_manage_recycle_bin`**. Het regelt
+het bekijken van de prullenbak, het herstellen van weggegooide records en het
+definitief opschonen ervan.
+
+De capability wordt **alleen** verleend aan de WordPress-administrator en de
+rol Academiebeheerder (`tt_club_admin`). Hij maakt bewust **geen** deel uit
+van `RolesService::VIEW_CAPS` / `EDIT_CAPS` — die stromen via
+`allViewCapsTrue()` door naar het Hoofd Ontwikkeling en de Alleen-lezen
+Waarnemer, wat de prullenbak zou geven aan rollen die geen gegevens mogen
+opschonen. In plaats daarvan zit hij in een eigen `RECYCLE_BIN_CAPS`-constante:
+`ensureCapabilities()` verleent hem aan WP `administrator`, en de
+`tt_club_admin`-roldefinitie noemt hem expliciet. Geen enkele andere
+roldefinitie verwijst ernaar, dus coaches, HoD, scouts, staf en waarnemers
+houden hem nooit. Het recht `tt_edit_settings` geeft hem **niet**.
+
+Dit is de **enige eigenaar van definitief verwijderen**: de oude per-entiteit
+`DELETE /{entity}/{id}/permanent`-endpoints (die voorheen op het zwakkere
+`tt_edit_settings` gaten) worden opnieuw afgeschermd op dezelfde capability,
+zodat geen verwijderpad zwakker is dan de prullenbak. Zie
+[Prullenbak](recycle-bin.md) voor de bewaartermijn en AVG-grondslag.
+
 ## Permission debug
 
 Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een willekeurige gebruiker inspecteren. Handig als een gebruiker meldt "ik kan X niet zien" — controleer wat hij/zij daadwerkelijk heeft.

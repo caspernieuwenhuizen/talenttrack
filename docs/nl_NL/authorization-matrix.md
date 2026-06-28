@@ -259,7 +259,39 @@ Effect op persona's (uit de geleverde seed):
 
 Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terugval op de gerenderde schermen, zodat een operator die de WP-installatie beheert nooit toegang verliest terwijl de matrix van een club nog sluimert. Er is geen matrix-entiteit, seed of migratie gewijzigd — dit is een call-site-refactor op de bestaande toekenningen.
 
+## Matrix-entiteit `recycle_bin` — definitief verwijderen (#2020)
+
+De prullenbak (archiveren → prullenbak → opschonen) introduceert één nieuwe
+matrix-entiteit: `recycle_bin`. De prullenbak beheren — weggegooide rijen
+bekijken, herstellen en definitief opschonen — wordt geregeld door de enkele
+capability `tt_manage_recycle_bin`. Opschonen is de operatieve destructieve
+handeling, dus de capability brugt naar `recycle_bin / create_delete`:
+
+| Ruwe capability | Matrix-tuple |
+| - | - |
+| `tt_manage_recycle_bin` | `recycle_bin` / `create_delete` |
+
+De seed verleent **alleen academy_admin `rcd[global]`** — dit reproduceert het
+alleen-beheerder-ontwerp (WP-administrators passeren via de
+matrix-administrator-uitzondering). Geen enkele andere persona heeft een rij.
+De capability levert alleen-academiebeheerder mee in `RolesService`
+(`RECYCLE_BIN_CAPS` → `tt_club_admin` + administrator), dus de ruwe
+capability-houders komen netjes overeen met de seed-begunstigde: routering via
+de matrix is **toegangsbehoudend** — geen enkele persona wint of verliest
+toegang.
+
+De capability staat bewust **niet** in `RolesService::VIEW_CAPS` /
+`EDIT_CAPS`, zodat hij niet via `allViewCapsTrue()` automatisch doorstroomt
+naar HoD — precies het `tournaments`-ontwerp hierboven.
+
+Migratie `0187_authorization_seed_topup_recycle_bin` vult de entiteit op
+bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT
+IGNORE`, alleen de nieuwe `recycle_bin`-rijen). Het schema + de
+retentieconfiguratie landen in de gepaarde migratie
+`0186_recycle_bin_foundation`.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.
 - [Modules](modules.md) — een module uitschakelen kortsluit zijn matrixrijen.
+- [Prullenbak](recycle-bin.md) — bewaartermijn, eigenaar van verwijderen, AVG.

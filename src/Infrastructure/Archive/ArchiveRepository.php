@@ -3,8 +3,12 @@ namespace TT\Infrastructure\Archive;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Players\PlayerDeletionCascade;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\RecycleBin\RecycleBinAuditActions;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 
@@ -55,7 +59,47 @@ class ArchiveRepository {
         'player_attribute_def'   => 'tt_player_attribute_defs',
     ];
 
+    /**
+     * tt_config key holding the per-club purge window (seeded by migration
+     * 0186, #2020). Read with a 30-day fallback so a club whose seed row is
+     * absent still gets a sane window.
+     */
+    private const RETENTION_CONFIG_KEY  = 'tt_recycle_bin_retention_days';
+    private const RETENTION_DEFAULT_DAYS = 30;
+
+    /** @var AuditService */
+    private $audit;
+
+    /** @var ConfigService */
+    private $config;
+
+    /**
+     * The audit + config collaborators are injectable so tests can stub
+     * them, but default to plain instances — the recycle-bin lifecycle must
+     * always write an audit trail and read the retention window without the
+     * caller wiring dependencies. AuditService self-no-ops when the
+     * audit_log feature toggle is off; that's the only place toggles gate
+     * the write.
+     */
+    public function __construct( ?AuditService $audit = null, ?ConfigService $config = null ) {
+        $this->audit  = $audit  ?? new AuditService();
+        $this->config = $config ?? new ConfigService();
+    }
+
     // Public API
+
+    /**
+     * The entity-key → table-name map (table names un-prefixed). Exposed
+     * read-only so callers that need the canonical list of archivable /
+     * bin-archivable entities (the recycle-bin audit vocabulary #2020, the
+     * bin list view #2022) anchor to one source of truth rather than
+     * re-listing the entities. Returns a copy — the constant stays private.
+     *
+     * @return array<string,string>
+     */
+    public static function entityMap(): array {
+        return self::TABLE_MAP;
+    }
 
     /**
      * Archive N rows. Stamps archived_at + archived_by. Rows that are
@@ -183,6 +227,389 @@ class ArchiveRepository {
         return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
     }
 
+    // Recycle-bin lifecycle (#2021, epic #2018)
+
+    /**
+     * Move N archived rows into the recycle bin (Archived → Trashed).
+     * Stamps `trashed_at` + `trashed_by`. Only rows that are already
+     * archived (`archived_at IS NOT NULL`) move — a row that was never
+     * archived cannot be trashed directly, so the soft-delete tiers stay
+     * ordered (active → archived → bin). Already-trashed rows are left
+     * untouched (idempotent). Club-scoped on every branch.
+     *
+     * Permission is the caller's responsibility at the REST/view boundary
+     * (cap `tt_edit_settings`); this domain method assumes an authorized
+     * caller and enforces only the tenant + state invariants. It writes a
+     * `{entity}.trashed` audit row per call so the act survives the eventual
+     * purge that destroys `trashed_by`.
+     *
+     * @param string $entity
+     * @param int[]  $ids
+     * @param int    $by_user_id  wp user id of the person trashing
+     * @return int  Number of rows actually moved to the bin.
+     */
+    public function trash( string $entity, array $ids, int $by_user_id ): int {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null ) return 0;
+        $ids = $this->cleanIds( $ids );
+        if ( empty( $ids ) ) return 0;
+
+        global $wpdb;
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = "UPDATE {$table}
+                SET trashed_at = %s, trashed_by = %d
+                WHERE id IN ({$ph})
+                  AND {$this->clubScope()}
+                  AND archived_at IS NOT NULL
+                  AND trashed_at IS NULL";
+        $args = array_merge( [ current_time( 'mysql' ), $by_user_id ], $ids );
+        $n = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+
+        if ( $n > 0 ) {
+            $this->audit->record(
+                RecycleBinAuditActions::trashed( $entity ),
+                $entity,
+                count( $ids ) === 1 ? (int) $ids[0] : 0,
+                [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ]
+            );
+        }
+        return $n;
+    }
+
+    /**
+     * Restore N trashed rows out of the bin (Trashed → Archived, NOT
+     * active). Clears `trashed_at` + `trashed_by`; `archived_at` is left
+     * intact so the row returns to the archive tier it came from rather
+     * than silently reactivating. Club-scoped.
+     *
+     * Caller must hold `tt_manage_recycle_bin` (verified at the boundary);
+     * this method enforces the tenant + state invariants. Writes a
+     * `{entity}.restored` audit row.
+     *
+     * @param string $entity
+     * @param int[]  $ids
+     * @param int    $by_user_id
+     * @return int  Number of rows restored to the archive.
+     */
+    public function restoreFromTrash( string $entity, array $ids, int $by_user_id ): int {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null ) return 0;
+        $ids = $this->cleanIds( $ids );
+        if ( empty( $ids ) ) return 0;
+
+        global $wpdb;
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = "UPDATE {$table}
+                SET trashed_at = NULL, trashed_by = NULL
+                WHERE id IN ({$ph})
+                  AND {$this->clubScope()}
+                  AND trashed_at IS NOT NULL";
+        $args = $ids;
+        $n = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+
+        if ( $n > 0 ) {
+            $this->audit->record(
+                RecycleBinAuditActions::restored( $entity ),
+                $entity,
+                count( $ids ) === 1 ? (int) $ids[0] : 0,
+                [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ]
+            );
+        }
+        return $n;
+    }
+
+    /**
+     * Permanently purge N trashed rows (Trashed → gone). The ONLY method
+     * that issues a real DELETE, and it does so exclusively through the
+     * existing `deletePermanently()` — so the fail-closed cascade services
+     * (PlayerDeletionCascade / PersonDeletionCascade / GenericCascadeDeleter)
+     * run, and a `DeleteBlockedException` from an undeclared reference
+     * propagates to the caller unchanged.
+     *
+     * Only rows that are actually in the bin (`trashed_at IS NOT NULL`) and
+     * owned by the current club are eligible: ids that are merely archived,
+     * active, or belong to another tenant are filtered out before the
+     * cascade runs, so purge can never reach outside the bin.
+     *
+     * Caller must hold `tt_manage_recycle_bin` (verified at the boundary).
+     * Writes a `{entity}.purged` audit row carrying the cascade row counts
+     * BEFORE the rows are gone, because `trashed_by` and the rows themselves
+     * are destroyed by the purge.
+     *
+     * @param string $entity
+     * @param int[]  $ids
+     * @param int    $by_user_id
+     * @return int  Number of entity rows actually deleted.
+     */
+    public function purge( string $entity, array $ids, int $by_user_id ): int {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null ) return 0;
+        $ids = $this->cleanIds( $ids );
+        if ( empty( $ids ) ) return 0;
+
+        // Restrict to ids that are genuinely in this club's bin. deletePermanently()
+        // re-applies club_id on its final DELETE, but it does NOT check
+        // trashed_at — so without this gate an archived-but-not-trashed id
+        // could be hard-deleted straight through the purge path, bypassing
+        // the bin tier. Treat anything outside the bin as not-found.
+        $eligible = $this->trashedIdsIn( $entity, $ids );
+        if ( empty( $eligible ) ) return 0;
+
+        // Route through the existing cascade-aware delete. Any
+        // DeleteBlockedException propagates unchanged — purge never
+        // swallows a fail-closed refusal.
+        $result = $this->deletePermanentlyWithReport( $entity, $eligible );
+        $deleted = (int) $result['deleted'];
+
+        if ( $deleted > 0 ) {
+            $this->audit->record(
+                RecycleBinAuditActions::purged( $entity ),
+                $entity,
+                count( $eligible ) === 1 ? (int) $eligible[0] : 0,
+                [
+                    'ids'       => $eligible,
+                    'deleted'   => $deleted,
+                    'by_user'   => $by_user_id,
+                    // Cascade collateral so the audit log records what else
+                    // the purge removed/cleared — the row counts vanish with
+                    // the rows otherwise.
+                    'per_table' => $result['per_table'] ?? [],
+                    'nulled'    => $result['nulled'] ?? [],
+                    'zeroed'    => $result['zeroed'] ?? [],
+                ]
+            );
+        }
+        return $deleted;
+    }
+
+    /**
+     * Run the existing cascade-aware permanent delete and return the full
+     * cascade report (deleted + per_table + nulled + zeroed). Mirrors
+     * `deletePermanently()` exactly but surfaces the collateral counts the
+     * cascade services compute, which `deletePermanently()` discards by
+     * returning only the int. Player/Person cascades omit `zeroed`; the
+     * generic cascade includes it — the missing key is normalised to [].
+     *
+     * @param string $entity
+     * @param int[]  $ids  pre-validated, club-scoped, in-bin ids
+     * @return array{deleted:int, per_table:array<string,int>, nulled:array<string,int>, zeroed:array<string,int>}
+     */
+    private function deletePermanentlyWithReport( string $entity, array $ids ): array {
+        $base = [ 'deleted' => 0, 'per_table' => [], 'nulled' => [], 'zeroed' => [] ];
+
+        if ( $entity === 'person' ) {
+            return array_merge( $base, ( new PersonDeletionCascade() )->cascade( $ids ) );
+        }
+        if ( $entity === 'player' ) {
+            return array_merge( $base, ( new PlayerDeletionCascade() )->cascade( $ids ) );
+        }
+        if ( CascadeRegistry::has( $entity ) ) {
+            return array_merge( $base, ( new GenericCascadeDeleter() )->cascade( $entity, $ids ) );
+        }
+
+        // Entities with no cascade plan: a plain club-scoped DELETE, same as
+        // deletePermanently()'s fallback branch.
+        global $wpdb;
+        $table = $this->resolveTable( $entity );
+        $ph    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql   = "DELETE FROM {$table} WHERE id IN ({$ph}) AND club_id = %d";
+        $deleted = (int) $wpdb->query( $wpdb->prepare( $sql, ...array_merge( $ids, [ CurrentClub::id() ] ) ) );
+        return array_merge( $base, [ 'deleted' => $deleted ] );
+    }
+
+    /**
+     * Subset of $ids that are in THIS club's bin (`trashed_at IS NOT NULL`
+     * AND `club_id` = current). The gate purge() relies on so it can never
+     * hard-delete a row that isn't actually trashed or belongs to another
+     * tenant.
+     *
+     * @param int[] $ids
+     * @return int[]
+     */
+    private function trashedIdsIn( string $entity, array $ids ): array {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null || empty( $ids ) ) return [];
+        global $wpdb;
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = "SELECT id FROM {$table}
+                WHERE id IN ({$ph}) AND {$this->clubScope()} AND trashed_at IS NOT NULL";
+        $rows = $wpdb->get_col( $wpdb->prepare( $sql, ...$ids ) );
+        return array_map( 'intval', is_array( $rows ) ? $rows : [] );
+    }
+
+    // Caller-aware lookup + ownership backstop (#2021 security #1, #2)
+
+    /**
+     * Load one row across all soft-delete states, returning the row plus a
+     * computed `state` (`active` | `archived` | `trashed`), with the
+     * trashed-visibility gate enforced HERE so no view can leak a trashed
+     * minor's PII by forgetting the check.
+     *
+     * Visibility rules:
+     *   - active / archived row → returned (callers still own the
+     *     entity-read capability check; existence is not itself sensitive
+     *     for a non-trashed row).
+     *   - trashed row → returned ONLY when the current user holds
+     *     `tt_manage_recycle_bin`. Otherwise `null`, so the caller renders a
+     *     404 — never a permission-denied page, which would confirm the
+     *     trashed record exists.
+     *
+     * Deliberately does NOT build on `QueryHelpers::get_player()`: that
+     * helper dropped its `club_id` clause and never filters `archived_at` /
+     * `trashed_at` (QueryHelpers.php ~325), so reusing it would leak trashed
+     * rows across the visibility gate AND across tenants. This is a fresh,
+     * club-scoped query.
+     *
+     * @return array{row:object, state:string}|null
+     */
+    public function findIncludingArchived( string $entity, int $id ): ?array {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null || $id <= 0 ) return null;
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$table} WHERE id = %d AND {$this->clubScope()}",
+            $id
+        ) );
+        if ( ! $row ) return null;
+
+        $trashed = isset( $row->trashed_at ) && $row->trashed_at !== null;
+        if ( $trashed && ! current_user_can( 'tt_manage_recycle_bin' ) ) {
+            // Trashed record + caller can't manage the bin → behave as a 404.
+            return null;
+        }
+
+        $state = $trashed
+            ? 'trashed'
+            : ( ( isset( $row->archived_at ) && $row->archived_at !== null ) ? 'archived' : 'active' );
+
+        return [ 'row' => $row, 'state' => $state ];
+    }
+
+    /**
+     * IDOR backstop for REST `permission_callback`s: does $id exist in the
+     * current club at all? `SELECT id WHERE id=%d AND club_id=%d`. A 0-row
+     * result is a not-found (the caller maps it to 404), NEVER a success —
+     * so a forged id from another tenant can't slip a restore/purge through
+     * merely because the mutation's own WHERE would have matched zero rows.
+     *
+     * Intentionally state-agnostic (active / archived / trashed all count
+     * as "owned"): it answers ownership, not visibility. The visibility gate
+     * is `findIncludingArchived()`; the cap gate is the controller.
+     */
+    public function ownedByCurrentClub( string $entity, int $id ): bool {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null || $id <= 0 ) return false;
+        global $wpdb;
+        $found = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$table} WHERE id = %d AND {$this->clubScope()} LIMIT 1",
+            $id
+        ) );
+        return $found !== null;
+    }
+
+    // Cross-entity bin aggregation (#2021 security #3)
+
+    /**
+     * Every trashed row across every bin-archivable entity, club-scoped on
+     * EACH entity branch via one shared query builder so no branch can ever
+     * omit the tenant clause. For each row returns its id, when/by-whom it
+     * was trashed, the user's display name, and the computed days remaining
+     * until the purge cron (#2025) removes it (retention window from
+     * `tt_config` per club, default 30).
+     *
+     * @return array<string, list<array{
+     *   id:int,
+     *   trashed_at:string,
+     *   trashed_by:int,
+     *   trashed_by_name:string,
+     *   days_until_purge:int
+     * }>>  entity-key => trashed rows
+     */
+    public function trashedAcrossEntities(): array {
+        $retention = $this->retentionDays();
+        $out = [];
+        foreach ( array_keys( self::TABLE_MAP ) as $entity ) {
+            $rows = $this->trashedRowsFor( $entity, $retention );
+            if ( ! empty( $rows ) ) {
+                $out[ $entity ] = $rows;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Trashed rows for ONE entity. The single per-entity query builder the
+     * aggregation drives — every call appends `QueryHelpers::clubScopeWhere()`
+     * so the tenant clause is applied centrally and can't be dropped per
+     * entity. Public so the bin list view (#2022) can page one entity at a
+     * time without re-implementing the club scope.
+     *
+     * @return list<array{
+     *   id:int,
+     *   trashed_at:string,
+     *   trashed_by:int,
+     *   trashed_by_name:string,
+     *   days_until_purge:int
+     * }>
+     */
+    public function trashedRowsFor( string $entity, ?int $retention_days = null ): array {
+        $table = $this->resolveTable( $entity );
+        if ( $table === null ) return [];
+        $retention = $retention_days ?? $this->retentionDays();
+
+        global $wpdb;
+        $sql = "SELECT t.id, t.trashed_at, t.trashed_by, u.display_name AS trashed_by_name
+                FROM {$table} t
+                LEFT JOIN {$wpdb->users} u ON u.ID = t.trashed_by
+                WHERE t.trashed_at IS NOT NULL AND " . QueryHelpers::clubScopeWhere( 't' ) . "
+                ORDER BY t.trashed_at DESC, t.id DESC";
+        $rows = $wpdb->get_results( $sql );
+
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[] = [
+                'id'               => (int) $r->id,
+                'trashed_at'       => (string) $r->trashed_at,
+                'trashed_by'       => (int) $r->trashed_by,
+                'trashed_by_name'  => (string) ( $r->trashed_by_name ?? '' ),
+                'days_until_purge' => $this->daysUntilPurge( (string) $r->trashed_at, $retention ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Retention window (days) for the current club. Read from tt_config
+     * (seeded by migration 0186); falls back to 30 when unset or non-positive.
+     */
+    public function retentionDays(): int {
+        $days = $this->config->getInt( self::RETENTION_CONFIG_KEY, self::RETENTION_DEFAULT_DAYS );
+        return $days > 0 ? $days : self::RETENTION_DEFAULT_DAYS;
+    }
+
+    /**
+     * Days left before a row trashed at $trashed_at is purged, given the
+     * retention window. Clamped at 0 (a row past its window is "0 days" —
+     * due for the next purge sweep — never negative).
+     */
+    private function daysUntilPurge( string $trashed_at, int $retention_days ): int {
+        $trashed_ts = strtotime( $trashed_at );
+        if ( $trashed_ts === false ) return $retention_days;
+        $purge_ts   = $trashed_ts + ( $retention_days * DAY_IN_SECONDS );
+        $remaining  = (int) ceil( ( $purge_ts - current_time( 'timestamp' ) ) / DAY_IN_SECONDS );
+        return max( 0, $remaining );
+    }
+
+    /**
+     * Club-scope fragment for the recycle-bin UPDATE / SELECT statements in
+     * this class. Single source so every lifecycle query is tenant-bound the
+     * same way.
+     */
+    private function clubScope(): string {
+        return QueryHelpers::clubScopeWhere();
+    }
+
     /**
      * Count active, archived, and total rows — used for the
      * "Active (N) | Archived (N) | All (N)" tab bar above list views.
@@ -197,8 +624,12 @@ class ArchiveRepository {
         // Scope filter keeps demo-mode isolation: when demo mode is on,
         // counts reflect only demo rows; when off, only real rows.
         $scope = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'r', $entity );
-        $all_sql      = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d {$scope}", CurrentClub::id() );
-        $archived_sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d AND r.archived_at IS NOT NULL {$scope}", CurrentClub::id() );
+        // #2021 — trashed rows are excluded from every list-view count so the
+        // "Active | Archived | All" tab bar matches filterClause() (which now
+        // hides trashed everywhere except the explicit bin view). A row in the
+        // bin counts toward none of these three tabs.
+        $all_sql      = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d AND r.trashed_at IS NULL {$scope}", CurrentClub::id() );
+        $archived_sql = $wpdb->prepare( "SELECT COUNT(*) FROM {$table} r WHERE r.club_id = %d AND r.archived_at IS NOT NULL AND r.trashed_at IS NULL {$scope}", CurrentClub::id() );
         $all      = (int) $wpdb->get_var( $all_sql );
         $archived = (int) $wpdb->get_var( $archived_sql );
         return [
@@ -209,27 +640,52 @@ class ArchiveRepository {
     }
 
     /**
-     * SQL fragment appending the archive filter. Callers build their
-     * WHERE clauses; this returns one of:
-     *   'active'   →  'archived_at IS NULL'
-     *   'archived' →  'archived_at IS NOT NULL'
-     *   'all'      →  '1=1'
+     * SQL fragment appending the 3-state lifecycle filter (#2021). Callers
+     * build their WHERE clauses; this returns one of (with $alias = ''):
+     *   'active'   →  'archived_at IS NULL AND trashed_at IS NULL'
+     *   'archived' →  'archived_at IS NOT NULL AND trashed_at IS NULL'
+     *   'trashed'  →  'trashed_at IS NOT NULL'
+     *   'all'      →  'trashed_at IS NULL'   (active + archived, NEVER trashed)
+     *
+     * Pass $alias (e.g. 'pl') when the host query JOINs another table — the
+     * clause now references TWO columns (archived_at + trashed_at), and since
+     * #2020 added `trashed_at` to all 20 archivable tables, an unqualified
+     * `trashed_at` is ambiguous the moment the query joins a second archivable
+     * table. $alias qualifies EVERY column so callers must NOT hand-prepend a
+     * prefix (doing both yields `pl.pl.archived_at`). Callers without a join
+     * (single FROM table) may omit it.
+     *
+     * The contract that makes the bin safe: EVERY per-entity list view
+     * (active / archived / all) excludes trashed rows. A trashed minor's row
+     * only ever surfaces through the explicit `trashed` view, which the
+     * recycle-bin UI gates on `tt_manage_recycle_bin`. So a coach browsing
+     * "all players" can never see a row that's in the bin.
+     *
+     * Pre-#2021 callers passing `active` / `archived` / `all` keep working —
+     * the only behavioural change is that `all` and `archived` now also hide
+     * trashed rows, which is the intended bin isolation.
      */
-    public static function filterClause( string $view ): string {
+    public static function filterClause( string $view, string $alias = '' ): string {
+        $q = $alias !== '' ? rtrim( $alias, '.' ) . '.' : '';
         switch ( $view ) {
-            case 'archived': return 'archived_at IS NOT NULL';
-            case 'all':      return '1=1';
+            case 'archived': return "{$q}archived_at IS NOT NULL AND {$q}trashed_at IS NULL";
+            case 'trashed':  return "{$q}trashed_at IS NOT NULL";
+            case 'all':      return "{$q}trashed_at IS NULL";
             case 'active':
-            default:         return 'archived_at IS NULL';
+            default:         return "{$q}archived_at IS NULL AND {$q}trashed_at IS NULL";
         }
     }
 
     /**
-     * Normalize the ?tt_view query-string value to one of active/archived/all.
+     * Normalize the ?tt_view query-string value to one of
+     * active / archived / trashed / all. `trashed` is a valid vocabulary
+     * member here, but surfacing it is the caller's decision: the recycle-bin
+     * view passes it only after the `tt_manage_recycle_bin` cap check, and
+     * per-entity list views never offer it as a tab.
      */
     public static function sanitizeView( $raw ): string {
         $v = is_string( $raw ) ? strtolower( trim( $raw ) ) : '';
-        return in_array( $v, [ 'active', 'archived', 'all' ], true ) ? $v : 'active';
+        return in_array( $v, [ 'active', 'archived', 'trashed', 'all' ], true ) ? $v : 'active';
     }
 
     // Dependency checks

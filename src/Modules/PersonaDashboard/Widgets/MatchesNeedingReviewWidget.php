@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -213,7 +214,18 @@ class MatchesNeedingReviewWidget extends AbstractWidget {
                      LIMIT 20";
             $params = [ $club_id, MatchExecutionState::PENDING_REVIEW ];
         } else {
-            $sql = "SELECT DISTINCT
+            // Scope to the coach's own teams via the canonical
+            // `get_teams_for_coach()` (active `tt_user_role_scopes`
+            // grants + legacy backfill). No grants → no rows → the
+            // existing "no matches" placeholder.
+            $team_ids = array_map(
+                static fn( $t ) => (int) $t->id,
+                QueryHelpers::get_teams_for_coach( $user_id )
+            );
+            if ( empty( $team_ids ) ) return [];
+
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $sql = "SELECT
                         e.id AS execution_id,
                         e.home_score,
                         e.away_score,
@@ -225,12 +237,12 @@ class MatchesNeedingReviewWidget extends AbstractWidget {
                       FROM {$p}tt_match_execution e
                       INNER JOIN {$p}tt_activities a ON a.id = e.activity_id AND a.club_id = e.club_id
                       LEFT JOIN  {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
-                      INNER JOIN {$p}tt_user_team_link l ON l.team_id = a.team_id AND l.user_id = %d
                      WHERE e.club_id = %d
+                       AND a.team_id IN ({$placeholders})
                        AND e.state = %s
                      ORDER BY a.session_date DESC, e.id DESC
                      LIMIT 20";
-            $params = [ $user_id, $club_id, MatchExecutionState::PENDING_REVIEW ];
+            $params = array_merge( [ $club_id ], $team_ids, [ MatchExecutionState::PENDING_REVIEW ] );
         }
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

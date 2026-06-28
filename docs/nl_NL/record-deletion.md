@@ -25,9 +25,12 @@ gescand of andere records ernaar verwijzen, en vervolgens wordt:
 - de eigen onderliggende data **mee-verwijderd** (een beoordeling
   verwijderen verwijdert ook de categoriescores; een doel verwijderen
   verwijdert de koppelingen en het gesprek),
-- de verwijzing **leeggemaakt** bij rijen die het record overleven (een
-  workflowtaak die een doel aanmaakte blijft bestaan, met de doelkoppeling
-  leeggemaakt), of
+- de verwijzing **leeggemaakt** bij rijen die het record overleven. Bij een
+  optionele koppeling wordt de verwijzing leeggemaakt (een workflowtaak die
+  een doel aanmaakte blijft bestaan, met de doelkoppeling leeggemaakt); bij
+  een verplichte koppeling die niet leeg mag zijn wordt de rij in plaats
+  daarvan op **"niet toegewezen"** gezet (een team verwijderen laat de
+  spelers staan, niet langer aan een team gekoppeld), of
 - de verwijdering **geblokkeerd** wanneer een ander record er nog naar
   verwijst dat er geen eigendom van is. De verwijdering wordt geweigerd met
   een melding van wat er nog naar verwijst (bijv. *"Kan niet verwijderen:
@@ -53,7 +56,9 @@ definitieve verwijdering laat nooit stilzwijgend losgekoppelde rijen achter.
 | Eigen widget | Losstaand — wordt direct verwijderd. |
 | Blessure | Verwijdert de blessure en de bijbehorende tijdlijn-gebeurtenissen (medisch gegeven van een minderjarige). |
 | Geplande rapportage | Losstaand — wordt direct verwijderd (op een reeds gearchiveerde planning). |
-| Team, Activiteit | **Blokkeert** zolang er nog records naar verwijzen (volledige cascades zijn een vervolg, #1784). |
+| Team | Verwijdert pure teamconfiguratie mee (formaties, speelstijlen, chemie, blauwdrukken, stafkoppelingen, team-oefeningoverrides, de VCT-periodiseringsstructuur). **Bewaart ontwikkelgegevens van spelers**: spelers, hun teamhistorie, de activiteiten van het team (met aanwezigheid + beoordelingen), toernooien en meetsessies blijven bestaan, gezet op "niet toegewezen". Openstaande uitnodigingen / workflowtaken / ingediende ideeën die naar het team verwijzen, krijgen de koppeling leeggemaakt. |
+| Activiteit | Verwijdert uitvoeringsdata die alleen binnen de activiteit bestaat mee (aanwezigheid, geplande oefeningen, principes, de match-prep- en match-execution-structuren) plus tijdlijn-gebeurtenissen uit de activiteit. Records die de activiteit overleven behouden hun rij met de koppeling leeggemaakt: beoordelingen, toernooiwedstrijd-koppelingen, VCT-sessiekoppelingen en gedragsbeoordelingen. |
 
-Als een team of activiteit niet wil verwijderen, archiveer of verplaats dan
-eerst de spelers / activiteiten en probeer het opnieuw.
+Een team of activiteit verwijderen vernietigt nooit de
+ontwikkelingsgeschiedenis van een speler — in het slechtste geval blijft een
+record "niet toegewezen" staan in plaats van verwijderd te worden.

@@ -211,6 +211,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
         $priority = (string) ( $goal->priority ?? '' );
         $bucket   = self::bucketFor( $status );
         ?>
+        <div class="tt-goal-detail-grid">
         <article class="tt-goal-card tt-goal-detail-card tt-goal-card--<?php echo esc_attr( $bucket ); ?>">
             <div class="tt-goal-card__meta">
                 <span class="tt-goal-chip <?php echo esc_attr( self::statusChipClass( $bucket ) ); ?>"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
@@ -239,14 +240,18 @@ class FrontendMyGoalsView extends FrontendViewBase {
             // drawer instead. HelpDrawer::button outputs the
             // [data-tt-docs-drawer-open] hook docs-drawer.js listens for
             // (drawer DOM + JS already shipped in #0016 Part B).
-            echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 1.25rem 0 0.5rem;">';
-            echo '<h3 style="margin:0; font-size:1rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
+            echo '<section class="tt-pde-section">';
+            echo '<header class="tt-goal-conversation__header">';
+            echo '<h3>' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
             \TT\Shared\Frontend\Components\HelpDrawer::button(
                 'conversational-goals',
                 __( 'How does this work?', 'talenttrack' )
             );
             echo '</header>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, get_current_user_id() );
+            echo '</section>';
         }
+
+        echo '</div>';
     }
 }

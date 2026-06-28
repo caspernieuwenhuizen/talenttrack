@@ -312,12 +312,19 @@ class PdpFilesRepository {
 
         $where_sql = implode( ' AND ', $where );
 
-        // The PDP file join is correlated to the season + club and
-        // excludes archived files, so a player with only an archived
-        // cycle still reads as "Not started" this season.
+        // #2040 — Active / Archived record-state view. 'active' (the
+        // default) joins the non-archived file, so a player with only an
+        // archived cycle reads as "Not started"; 'archived' joins the
+        // archived file instead and keeps only the players who actually
+        // have one (managed for Restore / permanent-delete).
+        $archived_view = ( ( $filters['archived_view'] ?? 'active' ) === 'archived' ) ? 'archived' : 'active';
+        $file_archive_clause = $archived_view === 'archived'
+            ? 'AND f.archived_at IS NOT NULL'
+            : 'AND f.archived_at IS NULL';
+
         $sql = "SELECT pl.id AS player_id, pl.first_name, pl.last_name,
                        pl.team_id, t.name AS team_name,
-                       f.id AS pdp_file_id, f.status AS file_status,
+                       f.id AS pdp_file_id, f.status AS file_status, f.archived_at,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id) AS conv_total,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NOT NULL) AS conv_conducted
                   FROM {$players} pl
@@ -326,12 +333,15 @@ class PdpFilesRepository {
                          ON f.player_id = pl.id
                         AND f.season_id = %d
                         AND f.club_id = %d
-                        AND f.archived_at IS NULL
+                        {$file_archive_clause}
                  WHERE {$where_sql}";
 
-        // only_missing toggle filters AFTER the join so it reads off
-        // the joined file row.
-        if ( ! empty( $filters['only_missing'] ) ) {
+        if ( $archived_view === 'archived' ) {
+            // Archived view lists only players with an archived file.
+            $sql .= ' AND f.id IS NOT NULL';
+        } elseif ( ! empty( $filters['only_missing'] ) ) {
+            // only_missing toggle filters AFTER the join so it reads off
+            // the joined file row. Meaningless in the archived view.
             $sql .= ' AND f.id IS NULL';
         }
 

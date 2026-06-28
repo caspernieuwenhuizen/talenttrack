@@ -496,3 +496,460 @@
     padding-left: 1.1rem;
 }
 .tt-dashboard .tt-pop-goal-discussed li { margin: 0.1rem 0; }
+
+/* ===================================================================== */
+/* #1990 — My PDP: timeline-first player development view.                */
+/* Mobile-first (base ~360px); the reflection split goes side-by-side at  */
+/* 768px. Brand colours come from BrandStyles at runtime                  */
+/* (--tt-primary / --tt-secondary + their -rgb); neutrals from tokens.css */
+/* ===================================================================== */
+
+/* ---- shared bits ---- */
+.tt-dashboard .tt-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 1.25rem);
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 0.25rem;
+}
+.tt-dashboard .tt-pdp-empty {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- season timeline ---- */
+.tt-dashboard .tt-pdp-season-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.tt-dashboard .tt-pdp-season__name {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pdp-season__meta {
+    font-size: 0.85rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* horizontal rail — native horizontal scroll on small screens */
+.tt-dashboard .tt-pdp-rail {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    padding: 1.25rem 0.5rem 0.5rem;
+}
+.tt-dashboard .tt-pdp-track {
+    position: relative;
+    display: flex;
+    min-width: 320px;
+    gap: 0;
+}
+.tt-dashboard .tt-pdp-track::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 14px;
+    height: 3px;
+    background: var(--tt-line, #e3e6e1);
+    border-radius: 3px;
+}
+.tt-dashboard .tt-pdp-fill {
+    position: absolute;
+    left: 0;
+    top: 14px;
+    height: 3px;
+    background: var(--tt-success, #2f9e5e);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+.tt-dashboard .tt-pdp-marker {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 100px;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    font: inherit;
+    color: inherit;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-pdp-marker:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-pdp-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: #fff;
+    border: 3px solid var(--tt-line, #e3e6e1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    z-index: 1;
+}
+.tt-dashboard .tt-pdp-marker.done .tt-pdp-dot {
+    background: var(--tt-success, #2f9e5e);
+    border-color: var(--tt-success, #2f9e5e);
+    color: #fff;
+}
+.tt-dashboard .tt-pdp-marker.next .tt-pdp-dot {
+    background: #fff;
+    border-color: var(--tt-secondary, #d8b24a);
+    color: var(--tt-primary, #0b3d2e);
+    box-shadow: 0 0 0 4px rgba(var(--tt-secondary-rgb, 216, 178, 74), 0.25);
+}
+.tt-dashboard .tt-pdp-marker.future .tt-pdp-dot {
+    background: #fff;
+    border-color: var(--tt-line, #e3e6e1);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-mlabel {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-pdp-mdate {
+    font-size: 0.72rem;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-chip {
+    display: inline-block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.tt-dashboard .tt-pdp-chip.done {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: #1c6e3f;
+}
+.tt-dashboard .tt-pdp-chip.next {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: #8a5a12;
+}
+.tt-dashboard .tt-pdp-chip.future {
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* inline conversation detail panels (revealed on marker tap) */
+.tt-dashboard .tt-pdp-panels { margin-top: 1rem; }
+.tt-dashboard .tt-pdp-panel {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 4px solid var(--tt-secondary, #d8b24a);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    padding: 0.85rem 1rem;
+    margin-top: 0.6rem;
+}
+.tt-dashboard .tt-pdp-panel__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pdp-panel__meta {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-ack { margin-top: 0.6rem; }
+.tt-dashboard .tt-pdp-acked {
+    margin: 0.6rem 0 0;
+    color: var(--tt-success, #2f9e5e);
+    font-size: 0.85rem;
+}
+
+/* ---- active goals ---- */
+.tt-dashboard .tt-pdp-goals__h {
+    font-size: 1.1rem;
+    margin: 0 0 0.75rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-goal-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+.tt-dashboard .tt-goal {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-goal__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-goal__title {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-goal__status {
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--tt-info-subtle, #e6f0fa);
+    color: #1d5a91;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-goal__due {
+    font-size: 0.85rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- self-reflection (single next-planned conversation) ---- */
+.tt-dashboard .tt-reflect { border-color: var(--tt-secondary, #d8b24a); }
+.tt-dashboard .tt-reflect__h {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-reflect__intro {
+    margin: 0 0 1rem;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-reflect__guard {
+    margin: 0 0 1rem;
+    font-size: 0.88rem;
+    color: var(--tt-muted, #6a6d66);
+    padding: 0.7rem 0.85rem;
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-reflect-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+.tt-dashboard .tt-reflect .tt-field-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.88rem;
+}
+.tt-dashboard .tt-reflect .tt-input {
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.75rem;
+    font: inherit;
+    font-size: 16px;
+    resize: vertical;
+}
+.tt-dashboard .tt-reflect .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-saved {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 1rem;
+}
+.tt-dashboard .tt-saved__when {
+    font-size: 0.72rem;
+    color: var(--tt-muted, #6a6d66);
+    margin-bottom: 0.5rem;
+}
+.tt-dashboard .tt-saved__body { white-space: pre-wrap; }
+.tt-dashboard .tt-saved--empty {
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* ---- verdict ---- */
+.tt-dashboard .tt-pdp-verdict__h {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pdp-verdict__row { margin: 0 0 0.4rem; }
+.tt-dashboard .tt-pdp-verdict__summary { margin: 0.5rem 0; }
+.tt-dashboard .tt-pdp-verdict__signoff {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- desktop: goals 3-up, reflection split side-by-side ---- */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-goal-grid { grid-template-columns: repeat(3, 1fr); }
+    .tt-dashboard .tt-reflect-split {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-pdp-fill { transition: none; }
+}
+
+/*
+ * #2041 — content-locked conversation banner. A later conversation in
+ * the cycle (not the active one) can only have its planned date changed;
+ * this neutral notice explains why the other fields are read-only. Less
+ * severe than the amber signature-lock banner (.tt-pdp-conv-locked).
+ */
+.tt-pdp-conv-future {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    color: var(--tt-ink, #1f2a2e);
+}
+.tt-pdp-conv-future strong { color: var(--tt-primary, #0b3d2e); }
+
+/*
+ * #2042 — proxy-acknowledgement block on the coach conversation form.
+ * Lets a coach record the player's / parent's acknowledgement on their
+ * behalf (each behind a confirm dialog) once the talk is signed off.
+ */
+.tt-pdp-proxy-ack {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--tt-line, #e5e7ea);
+}
+.tt-pdp-proxy-ack__title {
+    font-size: 0.95rem;
+    margin: 0 0 10px;
+    color: var(--tt-ink, #1f2a2e);
+}
+.tt-pdp-proxy-ack__form { margin: 0 0 10px; }
+.tt-pdp-proxy-ack__done { color: var(--tt-muted, #5b6e75); margin: 0 0 8px; }
+
+/*
+ * #2043 — end-of-season verdict CTA, placed by the conversation list.
+ * Disabled (with the "X/N closed" reason) until every conversation in
+ * the cycle is signed off.
+ */
+.tt-pdp-verdict-cta {
+    margin: 18px 0 4px;
+}
+.tt-pdp-verdict-cta .tt-btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.tt-pdp-verdict-cta__hint {
+    color: var(--tt-muted, #5b6e75);
+    font-size: 0.85rem;
+    margin: 6px 0 0;
+}
+
+/*
+ * #2040 — single player-centric PDP list: state pills (Active/Archived),
+ * the coverage summary + only-missing toggle, the multi-team selection
+ * gate, and the archived-row pill. Mobile-first; 48px touch targets.
+ */
+.tt-pdp-statepills {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 14px;
+    flex-wrap: wrap;
+}
+.tt-pdp-statepill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1.5px solid var(--tt-line, #e5e7ea);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-pdp-statepill.is-on {
+    background: var(--tt-secondary, #e8b624);
+    border-color: var(--tt-secondary, #e8b624);
+}
+.tt-pdp-coverage-summary {
+    color: var(--tt-muted, #5b6e75);
+    margin: 0 0 12px;
+}
+.tt-pdp-coverage-toggle {
+    margin: 0 0 12px;
+}
+.tt-pdp-coverage-toggle .tt-btn {
+    min-height: 48px;
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+.tt-pdp-archived-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-pdp-team-gate {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+}
+.tt-pdp-team-gate__hint {
+    margin: 0 0 10px;
+    color: var(--tt-ink, #1f2a2e);
+    font-weight: 600;
+}
+.tt-pdp-team-gate__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-pdp-team-gate__form .tt-input { min-height: 48px; }
+.tt-pdp-team-gate__form .tt-btn { min-height: 48px; align-self: flex-start; touch-action: manipulation; }
+@media (min-width: 480px) {
+    .tt-pdp-team-gate__form { flex-direction: row; align-items: flex-end; flex-wrap: wrap; }
+}
