@@ -11,7 +11,7 @@ This page covers what you can expect to see, how to switch between personas if y
 | Persona | Hero | Primary work band | What stays after |
 | - | - | - | - |
 | **Player** | FIFA-style rate card with your overall + position | Note from your coach (when there is one) | My journey, My card, My team, My evaluations, My activities, My goals, My PDP, My profile |
-| **Parent** | Child switcher + "since you last visited" recap | PDP awaiting your acknowledgement | My child's card, evaluations, activities, PDP |
+| **Parent** | Child switcher + "since you last visited" recap | PDP awaiting your acknowledgement | The same development tiles your child sees, relabeled to their first name (e.g. "Sven's card", "Sven's evaluations") |
 | **Head coach / Assistant coach** | Today / Up next with attendance + evaluation buttons | Workflow tasks list + recent evaluations rail | Activities, evaluations, goals, players, teams, PDP, methodology, my tasks |
 | **Team manager** | Today / Up next | (none by default) | Activities, my teams, players, my tasks |
 | **Head of Development** | KPI strip (active players, evaluations this month, attendance %, open trials, PDP verdicts pending, goal completion) | Team overview grid (per-team rating + attendance, expandable to a player breakdown), New trial quick-action, Upcoming activities table, Trials needing decision table | Trials, PDP, players, methodology, tasks dashboard, evaluations, rate cards, compare |

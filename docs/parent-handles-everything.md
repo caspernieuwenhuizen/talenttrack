@@ -19,6 +19,8 @@ If your child plays in a U8, U9, or U10 squad, TalentTrack treats you — the pa
 
 After that you'll see "My child" in the dashboard. Tap to open your child's profile.
 
+Your dashboard mirrors exactly what your child sees: the same development tiles, in the same order, relabeled to your child's first name — "Sven's card", "Sven's evaluations", "Sven's development plan", and so on. Whatever the academy switches on or off for players is reflected on your screen too, so you and your child are always looking at the same set of surfaces. Every tile opens your child's record. Your own account settings stay separate — they're not relabeled or duplicated per child.
+
 ## When you have multiple children at the academy
 
 A single parent account can be linked to several children. Each child has their own profile under "My children"; switching between them takes one tap. You only need one TalentTrack install and one set of notifications — pushes name the relevant child in the body so you know which one a message is about.

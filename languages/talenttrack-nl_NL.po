@@ -44099,9 +44099,45 @@ msgstr "Strava is voor deze academie nog niet ingesteld."
 msgid "Disconnect this Strava account? Imported activities will be archived."
 msgstr "Dit Strava-account ontkoppelen? Geïmporteerde activiteiten worden gearchiveerd."
 
-#: src/Modules/Strava/Frontend/FrontendStravaView.php
-msgid "km"
-msgstr "km"
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%1$s's %2$s"
+msgstr "%1$s's %2$s"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "development"
+msgstr "ontwikkeling"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "journey"
+msgstr "reis"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "card"
+msgstr "kaart"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "team"
+msgstr "team"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "evaluations"
+msgstr "evaluaties"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "activities"
+msgstr "activiteiten"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "goals"
+msgstr "doelen"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "development plan"
+msgstr "ontwikkelplan"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "tasks"
+msgstr "taken"
 
 #~ msgid "PDP setup views"
 #~ msgstr "POP-instelweergaven"

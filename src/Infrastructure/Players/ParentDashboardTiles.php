@@ -1,75 +1,118 @@
 <?php
 namespace TT\Infrastructure\Players;
 
+use TT\Shared\Tiles\TileRegistry;
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * ParentDashboardTiles (#1992) — the curated, child-scoped tile subset a
- * parent persona sees on the legacy dashboard grid.
+ * ParentDashboardTiles (#2081, revising #1992) — the child-scoped tile set
+ * a parent persona sees on the legacy dashboard grid.
  *
- * The parent does NOT get the full player rail. They get a tight subset
- * focused on "where is my child now / what do they need next" (CLAUDE.md
- * §1): development, card, evaluations, activities, PDP. Each tile reads
- * the child's record (the URL carries `?player_id=N`), so #1991's me-view
- * resolution + canViewPlayer auth pass.
+ * #2081 replaces the hardcoded 5-tile curation with a MIRROR of the
+ * player's own "Me"-group tiles, resolved through the normal registry so
+ * the parent surface inherits module + `player_*` feature gating
+ * automatically. Whatever Me-tile a player sees (and whatever is switched
+ * off for players) is exactly what the parent sees for that child — one
+ * mental model, not two divergent ones (CLAUDE.md §1).
  *
- * This is the business-logic decision ("which tiles, framed how") kept
- * out of the view (§4). The view (FrontendTileGrid) only resolves the
- * child-scoped URL and paints the markup. Icons / colours mirror the
- * canonical Me-tile definitions in CoreSurfaceRegistration so the parent
- * surfaces look like the player surfaces they map to.
+ * The inheritance ("off for players = off for parents") is NOT a parallel
+ * list maintained here: it falls out of `TileRegistry::tilesForUserGrouped()`
+ * gating, because every Me-tile carries a `feature => 'player_*'` gate and a
+ * parent-aware `cap_callback` (CoreSurfaceRegistration ~223-345). A linked
+ * parent passes those callbacks, so the registry already yields the same
+ * Me-tiles the player would see — adding a new Me-tile surfaces for parents
+ * with zero changes here.
+ *
+ * "My tasks" (`my-tasks`, in the Tasks group) is included too, scoped to the
+ * child, so a parent can help remind their kid of pending tasks. It inherits
+ * the player's task / workflow gating like every other mirrored tile.
+ *
+ * Account-level tiles (settings / password) are NOT mirrored — they stay the
+ * parent's OWN, neither child-scoped nor relabeled. This class returns only
+ * the development (Me-group) surfaces plus my-tasks.
+ *
+ * This is the business-logic decision ("which tiles, framed how") kept out
+ * of the view (§4). The view (FrontendTileGrid) only resolves the
+ * child-scoped URL, builds the `<Child>'s <noun>` label, and paints the
+ * markup. Icons / colours come straight from the canonical registry tile
+ * so the parent surfaces look like the player surfaces they mirror.
  */
 final class ParentDashboardTiles {
 
     /**
-     * The curated parent tile set. Labels are child-framed at render time
-     * by the caller (it knows the child's name); here we carry the neutral
-     * fallback label so a label-less render still reads sensibly.
+     * Player Me-view slugs (plus my-tasks) that the parent surface mirrors,
+     * each mapped to a clean, child-framed gettext noun. The noun is NOT
+     * string-munged from the player's "My …" label — it is an independent
+     * source string so the Anglo possessive ("Sven's development") reads
+     * naturally and translates cleanly ("Sven's ontwikkeling").
      *
-     * @return list<array{view_slug:string,label:string,icon:string,color:string}>
+     * Keyed by the registry `view_slug`. A slug not in this map is dropped
+     * from the parent surface (e.g. setup / account tiles), so the parent
+     * grid is exactly the development surfaces, framed for the child.
+     *
+     * @return array<string, string>
      */
-    public static function tiles(): array {
-        $tiles = [
-            [
-                'view_slug' => 'my-development',
-                'label'     => __( 'Development', 'talenttrack' ),
-                'icon'      => 'goals',
-                'color'     => '#0b3d2e',
-            ],
-            [
-                'view_slug' => 'overview',
-                'label'     => __( 'Player card', 'talenttrack' ),
-                'icon'      => 'rate-card',
-                'color'     => '#1d7874',
-            ],
-            [
-                'view_slug' => 'my-evaluations',
-                'label'     => __( 'Evaluations', 'talenttrack' ),
-                'icon'      => 'evaluations',
-                'color'     => '#7c3a9e',
-            ],
-            [
-                'view_slug' => 'my-activities',
-                'label'     => __( 'Activities', 'talenttrack' ),
-                'icon'      => 'activities',
-                'color'     => '#c9962a',
-            ],
-            [
-                'view_slug' => 'my-pdp',
-                'label'     => __( 'Development plan', 'talenttrack' ),
-                'icon'      => 'goals',
-                'color'     => '#1d7874',
-            ],
+    private static function childNouns(): array {
+        return [
+            'my-development' => __( 'development', 'talenttrack' ),
+            'my-journey'     => __( 'journey', 'talenttrack' ),
+            'overview'       => __( 'card', 'talenttrack' ),
+            'my-team'        => __( 'team', 'talenttrack' ),
+            'my-evaluations' => __( 'evaluations', 'talenttrack' ),
+            'my-activities'  => __( 'activities', 'talenttrack' ),
+            'my-goals'       => __( 'goals', 'talenttrack' ),
+            'my-pdp'         => __( 'development plan', 'talenttrack' ),
+            'my-tasks'       => __( 'tasks', 'talenttrack' ),
         ];
+    }
+
+    /**
+     * The child-scoped parent tile set: the player's Me-group tiles (plus
+     * my-tasks) the parent is allowed to see, resolved through the registry
+     * so module + `player_*` feature gating is inherited automatically.
+     *
+     * Each row carries the child-framed `child_noun` (the view composes the
+     * final "`<FirstName>'s <noun>`" label, since it knows the child's name)
+     * alongside the canonical `icon` / `color` from the registry tile. Tiles
+     * keep their registry order (the same order a player sees).
+     *
+     * @param int $parent_user_id The parent persona's user id; gating is
+     *                            resolved against their capabilities.
+     * @return list<array{view_slug:string,child_noun:string,icon:string,color:string}>
+     */
+    public static function tiles( int $parent_user_id ): array {
+        $nouns  = self::childNouns();
+        $groups = TileRegistry::tilesForUserGrouped( $parent_user_id );
+
+        $tiles = [];
+        foreach ( $groups as $group ) {
+            foreach ( $group['tiles'] as $tile ) {
+                $slug = (string) ( $tile['view_slug'] ?? '' );
+                if ( $slug === '' || ! isset( $nouns[ $slug ] ) ) {
+                    // Not a mirrored development surface (setup / account /
+                    // people / performance tile) — parents only mirror the
+                    // Me-group development tiles + my-tasks.
+                    continue;
+                }
+                $tiles[] = [
+                    'view_slug' => $slug,
+                    'child_noun' => $nouns[ $slug ],
+                    'icon'      => (string) ( $tile['icon'] ?? '' ),
+                    'color'     => (string) ( $tile['color'] ?? '#0b3d2e' ),
+                ];
+            }
+        }
 
         /**
-         * Allow an integrator to tune the parent tile subset (add / remove
-         * a surface) without forking the view. Filtered value must keep
-         * the same row shape.
+         * Allow an integrator to tune the mirrored parent tile set (add /
+         * remove a surface) without forking the view. Filtered value must
+         * keep the same row shape `{view_slug, child_noun, icon, color}`.
          *
-         * @param list<array{view_slug:string,label:string,icon:string,color:string}> $tiles
+         * @param list<array{view_slug:string,child_noun:string,icon:string,color:string}> $tiles
+         * @param int                                                                       $parent_user_id
          */
-        $filtered = apply_filters( 'tt_parent_dashboard_tiles', $tiles );
+        $filtered = apply_filters( 'tt_parent_dashboard_tiles', $tiles, $parent_user_id );
         return is_array( $filtered ) ? $filtered : $tiles;
     }
 }
