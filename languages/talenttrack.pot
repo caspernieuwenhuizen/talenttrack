@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T16:35:30+00:00\n"
+"POT-Creation-Date: 2026-06-28T16:45:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1238,7 +1238,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Players/Admin/PlayersPage.php:231
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:62
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:63
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:255
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:177
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:68
@@ -1429,7 +1429,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:201
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:148
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:66
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:252
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:180
 #: src/Modules/Teams/Admin/TeamsPage.php:107
@@ -3427,7 +3427,7 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:218
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:233
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:59
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:81
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:82
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:373
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:195
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:235
@@ -4133,8 +4133,8 @@ msgid "Prospects"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:214
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:70
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:80
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:71
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:81
 msgid "Discovered by"
 msgstr ""
 
@@ -10543,7 +10543,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:76
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:77
 #: src/Modules/Wizards/Person/BasicsStep.php:26
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:30
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:45
@@ -10578,7 +10578,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:75
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:76
 #: src/Modules/Wizards/Person/BasicsStep.php:30
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:31
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:46
@@ -12385,7 +12385,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:623
 #: src/Modules/Methodology/Admin/MethodologyPage.php:666
 #: src/Modules/Methodology/Admin/MethodologyPage.php:701
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:232
 #: src/Modules/Wizards/Prospect/IdentityStep.php:99
 msgid "Club"
@@ -15625,7 +15625,6 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1478
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
 #: src/Shared/Frontend/Components/FrontendListTable.php:360
 #: src/Shared/Frontend/Components/FrontendListTable.php:433
@@ -21812,7 +21811,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:89
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:63
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:64
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:254
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:178
 #: src/Modules/Wizards/Prospect/IdentityStep.php:120
@@ -21822,7 +21821,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:297
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:64
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:253
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:179
 #: src/Modules/Wizards/Prospect/IdentityStep.php:121
@@ -23635,19 +23634,19 @@ msgstr ""
 msgid "Search by name…"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:77
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
 msgid "Born"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:80
 msgid "Discovered"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:84
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:85
 msgid "No prospects match those filters yet."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:107
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:108
 msgid "Anyone"
 msgstr ""
 
