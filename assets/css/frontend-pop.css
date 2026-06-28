@@ -882,3 +882,74 @@
     font-size: 0.85rem;
     margin: 6px 0 0;
 }
+
+/*
+ * #2040 — single player-centric PDP list: state pills (Active/Archived),
+ * the coverage summary + only-missing toggle, the multi-team selection
+ * gate, and the archived-row pill. Mobile-first; 48px touch targets.
+ */
+.tt-pdp-statepills {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 14px;
+    flex-wrap: wrap;
+}
+.tt-pdp-statepill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 8px 16px;
+    border: 1.5px solid var(--tt-line, #e5e7ea);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-pdp-statepill.is-on {
+    background: var(--tt-secondary, #e8b624);
+    border-color: var(--tt-secondary, #e8b624);
+}
+.tt-pdp-coverage-summary {
+    color: var(--tt-muted, #5b6e75);
+    margin: 0 0 12px;
+}
+.tt-pdp-coverage-toggle {
+    margin: 0 0 12px;
+}
+.tt-pdp-coverage-toggle .tt-btn {
+    min-height: 48px;
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+.tt-pdp-archived-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-pdp-team-gate {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+}
+.tt-pdp-team-gate__hint {
+    margin: 0 0 10px;
+    color: var(--tt-ink, #1f2a2e);
+    font-weight: 600;
+}
+.tt-pdp-team-gate__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-pdp-team-gate__form .tt-input { min-height: 48px; }
+.tt-pdp-team-gate__form .tt-btn { min-height: 48px; align-self: flex-start; touch-action: manipulation; }
+@media (min-width: 480px) {
+    .tt-pdp-team-gate__form { flex-direction: row; align-items: flex-end; flex-wrap: wrap; }
+}
