@@ -123,7 +123,7 @@ class FeatureRegistry {
                 'description'     => __( 'Formation board with suggested XI and chemistry scoring. The Team blueprint editor stays available when this is off.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule',
                 'default_enabled' => false,
-                'view_slugs'      => [ 'team-chemistry' ],
+                'view_slugs'      => [ 'team-chemistry', 'chemistry-config' ],
                 'entities'        => [ 'team_chemistry' ],
             ],
             // #1537 — the ad-hoc Analytics Explorer surface (#1484). The
