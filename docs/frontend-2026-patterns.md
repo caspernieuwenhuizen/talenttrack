@@ -68,7 +68,10 @@ The list table maps its `filters` config to FilterBar groups: `select` →
 `date_range` → `date_range`. The `filter[<key>]` param names, `static_filters`,
 search, sort, pagination and JS hydration are unchanged. A view can opt a
 select into status pills with `'render' => 'status'` on the filter config
-(default stays a plain select). The bar's own `<form>` carries the
+(default stays a plain select) — the active/archived record-state filter on
+the Goals, Players, Teams, People, Holidays, Tournaments, Evaluations and
+PDP-coverage lists uses this (#2083), so record state is the same one-tap
+pill on every surface. The bar's own `<form>` carries the
 `data-tt-list-form` hook the hydrator binds to, so live-filtering and the no-JS
 full-submit fallback both keep working; the inline + sheet copies of each
 control are kept in sync by the hydrator so FormData never sees a conflicting

@@ -72,6 +72,7 @@ final class FrontendHolidaysView extends FrontendViewBase {
             'filters' => [
                 'status' => [
                     'type'    => 'select',
+                    'render'  => 'status',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active', 'talenttrack' ),

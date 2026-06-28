@@ -457,19 +457,18 @@ class FrontendPdpManageView extends FrontendViewBase {
             return;
         }
 
-        // #2040 — Active / Archived record-state pills, for operators who can
-        // act on archived files. 'archived' swaps the coverage list for the
-        // scoped players whose season PDP is archived (Restore / delete).
-        $archived_view    = ( ( $_GET['archived'] ?? 'active' ) === 'archived' ) ? 'archived' : 'active';
+        // #2040 — Active / Archived record-state view, for operators who can
+        // act on archived files. The state control is the FilterBar status
+        // pills rendered by FrontendListTable below (#2083) via the coverage
+        // list's `filter[archived]` group; here we only read the resulting
+        // param so the summary + "only missing" block (active view only)
+        // gates correctly. Non-operators are pinned to the active view.
         $can_see_archived = current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' );
-        if ( ! $can_see_archived ) {
-            $archived_view = 'active';
-        } else {
-            echo '<div class="tt-pdp-statepills" role="group" aria-label="' . esc_attr__( 'Record state', 'talenttrack' ) . '">';
-            echo '<a class="tt-pdp-statepill' . ( $archived_view === 'active' ? ' is-on' : '' ) . '" href="' . esc_url( remove_query_arg( 'archived' ) ) . '">' . esc_html__( 'Active', 'talenttrack' ) . '</a>';
-            echo '<a class="tt-pdp-statepill' . ( $archived_view === 'archived' ? ' is-on' : '' ) . '" href="' . esc_url( add_query_arg( 'archived', 'archived' ) ) . '">' . esc_html__( 'Archived', 'talenttrack' ) . '</a>';
-            echo '</div>';
+        $archived_param   = '';
+        if ( isset( $_GET['filter'] ) && is_array( $_GET['filter'] ) && isset( $_GET['filter']['archived'] ) ) {
+            $archived_param = sanitize_key( wp_unslash( (string) $_GET['filter']['archived'] ) );
         }
+        $archived_view = ( $can_see_archived && $archived_param === 'archived' ) ? 'archived' : 'active';
 
         $only_missing = false;
         if ( $archived_view === 'active' ) {
@@ -502,16 +501,34 @@ class FrontendPdpManageView extends FrontendViewBase {
             'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html' ],
         ];
 
+        $filters = [
+            'team_id' => [
+                'type'    => 'select',
+                'label'   => __( 'Team', 'talenttrack' ),
+                'options' => $team_options,
+            ],
+        ];
+        // #2083 — Active / Archived record-state pills, surfaced only to
+        // operators who can act on archived files. Replaces the bespoke
+        // `.tt-pdp-statepill` links (#2040) with the shared FilterBar status
+        // pills; the `filter[archived]` param + coverage endpoint are
+        // unchanged (the endpoint already reads `filter[archived]`).
+        if ( $can_see_archived ) {
+            $filters['archived'] = [
+                'type'    => 'select',
+                'render'  => 'status',
+                'label'   => __( 'Status', 'talenttrack' ),
+                'options' => [
+                    'active'   => __( 'Active',   'talenttrack' ),
+                    'archived' => __( 'Archived', 'talenttrack' ),
+                ],
+            ];
+        }
+
         $list_config = [
             'rest_path' => 'pdp-files/coverage',
             'columns'   => $columns,
-            'filters' => [
-                'team_id' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Team', 'talenttrack' ),
-                    'options' => $team_options,
-                ],
-            ],
+            'filters'   => $filters,
             'search'      => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
             'empty_state' => $archived_view === 'archived'
                 ? __( 'No archived PDP files.', 'talenttrack' )
@@ -521,9 +538,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         $static = [];
         if ( $only_missing ) {
             $static['only_missing'] = '1';
-        }
-        if ( $archived_view === 'archived' ) {
-            $static['archived'] = 'archived';
         }
         if ( $static ) {
             $list_config['static_filters'] = $static;

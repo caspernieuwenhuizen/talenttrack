@@ -884,33 +884,13 @@
 }
 
 /*
- * #2040 — single player-centric PDP list: state pills (Active/Archived),
- * the coverage summary + only-missing toggle, the multi-team selection
- * gate, and the archived-row pill. Mobile-first; 48px touch targets.
+ * #2040 — single player-centric PDP list: the coverage summary +
+ * only-missing toggle, the multi-team selection gate, and the
+ * archived-row pill. The Active / Archived record-state control is the
+ * shared FilterBar status pills (#2083) — its bespoke `.tt-pdp-statepill`
+ * markup + styles were removed when the list adopted the standard control.
+ * Mobile-first; 48px touch targets.
  */
-.tt-pdp-statepills {
-    display: flex;
-    gap: 6px;
-    margin: 0 0 14px;
-    flex-wrap: wrap;
-}
-.tt-pdp-statepill {
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 8px 16px;
-    border: 1.5px solid var(--tt-line, #e5e7ea);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--tt-primary, #0b3d2e);
-    font-weight: 600;
-    text-decoration: none;
-    touch-action: manipulation;
-}
-.tt-pdp-statepill.is-on {
-    background: var(--tt-secondary, #e8b624);
-    border-color: var(--tt-secondary, #e8b624);
-}
 .tt-pdp-coverage-summary {
     color: var(--tt-muted, #5b6e75);
     margin: 0 0 12px;

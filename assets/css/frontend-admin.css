@@ -471,77 +471,12 @@
     */
 .tt-dashboard .tt-list-table { margin: 0 0 var(--tt-sp-5); }
 
-/* #1753 — Option D "register" toolbar. A white filter card with
-   uppercase micro-labels above each control, matching the 2026 deck
-   (06-attendance-minutes). Mobile-first: controls stack full-width;
-   at >=768px they sit inline as one register row. The filter set stays
-   per-list — this styles only the shell. */
-.tt-dashboard .tt-list-table-filters {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-3);
-    padding: var(--tt-sp-4);
-    background: #fff;
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-r-lg);
-    box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
-    margin-bottom: var(--tt-sp-4);
-}
-.tt-dashboard .tt-list-table-search,
-.tt-dashboard .tt-list-table-filter {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-1);
-    min-width: 0;
-}
-/* Micro-labels — mirror .tt-table th (11px, uppercase, tracked, muted). */
-.tt-dashboard .tt-list-table-search > span,
-.tt-dashboard .tt-list-table-filter > span {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--tt-muted);
-    margin: 0 0 2px 2px;
-}
-.tt-dashboard .tt-list-table-search input,
-.tt-dashboard .tt-list-table-filter input,
-.tt-dashboard .tt-list-table-filter select {
-    box-sizing: border-box; /* keep width:100% + padding inside the card (no h-scroll at 360px) */
-    width: 100%;
-    min-height: 48px;
-    font-size: 16px; /* >=16px so iOS doesn't zoom on focus */
-    /* #1791 — the mockup's .tt-input/.tt-select carry a border + radius;
-       pin them here so controls aren't square (and don't depend on the
-       theme's input styling). */
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-r-md);
-    /* #1803 — comfortable left/right inset so text doesn't hug the edge. */
-    padding: 0 var(--tt-sp-3);
-}
-/* #1803 — magnifier icon inside the search box (inline SVG data-URI, no
-   asset / markup change), stroked in --tt-muted; pad text past it. */
-.tt-dashboard .tt-list-table-search input[type="search"] {
-    padding-left: 38px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236a6d66' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: left 12px center;
-    background-size: 16px 16px;
-}
-@media (min-width: 768px) {
-    .tt-dashboard .tt-list-table-filters {
-        flex-direction: row;
-        flex-wrap: wrap;
-        align-items: flex-end;
-    }
-    .tt-dashboard .tt-list-table-search { flex: 1 1 240px; min-width: 200px; }
-    .tt-dashboard .tt-list-table-filter { flex: 0 1 auto; }
-    .tt-dashboard .tt-list-table-search input,
-    .tt-dashboard .tt-list-table-filter input,
-    .tt-dashboard .tt-list-table-filter select {
-        font-size: var(--tt-fs-sm);
-    }
-}
+/* #2082/#2083 — the `.tt-list-table-filters` register-toolbar shell
+   (#1753) and its `.tt-list-table-search` / `.tt-list-table-filter`
+   controls were replaced by the shared, mobile-first FilterBar chrome;
+   FrontendListTable no longer emits that markup, so the per-control
+   styling here is dead and has been removed. The loading-status line
+   (`.tt-list-table-status`) is a separate, still-rendered element. */
 
 .tt-dashboard .tt-list-table-status { min-height: 0; font-size: var(--tt-fs-xs); color: var(--tt-muted); margin-bottom: var(--tt-sp-2); }
 .tt-dashboard .tt-list-table-status.is-loading::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 2px solid var(--tt-muted); border-top-color: transparent; border-radius: 50%; animation: tt-spin 0.7s linear infinite; vertical-align: -1px; }
