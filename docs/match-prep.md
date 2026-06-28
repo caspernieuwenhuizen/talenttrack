@@ -87,7 +87,10 @@ The descriptive name reads in your language (the shape numbers stay the
 same in every language) — e.g. **Neutraal 4-3-3**, **Balbezit 4-3-3**.
 An **Aanvallend 3-4-3 (ruit)** option (a 3-4-3 with a midfield diamond:
 DM, two central mids and an attacking mid behind a front three) ships
-alongside the standard 3-4-3.
+alongside the standard 3-4-3, and draws its true diamond on the pitch —
+a template carries its own slot positions, so two formations that share a
+shape number (the flat 3-4-3 and the diamond) no longer collapse onto the
+same layout.
 
 ## Player names — short form
 

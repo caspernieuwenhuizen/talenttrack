@@ -128,14 +128,15 @@ final class MatchPrepPrintableRenderer {
         }
         $half_length = (int) ( $prep->half_length_minutes ?? 35 );
 
-        // Resolve formation shape via the on-screen view's resolver so
-        // the print uses the same default-slot layout. When the
-        // activity has a `formation` string (e.g. "4-3-3") that wins;
-        // otherwise fall back to the on-screen default.
+        // Resolve the slot layout the same way the on-screen view does.
+        // #2099 — the bound template's own geometry (slots_json) wins, so a
+        // 3-4-3 diamond prints as a diamond. Otherwise the activity's
+        // `formation` shape string (e.g. "4-3-3") selects a shape default.
         $formation_shape = (string) ( $activity->formation ?? '' );
         if ( $formation_shape === '' ) $formation_shape = '4-3-3';
         $slot_layouts = FrontendMatchPrepView::defaultSlotLayouts();
-        $slots        = $slot_layouts[ $formation_shape ] ?? $slot_layouts['4-3-3'];
+        $slots        = FrontendMatchPrepView::templateSlotLayout( (int) ( $prep->formation_template_id ?? 0 ) )
+            ?? ( $slot_layouts[ $formation_shape ] ?? $slot_layouts['4-3-3'] );
 
         ob_start();
         ?>

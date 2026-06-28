@@ -127,6 +127,66 @@ class FrontendMatchPrepView extends FrontendViewBase {
     }
 
     /**
+     * Per-template slot layout read from a formation template's
+     * `slots_json`, when that JSON carries explicit slot numbers (#2099).
+     *
+     * Returns a num-keyed list shaped exactly like a
+     * `defaultSlotLayouts()` entry (x/y in 0..100, left→right / top→bottom),
+     * or `null` when the template has no num-bearing `slots_json` — callers
+     * then fall back to the shape-keyed default. This makes a template's own
+     * geometry authoritative (e.g. the 3-4-3 diamond) instead of collapsing
+     * every template that shares a shape string onto one flat layout.
+     *
+     * The templates table is install-global (no club_id column), so no
+     * tenancy filter applies here.
+     *
+     * @return list<array{num:int,label:string,x:float,y:float}>|null
+     */
+    public static function templateSlotLayout( int $template_id ): ?array {
+        if ( $template_id <= 0 ) return null;
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_formation_templates';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return null;
+        }
+        $json = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT slots_json FROM {$table} WHERE id = %d LIMIT 1",
+            $template_id
+        ) );
+        return self::parseSlotsJson( $json );
+    }
+
+    /**
+     * Parse a template `slots_json` string into a num-keyed slot layout.
+     * Returns `null` unless every slot carries a numeric `num` — a layout
+     * without slot numbers can't be aligned to the lineup, so callers fall
+     * back to the shape default. `pos.x` / `pos.y` are 0..1 in the stored
+     * JSON and scaled to the 0..100 percentage the pitch templates use.
+     *
+     * @return list<array{num:int,label:string,x:float,y:float}>|null
+     */
+    public static function parseSlotsJson( string $json ): ?array {
+        if ( $json === '' ) return null;
+        $data = json_decode( $json, true );
+        if ( ! is_array( $data ) || $data === [] ) return null;
+
+        $out = [];
+        foreach ( $data as $slot ) {
+            if ( ! is_array( $slot ) || ! isset( $slot['num'] ) || ! is_numeric( $slot['num'] ) ) {
+                return null;
+            }
+            $pos = is_array( $slot['pos'] ?? null ) ? $slot['pos'] : [];
+            $out[] = [
+                'num'   => (int) $slot['num'],
+                'label' => (string) ( $slot['label'] ?? '' ),
+                'x'     => (float) ( $pos['x'] ?? 0.5 ) * 100,
+                'y'     => (float) ( $pos['y'] ?? 0.5 ) * 100,
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Role keys + Dutch labels for the Rollen & standaardsituaties pane.
      * Mirrors `MatchPrepRepository::ROLE_KEYS` order.
      *
@@ -704,13 +764,29 @@ class FrontendMatchPrepView extends FrontendViewBase {
         </section>
         <?php
 
+        // #2099 — per-template slot layouts (from slots_json) for templates
+        // whose geometry differs from their shape default (e.g. the 3-4-3
+        // diamond). The JS prefers the bound template's layout, falling back
+        // to the shape-keyed `slot_layouts` when a template has none.
+        $template_layouts = [];
+        foreach ( $formations as $f ) {
+            $fid = (int) ( $f->id ?? 0 );
+            if ( $fid <= 0 ) continue;
+            $layout = self::templateSlotLayout( $fid );
+            if ( $layout !== null ) {
+                $template_layouts[ $fid ] = $layout;
+            }
+        }
+
         // Bootstrap data for the JS — players, formations, current state.
         $bootstrap = [
             'activity_id'    => (int) $activity_id,
             'prep_id'        => (int) $prep_id,
             'half_length'    => (int) $half_length,
             'formation_shape' => $formation_shape,
+            'formation_template_id' => (int) ( $prep->formation_template_id ?? 0 ),
             'slot_layouts'   => self::defaultSlotLayouts(),
+            'template_layouts' => $template_layouts,
             'roles'          => array_map( static function( array $r ): array {
                 return [ 'key' => $r['key'], 'label' => $r['label'] ];
             }, self::roleDefinitions() ),

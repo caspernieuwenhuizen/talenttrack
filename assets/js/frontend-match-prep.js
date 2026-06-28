@@ -45,7 +45,9 @@
         prepId:         parseInt(bootstrap.prep_id, 10) || 0,
         halfLength:     parseInt(bootstrap.half_length, 10) || 35,
         formationShape: String(bootstrap.formation_shape || '4-2-3-1'),
+        formationTemplateId: parseInt(bootstrap.formation_template_id, 10) || 0,
         slotLayouts:    bootstrap.slot_layouts || {},
+        templateLayouts: bootstrap.template_layouts || {},
         roleDefs:       bootstrap.roles || [],
         players:        Array.isArray(bootstrap.players) ? bootstrap.players : [],
         availability:   {},
@@ -316,6 +318,12 @@
     }
 
     function currentSlotLayout() {
+        // #2099 — a bound template's own geometry (from slots_json) wins, so
+        // a 3-4-3 diamond draws as a diamond instead of the flat shape default.
+        var tpl = state.templateLayouts || {};
+        if (state.formationTemplateId && tpl[state.formationTemplateId]) {
+            return tpl[state.formationTemplateId];
+        }
         var layouts = state.slotLayouts || {};
         if (layouts[state.formationShape]) return layouts[state.formationShape];
         if (layouts['4-2-3-1']) return layouts['4-2-3-1'];
@@ -701,6 +709,9 @@
         formationSel.addEventListener('change', function (e) {
             var opt = e.target.selectedOptions && e.target.selectedOptions[0];
             var shape = opt ? (opt.getAttribute('data-shape') || '') : '';
+            // #2099 — track the picked template so a template-specific layout
+            // (e.g. the 3-4-3 diamond) is used instead of the shape default.
+            state.formationTemplateId = parseInt(e.target.value, 10) || 0;
             if (shape) {
                 state.formationShape = shape;
                 root.setAttribute('data-formation-shape', shape);

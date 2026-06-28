@@ -94,7 +94,10 @@ blijven in elke taal gelijk) — bijv. **Neutraal 4-3-3**, **Balbezit
 4-3-3**. Naast de standaard 3-4-3 is er nu ook een **Aanvallend 3-4-3
 (ruit)**: een 3-4-3 met een middenveldruit (DM, twee centrale
 middenvelders en een aanvallende middenvelder achter een voorhoede van
-drie).
+drie). Die tekent nu ook echt als ruit op het veld — een opstelling
+draagt zijn eigen posities, dus twee opstellingen met hetzelfde
+vormgetal (de platte 3-4-3 en de ruit) vallen niet langer op dezelfde
+plaatsing terug.
 
 ## Spelernamen — korte vorm
 
