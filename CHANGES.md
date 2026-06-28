@@ -1,3 +1,500 @@
+# TalentTrack v4.62.0 — My PDP redesigned to a timeline-first player development view (#1990)
+
+The player's *My PDP* surface is rebuilt around the season as a timeline. The
+development conversations now sit on a horizontal rail as markers — completed,
+the next planned talk, and later talks — with a progress fill up to the most
+recent completed conversation. Tapping a marker expands that conversation's
+detail in place (notes, agreed actions, agenda, goals discussed, saved
+reflection and the acknowledgement button), so there is no long scroll.
+
+Below the timeline the player sees their active focus goals with goal-specific
+status labels, then a single self-reflection input for the one next-planned
+conversation only — past and future talks never show an input, and there is
+never more than one form. Any previously saved reflection appears to the right
+of the input on wider screens and stacked below it on mobile. The 2-week
+pre-talk window guard, the coach sign-off display, the acknowledgement flow and
+the end-of-season verdict card are preserved.
+
+The "which talk is next planned" and "is its reflection window open" decisions
+live in the PDP domain layer (PdpCycleState), so the REST API and the rendered
+view derive the same answer.
+
+# TalentTrack v4.62.0 — Parents can open their child's development me-views (#1991)
+
+A parent linked to a player but with no own player record was denied every
+"Mijn …" me-view ("This section is only available for users linked to a
+player record"). The dispatch gate checked "is the current user a player"
+instead of "can the current user view this player".
+
+The gate now authorizes the resolved target via
+`AuthorizationService::canViewPlayer`, and the subject resolution falls back
+to the parent's linked child (from `tt_player_parents`) when no explicit
+`?player_id` is present: a single-child parent auto-resolves to that child;
+a multi-child parent gets a child picker first and chooses. A user with no
+own player and no linked child is still denied, and there is no cross-family
+or cross-academy leakage (every read still passes `canViewPlayer`). The same
+authority backs `GET /players/{id}`, so a non-WordPress front end gets the
+same answer.
+
+# TalentTrack v4.62.0 — Parent dashboard is now anchored on the child, not empty player-self tiles (#1992)
+
+On the legacy tile-grid dashboard a parent saw an empty "Werk van vandaag"
+column plus a "MIJN WERK" rail of player-self tiles that all denied (the
+parent has no own player record). The grid had no parent-awareness.
+
+A parent viewer (no own player, at least one linked child) now lands on a
+child-scoped surface: the child's name and photo anchor the screen, a
+curated parent tile subset is shown (development, player card, evaluations,
+activities, development plan), each tile carries the child's `?player_id=N`
+so the me-views resolve and authorize that child, and the empty
+work-of-today column is hidden. A child switcher appears when the parent is
+linked to more than one child. Which tiles and which child are domain
+decisions (`ParentDashboardTiles` / `ParentChildResolver`), kept out of the
+view.
+
+# TalentTrack v4.62.0 — tt_player_parents is now the single source of parent → child links (#1993)
+
+The `tt_player_parents` pivot is now the only live answer to "which children
+does this parent have". The parent dashboard child switcher, the parent KPI
+resolver, and the goal-thread participant graph previously matched
+`tt_players.guardian_email` against the parent's WordPress email — a second,
+divergent model that could disagree with the authorization layer (which
+already read the pivot). They now all resolve through the new
+`ParentChildResolver`, so the switcher and the me-view authorization list the
+same children, club-scoped, with no email matching.
+
+`guardian_email` is demoted to an invite/seed hint: it may still create a
+pivot row when a parent is invited, imported, or seeded, but is never queried
+to decide access. This is a code-only change with no migration — a parent
+linked solely via `guardian_email` will surface once re-linked through the
+invite/seed path or by an admin.
+
+# TalentTrack v4.62.0 — Match executions: coach team scope no longer silently empty (#2016)
+
+A head coach who owned teams could open Wedstrijduitvoeringen (match
+executions) and still see "No teams visible to you yet", because the view
+scoped coach teams via a hand-rolled JOIN on `tt_user_team_link` — a table
+no migration ever creates, so the query returned nothing for every
+non-admin coach. The same dead-table join silently emptied the
+"Matches needing review" persona-dashboard widget. Both now resolve a
+coach's teams through the canonical `QueryHelpers::get_teams_for_coach()`
+(active `tt_user_role_scopes` grants plus the legacy backfill), so coaches
+see their squad's match executions and pending-review reminders. A coach
+with no team grants still sees the empty state. Admin / academy-wide lens
+unchanged. Query-layer fix only — no schema or data changes.
+
+# TalentTrack v4.62.0 — Recycle-bin foundation: schema, capability, retention config (#2020)
+
+Lays the groundwork for the recycle bin (archive → trash → purge). Every
+archivable record type now carries `trashed_at` / `trashed_by` columns, so a
+later release can stage records for permanent deletion with a recovery window.
+
+A new academy-admin-only capability, `tt_manage_recycle_bin`, owns permanent
+deletion — it is never granted to coaches, Heads of Development, or anyone
+holding only settings rights. A per-club retention window
+(`tt_recycle_bin_retention_days`, default 30) is seeded for the future purge
+process, and the bin gets its own `recycle_bin` authorization-matrix entity.
+
+No user-visible behaviour changes yet — this is the substrate the bin's UI and
+purge logic build on. See the new Recycle bin help page for the retention and
+GDPR right-to-erasure basis.
+
+# TalentTrack v4.62.0 — Recycle bin: archive → trash → purge lifecycle core (#2021)
+
+Adds the recycle-bin domain core to `ArchiveRepository`: a third soft-delete
+tier (active → archived → trashed → purged) layered on the existing archive.
+Entities can now be moved to a recycle bin, restored back to archived, or
+permanently purged through the existing fail-closed cascade. Trashed records
+of minors are hidden behind the `tt_manage_recycle_bin` capability and scoped
+to the club on every query, and each transition is recorded in the audit log.
+Domain layer only — the bin's list view and REST endpoints land in follow-up
+work; no user-visible screens change yet.
+
+# TalentTrack v4.62.0 — Recycle bin: read-only archived/trashed detail (#2022)
+
+Fixes Bug 1: opening an archived or trashed record showed "does not exist",
+because every detail view's lookup ends in `WHERE archived_at IS NULL` and so
+never received a non-active row. Detail views (players, teams, evaluations,
+goals) now retry through the archive-aware visibility gate and render a
+**compact read-only summary card** for archived and trashed records instead —
+the record's identity plus a few key fields and a status banner, with no Edit
+affordance (restore first, then edit).
+
+An **archived** record shows an amber banner with who archived it and when,
+plus **Restore** and **Move to recycle bin**. A **trashed** record shows a red
+banner counting down to the purge, plus **Restore to archive** and **Delete
+permanently now**, wired to two new `tt_manage_recycle_bin`-gated REST routes
+(`POST recycle-bin/{entity}/{id}/restore`, `DELETE recycle-bin/{entity}/{id}`).
+
+Privacy-critical: a trashed record is a soft-deleted minor's record. A
+non-admin who opens a trashed record's link gets a clean "not found" — never a
+permission-denied page that would confirm the record exists. The card lives in
+a single shared `ArchivedDetailCard` renderer so the banners and actions can't
+drift per entity.
+
+# TalentTrack v4.62.0 — Recycle bin: archived-list affordances + payload audit (#2023)
+
+Fixes a bug where archived holiday rows showed only Restore and no
+destructive action: the holiday REST payload omitted `archived_at`, so the
+list-table visibility check hid both archived-row actions. A new shared
+`LifecycleFields` helper now emits `archived_at` plus the new `trashed_at`
+on every list/detail payload that surfaces lifecycle state, so the field
+can't drift per entity.
+
+The archived-tier destructive action is relabelled from "Delete permanently"
+to **"Move to recycle bin"** and re-pointed at a new reversible
+`POST {entity}/{id}/trash` route (the irreversible purge stays inside the
+recycle bin). Moving a record now shows a full itemized cascade preview in
+the confirm dialog, and the success banner offers one-click **Undo**. The
+per-entity "All" status tab is dropped — trashed records never appear in
+ordinary lists, leaving Active and Archived as the only views.
+
+# TalentTrack v4.62.0 — Recycle bin: centralized view + REST + settings entry point (#2024)
+
+Adds the centralized recycle bin — a single admin-only screen
+(`?tt_view=recycle-bin`, reachable from Configuration → System) that lists
+every trashed record across all 20 archivable entity types, grouped by type
+with counts. Each row shows its identity, who and when it was binned, and a
+days-until-purge badge that turns red in the final week. Two inline actions:
+**Restore** returns the record to the archive, and **Delete now** permanently
+purges it after a cascade-preview confirm. A blocked purge surfaces the
+dependency report and leaves the record in place.
+
+The bin is academy-admin only (`tt_manage_recycle_bin`). Three new REST
+routes back it: `GET /recycle-bin` (cross-entity list), `POST
+/recycle-bin/{entity}/{id}/restore`, and `DELETE /recycle-bin/{entity}/{id}`.
+Every mutating route verifies both the capability and that the target belongs
+to the current academy before it runs, so a forged or foreign-tenant id is a
+not-found, never a silent success. The `{entity}` segment is validated against
+the archive's entity allowlist.
+
+Closes the "no purge path weaker than the bin" gap: every legacy per-entity
+permanent-delete endpoint (`DELETE …/permanent`) is re-gated onto
+`tt_manage_recycle_bin`, so all permanent-deletion paths now require the same
+capability as the bin's own purge.
+
+# TalentTrack v4.62.0 — Recycle bin: 30-day automatic purge (#2025)
+
+Adds the unattended purge that empties the recycle bin after the retention
+window. A daily sweep finds every record trashed longer than the club's
+retention window (default 30 days) and permanently deletes it — no one has to
+remember to empty the bin.
+
+The sweep runs through the same fail-closed deletion path as the manual
+"Delete now": player and person records are erased across every linked table
+via their cascade services, so a minor's child PII is never stranded. It runs
+on the workflow engine's existing background schedule (not a separate cron),
+self-throttles to once per day, and is scoped per academy so a record is only
+ever purged within its own tenant. Because the job runs with no one logged in,
+its audit entries are attributed to the system, so the audit log never implies
+a person pressed delete.
+
+Records the purge cannot delete — because other records still reference them —
+are skipped, left safely in the bin, and surfaced in the recycle-bin view with
+a banner ("N records couldn't be auto-deleted — still referenced"). A few
+record types (measurement definitions and trial tracks) are templates that can
+never auto-purge by design; the bin now flags those so the 30-day countdown is
+never read as "these vanish at 30 days".
+
+# TalentTrack v4.62.0 — Shared filter bar, adopted on Activities (#2026)
+
+A new reusable filter bar replaces the bespoke filter row on the
+Activiteiten list. On desktop it lays the controls out on a single line —
+each under its own label, with the four control types kept visually
+distinct (Team/Type selects, a Period pill-dropdown, Active/Archived/All
+status pills, and a Show-cancelled switch). On a phone or tablet the bar
+collapses to a **Filters** button with an active-count badge plus summary
+chips; tapping it opens a bottom sheet with the same controls and an
+Apply / Clear footer. Keyboard- and screen-reader-operable, with the
+sheet closing on Escape, scrim tap, or the close button.
+
+All existing Activities filtering is unchanged — Team, Type, period
+quick-windows, archive status, and Show-cancelled keep the same query
+params and produce the same results. The new `FilterBar` component is
+data-driven and carries no Activities-specific logic, so the other list
+views can adopt it in later phases of the filter-bar epic (#2017).
+
+# TalentTrack v4.62.0 — Teams and activities can now be permanently deleted, player data preserved (#2027)
+
+Permanently deleting a team or an activity used to be refused outright while
+anything still referenced it, so a trashed team or activity could never be
+purged and accumulated in the recycle bin forever. Both now have a complete,
+player-centric delete plan.
+
+Deleting a **team** removes only pure team configuration (formations, playing
+styles, chemistry, blueprints, staff assignments, per-team exercise overrides
+and the VCT periodization stack). The team's players, their team history, the
+team's activities (with their attendance and evaluations), tournaments and
+measurement sessions are all kept and re-homed to "unassigned" rather than
+deleted. Open invitations, workflow tasks and staged ideas pointing at the
+team simply have the link cleared.
+
+Deleting an **activity** removes the execution data that only lives inside it
+(attendance, planned exercises, principles, and the match-prep and
+match-execution trees) plus its journey events, while evaluations, behaviour
+ratings and tournament/VCT bindings survive with their link cleared.
+
+A development record is never destroyed by deleting a team or activity — worst
+case it is left unassigned. The deletion framework gains a "reset to
+unassigned" disposition for required links that can't be emptied, and a
+fail-closed completeness check guarantees a future schema change can't quietly
+make teams or activities un-deletable again.
+
+# TalentTrack v4.62.0 — Goal-detail page: goal left, conversation right two-column layout (#2029)
+
+The standalone goal-detail pages now place the goal card on the left and the
+Gesprek (conversation) on the right in a two-column grid on tablet and wider
+screens (>=768px), stacking goal-then-conversation on phones. This applies to
+both the coach view (`?tt_view=goals&id=N`) and the player/parent view
+(`?tt_view=my-goals&id=N`), matching the existing two-column treatment on the
+POP detail. Layout-only change: the grid and spacing moved out of inline
+styles into the enqueued `frontend-goals.css` sheet; no data or query changes,
+and the conversation pane (bubbles + compose box) is unchanged.
+
+# TalentTrack v4.62.0 — Team detail: hide the chemistry teaser when the feature is off (#2033)
+
+The "Team chemistry" card and its *Open the chemistry board* link on the
+team detail view no longer appear when the `team_chemistry` sub-feature is
+switched off, or for personas without chemistry read authority. The teaser
+now uses the same access gate as the chemistry board itself, instead of
+rendering whenever the module class is loaded.
+
+# TalentTrack v4.62.0 — Branded TalentTrack 404 replaces the theme 404 and "Unknown section" (#2035)
+
+A bad URL or an unknown `?tt_view=` slug now lands on one consistent,
+branded "Offside! This page is out of play" page instead of the active
+theme's 404 or a bare "Unknown section." line. The real WordPress 404 is
+rendered through the same theme-free canvas chokepoint as the dashboard —
+HTTP 404 status preserved, no theme chrome leaking — and offers a single
+"Back to dashboard" button. The in-app fallback shows the same branded
+content inside the dashboard, with the breadcrumb chain as the way back.
+Operators running TalentTrack alongside other content can disable the
+takeover via the club-scoped `tt_handle_wp_404` config flag or filter
+(defaults on).
+
+# TalentTrack v4.62.0 — PDP conversation breadcrumb returns to the player's file (#2038)
+
+Opening a conversation from a PDP file and then using the breadcrumb back
+affordance now returns to that player's PDP file, not the whole PDP list.
+The conversation page previously reused the file-detail breadcrumb chain,
+whose only clickable step was the PDP list. It now renders its own chain —
+"PDP → PDP file detail → Conversation" — with the file-detail crumb as the
+back-to-file step. Navigation only; no data or query changes.
+
+# TalentTrack v4.62.0 — PDP coverage list: remove redundant "Open" button (#2039)
+
+Rows in the PDP coverage list that already have a development plan no longer
+show a separate "Open" button — the whole row is already clickable, and the
+green coverage pill is a link to the same file for keyboard and assistive
+tech. The "Create PDP" action on players without a plan is unchanged.
+
+# TalentTrack v4.62.0 — PDP list: one player-centric list with Active/Archived + team gate (#2040)
+
+The PDP tile now opens on a single player-centric list — the old Coverage /
+Files tab split is gone. Archived PDP files moved into the same list behind
+**Active / Archived** state pills (for operators who can unarchive or delete),
+each archived row keeping its Restore / permanent-delete actions. Users who
+span more than one team (or have global scope) now pick a team first ("Select
+a team to see its players.") instead of facing an unscoped all-players list; a
+single-team coach goes straight to their roster. The redundant per-row Open
+button stays gone (#2039). The `pdp-files/coverage` REST endpoint gained an
+`archived` parameter for the new view.
+
+# TalentTrack v4.62.0 — PDP conversations: only the active conversation is fully editable (#2041)
+
+PDP conversations now run strictly in order. Only the active conversation —
+the earliest one not yet signed off — is fully editable. Later conversations
+in the cycle are read-only except for their planned date, so a coach can
+schedule the whole season ahead without filling in a talk out of turn. A
+later conversation opens for full editing once the one before it is signed
+off. Enforced both in the form and in the REST endpoint. Signed/acknowledged
+conversations keep their existing end-to-end lock.
+
+# TalentTrack v4.62.0 — PDP: coach can record player/parent acknowledgement (#2042)
+
+When a development conversation is held in person, the coach can now record
+the player's and/or parent's acknowledgement on their behalf, straight from
+the conversation form — *Record player acknowledgement* / *Record parent
+acknowledgement*, each behind a confirm dialog. It writes the same
+acknowledgement a player or parent would record themselves, available once
+the coach has signed the conversation off. The player/parent self-service
+acknowledgement on *My PDP* is unchanged.
+
+# TalentTrack v4.62.0 — PDP verdict: gated and moved next to the conversations (#2043)
+
+The end-of-season *Record verdict* button moved out of the top action bar to
+sit with the conversation list, below the cycle. It now stays disabled until
+every conversation in the cycle is signed off, showing the progress on the
+button itself — e.g. *Record verdict (3/5 conversations closed)* — so it's
+clear why it isn't available yet rather than simply missing. Once all
+conversations are closed it enables and opens the existing verdict form.
+
+# TalentTrack v4.62.0 — Strava integration — schema foundation (#2055)
+
+Adds the database foundation for the per-player Strava integration (epic
+#2002): a `tt_player_strava_connections` table holding one encrypted-token
+connection per player, and a player-scoped `tt_player_activities` table for
+the personal training (runs, rides, conditioning) those connections import.
+Both carry the `club_id` + `uuid` tenancy scaffold. Activities store
+distance, duration, pace and elevation only — no heart-rate data, by design.
+Schema-only; no behaviour change until the connect flow ships.
+
+# TalentTrack v4.62.0 — Strava integration — OAuth connect flow (#2056)
+
+Adds the per-player Strava account connection flow (epic #2002). Players (and
+coaches/admins acting on a player) can start a one-time OAuth authorization
+that links a Strava account to the player's TalentTrack record. The OAuth
+callback authenticates via a signed, time-limited `state` — the one route
+that can't use a WordPress nonce — exchanges the code for tokens server-side,
+and stores the access + rotating refresh token encrypted at rest, per player.
+Disconnecting revokes the grant at Strava and clears the stored tokens.
+
+No activities sync yet — this slice is the connection plumbing; the token
+refresh, webhook, and ingest slices follow. Access tokens are never exposed
+to the browser; the Strava app client secret is write-only.
+
+# TalentTrack v4.62.0 — Strava integration — token refresh service (#2057)
+
+Keeps connected players' Strava access tokens fresh (epic #2002). Strava
+tokens expire after six hours and the refresh token rotates on every refresh,
+so a connection is kept alive two ways: a proactive sweep on the workflow
+engine's hourly heartbeat refreshes any token nearing expiry, and an on-demand
+refresh runs immediately before an activity sync if needed. The rotated
+refresh token is always saved atomically with the new access token. If Strava
+rejects a refresh (the grant was revoked), the connection is flagged so the
+player can reconnect, instead of retrying a dead token forever.
+
+# TalentTrack v4.62.0 — Strava integration — activity ingest (#2058)
+
+Imports a connected player's Strava activities onto their TalentTrack record
+(epic #2002). When an activity is recorded, it's fetched with the player's
+token and saved to the player's own activity list — distance, duration, pace
+and elevation only. Heart-rate and other biometric data are never read or
+stored, by design, so the integration works for the academy's mostly-minor
+cohort without tripping Strava's under-16 heart-rate restriction. Deleting an
+activity in Strava (or disconnecting) archives it on our side. A new read
+endpoint exposes a player's imported activities for the profile timeline.
+
+# TalentTrack v4.62.0 — Strava integration — webhook sync (#2059)
+
+Wires up live, push-based syncing for the Strava integration (epic #2002).
+Instead of polling, TalentTrack registers a single academy-wide webhook
+subscription with Strava and reacts to pushes: a new or edited activity is
+imported within minutes, a deleted activity is archived, and when an athlete
+disconnects from Strava's side their connection is revoked and their imported
+activities are archived automatically. The subscription is operator-managed
+(create / view / delete), and the validation handshake is answered securely
+with a per-install verify token.
+
+# TalentTrack v4.62.0 — Strava integration — consent capture + audit (#2060)
+
+Adds the consent gate for connecting a Strava account (epic #2002, Gate 2).
+Connecting now requires an explicit, audit-logged consent acknowledgement,
+and the consent is recorded before any redirect to Strava — enforced on the
+server, so the authorization step cannot be reached without it. The recorded
+consent (and when it was given) is surfaced on the connection status.
+
+Per the product decision of 2026-06-28, consent is captured on the player's
+own profile rather than a parent's view — a deliberately simpler flow whose
+minor-safeguarding trade-off is recorded for future legal review.
+
+# TalentTrack v4.62.0 — Strava integration — connect panel on the player profile (#2061)
+
+Adds the player-facing Strava panel (epic #2002): a mobile-first "Connect with
+Strava" surface reachable at its own page (`?tt_view=strava`) and as a Strava
+tab on the player profile. It shows connection status, a consent checkbox that
+must be ticked before connecting, a disconnect button, and the imported
+activities (distance, duration, pace — no heart-rate). Connecting sends the
+player through Strava's authorization and brings them back to the profile with
+a clear confirmation. Fully translated into Dutch.
+
+# TalentTrack v4.62.0 — Player profile: hide the PHV panel when the VCT module is off (#2064)
+
+The player profile's PHV control (the "Speler heeft een PHV-vlag" checkbox +
+reason dropdown) is VCT functionality, but it rendered even when the VCT
+module was switched off. The PHV hero pill, the Profile-tab panel, and the
+PHV form POST handler now all gate on the VCT module being enabled, so a club
+that doesn't use VCT no longer sees misleading conditioning controls on a
+player's record. Behaviour is unchanged when VCT is on.
+
+# TalentTrack v4.62.0 — Team profile: squad panel no longer shows archived or trashed players (#2065)
+
+Archiving a player removed them from active rosters everywhere except the
+team profile's squad panel (and, for trial players, the trials sub-panel),
+where they kept appearing — an archived or released minor resurfacing in a
+roster a coach was browsing. The three player-fetch helpers behind those
+panels (`QueryHelpers::get_players()`, `QueryHelpers::get_players_for_teams()`,
+and the team-detail trial loader) filtered on `status` alone, which is
+orthogonal to the archive/trash lifecycle introduced with the recycle bin.
+They now append the canonical active-lifecycle clause
+(`ArchiveRepository::filterClause('active', 'p')`), so archived and trashed
+players drop out of the squad panel, the trials sub-panel, and coach-dashboard
+rosters immediately. Active players are unaffected. Query-layer fix only — no
+schema or data changes.
+
+# TalentTrack v4.62.0 — Chemistry settings: dark-mode legibility + compact number inputs (#2069)
+
+The Chemistry settings page (`?tt_view=chemistry-config`) is now legible in
+dark OS/browser modes again. The partial `prefers-color-scheme: dark` block
+darkened the block background but never lightened the text, leaving dark-on-dark
+legends, labels and hints — the surface has no real dark variant, so that block
+is removed and the page stays on its light design system. The numeric weight
+inputs also no longer blow out to full row width: the selector now wins over the
+global `.tt-input { width: 100% }` rule, restoring compact ~5rem right-aligned
+boxes with the label-left / input-right flex row intact. CSS only.
+
+# TalentTrack v4.62.0 — Chemistry settings page + tile hidden when team chemistry is off (#2071)
+
+With the Team chemistry feature switched off, the Chemistry settings view
+(`?tt_view=chemistry-config`) and its dashboard tile stayed reachable while
+the main formation board correctly hid. The `team_chemistry` feature now
+claims the `chemistry-config` slug too, so the dispatcher renders the
+standard module-disabled notice before the view loads — for administrators
+as well as other roles — and the settings tile carries the feature tag so it
+disappears from the dashboard when the feature is off. With the feature on,
+the page and tile behave exactly as before.
+
+# TalentTrack v4.62.0 — Goal conversation restyled to the green/gold timeline (#2072)
+
+The conversation ("Gesprek") on a player's goal-detail page used a generic
+blue chat style — a right-aligned blue self-bubble and navy author names —
+that clashed with the 2026 green/gold design shown to parents and players in
+the pilot presentation. It now renders as a single left-aligned timeline:
+each message carries a green ring marker, a muted date above a bold green
+author name, and a white bubble with a thin border, and the Send button is
+green. The change is in `frontend-threads.css` only — markup, REST, polling,
+and the edit/delete affordances are untouched, so both initially-rendered and
+newly-posted messages share the look. Mobile-first rules are preserved
+(360 px single column, 48 px Send, 16 px textarea, focus-visible rings,
+reduced-motion).
+
+# TalentTrack v4.62.0 — List filters get the mobile-first FilterBar chrome (#2082)
+
+Every list surface built on `FrontendListTable` (players, goals, teams, people,
+evaluations, holidays, tournaments, prospects, functional roles, custom fields,
+my activities, PDP, …) now renders its filter row through the shared, mobile-first
+FilterBar: a single inline row on wide screens that collapses to a "Filters"
+button and a bottom sheet on phones. Filters are the same as before — the team /
+type / status selects, the search box, and the from/to date ranges all filter
+exactly as they did, with the same URL parameters, sorting, pagination and
+live-filtering — they just gain a touch-friendly layout on small screens.
+
+The list table keeps owning rows, sorting, pagination and per-page; only the
+filter chrome moved. FilterBar gained free-text/search and date-range group
+types and an opt-in status-pill rendering for views that want one. No view
+needed changes to inherit the new chrome.
+
+# TalentTrack v4.62.0 — Week-PDF: match cards show the typed title (#2089)
+
+Match activities on the team-planner Week-PDF now print the title entered
+on the activity form (e.g. "Candia 66 – Vv hedel 14-1") instead of
+collapsing to just the team name. The card previously synthesized its
+title as "Team — Opponent" and ignored the activity's own Title field;
+since the form captures a required Title but no opponent, matches printed
+only the team name. The card now prefers the entered title and falls back
+to "Team — Opponent" (or the team name) only when no title is set. Match
+location is unchanged — it already prints when the Location field is filled.
+
 # TalentTrack v4.61.0 — Holiday rows now open an enriched read-only detail view (#1997)
 
 Clicking a holiday row used to drop managers straight into the edit form and
