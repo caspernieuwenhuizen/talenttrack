@@ -70,6 +70,8 @@ Parents see the same timeline for their child, read-only and possessive ("&lt;Ch
 
 When the cycle's last conversation is signed off, the head of academy (or head coach in some configurations) records a verdict: **promote**, **retain**, **release**, or **transfer**. The verdict is its own row, signed off independently from the conversation rows.
 
+The *Record verdict* button sits with the conversation list, below the cycle. It stays **disabled until every conversation in the cycle is signed off**, showing the progress on the button itself — e.g. *Record verdict (3/5 conversations closed)* — so it's clear why it isn't available yet rather than missing.
+
 ## Carryover
 
 Setting a new season as current triggers a one-shot job: every open PDP file in the previous season's roster is replicated for the new season — fresh conversations, fresh `created_at`, but the player's open goals (anything not `completed` or `archived`) carry forward.

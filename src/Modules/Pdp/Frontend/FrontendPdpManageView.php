@@ -859,10 +859,11 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">'
             . esc_html__( 'Print / PDF', 'talenttrack' ) . '</a>';
-        if ( $can_verdict && $verdict === null ) {
-            $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
-            echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $vurl ) . '">' . esc_html__( 'Record verdict', 'talenttrack' ) . '</a>';
-        }
+        // #2043 — the "Record verdict" CTA moved out of the top action bar to
+        // sit by the conversation list + cycle progress (rendered after the
+        // conversations table below), where its "all conversations closed"
+        // precondition is visible. It stays disabled, with the reason, until
+        // every conversation is signed off.
         // #1294 — irreversible hard-delete entry point. Cap-gated on
         // `tt_delete_pdp` (admin-only by seed). Routes to the typed-name
         // confirm subview at ?tt_view=pdp&action=permanent-delete.
@@ -1025,6 +1026,32 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+
+        // #2043 — verdict CTA, by the conversation list + cycle progress. The
+        // end-of-season verdict can only be recorded once every conversation
+        // is signed off; until then it renders disabled with the reason
+        // (X/N closed) so the operator sees why it isn't available.
+        if ( $can_verdict && $verdict === null ) {
+            $all_closed = ( $cycle_size > 0 && $signed_count >= $cycle_size );
+            echo '<div class="tt-pdp-verdict-cta">';
+            if ( $all_closed ) {
+                $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
+                echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $vurl ) . '">'
+                    . esc_html__( 'Record verdict', 'talenttrack' ) . '</a>';
+            } else {
+                echo '<button type="button" class="tt-btn tt-btn-primary" disabled aria-disabled="true">'
+                    . esc_html( sprintf(
+                        /* translators: 1: signed-off conversation count, 2: cycle size */
+                        __( 'Record verdict (%1$d/%2$d conversations closed)', 'talenttrack' ),
+                        (int) $signed_count,
+                        (int) $cycle_size
+                    ) ) . '</button>';
+                echo '<p class="tt-pdp-verdict-cta__hint">'
+                    . esc_html__( 'The verdict opens once every conversation in the cycle is signed off.', 'talenttrack' )
+                    . '</p>';
+            }
+            echo '</div>';
+        }
 
         // Goals linked to this player (current season)
         self::renderGoalsBlock( (int) $file->player_id );

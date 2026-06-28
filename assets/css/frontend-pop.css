@@ -864,3 +864,21 @@
 }
 .tt-pdp-proxy-ack__form { margin: 0 0 10px; }
 .tt-pdp-proxy-ack__done { color: var(--tt-muted, #5b6e75); margin: 0 0 8px; }
+
+/*
+ * #2043 — end-of-season verdict CTA, placed by the conversation list.
+ * Disabled (with the "X/N closed" reason) until every conversation in
+ * the cycle is signed off.
+ */
+.tt-pdp-verdict-cta {
+    margin: 18px 0 4px;
+}
+.tt-pdp-verdict-cta .tt-btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.tt-pdp-verdict-cta__hint {
+    color: var(--tt-muted, #5b6e75);
+    font-size: 0.85rem;
+    margin: 6px 0 0;
+}
