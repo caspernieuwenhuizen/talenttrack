@@ -160,47 +160,26 @@ class FrontendListTable {
         ob_start();
         ?>
         <div class="tt-list-table" id="<?php echo esc_attr( $id ); ?>" data-tt-list-table="1">
-            <form class="tt-list-table-filters" data-tt-list-form="1" method="get">
-                <?php
-                // Preserve any non-list-table query params (e.g. tt_view) so the no-JS submit doesn't drop tile-router state.
-                foreach ( self::passthroughQueryArgs( $filters ) as $k => $v ) {
-                    printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( $v ) );
-                }
-                if ( ! empty( $search_cfg ) ) :
-                    $placeholder = (string) ( $search_cfg['placeholder'] ?? __( 'Search…', 'talenttrack' ) );
-                    ?>
-                    <label class="tt-list-table-search">
-                        <span><?php esc_html_e( 'Search', 'talenttrack' ); ?></span>
-                        <input type="search" name="search" value="<?php echo esc_attr( $state['search'] ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" />
-                    </label>
-                <?php endif; ?>
-                <?php foreach ( $filters as $key => $filter ) : self::renderFilterControl( (string) $key, $filter, $state['filter'] ); endforeach; ?>
-                <?php
-                // #1614 — card mode replaces clickable column headers with
-                // a single sort dropdown, bound to orderby/order by the JS
-                // hydrator (rows themselves are JS-rendered, as in table
-                // mode).
-                if ( $layout === 'cards' && $sort_options ) :
-                    $cur_sort = $state['orderby'] . ':' . $state['order'];
-                    ?>
-                    <label class="tt-list-table-filter tt-list-table-sort">
-                        <span><?php esc_html_e( 'Sort by', 'talenttrack' ); ?></span>
-                        <select data-tt-list-sort-select="1" name="tt_sort">
-                            <?php foreach ( $sort_options as $opt ) :
-                                if ( ! is_array( $opt ) ) continue;
-                                $o_orderby = (string) ( $opt['orderby'] ?? '' );
-                                $o_order   = strtolower( (string) ( $opt['order'] ?? 'asc' ) ) === 'desc' ? 'desc' : 'asc';
-                                $o_val     = $o_orderby . ':' . $o_order;
-                                ?>
-                                <option value="<?php echo esc_attr( $o_val ); ?>" <?php selected( $cur_sort, $o_val ); ?>>
-                                    <?php echo esc_html( (string) ( $opt['label'] ?? $o_orderby ) ); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </label>
-                <?php endif; ?>
-                <noscript><button type="submit" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Apply', 'talenttrack' ); ?></button></noscript>
-            </form>
+            <?php
+            // #2082 — the bespoke `.tt-list-table-filters` form is replaced
+            // by the shared, mobile-first FilterBar chrome (inline row at
+            // >=1024px, collapsing to a "Filters" button + bottom sheet
+            // below). The list table still owns rows / sort / pagination /
+            // per-page; only the filter chrome moves. The contract is
+            // preserved exactly: `filter[<key>]` param names, the `search`
+            // box, static filters, sort, pagination and JS hydration are
+            // unchanged — the bar's own <form> carries the `data-tt-list-form`
+            // hook the hydrator binds to, so live-filtering and the no-JS
+            // full-submit fallback both keep working.
+            $filterbar_args = self::buildFilterBarArgs( $filters, $search_cfg, $state, $layout, $sort_options );
+            // No groups (no filters, no search, no card-sort) → nothing to
+            // filter, so skip the bar entirely rather than render an empty
+            // "Filters" button + sheet. Sort / pager / per-page bind on
+            // their own elements, so the list still hydrates.
+            if ( ! empty( $filterbar_args['groups'] ) || $filterbar_args['extra_controls'] !== '' ) {
+                echo FilterBar::html( $filterbar_args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- FilterBar escapes internally.
+            }
+            ?>
 
             <div class="tt-list-table-status" data-tt-list-status="1" aria-live="polite"></div>
 
@@ -310,50 +289,283 @@ class FrontendListTable {
     }
 
     /**
-     * @param array<string,mixed> $filter
-     * @param array<string,string> $current
+     * #2082 — translate the list table's `filters` config + `search` box
+     * into the shared FilterBar `groups` payload, and assemble the rest
+     * of the FilterBar args (hidden passthrough fields, active-count +
+     * chips for the mobile collapsed state, reset URL, the card-mode sort
+     * dropdown as an extra control, and the `data-tt-list-form` hook the
+     * hydrator binds to).
+     *
+     * The filter contract is preserved exactly:
+     *   - `select`     → FilterBar `select` group, `name="filter[<key>]"`.
+     *                    Opt a select into status pills with
+     *                    `'render' => 'status'` on the filter config.
+     *   - `text`       → FilterBar `text` group, `name="filter[<key>]"`.
+     *   - `date_range` → FilterBar `date_range` group, two date fields
+     *                    keyed on `param_from` / `param_to`.
+     *   - the list `search` box → a FilterBar `text`/`search` group named
+     *                    `search` (not `filter[…]`), exactly as before.
+     *
+     * @param array<string,mixed>  $filters
+     * @param array<string,mixed>  $search_cfg
+     * @param array<string,mixed>  $state
+     * @param string               $layout
+     * @param array<int,mixed>     $sort_options
+     * @return array<string,mixed>
      */
-    private static function renderFilterControl( string $key, array $filter, array $current ): void {
-        $type  = (string) ( $filter['type']  ?? 'text' );
-        $label = (string) ( $filter['label'] ?? $key );
+    private static function buildFilterBarArgs( array $filters, array $search_cfg, array $state, string $layout, array $sort_options ): array {
+        $current = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
+        $groups  = [];
 
-        if ( $type === 'select' ) {
-            $opts = is_array( $filter['options'] ?? null ) ? $filter['options'] : [];
-            ?>
-            <label class="tt-list-table-filter">
-                <span><?php echo esc_html( $label ); ?></span>
-                <select name="filter[<?php echo esc_attr( $key ); ?>]">
-                    <option value=""><?php esc_html_e( 'All', 'talenttrack' ); ?></option>
-                    <?php foreach ( $opts as $value => $text ) : ?>
-                        <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( (string) ( $current[ $key ] ?? '' ), (string) $value ); ?>><?php echo esc_html( (string) $text ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
-            <?php
-        } elseif ( $type === 'date_range' ) {
-            $from = (string) ( $filter['param_from'] ?? ( $key . '_from' ) );
-            $to   = (string) ( $filter['param_to']   ?? ( $key . '_to' ) );
-            $label_from = (string) ( $filter['label_from'] ?? __( 'From', 'talenttrack' ) );
-            $label_to   = (string) ( $filter['label_to']   ?? __( 'To', 'talenttrack' ) );
-            ?>
-            <label class="tt-list-table-filter">
-                <span><?php echo esc_html( $label_from ); ?></span>
-                <input type="date" name="filter[<?php echo esc_attr( $from ); ?>]" value="<?php echo esc_attr( (string) ( $current[ $from ] ?? '' ) ); ?>" />
-            </label>
-            <label class="tt-list-table-filter">
-                <span><?php echo esc_html( $label_to ); ?></span>
-                <input type="date" name="filter[<?php echo esc_attr( $to ); ?>]" value="<?php echo esc_attr( (string) ( $current[ $to ] ?? '' ) ); ?>" />
-            </label>
-            <?php
-        } else {
-            // text (default)
-            ?>
-            <label class="tt-list-table-filter">
-                <span><?php echo esc_html( $label ); ?></span>
-                <input type="text" name="filter[<?php echo esc_attr( $key ); ?>]" value="<?php echo esc_attr( (string) ( $current[ $key ] ?? '' ) ); ?>" />
-            </label>
-            <?php
+        // --- Search box first (mirrors the old layout order). ----------
+        if ( ! empty( $search_cfg ) ) {
+            $placeholder = (string) ( $search_cfg['placeholder'] ?? __( 'Search…', 'talenttrack' ) );
+            $groups[] = [
+                'type'        => 'text',
+                'key'         => 'search',
+                'label'       => __( 'Search', 'talenttrack' ),
+                'name'        => 'search',
+                'value'       => (string) ( $state['search'] ?? '' ),
+                'placeholder' => $placeholder,
+                'input_type'  => 'search',
+                'inputmode'   => 'search',
+            ];
         }
+
+        // --- Each declared filter. -------------------------------------
+        foreach ( $filters as $key => $filter ) {
+            $key   = (string) $key;
+            $type  = (string) ( $filter['type']  ?? 'text' );
+            $label = (string) ( $filter['label'] ?? $key );
+
+            if ( $type === 'select' ) {
+                $opts   = is_array( $filter['options'] ?? null ) ? $filter['options'] : [];
+                $render = (string) ( $filter['render'] ?? 'select' );
+                $sel    = (string) ( $current[ $key ] ?? '' );
+
+                // #2082 — `render => 'status'` opts a select into FilterBar
+                // status pills (link-based, full-reload). Default stays a
+                // plain select so existing views are unchanged.
+                if ( $render === 'status' ) {
+                    $groups[] = self::statusGroup( $key, $label, $opts, $sel );
+                    continue;
+                }
+
+                $groups[] = [
+                    'type'        => 'select',
+                    'key'         => $key,
+                    'label'       => $label,
+                    'name'        => 'filter[' . $key . ']',
+                    'selected'    => $sel,
+                    'placeholder' => __( 'All', 'talenttrack' ),
+                    'options'     => $opts,
+                    // The list-table JS handles the change + live-filters,
+                    // so opt out of filter-bar.js's own auto-submit (avoids
+                    // a double fetch); the no-JS Apply button still submits.
+                    'auto_submit' => false,
+                ];
+            } elseif ( $type === 'date_range' ) {
+                $from = (string) ( $filter['param_from'] ?? ( $key . '_from' ) );
+                $to   = (string) ( $filter['param_to']   ?? ( $key . '_to' ) );
+                $groups[] = [
+                    'type'       => 'date_range',
+                    'key'        => $key,
+                    'label'      => $label,
+                    'label_from' => (string) ( $filter['label_from'] ?? __( 'From', 'talenttrack' ) ),
+                    'label_to'   => (string) ( $filter['label_to']   ?? __( 'To', 'talenttrack' ) ),
+                    'from'       => [ 'name' => 'filter[' . $from . ']', 'value' => (string) ( $current[ $from ] ?? '' ) ],
+                    'to'         => [ 'name' => 'filter[' . $to . ']',   'value' => (string) ( $current[ $to ] ?? '' ) ],
+                ];
+            } else {
+                // text (default)
+                $groups[] = [
+                    'type'  => 'text',
+                    'key'   => $key,
+                    'label' => $label,
+                    'name'  => 'filter[' . $key . ']',
+                    'value' => (string) ( $current[ $key ] ?? '' ),
+                ];
+            }
+        }
+
+        // --- Card-mode sort dropdown — injected verbatim into the bar's
+        // form (inline row + sheet body) so the hydrator can bind to it.
+        $extra = '';
+        if ( $layout === 'cards' && $sort_options ) {
+            $extra = self::sortSelectHtml( $sort_options, $state );
+        }
+
+        // --- Hidden passthrough fields (tt_view, tt_back, …) so the no-JS
+        // full submit doesn't drop tile-router / back-nav state.
+        $hidden = self::passthroughQueryArgs( $filters );
+
+        // --- Active-count + summary chips for the mobile collapsed bar.
+        [ $active_count, $chips ] = self::activeSummary( $filters, $search_cfg, $state );
+
+        return [
+            'hidden'         => $hidden,
+            'active_count'   => $active_count,
+            'chips'          => $chips,
+            'reset_url'      => self::resetUrl(),
+            'form_attrs'     => [ 'data-tt-list-form' => '1' ],
+            'extra_controls' => $extra,
+            'groups'         => $groups,
+        ];
+    }
+
+    /**
+     * Build a FilterBar `status` group from a select's options. The pills
+     * are link-based (full reload) and set `filter[<key>]=<value>`, with
+     * the empty value ("All") clearing the param.
+     *
+     * @param array<int|string,mixed> $opts value => label
+     * @return array<string,mixed>
+     */
+    private static function statusGroup( string $key, string $label, array $opts, string $selected ): array {
+        $base = self::currentQueryArgs();
+        unset( $base['filter'][ $key ], $base['page'] );
+
+        $options = [];
+        // Leading "All" (clears the filter).
+        $all_args = $base;
+        $options[] = [
+            'value'  => '',
+            'label'  => __( 'All', 'talenttrack' ),
+            'url'    => esc_url_raw( add_query_arg( $all_args ) ),
+            'active' => ( $selected === '' ),
+            'dot'    => 'all',
+        ];
+        foreach ( $opts as $value => $text ) {
+            $value = (string) $value;
+            $args  = $base;
+            $args['filter'][ $key ] = $value;
+            $options[] = [
+                'value'  => $value,
+                'label'  => (string) $text,
+                'url'    => esc_url_raw( add_query_arg( $args ) ),
+                'active' => ( $selected === $value ),
+                'dot'    => $value,
+            ];
+        }
+
+        return [
+            'type'    => 'status',
+            'key'     => $key,
+            'label'   => $label,
+            'options' => $options,
+        ];
+    }
+
+    /**
+     * Card-mode sort dropdown, rendered as a labelled select carrying the
+     * `data-tt-list-sort-select` hook the hydrator binds to. Returned as a
+     * pre-escaped string for FilterBar's `extra_controls` slot.
+     *
+     * @param array<int,mixed>    $sort_options
+     * @param array<string,mixed> $state
+     */
+    private static function sortSelectHtml( array $sort_options, array $state ): string {
+        $cur_sort = (string) ( $state['orderby'] ?? '' ) . ':' . (string) ( $state['order'] ?? 'asc' );
+        $out  = '<div class="tt-filterbar__group tt-filterbar__group--sort tt-list-table-sort">';
+        $out .= '<span class="tt-filter__glabel">' . esc_html__( 'Sort by', 'talenttrack' ) . '</span>';
+        $out .= '<div class="tt-filsel">';
+        $out .= '<select class="tt-filsel__select" data-tt-list-sort-select="1" name="tt_sort">';
+        foreach ( $sort_options as $opt ) {
+            if ( ! is_array( $opt ) ) continue;
+            $o_orderby = (string) ( $opt['orderby'] ?? '' );
+            $o_order   = strtolower( (string) ( $opt['order'] ?? 'asc' ) ) === 'desc' ? 'desc' : 'asc';
+            $o_val     = $o_orderby . ':' . $o_order;
+            $out .= '<option value="' . esc_attr( $o_val ) . '"' . ( $cur_sort === $o_val ? ' selected' : '' ) . '>'
+                . esc_html( (string) ( $opt['label'] ?? $o_orderby ) ) . '</option>';
+        }
+        $out .= '</select></div></div>';
+        return $out;
+    }
+
+    /**
+     * Count active filters + build summary chips for the mobile collapsed
+     * bar. A select/text filter contributes its current value; a
+     * date_range contributes a from/to chip; the search box contributes
+     * the search term.
+     *
+     * @param array<string,mixed> $filters
+     * @param array<string,mixed> $search_cfg
+     * @param array<string,mixed> $state
+     * @return array{0:int,1:array<int,string>}
+     */
+    private static function activeSummary( array $filters, array $search_cfg, array $state ): array {
+        $current = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
+        $count   = 0;
+        $chips   = [];
+
+        $search = (string) ( $state['search'] ?? '' );
+        if ( ! empty( $search_cfg ) && $search !== '' ) {
+            $count++;
+            $chips[] = $search;
+        }
+
+        foreach ( $filters as $key => $filter ) {
+            $key  = (string) $key;
+            $type = (string) ( $filter['type'] ?? 'text' );
+            if ( $type === 'date_range' ) {
+                $from = (string) ( $filter['param_from'] ?? ( $key . '_from' ) );
+                $to   = (string) ( $filter['param_to']   ?? ( $key . '_to' ) );
+                $fv   = (string) ( $current[ $from ] ?? '' );
+                $tv   = (string) ( $current[ $to ] ?? '' );
+                if ( $fv !== '' || $tv !== '' ) {
+                    $count++;
+                    $chips[] = trim( $fv . ' – ' . $tv, ' –' );
+                }
+                continue;
+            }
+            $val = (string) ( $current[ $key ] ?? '' );
+            if ( $val === '' ) continue;
+            $count++;
+            // Prefer the human label for selects; fall back to the value.
+            if ( $type === 'select' && is_array( $filter['options'] ?? null ) && isset( $filter['options'][ $val ] ) ) {
+                $chips[] = (string) $filter['options'][ $val ];
+            } else {
+                $chips[] = $val;
+            }
+        }
+
+        return [ $count, $chips ];
+    }
+
+    /**
+     * The current request's query args, normalised so `filter` is always
+     * an array. Used to build link-based (status) URLs that preserve the
+     * rest of the list state.
+     *
+     * @return array<string,mixed>
+     */
+    private static function currentQueryArgs(): array {
+        $args = [];
+        foreach ( $_GET as $k => $v ) {
+            if ( is_array( $v ) ) {
+                if ( (string) $k === 'filter' ) {
+                    $clean = [];
+                    foreach ( $v as $fk => $fv ) {
+                        if ( is_scalar( $fv ) ) $clean[ sanitize_key( (string) $fk ) ] = sanitize_text_field( wp_unslash( (string) $fv ) );
+                    }
+                    $args['filter'] = $clean;
+                }
+                continue;
+            }
+            $args[ sanitize_key( (string) $k ) ] = sanitize_text_field( wp_unslash( (string) $v ) );
+        }
+        if ( ! isset( $args['filter'] ) ) $args['filter'] = [];
+        return $args;
+    }
+
+    /**
+     * The "Clear" target: the current page stripped of every list-owned
+     * query key (search / filter / orderby / order / page / per_page),
+     * preserving passthrough state (tt_view, tt_back, …).
+     */
+    private static function resetUrl(): string {
+        $owned = [ 'search', 'filter', 'orderby', 'order', 'page', 'per_page' ];
+        return esc_url_raw( remove_query_arg( $owned ) );
     }
 
     /**

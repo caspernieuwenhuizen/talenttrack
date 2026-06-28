@@ -91,6 +91,66 @@
 }
 
 /* =============================================================
+   Control type 1b — TEXT / SEARCH box (#2082)
+   ============================================================= */
+.tt-dashboard .tt-filtext {
+	position: relative;
+}
+.tt-dashboard .tt-filtext__input {
+	font: inherit;
+	font-size: 16px; /* iOS auto-zoom floor (CLAUDE.md §2) */
+	color: var(--tt-ink, #0e1a14);
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	min-height: 48px;
+	padding: 0 12px;
+	width: 100%;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-filtext__input:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
+   Control type 1c — DATE RANGE (paired from/to) (#2082)
+   ============================================================= */
+.tt-dashboard .tt-fildaterange {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-fildate {
+	display: flex;
+	flex-direction: column;
+	gap: var(--tt-sp-1, 4px);
+	flex: 1 1 0;
+	min-width: 0;
+}
+.tt-dashboard .tt-fildate__label {
+	font-size: 0.75rem; /* 12px */
+	font-weight: 600;
+	color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-fildate__input {
+	font: inherit;
+	font-size: 16px; /* iOS auto-zoom floor */
+	color: var(--tt-ink, #0e1a14);
+	background: var(--tt-paper, #fff);
+	border: 1px solid var(--tt-line, #e3e6e1);
+	border-radius: var(--tt-radius, 8px);
+	min-height: 48px;
+	padding: 0 12px;
+	width: 100%;
+	touch-action: manipulation;
+}
+.tt-dashboard .tt-fildate__input:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+/* =============================================================
    Control type 2 — PERIOD pill-dropdown (inline) + segmented (sheet)
    ============================================================= */
 .tt-dashboard .tt-perdrop-wrap {
@@ -529,6 +589,10 @@
 	}
 	.tt-dashboard .tt-filterbar__group--type .tt-filsel__select {
 		min-width: 140px;
+	}
+	/* #2082 — give the search box room to breathe inline. */
+	.tt-dashboard .tt-filterbar__group--search .tt-filtext__input {
+		min-width: 200px;
 	}
 }
 

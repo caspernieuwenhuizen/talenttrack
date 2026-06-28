@@ -326,6 +326,27 @@
         return { search: String(search), filter: filter };
     }
 
+    /**
+     * #2082 — the FilterBar chrome renders each control twice (the inline
+     * desktop row and the mobile bottom-sheet share one <form>). When the
+     * user edits one copy, mirror its value onto every sibling carrying
+     * the same `name` so the two copies never drift — otherwise FormData
+     * would emit two conflicting values for one filter. Checkboxes mirror
+     * `checked`; everything else mirrors `value`.
+     */
+    function syncDuplicateControls(form, source) {
+        if (!source || !source.name) return;
+        var matches = form.querySelectorAll('[name="' + (window.CSS && CSS.escape ? CSS.escape(source.name) : source.name.replace(/(["\\])/g, '\\$1')) + '"]');
+        Array.prototype.forEach.call(matches, function(ctrl) {
+            if (ctrl === source) return;
+            if (source.type === 'checkbox' || source.type === 'radio') {
+                if (ctrl.checked !== source.checked) ctrl.checked = source.checked;
+            } else if (ctrl.value !== source.value) {
+                ctrl.value = source.value;
+            }
+        });
+    }
+
     function bindInlineSelects(root) {
         var tbody = root.querySelector('[data-tt-list-body="1"]');
         if (!tbody) return;
@@ -527,9 +548,14 @@
 
             var debouncedApply = debounce(applyFromForm, SEARCH_DEBOUNCE_MS);
             form.addEventListener('input',  function(e) {
+                // #2082 — keep the inline + sheet copies of the control in
+                // sync before reading the form, so FormData never sees two
+                // conflicting values for one filter.
+                if (e.target) syncDuplicateControls(form, e.target);
                 if (e.target && e.target.name === 'search') debouncedApply();
             });
             form.addEventListener('change', function(e) {
+                if (e.target) syncDuplicateControls(form, e.target);
                 // #1614 — the card-mode sort dropdown lives in the form but
                 // drives orderby/order via its own handler, not a filter.
                 if (e.target && e.target.getAttribute && e.target.getAttribute('data-tt-list-sort-select') === '1') return;
@@ -569,9 +595,10 @@
         // Lives inside the filter form, so the form's `change` handler
         // would otherwise treat it as a filter; it carries no
         // `filter[...]` name, so readFiltersFromForm ignores it, and we
-        // bind orderby/order directly here.
-        var sortSelect = root.querySelector('[data-tt-list-sort-select="1"]');
-        if (sortSelect) {
+        // bind orderby/order directly here. #2082 — the FilterBar chrome
+        // renders the control twice (inline + sheet); bind both copies and
+        // read the value off the one that changed.
+        root.querySelectorAll('[data-tt-list-sort-select="1"]').forEach(function(sortSelect) {
             sortSelect.addEventListener('change', function() {
                 var parts = String(sortSelect.value || '').split(':');
                 state.orderby = parts[0] || state.orderby;
@@ -580,7 +607,7 @@
                 syncUrl(state);
                 refresh(root);
             });
-        }
+        });
 
         // Per-page selector.
         var perPage = root.querySelector('[data-tt-list-perpage="1"]');
