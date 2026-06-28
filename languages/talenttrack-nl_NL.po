@@ -44027,6 +44027,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Infrastructure/REST/StravaRestController.php
+msgid "Could not create the Strava webhook subscription."
+msgstr "Kon het Strava-webhookabonnement niet aanmaken."
+
 #~ msgid "PDP setup views"
 #~ msgstr "POP-instelweergaven"
 

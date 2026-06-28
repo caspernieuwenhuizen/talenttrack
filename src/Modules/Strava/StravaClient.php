@@ -177,6 +177,80 @@ final class StravaClient {
         return [ 'ok' => true, 'body' => $body, 'http_code' => $code ];
     }
 
+    // ---- Webhook push subscription (one per application) ----------------
+
+    /**
+     * Create the single club-wide push subscription. Strava immediately
+     * validates it by GETting our callback with a `hub.challenge`
+     * handshake, so the webhook route must already be live. Returns the
+     * created subscription id on success.
+     *
+     * @return array{ok:bool,id?:int,http_code?:int,error_code?:string,error_message?:string}
+     */
+    public static function createSubscription( string $callback_url, string $verify_token ): array {
+        $response = wp_remote_post( StravaConfig::apiBaseUrl() . '/push_subscriptions', [
+            'timeout'    => self::TIMEOUT_SECONDS,
+            'user-agent' => self::userAgent(),
+            'body'       => [
+                'client_id'     => StravaConfig::clientId(),
+                'client_secret' => StravaConfig::clientSecret(),
+                'callback_url'  => $callback_url,
+                'verify_token'  => $verify_token,
+            ],
+        ] );
+        return self::subscriptionResult( $response );
+    }
+
+    /**
+     * Delete the push subscription by id.
+     */
+    public static function deleteSubscription( string $subscription_id ): bool {
+        if ( $subscription_id === '' ) return false;
+
+        $url = add_query_arg(
+            [
+                'client_id'     => StravaConfig::clientId(),
+                'client_secret' => StravaConfig::clientSecret(),
+            ],
+            StravaConfig::apiBaseUrl() . '/push_subscriptions/' . rawurlencode( $subscription_id )
+        );
+        $response = wp_remote_request( $url, [
+            'method'     => 'DELETE',
+            'timeout'    => self::TIMEOUT_SECONDS,
+            'user-agent' => self::userAgent(),
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            Logger::warning( 'strava.subscription.delete_transport_error', [ 'error' => $response->get_error_message() ] );
+            return false;
+        }
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        return $code >= 200 && $code < 300;
+    }
+
+    /**
+     * @param array<string,mixed>|\WP_Error $response
+     * @return array{ok:bool,id?:int,http_code?:int,error_code?:string,error_message?:string}
+     */
+    private static function subscriptionResult( $response ): array {
+        if ( is_wp_error( $response ) ) {
+            return [ 'ok' => false, 'error_code' => 'transport_error', 'error_message' => $response->get_error_message() ];
+        }
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        $body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+        $body = is_array( $body ) ? $body : [];
+
+        if ( $code < 200 || $code >= 300 ) {
+            return [
+                'ok'            => false,
+                'http_code'     => $code,
+                'error_code'    => 'subscription_http_' . $code,
+                'error_message' => (string) ( $body['message'] ?? 'Strava subscription request failed.' ),
+            ];
+        }
+        return [ 'ok' => true, 'id' => (int) ( $body['id'] ?? 0 ), 'http_code' => $code ];
+    }
+
     public static function userAgent(): string {
         $version = defined( 'TT_VERSION' ) ? TT_VERSION : '0';
         return sprintf( self::USER_AGENT_FORMAT, $version );
