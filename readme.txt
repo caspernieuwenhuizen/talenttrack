@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.63.3
+Stable tag: 4.63.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.4 — Match prep: 3-4-3 diamond now draws as a diamond (#2099) The **Aanvallend 3-4-3 (ruit)** formation drew a flat midfield on the match-prep pitch (and the live match surface, the printable sheet and the attendance projection) because positions were keyed by the formation's shape string — so every template sharing the `3-4-3` shape collapsed onto one flat layout. A formation template's own geometry (its `slots_json`) is now authoritative when it carries slot numbers, so the diamond positions its midfield as DM / LCM / RCM / AM. Formations without custom geometry are unchanged. A migration adds slot numbers to the seeded diamond template. =
+
+= 4.63.4 — Players and parents land on the one unified profile (#2107) Opening "My card" (and a parent opening their child's card) now lands on the same unified, permission-aware player profile that staff use — defaulting to the Player card tab — instead of a separate card page. A player sees their card, profile, goals, activities and Strava; staff-only surfaces (evaluations, PDP, trials, notes, the guardians and discovery cards, the maturation/PHV flag, and the status-history link) stay hidden for a player or parent. The breadcrumb is framed for the viewer ("My card" for a player, the child's name for a parent, the Players chain for staff). The Print report action carries over to the card tab. Bookmarks to the old card URL resolve to the unified profile. =
 
 = 4.63.3 — Spond sync captures venue name AND address (#2096) A Spond event's location carries both a venue name and a street address; the sync previously kept only the first non-empty field, so the address was dropped whenever a venue name was present. It now keeps both on one line — `Venue | Address`. Single-value locations are unchanged, and a name already contained in the address isn't duplicated. =
 
