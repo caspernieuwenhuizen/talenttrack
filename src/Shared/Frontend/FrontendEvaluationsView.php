@@ -216,6 +216,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 // dropped: trashed rows live only in the recycle bin.
                 'archived' => [
                     'type'    => 'select',
+                    'render'  => 'status',
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),

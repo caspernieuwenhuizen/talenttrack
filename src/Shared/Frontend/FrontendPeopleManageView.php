@@ -122,6 +122,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
                 ],
                 'archived' => [
                     'type'    => 'select',
+                    'render'  => 'status',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),

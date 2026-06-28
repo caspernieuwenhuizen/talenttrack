@@ -208,6 +208,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 ],
                 'status' => [
                     'type'    => 'select',
+                    'render'  => 'status',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
