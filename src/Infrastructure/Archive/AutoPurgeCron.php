@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\RecycleBin\RecycleBinEntities;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Dispatchers\CronDispatcher;
 
