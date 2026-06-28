@@ -19,6 +19,8 @@ Als je kind in een U8-, U9- of U10-team speelt, behandelt TalentTrack jou — de
 
 Daarna zie je "Mijn kind" op het dashboard. Tik om het profiel van je kind te openen.
 
+Je dashboard spiegelt precies wat je kind ziet: dezelfde ontwikkeltegels, in dezelfde volgorde, met de voornaam van je kind ervoor — "Sven's kaart", "Sven's evaluaties", "Sven's ontwikkelplan", enzovoort. Wat de academie voor spelers aan- of uitzet, zie je ook op jouw scherm, zodat jij en je kind altijd naar dezelfde set onderdelen kijken. Elke tegel opent het dossier van je kind. Je eigen accountinstellingen blijven apart — die worden niet hernoemd of per kind gedupliceerd.
+
 ## Bij meerdere kinderen op de academie
 
 Eén ouderaccount kan aan meerdere kinderen gekoppeld zijn. Elk kind heeft een eigen profiel onder "Mijn kinderen"; wisselen kost één tik. Je hebt maar één TalentTrack-installatie en één set notificaties nodig — pushes noemen het juiste kind in de body, dus je weet altijd over wie een bericht gaat.

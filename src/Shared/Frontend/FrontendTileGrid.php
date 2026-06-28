@@ -625,15 +625,18 @@ class FrontendTileGrid {
 
 
     /**
-     * #1992 — the parent's child-scoped landing. Anchored on the child's
-     * name + photo (§1), it renders ONLY the curated parent tile subset
-     * (child-framed labels, each carrying the child's ?player_id) and a
-     * child switcher when the parent has more than one linked child. The
-     * legacy "work of today" column is intentionally absent — the parent's
-     * screen is the child's record, not a task list.
+     * #1992 / #2081 — the parent's child-scoped landing. Anchored on the
+     * child's name + photo (§1), it MIRRORS the player's own Me-group tile
+     * grid (#2081) — child-framed "`<FirstName>'s <noun>`" labels, each
+     * carrying the child's ?player_id — plus a child switcher when the
+     * parent has more than one linked child. The legacy "work of today"
+     * column is intentionally absent — the parent's screen is the child's
+     * record, not a task list.
      *
-     * Active-child resolution + tile-set selection are domain decisions
-     * (ParentChildResolver / ParentDashboardTiles, §4); this method paints.
+     * Active-child resolution + tile-set selection (which mirrored Me-tiles,
+     * gated by module + `player_*` features) are domain decisions
+     * (ParentChildResolver / ParentDashboardTiles, §4); this method only
+     * resolves the child-scoped URL, frames the label, and paints.
      */
     private static function renderParentGrid( int $user_id ): void {
         $children = \TT\Infrastructure\Players\ParentChildResolver::children( $user_id );
@@ -656,8 +659,17 @@ class FrontendTileGrid {
         $child_name = trim( QueryHelpers::player_display_name( $active ) );
         $photo      = (string) ( $active->photo_url ?? '' );
 
+        // #2081 — labels read "<Child first name>'s <noun>" (Anglo
+        // possessive). Prefer the child's first name; fall back to the
+        // full display name so a record without a parsed first name still
+        // reads sensibly.
+        $first_name = trim( (string) ( $active->first_name ?? '' ) );
+        if ( $first_name === '' ) {
+            $first_name = $child_name !== '' ? $child_name : __( 'Player', 'talenttrack' );
+        }
+
         $base  = self::shortcodeBaseUrl();
-        $tiles = \TT\Infrastructure\Players\ParentDashboardTiles::tiles();
+        $tiles = \TT\Infrastructure\Players\ParentDashboardTiles::tiles( $user_id );
 
         echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
         echo '<div class="tt-parent-dash">';
@@ -679,7 +691,7 @@ class FrontendTileGrid {
         // Child switcher (only when >1 linked child).
         \TT\Shared\Frontend\Components\ParentChildSwitcher::renderInlineSwitcher( $children, $child_id, $base );
 
-        // Curated, child-scoped tile rail.
+        // #2081 — child-scoped tile rail mirroring the player's Me-tiles.
         echo '<div class="tt-parent-dash-grid">';
         foreach ( $tiles as $tile ) {
             $slug = (string) ( $tile['view_slug'] ?? '' );
@@ -692,7 +704,15 @@ class FrontendTileGrid {
                 (string) ( $tile['icon'] ?? '' ),
                 (string) ( $tile['color'] ?? '#0b3d2e' )
             );
-            $label = esc_html( (string) ( $tile['label'] ?? '' ) );
+            // #2081 — child-frame the mirrored Me-tile noun as an Anglo
+            // possessive, e.g. "Sven's development" / "Sven's ontwikkeling".
+            $noun  = (string) ( $tile['child_noun'] ?? '' );
+            $label = esc_html( sprintf(
+                /* translators: 1: child's first name, 2: tile noun (e.g. development, card, evaluations). */
+                __( "%1\$s's %2\$s", 'talenttrack' ),
+                $first_name,
+                $noun
+            ) );
             echo '<a class="tt-parent-dash-tile" href="' . esc_url( $url ) . '">';
             echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs; IconRenderer returns trusted SVG.
             echo '<span class="tt-parent-dash-tile-label">' . $label . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above.
