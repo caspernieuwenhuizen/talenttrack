@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T17:48:17+00:00\n"
+"POT-Creation-Date: 2026-06-28T19:41:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -6993,8 +6993,8 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:82
 #: src/Modules/Documentation/HelpTopics.php:330
-#: src/Modules/Measurements/MeasurementsModule.php:78
-#: src/Modules/Measurements/MeasurementsModule.php:96
+#: src/Modules/Measurements/MeasurementsModule.php:79
+#: src/Modules/Measurements/MeasurementsModule.php:101
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
 #: src/Modules/Tournaments/TournamentsModule.php:89
 #: src/Shared/CoreSurfaceRegistration.php:498
@@ -17546,7 +17546,7 @@ msgid "Only %d players are marked Present. You need at least 11 to field a start
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:23
-#: src/Modules/Measurements/MeasurementsModule.php:99
+#: src/Modules/Measurements/MeasurementsModule.php:104
 msgid "Testing coverage"
 msgstr ""
 
@@ -17622,7 +17622,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:53
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:64
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:79
-#: src/Modules/Measurements/MeasurementsModule.php:81
+#: src/Modules/Measurements/MeasurementsModule.php:82
 msgid "Record measurements"
 msgstr ""
 
@@ -17740,25 +17740,25 @@ msgstr ""
 msgid "monthly"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:54
+#: src/Modules/Measurements/MeasurementsModule.php:55
 #: src/Shared/CoreSurfaceRegistration.php:214
 #: src/Shared/Frontend/FrontendTileGrid.php:526
 msgid "Me"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:57
+#: src/Modules/Measurements/MeasurementsModule.php:58
 msgid "My measurements"
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:58
+#: src/Modules/Measurements/MeasurementsModule.php:59
 msgid "Your test results and how they trend."
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:82
+#: src/Modules/Measurements/MeasurementsModule.php:83
 msgid "Enter test results for a team."
 msgstr ""
 
-#: src/Modules/Measurements/MeasurementsModule.php:100
+#: src/Modules/Measurements/MeasurementsModule.php:105
 msgid "See who is due or overdue for each test."
 msgstr ""
 
