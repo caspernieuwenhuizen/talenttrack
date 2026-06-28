@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\MeasurementsRestController;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Wizards\NewMeasurementWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -56,7 +57,7 @@ class MeasurementsModule implements ModuleInterface {
                 'order'             => 45,
                 'label'             => __( 'My measurements', 'talenttrack' ),
                 'description'       => __( 'Your test results and how they trend.', 'talenttrack' ),
-                'icon'              => 'activity',
+                'icon'              => 'trend-up',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [
                     'assistant_coach', 'head_coach', 'team_manager',
@@ -80,11 +81,15 @@ class MeasurementsModule implements ModuleInterface {
                 'order'             => 46,
                 'label'             => __( 'Record measurements', 'talenttrack' ),
                 'description'       => __( 'Enter test results for a team.', 'talenttrack' ),
-                'icon'              => 'activity',
+                'icon'              => 'track',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [ 'player', 'parent' ],
+                // #2114 — gate the tile on the same matrix entity/activity the
+                // view enforces (`measurements`/`change`), so tile visibility
+                // can never drift from view access. Was legacy WP caps, which
+                // diverged from the matrix and showed a dead tile.
                 'cap_callback'      => static function ( int $uid ): bool {
-                    return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
+                    return MatrixGate::canAnyScope( $uid, 'measurements', 'change' );
                 },
             ] );
 
@@ -98,11 +103,14 @@ class MeasurementsModule implements ModuleInterface {
                 'order'             => 47,
                 'label'             => __( 'Testing coverage', 'talenttrack' ),
                 'description'       => __( 'See who is due or overdue for each test.', 'talenttrack' ),
-                'icon'              => 'activity',
+                'icon'              => 'track',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [ 'player', 'parent' ],
+                // #2114 — match the coverage view's gate
+                // (`measurement_sessions`/`read`) so the tile only shows when
+                // the view will actually render.
                 'cap_callback'      => static function ( int $uid ): bool {
-                    return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
+                    return MatrixGate::canAnyScope( $uid, 'measurement_sessions', 'read' );
                 },
             ] );
         }
