@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.63.1
+Stable tag: 4.63.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.2 — Fix critical error when editing a match activity (#2097) Opening any match in the activity edit form raised a WordPress critical error. The match-length / participation block referenced an `$id` variable that was never defined in that render method, so a null id was passed to methods expecting a non-nullable integer and PHP aborted with a TypeError. The id is now resolved from the loaded activity, and create-mode matches (which have no id yet) skip the lookups. Editing matches works again. =
 
 = 4.63.1 — Player card folded into the unified profile as a tab (#1988) The player-card showcase that used to live only on a player's own "My card" — the skills radar, the FIFA-style player card, and the rating KPIs (Latest, Last 5 with its momentum delta, All-time, Evaluations) — is now a "Player card" tab on the one unified player profile. A coach, head of development or parent viewing the player now sees that at-a-glance standing in context, without leaving the page. Same audience as the rest of the profile; no extra permission, and the card keeps its own coming-soon state before the first rated evaluation. =
 
