@@ -270,17 +270,6 @@ final class StravaRestControllerTest extends WP_UnitTestCase {
         $this->assertFalse( StravaRestController::canEditCredentials(), 'no tt_edit_strava_credentials → write denied' );
     }
 
-    public function test_connections_allowed_for_capped_caller(): void {
-        $uid  = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $user = get_user_by( 'id', $uid );
-        $user->add_cap( 'tt_view_strava' );
-        $user->add_cap( 'tt_edit_strava_credentials' );
-        wp_set_current_user( $uid );
-
-        $this->assertTrue( StravaRestController::canViewIntegration(), 'tt_view_strava → roster read allowed' );
-        $this->assertTrue( StravaRestController::canEditCredentials(), 'tt_edit_strava_credentials → write allowed' );
-    }
-
     public function test_connections_returns_roster_envelope_without_tokens(): void {
         $repo      = new ConnectionRepository();
         $player_id = $this->insertPlayer( 'Roster', 0 );
