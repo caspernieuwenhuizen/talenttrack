@@ -763,6 +763,9 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
     private static function renderChemistryTeaser( int $team_id ): void {
         if ( ! class_exists( '\TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView' ) ) return;
+        // #2033 — hide the teaser when the team_chemistry sub-feature is off or
+        // the user lacks chemistry READ authority (mirrors the board's own gate).
+        if ( ! \TT\Modules\TeamDevelopment\TeamChemistryAccess::canReadChemistry( get_current_user_id() ) ) return;
         $url = add_query_arg(
             [ 'tt_view' => 'team-chemistry', 'team_id' => $team_id ],
             RecordLink::dashboardUrl()
