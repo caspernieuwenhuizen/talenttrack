@@ -160,6 +160,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
         $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        // #2061 (epic #2002) — per-player Strava connection + imported
+        // training, alongside the team-session activities.
+        $tabs['strava'] = __( 'Strava', 'talenttrack' );
         if ( MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ ) ) {
             $tabs['pdp'] = __( 'PDP cycle', 'talenttrack' );
         }
@@ -287,6 +290,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
                         case 'measurements': self::renderMeasurementsTab( $player_id ); break;
                         case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
+                        case 'strava':      \TT\Modules\Strava\Frontend\FrontendStravaView::renderPanel( $player ); break;
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
