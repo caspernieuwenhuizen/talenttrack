@@ -306,6 +306,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
                     'label' => __( 'Formation', 'talenttrack' ),
                     'value' => $formation_shape,
+                    // #2098 — JS hook so the formation dropdown can live-update
+                    // this tile (the shape is also mirrored on the section's
+                    // data-formation-shape attribute).
+                    'data'  => [ 'tt-mp-formation-kpi' => '1' ],
                 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 ?>
             </div>
