@@ -44035,6 +44035,74 @@ msgstr "Kon het Strava-webhookabonnement niet aanmaken."
 msgid "Please agree to share Strava activity data before connecting."
 msgstr "Ga akkoord met het delen van Strava-activiteitsgegevens voordat je verbindt."
 
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Strava"
+msgstr "Strava"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Strava activity"
+msgstr "Strava-activiteit"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Your Strava account is now connected."
+msgstr "Je Strava-account is nu gekoppeld."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Strava connection was cancelled."
+msgstr "Strava-koppeling is geannuleerd."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Something went wrong connecting to Strava. Please try again."
+msgstr "Er ging iets mis bij het koppelen met Strava. Probeer het opnieuw."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Connect a Strava account to bring training runs, rides and conditioning work onto this player's timeline. Distance, duration, pace and elevation only — no heart-rate data is imported."
+msgstr "Koppel een Strava-account om hardloop-, fiets- en conditietrainingen op de tijdlijn van deze speler te zetten. Alleen afstand, duur, tempo en hoogtemeters — er worden geen hartslaggegevens geïmporteerd."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "I agree to share this player's Strava activity data (distance, duration, pace, elevation) with the academy."
+msgstr "Ik ga ermee akkoord de Strava-activiteitsgegevens van deze speler (afstand, duur, tempo, hoogtemeters) met de academie te delen."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Connect with Strava"
+msgstr "Koppelen met Strava"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "No activities imported yet."
+msgstr "Nog geen activiteiten geïmporteerd."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Not connected."
+msgstr "Niet gekoppeld."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Connecting…"
+msgstr "Koppelen…"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Disconnecting…"
+msgstr "Ontkoppelen…"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Connected. Last synced: %s"
+msgstr "Gekoppeld. Laatst gesynchroniseerd: %s"
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Connected. No activities synced yet."
+msgstr "Gekoppeld. Nog geen activiteiten gesynchroniseerd."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Strava is not set up for this academy yet."
+msgstr "Strava is voor deze academie nog niet ingesteld."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "Disconnect this Strava account? Imported activities will be archived."
+msgstr "Dit Strava-account ontkoppelen? Geïmporteerde activiteiten worden gearchiveerd."
+
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "km"
+msgstr "km"
+
 #~ msgid "PDP setup views"
 #~ msgstr "POP-instelweergaven"
 

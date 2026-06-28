@@ -504,6 +504,13 @@ class DashboardShortcode {
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::render( $target );
                 return true;
+            case 'strava':
+                // #2061 (epic #2002) — a player's Strava connection panel.
+                // Same scoped subject as the other Me-views: own player, or a
+                // child / viewable player via ?player_id=N (canViewPlayer).
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                \TT\Modules\Strava\Frontend\FrontendStravaView::render( $target );
+                return true;
             // NOTE: `my-settings` intentionally NOT in this dispatcher —
             // dispatchAccountView claims it so coach / scout / admin
             // personas without a linked player can still manage their
