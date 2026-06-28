@@ -182,19 +182,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         return $tabs;
     }
 
-    public static function render( int $player_id, int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_players' ) ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view player details.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        // #1725 — scope the gate to THIS player. The capability check above
-        // is coarse (true for any persona that can view some player); without
-        // a per-player scope check a parent could open any child's profile by
-        // id, leaking the guardians card (co-parents). canViewPlayer() is the
-        // canonical decision: own record / global / player's team /
-        // parent-of-this-player. Anyone else is denied.
+    public static function render( int $player_id, int $user_id, bool $is_admin, string $default_tab = 'profile' ): void {
+        // #2107 — `canViewPlayer()` is the single authority: own record /
+        // global / player's team / parent-of-this-player. The old coarse
+        // `current_user_can('tt_view_players')` pre-check was redundant — it
+        // only ever filtered *before* this finer gate — AND it wrongly blocked
+        // a player (or parent) from landing on their own unified profile, so
+        // it's dropped. Staff still pass via the global / team `players.view`
+        // branch inside canViewPlayer(); a player passes via own-record; a
+        // parent via parent-of-this-player. Anyone else is denied.
         if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this player.', 'talenttrack' ) . '</p>';
@@ -243,18 +239,35 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $name = QueryHelpers::player_display_name( $player );
 
         $players_url = add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() );
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
-            [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => RecordLink::dashboardUrl() ],
-            [ 'label' => __( 'Players', 'talenttrack' ),   'url' => $players_url ],
-            [ 'label' => $name ],
-        ] );
+
+        // #2107 — persona-framed breadcrumb (nav §5). Staff navigate via the
+        // Players list, so they keep the "Dashboard › Players › Name" chain.
+        // A player on their own profile — or a parent on their child's — can't
+        // reach the Players list, so the "Players" crumb would be a dead end;
+        // give them the personal "Dashboard › My card" (self) / "Dashboard ›
+        // Name" (parent viewing a child) crumb instead.
+        $is_staff = current_user_can( 'tt_view_players' );
+        $is_self  = $user_id > 0 && (int) ( $player->wp_user_id ?? 0 ) === $user_id;
+        if ( $is_staff ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
+                [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => RecordLink::dashboardUrl() ],
+                [ 'label' => __( 'Players', 'talenttrack' ),   'url' => $players_url ],
+                [ 'label' => $name ],
+            ] );
+        } else {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                $is_self ? __( 'My card', 'talenttrack' ) : $name
+            );
+        }
 
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() ) : '';
 
         $tab_set    = self::tabs( $user_id );
-        $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : 'profile';
-        if ( ! array_key_exists( $active_tab, $tab_set ) ) $active_tab = 'profile';
+        $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : $default_tab;
+        if ( ! array_key_exists( $active_tab, $tab_set ) ) {
+            $active_tab = array_key_exists( $default_tab, $tab_set ) ? $default_tab : 'profile';
+        }
         $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() );
 
         $counts = PlayerFileCounts::for( $player_id );
@@ -263,7 +276,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             <?php
             // #2064 — only look up the PHV flag when VCT is on; null keeps
             // the hero pill hidden (it keys off $phv_row).
-            $phv_row = $vct_on
+            // #2107 — PHV is a maturation / health-adjacent flag (minors).
+            // Now that a player / parent lands on this same profile, keep it
+            // staff-only: leave $phv_row null for non-staff so neither the
+            // hero pill nor the panel surface it.
+            $phv_row = ( $vct_on && self::viewerIsStaffForPlayer( $player_id ) )
                 ? ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->findForPlayer( $player_id )
                 : null;
             self::renderHero( $player, $name, $team, $team_url, $phv_row );
@@ -834,9 +851,29 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $radar     = QueryHelpers::player_radar_datasets( $player_id, 3 );
         $has_radar = ! empty( $radar['datasets'] );
         ?>
+        <?php
+        // #2107 — carry over the "Print report" affordance the standalone
+        // "My card" had, so a player landing here doesn't lose it. The
+        // ?tt_print=<id> URL is handled by Stats\PrintRouter.
+        $print_url = add_query_arg(
+            [ 'tt_print' => $player_id ],
+            remove_query_arg( [ 'tt_view', 'id', 'player_id', 'tab' ] )
+        );
+        ?>
         <div class="tt-player-card tt-player-cardtab">
             <div class="tt-player-card__head">
                 <h3 class="tt-player-card__title"><?php esc_html_e( 'Player card', 'talenttrack' ); ?></h3>
+                <a class="tt-player-card__cta tt-player-cardtab__print"
+                   href="<?php echo esc_url( $print_url ); ?>"
+                   target="_blank" rel="noopener"
+                   title="<?php esc_attr_e( 'Print report', 'talenttrack' ); ?>">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect x="6" y="14" width="12" height="8"></rect>
+                    </svg>
+                    <?php esc_html_e( 'Print report', 'talenttrack' ); ?>
+                </a>
             </div>
             <div class="tt-player-card__body">
                 <div class="tt-player-cardtab__showcase">
@@ -946,10 +983,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $identity_rows[] = [ __( 'Jersey number', 'talenttrack' ), (string) (int) $player->jersey_number ];
         }
         if ( $status_label !== '' ) {
-            $identity_rows[] = [
-                __( 'Status', 'talenttrack' ),
-                esc_html( $status_label ) . ' · <a href="' . esc_url( $status_history_url ) . '">' . esc_html__( 'history', 'talenttrack' ) . '</a>',
-            ];
+            // #2107 — the status-history link goes to the staff-only
+            // player-status-capture view; only show it to a staff viewer so
+            // a player / parent on their own profile doesn't get a dead link
+            // to a page they can't open.
+            $status_value = esc_html( $status_label );
+            if ( self::viewerIsStaffForPlayer( $player_id ) ) {
+                $status_value .= ' · <a href="' . esc_url( $status_history_url ) . '">' . esc_html__( 'history', 'talenttrack' ) . '</a>';
+            }
+            $identity_rows[] = [ __( 'Status', 'talenttrack' ), $status_value ];
         }
 
         $team_html = '';
@@ -1034,21 +1076,30 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * WP user record (display name, email; phone falls back to user
      * meta when present).
      */
+    /**
+     * #2107 — is the current viewer STAFF for this player (global
+     * `players.view`, or team-scoped `players.view` on the player's team)?
+     * Now that a player / parent lands on this same unified profile, the
+     * staff-only Profile-tab cards (Parents · Guardians, Discovery) gate on
+     * this so a player never sees co-guardian contacts or who scouted them.
+     * A viewer who reached this player only via own-record / parent-of-child
+     * is not staff and gets `false`.
+     */
+    private static function viewerIsStaffForPlayer( int $player_id ): bool {
+        $uid = get_current_user_id();
+        if ( \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view' ) ) {
+            return true;
+        }
+        $team_id = (int) ( QueryHelpers::get_player( $player_id )->team_id ?? 0 );
+        return $team_id > 0
+            && \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view', 'team', $team_id );
+    }
+
     private static function renderParentsCard( int $player_id ): void {
         // #1725 — the guardians list (names, emails, phones of every
         // co-parent) is STAFF-only. A parent viewing their own child must
-        // not see co-guardians. Show the card only to a staff viewer:
-        // global players.view (admin/HoD) or team-scoped players.view on
-        // this player's team (the coach). A viewer who reaches this player
-        // only via the parent branch is not staff — hide the card entirely.
-        $uid = get_current_user_id();
-        $is_staff_viewer = \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view' );
-        if ( ! $is_staff_viewer ) {
-            $team_id = (int) ( QueryHelpers::get_player( $player_id )->team_id ?? 0 );
-            $is_staff_viewer = $team_id > 0
-                && \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view', 'team', $team_id );
-        }
-        if ( ! $is_staff_viewer ) return;
+        // not see co-guardians; a player must not see it either.
+        if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
 
         // #1358 — link rows come from PlayerParentsRepository (which
         // also owns the table-exists guard for pre-migration installs).
@@ -1099,6 +1150,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * when. Mirrors `MyRecentProspectsSource` shape.
      */
     private static function renderDiscoveryCard( int $player_id ): void {
+        // #2107 — discovery provenance (which scout logged the player, at
+        // what event / club / date) is staff-internal. A player landing on
+        // their own unified profile, or a parent on their child's, must not
+        // see it — same staff gate as the Parents · Guardians card.
+        if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
+
         // #1358 — the promoted-prospect row comes from
         // ProspectsRepository (which also owns the table-exists guard
         // for pre-migration installs).

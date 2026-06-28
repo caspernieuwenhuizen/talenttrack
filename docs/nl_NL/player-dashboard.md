@@ -28,14 +28,9 @@ Je **ontwikkelhome** - één pagina die je hele ontwikkelbeeld samenbrengt zodat
 Ouders die het dashboard van hun kind openen, komen op **Ontwikkeling van &lt;kind&gt;** - dezelfde home, alleen-lezen en beperkt tot hun eigen kind.
 
 ### Mijn kaart
-Je FIFA-achtige spelerskaart plus een snapshot van wie je bent als speler. Bovenaan zie je je foto, naam, team en de FIFA-kaart zelf. Onder de kaart vind je vier secties uit de oude tegel "Mijn profiel":
+**Mijn kaart** opent nu je **spelersprofiel** — hetzelfde samengevoegde, getabde profiel dat je coach ziet, maar voor jou ingericht — en landt op het tabblad **Spelerskaart**. Dat tabblad toont je FIFA-achtige spelerskaart, je vaardighedenradar en je beoordelings-KPI's (laatste, laatste 5 met trend, aller tijden, evaluaties). Een actie **Rapport afdrukken** op de kaart geeft een nette printversie.
 
-- **Speelgegevens** — positie, voet, rugnummer, lengte, gewicht (je coach houdt deze bij).
-- **Recente prestaties** — je voortschrijdend gemiddelde en een mini-grafiek van je laatste evaluaties.
-- **Actieve doelen** — de drie doelen waaraan je werkt, met prioriteit en streefdatum.
-- **Aankomend** — de volgende activiteiten op de teamagenda.
-
-Een knop **Rapport afdrukken** rechts geeft een nette printversie van de hele kaart.
+De overige tabbladen bevatten de rest van je beeld: **Profiel** (je speelgegevens — positie, voet, rugnummer, status — en academie-info), **Doelen**, **Activiteiten** en **Strava**. Je ziet alleen wat van jou is: trainer-only onderdelen (de evaluatie-werkbank, POP, stages, notities, de kaarten ouders·voogden en ontdekking, en stafvlaggen) verschijnen niet in jouw weergave. Een ouder die de kaart van zijn kind opent, ziet hetzelfde profiel voor dat kind.
 
 > Accountgegevens (weergavenaam, e-mailadres, wachtwoord) staan in **Mijn instellingen** onder je naam rechtsboven — zie verderop.
 

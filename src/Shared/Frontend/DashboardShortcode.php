@@ -451,7 +451,13 @@ class DashboardShortcode {
                 return true;
             case 'overview':
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
-                FrontendOverviewView::render( $target );
+                // #2107 — "My card" now lands on the one unified, permission-
+                // aware profile (FrontendPlayerDetailView), defaulting to the
+                // Player-card tab (#1988/#2067). A player reaches their own
+                // record; a parent reaches their child via the ?player_id
+                // resolution above — both gated by canViewPlayer. Staff hit the
+                // same view from the Players list.
+                FrontendPlayerDetailView::render( (int) $target->id, $user_id, current_user_can( 'tt_edit_settings' ), 'card' );
                 return true;
             case 'my-team':
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
@@ -489,9 +495,10 @@ class DashboardShortcode {
                 return true;
             case 'profile':
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
-                // Legacy slug — folded into My card in v3.62.0. Redirect
-                // to keep bookmarks alive.
-                FrontendOverviewView::render( $target );
+                // Legacy slug — folded into My card in v3.62.0, and the card
+                // now lives on the unified profile (#2107). Keep the bookmark
+                // alive by landing it on the same unified profile.
+                FrontendPlayerDetailView::render( (int) $target->id, $user_id, current_user_can( 'tt_edit_settings' ), 'card' );
                 return true;
             case 'my-journey':
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
