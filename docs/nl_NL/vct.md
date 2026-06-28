@@ -133,6 +133,8 @@ De Configuratie-tegels (#1087) linken naar de HoO VCT-configuratie sub-tabs (`?t
 
 PHV (Fysiek / Health / Vitality) paneel + pill volgt CLAUDE.md §1 — staf (HoO / trainer / admin) ziet volledige reden + plafond + notities; andere ouders zien niets; AC-die-ook-ouder-is ziet eigen kind via parent-persona alleen. De redenpicker is een enum om lange medische vrije tekst te ontmoedigen.
 
+Het PHV-paneel, de hero-pill en de formulier-POST-handler op het spelerprofiel zijn VCT-functionaliteit en verschijnen daarom alleen wanneer de VCT-module ingeschakeld is. Met VCT uit toont het spelerprofiel geen enkel PHV-onderdeel.
+
 ## Referenties
 
 - Gelanceerde spec: [`specs/shipped/0095-feat-vct-module.md`](../../specs/shipped/0095-feat-vct-module.md)
