@@ -259,6 +259,44 @@ final class StravaRestControllerTest extends WP_UnitTestCase {
         $this->assertSame( 'disconnected', (string) $row->status );
     }
 
+    // ---- operator console: roster + matrix gating (#2127) ---------------
+
+    public function test_connections_denied_for_uncapped_caller(): void {
+        // A plain subscriber holds neither operator cap — both the read
+        // gate and the write gate refuse.
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
+
+        $this->assertFalse( StravaRestController::canViewIntegration(), 'no tt_view_strava → roster read denied' );
+        $this->assertFalse( StravaRestController::canEditCredentials(), 'no tt_edit_strava_credentials → write denied' );
+    }
+
+    public function test_connections_returns_roster_envelope_without_tokens(): void {
+        $repo      = new ConnectionRepository();
+        $player_id = $this->insertPlayer( 'Roster', 0 );
+        $repo->connect( $player_id, [
+            'athlete_id'    => 555,
+            'access_token'  => 'secret-access',
+            'refresh_token' => 'secret-refresh',
+            'expires_at'    => time() + 3600,
+        ] );
+
+        $data = StravaRestController::connections( new WP_REST_Request( 'GET' ) )->get_data();
+
+        $this->assertTrue( $data['success'] );
+        $this->assertArrayHasKey( 'connections', $data['data'] );
+        $this->assertIsArray( $data['data']['connections'] );
+        $this->assertArrayHasKey( 'configured', $data['data'] );
+
+        $row = $data['data']['connections'][0];
+        $this->assertSame( $player_id, $row['player_id'] );
+        $this->assertSame( 'connected', $row['status'] );
+        $this->assertIsInt( $row['activity_count'] );
+        // The roster must never carry the encrypted tokens.
+        $this->assertArrayNotHasKey( 'access_token_enc', $row );
+        $this->assertArrayNotHasKey( 'refresh_token_enc', $row );
+        $this->assertArrayNotHasKey( 'access_token', $row );
+    }
+
     // ---- helpers --------------------------------------------------------
 
     private function insertPlayer( string $name, int $wp_user_id ): int {

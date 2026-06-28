@@ -183,6 +183,8 @@ final class LegacyCapMapper {
         'tt_post_thread'                       => [ 'thread_messages',         'change' ],
         'tt_view_spond'                        => [ 'spond_integration',       'read' ],
         'tt_edit_spond_credentials'            => [ 'spond_integration',       'change' ],
+        'tt_view_strava'                       => [ 'strava_integration',      'read' ],
+        'tt_edit_strava_credentials'           => [ 'strava_integration',      'change' ],
         'tt_view_player_timeline'              => [ 'player_timeline',         'read' ],
         'tt_view_authorization_changelog'      => [ 'authorization_changelog', 'read' ],
         'tt_view_player_potential'             => [ 'player_potential',        'read' ],

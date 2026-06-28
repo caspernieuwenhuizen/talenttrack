@@ -68,6 +68,7 @@ $mod_staff_dev        = class_exists( '\TT\Modules\StaffDevelopment\StaffDevelop
 $mod_threads          = class_exists( '\TT\Modules\Threads\ThreadsModule' )         ? \TT\Modules\Threads\ThreadsModule::class         : $mod_authorization;
 $mod_push             = class_exists( '\TT\Modules\Push\PushModule' )               ? \TT\Modules\Push\PushModule::class               : $mod_authorization;
 $mod_spond            = class_exists( '\TT\Modules\Spond\SpondModule' )             ? \TT\Modules\Spond\SpondModule::class             : $mod_authorization;
+$mod_strava           = class_exists( '\TT\Modules\Strava\StravaModule' )           ? \TT\Modules\Strava\StravaModule::class           : $mod_authorization;
 $mod_persona_dash     = class_exists( '\TT\Modules\PersonaDashboard\PersonaDashboardModule' ) ? \TT\Modules\PersonaDashboard\PersonaDashboardModule::class : $mod_authorization;
 $mod_custom_css       = class_exists( '\TT\Modules\CustomCss\CustomCssModule' )     ? \TT\Modules\CustomCss\CustomCssModule::class     : $mod_authorization;
 $mod_translations     = class_exists( '\TT\Modules\Translations\TranslationsModule' ) ? \TT\Modules\Translations\TranslationsModule::class : $mod_authorization;
@@ -385,6 +386,7 @@ return array_merge(
         'player_injuries'            => [ 'r',   'team',   $mod_journey ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
         'spond_integration'          => [ 'rc',  'team',   $mod_spond ],
+        'strava_integration'         => [ 'rc',  'team',   $mod_strava ],
         'trial_cases'                => [ 'rc',  'team',   $mod_trials ],
         'trial_inputs'               => [ 'c',   'team',   $mod_trials ],
         'trial_synthesis'            => [ 'r',   'team',   $mod_trials ],
@@ -631,6 +633,7 @@ return array_merge(
         // narrowed to R ↓
         'team_chemistry'                => [ 'r',   'global', $mod_team_dev ],
         'spond_integration'             => [ 'r',   'global', $mod_spond ],
+        'strava_integration'            => [ 'r',   'global', $mod_strava ],
         'persona_templates'             => [ 'r',   'global', $mod_persona_dash ],
         'translations_config'           => [ 'r',   'global', $mod_translations ],
         // narrowed to C only (write but no delete) ↓
@@ -797,6 +800,7 @@ return array_merge(
         'my_staff_evaluations'          => [ 'r',   'self',   $mod_staff_dev ],
         'my_staff_certifications'      => [ 'rc',  'self',   $mod_staff_dev ],
         'spond_integration'             => [ 'rcd', 'global', $mod_spond ],
+        'strava_integration'            => [ 'rcd', 'global', $mod_strava ],
         'persona_templates'             => [ 'rcd', 'global', $mod_persona_dash ],
         'custom_css'                    => [ 'rcd', 'global', $mod_custom_css ],
         'translations_config'           => [ 'rcd', 'global', $mod_translations ],

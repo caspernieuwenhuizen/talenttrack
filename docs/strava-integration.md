@@ -80,16 +80,39 @@ not hard-erased) so nothing lingers in an authorized state after a disconnect.
 
 ## Operator setup
 
-Two one-time steps, performed by an administrator:
+Both one-time steps live on the **Strava integration** console, reached from
+**Configuration → Integrations → Strava integration** (or directly at
+`?tt_view=strava-admin`):
 
 1. **Register the Strava app credentials.** Create an API application in your
-   Strava account and store its **Client ID** and **Client secret** via
-   `POST /wp-json/talenttrack/v1/strava/app` (operator-only). The client secret
-   is encrypted at rest and never returned by any endpoint.
-2. **Create the webhook subscription.** `POST .../strava/webhook/subscription`
-   registers the single academy-wide push subscription with Strava. Strava
-   validates it immediately with a challenge handshake. Use the matching
-   `GET` to inspect and `DELETE` to remove it.
+   Strava account and paste its **Client ID** and **Client secret** into the
+   *App credentials* section. The secret is encrypted at rest, write-only, and
+   never shown again — leave the field blank to keep the stored value. Set the
+   Strava app's *Authorization Callback Domain* to this site and its redirect
+   to the callback URL shown on the page.
+2. **Create the webhook subscription.** The *Webhook subscription* section's
+   **Create / re-verify** button registers the single academy-wide push
+   subscription with Strava, which validates it immediately with a challenge
+   handshake. **Delete subscription** removes it.
+
+The same console's **Connected players** table shows every player who has
+started linking a Strava account — their status (connected, pending consent,
+revoked, disconnected), imported-activity count, last activity, and last sync —
+so an operator can see at a glance whose training is flowing in.
+
+Every action is also available on the REST API for a non-WordPress front end:
+`POST /wp-json/talenttrack/v1/strava/app`, `GET/POST/DELETE
+.../strava/webhook/subscription`, and `GET .../strava/connections`. The client
+secret and per-player tokens are never returned by any endpoint.
+
+### Who can reach the console
+
+The console is **matrix-gated**, not tied to the WordPress *Administrator*
+role: viewing follows `tt_view_strava` (the `strava_integration` entity's
+*read* activity) and changing credentials or the webhook follows
+`tt_edit_strava_credentials` (its *change* activity). By default academy admins
+and heads of development hold these; tune them per persona in the authorization
+matrix.
 
 The OAuth **callback** (`GET .../strava/callback`) and the **webhook**
 (`GET/POST .../strava/webhook`) are public routes by necessity — Strava calls
@@ -126,6 +149,8 @@ WordPress session.
 All endpoints live under `talenttrack/v1`; see
 [`docs/rest-api.md`](rest-api.md) for the full list and gating. In short:
 per-player `connect` / `disconnect` / `status` / `activities`, the public
-`callback` and `webhook`, and the operator-only `app` and
-`webhook/subscription` management routes. Per-player tokens are never returned
-in any response.
+`callback` and `webhook`, and the operator routes — `app`,
+`webhook/subscription`, and `connections` (the console roster). The operator
+routes are matrix-gated on `tt_view_strava` (reads) / `tt_edit_strava_credentials`
+(writes). Per-player tokens and the client secret are never returned in any
+response.

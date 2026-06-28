@@ -1534,6 +1534,12 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_edit_teams' ) ) {
             $sections['integrations']['tiles'][] = [ 'title' => __( 'Spond integration', 'talenttrack' ), 'desc' => __( 'Per-team calendar sync status, "Refresh now", encrypted account credentials, and the API endpoint override.', 'talenttrack' ), 'url' => $view( 'spond' ), 'icon' => 'sessions' ];
         }
+        // #2127 — Strava operator console: app credentials, the club-wide
+        // webhook subscription, and the connected-players roster. Matrix-
+        // gated on tt_view_strava (the view's own read gate).
+        if ( current_user_can( 'tt_view_strava' ) ) {
+            $sections['integrations']['tiles'][] = [ 'title' => __( 'Strava integration', 'talenttrack' ), 'desc' => __( 'Register the Strava app credentials, manage the webhook subscription, and see which players have connected their accounts.', 'talenttrack' ), 'url' => $view( 'strava-admin' ), 'icon' => 'sessions' ];
+        }
 
         // System
         $sections['system']['tiles'][] = [ 'title' => __( 'General', 'talenttrack' ), 'desc' => __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'url' => $sub( 'general' ), 'icon' => 'settings' ];

@@ -1017,6 +1017,14 @@ class DashboardShortcode {
                 // gate on tt_edit_spond_credentials at the REST layer.
                 FrontendSpondView::render( $user_id, $is_admin );
                 return true;
+            case 'strava-admin':
+                // #2127 (epic #2002) — Strava operator console: app
+                // credentials + webhook subscription + connected-players
+                // roster. Gates on tt_view_strava internally; credential +
+                // webhook mutations gate on tt_edit_strava_credentials at
+                // the REST layer (matrix-gated, not manage_options).
+                \TT\Modules\Strava\Frontend\FrontendStravaAdminView::render( $user_id, $is_admin );
+                return true;
             case 'setup':
                 // #1938 — frontend port of the wp-admin first-run onboarding
                 // wizard (?page=tt-welcome). Multi-step academy → first team

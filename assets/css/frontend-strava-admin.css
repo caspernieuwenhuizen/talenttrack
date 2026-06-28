@@ -1,0 +1,158 @@
+/*
+ * frontend-strava-admin.css (#2127, epic #2002) — Strava operator console.
+ *
+ * App credentials + webhook subscription + connected-players roster on
+ * `?tt_view=strava-admin`, surfaced from Configuration → Integrations.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale up.
+ * Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-strava-admin {
+    max-width: 820px;
+}
+
+.tt-dashboard .tt-strava-admin__intro {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-strava-admin__section {
+    margin-top: var(--tt-sp-6);
+}
+
+.tt-dashboard .tt-strava-admin__section h2 {
+    font-size: 1.125rem;
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-strava-admin__state {
+    margin: 0 0 var(--tt-sp-3);
+}
+
+/* ---- Form fields ---------------------------------------------------- */
+.tt-dashboard .tt-strava-admin__field {
+    display: grid;
+    gap: var(--tt-sp-2);
+    margin-bottom: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-strava-admin__legend {
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin: 0;
+}
+
+.tt-dashboard .tt-strava-admin__hint {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    margin: 0 0 var(--tt-sp-3);
+    line-height: 1.45;
+}
+
+/* Inputs: ≥16px font to defeat iOS auto-zoom; full-width on phones. */
+.tt-dashboard .tt-strava-admin__input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    color: var(--tt-ink);
+    box-sizing: border-box;
+}
+
+.tt-dashboard .tt-strava-admin__input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* ---- Action rows ---------------------------------------------------- */
+.tt-dashboard .tt-strava-admin__secondary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-strava-admin__secondary-actions .tt-btn {
+    min-height: 48px;
+}
+
+/* ---- Players table -------------------------------------------------- */
+.tt-dashboard .tt-strava-admin__summary {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-3);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-strava-admin__players {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.tt-dashboard .tt-strava-admin__players th,
+.tt-dashboard .tt-strava-admin__players td {
+    text-align: left;
+    padding: var(--tt-sp-3);
+    border-bottom: 1px solid var(--tt-line);
+    vertical-align: middle;
+}
+
+.tt-dashboard .tt-strava-admin__players thead th {
+    color: var(--tt-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-strava-admin__muted {
+    color: var(--tt-muted);
+}
+
+/* ---- Status badges -------------------------------------------------- */
+.tt-dashboard .tt-strava-admin__badge {
+    display: inline-block;
+    padding: 0.125rem var(--tt-sp-2);
+    border-radius: var(--tt-radius);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-strava-admin__badge--ok {
+    color: var(--tt-success);
+    background: var(--tt-success-subtle, transparent);
+}
+
+.tt-dashboard .tt-strava-admin__badge--error {
+    color: var(--tt-danger);
+    background: var(--tt-danger-subtle, transparent);
+}
+
+.tt-dashboard .tt-strava-admin__badge--muted {
+    color: var(--tt-muted);
+}
+
+/* ---- Messages ------------------------------------------------------- */
+.tt-dashboard .tt-strava-admin__msg {
+    margin-top: var(--tt-sp-3);
+    min-height: 1.25rem;
+}
+
+.tt-dashboard .tt-strava-admin__msg.tt-success {
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-strava-admin__msg.tt-error {
+    color: var(--tt-danger);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-strava-admin__field {
+        max-width: 28rem;
+    }
+}

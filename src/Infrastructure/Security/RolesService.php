@@ -162,6 +162,7 @@ class RolesService {
     public const COVERAGE_CAPS = [
         'tt_view_thread', 'tt_post_thread',
         'tt_view_spond', 'tt_edit_spond_credentials',
+        'tt_view_strava', 'tt_edit_strava_credentials',
         'tt_view_player_timeline',
         'tt_view_authorization_changelog',
         'tt_view_player_potential', 'tt_edit_player_potential',
