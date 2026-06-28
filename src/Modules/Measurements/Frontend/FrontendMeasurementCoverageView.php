@@ -8,7 +8,9 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Services\MeasurementCoverageService;
 use TT\Modules\Measurements\Services\MeasurementScheduleService;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendMeasurementCoverageView (#1882, insights slice) — "who's due /
@@ -40,6 +42,7 @@ final class FrontendMeasurementCoverageView extends FrontendViewBase {
             TT_VERSION
         );
         self::renderHeader( $title );
+        self::renderManageLink( $user_id, $is_admin );
 
         if ( empty( $teams ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams are available to you yet.', 'talenttrack' ) . '</p>';
@@ -69,6 +72,28 @@ final class FrontendMeasurementCoverageView extends FrontendViewBase {
         foreach ( $coverage['definitions'] as $def ) {
             self::renderDefinitionCard( $def );
         }
+    }
+
+    /**
+     * Back-aware in-body cross-link to the "Manage tests" catalogue, so a
+     * coach reviewing coverage can jump straight to editing a test's cadence
+     * or bands (§5 back-pill via BackLink::appendTo). Shown only when the
+     * user can manage definitions, so it never renders a dead link. In-body
+     * action, not breadcrumb / back chrome — respects the two-affordance
+     * contract.
+     */
+    private static function renderManageLink( int $user_id, bool $is_admin ): void {
+        if ( ! $is_admin && ! MatrixGate::canAnyScope( $user_id, 'measurement_definitions', 'change' ) ) {
+            return;
+        }
+        $url = BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'measurement-tests' ],
+            RecordLink::dashboardUrl()
+        ) );
+        echo '<p class="tt-mc-links">';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">'
+            . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
+        echo '</p>';
     }
 
     /**

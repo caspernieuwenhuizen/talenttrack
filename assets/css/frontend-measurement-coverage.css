@@ -4,6 +4,14 @@
  * under .tt-dashboard, tokens only.
  */
 
+/* In-body cross-link to the Manage tests catalogue. */
+.tt-dashboard .tt-mc-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
 .tt-dashboard .tt-mc-picker {
     display: flex;
     align-items: flex-end;
