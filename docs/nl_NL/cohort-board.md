@@ -59,3 +59,11 @@ en eindoordeel — om te delen of te archiveren naast de seizoensevaluatie.
 Er moet een huidig seizoen zijn geconfigureerd (onder **Configuratie →
 Seizoenen**) om het bord te laten werken, omdat aanwezigheid en POP-eindoordelen
 aan het huidige seizoen zijn gekoppeld.
+
+## Uitschakelen
+
+Het cohortbeslissingsbord is een functie per tegel, die **standaard uit**
+staat. Een academiebeheerder zet hem aan (of uit) onder **Modules → Analyse →
+Cohortbeslissingsbord**. Zolang hij uit staat is de tegel verborgen en geeft
+de URL `?tt_view=cohort-board` de gebruikelijke melding "niet beschikbaar".
+Het centrale Analyse-scherm en de analyse-engine blijven werken.

@@ -72,3 +72,12 @@ attendance data. It does not change any player, evaluation, or activity
 record — it only surfaces where evaluation coverage is missing so a Head
 of Development can act. The same data is available through the REST API
 at `/wp-json/talenttrack/v1/eval-coverage`.
+
+## Switching it off
+
+Evaluation coverage is a per-tile feature, **off by default**. An academy
+admin turns it on (or off) under **Modules → Analytics → Evaluation
+coverage**. While it is off the tile is hidden and the
+`?tt_view=eval-coverage` URL returns the standard "not available" notice.
+The central Analytics surface, the standard reports and the analytics
+engine are unaffected.

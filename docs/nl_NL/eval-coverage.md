@@ -74,3 +74,12 @@ aanwezigheidsgegevens. Het wijzigt geen enkel speler-, evaluatie- of
 activiteitsrecord — het maakt alleen zichtbaar waar evaluatiedekking
 ontbreekt, zodat een Hoofd Opleiding kan handelen. Dezelfde gegevens zijn
 beschikbaar via de REST-API op `/wp-json/talenttrack/v1/eval-coverage`.
+
+## Uitschakelen
+
+Evaluatiedekking is een functie per tegel, die **standaard uit** staat. Een
+academiebeheerder zet hem aan (of uit) onder **Modules → Analyse →
+Evaluatiedekking**. Zolang hij uit staat is de tegel verborgen en geeft de
+URL `?tt_view=eval-coverage` de gebruikelijke melding "niet beschikbaar". Het
+centrale Analyse-scherm, de standaardrapporten en de analyse-engine blijven
+werken.

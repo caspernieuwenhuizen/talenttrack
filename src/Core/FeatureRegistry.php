@@ -139,6 +139,28 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'analytics', 'explore', 'scheduled-reports' ],
                 'entities'        => [],
             ],
+            // #2128 — per-tile toggles for the two HoD analytics surfaces.
+            // Both share the `analytics` entity + `tt_view_analytics` cap with
+            // the central Analytics tile, so gating MUST be by view-slug only
+            // (never the shared entity — see the entities-uniqueness rule
+            // above). Default OFF: an academy opts each one in. The central
+            // Analytics surface and the engine are unaffected.
+            'analytics_eval_coverage' => [
+                'label'           => __( 'Evaluation coverage', 'talenttrack' ),
+                'description'     => __( 'The Evaluation coverage tile and view (which players are unevaluated this window, and which coach owns the gap). The central Analytics surface and the analytics engine stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Analytics\\AnalyticsModule',
+                'default_enabled' => false,
+                'view_slugs'      => [ 'eval-coverage' ],
+                'entities'        => [],
+            ],
+            'analytics_cohort_board' => [
+                'label'           => __( 'Cohort decision board', 'talenttrack' ),
+                'description'     => __( 'The Cohort decision board tile and view (end-of-season rating, trend, attendance and verdict per player). The central Analytics surface and the analytics engine stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Analytics\\AnalyticsModule',
+                'default_enabled' => false,
+                'view_slugs'      => [ 'cohort-board' ],
+                'entities'        => [],
+            ],
             // #1537 — the Custom widgets builder (#0078). Migrated from the
             // `tt_custom_widgets_enabled` option; migration 0166 carries the
             // existing on/off state forward. Default off, matching the

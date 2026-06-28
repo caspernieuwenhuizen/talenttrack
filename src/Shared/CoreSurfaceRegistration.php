@@ -853,6 +853,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'reports',
             'color'        => '#0ea5e9',
             'cap'          => 'tt_view_analytics',
+            // #2128 — per-tile feature toggle (default off). Hides the tile
+            // while the central Analytics surface stays available.
+            'feature'      => 'analytics_eval_coverage',
         ]);
         // #1383 — Cohort decision board (HoD): one read-only screen of
         // rating / trend / attendance / verdict per player for end-of-season
@@ -870,6 +873,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'reports',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_analytics',
+            // #2128 — per-tile feature toggle (default off). Hides the tile
+            // while the central Analytics surface stays available.
+            'feature'      => 'analytics_cohort_board',
         ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
