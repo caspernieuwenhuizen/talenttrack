@@ -103,3 +103,28 @@ It walks through three steps:
    these blank and add them later.
 
 Finishing creates the test and its targets in one go.
+
+## Managing the test catalogue
+
+The head of development (or an academy admin) gets a **Manage tests** tile
+under *Configuration*. It opens a list of every test your academy has set
+up — name, category, unit, direction and cadence — with its **Active** or
+**Inactive** state, and three actions per row:
+
+- **Edit** — open the test in a flat form. You can change the name,
+  category, value type, unit (from the list or a custom one), scale bounds,
+  direction, cadence, and the active toggle, and edit the per-age-group
+  green/amber target bands inline. **Save** commits; **Cancel** takes you
+  back to the list (or to wherever you came from). Pass/fail tests have no
+  target bands.
+- **Activate / Deactivate** — an inactive test stays in the catalogue and
+  keeps its history, but is hidden from the *Record measurements* picker so
+  staff can't log new results against it.
+- **Archive** — soft-deletes the test into the recycle bin. Nothing is
+  lost; an admin can restore it.
+
+Creating a test still runs through the **+ New test** wizard, reachable
+from the top of this list as well as from *Record measurements*. The same
+catalogue is available over REST at
+`/wp-json/talenttrack/v1/measurement-definitions` for integrations and the
+SaaS front end.

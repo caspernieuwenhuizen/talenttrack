@@ -44216,6 +44216,71 @@ msgstr "Voor een streefwaarde is een leeftijdsgroep vereist."
 msgid "Could not save the target."
 msgstr "Kan de streefwaarde niet opslaan."
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Manage tests"
+msgstr "Tests beheren"
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Define the tests your academy runs and their target bands."
+msgstr "Definieer de tests die je academie afneemt en hun streefbanden."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "You do not have permission to manage tests."
+msgstr "Je hebt geen permissie om tests te beheren."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "No tests have been set up yet. Use “+ New test” to create the first one."
+msgstr "Er zijn nog geen tests ingesteld. Gebruik “+ Nieuwe test” om de eerste aan te maken."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Edit test"
+msgstr "Test bewerken"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "That test could not be found."
+msgstr "Die test kon niet worden gevonden."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Scale minimum"
+msgstr "Schaalminimum"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Scale maximum"
+msgstr "Schaalmaximum"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Active (available when recording results)"
+msgstr "Actief (beschikbaar bij het vastleggen van resultaten)"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Target bands per age group"
+msgstr "Streefbanden per leeftijdsgroep"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Optional. The green band is on target and the amber band is a warning; anything outside flags red. Leave blank to skip an age group."
+msgstr "Optioneel. De groene band is op koers en de oranje band is een waarschuwing; alles daarbuiten krijgt rood. Laat leeg om een leeftijdsgroep over te slaan."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Save test"
+msgstr "Test opslaan"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Test activated."
+msgstr "Test geactiveerd."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Test deactivated."
+msgstr "Test gedeactiveerd."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Test archived."
+msgstr "Test gearchiveerd."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Test saved."
+msgstr "Test opgeslagen."
+
 #~ msgid "You do not have permission to view player details."
 #~ msgstr "Je hebt geen permissie om spelerdetails te bekijken."
 

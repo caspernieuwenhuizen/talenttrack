@@ -116,6 +116,29 @@ class MeasurementsModule implements ModuleInterface {
                     return MatrixGate::canAnyScope( $uid, 'measurement_sessions', 'read' );
                 },
             ] );
+
+            // #2121 — the admin/HoD "Manage tests" configuration surface:
+            // the discoverable home for the test catalogue (create via the
+            // wizard, edit / activate / archive). Gated on the same
+            // `measurement_definitions` change the view enforces so tile
+            // visibility never drifts from view access; hidden for
+            // players/parents (read-only personas).
+            TileRegistry::register( [
+                'module_class'      => self::class,
+                'view_slug'         => 'measurement-tests',
+                'entity'            => 'measurement_definitions',
+                'group'             => __( 'Configuration', 'talenttrack' ),
+                'kind'              => 'setup',
+                'order'             => 48,
+                'label'             => __( 'Manage tests', 'talenttrack' ),
+                'description'       => __( 'Define the tests your academy runs and their target bands.', 'talenttrack' ),
+                'icon'              => 'methodology',
+                'color'             => '#0e7c66',
+                'hide_for_personas' => [ 'player', 'parent' ],
+                'cap_callback'      => static function ( int $uid ): bool {
+                    return MatrixGate::canAnyScope( $uid, 'measurement_definitions', 'change' );
+                },
+            ] );
         }
     }
 }
