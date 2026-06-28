@@ -58,7 +58,8 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
                     'type'    => 'select',
                     'label'   => __( 'Status', 'talenttrack' ),
                     'options' => [
-                        ''         => __( 'All',      'talenttrack' ),
+                        // FilterBar renders the empty "All" option from the
+                        // group placeholder; an explicit '' here would double it.
                         'active'   => __( 'Active',   'talenttrack' ),
                         'trial'    => __( 'In trial', 'talenttrack' ),
                         'joined'   => __( 'Joined',   'talenttrack' ),
