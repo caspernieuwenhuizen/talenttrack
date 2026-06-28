@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.63.4
+Stable tag: 4.63.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.5 — Week-PDF: icon-led meta line + revised default toggles (#2108) Each info block on a weekly-planner-PDF activity card now leads with a small icon — a clock before the time(s) (one clock, even when a match shows both presence and kickoff), a pin before the location, and a note icon before the notes line. The compose dialog's defaults changed to match how coaches actually print: Duration and Principles are now off by default, and Notes is on. Two new line icons (`clock`, `map-pin`) were added to the shared icon set. =
 
 = 4.63.4 — Match prep: 3-4-3 diamond now draws as a diamond (#2099) The **Aanvallend 3-4-3 (ruit)** formation drew a flat midfield on the match-prep pitch (and the live match surface, the printable sheet and the attendance projection) because positions were keyed by the formation's shape string — so every template sharing the `3-4-3` shape collapsed onto one flat layout. A formation template's own geometry (its `slots_json`) is now authoritative when it carries slot numbers, so the diamond positions its midfield as DM / LCM / RCM / AM. Formations without custom geometry are unchanged. A migration adds slot numbers to the seeded diamond template. =
 
