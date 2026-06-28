@@ -31,5 +31,6 @@ final class StravaModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         StravaRestController::init();
+        TokenRefreshService::init();
     }
 }
