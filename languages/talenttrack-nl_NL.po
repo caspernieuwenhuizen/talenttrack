@@ -44099,43 +44099,56 @@ msgstr "Strava is voor deze academie nog niet ingesteld."
 msgid "Disconnect this Strava account? Imported activities will be archived."
 msgstr "Dit Strava-account ontkoppelen? Geïmporteerde activiteiten worden gearchiveerd."
 
+#: src/Modules/Strava/Frontend/FrontendStravaView.php
+msgid "km"
+msgstr "km"
+
 #: src/Shared/Frontend/FrontendTileGrid.php
 msgid "%1$s's %2$s"
 msgstr "%1$s's %2$s"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "development"
 msgstr "ontwikkeling"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "journey"
 msgstr "reis"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "card"
 msgstr "kaart"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "team"
 msgstr "team"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "evaluations"
 msgstr "evaluaties"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "activities"
 msgstr "activiteiten"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "goals"
 msgstr "doelen"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "development plan"
 msgstr "ontwikkelplan"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php
+msgctxt "parent dashboard tile noun"
 msgid "tasks"
 msgstr "taken"
 

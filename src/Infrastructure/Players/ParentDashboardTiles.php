@@ -55,15 +55,15 @@ final class ParentDashboardTiles {
      */
     private static function childNouns(): array {
         return [
-            'my-development' => __( 'development', 'talenttrack' ),
-            'my-journey'     => __( 'journey', 'talenttrack' ),
-            'overview'       => __( 'card', 'talenttrack' ),
-            'my-team'        => __( 'team', 'talenttrack' ),
-            'my-evaluations' => __( 'evaluations', 'talenttrack' ),
-            'my-activities'  => __( 'activities', 'talenttrack' ),
-            'my-goals'       => __( 'goals', 'talenttrack' ),
-            'my-pdp'         => __( 'development plan', 'talenttrack' ),
-            'my-tasks'       => __( 'tasks', 'talenttrack' ),
+            'my-development' => _x( 'development', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-journey'     => _x( 'journey', 'parent dashboard tile noun', 'talenttrack' ),
+            'overview'       => _x( 'card', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-team'        => _x( 'team', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-evaluations' => _x( 'evaluations', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-activities'  => _x( 'activities', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-goals'       => _x( 'goals', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-pdp'         => _x( 'development plan', 'parent dashboard tile noun', 'talenttrack' ),
+            'my-tasks'       => _x( 'tasks', 'parent dashboard tile noun', 'talenttrack' ),
         ];
     }
 
