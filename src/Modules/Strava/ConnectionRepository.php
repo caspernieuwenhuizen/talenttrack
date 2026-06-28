@@ -54,6 +54,22 @@ final class ConnectionRepository {
     }
 
     /**
+     * Resolve a connection by Strava athlete id across ALL clubs. The
+     * webhook fires unauthenticated with no club context and the athlete
+     * id is globally unique at Strava, so the resolver can't assume the
+     * current tenant — the caller then pins `club_id` from the returned
+     * row before doing any club-scoped work (#2059).
+     */
+    public function findByAthleteIdAnyClub( int $athlete_id ): ?object {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE strava_athlete_id = %d ORDER BY id DESC LIMIT 1",
+            $athlete_id
+        ) );
+        return $row ?: null;
+    }
+
+    /**
      * Create or refresh a player's connection after a successful OAuth
      * exchange. Tokens are encrypted here. Returns the connection id.
      */

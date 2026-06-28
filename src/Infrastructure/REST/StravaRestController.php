@@ -12,6 +12,7 @@ use TT\Modules\Strava\ConnectionRepository;
 use TT\Modules\Strava\StravaClient;
 use TT\Modules\Strava\StravaConfig;
 use TT\Modules\Strava\StravaOAuth;
+use TT\Modules\Strava\WebhookService;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -80,6 +81,41 @@ final class StravaRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'saveApp' ],
             'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+        ] );
+
+        // Public webhook — GET is Strava's subscription handshake, POST is
+        // the event push. Both self-authenticate (GET via the verify
+        // token; POST is the single club-wide subscription's feed).
+        register_rest_route( self::NS, '/strava/webhook', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'webhookVerify' ],
+                'permission_callback' => '__return_true',
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'webhookEvent' ],
+                'permission_callback' => '__return_true',
+            ],
+        ] );
+
+        // Operator-only: manage the single club-wide push subscription.
+        register_rest_route( self::NS, '/strava/webhook/subscription', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'subscriptionStatus' ],
+                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'subscribe' ],
+                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'unsubscribe' ],
+                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+            ],
         ] );
     }
 
@@ -301,6 +337,86 @@ final class StravaRestController {
             'client_id'  => StravaConfig::clientId(),
             'configured' => StravaConfig::hasCredentials(),
         ] );
+    }
+
+    // ---- Webhook -----------------------------------------------------
+
+    /**
+     * Strava subscription-validation handshake. Must echo `hub.challenge`
+     * as RAW JSON (NOT our success envelope) within 2s, after the verify
+     * token checks out. Returns 403 on a token mismatch.
+     */
+    public static function webhookVerify( \WP_REST_Request $r ): \WP_REST_Response {
+        // PHP rewrites the dotted `hub.*` query keys to underscores.
+        $echo = ( new WebhookService() )->handshake( [
+            'hub_mode'         => (string) ( $r->get_param( 'hub_mode' ) ?? '' ),
+            'hub_verify_token' => (string) ( $r->get_param( 'hub_verify_token' ) ?? '' ),
+            'hub_challenge'    => (string) ( $r->get_param( 'hub_challenge' ) ?? '' ),
+        ] );
+
+        if ( $echo === null ) {
+            return new \WP_REST_Response( [ 'error' => 'invalid_verify_token' ], 403 );
+        }
+        return new \WP_REST_Response( $echo, 200 );
+    }
+
+    /**
+     * Strava event push. The subscription feed is the auth; we resolve
+     * the athlete to a connection, pin its club, and route the event.
+     * Always answers 200 fast — Strava retries on a non-200.
+     */
+    public static function webhookEvent( \WP_REST_Request $r ): \WP_REST_Response {
+        $payload = $r->get_json_params();
+        if ( ! is_array( $payload ) ) {
+            $payload = $r->get_params();
+        }
+        ( new WebhookService() )->handleEvent( $payload );
+        return new \WP_REST_Response( [ 'received' => true ], 200 );
+    }
+
+    public static function subscriptionStatus( \WP_REST_Request $r ): \WP_REST_Response {
+        return RestResponse::success( [
+            'subscription_id' => StravaConfig::subscriptionId(),
+            'subscribed'      => StravaConfig::subscriptionId() !== '',
+            'configured'      => StravaConfig::hasCredentials(),
+            'callback_url'    => StravaConfig::webhookCallbackUrl(),
+        ] );
+    }
+
+    public static function subscribe( \WP_REST_Request $r ): \WP_REST_Response {
+        if ( ! StravaConfig::hasCredentials() ) {
+            return RestResponse::error(
+                'strava_not_configured',
+                __( 'Strava is not set up for this academy yet. Ask an administrator to add the Strava app credentials.', 'talenttrack' ),
+                409
+            );
+        }
+
+        $res = StravaClient::createSubscription(
+            StravaConfig::webhookCallbackUrl(),
+            StravaConfig::webhookVerifyToken()
+        );
+
+        if ( empty( $res['ok'] ) ) {
+            Logger::warning( 'rest.strava.subscribe_failed', [ 'code' => (string) ( $res['error_code'] ?? 'unknown' ) ] );
+            return RestResponse::error(
+                'subscribe_failed',
+                __( 'Could not create the Strava webhook subscription.', 'talenttrack' ),
+                422
+            );
+        }
+
+        StravaConfig::setSubscriptionId( (string) ( $res['id'] ?? '' ) );
+        Logger::info( 'rest.strava.subscribed', [ 'subscription_id' => (string) ( $res['id'] ?? '' ) ] );
+
+        return RestResponse::success( [ 'subscribed' => true, 'subscription_id' => StravaConfig::subscriptionId() ] );
+    }
+
+    public static function unsubscribe( \WP_REST_Request $r ): \WP_REST_Response {
+        StravaClient::deleteSubscription( StravaConfig::subscriptionId() );
+        StravaConfig::setSubscriptionId( '' );
+        Logger::info( 'rest.strava.unsubscribed', [ 'user' => get_current_user_id() ] );
+        return RestResponse::success( [ 'subscribed' => false ] );
     }
 
     /**

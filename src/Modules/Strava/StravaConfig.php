@@ -21,10 +21,12 @@ use TT\Infrastructure\Security\CredentialEncryption;
  */
 final class StravaConfig {
 
-    public const KEY_CLIENT_ID     = 'strava.client_id';
-    public const KEY_CLIENT_SECRET = 'strava.client_secret_enc';
-    public const KEY_API_BASE      = 'strava.api_base_url';
-    public const KEY_OAUTH_BASE    = 'strava.oauth_base_url';
+    public const KEY_CLIENT_ID       = 'strava.client_id';
+    public const KEY_CLIENT_SECRET   = 'strava.client_secret_enc';
+    public const KEY_API_BASE        = 'strava.api_base_url';
+    public const KEY_OAUTH_BASE      = 'strava.oauth_base_url';
+    public const KEY_WEBHOOK_TOKEN   = 'strava.webhook_verify_token';
+    public const KEY_SUBSCRIPTION_ID = 'strava.subscription_id';
 
     public const DEFAULT_API_BASE   = 'https://www.strava.com/api/v3';
     public const DEFAULT_OAUTH_BASE = 'https://www.strava.com/oauth';
@@ -87,5 +89,35 @@ final class StravaConfig {
      */
     public static function redirectUri(): string {
         return rest_url( 'talenttrack/v1/strava/callback' );
+    }
+
+    /**
+     * The single fixed webhook callback URL. Strava allows exactly one
+     * push subscription per application; this is its `callback_url`.
+     */
+    public static function webhookCallbackUrl(): string {
+        return rest_url( 'talenttrack/v1/strava/webhook' );
+    }
+
+    /**
+     * The webhook verify token — a per-install secret Strava echoes back
+     * in the `hub.challenge` handshake so we can prove the subscription
+     * is ours. Generated once on first use and persisted.
+     */
+    public static function webhookVerifyToken(): string {
+        $token = QueryHelpers::get_config( self::KEY_WEBHOOK_TOKEN );
+        if ( $token === '' ) {
+            $token = wp_generate_password( 40, false, false );
+            QueryHelpers::set_config( self::KEY_WEBHOOK_TOKEN, $token );
+        }
+        return $token;
+    }
+
+    public static function subscriptionId(): string {
+        return QueryHelpers::get_config( self::KEY_SUBSCRIPTION_ID );
+    }
+
+    public static function setSubscriptionId( string $id ): void {
+        QueryHelpers::set_config( self::KEY_SUBSCRIPTION_ID, $id );
     }
 }
