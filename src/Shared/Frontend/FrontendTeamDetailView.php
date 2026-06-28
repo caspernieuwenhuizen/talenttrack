@@ -429,7 +429,13 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         $repo       = new TeamKpisRepository();
         $upcoming   = $repo->upcomingCount( $team_id, 14 );
         $attendance = $repo->avgAttendance( $team_id, 30 );
-        $rating     = $repo->avgSquadRating( $team_id );
+
+        // #2119 — the squad rating averages evaluation ratings, so it's only
+        // shown to users who may view evaluations. Without the cap the tile
+        // is omitted entirely (mirrors renderChemistryTeaser's read gate),
+        // not blanked to "—", so the strip doesn't hint that data exists.
+        $can_view_rating = current_user_can( 'tt_view_evaluations' );
+        $rating          = $can_view_rating ? $repo->avgSquadRating( $team_id ) : null;
 
         $rmax = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
 
@@ -453,6 +459,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     </div>
                     <div class="tt-player-kpi__hint"><?php esc_html_e( 'last 30 d', 'talenttrack' ); ?></div>
                 </div>
+                <?php if ( $can_view_rating ) : ?>
                 <div class="tt-player-kpi">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Squad rating', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -464,6 +471,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                         ?>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </section>
         <?php
