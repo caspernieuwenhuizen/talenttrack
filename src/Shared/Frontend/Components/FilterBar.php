@@ -30,6 +30,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Group types:
  *   - `select`  — labelled <select> (auto-submits on change).
+ *   - `text`    — a free-text / search box bound to a form field
+ *                 (#2082). No auto-submit on keystroke; the noscript
+ *                 Apply button (or a JS hydrator) commits the value.
+ *   - `date_range` — a paired from/to date range (#2082). Two date
+ *                 inputs, each its own form field.
  *   - `period`  — a pill-dropdown trigger (`tt-perdrop`) that, in the
  *                 inline bar, reveals a popover of period links; in the
  *                 sheet, expands to a one-tap segmented track. Options are
@@ -40,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Each group is an array:
  *   [
- *     'type'  => 'select'|'period'|'status'|'toggle',
+ *     'type'  => 'select'|'text'|'date_range'|'period'|'status'|'toggle',
  *     'label' => 'Team',            // small-caps group label
  *     'key'   => 'team',            // stable id for the group (CSS hook)
  *     // type-specific keys, see below
@@ -48,10 +53,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * select: 'name' (form field), 'options' => [value => label], 'selected',
  *         'placeholder' (optional first option label).
+ * text:   'name' (form field), 'value', 'placeholder' (optional),
+ *         'input_type' ('text'|'search', default 'text'),
+ *         'inputmode' (optional, e.g. 'search'),
+ *         'autocomplete' (optional).
+ * date_range: 'from' => ['name','value'], 'to' => ['name','value'],
+ *         'label_from', 'label_to' (per-input labels).
  * period/status: 'options' => [ ['value','label','url','active', 'dot'?] ],
  *         'active_label' (text shown on the period pill trigger).
  * toggle: 'name', 'on' (bool), 'on_label' (the "Tonen" text),
  *         'value' (submitted value when checked, default '1').
+ *
+ * The wrapping <form> can carry extra attributes (e.g.
+ * `data-tt-list-form="1"` so FrontendListTable's hydrator binds to it)
+ * via the top-level `form_attrs` arg, and extra raw controls (already
+ * escaped) can be injected into both the inline row and the sheet body
+ * via `extra_controls` — used by FrontendListTable for its card-mode
+ * sort dropdown.
  */
 final class FilterBar {
 
@@ -130,10 +148,23 @@ final class FilterBar {
 		$ftrigger = (string) ( $args['filters_label'] ?? __( 'Filters', 'talenttrack' ) );
 		$reset    = (string) ( $args['reset_url'] ?? '' );
 		$ns_label = (string) ( $args['noscript_label'] ?? __( 'Apply', 'talenttrack' ) );
+		// #2082 — extra form attributes (e.g. data-tt-list-form so the
+		// FrontendListTable hydrator binds to the bar's own form) and an
+		// extra raw control block (card-mode sort dropdown) echoed into
+		// both the inline row and the sheet body. Caller pre-escapes the
+		// raw HTML.
+		$form_attrs = isset( $args['form_attrs'] ) && is_array( $args['form_attrs'] ) ? $args['form_attrs'] : [];
+		$extra      = (string) ( $args['extra_controls'] ?? '' );
+
+		$form_attr_html = '';
+		foreach ( $form_attrs as $name => $value ) {
+			$form_attr_html .= ' ' . esc_attr( (string) $name ) . '="' . esc_attr( (string) $value ) . '"';
+		}
 
 		$out  = '<div class="tt-filterbar" data-tt-filterbar>';
 		$out .= '<form method="get" class="tt-filterbar__form" data-tt-filterbar-form'
-			. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' ) . '>';
+			. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' )
+			. $form_attr_html . '>';
 
 		foreach ( $hidden as $name => $value ) {
 			$out .= '<input type="hidden" name="' . esc_attr( (string) $name )
@@ -148,6 +179,9 @@ final class FilterBar {
 			if ( $i < $last ) {
 				$out .= '<div class="tt-filterbar__div" aria-hidden="true"></div>';
 			}
+		}
+		if ( $extra !== '' ) {
+			$out .= $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller pre-escapes.
 		}
 		$out .= '</div>'; // .tt-filterbar__row
 
@@ -185,6 +219,9 @@ final class FilterBar {
 		$out .= '<div class="tt-filter-sheet__body">';
 		foreach ( $groups as $group ) {
 			$out .= self::renderGroup( $group, true );
+		}
+		if ( $extra !== '' ) {
+			$out .= $extra; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- caller pre-escapes.
 		}
 		$out .= '</div>'; // .tt-filter-sheet__body
 		$out .= '<div class="tt-filter-sheet__foot">';
@@ -229,6 +266,12 @@ final class FilterBar {
 			case 'select':
 				$out .= self::renderSelect( $group );
 				break;
+			case 'text':
+				$out .= self::renderText( $group );
+				break;
+			case 'date_range':
+				$out .= self::renderDateRange( $group );
+				break;
 			case 'period':
 				$out .= self::renderPeriod( $group, $in_sheet );
 				break;
@@ -254,10 +297,16 @@ final class FilterBar {
 		$selected    = (string) ( $group['selected'] ?? '' );
 		$placeholder = isset( $group['placeholder'] ) ? (string) $group['placeholder'] : null;
 		$options     = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
+		// #2082 — `auto_submit` (default true) controls the
+		// data-tt-filter-submit hook that filter-bar.js auto-submits on.
+		// FrontendListTable opts OUT (its own JS hydrator handles the
+		// change and live-filters without a reload), so the two scripts
+		// don't both fire on one change.
+		$auto_submit = ! isset( $group['auto_submit'] ) || ! empty( $group['auto_submit'] );
 
 		$out  = '<div class="tt-filsel">';
-		$out .= '<select class="tt-filsel__select" name="' . esc_attr( $name )
-			. '" data-tt-filter-submit>';
+		$out .= '<select class="tt-filsel__select" name="' . esc_attr( $name ) . '"'
+			. ( $auto_submit ? ' data-tt-filter-submit' : '' ) . '>';
 		if ( $placeholder !== null ) {
 			$out .= '<option value=""' . ( $selected === '' ? ' selected' : '' ) . '>'
 				. esc_html( $placeholder ) . '</option>';
@@ -269,6 +318,77 @@ final class FilterBar {
 				. esc_html( (string) $opt_label ) . '</option>';
 		}
 		$out .= '</select>';
+		$out .= '</div>';
+		return $out;
+	}
+
+	/**
+	 * `text` — a free-text / search box. Unlike `select`/`toggle` it does
+	 * NOT auto-submit on change (a keystroke shouldn't reload the page);
+	 * the noscript Apply button commits the value, and a JS hydrator
+	 * (FrontendListTable) live-filters as the user types. Honours
+	 * `input_type` ('text'|'search'), `inputmode`, and `autocomplete`.
+	 *
+	 * @param array<string,mixed> $group
+	 */
+	private static function renderText( array $group ): string {
+		$name        = (string) ( $group['name'] ?? '' );
+		$value       = (string) ( $group['value'] ?? '' );
+		$placeholder = (string) ( $group['placeholder'] ?? '' );
+		$itype       = (string) ( $group['input_type'] ?? 'text' );
+		$itype       = in_array( $itype, [ 'text', 'search' ], true ) ? $itype : 'text';
+		$inputmode   = isset( $group['inputmode'] ) ? (string) $group['inputmode'] : '';
+		$autocomp    = isset( $group['autocomplete'] ) ? (string) $group['autocomplete'] : '';
+
+		$out  = '<div class="tt-filtext">';
+		$out .= '<input type="' . esc_attr( $itype ) . '" class="tt-filtext__input"'
+			. ' name="' . esc_attr( $name ) . '"'
+			. ' value="' . esc_attr( $value ) . '"';
+		if ( $placeholder !== '' ) {
+			$out .= ' placeholder="' . esc_attr( $placeholder ) . '"';
+		}
+		if ( $inputmode !== '' ) {
+			$out .= ' inputmode="' . esc_attr( $inputmode ) . '"';
+		}
+		if ( $autocomp !== '' ) {
+			$out .= ' autocomplete="' . esc_attr( $autocomp ) . '"';
+		}
+		$out .= ' />';
+		$out .= '</div>';
+		return $out;
+	}
+
+	/**
+	 * `date_range` — a paired from/to date range. Each bound to its own
+	 * form field (`from.name` / `to.name`) so the surrounding view keeps
+	 * full control of the param names (e.g. `filter[date_from]`). No
+	 * auto-submit; the noscript Apply button / JS hydrator commits.
+	 *
+	 * @param array<string,mixed> $group
+	 */
+	private static function renderDateRange( array $group ): string {
+		$from = isset( $group['from'] ) && is_array( $group['from'] ) ? $group['from'] : [];
+		$to   = isset( $group['to'] )   && is_array( $group['to'] )   ? $group['to']   : [];
+		$label_from = (string) ( $group['label_from'] ?? __( 'From', 'talenttrack' ) );
+		$label_to   = (string) ( $group['label_to']   ?? __( 'To', 'talenttrack' ) );
+
+		$field = static function ( array $cfg, string $sublabel ): string {
+			$name  = (string) ( $cfg['name'] ?? '' );
+			$value = (string) ( $cfg['value'] ?? '' );
+			$o  = '<label class="tt-fildate">';
+			if ( $sublabel !== '' ) {
+				$o .= '<span class="tt-fildate__label">' . esc_html( $sublabel ) . '</span>';
+			}
+			$o .= '<input type="date" class="tt-fildate__input"'
+				. ' name="' . esc_attr( $name ) . '"'
+				. ' value="' . esc_attr( $value ) . '" />';
+			$o .= '</label>';
+			return $o;
+		};
+
+		$out  = '<div class="tt-fildaterange">';
+		$out .= $field( $from, $label_from );
+		$out .= $field( $to, $label_to );
 		$out .= '</div>';
 		return $out;
 	}
