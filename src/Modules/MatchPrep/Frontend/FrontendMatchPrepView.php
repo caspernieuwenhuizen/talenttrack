@@ -358,24 +358,23 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 // screen stays but the PDF artefacts are hidden (the print
                 // router enforces the same toggle server-side).
                 if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) :
-                // #1031, #1475 — Print opens the dedicated print route in a
-                // new tab. The standalone document skips the theme + WP
-                // admin bar entirely, so the captured sheet is clean. On
-                // that page an "Export as PDF" action runs the client-side
-                // image-capture (tt-image-pdf.js): html2canvas → A4
-                // landscape PDF, pixel-faithful to the page. The browser
-                // print dialog stays as a fallback on the same page.
-                $print_url = add_query_arg(
-                    [ 'tt_match_prep_print' => '1', 'activity_id' => $activity_id ],
-                    home_url( '/' )
-                );
+                // #2102 — Export captures the live on-screen match-prep grid
+                // (.tt-mp-grid) with html2canvas and lays it on a portrait-A4
+                // PDF via tt-image-pdf.js, so the export is a pixel-faithful
+                // image of exactly what the coach sees — not a separately
+                // styled print document. The browser print dialog (Ctrl/Cmd+P)
+                // and the standalone print route (?tt_match_prep_print=1) stay
+                // reachable as fallbacks.
+                $export_filename = 'match-prep-' . $activity_id . '.pdf';
                 ?>
-                <a class="tt-btn tt-btn-secondary"
-                   href="<?php echo esc_url( $print_url ); ?>"
-                   target="_blank"
-                   rel="noopener">
-                    <?php esc_html_e( 'Print / export PDF', 'talenttrack' ); ?>
-                </a>
+                <button type="button"
+                        class="tt-btn tt-btn-secondary"
+                        data-tt-image-pdf
+                        data-target=".tt-mp-grid"
+                        data-orientation="portrait"
+                        data-filename="<?php echo esc_attr( $export_filename ); ?>">
+                    <?php esc_html_e( 'Export as PDF (A4)', 'talenttrack' ); ?>
+                </button>
                 <?php
                 // #1194, #1475 — pitch-side team-sheet (Starting XI / Bench
                 // / Squad partition + signature lines). Source of truth is
@@ -788,6 +787,30 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),
             ],
         ] );
+
+        // #2102 — image-capture export of the live grid. Loaded only when
+        // the PDF export sub-feature is on (the toolbar button is gated by
+        // the same flag). html2canvas + jsPDF are lazy-loaded by the module
+        // itself on first click, so nothing heavy weighs on initial load.
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) {
+            wp_enqueue_script(
+                'tt-image-pdf',
+                TT_PLUGIN_URL . 'assets/js/tt-image-pdf.js',
+                [],
+                TT_VERSION,
+                true
+            );
+            wp_localize_script( 'tt-image-pdf', 'TT_IMAGE_PDF', [
+                'vendor' => [
+                    'html2canvas' => TT_PLUGIN_URL . 'assets/js/vendor/html2canvas.min.js',
+                    'jspdf'       => TT_PLUGIN_URL . 'assets/js/vendor/jspdf.umd.min.js',
+                ],
+                'i18n' => [
+                    'working' => __( 'Preparing PDF…', 'talenttrack' ),
+                    'failed'  => __( 'Could not generate the PDF. Use Print instead.', 'talenttrack' ),
+                ],
+            ] );
+        }
     }
 
     private static function loadActivity( int $activity_id ): ?object {

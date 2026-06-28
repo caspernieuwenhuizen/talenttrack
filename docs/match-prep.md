@@ -117,36 +117,27 @@ If a save fails, retry the edit; the network may have hiccuped.
 
 ## Print to paper (or PDF)
 
-The **Print / export PDF** button in the toolbar opens a clean print
-page in a new tab. That page mirrors everything below the toolbar on the
-match-prep screen — both formation pitches, the **Selection · minutes**
-table (per-half minutes + totals), the benches, the **Wedstrijddoelen**,
-**Doen per speler**, and the **Roles & set pieces** — with no dashboard
-chrome (brand banner, DEMO strip, user menu, breadcrumbs, back-pill,
-toolbar) and no summary tiles. The slot numbers, player names, the `!`
-icon (red) and the camera icon (green) all keep their colours.
+The **Export as PDF (A4)** button in the toolbar takes a picture of the
+match-prep grid exactly as it appears on screen — both formation
+pitches, the **Selection · minutes** table (per-half minutes + totals),
+the **Wedstrijddoelen**, **Doen per speler**, and the **Roles & set
+pieces** — and lays it out on **portrait A4**, scaled to the page width.
+The slot numbers, player names, the `!` icon (red) and the camera icon
+(green) all keep their on-screen colours. If the content is taller than
+one page it spreads across multiple pages automatically. The PDF
+downloads straight to your device. Because it captures the page as an
+image, the result is pixel-faithful to what you see — the trade-off is
+that the text in the PDF is not selectable.
 
-On that page you have two ways to get a file:
-
-- **Export as PDF (A4 landscape)** — the primary, recommended path.
-  It takes a picture of the page exactly as you see it and lays it out
-  on A4 landscape, scaled to the page width. If the content is taller
-  than one page it spreads across multiple pages automatically. The
-  PDF downloads straight to your device. Because it captures the page
-  as an image, the result is pixel-faithful to the screen — the
-  trade-off is that the text in the PDF is not selectable.
-- **Print** — opens the browser's own print dialog, where the **Save
-  as PDF** destination produces a text-based PDF if you prefer that.
-
-The first export may take a moment the very first time on a slow
-connection: the page loads the capture engine on demand (it isn't
-downloaded until you click Export), so nothing extra weighs on the
-match-prep page itself. If the capture can't run on your device a
-short notice appears and you can fall back to **Print → Save as PDF**.
+The capture engine loads on demand the first time you click Export (it
+isn't downloaded until then), so nothing extra weighs on the match-prep
+page itself. If the capture can't run on your device a short notice
+appears; fall back to your browser's own print dialog (**Ctrl/Cmd+P →
+Save as PDF**), which prints the page directly.
 
 The **Print team sheet** button next to it opens the pitch-side team
-sheet (Starting XI / Bench / Squad with signature lines) on the same
-kind of clean print page, with the same **Export as PDF** /
+sheet (Starting XI / Bench / Squad with signature lines) on a clean
+print page in a new tab, with its own **Export as PDF (A4 landscape)** /
 **Print** choice. The central `?tt_view=exports` page still carries a
 server-side match-prep / team-sheet PDF exporter as a fallback for
 anyone who prefers to drive the export from there.
