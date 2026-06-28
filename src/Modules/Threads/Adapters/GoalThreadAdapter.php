@@ -15,8 +15,9 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  *   - The goal's player (if linked to a WP user via tt_players.wp_user_id).
  *   - The coach who owns the goal (goals.created_by, falling back to
  *     the head coach of the player's team via QueryHelpers::coach_owns_player).
- *   - Linked parent users — matched on tt_players.guardian_email until a
- *     proper tt_player_parents table lands.
+ *   - Linked parent users — resolved from the canonical tt_player_parents
+ *     pivot (#1993), so thread membership and the dashboard child switcher
+ *     agree on who is a parent (guardian_email is no longer a live link).
  *   - Plus admins / HoD with `tt_view_settings` for read access (not
  *     auto-pinged on new messages).
  *
@@ -48,10 +49,9 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         $author = (int) ( $goal->created_by ?? 0 );
         if ( $author > 0 ) $ids[] = $author;
 
-        // Parent users: match guardian_email against WP users.
-        if ( $player && ! empty( $player->guardian_email ) ) {
-            $u = get_user_by( 'email', (string) $player->guardian_email );
-            if ( $u instanceof \WP_User ) $ids[] = (int) $u->ID;
+        // #1993 — parent users from the canonical tt_player_parents pivot.
+        foreach ( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $goal->player_id ) as $parent_uid ) {
+            if ( $parent_uid > 0 ) $ids[] = (int) $parent_uid;
         }
 
         return array_values( array_unique( array_filter( $ids, static fn( $i ): bool => $i > 0 ) ) );
@@ -75,12 +75,10 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         $player = QueryHelpers::get_player( (int) $goal->player_id );
         if ( $player && (int) $player->wp_user_id === $user_id ) return true;
 
-        // Parent linked via guardian_email.
-        if ( $player && ! empty( $player->guardian_email ) ) {
-            $u = get_user_by( 'id', $user_id );
-            if ( $u instanceof \WP_User && strcasecmp( (string) $u->user_email, (string) $player->guardian_email ) === 0 ) {
-                return true;
-            }
+        // #1993 — parent linked via the canonical tt_player_parents pivot.
+        $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $goal->player_id );
+        if ( in_array( $user_id, $parents, true ) ) {
+            return true;
         }
         return false;
     }

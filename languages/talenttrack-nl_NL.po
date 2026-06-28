@@ -43983,6 +43983,29 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/Components/ParentChildSwitcher.php
+msgid "Choose a child"
+msgstr "Kies een kind"
+
+#: src/Shared/Frontend/Components/ParentChildSwitcher.php
+msgid "You are linked to more than one child. Choose whose record to open."
+msgstr "Je bent aan meer dan één kind gekoppeld. Kies wiens dossier je wilt openen."
+
+#: src/Shared/Frontend/Components/ParentChildSwitcher.php
+msgid "Switch child"
+msgstr "Wissel van kind"
+
+#: src/Shared/Frontend/Components/ParentChildSwitcher.php
+msgid "Viewing"
+msgstr "Je bekijkt"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "My child"
+msgstr "Mijn kind"
+
+#: src/Infrastructure/Players/ParentDashboardTiles.php
+msgid "Player card"
+msgstr "Spelerskaart"
 # === #1617 — player-centric PDP coverage list ===
 #: src/Infrastructure/REST/StravaRestController.php
 msgid "Strava is not set up for this academy yet. Ask an administrator to add the Strava app credentials."

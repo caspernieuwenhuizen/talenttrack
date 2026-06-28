@@ -3,8 +3,8 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * PlayerKpiResolver — maps the viewing user of a PLAYER_PARENT KPI to a
@@ -13,8 +13,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * The KPI `compute()` contract receives the viewer's WP user id. For a
  * player persona that maps straight to their own player record. For a
  * parent it doesn't (the parent isn't a player); parents with a single
- * linked child resolve to that child via the same `guardian_email` link
- * the ChildSwitcher uses. Multi-child parents have no single target here
+ * linked child resolve to that child via the canonical
+ * `tt_player_parents` pivot (#1993 — `guardian_email` is no longer a
+ * live linkage source). Multi-child parents have no single target here
  * — they use the child switcher + per-child drill-down instead, so we
  * return 0 and the KPI renders unavailable.
  */
@@ -28,19 +29,8 @@ final class PlayerKpiResolver {
             return (int) $player->id;
         }
 
-        // Single-child parent fallback (guardian_email link).
-        $user = get_user_by( 'id', $user_id );
-        if ( ! $user instanceof \WP_User || (string) $user->user_email === '' ) {
-            return 0;
-        }
-
-        global $wpdb;
-        $ids = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players
-              WHERE guardian_email = %s AND status = 'active' AND club_id = %d
-              LIMIT 2",
-            $user->user_email, CurrentClub::id()
-        ) );
-        return ( is_array( $ids ) && count( $ids ) === 1 ) ? (int) $ids[0] : 0;
+        // Single-child parent fallback — canonical pivot, not guardian_email.
+        $children = ParentChildResolver::children( $user_id );
+        return count( $children ) === 1 ? (int) $children[0]->id : 0;
     }
 }
