@@ -19972,6 +19972,10 @@ msgstr "Geen wedstrijdformulier gevonden voor deze activiteit."
 msgid "Export as PDF (A4 landscape)"
 msgstr "Exporteren als PDF (A4 liggend)"
 
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:373
+msgid "Export as PDF (A4)"
+msgstr "Exporteren als PDF (A4)"
+
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:213
 msgid "Preparing PDF…"
 msgstr "PDF voorbereiden…"

@@ -2,10 +2,11 @@
  * tt-image-pdf.js (#1475) — pixel-faithful image-capture PDF.
  *
  * A reusable, framework-free print module. On the print/export action
- * it captures a live DOM node with html2canvas, then assembles an A4
- * landscape PDF (jsPDF) scaled to width with multi-page slicing on
- * overflow, and triggers a download. No server round-trip for the
- * render — the PDF mirrors exactly what the coach sees on screen.
+ * it captures a live DOM node with html2canvas, then assembles an A4 PDF
+ * (jsPDF) — landscape or portrait per the trigger — scaled to width with
+ * multi-page slicing on overflow, and triggers a download. No server
+ * round-trip for the render — the PDF mirrors exactly what the coach sees
+ * on screen.
  *
  * The heavy vendor libraries (html2canvas + jsPDF) are LAZY-LOADED:
  * they are injected only when the user first clicks a capture trigger,
@@ -19,8 +20,9 @@
  *   }
  *
  * A trigger is any element carrying data-tt-image-pdf with:
- *   data-target    CSS selector of the node to capture (required)
- *   data-filename  download filename (optional, defaults to tt-export.pdf)
+ *   data-target       CSS selector of the node to capture (required)
+ *   data-filename     download filename (optional, defaults to tt-export.pdf)
+ *   data-orientation  'portrait' | 'landscape' (optional, default landscape)
  *
  * Translatable strings come from window.TT_IMAGE_PDF.i18n — never
  * hardcoded English (the fallbacks below are last-resort only).
@@ -96,18 +98,23 @@
         if (box) box.hidden = true;
     }
 
-    // ---- A4 landscape multi-page assembly -------------------------------
+    // ---- A4 multi-page assembly -----------------------------------------
 
-    // A4 landscape in mm; the capture is scaled to page width and sliced
-    // vertically across as many pages as the content height needs.
-    function buildPdf(jsPDF, canvas) {
-        var pageW = 297; // A4 landscape width (mm)
-        var pageH = 210; // A4 landscape height (mm)
+    // A4 in mm; the capture is scaled to page width and sliced vertically
+    // across as many pages as the content height needs. Orientation is
+    // 'landscape' (default) or 'portrait' — callers pass it via the
+    // trigger's data-orientation so a surface can pick the page shape that
+    // fits the captured node (e.g. the tall match-prep grid on portrait).
+    function buildPdf(jsPDF, canvas, orientation) {
+        var portrait = orientation === 'portrait';
+        var pageW = portrait ? 210 : 297; // A4 width (mm)
+        var pageH = portrait ? 297 : 210; // A4 height (mm)
         var margin = 8;  // mm
         var usableW = pageW - margin * 2;
         var usableH = pageH - margin * 2;
 
-        var pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        var ori = portrait ? 'portrait' : 'landscape';
+        var pdf = new jsPDF({ orientation: ori, unit: 'mm', format: 'a4' });
 
         // Pixels-per-mm at the captured resolution.
         var pxPerMm = canvas.width / usableW;
@@ -117,7 +124,7 @@
 
         var renderedH = canvas.height / pxPerMm; // total content height in mm
         if (renderedH <= usableH) {
-            // Single page — fits within one A4 landscape sheet.
+            // Single page — fits within one A4 sheet.
             var imgData = canvas.toDataURL('image/jpeg', 0.92);
             pdf.addImage(imgData, 'JPEG', margin, margin, usableW, renderedH);
             return pdf;
@@ -139,7 +146,7 @@
             );
             var stripData = slice.toDataURL('image/jpeg', 0.92);
             var stripHmm = stripHpx / pxPerMm;
-            if (!first) pdf.addPage('a4', 'landscape');
+            if (!first) pdf.addPage('a4', ori);
             pdf.addImage(stripData, 'JPEG', margin, margin, usableW, stripHmm);
             first = false;
             offsetPx += stripHpx;
@@ -155,6 +162,7 @@
             return;
         }
         var filename = trigger.getAttribute('data-filename') || 'tt-export.pdf';
+        var orientation = trigger.getAttribute('data-orientation') === 'portrait' ? 'portrait' : 'landscape';
 
         trigger.disabled = true;
         notice(document.body, i18n('working', 'Preparing PDF…'), false);
@@ -168,7 +176,7 @@
                 scrollX: 0,
                 scrollY: -window.scrollY
             }).then(function (canvas) {
-                var pdf = buildPdf(libs.jsPDF, canvas);
+                var pdf = buildPdf(libs.jsPDF, canvas, orientation);
                 pdf.save(filename);
                 clearNotice();
             });
@@ -206,10 +214,11 @@
     // capture programmatically without re-binding DOM.
     window.TT = window.TT || {};
     window.TT.imagePdf = {
-        capture: function (selector, filename) {
+        capture: function (selector, filename, orientation) {
             var fake = document.createElement('button');
             fake.setAttribute('data-target', selector);
             if (filename) fake.setAttribute('data-filename', filename);
+            if (orientation) fake.setAttribute('data-orientation', orientation);
             capture(fake);
         }
     };
