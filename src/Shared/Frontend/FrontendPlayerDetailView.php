@@ -8,6 +8,7 @@ use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Shared\Frontend\Components\EmptyStateCard;
@@ -172,6 +173,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
         }
+        // #1988 — the "My card" showcase (FIFA card + skills radar +
+        // rating KPIs) folded into the one unified profile as a tab.
+        // Same audience as the page (tt_view_players); no separate cap.
+        $tabs['card'] = __( 'Player card', 'talenttrack' );
         // Analytics tab removed v3.110.187 — operators reach the
         // dimension explorer via ?tt_view=explore.
         return $tabs;
@@ -305,6 +310,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
+                        case 'card':        self::renderCardTab( $player ); break;
                         case 'profile':
                         default:            self::renderProfileTab( $player, $phv_row, $phv_panel_notice, $vct_on ); break;
                     }
@@ -811,6 +817,100 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * exists in `tt_player_parents` (#0032) and `tt_prospects` (#0066)
      * but wasn't previously visible on this page.
      */
+    /**
+     * #1988 — the "Player card" tab. The card/radar/KPI showcase from the
+     * player's own "My card" (`FrontendOverviewView`), folded into the one
+     * unified profile so a coach, HoD or parent sees the at-a-glance
+     * standing without leaving the player's page. Reuses the existing
+     * showcase renderers — no new data layer. The FIFA card handles its
+     * own coming-soon state before the first rated evaluation; the radar
+     * renders nothing when there's no profile yet, and the KPIs render
+     * nothing until the first rating.
+     */
+    private static function renderCardTab( object $player ): void {
+        $player_id = (int) $player->id;
+        $max       = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $heads     = ( new PlayerStatsService() )->getHeadlineNumbers( $player_id, [], 5 );
+        $radar     = QueryHelpers::player_radar_datasets( $player_id, 3 );
+        $has_radar = ! empty( $radar['datasets'] );
+        ?>
+        <div class="tt-player-card tt-player-cardtab">
+            <div class="tt-player-card__head">
+                <h3 class="tt-player-card__title"><?php esc_html_e( 'Player card', 'talenttrack' ); ?></h3>
+            </div>
+            <div class="tt-player-card__body">
+                <div class="tt-player-cardtab__showcase">
+                    <?php if ( $has_radar ) : ?>
+                        <div class="tt-player-cardtab__radar tt-radar-wrap">
+                            <?php echo QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], $max ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="tt-player-cardtab__fifa">
+                        <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true ); ?>
+                    </div>
+                </div>
+                <?php self::renderCardKpis( $heads, $max ); ?>
+            </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Rating KPI tiles for the Player-card tab — latest, rolling Last-5
+     * (with a momentum delta vs. the all-time mean), all-time, and the
+     * evaluation count. Mirrors `FrontendOverviewView::renderKpiRow()`.
+     * Renders nothing before the first rated evaluation — the FIFA card's
+     * own coming-soon state covers that.
+     */
+    private static function renderCardKpis( array $heads, float $max ): void {
+        $latest  = isset( $heads['latest'] )  && $heads['latest']  !== null ? (float) $heads['latest']  : null;
+        $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
+        $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
+        $evals   = (int) ( $heads['eval_count'] ?? 0 );
+
+        if ( $latest === null && $rolling === null && $alltime === null ) {
+            return;
+        }
+
+        $max_str = number_format_i18n( $max, 0 );
+        $dash    = '—';
+
+        $delta = '';
+        $trend = 'flat';
+        if ( $rolling !== null && $alltime !== null ) {
+            $diff = round( $rolling - $alltime, 1 );
+            if ( $diff > 0 )      { $trend = 'up';   $delta = '+' . number_format_i18n( $diff, 1 ); }
+            elseif ( $diff < 0 )  { $trend = 'down'; $delta = number_format_i18n( $diff, 1 ); }
+            else                  { $trend = 'flat'; $delta = '±0'; }
+        }
+
+        $chrome = '\\TT\\Shared\\Frontend\\Components\\FrontendAppChrome';
+        ?>
+        <div class="tt-player-cardtab__kpis">
+            <?php
+            echo $chrome::kpiTile( [
+                'label' => __( 'Latest', 'talenttrack' ),
+                'value' => $latest !== null ? number_format_i18n( $latest, 1 ) . ' / ' . $max_str : $dash,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'Last 5', 'talenttrack' ),
+                'value' => $rolling !== null ? number_format_i18n( $rolling, 1 ) . ' / ' . $max_str : $dash,
+                'delta' => $delta,
+                'trend' => $trend,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'All-time', 'talenttrack' ),
+                'value' => $alltime !== null ? number_format_i18n( $alltime, 1 ) . ' / ' . $max_str : $dash,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'Evaluations', 'talenttrack' ),
+                'value' => number_format_i18n( $evals ),
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
+        </div>
+        <?php
+    }
+
     private static function renderProfileTab( object $player, ?array $phv_row = null, string $phv_notice_html = '', bool $vct_on = false ): void {
         $player_id  = (int) $player->id;
         $age_tier   = AgeTier::forPlayer( $player_id );

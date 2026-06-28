@@ -44168,8 +44168,9 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#~ msgid "Player card"
-#~ msgstr "Spelerskaart"
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Player card"
+msgstr "Spelerskaart"
 
 #~ msgid "Record state"
 #~ msgstr "Recordstatus"
