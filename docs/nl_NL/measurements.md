@@ -71,6 +71,15 @@ Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
 en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
 het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
+Het **In één oogopslag**-paneel van de speler bevat ook een signaal
+**Metingen** naast Gem. beoordeling, Aanwezigheid en Doelen: het aantal
+tests waarvoor de speler nu een waarde heeft, met een hint hoeveel daarvan
+*onder de norm* vallen (oranje of rood ten opzichte van de leeftijdsband)
+— of *op schema* als dat er geen zijn. Het verwijst rechtstreeks naar het
+tabblad Metingen voor de volledige tijdlijn per test. Het signaal
+verschijnt alleen voor wie metingen mag inzien, zodat de stand nooit
+zichtbaar wordt voor een rol die de onderliggende tests niet mag openen.
+
 ## Resultaten vastleggen
 
 Staf krijgt een tegel **Metingen vastleggen**. Kies een team, een test en

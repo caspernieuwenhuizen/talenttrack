@@ -66,6 +66,14 @@ Staff see the same thing **in context** on the player's profile: open a
 player and switch to the **Measurements** tab (beside Evaluations). The
 tab badge counts how many tests the player has results for.
 
+The player's **At a glance** panel also carries a **Measurements** signal
+beside Avg rating, Attendance and Goals: the number of tests the player
+currently has a value for, with a hint of how many sit *below target*
+(amber or red against the age-group band) — or *on target* when none do.
+It links straight into the Measurements tab for the full per-test
+timeline. The signal only shows for viewers who can read measurements, so
+the standing never leaks to a role that can't open the underlying tests.
+
 ## Recording results
 
 Staff get a **Record measurements** tile. Pick a team, a test, and a date,

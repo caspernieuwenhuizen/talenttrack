@@ -44177,6 +44177,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:759
+msgid "on target"
+msgstr "op schema"
+
+#. translators: %d: number of tests below the age-group target band
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:756
+#, php-format
+msgid "%d below target"
+msgid_plural "%d below target"
+msgstr[0] "%d onder de norm"
+msgstr[1] "%d onder de norm"
+
 #~ msgid "You do not have permission to view player details."
 #~ msgstr "Je hebt geen permissie om spelerdetails te bekijken."
 

@@ -643,6 +643,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['goals']['trend_class'] ); ?>"><?php echo esc_html( $kpis['goals']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php
+                // #2123 — Measurements standing as a journey signal. Same
+                // `measurements:read` gate as the Measurements tab so the
+                // tracked-test count + below-target hint never leak to a
+                // viewer who can't open the underlying timeline (§1 privacy).
+                if ( MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) : ?>
+                <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'measurements' ], $base_url ) ); ?>">
+                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Measurements', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__num">
+                        <?php echo esc_html( $kpis['measurements']['value'] ); ?>
+                    </div>
+                    <?php if ( $kpis['measurements']['hint'] !== '' ) : ?>
+                        <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['measurements']['trend_class'] ); ?>"><?php echo esc_html( $kpis['measurements']['hint'] ); ?></div>
+                    <?php endif; ?>
+                </a>
+                <?php endif; ?>
             </div>
         </section>
         <?php
@@ -653,6 +669,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * `scale` (e.g. `/10`, `%`) shown smaller after the number, an
      * optional `hint` line, and a `trend_class` (`tt-player-kpi__trend--up|--down`)
      * for the hint colour.
+     *
+     * #2123 adds a `measurements` entry (tracked-test count + below-target
+     * hint); the view gates that tile on `measurements:read`.
      *
      * @return array<string,array{value:string,scale:string,hint:string,trend_class:string}>
      */
@@ -720,6 +739,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
         }
 
+        // #2123 — Measurements KPI: the player's test standing as a journey
+        // signal beside the rest. `tracked` tests carry a current value;
+        // `flagged` of those sit below the age-group target band (amber +
+        // red). The summary maths lives in PlayerMeasurementProfile so the
+        // tile and the Measurements timeline never disagree. The view gates
+        // the tile on `measurements:read`; this shaper does no gating.
+        $meas_summary = ( new \TT\Modules\Measurements\Services\PlayerMeasurementProfile() )->summaryForPlayer( $player_id );
+        $meas_tracked = (int) ( $meas_summary['tracked'] ?? 0 );
+        $meas_flagged = (int) ( $meas_summary['flagged'] ?? 0 );
+        $meas_hint    = '';
+        $meas_class   = '';
+        if ( $meas_tracked > 0 ) {
+            if ( $meas_flagged > 0 ) {
+                /* translators: %d: number of tests below the age-group target band */
+                $meas_hint  = sprintf( _n( '%d below target', '%d below target', $meas_flagged, 'talenttrack' ), $meas_flagged );
+                $meas_class = 'tt-player-kpi__trend--down';
+            } else {
+                $meas_hint  = __( 'on target', 'talenttrack' );
+                $meas_class = 'tt-player-kpi__trend--up';
+            }
+        }
+
         return [
             'avg_rating' => [
                 'value'       => $avg_value,
@@ -738,6 +779,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 'scale'       => '',
                 'hint'        => $goals_hint,
                 'trend_class' => $goals_class,
+            ],
+            'measurements' => [
+                'value'       => (string) $meas_tracked,
+                'scale'       => '',
+                'hint'        => $meas_hint,
+                'trend_class' => $meas_class,
             ],
         ];
     }
