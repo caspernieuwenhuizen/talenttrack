@@ -295,8 +295,11 @@ final class TeamPlannerWeeklyPrintable {
         if ( $title !== '' ) $out .= '<span class="tt-wp-name">' . esc_html( $title ) . '</span>';
         $out .= '</div>';
 
-        // Meta line.
-        $meta = [];
+        // Meta line. Location can carry a venue name + street address on
+        // two lines (Spond #2096) — the venue name stays inline in the
+        // ` · ` meta, the address renders on its own line below it.
+        $meta      = [];
+        $loc_extra = '';
         if ( $is_match ) {
             if ( ! empty( $fields['match'] ) ) {
                 // #1729 — arrival/presence time, shown before kickoff.
@@ -320,8 +323,8 @@ final class TeamPlannerWeeklyPrintable {
                 elseif ( $ha === 'away' ) $meta[] = __( 'Away', 'talenttrack' );
             }
             if ( ! empty( $fields['location'] ) ) {
-                $loc = (string) ( $a->location ?? '' );
-                if ( $loc !== '' ) $meta[] = $loc;
+                [ $loc_name, $loc_extra ] = self::locationParts( (string) ( $a->location ?? '' ) );
+                if ( $loc_name !== '' ) $meta[] = $loc_name;
             }
         } else {
             if ( ! empty( $fields['time'] ) ) {
@@ -329,8 +332,8 @@ final class TeamPlannerWeeklyPrintable {
                 if ( $t !== '' ) $meta[] = $t;
             }
             if ( ! empty( $fields['location'] ) ) {
-                $loc = (string) ( $a->location ?? '' );
-                if ( $loc !== '' ) $meta[] = $loc;
+                [ $loc_name, $loc_extra ] = self::locationParts( (string) ( $a->location ?? '' ) );
+                if ( $loc_name !== '' ) $meta[] = $loc_name;
             }
             if ( ! empty( $fields['duration'] ) ) {
                 $dur = self::durationLabel( (string) ( $a->start_time ?? '' ), (string) ( $a->end_time ?? '' ) );
@@ -338,6 +341,7 @@ final class TeamPlannerWeeklyPrintable {
             }
         }
         if ( $meta ) $out .= '<div class="tt-wp-meta">' . esc_html( implode( ' · ', $meta ) ) . '</div>';
+        if ( $loc_extra !== '' ) $out .= '<div class="tt-wp-meta tt-wp-addr">' . esc_html( $loc_extra ) . '</div>';
 
         // Principle pills.
         if ( ! empty( $fields['principles'] ) ) {
@@ -435,6 +439,7 @@ final class TeamPlannerWeeklyPrintable {
             color: #fff; border-radius: 5px; padding: 3px 9px;
         }
         .tt-wp-meta { color: var(--tt-muted); font-size: 12px; margin: 3px 0 0; }
+        .tt-wp-addr { margin-top: 0; font-size: 11.5px; }
         .tt-wp-pills { margin-top: 2px; }
         .tt-wp-pill {
             display: inline-block; background: var(--tt-pill-bg); color: var(--tt-pill-ink);
@@ -554,6 +559,24 @@ final class TeamPlannerWeeklyPrintable {
 
     private static function clockTime( string $time ): string {
         return ( $time !== '' && $time !== '00:00:00' ) ? substr( $time, 0, 5 ) : '';
+    }
+
+    /**
+     * Split a stored location into an inline venue name + the remaining
+     * address line(s). Spond (#2096) stores "Venue\nAddress"; the venue
+     * name shows inline in the meta line and the address renders below.
+     * Single-line locations return [ value, '' ] unchanged.
+     *
+     * @return array{0:string,1:string} [ first line, remaining lines joined ]
+     */
+    private static function locationParts( string $location ): array {
+        $lines = array_values( array_filter(
+            array_map( 'trim', explode( "\n", $location ) ),
+            static fn ( string $l ): bool => $l !== ''
+        ) );
+        if ( ! $lines ) return [ '', '' ];
+        $first = array_shift( $lines );
+        return [ $first, implode( ', ', $lines ) ];
     }
 
     private static function timeRange( string $start, string $end, string $kickoff ): string {
