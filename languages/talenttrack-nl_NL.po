@@ -43699,6 +43699,145 @@ msgid "The verdict opens once every conversation in the cycle is signed off."
 msgstr ""
 "Het eindoordeel komt beschikbaar zodra elk gesprek in de cyclus is "
 "afgetekend."
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "You do not have permission to view the recycle bin."
+msgstr "Je hebt geen toestemming om de prullenbak te bekijken."
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "The recycle bin is empty."
+msgstr "De prullenbak is leeg."
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid ""
+"Records moved to the bin from an archived list will appear here until they "
+"are restored or purged."
+msgstr ""
+"Records die vanuit een gearchiveerde lijst naar de prullenbak zijn "
+"verplaatst, verschijnen hier totdat ze worden hersteld of opgeschoond."
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Records here are staged for permanent deletion. They are purged automatically after %d day, or you can restore or delete them now."
+msgid_plural "Records here are staged for permanent deletion. They are purged automatically after %d days, or you can restore or delete them now."
+msgstr[0] "Records hier staan klaar voor definitieve verwijdering. Ze worden na %d dag automatisch opgeschoond, of je kunt ze nu herstellen of verwijderen."
+msgstr[1] "Records hier staan klaar voor definitieve verwijdering. Ze worden na %d dagen automatisch opgeschoond, of je kunt ze nu herstellen of verwijderen."
+
+#. translators: %d is the number of days until automatic purge.
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] "Nog %d dag"
+msgstr[1] "Nog %d dagen"
+
+#. translators: 1: user display name, 2: date.
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Binned by %1$s on %2$s"
+msgstr "In prullenbak gezet door %1$s op %2$s"
+
+#. translators: %s is a date.
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Binned on %s"
+msgstr "In prullenbak gezet op %s"
+
+#. translators: %d is a record id used as a fallback identity in the recycle bin.
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Record #%d"
+msgstr "Record #%d"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Restore record"
+msgstr "Record herstellen"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Restore this record to the archive?"
+msgstr "Dit record terugzetten naar het archief?"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid ""
+"This permanently deletes the record and cannot be undone. The following will "
+"also be removed or cleared:"
+msgstr ""
+"Dit verwijdert het record definitief en kan niet ongedaan worden gemaakt. Het "
+"volgende wordt ook verwijderd of gewist:"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "No other records depend on this one."
+msgstr "Geen andere records hangen hiervan af."
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Kept (references cleared, not deleted):"
+msgstr "Behouden (verwijzingen gewist, niet verwijderd):"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "This record cannot be deleted yet — other records still depend on it:"
+msgstr "Dit record kan nog niet worden verwijderd — andere records hangen er nog van af:"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Recycle bin is unavailable: REST configuration missing."
+msgstr "Prullenbak niet beschikbaar: REST-configuratie ontbreekt."
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Removed:"
+msgstr "Verwijderd:"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Delete now"
+msgstr "Nu verwijderen"
+
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid "Action failed. Please try again."
+msgstr "Actie mislukt. Probeer het opnieuw."
+
+#: src/Infrastructure/REST/RecycleBinRestController.php
+msgid "Record not found in the recycle bin."
+msgstr "Record niet gevonden in de prullenbak."
+
+#: src/Infrastructure/REST/RecycleBinRestController.php
+msgid "This record cannot be permanently deleted yet — other records still depend on it."
+msgstr "Dit record kan nog niet definitief worden verwijderd — andere records hangen er nog van af."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Records staged for permanent deletion. Restore them to the archive, or delete "
+"them now. Purged after the retention window."
+msgstr ""
+"Records die klaarstaan voor definitieve verwijdering. Zet ze terug naar het "
+"archief of verwijder ze nu. Opgeschoond na de bewaartermijn."
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Holiday"
+msgstr "Vakantie"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Training exercise"
+msgstr "Trainingsoefening"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Injury"
+msgstr "Blessure"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Scheduled report"
+msgstr "Gepland rapport"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Measurement definition"
+msgstr "Metingdefinitie"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Measurement session"
+msgstr "Metingsessie"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Measurement target"
+msgstr "Metingdoel"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Measurement result"
+msgstr "Metingresultaat"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+msgid "Player attribute"
+msgstr "Spelerkenmerk"
 
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"

@@ -101,9 +101,46 @@ bin.**
 
 The decision: the legacy `/permanent` endpoints are **re-gated onto
 `tt_manage_recycle_bin`**, so every permanent-deletion path — the bin's purge
-and the legacy per-entity endpoints — requires the same capability. (The
-re-gating itself ships in the bin's REST work, issue #2024; this foundation
-records the decision and registers the capability the re-gating will use.)
+and the legacy per-entity endpoints — requires the same capability. This
+re-gating ships in the bin's REST work (issue #2024): every
+`DELETE …/permanent` route (players, teams, evaluations, goals, activities,
+tournaments, holidays, trial cases, trial tracks, injuries, test trainings,
+custom widgets, training exercises) now requires `tt_manage_recycle_bin`.
+Holding `tt_edit_settings` alone no longer permits a permanent delete from any
+surface.
+
+## The centralized recycle bin
+
+The bin has its own screen. Open **Configuration → System → Recycle bin**, or
+go straight to `?tt_view=recycle-bin`. It is not a dashboard tile — it lives in
+the settings area, and only academy admins (`tt_manage_recycle_bin`) can reach
+it. Everyone else sees a "no permission" notice.
+
+The screen lists every trashed record across all binnable entity types,
+**grouped by type** with a count per group (Players, Teams, Evaluations, …).
+Each row shows:
+
+- the record's **identity** (its name or title, or `Record #<id>` as a
+  fallback),
+- **who binned it and when**, and
+- a **days-until-purge badge** counting down to the automatic purge. The badge
+  turns **red in the final week** (7 days or fewer) so an imminent permanent
+  deletion stands out.
+
+The bin is **action-only** — there is no drill-in to a record from here. Two
+inline actions sit on every row:
+
+- **Restore** — moves the record back to the **archive** tier (not straight to
+  active). It leaves the bin and reappears in the entity's Archived list.
+- **Delete now** — permanently purges the record. Before anything is deleted, a
+  confirmation dialog shows the **full cascade preview**: what will be removed,
+  what references will be cleared (kept, not deleted), and — if the purge is
+  **blocked** because other records still depend on it — the dependency report.
+  A blocked purge writes nothing and leaves the record in the bin. "Delete now"
+  is the manual immediate-erasure path (GDPR Article 17); it does not wait out
+  the retention window.
+
+When the bin is empty, the screen says so rather than showing an empty table.
 
 ## Moving a record to the bin from a list
 

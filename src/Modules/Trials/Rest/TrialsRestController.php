@@ -73,8 +73,10 @@ class TrialsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_case_permanently' ],
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
                 'permission_callback' => function () {
-                    return current_user_can( 'tt_edit_settings' );
+                    return current_user_can( 'tt_manage_recycle_bin' );
                 },
             ],
         ] );
@@ -129,8 +131,10 @@ class TrialsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_track_permanently' ],
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
                 'permission_callback' => function () {
-                    return current_user_can( 'tt_edit_settings' );
+                    return current_user_can( 'tt_manage_recycle_bin' );
                 },
             ],
         ] );

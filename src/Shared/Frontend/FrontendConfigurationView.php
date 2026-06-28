@@ -1580,6 +1580,13 @@ class FrontendConfigurationView extends FrontendViewBase {
             $sections['system']['tiles'][] = [ 'title' => __( 'Setup', 'talenttrack' ), 'desc' => __( 'Run or re-run first-time setup: academy basics, your first team, your admin profile, and the dashboard page.', 'talenttrack' ), 'url' => $view( 'setup' ), 'icon' => 'lightbulb' ];
         }
         $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
+        // #2024 — centralized recycle bin. Settings-area entry point (no
+        // dashboard tile). Cap-gated to tt_manage_recycle_bin so the tile
+        // only appears for the academy admins who can actually manage the
+        // bin; the view re-checks the same cap.
+        if ( current_user_can( 'tt_manage_recycle_bin' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Recycle bin', 'talenttrack' ), 'desc' => __( 'Records staged for permanent deletion. Restore them to the archive, or delete them now. Purged after the retention window.', 'talenttrack' ), 'url' => $view( 'recycle-bin' ), 'icon' => 'migrations' ];
+        }
 
         // #1539 — tiles contributed via the tt_config_tile_groups filter
         // (Modules, Dashboard layouts, Custom widgets). Route them into a

@@ -46,7 +46,8 @@ class EvaluationsRestController {
             [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'restore_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/permanent', [
-            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval_permanently' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
+            // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no purge path weaker than the bin's own purge.
+            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval_permanently' ], 'permission_callback' => function () { return current_user_can( 'tt_manage_recycle_bin' ); } ],
         ]);
         // #2023 — reversible "Move to recycle bin" (archived → trashed).
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/trash', [

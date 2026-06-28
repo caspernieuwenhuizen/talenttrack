@@ -986,6 +986,14 @@ class DashboardShortcode {
                 // tt_view_data_browser internally.
                 \TT\Shared\Frontend\FrontendDataBrowserView::render( $user_id, $is_admin );
                 return true;
+            case 'recycle-bin':
+                // #2024 — centralized recycle bin. Cross-entity list of
+                // trashed rows with inline restore / purge. Gates on
+                // tt_manage_recycle_bin internally; every mutation re-checks
+                // the cap + ownership at the REST layer
+                // (RecycleBinRestController).
+                \TT\Shared\Frontend\FrontendRecycleBinView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }
