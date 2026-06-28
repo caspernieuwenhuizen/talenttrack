@@ -28,14 +28,11 @@ Your **development home** — one page that pulls your whole development picture
 Parents who open their child's dashboard land on **&lt;Child&gt;'s development** — the same home, read-only and scoped to their own child.
 
 ### My card
-Your FIFA-style player card plus a snapshot of who you are as a player. The hero strip at the top shows your photo, name, team, and the FIFA card itself. Below the card you'll find four sections folded in from the old "My profile" tile:
+**My card** now opens your **player profile** — the same unified, tabbed profile your coach sees, framed for you — and lands on the **Player card** tab. That tab shows your FIFA-style player card, your skills radar, and your rating KPIs (latest, last 5 with its trend, all-time, evaluations). A **Print report** action on the card gives a clean printable version.
 
-- **Playing details** — position, foot, jersey, height, weight (your coach maintains these).
-- **Recent performance** — your rolling rating average and a small trend chart of your last evaluations.
-- **Active goals** — the top three goals you're working on, with priority and due date.
-- **Upcoming** — the next sessions on your team's calendar.
+The other tabs hold the rest of your picture: **Profile** (your playing details — position, foot, jersey, status — and academy info), **Goals**, **Activities**, and **Strava**. You only see what's yours: coach-only surfaces (evaluations workbench, PDP, trials, notes, the guardians and discovery cards, and staff flags) don't appear on your view. A parent opening their child's card sees the same profile for that child.
 
-A **Print report** button on the right gives a clean printable version of the whole card.
+> Account details (display name, email, password) live in **My settings** under the username dropdown in the top-right corner — see below.
 
 > Account details (display name, email, password) live in **My settings** under the username dropdown in the top-right corner — see below.
 

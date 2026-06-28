@@ -761,3 +761,10 @@
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
+.tt-player-cardtab__print {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+}
+.tt-player-cardtab__print svg { flex: 0 0 auto; }
