@@ -7,6 +7,7 @@ use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Strava\ActivityRepository;
 use TT\Modules\Strava\ConnectionRepository;
 use TT\Modules\Strava\StravaClient;
 use TT\Modules\Strava\StravaConfig;
@@ -60,6 +61,13 @@ final class StravaRestController {
             'permission_callback' => [ __CLASS__, 'canManagePlayerParam' ],
         ] );
 
+        // Read the player's imported Strava activities (timeline source).
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/strava/activities', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'activities' ],
+            'permission_callback' => [ __CLASS__, 'canViewPlayerParam' ],
+        ] );
+
         // Public OAuth redirect target — authenticates via the signed state.
         register_rest_route( self::NS, '/strava/callback', [
             'methods'             => 'GET',
@@ -93,6 +101,19 @@ final class StravaRestController {
 
     public static function canManagePlayerParam( \WP_REST_Request $r ): bool {
         return self::canManagePlayer( (int) $r['id'] );
+    }
+
+    /**
+     * Reading a player's imported activities follows the player's own
+     * view gate (self / parent-child / team / global), so a coach who can
+     * see the player sees their training; a stranger does not.
+     */
+    public static function canViewPlayerParam( \WP_REST_Request $r ): bool {
+        $uid       = get_current_user_id();
+        $player_id = (int) $r['id'];
+        if ( $uid <= 0 || $player_id <= 0 ) return false;
+        if ( self::currentUserPlayerId() === $player_id ) return true;
+        return AuthorizationService::canViewPlayer( $uid, $player_id );
     }
 
     private static function currentUserPlayerId(): int {
@@ -172,6 +193,32 @@ final class StravaRestController {
             'connected_at' => (string) $row->connected_at,
             'last_sync_at' => (string) ( $row->last_sync_at ?? '' ),
         ] );
+    }
+
+    /**
+     * List a player's imported Strava activities (non-HR fields only) —
+     * the source the Connect UI renders on the player timeline (#2061).
+     */
+    public static function activities( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+        $rows      = ( new ActivityRepository() )->listForPlayer( $player_id, 50 );
+
+        $out = array_map( static function ( $row ) {
+            return [
+                'id'                 => (int) $row->id,
+                'external_id'        => (string) $row->external_id,
+                'activity_type'      => (string) ( $row->activity_type ?? '' ),
+                'name'               => (string) ( $row->name ?? '' ),
+                'started_at'         => (string) ( $row->started_at ?? '' ),
+                'distance_m'         => $row->distance_m !== null ? (float) $row->distance_m : null,
+                'moving_time_s'      => $row->moving_time_s !== null ? (int) $row->moving_time_s : null,
+                'elapsed_time_s'     => $row->elapsed_time_s !== null ? (int) $row->elapsed_time_s : null,
+                'average_speed_ms'   => $row->average_speed_ms !== null ? (float) $row->average_speed_ms : null,
+                'total_elevation_m'  => $row->total_elevation_gain_m !== null ? (float) $row->total_elevation_gain_m : null,
+            ];
+        }, $rows );
+
+        return RestResponse::success( [ 'activities' => $out ] );
     }
 
     /**

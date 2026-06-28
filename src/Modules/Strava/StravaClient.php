@@ -142,6 +142,41 @@ final class StravaClient {
         return [ 'ok' => true, 'body' => $body, 'http_code' => $code ];
     }
 
+    /**
+     * Fetch a single activity's detail with a player's Bearer token
+     * (Strava `GET /api/v3/activities/{id}`). The response is the activity
+     * summary; the ingest maps the non-HR fields only (#2058).
+     *
+     * @return array{ok:bool,body?:array<string,mixed>,http_code?:int,error_code?:string,error_message?:string}
+     */
+    public static function getActivity( string $access_token, int $activity_id ): array {
+        if ( $access_token === '' || $activity_id <= 0 ) {
+            return [ 'ok' => false, 'error_code' => 'bad_request' ];
+        }
+
+        $response = wp_remote_get(
+            StravaConfig::apiBaseUrl() . '/activities/' . $activity_id,
+            [
+                'timeout'    => self::TIMEOUT_SECONDS,
+                'user-agent' => self::userAgent(),
+                'headers'    => [ 'Authorization' => 'Bearer ' . $access_token ],
+            ]
+        );
+
+        if ( is_wp_error( $response ) ) {
+            return [ 'ok' => false, 'error_code' => 'transport_error', 'error_message' => $response->get_error_message() ];
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        $body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+        $body = is_array( $body ) ? $body : [];
+
+        if ( $code < 200 || $code >= 300 ) {
+            return [ 'ok' => false, 'http_code' => $code, 'error_code' => 'activity_http_' . $code ];
+        }
+        return [ 'ok' => true, 'body' => $body, 'http_code' => $code ];
+    }
+
     public static function userAgent(): string {
         $version = defined( 'TT_VERSION' ) ? TT_VERSION : '0';
         return sprintf( self::USER_AGENT_FORMAT, $version );
