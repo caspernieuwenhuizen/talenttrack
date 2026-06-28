@@ -44278,6 +44278,10 @@ msgid "Test archived."
 msgstr "Test gearchiveerd."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "That test could not be archived."
+msgstr "Die test kon niet worden gearchiveerd."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
 msgid "Test saved."
 msgstr "Test opgeslagen."
 

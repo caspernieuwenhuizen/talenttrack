@@ -375,8 +375,13 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 ];
 
             case 'archive':
-                ( new ArchiveRepository() )->archive( 'measurement_definition', [ $id ], get_current_user_id() );
-                return [ 'flash' => __( 'Test archived.', 'talenttrack' ), 'back_to_list' => true ];
+                $archived = ( new ArchiveRepository() )->archive( 'measurement_definition', [ $id ], get_current_user_id() );
+                return [
+                    'flash'        => $archived > 0
+                        ? __( 'Test archived.', 'talenttrack' )
+                        : __( 'That test could not be archived.', 'talenttrack' ),
+                    'back_to_list' => true,
+                ];
 
             case 'edit':
                 self::saveEdit( $repo, $id );
