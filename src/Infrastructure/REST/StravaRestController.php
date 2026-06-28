@@ -24,11 +24,19 @@ use TT\Shared\Frontend\Components\RecordLink;
  *   GET    /players/{id}/strava/status   — connection status (no secrets)
  *   GET    /strava/callback              — OAuth redirect target (public)
  *   POST   /strava/app                   — operator: app id/secret
+ *   GET    /strava/connections           — operator: club connection roster
+ *   GET    /strava/webhook/subscription  — operator: subscription status
+ *   POST   /strava/webhook/subscription  — operator: create subscription
+ *   DELETE /strava/webhook/subscription  — operator: delete subscription
  *
  * Connect / disconnect / status gate on whether the caller may act on
  * the player: the player on their own record (self), or a coach/admin
  * with edit rights — never a role-string compare, never `__return_true`
  * (except the callback, which self-authenticates via the signed state).
+ *
+ * The operator surface (#2127) is matrix-gated, NOT `manage_options`:
+ * reads on `tt_view_strava` (→ `strava_integration:read`), credential +
+ * webhook mutations on `tt_edit_strava_credentials` (→ `…:change`).
  *
  * Secrets never round-trip: per-player tokens are stored encrypted by
  * `ConnectionRepository` and never returned; the app client secret is
@@ -80,7 +88,16 @@ final class StravaRestController {
         register_rest_route( self::NS, '/strava/app', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'saveApp' ],
-            'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+            'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+        ] );
+
+        // Operator console (#2127): read-only roster of every Strava
+        // connection in the club, with sync + activity counts. Tokens are
+        // never selected by the repo, so none reach the payload.
+        register_rest_route( self::NS, '/strava/connections', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'connections' ],
+            'permission_callback' => [ __CLASS__, 'canViewIntegration' ],
         ] );
 
         // Public webhook — GET is Strava's subscription handshake, POST is
@@ -99,22 +116,24 @@ final class StravaRestController {
             ],
         ] );
 
-        // Operator-only: manage the single club-wide push subscription.
+        // Operator: manage the single club-wide push subscription. Reading
+        // the status follows the integration read cap; mutating it follows
+        // the credential change cap (matrix-gated, #2127).
         register_rest_route( self::NS, '/strava/webhook/subscription', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'subscriptionStatus' ],
-                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+                'permission_callback' => [ __CLASS__, 'canViewIntegration' ],
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'subscribe' ],
-                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'unsubscribe' ],
-                'permission_callback' => static function () { return current_user_can( 'manage_options' ); },
+                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
             ],
         ] );
     }
@@ -137,6 +156,23 @@ final class StravaRestController {
 
     public static function canManagePlayerParam( \WP_REST_Request $r ): bool {
         return self::canManagePlayer( (int) $r['id'] );
+    }
+
+    /**
+     * Operator console read gate (#2127). Matrix cap, bridged to
+     * `strava_integration:read` — never a `manage_options` role compare,
+     * so a second tenant on the install is scoped correctly (CLAUDE.md §4).
+     */
+    public static function canViewIntegration(): bool {
+        return current_user_can( 'tt_view_strava' );
+    }
+
+    /**
+     * Operator console write gate (#2127) — app credentials + webhook
+     * subscription mutations. Matrix cap, bridged to `strava_integration:change`.
+     */
+    public static function canEditCredentials(): bool {
+        return current_user_can( 'tt_edit_strava_credentials' );
     }
 
     /**
@@ -372,6 +408,37 @@ final class StravaRestController {
         return RestResponse::success( [
             'client_id'  => StravaConfig::clientId(),
             'configured' => StravaConfig::hasCredentials(),
+        ] );
+    }
+
+    /**
+     * Operator console roster (#2127): every Strava connection in the club,
+     * composed for a read-only table. The repo never selects token columns,
+     * so this payload carries no secrets. Compose-only — all of it is plain
+     * data from `ConnectionRepository::listForClub()`.
+     */
+    public static function connections( \WP_REST_Request $r ): \WP_REST_Response {
+        $rows  = ( new ConnectionRepository() )->listForClub();
+        $items = [];
+        foreach ( $rows as $row ) {
+            $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+            $items[] = [
+                'player_id'        => (int) $row->player_id,
+                'player_name'      => $name !== '' ? $name : __( '(unknown player)', 'talenttrack' ),
+                'photo_url'        => (string) ( $row->photo_url ?? '' ),
+                'athlete_id'       => (int) ( $row->strava_athlete_id ?? 0 ),
+                'status'           => (string) ( $row->status ?? '' ),
+                'connected_at'     => (string) ( $row->connected_at ?? '' ),
+                'last_sync_at'     => (string) ( $row->last_sync_at ?? '' ),
+                'last_activity_at' => (string) ( $row->last_activity_at ?? '' ),
+                'activity_count'   => (int) ( $row->activity_count ?? 0 ),
+            ];
+        }
+
+        return RestResponse::success( [
+            'configured'      => StravaConfig::hasCredentials(),
+            'subscription_id' => StravaConfig::subscriptionId(),
+            'connections'     => $items,
         ] );
     }
 

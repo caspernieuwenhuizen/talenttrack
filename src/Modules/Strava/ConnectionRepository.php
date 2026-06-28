@@ -205,6 +205,40 @@ final class ConnectionRepository {
         return $ok !== false;
     }
 
+    /**
+     * Operator overview (#2127): every Strava connection for the current
+     * club, joined to the player's name/photo, with the imported-activity
+     * count and most-recent activity time. Connected rows first, then by
+     * player name. NEVER selects the encrypted token columns — this feeds a
+     * read-only console and the payload must never carry secrets.
+     *
+     * @return object[]
+     */
+    public function listForClub(): array {
+        global $wpdb;
+        $players    = $wpdb->prefix . 'tt_players';
+        $activities = $wpdb->prefix . 'tt_player_activities';
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT c.player_id, c.strava_athlete_id, c.status, c.connected_at,
+                    c.last_sync_at, c.consent_at,
+                    p.first_name, p.last_name, p.photo_url,
+                    ( SELECT COUNT(*) FROM {$activities} a
+                       WHERE a.player_id = c.player_id AND a.club_id = c.club_id
+                         AND a.source = 'strava' AND a.archived_at IS NULL ) AS activity_count,
+                    ( SELECT MAX(a.started_at) FROM {$activities} a
+                       WHERE a.player_id = c.player_id AND a.club_id = c.club_id
+                         AND a.source = 'strava' AND a.archived_at IS NULL ) AS last_activity_at
+               FROM {$this->table()} c
+               LEFT JOIN {$players} p ON p.id = c.player_id
+              WHERE c.club_id = %d
+              ORDER BY ( c.status = 'connected' ) DESC, p.last_name ASC, p.first_name ASC",
+            CurrentClub::id()
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
+
     public function touchSync( int $player_id ): void {
         global $wpdb;
         $wpdb->update(

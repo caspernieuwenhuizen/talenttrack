@@ -79,6 +79,7 @@ final class MatrixEntityCatalog {
         'custom_widgets',              // custom-widget builder admin
         'football_actions',            // football-actions vocabulary admin
         'spond_integration',           // Spond admin uses tt_edit_teams
+        'strava_integration',          // Strava operator console (tt_view_strava / tt_edit_strava_credentials)
         'thread_messages',             // threads admin (the read path)
     ];
 
@@ -140,6 +141,7 @@ final class MatrixEntityCatalog {
             // Player-scoped surfaces
             'thread_messages'               => __( 'Threads', 'talenttrack' ),
             'spond_integration'             => __( 'Spond integration', 'talenttrack' ),
+            'strava_integration'            => __( 'Strava integration', 'talenttrack' ),
             'player_timeline'               => __( 'Player timeline', 'talenttrack' ),
             'player_potential'              => __( 'Player potential', 'talenttrack' ),
             'player_behaviour_ratings'      => __( 'Player behaviour ratings', 'talenttrack' ),

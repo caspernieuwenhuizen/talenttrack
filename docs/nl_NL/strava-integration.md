@@ -88,17 +88,40 @@ geautoriseerde staat achterblijft.
 
 ## Instellen door de beheerder
 
-Twee eenmalige stappen, uitgevoerd door een beheerder:
+Beide eenmalige stappen staan op de console **Strava-koppeling**, te bereiken
+via **Configuratie → Koppelingen → Strava-koppeling** (of rechtstreeks via
+`?tt_view=strava-admin`):
 
 1. **Registreer de Strava-appgegevens.** Maak een API-applicatie aan in je
-   Strava-account en sla de **Client ID** en het **Client secret** op via
-   `POST /wp-json/talenttrack/v1/strava/app` (alleen beheerder). Het client
-   secret wordt versleuteld opgeslagen en wordt nooit door een endpoint
-   teruggegeven.
-2. **Maak het webhookabonnement aan.** `POST .../strava/webhook/subscription`
-   registreert het ene academiebrede push-abonnement bij Strava. Strava
-   valideert het direct met een challenge-handshake. Gebruik de bijbehorende
-   `GET` om het te bekijken en `DELETE` om het te verwijderen.
+   Strava-account en plak de **Client ID** en het **Client secret** in het
+   onderdeel *App-gegevens*. Het secret wordt versleuteld opgeslagen, is alleen
+   schrijfbaar en wordt nooit meer getoond — laat het veld leeg om de opgeslagen
+   waarde te behouden. Stel het *Authorization Callback Domain* van de Strava-app
+   in op deze site en de redirect op de callback-URL die op de pagina staat.
+2. **Maak het webhookabonnement aan.** De knop **Aanmaken / opnieuw verifiëren**
+   in het onderdeel *Webhookabonnement* registreert het ene academiebrede
+   push-abonnement bij Strava, dat het direct valideert met een
+   challenge-handshake. **Abonnement verwijderen** haalt het weg.
+
+De tabel **Gekoppelde spelers** op dezelfde console toont elke speler die een
+Strava-account is gaan koppelen — status (gekoppeld, wacht op toestemming,
+ingetrokken, ontkoppeld), aantal geïmporteerde activiteiten, laatste activiteit
+en laatste synchronisatie — zodat een beheerder in één oogopslag ziet wiens
+training binnenkomt.
+
+Elke actie is ook beschikbaar via de REST API voor een niet-WordPress-frontend:
+`POST /wp-json/talenttrack/v1/strava/app`, `GET/POST/DELETE
+.../strava/webhook/subscription` en `GET .../strava/connections`. Het client
+secret en de tokens per speler worden nooit door een endpoint teruggegeven.
+
+### Wie de console kan bereiken
+
+De console is **matrix-afgeschermd**, niet gekoppeld aan de WordPress-rol
+*Beheerder*: bekijken volgt `tt_view_strava` (de *lees*-activiteit van de
+entiteit `strava_integration`) en het wijzigen van gegevens of de webhook volgt
+`tt_edit_strava_credentials` (de *wijzig*-activiteit). Standaard hebben
+academiebeheerders en hoofden opleiding deze rechten; stel ze per persona in via
+de autorisatiematrix.
 
 De OAuth-**callback** (`GET .../strava/callback`) en de **webhook**
 (`GET/POST .../strava/webhook`) zijn noodzakelijkerwijs openbare routes —
@@ -137,5 +160,7 @@ per installatie), nooit via een WordPress-sessie.
 Alle endpoints staan onder `talenttrack/v1`; zie [`docs/rest-api.md`](../rest-api.md)
 voor de volledige lijst en afscherming. Kort: per speler `connect` /
 `disconnect` / `status` / `activities`, de openbare `callback` en `webhook`, en
-de beheerdersroutes `app` en `webhook/subscription`. Tokens per speler worden
-nooit in een respons teruggegeven.
+de beheerdersroutes `app`, `webhook/subscription` en `connections` (de
+console-lijst). De beheerdersroutes zijn matrix-afgeschermd op `tt_view_strava`
+(lezen) / `tt_edit_strava_credentials` (schrijven). Tokens per speler en het
+client secret worden nooit in een respons teruggegeven.
