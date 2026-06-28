@@ -720,3 +720,44 @@
     align-items: flex-end;
     flex-wrap: wrap;
 }
+
+/* ---------- Player-card tab (#1988): radar + FIFA card + rating KPIs ---------- */
+
+.tt-player-cardtab__showcase {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-gap);
+    align-items: center;
+    justify-items: center;
+}
+@media (min-width: 680px) {
+    .tt-player-cardtab__showcase {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.tt-player-cardtab__fifa {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+/* The shared .tt-radar-wrap carries its own white box + border for
+   standalone surfaces; neutralise it inside the card body so it doesn't
+   read as a box-in-a-box. */
+.tt-player-cardtab__radar.tt-radar-wrap {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+}
+.tt-player-cardtab__kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-top: var(--tt-gap);
+}
+@media (min-width: 480px) {
+    .tt-player-cardtab__kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
