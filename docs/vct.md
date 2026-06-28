@@ -127,6 +127,8 @@ The Configuration tiles (#1087) link into the HoD's VCT configuration sub-tabs (
 
 PHV (Physical / Health / Vitality) panel + pill follows CLAUDE.md §1 — staff (HoD / coach / admin) see full reason + ceiling + notes; other parents see nothing; AC-also-parent sees own child via the parent persona only. The reason picker is an enum to discourage long medical text leaking via free-text.
 
+The PHV panel, hero pill, and form POST handler on the player profile are VCT functionality, so they only appear when the VCT module is switched on. With VCT off the player profile shows no PHV surface at all.
+
 ## References
 
 - Shipped spec: [`specs/shipped/0095-feat-vct-module.md`](../specs/shipped/0095-feat-vct-module.md)

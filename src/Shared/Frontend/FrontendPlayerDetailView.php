@@ -196,10 +196,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
+        // #2064 — PHV is VCT functionality (#1089 VCT-14). This Shared view
+        // always loads, so it has to gate the PHV touchpoints on the VCT
+        // module being enabled itself — ModuleRegistry only stops
+        // VctModule::register()/boot(), not UI an always-loaded view renders.
+        $vct_on = \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class );
+
         // #1089 VCT-14 — handle PHV-panel POST before rendering so the
-        // panel reflects the just-saved state. Cap-gated inside.
+        // panel reflects the just-saved state. Cap-gated inside. Ignored
+        // entirely when VCT is off (#2064).
         $phv_panel_notice = '';
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['_tt_vct_phv_panel'] ) ) {
+        if ( $vct_on && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['_tt_vct_phv_panel'] ) ) {
             $phv_panel_notice = self::handleVctPhvPost( $player_id, $user_id );
         }
 
@@ -249,7 +256,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         ?>
         <article class="tt-player-detail" data-tab="<?php echo esc_attr( $active_tab ); ?>">
             <?php
-            $phv_row = ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->findForPlayer( $player_id );
+            // #2064 — only look up the PHV flag when VCT is on; null keeps
+            // the hero pill hidden (it keys off $phv_row).
+            $phv_row = $vct_on
+                ? ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->findForPlayer( $player_id )
+                : null;
             self::renderHero( $player, $name, $team, $team_url, $phv_row );
             self::renderActionRow( $player, $players_url );
             ?>
@@ -295,7 +306,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                         case 'profile':
-                        default:            self::renderProfileTab( $player, $phv_row, $phv_panel_notice ); break;
+                        default:            self::renderProfileTab( $player, $phv_row, $phv_panel_notice, $vct_on ); break;
                     }
                     ?>
                 </section>
@@ -800,7 +811,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * exists in `tt_player_parents` (#0032) and `tt_prospects` (#0066)
      * but wasn't previously visible on this page.
      */
-    private static function renderProfileTab( object $player, ?array $phv_row = null, string $phv_notice_html = '' ): void {
+    private static function renderProfileTab( object $player, ?array $phv_row = null, string $phv_notice_html = '', bool $vct_on = false ): void {
         $player_id  = (int) $player->id;
         $age_tier   = AgeTier::forPlayer( $player_id );
         $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
@@ -880,8 +891,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             self::renderAssignTeamForm( $player_id );
         }
 
-        // #1089 VCT-14 — PHV panel under the Identity/Academy cards.
-        self::renderPhvPanel( $player_id, $phv_row, $phv_notice_html );
+        // #1089 VCT-14 — PHV panel under the Identity/Academy cards. PHV is
+        // VCT functionality, so it only renders when the VCT module is on
+        // (#2064).
+        if ( $vct_on ) {
+            self::renderPhvPanel( $player_id, $phv_row, $phv_notice_html );
+        }
     }
 
     /**

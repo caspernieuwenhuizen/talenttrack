@@ -44,7 +44,7 @@
     border-bottom: 0;
 }
 
-.tt-chem-cfg-num {
+.tt-dashboard .tt-chem-cfg-num {
     width: 5rem;
     min-height: 44px;
     flex: 0 0 auto;
@@ -59,14 +59,4 @@
 
 .tt-chem-cfg-footer .tt-btn {
     min-height: 48px;
-}
-
-@media (prefers-color-scheme: dark) {
-    .tt-chem-cfg-block {
-        background: #1b211f;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-    .tt-chem-cfg-row {
-        border-bottom-color: rgba(255, 255, 255, 0.06);
-    }
 }
