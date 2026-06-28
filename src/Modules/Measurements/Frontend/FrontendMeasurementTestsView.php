@@ -79,8 +79,32 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-success">' . esc_html( $flash ) . '</div>';
         }
 
-        self::renderNewTestButton();
+        self::renderModuleLinks();
         self::renderList();
+    }
+
+    /**
+     * In-body action links for the test catalogue: the "+ New test" wizard
+     * entry plus back-aware cross-links to the two execution surfaces so
+     * staff move Configure → Record → Review without the dashboard (§5
+     * back-pill via BackLink::appendTo). Not breadcrumb / back chrome —
+     * these are in-body actions, so they do not breach the two-affordance
+     * contract.
+     */
+    private static function renderModuleLinks(): void {
+        $base = RecordLink::dashboardUrl();
+
+        echo '<div class="tt-mt-links">';
+        self::renderNewTestButton();
+
+        $record_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-entry' ], $base ) );
+        echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $record_url ) . '">'
+            . esc_html__( 'Record measurements', 'talenttrack' ) . '</a>';
+
+        $coverage_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-coverage' ], $base ) );
+        echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $coverage_url ) . '">'
+            . esc_html__( 'Testing coverage', 'talenttrack' ) . '</a>';
+        echo '</div>';
     }
 
     // ── list ────────────────────────────────────────────────────────
@@ -508,8 +532,8 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         }
         $url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'measurement', '' );
         if ( $url === '' ) return;
-        echo '<p class="tt-mt-newtest"><a class="tt-btn tt-btn-primary" href="' . esc_url( $url ) . '">'
-            . esc_html__( '+ New test', 'talenttrack' ) . '</a></p>';
+        echo '<a class="tt-btn tt-btn-primary tt-mt-link" href="' . esc_url( $url ) . '">'
+            . esc_html__( '+ New test', 'talenttrack' ) . '</a>';
     }
 
     private static function enqueueViewCss(): void {

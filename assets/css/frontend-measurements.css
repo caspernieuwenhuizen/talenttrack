@@ -215,6 +215,14 @@
     white-space: nowrap;
 }
 
+/* In-body catalogue cross-links (Manage tests + New test). */
+.tt-me-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
 .tt-me-footer {
     display: flex;
     justify-content: flex-end;

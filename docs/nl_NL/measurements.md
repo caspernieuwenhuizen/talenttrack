@@ -146,3 +146,22 @@ boven aan deze lijst en vanaf *Metingen vastleggen*. Dezelfde catalogus is
 beschikbaar via REST op
 `/wp-json/talenttrack/v1/measurement-definitions` voor integraties en de
 SaaS-frontend.
+
+## Wisselen tussen de schermen
+
+**Tests & metingen** heeft drie schermen voor staf — *Tests beheren* (de
+catalogus inrichten), *Metingen vastleggen* (resultaten invoeren) en
+*Testdekking* (zien wie aan de beurt is) — en ze verwijzen naar elkaar,
+zodat je niet terug hoeft naar het dashboard:
+
+- *Metingen vastleggen* toont een link **Tests beheren** naast **+ Nieuwe
+  test**, zodat je snel de frequentie of banden van een test kunt aanpassen
+  en meteen terugkeert.
+- *Tests beheren* toont boven aan de lijst de links **Metingen vastleggen**
+  en **Testdekking**.
+- *Testdekking* toont een link **Tests beheren** (alleen voor staf die de
+  catalogus mag bewerken).
+
+Elke link draagt bij aankomst een contextuele terug-pil, zodat het
+bestemmingsscherm een terugroute met één klik biedt naar waar je vandaan
+kwam.

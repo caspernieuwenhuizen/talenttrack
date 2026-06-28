@@ -73,6 +73,9 @@ final class BackLabelResolver {
             case 'team_blueprint':  return __( 'Back to Team blueprint', 'talenttrack' );
             case 'pdp_planning':    return __( 'Back to PDP planning', 'talenttrack' );
             case 'team_planner':    return __( 'Back to Team planner', 'talenttrack' );
+            case 'measurement-tests':     return __( 'Back to Manage tests', 'talenttrack' );
+            case 'measurements-entry':    return __( 'Back to Record measurements', 'talenttrack' );
+            case 'measurements-coverage': return __( 'Back to Testing coverage', 'talenttrack' );
         }
         return __( 'Back', 'talenttrack' );
     }

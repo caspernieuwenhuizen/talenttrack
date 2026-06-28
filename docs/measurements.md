@@ -136,3 +136,21 @@ from the top of this list as well as from *Record measurements*. The same
 catalogue is available over REST at
 `/wp-json/talenttrack/v1/measurement-definitions` for integrations and the
 SaaS front end.
+
+## Moving between the surfaces
+
+**Tests & measurements** has three staff surfaces — *Manage tests* (set up
+the catalogue), *Record measurements* (enter results), and *Testing
+coverage* (review who's due) — and they cross-link so you don't have to
+return to the dashboard:
+
+- *Record measurements* shows a **Manage tests** link beside **+ New test**,
+  so you can jump to editing a test's cadence or bands and come straight
+  back.
+- *Manage tests* shows **Record measurements** and **Testing coverage**
+  links at the top of the list.
+- *Testing coverage* shows a **Manage tests** link (only for staff who can
+  edit the catalogue).
+
+Each link carries a contextual back-pill on arrival, so the destination
+offers a one-click route back to where you came from.

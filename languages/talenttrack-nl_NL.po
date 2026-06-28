@@ -44296,6 +44296,30 @@ msgstr "Die test kon niet worden gearchiveerd."
 msgid "Test saved."
 msgstr "Test opgeslagen."
 
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Manage tests"
+msgstr "Terug naar Tests beheren"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Record measurements"
+msgstr "Terug naar Metingen vastleggen"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Testing coverage"
+msgstr "Terug naar Testdekking"
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Tests & measurements: enter test results for a team."
+msgstr "Tests & metingen: voer testresultaten in voor een team."
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Tests & measurements: see who is due or overdue for each test."
+msgstr "Tests & metingen: zie wie aan de beurt of te laat is voor elke test."
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Tests & measurements: define the tests your academy runs and their target bands."
+msgstr "Tests & metingen: leg de tests vast die je academie afneemt en hun streefbanden."
+
 #~ msgid "You do not have permission to view player details."
 #~ msgstr "Je hebt geen permissie om spelerdetails te bekijken."
 
