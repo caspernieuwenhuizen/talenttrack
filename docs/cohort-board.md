@@ -57,3 +57,11 @@ or archiving alongside the season review.
 A current season must be configured (under **Configuration → Seasons**) for the
 board to work, because attendance and PDP verdicts are scoped to the current
 season.
+
+## Switching it off
+
+The cohort decision board is a per-tile feature, **off by default**. An
+academy admin turns it on (or off) under **Modules → Analytics → Cohort
+decision board**. While it is off the tile is hidden and the
+`?tt_view=cohort-board` URL returns the standard "not available" notice. The
+central Analytics surface and the analytics engine are unaffected.
