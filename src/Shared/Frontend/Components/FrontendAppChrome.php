@@ -100,8 +100,11 @@ final class FrontendAppChrome {
      *
      * @param array{
      *   label:string, value:string, delta?:string,
-     *   trend?:string, flag?:string, href?:string
-     * } $args trend ∈ up|down|flat; flag ∈ ''|red|green.
+     *   trend?:string, flag?:string, href?:string,
+     *   data?:array<string,string>
+     * } $args trend ∈ up|down|flat; flag ∈ ''|red|green. `data` renders
+     *         `data-<key>="<value>"` attributes on the tile container so a
+     *         JS surface can target it (e.g. to live-update the value).
      */
     public static function kpiTile( array $args ): string {
         $label = (string) ( $args['label'] ?? '' );
@@ -110,10 +113,16 @@ final class FrontendAppChrome {
         $trend = (string) ( $args['trend'] ?? '' );
         $flag  = (string) ( $args['flag'] ?? '' );
         $href  = (string) ( $args['href'] ?? '' );
+        $data  = is_array( $args['data'] ?? null ) ? $args['data'] : [];
 
         $tile_class = 'tt-kpi';
         if ( $flag === 'red' )   $tile_class .= ' tt-kpi--flag-red';
         if ( $flag === 'green' ) $tile_class .= ' tt-kpi--flag-green';
+
+        $data_attr = '';
+        foreach ( $data as $key => $val ) {
+            $data_attr .= ' data-' . esc_attr( (string) $key ) . '="' . esc_attr( (string) $val ) . '"';
+        }
 
         $inner  = '<span class="tt-kpi__label">' . esc_html( $label ) . '</span>';
         $inner .= '<span class="tt-kpi__val">' . esc_html( $value ) . '</span>';
@@ -123,8 +132,8 @@ final class FrontendAppChrome {
         }
 
         if ( $href !== '' ) {
-            return '<a class="' . esc_attr( $tile_class . ' tt-kpi--link' ) . '" href="' . esc_url( $href ) . '">' . $inner . '</a>';
+            return '<a class="' . esc_attr( $tile_class . ' tt-kpi--link' ) . '" href="' . esc_url( $href ) . '"' . $data_attr . '>' . $inner . '</a>';
         }
-        return '<div class="' . esc_attr( $tile_class ) . '">' . $inner . '</div>';
+        return '<div class="' . esc_attr( $tile_class ) . '"' . $data_attr . '>' . $inner . '</div>';
     }
 }

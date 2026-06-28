@@ -704,6 +704,10 @@
             if (shape) {
                 state.formationShape = shape;
                 root.setAttribute('data-formation-shape', shape);
+                // #2098 — keep the Formation KPI tile in sync with the picked
+                // shape; without this it kept showing the server-rendered value.
+                var kpiVal = document.querySelector('[data-tt-mp-formation-kpi] .tt-kpi__val');
+                if (kpiVal) kpiVal.textContent = shape;
                 renderPitches();
             }
             markDirty();
