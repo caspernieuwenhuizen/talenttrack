@@ -173,6 +173,32 @@ information so you know what an eventual purge would face.
 Right after a record moves to the bin, a banner offers **Undo** — one click
 restores it straight back out of the bin.
 
+## Opening an archived or trashed record
+
+You can open the detail page of a record that is no longer active. Before, a
+direct link to an archived or trashed record showed "does not exist", because
+the detail page only ever loaded live rows. Now it falls back to a **compact
+read-only summary** of the record instead.
+
+The read-only page shows the record's identity (name and photo where it has
+one) and a handful of key fields — enough to recognise which record it is —
+plus a status banner. It is deliberately **not** the full profile, and it
+carries **no Edit button**: to change a non-active record you restore it first,
+then edit.
+
+- An **archived** record shows an amber banner — "This record is archived",
+  with who archived it and when — and two actions: **Restore** (back to the
+  active list) and **Move to recycle bin**.
+- A **trashed** record shows a red banner — "In the recycle bin — deletes in
+  N days" — and two actions: **Restore to archive** (out of the bin, back to
+  the archived tier) and **Delete permanently now**.
+
+A trashed record is only reachable this way by an admin who can manage the bin.
+Anyone else who opens a trashed record's link gets the ordinary "not found"
+page — the same answer they would get for a record that never existed — so the
+existence of a soft-deleted minor's record is never confirmed to someone who
+may not see it.
+
 ## Audit trail
 
 Every bin action is recorded in the audit log with a stable action key per

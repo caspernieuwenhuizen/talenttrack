@@ -72,6 +72,15 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
         $teams_label = __( 'Teams', 'talenttrack' );
         if ( ! $team ) {
+            // #2022 — retry through the archive-aware gate so an archived /
+            // trashed team renders read-only instead of "does not exist". A
+            // null return stays a clean 404 (honours the trashed-visibility
+            // gate inside the domain method).
+            $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'team', $team_id );
+            if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+                self::renderArchivedReadOnly( $resolved, $teams_label );
+                return;
+            }
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Team not found', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
@@ -146,6 +155,42 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             </div>
         </article>
         <?php
+    }
+
+    /**
+     * #2022 — compact read-only surface for an archived / trashed team.
+     * Reached only via the not-found retry in render().
+     *
+     * @param array{row:object,state:string} $resolved
+     */
+    private static function renderArchivedReadOnly( array $resolved, string $teams_label ): void {
+        $team = $resolved['row'];
+        $name = (string) $team->name;
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            $name,
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
+        );
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::enqueue();
+
+        $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() );
+        $self_url  = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() );
+
+        $fields = [];
+        if ( ! empty( $team->age_group ) ) {
+            $fields[] = [
+                __( 'Age group', 'talenttrack' ),
+                esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ),
+            ];
+        }
+
+        \TT\Shared\Frontend\Components\ArchivedDetailCard::render( 'team', $resolved, [
+            'title'            => $name,
+            'initials'         => self::crestFor( $name ),
+            'fields'           => $fields,
+            'list_url'         => $teams_url,
+            'restore_redirect' => $self_url,
+        ] );
     }
 
     /**

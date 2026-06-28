@@ -187,6 +187,35 @@ informatie getoond.
 Direct nadat een record naar de prullenbak is verplaatst, biedt een melding
 **Ongedaan maken** — met één klik staat het record weer buiten de prullenbak.
 
+## Een gearchiveerd of verwijderd record openen
+
+Je kunt de detailpagina openen van een record dat niet langer actief is.
+Voorheen toonde een directe link naar een gearchiveerd of in de prullenbak
+geplaatst record "bestaat niet", omdat de detailpagina alleen actieve records
+laadde. Nu valt de pagina terug op een **compacte alleen-lezen samenvatting**
+van het record.
+
+De alleen-lezen pagina toont de identiteit van het record (naam en foto waar
+aanwezig) en een paar kernvelden — genoeg om te herkennen om welk record het
+gaat — plus een statusbanner. Het is bewust **niet** het volledige profiel en
+heeft **geen Bewerken-knop**: om een niet-actief record te wijzigen herstel je
+het eerst, daarna bewerk je het.
+
+- Een **gearchiveerd** record toont een amberkleurige banner — "Dit record is
+  gearchiveerd", met wie het archiveerde en wanneer — en twee acties:
+  **Herstellen** (terug naar de actieve lijst) en **Naar prullenbak**.
+- Een record in de **prullenbak** toont een rode banner — "In de prullenbak —
+  wordt over N dagen verwijderd" — en twee acties: **Terugzetten naar archief**
+  (uit de prullenbak, terug naar de gearchiveerde laag) en **Nu definitief
+  verwijderen**.
+
+Een record in de prullenbak is op deze manier alleen bereikbaar voor een
+beheerder die de prullenbak mag beheren. Iedereen anders die de link van zo'n
+record opent, krijgt de gewone "niet gevonden"-pagina — hetzelfde antwoord als
+voor een record dat nooit heeft bestaan — zodat het bestaan van het record van
+een verwijderde minderjarige nooit wordt bevestigd aan iemand die het niet mag
+zien.
+
 ## Auditspoor
 
 Elke prullenbakactie wordt vastgelegd in het auditlogboek met een stabiele
