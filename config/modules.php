@@ -40,6 +40,11 @@ return [
     TT\Modules\Journey\JourneyModule::class               => true,
     TT\Modules\PersonaDashboard\PersonaDashboardModule::class => true,
     TT\Modules\Spond\SpondModule::class                   => true,
+    // #2002 — per-player Strava activity integration. OAuth connect flow
+    // (#2056) ships the authorize/callback + encrypted per-player token
+    // store; token refresh (#2057), webhook subscriber (#2059), and
+    // activity ingest (#2058) build on top.
+    TT\Modules\Strava\StravaModule::class                 => true,
     TT\Modules\Players\PlayerStatusModule::class          => true,
     TT\Modules\Threads\ThreadsModule::class               => true,
     TT\Modules\Push\PushModule::class                     => true,
