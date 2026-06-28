@@ -44177,6 +44177,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
+msgid "Test not found."
+msgstr "Test niet gevonden."
+
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
+msgid "Invalid test id."
+msgstr "Ongeldige test-id."
+
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
+msgid "An age group is required for a target."
+msgstr "Voor een streefwaarde is een leeftijdsgroep vereist."
+
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
+msgid "Could not save the target."
+msgstr "Kan de streefwaarde niet opslaan."
+
 #~ msgid "You do not have permission to view player details."
 #~ msgstr "Je hebt geen permissie om spelerdetails te bekijken."
 

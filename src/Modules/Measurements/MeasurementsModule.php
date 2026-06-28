@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\MeasurementsRestController;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Measurements\Rest\MeasurementDefinitionsRestController;
 use TT\Modules\Measurements\Wizards\NewMeasurementWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -34,6 +35,8 @@ class MeasurementsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         MeasurementsRestController::init();
+        // #2120 — resource-oriented test-catalogue CRUD (/measurement-definitions).
+        MeasurementDefinitionsRestController::init();
 
         if ( class_exists( WizardRegistry::class ) ) {
             // §3 wizard-first: creating a test definition runs through the

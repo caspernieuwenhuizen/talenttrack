@@ -44,6 +44,33 @@ class MeasurementDefinitionsRepository {
     }
 
     /**
+     * All definitions, optionally including the inactive (is_active = 0) ones.
+     * Archived (soft-deleted) rows are always excluded. Club-scoped.
+     *
+     * @return array<int, object>
+     */
+    public function listAll( bool $include_inactive = false ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $active_clause = $include_inactive ? '' : ' AND d.is_active = 1';
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT d.*, lt.name AS category_name, lt.lookup_type AS category_lookup_type
+               FROM {$p}tt_measurement_definitions d
+               LEFT JOIN {$p}tt_lookups lt ON d.category_id = lt.id
+              WHERE d.club_id = %d AND d.archived_at IS NULL{$active_clause}
+              ORDER BY lt.sort_order ASC, d.sort_order ASC, d.name ASC",
+            CurrentClub::id()
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        foreach ( $rows as $row ) {
+            $row->category_label = $this->localiseCategory( $row );
+        }
+        return $rows;
+    }
+
+    /**
      * One definition by id (club-scoped, not archived).
      */
     public function find( int $id ): ?object {
