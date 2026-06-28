@@ -174,7 +174,15 @@
                 useCORS: true,
                 logging: false,
                 scrollX: 0,
-                scrollY: -window.scrollY
+                scrollY: -window.scrollY,
+                // Tag the cloned node so surfaces can supply capture-only CSS
+                // (e.g. force opaque fills where html2canvas can't resolve a
+                // nested CSS custom property). Applied to the clone only, so
+                // the on-screen page never changes.
+                onclone: function (clonedDoc) {
+                    var c = sel ? clonedDoc.querySelector(sel) : null;
+                    if (c) c.classList.add('tt-image-pdf-capture');
+                }
             }).then(function (canvas) {
                 var pdf = buildPdf(libs.jsPDF, canvas, orientation);
                 pdf.save(filename);
