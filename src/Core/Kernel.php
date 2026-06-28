@@ -118,6 +118,11 @@ class Kernel {
         // take over the template chokepoint so the active theme's header /
         // footer / sidebar never render around the TalentTrack UI.
         \TT\Shared\Frontend\CanvasShell::init();
+        // #2035 — brand the real WordPress 404. Hijacks the same
+        // template_include chokepoint as CanvasShell to render a theme-free
+        // branded "page not found" with the 404 status preserved; gated
+        // behind the club-scoped tt_handle_wp_404 flag (default on).
+        \TT\Shared\Frontend\Tt404Handler::init();
         \TT\Shared\Frontend\FlashMessages::init();
         // #2023 — shared recycle-bin cascade-preview REST endpoint that the
         // "Move to recycle bin" confirm dialog renders before a trash.

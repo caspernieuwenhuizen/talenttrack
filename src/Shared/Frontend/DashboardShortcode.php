@@ -39,6 +39,9 @@ class DashboardShortcode {
         // #1690 — shared frontend "app chrome": restyles the global header
         // into the top bar + persona chip, and ships the reusable KPI tile.
         wp_enqueue_style( 'tt-frontend-app-chrome', TT_PLUGIN_URL . 'assets/css/frontend-app-chrome.css', [ 'tt-public', 'tt-frontend-admin' ], TT_VERSION );
+        // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
+        // fallback (and shared with the standalone WP-404 takeover).
+        wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
@@ -334,9 +337,12 @@ class DashboardShortcode {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
         } elseif ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
             // v3.110.172 — every bool-returning dispatcher passed on the
-            // slug. No surface owns it; render the friendly fallback.
-            FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-            echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+            // slug. No surface owns it; render the branded 404 (#2035). The
+            // breadcrumb chain is the back affordance here (we are already
+            // inside the dashboard shell), so the inner content omits its own
+            // "Back to dashboard" button — §5 two-affordance contract.
+            FrontendBreadcrumbs::fromDashboard( __( 'Page not found', 'talenttrack' ) );
+            echo '<div class="tt-404">' . \TT\Shared\Frontend\Components\Tt404Page::innerHtml( false ) . '</div>';
         }
 
         echo '</div>';

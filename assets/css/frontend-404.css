@@ -1,0 +1,95 @@
+/*
+ * Branded TalentTrack 404 (#2035).
+ *
+ * Mobile-first (base ~360px, min-width up). Scoped under `.tt-404` so it
+ * styles both consumers — the standalone WP-404 takeover (rendered inside the
+ * theme-free canvas document) and the in-app `?tt_view=<unknown>` fallback
+ * (rendered inside `.tt-dashboard`). Tokens from tokens.css / public.css only;
+ * no new palette, no raw hex. Brand shades read --tt-primary / --tt-secondary
+ * already on the document, with the canonical fallbacks.
+ *
+ * Prefixed `.tt-404-*`. The active theme is treated as hostile (CLAUDE.md §2);
+ * every rule is wrapper-scoped.
+ */
+
+.tt-404 {
+    display: flex;
+    justify-content: center;
+    padding: var(--tt-sp-6, 24px) var(--tt-sp-4, 16px);
+}
+
+.tt-404-panel {
+    width: 100%;
+    max-width: 32rem;
+    text-align: center;
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-top: 4px solid var(--tt-primary, #0b3d2e);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+    padding: var(--tt-sp-6, 24px) var(--tt-sp-5, 20px);
+}
+
+.tt-404-emblem {
+    font-size: 3.5rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--tt-secondary, #e8b624);
+    margin-bottom: var(--tt-sp-3, 12px);
+}
+
+.tt-404-headline {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--tt-primary, #0b3d2e);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-404-subline {
+    font-size: var(--tt-fs-body, 1rem);
+    line-height: var(--tt-lh-body, 1.5);
+    color: var(--tt-ink-soft, #6a6d66);
+    margin: 0 auto var(--tt-sp-5, 20px);
+    max-width: 28rem;
+}
+
+.tt-404-actions {
+    margin: 0;
+}
+
+/* Guarantee the 48x48 touch target at the 360px base (the shared .tt-btn
+ * min-height:48px rule only kicks in at a larger breakpoint). */
+.tt-404-home {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 24px;
+}
+
+/* Tablet and up — a touch more breathing room and a larger emblem. */
+@media (min-width: 768px) {
+    .tt-404-panel {
+        padding: var(--tt-sp-6, 24px) var(--tt-sp-6, 24px);
+    }
+    .tt-404-emblem {
+        font-size: 4.5rem;
+    }
+    .tt-404-headline {
+        font-size: var(--tt-fs-h1, 1.75rem);
+    }
+}
+
+/* No non-essential motion. There is no animation here today, but should a
+ * future enhancement add one, honour the user's preference. */
+@media (prefers-reduced-motion: reduce) {
+    .tt-404-panel,
+    .tt-404-emblem,
+    .tt-404-home {
+        animation: none !important;
+        transition: none !important;
+    }
+}
