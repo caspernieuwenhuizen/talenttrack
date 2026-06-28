@@ -169,6 +169,12 @@ final class StravaRestController {
     /**
      * Mint a one-time authorize URL the browser then navigates to. The
      * signed state binds this player; the URL is not stored.
+     *
+     * Gate 2 — consent is enforced HERE, server-side, not just by a
+     * frontend checkbox. The caller passes `consent: true` when the
+     * inline acknowledgement (#2061) is ticked; we record + audit it.
+     * The authorize URL is refused until a consent acknowledgement is on
+     * record, so a hand-crafted request can't skip it.
      */
     public static function connect( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
@@ -181,11 +187,37 @@ final class StravaRestController {
             );
         }
 
+        $repo = new ConnectionRepository();
+
+        if ( self::truthy( $r->get_param( 'consent' ) ) && ! $repo->hasConsent( $player_id ) ) {
+            $repo->recordConsent( $player_id, get_current_user_id() );
+            ( new AuditService() )->record(
+                'player_strava.consent_recorded',
+                'player_strava_connection',
+                $player_id,
+                [ 'player_id' => $player_id, 'by' => get_current_user_id() ]
+            );
+            Logger::info( 'rest.strava.consent_recorded', [ 'player_id' => $player_id, 'user' => get_current_user_id() ] );
+        }
+
+        if ( ! $repo->hasConsent( $player_id ) ) {
+            return RestResponse::error(
+                'consent_required',
+                __( 'Please agree to share Strava activity data before connecting.', 'talenttrack' ),
+                422
+            );
+        }
+
         Logger::info( 'rest.strava.connect_initiated', [ 'player_id' => $player_id, 'user' => get_current_user_id() ] );
 
         return RestResponse::success( [
             'authorize_url' => StravaOAuth::authorizeUrl( $player_id ),
         ] );
+    }
+
+    /** REST params arrive as strings/bools/ints; treat all the obvious truths as true. */
+    private static function truthy( $value ): bool {
+        return in_array( $value, [ true, 1, '1', 'true', 'yes', 'on' ], true );
     }
 
     public static function disconnect( \WP_REST_Request $r ): \WP_REST_Response {
@@ -215,9 +247,11 @@ final class StravaRestController {
 
         if ( ! $row || (string) $row->status !== 'connected' ) {
             return RestResponse::success( [
-                'connected'  => false,
-                'status'     => $row ? (string) $row->status : 'never',
-                'configured' => StravaConfig::hasCredentials(),
+                'connected'   => false,
+                'status'      => $row ? (string) $row->status : 'never',
+                'configured'  => StravaConfig::hasCredentials(),
+                'has_consent' => $row !== null && $row->consent_at !== null,
+                'consent_at'  => $row ? (string) ( $row->consent_at ?? '' ) : '',
             ] );
         }
 
@@ -225,6 +259,8 @@ final class StravaRestController {
             'connected'    => true,
             'status'       => 'connected',
             'configured'   => StravaConfig::hasCredentials(),
+            'has_consent'  => $row->consent_at !== null,
+            'consent_at'   => (string) ( $row->consent_at ?? '' ),
             'athlete_id'   => (int) $row->strava_athlete_id,
             'connected_at' => (string) $row->connected_at,
             'last_sync_at' => (string) ( $row->last_sync_at ?? '' ),

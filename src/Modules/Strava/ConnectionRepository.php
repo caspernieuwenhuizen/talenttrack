@@ -122,6 +122,46 @@ final class ConnectionRepository {
         return $ok !== false;
     }
 
+    /**
+     * Record the player-view consent acknowledgement (Gate 2). Creates a
+     * `pending` connection row carrying `consent_at` / `consent_by` if one
+     * doesn't exist yet, or stamps consent on the existing row. The OAuth
+     * authorize URL is never minted until this is set (#2060), so consent
+     * is captured BEFORE any Strava redirect — and the later `connect()`
+     * on a successful exchange leaves `consent_at` untouched, preserving
+     * the original acknowledgement timestamp.
+     */
+    public function recordConsent( int $player_id, int $user_id ): void {
+        global $wpdb;
+        $now      = current_time( 'mysql' );
+        $existing = $this->findByPlayerId( $player_id );
+
+        if ( $existing ) {
+            $wpdb->update(
+                $this->table(),
+                [ 'consent_at' => $now, 'consent_by' => $user_id, 'updated_at' => $now ],
+                [ 'id' => (int) $existing->id ]
+            );
+            return;
+        }
+
+        $wpdb->insert( $this->table(), [
+            'player_id'  => $player_id,
+            'club_id'    => CurrentClub::id(),
+            'uuid'       => wp_generate_uuid4(),
+            'status'     => 'pending',
+            'consent_at' => $now,
+            'consent_by' => $user_id,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ] );
+    }
+
+    public function hasConsent( int $player_id ): bool {
+        $row = $this->findByPlayerId( $player_id );
+        return $row !== null && $row->consent_at !== null;
+    }
+
     public function getAccessToken( int $player_id ): string {
         $row = $this->findByPlayerId( $player_id );
         if ( ! $row || $row->access_token_enc === null ) return '';

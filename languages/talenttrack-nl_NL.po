@@ -44031,6 +44031,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Could not create the Strava webhook subscription."
 msgstr "Kon het Strava-webhookabonnement niet aanmaken."
 
+#: src/Infrastructure/REST/StravaRestController.php
+msgid "Please agree to share Strava activity data before connecting."
+msgstr "Ga akkoord met het delen van Strava-activiteitsgegevens voordat je verbindt."
+
 #~ msgid "PDP setup views"
 #~ msgstr "POP-instelweergaven"
 
