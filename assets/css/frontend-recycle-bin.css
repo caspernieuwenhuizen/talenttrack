@@ -47,6 +47,31 @@
     font-weight: 600;
 }
 
+/* ---- auto-purge blocked notice (#2025) ----------------------------- */
+
+.tt-rb-blocked {
+    border: 1px solid var(--tt-warning);
+    background: var(--tt-warning-subtle);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-rb-blocked__text {
+    margin: 0;
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+/* Per-group flag for block_only entity types that can never auto-purge. */
+.tt-rb-group__flag {
+    margin: 0 0 var(--tt-sp-2);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
 /* ---- list + rows ---------------------------------------------------- */
 
 .tt-rb-list {
