@@ -43916,6 +43916,24 @@ msgstr[1] ""
 "nog naar verwijzen. Ze blijven hier staan totdat u verwijdert wat ervan "
 "afhankelijk is."
 
+msgid "Offside! This page is out of play"
+msgstr "Buitenspel! Deze pagina staat niet meer in het veld"
+
+msgid ""
+"The link you followed has wandered off the pitch. The page may have been "
+"renamed, moved, or subbed off — but every player's journey carries on from "
+"the dashboard."
+msgstr ""
+"De link die u volgde is van het veld afgedwaald. De pagina is mogelijk "
+"hernoemd, verplaatst of gewisseld — maar de reis van elke speler gaat verder "
+"vanaf het dashboard."
+
+msgid "Back to dashboard"
+msgstr "Terug naar dashboard"
+
+msgid "Page not found"
+msgstr "Pagina niet gevonden"
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 
