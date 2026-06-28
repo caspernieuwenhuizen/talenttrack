@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.63.4\n"
+"Project-Id-Version: TalentTrack 4.63.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T17:42:15+00:00\n"
+"POT-Creation-Date: 2026-06-28T17:48:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -14384,7 +14384,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:168
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:985
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:319
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:476
@@ -14395,7 +14395,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:986
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:320
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:478
@@ -14944,7 +14944,7 @@ msgstr ""
 
 #. translators: %s: arrival/presence time, e.g. "13:15"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:587
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:306
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:310
 #, php-format
 msgid "Present %s"
 msgstr ""
@@ -14964,7 +14964,7 @@ msgstr ""
 
 #. translators: %d: duration in minutes
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:691
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:579
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:617
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:377
 #, php-format
@@ -22229,7 +22229,7 @@ msgstr ""
 #. translators: %s = kickoff time HH:MM
 #. translators: %s: kickoff time, e.g. "11:00"
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:316
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:320
 #, php-format
 msgid "Kickoff %s"
 msgstr ""

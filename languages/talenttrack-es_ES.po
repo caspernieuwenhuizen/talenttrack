@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-28T17:42:15+00:00\n"
+"POT-Creation-Date: 2026-06-28T17:48:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -15294,7 +15294,7 @@ msgstr "Resultado"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:168
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:985
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:319
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:476
@@ -15305,7 +15305,7 @@ msgstr "Local"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:986
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:320
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:478
@@ -15866,7 +15866,7 @@ msgstr ""
 
 #. translators: %s: arrival/presence time, e.g. "13:15"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:587
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:306
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:310
 #, php-format
 msgid "Present %s"
 msgstr ""
@@ -15886,7 +15886,7 @@ msgstr ""
 
 #. translators: %d: duration in minutes
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:691
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:579
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:617
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:377
 #, php-format
@@ -23558,7 +23558,7 @@ msgstr ""
 #. translators: %s = kickoff time HH:MM
 #. translators: %s: kickoff time, e.g. "11:00"
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:316
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:320
 #, php-format
 msgid "Kickoff %s"
 msgstr ""
