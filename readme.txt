@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.63.0
+Stable tag: 4.63.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.1 — Player card folded into the unified profile as a tab (#1988) The player-card showcase that used to live only on a player's own "My card" — the skills radar, the FIFA-style player card, and the rating KPIs (Latest, Last 5 with its momentum delta, All-time, Evaluations) — is now a "Player card" tab on the one unified player profile. A coach, head of development or parent viewing the player now sees that at-a-glance standing in context, without leaving the page. Same audience as the rest of the profile; no extra permission, and the card keeps its own coming-soon state before the first rated evaluation. =
 
 = 4.63.0 — Parent dashboard mirrors the player's tile grid (#2081) A parent's dashboard now mirrors their child's own development tiles — the same Me-group surfaces a player sees, in the same order — relabeled to the child's first name as an Anglo possessive ("Sven's development", "Sven's card", "Sven's evaluations"). This replaces the hardcoded five-tile curation shipped in #1992.  Because the tiles are resolved through the normal tile registry, the parent surface inherits module and `player_*` feature gating automatically: switching off a player feature (e.g. `player_goals`) removes that tile for both the player and the parent, with no parent-specific list to maintain, and adding a new player Me-tile surfaces for parents with no extra work. "My tasks" is included so a parent can help remind their child of pending tasks. Account-level tiles (settings, password) stay the parent's own — not child-scoped or relabeled. The child anchor (name + photo), the multi-child switcher, and `player_id`-scoped URLs (with `canViewPlayer` authorization) are unchanged. =
 
