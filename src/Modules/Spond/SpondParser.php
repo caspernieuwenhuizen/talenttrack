@@ -18,7 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   startTimestamp  → dtstart   (ISO 8601 → MySQL UTC)
  *   endTimestamp    → dtend
  *   meetupTimestamp | (startTimestamp − meetupPrior minutes) → meetup
- *   location.feature→ location  (with fallback to .address / .name)
+ *   location.feature + location.address → location  (one line:
+ *                    "Venue | Address"; either alone when only one present)
  *   description     → description
  *   updated|lastModified → last_modified
  *   cancelled       → drop the row entirely (treat like UID-disappeared)
@@ -82,23 +83,40 @@ final class SpondParser {
         }
     }
 
+    /** Separator between the venue name and the street address. */
+    private const LOCATION_SEPARATOR = ' | ';
+
     /**
-     * Spond returns `location` as an object — `feature` is the
-     * human-readable line a coach typed in. Fall back to `address` or
-     * `name` so a location field that's been shaped differently by
-     * upstream still ends up in the activity row.
+     * Spond returns `location` as an object with a `feature` (the venue
+     * name a coach typed in, falling back to `name` / `displayName`) and
+     * a separate `address` (the full street address). Capture BOTH on one
+     * line — `Venue | Address` — so the activity row keeps the address,
+     * not just the label. When only one is present, return that single
+     * value; when the address already contains (or equals) the label,
+     * don't double it.
      *
      * @param mixed $location
      */
     private static function extractLocation( $location ): string {
         if ( is_string( $location ) ) return trim( $location );
         if ( ! is_array( $location ) ) return '';
-        foreach ( [ 'feature', 'address', 'name', 'displayName' ] as $key ) {
-            $v = (string) ( $location[ $key ] ?? '' );
-            $v = trim( $v );
-            if ( $v !== '' ) return $v;
+
+        $label = '';
+        foreach ( [ 'feature', 'name', 'displayName' ] as $key ) {
+            $v = trim( (string) ( $location[ $key ] ?? '' ) );
+            if ( $v !== '' ) { $label = $v; break; }
         }
-        return '';
+        $address = trim( (string) ( $location['address'] ?? '' ) );
+
+        if ( $label === '' )   return $address;
+        if ( $address === '' ) return $label;
+
+        // Avoid "name | name" when the address already carries the label
+        // (or vice-versa) — keep the more complete single value.
+        if ( stripos( $address, $label ) !== false ) return $address;
+        if ( stripos( $label, $address ) !== false ) return $label;
+
+        return $label . self::LOCATION_SEPARATOR . $address;
     }
 
     /**
