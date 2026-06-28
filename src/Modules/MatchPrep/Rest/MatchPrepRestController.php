@@ -205,14 +205,18 @@ class MatchPrepRestController {
                 $formation_id
             ) );
         }
+        // #2099 — prefer the bound template's own slot labels (slots_json) so
+        // a diamond's positions project correctly; fall back to the shape map.
         $slot_position = [];
-        if ( $shape !== '' ) {
+        $layout = FrontendMatchPrepView::templateSlotLayout( $formation_id );
+        if ( $layout === null && $shape !== '' ) {
             $layouts = FrontendMatchPrepView::defaultSlotLayouts();
-            if ( isset( $layouts[ $shape ] ) ) {
-                foreach ( $layouts[ $shape ] as $entry ) {
-                    if ( isset( $entry['num'], $entry['label'] ) ) {
-                        $slot_position[ (int) $entry['num'] ] = (string) $entry['label'];
-                    }
+            $layout  = $layouts[ $shape ] ?? null;
+        }
+        if ( is_array( $layout ) ) {
+            foreach ( $layout as $entry ) {
+                if ( isset( $entry['num'], $entry['label'] ) ) {
+                    $slot_position[ (int) $entry['num'] ] = (string) $entry['label'];
                 }
             }
         }

@@ -42,9 +42,15 @@ final class PitchLayoutService {
      * }>
      */
     public function positionedXi( int $formation_template_id, array $slot_to_player, array $player_meta ): array {
-        $shape   = $this->resolveShape( $formation_template_id );
-        $layouts = FrontendMatchPrepView::defaultSlotLayouts();
-        $layout  = $layouts[ $shape ] ?? $layouts[ self::FALLBACK_SHAPE ] ?? [];
+        // #2099 — a template's own geometry (slots_json) wins, so a 3-4-3
+        // diamond positions as a diamond. Falls back to the shape default
+        // when the template carries no num-bearing slots_json.
+        $layout = FrontendMatchPrepView::templateSlotLayout( $formation_template_id );
+        if ( $layout === null ) {
+            $shape   = $this->resolveShape( $formation_template_id );
+            $layouts = FrontendMatchPrepView::defaultSlotLayouts();
+            $layout  = $layouts[ $shape ] ?? $layouts[ self::FALLBACK_SHAPE ] ?? [];
+        }
 
         $out = [];
         foreach ( $layout as $slot ) {
