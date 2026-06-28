@@ -51,6 +51,34 @@ final class StravaClient {
     }
 
     /**
+     * Exchange a refresh token for a fresh access + refresh token pair.
+     * Strava rotates the refresh token on every call and kills the old
+     * one immediately, so the caller MUST persist `refresh_token` here,
+     * not just the access token, or the next refresh is locked out
+     * (#2057 — `ConnectionRepository::rotateTokens` does this atomically).
+     *
+     * @return array{ok:bool,access_token?:string,refresh_token?:string,expires_at?:int,http_code?:int,error_code?:string,error_message?:string}
+     */
+    public static function refreshToken( string $refresh_token ): array {
+        $res = self::tokenRequest( [
+            'client_id'     => StravaConfig::clientId(),
+            'client_secret' => StravaConfig::clientSecret(),
+            'grant_type'    => 'refresh_token',
+            'refresh_token' => $refresh_token,
+        ] );
+        if ( empty( $res['ok'] ) ) {
+            return $res;
+        }
+        $body = $res['body'];
+        return [
+            'ok'            => true,
+            'access_token'  => (string) ( $body['access_token'] ?? '' ),
+            'refresh_token' => (string) ( $body['refresh_token'] ?? '' ),
+            'expires_at'    => (int) ( $body['expires_at'] ?? 0 ),
+        ];
+    }
+
+    /**
      * Revoke an athlete's grant (Strava `/oauth/deauthorize`). Best
      * effort — a failure here is logged but the local disconnect still
      * proceeds so a player is never stuck "connected" in our UI.
