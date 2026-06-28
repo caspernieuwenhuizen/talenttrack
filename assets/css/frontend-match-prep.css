@@ -326,6 +326,27 @@
     color: #fff;
 }
 
+/* -------------------------------------------------------------------
+ * PDF capture mode (#2112) — tt-image-pdf.js adds .tt-image-pdf-capture
+ * to the cloned grid during html2canvas. html2canvas can't resolve the
+ * nested `--tt-mp-paper` custom property, so panel fills drop out (grey)
+ * and shadows render as halos; the translucent slot pills also blend
+ * with the blue/orange pitch. Force literal opaque white + no shadow so
+ * the export matches the screen. On-screen rendering is untouched (this
+ * only applies in the html2canvas clone). Pitch colours are left alone.
+ * ------------------------------------------------------------------- */
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-panel,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-goals,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox {
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-name,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-num {
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
 .tt-mp-copy-col {
     display: flex;
     align-items: center;
