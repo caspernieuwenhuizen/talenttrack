@@ -121,18 +121,74 @@ final class StravaRestControllerTest extends WP_UnitTestCase {
         $this->assertFalse( $resp->get_data()['success'] );
     }
 
-    public function test_connect_returns_authorize_url_when_configured(): void {
+    public function test_connect_returns_authorize_url_when_configured_and_consented(): void {
         StravaConfig::saveCredentials( '12345', 'shh-secret' );
         $player_id = $this->insertPlayer( 'Ready', 0 );
 
         $req = new WP_REST_Request( 'POST' );
         $req->set_param( 'id', $player_id );
+        $req->set_param( 'consent', true ); // Gate 2 — consent ticked
         $data = StravaRestController::connect( $req )->get_data();
 
         $this->assertTrue( $data['success'] );
         $this->assertStringContainsString( '/oauth/authorize', $data['data']['authorize_url'] );
         $this->assertStringContainsString( 'client_id=12345', $data['data']['authorize_url'] );
         $this->assertStringContainsString( 'state=', $data['data']['authorize_url'] );
+    }
+
+    public function test_connect_refuses_without_consent(): void {
+        StravaConfig::saveCredentials( '12345', 'shh-secret' );
+        $player_id = $this->insertPlayer( 'No consent', 0 );
+
+        $req = new WP_REST_Request( 'POST' );
+        $req->set_param( 'id', $player_id );
+        // No consent param → authorize URL must NOT be minted.
+        $resp = StravaRestController::connect( $req );
+
+        $this->assertSame( 422, $resp->get_status() );
+        $this->assertFalse( $resp->get_data()['success'] );
+        $this->assertSame( 'consent_required', $resp->get_data()['errors'][0]['code'] );
+    }
+
+    public function test_consent_is_recorded_and_audited_once(): void {
+        StravaConfig::saveCredentials( '12345', 'shh-secret' );
+        $player_id = $this->insertPlayer( 'Consenter', 0 );
+        $repo      = new ConnectionRepository();
+
+        $this->assertFalse( $repo->hasConsent( $player_id ) );
+
+        $req = new WP_REST_Request( 'POST' );
+        $req->set_param( 'id', $player_id );
+        $req->set_param( 'consent', true );
+        StravaRestController::connect( $req );
+
+        $this->assertTrue( $repo->hasConsent( $player_id ), 'consent is persisted on a pending row' );
+
+        // Status surfaces the recorded consent (even pre-connection).
+        $statusReq = new WP_REST_Request( 'GET' );
+        $statusReq->set_param( 'id', $player_id );
+        $status = StravaRestController::status( $statusReq )->get_data()['data'];
+        $this->assertTrue( $status['has_consent'] );
+        $this->assertNotSame( '', $status['consent_at'] );
+    }
+
+    public function test_consent_survives_the_oauth_connect(): void {
+        $player_id = $this->insertPlayer( 'Keeps consent', 0 );
+        $repo      = new ConnectionRepository();
+        $repo->recordConsent( $player_id, 7 );
+        $consent_at = (string) $repo->findByPlayerId( $player_id )->consent_at;
+
+        // A successful OAuth exchange connects the same row…
+        $repo->connect( $player_id, [
+            'athlete_id'    => 1,
+            'access_token'  => 'a',
+            'refresh_token' => 'r',
+            'expires_at'    => time() + 3600,
+        ] );
+
+        $row = $repo->findByPlayerId( $player_id );
+        $this->assertSame( 'connected', (string) $row->status );
+        $this->assertSame( $consent_at, (string) $row->consent_at, 'the original consent timestamp is preserved' );
     }
 
     // ---- repository: encryption at rest + status never leaks secrets ----
