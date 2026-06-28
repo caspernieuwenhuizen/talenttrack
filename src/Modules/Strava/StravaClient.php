@@ -22,6 +22,9 @@ final class StravaClient {
 
     public const TIMEOUT_SECONDS = 15;
 
+    /** User-agent format; the version is interpolated in `userAgent()`. */
+    private const USER_AGENT_FORMAT = 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)';
+
     /**
      * Exchange an authorization `code` for an access + refresh token set.
      *
@@ -113,6 +116,6 @@ final class StravaClient {
 
     public static function userAgent(): string {
         $version = defined( 'TT_VERSION' ) ? TT_VERSION : '0';
-        return sprintf( 'TalentTrack/%s (+https://github.com/caspernieuwenhuizen/talenttrack)', $version );
+        return sprintf( self::USER_AGENT_FORMAT, $version );
     }
 }
