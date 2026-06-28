@@ -99,6 +99,40 @@ class PlayerMeasurementProfile {
     }
 
     /**
+     * Journey-narrative summary for one player — the at-a-glance signal
+     * surfaced beside the player's other KPIs (#2123). Counts the tests
+     * the player has a current value for, and how many of those sit below
+     * their age-group target (amber + red against the band). The flag
+     * maths is the same `PlayerMeasurementProfile::forPlayer()` runs, so
+     * the summary and the full timeline never disagree.
+     *
+     * @return array{tracked:int, ok:int, warn:int, bad:int, flagged:int}
+     *   `tracked`  — tests with a latest value
+     *   `ok`/`warn`/`bad` — green / amber / red flag counts
+     *   `flagged`  — warn + bad (tests below the target band)
+     */
+    public function summaryForPlayer( int $player_id ): array {
+        $empty = [ 'tracked' => 0, 'ok' => 0, 'warn' => 0, 'bad' => 0, 'flagged' => 0 ];
+        if ( $player_id <= 0 ) return $empty;
+
+        $out = $empty;
+        foreach ( $this->forPlayer( $player_id ) as $cat ) {
+            foreach ( (array) ( $cat['tests'] ?? [] ) as $test ) {
+                if ( (string) ( $test['latest_value'] ?? '' ) === '' ) {
+                    continue; // no current value → not a tracked test
+                }
+                $out['tracked']++;
+                $flag = (string) ( $test['flag'] ?? '' );
+                if ( $flag === 'ok' || $flag === 'warn' || $flag === 'bad' ) {
+                    $out[ $flag ]++;
+                }
+            }
+        }
+        $out['flagged'] = $out['warn'] + $out['bad'];
+        return $out;
+    }
+
+    /**
      * Render a result's value for display, honouring the test's value type.
      */
     private function displayValue( object $def, ?object $row ): string {
