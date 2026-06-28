@@ -44028,6 +44028,22 @@ msgstr "Terug naar dashboard"
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Record state"
+msgstr "Recordstatus"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Select a team to see its players."
+msgstr "Selecteer een team om de spelers te zien."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Choose a team…"
+msgstr "Kies een team…"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "No archived PDP files."
+msgstr "Geen gearchiveerde POP-bestanden."
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 
