@@ -18,9 +18,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   startTimestamp  → dtstart   (ISO 8601 → MySQL UTC)
  *   endTimestamp    → dtend
  *   meetupTimestamp | (startTimestamp − meetupPrior minutes) → meetup
- *   location.feature + location.address → location  (venue name on
- *                    line 1, street address on line 2; either alone when
- *                    only one is present)
+ *   location.feature + location.address → location  (one line:
+ *                    "Venue | Address"; either alone when only one present)
  *   description     → description
  *   updated|lastModified → last_modified
  *   cancelled       → drop the row entirely (treat like UID-disappeared)
@@ -84,14 +83,17 @@ final class SpondParser {
         }
     }
 
+    /** Separator between the venue name and the street address. */
+    private const LOCATION_SEPARATOR = ' | ';
+
     /**
      * Spond returns `location` as an object with a `feature` (the venue
      * name a coach typed in, falling back to `name` / `displayName`) and
-     * a separate `address` (the full street address). Capture BOTH — the
-     * venue name on the first line and the address on the second, joined
-     * by a newline — so the activity row keeps the address, not just the
-     * label. When only one is present, return that single value; when the
-     * address already contains (or equals) the label, don't double it.
+     * a separate `address` (the full street address). Capture BOTH on one
+     * line — `Venue | Address` — so the activity row keeps the address,
+     * not just the label. When only one is present, return that single
+     * value; when the address already contains (or equals) the label,
+     * don't double it.
      *
      * @param mixed $location
      */
@@ -109,12 +111,12 @@ final class SpondParser {
         if ( $label === '' )   return $address;
         if ( $address === '' ) return $label;
 
-        // Avoid "name\nname" when the address already carries the label
+        // Avoid "name | name" when the address already carries the label
         // (or vice-versa) — keep the more complete single value.
         if ( stripos( $address, $label ) !== false ) return $address;
         if ( stripos( $label, $address ) !== false ) return $label;
 
-        return $label . "\n" . $address;
+        return $label . self::LOCATION_SEPARATOR . $address;
     }
 
     /**
