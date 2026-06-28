@@ -652,10 +652,11 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      */
     private static function loadTrialPlayers( int $team_id ): array {
         global $wpdb;
-        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
+        $scope     = QueryHelpers::apply_demo_scope( 'p', 'player' );
+        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'p' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-              WHERE p.team_id = %d AND p.status = 'trial' AND p.club_id = %d {$scope}
+              WHERE p.team_id = %d AND p.status = 'trial' AND p.club_id = %d AND {$lifecycle} {$scope}
               ORDER BY p.last_name, p.first_name ASC",
             $team_id,
             \TT\Infrastructure\Tenancy\CurrentClub::id()

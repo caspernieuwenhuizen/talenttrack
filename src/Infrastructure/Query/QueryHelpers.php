@@ -283,18 +283,19 @@ class QueryHelpers {
     /** @return object[] */
     public static function get_players( int $team_id = 0 ): array {
         global $wpdb;
-        $scope = self::apply_demo_scope( 'p', 'player' );
+        $scope     = self::apply_demo_scope( 'p', 'player' );
+        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'p' );
         if ( $team_id ) {
             return $wpdb->get_results( $wpdb->prepare(
                 "SELECT p.* FROM {$wpdb->prefix}tt_players p
-                 WHERE p.team_id = %d AND p.status = 'active' AND p.club_id = %d {$scope}
+                 WHERE p.team_id = %d AND p.status = 'active' AND p.club_id = %d AND {$lifecycle} {$scope}
                  ORDER BY p.last_name, p.first_name ASC",
                 $team_id, CurrentClub::id()
             ) );
         }
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-             WHERE p.status = 'active' AND p.club_id = %d {$scope}
+             WHERE p.status = 'active' AND p.club_id = %d AND {$lifecycle} {$scope}
              ORDER BY p.last_name, p.first_name ASC",
             CurrentClub::id()
         ) );
@@ -312,11 +313,12 @@ class QueryHelpers {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn( $v ) => $v > 0 ) ) );
         if ( ! $ids ) return [];
         global $wpdb;
-        $scope = self::apply_demo_scope( 'p', 'player' );
-        $ph    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $scope     = self::apply_demo_scope( 'p', 'player' );
+        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'p' );
+        $ph        = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-             WHERE p.team_id IN ($ph) AND p.status = 'active' AND p.club_id = %d {$scope}
+             WHERE p.team_id IN ($ph) AND p.status = 'active' AND p.club_id = %d AND {$lifecycle} {$scope}
              ORDER BY p.last_name, p.first_name ASC",
             ...array_merge( $ids, [ CurrentClub::id() ] )
         ) );
