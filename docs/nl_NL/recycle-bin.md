@@ -73,6 +73,67 @@ De termijn is een expliciete **bewaar- / hersteltermijn**, geen toeval:
   hangen, zodat de academie niet stilletjes records bewaart die ze besloten
   heeft te verwijderen.
 
+## Het automatisch opschonen
+
+Een dagelijkse taak leegt de prullenbak: elke dag zoekt hij elk record
+waarvan de bewaartermijn is verstreken (meer dan 30 dagen geleden in de
+prullenbak gegooid, of de termijn die de club heeft ingesteld) en
+verwijdert het definitief. Niemand hoeft eraan te denken de prullenbak te
+legen — zodra de aftelteller van een record op nul staat, verwijdert de
+volgende dagelijkse ronde het.
+
+Twee dingen zijn van belang aan hoe het opschonen verloopt:
+
+- **Het gebruikt hetzelfde verwijderpad als "Nu verwijderen".** Een
+  automatische opschoning is geen sluiproute die waarborgen omzeilt: hij
+  loopt via precies dezelfde cascade als een handmatige verwijdering, zodat
+  een speler of persoon over elke gekoppelde tabel wordt gewist
+  (evaluaties, doelen, blessures, aanwezigheid, tijdlijngebeurtenissen en de
+  rest) in plaats van losse onderliggende records achter te laten.
+- **Het draait onbeheerd, als het systeem.** Omdat er niemand is ingelogd
+  wanneer de taak draait, worden de auditregels die hij schrijft toegeschreven
+  aan het **systeem**, niet aan een persoon — zodat het auditlog nooit
+  suggereert dat een medewerker op verwijderen drukte. De actiesleutels zijn
+  dezelfde `{entity}.purged`-sleutels die een handmatige verwijdering schrijft.
+
+De taak rijdt mee op dezelfde achtergrondplanner die de workflow-engine
+gebruikt, dus hij blijft werken zolang geplande taken op de installatie
+draaien. Als geplande taken zijn gestopt (zie
+[Workflow-engine — cron-instelling](workflow-engine-cron-setup.md)), pauzeert
+het opschonen ook — records wachten dan gewoon in de prullenbak tot de
+planning weer gezond is. Er wordt nooit te vroeg of dubbel opgeschoond.
+
+## Records die niet automatisch verwijderd kunnen worden
+
+Soms bereikt een record het einde van zijn termijn maar **kan** het niet
+opgeschoond worden omdat andere records er nog van afhankelijk zijn. Het
+opschonen is **fail-closed**: in plaats van het risico te lopen te veel te
+verwijderen (of de records die ernaar verwijzen verweesd achter te laten),
+**slaat** het dat record **over**, laat het veilig in de prullenbak staan en
+gaat verder. Er wordt nooit iets geforceerd verwijderd om een afhankelijkheid
+op te ruimen.
+
+Wanneer dit gebeurt, toont de prullenbak bovenaan een melding — *"N records
+konden niet automatisch worden verwijderd omdat andere records er nog naar
+verwijzen"*. Om ze op te ruimen, verwijdert of herwijst u wat er nog van
+afhankelijk is; daarna wordt het bij een latere ronde opgeschoond (of u
+gebruikt **Nu verwijderen**, dat u precies laat zien wat het blokkeert).
+
+Een paar recordtypen kunnen **nooit** automatisch worden opgeschoond, met
+opzet. **Meetdefinities** en **proeftrajecten** zijn sjablonen: er één
+verwijderen mag nooit de metingen of proefdossiers die ervan gebouwd zijn
+mee-verwijderen. Daarom blokkeren ze altijd zolang er nog iets gebruik van
+maakt, en blijven hun records in de prullenbak staan — met een notitie dat de
+30-daagse opschoning dit recordtype niet kan verwijderen — totdat u de records
+die ernaar verwijzen verwijdert. Dit is bewust: het ergste geval voor een
+sjabloon is dat hij blijft hangen, nooit dat hij stilletjes echte
+spelersgegevens meeneemt.
+
+(Teams en activiteiten vallen **niet** in deze categorie: zij hebben volledige
+cascades die wezen behouden, dus een team of activiteit verwijderen herwijst
+de spelers en behoudt hun ontwikkelgegevens, en ze worden normaal
+opgeschoond.)
+
 ## AVG — bewaargrondslag en het recht op vergetelheid
 
 Dit zijn gegevens van minderjarigen, dus de bewaargrondslag is expliciet.

@@ -43889,6 +43889,33 @@ msgstr ""
 msgid "Unknown player"
 msgstr "Onbekende speler"
 
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+msgid ""
+"These records are kept until you remove what still depends on them — the "
+"automatic 30-day purge cannot delete this record type."
+msgstr ""
+"Deze records blijven bewaard totdat u verwijdert wat er nog van afhankelijk "
+"is — de automatische opschoning na 30 dagen kan dit recordtype niet "
+"verwijderen."
+
+#. translators: %d is the number of records the auto-purge could not delete.
+#: src/Shared/Frontend/FrontendRecycleBinView.php
+#, php-format
+msgid ""
+"%d record couldn't be auto-deleted because other records still reference it. "
+"It stays here until you remove what depends on it."
+msgid_plural ""
+"%d records couldn't be auto-deleted because other records still reference "
+"them. They stay here until you remove what depends on them."
+msgstr[0] ""
+"%d record kon niet automatisch worden verwijderd omdat andere records er nog "
+"naar verwijzen. Het blijft hier staan totdat u verwijdert wat ervan "
+"afhankelijk is."
+msgstr[1] ""
+"%d records konden niet automatisch worden verwijderd omdat andere records er "
+"nog naar verwijzen. Ze blijven hier staan totdat u verwijdert wat ervan "
+"afhankelijk is."
+
 #~ msgid "Show cancelled"
 #~ msgstr "Geannuleerde tonen"
 

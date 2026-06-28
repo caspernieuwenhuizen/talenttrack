@@ -65,6 +65,59 @@ The window is an explicit **retention / recovery buffer**, not an accident:
 - It bounds how long staged-for-deletion data lingers, so the academy is not
   silently hoarding records it has decided to remove.
 
+## The automatic purge
+
+A daily job empties the bin: each day it finds every record whose retention
+window has elapsed (trashed more than 30 days ago, or whatever the club's
+window is set to) and purges it for good. No one has to remember to empty the
+bin — once a record's countdown reaches zero, the next daily sweep removes it.
+
+Two things matter about how the purge runs:
+
+- **It uses the same deletion path as "Delete now".** An automatic purge is
+  not a shortcut that bypasses safeguards: it routes through the exact
+  cascade that a manual purge uses, so a player or person is erased across
+  every linked table (evaluations, goals, injuries, attendance, timeline
+  events, and the rest) rather than leaving stranded child records behind.
+- **It runs unattended, as the system.** Because no one is logged in when the
+  job runs, the audit entries it writes are attributed to the **system**, not
+  to a person — so the audit log never implies a staff member pressed delete.
+  The action keys are the same `{entity}.purged` keys a manual purge writes.
+
+The job rides the same background scheduler the workflow engine uses, so it
+keeps working as long as scheduled tasks run on the install. If scheduled
+tasks have stopped firing (see
+[Workflow engine — cron setup](workflow-engine-cron-setup.md)), the purge
+pauses too — records simply wait in the bin until the schedule is healthy
+again. Nothing is ever purged early or twice.
+
+## Records that cannot be auto-deleted
+
+Sometimes a record reaches the end of its window but **cannot** be purged
+because other records still depend on it. The purge is **fail-closed**: rather
+than risk deleting too much (or orphaning the records that point at it), it
+**skips** that record, leaves it safely in the bin, and moves on. Nothing is
+ever force-deleted to clear a dependency.
+
+When this happens, the recycle bin shows a banner at the top — *"N records
+couldn't be auto-deleted because other records still reference them"*. To
+clear them, remove or reassign whatever still depends on the record, then it
+will purge on a later sweep (or you can use **Delete now**, which shows you
+exactly what is blocking it).
+
+A few record types can **never** be auto-purged by design. **Measurement
+definitions** and **trial tracks** are templates: deleting one must never
+cascade-delete the measurements or trial cases built from it. So they always
+block while anything still uses them, and their trashed instances stay in the
+bin — flagged with a note that the 30-day purge cannot delete this record
+type — until you remove the records that reference them. This is intentional:
+the worst case for a template is that it lingers, never that it silently takes
+real player data down with it.
+
+(Teams and activities are **not** in this category: they have full
+orphan-preserving cascades, so deleting a team or activity reassigns its
+players and keeps their development data, and they purge normally.)
+
 ## GDPR — retention basis and the right to erasure
 
 These are minors' records, so the retention basis is explicit.

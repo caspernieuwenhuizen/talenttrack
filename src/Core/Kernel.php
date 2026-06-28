@@ -122,6 +122,10 @@ class Kernel {
         // #2023 — shared recycle-bin cascade-preview REST endpoint that the
         // "Move to recycle bin" confirm dialog renders before a trash.
         \TT\Infrastructure\REST\RecycleBinRestController::init();
+        // #2025 — 30-day recycle-bin auto-purge. Subscribes to the workflow
+        // engine heartbeat (tt_workflow_cron_tick) rather than registering an
+        // ad-hoc wp_cron (CLAUDE.md §4); self-throttles to once per day.
+        \TT\Infrastructure\Archive\AutoPurgeCron::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();
         // #1486 — read-only Features status view (REST endpoint).

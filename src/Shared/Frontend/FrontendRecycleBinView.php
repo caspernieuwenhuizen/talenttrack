@@ -4,6 +4,9 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Archive\AutoPurgeCron;
+use TT\Infrastructure\Archive\CascadeRegistry;
+use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\RecycleBin\RecycleBinEntities;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 
@@ -70,6 +73,12 @@ class FrontendRecycleBinView extends FrontendViewBase {
             )
             . '</p>';
 
+        // #2025 — surface records the daily auto-purge could not delete
+        // because the cascade fail-closed on an undeclared reference. They
+        // stay in the bin (never force-deleted); the operator clears the
+        // dependents and they purge on a later sweep.
+        self::renderBlockedNotice();
+
         if ( empty( $groups ) ) {
             self::renderEmptyState();
             echo '</div>';
@@ -98,6 +107,16 @@ class FrontendRecycleBinView extends FrontendViewBase {
             . esc_html( $label )
             . ' <span class="tt-rb-group__count">' . esc_html( (string) $count ) . '</span>'
             . '</h2>';
+
+        // #2025 — block_only entities (trial_track, measurement_definition)
+        // can never auto-purge: their cascade plan blocks on any dependent,
+        // by design (template / definition data). Flag the group so the
+        // 30-day countdown isn't read as "these vanish at 30 days".
+        if ( self::isBlockOnly( $entity ) ) {
+            echo '<p class="tt-rb-group__flag tt-notice">'
+                . esc_html__( 'These records are kept until you remove what still depends on them — the automatic 30-day purge cannot delete this record type.', 'talenttrack' )
+                . '</p>';
+        }
 
         echo '<ul class="tt-rb-list">';
         foreach ( $rows as $row ) {
@@ -187,6 +206,48 @@ class FrontendRecycleBinView extends FrontendViewBase {
         echo '</div>';
 
         echo '</li>';
+    }
+
+    /**
+     * #2025 — banner shown when the most recent auto-purge sweep skipped one
+     * or more records because the fail-closed cascade blocked them (an
+     * undeclared reference still points at the record). Reads the per-club
+     * count the cron persists to tt_config; renders nothing when zero.
+     */
+    private static function renderBlockedNotice(): void {
+        $count = ( new ConfigService() )->getInt( AutoPurgeCron::BLOCKED_COUNT_CONFIG_KEY, 0 );
+        if ( $count <= 0 ) {
+            return;
+        }
+
+        echo '<div class="tt-rb-blocked tt-notice tt-notice--warning" role="status">';
+        echo '<p class="tt-rb-blocked__text">'
+            . esc_html(
+                sprintf(
+                    /* translators: %d is the number of records the auto-purge could not delete. */
+                    _n(
+                        '%d record couldn\'t be auto-deleted because other records still reference it. It stays here until you remove what depends on it.',
+                        '%d records couldn\'t be auto-deleted because other records still reference them. They stay here until you remove what depends on them.',
+                        $count,
+                        'talenttrack'
+                    ),
+                    $count
+                )
+            )
+            . '</p>';
+        echo '</div>';
+    }
+
+    /**
+     * Whether $entity is `block_only` in CascadeRegistry — i.e. it can never
+     * cascade-delete its dependents and so can never be auto-purged. Today
+     * that is `trial_track` and `measurement_definition` (team + activity got
+     * full cascades in #2027). Sourced from the registry so this view can
+     * never drift from the cascade plans.
+     */
+    private static function isBlockOnly( string $entity ): bool {
+        $plan = CascadeRegistry::plan( $entity );
+        return is_array( $plan ) && ! empty( $plan['block_only'] );
     }
 
     private static function renderEmptyState(): void {
