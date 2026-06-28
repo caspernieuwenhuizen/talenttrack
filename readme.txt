@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.63.2
+Stable tag: 4.63.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.3 — Spond sync captures venue name AND address (#2096) A Spond event's location carries both a venue name and a street address; the sync previously kept only the first non-empty field, so the address was dropped whenever a venue name was present. It now keeps both on one line — `Venue | Address`. Single-value locations are unchanged, and a name already contained in the address isn't duplicated. =
+
+= 4.63.3 — Match prep: Formation KPI tile now follows the dropdown (#2098) Changing the formation in the match-prep dropdown now updates the **Formation** summary tile immediately. Previously the tile kept showing the value the page loaded with while the pitch below it re-drew, so the two could disagree. The shared KPI-tile helper gained an optional `data` attribute map to give the tile a stable JS hook. =
+
+= 4.63.3 — Match prep: Export as PDF now captures the live on-screen view (#2102) The match-prep toolbar's **Export as PDF (A4)** button now takes a picture of the on-screen match-prep grid exactly as it appears — both formation pitches (blue 1e / orange 2e with the white name pills), the Selection · minutes table, Wedstrijddoelen, Doen per speler and Roles & set pieces — and lays it out on **portrait A4**, scaled to page width and split across pages on overflow. Previously the export captured a separately-styled print document, so it never matched what the coach laid out on screen. The capture engine (html2canvas + jsPDF) stays lazy-loaded on first click. The standalone print route and the browser print dialog remain available as fallbacks; the team-sheet print is unchanged. =
 
 = 4.63.2 — Fix critical error when editing a match activity (#2097) Opening any match in the activity edit form raised a WordPress critical error. The match-length / participation block referenced an `$id` variable that was never defined in that render method, so a null id was passed to methods expecting a non-nullable integer and PHP aborted with a TypeError. The id is now resolved from the loaded activity, and create-mode matches (which have no id yet) skip the lookups. Editing matches works again. =
 
