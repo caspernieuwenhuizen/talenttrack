@@ -476,7 +476,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      * @param array<int, object> $players
      */
     private static function renderRoster( array $players, int $team_id = 0 ): void {
-        $can_status = class_exists( '\TT\Modules\Players\Frontend\PlayerStatusRenderer' );
+        $can_status = \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Players\PlayerStatusModule::class );
         if ( $can_status ) {
             \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
         }
