@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.62.0
+Stable tag: 4.63.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.63.0 — Parent dashboard mirrors the player's tile grid (#2081) A parent's dashboard now mirrors their child's own development tiles — the same Me-group surfaces a player sees, in the same order — relabeled to the child's first name as an Anglo possessive ("Sven's development", "Sven's card", "Sven's evaluations"). This replaces the hardcoded five-tile curation shipped in #1992.  Because the tiles are resolved through the normal tile registry, the parent surface inherits module and `player_*` feature gating automatically: switching off a player feature (e.g. `player_goals`) removes that tile for both the player and the parent, with no parent-specific list to maintain, and adding a new player Me-tile surfaces for parents with no extra work. "My tasks" is included so a parent can help remind their child of pending tasks. Account-level tiles (settings, password) stay the parent's own — not child-scoped or relabeled. The child anchor (name + photo), the multi-child switcher, and `player_id`-scoped URLs (with `canViewPlayer` authorization) are unchanged. =
+
+= 4.63.0 — Record-state filters render as one-tap status pills across list views (#2083) The active/archived record-state filter on the Goals, Players, Teams, People, Holidays, Tournaments, Evaluations and PDP-coverage lists is now the mobile-first FilterBar status-pill control (Active / Archived / All) instead of a dropdown — record state is the same one-tap pill on every surface. Same query params and results as before. The PDP setup list drops its bespoke Active/Archived links in favour of the shared control (operators who can act on archived files still see it; the `filter[archived]` param and coverage endpoint are unchanged). Dead CSS left behind by the FilterBar adoption (#2082) in the prospects-overview and admin sheets was removed. =
+
+= 4.63.0 — Prospects status filter no longer shows "All" twice (#2093) The Prospects overview status filter listed an explicit "All" option on top of the FilterBar placeholder's own "All", so the dropdown showed it twice after the FilterBar migration. The redundant option is removed; the filter behaves identically. =
 
 = 4.62.0 — My PDP redesigned to a timeline-first player development view (#1990) The player's *My PDP* surface is rebuilt around the season as a timeline. The development conversations now sit on a horizontal rail as markers — completed, the next planned talk, and later talks — with a progress fill up to the most recent completed conversation. Tapping a marker expands that conversation's detail in place (notes, agreed actions, agenda, goals discussed, saved reflection and the acknowledgement button), so there is no long scroll.  Below the timeline the player sees their active focus goals with goal-specific status labels, then a single self-reflection input for the one next-planned conversation only — past and future talks never show an input, and there is never more than one form. Any previously saved reflection appears to the right of the input on wider screens and stacked below it on mobile. The 2-week pre-talk window guard, the coach sign-off display, the acknowledgement flow and the end-of-season verdict card are preserved.  The "which talk is next planned" and "is its reflection window open" decisions live in the PDP domain layer (PdpCycleState), so the REST API and the rendered view derive the same answer. =
 
