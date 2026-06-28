@@ -30,11 +30,11 @@ final class TeamPlannerWeeklyPrintable {
     public const DEFAULT_FIELDS = [
         'time'       => true,
         'location'   => true,
-        'duration'   => true,
+        'duration'   => false,
         'match'      => true,
         'theme'      => true,
-        'principles' => true,
-        'notes'      => false,
+        'principles' => false,
+        'notes'      => true,
         'restdays'   => true,
     ];
 
@@ -295,15 +295,19 @@ final class TeamPlannerWeeklyPrintable {
         if ( $title !== '' ) $out .= '<span class="tt-wp-name">' . esc_html( $title ) . '</span>';
         $out .= '</div>';
 
-        // Meta line.
-        $meta = [];
+        // Meta line — each info block is led by one icon. A single clock
+        // fronts the whole time block (for a match that's "Present · Kickoff"
+        // under one clock); a pin fronts the location; an hourglass fronts
+        // the duration (off by default).
+        $blocks = [];
         if ( $is_match ) {
             if ( ! empty( $fields['match'] ) ) {
+                $times = [];
                 // #1729 — arrival/presence time, shown before kickoff.
                 $presence = self::clockTime( (string) ( $a->time_of_presence ?? '' ) );
                 if ( $presence !== '' ) {
                     /* translators: %s: arrival/presence time, e.g. "13:15" */
-                    $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), $presence );
+                    $times[] = sprintf( __( 'Present %s', 'talenttrack' ), $presence );
                 }
                 // #1729 bug fix — the activity form only ever writes
                 // start_time (kickoff_time stays NULL), so a match used
@@ -313,31 +317,33 @@ final class TeamPlannerWeeklyPrintable {
                 if ( $ko === '' ) $ko = self::clockTime( (string) ( $a->start_time ?? '' ) );
                 if ( $ko !== '' ) {
                     /* translators: %s: kickoff time, e.g. "11:00" */
-                    $meta[] = sprintf( __( 'Kickoff %s', 'talenttrack' ), $ko );
+                    $times[] = sprintf( __( 'Kickoff %s', 'talenttrack' ), $ko );
                 }
+                if ( $times ) $blocks[] = self::metaBlock( 'clock', implode( ' · ', $times ) );
+
                 $ha = (string) ( $a->home_away ?? '' );
-                if ( $ha === 'home' ) $meta[] = __( 'Home', 'talenttrack' );
-                elseif ( $ha === 'away' ) $meta[] = __( 'Away', 'talenttrack' );
+                if ( $ha === 'home' )      $blocks[] = self::metaBlock( null, __( 'Home', 'talenttrack' ) );
+                elseif ( $ha === 'away' )  $blocks[] = self::metaBlock( null, __( 'Away', 'talenttrack' ) );
             }
             if ( ! empty( $fields['location'] ) ) {
                 $loc = (string) ( $a->location ?? '' );
-                if ( $loc !== '' ) $meta[] = $loc;
+                if ( $loc !== '' ) $blocks[] = self::metaBlock( 'map-pin', $loc );
             }
         } else {
             if ( ! empty( $fields['time'] ) ) {
                 $t = self::timeRange( (string) ( $a->start_time ?? '' ), (string) ( $a->end_time ?? '' ), (string) ( $a->kickoff_time ?? '' ) );
-                if ( $t !== '' ) $meta[] = $t;
+                if ( $t !== '' ) $blocks[] = self::metaBlock( 'clock', $t );
             }
             if ( ! empty( $fields['location'] ) ) {
                 $loc = (string) ( $a->location ?? '' );
-                if ( $loc !== '' ) $meta[] = $loc;
+                if ( $loc !== '' ) $blocks[] = self::metaBlock( 'map-pin', $loc );
             }
             if ( ! empty( $fields['duration'] ) ) {
                 $dur = self::durationLabel( (string) ( $a->start_time ?? '' ), (string) ( $a->end_time ?? '' ) );
-                if ( $dur !== '' ) $meta[] = $dur;
+                if ( $dur !== '' ) $blocks[] = self::metaBlock( 'hourglass', $dur );
             }
         }
-        if ( $meta ) $out .= '<div class="tt-wp-meta">' . esc_html( implode( ' · ', $meta ) ) . '</div>';
+        if ( $blocks ) $out .= '<div class="tt-wp-meta">' . implode( '', $blocks ) . '</div>';
 
         // Principle pills.
         if ( ! empty( $fields['principles'] ) ) {
@@ -351,13 +357,36 @@ final class TeamPlannerWeeklyPrintable {
             }
         }
 
-        // Notes.
+        // Notes — led by a comment icon.
         if ( ! empty( $fields['notes'] ) ) {
             $notes = trim( (string) ( $a->notes ?? '' ) );
-            if ( $notes !== '' ) $out .= '<div class="tt-wp-notes">' . esc_html( $notes ) . '</div>';
+            if ( $notes !== '' ) {
+                $out .= '<div class="tt-wp-notes">' . self::metaIcon( 'comment' )
+                    . '<span>' . esc_html( $notes ) . '</span></div>';
+            }
         }
 
         return $out . '</div>';
+    }
+
+    /**
+     * One icon-led meta block: an optional leading icon plus its text,
+     * wrapped so the two stay together and don't break mid-block when the
+     * meta line wraps. A null icon renders text only (e.g. Home / Away).
+     */
+    private static function metaBlock( ?string $icon, string $text ): string {
+        return '<span class="tt-wp-mblk">'
+            . ( $icon !== null ? self::metaIcon( $icon ) : '' )
+            . '<span>' . esc_html( $text ) . '</span></span>';
+    }
+
+    /** Render a small meta icon (13px, inherits the muted text colour). */
+    private static function metaIcon( string $name ): string {
+        return \TT\Shared\Icons\IconRenderer::render( $name, [
+            'class'  => 'tt-wp-ico',
+            'width'  => 13,
+            'height' => 13,
+        ] );
     }
 
     /**
@@ -434,14 +463,23 @@ final class TeamPlannerWeeklyPrintable {
             font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
             color: #fff; border-radius: 5px; padding: 3px 9px;
         }
-        .tt-wp-meta { color: var(--tt-muted); font-size: 12px; margin: 3px 0 0; }
-        .tt-wp-pills { margin-top: 2px; }
+        .tt-wp-meta {
+            color: var(--tt-muted); font-size: 12px; margin: 4px 0 0;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 3px 14px;
+        }
+        .tt-wp-mblk { display: inline-flex; align-items: center; gap: 5px; }
+        .tt-wp-ico { flex: none; color: var(--tt-muted); vertical-align: middle; }
+        .tt-wp-pills { margin-top: 4px; }
         .tt-wp-pill {
             display: inline-block; background: var(--tt-pill-bg); color: var(--tt-pill-ink);
             border: 1px solid var(--tt-pill-bd); border-radius: 999px; font-size: 10.5px;
             font-weight: 600; padding: 2px 10px; margin: 6px 5px 0 0;
         }
-        .tt-wp-notes { color: var(--tt-muted); font-size: 12px; font-style: italic; margin-top: 5px; }
+        .tt-wp-notes {
+            color: var(--tt-muted); font-size: 12px; font-style: italic; margin-top: 5px;
+            display: flex; align-items: flex-start; gap: 6px;
+        }
+        .tt-wp-notes .tt-wp-ico { margin-top: 2px; }
         .tt-wp-rest {
             color: var(--tt-rest); font-style: italic; font-size: 12.5px;
             display: flex; align-items: center; gap: 8px;
