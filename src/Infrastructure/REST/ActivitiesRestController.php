@@ -73,7 +73,10 @@ class ActivitiesRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_session_permanently' ],
-                'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+                // #2024 security #6 — re-gate the permanent delete onto
+                // tt_manage_recycle_bin so no purge path is weaker than the
+                // bin's own purge.
+                'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
             ],
         ] );
         // #0026 — guest attendance endpoints. Guests live alongside

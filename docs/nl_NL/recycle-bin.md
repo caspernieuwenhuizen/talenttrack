@@ -112,9 +112,48 @@ endpoints (bijvoorbeeld `DELETE /players/{id}/permanent`) op
 De beslissing: de oude `/permanent`-endpoints worden **opnieuw afgeschermd op
 `tt_manage_recycle_bin`**, zodat elk definitief-verwijderpad — het opschonen
 van de prullenbak én de oude per-entiteit-endpoints — hetzelfde recht
-vereist. (De herafscherming zelf landt in het REST-werk van de prullenbak,
-issue #2024; deze basis legt de beslissing vast en registreert het recht dat
-de herafscherming zal gebruiken.)
+vereist. Deze herafscherming landt in het REST-werk van de prullenbak (issue
+#2024): elke `DELETE …/permanent`-route (spelers, teams, evaluaties, doelen,
+activiteiten, toernooien, vakanties, proefdossiers, prooftrajecten, blessures,
+testtrainingen, eigen widgets, trainingsoefeningen) vereist nu
+`tt_manage_recycle_bin`. Alleen `tt_edit_settings` houden volstaat niet meer
+voor een definitieve verwijdering vanaf welk scherm dan ook.
+
+## De centrale prullenbak
+
+De prullenbak heeft een eigen scherm. Open **Configuratie → Systeem →
+Prullenbak**, of ga rechtstreeks naar `?tt_view=recycle-bin`. Het is geen
+dashboardtegel — het staat in het instellingengedeelte, en alleen
+academiebeheerders (`tt_manage_recycle_bin`) kunnen erbij. Iedereen anders
+ziet een melding "geen toegang".
+
+Het scherm toont elk record in de prullenbak over alle entiteitstypen heen,
+**gegroepeerd per type** met een aantal per groep (Spelers, Teams,
+Evaluaties, …). Elke rij toont:
+
+- de **identiteit** van het record (naam of titel, of `Record #<id>` als
+  terugval),
+- **wie het in de prullenbak zette en wanneer**, en
+- een **dagen-tot-opschoning-badge** die aftelt naar de automatische
+  opschoning. De badge wordt **rood in de laatste week** (7 dagen of minder),
+  zodat een nakende definitieve verwijdering opvalt.
+
+De prullenbak is **alleen-actie** — je kunt vanaf hier niet doorklikken naar
+een record. Op elke rij staan twee inline-acties:
+
+- **Herstellen** — zet het record terug naar het **archief**-niveau (niet
+  direct naar actief). Het verlaat de prullenbak en verschijnt weer in de
+  Gearchiveerd-lijst van de entiteit.
+- **Nu verwijderen** — schoont het record definitief op. Voordat er iets wordt
+  verwijderd, toont een bevestigingsvenster de **volledige
+  cascadevoorbeeldweergave**: wat wordt verwijderd, welke verwijzingen worden
+  gewist (behouden, niet verwijderd) en — als de opschoning **geblokkeerd** is
+  omdat andere records er nog van afhangen — het afhankelijkheidsrapport. Een
+  geblokkeerde opschoning schrijft niets en laat het record in de prullenbak.
+  "Nu verwijderen" is het handmatige pad voor directe verwijdering (AVG artikel
+  17); het wacht de bewaartermijn niet af.
+
+Als de prullenbak leeg is, meldt het scherm dat in plaats van een lege tabel.
 
 ## Een record vanuit een lijst naar de prullenbak verplaatsen
 

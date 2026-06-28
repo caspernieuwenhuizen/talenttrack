@@ -65,7 +65,9 @@ final class HolidaysRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ self::class, 'delete_holiday_permanently' ],
-                'permission_callback' => self::can( 'tt_edit_settings' ),
+                // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no
+                // purge path weaker than the bin's own purge.
+                'permission_callback' => self::can( 'tt_manage_recycle_bin' ),
             ],
         ] );
 

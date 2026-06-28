@@ -66,7 +66,12 @@ class VctExercisesRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_permanently' ],
-                'permission_callback' => [ __CLASS__, 'can_admin' ],
+                // #2024 security #6 — no purge path weaker than the bin: the
+                // permanent delete additionally requires tt_manage_recycle_bin
+                // on top of the VCT-library admin gate the other routes use.
+                'permission_callback' => static function () {
+                    return self::can_admin() && current_user_can( 'tt_manage_recycle_bin' );
+                },
             ],
         ] );
     }

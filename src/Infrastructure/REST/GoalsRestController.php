@@ -64,7 +64,11 @@ class GoalsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_goal_permanently' ],
-                'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+                // #2024 security #6 — no purge path weaker than the bin: the
+                // permanent delete re-gates onto tt_manage_recycle_bin so it
+                // matches the bin's own purge. (The reversible /trash route
+                // below keeps the destructive-op gate — it's not a purge.)
+                'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
             ],
         ] );
         // #2023 — reversible "Move to recycle bin" (archived → trashed).

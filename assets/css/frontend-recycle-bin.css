@@ -1,0 +1,213 @@
+/*
+ * frontend-recycle-bin.css (#2024, epic #2018)
+ *
+ * Centralized recycle-bin view (?tt_view=recycle-bin). Mobile-first:
+ * base styles target the smallest viewport (~360px); min-width queries
+ * scale up. Reads the design tokens from tokens.css — no raw hex. All
+ * classes are tt-rb-* prefixed and scoped under .tt-rb.
+ */
+
+.tt-rb {
+    max-width: 880px;
+}
+
+.tt-rb__intro {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+/* ---- group ---------------------------------------------------------- */
+
+.tt-rb-group {
+    margin: 0 0 var(--tt-sp-5);
+}
+
+.tt-rb-group__head {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    font-size: var(--tt-fs-h3);
+    color: var(--tt-ink);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-rb-group__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+}
+
+/* ---- list + rows ---------------------------------------------------- */
+
+.tt-rb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+}
+
+.tt-rb-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-rb-row__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.tt-rb-row__identity {
+    font-weight: 600;
+    color: var(--tt-ink);
+    overflow-wrap: anywhere;
+}
+
+.tt-rb-row__meta {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+
+/* ---- days-until-purge badge ---------------------------------------- */
+
+.tt-rb-badge {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-rb-badge--urgent {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+}
+
+/* ---- actions ------------------------------------------------------- */
+
+.tt-rb-row__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+/* Touch targets: every action button is at least 48x48 CSS px. */
+.tt-rb-action {
+    min-height: 48px;
+    min-width: 48px;
+    flex: 1 1 auto;
+    touch-action: manipulation;
+}
+
+/* ---- empty state --------------------------------------------------- */
+
+.tt-rb-empty {
+    text-align: center;
+    padding: var(--tt-sp-6) var(--tt-sp-4);
+    border: 1px dashed var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-bg-soft);
+}
+
+.tt-rb-empty__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.tt-rb-empty__title {
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin: var(--tt-sp-3) 0 var(--tt-sp-1);
+}
+
+.tt-rb-empty__hint {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: 0 auto;
+    max-width: 36rem;
+}
+
+/* ---- purge-preview modal extras ------------------------------------ */
+
+.tt-rb-preview {
+    margin: var(--tt-sp-3) 0 0;
+    text-align: left;
+}
+
+.tt-rb-preview__list {
+    margin: 0 0 var(--tt-sp-3);
+    padding-left: 1.2rem;
+}
+
+.tt-rb-preview__list li {
+    margin: 0.1rem 0;
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-rb-preview__heading {
+    font-weight: 600;
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-sm);
+    margin: 0 0 var(--tt-sp-1);
+}
+
+.tt-rb-preview--blocked .tt-rb-preview__heading {
+    color: var(--tt-danger);
+}
+
+/* ---- from 480px: row becomes a single horizontal line -------------- */
+
+@media (min-width: 480px) {
+    .tt-rb-row {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--tt-sp-3);
+    }
+
+    .tt-rb-row__main {
+        flex: 1 1 auto;
+    }
+
+    .tt-rb-badge {
+        align-self: center;
+    }
+
+    .tt-rb-row__actions {
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+    }
+
+    .tt-rb-action {
+        flex: 0 0 auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-rb-action {
+        transition: none;
+    }
+}
