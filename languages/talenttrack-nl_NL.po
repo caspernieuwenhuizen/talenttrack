@@ -43984,6 +43984,14 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 # === #1617 — player-centric PDP coverage list ===
+#: src/Infrastructure/REST/StravaRestController.php
+msgid "Strava is not set up for this academy yet. Ask an administrator to add the Strava app credentials."
+msgstr "Strava is voor deze academie nog niet ingesteld. Vraag een beheerder om de Strava-app-gegevens toe te voegen."
+
+#: src/Infrastructure/REST/StravaRestController.php
+msgid "A Strava Client ID is required."
+msgstr "Er is een Strava Client ID vereist."
+
 #~ msgid "PDP setup views"
 #~ msgstr "POP-instelweergaven"
 
