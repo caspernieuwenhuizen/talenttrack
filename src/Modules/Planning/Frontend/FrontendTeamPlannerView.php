@@ -262,11 +262,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $fields = [
             'time'       => [ __( 'Time', 'talenttrack' ),          true ],
             'location'   => [ __( 'Location', 'talenttrack' ),      true ],
-            'duration'   => [ __( 'Duration', 'talenttrack' ),      true ],
+            'duration'   => [ __( 'Duration', 'talenttrack' ),      false ],
             'match'      => [ __( 'Match details', 'talenttrack' ), true ],
             'theme'      => [ __( 'Theme / title', 'talenttrack' ), true ],
-            'principles' => [ __( 'Principles', 'talenttrack' ),    true ],
-            'notes'      => [ __( 'Notes', 'talenttrack' ),         false ],
+            'principles' => [ __( 'Principles', 'talenttrack' ),    false ],
+            'notes'      => [ __( 'Notes', 'talenttrack' ),         true ],
             'restdays'   => [ __( 'Show rest days', 'talenttrack' ), true ],
         ];
         $headers = [
