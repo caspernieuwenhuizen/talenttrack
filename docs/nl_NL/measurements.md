@@ -119,3 +119,30 @@ vastleggen*. De wizard kent drie stappen:
    leeg laten en later toevoegen.
 
 Bij voltooien worden de test en de streefwaarden in één keer aangemaakt.
+
+## De testcatalogus beheren
+
+Het hoofd opleiding (of een academiebeheerder) krijgt een tegel **Tests
+beheren** onder *Configuratie*. Die opent een lijst met elke test die je
+academie heeft ingesteld — naam, categorie, eenheid, richting en frequentie
+— met de status **Actief** of **Inactief**, en drie acties per rij:
+
+- **Bewerken** — opent de test in een plat formulier. Je kunt de naam,
+  categorie, het type waarde, de eenheid (uit de lijst of een eigen
+  eenheid), de schaalgrenzen, de richting, de frequentie en de
+  actief-schakelaar wijzigen, en de groene/oranje streefbanden per
+  leeftijdsgroep ter plekke aanpassen. **Opslaan** legt vast; **Annuleren**
+  brengt je terug naar de lijst (of naar waar je vandaan kwam).
+  Geslaagd/niet-tests hebben geen streefbanden.
+- **Activeren / Deactiveren** — een inactieve test blijft in de catalogus
+  en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
+  *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
+  vastleggen.
+- **Archiveren** — verplaatst de test naar de prullenbak (soft delete). Er
+  gaat niets verloren; een beheerder kan hem herstellen.
+
+Een test aanmaken gaat nog steeds via de wizard **Nieuwe test**, bereikbaar
+boven aan deze lijst en vanaf *Metingen vastleggen*. Dezelfde catalogus is
+beschikbaar via REST op
+`/wp-json/talenttrack/v1/measurement-definitions` voor integraties en de
+SaaS-frontend.

@@ -822,6 +822,11 @@ class DashboardShortcode {
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
+            // #2121 — the test-catalogue config surface. Matrix-gated on
+            // `measurement_definitions` change inside the view.
+            case 'measurement-tests':
+                \TT\Modules\Measurements\Frontend\FrontendMeasurementTestsView::render( $user_id, $is_admin );
+                return true;
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
                 return true;

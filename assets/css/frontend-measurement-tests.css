@@ -1,0 +1,201 @@
+/*
+ * frontend-measurement-tests.css (#2121) — the "Manage tests" config
+ * surface for the test catalogue: a list of definitions with edit /
+ * activate / archive row actions, and a flat edit form with per-age-group
+ * target bands. Mobile-first (base = 360px), scoped under .tt-dashboard,
+ * tokens only.
+ */
+
+.tt-dashboard .tt-mt-newtest {
+    margin: 0 0 1rem;
+}
+
+/* ── list ──────────────────────────────────────────────────────── */
+
+.tt-dashboard .tt-mt-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.tt-dashboard .tt-mt-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.85rem 0.95rem;
+}
+
+.tt-dashboard .tt-mt-row--inactive {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-mt-row__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+}
+
+.tt-dashboard .tt-mt-row__name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-mt-row__name:hover,
+.tt-dashboard .tt-mt-row__name:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-dashboard .tt-mt-row__cat,
+.tt-dashboard .tt-mt-row__meta {
+    font-size: 0.82rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mt-chip {
+    margin-left: auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+}
+
+.tt-dashboard .tt-mt-chip--on {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: var(--tt-success, #2f9e5e);
+}
+
+.tt-dashboard .tt-mt-chip--off {
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mt-row__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tt-dashboard .tt-mt-inline-form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.tt-dashboard .tt-mt-action {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-mt-action--archive {
+    color: var(--tt-danger, #d8453b);
+}
+
+/* ── edit form ─────────────────────────────────────────────────── */
+
+.tt-dashboard .tt-mt-form {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.tt-dashboard .tt-mt-form .tt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.tt-dashboard .tt-mt-form .tt-input {
+    /* >= 16px keeps iOS from auto-zooming on focus. */
+    font-size: 1rem;
+    min-height: 48px;
+}
+
+.tt-dashboard .tt-mt-form .tt-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+}
+
+.tt-dashboard .tt-mt-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    font-size: 0.95rem;
+}
+
+.tt-dashboard .tt-mt-check input {
+    width: 22px;
+    height: 22px;
+}
+
+.tt-dashboard .tt-mt-targets {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.85rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.tt-dashboard .tt-mt-targets legend {
+    font-weight: 700;
+    padding: 0 0.4rem;
+}
+
+.tt-dashboard .tt-mt-targets__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mt-target-set {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    padding-top: 0.6rem;
+}
+
+.tt-dashboard .tt-mt-target-set__label {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ── tablet and up ─────────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-mt-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .tt-dashboard .tt-mt-row__main {
+        flex: 1 1 auto;
+    }
+
+    .tt-dashboard .tt-mt-row__actions {
+        flex: 0 0 auto;
+    }
+
+    .tt-dashboard .tt-mt-form .tt-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
