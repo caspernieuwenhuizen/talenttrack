@@ -1,3 +1,70 @@
+# TalentTrack v4.64.0 — Match prep PDF: white panels + consistent player boxes (#2112)
+
+The **Export as PDF (A4)** capture rendered the doen-per-speler and rollen
+panels with a grey background and tinted the on-pitch player boxes
+differently over the blue (1e) and orange (2e) halves — html2canvas can't
+resolve the nested `--tt-mp-paper` custom property, so the panel fill
+dropped out and the translucent pills blended with the pitch. The capture
+now forces opaque white panels and player boxes (and drops the card
+shadows that printed as grey halos); the on-screen view and the pitch
+colours are unchanged.
+
+# TalentTrack v4.64.0 — Measurements: restore admin & coach access on upgraded installs (#2114)
+
+On sites upgraded from before the Measurements module shipped, academy
+admins, heads of development and coaches were silently denied access to
+**Record measurements** and **Testing coverage** — the dashboard tile
+appeared but the screen reported "no permission". The authorization rows
+for the module were added to the seed but never back-filled into existing
+installs (the matrix reseed is manual and destructive). A new idempotent
+migration adds the missing `measurements` / `measurement_sessions` /
+`measurement_definitions` matrix rows, leaving any operator edits intact.
+The two staff tiles now gate on the same matrix entity the views enforce,
+so a tile can no longer appear for someone the screen will refuse.
+
+# TalentTrack v4.64.0 — Measurements: dashboard tiles show their icon again (#2115)
+
+The **My measurements**, **Record measurements** and **Testing coverage**
+dashboard tiles rendered an empty icon chip — they referenced an `activity`
+glyph that does not exist in the icon set. They now use real bundled glyphs
+(`trend-up` for My measurements, `track` for the two staff tiles).
+
+# TalentTrack v4.64.0 — Team roster: hide the player STATUS column when Player Status is off (#2118)
+
+The team detail roster gated its STATUS column (the traffic-light dot per
+player) on whether the `PlayerStatusRenderer` class existed — but that class
+is always autoloaded, so the column showed even when the Player Status module
+was switched off. It now checks `ModuleRegistry::isEnabled()` for the module,
+matching how the VCT panel on the same page is gated. With the module off the
+roster shows only Jersey # and Player, no per-player status is calculated, and
+the status styles are no longer enqueued.
+
+# TalentTrack v4.64.0 — Team detail: hide squad rating from users without evaluation-view rights (#2119)
+
+The team detail page's **At a glance** strip showed the **Squad rating
+("Selectiebeoordeling")** tile to everyone who could open a team — including
+an assistant trainer with no evaluation-viewing rights. The score is an
+average of the roster's evaluation ratings, so it leaked gated data. The
+tile is now shown only to users who hold `tt_view_evaluations`; without it
+the tile is omitted entirely (not blanked to "—"), so the strip doesn't
+hint that a hidden score exists. The Upcoming and Attendance tiles are
+unchanged for all roles.
+
+# TalentTrack v4.64.0 — Analytics: switch Evaluation coverage and Cohort decision board off individually (#2128)
+
+The two Head-of-Development analytics surfaces — **Evaluation coverage**
+and **Cohort decision board** — can now be hidden independently from
+**Modules → Analytics**, without disabling the whole Analytics module or
+touching the shared `tt_view_analytics` permission. Each is a per-tile
+feature toggle: turning one off hides its tile and blocks its
+`?tt_view=` route, while the central Analytics surface, the standard
+reports and the analytics engine keep working.
+
+Note for existing installs: both toggles ship **off by default**, so the
+two tiles disappear on upgrade until an admin re-enables them under
+Modules → Analytics. This is a deliberate change — academies that want
+the surfaces switch them back on there.
+
 # TalentTrack v4.63.5 — Week-PDF: icon-led meta line + revised default toggles (#2108)
 
 Each info block on a weekly-planner-PDF activity card now leads with a
