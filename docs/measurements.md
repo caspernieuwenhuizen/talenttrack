@@ -50,7 +50,12 @@ profile surfacing for free.
   to remove it;
   the row order is the saved order.
 - Record a status the same way as any other test — *Record measurements*
-  shows a level dropdown per player instead of a number field.
+  shows a coloured **status picker** per player instead of a number field:
+  a dropdown whose closed control and every open option show the level’s
+  colour square next to its label, sized so the longest label never clips.
+  The picker is fully keyboard- and touch-operable (open with Enter/Space or
+  the arrow keys, move with ↑/↓, type-ahead, Escape to close); with
+  JavaScript off it falls back to a plain native dropdown.
 - On the player profile, the latest level appears as a coloured chip in the
   **Measurements** tab, painted in that level's colour. Status tests have no
   green/amber target band — their colour comes entirely from the picked

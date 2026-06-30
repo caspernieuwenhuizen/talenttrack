@@ -195,6 +195,21 @@
     min-height: 44px;
 }
 
+/*
+ * Status rows (#2144) use the custom coloured picker, which must size to the
+ * longest level label — never clamp it to the numeric 6rem.
+ */
+.tt-me-row-input .tt-statussel,
+.tt-me-row-input .tt-me-status-select {
+    width: auto;
+    min-width: 8rem;
+    max-width: 100%;
+}
+
+.tt-me-row-input .tt-statussel__button {
+    width: 100%;
+}
+
 .tt-me-unit {
     font-size: 0.85rem;
     color: #6b7280;

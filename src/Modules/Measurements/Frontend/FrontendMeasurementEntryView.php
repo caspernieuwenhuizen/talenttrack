@@ -207,11 +207,20 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         $name = 'value[' . $pid . ']';
         if ( $vtype === 'status' ) {
             $levels = is_array( $definition->levels ?? null ) ? $definition->levels : [];
+            // The native <select> stays the no-JS fallback AND the posted
+            // value source. data-tt-status-select flags it for progressive
+            // enhancement; each option carries its colour token so the
+            // JS-built listbox can paint the swatch without a second lookup.
             ?>
-            <select id="<?php echo esc_attr( $fid ); ?>" class="tt-input tt-me-status-select" name="<?php echo esc_attr( $name ); ?>">
+            <select id="<?php echo esc_attr( $fid ); ?>" class="tt-input tt-me-status-select"
+                    name="<?php echo esc_attr( $name ); ?>"
+                    data-tt-status-select
+                    data-skip-label="<?php esc_attr_e( '— skip —', 'talenttrack' ); ?>">
                 <option value=""><?php esc_html_e( '— skip —', 'talenttrack' ); ?></option>
-                <?php foreach ( $levels as $lvl ) : ?>
-                    <option value="<?php echo esc_attr( (string) $lvl->label ); ?>"><?php echo esc_html( (string) $lvl->label ); ?></option>
+                <?php foreach ( $levels as $lvl ) :
+                    $token = \TT\Modules\Measurements\Levels\MeasurementLevelPalette::safe( (string) ( $lvl->color_token ?? '' ) );
+                ?>
+                    <option value="<?php echo esc_attr( (string) $lvl->label ); ?>" data-token="<?php echo esc_attr( $token ); ?>"><?php echo esc_html( (string) $lvl->label ); ?></option>
                 <?php endforeach; ?>
             </select>
             <?php
@@ -392,5 +401,21 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             [ 'tt-frontend-measurements' ],
             TT_VERSION
         );
+
+        // Progressive enhancement: turn the native status <select> into an
+        // accessible coloured listbox. JS-off keeps the working native select.
+        wp_enqueue_script(
+            'tt-frontend-measurement-status-select',
+            TT_PLUGIN_URL . 'assets/js/frontend-measurement-status-select.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_script_add_data( 'tt-frontend-measurement-status-select', 'defer', true );
+        wp_localize_script( 'tt-frontend-measurement-status-select', 'TT_ME_STATUS', [
+            'i18n' => [
+                'choose' => __( 'Choose status', 'talenttrack' ),
+            ],
+        ] );
     }
 }
