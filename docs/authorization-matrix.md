@@ -297,6 +297,30 @@ into `tt_authorization_matrix` on existing installs (idempotent `INSERT
 IGNORE`, walking only the new `recycle_bin` rows). The schema + retention
 config land in the paired migration `0186_recycle_bin_foundation`.
 
+## Matrix entity `strava_integration` — personal activity connection (#2127, #2153)
+
+The Strava integration is gated by the matrix entity `strava_integration`,
+bridged from two raw caps:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_view_strava` | `strava_integration` / `read` |
+| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+
+The **operator console** (Configuration → Integrations: app credentials,
+webhook subscription, connection overview) is seeded for `head_coach` and
+`academy_admin` at `global` scope — migration
+`0191_authorization_seed_topup_strava` backfilled those rows.
+
+`player` holds `strava_integration` `rc[self]` (#2153): Strava is **personal
+activity data**, so a player connects their own Strava from their profile and
+can never touch another player's integration. This mirrors the player's
+`my_profile` self grant. Migration
+`0193_authorization_seed_player_strava` backfills the two player rows on
+existing installs (idempotent `INSERT IGNORE`, walking only the
+`player` / `strava_integration` tuples). Coach and admin behaviour are
+unchanged.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

@@ -133,6 +133,20 @@
     color: var(--tt-danger);
     font-weight: 500;
 }
+/* #2157 — a sub-section heading inside a settings panel (e.g. the email
+   sender group on the General form). Adds breathing room above so the
+   group reads as a distinct block without a separate panel. */
+.tt-dashboard .tt-field--section-top {
+    margin-top: var(--tt-sp-4, 1rem);
+    padding-top: var(--tt-sp-3, 0.75rem);
+    border-top: 1px solid var(--tt-border, #e3e6e1);
+}
+.tt-dashboard .tt-field-subhead {
+    margin: 0 0 var(--tt-sp-1, 0.25rem);
+    font-size: var(--tt-fs-md, 1rem);
+    font-weight: 700;
+    color: var(--tt-ink);
+}
 .tt-dashboard .tt-field-inline {
     flex-direction: row;
     align-items: center;

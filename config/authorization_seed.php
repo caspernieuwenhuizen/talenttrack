@@ -145,6 +145,10 @@ return array_merge(
         'my_journey'              => [ 'r',   'self',   $mod_journey ],
         // #1856 — a player sees only their own measurement results + trend.
         'measurements'            => [ 'r',   'self',   $mod_measurements ],
+        // #2153 — a player connects their own Strava (personal activity
+        // data). Self-scoped read/change mirrors `my_profile`; a player
+        // can never touch another player's integration.
+        'strava_integration'      => [ 'rc',  'self',   $mod_players ],
         // v3.92.0 — tile-visibility entity for the Me-group "My PDP"
         // tile (matrix-only, no cap bridge). Distinct from `pdp_file`
         // which is the data entity coaches/HoD/scout legitimately read

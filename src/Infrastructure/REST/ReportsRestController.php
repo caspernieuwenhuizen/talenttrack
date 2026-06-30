@@ -63,9 +63,12 @@ final class ReportsRestController extends BaseController {
         // results are additionally narrowed to the caller's team scope
         // below, so coaches never read other teams' rows.
         $attendance_args = [
-            'team_id' => [ 'sanitize_callback' => 'absint',              'required' => false ],
-            'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-            'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            'team_id'           => [ 'sanitize_callback' => 'absint',              'required' => false ],
+            'from'              => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            'to'                => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            // #2136 — optional activity-type narrowing, threaded into the
+            // shared AttendanceRankingQuery so render + REST stay in lockstep.
+            'activity_type_key' => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
         ];
         register_rest_route( self::NS, '/reports/attendance-leaderboard', [
             [
@@ -85,26 +88,54 @@ final class ReportsRestController extends BaseController {
                 'args'                => $attendance_args,
             ],
         ] );
+        // #2137 — per-player attendance rows for one window, used by the
+        // team report's inline drill-down accordion (and any SaaS consumer
+        // that needs the same per-player slice). `team_id` narrows to one
+        // team; scope is still enforced by attendanceScope().
+        register_rest_route( self::NS, '/reports/attendance', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'attendanceRows' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => $attendance_args,
+            ],
+        ] );
+    }
+
+    public static function attendanceRows( WP_REST_Request $req ): \WP_REST_Response {
+        [ $from, $to ] = self::attendanceWindow( $req );
+        $team_id       = (int) $req->get_param( 'team_id' );
+        $type_key      = (string) $req->get_param( 'activity_type_key' );
+        $allowed       = self::attendanceScope( $team_id );
+        if ( $allowed['blocked'] ) return RestResponse::success( [ 'players' => [], 'threshold' => AttendanceFlagService::threshold() ] );
+
+        $players = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed['team_ids'], $type_key );
+        return RestResponse::success( [
+            'players'   => $players,
+            'threshold' => AttendanceFlagService::threshold(),
+        ] );
     }
 
     public static function attendanceLeaderboard( WP_REST_Request $req ): \WP_REST_Response {
         [ $from, $to ]   = self::attendanceWindow( $req );
         $team_id         = (int) $req->get_param( 'team_id' );
         $n               = (int) ( $req->get_param( 'n' ) ?: 10 );
+        $type_key        = (string) $req->get_param( 'activity_type_key' );
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return RestResponse::success( [ 'top' => [], 'bottom' => [], 'total' => 0 ] );
 
-        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'] );
+        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( $board );
     }
 
     public static function attendanceAtRisk( WP_REST_Request $req ): \WP_REST_Response {
         [ $from, $to ]   = self::attendanceWindow( $req );
         $team_id         = (int) $req->get_param( 'team_id' );
+        $type_key        = (string) $req->get_param( 'activity_type_key' );
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return RestResponse::success( [ 'players' => [], 'threshold' => AttendanceFlagService::threshold() ] );
 
-        $players = ( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'] );
+        $players = ( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( [
             'players'   => $players,
             'threshold' => AttendanceFlagService::threshold(),

@@ -23,7 +23,7 @@ The **My check-ins** tile is where your weekly self-evaluation and any other tas
 ## Your tiles
 
 ### My development
-Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view. The seven deep-view tiles below (My profile, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement. The first time you open it, a short **welcome** card greets you (a parent sees a version for their child); tap **Got it** to dismiss it for good.
+Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view, and inside the focus, coming-up and journey blocks each listed goal, activity and milestone is itself tappable — open it directly and a **← Back to My development** pill brings you straight back. (Evaluations open via their **see all** link only.) The seven deep-view tiles below (My profile, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement. The first time you open it, a short **welcome** card greets you (a parent sees a version for their child); tap **Got it** to dismiss it for good.
 
 Parents who open their child's dashboard land on **&lt;Child&gt;'s development** — the same home, read-only and scoped to their own child.
 
@@ -31,8 +31,6 @@ Parents who open their child's dashboard land on **&lt;Child&gt;'s development**
 **My profile** now opens your **player profile** — the same unified, tabbed profile your coach sees, framed for you — and lands on the **Player card** tab. That tab shows your FIFA-style player card, your skills radar, and your rating KPIs (latest, last 5 with its trend, all-time, evaluations). A **Print report** action on the card gives a clean printable version.
 
 The other tabs hold the rest of your picture: **Profile** (your playing details — position, foot, jersey, status — and academy info), **Goals**, **Activities**, and **Strava**. You only see what's yours: coach-only surfaces (evaluations workbench, PDP, trials, notes, the guardians and discovery cards, and staff flags) don't appear on your view. A parent opening their child's card sees the same profile for that child.
-
-> Account details (display name, email, password) live in **My settings** under the username dropdown in the top-right corner — see below.
 
 > Account details (display name, email, password) live in **My settings** under the username dropdown in the top-right corner — see below.
 

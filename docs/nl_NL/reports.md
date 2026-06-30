@@ -42,6 +42,23 @@ Het oude wp-admin-rapport "Spelersontwikkeling & Radar" rendert nu rechtstreeks 
 
 Coaches zien alleen spelers en teams van hun eigen teams; academiebrede rollen zien alles. De oude wp-admin-route stuurt door naar dit rapport, dus bladwijzers blijven werken. Integraties kunnen dezelfde datasets lezen via `GET /wp-json/talenttrack/v1/reports/player-radar?mode=…&player_ids=…`.
 
+## Alleen activiteiten uit het verleden tellen mee
+
+Beide aanwezigheidsrapporten — en de ranglijst en het risicopaneel die dezelfde query gebruiken — tellen alleen activiteiten mee die **echt zijn gehouden**: afgerond en in het verleden (sessiedatum vandaag of eerder). Een activiteit met een datum in de toekomst telt nooit mee voor een aanwezigheidsstatistiek, zelfs als de aanwezigheid vooraf is ingevuld. Een activiteit met de datum van **vandaag** telt wel mee. Zo blijft het aanwezigheidscijfer van elke speler kloppen — een coach ziet alleen sessies die de speler echt had kunnen bijwonen.
+
+## De aanwezigheidsrapporten filteren — periodepillen + activiteittype
+
+Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de activiteitenlijst:
+
+- **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. Deze kijken terug (de rapporten zijn retrospectief). Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
+- **Activiteittype** — beperk tot één type (training / wedstrijd / toernooi, afhankelijk van wat jullie academy heeft ingesteld). Het typefilter beperkt elk cijfer consistent: de KPI-tegels, de tabel, de ranglijst en het risicopaneel.
+
+Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
+
+## Inzoomen op de spelers van een team (teamrapport)
+
+In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.
+
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Elke kolom blijft sorteerbaar — klik op een kop om opnieuw te sorteren.
@@ -60,5 +77,8 @@ Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scr
 
 Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…` — `{ top, bottom, total }`.
-- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold`.
+- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold }`.
+
+De optionele `activity_type_key` op elk aanwezigheids-endpoint beperkt tot één activiteittype, gelijk aan het Type-filter in de rapport-UI.

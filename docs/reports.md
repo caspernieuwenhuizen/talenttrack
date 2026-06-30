@@ -42,6 +42,23 @@ The legacy wp-admin "Player Progress & Radar" report now renders natively on the
 
 Coaches see only their own teams' players and teams; academy-wide roles see everything. The old wp-admin route redirects here, so bookmarks keep working. Integrations can read the same datasets from `GET /wp-json/talenttrack/v1/reports/player-radar?mode=…&player_ids=…`.
 
+## Only past, actually-held activities count
+
+Both attendance reports — and the leaderboard and at-risk panel that share their query — only count activities that have **actually been held**: completed, in the past (session date today or earlier). An activity dated in the future never contributes to an attendance statistic, even if attendance was pre-filled on it. An activity dated **today** does count. This keeps each player's attendance figure truthful — a coach reviewing a profile sees only sessions the player could really have attended.
+
+## Filtering the attendance reports — period pills + activity type
+
+Both the team report and the player report carry the same filtering vocabulary as the activities list:
+
+- **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. These are retrospective (the reports look back). Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
+- **Activity type** — narrow to one type (training / game / tournament, whatever your academy has configured). The type filter narrows every figure consistently: the KPI tiles, the table, the leaderboard and the at-risk panel.
+
+On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
+
+## Drilling into a team's players (team report)
+
+On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.
+
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. Every column stays sortable — click a header to re-sort.
@@ -60,5 +77,8 @@ On a phone the two tables stack into one column with no horizontal scroll; from 
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…` — `{ top, bottom, total }`.
-- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold`.
+- `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold }`.
+
+The optional `activity_type_key` on every attendance endpoint narrows to one activity type, matching the report UI's Type filter.

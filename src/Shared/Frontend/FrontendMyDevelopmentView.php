@@ -14,6 +14,7 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendMyDevelopmentView — the player + parent "development home"
@@ -224,7 +225,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             foreach ( $goals as $g ) {
                 $due = (string) ( $g->due_date ?? '' );
                 echo '<li class="tt-devhome-row">';
-                echo '<span class="tt-devhome-row__title">' . esc_html( (string) ( $g->title ?? '' ) ) . '</span>';
+                echo self::rowTitleLink( 'my-goals', (int) ( $g->id ?? 0 ), (string) ( $g->title ?? '' ), $player, $is_self ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — rowTitleLink escapes label + URL.
                 if ( $due !== '' ) {
                     echo '<span class="tt-devhome-row__meta">' . esc_html( sprintf(
                         /* translators: %s = goal due date */
@@ -291,7 +292,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             echo '<ul class="tt-devhome-list">';
             foreach ( $rows as $r ) {
                 echo '<li class="tt-devhome-row">';
-                echo '<span class="tt-devhome-row__title">' . esc_html( (string) ( $r->title ?? '' ) ) . '</span>';
+                echo self::rowTitleLink( 'my-activities', (int) ( $r->id ?? 0 ), (string) ( $r->title ?? '' ), $player, $is_self ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — rowTitleLink escapes label + URL.
                 echo '<span class="tt-devhome-row__meta">' . esc_html( self::formatDate( substr( (string) ( $r->session_date ?? '' ), 0, 10 ) ) ) . '</span>';
                 echo '</li>';
             }
@@ -311,7 +312,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             echo '<p class="tt-devhome-empty">' . esc_html__( 'Your academy story starts here. Milestones will appear as your season unfolds.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-devhome-row">';
-            echo '<span class="tt-devhome-row__title">' . esc_html( (string) ( $latest->summary ?? '' ) ) . '</span>';
+            echo self::rowTitleLink( 'my-journey', (int) ( $latest->id ?? 0 ), (string) ( $latest->summary ?? '' ), $player, $is_self ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — rowTitleLink escapes label + URL.
             echo '<span class="tt-devhome-row__meta">' . esc_html( self::formatDate( substr( (string) ( $latest->event_date ?? '' ), 0, 10 ) ) ) . '</span>';
             echo '</div>';
         }
@@ -344,6 +345,40 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             $url = add_query_arg( 'player_id', (int) $player->id, $url );
         }
         return BackLink::appendTo( $url );
+    }
+
+    /**
+     * #2152 — Me-view detail URL for a single record (`?tt_view=<view>&id=N`),
+     * carrying `player_id` for the parent-viewing-child case and a `tt_back`
+     * hint so the deep view shows a "← Back to My development" pill (§5).
+     * Mirrors `meUrl()` but targets one record rather than the list.
+     */
+    private static function meDetailUrl( string $view, int $id, object $player, bool $is_self ): string {
+        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
+        $url  = add_query_arg( [ 'tt_view' => $view, 'id' => $id ], $base ?: home_url( '/' ) );
+        if ( ! $is_self ) {
+            $url = add_query_arg( 'player_id', (int) $player->id, $url );
+        }
+        return BackLink::appendTo( $url );
+    }
+
+    /**
+     * #2152 — render a row's title as a record link to its player-facing
+     * detail view. Falls back to a plain `<span>` title when the record
+     * carries no id (defensive — keeps the row readable, just not tappable).
+     * The link reuses the shared `.tt-record-link` styling on top of the
+     * existing `.tt-devhome-row__title` so touch-target + hover/focus rules
+     * stay consistent with the rest of the home.
+     */
+    private static function rowTitleLink( string $view, int $id, string $title, object $player, bool $is_self ): string {
+        if ( $id <= 0 || $title === '' ) {
+            return '<span class="tt-devhome-row__title">' . esc_html( $title ) . '</span>';
+        }
+        return RecordLink::inline(
+            $title,
+            self::meDetailUrl( $view, $id, $player, $is_self ),
+            'tt-devhome-row__title'
+        );
     }
 
     /** Locale-aware date from a YYYY-MM-DD string, or '' when empty. */
