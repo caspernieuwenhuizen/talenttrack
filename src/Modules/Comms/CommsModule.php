@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
 use TT\Modules\Comms\Channel\Adapters\InappChannelAdapter;
 use TT\Modules\Comms\Channel\Adapters\PushChannelAdapter;
@@ -73,6 +74,23 @@ class CommsModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
+        // #2157 — academy-managed email sender identity. The plugin used
+        // to inherit WordPress's "WordPress <wordpress@…>" default From
+        // header on every send (account-creation notifications + all Comms
+        // channels go through wp_mail()). These two filters let an operator
+        // override the From name + address from Configuration. Stored in
+        // tt_config (per-club, SaaS-tenant-scopable) rather than wp_options.
+        // Empty / invalid values fall through to the WordPress default, so a
+        // blank setting never produces a broken From header.
+        add_filter( 'wp_mail_from', static function ( $email ) {
+            $v = (string) QueryHelpers::get_config( 'comms_email_from_address', '' );
+            return ( $v !== '' && is_email( $v ) ) ? $v : $email;
+        } );
+        add_filter( 'wp_mail_from_name', static function ( $name ) {
+            $v = (string) QueryHelpers::get_config( 'comms_email_from_name', '' );
+            return $v !== '' ? $v : $name;
+        } );
+
         // Channel adapters. The original "register from owning module"
         // plan was reversed at v3.110.0 — keeping all five channels in
         // one place is clearer for the dispatcher's channel-resolver to
