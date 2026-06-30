@@ -118,6 +118,21 @@
     min-width: 0;
     overflow-wrap: anywhere;
 }
+/* #2152 — row titles are now record links into their player-facing
+   detail. Keep the comfortable 48px touch target and a clear focus ring
+   while inheriting the row's typographic weight/colour. */
+.tt-dashboard a.tt-devhome-row__title {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard a.tt-devhome-row__title:hover,
+.tt-dashboard a.tt-devhome-row__title:focus-visible {
+    text-decoration: underline;
+    color: var(--tt-brand, #0b3d2e);
+}
 .tt-dashboard .tt-devhome-row__meta {
     flex: 0 0 auto;
     font-size: 0.72rem;
