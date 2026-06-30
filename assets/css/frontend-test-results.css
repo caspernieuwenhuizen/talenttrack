@@ -1,0 +1,232 @@
+/*
+ * frontend-test-results.css (#2145) — the "Test results" analysis browser.
+ * Mobile-first, scoped under .tt-dashboard, design tokens only (no raw hex).
+ *
+ * Base (~360px): the result grid reflows to stacked cards via each <td>'s
+ * data-label legend. At 768px+ it becomes a real sortable row table.
+ */
+
+/* ===== Filter bar ===== */
+
+.tt-dashboard .tt-tr-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+}
+
+.tt-dashboard .tt-tr-filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-tr-filters__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-tr-filters .tt-input {
+    min-height: 48px;            /* §2 — 48px tap-target floor */
+    font-size: 1rem;             /* ≥16px so iOS doesn't auto-zoom */
+    width: 100%;
+}
+
+.tt-dashboard .tt-tr-filters__actions {
+    flex: 1 1 100%;
+    display: flex;
+}
+
+.tt-dashboard .tt-tr-filters__actions .tt-btn {
+    min-height: 48px;
+    width: 100%;
+}
+
+.tt-dashboard .tt-tr-hint {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0.5rem 0 0;
+}
+
+/* ===== Export ===== */
+
+.tt-dashboard .tt-tr-export {
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-tr-export .tt-btn {
+    min-height: 48px;
+}
+
+/* ===== Result grid — stacked cards (mobile-first) ===== */
+
+.tt-dashboard .tt-tr-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tt-dashboard .tt-tr-table thead {
+    display: none;               /* header hidden in card mode */
+}
+
+.tt-dashboard .tt-tr-table,
+.tt-dashboard .tt-tr-table tbody,
+.tt-dashboard .tt-tr-table tr,
+.tt-dashboard .tt-tr-table td {
+    display: block;
+    width: 100%;
+}
+
+.tt-dashboard .tt-tr-table tr {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: #fff;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+}
+
+.tt-dashboard .tt-tr-table td {
+    border-bottom: none;
+    padding: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 48px;
+}
+
+.tt-dashboard .tt-tr-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.72rem;
+    color: var(--tt-muted, #6a6d66);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex: 0 0 6rem;
+}
+
+.tt-dashboard .tt-tr-cell--name a {
+    font-weight: 600;
+}
+
+/* ===== Result chips, flags, trend ===== */
+
+.tt-dashboard .tt-tr-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.tt-dashboard .tt-tr-level__label {
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-tr-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-tr-flag {
+    display: inline-block;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+.tt-dashboard .tt-tr-flag--ok   { background: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-tr-flag--warn { background: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-tr-flag--bad  { background: var(--tt-danger, #d8453b); }
+
+.tt-dashboard .tt-tr-trend--up   { color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-tr-trend--down { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-tr-trend--flat { color: var(--tt-muted, #6a6d66); }
+
+.tt-dashboard .tt-tr-empty {
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Screen-reader-only text for the colour-only flag / trend glyphs. */
+.tt-dashboard .tt-tr-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ===== Large phone (480px+) — two filters per row ===== */
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-tr-filters__field {
+        flex: 1 1 calc(50% - 0.3rem);
+    }
+    .tt-dashboard .tt-tr-filters__actions .tt-btn {
+        width: auto;
+        min-width: 8rem;
+    }
+}
+
+/* ===== Tablet (768px+) — real sortable row table ===== */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-tr-filters__field {
+        flex: 1 1 auto;
+        min-width: 10rem;
+    }
+
+    .tt-dashboard .tt-tr-table thead {
+        display: table-header-group;
+    }
+    .tt-dashboard .tt-tr-table {
+        display: table;
+    }
+    .tt-dashboard .tt-tr-table tbody {
+        display: table-row-group;
+    }
+    .tt-dashboard .tt-tr-table tr {
+        display: table-row;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    }
+    .tt-dashboard .tt-tr-table td {
+        display: table-cell;
+        padding: 0.6rem 0.75rem;
+        min-height: 0;
+        vertical-align: middle;
+    }
+    .tt-dashboard .tt-tr-table td::before {
+        content: none;
+    }
+    .tt-dashboard .tt-tr-table thead th {
+        text-align: left;
+        padding: 0.6rem 0.75rem;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--tt-muted, #6a6d66);
+        border-bottom: 2px solid var(--tt-line, #e3e6e1);
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .tt-dashboard .tt-tr-table thead th[data-tt-sort="off"] {
+        cursor: default;
+    }
+}
+
+/* ===== Desktop (1024px+) — tighten cells ===== */
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-tr-table td {
+        padding: 0.5rem 0.75rem;
+    }
+}

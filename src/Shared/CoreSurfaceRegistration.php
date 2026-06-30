@@ -877,6 +877,29 @@ final class CoreSurfaceRegistration {
             // while the central Analytics surface stays available.
             'feature'      => 'analytics_cohort_board',
         ]);
+        // #2145 — Test results browser: navigate every measurement result in
+        // one place (pick a test → each player's latest value with colour /
+        // trend / flag, clickable to the player). Analytics-group surface, but
+        // gated on the `measurements` matrix entity (read) the view enforces —
+        // so the matrix-dispatch gate and the tile agree. Hidden for
+        // players/parents (read-only personas reach their own via "My
+        // measurements").
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'test-results',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 29,
+            'label'             => __( 'Test results', 'talenttrack' ),
+            'description'       => __( 'Browse every test result: each player\'s latest value, colour, trend and flag.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([

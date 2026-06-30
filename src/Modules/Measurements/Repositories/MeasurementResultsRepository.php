@@ -143,6 +143,101 @@ class MeasurementResultsRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
+    /**
+     * The latest result per player for one definition, with each player's
+     * immediately-previous value attached (for the trend arrow), joined to
+     * the player, their team (name + age group) — the read model the Test
+     * results browser (#2145) lists. One row per player who has at least one
+     * value for the test, ordered by player name.
+     *
+     * Optional filters: a single `team_id`, an `age_group`, and an inclusive
+     * `date_from` / `date_to` recorded-date window. The window applies to the
+     * "latest" selection; the previous value is the most recent result strictly
+     * before that latest date (no window — the trend reads against real history).
+     *
+     * Business logic stays here so the REST controller and the rendered HTML
+     * (CLAUDE.md §4) get the same rows.
+     *
+     * @param array<string, mixed> $filters
+     * @return array<int, object>
+     */
+    public function listLatestWithPreviousForDefinition( int $definition_id, array $filters = [] ): array {
+        if ( $definition_id <= 0 ) return [];
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 'r.definition_id = %d', 'r.club_id = %d', 'r.archived_at IS NULL' ];
+        $params = [ $definition_id, CurrentClub::id() ];
+
+        $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        if ( $team_id > 0 ) {
+            $where[]  = 'pl.team_id = %d';
+            $params[] = $team_id;
+        }
+        $age_group = isset( $filters['age_group'] ) ? (string) $filters['age_group'] : '';
+        if ( $age_group !== '' ) {
+            $where[]  = 'pl.age_group = %s';
+            $params[] = $age_group;
+        }
+        if ( ! empty( $filters['date_from'] ) ) {
+            $where[]  = 'r.recorded_date >= %s';
+            $params[] = (string) $filters['date_from'];
+        }
+        if ( ! empty( $filters['date_to'] ) ) {
+            $where[]  = 'r.recorded_date <= %s';
+            $params[] = (string) $filters['date_to'];
+        }
+
+        $where_sql = implode( ' AND ', $where );
+
+        // The latest in-window result per player, then (correlated) the most
+        // recent value strictly before that date for the same player+test — the
+        // previous point the trend arrow compares against.
+        $sql = "SELECT r.id, r.recorded_date, r.value_numeric, r.value_text,
+                       pl.id AS player_id, pl.first_name, pl.last_name,
+                       pl.age_group AS age_group,
+                       t.name AS team_name,
+                       prev.value_numeric AS prev_value_numeric,
+                       prev.value_text    AS prev_value_text,
+                       prev.recorded_date AS prev_date
+                  FROM {$p}tt_measurement_results r
+                  JOIN {$p}tt_players pl ON pl.id = r.player_id
+             LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
+                  JOIN (
+                        SELECT player_id, MAX(recorded_date) AS max_date
+                          FROM {$p}tt_measurement_results r2
+                          JOIN {$p}tt_players p2 ON p2.id = r2.player_id
+                         WHERE " . str_replace( [ 'r.', 'pl.' ], [ 'r2.', 'p2.' ], $where_sql ) . "
+                         GROUP BY r2.player_id
+                       ) latest
+                    ON latest.player_id = r.player_id
+                   AND latest.max_date  = r.recorded_date
+             LEFT JOIN {$p}tt_measurement_results prev
+                    ON prev.player_id     = r.player_id
+                   AND prev.definition_id = r.definition_id
+                   AND prev.club_id       = r.club_id
+                   AND prev.archived_at IS NULL
+                   AND prev.recorded_date < r.recorded_date
+                   AND prev.recorded_date = (
+                         SELECT MAX(p3.recorded_date)
+                           FROM {$p}tt_measurement_results p3
+                          WHERE p3.player_id     = r.player_id
+                            AND p3.definition_id = r.definition_id
+                            AND p3.club_id       = r.club_id
+                            AND p3.archived_at IS NULL
+                            AND p3.recorded_date < r.recorded_date
+                       )
+                 WHERE {$where_sql}
+              GROUP BY r.player_id
+              ORDER BY pl.last_name ASC, pl.first_name ASC";
+
+        // The correlated subquery's predicates reuse the same bound params as
+        // the outer WHERE for the inner-derived table, so params double up.
+        $bound = array_merge( $params, $params );
+        $rows  = $wpdb->get_results( $wpdb->prepare( $sql, $bound ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         global $wpdb;

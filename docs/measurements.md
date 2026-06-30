@@ -187,12 +187,47 @@ catalogue is available over REST at
 `/wp-json/talenttrack/v1/measurement-definitions` for integrations and the
 SaaS front end.
 
+## Browsing results — the Test results surface
+
+The **Test results** tile (in the **Analysis** group of the dashboard)
+opens a browser for reading every recorded result in one place, organised
+per player. It answers "how is each player doing on this test, right now?"
+without opening profiles one by one.
+
+1. **Pick a test.** Until you choose one, the grid prompts you to. The
+   picker lists every test in the catalogue, grouped by category.
+2. **Optionally narrow** by **team**, **age group**, and a **date range**
+   (from / to). The filters re-run the grid when you press *Show*.
+3. **Read the grid.** One row per player who has a value for the test,
+   showing their **latest value in the window**:
+   - **Status tests** show the level's **colour chip and label** (e.g. a
+     green *On track*), the same colours the player-profile chip uses.
+   - **Numeric and scale tests** show the **value with its unit**, a small
+     **trend arrow** (▲ improved, ▼ declined, ▬ unchanged) versus that
+     player's previous result, and a **flag** — green *on target*, amber
+     *below target*, red *well below target* — against their age-group
+     band.
+
+The grid is **sortable** (tap a column header on tablet and desktop) and
+every **player name links to their profile**, arriving with a back-pill so
+one click returns you to the browser. An **Export to Excel** button
+downloads the current test (honouring the team and date filters) through
+the same formatted workbook the *Manage tests* export produces.
+
+Team-scoped staff (coaches who hold *read* on their own teams only) see
+results for their teams only; academy-wide readers see everyone. The same
+rows are available over REST at
+`/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
+`team_id`, `age_group`, `from`, `to`), gated on the same `measurements`
+*read* permission, for integrations and the SaaS front end.
+
 ## Moving between the surfaces
 
-**Tests & measurements** has three staff surfaces — *Manage tests* (set up
-the catalogue), *Record measurements* (enter results), and *Testing
-coverage* (review who's due) — and they cross-link so you don't have to
-return to the dashboard:
+**Tests & measurements** has four staff surfaces — *Manage tests* (set up
+the catalogue), *Record measurements* (enter results), *Testing coverage*
+(review who's due), and *Test results* (browse everyone's results) — and
+the management surfaces cross-link so you don't have to return to the
+dashboard:
 
 - *Record measurements* shows a **Manage tests** link beside **+ New test**,
   so you can jump to editing a test's cadence or bands and come straight
