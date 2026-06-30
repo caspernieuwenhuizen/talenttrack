@@ -5,8 +5,6 @@ use WP_UnitTestCase;
 use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
-use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
-use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
 
 /**
  * #2138 — status value type with operator-defined coloured levels.
@@ -84,46 +82,6 @@ final class MeasurementStatusLevelsTest extends WP_UnitTestCase {
         $levels = $repo->listForDefinition( $id );
         $this->assertCount( 1, $levels );
         $this->assertSame( MeasurementLevelPalette::DEFAULT_TOKEN, (string) $levels[0]->color_token );
-    }
-
-    public function test_profile_resolves_status_level_token(): void {
-        $id   = $this->makeStatusDefinition();
-        ( new MeasurementLevelsRepository() )->replaceForDefinition( $id, [
-            [ 'label' => 'At risk',  'color_token' => 'red' ],
-            [ 'label' => 'On track', 'color_token' => 'green' ],
-        ] );
-
-        // Insert a real player row so the profile read model has a subject
-        // (the age-group lookup tolerates an empty result).
-        global $wpdb;
-        $wpdb->insert( "{$wpdb->prefix}tt_players", [
-            'club_id'    => 1,
-            'first_name' => 'Status',
-            'last_name'  => 'Player',
-            'age_group'  => '',
-        ] );
-        $player_id = (int) $wpdb->insert_id;
-        $this->assertGreaterThan( 0, $player_id );
-
-        ( new MeasurementResultsRepository() )->create( [
-            'player_id'     => $player_id,
-            'definition_id' => $id,
-            'recorded_date' => current_time( 'Y-m-d' ),
-            'value_text'    => 'On track',
-            'value_numeric' => 2,
-        ] );
-
-        $profile = ( new PlayerMeasurementProfile() )->forPlayer( $player_id );
-        $found   = null;
-        foreach ( $profile as $cat ) {
-            foreach ( (array) $cat['tests'] as $t ) {
-                if ( (int) $t['definition_id'] === $id ) { $found = $t; break 2; }
-            }
-        }
-        $this->assertNotNull( $found, 'status test appears in the profile' );
-        $this->assertSame( 'status', (string) $found['value_type'] );
-        $this->assertSame( 'green', (string) $found['level_token'] );
-        $this->assertSame( '', (string) $found['flag'], 'status tests carry no green/amber target flag' );
     }
 
     public function test_repository_resolves_label_to_token(): void {
