@@ -1,3 +1,224 @@
+# TalentTrack v4.66.0 — Strava console: in-context "Before you start" setup checklist (#2127)
+
+The Strava operator console now opens with a short "Before you start" checklist
+of the one-time steps that happen on Strava's side — create the API
+application, set the Authorization Callback Domain to this site, then paste the
+credentials and verify. It expands automatically until the app is configured,
+then collapses. Dutch included.
+
+# TalentTrack v4.66.0 — Strava console: Dutch translations + self-healing webhook subscription (#2127)
+
+Translates the Strava operator console into Dutch (the new strings shipped
+English-only) and makes the webhook subscription robust against Strava's
+one-subscription-per-application rule. "Create / re-verify" now adopts an
+existing subscription instead of failing when one already exists at Strava,
+and the subscription status reconciles against Strava's real state on load —
+so an id this install lost is recovered and a subscription deleted from
+Strava's side clears here automatically. Backed by a new read of Strava's
+`GET /push_subscriptions` endpoint.
+
+# TalentTrack v4.66.0 — Attendance reports no longer count not-yet-held activities (#2135)
+
+The team and player attendance reports — and the leaderboard and at-risk
+panel that share their query — now exclude activities dated in the future.
+An activity created via the normal "+ New activity" form defaults to
+`plan_state = 'completed'`, so a future activity with pre-filled attendance
+used to slip past the existing guards and inflate the statistics. The
+reports now also require `session_date <= CURDATE()` (an activity dated
+today still counts), matching the established predicate in
+`ActivitiesRepository`. Query-only; past windows show identical numbers.
+
+# TalentTrack v4.66.0 — Attendance reports: period quick-pills + activity-type filter (#2136)
+
+Both the team and player attendance reports now carry the same filtering
+vocabulary as the activities list: retrospective period quick-pills (Last
+week, This month, This season) that set the From/To window for you — with
+the manual date range still overriding — and an activity-type filter
+(training / game / tournament). The type filter narrows every figure
+consistently: the KPI tiles, the table, the leaderboard and the at-risk
+panel. Filters render through the shared FilterBar (a Filters bottom sheet
+on mobile, inline on desktop) and the filter flows into the shared
+`AttendanceRankingQuery` plus a new `activity_type_key` parameter on the
+attendance REST endpoints, so a SaaS consumer gets the same answers.
+
+# TalentTrack v4.66.0 — Team attendance report: expandable rows to drill into players (#2137)
+
+Each team row on the team attendance report is now tap-to-expand: tapping
+the team name opens an inline sub-table of that team's players (player ·
+present %, with at-risk players marked), loaded on demand for the active
+window and filters from the shared `AttendanceRankingQuery`. One team is
+open at a time. The disclosure is a semantic `<button aria-expanded>` and
+is keyboard-operable; without JavaScript a "View players" link beside each
+team opens the player report pre-filtered to that team instead, so the
+drill-down is always reachable. The per-player slice is exposed at a new
+`GET /reports/attendance` REST endpoint for non-WordPress consumers.
+
+# TalentTrack v4.66.0 — Measurements: Record-measurements roster and profile cards readable in dark mode (#2142)
+
+The Record measurements page and the player-profile Measurements cards rendered
+dark text on a dark background when the operating system or browser was in dark
+mode — the stylesheet darkened the card backgrounds without lightening the text,
+while no other dashboard surface offers a dark variant. Removed those two
+half-implemented dark-mode overrides so the measurement surfaces stay light and
+legible in both modes.
+
+# TalentTrack v4.66.0 — Measurements: coloured status picker on the Record-measurements roster (#2144)
+
+Recording a status-type test now offers a custom, accessible status picker per
+player instead of a plain native dropdown. Both the closed control and every
+option in the open list show the level's colour square next to its label, and
+the control sizes to the longest label so level names are no longer clipped to
+the numeric column width. The picker is fully keyboard- and touch-operable
+(Enter/Space or the arrow keys to open, ↑/↓ to move, type-ahead, Escape to
+close) and progressively enhances the native `<select>` — with JavaScript off
+the working native dropdown remains. The chosen level still posts and saves
+exactly as before. Numeric, scale and pass/fail inputs are unchanged.
+
+# TalentTrack v4.66.0 — Test results browser: navigate every measurement result in one place (#2145)
+
+A new **Test results** tile in the Analysis group opens a dedicated browser
+(`?tt_view=test-results`) for exploring measurement results across players.
+Pick a test, optionally narrow by team, age group or date range, and read
+each player's latest value: status tests show the level's colour chip and
+label; numeric and scale tests show the value with a ▲/▼ trend against the
+previous result and a green/amber flag against the age-group target. The
+grid is sortable and every player name links through to their profile, and
+the per-test Excel export is one click away. Team-scoped staff only ever see
+results for their own teams. The same rows are exposed at
+`GET /wp-json/talenttrack/v1/measurement-results` for a future SaaS front end.
+
+# TalentTrack v4.66.0 — My activities now shows only your own sessions (#2150)
+
+The dedicated **My activities** page could fall through to the broader
+team/club result set when the player's linked-player resolution was missing
+or mismatched, leaking activities that weren't theirs. The activities REST
+list now fails closed for player and parent callers: it re-derives the
+scoped player id from the session (a player's own linked player, or a
+verified child for a parent) instead of trusting the request, and returns an
+empty list when nothing resolves — never the unscoped set. Staff lists are
+unchanged.
+
+# TalentTrack v4.66.0 — "My card" tile renamed to "My profile" (#2151)
+
+The player overview tile, header and breadcrumb now read **My profile**
+instead of "My card", and the matching parent tile reads **My child's
+profile** ("Het profiel van mijn kind"). Display string only — the internal
+slugs (`my_card`, `overview`) and all routes and permissions are unchanged.
+
+# TalentTrack v4.66.0 — My development: open a goal, activity or milestone in one tap (#2152)
+
+The goal, upcoming-activity and journey-milestone rows on the player and
+parent "My development" home are now tappable. Each row title links to that
+record's player-facing detail (My goals, My activities, My journey),
+carrying a back hint so the detail view shows a "← Back to My development"
+pill. Evaluations stay list-linked — there is no per-evaluation player
+detail to open. Makes the development narrative one tap deep instead of
+forcing a trip through the full list.
+
+# TalentTrack v4.66.0 — Players can connect their own Strava (#2153)
+
+A logged-in player can now connect their own Strava account from their
+profile without hitting a "not authorized" error. The player persona was
+missing the `strava_integration` matrix entity, so under matrix gating the
+self-service connect flow denied the athlete even on their own record. The
+authorization seed now grants the player a self-scoped Strava grant
+(`rc[self]`, mirroring `my_profile`), and a re-seed migration backfills it on
+existing installs. The self scope means a player can only ever manage their
+own connection — never another player's. Coach and admin behaviour are
+unchanged.
+
+# TalentTrack v4.66.0 — Long position descriptions on profiles, cards and dashboards (#2155)
+
+Player positions now read as their full description (Centre back, Striker)
+instead of the short code (CB, ST) across the profile/cards/dashboards
+group: the player detail hero, profile tab and archived card; the coach and
+player dashboard cards; the teammate card; the overview hero meta; the
+my-profile card; the rate-card hero widget; and the FIFA-style player card
+(including podium cards). Lists, rosters, PDFs, CSV exports and the REST
+player payload keep the short codes. The long forms are already translated,
+so no new strings.
+
+# TalentTrack v4.66.0 — My team podium links now open the teammate profile (#2156)
+
+On the player **My team** page, tapping a podium player led to the
+staff-only unified profile and returned "not authorized". Podium cards in
+player-facing contexts now link to the minimal, team-scoped teammate profile
+— the same authorised page the roster links already used. Staff surfaces
+that render the same podium are unchanged and still open the full profile.
+
+# TalentTrack v4.66.0 — Configurable email sender — name + address for plugin email (#2157)
+
+Configuration → General gains an **Email sender** group: set the name and
+address every TalentTrack email is sent from, instead of inheriting the
+WordPress default "WordPress <wordpress@…>". The values are applied to all
+plugin email — account invitations and notifications as well as Comms
+messages — via the wp_mail_from / wp_mail_from_name filters. Blank or invalid
+values fall back cleanly to the WordPress default, so the From header is never
+broken. Stored per club in tt_config, so a future multi-tenant install keeps
+each academy's sender separate.
+
+# TalentTrack v4.66.0 — Minutes reports: harden aggregation and stop fabricating estimates (#2158)
+
+The minutes-played reports now count only canonical recorded attendance —
+`record_type = 'actual'`, non-guest — and sum each player's minutes per match
+before joining, so a player with a duplicate attendance row for the same match
+is counted once instead of being doubled by a JOIN fan-out. The "Player ·
+Minutes played" and "Team · Minutes distribution" reports also now join
+attendance on the correct `activity_id` column (the previous join used a column
+renamed away years ago, which was one cause of reports showing zero minutes).
+
+A match with no persisted minutes, no execution and no lineup now contributes
+nothing — the old "credit each starter half a match" estimate is gone, so a
+total never mixes recorded minutes with invented ones. Correctly-recorded past
+matches show identical numbers.
+
+# TalentTrack v4.66.0 — Manual match-minutes entry on the attendance screen (#2159)
+
+A coach who runs a "paper match" without the sideline match-execution flow can
+now record minutes per player directly on the activity's attendance screen.
+The minutes land in `tt_attendance.minutes_played` as actual, non-guest rows —
+the single source the minutes reports read — so they flow straight into the
+Player · Minutes and Team · Minutes reports. The minutes report now also surfaces
+such matches even when they have no match-prep lineup.
+
+The orphaned "Minutes Played" field on the evaluation form is removed and the
+plugin no longer writes `tt_evaluations.minutes_played` (a column no report
+read). Precedence: a later match-execution recompute remains authoritative and
+overwrites manually-entered minutes for the same match.
+
+# TalentTrack v4.66.0 — Minutes audit / trace-back: report drill-down and raw rows (#2160)
+
+Every player's minutes total in the Team · Minutes reports (both the standard
+report and the Analytics minutes report) now expands to the per-match rows that
+sum to it — date, match, type, source (`actual` vs recomputed) and minutes —
+reusing the same hardened query so the breakdown reconciles exactly with the
+total. The trace is also exposed over REST at
+`/teams/{id}/players/{pid}/minutes` for a non-WordPress front end.
+
+The raw `tt_attendance` minutes rows — `minutes_played`, `record_type`,
+`is_guest`, `activity_id` — are now documented and browsable in the Data
+Browser for ad-hoc verification.
+
+# TalentTrack v4.66.0 — Data Browser search now matches column names (#2161)
+
+The Data Browser index search now also matches column names, so typing
+"minutes", "club_id" or "uuid" surfaces every table that has a matching column —
+not just tables whose name or description mention it. When a table surfaces
+because of a column, the result row shows which column matched. Existing
+table-name / description matching and the table-page row-value search are
+unchanged. Column lists are already cached per table, so there is no extra
+query cost.
+
+# TalentTrack v4.66.0 — PDP planning: remove the misplaced "Show archived" button (#2162)
+
+The PDP/POP planning matrix no longer shows a "Show archived" button. It
+implied it toggled archived rows in the matrix, but the planning view is a
+live aggregate that never includes archived conversations — the button just
+navigated away to the PDP manage list. Restoring archived PDPs still lives in
+the PDP manage list's archived filter, which is the right place. Removing the
+button also keeps the planning view within the two-affordance navigation
+contract.
+
 # TalentTrack v4.65.0 — Tests & measurements: REST CRUD for the test catalogue (#2120)
 
 Test definitions are now fully CRUD-able over the `talenttrack/v1` REST API
