@@ -45086,3 +45086,30 @@ msgstr "Kies status"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Email sender"
+msgstr "E-mailafzender"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The name and address plugin emails are sent from — account invitations, notifications and other messages. Leave both blank to use the WordPress default sender for your site."
+msgstr "De naam en het adres waarvandaan plugin-e-mails worden verzonden — accountuitnodigingen, meldingen en andere berichten. Laat beide leeg om de standaard WordPress-afzender van je site te gebruiken."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Sender name"
+msgstr "Afzendernaam"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "e.g. Ajax Academy"
+msgstr "bijv. Ajax Academy"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Sender address"
+msgstr "Afzenderadres"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "e.g. noreply@academy.example"
+msgstr "bijv. noreply@academy.example"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Must be a valid email address. An invalid or empty address falls back to the WordPress default — your email is never sent with a broken sender."
+msgstr "Moet een geldig e-mailadres zijn. Een ongeldig of leeg adres valt terug op de WordPress-standaard — je e-mail wordt nooit met een kapotte afzender verzonden."

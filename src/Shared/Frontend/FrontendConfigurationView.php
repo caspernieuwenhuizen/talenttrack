@@ -2035,6 +2035,40 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php esc_html_e( 'When on, players and parents see a banner inviting them to install TalentTrack on their phone. Switch it off to hide that prompt for everyone in your academy.', 'talenttrack' ); ?>
                     </p>
                 </div>
+
+                <?php
+                // #2157 — academy-managed email sender identity. Applied to
+                // every plugin email (account notifications + Comms) via the
+                // wp_mail_from / wp_mail_from_name filters. Blank = inherit
+                // the WordPress default sender.
+                $email_from_name    = (string) QueryHelpers::get_config( 'comms_email_from_name', '' );
+                $email_from_address = (string) QueryHelpers::get_config( 'comms_email_from_address', '' );
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h3 class="tt-field-subhead"><?php esc_html_e( 'Email sender', 'talenttrack' ); ?></h3>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'The name and address plugin emails are sent from — account invitations, notifications and other messages. Leave both blank to use the WordPress default sender for your site.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-email-from-name"><?php esc_html_e( 'Sender name', 'talenttrack' ); ?></label>
+                    <input type="text" id="tt-cfg-email-from-name" class="tt-input"
+                        name="config[comms_email_from_name]"
+                        autocomplete="organization"
+                        value="<?php echo esc_attr( $email_from_name ); ?>"
+                        placeholder="<?php esc_attr_e( 'e.g. Ajax Academy', 'talenttrack' ); ?>" />
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-email-from-address"><?php esc_html_e( 'Sender address', 'talenttrack' ); ?></label>
+                    <input type="email" inputmode="email" id="tt-cfg-email-from-address" class="tt-input"
+                        name="config[comms_email_from_address]"
+                        autocomplete="email"
+                        value="<?php echo esc_attr( $email_from_address ); ?>"
+                        placeholder="<?php esc_attr_e( 'e.g. noreply@academy.example', 'talenttrack' ); ?>" />
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Must be a valid email address. An invalid or empty address falls back to the WordPress default — your email is never sent with a broken sender.', 'talenttrack' ); ?>
+                    </p>
+                </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save general settings', 'talenttrack' ) ] ); ?>

@@ -111,6 +111,14 @@ class ConfigRestController {
         // KEY_AREA_MAP → resolves to the tt_edit_settings umbrella, like the
         // other General settings it sits beside.
         'install_banner.enabled',
+        // #2157 — academy-managed email sender identity (From name +
+        // address) applied to every plugin email via the wp_mail_from /
+        // wp_mail_from_name filters in CommsModule::boot(). Empty = inherit
+        // the WordPress default. Un-mapped in KEY_AREA_MAP → resolves to the
+        // tt_edit_settings umbrella (admins / club admins), like the other
+        // General settings above.
+        'comms_email_from_name',
+        'comms_email_from_address',
     ];
 
     /**

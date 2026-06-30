@@ -16,6 +16,8 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 | **Locale** | Standaardtaal voor datum- en getalnotatie. Alleen geïnstalleerde talen worden getoond. |
 | **Tegelbreedte (px)** | Exacte breedte van de dashboardtegelkolom in pixels (140–400). Een expliciete override die **voorrang heeft** op het grootte-preset en de %-tegelschaal voor de breedte; laat leeg om het preset + de schaal te gebruiken. |
 | **Tegelpictogram-grootte (px)** | Exacte grootte van het tegelpictogram in pixels (14–64); de pictogramchip schaalt eromheen. Laat leeg om de preset-/%-schaalgrootte te gebruiken. |
+| **E-mailafzender — Afzendernaam** | De naam waarvandaan plugin-e-mails worden verzonden. Leeg = de standaard WordPress-afzendernaam. |
+| **E-mailafzender — Afzenderadres** | Het adres waarvandaan plugin-e-mails worden verzonden. Moet een geldig e-mailadres zijn; leeg of ongeldig valt terug op de WordPress-standaard. |
 
 **Voorrang bij tegelgrootte:** het grootte-preset (compact / comfortabel / ruim) is de basis; de **%-tegelschaal** vermenigvuldigt dit; de px-velden voor **breedte / pictogram** overschrijven dat, indien ingesteld, voor respectievelijk de kolombreedte en de pictogramgrootte. Lege px-velden veranderen niets — het preset + de schaal bepalen het zoals voorheen.
 
@@ -34,6 +36,31 @@ instellingen regelt dit academie-breed. Hij staat standaard **aan**. Zet hem uit
 om de banner voor iedereen in je academie te verbergen — handig zodra je
 gezinnen zijn ingericht en de aansporing niet meer nodig is. De per-apparaat
 "sluiten" die een gebruiker kan aantikken blijft onafhankelijk werken.
+
+## E-mailafzender
+
+Standaard worden alle e-mails die TalentTrack verstuurt — accountuitnodigingen,
+meldingen en Comms-berichten — verzonden als de standaard WordPress-afzender,
+meestal **WordPress &lt;wordpress@jouwdomein&gt;**. Met de groep **E-mailafzender**
+in de Algemene instellingen stel je academie-breed een vriendelijkere
+afzenderidentiteit in:
+
+- **Afzendernaam** — wat ontvangers als afzender zien, bijv. *Ajax Academy*.
+- **Afzenderadres** — het From-adres, bijv. *noreply@academy.example*. Dit moet
+  een geldig e-mailadres zijn.
+
+Beide worden toegepast via de WordPress-filters `wp_mail_from` /
+`wp_mail_from_name`, zodat elke plugin-e-mail ze oppikt. Laat een veld leeg om
+voor dat deel de WordPress-standaard te behouden. Is het adres leeg of geen
+geldig e-mailadres, dan valt TalentTrack terug op de standaardafzender — je
+e-mail wordt nooit met een kapotte From-header verzonden. De waarden staan per
+club in `tt_config`, zodat een toekomstige multi-tenant-installatie de afzender
+van elke academie apart houdt.
+
+> Deze instelling regelt alleen de **afzenderidentiteit**. Voor
+> bezorgbaarheid (SPF / DKIM / een echte SMTP-relay) blijft een standaard
+> WordPress-SMTP-plugin een goede aanvulling — die regelt het transport, dit
+> regelt de afzendernaam en het adres.
 
 ## Zie ook
 
