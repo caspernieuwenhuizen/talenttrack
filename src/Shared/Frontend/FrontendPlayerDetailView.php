@@ -256,7 +256,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
         } else {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                $is_self ? __( 'My card', 'talenttrack' ) : $name
+                $is_self ? __( 'My profile', 'talenttrack' ) : $name
             );
         }
 
@@ -368,7 +368,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         }
         $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         if ( is_array( $positions ) && ! empty( $positions ) ) {
-            $fields[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', array_map( 'strval', $positions ) ) ) ];
+            // #2155 — long position descriptions on the profiles/cards group.
+            $pos_long = array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $positions ) );
+            $fields[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', $pos_long ) ) ];
         }
         if ( ! empty( $player->status ) ) {
             $fields[] = [ __( 'Status', 'talenttrack' ), esc_html( \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status ) ) ];
@@ -398,7 +400,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $photo     = (string) ( $player->photo_url ?? '' );
         $jersey    = ! empty( $player->jersey_number ) ? (int) $player->jersey_number : 0;
         $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
-        $first_pos = is_array( $positions ) && ! empty( $positions ) ? (string) $positions[0] : '';
+        // #2155 — hero pill shows the long description (Striker, Centre back).
+        $first_pos = is_array( $positions ) && ! empty( $positions )
+            ? \TT\Infrastructure\Query\LabelTranslator::positionLabel( (string) $positions[0] )
+            : '';
         $journey   = self::journeyText( $player );
         // #1089 VCT-14 — orange PHV pill on the hero when active.
         $phv_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
@@ -557,8 +562,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $foot_value = $foot_raw !== ''
             ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', $foot_raw )
             : '—';
+        // #2155 — key-facts position hint shows long descriptions.
         $foot_hint  = is_array( $positions ) && ! empty( $positions )
-            ? implode( ' / ', array_map( 'strval', $positions ) )
+            ? implode( ' / ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $positions ) ) )
             : '';
 
         $joined_value = $joined_raw !== '' ? self::shortDate( $joined_raw ) : '—';
@@ -1021,7 +1027,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob_raw ) ) ];
         }
         if ( is_array( $positions ) && ! empty( $positions ) ) {
-            $identity_rows[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', array_map( 'strval', $positions ) ) ) ];
+            // #2155 — long position descriptions on the profile tab.
+            $pos_long = array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $positions ) );
+            $identity_rows[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', $pos_long ) ) ];
         }
         if ( $foot_label !== '' ) {
             $identity_rows[] = [ __( 'Preferred foot', 'talenttrack' ), esc_html( $foot_label ) ];

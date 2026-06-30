@@ -100,7 +100,8 @@ class FrontendMyProfileView extends FrontendViewBase {
             }
         }
         if ( is_array( $pos ) && $pos ) {
-            $rows[] = [ __( 'Positions', 'talenttrack' ), implode( ', ', $pos ) ];
+            // #2155 — long position descriptions on the my-profile card.
+            $rows[] = [ __( 'Positions', 'talenttrack' ), implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) ];
         }
         if ( ! empty( $player->preferred_foot ) ) {
             $rows[] = [

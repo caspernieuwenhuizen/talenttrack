@@ -14,7 +14,7 @@ Welcome to TalentTrack. This is your academy's youth football talent management 
 
 It depends on your role. Most people see one or more of these tiles:
 
-- **My card** — your own player card, ratings and headline numbers.
+- **My profile** — your own player card, ratings and headline numbers.
 - **My team** — your teammates and the team podium.
 - **My evaluations** — feedback from your coaches.
 - **My sessions** — training sessions you've attended.

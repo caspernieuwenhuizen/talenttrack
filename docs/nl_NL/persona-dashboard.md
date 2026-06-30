@@ -10,8 +10,8 @@ Deze pagina beschrijft wat je per persona kunt verwachten, hoe je wisselt als je
 
 | Persona | Hero | Belangrijkste paneel | Wat blijft staan |
 | - | - | - | - |
-| **Speler** | FIFA-achtige ratingcard met je overall + positie | Notitie van je trainer (als die er is) | Mijn reis, Mijn kaart, Mijn team, Mijn evaluaties, Mijn activiteiten, Mijn doelen, Mijn POP, Mijn profiel |
-| **Ouder** | Kind-schakelaar + "sinds je laatste bezoek"-overzicht | POP wachtend op jouw akkoord | Dezelfde ontwikkeltegels die je kind ziet, met hun voornaam ervoor (bijv. "Sven's kaart", "Sven's evaluaties") |
+| **Speler** | FIFA-achtige ratingcard met je overall + positie | Notitie van je trainer (als die er is) | Mijn reis, Mijn profiel, Mijn team, Mijn evaluaties, Mijn activiteiten, Mijn doelen, Mijn POP |
+| **Ouder** | Kind-schakelaar + "sinds je laatste bezoek"-overzicht | POP wachtend op jouw akkoord | Dezelfde ontwikkeltegels die je kind ziet, met hun voornaam ervoor (bijv. "Sven's profiel", "Sven's evaluaties") |
 | **Hoofdtrainer / Assistent-trainer** | Vandaag / Eerstvolgende met aanwezigheids- en evaluatie-knoppen | Werkstroomtaken + recente evaluaties-rail | Activiteiten, evaluaties, doelen, spelers, teams, POP, methodiek, mijn taken |
 | **Teammanager** | Vandaag / Eerstvolgende | (standaard geen) | Activiteiten, mijn teams, spelers, mijn taken |
 | **Head of Development** | KPI-strip (actieve spelers, evaluaties deze maand, opkomstpercentage, open trials, openstaande POP-verdicten, doel-voltooiingspercentage) | Ploegoverzicht-grid (per ploeg rating + opkomst, uitklapbaar naar spelersuitsplitsing), Nieuwe trial snelactie, Aankomende activiteiten-tabel, Trials die een besluit nodig hebben (tabel) | Trials, POP, spelers, methodiek, takendashboard, evaluaties, ratingcards, vergelijken |

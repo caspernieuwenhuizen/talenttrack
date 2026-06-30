@@ -131,7 +131,7 @@ final class MatrixEntityCatalog {
             'invitations'                   => __( 'Invitations', 'talenttrack' ),
             'invitations_config'            => __( 'Invitation messages', 'talenttrack' ),
             'dev_ideas'                     => __( 'Development ideas', 'talenttrack' ),
-            'my_card'                       => __( 'My card', 'talenttrack' ),
+            'my_card'                       => __( 'My profile', 'talenttrack' ),
             // Trials + staff
             'trial_cases'                   => __( 'Trial cases', 'talenttrack' ),
             'trial_inputs'                  => __( 'Trial inputs', 'talenttrack' ),

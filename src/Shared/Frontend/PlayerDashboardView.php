@@ -242,7 +242,8 @@ class PlayerDashboardView {
         if ( ! empty( $top ) ) {
             echo '<h3 style="text-align:center;margin-top:10px;">' . esc_html__( 'Top players on the team', 'talenttrack' ) . '</h3>';
             // #1354 — player-facing: no peer rating numbers.
-            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false );
+            // #2156 — player context: link cards to the teammate profile.
+            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false, 'teammate' );
         }
 
         // Teammate roster — names + photos only, no ratings.
@@ -294,7 +295,7 @@ class PlayerDashboardView {
         echo '<div class="tt-card-body">';
         echo '<h3>' . esc_html( QueryHelpers::player_display_name( $player ) ) . '</h3>';
         if ( $team ) echo '<p><strong>' . esc_html__( 'Team:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $team->name ) . '</p>';
-        if ( is_array( $pos ) && $pos ) echo '<p><strong>' . esc_html__( 'Pos:', 'talenttrack' ) . '</strong> ' . esc_html( implode( ', ', $pos ) ) . '</p>';
+        if ( is_array( $pos ) && $pos ) echo '<p><strong>' . esc_html__( 'Pos:', 'talenttrack' ) . '</strong> ' . esc_html( implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) ) . '</p>'; // #2155 long position descriptions
         if ( $player->preferred_foot ) echo '<p><strong>' . esc_html__( 'Foot:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $player->preferred_foot ) . '</p>';
         if ( $player->jersey_number ) echo '<p><strong>#</strong>' . esc_html( (string) $player->jersey_number ) . '</p>';
         echo '</div></div>';

@@ -1311,8 +1311,8 @@ msgstr "reis"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php:60
 msgctxt "parent dashboard tile noun"
-msgid "card"
-msgstr "kaart"
+msgid "profile"
+msgstr "profiel"
 
 #: src/Infrastructure/Players/ParentDashboardTiles.php:61
 msgctxt "parent dashboard tile noun"
@@ -24757,8 +24757,8 @@ msgstr "Mijn profiel"
 
 # #0060 — Persona dashboard tile labels (player template)
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:93
-msgid "My child's card"
-msgstr "De kaart van mijn kind"
+msgid "My child's profile"
+msgstr "Het profiel van mijn kind"
 
 # === #0040 — dashboard regroup + Configuration tile-landing + i18n cleanup ===
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:148

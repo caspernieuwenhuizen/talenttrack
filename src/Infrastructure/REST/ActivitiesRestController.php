@@ -230,6 +230,34 @@ class ActivitiesRestController {
         // call before deciding to early-return on "no head-coach teams".
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
 
+        // #2150 — fail-closed scoping for the player / parent
+        // "my-activities" surface. A caller without the staff activities
+        // capability reaches this handler only through the player-or-
+        // parent branch of `can_view`, so their result MUST be scoped to
+        // a player they're entitled to read. We re-derive that player id
+        // server-side from the session (never trusting the query param
+        // alone): for a linked player it's their own id; for a parent the
+        // requested child id is honoured only after the parent link is
+        // verified. If neither resolves, the request is force-scoped to a
+        // sentinel that returns the empty set — never the unscoped list.
+        $uid        = get_current_user_id();
+        $caller_is_staff = AuthorizationService::userCanOrMatrix( $uid, 'tt_view_activities' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_activities' );
+
+        if ( ! $caller_is_staff ) {
+            $scoped_pid = self::resolvePlayerScopeForCaller( $uid, (int) ( $filter['player_id'] ?? 0 ) );
+            if ( $scoped_pid <= 0 ) {
+                // No linked player (or unverified child) → empty set, not
+                // the unscoped list. Fail closed.
+                return RestResponse::success( [
+                    'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
+                ] );
+            }
+            // Force-scope server-side to the verified player id, replacing
+            // whatever the client sent.
+            $filter['player_id'] = $scoped_pid;
+        }
+
         // v3.110.51 — when the request is a player-scoped my-activities
         // call (`filter[player_id]` matches the caller's linked player,
         // already validated by `can_view`), the player → team-membership
@@ -268,7 +296,7 @@ class ActivitiesRestController {
             'restrict_team_ids' => $restrict_team_ids,
             'filter'            => $filter,
             'search'            => (string) ( $r['search'] ?? '' ),
-            'your_status_pid'   => ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0,
+            'your_status_pid'   => isset( $filter['player_id'] ) && (int) $filter['player_id'] > 0 ? absint( $filter['player_id'] ) : 0,
         ] );
 
         return RestResponse::success( [
@@ -306,6 +334,35 @@ class ActivitiesRestController {
         $repo = self::repo();
         if ( $repo->linkedPlayerIdForUser( $uid ) === $player_id ) return true;
         return $repo->userIsParentOfPlayer( $uid, $player_id );
+    }
+
+    /**
+     * #2150 — resolve the player id a non-staff caller may be scoped to
+     * for the "my-activities" list, derived from the session rather than
+     * trusted from the query param.
+     *
+     * Returns:
+     *   - the caller's own linked player id, when they have one (their
+     *     own journey — the query param is ignored for self-scope);
+     *   - the requested child id, only when the caller is a verified
+     *     parent of that player;
+     *   - 0 when nothing resolves — the caller (e.g. a WP user with no
+     *     linked `tt_players` row) must see an empty list, never a leak.
+     */
+    private static function resolvePlayerScopeForCaller( int $uid, int $requested_pid ): int {
+        if ( $uid <= 0 ) return 0;
+        $repo = self::repo();
+
+        $own = $repo->linkedPlayerIdForUser( $uid );
+        if ( $own > 0 ) return $own;
+
+        // Parent viewing a specific child: honour the requested id only
+        // after the parent → child link is verified server-side.
+        if ( $requested_pid > 0 && $repo->userIsParentOfPlayer( $uid, $requested_pid ) ) {
+            return $requested_pid;
+        }
+
+        return 0;
     }
 
     /** Shape one row for the JSON response. */
