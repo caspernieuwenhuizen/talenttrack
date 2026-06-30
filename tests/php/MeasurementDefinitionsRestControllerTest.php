@@ -61,6 +61,7 @@ final class MeasurementDefinitionsRestControllerTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( self::BASE, $routes, 'collection route registers' );
         $this->assertArrayHasKey( self::BASE . '/(?P<id>\d+)', $routes, 'single-item route registers' );
         $this->assertArrayHasKey( self::BASE . '/(?P<id>\d+)/targets', $routes, 'targets route registers' );
+        $this->assertArrayHasKey( self::BASE . '/(?P<id>\d+)/levels', $routes, 'levels route registers' );
         $this->assertArrayHasKey( self::BASE . '/(?P<id>\d+)/permanent', $routes, 'permanent-delete route registers' );
     }
 
@@ -81,6 +82,8 @@ final class MeasurementDefinitionsRestControllerTest extends WP_UnitTestCase {
             'PUT item'          => [ 'PUT',    self::BASE . '/1' ],
             'DELETE item'       => [ 'DELETE', self::BASE . '/1' ],
             'POST targets'      => [ 'POST',   self::BASE . '/1/targets' ],
+            'GET levels'        => [ 'GET',    self::BASE . '/1/levels' ],
+            'POST levels'       => [ 'POST',   self::BASE . '/1/levels' ],
             'DELETE permanent'  => [ 'DELETE', self::BASE . '/1/permanent' ],
         ];
     }

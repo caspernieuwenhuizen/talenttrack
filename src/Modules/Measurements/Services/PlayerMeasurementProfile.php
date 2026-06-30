@@ -4,7 +4,9 @@ namespace TT\Modules\Measurements\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
+use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 
@@ -23,15 +25,18 @@ class PlayerMeasurementProfile {
     private MeasurementDefinitionsRepository $definitions;
     private MeasurementResultsRepository $results;
     private MeasurementTargetsRepository $targets;
+    private MeasurementLevelsRepository $levels;
 
     public function __construct(
         ?MeasurementDefinitionsRepository $definitions = null,
         ?MeasurementResultsRepository $results = null,
-        ?MeasurementTargetsRepository $targets = null
+        ?MeasurementTargetsRepository $targets = null,
+        ?MeasurementLevelsRepository $levels = null
     ) {
         $this->definitions = $definitions ?? new MeasurementDefinitionsRepository();
         $this->results     = $results ?? new MeasurementResultsRepository();
         $this->targets     = $targets ?? new MeasurementTargetsRepository();
+        $this->levels      = $levels ?? new MeasurementLevelsRepository();
     }
 
     /**
@@ -53,11 +58,24 @@ class PlayerMeasurementProfile {
         $grouped = [];
         foreach ( $definitions as $def ) {
             $def_id      = (int) $def->id;
+            $is_status   = (string) $def->value_type === 'status';
             $latest_row  = $latest[ $def_id ] ?? null;
             $value       = $this->displayValue( $def, $latest_row );
             $flag        = '';
+            $level_token = '';
 
-            if ( $latest_row && $latest_row->value_numeric !== null && $age_group !== '' ) {
+            if ( $is_status ) {
+                // Status colour comes from the matched level's token, not the
+                // green/amber target maths. Resolve the latest label back to
+                // its current level (so a recoloured level repaints history).
+                $label = $latest_row && $latest_row->value_text !== null ? (string) $latest_row->value_text : '';
+                if ( $label !== '' ) {
+                    $level = $this->levels->findByLabel( $def_id, $label );
+                    $level_token = $level
+                        ? MeasurementLevelPalette::safe( (string) $level->color_token )
+                        : MeasurementLevelPalette::DEFAULT_TOKEN;
+                }
+            } elseif ( $latest_row && $latest_row->value_numeric !== null && $age_group !== '' ) {
                 $target = $this->targets->forDefinitionAndAge( $def_id, $age_group );
                 $flag   = $this->targets->flagFor(
                     (float) $latest_row->value_numeric,
@@ -91,6 +109,7 @@ class PlayerMeasurementProfile {
                 'latest_value'  => $value,
                 'latest_date'   => $latest_row ? (string) $latest_row->recorded_date : '',
                 'flag'          => $flag,
+                'level_token'   => $level_token,
                 'series'        => $series,
             ];
         }

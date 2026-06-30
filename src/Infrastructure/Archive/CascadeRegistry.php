@@ -298,11 +298,25 @@ final class CascadeRegistry {
         'measurement_definition' => [
             'table'        => 'tt_measurement_definitions',
             'ref_columns'  => [ 'definition_id' ],
-            'cascade'      => [],
+            // Levels are owned wholly by their status definition — they
+            // cascade with it (nothing else references a level).
+            'cascade'      => [ [ 'tt_measurement_levels', 'definition_id' ] ],
             'cascade_poly' => [],
             'threads'      => null,
             'set_null'     => [],
             'block_only'   => true,
+        ],
+
+        // Measurement level (#2138) — a coloured status level; a leaf that
+        // owns nothing and deletes cleanly.
+        'measurement_level' => [
+            'table'        => 'tt_measurement_levels',
+            'ref_columns'  => [ 'level_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
         ],
 
         // Measurement session (#1856) — owns the results recorded against

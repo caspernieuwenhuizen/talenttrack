@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
+use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
@@ -229,6 +230,12 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             $targets[ (string) $t->age_group ] = $t;
         }
 
+        // Status-type tests carry operator-defined coloured levels instead
+        // of target bands.
+        $levels = $value_type === 'status'
+            ? ( new MeasurementLevelsRepository() )->listForDefinition( $id )
+            : [];
+
         // Cancel target: list view, unless tt_back captured a referrer.
         $list_url   = add_query_arg( [ 'tt_view' => 'measurement-tests' ], RecordLink::dashboardUrl() );
         $back       = BackLink::resolve();
@@ -324,7 +331,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 </label>
             </div>
 
-            <?php if ( $value_type !== 'passfail' && ! empty( $age_groups ) ) : ?>
+            <?php if ( $value_type !== 'passfail' && $value_type !== 'status' && ! empty( $age_groups ) ) : ?>
                 <fieldset class="tt-mt-targets">
                     <legend><?php esc_html_e( 'Target bands per age group', 'talenttrack' ); ?></legend>
                     <p class="tt-mt-targets__hint">
@@ -350,6 +357,8 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 </fieldset>
             <?php endif; ?>
 
+            <?php if ( $value_type === 'status' ) : self::renderLevelsEditor( $levels ); endif; ?>
+
             <?php
             echo FormSaveButton::render( [
                 'label'      => __( 'Save test', 'talenttrack' ),
@@ -357,6 +366,57 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             ] );
             ?>
         </form>
+        <?php
+    }
+
+    /**
+     * The status levels editor: an ordered set of { label, colour } rows the
+     * operator adds / removes / reorders. Each row carries an existing level
+     * id (so a save updates rather than duplicates) and a curated-palette
+     * colour <select>. A blank starter row is always appended so the form is
+     * usable on a brand-new status test. Row order is the saved ordinal
+     * (worse → better), set server-side from the row position — no JS needed.
+     *
+     * @param array<int, object> $levels
+     */
+    private static function renderLevelsEditor( array $levels ): void {
+        $palette = \TT\Modules\Measurements\Levels\MeasurementLevelPalette::labels();
+        $rows    = $levels;
+        $rows[]  = null; // a blank trailing row for adding a new level
+        ?>
+        <fieldset class="tt-mt-levels">
+            <legend><?php esc_html_e( 'Status levels', 'talenttrack' ); ?></legend>
+            <p class="tt-mt-levels__hint">
+                <?php esc_html_e( 'List the status levels from lowest to highest. Each level shows as a coloured chip on the player profile. Clear a level’s label to remove it.', 'talenttrack' ); ?>
+            </p>
+            <ol class="tt-mt-levels__list">
+                <?php $i = 0; foreach ( $rows as $lvl ) :
+                    $lid   = $lvl ? (int) $lvl->id : 0;
+                    $label = $lvl ? (string) $lvl->label : '';
+                    $token = $lvl ? \TT\Modules\Measurements\Levels\MeasurementLevelPalette::safe( (string) $lvl->color_token ) : \TT\Modules\Measurements\Levels\MeasurementLevelPalette::DEFAULT_TOKEN;
+                    $fid   = 'tt-mt-level-' . $i;
+                ?>
+                    <li class="tt-mt-level-row">
+                        <input type="hidden" name="level[<?php echo (int) $i; ?>][id]" value="<?php echo esc_attr( (string) $lid ); ?>" />
+                        <div class="tt-field tt-mt-level-row__label">
+                            <label class="tt-field-label" for="<?php echo esc_attr( $fid ); ?>"><?php esc_html_e( 'Level', 'talenttrack' ); ?></label>
+                            <input type="text" id="<?php echo esc_attr( $fid ); ?>" class="tt-input" maxlength="190"
+                                   name="level[<?php echo (int) $i; ?>][label]" value="<?php echo esc_attr( $label ); ?>"
+                                   placeholder="<?php esc_attr_e( 'e.g. On track', 'talenttrack' ); ?>" />
+                        </div>
+                        <div class="tt-field tt-mt-level-row__color">
+                            <label class="tt-field-label" for="<?php echo esc_attr( $fid . '-c' ); ?>"><?php esc_html_e( 'Colour', 'talenttrack' ); ?></label>
+                            <select id="<?php echo esc_attr( $fid . '-c' ); ?>" class="tt-input" name="level[<?php echo (int) $i; ?>][color_token]">
+                                <?php foreach ( $palette as $key => $name ) : ?>
+                                    <option value="<?php echo esc_attr( $key ); ?>"<?php selected( $token, $key ); ?>><?php echo esc_html( $name ); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <span class="tt-mlvl-swatch <?php echo esc_attr( \TT\Modules\Measurements\Levels\MeasurementLevelPalette::cssClass( $token ) ); ?>" aria-hidden="true"></span>
+                        </div>
+                    </li>
+                <?php $i++; endforeach; ?>
+            </ol>
+        </fieldset>
         <?php
     }
 
@@ -417,7 +477,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
 
     private static function saveEdit( MeasurementDefinitionsRepository $repo, int $id ): void {
         $name        = sanitize_text_field( wp_unslash( (string) ( $_POST['test_name'] ?? '' ) ) );
-        $value_type  = self::safeIn( (string) ( $_POST['value_type'] ?? 'numeric' ), [ 'numeric', 'scale', 'passfail' ], 'numeric' );
+        $value_type  = self::safeIn( (string) ( $_POST['value_type'] ?? 'numeric' ), [ 'numeric', 'scale', 'passfail', 'status' ], 'numeric' );
 
         $unit_listed = sanitize_text_field( wp_unslash( (string) ( $_POST['unit'] ?? '' ) ) );
         $unit_custom = sanitize_text_field( wp_unslash( (string) ( $_POST['unit_custom'] ?? '' ) ) );
@@ -444,8 +504,9 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         }
         $repo->update( $id, $data );
 
-        // Targets — pass/fail tests carry no bands.
-        if ( $value_type !== 'passfail' && isset( $_POST['band'] ) && is_array( $_POST['band'] ) ) {
+        // Targets — only numeric / scale tests carry bands (not pass/fail
+        // or status).
+        if ( $value_type !== 'passfail' && $value_type !== 'status' && isset( $_POST['band'] ) && is_array( $_POST['band'] ) ) {
             $targets_repo = new MeasurementTargetsRepository();
             $bands        = wp_unslash( $_POST['band'] );
             foreach ( $bands as $age_group => $row ) {
@@ -459,6 +520,23 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                     'amber_max' => self::numOrNull( $row['amber_max'] ?? '' ),
                 ] );
             }
+        }
+
+        // Status levels — replace the full ordered set from the editor rows.
+        if ( $value_type === 'status' && isset( $_POST['level'] ) && is_array( $_POST['level'] ) ) {
+            $raw_levels = wp_unslash( $_POST['level'] );
+            $rows       = [];
+            foreach ( $raw_levels as $row ) {
+                if ( ! is_array( $row ) ) continue;
+                $label = sanitize_text_field( (string) ( $row['label'] ?? '' ) );
+                if ( $label === '' ) continue; // blank label removes / skips the row
+                $rows[] = [
+                    'id'          => isset( $row['id'] ) ? absint( $row['id'] ) : 0,
+                    'label'       => $label,
+                    'color_token' => sanitize_text_field( (string) ( $row['color_token'] ?? '' ) ),
+                ];
+            }
+            ( new MeasurementLevelsRepository() )->replaceForDefinition( $id, $rows );
         }
     }
 
@@ -487,6 +565,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             'numeric'  => __( 'A number (with a unit)', 'talenttrack' ),
             'scale'    => __( 'A scale score', 'talenttrack' ),
             'passfail' => __( 'Pass / fail', 'talenttrack' ),
+            'status'   => __( 'A status (coloured levels)', 'talenttrack' ),
         ];
     }
 
@@ -541,6 +620,12 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             'tt-frontend-measurement-tests',
             TT_PLUGIN_URL . 'assets/css/frontend-measurement-tests.css',
             [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-measurement-levels',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurement-levels.css',
+            [ 'tt-frontend-measurement-tests' ],
             TT_VERSION
         );
     }

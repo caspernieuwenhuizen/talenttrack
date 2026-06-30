@@ -29,6 +29,35 @@ out on top of it.
 - **Target** — a per-age-group band (green / amber) for a test. A recorded
   value is flagged green, amber, or red against the band for the player's
   age group, respecting the test's direction.
+- **Status levels** — for the **status** value type only: an operator-defined,
+  ordered set of coloured levels (e.g. *At risk* red, *Watch* amber, *On
+  track* green). A status test records a level per player rather than a
+  number, and the player's latest level shows as a coloured chip on their
+  profile.
+
+## Status tests (a manual player status)
+
+A **status** test is a simple, manually maintained, dated player status — a
+stopgap until the computed player-status signal is rich enough to maintain
+directly. It rides the measurement framework, so it gets dated history and
+profile surfacing for free.
+
+- Choose **A status (coloured levels)** as the value type when creating the
+  test. The wizard then lands you on the test's edit screen.
+- On the edit screen, define the **status levels** from lowest to highest:
+  each level has a label and a colour picked from a curated palette (green,
+  lime, amber, orange, red, grey, blue). Clear a level's label to remove it;
+  the row order is the saved order.
+- Record a status the same way as any other test — *Record measurements*
+  shows a level dropdown per player instead of a number field.
+- On the player profile, the latest level appears as a coloured chip in the
+  **Measurements** tab, painted in that level's colour. Status tests have no
+  green/amber target band — their colour comes entirely from the picked
+  level.
+
+Every status change is a dated entry on the player record, so the player's
+status history is queryable and visible over time. A seeded **Player status**
+category is available to group these tests.
 
 ## Who can see what
 
@@ -103,7 +132,7 @@ The head of development (or an academy admin) creates tests with the
 It walks through three steps:
 
 1. **Details** — the category, a name, and the value type (a number, a
-   scale score, or pass/fail).
+   scale score, pass/fail, or a status with coloured levels).
 2. **Unit & recurrence** — the unit (from the unit list or a custom one),
    whether higher or lower is better, and how often the test runs.
 3. **Targets** — optional per-age-group green and amber bands; a recorded

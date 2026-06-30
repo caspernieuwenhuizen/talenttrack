@@ -44644,3 +44644,55 @@ msgstr "Tests & metingen: leg de tests vast die je academie afneemt en hun stree
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "A status (coloured levels)"
+msgstr "Een status (gekleurde niveaus)"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Green"
+msgstr "Groen"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Lime"
+msgstr "Limoen"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Amber"
+msgstr "Oranje (amber)"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Orange"
+msgstr "Oranje"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Red"
+msgstr "Rood"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Grey"
+msgstr "Grijs"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Blue"
+msgstr "Blauw"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Status levels"
+msgstr "Statusniveaus"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "List the status levels from lowest to highest. Each level shows as a coloured chip on the player profile. Clear a level’s label to remove it."
+msgstr "Zet de statusniveaus van laag naar hoog. Elk niveau verschijnt als een gekleurde chip op het spelersprofiel. Maak het label van een niveau leeg om het te verwijderen."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "e.g. On track"
+msgstr "bijv. Op koers"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Status tests use coloured levels instead of target bands. Click Finish to create the test, then add its levels on the edit screen."
+msgstr "Statustests gebruiken gekleurde niveaus in plaats van streefbanden. Klik op Voltooien om de test aan te maken en voeg daarna de niveaus toe op het bewerkscherm."
+
+#: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
+msgid "Levels must be a list."
+msgstr "Niveaus moeten een lijst zijn."

@@ -32,6 +32,36 @@ hierop voort.
   test. Een geregistreerde waarde krijgt groen, oranje of rood ten opzichte
   van de band voor de leeftijdsgroep van de speler, rekening houdend met de
   richting van de test.
+- **Statusniveaus** — alleen voor het waardetype **status**: een door de
+  beheerder ingestelde, geordende reeks gekleurde niveaus (bijv. *Risico*
+  rood, *Aandacht* oranje, *Op koers* groen). Een statustest registreert per
+  speler een niveau in plaats van een getal; het laatste niveau van de speler
+  verschijnt als een gekleurde chip op het profiel.
+
+## Statustests (een handmatige spelersstatus)
+
+Een **status**test is een eenvoudige, handmatig bijgehouden, gedateerde
+spelersstatus — een tussenoplossing totdat het berekende statussignaal rijk
+genoeg is. Hij gebruikt het metingenraamwerk en krijgt zo automatisch
+gedateerde historie en zichtbaarheid op het profiel.
+
+- Kies **Een status (gekleurde niveaus)** als waardetype bij het aanmaken van
+  de test. De wizard brengt je daarna naar het bewerkscherm van de test.
+- Stel op het bewerkscherm de **statusniveaus** in van laag naar hoog: elk
+  niveau heeft een label en een kleur uit een vast palet (groen, limoen,
+  oranje (amber), oranje, rood, grijs, blauw). Maak het label van een niveau
+  leeg om het te verwijderen; de rijvolgorde is de bewaarde volgorde.
+- Registreer een status net als elke andere test — *Metingen vastleggen* toont
+  per speler een keuzelijst met niveaus in plaats van een getalveld.
+- Op het spelersprofiel verschijnt het laatste niveau als een gekleurde chip
+  in het tabblad **Metingen**, in de kleur van dat niveau. Statustests hebben
+  geen groene/oranje streefband — hun kleur komt volledig uit het gekozen
+  niveau.
+
+Elke statuswijziging is een gedateerde vermelding op het spelersrecord, zodat
+de statushistorie van de speler in de tijd opvraagbaar en zichtbaar is. Een
+voorgedefinieerde categorie **Spelersstatus** is beschikbaar om deze tests te
+groeperen.
 
 ## Wie ziet wat
 
@@ -110,7 +140,7 @@ wizard **Nieuwe test** — bereikbaar vanaf het scherm *Metingen
 vastleggen*. De wizard kent drie stappen:
 
 1. **Gegevens** — de categorie, een naam en het type waarde (een getal,
-   een schaalscore of geslaagd/niet).
+   een schaalscore, geslaagd/niet of een status met gekleurde niveaus).
 2. **Eenheid & frequentie** — de eenheid (uit de lijst of een eigen
    eenheid), of hoger of lager beter is, en hoe vaak de test plaatsvindt.
 3. **Streefwaarden** — optionele groene en oranje banden per

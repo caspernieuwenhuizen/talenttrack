@@ -96,6 +96,12 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         $definition = self::findDefinition( $definitions, $definition_id );
         if ( ! $definition ) return;
 
+        // Status-type tests are recorded as a level pick; hydrate the
+        // definition's levels so the roster can offer the right <select>.
+        if ( (string) $definition->value_type === 'status' ) {
+            ( new MeasurementDefinitionsRepository() )->withLevels( $definition );
+        }
+
         $players = QueryHelpers::get_players( $team_id );
         if ( empty( $players ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No active players on this team yet.', 'talenttrack' ) . '</p>';
@@ -177,7 +183,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
                             <?php echo esc_html( $name ); ?>
                         </label>
                         <div class="tt-me-row-input">
-                            <?php self::renderValueInput( $fid, $pid, $vtype ); ?>
+                            <?php self::renderValueInput( $fid, $pid, $vtype, $definition ); ?>
                             <?php if ( $unit !== '' && $vtype === 'numeric' ) : ?>
                                 <span class="tt-me-unit"><?php echo esc_html( $unit ); ?></span>
                             <?php endif; ?>
@@ -197,8 +203,20 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         <?php
     }
 
-    private static function renderValueInput( string $fid, int $pid, string $vtype ): void {
+    private static function renderValueInput( string $fid, int $pid, string $vtype, ?object $definition = null ): void {
         $name = 'value[' . $pid . ']';
+        if ( $vtype === 'status' ) {
+            $levels = is_array( $definition->levels ?? null ) ? $definition->levels : [];
+            ?>
+            <select id="<?php echo esc_attr( $fid ); ?>" class="tt-input tt-me-status-select" name="<?php echo esc_attr( $name ); ?>">
+                <option value=""><?php esc_html_e( '— skip —', 'talenttrack' ); ?></option>
+                <?php foreach ( $levels as $lvl ) : ?>
+                    <option value="<?php echo esc_attr( (string) $lvl->label ); ?>"><?php echo esc_html( (string) $lvl->label ); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <?php
+            return;
+        }
         if ( $vtype === 'passfail' ) {
             ?>
             <select id="<?php echo esc_attr( $fid ); ?>" class="tt-input" name="<?php echo esc_attr( $name ); ?>">
@@ -241,7 +259,20 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         }
 
         $definition = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
-        $is_numeric = ! $definition || $definition->value_type !== 'passfail';
+        $value_type = $definition ? (string) $definition->value_type : 'numeric';
+        $is_status  = $value_type === 'status';
+        $is_numeric = $value_type !== 'passfail' && ! $is_status;
+
+        // Status tests snapshot the picked level: its label into value_text
+        // and its ordinal into value_numeric, so a later level edit never
+        // rewrites history (denormalised snapshot). Resolve once.
+        $levels_by_label = [];
+        if ( $is_status && $definition ) {
+            ( new MeasurementDefinitionsRepository() )->withLevels( $definition );
+            foreach ( (array) ( $definition->levels ?? [] ) as $lvl ) {
+                $levels_by_label[ (string) $lvl->label ] = $lvl;
+            }
+        }
 
         $session_pk = ( new MeasurementSessionsRepository() )->create( [
             'definition_id' => $definition_id,
@@ -259,7 +290,13 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
                 'measurement_session_id' => $session_pk,
                 'recorded_date'          => $date,
             ];
-            if ( $is_numeric && is_numeric( $raw ) ) {
+            if ( $is_status ) {
+                $label = sanitize_text_field( (string) $raw );
+                $lvl   = $levels_by_label[ $label ] ?? null;
+                if ( ! $lvl ) continue; // ignore values that are not a known level
+                $data['value_text']    = $label;
+                $data['value_numeric'] = (float) $lvl->ordinal;
+            } elseif ( $is_numeric && is_numeric( $raw ) ) {
                 $data['value_numeric'] = (float) $raw;
             } else {
                 $data['value_text'] = sanitize_text_field( (string) $raw );
@@ -347,6 +384,12 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             'tt-frontend-measurements',
             TT_PLUGIN_URL . 'assets/css/frontend-measurements.css',
             [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-measurement-levels',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurement-levels.css',
+            [ 'tt-frontend-measurements' ],
             TT_VERSION
         );
     }

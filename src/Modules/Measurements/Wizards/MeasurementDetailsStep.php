@@ -38,6 +38,7 @@ final class MeasurementDetailsStep implements WizardStepInterface {
             'numeric'  => __( 'A number (with a unit)', 'talenttrack' ),
             'scale'    => __( 'A scale score', 'talenttrack' ),
             'passfail' => __( 'Pass / fail', 'talenttrack' ),
+            'status'   => __( 'A status (coloured levels)', 'talenttrack' ),
         ];
         echo '<label><span>' . esc_html__( 'Value type', 'talenttrack' ) . '</span><select name="value_type">';
         foreach ( $types as $key => $label ) {
@@ -57,7 +58,7 @@ final class MeasurementDetailsStep implements WizardStepInterface {
         if ( $name === '' ) {
             return new \WP_Error( 'name', __( 'A test name is required.', 'talenttrack' ) );
         }
-        if ( ! in_array( $value_type, [ 'numeric', 'scale', 'passfail' ], true ) ) {
+        if ( ! in_array( $value_type, [ 'numeric', 'scale', 'passfail', 'status' ], true ) ) {
             $value_type = 'numeric';
         }
 

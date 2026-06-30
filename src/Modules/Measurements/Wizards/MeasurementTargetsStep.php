@@ -29,6 +29,10 @@ final class MeasurementTargetsStep implements WizardStepInterface {
             echo '<p class="tt-notice">' . esc_html__( 'Pass/fail tests have no target bands. Click Finish to create the test.', 'talenttrack' ) . '</p>';
             return;
         }
+        if ( $value_type === 'status' ) {
+            echo '<p class="tt-notice">' . esc_html__( 'Status tests use coloured levels instead of target bands. Click Finish to create the test, then add its levels on the edit screen.', 'talenttrack' ) . '</p>';
+            return;
+        }
 
         echo '<p class="tt-wizard-hint">' . esc_html__( 'Optional. Per age group, the green band is on target and the amber band is a warning; anything outside flags red. Leave blank to add targets later.', 'talenttrack' ) . '</p>';
 
@@ -101,6 +105,15 @@ final class MeasurementTargetsStep implements WizardStepInterface {
             foreach ( $targets as $age_group => $bands ) {
                 $repo->upsert( $definition_id, (string) $age_group, (array) $bands );
             }
+        }
+
+        // A status test has no levels yet — land the operator on its edit
+        // screen so they can define the coloured levels straight away.
+        if ( (string) ( $state['value_type'] ?? '' ) === 'status' ) {
+            return [ 'redirect_url' => add_query_arg(
+                [ 'tt_view' => 'measurement-tests', 'action' => 'edit', 'id' => $definition_id ],
+                RecordLink::dashboardUrl()
+            ) ];
         }
 
         return [ 'redirect_url' => add_query_arg(
