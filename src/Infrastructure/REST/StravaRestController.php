@@ -478,6 +478,20 @@ final class StravaRestController {
     }
 
     public static function subscriptionStatus( \WP_REST_Request $r ): \WP_REST_Response {
+        // Best-effort reconcile with Strava's real state so the console shows
+        // the truth and self-heals a drifted/lost local id. Only when the app
+        // is configured (the lookup needs client_id/secret); a transport or
+        // API failure falls back to the stored id without erroring.
+        if ( StravaConfig::hasCredentials() ) {
+            $live = StravaClient::viewSubscription();
+            if ( ! empty( $live['ok'] ) ) {
+                $live_id = (int) ( $live['id'] ?? 0 ) > 0 ? (string) (int) $live['id'] : '';
+                if ( $live_id !== StravaConfig::subscriptionId() ) {
+                    StravaConfig::setSubscriptionId( $live_id );
+                }
+            }
+        }
+
         return RestResponse::success( [
             'subscription_id' => StravaConfig::subscriptionId(),
             'subscribed'      => StravaConfig::subscriptionId() !== '',
@@ -501,6 +515,21 @@ final class StravaRestController {
         );
 
         if ( empty( $res['ok'] ) ) {
+            // Strava allows exactly one subscription per application. A create
+            // can fail because one already exists — ours from a prior setup, or
+            // one whose id we lost. Reconcile via GET and adopt it rather than
+            // dead-ending the operator on "Create / re-verify".
+            $existing = StravaClient::viewSubscription();
+            if ( ! empty( $existing['ok'] ) && (int) ( $existing['id'] ?? 0 ) > 0 ) {
+                StravaConfig::setSubscriptionId( (string) (int) $existing['id'] );
+                Logger::info( 'rest.strava.subscription_adopted', [ 'subscription_id' => StravaConfig::subscriptionId() ] );
+                return RestResponse::success( [
+                    'subscribed'      => true,
+                    'subscription_id' => StravaConfig::subscriptionId(),
+                    'adopted'         => true,
+                ] );
+            }
+
             Logger::warning( 'rest.strava.subscribe_failed', [ 'code' => (string) ( $res['error_code'] ?? 'unknown' ) ] );
             return RestResponse::error(
                 'subscribe_failed',

@@ -52,7 +52,13 @@ gedateerde historie en zichtbaarheid op het profiel.
   geel, amber, oranje, rood, cyaan, blauw, grijs). Maak het label van een niveau
   leeg om het te verwijderen; de rijvolgorde is de bewaarde volgorde.
 - Registreer een status net als elke andere test — *Metingen vastleggen* toont
-  per speler een keuzelijst met niveaus in plaats van een getalveld.
+  per speler een gekleurde **statuskiezer** in plaats van een getalveld:
+  een keuzelijst waarvan zowel het gesloten veld als elke optie het
+  kleurvierkant van het niveau naast het label toont, breed genoeg zodat het
+  langste label nooit wordt afgekapt. De kiezer is volledig met toetsenbord en
+  touch te bedienen (openen met Enter/Spatie of de pijltjestoetsen, bewegen
+  met ↑/↓, type-vooruit, Escape om te sluiten); met JavaScript uit valt hij
+  terug op een gewone keuzelijst.
 - Op het spelersprofiel verschijnt het laatste niveau als een gekleurde chip
   in het tabblad **Metingen**, in de kleur van dat niveau. Statustests hebben
   geen groene/oranje streefband — hun kleur komt volledig uit het gekozen

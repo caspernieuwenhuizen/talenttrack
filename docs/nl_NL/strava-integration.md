@@ -103,6 +103,14 @@ via **Configuratie → Koppelingen → Strava-koppeling** (of rechtstreeks via
    push-abonnement bij Strava, dat het direct valideert met een
    challenge-handshake. **Abonnement verwijderen** haalt het weg.
 
+   Strava staat slechts **één abonnement per applicatie** toe. De knop mag
+   gerust meerdere keren worden ingedrukt: bestaat er al een abonnement bij
+   Strava (van een eerdere installatie, of waarvan deze installatie het id is
+   kwijtgeraakt), dan neemt de console het over in plaats van een foutmelding
+   te geven. De getoonde status wordt bij elke paginalading afgestemd op de
+   werkelijke staat bij Strava, dus een abonnement dat aan Strava-zijde is
+   verwijderd, verdwijnt hier automatisch.
+
 De tabel **Gekoppelde spelers** op dezelfde console toont elke speler die een
 Strava-account is gaan koppelen — status (gekoppeld, wacht op toestemming,
 ingetrokken, ontkoppeld), aantal geïmporteerde activiteiten, laatste activiteit

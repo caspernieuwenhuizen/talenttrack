@@ -297,6 +297,72 @@ final class StravaRestControllerTest extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( 'access_token', $row );
     }
 
+    // ---- webhook subscription: reconcile with Strava (#2127, enable) ----
+
+    public function test_subscribe_adopts_existing_subscription_when_create_fails(): void {
+        StravaConfig::saveCredentials( '12345', 'shh-secret' );
+
+        // Strava allows one subscription per app: POST create fails (one
+        // already exists), GET view returns the existing id 987.
+        $stub = function ( $pre, $args, $url ) {
+            if ( strpos( (string) $url, 'push_subscriptions' ) === false ) return $pre;
+            if ( strtoupper( (string) ( $args['method'] ?? 'GET' ) ) === 'POST' ) {
+                return [ 'response' => [ 'code' => 400 ], 'body' => wp_json_encode( [ 'message' => 'already exists' ] ) ];
+            }
+            return [ 'response' => [ 'code' => 200 ], 'body' => wp_json_encode( [ [ 'id' => 987, 'callback_url' => 'x' ] ] ) ];
+        };
+        add_filter( 'pre_http_request', $stub, 10, 3 );
+        try {
+            $data = StravaRestController::subscribe( new WP_REST_Request( 'POST' ) )->get_data();
+        } finally {
+            remove_filter( 'pre_http_request', $stub, 10 );
+        }
+
+        $this->assertTrue( $data['success'] );
+        $this->assertTrue( $data['data']['adopted'] );
+        $this->assertSame( '987', (string) $data['data']['subscription_id'] );
+        $this->assertSame( '987', StravaConfig::subscriptionId(), 'the existing subscription is adopted, not dead-ended' );
+    }
+
+    public function test_subscription_status_reconciles_with_strava(): void {
+        StravaConfig::saveCredentials( '12345', 'shh-secret' );
+        StravaConfig::setSubscriptionId( '111' ); // stale local id
+
+        $stub = function ( $pre, $args, $url ) {
+            if ( strpos( (string) $url, 'push_subscriptions' ) === false ) return $pre;
+            return [ 'response' => [ 'code' => 200 ], 'body' => wp_json_encode( [ [ 'id' => 222 ] ] ) ];
+        };
+        add_filter( 'pre_http_request', $stub, 10, 3 );
+        try {
+            $data = StravaRestController::subscriptionStatus( new WP_REST_Request( 'GET' ) )->get_data();
+        } finally {
+            remove_filter( 'pre_http_request', $stub, 10 );
+        }
+
+        $this->assertTrue( $data['data']['subscribed'] );
+        $this->assertSame( '222', (string) $data['data']['subscription_id'], 'status reflects Strava\'s real id' );
+        $this->assertSame( '222', StravaConfig::subscriptionId(), 'the drifted local id self-heals' );
+    }
+
+    public function test_subscription_status_self_heals_when_strava_has_none(): void {
+        StravaConfig::saveCredentials( '12345', 'shh-secret' );
+        StravaConfig::setSubscriptionId( '111' ); // local thinks one exists
+
+        $stub = function ( $pre, $args, $url ) {
+            if ( strpos( (string) $url, 'push_subscriptions' ) === false ) return $pre;
+            return [ 'response' => [ 'code' => 200 ], 'body' => wp_json_encode( [] ) ]; // none at Strava
+        };
+        add_filter( 'pre_http_request', $stub, 10, 3 );
+        try {
+            $data = StravaRestController::subscriptionStatus( new WP_REST_Request( 'GET' ) )->get_data();
+        } finally {
+            remove_filter( 'pre_http_request', $stub, 10 );
+        }
+
+        $this->assertFalse( $data['data']['subscribed'] );
+        $this->assertSame( '', StravaConfig::subscriptionId(), 'a subscription deleted at Strava clears locally' );
+    }
+
     // ---- helpers --------------------------------------------------------
 
     private function insertPlayer( string $name, int $wp_user_id ): int {
