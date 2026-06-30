@@ -204,11 +204,49 @@ beschikbaar via REST op
 `/wp-json/talenttrack/v1/measurement-definitions` voor integraties en de
 SaaS-frontend.
 
+## Resultaten doorbladeren — het scherm Testresultaten
+
+De tegel **Testresultaten** (in de groep **Analyse** op het dashboard) opent
+een overzicht om alle geregistreerde resultaten op één plek te lezen,
+geordend per speler. Het beantwoordt de vraag "hoe doet elke speler het nu
+op deze test?" zonder dat je de profielen één voor één hoeft te openen.
+
+1. **Kies een test.** Tot je er een kiest, vraagt het overzicht erom. De
+   keuzelijst toont elke test uit de catalogus, gegroepeerd per categorie.
+2. **Verfijn eventueel** op **team**, **leeftijdsgroep** en een
+   **periode** (van / tot). De filters herladen het overzicht zodra je op
+   *Toon* drukt.
+3. **Lees het overzicht.** Eén rij per speler met een waarde voor de test,
+   met de **laatste waarde in de periode**:
+   - **Statustests** tonen het **kleurvlakje met label** van het niveau
+     (bijv. een groen *Op koers*), dezelfde kleuren als de chip op het
+     spelersprofiel.
+   - **Numerieke en schaaltests** tonen de **waarde met eenheid**, een kleine
+     **trendpijl** (▲ verbeterd, ▼ verslechterd, ▬ gelijk) ten opzichte van
+     het vorige resultaat van die speler, en een **vlag** — groen *op
+     niveau*, oranje *onder niveau*, rood *ruim onder niveau* — tegen de band
+     van hun leeftijdsgroep.
+
+Het overzicht is **sorteerbaar** (tik op een kolomkop op tablet en desktop)
+en elke **spelersnaam linkt naar het profiel**, met een terug-pil zodat je
+met één klik terugkeert naar het overzicht. Een knop **Exporteren naar
+Excel** downloadt de huidige test (met inachtneming van de team- en
+periodefilters) via dezelfde opgemaakte werkmap als de export bij *Tests
+beheren*.
+
+Teamgebonden staf (coaches met alleen *lees*-rechten op hun eigen teams)
+ziet uitsluitend resultaten van die teams; lezers met academiebreed bereik
+zien iedereen. Dezelfde rijen zijn beschikbaar via REST op
+`/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
+`team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
+`measurements`-*lees*-rechten, voor integraties en de SaaS-frontend.
+
 ## Wisselen tussen de schermen
 
-**Tests & metingen** heeft drie schermen voor staf — *Tests beheren* (de
-catalogus inrichten), *Metingen vastleggen* (resultaten invoeren) en
-*Testdekking* (zien wie aan de beurt is) — en ze verwijzen naar elkaar,
+**Tests & metingen** heeft vier schermen voor staf — *Tests beheren* (de
+catalogus inrichten), *Metingen vastleggen* (resultaten invoeren),
+*Testdekking* (zien wie aan de beurt is) en *Testresultaten* (ieders
+resultaten doorbladeren) — en de beheerschermen verwijzen naar elkaar,
 zodat je niet terug hoeft naar het dashboard:
 
 - *Metingen vastleggen* toont een link **Tests beheren** naast **+ Nieuwe

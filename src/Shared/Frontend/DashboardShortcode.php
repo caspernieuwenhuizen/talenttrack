@@ -822,6 +822,12 @@ class DashboardShortcode {
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
+            // #2145 — the "Test results" analysis browser. Matrix-gated on
+            // `measurements` read inside the view (and by matrixDispatchAllows
+            // via the tile's `measurements` entity).
+            case 'test-results':
+                \TT\Modules\Measurements\Frontend\FrontendTestResultsView::render( $user_id, $is_admin );
+                return true;
             // #2121 — the test-catalogue config surface. Matrix-gated on
             // `measurement_definitions` change inside the view.
             case 'measurement-tests':

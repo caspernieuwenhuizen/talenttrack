@@ -44685,6 +44685,49 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. #2145 — Test results browser (FrontendTestResultsView).
+msgid "Test results"
+msgstr "Testresultaten"
+
+msgid "You do not have permission to browse test results."
+msgstr "Je hebt geen rechten om testresultaten te bekijken."
+
+msgid "No tests are defined yet. Add a test under Manage tests to start recording results."
+msgstr "Er zijn nog geen tests gedefinieerd. Voeg een test toe bij Tests beheren om resultaten te registreren."
+
+msgid "Choose a test to see every player's latest result."
+msgstr "Kies een test om de laatste waarde van elke speler te zien."
+
+msgid "— Choose a test —"
+msgstr "— Kies een test —"
+
+msgid "All age groups"
+msgstr "Alle leeftijdsgroepen"
+
+msgid "No results match these filters yet."
+msgstr "Nog geen resultaten die aan deze filters voldoen."
+
+msgid "Improved"
+msgstr "Verbeterd"
+
+msgid "Declined"
+msgstr "Verslechterd"
+
+msgid "Unchanged"
+msgstr "Gelijk"
+
+msgid "On target"
+msgstr "Op niveau"
+
+msgid "Below target"
+msgstr "Onder niveau"
+
+msgid "Well below target"
+msgstr "Ruim onder niveau"
+
+msgid "Browse every test result: each player's latest value, colour, trend and flag."
+msgstr "Blader door elk testresultaat: de laatste waarde, kleur, trend en vlag van elke speler."
+
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:417
 msgid "Choose status"
 msgstr "Kies status"

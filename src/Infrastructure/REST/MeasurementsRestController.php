@@ -9,6 +9,7 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
+use TT\Modules\Measurements\Services\MeasurementResultsBrowse;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
 
 /**
@@ -122,6 +123,22 @@ class MeasurementsRestController {
                 'permission_callback' => [ __CLASS__, 'can_create_session' ],
             ],
         ]);
+
+        // #2145 — the Test results browse rows (latest per player for one test,
+        // with colour / flag / trend). The SaaS contract behind the
+        // FrontendTestResultsView; both call MeasurementResultsBrowse so a
+        // non-WordPress front end gets identical answers (CLAUDE.md §4).
+        register_rest_route( self::NS, '/measurement-results', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'browse_results' ],
+                'permission_callback' => [ __CLASS__, 'can_browse_results' ],
+            ],
+        ]);
+    }
+
+    public static function can_browse_results(): bool {
+        return MatrixGate::canAnyScope( get_current_user_id(), 'measurements', 'read' );
     }
 
     // ── permission helpers ──────────────────────────────────────────
@@ -202,6 +219,31 @@ class MeasurementsRestController {
             ];
         }, $defs );
         return new \WP_REST_Response( [ 'definitions' => $out ], 200 );
+    }
+
+    /**
+     * #2145 — browse rows for one test: each player's latest in-window value
+     * with colour / flag / trend. `definition_id` is required; `team_id`,
+     * `age_group`, `from`, `to` narrow the cohort.
+     */
+    public static function browse_results( \WP_REST_Request $r ) {
+        $definition_id = absint( $r['definition_id'] ?? 0 );
+        if ( $definition_id <= 0 ) {
+            return new \WP_Error( 'tt_missing_definition', __( 'A test must be chosen.', 'talenttrack' ), [ 'status' => 400 ] );
+        }
+        $filters = [
+            'team_id'   => absint( $r['team_id'] ?? 0 ),
+            'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
+            'date_from' => self::safe_date( (string) ( $r['from'] ?? '' ) ),
+            'date_to'   => self::safe_date( (string) ( $r['to'] ?? '' ) ),
+        ];
+        $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
+        return new \WP_REST_Response( [ 'definition_id' => $definition_id, 'rows' => $rows ], 200 );
+    }
+
+    /** Accept only a YYYY-MM-DD date; anything else collapses to ''. */
+    private static function safe_date( string $value ): string {
+        return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ? $value : '';
     }
 
     public static function list_team_sessions( \WP_REST_Request $r ) {
