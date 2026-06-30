@@ -49,7 +49,7 @@ gedateerde historie en zichtbaarheid op het profiel.
   de test. De wizard brengt je daarna naar het bewerkscherm van de test.
 - Stel op het bewerkscherm de **statusniveaus** in van laag naar hoog: elk
   niveau heeft een label en een kleur uit een vast palet (groen, limoen,
-  oranje (amber), oranje, rood, grijs, blauw). Maak het label van een niveau
+  geel, amber, oranje, rood, cyaan, blauw, grijs). Maak het label van een niveau
   leeg om het te verwijderen; de rijvolgorde is de bewaarde volgorde.
 - Registreer een status net als elke andere test — *Metingen vastleggen* toont
   per speler een keuzelijst met niveaus in plaats van een getalveld.

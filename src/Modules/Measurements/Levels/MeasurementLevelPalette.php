@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class MeasurementLevelPalette {
 
     /** The fixed swatch set. Order is the picker order. */
-    private const TOKENS = [ 'green', 'lime', 'amber', 'orange', 'red', 'grey', 'blue' ];
+    private const TOKENS = [ 'green', 'lime', 'yellow', 'amber', 'orange', 'red', 'cyan', 'blue', 'grey' ];
 
     public const DEFAULT_TOKEN = 'grey';
 
@@ -32,11 +32,13 @@ final class MeasurementLevelPalette {
         return [
             'green'  => __( 'Green', 'talenttrack' ),
             'lime'   => __( 'Lime', 'talenttrack' ),
+            'yellow' => __( 'Yellow', 'talenttrack' ),
             'amber'  => __( 'Amber', 'talenttrack' ),
             'orange' => __( 'Orange', 'talenttrack' ),
             'red'    => __( 'Red', 'talenttrack' ),
-            'grey'   => __( 'Grey', 'talenttrack' ),
+            'cyan'   => __( 'Cyan', 'talenttrack' ),
             'blue'   => __( 'Blue', 'talenttrack' ),
+            'grey'   => __( 'Grey', 'talenttrack' ),
         ];
     }
 

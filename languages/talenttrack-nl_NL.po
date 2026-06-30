@@ -44658,6 +44658,10 @@ msgid "Lime"
 msgstr "Limoen"
 
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Yellow"
+msgstr "Geel"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
 msgid "Amber"
 msgstr "Oranje (amber)"
 
@@ -44668,6 +44672,10 @@ msgstr "Oranje"
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
 msgid "Red"
 msgstr "Rood"
+
+#: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
+msgid "Cyan"
+msgstr "Cyaan"
 
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php
 msgid "Grey"

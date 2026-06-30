@@ -15,11 +15,13 @@
 .tt-root {
     --tt-mlvl-green:  var(--tt-success, #2f9e5e);
     --tt-mlvl-lime:   #7cb342;
+    --tt-mlvl-yellow: #f2b500;
     --tt-mlvl-amber:  var(--tt-warning, #e8902b);
     --tt-mlvl-orange: #ef6c00;
     --tt-mlvl-red:    var(--tt-danger, #d8453b);
-    --tt-mlvl-grey:   var(--tt-muted, #6a6d66);
+    --tt-mlvl-cyan:   #29abe2;
     --tt-mlvl-blue:   var(--tt-info, #2d6fb3);
+    --tt-mlvl-grey:   var(--tt-muted, #6a6d66);
 }
 
 /* The small colour dot shown beside a level's colour picker. */
@@ -35,11 +37,13 @@
 
 .tt-mlvl-swatch--green  { background: var(--tt-mlvl-green); }
 .tt-mlvl-swatch--lime   { background: var(--tt-mlvl-lime); }
+.tt-mlvl-swatch--yellow { background: var(--tt-mlvl-yellow); }
 .tt-mlvl-swatch--amber  { background: var(--tt-mlvl-amber); }
 .tt-mlvl-swatch--orange { background: var(--tt-mlvl-orange); }
 .tt-mlvl-swatch--red    { background: var(--tt-mlvl-red); }
-.tt-mlvl-swatch--grey   { background: var(--tt-mlvl-grey); }
+.tt-mlvl-swatch--cyan   { background: var(--tt-mlvl-cyan); }
 .tt-mlvl-swatch--blue   { background: var(--tt-mlvl-blue); }
+.tt-mlvl-swatch--grey   { background: var(--tt-mlvl-grey); }
 
 /*
  * The status chip on the player profile Measurements tab: the value pill
@@ -52,11 +56,13 @@
 
 .tt-meas-value--status.tt-mlvl-swatch--green  { background: var(--tt-mlvl-green); }
 .tt-meas-value--status.tt-mlvl-swatch--lime   { background: var(--tt-mlvl-lime); color: #163a00; }
+.tt-meas-value--status.tt-mlvl-swatch--yellow { background: var(--tt-mlvl-yellow); color: #3a2c00; }
 .tt-meas-value--status.tt-mlvl-swatch--amber  { background: var(--tt-mlvl-amber); color: #3a2400; }
 .tt-meas-value--status.tt-mlvl-swatch--orange { background: var(--tt-mlvl-orange); }
 .tt-meas-value--status.tt-mlvl-swatch--red    { background: var(--tt-mlvl-red); }
-.tt-meas-value--status.tt-mlvl-swatch--grey   { background: var(--tt-mlvl-grey); }
+.tt-meas-value--status.tt-mlvl-swatch--cyan   { background: var(--tt-mlvl-cyan); color: #00283a; }
 .tt-meas-value--status.tt-mlvl-swatch--blue   { background: var(--tt-mlvl-blue); }
+.tt-meas-value--status.tt-mlvl-swatch--grey   { background: var(--tt-mlvl-grey); }
 
 /* Levels editor — mobile-first stacked rows, 48px touch targets. */
 .tt-mt-levels {

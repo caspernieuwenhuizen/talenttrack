@@ -46,7 +46,8 @@ profile surfacing for free.
   test. The wizard then lands you on the test's edit screen.
 - On the edit screen, define the **status levels** from lowest to highest:
   each level has a label and a colour picked from a curated palette (green,
-  lime, amber, orange, red, grey, blue). Clear a level's label to remove it;
+  lime, yellow, amber, orange, red, cyan, blue, grey). Clear a level's label
+  to remove it;
   the row order is the saved order.
 - Record a status the same way as any other test — *Record measurements*
   shows a level dropdown per player instead of a number field.
