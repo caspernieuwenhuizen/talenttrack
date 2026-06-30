@@ -57,3 +57,105 @@
 @media (max-width: 480px) {
     .tt-att-bar .track { display: none; }
 }
+
+/* right-aligned numeric cells (replaces the legacy inline text-align) */
+.tt-dashboard .tt-att-team-table .tt-num,
+.tt-dashboard .tt-att-sub-table .tt-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tt-dashboard .tt-att-team-table { width: 100%; }
+
+/* #2137 — inline drill-down accordion */
+.tt-dashboard .tt-att-team-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+/* the disclosure button — the primary expand affordance */
+.tt-dashboard .tt-att-disclosure {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 6px 8px;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: var(--tt-ink);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-att-disclosure:active { background: #eef1ec; }
+.tt-dashboard .tt-att-disclosure:focus-visible {
+    outline: 2px solid var(--tt-accent, #2f9e5e);
+    outline-offset: 2px;
+}
+
+/* chevron rotates on expand */
+.tt-dashboard .tt-att-disclosure__chev {
+    width: 0;
+    height: 0;
+    border-left: 6px solid currentColor;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    transition: transform 0.15s ease;
+    flex: 0 0 auto;
+}
+.tt-dashboard .tt-att-disclosure[aria-expanded="true"] .tt-att-disclosure__chev {
+    transform: rotate(90deg);
+}
+
+/* the small secondary links beside the disclosure */
+.tt-dashboard .tt-att-team-link,
+.tt-dashboard .tt-att-team-drill {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* When JS is active, the per-team "View players" fallback link is
+   redundant (the disclosure does the drill-down) — hide it. */
+.tt-dashboard .tt-att-js .tt-att-team-drill { display: none; }
+
+/* sub-table row + cell */
+.tt-dashboard .tt-att-sub-cell {
+    background: #f7f9f6;
+    padding: 8px 12px 12px;
+}
+.tt-dashboard .tt-att-sub-table {
+    width: 100%;
+    margin: 0;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.tt-dashboard .tt-att-sub-table .is-flagged { background: #fdeeec; }
+.tt-dashboard .tt-att-sub-msg,
+.tt-dashboard .tt-att-sub-empty {
+    margin: 0;
+    padding: 10px 4px;
+    color: var(--tt-muted, #5b6157);
+}
+
+/* at-risk chip inside the sub-table */
+.tt-dashboard .tt-att-sub-table .tt-flag-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #d8453b;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* expand reveal — disabled under reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-att-disclosure__chev { transition: none; }
+}
