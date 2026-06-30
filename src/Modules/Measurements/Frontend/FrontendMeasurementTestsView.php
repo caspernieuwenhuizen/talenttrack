@@ -167,6 +167,9 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             . '</button>';
         echo '</form>';
 
+        // Export this test's results to a formatted Excel workbook (#2139).
+        self::renderExportForm( $id );
+
         // Archive — soft delete via the recycle-bin pattern.
         echo '<form method="post" class="tt-mt-inline-form">';
         wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
@@ -367,6 +370,46 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             ?>
         </form>
         <?php
+        // Results export lives outside the edit form so its own POST to
+        // admin-post.php never nests inside the save form. Mirrors the
+        // per-row affordance — one test's results to a formatted .xlsx.
+        echo '<div class="tt-mt-export">';
+        echo '<h3 class="tt-mt-export__title">' . esc_html__( 'Export results', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-mt-export__hint">'
+            . esc_html__( 'Download every recorded result for this test as a formatted Excel workbook.', 'talenttrack' )
+            . '</p>';
+        self::renderExportForm( $id );
+        echo '</div>';
+    }
+
+    /**
+     * The "Export to Excel" affordance — a small POST form to admin-post.php
+     * (`action=tt_export`) targeting the `measurement_results_xlsx` exporter
+     * for one definition. admin-post.php bypasses theme chrome so the binary
+     * .xlsx download isn't HTML-prefixed (#939). The export pipeline enforces
+     * `measurements/read` server-side; this is the trigger only.
+     *
+     * Back-aware return: a failed export round-trips back to the current view
+     * (the Manage-tests list), not the central Exports page.
+     */
+    private static function renderExportForm( int $definition_id ): void {
+        if ( $definition_id <= 0 ) return;
+
+        $return_url = BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'measurement-tests' ],
+            RecordLink::dashboardUrl()
+        ) );
+
+        echo '<form method="POST" class="tt-mt-inline-form tt-mt-export-form" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        wp_nonce_field( 'tt_export', '_tt_export_nonce' );
+        echo '<input type="hidden" name="action" value="tt_export" />';
+        echo '<input type="hidden" name="tt_export_key" value="measurement_results_xlsx" />';
+        echo '<input type="hidden" name="format" value="xlsx" />';
+        echo '<input type="hidden" name="definition_id" value="' . esc_attr( (string) $definition_id ) . '" />';
+        echo '<input type="hidden" name="tt_export_return_url" value="' . esc_attr( $return_url ) . '" />';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary tt-mt-action tt-mt-action--export">'
+            . esc_html__( 'Export to Excel', 'talenttrack' ) . '</button>';
+        echo '</form>';
     }
 
     /**
