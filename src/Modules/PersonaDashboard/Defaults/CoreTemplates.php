@@ -44,7 +44,7 @@ final class CoreTemplates {
         $tiles = [
             [ 'my-tasks',        __( 'My check-ins',   'talenttrack' ), 1 ],
             [ 'my-journey',      __( 'My journey',     'talenttrack' ), 2 ],
-            [ 'overview',        __( 'My card',        'talenttrack' ), 3 ],
+            [ 'overview',        __( 'My profile',     'talenttrack' ), 3 ],
             [ 'my-team',         __( 'My team',        'talenttrack' ), 4 ],
             [ 'my-evaluations',  __( 'My evaluations', 'talenttrack' ), 5 ],
             [ 'my-activities',   __( 'My activities',  'talenttrack' ), 6 ],
@@ -90,7 +90,7 @@ final class CoreTemplates {
 
     public static function parent( int $club_id ): PersonaTemplate {
         $tiles = [
-            [ 'overview',       __( "My child's card",  'talenttrack' ), 11 ],
+            [ 'overview',       __( "My child's profile", 'talenttrack' ), 11 ],
             [ 'my-evaluations', __( 'Evaluations',     'talenttrack' ), 12 ],
             [ 'my-activities',  __( 'Activities',      'talenttrack' ), 13 ],
             [ 'my-pdp',         __( 'PDP',             'talenttrack' ), 14 ],

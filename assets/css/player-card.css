@@ -22,6 +22,14 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@500;600;700&display=swap');
 
+/* Card click-through wrapper (#0063). Inline styling moved here in #2156
+   so the card markup carries no style attribute. */
+.tt-pc-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
 /* Root: size + shared tokens */
 
 .tt-pc {

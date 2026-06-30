@@ -79,7 +79,10 @@ class FrontendMyTeamView extends FrontendViewBase {
                     // rating numbers stay staff-side, matching the
                     // docs/player-dashboard.md promise that teammates'
                     // ratings stay private.
-                    \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false );
+                    // #2156 — player context: podium cards link to the
+                    // minimal teammate profile (the same authorised target
+                    // as the roster links below), not the staff profile.
+                    \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false, 'teammate' );
                     ?>
                 <?php else : ?>
                     <p class="tt-mt-empty"><?php esc_html_e( 'Not enough rated teammates yet for a podium.', 'talenttrack' ); ?></p>

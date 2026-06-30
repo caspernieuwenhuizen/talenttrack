@@ -67,8 +67,16 @@ class PlayerCardView {
      *                           no per-category numbers. For player/
      *                           parent-facing podiums where peers'
      *                           evaluation data must stay private.
+     * @param string $link_mode #2156 — 'staff' (default) links the card to
+     *                          the staff-only unified profile
+     *                          (`?tt_view=players&id=N`); 'teammate' links it
+     *                          to the minimal, team-scoped teammate profile
+     *                          (`?tt_view=teammate&player_id=N`) a player IS
+     *                          authorised to open. Player-facing callers
+     *                          (e.g. the "My team" podium) pass 'teammate' so
+     *                          the card doesn't dead-end on "not authorized".
      */
-    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null, bool $show_ratings = true ): void {
+    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null, bool $show_ratings = true, string $link_mode = 'staff' ): void {
         $player = QueryHelpers::get_player( $player_id );
         if ( ! $player ) {
             echo '<p><em>' . esc_html__( 'Player not found.', 'talenttrack' ) . '</em></p>';
@@ -129,9 +137,19 @@ class PlayerCardView {
         // #0063 — wrap the card in a link to the frontend player detail
         // so podium cards click through to the player profile per the
         // user's "cards should lead to player profile" ask.
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );
+        // #2156 — in 'teammate' link-mode (player-facing podiums) point at
+        // the minimal teammate profile the viewer is authorised to open,
+        // not the staff-only unified profile (which 403s for a player).
+        if ( $link_mode === 'teammate' ) {
+            $detail_url = add_query_arg(
+                [ 'tt_view' => 'teammate', 'player_id' => $player_id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+        } else {
+            $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );
+        }
         ?>
-        <a href="<?php echo esc_url( $detail_url ); ?>" class="tt-pc-link" style="text-decoration:none; color:inherit; display:block;">
+        <a href="<?php echo esc_url( $detail_url ); ?>" class="tt-pc-link">
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" role="img"
              aria-label="<?php echo esc_attr( $show_ratings ? sprintf(
                  /* translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average. */
@@ -207,8 +225,12 @@ class PlayerCardView {
      *
      * @param array<int, array{player_id:int, rolling:?float, eval_count:int}> $top
      *        Up to 3 entries, already sorted by rolling average desc.
+     * @param string $link_mode #2156 — 'staff' (default) or 'teammate'.
+     *        Player-facing podiums (e.g. "My team") pass 'teammate' so each
+     *        card links to the minimal teammate profile the viewer may open,
+     *        not the staff-only unified profile.
      */
-    public static function renderPodium( array $top, bool $show_ratings = true ): void {
+    public static function renderPodium( array $top, bool $show_ratings = true, string $link_mode = 'staff' ): void {
         // Reorder: 2 | 1 | 3 for the classic podium arrangement.
         $slots = [
             2 => $top[1] ?? null,
@@ -229,7 +251,7 @@ class PlayerCardView {
                     </div>
                     <?php if ( $entry && ! empty( $entry['player_id'] ) ) :
                         $size = $rank === 1 ? 'md' : 'sm';
-                        self::renderCard( (int) $entry['player_id'], $size, true, $tier_by_rank[ $rank ], $show_ratings );
+                        self::renderCard( (int) $entry['player_id'], $size, true, $tier_by_rank[ $rank ], $show_ratings, $link_mode );
                     else : ?>
                         <div class="tt-pc-empty">
                             <?php esc_html_e( 'Not enough ranked players yet', 'talenttrack' ); ?>
@@ -320,9 +342,11 @@ class PlayerCardView {
     }
 
     /**
-     * Primary preferred position as a short code (e.g. "LB"). Players
-     * store preferred positions as a JSON array of lookup names; we
-     * take the first entry.
+     * Primary preferred position as the long, translated description
+     * (e.g. "Left back"). Players store preferred positions as a JSON
+     * array of lookup names; we take the first entry. #2155 — cards in
+     * the profiles/cards/dashboards group show the long form; the raw
+     * code is the fallback for any code without a long form.
      */
     private static function resolvePositionAbbr( object $player ): string {
         $raw = isset( $player->preferred_positions ) ? (string) $player->preferred_positions : '';
@@ -330,8 +354,7 @@ class PlayerCardView {
         $decoded = json_decode( $raw, true );
         if ( ! is_array( $decoded ) || empty( $decoded ) ) return '';
         $first = (string) $decoded[0];
-        // Positions are already short codes in tt_lookups (GK, CB, LB, etc.)
-        return strtoupper( mb_substr( $first, 0, 4 ) );
+        return \TT\Infrastructure\Query\LabelTranslator::positionLabel( $first );
     }
 
     private static function ordinalLabel( int $rank ): string {

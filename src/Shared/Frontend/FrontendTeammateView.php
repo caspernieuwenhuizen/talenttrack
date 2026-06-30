@@ -99,7 +99,7 @@ class FrontendTeammateView extends FrontendViewBase {
                 <dl class="tt-mate-dl">
                     <?php if ( $positions ) : ?>
                         <dt class="tt-mate-dt"><?php esc_html_e( 'Positions', 'talenttrack' ); ?></dt>
-                        <dd class="tt-mate-dd"><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
+                        <dd class="tt-mate-dd"><?php echo esc_html( implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $positions ) ) ) ); ?></dd><?php /* #2155 long position descriptions */ ?>
                     <?php endif; ?>
                     <?php if ( ! empty( $mate->jersey_number ) ) : ?>
                         <dt class="tt-mate-dt"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></dt>

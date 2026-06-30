@@ -132,9 +132,18 @@ class RateCardHeroWidget extends AbstractWidget {
     private static function primaryPosition( object $player ): string {
         $raw = (string) ( $player->preferred_positions ?? $player->position ?? '' );
         if ( $raw === '' ) return '';
-        // preferred_positions can be a comma-list; show the first.
-        $first = explode( ',', $raw );
-        return trim( (string) $first[0] );
+        // preferred_positions is normally a JSON array; older rows may be a
+        // comma-list. Resolve the first code, then render the long form
+        // (#2155 — profiles/cards/dashboards group).
+        $decoded = json_decode( $raw, true );
+        if ( is_array( $decoded ) && ! empty( $decoded ) ) {
+            $first = (string) $decoded[0];
+        } else {
+            $parts = explode( ',', $raw );
+            $first = trim( (string) $parts[0] );
+        }
+        if ( $first === '' ) return '';
+        return \TT\Infrastructure\Query\LabelTranslator::positionLabel( $first );
     }
 
     private static function initials( string $name ): string {
