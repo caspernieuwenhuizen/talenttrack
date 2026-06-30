@@ -236,3 +236,21 @@
     color: var(--tt-ink, #0e1a14);
     margin-bottom: var(--tt-sp-1, 4px);
 }
+
+/* #2160 — Team·Minutes per-player drill-down. The whole bar row is a
+   <summary>; clicking it reveals the per-match breakdown table. */
+.tt-dashboard .tt-rep-bar-details { border-bottom: 1px solid var(--tt-line, #e3e6e1); }
+.tt-dashboard .tt-rep-bar-details > summary {
+    list-style: none;
+    cursor: pointer;
+    min-height: 48px; /* touch target */
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rep-bar-details > summary::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-rep-bar-details > summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-rep-bar-breakdown { padding: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px); }
+.tt-dashboard .tt-rep-bar-breakdown table { width: 100%; }
+.tt-dashboard .tt-rep-bar-breakdown__total td { font-weight: 600; }

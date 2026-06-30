@@ -717,7 +717,11 @@ class EvaluationsRestController {
             'competition'    => sanitize_text_field( (string) ( $r['competition'] ?? '' ) ),
             'game_result'   => sanitize_text_field( (string) ( $r['game_result'] ?? '' ) ),
             'home_away'      => sanitize_text_field( (string) ( $r['home_away'] ?? '' ) ),
-            'minutes_played' => ! empty( $r['minutes_played'] ) ? absint( $r['minutes_played'] ) : null,
+            // #2159 — `tt_evaluations.minutes_played` is no longer written.
+            // Match minutes are recorded on the activity attendance screen
+            // (tt_attendance.minutes_played, record_type='actual'), the
+            // single source the minutes reports read. The dead column stays
+            // in place (no destructive migration) but receives no new writes.
         ];
     }
 

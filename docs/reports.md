@@ -59,6 +59,32 @@ On a phone the filters collapse into a **Filters** button that opens a bottom sh
 
 On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.
 
+## Minutes played — totals and per-match trace
+
+The minutes reports count only **recorded** match minutes: actual, non-guest
+attendance. Planned (expected) roster rows and guest appearances never count,
+and a match with no recorded minutes contributes nothing — the reports never
+estimate or invent minutes, so a zero is an honest "no data recorded" rather
+than a guess.
+
+Every player's minutes total is a **drill-down**: open it to see the per-match
+rows that sum to it — date, match, type, source (`actual` recorded minutes vs a
+recompute from the match-execution log) and minutes. The breakdown reconciles
+exactly with the total, so you can always trace a reported number back to its
+source rows. On the Team · Minutes distribution report each player bar expands;
+on the Analytics minutes report each Total opens the per-match table beneath the
+row. Both work on a phone and by keyboard; without JavaScript the per-match rows
+stay visible inline.
+
+Integrations can read the same trace — gated on `tt_view_reports` with the same
+team-scope narrowing as the report:
+
+- `GET /wp-json/talenttrack/v1/teams/{team_id}/players/{player_id}/minutes?from=…&to=…` — the per-match minutes rows for one player and the reconciling `total_minutes`.
+
+To verify a total against the raw stored rows, the `tt_attendance` minutes rows
+(`minutes_played`, `record_type`, `is_guest`, `activity_id`) are browsable in
+the **Data Browser**.
+
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. Every column stays sortable — click a header to re-sort.

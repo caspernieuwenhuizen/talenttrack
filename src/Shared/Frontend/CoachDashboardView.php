@@ -218,7 +218,7 @@ class CoachDashboardView {
                 </div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home"><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away"><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" inputmode="numeric" name="minutes_played" min="0" max="120" /></div>
+                <?php /* #2159 — match-minutes are now recorded on the activity attendance screen (tt_attendance.minutes_played), the single source the reports read. The orphaned eval-form minutes field (tt_evaluations.minutes_played, read by no report) was removed here. */ ?>
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
             <?php foreach ( $categories as $cat ) : ?>

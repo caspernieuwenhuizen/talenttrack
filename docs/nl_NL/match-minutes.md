@@ -56,6 +56,27 @@ specifiek bepaald:
    (`match_minutes_by_age_group`);
 3. de globale terugval van **35** minuten per helft.
 
+## Minuten per speler vastleggen
+
+Je hebt de match-execution-flow vanaf de zijlijn niet nodig. Op elke
+wedstrijdactiviteit met de status **Voltooid** toont de aanwezigheidstabel een
+kolom **Minuten** per speler naast de status. Vul de minuten in die elke speler
+op het veld stond en sla de activiteit op. Die minuten worden opgeslagen als de
+vastgelegde aanwezigheid van de speler voor die wedstrijd en zijn precies wat de
+minutenrapporten tellen.
+
+Dit is de "papieren wedstrijd"-route: een coach die de wedstrijd zonder live
+tracking speelde, kan toch accurate minuten op één plek vastleggen.
+
+**Voorrang.** Voer je later de volledige match-execution-flow voor dezelfde
+wedstrijd uit, dan is de herberekening uit de execution leidend en overschrijft
+ze de handmatig ingevoerde minuten. Handmatige invoer vult de leemte tot (of
+tenzij) er execution-gegevens bestaan.
+
+Alleen **werkelijke**, niet-gast-aanwezigheid telt mee voor de rapporten —
+geplande (verwachte) selectierijen en gastoptredens verhogen de minuten van een
+speler nooit.
+
 ## API
 
 De standaarden worden opgeslagen in `tt_config` onder de JSON-sleutel

@@ -201,6 +201,9 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         echo '<th class="num">' . esc_html__( '% available', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
+        // #2160 — total column count for the drill-down row's colspan.
+        $col_count = 8 + count( $type_keys );
+        $minutes_query = new MinutesQuery();
         foreach ( $visible_rows as $r ) {
             $name = trim( (string) $r['first_name'] . ' ' . (string) $r['last_name'] );
             if ( $name === '' ) $name = '#' . (int) $r['player_id'];
@@ -209,9 +212,14 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
 
+            $pid = (int) $r['player_id'];
             echo '<tr>';
+            // #2160 — the player's Total cell expands to a per-match trace.
+            // The breakdown reuses the same MinutesQuery + window so its
+            // rows sum exactly to this Total. <details> = keyboard-operable,
+            // no-JS, reconciles at 360px.
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td class="num">' . esc_html( number_format_i18n( $r['__effective_total'] ) ) . '</td>';
+            echo '<td class="num"><a class="tt-record-link" href="#tt-min-bd-' . $pid . '" data-tt-minutes-toggle="' . $pid . '" aria-controls="tt-min-bd-' . $pid . '">' . esc_html( number_format_i18n( $r['__effective_total'] ) ) . '</a></td>';
             echo '<td class="num">' . (int) $r['matches'] . '</td>';
             echo '<td class="num">' . (int) $r['starts'] . '</td>';
             echo '<td class="num">' . (int) $r['subs_in'] . '</td>';
@@ -223,8 +231,77 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             }
             echo '<td class="num">' . (int) $r['__pct_avail'] . '%</td>';
             echo '</tr>';
+
+            $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, $pid, $from, $to );
+            echo '<tr class="tt-min-breakdown-row" id="tt-min-bd-' . $pid . '">';
+            echo '<td colspan="' . (int) $col_count . '">';
+            self::renderMinutesBreakdown( $breakdown );
+            echo '</td></tr>';
         }
         echo '</tbody></table></div></div>';
+        self::enqueueDrilldownAssets();
+    }
+
+    /**
+     * #2160 — render the per-match minutes breakdown for one player as a
+     * nested table. Rows come from
+     * {@see MinutesQuery::matchBreakdownForPlayer()} so they reconcile
+     * exactly with the player's Total. Shows record_type so the operator
+     * can confirm only `actual` rows count.
+     *
+     * @param list<array{activity_id:int,session_date:string,title:string,type_key:string,minutes:int,record_type:string}> $breakdown
+     */
+    private static function renderMinutesBreakdown( array $breakdown ): void {
+        echo '<div class="tt-min-breakdown">';
+        if ( ! $breakdown ) {
+            echo '<p class="tt-rep-section__hint">' . esc_html__( 'No per-match minutes recorded in this window.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+            return;
+        }
+        $sum = 0;
+        foreach ( $breakdown as $b ) $sum += (int) $b['minutes'];
+        echo '<table class="tt-table"><thead><tr>'
+            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Source', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( $breakdown as $b ) {
+            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
+            $title = (string) $b['title'];
+            if ( $title === '' ) $title = '—';
+            $source = $b['record_type'] === 'actual'
+                ? __( 'actual', 'talenttrack' )
+                : __( 'recomputed', 'talenttrack' );
+            echo '<tr>';
+            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $b['session_date'] ) ) . '</td>';
+            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
+            echo '<td>' . esc_html( (string) $b['type_key'] ) . '</td>';
+            echo '<td>' . esc_html( $source ) . '</td>';
+            echo '<td class="num">' . (int) $b['minutes'] . '</td>';
+            echo '</tr>';
+        }
+        echo '<tr class="tt-min-breakdown__total"><td colspan="4">' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num">' . (int) $sum . '</td></tr>';
+        echo '</tbody></table>';
+        echo '</div>';
+    }
+
+    /**
+     * #2160 — enqueue the tiny toggle script that expands a player's
+     * minutes breakdown row when their Total is clicked. The breakdown
+     * rows are present in the DOM (no-JS reconciliation is possible by
+     * following the in-page anchor); the script just collapses them by
+     * default and toggles one at a time.
+     */
+    private static function enqueueDrilldownAssets(): void {
+        wp_enqueue_script(
+            'tt-minutes-drilldown',
+            TT_PLUGIN_URL . 'assets/js/components/minutes-drilldown.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     /**

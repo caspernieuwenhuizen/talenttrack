@@ -78,20 +78,31 @@ final class MinutesQuery {
             $type_key = (string) ( $a->game_subtype_key ?? '' );
             if ( $type_key === '' ) $type_key = 'unknown';
 
-            $prep = $prep_repo->findByActivity( $aid );
-            if ( ! $prep ) continue; // match without a prep — skip (no lineup data)
+            // #2158/#2159 — read persisted actual minutes FIRST. A
+            // manually-recorded "paper match" (#2159) has minutes on
+            // tt_attendance but no match-prep; it must still appear. So we
+            // no longer skip prep-less matches outright — only matches that
+            // have neither a prep nor any persisted minutes are skipped.
+            $minutes_map = self::persistedMinutes( $aid, $club_id );
 
-            $half_length = (int) $prep->half_length_minutes;
+            $prep = $prep_repo->findByActivity( $aid );
+            if ( ! $prep && empty( $minutes_map ) ) {
+                continue; // no lineup AND no recorded minutes — nothing to count.
+            }
+
+            $half_length = $prep ? (int) $prep->half_length_minutes : 0;
             if ( $half_length <= 0 ) $half_length = 35; // sane fallback
             $match_length = $half_length * 2;
             $available_minutes += $match_length;
 
-            $lineup = $prep_repo->listLineup( (int) $prep->id );
             $start1 = [];
             $start2 = [];
-            foreach ( $lineup as $l ) {
-                if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
-                if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
+            if ( $prep ) {
+                $lineup = $prep_repo->listLineup( (int) $prep->id );
+                foreach ( $lineup as $l ) {
+                    if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
+                    if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
+                }
             }
 
             $exec = $exec_repo->findByActivity( $aid );
@@ -99,26 +110,18 @@ final class MinutesQuery {
 
             // #1489 — persisted per-player minutes (written to
             // tt_attendance.minutes_played by the match execution on
-            // finish / finalize / pending-review edit) are the single
-            // source of truth. Reading them fixes the "no data" case
-            // where a live-tracked match recorded minutes but the
-            // read-time recompute yielded nothing (e.g. the prep lineup
-            // was cleared or never mirrored). Fall back to the
-            // lineup-based recompute only when nothing was persisted yet
-            // — a plan-only week, or a match finished before minutes were
-            // written — so those weeks still appear.
-            $minutes_map = self::persistedMinutes( $aid, $club_id );
+            // finish / finalize / pending-review edit, or by the manual
+            // attendance entry in #2159) are the single source of truth.
+            // #2158 — precedence: persisted actual minutes first, then a
+            // real recompute from the execution substitution log. When
+            // neither exists there is NO real data — we report nothing
+            // for this match rather than fabricating an estimate (the old
+            // "credit each starter a half" tier inflated totals and masked
+            // missing data). A plan-only week now simply contributes 0.
             if ( empty( $minutes_map ) ) {
                 $minutes_map = $exec_id > 0
                     ? $exec_repo->computeMinutes( $exec_id, $start1, $start2, $half_length, $half_length )
                     : [];
-                if ( empty( $minutes_map ) ) {
-                    // Match has a lineup but no execution / persisted
-                    // minutes — credit starters with the full half length
-                    // so plan-only weeks don't disappear from the report.
-                    foreach ( $start1 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
-                    foreach ( $start2 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
-                }
             }
 
             // Starts counter — once per activity, even if started both halves.
@@ -213,8 +216,16 @@ final class MinutesQuery {
     /**
      * #1489 — per-player persisted minutes for one activity, written to
      * tt_attendance.minutes_played by MatchExecutionRepository on finish
-     * / finalize. Excludes guests and zero / NULL minutes (only players
-     * who actually got on the pitch).
+     * / finalize (and by the manual attendance-minutes entry, #2159).
+     * Excludes guests and zero / NULL minutes (only players who actually
+     * got on the pitch).
+     *
+     * #2158 — restricted to `record_type = 'actual'` so only canonical
+     * recorded rows are summed (planned / forecast attendance rows never
+     * carry minutes, but the guard makes the contract explicit and
+     * future-proof). Aggregated per player so a player with more than one
+     * matching attendance row for the same activity is counted once, not
+     * fanned out.
      *
      * @return array<int,int> player_id => minutes
      */
@@ -222,13 +233,15 @@ final class MinutesQuery {
         global $wpdb;
         $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT player_id, minutes_played
+            "SELECT player_id, SUM( minutes_played ) AS minutes_played
                FROM {$p}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
+                AND record_type = 'actual'
                 AND is_guest = 0
                 AND minutes_played IS NOT NULL
-                AND minutes_played > 0",
+                AND minutes_played > 0
+              GROUP BY player_id",
             $activity_id, $club_id
         ) );
         $map = [];
@@ -237,5 +250,87 @@ final class MinutesQuery {
             if ( $pid > 0 ) $map[ $pid ] = (int) $r->minutes_played;
         }
         return $map;
+    }
+
+    /**
+     * #2160 — per-match minutes breakdown for ONE player on a team over a
+     * date window. Reuses the exact same precedence + filters as
+     * {@see forTeam()} (persisted actual rows first, execution recompute
+     * second, never a fabricated estimate) so the breakdown reconciles
+     * EXACTLY with that player's `total_minutes` in the team report.
+     *
+     * @return list<array{
+     *     activity_id:int, session_date:string, title:string,
+     *     type_key:string, minutes:int, record_type:string
+     * }>
+     */
+    public function matchBreakdownForPlayer( int $team_id, int $player_id, string $from, string $to ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        if ( $team_id <= 0 || $player_id <= 0 ) return [];
+
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        $activities = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, game_subtype_key, {$date_col} AS session_date, title
+               FROM {$p}tt_activities
+              WHERE club_id = %d
+                AND team_id = %d
+                AND LOWER(activity_type_key) IN ( 'match', 'game' )
+                AND {$date_col} BETWEEN %s AND %s
+              ORDER BY {$date_col} ASC",
+            $club_id, $team_id, $from, $to
+        ) );
+        if ( empty( $activities ) ) return [];
+
+        $exec_repo = new MatchExecutionRepository();
+        $prep_repo = new MatchPrepRepository();
+
+        $out = [];
+        foreach ( $activities as $a ) {
+            $aid = (int) $a->id;
+
+            // Same precedence chain as forTeam(): persisted actual minutes,
+            // then execution recompute, else nothing (no fabrication).
+            $minutes_map = self::persistedMinutes( $aid, $club_id );
+            $record_type = 'actual';
+            if ( empty( $minutes_map ) ) {
+                $prep = $prep_repo->findByActivity( $aid );
+                if ( $prep ) {
+                    $half_length = (int) $prep->half_length_minutes;
+                    if ( $half_length <= 0 ) $half_length = 35;
+                    $lineup = $prep_repo->listLineup( (int) $prep->id );
+                    $start1 = [];
+                    $start2 = [];
+                    foreach ( $lineup as $l ) {
+                        if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
+                        if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
+                    }
+                    $exec = $exec_repo->findByActivity( $aid );
+                    $minutes_map = $exec
+                        ? $exec_repo->computeMinutes( (int) $exec->id, $start1, $start2, $half_length, $half_length )
+                        : [];
+                    $record_type = 'recompute';
+                }
+            }
+
+            if ( ! isset( $minutes_map[ $player_id ] ) ) continue;
+            $mins = (int) $minutes_map[ $player_id ];
+            if ( $mins <= 0 ) continue;
+
+            $type_key = (string) ( $a->game_subtype_key ?? '' );
+            if ( $type_key === '' ) $type_key = 'unknown';
+
+            $out[] = [
+                'activity_id'  => $aid,
+                'session_date' => (string) $a->session_date,
+                'title'        => (string) ( $a->title ?? '' ),
+                'type_key'     => $type_key,
+                'minutes'      => $mins,
+                'record_type'  => $record_type,
+            ];
+        }
+        return $out;
     }
 }

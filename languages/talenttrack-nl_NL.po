@@ -44893,6 +44893,56 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Sorted by minutes, high to low. Open a row to trace the per-match minutes that sum to it."
+msgstr "Gesorteerd op minuten, hoog naar laag. Open een rij om de minuten per wedstrijd te zien die optellen tot dit totaal."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php
+msgid "No per-match minutes recorded in this window."
+msgstr "Geen minuten per wedstrijd vastgelegd in deze periode."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php
+msgid "actual"
+msgstr "werkelijk"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php
+msgid "recomputed"
+msgstr "herberekend"
+
+#: src/Shared/Frontend/FrontendDataBrowserView.php
+msgid "Filter tables by name, description or column…"
+msgstr "Filter tabellen op naam, beschrijving of kolom…"
+
+#: src/Shared/Frontend/FrontendDataBrowserView.php
+#, php-format
+msgid "matched column: %s"
+msgid_plural "matched columns: %s"
+msgstr[0] "overeenkomende kolom: %s"
+msgstr[1] "overeenkomende kolommen: %s"
+
+#: src/Infrastructure/REST/MinutesRestController.php
+msgid "Invalid team or player."
+msgstr "Ongeldig team of speler."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Match minutes for this player. The canonical store the minutes reports sum."
+msgstr "Wedstrijdminuten voor deze speler. De canonieke bron die de minutenrapporten optellen."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "expected (planned roster) or actual (recorded). Only actual rows count toward minutes."
+msgstr "verwacht (geplande selectie) of werkelijk (vastgelegd). Alleen werkelijke rijen tellen mee voor minuten."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Guest attendance (1) is excluded from team minutes; squad rows are 0."
+msgstr "Gastdeelname (1) telt niet mee voor teamminuten; selectierijen zijn 0."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Record type"
+msgstr "Recordtype"
+
 #~ msgid "Enter test results for a team."
 #~ msgstr "Voer testresultaten in voor een team."
 

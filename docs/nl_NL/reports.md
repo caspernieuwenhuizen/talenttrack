@@ -59,6 +59,32 @@ Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom
 
 In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.
 
+## Gespeelde minuten — totalen en trace per wedstrijd
+
+De minutenrapporten tellen alleen **vastgelegde** wedstrijdminuten: werkelijke,
+niet-gast-aanwezigheid. Geplande (verwachte) selectierijen en gastoptredens
+tellen nooit mee, en een wedstrijd zonder vastgelegde minuten draagt niets bij —
+de rapporten schatten of verzinnen nooit minuten, dus een nul is een eerlijke
+"geen gegevens vastgelegd" in plaats van een gok.
+
+Het minutentotaal van elke speler is een **drill-down**: open het om de rijen per
+wedstrijd te zien die optellen tot het totaal — datum, wedstrijd, type, bron
+(`werkelijk` vastgelegde minuten of een herberekening uit het match-execution-log)
+en minuten. De uitsplitsing sluit exact aan op het totaal, zodat je een gerapporteerd
+getal altijd kunt herleiden tot de bronrijen. In het rapport Team · Minutenverdeling
+klapt elke spelersbalk uit; in het Analytics-minutenrapport opent elk Totaal de
+tabel per wedstrijd onder de rij. Beide werken op een telefoon en met het
+toetsenbord; zonder JavaScript blijven de rijen per wedstrijd inline zichtbaar.
+
+Integraties kunnen dezelfde trace lezen — met de `tt_view_reports`-toegang en
+dezelfde team-scope-beperking als het rapport:
+
+- `GET /wp-json/talenttrack/v1/teams/{team_id}/players/{player_id}/minutes?from=…&to=…` — de minutenrijen per wedstrijd voor één speler plus het aansluitende `total_minutes`.
+
+Om een totaal tegen de ruwe opgeslagen rijen te controleren, zijn de
+`tt_attendance`-minutenrijen (`minutes_played`, `record_type`, `is_guest`,
+`activity_id`) doorzoekbaar in de **Data Browser**.
+
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Elke kolom blijft sorteerbaar — klik op een kop om opnieuw te sorteren.

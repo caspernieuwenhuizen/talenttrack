@@ -78,15 +78,38 @@ class FrontendDataBrowserView extends FrontendViewBase {
         self::hiddenViewField();
         echo '<input type="search" name="q" inputmode="search" class="tt-db-search__input" '
             . 'value="' . esc_attr( $q ) . '" '
-            . 'placeholder="' . esc_attr__( 'Filter tables by name or description…', 'talenttrack' ) . '" '
+            . 'placeholder="' . esc_attr__( 'Filter tables by name, description or column…', 'talenttrack' ) . '" '
             . 'aria-label="' . esc_attr__( 'Filter tables', 'talenttrack' ) . '">';
         echo '</form>';
 
+        // #2161 — per-table list of column names that matched the search,
+        // so the result row can show WHY a table surfaced (e.g. a hit on
+        // `minutes_played`). Keyed by table key; empty array means the
+        // table matched on name/description only.
+        $matched_columns = [];
         if ( $q !== '' ) {
             $needle = function_exists( 'mb_strtolower' ) ? mb_strtolower( $q ) : strtolower( $q );
-            $tables = array_values( array_filter( $tables, static function ( array $t ) use ( $needle ): bool {
+            $tables = array_values( array_filter( $tables, static function ( array $t ) use ( $needle, &$matched_columns ): bool {
+                // Existing table-name / label / description match.
                 $hay = strtolower( $t['key'] . ' ' . $t['label'] . ' ' . $t['description'] );
-                return strpos( $hay, $needle ) !== false;
+                $name_match = strpos( $hay, $needle ) !== false;
+
+                // #2161 — also match COLUMN names. SchemaIntrospector caches
+                // the column list per table, so this is cheap. A table that
+                // contains a column like the needle surfaces even when its
+                // name/description don't mention it.
+                $cols = SchemaIntrospector::columns( $t['key'] );
+                $hits = [];
+                foreach ( $cols as $col ) {
+                    $cname = (string) ( $col->name ?? '' );
+                    if ( $cname !== '' && strpos( strtolower( $cname ), $needle ) !== false ) {
+                        $hits[] = $cname;
+                    }
+                }
+                if ( $hits ) {
+                    $matched_columns[ $t['key'] ] = $hits;
+                }
+                return $name_match || ! empty( $hits );
             } ) );
             if ( empty( $tables ) ) {
                 echo '<p class="tt-notice">' . esc_html__( 'No tables match your search.', 'talenttrack' ) . '</p>';
@@ -100,13 +123,13 @@ class FrontendDataBrowserView extends FrontendViewBase {
         if ( $curated ) {
             self::groupHeading( __( 'Core tables', 'talenttrack' ), count( $curated ) );
             echo '<div class="tt-db-list">';
-            foreach ( $curated as $t ) self::tableRow( $t, false );
+            foreach ( $curated as $t ) self::tableRow( $t, false, $matched_columns[ $t['key'] ] ?? [] );
             echo '</div>';
         }
         if ( $other ) {
             self::groupHeading( __( 'Other tables', 'talenttrack' ), count( $other ) );
             echo '<div class="tt-db-list">';
-            foreach ( $other as $t ) self::tableRow( $t, true );
+            foreach ( $other as $t ) self::tableRow( $t, true, $matched_columns[ $t['key'] ] ?? [] );
             echo '</div>';
         }
     }
@@ -116,8 +139,13 @@ class FrontendDataBrowserView extends FrontendViewBase {
             . ' <span class="tt-db-group__cnt">' . esc_html( (string) $count ) . '</span></h2>';
     }
 
-    /** @param array{key:string,label:string,description:string,sensitive:bool,curated:bool,approx_rows:int} $t */
-    private static function tableRow( array $t, bool $mini ): void {
+    /**
+     * @param array{key:string,label:string,description:string,sensitive:bool,curated:bool,approx_rows:int} $t
+     * @param list<string> $matched_columns #2161 — column names that
+     *        matched the search, surfaced as a hint on the row. Empty when
+     *        the table matched on name/description only.
+     */
+    private static function tableRow( array $t, bool $mini, array $matched_columns = [] ): void {
         $url = add_query_arg(
             [ 'tt_view' => 'data-browser', 'table' => $t['key'] ],
             RecordLink::dashboardUrl()
@@ -135,6 +163,18 @@ class FrontendDataBrowserView extends FrontendViewBase {
         echo '</span>';
         if ( ! $mini && $t['description'] !== '' ) {
             echo '<span class="tt-db-row__desc">' . esc_html( $t['description'] ) . '</span>';
+        }
+        // #2161 — show which column(s) caused a column-name match so the
+        // result is actionable (renders on mini rows too, where there's no
+        // description line).
+        if ( $matched_columns ) {
+            echo '<span class="tt-db-row__colhit">'
+                . esc_html( sprintf(
+                    /* translators: %s = comma-separated list of column names that matched the search */
+                    _n( 'matched column: %s', 'matched columns: %s', count( $matched_columns ), 'talenttrack' ),
+                    implode( ', ', $matched_columns )
+                ) )
+                . '</span>';
         }
         echo '</span>';
         echo '<span class="tt-db-row__rt">'

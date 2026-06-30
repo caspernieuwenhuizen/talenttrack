@@ -73,3 +73,16 @@
     outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: 1px;
 }
+
+/* #2160 — minutes report drill-down. Each player Total expands a nested
+   per-match breakdown row. Collapsed by JS (`hidden`); visible with JS off
+   so the totals reconcile in-page. */
+.tt-dashboard .tt-min-breakdown { padding: var(--tt-sp-2, 8px) 0; }
+.tt-dashboard .tt-min-breakdown table { width: 100%; }
+.tt-dashboard .tt-min-breakdown__total td { font-weight: 600; }
+.tt-dashboard td > a[data-tt-minutes-toggle] {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}

@@ -127,6 +127,9 @@ class Kernel {
         // #2023 — shared recycle-bin cascade-preview REST endpoint that the
         // "Move to recycle bin" confirm dialog renders before a trash.
         \TT\Infrastructure\REST\RecycleBinRestController::init();
+        // #2160 — minutes audit / trace-back: per-player per-match
+        // breakdown over REST (same hardened MinutesQuery the reports use).
+        \TT\Infrastructure\REST\MinutesRestController::init();
         // #2025 — 30-day recycle-bin auto-purge. Subscribes to the workflow
         // engine heartbeat (tt_workflow_cron_tick) rather than registering an
         // ad-hoc wp_cron (CLAUDE.md §4); self-throttles to once per day.
