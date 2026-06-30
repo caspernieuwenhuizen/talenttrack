@@ -14,7 +14,7 @@ Welkom bij TalentTrack. Dit is het systeem voor het beheren van voetbaltalent in
 
 Dat hangt af van je rol. De meeste mensen zien een of meer van deze tegels:
 
-- **Mijn kaart** — je eigen spelerskaart, beoordelingen en kerncijfers.
+- **Mijn profiel** — je eigen spelerskaart, beoordelingen en kerncijfers.
 - **Mijn team** — je teamgenoten en het podium van het team.
 - **Mijn evaluaties** — feedback van je coaches.
 - **Mijn sessies** — trainingen waar je bij was.

@@ -141,7 +141,7 @@ class CoachDashboardView {
             echo '<h3>' . esc_html( $name ) . '</h3>';
         }
         if ( $team ) echo '<p><strong>' . esc_html__( 'Team:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $team->name ) . '</p>';
-        if ( is_array( $pos ) && $pos ) echo '<p><strong>' . esc_html__( 'Pos:', 'talenttrack' ) . '</strong> ' . esc_html( implode( ', ', $pos ) ) . '</p>';
+        if ( is_array( $pos ) && $pos ) echo '<p><strong>' . esc_html__( 'Pos:', 'talenttrack' ) . '</strong> ' . esc_html( implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) ) . '</p>'; // #2155 long position descriptions
         if ( $player->preferred_foot ) echo '<p><strong>' . esc_html__( 'Foot:', 'talenttrack' ) . '</strong> ' . \TT\Infrastructure\Query\LookupPill::render( 'foot_option', (string) $player->preferred_foot ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html
         if ( $player->jersey_number ) echo '<p><strong>#</strong>' . esc_html( (string) $player->jersey_number ) . '</p>';
         echo '</div></div>';

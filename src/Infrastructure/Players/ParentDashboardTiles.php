@@ -57,7 +57,7 @@ final class ParentDashboardTiles {
         return [
             'my-development' => _x( 'development', 'parent dashboard tile noun', 'talenttrack' ),
             'my-journey'     => _x( 'journey', 'parent dashboard tile noun', 'talenttrack' ),
-            'overview'       => _x( 'card', 'parent dashboard tile noun', 'talenttrack' ),
+            'overview'       => _x( 'profile', 'parent dashboard tile noun', 'talenttrack' ),
             'my-team'        => _x( 'team', 'parent dashboard tile noun', 'talenttrack' ),
             'my-evaluations' => _x( 'evaluations', 'parent dashboard tile noun', 'talenttrack' ),
             'my-activities'  => _x( 'activities', 'parent dashboard tile noun', 'talenttrack' ),

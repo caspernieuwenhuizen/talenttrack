@@ -238,7 +238,7 @@ final class CoreSurfaceRegistration {
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 10,
-            'label'        => __( 'My card', 'talenttrack' ),
+            'label'        => __( 'My profile', 'talenttrack' ),
             'description'  => __( 'Your card, ratings and headline numbers.', 'talenttrack' ),
             'icon'         => 'rate-card',
             'color'        => '#1d7874',

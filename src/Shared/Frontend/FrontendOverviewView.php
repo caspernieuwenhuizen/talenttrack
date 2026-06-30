@@ -30,8 +30,8 @@ class FrontendOverviewView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My card', 'talenttrack' ) );
-        self::renderHeader( __( 'My card', 'talenttrack' ) );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My profile', 'talenttrack' ) );
+        self::renderHeader( __( 'My profile', 'talenttrack' ) );
 
         $max     = (float) QueryHelpers::get_config( 'rating_max', '10' );
         $service = new PlayerStatsService();
@@ -135,7 +135,8 @@ class FrontendOverviewView extends FrontendViewBase {
         $name = QueryHelpers::player_display_name( $player );
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $pos  = json_decode( (string) $player->preferred_positions, true );
-        $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : '';
+        // #2155 — long position descriptions on the overview hero meta.
+        $pos_str = is_array( $pos ) ? implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) : '';
         $jersey  = $player->jersey_number ? '#' . (int) $player->jersey_number : '';
 
         $ovr      = $rolling !== null ? $rolling : $alltime;
