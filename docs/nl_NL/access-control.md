@@ -116,6 +116,20 @@ Dit is de **enige eigenaar van definitief verwijderen**: de oude per-entiteit
 zodat geen verwijderpad zwakker is dan de prullenbak. Zie
 [Prullenbak](recycle-bin.md) voor de bewaartermijn en AVG-grondslag.
 
+## Strava-koppeling — spelers koppelen hun eigen (#2153)
+
+Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen
+Strava-account koppelen vanaf zijn profiel. Dit wordt geregeld door de
+matrix-entiteit `strava_integration` met `self`-scope (lezen + wijzigen),
+toegekend aan de persona `speler` — net als de `my_profile`-rechten van de
+speler. Een speler beheert altijd alleen zijn **eigen** koppeling; door de
+self-scope kan hij Strava niet koppelen voor een andere speler. De
+Strava-**operatorconsole** (Configuratie → Integraties: app-credentials,
+webhook-abonnement, koppelingenoverzicht) is een aparte `global`-scope die
+Hoofdtrainer en Academie-beheerder hebben en wordt niet beïnvloed door het
+spelerrecht. Zie de
+[autorisatiematrix](authorization-matrix.md).
+
 ## Permission debug
 
 Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een willekeurige gebruiker inspecteren. Handig als een gebruiker meldt "ik kan X niet zien" — controleer wat hij/zij daadwerkelijk heeft.

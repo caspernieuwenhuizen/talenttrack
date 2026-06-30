@@ -290,6 +290,30 @@ IGNORE`, alleen de nieuwe `recycle_bin`-rijen). Het schema + de
 retentieconfiguratie landen in de gepaarde migratie
 `0186_recycle_bin_foundation`.
 
+## Matrix-entiteit `strava_integration` — persoonlijke activiteitskoppeling (#2127, #2153)
+
+De Strava-integratie wordt geregeld door de matrix-entiteit
+`strava_integration`, gekoppeld vanuit twee ruwe capabilities:
+
+| Ruwe capability | Matrix-tuple |
+| - | - |
+| `tt_view_strava` | `strava_integration` / `read` |
+| `tt_edit_strava_credentials` | `strava_integration` / `change` |
+
+De **operatorconsole** (Configuratie → Integraties: app-credentials,
+webhook-abonnement, koppelingenoverzicht) is geseed voor `head_coach` en
+`academy_admin` met `global`-scope — migratie
+`0191_authorization_seed_topup_strava` vulde die rijen op.
+
+`player` heeft `strava_integration` `rc[self]` (#2153): Strava is
+**persoonlijke activiteitsdata**, dus een speler koppelt zijn eigen Strava
+vanaf zijn profiel en kan nooit de koppeling van een andere speler aanraken.
+Dit weerspiegelt het `my_profile` self-recht van de speler. Migratie
+`0193_authorization_seed_player_strava` vult de twee spelerrijen op bestaande
+installaties op (idempotente `INSERT IGNORE`, alleen de
+`player` / `strava_integration`-tuples). Gedrag van trainer en beheerder
+blijft ongewijzigd.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.
