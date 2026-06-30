@@ -202,6 +202,49 @@ final class StravaClient {
     }
 
     /**
+     * View the application's current push subscription. Strava allows at
+     * most one per app, so `GET /push_subscriptions?client_id&client_secret`
+     * returns a list of 0 or 1. Lets the operator console reconcile its
+     * stored id with Strava's real state — adopt an existing subscription
+     * rather than dead-ending on the one-per-app constraint, and self-heal
+     * a stored id that drifted (e.g. deleted from Strava's side).
+     *
+     * @return array{ok:bool,id?:int,callback_url?:string,http_code?:int,error_code?:string,error_message?:string}
+     */
+    public static function viewSubscription(): array {
+        $url = add_query_arg(
+            [
+                'client_id'     => StravaConfig::clientId(),
+                'client_secret' => StravaConfig::clientSecret(),
+            ],
+            StravaConfig::apiBaseUrl() . '/push_subscriptions'
+        );
+        $response = wp_remote_get( $url, [
+            'timeout'    => self::TIMEOUT_SECONDS,
+            'user-agent' => self::userAgent(),
+        ] );
+
+        if ( is_wp_error( $response ) ) {
+            return [ 'ok' => false, 'error_code' => 'transport_error', 'error_message' => $response->get_error_message() ];
+        }
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        $body = json_decode( (string) wp_remote_retrieve_body( $response ), true );
+
+        if ( $code < 200 || $code >= 300 ) {
+            return [ 'ok' => false, 'http_code' => $code, 'error_code' => 'subscription_view_http_' . $code ];
+        }
+
+        // Strava returns a JSON array (0 or 1 entries); take the first.
+        $first = ( is_array( $body ) && isset( $body[0] ) && is_array( $body[0] ) ) ? $body[0] : [];
+        return [
+            'ok'           => true,
+            'id'           => (int) ( $first['id'] ?? 0 ),
+            'callback_url' => (string) ( $first['callback_url'] ?? '' ),
+            'http_code'    => $code,
+        ];
+    }
+
+    /**
      * Delete the push subscription by id.
      */
     public static function deleteSubscription( string $subscription_id ): bool {

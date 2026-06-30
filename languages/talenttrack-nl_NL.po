@@ -3181,7 +3181,7 @@ msgstr "Er is een Strava Client ID vereist."
 
 #: src/Infrastructure/REST/StravaRestController.php:427
 msgid "(unknown player)"
-msgstr ""
+msgstr "(onbekende speler)"
 
 #: src/Infrastructure/REST/StravaRestController.php:507
 msgid "Could not create the Strava webhook subscription."
@@ -7007,7 +7007,7 @@ msgstr "Spond-integratie"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:49
 #: src/Shared/Frontend/FrontendConfigurationView.php:1541
 msgid "Strava integration"
-msgstr ""
+msgstr "Strava-koppeling"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:145
 msgid "Player timeline"
@@ -29385,11 +29385,11 @@ msgid ""
 "Register your academy's Strava developer app and webhook here, then players "
 "connect their own accounts from their profile. Distance, duration, pace and "
 "elevation are imported — never heart-rate data."
-msgstr ""
+msgstr "Registreer hier de Strava-ontwikkelaarsapp en webhook van je academie; spelers koppelen daarna hun eigen account vanaf hun profiel. Afstand, duur, tempo en hoogtemeters worden geïmporteerd — nooit hartslaggegevens."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:72
 msgid "App credentials"
-msgstr ""
+msgstr "App-gegevens"
 
 #. translators: %s: the OAuth callback URL to register at Strava.
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:77
@@ -29398,30 +29398,30 @@ msgid ""
 "Create an API application at strava.com/settings/api, then paste its Client "
 "ID and Client secret below. Set the app's Authorization Callback Domain to "
 "this site, and its redirect to %s."
-msgstr ""
+msgstr "Maak een API-applicatie aan op strava.com/settings/api en plak hieronder de Client ID en het Client secret. Stel het Authorization Callback Domain van de app in op deze site en de redirect op %s."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:87
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:210
 msgid "Not configured"
-msgstr ""
+msgstr "Niet ingesteld"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:93
 msgid "Client ID"
-msgstr ""
+msgstr "Client ID"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:101
 msgid "Client secret"
-msgstr ""
+msgstr "Client secret"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:104
 msgid "Leave blank to keep current secret"
-msgstr ""
+msgstr "Laat leeg om het huidige secret te behouden"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:106
 msgid ""
 "Stored encrypted at rest and never shown again. Rotating the WordPress "
 "AUTH_KEY salt invalidates the stored value and requires re-entry."
-msgstr ""
+msgstr "Versleuteld opgeslagen en wordt nooit meer getoond. Het roteren van de WordPress AUTH_KEY-salt maakt de opgeslagen waarde ongeldig en vereist opnieuw invoeren."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:114
 #: src/Shared/Frontend/Components/FormSaveButton.php:48
@@ -29438,7 +29438,7 @@ msgstr "Opgeslagen"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:124
 msgid "Webhook subscription"
-msgstr ""
+msgstr "Webhookabonnement"
 
 #. translators: %s: the webhook callback URL Strava pushes to.
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:129
@@ -29446,24 +29446,24 @@ msgstr ""
 msgid ""
 "Strava allows one push subscription per app, covering every connected "
 "player. Activities sync as they happen instead of polling. Callback: %s"
-msgstr ""
+msgstr "Strava staat één push-abonnement per app toe, dat elke gekoppelde speler dekt. Activiteiten synchroniseren zodra ze plaatsvinden in plaats van te pollen. Callback: %s"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:139
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:208
 msgid "Not created"
-msgstr ""
+msgstr "Niet aangemaakt"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:146
 msgid "Create / re-verify"
-msgstr ""
+msgstr "Aanmaken / opnieuw verifiëren"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:149
 msgid "Delete subscription"
-msgstr ""
+msgstr "Abonnement verwijderen"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
 msgid "Connected players"
-msgstr ""
+msgstr "Gekoppelde spelers"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:158
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:172
@@ -29478,7 +29478,7 @@ msgstr "Bezig met laden…"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:167
 msgid "Last activity"
-msgstr ""
+msgstr "Laatste activiteit"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:200
 #: src/Shared/Frontend/FrontendSpondView.php:337
@@ -29487,40 +29487,40 @@ msgstr "Credentials opgeslagen."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:201
 msgid "Creating subscription…"
-msgstr ""
+msgstr "Abonnement aanmaken…"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:202
 msgid "Webhook subscription is active."
-msgstr ""
+msgstr "Webhookabonnement is actief."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:203
 msgid "Deleting subscription…"
-msgstr ""
+msgstr "Abonnement verwijderen…"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:204
 msgid "Webhook subscription deleted."
-msgstr ""
+msgstr "Webhookabonnement verwijderd."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:205
 msgid ""
 "Could not create the subscription. Check the credentials and callback domain."
-msgstr ""
+msgstr "Kon het abonnement niet aanmaken. Controleer de gegevens en het callback-domein."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:206
 msgid ""
 "Delete the Strava webhook subscription? Activities stop syncing until it is "
 "re-created."
-msgstr ""
+msgstr "Het Strava-webhookabonnement verwijderen? Activiteiten synchroniseren niet meer totdat het opnieuw wordt aangemaakt."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:213
 msgid "No players have connected a Strava account yet."
-msgstr ""
+msgstr "Nog geen spelers hebben een Strava-account gekoppeld."
 
 #. translators: 1: connected count 2: total connections
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:216
 #, php-format
 msgid "%1$d connected of %2$d players who have started linking."
-msgstr ""
+msgstr "%1$d gekoppeld van %2$d spelers die zijn begonnen met koppelen."
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:217
 #: src/Shared/Frontend/FrontendSpondView.php:123
@@ -29529,11 +29529,11 @@ msgstr "Verbonden"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
 msgid "Pending consent"
-msgstr ""
+msgstr "Wacht op toestemming"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:220
 msgid "Disconnected"
-msgstr ""
+msgstr "Ontkoppeld"
 
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:32
 msgid "Strava activity"
@@ -38329,7 +38329,7 @@ msgstr ""
 msgid ""
 "Register the Strava app credentials, manage the webhook subscription, and "
 "see which players have connected their accounts."
-msgstr ""
+msgstr "Registreer de Strava-app-gegevens, beheer het webhookabonnement en zie welke spelers hun account hebben gekoppeld."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1545
 msgid ""
