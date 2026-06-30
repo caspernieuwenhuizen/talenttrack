@@ -7,7 +7,9 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
+use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -64,11 +66,23 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         self::renderHeader( __( 'Player attendance statistics', 'talenttrack' ) );
 
         $defaults = self::defaultWindow();
-        $from    = isset( $_GET['from'] )    ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : $defaults['from'];
-        $to      = isset( $_GET['to'] )      ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : $defaults['to'];
-        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
+        $team_id  = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        // #2136 — retrospective period pills + activity-type filter, shared
+        // with the team report via ReportFilters. A manual From/To overrides
+        // the active period; the type filter flows into the shared query.
+        $period   = ReportFilters::sanitizePeriod( isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '' );
+        $type_key = ReportFilters::sanitizeActivityType( isset( $_GET['activity_type_key'] ) ? (string) $_GET['activity_type_key'] : '' );
+
+        $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
+        $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
+
+        $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
+        $from = $has_manual_from
+            ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) )
+            : ( $window['from'] ?? $defaults['from'] );
+        $to = $has_manual_to
+            ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
+            : ( $window['to'] ?? $defaults['to'] );
 
         // v4.20.4 (#1147) — analytics scope honours the user's team
         // assignment. Global-read-on-`activities` holders keep the
@@ -93,19 +107,19 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // If user picked a team they're not allowed to see, fall through
         // to empty — no row leak via URL tampering.
         if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
-            self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids );
+            self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $period, $type_key );
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
             return;
         }
 
-        self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids );
+        self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $period, $type_key );
 
         // #1488 — ranking, the missed count, and the at-risk flag all
         // come from the shared AttendanceRankingQuery so the report, the
         // leaderboard, the REST surface, and the Comms cron can never
         // drift. Rows arrive worst-attendance-first; the table stays
         // client-side sortable on any column on top of that default.
-        $rows = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed_team_ids );
+        $rows = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed_team_ids, $type_key );
         if ( $rows === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
             return;
@@ -227,9 +241,14 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
     }
 
     /**
+     * #2136 — Team select + retrospective period pills + activity-type
+     * filter + From/To range, through the shared FilterBar for visual +
+     * a11y parity with the activities list. Pills + period are link-based;
+     * Team and Type auto-submit; the date range is the manual override.
+     *
      * @param list<int>|null $allowed_team_ids
      */
-    private static function renderFilterForm( string $from, string $to, int $team_id, ?array $allowed_team_ids ): void {
+    private static function renderFilterForm( string $from, string $to, int $team_id, ?array $allowed_team_ids, string $period = '', string $type_key = '' ): void {
         global $wpdb;
         if ( $allowed_team_ids !== null ) {
             if ( $allowed_team_ids === [] ) {
@@ -256,21 +275,88 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             ) );
         }
 
-        echo '<form method="get" class="tt-filter-row" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:12px;">';
-        echo '<input type="hidden" name="tt_view" value="attendance-report-player" />';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<select name="team_id">';
-        echo '<option value="0">' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
+        $team_options = [ '0' => __( 'All teams', 'talenttrack' ) ];
         foreach ( (array) $teams as $t ) {
-            $sel = selected( $team_id, (int) $t->id, false );
-            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
+            $team_options[ (string) (int) $t->id ] = (string) $t->name;
         }
-        echo '</select></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
-        echo '</form>';
+
+        $dash_url      = RecordLink::dashboardUrl();
+        $period_labels = ReportFilters::periodLabels();
+        $type_options  = ReportFilters::activityTypeOptions();
+
+        // Base args each period pill preserves (team / type / back-target).
+        $pill_base = [ 'tt_view' => 'attendance-report-player' ];
+        if ( $team_id > 0 )                $pill_base['team_id']           = $team_id;
+        if ( $type_key !== '' )            $pill_base['activity_type_key'] = $type_key;
+        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']           = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $period_options = [];
+        foreach ( $period_labels as $key => $label ) {
+            $args = $pill_base;
+            if ( $key !== '' ) $args['period'] = $key;
+            $period_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $period === $key ),
+            ];
+        }
+
+        // Hidden fields the auto-submitting Team / Type selects must carry
+        // so the link-based period + back-target survive a change.
+        $hidden = [ 'tt_view' => 'attendance-report-player' ];
+        if ( $period !== '' )              $hidden['period']  = $period;
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $active_count = 0;
+        $chips = [];
+        if ( $team_id > 0 && isset( $team_options[ (string) $team_id ] ) ) { $active_count++; $chips[] = $team_options[ (string) $team_id ]; }
+        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
+
+        $reset_args = [ 'tt_view' => 'attendance-report-player' ];
+        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'groups'       => [
+                [
+                    'type'     => 'select',
+                    'key'      => 'team',
+                    'label'    => __( 'Team', 'talenttrack' ),
+                    'name'     => 'team_id',
+                    'selected' => $team_id > 0 ? (string) $team_id : '0',
+                    'options'  => $team_options,
+                ],
+                [
+                    'type'         => 'period',
+                    'key'          => 'period',
+                    'label'        => __( 'Period', 'talenttrack' ),
+                    'active_label' => (string) ( $period_labels[ $period ] ?? $period_labels[''] ),
+                    'options'      => $period_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'type',
+                    'label'       => __( 'Type', 'talenttrack' ),
+                    'name'        => 'activity_type_key',
+                    'selected'    => $type_key,
+                    'placeholder' => __( '— all types —', 'talenttrack' ),
+                    'options'     => $type_options,
+                ],
+                [
+                    'type'       => 'date_range',
+                    'key'        => 'range',
+                    'label'      => __( 'Date range', 'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To', 'talenttrack' ),
+                    'from'       => [ 'name' => 'from', 'value' => $from ],
+                    'to'         => [ 'name' => 'to', 'value' => $to ],
+                ],
+            ],
+        ] );
     }
 }

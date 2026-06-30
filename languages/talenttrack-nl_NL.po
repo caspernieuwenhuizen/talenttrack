@@ -44753,6 +44753,34 @@ msgstr "Blader door elk testresultaat: de laatste waarde, kleur, trend en vlag v
 msgid "Choose status"
 msgstr "Kies status"
 
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Open team"
+msgstr "Team openen"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "View players"
+msgstr "Spelers bekijken"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Date range"
+msgstr "Datumbereik"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Last week"
+msgstr "Vorige week"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "At risk"
+msgstr "Risico"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Could not load players. Try again."
+msgstr "Kon spelers niet laden. Probeer opnieuw."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "No player attendance in this window."
+msgstr "Geen aanwezigheid van spelers in deze periode."
+
 #~ msgid "Enter test results for a team."
 #~ msgstr "Voer testresultaten in voor een team."
 

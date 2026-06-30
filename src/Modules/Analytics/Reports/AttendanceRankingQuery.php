@@ -45,6 +45,8 @@ final class AttendanceRankingQuery {
      * no-data rows last — the order the report + leaderboard both want.
      *
      * @param list<int>|null $allowed_team_ids
+     * @param string $activity_type_key  when non-empty, narrows to that
+     *        activity type (e.g. training / game) — #2136.
      * @return list<array{
      *     player_id:int, first_name:string, last_name:string, team_name:string,
      *     activities:int, total:int,
@@ -52,7 +54,7 @@ final class AttendanceRankingQuery {
      *     present_pct:?float, missed:int, flagged:bool
      * }>
      */
-    public function rows( string $from, string $to, int $team_id = 0, ?array $allowed_team_ids = null ): array {
+    public function rows( string $from, string $to, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
         global $wpdb;
 
         if ( $allowed_team_ids !== null && $allowed_team_ids === [] ) {
@@ -61,6 +63,12 @@ final class AttendanceRankingQuery {
 
         $where_team = $team_id > 0
             ? $wpdb->prepare( ' AND a.team_id = %d', $team_id )
+            : '';
+
+        // #2136 — optional activity-type narrowing, shared by the report
+        // render + the REST surface so both apply the same filter.
+        $where_type = $activity_type_key !== ''
+            ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
             : '';
 
         $where_scope = '';
@@ -92,7 +100,9 @@ final class AttendanceRankingQuery {
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
+               AND a.session_date <= CURDATE()
                {$where_team}
+               {$where_type}
                {$where_scope}
              GROUP BY p.id, p.first_name, p.last_name, t.name
              ORDER BY p.last_name, p.first_name",
@@ -137,8 +147,8 @@ final class AttendanceRankingQuery {
      * @return list<array<string,mixed>>  rows from {@see rows()} that are flagged,
      *                                     each carrying an extra `declining` bool.
      */
-    public function atRisk( string $from, string $to, int $team_id = 0, ?array $allowed_team_ids = null ): array {
-        $rows    = $this->rows( $from, $to, $team_id, $allowed_team_ids );
+    public function atRisk( string $from, string $to, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
+        $rows    = $this->rows( $from, $to, $team_id, $allowed_team_ids, $activity_type_key );
         $at_risk = [];
         foreach ( $rows as $row ) {
             if ( empty( $row['flagged'] ) ) continue;
@@ -157,10 +167,10 @@ final class AttendanceRankingQuery {
      * @param list<int>|null $allowed_team_ids
      * @return array{bottom:list<array<string,mixed>>, top:list<array<string,mixed>>, total:int}
      */
-    public function leaderboard( string $from, string $to, int $n = 10, int $team_id = 0, ?array $allowed_team_ids = null ): array {
+    public function leaderboard( string $from, string $to, int $n = 10, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
         $n    = max( 1, min( 50, $n ) );
         $rows = array_values( array_filter(
-            $this->rows( $from, $to, $team_id, $allowed_team_ids ),
+            $this->rows( $from, $to, $team_id, $allowed_team_ids, $activity_type_key ),
             static fn( array $r ): bool => $r['present_pct'] !== null
         ) );
         // rows() is already worst-first.
@@ -191,6 +201,7 @@ final class AttendanceRankingQuery {
                 AND att.record_type = 'actual'
                 AND a.plan_state = 'completed'
                 AND a.session_date <= %s
+                AND a.session_date <= CURDATE()
               ORDER BY a.session_date DESC, a.id DESC
               LIMIT 6",
             $player_id, $as_of
