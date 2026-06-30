@@ -15,8 +15,10 @@
  *      definition so a re-run is a no-op.
  *   2. Create tt_measurement_levels — the operator-defined, colour-tagged
  *      levels of a status test (e.g. "On track" green, "Watch" amber,
- *      "At risk" red). Carries the tenancy scaffold (club_id + uuid) and
- *      the archive/soft-delete pair, matching tt_measurement_definitions.
+ *      "At risk" red). Carries the tenancy scaffold (club_id + uuid), the
+ *      archive/soft-delete pair, and the recycle-bin trashed_at / trashed_by
+ *      pair (#0186) — the table joins ArchiveRepository::TABLE_MAP, so it
+ *      needs the uniform purge columns the bin framework reads.
  *   3. Seed a "Player status" measurement_category lookup + its Dutch /
  *      English labels in tt_translations (never the dropped JSON column).
  *
@@ -56,10 +58,13 @@ return new class extends Migration {
                 updated_at DATETIME DEFAULT NULL,
                 archived_at DATETIME DEFAULT NULL,
                 archived_by BIGINT UNSIGNED DEFAULT NULL,
+                trashed_at DATETIME DEFAULT NULL,
+                trashed_by BIGINT UNSIGNED DEFAULT NULL,
                 PRIMARY KEY (id),
                 UNIQUE KEY uniq_uuid (uuid),
                 KEY idx_club (club_id),
-                KEY idx_definition (definition_id)
+                KEY idx_definition (definition_id),
+                KEY idx_trashed_at (trashed_at)
             ) {$charset}"
         );
 

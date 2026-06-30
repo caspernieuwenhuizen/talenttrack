@@ -93,7 +93,18 @@ final class MeasurementStatusLevelsTest extends WP_UnitTestCase {
             [ 'label' => 'On track', 'color_token' => 'green' ],
         ] );
 
-        $player_id = self::factory()->post->create();
+        // Insert a real player row so the profile read model has a subject
+        // (the age-group lookup tolerates an empty result).
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [
+            'club_id'    => 1,
+            'first_name' => 'Status',
+            'last_name'  => 'Player',
+            'age_group'  => '',
+        ] );
+        $player_id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $player_id );
+
         ( new MeasurementResultsRepository() )->create( [
             'player_id'     => $player_id,
             'definition_id' => $id,
@@ -113,5 +124,19 @@ final class MeasurementStatusLevelsTest extends WP_UnitTestCase {
         $this->assertSame( 'status', (string) $found['value_type'] );
         $this->assertSame( 'green', (string) $found['level_token'] );
         $this->assertSame( '', (string) $found['flag'], 'status tests carry no green/amber target flag' );
+    }
+
+    public function test_repository_resolves_label_to_token(): void {
+        $id   = $this->makeStatusDefinition();
+        $repo = new MeasurementLevelsRepository();
+        $repo->replaceForDefinition( $id, [
+            [ 'label' => 'At risk',  'color_token' => 'red' ],
+            [ 'label' => 'On track', 'color_token' => 'green' ],
+        ] );
+
+        $match = $repo->findByLabel( $id, 'On track' );
+        $this->assertNotNull( $match );
+        $this->assertSame( 'green', (string) $match->color_token );
+        $this->assertNull( $repo->findByLabel( $id, 'Nope' ) );
     }
 }
