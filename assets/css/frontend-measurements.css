@@ -120,20 +120,6 @@
     }
 }
 
-@media (prefers-color-scheme: dark) {
-    .tt-meas-cat {
-        background: #1b211f;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-    .tt-meas-cat-title {
-        background: #232a27;
-        border-bottom-color: rgba(255, 255, 255, 0.08);
-    }
-    .tt-meas-row {
-        border-bottom-color: rgba(255, 255, 255, 0.06);
-    }
-}
-
 /* ── Result-entry grid (#1856) ─────────────────────────────────── */
 
 .tt-me-picker {
@@ -232,14 +218,4 @@
 
 .tt-me-footer .tt-btn {
     min-height: 48px;
-}
-
-@media (prefers-color-scheme: dark) {
-    .tt-me-roster {
-        background: #1b211f;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
-    .tt-me-row {
-        border-bottom-color: rgba(255, 255, 255, 0.06);
-    }
 }
