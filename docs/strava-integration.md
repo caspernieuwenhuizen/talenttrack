@@ -95,6 +95,13 @@ Both one-time steps live on the **Strava integration** console, reached from
    subscription with Strava, which validates it immediately with a challenge
    handshake. **Delete subscription** removes it.
 
+   Strava allows only **one subscription per application**. The button is
+   safe to press repeatedly: if a subscription already exists at Strava (from
+   an earlier setup, or one whose id this install lost), the console adopts
+   it instead of erroring. The status shown is reconciled against Strava's
+   real state each time the page loads, so a subscription deleted from
+   Strava's side clears here automatically.
+
 The same console's **Connected players** table shows every player who has
 started linking a Strava account — their status (connected, pending consent,
 revoked, disconnected), imported-activity count, last activity, and last sync —
