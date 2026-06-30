@@ -48,12 +48,13 @@ final class FrontendStravaAdminView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Strava', 'talenttrack' ) );
         self::renderHeader( __( 'Strava integration', 'talenttrack' ) );
 
-        $can_edit       = current_user_can( self::EDIT_CAP );
-        $client_id      = StravaConfig::clientId();
-        $configured     = StravaConfig::hasCredentials();
-        $has_sub        = StravaConfig::subscriptionId() !== '';
-        $callback_url   = StravaConfig::webhookCallbackUrl();
-        $redirect_uri   = StravaConfig::redirectUri();
+        $can_edit        = current_user_can( self::EDIT_CAP );
+        $client_id       = StravaConfig::clientId();
+        $configured      = StravaConfig::hasCredentials();
+        $has_sub         = StravaConfig::subscriptionId() !== '';
+        $callback_url    = StravaConfig::webhookCallbackUrl();
+        $redirect_uri    = StravaConfig::redirectUri();
+        $callback_domain = (string) wp_parse_url( home_url(), PHP_URL_HOST );
 
         // Cancel target: the Configuration view this tile lives under.
         $cancel_url = add_query_arg(
@@ -65,6 +66,24 @@ final class FrontendStravaAdminView extends FrontendViewBase {
             <p class="tt-strava-admin__intro">
                 <?php esc_html_e( 'Register your academy\'s Strava developer app and webhook here, then players connect their own accounts from their profile. Distance, duration, pace and elevation are imported — never heart-rate data.', 'talenttrack' ); ?>
             </p>
+
+            <details class="tt-strava-admin__setup"<?php echo $configured ? '' : ' open'; ?>>
+                <summary class="tt-strava-admin__setup-toggle"><?php esc_html_e( 'Before you start — one-time Strava setup', 'talenttrack' ); ?></summary>
+                <p class="tt-strava-admin__hint"><?php esc_html_e( 'These steps happen in your Strava account, not in TalentTrack.', 'talenttrack' ); ?></p>
+                <ol class="tt-strava-admin__setup-steps">
+                    <li><?php esc_html_e( 'Create an API application at strava.com/settings/api.', 'talenttrack' ); ?></li>
+                    <li>
+                        <?php
+                        printf(
+                            /* translators: %s: this site's domain to enter as the Strava app's Authorization Callback Domain. */
+                            esc_html__( 'Set the Authorization Callback Domain to %s.', 'talenttrack' ),
+                            '<code>' . esc_html( $callback_domain ) . '</code>'
+                        );
+                        ?>
+                    </li>
+                    <li><?php esc_html_e( 'Paste the Client ID and secret below, then save and verify.', 'talenttrack' ); ?></li>
+                </ol>
+            </details>
 
             <div class="tt-strava-admin__msg" data-tt-strava-admin-msg role="status" aria-live="polite"></div>
 

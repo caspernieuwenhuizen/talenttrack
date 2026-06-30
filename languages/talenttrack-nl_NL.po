@@ -12,6 +12,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:70
+msgid "Before you start — one-time Strava setup"
+msgstr "Voordat je begint — eenmalige Strava-instelling"
+
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:70
+msgid "These steps happen in your Strava account, not in TalentTrack."
+msgstr "Deze stappen vinden plaats in je Strava-account, niet in TalentTrack."
+
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:70
+msgid "Create an API application at strava.com/settings/api."
+msgstr "Maak een API-applicatie aan op strava.com/settings/api."
+
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:70
+#, php-format
+msgid "Set the Authorization Callback Domain to %s."
+msgstr "Stel het Authorization Callback Domain in op %s."
+
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:70
+msgid "Paste the Client ID and secret below, then save and verify."
+msgstr "Plak hieronder de Client ID en het secret, sla daarna op en verifieer."
+
 #. Plugin Name of the plugin
 #: talenttrack.php src/Core/Activator.php:160
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
