@@ -117,6 +117,30 @@
     color: var(--tt-danger, #d8453b);
 }
 
+/* Results export trigger (#2139). Subtle accent so it reads as a "take it
+   out" action, distinct from the destructive archive. */
+.tt-dashboard .tt-mt-action--export {
+    color: var(--tt-info, #2d6fb3);
+}
+
+/* Export-results block on the edit view — sits below the save form. */
+.tt-dashboard .tt-mt-export {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-dashboard .tt-mt-export__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-mt-export__hint {
+    margin: 0 0 0.75rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
 /* ── edit form ─────────────────────────────────────────────────── */
 
 .tt-dashboard .tt-mt-form {

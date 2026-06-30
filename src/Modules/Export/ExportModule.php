@@ -23,6 +23,7 @@ use TT\Modules\Export\Exporters\GdprSubjectAccessZipExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
 use TT\Modules\Export\Exporters\KpiSnapshotXlsxExporter;
 use TT\Modules\Export\Exporters\MatchDayTeamSheetPdfExporter;
+use TT\Modules\Export\Exporters\MeasurementResultsXlsxExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationsCsvExporter;
@@ -122,6 +123,10 @@ class ExportModule implements ModuleInterface {
         // exporter as the planner page's Export XLSX target. Uses the
         // styled_sheets renderer payload shipped in v4.20.58.
         ExporterRegistry::register( new TeamPlannerXlsxExporter() );
+
+        // #2139 — a single test's recorded results as a formatted .xlsx,
+        // triggered from the Manage-tests view by definition_id.
+        ExporterRegistry::register( new MeasurementResultsXlsxExporter() );
 
         ExportRestController::init();
 

@@ -44704,3 +44704,62 @@ msgstr "Statustests gebruiken gekleurde niveaus in plaats van streefbanden. Klik
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php
 msgid "Levels must be a list."
 msgstr "Niveaus moeten een lijst zijn."
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Test results export (XLSX)"
+msgstr "Export testresultaten (XLSX)"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Status (coloured levels)"
+msgstr "Status (gekleurde niveaus)"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+#, php-format
+msgid "Unit: %s"
+msgstr "Eenheid: %s"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "No unit"
+msgstr "Geen eenheid"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+#, php-format
+msgid "Date range: %1$s to %2$s"
+msgstr "Datumbereik: %1$s tot %2$s"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Date range: all dates"
+msgstr "Datumbereik: alle datums"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+#, php-format
+msgid "Club: %s"
+msgstr "Club: %s"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Recorded date"
+msgstr "Vastlegdatum"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Recorded by"
+msgstr "Vastgelegd door"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Results"
+msgstr "Resultaten"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "You do not have permission to export test results."
+msgstr "Je hebt geen toestemming om testresultaten te exporteren."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Export to Excel"
+msgstr "Exporteren naar Excel"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Export results"
+msgstr "Resultaten exporteren"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Download every recorded result for this test as a formatted Excel workbook."
+msgstr "Download alle vastgelegde resultaten van deze test als een opgemaakt Excel-bestand."

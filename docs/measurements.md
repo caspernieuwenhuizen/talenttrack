@@ -158,8 +158,28 @@ up — name, category, unit, direction and cadence — with its **Active** or
 - **Activate / Deactivate** — an inactive test stays in the catalogue and
   keeps its history, but is hidden from the *Record measurements* picker so
   staff can't log new results against it.
+- **Export to Excel** — downloads every recorded result for this test as a
+  formatted `.xlsx` workbook (see below).
 - **Archive** — soft-deletes the test into the recycle bin. Nothing is
   lost; an admin can restore it.
+
+### Exporting a test's results
+
+Each test row — and the test's edit view — carries an **Export to Excel**
+action. It produces a formatted workbook for that one test: a header block
+(test name, unit or *status*, date range and club) over a frozen, bold
+column-header row, then one row per recorded result with the **player,
+team, recorded date, value, age group and recorded-by**. Results are
+grouped per player so a player's longitudinal series reads together.
+
+For a **status** test the value column shows the recorded **level label**
+(e.g. *On track*), and the cell is filled with that level's colour so the
+sheet reads at a glance the same way the player-profile chip does. Numeric
+tests show the number with its unit.
+
+The export reuses the central export pipeline and is gated on the same
+`measurements` *read* permission as the rest of the module — only staff who
+may see a test's results may export them.
 
 Creating a test still runs through the **+ New test** wizard, reachable
 from the top of this list as well as from *Record measurements*. The same

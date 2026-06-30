@@ -34,7 +34,9 @@ use TT\Modules\Export\Format\FormatRendererInterface;
  *      (color + style), and `alignment.{horizontal,vertical,wrap}`.
  *      `merges` is a list of A1-style range strings (e.g. `'A1:G1'`).
  *      `col_widths` keys are Excel column letters; values are widths in
- *      character units (≈ pixels / 7).
+ *      character units (≈ pixels / 7). An optional `freeze` key (an
+ *      A1-style cell reference, e.g. `'A3'`) freezes every row above it
+ *      so a header block + column-header row stay pinned on scroll.
  *
  * Self-gates on PhpSpreadsheet — composer ships it as a production
  * dependency (composer.json `require`), so on the release pipeline this
@@ -170,6 +172,11 @@ final class XlsxRenderer implements FormatRendererInterface {
 
             foreach ( $col_widths as $col_letter => $width ) {
                 $sheet->getColumnDimension( (string) $col_letter )->setWidth( (float) $width );
+            }
+
+            $freeze = isset( $sheet_spec['freeze'] ) ? (string) $sheet_spec['freeze'] : '';
+            if ( $freeze !== '' ) {
+                $sheet->freezePane( $freeze );
             }
         }
     }

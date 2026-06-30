@@ -92,6 +92,57 @@ class MeasurementResultsRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
+    /**
+     * Every result recorded against one definition, joined to the player,
+     * the player's team (name + age group) and the recording user's display
+     * name — the read model the XLSX export shapes into rows (#2139).
+     *
+     * Optional filters: a single `team_id`, and an inclusive `date_from` /
+     * `date_to` recorded-date window. Ordered by player then date so the
+     * sheet groups a player's longitudinal series together (CLAUDE.md §1).
+     *
+     * Business logic stays here — the exporter only shapes the returned rows.
+     *
+     * @param array<string, mixed> $filters
+     * @return array<int, object>
+     */
+    public function listForDefinitionExport( int $definition_id, array $filters = [] ): array {
+        if ( $definition_id <= 0 ) return [];
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 'r.definition_id = %d', 'r.club_id = %d', 'r.archived_at IS NULL' ];
+        $params = [ $definition_id, CurrentClub::id() ];
+
+        $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        if ( $team_id > 0 ) {
+            $where[]  = 'pl.team_id = %d';
+            $params[] = $team_id;
+        }
+        if ( ! empty( $filters['date_from'] ) ) {
+            $where[]  = 'r.recorded_date >= %s';
+            $params[] = (string) $filters['date_from'];
+        }
+        if ( ! empty( $filters['date_to'] ) ) {
+            $where[]  = 'r.recorded_date <= %s';
+            $params[] = (string) $filters['date_to'];
+        }
+
+        $sql = "SELECT r.id, r.recorded_date, r.value_numeric, r.value_text,
+                       pl.id AS player_id, pl.first_name, pl.last_name,
+                       t.name AS team_name, t.age_group AS age_group,
+                       u.display_name AS recorded_by_name
+                  FROM {$p}tt_measurement_results r
+                  JOIN {$p}tt_players pl ON pl.id = r.player_id
+             LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
+             LEFT JOIN {$wpdb->users} u ON u.ID = r.recorded_by
+                 WHERE " . implode( ' AND ', $where ) . "
+              ORDER BY pl.last_name ASC, pl.first_name ASC, r.recorded_date ASC, r.id ASC";
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     public function find( int $id ): ?object {
         if ( $id <= 0 ) return null;
         global $wpdb;

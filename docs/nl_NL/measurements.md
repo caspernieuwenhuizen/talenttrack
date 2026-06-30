@@ -168,8 +168,29 @@ academie heeft ingesteld — naam, categorie, eenheid, richting en frequentie
   en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
   *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
   vastleggen.
+- **Exporteren naar Excel** — downloadt alle vastgelegde resultaten van deze
+  test als een opgemaakt `.xlsx`-bestand (zie hieronder).
 - **Archiveren** — verplaatst de test naar de prullenbak (soft delete). Er
   gaat niets verloren; een beheerder kan hem herstellen.
+
+### De resultaten van een test exporteren
+
+Elke testregel — en het bewerkscherm van de test — heeft een actie
+**Exporteren naar Excel**. Die maakt een opgemaakt werkblad voor die ene
+test: een kopblok (testnaam, eenheid of *status*, datumbereik en club) boven
+een vastgezette, vette kolomkoprij, en daaronder één regel per vastgelegd
+resultaat met **speler, team, vastlegdatum, waarde, leeftijdsgroep en
+vastgelegd-door**. Resultaten staan per speler gegroepeerd, zodat de reeks
+van een speler in de tijd bij elkaar staat.
+
+Bij een **status**-test toont de waardekolom het vastgelegde **niveaulabel**
+(bijvoorbeeld *Op koers*), en de cel krijgt de kleur van dat niveau, zodat
+het werkblad in één oogopslag leesbaar is — net als de statuschip op het
+spelersprofiel. Numerieke tests tonen het getal met de eenheid.
+
+De export gebruikt dezelfde exportpijplijn als de rest van het systeem en is
+afgeschermd met dezelfde *lees*-rechten op `measurements`: alleen staf die de
+resultaten van een test mag zien, mag ze exporteren.
 
 Een test aanmaken gaat nog steeds via de wizard **Nieuwe test**, bereikbaar
 boven aan deze lijst en vanaf *Metingen vastleggen*. Dezelfde catalogus is
