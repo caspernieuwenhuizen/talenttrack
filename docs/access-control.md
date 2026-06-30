@@ -120,6 +120,19 @@ weaker `tt_edit_settings`) are re-gated onto this same capability, so no
 purge path is weaker than the bin. See [Recycle bin](recycle-bin.md) for the
 retention window and GDPR basis.
 
+## Strava connection — players connect their own (#2153)
+
+Strava is personal activity data, so a **player** can connect their own Strava
+account from their profile. This is gated by the matrix entity
+`strava_integration` at `self` scope (read + change), seeded for the `player`
+persona — mirroring the player's `my_profile` self grant. A player can only
+ever manage their **own** connection; the self scope means they cannot connect
+Strava for any other player. The Strava **operator console** (Configuration →
+Integrations: app credentials, webhook subscription, connections overview) is a
+separate `global`-scoped grant held by Head Coach and Academy Admin, and is
+unaffected by the player grant. See
+[authorization matrix](authorization-matrix.md#matrix-entity-strava_integration--personal-activity-connection-2127-2153).
+
 ## Permission debug
 
 **Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
