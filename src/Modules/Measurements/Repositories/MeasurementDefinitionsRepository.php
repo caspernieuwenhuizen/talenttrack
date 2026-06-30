@@ -153,8 +153,22 @@ class MeasurementDefinitionsRepository {
         return LookupTranslator::name( $stub );
     }
 
+    /**
+     * Attach the operator-defined levels (status tests only) to a definition
+     * row as `->levels`. A no-op for the other value types, so callers can
+     * hydrate unconditionally. Lives here — not in a view — so the REST
+     * controller and the rendered HTML get the same hydrated shape (§4).
+     */
+    public function withLevels( ?object $def ): ?object {
+        if ( ! $def ) return null;
+        $def->levels = (string) ( $def->value_type ?? '' ) === 'status'
+            ? ( new MeasurementLevelsRepository() )->listForDefinition( (int) $def->id )
+            : [];
+        return $def;
+    }
+
     private function safeValueType( string $value ): string {
-        return in_array( $value, [ 'numeric', 'scale', 'passfail' ], true ) ? $value : 'numeric';
+        return in_array( $value, [ 'numeric', 'scale', 'passfail', 'status' ], true ) ? $value : 'numeric';
     }
 
     private function safeDirection( string $value ): string {

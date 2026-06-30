@@ -8,7 +8,9 @@ use TT\Infrastructure\Archive\DeleteBlockedException;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
+use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 
 /**
@@ -83,6 +85,20 @@ class MeasurementDefinitionsRestController {
             ],
         ] );
 
+        // #2138 — operator-defined coloured levels for a status-type test.
+        register_rest_route( self::NS, '/measurement-definitions/(?P<id>\d+)/levels', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_levels' ],
+                'permission_callback' => [ __CLASS__, 'can_read' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'upsert_levels' ],
+                'permission_callback' => [ __CLASS__, 'can_change' ],
+            ],
+        ] );
+
         // #2024 security — purge path no weaker than the recycle bin's own.
         register_rest_route( self::NS, '/measurement-definitions/(?P<id>\d+)/permanent', [
             [
@@ -123,9 +139,65 @@ class MeasurementDefinitionsRestController {
             return RestResponse::notFound( 'definition_not_found', __( 'Test not found.', 'talenttrack' ) );
         }
         $targets = ( new MeasurementTargetsRepository() )->listForDefinition( $id );
+        $levels  = ( new MeasurementLevelsRepository() )->listForDefinition( $id );
         $payload = self::shape_definition( $def );
         $payload['targets'] = array_map( [ __CLASS__, 'shape_target' ], $targets );
+        $payload['levels']  = array_map( [ __CLASS__, 'shape_level' ], $levels );
         return RestResponse::success( $payload );
+    }
+
+    // ── levels (status value type, #2138) ───────────────────────────
+
+    public static function list_levels( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( ! ( new MeasurementDefinitionsRepository() )->find( $id ) ) {
+            return RestResponse::notFound( 'definition_not_found', __( 'Test not found.', 'talenttrack' ) );
+        }
+        $levels = ( new MeasurementLevelsRepository() )->listForDefinition( $id );
+        return RestResponse::success( [
+            'definition_id' => $id,
+            'levels'        => array_map( [ __CLASS__, 'shape_level' ], $levels ),
+        ] );
+    }
+
+    /**
+     * Replace a status test's full level set from an ordered list. The
+     * row position is the ordinal (worse → better), so a recorded status
+     * snapshots a meaningful numeric rank alongside its label.
+     */
+    public static function upsert_levels( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid test id.', 'talenttrack' ), 400 );
+        }
+        if ( ! ( new MeasurementDefinitionsRepository() )->find( $id ) ) {
+            return RestResponse::notFound( 'definition_not_found', __( 'Test not found.', 'talenttrack' ) );
+        }
+
+        $raw = $r['levels'] ?? [];
+        if ( ! is_array( $raw ) ) {
+            return RestResponse::error( 'bad_levels', __( 'Levels must be a list.', 'talenttrack' ), 400 );
+        }
+
+        $rows = [];
+        foreach ( $raw as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $label = sanitize_text_field( (string) ( $row['label'] ?? '' ) );
+            if ( $label === '' ) continue;
+            $rows[] = [
+                'id'          => isset( $row['id'] ) ? absint( $row['id'] ) : 0,
+                'label'       => $label,
+                'color_token' => MeasurementLevelPalette::safe( sanitize_text_field( (string) ( $row['color_token'] ?? '' ) ) ),
+            ];
+        }
+
+        $kept   = ( new MeasurementLevelsRepository() )->replaceForDefinition( $id, $rows );
+        $levels = ( new MeasurementLevelsRepository() )->listForDefinition( $id );
+        return RestResponse::success( [
+            'definition_id' => $id,
+            'count'         => $kept,
+            'levels'        => array_map( [ __CLASS__, 'shape_level' ], $levels ),
+        ] );
     }
 
     // ── write ───────────────────────────────────────────────────────
@@ -274,6 +346,16 @@ class MeasurementDefinitionsRestController {
             'green_max' => $t->green_max !== null ? (float) $t->green_max : null,
             'amber_min' => $t->amber_min !== null ? (float) $t->amber_min : null,
             'amber_max' => $t->amber_max !== null ? (float) $t->amber_max : null,
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private static function shape_level( object $l ): array {
+        return [
+            'id'          => (int) $l->id,
+            'label'       => (string) $l->label,
+            'color_token' => MeasurementLevelPalette::safe( (string) $l->color_token ),
+            'ordinal'     => (int) $l->ordinal,
         ];
     }
 }

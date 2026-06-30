@@ -56,6 +56,7 @@ class ArchiveRepository {
         'measurement_session'    => 'tt_measurement_sessions',
         'measurement_target'     => 'tt_measurement_targets',
         'measurement_result'     => 'tt_measurement_results',
+        'measurement_level'      => 'tt_measurement_levels',
         'player_attribute_def'   => 'tt_player_attribute_defs',
     ];
 

@@ -50,6 +50,12 @@ class FrontendMeasurementsView extends FrontendViewBase {
             [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
+        wp_enqueue_style(
+            'tt-frontend-measurement-levels',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurement-levels.css',
+            [ 'tt-frontend-measurements' ],
+            TT_VERSION
+        );
 
         $profile = ( new PlayerMeasurementProfile() )->forPlayer( $player_id );
 
@@ -76,8 +82,16 @@ class FrontendMeasurementsView extends FrontendViewBase {
      * @param array<string, mixed> $t
      */
     private static function renderTestRow( array $t ): void {
+        $is_status  = (string) ( $t['value_type'] ?? '' ) === 'status';
         $flag       = (string) ( $t['flag'] ?? '' );
-        $flag_class = in_array( $flag, [ 'ok', 'warn', 'bad' ], true ) ? ' tt-meas-flag-' . $flag : '';
+        $level_tok  = (string) ( $t['level_token'] ?? '' );
+        // Status colour comes from the picked level's token (a curated
+        // swatch); numeric/scale colour comes from the green/amber flag.
+        if ( $is_status && $level_tok !== '' ) {
+            $flag_class = ' tt-meas-value--status ' . \TT\Modules\Measurements\Levels\MeasurementLevelPalette::cssClass( $level_tok );
+        } else {
+            $flag_class = in_array( $flag, [ 'ok', 'warn', 'bad' ], true ) ? ' tt-meas-flag-' . $flag : '';
+        }
         $freq       = self::frequencyLabel( (string) ( $t['frequency'] ?? '' ) );
         $value      = (string) ( $t['latest_value'] ?? '' );
         $date       = (string) ( $t['latest_date'] ?? '' );
