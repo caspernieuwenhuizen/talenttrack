@@ -18,6 +18,39 @@
     line-height: 1.5;
 }
 
+/* ---- Before-you-start checklist ------------------------------------ */
+.tt-dashboard .tt-strava-admin__setup {
+    margin: 0 0 var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+}
+
+.tt-dashboard .tt-strava-admin__setup-toggle {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--tt-ink);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-strava-admin__setup-steps {
+    margin: var(--tt-sp-2) 0 0;
+    padding-left: 1.25rem;
+    color: var(--tt-ink);
+    line-height: 1.6;
+}
+
+.tt-dashboard .tt-strava-admin__setup-steps li {
+    margin-bottom: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-strava-admin__setup-steps code {
+    word-break: break-all;
+}
+
 .tt-dashboard .tt-strava-admin__section {
     margin-top: var(--tt-sp-6);
 }
