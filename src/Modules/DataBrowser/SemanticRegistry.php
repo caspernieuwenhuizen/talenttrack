@@ -102,9 +102,15 @@ class SemanticRegistry {
                 'label'       => __( 'Attendance', 'talenttrack' ),
                 'description' => __( 'Player attendance per activity.', 'talenttrack' ),
                 'columns'     => [
-                    'activity_id' => [ 'label' => __( 'Activity', 'talenttrack' ), 'description' => __( 'The activity attendance was recorded for.', 'talenttrack' ) ],
-                    'player_id'   => [ 'label' => __( 'Player', 'talenttrack' ),   'description' => __( 'The player present or absent.', 'talenttrack' ) ],
-                    'status'      => [ 'label' => __( 'Status', 'talenttrack' ),   'description' => __( 'Present, absent, injured… from the attendance lookup.', 'talenttrack' ) ],
+                    'activity_id'    => [ 'label' => __( 'Activity', 'talenttrack' ), 'description' => __( 'The activity attendance was recorded for.', 'talenttrack' ) ],
+                    'player_id'      => [ 'label' => __( 'Player', 'talenttrack' ),   'description' => __( 'The player present or absent.', 'talenttrack' ) ],
+                    'status'         => [ 'label' => __( 'Status', 'talenttrack' ),   'description' => __( 'Present, absent, injured… from the attendance lookup.', 'talenttrack' ) ],
+                    // #2160 — surface the canonical minutes store + its
+                    // guards so the operator can verify a reported total
+                    // against the raw rows.
+                    'minutes_played' => [ 'label' => __( 'Minutes played', 'talenttrack' ), 'description' => __( 'Match minutes for this player. The canonical store the minutes reports sum.', 'talenttrack' ) ],
+                    'record_type'    => [ 'label' => __( 'Record type', 'talenttrack' ),    'description' => __( 'expected (planned roster) or actual (recorded). Only actual rows count toward minutes.', 'talenttrack' ) ],
+                    'is_guest'       => [ 'label' => __( 'Guest', 'talenttrack' ),          'description' => __( 'Guest attendance (1) is excluded from team minutes; squad rows are 0.', 'talenttrack' ) ],
                 ],
             ],
             'tt_player_events' => [

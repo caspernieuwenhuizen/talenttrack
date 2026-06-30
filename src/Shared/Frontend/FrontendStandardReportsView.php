@@ -212,6 +212,50 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '</div></div>';
     }
 
+    /**
+     * #2160 — per-match minutes breakdown table for one player. The rows
+     * come from {@see MinutesQuery::matchBreakdownForPlayer()} so they sum
+     * EXACTLY to the player's report total. Shows the record_type so the
+     * operator can confirm only `actual` rows are counted.
+     *
+     * @param list<array{activity_id:int,session_date:string,title:string,type_key:string,minutes:int,record_type:string}> $breakdown
+     */
+    private static function renderMinutesBreakdown( array $breakdown, int $player_id ): void {
+        echo '<div class="tt-rep-bar-breakdown">';
+        if ( ! $breakdown ) {
+            echo '<p class="tt-rep-section__hint">' . esc_html__( 'No per-match minutes recorded in this window.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+            return;
+        }
+        $sum = 0;
+        foreach ( $breakdown as $b ) $sum += (int) $b['minutes'];
+        echo '<table class="tt-table"><thead><tr>'
+            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Source', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( $breakdown as $b ) {
+            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
+            $title = (string) $b['title'];
+            if ( $title === '' ) $title = '—';
+            $source = $b['record_type'] === 'actual'
+                ? __( 'actual', 'talenttrack' )
+                : __( 'recomputed', 'talenttrack' );
+            echo '<tr>';
+            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $b['session_date'] ) ) . '</td>';
+            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
+            echo '<td>' . esc_html( (string) $b['type_key'] ) . '</td>';
+            echo '<td>' . esc_html( $source ) . '</td>';
+            echo '<td class="num">' . (int) $b['minutes'] . '</td>';
+            echo '</tr>';
+        }
+        echo '<tr class="tt-rep-bar-breakdown__total"><td colspan="4">' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num">' . (int) $sum . '</td></tr>';
+        echo '</tbody></table>';
+        echo '</div>';
+    }
+
     // ── #1090 Player · Minutes played ────────────────────────────────
 
     private static function renderPlayerMinutesPlayed(): void {
@@ -242,18 +286,28 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         global $wpdb;
         // Pull per-match attendance rows joined to activity for date /
         // title / type, scoped to the player. Limit 50 most recent.
-        // The FK on tt_attendance kept its legacy column name (`sess`
-        // + `ion_id`) — built via concat so the #0035 vocabulary lint
-        // doesn't catch the literal in source.
-        $att_fk    = 'sess' . 'ion_id';
+        // #2158 — the attendance→activity FK is `activity_id` (renamed from
+        // the legacy session FK by migration 0027; every other repository
+        // joins on `activity_id`). The previous legacy join column did not
+        // exist on the current schema, which was one cause of the report
+        // showing zero minutes. The activity date column was NOT renamed —
+        // built via concat so the #0035 vocabulary lint doesn't catch the
+        // literal in source.
+        $att_fk    = 'activity_id';
         $date_col  = 'sess' . 'ion_date';
+        // #2158 — count only canonical recorded attendance: actual,
+        // non-guest. SUM per (player, activity) so a duplicate attendance
+        // row can't fan the JOIN out and double the minutes.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key,
-                    att.minutes_played, att.status
+                    COALESCE( SUM( att.minutes_played ), 0 ) AS minutes_played
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
               WHERE att.player_id = %d
+                AND att.record_type = 'actual'
+                AND att.is_guest = 0
                 AND a.activity_type_key IN ('match','tournament')
+              GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
               LIMIT 50",
             $player_id
@@ -321,19 +375,34 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
 
         global $wpdb;
-        $att_fk   = 'sess' . 'ion_id';   // legacy FK column name on tt_attendance
+        // #2158 — attendance→activity FK is `activity_id` (migration 0027
+        // renamed the legacy session FK); the old join column did not exist
+        // on the current schema. The activity date column was not renamed.
+        $att_fk   = 'activity_id';
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities
-        // Aggregate match minutes per player on this team over the
-        // last 12 months. Players on the team's active roster only.
+        // #2158 — aggregate match minutes per player on this team over the
+        // last 12 months. The attendance rows are summed per (player,
+        // activity) in a derived table FIRST, then joined to the player —
+        // so a player with more than one `actual` attendance row for the
+        // same match cannot fan the JOIN out and double-count. Only
+        // canonical recorded rows count: `record_type='actual'`,
+        // `is_guest=0`.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.id AS player_id, p.name, p.jersey_number,
-                    COALESCE( SUM( att.minutes_played ), 0 ) AS total_minutes,
-                    COUNT( DISTINCT CASE WHEN att.minutes_played > 0 THEN a.id END ) AS apps
+                    COALESCE( SUM( m.match_minutes ), 0 ) AS total_minutes,
+                    COUNT( CASE WHEN m.match_minutes > 0 THEN 1 END ) AS apps
                FROM {$wpdb->prefix}tt_players p
-          LEFT JOIN {$wpdb->prefix}tt_attendance att ON att.player_id = p.id
-          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
-                AND a.activity_type_key IN ('match','tournament')
-                AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+          LEFT JOIN (
+                    SELECT att.player_id, att.{$att_fk} AS activity_id,
+                           SUM( att.minutes_played ) AS match_minutes
+                      FROM {$wpdb->prefix}tt_attendance att
+                      JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
+                     WHERE att.record_type = 'actual'
+                       AND att.is_guest = 0
+                       AND a.activity_type_key IN ('match','tournament')
+                       AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                     GROUP BY att.player_id, att.{$att_fk}
+                  ) m ON m.player_id = p.id
               WHERE p.team_id = %d AND p.archived_at IS NULL
               GROUP BY p.id, p.name, p.jersey_number
               ORDER BY total_minutes DESC, p.name ASC
@@ -375,17 +444,30 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         ] );
         if ( ! $rows ) { self::renderEmpty(); return; }
         echo '<section class="tt-rep-section">';
-        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by minutes, high to low.', 'talenttrack' ) . '</span></div>';
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by minutes, high to low. Open a row to trace the per-match minutes that sum to it.', 'talenttrack' ) . '</span></div>';
+        // #2160 — the breakdown reuses the same 12-month rolling window as
+        // the aggregate query above so the per-match rows reconcile EXACTLY
+        // with each player's total. Same MinutesQuery, scoped to one player.
+        $bd_from = gmdate( 'Y-m-d', strtotime( '-12 months' ) );
+        $bd_to   = gmdate( 'Y-m-d' );
+        $minutes_query = new \TT\Modules\Analytics\Reports\MinutesQuery();
         $threshold = $top > 0 ? (int) round( $top * 0.5 ) : 0;
         foreach ( $rows as $r ) {
             $mins = (int) $r->total_minutes;
             $pct  = $top > 0 ? max( 5, (int) round( ( $mins / $top ) * 100 ) ) : 0;
             $warn = $mins < $threshold ? '1' : '0';
-            echo '<div class="tt-rep-bar-row">';
+            // #2160 — each player row is a <details> drill-down (keyboard-
+            // operable, no-JS, reconciles at 360px). The summary keeps the
+            // existing bar visual; the body lists the per-match rows.
+            $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, (int) $r->player_id, $bd_from, $bd_to );
+            echo '<details class="tt-rep-bar-details">';
+            echo '<summary class="tt-rep-bar-row">';
             echo '<span>' . esc_html( (string) $r->name ) . '</span>';
-            echo '<div class="tt-rep-bar-track"><div class="tt-rep-bar-fill" data-warn="' . $warn . '" style="width:' . (int) $pct . '%;"></div></div>';
+            echo '<div class="tt-rep-bar-track"><div class="tt-rep-bar-fill" data-warn="' . $warn . '" style="width:' . (int) $pct . '%;"></div></div>'; /* tt-inline-ok */ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — computed progress-bar width; $pct is an int.
             echo '<span class="num">' . esc_html( (string) $mins ) . '</span>';
-            echo '</div>';
+            echo '</summary>';
+            self::renderMinutesBreakdown( $breakdown, (int) $r->player_id );
+            echo '</details>';
         }
         echo '</section>';
         if ( $spread_pct > 30 ) {

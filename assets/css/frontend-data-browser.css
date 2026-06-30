@@ -155,6 +155,16 @@
     white-space: nowrap;
 }
 
+/* #2161 — column-name match hint. Shows which column caused a table to
+   surface in the index search. */
+.tt-db-row__colhit {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+}
+
 .tt-db-row__rt {
     flex: 0 0 auto;
     display: flex;

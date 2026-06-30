@@ -53,6 +53,25 @@ For a given match, the half length is resolved most-specific first:
    (`match_minutes_by_age_group`);
 3. the global fallback of **35** minutes per half.
 
+## Recording minutes per player
+
+You do not need the sideline match-execution flow to record minutes. On any
+match-type activity marked **Completed**, the attendance table shows a per-player
+**Minutes** column next to the status. Type the minutes each player got on the
+pitch and save the activity. Those minutes are stored as the player's recorded
+attendance for that match and are exactly what the minutes reports count.
+
+This is the "paper match" path: a coach who ran the game without live tracking
+can still record accurate minutes in one place.
+
+**Precedence.** If you later run the full match-execution flow for the same
+match, the execution recompute is authoritative and overwrites the manually
+entered minutes. Manual entry fills the gap until (or unless) execution data
+exists.
+
+Only **actual**, non-guest attendance counts toward the reports — planned
+(expected) roster rows and guest appearances never inflate a player's minutes.
+
 ## API
 
 The defaults are stored in `tt_config` under the JSON key

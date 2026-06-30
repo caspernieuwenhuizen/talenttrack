@@ -945,6 +945,12 @@ class ActivitiesRestController {
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
                 'is_guest'   => 0,
+                // #2159 — roster attendance written here is canonical
+                // recorded data. Set `record_type='actual'` explicitly
+                // (matches the column default) so manual per-player
+                // minutes land in the same `actual` / non-guest scope the
+                // hardened minutes reports (#2158) sum.
+                'record_type' => 'actual',
             ];
             // #1726 — match-completion direct entry. Present only for match
             // activities; leave the columns at their default otherwise.

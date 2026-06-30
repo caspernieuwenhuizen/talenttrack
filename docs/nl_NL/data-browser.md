@@ -26,6 +26,8 @@ Een doorzoekbare lijst van alle `tt_*`-tabellen, verdeeld in twee groepen:
 
 Elke rij toont het label, de echte tabelnaam, een korte omschrijving en een benadering van het aantal rijen. Tabellen met gevoelige gegevens dragen een **Gevoelig**-badge.
 
+Het zoekvak matcht de naam, het label en de omschrijving van een tabel **én de kolomnamen**. Typ je een kolomfragment als `minutes`, `club_id` of `uuid`, dan worden alle tabellen met een overeenkomende kolom getoond; verschijnt een tabel vanwege een kolom, dan toont de rij een **overeenkomende kolom**-hint met de naam ervan, zodat het resultaat bruikbaar is.
+
 ### Tabelweergave (`?tt_view=data-browser&table=tt_…`)
 
 - **Semantische kolomkoppen** — elke kolom toont een label, de echte `kolom · type`, en (voor beschreven kolommen) een korte uitleg bij het `?`-teken.

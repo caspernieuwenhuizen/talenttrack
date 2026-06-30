@@ -26,6 +26,8 @@ A searchable list of every `tt_*` table, split into two groups:
 
 Each row shows the friendly label, the real table name, a one-line description, and an approximate row count. Tables holding sensitive data carry a **Sensitive** badge.
 
+The search box matches a table's name, label and description **and its column names**. Typing a column fragment like `minutes`, `club_id` or `uuid` lists every table that has a matching column; when a table surfaces because of a column, the row shows a **matched column** hint naming it, so the result is actionable.
+
 ### Table page (`?tt_view=data-browser&table=tt_…`)
 
 - **Semantic column headers** — each column shows a friendly label, the real `column · type`, and (for curated columns) a short description on the `?` marker.
