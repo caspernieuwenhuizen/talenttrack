@@ -59,21 +59,12 @@ final class FrontendPdpPlanningView {
         echo '<h2 class="tt-pdp-planning__title">' . esc_html__( 'PDP planning', 'talenttrack' ) . '</h2>';
         echo '<p class="tt-pdp-planning__lede">' . esc_html__( 'How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block.', 'talenttrack' ) . '</p>';
 
-        // #1293 — cross-link into the manage view's "Show archived"
-        // listing. Planning shows live aggregates; archived PDPs are
-        // out-of-cycle and not surfaced here. Operators with the
-        // unarchive cap get a one-click jump into the archived list
-        // where rows can be restored individually.
+        // #2162 — the planning matrix is a live aggregate; archiving does
+        // not apply to it, so it carries no archived-rows affordance. A
+        // misplaced "Show archived" button used to live here and navigate
+        // away to the PDP manage list — removed. Restoring archived PDPs
+        // lives where it belongs, in the PDP manage list's archived filter.
         echo '<div class="tt-pdp-toolbar">';
-        if ( current_user_can( 'tt_unarchive_pdp' ) ) {
-            $archived_url = add_query_arg(
-                [ 'tt_view' => 'pdp', 'include_archived' => '1' ],
-                remove_query_arg( [ 'season_id', 'action', 'team_id', 'block', 'tt_view' ] )
-            );
-            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $archived_url ) . '">'
-                . esc_html__( 'Show archived', 'talenttrack' )
-                . '</a>';
-        }
 
         // Season picker.
         $seasons = $wpdb->get_results( $wpdb->prepare(
