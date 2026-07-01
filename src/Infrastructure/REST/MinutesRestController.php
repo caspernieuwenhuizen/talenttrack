@@ -13,10 +13,11 @@ use TT\Modules\Authorization\AllTeamsScope;
  *
  * #2160 — minutes audit / trace-back over REST. Exposes the same
  * per-match breakdown the report drill-down renders, so a non-WordPress
- * front end gets an identical, reconciling trace. Reuses the hardened
- * {@see MinutesQuery::matchBreakdownForPlayer()} (persisted `actual` /
- * non-guest rows first, execution recompute second, never a fabricated
- * estimate) so the rows sum exactly to the report total.
+ * front end gets an identical, reconciling trace. Reuses
+ * {@see MinutesQuery::matchBreakdownForPlayer()} which reads persisted
+ * `record_type='actual'`, non-guest minutes ONLY (#2193 — never
+ * estimated or recomputed at report time) so the rows sum exactly to
+ * the report total.
  *
  * Cap-gated on `tt_view_reports` plus the same team-scope guard the
  * Team·Minutes report applies: a coach may only trace players on a team

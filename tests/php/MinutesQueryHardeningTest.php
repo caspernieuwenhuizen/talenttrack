@@ -6,7 +6,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 
 /**
- * #2158 / #2160 — minutes aggregation hardening + audit reconciliation.
+ * #2158 / #2160 / #2193 — minutes aggregation hardening + audit
+ * reconciliation + single-source-of-truth contract.
  *
  * Runs against the real schema (wp-env tests-cli). Asserts the
  * player-centric data-quality contract for minutes:
@@ -17,6 +18,11 @@ use TT\Modules\Analytics\Reports\MinutesQuery;
  *   - No fabrication: a match with no persisted minutes, no execution and
  *     no lineup contributes 0 / nothing — never a "credit each starter a
  *     half" estimate (#2158 cause 2).
+ *   - No report-time recompute: a match that was played but never
+ *     finalized (lineup + live execution exist, but no persisted actual
+ *     minutes) contributes 0 — minutes are read ONLY from persisted
+ *     `record_type='actual'` rows, never recomputed from a lineup at
+ *     report time (#2193).
  *   - Guests and `expected` rows never count toward minutes.
  *   - The per-match breakdown sums EXACTLY to the team-report total
  *     (#2160 reconciliation).
@@ -99,6 +105,32 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
         $this->assertSame( 70, (int) $breakdown[0]['minutes'], 'only the actual / non-guest row counts' );
     }
 
+    /**
+     * #2193 — a match that was PLAYED but never finalized: a prep lineup
+     * exists and a live execution row exists, but no `record_type='actual'`
+     * minutes were ever persisted. Minutes must NOT be recomputed from the
+     * lineup at report time — the match contributes 0, both in the team
+     * total and the breakdown. (Before #2193 this recomputed to 70.)
+     */
+    public function test_unfinalized_execution_is_not_recomputed(): void {
+        $team_id   = $this->insertTeam( 'U17 unfinalized' );
+        $player_id = $this->insertPlayer( $team_id, 'Un', 'Finalized' );
+        $activity_id = $this->insertMatch( $team_id, '2026-05-01' );
+
+        // Lineup has the player in both halves; a live execution exists but
+        // was never finalized, so NO actual minutes were persisted.
+        $prep_id = $this->insertPrep( $activity_id, 35 );
+        $this->insertLineup( $prep_id, 1, 1, $player_id );
+        $this->insertLineup( $prep_id, 2, 1, $player_id );
+        $this->insertExecution( $activity_id, $prep_id, 'second_half' );
+
+        $breakdown = ( new MinutesQuery() )->matchBreakdownForPlayer( $team_id, $player_id, '2026-01-01', '2026-12-31' );
+        $this->assertSame( [], $breakdown, 'an unfinalized execution must not be recomputed into minutes' );
+
+        $rows = ( new MinutesQuery() )->forTeam( $team_id, '2026-01-01', '2026-12-31' );
+        $this->assertSame( 0, $this->totalFor( $rows, $player_id ), 'no persisted actual minutes → 0, never a lineup recompute' );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     /** @param list<array<string,mixed>> $rows */
@@ -149,6 +181,40 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
             'is_guest'       => $is_guest,
             'record_type'    => $record_type,
             'minutes_played' => $minutes,
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    private function insertPrep( int $activity_id, int $half_length ): int {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_match_prep", [
+            'uuid'                => wp_generate_uuid4(),
+            'club_id'             => $this->club,
+            'activity_id'         => $activity_id,
+            'half_length_minutes' => $half_length,
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    private function insertLineup( int $prep_id, int $half, int $slot, int $player_id ): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_match_prep_lineup", [
+            'club_id'       => $this->club,
+            'match_prep_id' => $prep_id,
+            'half'          => $half,
+            'slot_number'   => $slot,
+            'player_id'     => $player_id,
+        ] );
+    }
+
+    private function insertExecution( int $activity_id, int $prep_id, string $state ): int {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_match_execution", [
+            'uuid'          => wp_generate_uuid4(),
+            'club_id'       => $this->club,
+            'activity_id'   => $activity_id,
+            'match_prep_id' => $prep_id,
+            'state'         => $state,
         ] );
         return (int) $wpdb->insert_id;
     }
