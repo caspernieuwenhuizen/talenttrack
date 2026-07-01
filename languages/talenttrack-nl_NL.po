@@ -45001,6 +45001,23 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:222
 msgid "All"
 msgstr "Alle"
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Trends"
+msgstr "Trends"
+
+#. translators: %s: unit of measure
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+#, php-format
+msgid "Value over time (%s)"
+msgstr "Waarde in de tijd (%s)"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Value over time"
+msgstr "Waarde in de tijd"
+
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
+msgid "Recorded status over time"
+msgstr "Vastgelegde status in de tijd"
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
 msgid "Show this test’s results on the player profile"
 msgstr "Toon de resultaten van deze test op het spelersprofiel"

@@ -188,6 +188,15 @@ For a **status** test the value column shows the recorded **level label**
 sheet reads at a glance the same way the player-profile chip does. Numeric
 tests show the number with its unit.
 
+The workbook has a second **Trends** sheet that shows each player's results
+**over time**: one row per player, one column per recorded date (in
+chronological order), with the recorded value in each cell. A **line chart**
+below the table plots every player as a series over the shared date axis, so
+you can see who is improving, plateauing or declining at a glance. Numeric
+and scale-score tests are charted; a **status** test lists each player's
+recorded level per date for reference but has no chart (there is no numeric
+axis to plot).
+
 The export reuses the central export pipeline and is gated on the same
 `measurements` *read* permission as the rest of the module — only staff who
 may see a test's results may export them.
