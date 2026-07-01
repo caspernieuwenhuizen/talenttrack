@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.66.0
+Stable tag: 4.66.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.66.1 — Reports module: on/off toggles for the attendance, minutes-per-team and rate-card reports (#2126) The Reports module-settings page now exposes a toggle for all 15 reports, not just 10. The three attendance reports (team, player, leaderboard), the minutes-played-per-team report and the rate cards were on the Reports launcher but had no feature toggle, so an academy could not switch them off. They now join the per-report catalog like the others: switching one off hides its launcher tile and rejects a direct `?tt_view=…` link. All five default to on, so existing installs keep showing them until an admin turns them off. No schema change — the toggle state already accommodates new catalog keys. =
+
+= 4.66.1 — Test results browser: fix empty list caused by a bad age-group column (#2165) The Testresultaten browser and `GET /measurement-results` returned no rows because the underlying query referenced `pl.age_group`, a column that does not exist on `tt_players` — age group lives on `tt_teams`. The query now reads age group from the team, so the browser lists every player with a value for the chosen test and the Leeftijdscategorie filter narrows correctly. Repository-only change; no schema or UI change. =
+
+= 4.66.1 — Metingen vastleggen: status picker no longer clipped by the roster (#2166) On the record-measurements roster, the coloured status picker's option list was cut off — on a short roster only the skip option was visible — because the roster used `overflow: hidden` to clip its rounded corners, which also clipped the absolutely-positioned dropdown. The roster now uses `overflow: visible` and the rounded-corner look is preserved by rounding the first and last rows, so the full level list opens above the following rows with its shadow intact. CSS-only. =
+
+= 4.66.1 — Trials list: filters moved to the shared FilterBar (#2174) The Trials list filter bar (Status, Track, Decision, Include archived) now uses the shared FilterBar component: an inline single-line row on desktop and a "Filters" button + bottom sheet on phones and tablets. Filtering behaviour is unchanged — same parameters, same results. The bespoke filter-form styling was removed in favour of the shared component's sheet. =
+
+= 4.66.1 — Audit log: filters moved to the shared FilterBar (#2175) The audit-log filter bar (Action, Entity, User #, date From/To) now uses the shared FilterBar component: an inline single-line row on desktop and a "Filters" button + bottom sheet on phones and tablets, with Clear as the sheet's reset action. Filtering behaviour is unchanged — same parameters, same results. The old hand-rolled, inline-styled form was removed. =
+
+= 4.66.1 — Player comparison: filters moved to the shared FilterBar (#2176) The player-comparison filter block (Date from/to and Evaluation Type) now uses the shared FilterBar component: an inline single-line row on desktop and a "Filters" button + bottom sheet on phones and tablets. The date range and evaluation-type filter drive the comparison identically — same parameters, same results — and the Compare action still submits the player picks together with the filters. The bespoke filter styling was removed. =
 
 = 4.66.0 — Strava console: in-context "Before you start" setup checklist (#2127) The Strava operator console now opens with a short "Before you start" checklist of the one-time steps that happen on Strava's side — create the API application, set the Authorization Callback Domain to this site, then paste the credentials and verify. It expands automatically until the app is configured, then collapses. Dutch included. =
 
