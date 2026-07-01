@@ -117,7 +117,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         if ( $id > 0 ) {
-            $session = self::loadSession( $id );
+            // #2183 — the read-only detail resolves archived activities too, so
+            // an archived row renders (with a Restore header action) instead of
+            // reading as "not found". The edit branch above deliberately keeps
+            // the active-only loader: an archived activity must be restored
+            // before it can be edited.
+            $session = self::loadSessionForDetail( $id );
             // v3.110.53 — Edit + Archive page-header actions on the
             // activity detail page.
             // v3.110.97 — Continue rating action added. v3.110.96
@@ -141,6 +146,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $can_edit_acts  = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_edit_activities' );
             if ( $session && $can_edit_acts ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+                // #2183 — an archived activity is read-only until restored:
+                // the mutating header actions (Edit / match prep / live match /
+                // Continue rating) are suppressed, leaving only Restore.
+                $is_archived = ! empty( $session->archived_at );
+                if ( ! $is_archived ) {
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -229,15 +239,39 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'href'  => $rate_url,
                     ];
                 }
-                $detail_actions[] = [
-                    'label'   => __( 'Archive', 'talenttrack' ),
-                    'variant' => 'danger',
-                    'data_attrs' => [
-                        'tt-archive-rest-path' => 'activities/' . (int) $session->id,
-                        'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
-                        'tt-archive-redirect'  => $activities_list_url,
-                    ],
-                ];
+                } // end ! $is_archived (active-only mutating actions)
+                // #2183 — an already-archived activity offers Restore, not a
+                // second Archive. Branch on the archive stamp: active rows keep
+                // the DELETE Archive action; archived rows POST to the restore
+                // endpoint and land the coach back on the (now active) record.
+                if ( $is_archived ) {
+                    $restore_redirect = add_query_arg(
+                        [ 'tt_view' => 'activities', 'id' => (int) $session->id ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    $detail_actions[] = [
+                        'label'      => __( 'Restore', 'talenttrack' ),
+                        'primary'    => true,
+                        'data_attrs' => [
+                            'tt-archive-rest-path'      => 'activities/' . (int) $session->id . '/restore',
+                            'tt-archive-method'         => 'POST',
+                            'tt-archive-confirm'        => __( 'Restore this activity? It returns to the active list.', 'talenttrack' ),
+                            'tt-archive-confirm-label'  => __( 'Restore', 'talenttrack' ),
+                            'tt-archive-variant'        => 'primary',
+                            'tt-archive-redirect'       => $restore_redirect,
+                        ],
+                    ];
+                } else {
+                    $detail_actions[] = [
+                        'label'   => __( 'Archive', 'talenttrack' ),
+                        'variant' => 'danger',
+                        'data_attrs' => [
+                            'tt-archive-rest-path' => 'activities/' . (int) $session->id,
+                            'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
+                            'tt-archive-redirect'  => $activities_list_url,
+                        ],
+                    ];
+                }
             }
             self::renderHeader(
                 $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ),
@@ -2413,6 +2447,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // truth. Pre-fix the two surfaces inlined $wpdb queries with
         // subtly different filter sets — same data-fork class as #1059.
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id );
+    }
+
+    /**
+     * #2183 — read-only detail loader that also resolves archived
+     * activities. The active loadSession() filters `archived_at IS
+     * NULL`, so an archived row would fall through to "not found" and
+     * never surface its Restore action. This variant returns the row in
+     * either state; the header branches on `archived_at`.
+     */
+    private static function loadSessionForDetail( int $id ): ?object {
+        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $id );
     }
 
     /**

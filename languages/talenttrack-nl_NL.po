@@ -37342,6 +37342,10 @@ msgid "Archive this activity? It will be hidden but the data is preserved."
 msgstr ""
 "Deze activiteit archiveren? Ze wordt verborgen maar de data blijft bewaard."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:252
+msgid "Restore this activity? It returns to the active list."
+msgstr "Deze activiteit herstellen? Ze keert terug naar de actieve lijst."
+
 #. translators: %s = kick-off time
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:418
 #, php-format
