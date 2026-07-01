@@ -908,6 +908,23 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $team_filter = isset( $_GET['team_id'] ) ? absint( (string) $_GET['team_id'] ) : 0;
         $type_filter = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
         $include_past = ! empty( $_GET['include_past'] );
+
+        // #2185 — attendance-report drill-down: an optional player_id scopes
+        // the list to activities the player has a recorded attendance row
+        // for, and an explicit date_from / date_to window (Y-m-d) overrides
+        // the period-derived window so the count on
+        // FrontendAttendancePlayerReportView traces to these exact rows.
+        $player_filter = isset( $_GET['player_id'] ) ? absint( (string) $_GET['player_id'] ) : 0;
+        // A player drill-down lands from an attendance report whose window is
+        // usually in the past, so the (otherwise-collapsed) past activities
+        // are the whole point — expand them by default for this entry.
+        if ( $player_filter > 0 ) {
+            $include_past = true;
+        }
+        $date_from_override = isset( $_GET['date_from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'] )
+            ? sanitize_text_field( wp_unslash( (string) $_GET['date_from'] ) ) : '';
+        $date_to_override = isset( $_GET['date_to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'] )
+            ? sanitize_text_field( wp_unslash( (string) $_GET['date_to'] ) ) : '';
         // #1862 — cancelled activities are hidden by default; the filter
         // checkbox opts back in.
         $show_cancelled = ! empty( $_GET['show_cancelled'] );
@@ -939,8 +956,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $today_str = current_time( 'Y-m-d', true );
 
         // Resolve the period filter to a [from,to] date window before the
-        // query so the row set is scoped server-side.
+        // query so the row set is scoped server-side. #2185 — an explicit
+        // drill-down date_from/date_to overrides the period window.
         $window = self::periodWindow( $period_filter, $today_str );
+        if ( $date_from_override !== '' || $date_to_override !== '' ) {
+            $window = [
+                'from' => $date_from_override !== '' ? $date_from_override : ( $window['from'] ?? '' ),
+                'to'   => $date_to_override   !== '' ? $date_to_override   : ( $window['to']   ?? '' ),
+            ];
+        }
 
         // Pull the row set for THIS list — server-side query mirroring
         // the REST WHERE/scope so other surfaces (dashboard widgets,
@@ -953,7 +977,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $window['from'] ?? '',
             $window['to'] ?? '',
             $show_cancelled,
-            'active'
+            'active',
+            $player_filter
         );
         $archived_rows = ( $archived_view === 'active' ) ? [] : self::loadActivitiesForList(
             $team_filter,
@@ -961,7 +986,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $window['from'] ?? '',
             $window['to'] ?? '',
             $show_cancelled,
-            'archived'
+            'archived',
+            $player_filter
         );
 
         // Bucket the (active) rows.
@@ -1009,6 +1035,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $type_filter !== '' )   $pill_base['activity_type_key'] = $type_filter;
         if ( $include_past )         $pill_base['include_past']      = '1';
         if ( $show_cancelled )       $pill_base['show_cancelled']    = '1';
+        // #2185 — carry the attendance drill-down scope so period / status
+        // pills don't drop the player + date window.
+        if ( $player_filter > 0 )    $pill_base['player_id']         = $player_filter;
+        if ( $date_from_override !== '' ) $pill_base['date_from']    = $date_from_override;
+        if ( $date_to_override   !== '' ) $pill_base['date_to']      = $date_to_override;
         if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']     = (string) $_GET['tt_back'];
 
         $period_options = [];
@@ -1057,6 +1088,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $period_filter !== '' )       $hidden['period']       = $period_filter;
         if ( $archived_view !== 'active' ) $hidden['archived']     = $archived_view;
         if ( $include_past )               $hidden['include_past'] = '1';
+        // #2185 — preserve the attendance drill-down scope across an
+        // auto-submitting Team / Type / Show-cancelled change.
+        if ( $player_filter > 0 )          $hidden['player_id']    = (string) $player_filter;
+        if ( $date_from_override !== '' )  $hidden['date_from']    = $date_from_override;
+        if ( $date_to_override   !== '' )  $hidden['date_to']      = $date_to_override;
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back']      = (string) $_GET['tt_back'];
 
         // --- Active-count + summary chips for the mobile collapsed state.
@@ -1744,12 +1780,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         return null;
     }
 
-    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active' ): array {
+    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0 ): array {
         // #1320 — the query (incl. demo + coach-scope authorization) lives
         // in ActivitiesRepository so the REST list and this surface share
         // one source of truth and the view holds no SQL or permission logic.
+        // #2185 — an optional player_id narrows the list to activities the
+        // player has a recorded attendance row for (attendance drill-down).
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled, $archived_view );
+            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled, $archived_view, $player_id );
     }
 
     /**

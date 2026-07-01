@@ -114,3 +114,29 @@
 @media (max-width: 480px) {
     .tt-dashboard .tt-att-bar .track { display: none; }
 }
+
+/* #2185 — drill-down link on the per-player Activities count. Opens the
+   activities list filtered to the player + report window so a coach can
+   verify the number against the source sessions. Inline-block with a full
+   48px tap height (padding keeps the click target on-target on touch)
+   while staying visually a right-aligned number in the cell. */
+.tt-dashboard .tt-att-drill {
+    display: inline-block;
+    min-height: 48px;
+    line-height: 48px;
+    padding: 0 var(--tt-sp-2, 8px);
+    margin: -8px 0;
+    color: var(--tt-primary, #0b3d2e);
+    font-variant-numeric: tabular-nums;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-att-drill:hover {
+    text-decoration: none;
+}
+.tt-dashboard .tt-att-drill:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+    border-radius: var(--tt-radius, 8px);
+}

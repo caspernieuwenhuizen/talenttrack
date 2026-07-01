@@ -5176,6 +5176,11 @@ msgstr "Speler-aanwezigheid"
 msgid "Player attendance statistics"
 msgstr "Aanwezigheidsstatistieken per speler"
 
+#. translators: 1: activity count, 2: player name
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:238
+msgid "View the %1$d activities counted for %2$s"
+msgstr "Bekijk de %1$d activiteiten die voor %2$s zijn geteld"
+
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:156
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:140
 msgid "Avg. attendance"

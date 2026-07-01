@@ -189,6 +189,13 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '<th style="text-align:right;">' . esc_html__( 'Injured %', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
+        // #2185 — drill-down: the "Activities" count links to the activities
+        // list filtered to this player + the report's team + date window, so
+        // a coach can trace the number to the actual dated sessions (each
+        // activity's detail shows the recorded attendance status). BackLink
+        // carries a tt_back hint back to this report. The list scopes to
+        // activities the player has a recorded attendance row for, matching
+        // the count.
         foreach ( $rows as $r ) {
             $player_name = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
             if ( $player_name === '' ) $player_name = '#' . (int) $r['player_id'];
@@ -197,6 +204,17 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
             $team_name = (string) $r['team_name'];
+
+            $drill_args = [
+                'tt_view'   => 'activities',
+                'player_id' => (int) $r['player_id'],
+                'date_from' => $from,
+                'date_to'   => $to,
+            ];
+            if ( $team_id > 0 ) $drill_args['team_id'] = $team_id;
+            $activities_url = BackLink::appendTo(
+                add_query_arg( $drill_args, RecordLink::dashboardUrl() )
+            );
             // #1488 — inline at-risk badge for flagged players (#1695: chip styling).
             $badge = '';
             if ( ! empty( $r['flagged'] ) ) {
@@ -208,7 +226,20 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['activities'] . '</td>';
+            $activities_count = (int) $r['activities'];
+            echo '<td style="text-align:right;">'; /* tt-inline-ok — right-align matches the grandfathered numeric cells in this table */
+            if ( $activities_count > 0 ) {
+                echo '<a class="tt-att-drill" href="' . esc_url( $activities_url ) . '" aria-label="'
+                    . esc_attr( sprintf(
+                        /* translators: 1: activity count, 2: player name */
+                        __( 'View the %1$d activities counted for %2$s', 'talenttrack' ),
+                        $activities_count,
+                        $player_name
+                    ) ) . '">' . $activities_count . '</a>';
+            } else {
+                echo $activities_count;
+            }
+            echo '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
             echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
