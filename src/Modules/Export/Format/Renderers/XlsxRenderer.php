@@ -89,6 +89,10 @@ final class XlsxRenderer implements FormatRendererInterface {
         }
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx( $spreadsheet );
+        // Charts are opt-in on the Xlsx writer; a styled sheet may attach one
+        // (e.g. the measurement trends line chart, #2194). Harmless when no
+        // sheet declares a chart.
+        $writer->setIncludeCharts( true );
 
         $tmp = tempnam( sys_get_temp_dir(), 'tt-xlsx-' );
         if ( $tmp === false ) {
@@ -178,7 +182,135 @@ final class XlsxRenderer implements FormatRendererInterface {
             if ( $freeze !== '' ) {
                 $sheet->freezePane( $freeze );
             }
+
+            // #2194 — an optional line chart bound to a rectangular value grid
+            // on this sheet. Each data row becomes a plotted series over the
+            // shared category (date) axis.
+            if ( isset( $sheet_spec['chart'] ) && is_array( $sheet_spec['chart'] ) ) {
+                self::attachChart( $sheet, (string) $name, $sheet_spec['chart'] );
+            }
         }
+    }
+
+    /**
+     * #2194 — build and attach a line chart to a sheet from a payload chart
+     * spec. The spec references cells by column letter + row so the exporter
+     * stays free of PhpSpreadsheet imports (the vocabulary lives in the
+     * payload, mirroring `toPhpSpreadsheetStyle`).
+     *
+     * Spec keys: `type` (only `line` today), `title`, `categories_row` with
+     * `categories_from`/`categories_to` (the date header cells), one series
+     * per data row `series_first_row`..`series_last_row` taking its name from
+     * `series_name_col` and its values across `values_from_col`..`values_to_col`,
+     * an `anchor` cell for placement, and optional axis titles.
+     *
+     * @param array<string, mixed> $chart
+     */
+    private static function attachChart( \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet, string $sheet_name, array $chart ): void {
+        $type = (string) ( $chart['type'] ?? 'line' );
+        if ( $type !== 'line' ) {
+            return; // only line charts are supported today
+        }
+
+        $first_row = (int) ( $chart['series_first_row'] ?? 0 );
+        $last_row  = (int) ( $chart['series_last_row'] ?? 0 );
+        if ( $first_row <= 0 || $last_row < $first_row ) {
+            return;
+        }
+
+        $q = "'" . str_replace( "'", "''", $sheet_name ) . "'"; // quoted sheet ref
+
+        $cat_row  = (int) ( $chart['categories_row'] ?? 0 );
+        $cat_from = (string) ( $chart['categories_from'] ?? 'B' );
+        $cat_to   = (string) ( $chart['categories_to'] ?? $cat_from );
+        $val_from = (string) ( $chart['values_from_col'] ?? 'B' );
+        $val_to   = (string) ( $chart['values_to_col'] ?? $val_from );
+        $name_col = (string) ( $chart['series_name_col'] ?? 'A' );
+
+        $categories = [
+            new \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues(
+                \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues::DATASERIES_TYPE_STRING,
+                $q . '!$' . $cat_from . '$' . $cat_row . ':$' . $cat_to . '$' . $cat_row,
+                null,
+                null
+            ),
+        ];
+
+        $series_values = [];
+        $series_labels = [];
+        $series_order  = [];
+        $i = 0;
+        for ( $row = $first_row; $row <= $last_row; $row++ ) {
+            $series_values[] = new \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues(
+                \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues::DATASERIES_TYPE_NUMBER,
+                $q . '!$' . $val_from . '$' . $row . ':$' . $val_to . '$' . $row,
+                null,
+                null
+            );
+            $series_labels[] = new \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues(
+                \PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues::DATASERIES_TYPE_STRING,
+                $q . '!$' . $name_col . '$' . $row,
+                null,
+                1
+            );
+            $series_order[] = $i++;
+        }
+
+        if ( $series_values === [] ) {
+            return;
+        }
+
+        $data_series = new \PhpOffice\PhpSpreadsheet\Chart\DataSeries(
+            \PhpOffice\PhpSpreadsheet\Chart\DataSeries::TYPE_LINECHART,
+            \PhpOffice\PhpSpreadsheet\Chart\DataSeries::GROUPING_STANDARD,
+            $series_order,
+            $series_labels,
+            $categories,
+            $series_values
+        );
+
+        $plot_area = new \PhpOffice\PhpSpreadsheet\Chart\PlotArea( null, [ $data_series ] );
+        $legend    = new \PhpOffice\PhpSpreadsheet\Chart\Legend(
+            \PhpOffice\PhpSpreadsheet\Chart\Legend::POSITION_RIGHT,
+            null,
+            false
+        );
+
+        $title    = isset( $chart['title'] ) ? new \PhpOffice\PhpSpreadsheet\Chart\Title( (string) $chart['title'] ) : null;
+        $x_title  = isset( $chart['x_axis_title'] ) ? new \PhpOffice\PhpSpreadsheet\Chart\Title( (string) $chart['x_axis_title'] ) : null;
+        $y_title  = isset( $chart['y_axis_title'] ) ? new \PhpOffice\PhpSpreadsheet\Chart\Title( (string) $chart['y_axis_title'] ) : null;
+
+        $obj = new \PhpOffice\PhpSpreadsheet\Chart\Chart(
+            'tt-trend-chart',
+            $title,
+            $legend,
+            $plot_area,
+            true,
+            \PhpOffice\PhpSpreadsheet\Chart\DataSeries::EMPTY_AS_GAP,
+            $x_title,
+            $y_title
+        );
+
+        $anchor = (string) ( $chart['anchor'] ?? 'A' . ( $last_row + 2 ) );
+        $obj->setTopLeftPosition( $anchor );
+        // A wide, readable plot below the pivot table.
+        $obj->setBottomRightPosition( self::offsetAnchor( $anchor, 9, 16 ) );
+
+        $sheet->addChart( $obj );
+    }
+
+    /**
+     * Shift an A1 anchor by a number of columns + rows, for the chart's
+     * bottom-right corner. Keeps the geometry off the exporter.
+     */
+    private static function offsetAnchor( string $anchor, int $cols, int $rows ): string {
+        if ( ! preg_match( '/^([A-Z]+)(\d+)$/', $anchor, $m ) ) {
+            return $anchor;
+        }
+        $col_index = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString( $m[1] );
+        $new_col   = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex( $col_index + $cols );
+        $new_row   = (int) $m[2] + $rows;
+        return $new_col . $new_row;
     }
 
     /**

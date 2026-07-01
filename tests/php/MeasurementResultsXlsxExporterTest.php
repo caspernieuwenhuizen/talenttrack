@@ -118,6 +118,72 @@ final class MeasurementResultsXlsxExporterTest extends WP_UnitTestCase {
         $this->assertGreaterThan( 0, $result->size, 'a non-empty workbook is produced' );
     }
 
+    public function test_trends_sheet_pivots_players_by_date_with_a_line_chart(): void {
+        // #2194 — a numeric test with two players across two dates yields a
+        // Trends sheet (players × dates pivot) carrying a line-chart spec.
+        $uid = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        wp_set_current_user( $uid );
+        ( new MatrixRepository() )->setRow(
+            self::PERSONA, 'measurements', 'read', 'global',
+            'TT\\Modules\\Measurements\\MeasurementsModule'
+        );
+        MatrixRepository::clearCache();
+
+        $def_id = $this->makeNumericDefinitionWithHistory();
+
+        $exporter = new MeasurementResultsXlsxExporter();
+        $payload  = $exporter->collect( $this->request( $def_id, $uid ) );
+
+        $this->assertArrayHasKey( 'styled_sheets', $payload );
+        $sheets = $payload['styled_sheets'];
+        $trends_key = __( 'Trends', 'talenttrack' );
+        $this->assertArrayHasKey( $trends_key, $sheets, 'a Trends sheet is emitted for a numeric test' );
+
+        $trends = $sheets[ $trends_key ];
+
+        // The column-header row (row 4) is Player + one column per date.
+        $col_header = $trends['rows'][3];
+        $this->assertSame( 'Player', $col_header[0]['v'] );
+        $dates = array_map( static fn ( $c ) => $c['v'], array_slice( $col_header, 1 ) );
+        $this->assertSame( [ '2026-01-10', '2026-03-10' ], $dates, 'dates are chronological columns' );
+
+        // Two player rows follow, each with a value under each date column.
+        $player_rows = array_slice( $trends['rows'], 4 );
+        $this->assertCount( 2, $player_rows );
+        $names = array_map( static fn ( $r ) => $r[0]['v'], $player_rows );
+        sort( $names );
+        $this->assertSame( [ 'Ann Other', 'Bea Speed' ], $names );
+
+        // A line chart is bound to the value grid.
+        $this->assertArrayHasKey( 'chart', $trends );
+        $this->assertSame( 'line', $trends['chart']['type'] );
+        $this->assertSame( 5, $trends['chart']['series_first_row'] );
+        $this->assertSame( 6, $trends['chart']['series_last_row'] );
+
+        // End-to-end: a real .xlsx (with chart XML) is produced.
+        $result = ( new ExportService() )->run( $this->request( $def_id, $uid ) );
+        $this->assertGreaterThan( 0, $result->size );
+    }
+
+    public function test_status_test_trends_sheet_degrades_without_a_chart(): void {
+        // A status (text-level) test has no numeric axis: the Trends sheet
+        // still lists labels per date but attaches no chart.
+        $uid = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        wp_set_current_user( $uid );
+        ( new MatrixRepository() )->setRow(
+            self::PERSONA, 'measurements', 'read', 'global',
+            'TT\\Modules\\Measurements\\MeasurementsModule'
+        );
+        MatrixRepository::clearCache();
+
+        $def_id = $this->makeStatusDefinitionWithResult();
+
+        $payload = ( new MeasurementResultsXlsxExporter() )->collect( $this->request( $def_id, $uid ) );
+        $trends  = $payload['styled_sheets'][ __( 'Trends', 'talenttrack' ) ] ?? null;
+        $this->assertIsArray( $trends, 'a status test still gets a reference Trends sheet' );
+        $this->assertArrayNotHasKey( 'chart', $trends, 'no line chart for a text-level test' );
+    }
+
     private function request( int $definition_id, int $uid ): ExportRequest {
         return new ExportRequest(
             self::KEY,
@@ -129,6 +195,47 @@ final class MeasurementResultsXlsxExporterTest extends WP_UnitTestCase {
             null,
             null
         );
+    }
+
+    /**
+     * A numeric definition with two players, each recorded on the same two
+     * dates — the fixture the trends pivot + chart exercise.
+     */
+    private function makeNumericDefinitionWithHistory(): int {
+        global $wpdb;
+
+        $def_id = ( new MeasurementDefinitionsRepository() )->create( [
+            'category_id' => 1,
+            'name'        => 'Sprint 30m',
+            'value_type'  => 'numeric',
+            'unit'        => 's',
+            'direction'   => 'lower',
+            'frequency'   => 'quarterly',
+        ] );
+
+        $results = new MeasurementResultsRepository();
+        foreach ( [
+            [ 'Bea', 'Speed', [ '2026-01-10' => 4.6, '2026-03-10' => 4.4 ] ],
+            [ 'Ann', 'Other', [ '2026-01-10' => 4.9, '2026-03-10' => 4.7 ] ],
+        ] as [ $first, $last, $series ] ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_players', [
+                'club_id'    => 1,
+                'first_name' => $first,
+                'last_name'  => $last,
+                'status'     => 'active',
+            ] );
+            $player_id = (int) $wpdb->insert_id;
+            foreach ( $series as $date => $value ) {
+                $results->create( [
+                    'player_id'     => $player_id,
+                    'definition_id' => $def_id,
+                    'recorded_date' => $date,
+                    'value_numeric' => $value,
+                ] );
+            }
+        }
+
+        return $def_id;
     }
 
     /** A status definition with one green "On track" level and one result. */
