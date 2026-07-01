@@ -201,6 +201,15 @@ Bij een **status**-test toont de waardekolom het vastgelegde **niveaulabel**
 het werkblad in één oogopslag leesbaar is — net als de statuschip op het
 spelersprofiel. Numerieke tests tonen het getal met de eenheid.
 
+De werkmap heeft een tweede tabblad **Trends** dat de resultaten van elke
+speler **in de tijd** toont: één rij per speler, één kolom per meetdatum (in
+chronologische volgorde), met in elke cel de vastgelegde waarde. Een
+**lijndiagram** onder de tabel zet elke speler als reeks uit op dezelfde
+datum-as, zodat je in één oogopslag ziet wie vooruitgaat, stagneert of
+achteruitgaat. Numerieke tests en schaalscores worden in het diagram getoond;
+een **status**-test toont per datum het niveau van elke speler ter referentie,
+maar zonder diagram (er is geen numerieke as om te tekenen).
+
 De export gebruikt dezelfde exportpijplijn als de rest van het systeem en is
 afgeschermd met dezelfde *lees*-rechten op `measurements`: alleen staf die de
 resultaten van een test mag zien, mag ze exporteren.

@@ -217,20 +217,182 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface {
             ];
         }
 
-        return [
-            'styled_sheets' => [
-                __( 'Results', 'talenttrack' ) => [
-                    'rows'       => $sheet_rows,
-                    'merges'     => $merges,
-                    'freeze'     => 'A' . $header_row_index,
-                    'col_widths' => [
-                        'A' => 26, 'B' => 18, 'C' => 16,
-                        'D' => 20, 'E' => 14, 'F' => 22,
-                    ],
-                    'styles'     => $this->styles( $level_token ),
+        $sheets = [
+            __( 'Results', 'talenttrack' ) => [
+                'rows'       => $sheet_rows,
+                'merges'     => $merges,
+                'freeze'     => 'A' . $header_row_index,
+                'col_widths' => [
+                    'A' => 26, 'B' => 18, 'C' => 16,
+                    'D' => 20, 'E' => 14, 'F' => 22,
                 ],
+                'styles'     => $this->styles( $level_token ),
             ],
         ];
+
+        // #2194 — a second "Trends over time" sheet: one row per player, one
+        // column per recorded date (chronological), the value in each cell,
+        // plus a line chart bound to that grid so a coach reads a player's
+        // longitudinal series at a glance (CLAUDE.md §1). Built from the same
+        // rows — no extra query.
+        $trends = $this->trendsSheet( $def, $value_type, $unit, $rows );
+        if ( $trends !== null ) {
+            $sheets[ __( 'Trends', 'talenttrack' ) ] = $trends;
+        }
+
+        return [ 'styled_sheets' => $sheets ];
+    }
+
+    /**
+     * The "Trends over time" sheet: players × dates pivot + a line chart.
+     *
+     * Rows = players, columns = the distinct recorded dates in chronological
+     * order, each cell the value that player recorded on that date (blank
+     * where none). A PhpSpreadsheet line chart is bound to the value grid so
+     * every player is a plotted series over the shared date axis.
+     *
+     * Only *ordered* value types (numeric, scale) chart meaningfully — they
+     * hold a plottable `value_numeric`. A status-type test carries text levels
+     * with no numeric axis, so it degrades gracefully: the pivot still lists
+     * each player's label per date for reference, but no chart is attached. A
+     * charting test with no numeric history at all yields no sheet.
+     *
+     * @param array<int, object> $rows  the same export rows collect() shapes
+     * @return array<string, mixed>|null  a styled-sheet spec, or null to skip
+     */
+    private function trendsSheet( object $def, string $value_type, string $unit, array $rows ): ?array {
+        if ( empty( $rows ) ) {
+            return null;
+        }
+
+        $charts = in_array( $value_type, [ 'numeric', 'scale' ], true );
+
+        // Pivot: player => ( date => value ), and the ordered set of dates.
+        $players = []; // player_id => name
+        $dates   = []; // date => true (used as an ordered set)
+        $grid    = []; // player_id => date => scalar value
+
+        foreach ( $rows as $r ) {
+            $pid = (int) $r->player_id;
+            if ( $pid <= 0 ) continue;
+            $name = trim( (string) $r->first_name . ' ' . (string) $r->last_name );
+            $date = (string) $r->recorded_date;
+            if ( $date === '' ) continue;
+
+            $players[ $pid ] = $name !== '' ? $name : (string) $pid;
+            $dates[ $date ]  = true;
+
+            if ( $charts ) {
+                // Only the numeric value can drive a line chart. When a player
+                // has several results on one date, the last (latest id) wins —
+                // rows arrive date-ascending, so this keeps the newest.
+                if ( $r->value_numeric !== null ) {
+                    $grid[ $pid ][ $date ] = (float) $r->value_numeric;
+                }
+            } else {
+                // Status / text: show the recorded label for reference.
+                $grid[ $pid ][ $date ] = (string) ( $r->value_text ?? '' );
+            }
+        }
+
+        if ( empty( $players ) || empty( $dates ) ) {
+            return null;
+        }
+        // A charting test with no numeric values at all has nothing to plot and
+        // nothing useful to pivot — skip the sheet.
+        if ( $charts && empty( $grid ) ) {
+            return null;
+        }
+
+        $date_list = array_keys( $dates );
+        sort( $date_list ); // ISO dates sort chronologically as strings.
+
+        $title_line = $charts
+            ? ( $unit !== ''
+                ? sprintf( /* translators: %s: unit of measure */ __( 'Value over time (%s)', 'talenttrack' ), $unit )
+                : __( 'Value over time', 'talenttrack' ) )
+            : __( 'Recorded status over time', 'talenttrack' );
+
+        $sheet_rows = [];
+
+        // Header block: test name + what the grid shows.
+        $sheet_rows[] = [ [ 'v' => (string) $def->name, 'style' => 'title' ] ];
+        $sheet_rows[] = [ [ 'v' => $title_line, 'style' => 'subtitle' ] ];
+        $sheet_rows[] = [ '' ];
+
+        $header_row = 4; // 2 header rows + 1 spacer, so the column header is row 4.
+
+        // Column-header row: "Player" then one column per date.
+        $col_header = [ [ 'v' => __( 'Player', 'talenttrack' ), 'style' => 'th' ] ];
+        foreach ( $date_list as $d ) {
+            $col_header[] = [ 'v' => $d, 'style' => 'th' ];
+        }
+        $sheet_rows[] = $col_header;
+
+        // One row per player, a value (or blank) under each date.
+        foreach ( $players as $pid => $name ) {
+            $row = [ [ 'v' => $name, 'style' => 'td' ] ];
+            foreach ( $date_list as $d ) {
+                $cell  = $grid[ $pid ][ $d ] ?? null;
+                $row[] = [ 'v' => $cell === null ? '' : $cell, 'style' => 'td' ];
+            }
+            $sheet_rows[] = $row;
+        }
+
+        $first_data_row = $header_row + 1;
+        $last_data_row  = $header_row + count( $players );
+        $last_col_index = count( $date_list ) + 1; // +1 for the player column
+        $last_col       = $this->columnLetter( $last_col_index );
+
+        // Column widths: the player column plus a fixed width per date column.
+        $col_widths = [ 'A' => 26 ];
+        for ( $c = 2; $c <= $last_col_index; $c++ ) {
+            $col_widths[ $this->columnLetter( $c ) ] = 14;
+        }
+
+        $spec = [
+            'rows'       => $sheet_rows,
+            'merges'     => [ 'A1:' . $last_col . '1', 'A2:' . $last_col . '2' ],
+            'freeze'     => 'B' . $first_data_row,
+            'col_widths' => $col_widths,
+            'styles'     => $this->styles( [] ),
+        ];
+
+        // A line chart bound to the value grid: each player row is a series
+        // plotted over the shared date axis. Only when the values are numeric.
+        if ( $charts ) {
+            $spec['chart'] = [
+                'type'             => 'line',
+                'title'            => $title_line,
+                // Categories = the date header row across the value columns.
+                'categories_row'   => $header_row,
+                'categories_from'  => 'B',
+                'categories_to'    => $last_col,
+                // Each series is one player row; its label is the player cell (col A).
+                'series_name_col'  => 'A',
+                'values_from_col'  => 'B',
+                'values_to_col'    => $last_col,
+                'series_first_row' => $first_data_row,
+                'series_last_row'  => $last_data_row,
+                // Where to drop the chart on the sheet (below the table).
+                'anchor'           => 'A' . ( $last_data_row + 2 ),
+                'y_axis_title'     => $unit !== '' ? $unit : __( 'Value', 'talenttrack' ),
+                'x_axis_title'     => __( 'Date', 'talenttrack' ),
+            ];
+        }
+
+        return $spec;
+    }
+
+    /** 1-based column index → Excel column letters (1 → A, 27 → AA). */
+    private function columnLetter( int $index ): string {
+        $letter = '';
+        while ( $index > 0 ) {
+            $mod    = ( $index - 1 ) % 26;
+            $letter = chr( 65 + $mod ) . $letter;
+            $index  = (int) ( ( $index - $mod ) / 26 );
+        }
+        return $letter === '' ? 'A' : $letter;
     }
 
     /**
