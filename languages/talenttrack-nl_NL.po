@@ -7003,6 +7003,10 @@ msgstr "Huisstijl"
 msgid "Feature toggles"
 msgstr "Functieschakelaars"
 
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
+msgid "Module management"
+msgstr "Modulebeheer"
+
 # ===== v3.6.0 — multilingual reference data =====
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:116
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:174

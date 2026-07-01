@@ -23,9 +23,17 @@ class ModulesPage {
         add_action( 'admin_post_tt_modules_save', [ __CLASS__, 'handleSave' ] );
     }
 
+    /**
+     * Matrix-backed capability that gates this admin page. Bridged in
+     * LegacyCapMapper to the `module_management` matrix entity, so the
+     * authorization matrix — not a WP role-name compare — decides who
+     * manages modules (CLAUDE.md §4). Mirrors FrontendModulesView::CAP.
+     */
+    public const CAP = 'tt_manage_modules';
+
     public static function render(): void {
-        if ( ! current_user_can( 'administrator' ) ) {
-            wp_die( esc_html__( 'You must be an administrator to view this page.', 'talenttrack' ) );
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'You do not have permission to manage modules.', 'talenttrack' ) );
         }
 
         $modules = ModuleRegistry::allWithState();
@@ -176,7 +184,7 @@ class ModulesPage {
     }
 
     public static function handleSave(): void {
-        if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! current_user_can( self::CAP ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_modules_save', 'tt_nonce' );
 
         $checked = isset( $_POST['enabled'] ) && is_array( $_POST['enabled'] )

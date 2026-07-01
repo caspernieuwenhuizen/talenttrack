@@ -120,6 +120,39 @@ weaker `tt_edit_settings`) are re-gated onto this same capability, so no
 purge path is weaker than the bin. See [Recycle bin](recycle-bin.md) for the
 retention window and GDPR basis.
 
+## Module management — `tt_manage_modules` / `module_management` (#2187)
+
+Turning a whole TalentTrack module on or off is an operator-level act, so it
+lives behind its own capability, **`tt_manage_modules`**, and a **dedicated
+matrix entity, `module_management`**. The capability gates both the wp-admin
+Modules page (`ModulesPage`, `admin.php?page=tt-modules`) and its frontend
+equivalent (`FrontendModulesView`, `?tt_view=modules`), plus the
+`/wp-json/talenttrack/v1/modules` + `/features` REST routes.
+
+Before #2187 the wp-admin page gated on a **role-string compare**
+(`current_user_can('administrator')`), which the authorization matrix could
+not govern — a non-administrator persona granted the right in the matrix
+still could not reach it, violating the "capabilities are the contract"
+principle. #2187 replaces both checks with `current_user_can('tt_manage_modules')`,
+so the matrix decides.
+
+`tt_manage_modules` bridges through `LegacyCapMapper` to
+`module_management:create_delete`. This is a **dedicated** entity, distinct
+from the read-mostly `feature_toggles` config entity it previously shared
+(#1941) and from the `module_state` status view: enabling/disabling a module
+is a materially different privilege from editing a config feature-toggle, and
+should be matrix-governable on its own row. The entity is seeded
+**`rcd` global to Academy Admin only** — matching the raw cap holders
+(WordPress `administrator`, who bypasses every `tt_*` cap, plus the
+`tt_club_admin` role that backs the Academy Admin persona). Head of
+Development holds `feature_toggles [read]` but **no** `module_management`
+row, so it gains nothing — the re-point is access-preserving.
+
+Migration `0194_authorization_seed_module_management` idempotently top-ups
+the `module_management` grant onto existing installs (INSERT IGNORE, scoped
+to the one entity + academy_admin persona), so no operator loses the Modules
+page on upgrade when the matrix is active.
+
 ## Strava connection — players connect their own (#2153)
 
 Strava is personal activity data, so a **player** can connect their own Strava
