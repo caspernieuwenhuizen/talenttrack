@@ -45003,6 +45003,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:222
+msgid "All"
+msgstr "Alle"
+
 #~ msgid "My card"
 #~ msgstr "Mijn kaart"
 

@@ -101,7 +101,7 @@ The threshold lives in **Configuration → General → Attendance at-risk thresh
 
 ## Attendance leaderboard (v4.27.0)
 
-A dedicated league table reachable from the Reports launcher (*Attendance leaderboard*). It ranks players over the chosen window into two side-by-side tables: **Needs attention** (the lowest attendance %, where at-risk players keep their ⚠ badge) and **Most reliable** (the highest attendance %). Pick how many to show (default 10, up to 50) and optionally narrow to a single team. Coaches see only their own teams; academy-wide roles see the club.
+A dedicated league table reachable from the Reports launcher (*Attendance leaderboard*). It ranks players over the chosen window into two side-by-side tables: **Needs attention** (the lowest attendance %, where at-risk players keep their ⚠ badge) and **Most reliable** (the highest attendance %). By default it shows **all** players in the window; type a number in *How many* to narrow each table to that many rows. Optionally narrow to a single team. Coaches see only their own teams; academy-wide roles see the club.
 
 On a phone the two tables stack into one column with no horizontal scroll; from tablet width up they sit side-by-side. Every column is sortable on top of the default ranking.
 

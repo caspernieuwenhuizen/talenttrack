@@ -119,7 +119,9 @@ final class ReportsRestController extends BaseController {
     public static function attendanceLeaderboard( WP_REST_Request $req ): \WP_REST_Response {
         [ $from, $to ]   = self::attendanceWindow( $req );
         $team_id         = (int) $req->get_param( 'team_id' );
-        $n               = (int) ( $req->get_param( 'n' ) ?: 10 );
+        // #2205 — unset/blank `n` means all players in the window; a
+        // supplied positive number narrows each column.
+        $n               = (int) $req->get_param( 'n' );
         $type_key        = (string) $req->get_param( 'activity_type_key' );
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return RestResponse::success( [ 'top' => [], 'bottom' => [], 'total' => 0 ] );
