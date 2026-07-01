@@ -45032,6 +45032,41 @@ msgid "%d not closed off"
 msgid_plural "%d not closed off"
 msgstr[0] "%d niet afgerond"
 msgstr[1] "%d niet afgerond"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Done editing"
+msgstr "Klaar met bewerken"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Correct recorded minutes"
+msgstr "Geregistreerde minuten corrigeren"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Recorded minutes"
+msgstr "Geregistreerde minuten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "The match is finalized. Correct a recorded figure here if a player's minutes were logged wrong."
+msgstr "De wedstrijd is afgesloten. Corrigeer hier een geregistreerd getal als de minuten van een speler verkeerd zijn vastgelegd."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Save minutes"
+msgstr "Minuten opslaan"
+
+#. translators: %s: player display name
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+#, php-format
+msgid "Recorded minutes for %s"
+msgstr "Geregistreerde minuten voor %s"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Recorded minutes saved."
+msgstr "Geregistreerde minuten opgeslagen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not save recorded minutes:"
+msgstr "Kon geregistreerde minuten niet opslaan:"
+
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 

@@ -379,3 +379,120 @@
 .tt-mexec[data-state="finished"]    .tt-mexec-timer-btn { display: none; }
 .tt-mexec[data-state="finished"]    .tt-mexec-timer-half { color: var(--tt-mexec-ink-soft); }
 .tt-mexec[data-state="finished"]    .tt-mexec-timer-half::before { display: none; }
+
+/* ----- #2222 — explicit edit affordance ----- */
+/* The live-data controls (score steppers, +action / →on buttons,
+ * sub-target, late events) are opt-in. They stay hidden until the coach
+ * taps "Edit", which flips the container's data-edit-mode to "on". A
+ * finalized execution never renders the Edit button, so its steppers /
+ * buttons stay hidden and the match reads read-only. */
+.tt-mexec[data-edit-mode="off"] .tt-mexec-edit-only { display: none; }
+
+.tt-mexec-edit-toggle {
+    margin-top: 8px;
+}
+.tt-mexec-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 8px 14px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 999px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-accent);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-edit-btn:hover { background: var(--tt-mexec-mute); }
+.tt-mexec-edit-btn[aria-pressed="true"] {
+    background: var(--tt-mexec-accent);
+    color: var(--tt-mexec-paper);
+    border-color: var(--tt-mexec-accent);
+}
+.tt-mexec-edit-icon { font-size: 15px; line-height: 1; }
+
+/* ----- #2224 — correct recorded minutes (finalized only) ----- */
+.tt-mexec-minutes-correct {
+    margin: var(--tt-mexec-gap) 0;
+    padding: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
+    background: var(--tt-mexec-paper);
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: var(--tt-mexec-radius);
+}
+.tt-mexec-minutes-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 8px 14px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 999px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-accent);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-minutes-edit-btn:hover { background: var(--tt-mexec-mute); }
+.tt-mexec-minutes-correct[data-edit-mode="on"] .tt-mexec-minutes-edit-btn {
+    background: var(--tt-mexec-accent);
+    color: var(--tt-mexec-paper);
+    border-color: var(--tt-mexec-accent);
+}
+.tt-mexec-minutes-help {
+    margin: 8px 0 4px;
+    font-size: 12px;
+    color: var(--tt-mexec-ink-soft);
+    line-height: 1.4;
+}
+.tt-mexec-minutes-list {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.tt-mexec-minutes-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--tt-mexec-line);
+}
+.tt-mexec-minutes-name {
+    flex: 1 1 auto;
+    font-size: 15px;
+    color: var(--tt-mexec-ink);
+}
+.tt-mexec-minutes-value {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tt-mexec-ink-soft);
+}
+/* When editing, the live figure is replaced by the input — hide the
+ * read-only value so the row shows one control, not two. */
+.tt-mexec-minutes-correct[data-edit-mode="on"] .tt-mexec-minutes-value { display: none; }
+.tt-mexec-minutes-input {
+    flex: 0 0 5rem;
+    min-height: var(--tt-mexec-tap-min);
+    font: inherit;
+    font-size: 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 6px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+    text-align: right;
+}
+.tt-mexec-minutes-form .tt-form-actions {
+    margin-top: var(--tt-mexec-gap);
+}
