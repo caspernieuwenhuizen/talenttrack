@@ -144,6 +144,16 @@
 .tt-dashboard .tt-act-bucket-head--attention {
     color: var(--tt-warn, #c75c1f);
 }
+/* #2200 — the "Past — still open" section is the coach's overdue follow-up.
+   A soft warning tint + left accent lifts it above the rest of the list so
+   past-but-not-closed activities aren't missed. */
+.tt-dashboard .tt-act-list--attention {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border-left: 3px solid var(--tt-warn, #e8902b);
+    border-radius: var(--tt-radius, 8px);
+    margin-bottom: var(--tt-sp-3, 12px);
+    overflow: hidden;
+}
 .tt-dashboard .tt-act-bucket-head__count {
     font-size: 12px;
     font-weight: 500;

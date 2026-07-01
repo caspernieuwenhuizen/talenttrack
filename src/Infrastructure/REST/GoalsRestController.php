@@ -197,9 +197,22 @@ class GoalsRestController {
             $where[]  = 'g.player_id = %d';
             $params[] = $pid;
         }
+        // #2202 — the goals list filter bar now offers three semantic status
+        // buckets (Active / Achieved / Missed) instead of the raw lookup
+        // codes. `active` = any goal still open (status not a terminal code);
+        // `achieved` = completed; `missed` = cancelled. Raw lookup codes are
+        // still honoured for back-compat with existing deep links. An unset
+        // status still means "all statuses" here — the Active default is a
+        // list-view chrome choice (the pill seeds `filter[status]=active`),
+        // not a REST default, so other API consumers keep the full set.
         if ( ! empty( $filter['status'] ) ) {
-            $where[]  = 'g.status = %s';
-            $params[] = sanitize_text_field( (string) $filter['status'] );
+            $status_clause = self::statusWhereClause( sanitize_text_field( (string) $filter['status'] ) );
+            if ( $status_clause !== null ) {
+                $where[] = $status_clause[0];
+                foreach ( $status_clause[1] as $p ) {
+                    $params[] = $p;
+                }
+            }
         }
         if ( ! empty( $filter['priority'] ) ) {
             $where[]  = 'g.priority = %s';
@@ -264,6 +277,36 @@ class GoalsRestController {
             'page'     => $page,
             'per_page' => $per_page,
         ] );
+    }
+
+    /**
+     * #2202 — resolve a status filter value to a WHERE fragment + params.
+     *
+     * The goals list filter exposes three semantic buckets that map onto the
+     * canonical terminal codes used throughout the goals domain
+     * (`completed` / `cancelled`):
+     *   - `active`   → the goal is still open (status NULL or not a terminal)
+     *   - `achieved` → status = 'completed'
+     *   - `missed`   → status = 'cancelled'
+     * Any other non-empty value is treated as a raw lookup code for
+     * back-compat with existing deep links (exact match).
+     *
+     * @return array{0:string,1:array<int,string>}|null clause + params, or
+     *         null when the value should apply no status constraint.
+     */
+    private static function statusWhereClause( string $status ): ?array {
+        switch ( $status ) {
+            case 'active':
+                return [ "( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )", [] ];
+            case 'achieved':
+                return [ 'g.status = %s', [ 'completed' ] ];
+            case 'missed':
+                return [ 'g.status = %s', [ 'cancelled' ] ];
+            case '':
+                return null;
+            default:
+                return [ 'g.status = %s', [ $status ] ];
+        }
     }
 
     private static function clamp_per_page( $value ): int {

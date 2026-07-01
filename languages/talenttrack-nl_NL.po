@@ -44998,6 +44998,17 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Past — still open"
+msgstr "Voorbij — nog open"
+
+#. translators: %d: count of past activities not yet closed off
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d not closed off"
+msgid_plural "%d not closed off"
+msgstr[0] "%d niet afgerond"
+msgstr[1] "%d niet afgerond"
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 

@@ -22,7 +22,7 @@ A **goal** is something a player is working on — for example "improve weak-foo
 
 ## Tracking progress
 
-Update the status and description over time as the player makes progress. Use the status filter on the Goals list to find what's still in progress at a glance. The separate **Archive** filter (Active / Archived / All, default Active) lets you find archived goals again.
+Update the status and description over time as the player makes progress. The **Status** filter on the Goals list groups goals into **Active**, **Achieved** and **Missed**, and defaults to Active so the list opens on what's still being worked on. The separate **Archive** filter (Active / Archived, default Active) lets you find archived goals again.
 
 ## Who sees what
 

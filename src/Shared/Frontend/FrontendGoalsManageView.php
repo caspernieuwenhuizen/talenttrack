@@ -370,10 +370,22 @@ class FrontendGoalsManageView extends FrontendViewBase {
                     'label'   => __( 'Player', 'talenttrack' ),
                     'options' => $player_options,
                 ],
+                // #2202 — three semantic status buckets (Active / Achieved /
+                // Missed) rendered as pills, no "All", defaulting to Active so
+                // the list opens on the goals a coach is actively working on.
+                // The REST controller maps these keys onto the canonical
+                // completed / cancelled codes (GoalsRestController::statusWhereClause).
                 'status' => [
                     'type'    => 'select',
+                    'render'  => 'status',
                     'label'   => __( 'Status', 'talenttrack' ),
-                    'options' => $status_options,
+                    'no_all'  => true,
+                    'default' => 'active',
+                    'options' => [
+                        'active'   => __( 'Active',   'talenttrack' ),
+                        'achieved' => __( 'Achieved', 'talenttrack' ),
+                        'missed'   => __( 'Missed',   'talenttrack' ),
+                    ],
                 ],
                 'priority' => [
                     'type'    => 'select',
