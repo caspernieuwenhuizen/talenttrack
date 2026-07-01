@@ -149,6 +149,17 @@
 	outline: 2px solid var(--tt-primary, #0b3d2e);
 	outline-offset: 2px;
 }
+/* #2184 — explicit Apply for the date range on the INLINE bar. The
+   inline bar has no auto-submit; this button commits the from/to change.
+   Aligns to the bottom of the row so it sits level with the date inputs,
+   not the per-input labels above them. Meets the 48px touch target. */
+.tt-dashboard .tt-fildate__apply {
+	align-self: flex-end;
+	min-height: 48px;
+	flex: 0 0 auto;
+	white-space: nowrap;
+	touch-action: manipulation;
+}
 
 /* =============================================================
    Control type 2 — PERIOD pill-dropdown (inline) + segmented (sheet)
