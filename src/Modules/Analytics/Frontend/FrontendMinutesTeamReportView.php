@@ -282,9 +282,9 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             $url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
             $title = (string) $b['title'];
             if ( $title === '' ) $title = '—';
-            $source = $b['record_type'] === 'actual'
-                ? __( 'actual', 'talenttrack' )
-                : __( 'recomputed', 'talenttrack' );
+            // #2193 — every breakdown row is a persisted actual-minutes
+            // row; minutes are never recomputed at report time.
+            $source = __( 'actual', 'talenttrack' );
             echo '<tr>';
             echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $b['session_date'] ) ) . '</td>';
             echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';

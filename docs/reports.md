@@ -61,15 +61,20 @@ On the team report each team row is **tap-to-expand**: tapping the team name ope
 
 ## Minutes played — totals and per-match trace
 
-The minutes reports count only **recorded** match minutes: actual, non-guest
+The minutes reports read only **recorded** match minutes: actual, non-guest
 attendance. Planned (expected) roster rows and guest appearances never count,
 and a match with no recorded minutes contributes nothing — the reports never
-estimate or invent minutes, so a zero is an honest "no data recorded" rather
-than a guess.
+estimate, calculate, or construct minutes, so a zero is an honest "no data
+recorded" rather than a guess. Minutes are worked out once, when a played
+match is recorded (the match execution is finalised, or minutes are entered by
+hand on the attendance screen), and stored on the attendance row. Every report
+simply reads that stored value; a match that was played but never finalised
+therefore shows nothing until its minutes are recorded, rather than being
+reconstructed from the planned line-up.
 
 Every player's minutes total is a **drill-down**: open it to see the per-match
-rows that sum to it — date, match, type, source (`actual` recorded minutes vs a
-recompute from the match-execution log) and minutes. The breakdown reconciles
+rows that sum to it — date, match, type, source (`actual` recorded minutes) and
+minutes. The breakdown reconciles
 exactly with the total, so you can always trace a reported number back to its
 source rows. On the Team · Minutes distribution report each player bar expands;
 on the Analytics minutes report each Total opens the per-match table beneath the

@@ -61,16 +61,22 @@ In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamn
 
 ## Gespeelde minuten — totalen en trace per wedstrijd
 
-De minutenrapporten tellen alleen **vastgelegde** wedstrijdminuten: werkelijke,
+De minutenrapporten lezen alleen **vastgelegde** wedstrijdminuten: werkelijke,
 niet-gast-aanwezigheid. Geplande (verwachte) selectierijen en gastoptredens
 tellen nooit mee, en een wedstrijd zonder vastgelegde minuten draagt niets bij —
-de rapporten schatten of verzinnen nooit minuten, dus een nul is een eerlijke
-"geen gegevens vastgelegd" in plaats van een gok.
+de rapporten schatten, berekenen of construeren nooit minuten, dus een nul is een
+eerlijke "geen gegevens vastgelegd" in plaats van een gok. Minuten worden één
+keer bepaald, wanneer een gespeelde wedstrijd wordt vastgelegd (de match-execution
+wordt afgerond, of de minuten worden met de hand ingevoerd op het
+aanwezigheidsscherm), en op de aanwezigheidsregel opgeslagen. Elk rapport leest
+alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
+is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
+herleid uit de geplande opstelling.
 
 Het minutentotaal van elke speler is een **drill-down**: open het om de rijen per
 wedstrijd te zien die optellen tot het totaal — datum, wedstrijd, type, bron
-(`werkelijk` vastgelegde minuten of een herberekening uit het match-execution-log)
-en minuten. De uitsplitsing sluit exact aan op het totaal, zodat je een gerapporteerd
+(`werkelijk` vastgelegde minuten) en minuten. De uitsplitsing sluit exact aan op
+het totaal, zodat je een gerapporteerd
 getal altijd kunt herleiden tot de bronrijen. In het rapport Team · Minutenverdeling
 klapt elke spelersbalk uit; in het Analytics-minutenrapport opent elk Totaal de
 tabel per wedstrijd onder de rij. Beide werken op een telefoon en met het
