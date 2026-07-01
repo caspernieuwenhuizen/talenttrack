@@ -176,7 +176,7 @@ class MeasurementResultsRepository {
         }
         $age_group = isset( $filters['age_group'] ) ? (string) $filters['age_group'] : '';
         if ( $age_group !== '' ) {
-            $where[]  = 'pl.age_group = %s';
+            $where[]  = 't.age_group = %s';
             $params[] = $age_group;
         }
         if ( ! empty( $filters['date_from'] ) ) {
@@ -195,7 +195,7 @@ class MeasurementResultsRepository {
         // previous point the trend arrow compares against.
         $sql = "SELECT r.id, r.recorded_date, r.value_numeric, r.value_text,
                        pl.id AS player_id, pl.first_name, pl.last_name,
-                       pl.age_group AS age_group,
+                       t.age_group AS age_group,
                        t.name AS team_name,
                        prev.value_numeric AS prev_value_numeric,
                        prev.value_text    AS prev_value_text,
@@ -204,10 +204,11 @@ class MeasurementResultsRepository {
                   JOIN {$p}tt_players pl ON pl.id = r.player_id
              LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
                   JOIN (
-                        SELECT player_id, MAX(recorded_date) AS max_date
+                        SELECT r2.player_id, MAX(r2.recorded_date) AS max_date
                           FROM {$p}tt_measurement_results r2
                           JOIN {$p}tt_players p2 ON p2.id = r2.player_id
-                         WHERE " . str_replace( [ 'r.', 'pl.' ], [ 'r2.', 'p2.' ], $where_sql ) . "
+                     LEFT JOIN {$p}tt_teams t2 ON t2.id = p2.team_id
+                         WHERE " . str_replace( [ 'r.', 'pl.', 't.' ], [ 'r2.', 'p2.', 't2.' ], $where_sql ) . "
                          GROUP BY r2.player_id
                        ) latest
                     ON latest.player_id = r.player_id
