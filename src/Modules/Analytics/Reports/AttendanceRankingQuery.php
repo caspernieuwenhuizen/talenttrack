@@ -164,18 +164,23 @@ final class AttendanceRankingQuery {
      * (worst attendance) and the top `n` (best attendance) players who
      * have at least one recorded activity in the window.
      *
+     * `$n <= 0` means **all** players in the window — the default (#2205):
+     * a blank/unset "How many" returns every ranked player in both
+     * columns. A supplied positive number narrows each column to that
+     * many rows.
+     *
      * @param list<int>|null $allowed_team_ids
      * @return array{bottom:list<array<string,mixed>>, top:list<array<string,mixed>>, total:int}
      */
-    public function leaderboard( string $from, string $to, int $n = 10, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
-        $n    = max( 1, min( 50, $n ) );
+    public function leaderboard( string $from, string $to, int $n = 0, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
         $rows = array_values( array_filter(
             $this->rows( $from, $to, $team_id, $allowed_team_ids, $activity_type_key ),
             static fn( array $r ): bool => $r['present_pct'] !== null
         ) );
-        // rows() is already worst-first.
-        $bottom = array_slice( $rows, 0, $n );
-        $top    = array_slice( array_reverse( $rows ), 0, $n );
+        // rows() is already worst-first. A non-positive $n means "all".
+        $limit  = $n > 0 ? $n : count( $rows );
+        $bottom = array_slice( $rows, 0, $limit );
+        $top    = array_slice( array_reverse( $rows ), 0, $limit );
         return [
             'bottom' => $bottom,
             'top'    => $top,

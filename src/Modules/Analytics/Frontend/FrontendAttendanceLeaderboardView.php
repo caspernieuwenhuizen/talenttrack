@@ -28,7 +28,12 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
 
-    private const DEFAULT_N = 10;
+    /**
+     * #2205 — 0 means "all players in the window". A blank/unset "How
+     * many" field ranks everyone in both columns; a supplied positive
+     * number still narrows each column to that many rows.
+     */
+    private const DEFAULT_N = 0;
 
     /**
      * #1695 — pull in the 2026 green/gold leaderboard stylesheet (card
@@ -78,8 +83,9 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         $from    = isset( $_GET['from'] )    ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : $defaults['from'];
         $to      = isset( $_GET['to'] )      ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : $defaults['to'];
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        $n       = isset( $_GET['n'] )       ? absint( $_GET['n'] ) : self::DEFAULT_N;
-        $n       = max( 1, min( 50, $n ) );
+        // #2205 — blank/unset "How many" means all players in the window
+        // (n = 0). A supplied number narrows each column to that many.
+        $n       = ( isset( $_GET['n'] ) && $_GET['n'] !== '' ) ? absint( $_GET['n'] ) : self::DEFAULT_N;
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
@@ -219,7 +225,7 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
         echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'How many', 'talenttrack' ) . '</span>';
-        echo '<input type="number" name="n" inputmode="numeric" min="1" max="50" step="1" value="' . esc_attr( (string) $n ) . '" /></label>';
+        echo '<input type="number" name="n" inputmode="numeric" min="1" step="1" value="' . esc_attr( $n > 0 ? (string) $n : '' ) . '" placeholder="' . esc_attr__( 'All', 'talenttrack' ) . '" /></label>';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
