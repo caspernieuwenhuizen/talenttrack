@@ -1,3 +1,59 @@
+# TalentTrack v4.67.0 — Archived activity detail page offers Restore, not Archive (#2183)
+
+Opening an archived activity's detail page now shows a **Restore** action in
+the header instead of a second **Archive** button. Restoring returns the
+activity to the active list in one click. An archived activity is read-only
+until restored — its Edit and match actions stay hidden until it is active
+again. The read-only detail now resolves archived rows too, so an archived
+activity no longer reads as "not found".
+
+# TalentTrack v4.67.0 — FilterBar: explicit Apply button for the date range on the inline bar (#2184)
+
+The shared filter bar now shows an explicit **Apply** button next to a
+from/to date range on the inline (desktop) layout, so changing a date
+range has a clear, keyboard-reachable way to commit — the inline bar
+previously had no visible commit action for a date change. The mobile
+bottom sheet keeps its single footer Apply (no duplicate). The button is a
+plain submit: on a bare filter bar it reloads with the new range, and on a
+list that filters live it hands off to the existing hydrator instead of
+double-submitting. Every view using the filter bar with a date range
+(audit log, comparison, and others) benefits.
+
+# TalentTrack v4.67.0 — Attendance-per-player report: drill down from the activity count to the source sessions (#2185)
+
+The **Activities** count on the player attendance report is now a link. Open
+it to see the actual sessions behind the number: the activities list opens
+filtered to that player, the report's team, and the report's date window,
+showing only activities the player has a recorded attendance row for — and
+each activity's detail shows the recorded attendance status. This lets a
+coach trace any attendance figure back to real, dated sessions, mirroring
+the minutes-played drill-down. The report already listed every player in the
+window (worst-attendance-first) with no cap; that behaviour is unchanged and
+now documented. The activities list gained optional `player_id` /
+`date_from` / `date_to` filters to support the drill-down.
+
+# TalentTrack v4.67.0 — Help buttons now hide when the Documentation module is disabled (#2186)
+
+The contextual **Help** buttons (on goals, wizards, and anywhere else that
+uses the shared help-drawer trigger) now render only when the **Documentation**
+module is enabled under Configuration → Modules. Disabling the module removes
+the buttons everywhere, matching the promise that a disabled module leaves no
+dangling entry points. The gate reads the same module-state registry the
+Modules admin page writes — no hardcoded check — and never fatals if the
+disabled module class isn't loaded.
+
+# TalentTrack v4.67.0 — Modules admin page is now matrix-driven (#2187)
+
+The Modules admin page (wp-admin `tt-modules` and the frontend
+`?tt_view=modules`) previously gated access on a WordPress role-name compare
+(`current_user_can('administrator')`), which the authorization matrix could
+not govern. It now checks the `tt_manage_modules` capability, bridged to a
+dedicated `module_management` matrix entity, so the matrix decides who can
+enable or disable modules — the same as every other admin surface. A new
+migration re-seeds the grant onto existing installs (Academy Admin retains
+access; WordPress administrators bypass unconditionally, so no one loses the
+page on upgrade).
+
 # TalentTrack v4.66.1 — Reports module: on/off toggles for the attendance, minutes-per-team and rate-card reports (#2126)
 
 The Reports module-settings page now exposes a toggle for all 15 reports, not
