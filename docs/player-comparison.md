@@ -14,12 +14,16 @@ The team and player selectors show only the players in your context. A team-scop
 
 ## Filters
 
-The filters apply to all picked players at once:
+The filters apply to all picked players at once, sitting in the shared
+filter bar below the player selectors:
 
 - **Date range** — restrict to evaluations in a window.
 - **Evaluation type** — for example only matches.
 
-Change a filter and every player's numbers update.
+On wide screens the filters show as a single inline row; on phones and
+tablets they collapse behind a **Filters** button that opens a bottom sheet
+holding the same controls. Set the filters, then click **Compare** — every
+picked player's numbers update together.
 
 ## What you see
 

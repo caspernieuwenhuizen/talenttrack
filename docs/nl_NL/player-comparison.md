@@ -14,12 +14,16 @@ De team- en spelerselectors tonen alleen de spelers binnen jouw context. Een tea
 
 ## Filters
 
-De filters werken op alle gekozen spelers tegelijk:
+De filters werken op alle gekozen spelers tegelijk en staan in de gedeelde
+filterbalk onder de spelerkiezers:
 
 - **Datumbereik** — beperk tot evaluaties in een periode.
 - **Evaluatietype** — bijvoorbeeld alleen wedstrijden.
 
-Verander een filter en alle cijfers updaten meteen.
+Op brede schermen staan de filters in één inline rij; op telefoons en
+tablets vallen ze samen achter een **Filters**-knop die een onderpaneel
+opent met dezelfde besturingselementen. Stel de filters in en klik op
+**Vergelijken** — de cijfers van elke gekozen speler updaten dan samen.
 
 ## Wat je ziet
 
