@@ -44013,6 +44013,9 @@ msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
 msgid "Include archived"
 msgstr "Inclusief gearchiveerd"
 
+msgid "Archived included"
+msgstr "Inclusief gearchiveerd"
+
 #: src/Shared/Frontend/FrontendTrialsManageView.php:291
 msgid "No trial cases match those filters yet."
 msgstr "Nog geen stagedossiers die aan deze filters voldoen."
