@@ -27,13 +27,13 @@ Het tabblad **Alle items** toont het spoor nieuwste-eerst, 50 rijen per pagina:
 
 ### Filters
 
-Boven de lijst beperkt een filterformulier het spoor. Alle filters zijn optioneel en combineerbaar:
+Boven de lijst beperkt de gedeelde filterbalk het spoor. Alle filters zijn optioneel en combineerbaar:
 
 - **Actie** en **Entiteit** — keuzelijsten opgebouwd uit de werkelijk aanwezige waarden in het spoor.
 - **Gebruiker #** — numeriek (`inputmode="numeric"`); het WordPress-gebruikers-ID van de actor.
 - **Van** / **Tot** — een datumbereik (`type="date"`).
 
-**Filteren** past de selectie toe; **Wissen** stelt deze opnieuw in. Paginering gebruikt een `apage`-queryparameter zodat deze nooit botst met de gereserveerde `paged` van WordPress.
+Op brede schermen staan de filters in één inline rij; op telefoons en tablets vallen ze samen achter een **Filters**-knop die een onderpaneel opent met dezelfde besturingselementen. Een keuzelijst wijzigen past direct toe; **Wissen** stelt elk filter opnieuw in. Paginering gebruikt een `apage`-queryparameter zodat deze nooit botst met de gereserveerde `paged` van WordPress.
 
 ### Mislukte aanmeldingen
 
