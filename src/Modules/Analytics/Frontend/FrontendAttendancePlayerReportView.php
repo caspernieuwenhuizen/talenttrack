@@ -227,7 +227,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             $activities_count = (int) $r['activities'];
-            echo '<td style="text-align:right;">';
+            echo '<td style="text-align:right;">'; /* tt-inline-ok — right-align matches the grandfathered numeric cells in this table */
             if ( $activities_count > 0 ) {
                 echo '<a class="tt-att-drill" href="' . esc_url( $activities_url ) . '" aria-label="'
                     . esc_attr( sprintf(
