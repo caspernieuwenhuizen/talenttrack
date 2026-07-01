@@ -270,7 +270,7 @@ final class FilterBar {
 				$out .= self::renderText( $group );
 				break;
 			case 'date_range':
-				$out .= self::renderDateRange( $group );
+				$out .= self::renderDateRange( $group, $in_sheet );
 				break;
 			case 'period':
 				$out .= self::renderPeriod( $group, $in_sheet );
@@ -362,11 +362,21 @@ final class FilterBar {
 	 * `date_range` — a paired from/to date range. Each bound to its own
 	 * form field (`from.name` / `to.name`) so the surrounding view keeps
 	 * full control of the param names (e.g. `filter[date_from]`). No
-	 * auto-submit; the noscript Apply button / JS hydrator commits.
+	 * auto-submit on change (a keystroke / date pick shouldn't reload).
+	 *
+	 * On the INLINE bar the range gets an explicit **Apply** submit
+	 * button (#2184) so a desktop user has a clear, keyboard-reachable
+	 * way to commit a changed from/to — the inline bar otherwise has no
+	 * visible commit action. It's a plain `type="submit"`: for a bare
+	 * FilterBar it navigates (GET reload); for a FrontendListTable
+	 * adopter the hydrator intercepts the form's submit and live-filters
+	 * instead, so there's no double submit. The sheet variant keeps its
+	 * single footer Apply (`$in_sheet` suppresses the per-group button)
+	 * — no duplicate.
 	 *
 	 * @param array<string,mixed> $group
 	 */
-	private static function renderDateRange( array $group ): string {
+	private static function renderDateRange( array $group, bool $in_sheet = false ): string {
 		$from = isset( $group['from'] ) && is_array( $group['from'] ) ? $group['from'] : [];
 		$to   = isset( $group['to'] )   && is_array( $group['to'] )   ? $group['to']   : [];
 		$label_from = (string) ( $group['label_from'] ?? __( 'From', 'talenttrack' ) );
@@ -389,6 +399,10 @@ final class FilterBar {
 		$out  = '<div class="tt-fildaterange">';
 		$out .= $field( $from, $label_from );
 		$out .= $field( $to, $label_to );
+		if ( ! $in_sheet ) {
+			$out .= '<button type="submit" class="tt-btn tt-btn-primary tt-fildate__apply">'
+				. esc_html__( 'Apply', 'talenttrack' ) . '</button>';
+		}
 		$out .= '</div>';
 		return $out;
 	}
