@@ -45050,6 +45050,109 @@ msgstr "Zichtbare profielkaarten"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Save profile cards"
 msgstr "Profielkaarten opslaan"
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Manage methodology"
+msgstr "Methodologie beheren"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "View published methodology"
+msgstr "Gepubliceerde methodologie bekijken"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "No methodology entities can be authored yet."
+msgstr "Er kunnen nog geen methodologie-onderdelen worden beheerd."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Methodology entities"
+msgstr "Methodologie-onderdelen"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "You do not have permission to author the methodology library."
+msgstr "Je hebt geen rechten om de methodologie-bibliotheek te beheren."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "+ New principle"
+msgstr "+ Nieuw principe"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "No principles yet. Use “+ New principle” to author the first one."
+msgstr "Nog geen principes. Gebruik “+ Nieuw principe” om het eerste aan te maken."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Delete this principle? This cannot be undone."
+msgstr "Dit principe verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Save principle"
+msgstr "Principe opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Dutch (NL)"
+msgstr "Nederlands (NL)"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "English (EN)"
+msgstr "Engels (EN)"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Shipped principles are read-only reference content and cannot be edited."
+msgstr "Meegeleverde principes zijn alleen-lezen naslag en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "That principle could not be found."
+msgstr "Dat principe kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Principle created."
+msgstr "Principe aangemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Principle saved."
+msgstr "Principe opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Principle deleted."
+msgstr "Principe verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Could not create the principle."
+msgstr "Kon het principe niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "That principle could not be deleted."
+msgstr "Dat principe kon niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "That principle could not be saved."
+msgstr "Dat principe kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Please choose a valid team-function and team-task."
+msgstr "Kies een geldige teamfunctie en teamtaak."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "A principle needs a code."
+msgstr "Een principe heeft een code nodig."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Could not save the principle."
+msgstr "Kon het principe niet opslaan."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Invalid team-function."
+msgstr "Ongeldige teamfunctie."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Invalid team-task."
+msgstr "Ongeldige teamtaak."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Shipped principles are read-only. Clone it to edit."
+msgstr "Meegeleverde principes zijn alleen-lezen. Kloon het om te bewerken."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
+msgid "Shipped principles cannot be deleted."
+msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
