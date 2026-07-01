@@ -45032,6 +45032,19 @@ msgid "%d not closed off"
 msgid_plural "%d not closed off"
 msgstr[0] "%d niet afgerond"
 msgstr[1] "%d niet afgerond"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Team last synced from Spond: %s"
+msgstr "Team laatst gesynchroniseerd vanuit Spond: %s"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Substitutes"
+msgstr "Wissels"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Match length"
+msgstr "Wedstrijdduur"
+
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 
