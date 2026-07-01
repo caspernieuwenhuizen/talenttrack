@@ -44,6 +44,35 @@ class MeasurementDefinitionsRepository {
     }
 
     /**
+     * Active definitions the operator has chosen to surface on the player
+     * profile (`show_on_profile = 1`), #2204. Same shape + ordering as
+     * listActive() — the profile read model uses this so a test toggled off
+     * for the profile stops rendering there while staying in reports/exports.
+     *
+     * @return array<int, object>
+     */
+    public function listActiveForProfile(): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT d.*, lt.name AS category_name, lt.lookup_type AS category_lookup_type
+               FROM {$p}tt_measurement_definitions d
+               LEFT JOIN {$p}tt_lookups lt ON d.category_id = lt.id
+              WHERE d.club_id = %d AND d.archived_at IS NULL AND d.is_active = 1
+                AND d.show_on_profile = 1
+              ORDER BY lt.sort_order ASC, d.sort_order ASC, d.name ASC",
+            CurrentClub::id()
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        foreach ( $rows as $row ) {
+            $row->category_label = $this->localiseCategory( $row );
+        }
+        return $rows;
+    }
+
+    /**
      * All definitions, optionally including the inactive (is_active = 0) ones.
      * Archived (soft-deleted) rows are always excluded. Club-scoped.
      *
@@ -109,6 +138,7 @@ class MeasurementDefinitionsRepository {
             'frequency'   => (string) ( $data['frequency'] ?? 'adhoc' ),
             'direction'   => $this->safeDirection( $data['direction'] ?? 'higher' ),
             'is_active'   => isset( $data['is_active'] ) ? (int) (bool) $data['is_active'] : 1,
+            'show_on_profile' => isset( $data['show_on_profile'] ) ? (int) (bool) $data['show_on_profile'] : 1,
             'sort_order'  => (int) ( $data['sort_order'] ?? 0 ),
             'created_by'  => get_current_user_id() ?: null,
             'created_at'  => current_time( 'mysql', true ),
@@ -134,6 +164,7 @@ class MeasurementDefinitionsRepository {
         if ( array_key_exists( 'frequency', $data ) )   $fields['frequency']   = (string) $data['frequency'];
         if ( array_key_exists( 'direction', $data ) )   $fields['direction']   = $this->safeDirection( $data['direction'] );
         if ( array_key_exists( 'is_active', $data ) )   $fields['is_active']   = (int) (bool) $data['is_active'];
+        if ( array_key_exists( 'show_on_profile', $data ) ) $fields['show_on_profile'] = (int) (bool) $data['show_on_profile'];
         if ( array_key_exists( 'sort_order', $data ) )  $fields['sort_order']  = (int) $data['sort_order'];
 
         return false !== $wpdb->update(

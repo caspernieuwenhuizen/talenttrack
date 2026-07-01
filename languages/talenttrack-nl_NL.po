@@ -45003,6 +45003,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
+msgid "Show this test’s results on the player profile"
+msgstr "Toon de resultaten van deze test op het spelersprofiel"
+
 #~ msgid "My card"
 #~ msgstr "Mijn kaart"
 
