@@ -1,0 +1,204 @@
+/*
+ * frontend-methodology-manage.css (#2225) — the frontend methodology
+ * authoring surface: an entity tab bar, a per-entity list with edit /
+ * delete row actions, and a flat NL/EN create/edit form.
+ *
+ * Mobile-first (base = 360px), scoped under .tt-dashboard, tokens only.
+ * Sibling entity tabs (#2226–#2230) reuse the .tt-mmg-* vocabulary so the
+ * surface stays visually consistent as children land.
+ */
+
+/* ── entity tab bar ────────────────────────────────────────────────── */
+
+.tt-dashboard .tt-mmg-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 1.1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-dashboard .tt-mmg-tab {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--tt-radius-md, 10px);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    background: var(--tt-bg-soft, #f4f6f3);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-mmg-tab:hover,
+.tt-dashboard .tt-mmg-tab:focus-visible {
+    background: var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-mmg-tab.is-active {
+    background: var(--tt-primary, #1d7874);
+    color: var(--tt-on-primary, #fff);
+}
+
+/* ── list ──────────────────────────────────────────────────────────── */
+
+.tt-dashboard .tt-mmg-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.tt-dashboard .tt-mmg-new {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-mmg-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.tt-dashboard .tt-mmg-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.85rem 0.95rem;
+}
+
+.tt-dashboard .tt-mmg-row__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+}
+
+.tt-dashboard .tt-mmg-row__code code {
+    font-size: 0.85rem;
+    background: var(--tt-bg-soft, #f4f6f3);
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+}
+
+.tt-dashboard .tt-mmg-row__name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-mmg-row__name:hover,
+.tt-dashboard .tt-mmg-row__name:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-dashboard .tt-mmg-row__meta {
+    font-size: 0.82rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mmg-chip {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mmg-chip--shipped {
+    background: var(--tt-info-subtle, #e4eef8);
+    color: var(--tt-info, #2d6fb3);
+}
+
+.tt-dashboard .tt-mmg-row__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tt-dashboard .tt-mmg-inline-form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.tt-dashboard .tt-mmg-action {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-dashboard .tt-mmg-readonly {
+    font-size: 0.82rem;
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+}
+
+/* ── flat NL/EN form ───────────────────────────────────────────────── */
+
+.tt-dashboard .tt-mmg-form {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tt-dashboard .tt-mmg-ml__label,
+.tt-dashboard .tt-mmg-line-set__label {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-mmg-lines {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: 0.85rem 0.95rem 1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tt-dashboard .tt-mmg-lines legend {
+    font-weight: 700;
+    padding: 0 0.4rem;
+}
+
+.tt-dashboard .tt-mmg-line-set {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* Single-column NL/EN stack on phones; two columns from the large-phone
+   breakpoint up. .tt-grid-2 is the shared helper; this local override keeps
+   the base single-column even if the shared grid defaults to 2. */
+.tt-dashboard .tt-mmg-form .tt-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-mmg-form .tt-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
