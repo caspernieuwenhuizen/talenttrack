@@ -8,7 +8,7 @@ Een **activiteit** is alles wat in de agenda staat — een training, een wedstri
 
 De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groepen lopen van boven naar beneden:
 
-- **⚠ Vereist aandacht** — voorbije activiteiten die nog op Gepland staan. Ze zijn nooit op Voltooid of Geannuleerd gezet, dus de coach is ze uit het oog verloren. Oranje gemarkeerd zodat ze opvallen.
+- **⚠ Voorbij — nog open** — voorbije activiteiten die nog op Gepland staan. Ze zijn nooit op Voltooid of Geannuleerd gezet, dus de coach is ze uit het oog verloren. Deze groep verschijnt **standaard** helemaal boven aan de lijst — boven de ingeklapte knop voor voorbije activiteiten — in een eigen oranje-geaccentueerd blok, zodat voorbije maar niet-afgeronde activiteiten niet gemist worden.
 - **Vandaag** — wat er voor vandaag op de planning staat.
 - **Deze week** — de rest van deze kalenderweek (tot en met zondag).
 - **Volgende week** — maandag → zondag van de week erna.
@@ -17,13 +17,13 @@ De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groep
 
 Lege groepen tonen geen kop — als er volgende week niets gepland staat, verschijnt de kop "Volgende week" simpelweg niet.
 
-Elke rij is een kaart: een datumbadge links (maand + dag, blauw voor vandaag en oranje voor "Vereist aandacht"), de titel van de activiteit in het midden met een kleurgecodeerde type-pill (Training blauw, Wedstrijd rood, Oefen geel, Overig grijs) en een chevron rechts. Tik ergens op de kaart om de detailpagina te openen.
+Elke rij is een kaart: een datumbadge links (maand + dag, blauw voor vandaag en oranje voor "Voorbij — nog open"), de titel van de activiteit in het midden met een kleurgecodeerde type-pill (Training blauw, Wedstrijd rood, Oefen geel, Overig grijs) en een chevron rechts. Tik ergens op de kaart om de detailpagina te openen.
 
 ### Voorbije activiteiten
 
 Voorbije activiteiten (Voltooid of Geannuleerd) zijn boven aan de lijst vastgepind als één knop — `N voorbije activiteiten verborgen · Toon ▼`. Tik om uit te klappen; tik nogmaals om in te klappen. De stand wordt bewaard in de URL als `?include_past=1`, zodat een gedeelde link dezelfde weergave toont als degene die hem deelde.
 
-Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingeklapte groep — die verschijnen in de groep **Vereist aandacht** boven Vandaag, omdat ze een signaal zijn waarop de coach nog moet handelen.
+Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingeklapte groep — die verschijnen standaard in de groep **Voorbij — nog open** boven aan de lijst (boven de knop voor voorbije activiteiten en boven Vandaag), omdat ze een signaal zijn waarop de coach nog moet handelen.
 
 ### Filters
 
@@ -122,6 +122,8 @@ Een gastoptreden telt **wel** mee voor de belasting van de gastspeler zelf. Op h
 ## Opruimen
 
 Je kunt een activiteit **archiveren** om oude seizoenen op te ruimen zonder de historie kwijt te raken. De knop **Archiveren** op de detailpagina van de activiteit verbergt de activiteit uit de actieve tijdlijn, maar bewaart de rij — en de opkomst — volledig.
+
+Archiveren is een zachte verwijdering, dus de knoppen **Archiveren** en **Herstellen** vereisen het recht om activiteiten *aan te maken/te verwijderen* — dezelfde rechten als het aanmaken van een activiteit. Een coach die activiteiten alleen mag bewerken (bijvoorbeeld een assistent-coach) kan een activiteit nog wel wijzigen, maar ziet Archiveren en Herstellen niet.
 
 Gearchiveerde activiteiten staan onder het statustabblad **Gearchiveerd** in het activiteitenoverzicht (zie [Filters](#filters)). Daar kun je:
 

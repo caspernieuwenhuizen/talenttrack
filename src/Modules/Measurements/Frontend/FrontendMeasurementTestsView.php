@@ -334,6 +334,13 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
                 </label>
             </div>
 
+            <div class="tt-field tt-field--check">
+                <label class="tt-mt-check" for="tt-mt-show-on-profile">
+                    <input type="checkbox" id="tt-mt-show-on-profile" name="show_on_profile" value="1"<?php checked( (int) ( $def->show_on_profile ?? 1 ), 1 ); ?> />
+                    <span><?php esc_html_e( 'Show this test’s results on the player profile', 'talenttrack' ); ?></span>
+                </label>
+            </div>
+
             <?php if ( $value_type !== 'passfail' && $value_type !== 'status' && ! empty( $age_groups ) ) : ?>
                 <fieldset class="tt-mt-targets">
                     <legend><?php esc_html_e( 'Target bands per age group', 'talenttrack' ); ?></legend>
@@ -538,9 +545,10 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             'unit'        => $value_type === 'numeric' ? $unit : '',
             'scale_min'   => $scale_min,
             'scale_max'   => $scale_max,
-            'direction'   => $value_type === 'numeric' ? $direction : 'neutral',
+            'direction'   => self::resolveDirection( $value_type, $direction ),
             'frequency'   => $frequency,
             'is_active'   => isset( $_POST['is_active'] ) ? 1 : 0,
+            'show_on_profile' => isset( $_POST['show_on_profile'] ) ? 1 : 0,
         ];
         if ( $name !== '' ) {
             $data['name'] = $name;
@@ -600,6 +608,28 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
     private static function safeIn( string $value, array $allowed, string $fallback ): string {
         $value = sanitize_text_field( wp_unslash( $value ) );
         return in_array( $value, $allowed, true ) ? $value : $fallback;
+    }
+
+    /**
+     * The direction (higher / lower / neutral is better) a test saves.
+     *
+     * Direction is meaningful for any *ordered* value — a raw number or a
+     * scale score — because both carry higher/lower-is-better semantics and
+     * drive the green/amber target bands. Pass/fail and status tests have no
+     * numeric ordering, so their direction is always neutral regardless of
+     * what the (hidden-in-that-context) dropdown last held.
+     *
+     * Previously every non-`numeric` type was clamped to neutral, which
+     * silently dropped the Richting an operator set on a *scale* test on
+     * every save (#2195). Extracted so the round-trip is unit-testable
+     * without a $_POST fixture.
+     */
+    public static function resolveDirection( string $value_type, string $direction ): string {
+        $ordered = in_array( $value_type, [ 'numeric', 'scale' ], true );
+        if ( ! $ordered ) {
+            return 'neutral';
+        }
+        return in_array( $direction, [ 'higher', 'lower', 'neutral' ], true ) ? $direction : 'higher';
     }
 
     /** @return array<string, string> */

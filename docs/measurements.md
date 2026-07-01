@@ -156,10 +156,16 @@ up — name, category, unit, direction and cadence — with its **Active** or
 
 - **Edit** — open the test in a flat form. You can change the name,
   category, value type, unit (from the list or a custom one), scale bounds,
-  direction, cadence, and the active toggle, and edit the per-age-group
-  green/amber target bands inline. **Save** commits; **Cancel** takes you
-  back to the list (or to wherever you came from). Pass/fail tests have no
-  target bands.
+  direction, cadence, the active toggle, and whether the test's results
+  **show on the player profile**, and edit the per-age-group green/amber
+  target bands inline. **Save** commits; **Cancel** takes you back to the
+  list (or to wherever you came from). Pass/fail tests have no target bands.
+- **Show on the player profile** — a per-test checkbox (on by default). Clear
+  it to keep a test out of the player-profile measurements view while it
+  still records results and appears in the results browser, reports and
+  exports. Useful for internal or experimental tests you don't want to show
+  players and parents yet. Every existing test stays visible after the
+  upgrade.
 - **Activate / Deactivate** — an inactive test stays in the catalogue and
   keeps its history, but is hidden from the *Record measurements* picker so
   staff can't log new results against it.

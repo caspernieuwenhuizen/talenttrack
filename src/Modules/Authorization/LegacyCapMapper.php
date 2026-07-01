@@ -66,6 +66,12 @@ final class LegacyCapMapper {
         'tt_edit_goals'                  => [ 'goals',          'change' ],
         'tt_view_activities'             => [ 'activities',     'read' ],
         'tt_edit_activities'             => [ 'activities',     'change' ],
+        // #2199 — archive is a soft-DELETE, so it must be delete-class, not
+        // edit-class. Bridges to the existing `activities:create_delete`
+        // matrix entity (head_coach + academy_admin hold RCD; assistant_coach
+        // holds only `change`), so no new matrix entity or seed migration is
+        // needed — the archive/restore gate just re-points here.
+        'tt_delete_activities'           => [ 'activities',     'create_delete' ],
         'tt_view_methodology'            => [ 'methodology',    'read' ],
         'tt_edit_methodology'            => [ 'methodology',    'change' ],
         // #1944 — Exercises (club-global drill library). Distinct from

@@ -22,7 +22,7 @@ Een **doel** is iets waar een speler aan werkt — bijvoorbeeld "nauwkeurigheid 
 
 ## Voortgang volgen
 
-Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vordert. Met het statusfilter op de doelenlijst zie je in één oogopslag wat er nog loopt. Met het aparte **Archief**-filter (Actief / Gearchiveerd / Alle, standaard Actief) vind je gearchiveerde doelen terug.
+Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vordert. Het **Status**-filter op de doelenlijst groepeert doelen in **Actief**, **Behaald** en **Gemist**, en staat standaard op Actief zodat de lijst opent met wat er nog loopt. Met het aparte **Archief**-filter (Actief / Gearchiveerd, standaard Actief) vind je gearchiveerde doelen terug.
 
 ## Wie ziet wat
 

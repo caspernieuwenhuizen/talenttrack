@@ -165,11 +165,18 @@ academie heeft ingesteld — naam, categorie, eenheid, richting en frequentie
 
 - **Bewerken** — opent de test in een plat formulier. Je kunt de naam,
   categorie, het type waarde, de eenheid (uit de lijst of een eigen
-  eenheid), de schaalgrenzen, de richting, de frequentie en de
-  actief-schakelaar wijzigen, en de groene/oranje streefbanden per
+  eenheid), de schaalgrenzen, de richting, de frequentie, de
+  actief-schakelaar en of de resultaten van de test **op het spelersprofiel
+  worden getoond** wijzigen, en de groene/oranje streefbanden per
   leeftijdsgroep ter plekke aanpassen. **Opslaan** legt vast; **Annuleren**
   brengt je terug naar de lijst (of naar waar je vandaan kwam).
   Geslaagd/niet-tests hebben geen streefbanden.
+- **Tonen op het spelersprofiel** — een vinkje per test (standaard aan). Zet
+  het uit om een test buiten de metingenweergave op het spelersprofiel te
+  houden terwijl die nog wel resultaten vastlegt en in de resultatenbrowser,
+  rapporten en exports verschijnt. Handig voor interne of experimentele
+  tests die je (nog) niet aan spelers en ouders wilt tonen. Bestaande tests
+  blijven na de upgrade zichtbaar.
 - **Activeren / Deactiveren** — een inactieve test blijft in de catalogus
   en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
   *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
