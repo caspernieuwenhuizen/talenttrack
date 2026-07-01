@@ -240,8 +240,12 @@
     overflow: hidden;
     touch-action: manipulation;
 }
-.tt-mp-pitch-1e { background: var(--tt-mp-pitch-1e); border-color: var(--tt-mp-pitch-1e-d); }
-.tt-mp-pitch-2e { background: var(--tt-mp-pitch-2e); border-color: var(--tt-mp-pitch-2e-d); }
+/* #2197 — both half-pitches share one light pitch surface. The former
+   orange 2nd-half tint read as a dark background; the two pitches now
+   look identical. (The 1e/2e minute pills keep their tint tokens for the
+   roster table — only the pitch surface is unified.) */
+.tt-mp-pitch-1e,
+.tt-mp-pitch-2e { background: var(--tt-mp-pitch-1e); border-color: var(--tt-mp-pitch-1e-d); }
 .tt-mp-pitch-label {
     position: absolute;
     top: 0.375rem;
