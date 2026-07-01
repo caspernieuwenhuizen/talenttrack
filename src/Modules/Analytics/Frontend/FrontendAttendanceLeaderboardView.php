@@ -57,6 +57,17 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             return;
         }
 
+        // #2126 — per-report toggle: reject even a direct link when the
+        // Attendance leaderboard has been switched off for this academy.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_attendance_leaderboard' ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Attendance leaderboard', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+            );
+            echo '<p class="tt-notice">' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard(
             __( 'Attendance leaderboard', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]

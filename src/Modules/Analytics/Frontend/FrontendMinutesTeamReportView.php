@@ -60,6 +60,17 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             return;
         }
 
+        // #2126 — per-report toggle: reject even a direct link when the
+        // Minutes-played-per-team report has been switched off for this academy.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_minutes_report_team' ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Minutes played (team)', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+            );
+            echo '<p class="tt-notice">' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard(
             __( 'Minutes played (team)', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]

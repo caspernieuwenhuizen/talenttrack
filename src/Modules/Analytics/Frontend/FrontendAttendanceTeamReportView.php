@@ -64,6 +64,17 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             return;
         }
 
+        // #2126 — per-report toggle: reject even a direct link when the
+        // Team attendance report has been switched off for this academy.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_attendance_report_team' ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Team attendance', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+            );
+            echo '<p class="tt-notice">' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard(
             __( 'Team attendance', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
