@@ -160,7 +160,13 @@
     flex-direction: column;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 0.75rem;
-    overflow: hidden;
+    /*
+     * Not overflow:hidden — that would clip the absolutely-positioned status
+     * picker dropdown (.tt-statussel__list) where it extends past the roster
+     * box (#2166). The rounded-corner clip is restored by rounding the first
+     * and last rows instead (below).
+     */
+    overflow: visible;
     background: #fff;
 }
 
@@ -174,8 +180,16 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Round the outer rows so the roster edges stay clean without overflow:hidden. */
+.tt-me-row:first-child {
+    border-top-left-radius: calc(0.75rem - 1px);
+    border-top-right-radius: calc(0.75rem - 1px);
+}
+
 .tt-me-row:last-child {
     border-bottom: 0;
+    border-bottom-left-radius: calc(0.75rem - 1px);
+    border-bottom-right-radius: calc(0.75rem - 1px);
 }
 
 .tt-me-row-name {
