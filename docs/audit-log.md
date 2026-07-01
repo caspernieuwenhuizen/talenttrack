@@ -27,13 +27,13 @@ The **All entries** tab lists the trail newest-first, 50 rows per page:
 
 ### Filters
 
-Above the list, a filter form narrows the trail. All filters are optional and combine:
+Above the list, the shared filter bar narrows the trail. All filters are optional and combine:
 
 - **Action** and **Entity** — dropdowns built from the distinct values actually present in the trail.
 - **User #** — numeric (`inputmode="numeric"`); the WordPress user ID of the actor.
 - **From** / **To** — a date range (`type="date"`).
 
-**Filter** applies the selection; **Clear** resets it. Pagination uses an `apage` query parameter so it never collides with WordPress's reserved `paged`.
+On wide screens the filters sit in a single inline row; on phones and tablets they collapse behind a **Filters** button that opens a bottom sheet holding the same controls. Changing a dropdown applies immediately; **Clear** resets every filter. Pagination uses an `apage` query parameter so it never collides with WordPress's reserved `paged`.
 
 ### Failed logins
 

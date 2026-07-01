@@ -299,51 +299,81 @@ class FrontendAuditLogView extends FrontendViewBase {
         $sel_user   = (string) ( $filters['user_id']     ?? '' );
         $sel_from   = (string) ( $filters['date_from']   ?? '' );
         $sel_to     = (string) ( $filters['date_to']     ?? '' );
-        ?>
-        <form method="get" class="tt-audit-filters" style="display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin-bottom:var(--tt-sp-3, 12px);">
-            <?php
-            // Preserve the dashboard router's tt_view param so submitting
-            // the filter doesn't kick the user back to the tile grid.
-            if ( ! empty( $_GET['tt_view'] ) ) :
-                ?><input type="hidden" name="tt_view" value="<?php echo esc_attr( sanitize_key( (string) $_GET['tt_view'] ) ); ?>" /><?php
-            endif; ?>
 
-            <div class="tt-field" style="flex:1 1 180px;">
-                <label class="tt-field-label" for="tt-audit-f-action"><?php esc_html_e( 'Action', 'talenttrack' ); ?></label>
-                <select id="tt-audit-f-action" name="f_action" class="tt-input">
-                    <option value=""><?php esc_html_e( '— Any —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $actions as $a ) : ?>
-                        <option value="<?php echo esc_attr( $a ); ?>" <?php selected( $sel_action, $a ); ?>><?php echo esc_html( $a ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="tt-field" style="flex:1 1 140px;">
-                <label class="tt-field-label" for="tt-audit-f-entity"><?php esc_html_e( 'Entity', 'talenttrack' ); ?></label>
-                <select id="tt-audit-f-entity" name="f_entity_type" class="tt-input">
-                    <option value=""><?php esc_html_e( '— Any —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $entity_types as $e ) : ?>
-                        <option value="<?php echo esc_attr( $e ); ?>" <?php selected( $sel_entity, $e ); ?>><?php echo esc_html( $e ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="tt-field" style="flex:0 0 100px;">
-                <label class="tt-field-label" for="tt-audit-f-user"><?php esc_html_e( 'User #', 'talenttrack' ); ?></label>
-                <input id="tt-audit-f-user" type="number" min="0" name="f_user_id" value="<?php echo esc_attr( $sel_user ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-audit-f-from"><?php esc_html_e( 'From', 'talenttrack' ); ?></label>
-                <input id="tt-audit-f-from" type="date" name="f_date_from" value="<?php echo esc_attr( $sel_from ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 140px;">
-                <label class="tt-field-label" for="tt-audit-f-to"><?php esc_html_e( 'To', 'talenttrack' ); ?></label>
-                <input id="tt-audit-f-to" type="date" name="f_date_to" value="<?php echo esc_attr( $sel_to ); ?>" class="tt-input" />
-            </div>
-            <div class="tt-field" style="flex:0 0 auto; align-self:flex-end;">
-                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Filter', 'talenttrack' ); ?></button>
-                <a href="<?php echo esc_url( self::clearUrl() ); ?>" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
-            </div>
-        </form>
-        <?php
+        // #2175 — filters render via the shared FilterBar component: two
+        // selects (Action / Entity), a numeric text field (User #), and a
+        // from/to date_range. Clear is the sheet's reset action. The bar
+        // is an inline single-line row at >=1024px and a "Filters" button
+        // + bottom sheet below that; behaviour (GET params) is unchanged.
+        // Replacing the hand-rolled inline-styled form also clears inline
+        // styling from this src PHP file (inline-style containment gate).
+        $action_options = [];
+        foreach ( $actions as $a ) { $action_options[ (string) $a ] = (string) $a; }
+        $entity_options = [];
+        foreach ( $entity_types as $e ) { $entity_options[ (string) $e ] = (string) $e; }
+
+        // Preserve the dashboard router's tt_view param so submitting the
+        // filter doesn't kick the user back to the tile grid.
+        $hidden = [];
+        if ( ! empty( $_GET['tt_view'] ) ) {
+            $hidden['tt_view'] = sanitize_key( (string) $_GET['tt_view'] );
+        }
+
+        // Active-count + summary chips for the mobile collapsed state.
+        $active_count = 0;
+        $chips = [];
+        if ( $sel_action !== '' ) { $active_count++; $chips[] = $sel_action; }
+        if ( $sel_entity !== '' ) { $active_count++; $chips[] = $sel_entity; }
+        if ( $sel_user   !== '' ) { $active_count++; $chips[] = '#' . $sel_user; }
+        if ( $sel_from   !== '' || $sel_to !== '' ) {
+            $active_count++;
+            $chips[] = trim( $sel_from . ' – ' . $sel_to, ' –' );
+        }
+
+        \TT\Shared\Frontend\Components\FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => self::clearUrl(),
+            'groups'       => [
+                [
+                    'type'        => 'select',
+                    'key'         => 'action',
+                    'label'       => __( 'Action', 'talenttrack' ),
+                    'name'        => 'f_action',
+                    'selected'    => $sel_action,
+                    'placeholder' => __( '— Any —', 'talenttrack' ),
+                    'options'     => $action_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'entity',
+                    'label'       => __( 'Entity', 'talenttrack' ),
+                    'name'        => 'f_entity_type',
+                    'selected'    => $sel_entity,
+                    'placeholder' => __( '— Any —', 'talenttrack' ),
+                    'options'     => $entity_options,
+                ],
+                [
+                    'type'       => 'text',
+                    'key'        => 'user',
+                    'label'      => __( 'User #', 'talenttrack' ),
+                    'name'       => 'f_user_id',
+                    'value'      => $sel_user,
+                    'input_type' => 'text',
+                    'inputmode'  => 'numeric',
+                ],
+                [
+                    'type'       => 'date_range',
+                    'key'        => 'date',
+                    'label'      => __( 'Date', 'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To', 'talenttrack' ),
+                    'from'       => [ 'name' => 'f_date_from', 'value' => $sel_from ],
+                    'to'         => [ 'name' => 'f_date_to',   'value' => $sel_to ],
+                ],
+            ],
+        ] );
     }
 
     /**
