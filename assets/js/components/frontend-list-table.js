@@ -227,7 +227,14 @@
             // HTML in config.empty_html) for the fresh "you have
             // nothing yet" case; plain "nothing matches your filters"
             // text whenever a search or filter is active.
-            var hasQuery = !!state.search || Object.keys(state.filter || {}).length > 0;
+            // #2202 — a filter value that merely equals its seeded default
+            // (e.g. goals' Active status) is not a user query, so it must not
+            // suppress the guided empty-state card on a genuinely empty list.
+            var defaults = config.default_filters || {};
+            var userFiltered = Object.keys(state.filter || {}).some(function (k) {
+                return String(state.filter[k]) !== String(defaults[k] == null ? ' ' : defaults[k]);
+            });
+            var hasQuery = !!state.search || userFiltered;
             var emptyContent = (!hasQuery && config.empty_html)
                 ? config.empty_html
                 : escapeHtml(config.i18n.empty);

@@ -325,6 +325,14 @@
 .tt-dashboard .tt-statpill[data-k="archived"] .tt-statpill__dot {
 	background: var(--tt-muted, #6a6d66);
 }
+/* #2202 — goals status buckets: achieved reads as done (green), missed as
+   a terminated/negative state (danger). */
+.tt-dashboard .tt-statpill[data-k="achieved"] .tt-statpill__dot {
+	background: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-statpill[data-k="missed"] .tt-statpill__dot {
+	background: var(--tt-danger, #d8453b);
+}
 .tt-dashboard .tt-statpill[data-k="all"] .tt-statpill__dot {
 	background: linear-gradient(90deg, var(--tt-success, #2f9e5e) 50%, var(--tt-muted, #6a6d66) 50%);
 }
@@ -582,6 +590,12 @@
 	.tt-dashboard .tt-filterbar__group {
 		flex: 0 0 auto;
 		min-width: 0;
+	}
+	/* #2203 — the status group always sits last and right-aligned on the
+	   inline bar; the auto-margin absorbs the remaining row width so the
+	   pills hug the right edge regardless of caller group order. */
+	.tt-dashboard .tt-filterbar__group--status {
+		margin-left: auto;
 	}
 	.tt-dashboard .tt-filterbar__div {
 		align-self: stretch;

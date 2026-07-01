@@ -124,12 +124,39 @@ class FrontendListTable {
 
         $state = self::stateFromQuery( $filters, $default_sort );
 
+        // #2202 — a filter may declare a `default` value that seeds the
+        // initial state (e.g. goals default to the Active status bucket).
+        // A seeded default is NOT a user-chosen query, so it must not flip
+        // the "guided empty state vs. no-match message" decision — otherwise
+        // a fresh, goal-less install would never show the onboarding card.
+        // Build the default map + the user-chosen filter subset (state minus
+        // any value that merely equals its default) for the no-query test,
+        // shared with the JS hydrator via `default_filters`.
+        $default_filters = [];
+        foreach ( $filters as $fkey => $fcfg ) {
+            if ( isset( $fcfg['default'] ) ) {
+                $default_filters[ (string) $fkey ] = (string) $fcfg['default'];
+            }
+        }
+        $state_filter = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
+        $user_filter  = [];
+        foreach ( $state_filter as $fk => $fv ) {
+            if ( isset( $default_filters[ (string) $fk ] ) && (string) $fv === $default_filters[ (string) $fk ] ) {
+                continue; // seeded default, not a user query
+            }
+            $user_filter[ (string) $fk ] = $fv;
+        }
+
         // Declarative config that the JS hydrator will consume — keeps
         // PHP and JS in sync without the JS having to inspect markup.
         $js_config = [
             'rest_path'        => $rest_path,
             'columns'          => self::columnsForJs( $columns ),
             'filters'          => self::filtersForJs( $filters ),
+            // #2202 — seeded filter defaults, so the hydrator can tell a
+            // default apart from a user-chosen filter for its empty-state
+            // (guided card vs. no-match) decision.
+            'default_filters'  => $default_filters,
             'static_filters'   => self::sanitizeStaticFilters( $static_filters ),
             'row_actions'      => self::rowActionsForJs( $row_actions ),
             'row_url_key'      => $row_url_key,
@@ -186,7 +213,7 @@ class FrontendListTable {
             <?php if ( $layout === 'cards' ) : ?>
                 <div class="tt-card-grid" data-tt-list-body="1" data-tt-list-cardgrid="1">
                     <div class="tt-list-table-empty" data-tt-list-empty="1"><?php
-                        $no_query = $state['search'] === '' && empty( $state['filter'] );
+                        $no_query = $state['search'] === '' && empty( $user_filter );
                         if ( $empty_card_html !== '' && $no_query ) {
                             echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
                         } else {
@@ -203,8 +230,9 @@ class FrontendListTable {
                     <tbody data-tt-list-body="1">
                         <tr class="tt-list-table-empty" data-tt-list-empty="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php
                             // #1362 — no-JS shell mirrors the hydrator's choice:
-                            // guided card only when no query is active.
-                            $no_query = $state['search'] === '' && empty( $state['filter'] );
+                            // guided card only when no query is active. #2202 —
+                            // a seeded filter default doesn't count as a query.
+                            $no_query = $state['search'] === '' && empty( $user_filter );
                             if ( $empty_card_html !== '' && $no_query ) {
                                 echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
                             } else {
@@ -256,6 +284,15 @@ class FrontendListTable {
                 if ( ! empty( $get_filter[ $to ] ) )   $clean_filter[ $to ]   = sanitize_text_field( wp_unslash( (string) $get_filter[ $to ] ) );
             } elseif ( ! empty( $get_filter[ $key ] ) ) {
                 $clean_filter[ $key ] = sanitize_text_field( wp_unslash( (string) $get_filter[ $key ] ) );
+            } elseif ( isset( $cfg['default'] ) && ! isset( $get_filter[ $key ] ) ) {
+                // #2202 — a filter can declare a `default` value applied when
+                // the URL carries no explicit selection for it. Seeds the
+                // initial state so the JS hydrator's first fetch and the
+                // rendered pill both reflect the default (e.g. goals default
+                // to the Active status bucket). An explicit empty value in the
+                // URL (`filter[<key>]=`) still means "no selection"; only a
+                // wholly absent key falls back to the default.
+                $clean_filter[ $key ] = sanitize_text_field( (string) $cfg['default'] );
             }
         }
         return [
@@ -347,7 +384,10 @@ class FrontendListTable {
                 // status pills (link-based, full-reload). Default stays a
                 // plain select so existing views are unchanged.
                 if ( $render === 'status' ) {
-                    $groups[] = self::statusGroup( $key, $label, $opts, $sel );
+                    // #2202 — a status filter can drop the leading "All" pill
+                    // (`no_all => true`) when the view wants a mandatory
+                    // selection with a seeded default (goals default to Active).
+                    $groups[] = self::statusGroup( $key, $label, $opts, $sel, ! empty( $filter['no_all'] ) );
                     continue;
                 }
 
@@ -419,22 +459,27 @@ class FrontendListTable {
      * the empty value ("All") clearing the param.
      *
      * @param array<int|string,mixed> $opts value => label
+     * @param bool                    $no_all drop the leading "All" pill (#2202)
      * @return array<string,mixed>
      */
-    private static function statusGroup( string $key, string $label, array $opts, string $selected ): array {
+    private static function statusGroup( string $key, string $label, array $opts, string $selected, bool $no_all = false ): array {
         $base = self::currentQueryArgs();
         unset( $base['filter'][ $key ], $base['page'] );
 
         $options = [];
-        // Leading "All" (clears the filter).
-        $all_args = $base;
-        $options[] = [
-            'value'  => '',
-            'label'  => __( 'All', 'talenttrack' ),
-            'url'    => esc_url_raw( add_query_arg( $all_args ) ),
-            'active' => ( $selected === '' ),
-            'dot'    => 'all',
-        ];
+        // Leading "All" (clears the filter) — suppressed when the caller wants
+        // a mandatory selection (#2202: the goals status filter defaults to
+        // Active and drops "All").
+        if ( ! $no_all ) {
+            $all_args = $base;
+            $options[] = [
+                'value'  => '',
+                'label'  => __( 'All', 'talenttrack' ),
+                'url'    => esc_url_raw( add_query_arg( $all_args ) ),
+                'active' => ( $selected === '' ),
+                'dot'    => 'all',
+            ];
+        }
         foreach ( $opts as $value => $text ) {
             $value = (string) $value;
             $args  = $base;

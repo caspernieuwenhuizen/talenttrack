@@ -62,7 +62,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * period/status: 'options' => [ ['value','label','url','active', 'dot'?] ],
  *         'active_label' (text shown on the period pill trigger).
  * toggle: 'name', 'on' (bool), 'on_label' (the "Tonen" text),
- *         'value' (submitted value when checked, default '1').
+ *         'value' (submitted value when checked, default '1'),
+ *         'off_value' (optional — when set, a hidden companion input
+ *         submits this value while the box is unchecked, so turning the
+ *         toggle OFF sends an explicit off-state instead of omitting the
+ *         param; #2201).
  *
  * The wrapping <form> can carry extra attributes (e.g.
  * `data-tt-list-form="1"` so FrontendListTable's hydrator binds to it)
@@ -172,11 +176,20 @@ final class FilterBar {
 		}
 
 		// ---- Inline single-line row (desktop >=1024px) --------------
+		// #2203 — the `status` group is always rendered LAST and pushed right
+		// (CSS `margin-left:auto` on the `--status` wrapper), regardless of the
+		// order the caller passed groups. Non-status groups keep their relative
+		// order; the mobile sheet order (below) is untouched.
+		$inline_groups = self::orderStatusLast( $groups );
 		$out .= '<div class="tt-filterbar__row">';
-		$last = count( $groups ) - 1;
-		foreach ( $groups as $i => $group ) {
+		$last = count( $inline_groups ) - 1;
+		foreach ( $inline_groups as $i => $group ) {
 			$out .= self::renderGroup( $group, false );
-			if ( $i < $last ) {
+			// Suppress the divider immediately before the right-aligned status
+			// group — the auto-margin gap replaces it.
+			$next_is_status = isset( $inline_groups[ $i + 1 ] )
+				&& (string) ( $inline_groups[ $i + 1 ]['type'] ?? '' ) === 'status';
+			if ( $i < $last && ! $next_is_status ) {
 				$out .= '<div class="tt-filterbar__div" aria-hidden="true"></div>';
 			}
 		}
@@ -242,6 +255,29 @@ final class FilterBar {
 		$out .= '</div>'; // .tt-filterbar
 
 		return $out;
+	}
+
+	/**
+	 * Reorder groups for the INLINE row so every `status`-type group sorts
+	 * to the end (#2203), preserving the relative order of all other groups
+	 * and of multiple status groups among themselves. A stable partition —
+	 * used only for the desktop inline row; the mobile sheet keeps the
+	 * caller's original order.
+	 *
+	 * @param array<int,array<string,mixed>> $groups
+	 * @return array<int,array<string,mixed>>
+	 */
+	private static function orderStatusLast( array $groups ): array {
+		$rest   = [];
+		$status = [];
+		foreach ( $groups as $group ) {
+			if ( (string) ( $group['type'] ?? '' ) === 'status' ) {
+				$status[] = $group;
+			} else {
+				$rest[] = $group;
+			}
+		}
+		return array_merge( $rest, $status );
 	}
 
 	/**
@@ -487,12 +523,25 @@ final class FilterBar {
 	 * @param array<string,mixed> $group
 	 */
 	private static function renderToggle( array $group ): string {
-		$name     = (string) ( $group['name'] ?? '' );
-		$on       = ! empty( $group['on'] );
-		$on_label = (string) ( $group['on_label'] ?? '' );
-		$value    = (string) ( $group['value'] ?? '1' );
+		$name      = (string) ( $group['name'] ?? '' );
+		$on        = ! empty( $group['on'] );
+		$on_label  = (string) ( $group['on_label'] ?? '' );
+		$value     = (string) ( $group['value'] ?? '1' );
+		// #2201 — optional explicit OFF value. A bare checkbox that is
+		// unchecked simply omits its param on submit, which is fine when the
+		// URL state is rebuilt from scratch — but when a stale flag can
+		// linger in carried params, the toggle would appear stuck ON. When
+		// `off_value` is set, a hidden companion input carries it; the
+		// checkbox is rendered AFTER the hidden field, so on submit the box's
+		// own value wins while checked (last duplicate wins in PHP $_GET) and
+		// the hidden off-value is what reaches the server while unchecked.
+		$off_value = isset( $group['off_value'] ) ? (string) $group['off_value'] : null;
 
 		$out  = '<label class="tt-switch' . ( $on ? ' tt-switch--on' : '' ) . '" data-tt-switch>';
+		if ( $off_value !== null && $name !== '' ) {
+			$out .= '<input type="hidden" name="' . esc_attr( $name )
+				. '" value="' . esc_attr( $off_value ) . '" data-tt-switch-off />';
+		}
 		$out .= '<input type="checkbox" class="tt-switch__input" name="' . esc_attr( $name )
 			. '" value="' . esc_attr( $value ) . '"' . ( $on ? ' checked' : '' )
 			. ' data-tt-filter-submit />';

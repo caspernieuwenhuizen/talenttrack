@@ -144,13 +144,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // controller does.
             $current_uid    = get_current_user_id();
             $can_edit_acts  = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_edit_activities' );
-            if ( $session && $can_edit_acts ) {
+            // #2199 — Archive (soft-delete) + Restore are delete-class, gated
+            // on the activities create/delete cap, so an assistant coach with
+            // edit-only no longer sees them; a head coach (RCD) does.
+            $can_delete_acts = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_delete_activities' );
+            if ( $session && ( $can_edit_acts || $can_delete_acts ) ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 // #2183 — an archived activity is read-only until restored:
                 // the mutating header actions (Edit / match prep / live match /
                 // Continue rating) are suppressed, leaving only Restore.
                 $is_archived = ! empty( $session->archived_at );
-                if ( ! $is_archived ) {
+                if ( ! $is_archived && $can_edit_acts ) {
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -239,11 +243,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'href'  => $rate_url,
                     ];
                 }
-                } // end ! $is_archived (active-only mutating actions)
+                } // end ! $is_archived && $can_edit_acts (active-only edit actions)
                 // #2183 — an already-archived activity offers Restore, not a
                 // second Archive. Branch on the archive stamp: active rows keep
                 // the DELETE Archive action; archived rows POST to the restore
                 // endpoint and land the coach back on the (now active) record.
+                // #2199 — Archive + Restore are delete-class: only surfaced to
+                // a coach who can create/delete activities, not edit-only.
+                if ( $can_delete_acts ) {
                 if ( $is_archived ) {
                     $restore_redirect = add_query_arg(
                         [ 'tt_view' => 'activities', 'id' => (int) $session->id ],
@@ -272,6 +279,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         ],
                     ];
                 }
+                } // end $can_delete_acts (Archive / Restore)
             }
             self::renderHeader(
                 $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ),
@@ -1161,13 +1169,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'options' => $status_options,
                 ],
                 [
-                    'type'     => 'toggle',
-                    'key'      => 'cancelled',
-                    'label'    => __( 'Cancelled', 'talenttrack' ),
-                    'name'     => 'show_cancelled',
-                    'on'       => $show_cancelled,
-                    'on_label' => __( 'Show', 'talenttrack' ),
-                    'value'    => '1',
+                    'type'      => 'toggle',
+                    'key'       => 'cancelled',
+                    'label'     => __( 'Cancelled', 'talenttrack' ),
+                    'name'      => 'show_cancelled',
+                    'on'        => $show_cancelled,
+                    'on_label'  => __( 'Show', 'talenttrack' ),
+                    'value'     => '1',
+                    // #2201 — explicit OFF so turning the toggle back off
+                    // submits show_cancelled=0 rather than omitting the param,
+                    // clearing the flag even if it lingered in the URL.
+                    'off_value' => '0',
                 ],
             ],
         ] );
@@ -1218,7 +1230,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // renders only the flat archived list below.
         if ( $archived_view !== 'archived' ) {
 
-        // ---- PAST TOGGLE --------------------------------------------
+        // ---- PAST, STILL OPEN (always visible by default) -----------
+        // #2200 — activities that happened but were never closed off
+        // (plan_state not completed/cancelled) are the coach's overdue
+        // follow-up. They must be seen without extra clicks, so they render
+        // as their own explicit section at the very top of the list — above
+        // the collapsed "Past" toggle (completed/cancelled history), never
+        // hidden behind it.
+        if ( $buckets['attention_count'] > 0 ) {
+            echo '<ul class="tt-act-list tt-act-list--attention">';
+            self::renderBucket(
+                'attention',
+                __( 'Past — still open', 'talenttrack' ),
+                $buckets['attention'],
+                sprintf(
+                    /* translators: %d: count of past activities not yet closed off */
+                    _n( '%d not closed off', '%d not closed off', $buckets['attention_count'], 'talenttrack' ),
+                    $buckets['attention_count']
+                )
+            );
+            echo '</ul>';
+        }
+
+        // ---- PAST TOGGLE (completed / cancelled history) ------------
         if ( $past_total > 0 ) {
             self::renderPastToggle( $past_total, $include_past );
         }
@@ -1239,20 +1273,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         // ---- FORWARD BUCKETS ----------------------------------------
+        // #2200 — the past-but-open ("Past — still open") section now renders
+        // above, as its own explicit block; the forward list holds only
+        // today-and-later buckets.
         echo '<ul class="tt-act-list">';
-
-        if ( $buckets['attention_count'] > 0 ) {
-            self::renderBucket(
-                'attention',
-                __( 'Needs attention', 'talenttrack' ),
-                $buckets['attention'],
-                sprintf(
-                    /* translators: %d: count of past planned activities */
-                    _n( '%d past, still planned', '%d past, still planned', $buckets['attention_count'], 'talenttrack' ),
-                    $buckets['attention_count']
-                )
-            );
-        }
 
         if ( $buckets['today'] ) {
             // Header: "Today · Wed 28 May" — day-of-week + date.
@@ -1346,7 +1370,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      */
     private static function renderArchivedList( array $rows, string $redirect_url ): void {
         $can_hard_delete = current_user_can( 'tt_edit_settings' );
-        $can_restore     = current_user_can( 'tt_edit_activities' );
+        // #2199 — restore reverses an archive, so it is delete-class (matrix
+        // `activities:create_delete`), consistent with the detail-header
+        // Archive/Restore gate. Matrix-aware so Functional-Role-only grants
+        // authorise the same way the REST controller does.
+        $can_restore     = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_delete_activities' );
 
         echo '<ul class="tt-act-list tt-act-list--archived" aria-label="' . esc_attr__( 'Archived activities', 'talenttrack' ) . '">';
         echo '<li><div class="tt-act-bucket-head"><span>' . esc_html__( 'Archived', 'talenttrack' ) . '</span>';
