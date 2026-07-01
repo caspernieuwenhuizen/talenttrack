@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-07-01T18:16:22+00:00\n"
+"POT-Creation-Date: 2026-07-01T18:43:24+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -20121,7 +20121,7 @@ msgid "Attention text"
 msgstr "Aandachtspunt"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:713
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:281
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:282
 msgid "Roles & set pieces"
 msgstr "Rollen & standaardsituaties"
 
@@ -20269,16 +20269,16 @@ msgstr "Specifiek doel"
 msgid "Video-analist toegewezen"
 msgstr "Video-analist toegewezen"
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:352
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:354
 msgid "thuis"
 msgstr "thuis"
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:352
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:354
 msgid "uit"
 msgstr "uit"
 
 #. translators: 1: opponent, 2: thuis/uit, 3: kickoff_time, 4: formation
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:356
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:358
 #, php-format
 msgid "vs %1$s · %2$s · KO %3$s · %4$s"
 msgstr "tegen %1$s · %2$s · KO %3$s · %4$s"
@@ -20438,25 +20438,25 @@ msgid "Everyone is up to date."
 msgstr "Iedereen is up-to-date."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:168
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:627
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:649
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:59
 msgid "Once a season"
 msgstr "Eén keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:169
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:628
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:650
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:60
 msgid "Twice a season"
 msgstr "Twee keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:170
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:629
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:651
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:61
 msgid "Four times a season"
 msgstr "Vier keer per seizoen"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:171
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:630
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:652
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:62
 msgid "Monthly"
 msgstr "Maandelijks"
@@ -20562,7 +20562,7 @@ msgstr[0] "%d meting vastgelegd."
 msgstr[1] "%d metingen vastgelegd."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:388
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:658
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:680
 msgid "+ New test"
 msgstr "+ Nieuwe test"
 
@@ -20777,42 +20777,42 @@ msgstr "Die test kon niet worden gearchiveerd."
 msgid "Test saved."
 msgstr "Test opgeslagen."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:608
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:630
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:38
 msgid "A number (with a unit)"
 msgstr "Een getal (met een eenheid)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:609
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:631
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
 msgid "A scale score"
 msgstr "Een schaalscore"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:610
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:632
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:40
 msgid "Pass / fail"
 msgstr "Geslaagd / niet geslaagd"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:611
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:633
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:41
 msgid "A status (coloured levels)"
 msgstr "Een status (gekleurde niveaus)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:618
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:640
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:47
 msgid "Higher is better"
 msgstr "Hoger is beter"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:619
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:641
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:48
 msgid "Lower is better"
 msgstr "Lager is beter"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:620
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:642
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:49
 msgid "Neither (just track it)"
 msgstr "Geen van beide (alleen bijhouden)"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:631
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:653
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:63
 msgid "No fixed cadence"
 msgstr "Geen vaste frequentie"

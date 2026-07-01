@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-01T18:18:00+00:00\n"
+"POT-Creation-Date: 2026-07-01T18:43:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -17600,7 +17600,7 @@ msgid "Attention text"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:713
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:281
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:282
 msgid "Roles & set pieces"
 msgstr ""
 
@@ -17748,16 +17748,16 @@ msgstr ""
 msgid "Video-analist toegewezen"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:352
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:354
 msgid "thuis"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:352
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:354
 msgid "uit"
 msgstr ""
 
 #. translators: 1: opponent, 2: thuis/uit, 3: kickoff_time, 4: formation
-#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:356
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:358
 #, php-format
 msgid "vs %1$s · %2$s · KO %3$s · %4$s"
 msgstr ""
@@ -17895,25 +17895,25 @@ msgid "Everyone is up to date."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:168
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:627
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:649
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:59
 msgid "Once a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:169
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:628
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:650
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:60
 msgid "Twice a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:170
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:629
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:651
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:61
 msgid "Four times a season"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:171
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:630
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:652
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:62
 msgid "Monthly"
 msgstr ""
@@ -18018,7 +18018,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:388
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:658
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:680
 msgid "+ New test"
 msgstr ""
 
@@ -18218,42 +18218,42 @@ msgstr ""
 msgid "Test saved."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:608
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:630
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:38
 msgid "A number (with a unit)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:609
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:631
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:39
 msgid "A scale score"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:610
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:632
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:40
 msgid "Pass / fail"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:611
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:633
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:41
 msgid "A status (coloured levels)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:618
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:640
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:47
 msgid "Higher is better"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:619
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:641
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:48
 msgid "Lower is better"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:620
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:642
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:49
 msgid "Neither (just track it)"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:631
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:653
 #: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php:63
 msgid "No fixed cadence"
 msgstr ""
