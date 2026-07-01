@@ -52,7 +52,10 @@ class PlayerMeasurementProfile {
         if ( $player_id <= 0 ) return [];
 
         $age_group   = $this->ageGroupFor( $player_id );
-        $definitions = $this->definitions->listActive();
+        // Only tests the operator has kept visible on the profile (#2204).
+        // A test toggled off still records results and appears in reports /
+        // exports — it just stops rendering on the player profile.
+        $definitions = $this->definitions->listActiveForProfile();
         $latest      = $this->results->latestPerDefinitionForPlayer( $player_id );
 
         $grouped = [];
