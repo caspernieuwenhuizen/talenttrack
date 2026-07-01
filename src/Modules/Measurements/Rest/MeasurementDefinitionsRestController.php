@@ -227,7 +227,7 @@ class MeasurementDefinitionsRestController {
         }
 
         $data = [];
-        foreach ( [ 'category_id', 'value_type', 'unit', 'frequency', 'direction', 'scale_min', 'scale_max', 'is_active', 'sort_order' ] as $k ) {
+        foreach ( [ 'category_id', 'value_type', 'unit', 'frequency', 'direction', 'scale_min', 'scale_max', 'is_active', 'show_on_profile', 'sort_order' ] as $k ) {
             if ( $r->has_param( $k ) ) {
                 $data[ $k ] = is_string( $r[ $k ] ) ? sanitize_text_field( (string) $r[ $k ] ) : $r[ $k ];
             }
@@ -315,6 +315,7 @@ class MeasurementDefinitionsRestController {
             'frequency'   => sanitize_text_field( (string) ( $r['frequency'] ?? 'adhoc' ) ),
             'direction'   => sanitize_text_field( (string) ( $r['direction'] ?? 'higher' ) ),
             'is_active'   => $r->has_param( 'is_active' ) ? (int) (bool) $r['is_active'] : 1,
+            'show_on_profile' => $r->has_param( 'show_on_profile' ) ? (int) (bool) $r['show_on_profile'] : 1,
             'sort_order'  => absint( $r['sort_order'] ?? 0 ),
         ];
     }
@@ -333,6 +334,7 @@ class MeasurementDefinitionsRestController {
             'frequency'   => (string) $d->frequency,
             'direction'   => (string) $d->direction,
             'is_active'   => (int) $d->is_active === 1,
+            'show_on_profile' => (int) ( $d->show_on_profile ?? 1 ) === 1,
             'sort_order'  => (int) $d->sort_order,
         ];
     }
