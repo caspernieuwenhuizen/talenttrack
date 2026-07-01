@@ -1074,12 +1074,25 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $academy_rows[] = [ __( 'Date joined', 'talenttrack' ), esc_html( (string) $player->date_joined ) ];
         }
         ?>
+        <?php
+        // #2207 — Academy / Parents / Discovery are club-configurable and
+        // may be hidden academy-wide (Identity is always-on). The staff-only
+        // gating on Parents / Discovery still applies inside their renderers,
+        // on top of this visibility check.
+        $cards = \TT\Modules\Players\Services\ProfileCardsConfig::class;
+        ?>
         <div class="tt-player-profile-grid">
             <?php
             self::renderProfileCard( __( 'Identity', 'talenttrack' ), $identity_rows );
-            self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
-            self::renderParentsCard( $player_id );
-            self::renderDiscoveryCard( $player_id );
+            if ( $cards::isVisible( $cards::CARD_ACADEMY ) ) {
+                self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
+            }
+            if ( $cards::isVisible( $cards::CARD_PARENTS ) ) {
+                self::renderParentsCard( $player_id );
+            }
+            if ( $cards::isVisible( $cards::CARD_DISCOVERY ) ) {
+                self::renderDiscoveryCard( $player_id );
+            }
             ?>
         </div>
 

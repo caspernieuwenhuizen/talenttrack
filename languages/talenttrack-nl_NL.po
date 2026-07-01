@@ -45032,6 +45032,27 @@ msgid "%d not closed off"
 msgid_plural "%d not closed off"
 msgstr[0] "%d niet afgerond"
 msgstr[1] "%d niet afgerond"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Profile cards"
+msgstr "Profielkaarten"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Choose which cards the player-profile Profile tab shows academy-wide. Hide the ones you do not use (e.g. Discovery). Identity always stays."
+msgstr "Kies welke kaarten het tabblad Profiel van het spelersprofiel academiebreed toont. Verberg de kaarten die je niet gebruikt (bijv. Ontdekking). Identiteit blijft altijd staan."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Choose which cards the player-profile Profile tab shows for the whole academy. Uncheck a card to hide it everywhere. The Identity card (name, date of birth, position) always shows and cannot be hidden."
+msgstr "Kies welke kaarten het tabblad Profiel van het spelersprofiel voor de hele academie toont. Vink een kaart uit om die overal te verbergen. De kaart Identiteit (naam, geboortedatum, positie) wordt altijd getoond en kan niet worden verborgen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Visible profile cards"
+msgstr "Zichtbare profielkaarten"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Save profile cards"
+msgstr "Profielkaarten opslaan"
+
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 
