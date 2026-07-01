@@ -843,9 +843,13 @@ final class ActivitiesRepository {
 
             $position = trim( (string) ( $r->position_played ?? '' ) );
             if ( $position === '' ) {
-                $pref     = (string) ( $r->preferred_positions ?? '' );
-                $first    = trim( explode( ',', $pref )[0] ?? '' );
-                $position = $first;
+                // #2196 — `preferred_positions` is stored as a JSON array
+                // (e.g. `["LW"]` / `["LW","CDM"]`). Decode it so the bench
+                // chip shows the clean short code(s), never the raw JSON.
+                // Compact surface → keep the SHORT abbreviation (§2155).
+                $position = self::primaryPreferredPositions(
+                    (string) ( $r->preferred_positions ?? '' )
+                );
             }
 
             $entry = (object) [
@@ -861,6 +865,28 @@ final class ActivitiesRepository {
             }
         }
         return $out;
+    }
+
+    /**
+     * #2196 — normalise a stored `preferred_positions` value into clean
+     * short position code(s) for the compact line-up bench chip. The
+     * column holds a JSON array (`["LW"]`, `["LW","CDM"]`) on modern rows
+     * and a bare comma-separated string on legacy ones; both degrade to a
+     * comma-joined list of trimmed codes. Empty / unparseable input
+     * returns an empty string so the chip renders nothing rather than raw
+     * JSON. Short codes are kept intentionally — this is a compact surface
+     * (§2155's long-form switch was only for profiles/cards/dashboards).
+     */
+    private static function primaryPreferredPositions( string $raw ): string {
+        $raw = trim( $raw );
+        if ( $raw === '' ) return '';
+        $decoded = json_decode( $raw, true );
+        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $raw );
+        $parts   = array_values( array_filter(
+            array_map( static fn ( $v ): string => trim( (string) $v ), $codes ),
+            static fn ( string $v ): bool => $v !== ''
+        ) );
+        return implode( ', ', $parts );
     }
 
     /**
