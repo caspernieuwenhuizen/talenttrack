@@ -172,8 +172,13 @@ class PlayerMeasurementProfile {
     private function ageGroupFor( int $player_id ): string {
         global $wpdb;
         $p = $wpdb->prefix;
+        // Age group lives on the team, not the player row (mirrors
+        // MatchLengthResolver / the #2165 fix). Resolve via team_id.
         return (string) $wpdb->get_var( $wpdb->prepare(
-            "SELECT age_group FROM {$p}tt_players WHERE id = %d AND club_id = %d",
+            "SELECT t.age_group
+               FROM {$p}tt_players pl
+               LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id
+              WHERE pl.id = %d AND pl.club_id = %d",
             $player_id, CurrentClub::id()
         ) );
     }
