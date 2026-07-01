@@ -11,10 +11,41 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Topic slug, when supplied, overrides the URL-based topic inference in
  * docs-drawer.js via the `data-tt-docs-topic` attribute. Without a slug
  * the drawer falls back to the `?tt_view=` -> topic map.
+ *
+ * #2186 — the Help affordance belongs to the Documentation module. When
+ * that module is disabled (Configuration → Modules) the button renders
+ * nothing, so a disabled module leaves no dangling entry point. The gate
+ * lives here, centrally, so every caller (FrontendMyGoalsView,
+ * FrontendWizardView, …) is covered without a per-callsite check.
  */
 final class HelpDrawer {
 
+    /**
+     * FQCN of the module that owns the docs surface. Referenced as a
+     * string (not `::class`) so a disabled — and therefore possibly not
+     * autoloaded — module never triggers a fatal here.
+     */
+    private const DOCS_MODULE_CLASS = 'TT\\Modules\\Documentation\\DocumentationModule';
+
+    /**
+     * Whether the Documentation module is currently enabled, via the same
+     * `tt_module_state` registry that Configuration → Modules reads/writes
+     * (ModulesPage). No hardcoded check — flip the module off and the Help
+     * button disappears everywhere. Defaults to enabled when the registry
+     * class is unavailable (never seen in a normal boot; defensive).
+     */
+    private static function docsEnabled(): bool {
+        if ( ! class_exists( '\\TT\\Core\\ModuleRegistry' ) ) {
+            return true;
+        }
+        return \TT\Core\ModuleRegistry::isEnabled( self::DOCS_MODULE_CLASS );
+    }
+
     public static function button( ?string $topic_slug = null, string $label = '' ): void {
+        // #2186 — no Help entry point when the Documentation module is off.
+        if ( ! self::docsEnabled() ) {
+            return;
+        }
         $help_url = add_query_arg( [ 'tt_view' => 'docs' ], home_url( '/' ) );
         if ( $topic_slug ) {
             $help_url = add_query_arg( [ 'topic' => $topic_slug ], $help_url );
