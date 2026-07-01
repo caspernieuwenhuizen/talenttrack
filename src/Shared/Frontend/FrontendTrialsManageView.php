@@ -256,36 +256,98 @@ class FrontendTrialsManageView extends FrontendViewBase {
             echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
         }
 
-        echo '<form method="get" class="tt-filter-row tt-trials-filters">';
-        echo '<input type="hidden" name="tt_view" value="trials"/>';
-
-        echo '<label>' . esc_html__( 'Status', 'talenttrack' ) . ' <select name="status">';
-        echo '<option value="">' . esc_html__( 'All', 'talenttrack' ) . '</option>';
+        // #2174 — filters render via the shared FilterBar component:
+        // three selects (Status / Track / Decision) + an include-archived
+        // toggle. The bar renders an inline single-line row at >=1024px
+        // and a "Filters" button + bottom sheet below that; behaviour is
+        // identical to the old hand-rolled form (same GET params, same
+        // results). FilterBar self-enqueues its stylesheet.
+        $status_options = [];
         foreach ( [ 'open', 'extended', 'decided', 'archived' ] as $s ) {
-            $sel = selected( $filters['status'], $s, false );
-            echo '<option value="' . esc_attr( $s ) . '" ' . $sel . '>' . esc_html( TrialCasesRepository::statusLabel( $s ) ) . '</option>';
+            $status_options[ $s ] = TrialCasesRepository::statusLabel( $s );
         }
-        echo '</select></label>';
-
-        echo '<label>' . esc_html__( 'Track', 'talenttrack' ) . ' <select name="track_id">';
-        echo '<option value="0">' . esc_html__( 'All', 'talenttrack' ) . '</option>';
+        $track_options = [];
         foreach ( $tracks as $t ) {
-            $sel = selected( $filters['track_id'], (int) $t->id, false );
-            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $t->name ) ) . '</option>';
+            $track_options[ (string) (int) $t->id ] = \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $t->name );
         }
-        echo '</select></label>';
-
-        echo '<label>' . esc_html__( 'Decision', 'talenttrack' ) . ' <select name="decision">';
-        echo '<option value="">' . esc_html__( 'Any', 'talenttrack' ) . '</option>';
+        $decision_options = [];
         foreach ( [ 'admit', 'deny_final', 'deny_encouragement' ] as $d ) {
-            $sel = selected( $filters['decision'], $d, false );
-            echo '<option value="' . esc_attr( $d ) . '" ' . $sel . '>' . esc_html( TrialCasesRepository::decisionLabel( $d ) ) . '</option>';
+            $decision_options[ $d ] = TrialCasesRepository::decisionLabel( $d );
         }
-        echo '</select></label>';
 
-        echo '<label class="tt-trials-filter-check"><input type="checkbox" name="include_archived" value="1" ' . checked( $filters['include_archived'], true, false ) . '> ' . esc_html__( 'Include archived', 'talenttrack' ) . '</label>';
-        echo '<button type="submit" class="tt-button tt-trials-filter-submit">' . esc_html__( 'Filter', 'talenttrack' ) . '</button>';
-        echo '</form>';
+        // Hidden fields the GET form must carry to preserve routing +
+        // back-target across a filter submit.
+        $hidden = [ 'tt_view' => 'trials' ];
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        // Active-count + summary chips for the mobile collapsed state.
+        $active_count = 0;
+        $chips = [];
+        if ( $filters['status'] !== '' && isset( $status_options[ $filters['status'] ] ) ) {
+            $active_count++;
+            $chips[] = $status_options[ $filters['status'] ];
+        }
+        if ( $filters['track_id'] > 0 && isset( $track_options[ (string) $filters['track_id'] ] ) ) {
+            $active_count++;
+            $chips[] = $track_options[ (string) $filters['track_id'] ];
+        }
+        if ( $filters['decision'] !== '' && isset( $decision_options[ $filters['decision'] ] ) ) {
+            $active_count++;
+            $chips[] = $decision_options[ $filters['decision'] ];
+        }
+        if ( $filters['include_archived'] ) {
+            $active_count++;
+            $chips[] = __( 'Archived included', 'talenttrack' );
+        }
+
+        // "Clear" target: the bare list with no filter params.
+        $reset_args = [ 'tt_view' => 'trials' ];
+        if ( ! empty( $hidden['tt_back'] ) ) $reset_args['tt_back'] = $hidden['tt_back'];
+
+        \TT\Shared\Frontend\Components\FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] ) ),
+            'groups'       => [
+                [
+                    'type'        => 'select',
+                    'key'         => 'status',
+                    'label'       => __( 'Status', 'talenttrack' ),
+                    'name'        => 'status',
+                    'selected'    => $filters['status'],
+                    'placeholder' => __( 'All', 'talenttrack' ),
+                    'options'     => $status_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'track',
+                    'label'       => __( 'Track', 'talenttrack' ),
+                    'name'        => 'track_id',
+                    'selected'    => $filters['track_id'] > 0 ? (string) $filters['track_id'] : '',
+                    'placeholder' => __( 'All', 'talenttrack' ),
+                    'options'     => $track_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'decision',
+                    'label'       => __( 'Decision', 'talenttrack' ),
+                    'name'        => 'decision',
+                    'selected'    => $filters['decision'],
+                    'placeholder' => __( 'Any', 'talenttrack' ),
+                    'options'     => $decision_options,
+                ],
+                [
+                    'type'     => 'toggle',
+                    'key'      => 'include-archived',
+                    'label'    => __( 'Include archived', 'talenttrack' ),
+                    'name'     => 'include_archived',
+                    'on'       => $filters['include_archived'],
+                    'on_label' => __( 'Show', 'talenttrack' ),
+                    'value'    => '1',
+                ],
+            ],
+        ] );
 
         if ( ! $rows ) {
             echo '<p class="tt-notice">' . esc_html__( 'No trial cases match those filters yet.', 'talenttrack' ) . '</p>';

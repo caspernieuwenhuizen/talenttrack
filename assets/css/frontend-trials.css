@@ -19,59 +19,8 @@
     margin: 0 0 var(--tt-sp-4);
 }
 
-/* ---- Filter card ---------------------------------------------------- */
-.tt-dashboard .tt-trials-filters {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--tt-sp-3);
-    padding: var(--tt-sp-4);
-    margin: 0 0 var(--tt-sp-5);
-    background: var(--tt-paper);
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius-lg);
-    box-shadow: var(--tt-shadow-md);
-}
-.tt-dashboard .tt-trials-filters label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-1);
-    font-size: var(--tt-fs-sm);
-    font-weight: 600;
-    color: var(--tt-ink);
-    min-width: 0;
-}
-.tt-dashboard .tt-trials-filters label.tt-trials-filter-check {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--tt-sp-2);
-    font-weight: 400;
-    min-height: 48px;
-}
-.tt-dashboard .tt-trials-filters select {
-    width: 100%;
-    min-height: 48px;
-    font-size: 1rem;
-    padding: var(--tt-sp-2) var(--tt-sp-3);
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius);
-    background: var(--tt-paper);
-    color: var(--tt-ink);
-}
-.tt-dashboard .tt-trials-filters input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
-}
-.tt-dashboard .tt-trials-filters .tt-trials-filter-submit {
-    min-height: 48px;
-    touch-action: manipulation;
-}
-
-@media (min-width: 768px) {
-    .tt-dashboard .tt-trials-filters {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        align-items: end;
-    }
-}
+/* Filters render via the shared FilterBar component (#2174); its chrome
+ * lives in assets/css/frontend-filter-bar.css. */
 
 /* ---- Cases list — cards on mobile, table from 768px ----------------- */
 .tt-dashboard .tt-trials-cards {
