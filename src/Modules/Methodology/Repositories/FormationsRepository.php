@@ -108,6 +108,27 @@ class FormationsRepository {
         ) !== false;
     }
 
+    /**
+     * Hard-delete a club-authored formation and its position cards.
+     * Shipped rows are read-only reference content — the caller clones
+     * to edit instead — so this refuses them. Returns false when the
+     * row is shipped or the delete affected no rows (wrong id / club).
+     */
+    public function deleteFormation( int $id ): bool {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        global $wpdb;
+        // Remove the child position cards first so no orphans linger.
+        $wpdb->delete(
+            $this->positionsTable(),
+            [ 'formation_id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $wpdb->delete(
+            $this->formationsTable(),
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
     /** @param array<string,mixed> $data */
     public function createPosition( array $data ): int {
         global $wpdb;
@@ -130,6 +151,21 @@ class FormationsRepository {
         return $wpdb->update(
             $this->positionsTable(),
             [ 'archived_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
+     * Hard-delete a club-authored position card. Shipped positions are
+     * read-only reference content, so this refuses them. Returns false
+     * when the row is shipped or the delete affected no rows.
+     */
+    public function deletePosition( int $id ): bool {
+        $row = $this->findPosition( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        global $wpdb;
+        return $wpdb->delete(
+            $this->positionsTable(),
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         ) !== false;
     }

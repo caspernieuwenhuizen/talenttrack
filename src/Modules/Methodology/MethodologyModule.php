@@ -39,6 +39,10 @@ class MethodologyModule implements ModuleInterface {
         Frontend\Manage\PrinciplesManageTab::register();
         Rest\PrinciplesRestController::init();
 
+        // #2227 — formations (+ nested position cards) authoring tab + REST.
+        Frontend\Manage\FormationsManageTab::register();
+        Rest\FormationsRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();

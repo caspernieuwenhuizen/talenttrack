@@ -151,6 +151,23 @@
     font-style: italic;
 }
 
+/* ── nested sub-list header (formation → positions, #2227) ─────────── */
+
+.tt-dashboard .tt-mmg-subhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.tt-dashboard .tt-mmg-subhead__title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
 /* ── flat NL/EN form ───────────────────────────────────────────────── */
 
 .tt-dashboard .tt-mmg-form {
@@ -186,6 +203,19 @@
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+}
+
+/* Optional per-field hint below an input (e.g. the diagram-data note). */
+.tt-dashboard .tt-mmg-form .tt-field-hint {
+    margin: 0.35rem 0 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Monospace input for the raw diagram-data JSON textarea. */
+.tt-dashboard .tt-mmg-form .tt-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
 }
 
 /* Single-column NL/EN stack on phones; two columns from the large-phone

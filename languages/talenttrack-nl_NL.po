@@ -45480,3 +45480,135 @@ msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "(unnamed position)"
+msgstr "(naamloze positie)"
+
+msgid "+ New formation"
+msgstr "+ Nieuwe formatie"
+
+msgid "+ New position"
+msgstr "+ Nieuwe positie"
+
+msgid "A formation needs a slug."
+msgstr "Een formatie heeft een slug nodig."
+
+msgid "Attacking tasks (one per line)"
+msgstr "Aanvallende taken (één per regel)"
+
+msgid "Could not create the formation."
+msgstr "Kon de formatie niet aanmaken."
+
+msgid "Could not create the position."
+msgstr "Kon de positie niet aanmaken."
+
+msgid "Could not save the formation."
+msgstr "Kon de formatie niet opslaan."
+
+msgid "Could not save the position."
+msgstr "Kon de positie niet opslaan."
+
+msgid "Create formation"
+msgstr "Formatie aanmaken"
+
+msgid "Defending tasks (one per line)"
+msgstr "Verdedigende taken (één per regel)"
+
+msgid "Delete this formation and its position cards? This cannot be undone."
+msgstr "Deze formatie en haar positiekaarten verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "Delete this position? This cannot be undone."
+msgstr "Deze positie verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "Diagram data (JSON)"
+msgstr "Diagramgegevens (JSON)"
+
+msgid "Formation created."
+msgstr "Formatie aangemaakt."
+
+msgid "Formation deleted."
+msgstr "Formatie verwijderd."
+
+msgid "Formation not found."
+msgstr "Formatie niet gevonden."
+
+msgid "Formation saved."
+msgstr "Formatie opgeslagen."
+
+msgid "Long name"
+msgstr "Lange naam"
+
+msgid "No formations yet. Use “+ New formation” to author the first one."
+msgstr "Nog geen formaties. Gebruik “+ Nieuwe formatie” om de eerste aan te maken."
+
+msgid "No positions on this formation yet."
+msgstr "Nog geen posities op deze formatie."
+
+msgid "Optional. Normalized 0–100 position coordinates for the pitch diagram. Leave blank to use the default layout."
+msgstr "Optioneel. Genormaliseerde 0–100-coördinaten voor het opstellingsdiagram. Laat leeg voor de standaardopstelling."
+
+msgid "Position created."
+msgstr "Positie aangemaakt."
+
+msgid "Position deleted."
+msgstr "Positie verwijderd."
+
+msgid "Position not found."
+msgstr "Positie niet gevonden."
+
+msgid "Position saved."
+msgstr "Positie opgeslagen."
+
+msgid "Positions — %s"
+msgstr "Posities — %s"
+
+msgid "Save formation"
+msgstr "Formatie opslaan"
+
+msgid "Save position"
+msgstr "Positie opslaan"
+
+msgid "Shipped formations are read-only reference content and cannot be edited."
+msgstr "Meegeleverde formaties zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+msgid "Shipped formations are read-only reference content; positions cannot be added."
+msgstr "Meegeleverde formaties zijn alleen-lezen naslaginhoud; er kunnen geen posities worden toegevoegd."
+
+msgid "Shipped formations are read-only reference content; their positions cannot be edited."
+msgstr "Meegeleverde formaties zijn alleen-lezen naslaginhoud; hun posities kunnen niet worden bewerkt."
+
+msgid "Shipped formations are read-only. Clone it to edit."
+msgstr "Meegeleverde formaties zijn alleen-lezen. Kloon om te bewerken."
+
+msgid "Shipped formations cannot be deleted."
+msgstr "Meegeleverde formaties kunnen niet worden verwijderd."
+
+msgid "Shipped positions are read-only reference content and cannot be edited."
+msgstr "Meegeleverde posities zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+msgid "Shipped positions are read-only. Clone it to edit."
+msgstr "Meegeleverde posities zijn alleen-lezen. Kloon om te bewerken."
+
+msgid "Shipped positions cannot be deleted."
+msgstr "Meegeleverde posities kunnen niet worden verwijderd."
+
+msgid "Short name"
+msgstr "Korte naam"
+
+msgid "That formation could not be deleted."
+msgstr "Die formatie kon niet worden verwijderd."
+
+msgid "That formation could not be found."
+msgstr "Die formatie kon niet worden gevonden."
+
+msgid "That formation could not be saved."
+msgstr "Die formatie kon niet worden opgeslagen."
+
+msgid "That position could not be deleted."
+msgstr "Die positie kon niet worden verwijderd."
+
+msgid "That position could not be found."
+msgstr "Die positie kon niet worden gevonden."
+
+msgid "That position could not be saved."
+msgstr "Die positie kon niet worden opgeslagen."
