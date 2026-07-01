@@ -4,13 +4,37 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.67.1
+Stable tag: 4.68.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.68.0 — Test-results Excel export: a "Trends over time" sheet with a line chart (#2194) The per-test Excel export now includes a second **Trends** sheet: one row per player, one column per recorded date (chronological), the value in each cell, plus a line chart that plots every player as a series over the shared date axis. Numeric and scale-score tests are charted; status tests list each player's recorded level per date for reference without a chart. Built from the same result reads as the existing sheet — no extra queries. =
+
+= 4.68.0 — Test settings: "Direction" now saves on scale-score tests (#2195) Editing a test on Configuration → Manage tests dropped the "Direction" (higher / lower is better) setting on scale-score tests: the save clamped it to "neither" for every non-numeric value type, even though the Direction dropdown is shown for scale tests. Direction now round-trips for both numeric and scale-score tests; pass/fail and status tests correctly stay neutral. =
+
+= 4.68.0 — Line-up bench: clean position codes instead of raw JSON (#2196) The match-day line-up card's Bench row now shows a reserve player's position as the clean short code (`LW`, `CDM`) instead of the raw stored JSON array (`["LW"]`). Multi-position players join cleanly (`LW, CDM`) and an empty position renders nothing. Starting XI was already clean; only the bench fallback needed decoding. =
+
+= 4.68.0 — Match-prep: both half-pitches share one light background (#2197) In match preparation the 2nd (right) half-pitch carried an orange tint that read as a dark background. Both half-pitches now render with the same light pitch surface, matching the printed sheet. CSS only. =
+
+= 4.68.0 — Match-prep PDF: empty fields print blank, not placeholders (#2198) The match-prep PDF no longer prints empty-field placeholder text. In the image-capture export, empty goal / attention inputs and unassigned set-piece roles ("Goal 1…", the "…" hints, "— Pick player —") now render blank; on-screen editing keeps its placeholders. The standalone print / DomPDF sheet likewise drops the "—" dash for an empty attention note or an unassigned role. CSS + printable-renderer only. =
+
+= 4.68.0 — Activities: Archive is now delete-class, not edit-class (#2199) Archiving an activity is a soft delete, so it now requires the activities create/delete capability rather than the edit capability. An assistant coach who can only edit activities no longer sees the Archive (or Restore) button and no longer hits a 403 on click; a head coach who can create/delete still does. Both the detail-header buttons and the archive/restore REST routes gate on the `activities:create_delete` matrix entity via the new `tt_delete_activities → activities:create_delete` legacy-cap mapping — no new matrix entity or seed migration. =
+
+= 4.68.0 — Activities: past-but-open activities surfaced by default (#2200) Past activities that were never closed off (still Planned, not Completed or Cancelled) now render in their own explicit "Past — still open" section at the very top of the activity list — above the collapsed Past toggle — in a tinted, orange-accented block. A coach sees overdue follow-ups without extra clicks; completed and cancelled past activities stay in their normal collapsed Past bucket. =
+
+= 4.68.0 — Activity list: the "show cancelled" toggle can be switched off again (#2201) The "Geannuleerde tonen" toggle on the activities filter bar could be turned on but not back off — once enabled the flag stayed set. The shared toggle control now supports an explicit off-value: turning the switch off submits `show_cancelled=0` (via a hidden companion field) instead of merely omitting the param, so the cancelled filter clears and the switch reflects the off state on reload. =
+
+= 4.68.0 — Goals list: status filter defaults to Active, no "All" (#2202) The Goals list status filter no longer wraps to a second line. It now offers three semantic buckets — Active, Achieved and Missed — rendered as pills with coloured status dots, drops the "All" option, and defaults to Active so the list opens on the goals a coach is actively working on. The REST endpoint maps these buckets onto the canonical completed / cancelled status codes and still honours raw status codes on existing deep links. =
+
+= 4.68.0 — FilterBar: status group always last and right-aligned (#2203) On the shared filter bar the status pills now always render as the last control on the inline (desktop) row and hug the right edge, regardless of the order the calling view passes its filter groups. Other groups keep their order and the mobile bottom sheet is unchanged. Component-wide change — no caller edits needed. =
+
+= 4.68.0 — Per test: choose whether its results show on the player profile (#2204) Each measurement test now has a **Show on the player profile** checkbox (on by default) in the Manage-tests editor. Clear it to keep a test out of the player-profile measurements view while it still records results and appears in the results browser, reports and exports — handy for internal or experimental tests. A new migration adds the `show_on_profile` column with a default of 1, so every existing test stays visible on upgrade. =
+
+= 4.68.0 — Attendance leaderboard now defaults to all players (#2205) The attendance leaderboard's *How many* field no longer defaults to 10. Leaving it blank now ranks **every** player in the chosen window in both the *Needs attention* and *Most reliable* tables. Typing a number still narrows each table to that many rows, and the field is no longer capped at 50. The REST endpoint (`GET /reports/attendance-leaderboard`) follows the same rule: an unset `n` returns all players. =
 
 = 4.67.1 — Minutes reports: one source of truth — actual recorded minutes only (#2193) The minutes reports now agree with each other. Every minutes report reads only the minutes that were actually recorded for a match — persisted on the player's attendance row when the match was finalised or when a coach entered the minutes by hand. Reports no longer estimate, calculate, or reconstruct minutes from a planned line-up: a match that was played but never finalised now shows a truthful 0 / — everywhere, instead of one report inventing an estimate (e.g. 70′) while another correctly shows nothing.  Concretely, the Analytics "Gespeelde minuten per team" report dropped the report-time recompute-from-line-up fallback it still carried, bringing it in line with the Player · Minutes and Team · Minutes-distribution reports and the minutes audit REST endpoint, which already counted recorded minutes only. Matches that do have recorded minutes are unchanged. =
 
