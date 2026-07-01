@@ -87,9 +87,13 @@ Om een totaal tegen de ruwe opgeslagen rijen te controleren, zijn de
 
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
-Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Elke kolom blijft sorteerbaar — klik op een kop om opnieuw te sorteren.
+Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).
 
 Spelers die een instelbaar aantal activiteiten hebben **gemist** in de periode (afwezig / afgemeld / geblesseerd) worden **gemarkeerd**: een ⚠-badge met het aantal gemiste activiteiten, een licht gekleurde rij, en een paneel **Risicospelers** boven de tabel. De drempel (standaard **3**) is de *enige bron van waarheid* die gedeeld wordt met de dagelijkse aanwezigheidsmelding, zodat het rapport en de melding altijd overeenkomen.
+
+### Het activiteitenaantal natrekken (drill-down)
+
+Het **Activiteiten**-aantal van elke speler is een link. Open het om de daadwerkelijke sessies achter het getal te zien: de activiteitenlijst opent gefilterd op die speler, het team van het rapport en de periode van het rapport, en toont alleen activiteiten waarvoor de speler een geregistreerde aanwezigheidsregel heeft. Vanaf daar opent elke activiteit het detail met de geregistreerde aanwezigheidsstatus, zodat een coach het aantal kan verifiëren tegen de bronregels — dezelfde tracering die het minutenrapport biedt. Een **← Terug**-link keert terug naar het rapport.
 
 ### De risicodrempel instellen
 

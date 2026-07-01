@@ -505,7 +505,7 @@ final class ActivitiesRepository {
      *
      * @return object[]
      */
-    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active' ): array {
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0 ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -561,6 +561,20 @@ final class ActivitiesRepository {
         if ( $type_filter !== '' ) {
             $where[]  = 's.activity_type_key = %s';
             $params[] = $type_filter;
+        }
+
+        // #2185 — attendance-report drill-down: narrow to activities where
+        // THIS player has a recorded (non-guest, actual) attendance row, so
+        // the filtered list matches the per-player "Activities" count on
+        // FrontendAttendancePlayerReportView. EXISTS keeps one row per
+        // activity (no fan-out) and mirrors the report's attendance filters.
+        if ( $player_id > 0 ) {
+            $where[]  = "EXISTS ( SELECT 1 FROM {$p}tt_attendance att
+                WHERE att.activity_id = s.id
+                  AND att.player_id = %d
+                  AND att.is_guest = 0
+                  AND att.record_type = 'actual' )";
+            $params[] = $player_id;
         }
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;

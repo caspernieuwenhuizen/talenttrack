@@ -87,9 +87,13 @@ the **Data Browser**.
 
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
-The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. Every column stays sortable — click a header to re-sort.
+The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
 Players who have **missed** a configurable number of activities in the window (absent / excused / injured) are **flagged**: an inline ⚠ badge with the missed count, a tinted row, and an **At-risk players** panel above the table listing them worst-first. The threshold (default **3**) is the *single source of truth* shared with the daily attendance-flag notification, so the report and the nudge email always agree.
+
+### Tracing the activity count (drill-down)
+
+Each player's **Activities** count is a link. Open it to see the actual sessions behind the number: the activities list opens filtered to that player, the report's team, and the report's date window, showing only activities the player has a recorded attendance row for. From there each activity opens its detail with the recorded attendance status, so a coach can reconcile the count with the source rows — the same tracing the minutes report offers. A **← Back** link returns to the report.
 
 ### Setting the at-risk threshold
 
