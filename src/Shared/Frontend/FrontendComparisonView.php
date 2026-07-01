@@ -231,27 +231,65 @@ class FrontendComparisonView extends FrontendViewBase {
             })();
             </script>
 
-            <div class="tt-fcompare-filters">
-                <div>
-                    <label><?php esc_html_e( 'Date from', 'talenttrack' ); ?></label>
-                    <input type="date" name="date_from" value="<?php echo esc_attr( (string) ( $filters['date_from'] ?? '' ) ); ?>" />
-                </div>
-                <div>
-                    <label><?php esc_html_e( 'Date to', 'talenttrack' ); ?></label>
-                    <input type="date" name="date_to" value="<?php echo esc_attr( (string) ( $filters['date_to'] ?? '' ) ); ?>" />
-                </div>
-                <div>
-                    <label><?php esc_html_e( 'Evaluation Type', 'talenttrack' ); ?></label>
-                    <select name="eval_type_id">
-                        <option value="0"><?php esc_html_e( 'All types', 'talenttrack' ); ?></option>
-                        <?php foreach ( QueryHelpers::get_eval_types() as $t ) : ?>
-                            <option value="<?php echo (int) $t->id; ?>" <?php selected( (int) ( $filters['eval_type_id'] ?? 0 ), (int) $t->id ); ?>>
-                                <?php echo esc_html( (string) $t->name ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
+            <?php
+            // #2176 — the date + evaluation-type filters render via the
+            // shared FilterBar component (one date_range group + one
+            // select). FilterBar emits its own <form>, but here it sits
+            // inside the surrounding .tt-fcompare-form: the HTML parser
+            // drops the nested <form> tag and re-associates its controls
+            // with the outer form, so the single "Compare" submit below
+            // still posts the player picks AND these filters together —
+            // behaviour is unchanged. The select opts OUT of auto-submit
+            // (auto_submit => false) so changing it doesn't fire an early
+            // GET; the user commits via Compare, exactly as before. No
+            // `hidden` fields are passed because the outer form already
+            // re-emits every preserved GET param above.
+            $sel_from     = (string) ( $filters['date_from'] ?? '' );
+            $sel_to       = (string) ( $filters['date_to'] ?? '' );
+            $sel_evaltype = (int) ( $filters['eval_type_id'] ?? 0 );
+
+            $eval_options = [];
+            foreach ( QueryHelpers::get_eval_types() as $t ) {
+                $eval_options[ (string) (int) $t->id ] = (string) $t->name;
+            }
+
+            $active_count = 0;
+            $chips = [];
+            if ( $sel_from !== '' || $sel_to !== '' ) {
+                $active_count++;
+                $chips[] = trim( $sel_from . ' – ' . $sel_to, ' –' );
+            }
+            if ( $sel_evaltype > 0 && isset( $eval_options[ (string) $sel_evaltype ] ) ) {
+                $active_count++;
+                $chips[] = $eval_options[ (string) $sel_evaltype ];
+            }
+
+            \TT\Shared\Frontend\Components\FilterBar::render( [
+                'active_count' => $active_count,
+                'chips'        => $chips,
+                'groups'       => [
+                    [
+                        'type'       => 'date_range',
+                        'key'        => 'date',
+                        'label'      => __( 'Date', 'talenttrack' ),
+                        'label_from' => __( 'Date from', 'talenttrack' ),
+                        'label_to'   => __( 'Date to', 'talenttrack' ),
+                        'from'       => [ 'name' => 'date_from', 'value' => $sel_from ],
+                        'to'         => [ 'name' => 'date_to',   'value' => $sel_to ],
+                    ],
+                    [
+                        'type'        => 'select',
+                        'key'         => 'eval-type',
+                        'label'       => __( 'Evaluation Type', 'talenttrack' ),
+                        'name'        => 'eval_type_id',
+                        'selected'    => $sel_evaltype > 0 ? (string) $sel_evaltype : '',
+                        'placeholder' => __( 'All types', 'talenttrack' ),
+                        'options'     => $eval_options,
+                        'auto_submit' => false,
+                    ],
+                ],
+            ] );
+            ?>
 
             <p class="tt-fcompare-submit">
                 <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Compare', 'talenttrack' ); ?></button>

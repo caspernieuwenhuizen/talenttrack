@@ -43,30 +43,9 @@
     margin-left: var(--tt-sp-2);
     color: var(--tt-ink-soft);
 }
-.tt-dashboard .tt-fcompare-filters {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--tt-sp-3);
-    margin-top: var(--tt-sp-3);
-}
-.tt-dashboard .tt-fcompare-filters label {
-    font-size: var(--tt-fs-sm);
-    color: var(--tt-muted);
-    font-weight: 600;
-    display: block;
-    margin-bottom: var(--tt-sp-1);
-}
-.tt-dashboard .tt-fcompare-filters input,
-.tt-dashboard .tt-fcompare-filters select {
-    width: 100%;
-    padding: 0.6rem 0.7rem;
-    font-size: 1rem;
-    min-height: 48px;
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius);
-    background: var(--tt-paper);
-    color: var(--tt-ink);
-}
+/* The date + evaluation-type filters render via the shared FilterBar
+ * component (#2176); its chrome lives in
+ * assets/css/frontend-filter-bar.css. */
 .tt-dashboard .tt-fcompare-submit { margin: var(--tt-sp-4) 0 0; }
 
 /* ---- Notices ------------------------------------------------------- */
@@ -163,9 +142,6 @@
 @media (min-width: 768px) {
     .tt-dashboard .tt-fcompare-slots {
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    }
-    .tt-dashboard .tt-fcompare-filters {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     }
     .tt-dashboard .tt-fcompare-grid {
         grid-template-columns: 180px repeat(var(--tt-fcompare-cols, 1), minmax(180px, 1fr));
