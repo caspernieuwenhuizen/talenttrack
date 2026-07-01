@@ -12,15 +12,17 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  * over a date window, partitioned by match-type (game_subtype_key).
  *
  * Sources of truth:
+ *   - `tt_attendance.minutes_played` (record_type='actual') → minute totals
  *   - `tt_match_prep_lineup`            → starts per half
  *   - `tt_match_execution_substitutions` → subs_in / subs_off events
- *   - `tt_match_prep.half_length_minutes` → minute totals
  *   - `tt_activities.game_subtype_key`   → League / Cup / Friendly bucket
  *
- * For each match activity in the window, the same `computeMinutes()`
- * helper used by the match-finish endpoint resolves per-player minutes
- * from the lineup + substitution log. Per-player totals are summed
- * across all activities in the window.
+ * #2193 — minutes are read ONLY from persisted `record_type='actual'`
+ * attendance rows. They are computed exactly once, when a played match
+ * is recorded (execution finalize or the manual attendance entry), and
+ * stored there. This query never estimates, calculates, or constructs
+ * minutes at report time; a match with no recorded minutes contributes
+ * 0. Per-player totals are summed across all activities in the window.
  *
  * v1 scope:
  *   - Team-scoped only. A player-detail variant lives in a follow-up.
@@ -111,18 +113,15 @@ final class MinutesQuery {
             // #1489 — persisted per-player minutes (written to
             // tt_attendance.minutes_played by the match execution on
             // finish / finalize / pending-review edit, or by the manual
-            // attendance entry in #2159) are the single source of truth.
-            // #2158 — precedence: persisted actual minutes first, then a
-            // real recompute from the execution substitution log. When
-            // neither exists there is NO real data — we report nothing
-            // for this match rather than fabricating an estimate (the old
-            // "credit each starter a half" tier inflated totals and masked
-            // missing data). A plan-only week now simply contributes 0.
-            if ( empty( $minutes_map ) ) {
-                $minutes_map = $exec_id > 0
-                    ? $exec_repo->computeMinutes( $exec_id, $start1, $start2, $half_length, $half_length )
-                    : [];
-            }
+            // attendance entry in #2159) are the SINGLE source of truth.
+            // #2193 — minutes are never estimated, calculated, or
+            // constructed at report time. They are computed exactly once,
+            // when a played match is recorded (execution finalize or the
+            // manual attendance entry), and persisted as `record_type =
+            // 'actual'`. Reports read only that. `$minutes_map` therefore
+            // stands as whatever persistedMinutes() returned — a match
+            // that was planned but never recorded contributes 0, not a
+            // recompute from its (unplayed) lineup.
 
             // Starts counter — once per activity, even if started both halves.
             $on_pitch = [];
@@ -254,10 +253,10 @@ final class MinutesQuery {
 
     /**
      * #2160 — per-match minutes breakdown for ONE player on a team over a
-     * date window. Reuses the exact same precedence + filters as
-     * {@see forTeam()} (persisted actual rows first, execution recompute
-     * second, never a fabricated estimate) so the breakdown reconciles
-     * EXACTLY with that player's `total_minutes` in the team report.
+     * date window. Reads the exact same source as {@see forTeam()}:
+     * persisted `record_type = 'actual'` minutes ONLY (#2193 — no report-
+     * time recompute), so the breakdown reconciles EXACTLY with that
+     * player's `total_minutes` in the team report.
      *
      * @return list<array{
      *     activity_id:int, session_date:string, title:string,
@@ -284,36 +283,16 @@ final class MinutesQuery {
         ) );
         if ( empty( $activities ) ) return [];
 
-        $exec_repo = new MatchExecutionRepository();
-        $prep_repo = new MatchPrepRepository();
-
         $out = [];
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
 
-            // Same precedence chain as forTeam(): persisted actual minutes,
-            // then execution recompute, else nothing (no fabrication).
+            // #2193 — same single source of truth as forTeam(): persisted
+            // `record_type = 'actual'` minutes ONLY. Minutes are never
+            // recomputed from a lineup at report time; a planned-but-never-
+            // recorded match contributes no breakdown row.
             $minutes_map = self::persistedMinutes( $aid, $club_id );
             $record_type = 'actual';
-            if ( empty( $minutes_map ) ) {
-                $prep = $prep_repo->findByActivity( $aid );
-                if ( $prep ) {
-                    $half_length = (int) $prep->half_length_minutes;
-                    if ( $half_length <= 0 ) $half_length = 35;
-                    $lineup = $prep_repo->listLineup( (int) $prep->id );
-                    $start1 = [];
-                    $start2 = [];
-                    foreach ( $lineup as $l ) {
-                        if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
-                        if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
-                    }
-                    $exec = $exec_repo->findByActivity( $aid );
-                    $minutes_map = $exec
-                        ? $exec_repo->computeMinutes( (int) $exec->id, $start1, $start2, $half_length, $half_length )
-                        : [];
-                    $record_type = 'recompute';
-                }
-            }
 
             if ( ! isset( $minutes_map[ $player_id ] ) ) continue;
             $mins = (int) $minutes_map[ $player_id ];

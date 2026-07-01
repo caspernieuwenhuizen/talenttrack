@@ -34,6 +34,27 @@
 		}
 	}
 
+	// #2201 — keep every same-named toggle checkbox in a form (the inline and
+	// sheet copies) in lockstep with the one the user just changed, and reflect
+	// each onto its `.tt-switch` UI, so unchecking one copy doesn't leave the
+	// other submitting a stale checked value.
+	function syncCheckboxes( form, source ) {
+		var name = source.name;
+		var mates = form.querySelectorAll(
+			'input[type="checkbox"][name="' + ( window.CSS && CSS.escape ? CSS.escape( name ) : name ) + '"]'
+		);
+		Array.prototype.forEach.call( mates, function ( cb ) {
+			if ( cb === source ) {
+				return;
+			}
+			cb.checked = source.checked;
+			var sw = cb.closest ? cb.closest( '[data-tt-switch]' ) : null;
+			if ( sw ) {
+				sw.classList.toggle( 'tt-switch--on', cb.checked );
+			}
+		} );
+	}
+
 	ready( function () {
 		var bars = document.querySelectorAll( '[data-tt-filterbar]' );
 		Array.prototype.forEach.call( bars, initBar );
@@ -131,6 +152,17 @@
 					var form = ctrl.form || bar.querySelector( '[data-tt-filterbar-form]' );
 					if ( ! form ) {
 						return;
+					}
+					// #2201 — the inline row and the bottom sheet each render
+					// their own copy of a toggle checkbox with the SAME name.
+					// If the user unchecks one while the other stays checked,
+					// the still-checked copy re-submits the flag and the toggle
+					// appears stuck ON. Mirror the changed checkbox's state onto
+					// every same-named checkbox (and its visual switch) before
+					// submitting, so both copies agree and turning the toggle
+					// off actually clears the filter.
+					if ( ctrl.type === 'checkbox' && ctrl.name ) {
+						syncCheckboxes( form, ctrl );
 					}
 					if ( typeof form.requestSubmit === 'function' ) {
 						form.requestSubmit();

@@ -262,7 +262,8 @@ final class MatchPrepPrintableRenderer {
                             ?>
                             <tr<?php echo $row_cls; ?>>
                                 <td><?php echo esc_html( $name ); ?></td>
-                                <td><?php echo esc_html( $att !== '' ? $att : '—' ); ?></td>
+                                <?php /* #2198 — empty attention prints blank, not a placeholder dash. */ ?>
+                                <td><?php echo esc_html( $att ); ?></td>
                                 <td class="tt-mpp-flag-col"><?php echo $spec ? '!' : ''; ?></td>
                                 <td class="tt-mpp-flag-col"><?php echo $cam ? '🎥' : ''; ?></td>
                             </tr>
@@ -284,9 +285,10 @@ final class MatchPrepPrintableRenderer {
             <?php foreach ( $role_defs as $role ) :
                 $key   = (string) $role['key'];
                 $rpid  = (int) ( $roles_by_key[ $key ] ?? 0 );
+                // #2198 — unassigned roles print blank, not a placeholder dash.
                 $rname = ( $rpid > 0 && isset( $players_by_id[ $rpid ] ) )
                     ? QueryHelpers::player_display_name( $players_by_id[ $rpid ] )
-                    : '—';
+                    : '';
                 ?>
                 <tr>
                     <th><?php echo esc_html( (string) $role['label'] ); ?></th>

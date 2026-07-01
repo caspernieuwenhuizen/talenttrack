@@ -56,8 +56,10 @@ class ActivitiesRestController {
             ],
             [
                 'methods'             => 'DELETE',
+                // #2199 — DELETE soft-archives, so it is delete-class, not
+                // edit-class (an assistant coach with edit-only cannot archive).
                 'callback'            => [ __CLASS__, 'delete_session' ],
-                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'permission_callback' => [ __CLASS__, 'can_delete' ],
             ],
         ] );
         // #1555 — archive lifecycle: restore + gated permanent delete,
@@ -66,7 +68,9 @@ class ActivitiesRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_session' ],
-                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                // #2199 — restore reverses an archive, so it is gated
+                // consistently with archive (delete-class), not edit.
+                'permission_callback' => [ __CLASS__, 'can_delete' ],
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/permanent', [
@@ -163,6 +167,17 @@ class ActivitiesRestController {
 
     public static function can_edit(): bool {
         return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+    }
+
+    /**
+     * #2199 — archive/restore are delete-class (soft-delete), so they gate on
+     * the activities create/delete capability rather than edit. Maps through
+     * `tt_delete_activities → activities:create_delete` (LegacyCapMapper), so
+     * an assistant coach with edit-only cannot archive, while a head coach
+     * (RCD) can. Restore stays consistent with the same gate.
+     */
+    public static function can_delete(): bool {
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_delete_activities' );
     }
 
     /** #1712 — shared activities repository instance for the request. */
