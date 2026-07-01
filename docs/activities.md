@@ -125,7 +125,7 @@ You can **archive** an activity to clean up old seasons without losing its histo
 
 Archived activities live under the **Archived** status tab on the activities list (see [Filters](#filters)). From there you can:
 
-- **Restore** an activity — it returns to the active timeline exactly as it was.
+- **Restore** an activity — it returns to the active timeline exactly as it was. Opening an archived activity's own detail page now shows a **Restore** button in its header too (in place of Archive), so you can bring it back with one click without hunting through the list. An archived activity is read-only until restored — the Edit and match actions stay hidden until it is active again.
 - **Delete permanently** — an admin-only action (requires the *edit settings* capability) that removes the activity for good. This cannot be undone. If the activity still has attached records (attendance, exercises, match data), the delete is blocked and the activity stays archived — restore it or clear those records first. Archiving is the safe default; permanent deletion is the rare exception.
 
 ## Principles practiced (v3.79.0)

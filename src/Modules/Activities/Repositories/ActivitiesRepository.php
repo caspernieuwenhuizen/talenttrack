@@ -56,14 +56,31 @@ final class ActivitiesRepository {
      * is archived/missing, `$row->tournament` is null.
      */
     public function findById( int $activity_id ): ?object {
+        return $this->findByIdInternal( $activity_id, false );
+    }
+
+    /**
+     * #2183 — archive-aware detail lookup. Identical join/shape to
+     * findById() but WITHOUT the `archived_at IS NULL` filter, so the
+     * detail view can render an archived activity (and offer Restore
+     * on its header) instead of falling through to "not found". Active
+     * rows resolve exactly as findById(); the caller branches on the
+     * returned `archived_at`.
+     */
+    public function findByIdIncludingArchived( int $activity_id ): ?object {
+        return $this->findByIdInternal( $activity_id, true );
+    }
+
+    private function findByIdInternal( int $activity_id, bool $include_archived ): ?object {
         global $wpdb;
         $p     = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+        $archive_clause = $include_archived ? '' : 'AND s.archived_at IS NULL';
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT s.*, t.name AS team_name FROM {$p}tt_activities s
              LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-             WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
+             WHERE s.id = %d {$archive_clause} {$scope}",
             $activity_id
         ) );
         if ( ! $row ) return null;

@@ -125,7 +125,7 @@ Je kunt een activiteit **archiveren** om oude seizoenen op te ruimen zonder de h
 
 Gearchiveerde activiteiten staan onder het statustabblad **Gearchiveerd** in het activiteitenoverzicht (zie [Filters](#filters)). Daar kun je:
 
-- Een activiteit **herstellen** — ze keert precies zoals ze was terug naar de actieve tijdlijn.
+- Een activiteit **herstellen** — ze keert precies zoals ze was terug naar de actieve tijdlijn. De detailpagina van een gearchiveerde activiteit toont nu ook een knop **Herstellen** in de koptekst (in plaats van Archiveren), zodat je haar met één klik terughaalt zonder in de lijst te zoeken. Een gearchiveerde activiteit is alleen-lezen tot ze is hersteld — de knoppen Bewerken en de wedstrijdacties blijven verborgen tot ze weer actief is.
 - **Definitief verwijderen** — een actie alleen voor beheerders (vereist de rechten *instellingen bewerken*) die de activiteit voorgoed verwijdert. Dit kan niet ongedaan worden gemaakt. Als de activiteit nog gekoppelde gegevens heeft (opkomst, oefeningen, wedstrijdgegevens), wordt het verwijderen geblokkeerd en blijft de activiteit gearchiveerd — herstel haar of verwijder die gegevens eerst. Archiveren is de veilige standaard; definitief verwijderen is de zeldzame uitzondering.
 
 ## Geoefende principes (v3.79.0)
