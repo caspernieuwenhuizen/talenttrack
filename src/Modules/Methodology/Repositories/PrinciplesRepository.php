@@ -147,6 +147,22 @@ class PrinciplesRepository {
     }
 
     /**
+     * Hard-delete a club-authored principle. Shipped rows are never
+     * removed — they're read-only reference content, so the caller
+     * clones-to-edit instead. Returns false when the row is shipped
+     * or the delete affected no rows (wrong id / other club).
+     */
+    public function delete( int $id ): bool {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        global $wpdb;
+        return $wpdb->delete(
+            $this->table(),
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
      * Clone a shipped row into a club-authored copy. Keeps every JSON
      * field; flips `is_shipped` to 0 and stamps `cloned_from_id`.
      *
