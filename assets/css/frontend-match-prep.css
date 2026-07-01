@@ -351,6 +351,31 @@
     box-shadow: none !important;
 }
 
+/* #2198 — the image-capture export paints exactly what's on screen, so
+   empty-field placeholders ("Goal 1…", the "…" hints, "— Pick player —")
+   land in the PDF as if they were real content. html2canvas ignores
+   @media print, so suppress them here in the capture clone instead:
+   empty goal / attention inputs and unassigned set-piece roles print
+   blank. On-screen editing is untouched (this scope only exists in the
+   cloned node). */
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::placeholder,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+}
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::-webkit-input-placeholder,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::-webkit-input-placeholder {
+    color: transparent !important;
+}
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::-moz-placeholder,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::-moz-placeholder {
+    color: transparent !important;
+    opacity: 0 !important;
+}
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-sp-pick:not(.tt-mp-filled) .tt-mp-sp-name {
+    visibility: hidden !important;
+}
+
 .tt-mp-copy-col {
     display: flex;
     align-items: center;
