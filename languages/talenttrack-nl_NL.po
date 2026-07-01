@@ -45032,6 +45032,14 @@ msgid "%d not closed off"
 msgid_plural "%d not closed off"
 msgstr[0] "%d niet afgerond"
 msgstr[1] "%d niet afgerond"
+
+#: src/Shared/Frontend/Components/GoalDetailFields.php
+msgid "Connected principle"
+msgstr "Gekoppeld principe"
+
+#: src/Shared/Frontend/Components/GoalDetailFields.php
+msgid "Connected football action"
+msgstr "Gekoppelde voetbalhandeling"
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 
