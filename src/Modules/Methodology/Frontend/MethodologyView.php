@@ -38,6 +38,15 @@ use TT\Shared\Frontend\FrontendViewBase;
 class MethodologyView extends FrontendViewBase {
 
     public static function render(): void {
+        // #2225 — the frontend authoring surface is co-located under the
+        // same `methodology` slug. `?tt_view=methodology&mode=manage`
+        // hands off to the manage view, which gates on tt_edit_methodology
+        // and renders the extensible entity-tab surface.
+        if ( isset( $_GET['mode'] ) && sanitize_key( (string) $_GET['mode'] ) === 'manage' ) {
+            \TT\Modules\Methodology\Frontend\Manage\MethodologyManageView::render();
+            return;
+        }
+
         if ( ! current_user_can( 'tt_view_methodology' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view the methodology library.', 'talenttrack' ) . '</p>';
@@ -55,6 +64,18 @@ class MethodologyView extends FrontendViewBase {
             home_url( '/' )
         );
         $print_actions = [
+            // #2225 — authoring entry for editors. Gated on the edit cap so
+            // it renders only for roles that can author (pageActionsHtml
+            // drops actions the user lacks the `cap` for).
+            [
+                'label'   => __( 'Manage methodology', 'talenttrack' ),
+                'href'    => add_query_arg(
+                    [ 'tt_view' => 'methodology', 'mode' => 'manage' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                ),
+                'variant' => 'secondary',
+                'cap'     => 'tt_edit_methodology',
+            ],
             [
                 'label'  => __( 'Print referentiekaart', 'talenttrack' ),
                 'href'   => $print_url,

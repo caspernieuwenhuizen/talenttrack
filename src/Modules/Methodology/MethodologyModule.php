@@ -31,6 +31,14 @@ class MethodologyModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
+        // #2225 — frontend authoring. The Principles manage tab registers
+        // itself into the extensible MethodologyManageRegistry (sibling
+        // entities #2226–#2230 register their own tab the same way, without
+        // editing a shared switch). The REST base + Principles controller
+        // expose the same CRUD over /wp-json/talenttrack/v1/methodology/*.
+        Frontend\Manage\PrinciplesManageTab::register();
+        Rest\PrinciplesRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();
