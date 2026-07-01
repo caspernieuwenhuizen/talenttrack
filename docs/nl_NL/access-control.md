@@ -116,6 +116,41 @@ Dit is de **enige eigenaar van definitief verwijderen**: de oude per-entiteit
 zodat geen verwijderpad zwakker is dan de prullenbak. Zie
 [Prullenbak](recycle-bin.md) voor de bewaartermijn en AVG-grondslag.
 
+## Modulebeheer — `tt_manage_modules` / `module_management` (#2187)
+
+Een hele TalentTrack-module aan- of uitzetten is een beheerder-niveau
+handeling, dus staat het achter een eigen capability, **`tt_manage_modules`**,
+en een **eigen matrix-entiteit, `module_management`**. De capability bepaalt
+de toegang tot zowel de wp-admin Modules-pagina (`ModulesPage`,
+`admin.php?page=tt-modules`) als het frontend-equivalent (`FrontendModulesView`,
+`?tt_view=modules`), plus de `/wp-json/talenttrack/v1/modules` + `/features`
+REST-routes.
+
+Vóór #2187 bepaalde de wp-admin-pagina de toegang via een
+**rolnaam-vergelijking** (`current_user_can('administrator')`), die de
+autorisatiematrix niet kon besturen — een niet-beheerder-persona met het
+recht in de matrix kon de pagina alsnog niet bereiken, wat het principe
+"capabilities zijn het contract" schendt. #2187 vervangt beide controles
+door `current_user_can('tt_manage_modules')`, zodat de matrix beslist.
+
+`tt_manage_modules` wordt via `LegacyCapMapper` gebrugd naar
+`module_management:create_delete`. Dit is een **eigen** entiteit, los van de
+vooral-lezen `feature_toggles` configuratie-entiteit die het eerder deelde
+(#1941) en van de `module_state` statusweergave: een module aan/uit zetten is
+een wezenlijk ander recht dan een configuratie-feature-toggle bewerken, en
+moet op een eigen rij door de matrix bestuurbaar zijn. De entiteit is
+geseed **`rcd` globaal aan alleen Academy Admin** — overeenkomend met de ruwe
+capability-houders (WordPress `administrator`, die elke `tt_*`-capability
+omzeilt, plus de `tt_club_admin`-rol achter de Academy Admin-persona). Head
+of Development heeft `feature_toggles [read]` maar **geen** `module_management`-rij,
+dus wint niets — de omzetting is toegangsbehoudend.
+
+Migratie `0194_authorization_seed_module_management` vult de
+`module_management`-grant idempotent aan op bestaande installaties (INSERT
+IGNORE, beperkt tot de ene entiteit + academy_admin-persona), zodat geen
+enkele beheerder de Modules-pagina verliest bij een upgrade wanneer de matrix
+actief is.
+
 ## Strava-koppeling — spelers koppelen hun eigen (#2153)
 
 Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen

@@ -766,6 +766,15 @@ return array_merge(
         'permission_debug'              => [ 'r',   'global', $mod_authorization ],
         'matrix_preview_apply'          => [ 'rcd', 'global', $mod_authorization ],
         'module_state'                  => [ 'rc',  'global', $mod_authorization ],
+        // #2187 — module management (the Modules / Features admin surface,
+        // wp-admin `tt-modules` + frontend `?tt_view=modules`). Distinct from
+        // the read-mostly `feature_toggles` config entity and the
+        // `module_state` status view: this is the write privilege to enable /
+        // disable a whole module. Bridged from `tt_manage_modules` via
+        // LegacyCapMapper to `module_management:create_delete`. Admin-only —
+        // the raw cap ships to administrator (bypass) + tt_club_admin
+        // (= academy_admin persona) only, so no other persona holds it.
+        'module_management'             => [ 'rcd', 'global', $mod_authorization ],
         'invitations'                   => [ 'rcd', 'global', $mod_invitations ],
         'invitations_config'            => [ 'rcd', 'global', $mod_invitations ],
         'license'                       => [ 'rc',  'global', $mod_license ],

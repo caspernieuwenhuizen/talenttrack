@@ -57,6 +57,12 @@ final class MatrixEntityCatalog {
         'bulk_import',
         'license',
         'module_state',
+        // #2187 — module management (Modules / Features admin surface). The
+        // consumer (ModulesPage / FrontendModulesView) gates on
+        // `tt_manage_modules`, but the frontend view registers as a config
+        // tile rather than a matrix-walked tile/menu entry, so the reverse
+        // index would flag it orphan without this declaration.
+        'module_management',
         // v4.20.33 (#1192) — audit 1 (#1175) follow-on: 17 more
         // admin/config entities whose consumer pages use a WP cap
         // (`administrator`, `manage_options`, `read`) or a `tt_*` cap
@@ -112,6 +118,7 @@ final class MatrixEntityCatalog {
             'lookups'                       => __( 'Lookups', 'talenttrack' ),
             'branding'                      => __( 'Branding', 'talenttrack' ),
             'feature_toggles'               => __( 'Feature toggles', 'talenttrack' ),
+            'module_management'             => __( 'Module management', 'talenttrack' ),
             'audit_log'                     => __( 'Audit log', 'talenttrack' ),
             'translations_config'           => __( 'Translations', 'talenttrack' ),
             'custom_field_definitions'      => __( 'Custom fields', 'talenttrack' ),

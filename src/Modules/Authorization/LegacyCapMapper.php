@@ -152,12 +152,18 @@ final class LegacyCapMapper {
         'tt_edit_branding'               => [ 'branding',               'change' ],
         'tt_view_feature_toggles'        => [ 'feature_toggles',        'read' ],
         'tt_edit_feature_toggles'        => [ 'feature_toggles',        'change' ],
-        // #1941 — `tt_manage_modules` (the Modules / Features admin surface
-        // act-cap). Bridges to `feature_toggles:change` (toggling a module
-        // on/off IS a feature-toggle write). Seeded `change` to academy_admin
-        // only; head_of_development holds `feature_toggles [r]` so gains
-        // nothing — access-preserving (admin-only management is unchanged).
-        'tt_manage_modules'              => [ 'feature_toggles',        'change' ],
+        // #2187 — `tt_manage_modules` (the Modules / Features admin surface
+        // act-cap) now bridges to a DEDICATED `module_management` entity so
+        // the matrix governs module enable/disable independently of the
+        // read-mostly `feature_toggles` config entity. Previously (#1941) it
+        // bridged to `feature_toggles:change`, which conflated "toggle a
+        // module on/off" with "edit a config feature-toggle" — HoD holds
+        // `feature_toggles [r]` but must NOT reach module management. Seeded
+        // `create_delete` to academy_admin only (the raw holders are
+        // administrator [bypass] + tt_club_admin = academy_admin persona), so
+        // the re-point is access-preserving. Migration 0194 top-ups existing
+        // installs so they gain the `module_management` grant on upgrade.
+        'tt_manage_modules'              => [ 'module_management',      'create_delete' ],
         'tt_view_audit_log'              => [ 'audit_log',              'read' ],
         'tt_view_translations'           => [ 'translations_config',    'read' ],
         'tt_edit_translations'           => [ 'translations_config',    'change' ],

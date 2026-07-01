@@ -308,7 +308,9 @@ class ConfigurationPage {
                     [ 'label' => __( 'Modules', 'talenttrack' ),
                       'description' => __( 'Enable or disable optional TalentTrack modules.', 'talenttrack' ),
                       'icon' => '🧱', 'url' => $page_url( 'tt-modules' ),
-                      'cap' => 'administrator' ],
+                      // #2187 — matrix-backed cap (→ `module_management`), so
+                      // this landing tile follows the same gate as the page.
+                      'cap' => \TT\Modules\Authorization\Admin\ModulesPage::CAP ],
                     [ 'label' => __( 'Permission Debug', 'talenttrack' ),
                       'description' => __( 'Debug screen showing which capabilities the current user has.', 'talenttrack' ),
                       'icon' => '🐛', 'url' => $page_url( 'tt-roles-debug' ) ],

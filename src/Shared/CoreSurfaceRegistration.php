@@ -1773,7 +1773,10 @@ final class CoreSurfaceRegistration {
             'parent'       => $parent,
             'group'        => 'access',
             'title'        => __( 'Modules', 'talenttrack' ),
-            'cap'          => 'administrator',
+            // #2187 — matrix-backed cap (bridged to `module_management`), not a
+            // WP role-name compare, so the authorization matrix governs who
+            // reaches the wp-admin Modules page. Mirrors ModulesPage::CAP.
+            'cap'          => \TT\Modules\Authorization\Admin\ModulesPage::CAP,
             'slug'         => 'tt-modules',
             'callback'     => [ \TT\Modules\Authorization\Admin\ModulesPage::class, 'render' ],
         ]);
