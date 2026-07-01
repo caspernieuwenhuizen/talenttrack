@@ -18242,26 +18242,6 @@ msgstr "Berichten"
 msgid "Filter:"
 msgstr "Filter:"
 
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
-#: src/Modules/Methodology/Admin/MethodologyPage.php:134
-#: src/Modules/Methodology/Admin/MethodologyPage.php:143
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1478
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
-#: src/Shared/Frontend/Components/FrontendListTable.php:360
-#: src/Shared/Frontend/Components/FrontendListTable.php:433
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1026
-#: src/Shared/Frontend/FrontendExportsView.php:96
-#: src/Shared/Frontend/FrontendExportsView.php:125
-#: src/Shared/Frontend/FrontendExportsView.php:196
-#: src/Shared/Frontend/FrontendExportsView.php:240
-#: src/Shared/Frontend/FrontendExportsView.php:648
-#: src/Shared/Frontend/FrontendTrialsManageView.php:319
-#: src/Shared/Frontend/FrontendTrialsManageView.php:328
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:222
-msgid "All"
-msgstr "Alle"
-
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:84
 msgid "No invitations match the filter."
 msgstr "Geen uitnodigingen voldoen aan het filter."
@@ -45045,42 +45025,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
-msgid "Trends"
-msgstr "Trends"
-# #1365 - icon language unification (v4.20.122). i18n-sync will merge
-# these into the proper position on next run; meanwhile they land here
-# verbatim so a Dutch install reads correctly today.
-#~ msgid "Needs attention"
-#~ msgstr "Vraagt aandacht"
-
 #, php-format
 #~ msgid "%d past, still planned"
 #~ msgid_plural "%d past, still planned"
 #~ msgstr[0] "%d voorbij, nog gepland"
 #~ msgstr[1] "%d voorbij, nog gepland"
-
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
-msgid "Value over time"
-msgstr "Waarde in de tijd"
-
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php
-msgid "Recorded status over time"
-msgstr "Vastgelegde status in de tijd"
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php
-msgid "Show this test’s results on the player profile"
-msgstr "Toon de resultaten van deze test op het spelersprofiel"
-#: src/Shared/Frontend/FrontendActivitiesManageView.php
-msgid "Past — still open"
-msgstr "Voorbij — nog open"
-
-#. translators: %d: count of past activities not yet closed off
-#: src/Shared/Frontend/FrontendActivitiesManageView.php
-#, php-format
-msgid "%d not closed off"
-msgid_plural "%d not closed off"
-msgstr[0] "%d niet afgerond"
-msgstr[1] "%d niet afgerond"
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php
 msgid "Manage methodology"
