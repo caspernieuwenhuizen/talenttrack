@@ -51,6 +51,13 @@ class FrontendRateCardView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Rate cards', 'talenttrack' ) );
         self::renderHeader( __( 'Rate cards', 'talenttrack' ) );
 
+        // #2126 — per-report toggle: reject even a direct link when the
+        // Rate cards report has been switched off for this academy.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_rate_cards' ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // #0011 — feature gate. Full rate card analytics (trends + radar +
         // comparison panels) is Standard-tier; Free sees an upgrade nudge.
         if ( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\License\\LicenseModule' )

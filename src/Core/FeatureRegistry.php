@@ -336,8 +336,11 @@ class FeatureRegistry {
 
         // #1995 — per-report toggles, mirroring the export tiles above. Keys
         // are `report_<key>` (the 8 frontend standard-report slugs with `-`
-        // → `_`, plus the 2 wp-admin reports). Default on, so a fresh upgrade
-        // shows every report; the report views/dispatch guard on these keys.
+        // → `_`, plus the 2 wp-admin reports). #2126 — the 5 launcher tiles
+        // added after #1995 (3 attendance reports, minutes-per-team, rate
+        // cards) join the catalog too, so all 15 reports get a toggle.
+        // Default on, so a fresh upgrade shows every report; the report
+        // views/dispatch guard on these keys.
         $report_tiles = [
             'player_minutes_played'         => __( 'Player · Minutes played', 'talenttrack' ),
             'team_minutes_distribution'     => __( 'Team · Minutes distribution', 'talenttrack' ),
@@ -349,6 +352,11 @@ class FeatureRegistry {
             'player_progress_radar'         => __( 'Player · Progress & radar', 'talenttrack' ),
             'team_ratings'                  => __( 'Team rating averages', 'talenttrack' ),
             'coach_activity'                => __( 'Coach activity', 'talenttrack' ),
+            'attendance_report_team'        => __( 'Team · Attendance statistics', 'talenttrack' ),
+            'attendance_report_player'      => __( 'Player · Attendance statistics', 'talenttrack' ),
+            'attendance_leaderboard'        => __( 'Attendance leaderboard', 'talenttrack' ),
+            'minutes_report_team'           => __( 'Minutes played per team', 'talenttrack' ),
+            'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
         ];
         $report_toggle_desc = __( 'Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link.', 'talenttrack' );
         foreach ( $report_tiles as $tile_key => $tile_label ) {

@@ -25019,6 +25019,14 @@ msgstr "Podium"
 msgid "Rate cards"
 msgstr "Rapportkaarten"
 
+#: src/Core/FeatureRegistry.php:353
+msgid "Team · Attendance statistics"
+msgstr "Team · Aanwezigheidsstatistieken"
+
+#: src/Core/FeatureRegistry.php:354
+msgid "Player · Attendance statistics"
+msgstr "Speler · Aanwezigheidsstatistieken"
+
 # #0060 — Persona dashboard tile labels (admin template)
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:266
 msgid "Compare players"
