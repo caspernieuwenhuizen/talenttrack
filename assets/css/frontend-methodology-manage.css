@@ -153,6 +153,14 @@
 
 /* ── flat NL/EN form ───────────────────────────────────────────────── */
 
+/* Singleton tabs (vision, framework primer) open straight onto their edit
+   form; a lead line explains the single-record nature. */
+.tt-dashboard .tt-mmg-intro {
+    max-width: 760px;
+    margin: 0 0 1rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
 .tt-dashboard .tt-mmg-form {
     max-width: 760px;
     display: flex;
