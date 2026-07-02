@@ -45475,64 +45475,13 @@ msgstr "Kon de spelhervatting niet opslaan."
 msgid "Shipped set pieces are read-only. Clone it to edit."
 msgstr "Meegeleverde spelhervattingen zijn alleen-lezen. Kloon om te bewerken."
 
-#: src/Modules/Methodology/Rest/SetPiecesRestController.php
-msgid "Shipped set pieces cannot be deleted."
-msgstr "Meegeleverde spelhervattingen kunnen niet worden verwijderd."
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "+ New football action"
-msgstr "+ Nieuwe voetbalhandeling"
-
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
 msgid "No football actions yet. Use “+ New football action” to author the first one."
 msgstr "Nog geen voetbalhandelingen. Gebruik “+ Nieuwe voetbalhandeling” om de eerste aan te maken."
 
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Delete this football action? This cannot be undone."
-msgstr "Deze voetbalhandeling verwijderen? Dit kan niet ongedaan worden gemaakt."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "That football action could not be found."
-msgstr "Die voetbalhandeling kon niet worden gevonden."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
 msgid "Shipped football actions are read-only reference content and cannot be edited."
 msgstr "Meegeleverde voetbalhandelingen zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Save football action"
-msgstr "Voetbalhandeling opslaan"
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Football action deleted."
-msgstr "Voetbalhandeling verwijderd."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Football action saved."
-msgstr "Voetbalhandeling opgeslagen."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Football action created."
-msgstr "Voetbalhandeling aangemaakt."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Could not create the football action."
-msgstr "Kon de voetbalhandeling niet aanmaken."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "A football action needs a slug."
-msgstr "Een voetbalhandeling heeft een slug nodig."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "That football action could not be deleted."
-msgstr "Die voetbalhandeling kon niet worden verwijderd."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "That football action could not be saved."
-msgstr "Die voetbalhandeling kon niet worden opgeslagen."
-
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
-msgid "Please choose a valid category."
-msgstr "Kies een geldige categorie."
 
 #. translators: %d: number of goals linked to the action.
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php
@@ -45541,22 +45490,6 @@ msgid "This football action is linked to %d goal and cannot be deleted. Unlink i
 msgid_plural "This football action is linked to %d goals and cannot be deleted. Unlink them first."
 msgstr[0] "Deze voetbalhandeling is gekoppeld aan %d doel en kan niet worden verwijderd. Ontkoppel het eerst."
 msgstr[1] "Deze voetbalhandeling is gekoppeld aan %d doelen en kan niet worden verwijderd. Ontkoppel ze eerst."
-
-#: src/Modules/Methodology/Rest/FootballActionsRestController.php
-msgid "Football action not found."
-msgstr "Voetbalhandeling niet gevonden."
-
-#: src/Modules/Methodology/Rest/FootballActionsRestController.php
-msgid "Could not save the football action."
-msgstr "Kon de voetbalhandeling niet opslaan."
-
-#: src/Modules/Methodology/Rest/FootballActionsRestController.php
-msgid "Invalid category."
-msgstr "Ongeldige categorie."
-
-#: src/Modules/Methodology/Rest/FootballActionsRestController.php
-msgid "Shipped football actions cannot be deleted."
-msgstr "Meegeleverde voetbalhandelingen kunnen niet worden verwijderd."
 
 #: src/Modules/Methodology/Rest/FootballActionsRestController.php
 msgid "This football action is linked to one or more goals and cannot be deleted. Unlink them first."
