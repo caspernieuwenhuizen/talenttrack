@@ -46237,10 +46237,6 @@ msgid "Shipped influence factors are read-only reference content and cannot be e
 msgstr "Meegeleverde factoren van invloed zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
 
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
-msgid "Optional JSON array of sub-cards. Each entry needs slug + title (nl/en) + description (nl/en). Leave empty for no sub-cards."
-msgstr "Optionele JSON-reeks subkaarten. Elk item heeft een slug + titel (nl/en) + omschrijving (nl/en) nodig. Laat leeg voor geen subkaarten."
-
-#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
 msgid "Save influence factor"
 msgstr "Factor van invloed opslaan"
 
