@@ -10,8 +10,9 @@ use TT\Shared\Admin\MySessionsActionHandlers;
  *
  * Standard SaaS surface — every logged-in user manages their own active
  * sessions. Reads the WordPress `wp_user_meta` `session_tokens` array
- * directly via `WP_Session_Tokens::get_all()` so there's no parallel
- * storage to keep in sync.
+ * directly so the sessions stay keyed by their verifier hash — the key
+ * the revoke handler and `WP_Session_Tokens::destroy()` require. (Core's
+ * `WP_Session_Tokens::get_all()` strips those keys via `array_values()`.)
  *
  * Audit-log events: `session_revoked` (one per single revoke OR one for
  * the bulk "revoke others" — distinguished via the payload's `mode` field).
@@ -48,9 +49,15 @@ class FrontendMySessionsView extends FrontendViewBase {
 
         self::renderFlashMessage();
 
-        $manager = \WP_Session_Tokens::get_instance( $user_id );
+        // Read the raw `session_tokens` usermeta so the sessions stay
+        // keyed by their verifier hash. `WP_Session_Tokens::get_all()`
+        // returns `array_values( ... )`, stripping those keys — which
+        // would leave the per-session revoke form carrying a numeric
+        // index instead of the 64-hex verifier the revoke handler and
+        // `WP_Session_Tokens::destroy()` require.
+        $raw = get_user_meta( $user_id, 'session_tokens', true );
         /** @var array<string, array<string, mixed>> $sessions */
-        $sessions = $manager->get_all();
+        $sessions = is_array( $raw ) ? $raw : [];
 
         if ( empty( $sessions ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No active sessions.', 'talenttrack' ) . '</p>';

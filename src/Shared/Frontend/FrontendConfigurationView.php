@@ -51,6 +51,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
                 // #1727 — central per-age-category default match minutes.
                 'match-minutes' => __( 'Match minutes', 'talenttrack' ),
+                // #2207 — which player-profile cards are shown club-wide.
+                'profile-cards' => __( 'Profile cards', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -99,6 +101,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderMenusForm();
+                return;
+            case 'profile-cards':
+                // #2207 — club-wide visibility of the player-profile cards.
+                self::renderHeader( __( 'Profile cards', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderProfileCardsForm();
                 return;
             case 'dashboard':
                 self::renderHeader( __( 'Default dashboard', 'talenttrack' ) );
@@ -1495,6 +1503,8 @@ class FrontendConfigurationView extends FrontendViewBase {
         // Data & vocabularies
         $sections['data']['tiles'][] = [ 'title' => __( 'Lookups', 'talenttrack' ), 'desc' => __( 'Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place.', 'talenttrack' ), 'url' => $sub( 'lookups' ), 'icon' => 'categories' ];
         $sections['data']['tiles'][] = [ 'title' => __( 'Rating scale', 'talenttrack' ), 'desc' => __( 'Min, max and step for evaluation ratings.', 'talenttrack' ), 'url' => $sub( 'rating' ), 'icon' => 'weights' ];
+        // #2207 — which cards the player-profile "Profile" tab shows academy-wide.
+        $sections['data']['tiles'][] = [ 'title' => __( 'Profile cards', 'talenttrack' ), 'desc' => __( 'Choose which cards the player-profile Profile tab shows academy-wide. Hide the ones you do not use (e.g. Discovery). Identity always stays.', 'talenttrack' ), 'url' => $sub( 'profile-cards' ), 'icon' => 'players' ];
         if ( current_user_can( 'tt_edit_players' ) ) {
             $sections['data']['tiles'][] = [ 'title' => __( 'Players CSV import', 'talenttrack' ), 'desc' => __( 'Bulk-import players from a spreadsheet. Map columns, choose duplicate-handling, preview before commit.', 'talenttrack' ), 'url' => $view( 'players-import' ), 'icon' => 'import' ];
         }
@@ -2292,6 +2302,93 @@ class FrontendConfigurationView extends FrontendViewBase {
         </form>
         <?php
         self::renderConfigJs( false );
+    }
+
+    /**
+     * #2207 — academy-wide visibility of the player-profile "Profile" tab
+     * cards. One checkbox per hideable card (checked = shown); the Identity
+     * card is always-on and not listed. The checked/unchecked state is
+     * assembled client-side into a single `profile_cards_hidden` JSON array
+     * (the UNchecked cards) and saved via `POST /v1/config`, mirroring the
+     * match-minutes hidden-field pattern.
+     *
+     * Save-only — settings sub-form (CLAUDE.md §6a exemption). Which-card
+     * logic lives in ProfileCardsConfig, not here.
+     */
+    private static function renderProfileCardsForm(): void {
+        wp_enqueue_style(
+            'tt-frontend-profile-cards-config',
+            TT_PLUGIN_URL . 'assets/css/frontend-profile-cards-config.css',
+            [],
+            TT_VERSION
+        );
+
+        $labels = \TT\Modules\Players\Services\ProfileCardsConfig::hideableLabels();
+        $hidden = \TT\Modules\Players\Services\ProfileCardsConfig::hidden();
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="profile-cards" data-tt-profile-cards-form>
+            <input type="hidden" name="config[profile_cards_hidden]" value="" data-tt-profile-cards-json />
+            <div class="tt-panel">
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'Choose which cards the player-profile Profile tab shows for the whole academy. Uncheck a card to hide it everywhere. The Identity card (name, date of birth, position) always shows and cannot be hidden.', 'talenttrack' ); ?>
+                </p>
+                <div class="tt-profile-cards-list" role="group" aria-label="<?php esc_attr_e( 'Visible profile cards', 'talenttrack' ); ?>">
+                    <?php foreach ( $labels as $key => $label ) :
+                        $key       = (string) $key;
+                        $is_hidden = in_array( $key, $hidden, true );
+                        $field_id  = 'tt-profile-card-' . sanitize_html_class( $key );
+                    ?>
+                        <label class="tt-profile-card-row" for="<?php echo esc_attr( $field_id ); ?>">
+                            <input
+                                type="checkbox"
+                                id="<?php echo esc_attr( $field_id ); ?>"
+                                data-tt-profile-card="<?php echo esc_attr( $key ); ?>"
+                                value="1"
+                                <?php checked( ! $is_hidden ); ?>
+                            />
+                            <span><?php echo esc_html( $label ); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="tt-form-actions tt-profile-cards-actions">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save profile cards', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderProfileCardsJs();
+        self::renderConfigJs( false );
+    }
+
+    /**
+     * #2207 — keep the hidden `profile_cards_hidden` JSON field in sync
+     * with the per-card checkboxes (the UNchecked cards are the hidden
+     * set), so the standard config-form submit handler ships a single
+     * JSON value.
+     */
+    private static function renderProfileCardsJs(): void {
+        ?>
+        <script>
+        (function(){
+            var form = document.querySelector('[data-tt-profile-cards-form]');
+            if (!form) return;
+            var hidden = form.querySelector('[data-tt-profile-cards-json]');
+            var boxes  = form.querySelectorAll('[data-tt-profile-card]');
+
+            function sync(){
+                var hiddenCards = [];
+                boxes.forEach(function(box){
+                    if (!box.checked) hiddenCards.push(box.getAttribute('data-tt-profile-card'));
+                });
+                hidden.value = JSON.stringify(hiddenCards);
+            }
+
+            boxes.forEach(function(box){ box.addEventListener('change', sync); });
+            sync();
+        })();
+        </script>
+        <?php
     }
 
     /**

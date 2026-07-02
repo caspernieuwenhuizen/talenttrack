@@ -286,6 +286,13 @@
 .tt-dashboard .tt-act-pill[data-type="other"]    { background: var(--tt-mute, #f0f3f2); color: var(--tt-ink-soft, #5b6e75); }
 .tt-dashboard .tt-act-pill[data-status="completed"] { background: #e0efe5; color: #2e7d4f; }
 .tt-dashboard .tt-act-pill[data-status="cancelled"] { background: #ffe0e0; color: #8a2a26; }
+/* #2221 — Spond-source chip. Blue-tinted so it's distinct from the
+ * type / status pills, signalling the activity was imported from Spond.
+ * Uses the info-subtle token surface; contrast >= 4.5:1 for the label. */
+.tt-dashboard .tt-act-pill--spond {
+    background: var(--tt-info-subtle, #e6f0fa);
+    color: #1c5aa0;
+}
 
 /* =============================================================
    LEGACY — attendance editor (#0056 pilot mobile-first sheet)
@@ -746,6 +753,70 @@
 .tt-dashboard .tt-act-detail__audit {
     color: var(--tt-ink-soft, #5b6e75);
     font-size: 0.75rem;
+}
+
+/* #2221 — team-level "last synced from Spond" freshness line. Sits in
+ * the audit footer under the created/updated meta on Spond-sourced
+ * activities only. Muted so it reads as provenance, not a primary fact. */
+.tt-dashboard .tt-act-detail__spond-sync {
+    margin: 4px 0 0;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: 0.75rem;
+}
+
+/* =============================================================
+   #2220 — Refined-stack grouping panel + stat strip
+   -------------------------------------------------------------
+   A bounded, tinted container wraps the hero + stat strip + section
+   cards so they read as ONE deliberate group even when only a couple
+   of sections apply. Three tonal layers: page (--tt-bg-soft) → tinted
+   panel → white component cards. Ported from
+   .local-mockups/activity-detail/refined-stack.html (real tokens).
+   ============================================================= */
+.tt-dashboard .tt-act-panel {
+    background: var(--tt-line-soft, #eef0ec);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-act-panel > :first-child { margin-top: 0; }
+
+/* De-elevate the hero inside the panel — it's a plain white block, not
+ * a floating card, so the group reads as one unit. */
+.tt-dashboard .tt-act-panel .tt-act-detail__hero {
+    box-shadow: none;
+}
+
+/* ---- Compact stat strip ------------------------------------- */
+.tt-dashboard .tt-act-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-act-stats--3 { grid-template-columns: repeat(3, 1fr); }
+.tt-dashboard .tt-act-stat {
+    background: #fff;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+    text-align: center;
+    min-height: 48px;
+}
+.tt-dashboard .tt-act-stat__num {
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--tt-primary, #0b3d2e);
+    font-variant-numeric: tabular-nums;
+}
+.tt-dashboard .tt-act-stat__label {
+    margin-top: 2px;
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #6a6d66);
 }
 
 /* #2026 — the period quick-filter pills (#1648) and the archive-status

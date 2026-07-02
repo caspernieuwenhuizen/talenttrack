@@ -119,6 +119,11 @@ class ConfigRestController {
         // General settings above.
         'comms_email_from_name',
         'comms_email_from_address',
+        // #2207 — club-wide set of hidden player-profile "Profile" tab
+        // cards (JSON array of card keys, e.g. ["discovery"]). Written from
+        // the Configuration → Profile cards sub-form; consumed by
+        // ProfileCardsConfig. Mapped to the feature_toggles area below.
+        'profile_cards_hidden',
     ];
 
     /**
@@ -146,6 +151,8 @@ class ConfigRestController {
         'rating_max'        => 'rating_scale',
         'rating_step'       => 'rating_scale',
         'show_legacy_menus' => 'feature_toggles',
+        // #2207 — profile-card visibility is a per-club feature toggle.
+        'profile_cards_hidden' => 'feature_toggles',
     ];
 
     /**
@@ -202,7 +209,15 @@ class ConfigRestController {
                 $skipped[] = $key;
                 continue;
             }
-            QueryHelpers::set_config( $key, sanitize_text_field( (string) $value ) );
+            $clean = sanitize_text_field( (string) $value );
+            // #2207 — the profile-cards key carries a JSON array (or a CSV
+            // of card keys). Normalise it to the canonical JSON of known
+            // hideable keys so a malformed / stale payload can't poison the
+            // stored value.
+            if ( $key === 'profile_cards_hidden' ) {
+                $clean = \TT\Modules\Players\Services\ProfileCardsConfig::normaliseStored( $clean );
+            }
+            QueryHelpers::set_config( $key, $clean );
             $written++;
         }
         Logger::info( 'rest.config.saved', [

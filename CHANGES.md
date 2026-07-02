@@ -1,3 +1,142 @@
+# TalentTrack v4.69.0 — Configurable player-profile cards (#2207)
+
+The player-profile **Profile** tab cards can now be shown or hidden
+academy-wide from **Configuration → Profile cards**. Uncheck a card —
+Academy, Parents · Guardians, or Discovery — to hide it for the whole
+academy; the Identity card always stays. Useful for hiding cards you do not
+use, such as Discovery when you do not run scouting. The choice is stored
+per club and hides a card for display only — no data is deleted, and the
+existing staff-only rule on Parents · Guardians and Discovery still applies
+on top.
+
+# TalentTrack v4.69.0 — Goal detail: widen the goal pane, reduce wasted horizontal space (#2217)
+
+On the goal detail page the left goal pane no longer sits in a narrow
+column beside a large empty gutter. The `max-width: 640px` clamp on the
+goal card is lifted and the desktop split is rebalanced to `1.3fr 0.7fr`,
+so the goal fills its column while the conversation pane stays readable.
+CSS only; mobile stays a single column.
+
+# TalentTrack v4.69.0 — Goal detail now shows progress %, connected principle and football action (#2218)
+
+The goal detail page (coach and player views) now surfaces three fields
+that were captured on the goal but never displayed: the progress
+percentage as a bar, the connected methodology principle, and the
+connected football action. A goal with no progress set shows a dash
+rather than a fabricated 0%; unset links are hidden. Principle and action
+names are resolved in the repository layer so the coach and player
+surfaces show identical values, matching what the edit form saved.
+
+# TalentTrack v4.69.0 — My sessions: Revoke now works, and the current session is detected (#2219)
+
+On the "My sessions" screen, revoking another device no longer fails with
+"Could not identify the session to revoke." The list now enumerates
+sessions keyed by their verifier hash (read straight from the
+`session_tokens` usermeta) instead of via `WP_Session_Tokens::get_all()`,
+which strips those keys and left the revoke form carrying a numeric index.
+The active session is once again correctly marked "This session" and hides
+its Revoke button.
+
+# TalentTrack v4.69.0 — Activity detail: grouped panel + compact stat strip (#2220)
+
+The activity detail page now reads as one cohesive record. The hero, a new
+compact stat strip and the section cards sit inside a single softly-tinted
+**grouping panel**, giving three tonal layers (page → tinted panel → white
+cards) so the detail looks deliberate even when only a couple of sections
+apply. The de-elevated hero is followed by a stat strip of the key numbers:
+a match shows Present · Substitutes · Match length, a training shows
+Present · Duration, each cell dropping out gracefully when its number is
+unavailable. Every section card (Attendance, Line-up, Principles, Notes,
+Tournament) keeps its titled header and only renders when it has content.
+The line-up card's internal layout is unchanged here (its restyle is
+tracked separately). Numbers are derived in the domain layer; the view only
+composes them.
+
+# TalentTrack v4.69.0 — Spond source indicator on the activity list and detail (#2221)
+
+Activities imported from Spond now show their provenance. On the activities
+list, a Spond-sourced card carries a small blue **Spond** chip alongside its
+type and status pills; manually-created and generated activities show none.
+On the activity detail page, Spond-sourced activities show a
+**Team last synced from Spond: <time>** line in the audit footer — the
+team's most recent Spond sync (the timestamp is team-level, and the label
+says so, keeping the freshness claim honest). No schema change: the source
+flag and the team sync time already exist. Both `activity_source_key` and
+the team's `team_spond_last_sync_at` are exposed on the activity REST
+payload so a future front end can render the same chip and freshness line.
+
+# TalentTrack v4.69.0 — Match execution: completed matches are read-only, editing is opt-in (#2222)
+
+The match-execution screen now opens read-only and hides its mutating
+controls (score steppers, +action / →on buttons, and the post-match
+late-goal / late-substitution panels) behind an explicit **Edit** toggle in
+the header. Editing is only offered while the execution still accepts
+writes — during play, half-time, and the post-match review window. A
+**finalized** match shows no Edit affordance and keeps its live controls
+locked, matching the read-only state the REST layer already enforced. This
+removes the confusing "the match is done but the buttons still work"
+behaviour. Reuses the existing `tt_edit_activities` capability — no new
+permission.
+
+# TalentTrack v4.69.0 — Match execution: pitch labels players by first name + last initial (#2223)
+
+The vertical pitch on the match-execution screen now labels each player by
+first name plus last initial (e.g. "Daan P.") instead of the surname —
+matching how a coach names a player from the sideline while staying
+unambiguous when two players share a first name. Single-word names render
+as-is with no stray dot. Display formatting only; the label still fits the
+360px pitch slot.
+
+# TalentTrack v4.69.0 — Match execution detail: linked activity + correctable recorded minutes (#2224)
+
+The match-execution screen now links its parent activity through the
+breadcrumb chain (Dashboard / Activities / {activity} / Match execution),
+so the activity is both visible and one tap away — no hand-rolled back
+button. On a **finalized** execution it also adds a **Correct recorded
+minutes** action: a coach with `tt_edit_activities` can edit each player's
+recorded minutes with numeric inputs and Save (or Cancel back to the
+read-only detail). Minutes are only correctable post-finalize, where no
+auto-recompute can clobber the manual value; the correction writes through
+the existing row-scoped `PATCH /attendance/{id}` path (its minutes column
+now accepts a clamped 0–200 value), so the figure flows straight into the
+minutes reports without reopening the locked match. No new endpoint,
+capability, or schema change.
+
+# TalentTrack v4.69.0 — Frontend authoring for the methodology library — foundation + Principles (#2225)
+
+Academy editors can now author methodology content from the frontend, no
+wp-admin required. A new "Manage methodology" surface lives alongside the
+read view (`?tt_view=methodology&mode=manage`), gated on the existing
+`tt_edit_methodology` capability, with a "View published methodology" link
+back to the library. It opens with **Principles**: list, create, edit and
+delete club-authored principles with side-by-side Dutch + English inputs for
+the title, explanation, team-level guidance and per-line guidance. Shipped
+reference principles stay read-only. The same data is exposed over REST at
+`/wp-json/talenttrack/v1/methodology/principles` (GET/POST/PUT/DELETE), so a
+future SaaS front end gets identical answers.
+
+Under the hood this ships the reusable scaffold the rest of the methodology
+entities build on: an extensible tab registry (each entity registers its own
+manage tab without touching a shared switch) and a shared REST base
+controller. Formations, set-pieces, visions, framework primers and the other
+entities follow in later releases.
+
+# TalentTrack v4.69.0 — Methodology authoring: Football actions (voetbalhandelingen) (#2230)
+
+Editors can now create, edit and delete football actions
+(voetbalhandelingen) straight from the frontend Methodology → Manage
+surface, alongside principles. Each action has a slug, a category (met
+balcontact / zonder balcontact / ondersteunend) and side-by-side Dutch and
+English name + description. The same CRUD is available over REST at
+`/wp-json/talenttrack/v1/methodology/football-actions`. Deleting an action
+that a goal still links to is blocked (with a clear message) so the
+`linked_action_id` reference is never orphaned. Club-scoped; shipped rows
+stay read-only.
+
+# TalentTrack v4.69.0 — Fixed age-banded measurement targets never resolving because the player's age group was read from a non-existent `tt_players.age_group` column; it now resolves via the player's team (`tt_teams.age_group`).
+
+Fixed age-banded measurement targets never resolving because the player's age group was read from a non-existent `tt_players.age_group` column; it now resolves via the player's team (`tt_teams.age_group`).
+
 # TalentTrack v4.68.0 — Test-results Excel export: a "Trends over time" sheet with a line chart (#2194)
 
 The per-test Excel export now includes a second **Trends** sheet: one row per

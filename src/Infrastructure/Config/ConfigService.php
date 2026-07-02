@@ -66,6 +66,18 @@ class ConfigService {
         return is_array( $decoded ) ? $decoded : $default;
     }
 
+    /**
+     * Encode an array as JSON and store it under $key. The inverse of
+     * getJson(); keeps JSON config keys (e.g. `profile_cards_hidden`)
+     * writing through one helper rather than open-coding json_encode at
+     * each call site.
+     *
+     * @param array<mixed> $value
+     */
+    public function setJson( string $key, array $value ): void {
+        $this->set( $key, (string) wp_json_encode( $value ) );
+    }
+
     public function getFloat( string $key, float $default = 0.0 ): float {
         return (float) $this->get( $key, (string) $default );
     }

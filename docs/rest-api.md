@@ -161,7 +161,7 @@ Application invariant: linked XOR anonymous. Returns the inserted attendance row
 
 ### `PATCH /attendance/{id}` (#0026)
 
-Partial update. Accepts any subset of `status`, `notes`, `guest_notes`, `guest_name`, `guest_age`, `guest_position`. Used by the inline "anonymous guest notes" save-on-blur path.
+Partial update. Accepts any subset of `status`, `notes`, `guest_notes`, `guest_name`, `guest_age`, `guest_position`, `minutes_played`. Used by the inline "anonymous guest notes" save-on-blur path and (#2224) by the match-execution "correct recorded minutes" action on a finalized match. `minutes_played` is clamped to 0–200; an empty value clears it. Gated on `can_edit` (`tt_edit_activities`).
 
 ### `DELETE /attendance/{id}` (#0026)
 
