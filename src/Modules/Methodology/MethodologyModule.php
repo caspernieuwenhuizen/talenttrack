@@ -41,6 +41,10 @@ class MethodologyModule implements ModuleInterface {
         Frontend\Manage\FootballActionsManageTab::register();
         Rest\FootballActionsRestController::init();
 
+        // #2228 — set-pieces manage tab + REST, built on the #2225 scaffold.
+        Frontend\Manage\SetPiecesManageTab::register();
+        Rest\SetPiecesRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();

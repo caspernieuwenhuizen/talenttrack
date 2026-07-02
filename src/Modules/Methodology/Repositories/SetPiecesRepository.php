@@ -89,6 +89,22 @@ class SetPiecesRepository {
         ) !== false;
     }
 
+    /**
+     * Hard-delete a club-authored set piece. Shipped rows are read-only
+     * reference content, never removed — the caller clones-to-edit
+     * instead. Returns false when the row is shipped or the delete
+     * affected no rows (wrong id / other club).
+     */
+    public function delete( int $id ): bool {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        global $wpdb;
+        return $wpdb->delete(
+            $this->table(),
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
     public function cloneShipped( int $id ): int {
         $source = $this->find( $id );
         if ( ! $source ) return 0;

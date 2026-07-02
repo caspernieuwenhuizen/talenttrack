@@ -202,3 +202,12 @@
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* Monospace textarea for raw-JSON fields (set-piece diagram overlay). */
+.tt-dashboard .tt-mmg-code {
+    font-family: var(--tt-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+    font-size: 0.9rem;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+}

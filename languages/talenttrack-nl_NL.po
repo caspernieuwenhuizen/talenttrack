@@ -15585,7 +15585,7 @@ msgstr "Afwijzen met notitie"
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:147
 msgid "Rejection note"
-msgstr ""
+msgstr "Afwijzingsnotitie"
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:148
 msgid "Tell the author why"
@@ -15630,7 +15630,7 @@ msgstr "Verfijnen"
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:103
 msgid "Move to status"
-msgstr ""
+msgstr "Verplaats naar status"
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:111
 msgid "Move"
@@ -29146,11 +29146,11 @@ msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:76
 msgid "Certifications"
-msgstr ""
+msgstr "Certificeringen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:77
 msgid "Expiring soon"
-msgstr ""
+msgstr "Verloopt binnenkort"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:81
 msgid "No certifications on file yet."
@@ -29167,7 +29167,7 @@ msgstr "Uitgegeven"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:99
 msgid "Open document"
-msgstr ""
+msgstr "Document openen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:106
 msgid "Add a certification"
@@ -29249,7 +29249,7 @@ msgstr "Mijn stafdoelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:75
 msgid "Total goals"
-msgstr ""
+msgstr "Totaal aantal doelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:81
 msgid "No goals yet. Add one below."
@@ -29304,11 +29304,11 @@ msgstr "Open stafdoelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:99
 msgid "Reviews overdue"
-msgstr ""
+msgstr "Beoordelingen te laat"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:100
 msgid "Certs expiring (90d)"
-msgstr ""
+msgstr "Certificaten die binnenkort verlopen (90d)"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:107
 msgid "No open goals."
@@ -35333,7 +35333,7 @@ msgstr "Recent voltooid"
 
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:172
 msgid "Open tasks"
-msgstr ""
+msgstr "Openstaande taken"
 
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
 msgid "Snooze for 1 day"
@@ -35543,11 +35543,11 @@ msgstr "Dagen te laat"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:176
 msgid "Created (90d)"
-msgstr ""
+msgstr "Aangemaakt (90d)"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:180
 msgid "On-time rate"
-msgstr ""
+msgstr "Op-tijd-percentage"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
@@ -36984,7 +36984,7 @@ msgstr "Terug naar Spelersaccounts"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:49
 msgid "Back to Parent accounts"
-msgstr ""
+msgstr "Terug naar ouderaccounts"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:50
 msgid "Back to Accounts & access"
@@ -45742,3 +45742,87 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "+ New set piece"
+msgstr "+ Nieuwe spelhervatting"
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "No set pieces yet. Use “+ New set piece” to author the first one."
+msgstr "Nog geen spelhervattingen. Gebruik “+ Nieuwe spelhervatting” om de eerste te maken."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Delete this set piece? This cannot be undone."
+msgstr "Deze spelhervatting verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "That set piece could not be found."
+msgstr "Die spelhervatting is niet gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Shipped set pieces are read-only reference content and cannot be edited."
+msgstr "Meegeleverde spelhervattingen zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Bullets (one per line)"
+msgstr "Punten (één per regel)"
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Diagram overlay (JSON)"
+msgstr "Diagram-overlay (JSON)"
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Optional. Raw JSON describing marker positions on the pitch diagram. Leave blank if none."
+msgstr "Optioneel. Ruwe JSON die de markerposities op het veldschema beschrijft. Laat leeg als je die niet hebt."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Save set piece"
+msgstr "Spelhervatting opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "That set piece could not be deleted. Shipped reference set pieces cannot be removed."
+msgstr "Die spelhervatting kon niet worden verwijderd. Meegeleverde naslag-spelhervattingen kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Set piece deleted."
+msgstr "Spelhervatting verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Please choose a valid kind and side."
+msgstr "Kies een geldige soort en kant."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "A set piece needs a slug."
+msgstr "Een spelhervatting heeft een slug nodig."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "That set piece could not be saved."
+msgstr "Die spelhervatting kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Set piece saved."
+msgstr "Spelhervatting opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Set piece created."
+msgstr "Spelhervatting aangemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php
+msgid "Could not create the set piece."
+msgstr "Kon de spelhervatting niet aanmaken."
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php
+msgid "Invalid set-piece kind."
+msgstr "Ongeldige soort spelhervatting."
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php
+msgid "Invalid side."
+msgstr "Ongeldige kant."
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php
+msgid "Could not save the set piece."
+msgstr "Kon de spelhervatting niet opslaan."
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php
+msgid "Shipped set pieces are read-only. Clone it to edit."
+msgstr "Meegeleverde spelhervattingen zijn alleen-lezen. Kloon om te bewerken."
