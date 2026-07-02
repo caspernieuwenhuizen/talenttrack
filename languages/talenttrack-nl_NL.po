@@ -15585,7 +15585,7 @@ msgstr "Afwijzen met notitie"
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:147
 msgid "Rejection note"
-msgstr ""
+msgstr "Afwijzingsnotitie"
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:148
 msgid "Tell the author why"
@@ -15630,7 +15630,7 @@ msgstr "Verfijnen"
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:103
 msgid "Move to status"
-msgstr ""
+msgstr "Verplaats naar status"
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:111
 msgid "Move"
@@ -29146,11 +29146,11 @@ msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:76
 msgid "Certifications"
-msgstr ""
+msgstr "Certificeringen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:77
 msgid "Expiring soon"
-msgstr ""
+msgstr "Verloopt binnenkort"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:81
 msgid "No certifications on file yet."
@@ -29167,7 +29167,7 @@ msgstr "Uitgegeven"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:99
 msgid "Open document"
-msgstr ""
+msgstr "Document openen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:106
 msgid "Add a certification"
@@ -29249,7 +29249,7 @@ msgstr "Mijn stafdoelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:75
 msgid "Total goals"
-msgstr ""
+msgstr "Totaal aantal doelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:81
 msgid "No goals yet. Add one below."
@@ -29304,11 +29304,11 @@ msgstr "Open stafdoelen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:99
 msgid "Reviews overdue"
-msgstr ""
+msgstr "Beoordelingen te laat"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:100
 msgid "Certs expiring (90d)"
-msgstr ""
+msgstr "Certificaten die binnenkort verlopen (90d)"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:107
 msgid "No open goals."
@@ -35333,7 +35333,7 @@ msgstr "Recent voltooid"
 
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:172
 msgid "Open tasks"
-msgstr ""
+msgstr "Openstaande taken"
 
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
 msgid "Snooze for 1 day"
@@ -35543,11 +35543,11 @@ msgstr "Dagen te laat"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:176
 msgid "Created (90d)"
-msgstr ""
+msgstr "Aangemaakt (90d)"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:180
 msgid "On-time rate"
-msgstr ""
+msgstr "Op-tijd-percentage"
 
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
@@ -36984,7 +36984,7 @@ msgstr "Terug naar Spelersaccounts"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:49
 msgid "Back to Parent accounts"
-msgstr ""
+msgstr "Terug naar ouderaccounts"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:50
 msgid "Back to Accounts & access"
