@@ -21950,6 +21950,10 @@ msgstr "Speelwijze (NL)"
 msgid "Way of playing (EN)"
 msgstr "Speelwijze (EN)"
 
+#: src/Modules/Methodology/Frontend/Manage/VisionPrimerManageTab.php
+msgid "Way of playing"
+msgstr "Speelwijze"
+
 #: src/Modules/Methodology/Admin/VisionEditPage.php:103
 msgid "Important traits (NL — one per line)"
 msgstr "Belangrijke eigenschappen (NL — één per regel)"
