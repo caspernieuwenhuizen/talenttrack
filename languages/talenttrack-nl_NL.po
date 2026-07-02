@@ -4655,7 +4655,7 @@ msgstr ""
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:103
 #, php-format
 msgid "%1$s — %2$s"
-msgstr ""
+msgstr "%1$s — %2$s"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:763
@@ -29212,12 +29212,12 @@ msgstr "Mijn stafevaluaties"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:76
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:88
 msgid "Self"
-msgstr ""
+msgstr "Zelf"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:77
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:88
 msgid "Top-down"
-msgstr ""
+msgstr "Top-down"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:81
 msgid "No evaluations recorded yet."
