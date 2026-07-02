@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-07-02T04:07:39+00:00\n"
+"POT-Creation-Date: 2026-07-02T05:26:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -272,7 +272,13 @@ msgstr "Personnel"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
 #: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:103
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:119
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:263
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:112
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:121
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:117
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:107
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:105
 #: src/Modules/Players/Admin/PlayersPage.php:184
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:164
 #: src/Modules/Teams/Admin/TeamsPage.php:114
@@ -854,7 +860,13 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:669
 #: src/Modules/Methodology/Admin/MethodologyPage.php:704
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:96
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:112
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:255
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:105
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:114
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:110
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:100
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:98
 #: src/Modules/Pdp/Admin/SeasonsPage.php:88
 #: src/Modules/People/Admin/PeoplePage.php:239
 #: src/Modules/Players/Admin/PlayersPage.php:184
@@ -2126,6 +2138,7 @@ msgstr "Activité"
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:47
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Methodology/Admin/MethodologyPage.php:613
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:166
 #: src/Modules/Threads/Adapters/GoalThreadAdapter.php:97
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
 #: src/Shared/Frontend/CoachDashboardView.php:316
@@ -3523,7 +3536,12 @@ msgstr "Date"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:648
 #: src/Modules/Methodology/Admin/MethodologyPage.php:686
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:133
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:43
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:155
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:178
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:163
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:164
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:161
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:194
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
@@ -3901,6 +3919,7 @@ msgstr "— Tous —"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:98
 #: src/Modules/Methodology/Frontend/MethodologyView.php:602
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:229
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:730
@@ -5300,6 +5319,7 @@ msgstr ""
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:33
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:58
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:150
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:170
 #: src/Modules/Pdp/Admin/SeasonsPage.php:64
 #: src/Modules/Pdp/Admin/SeasonsPage.php:109
 #: src/Modules/Pdp/Admin/SeasonsPage.php:150
@@ -5506,6 +5526,9 @@ msgstr ""
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:94
 #: src/Modules/Methodology/Admin/VisionEditPage.php:74
 #: src/Modules/Methodology/Admin/VisionEditPage.php:87
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:170
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:63
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:74
 #: src/Modules/People/Admin/PeoplePage.php:342
 #: src/Modules/Players/Admin/PlayersPage.php:410
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
@@ -6494,6 +6517,8 @@ msgstr "Clé"
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:151
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:171
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:158
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:134
 #: src/Modules/Wizards/Goal/DetailsStep.php:16
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:251
@@ -10057,6 +10082,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:54
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:248
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:107
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:62
 #: src/Shared/Frontend/FrontendConfigurationView.php:165
 #: src/Shared/Frontend/FrontendConfigurationView.php:290
@@ -11076,6 +11102,8 @@ msgstr ""
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:64
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:66
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:98
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:150
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:195
 #: src/Shared/Frontend/FrontendConfigurationView.php:759
 #: src/Shared/Frontend/FrontendConfigurationView.php:990
 msgid "Sort order"
@@ -11478,6 +11506,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
 #: src/Modules/Methodology/Admin/PositionEditPage.php:84
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:330
 #: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:43
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1039
@@ -12488,6 +12517,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:777
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:91
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
 msgid "Kind"
 msgstr ""
@@ -14508,6 +14538,10 @@ msgstr "Corps"
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:57
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:67
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:135
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:164
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:145
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:153
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:137
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:116
 msgid "Slug"
@@ -15924,6 +15958,7 @@ msgstr ""
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:380
 #: src/Modules/Methodology/Admin/PositionEditPage.php:72
 #: src/Modules/Methodology/Admin/VisionEditPage.php:71
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:61
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:132
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:458
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:274
@@ -19722,13 +19757,25 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:666
 #: src/Modules/Methodology/Admin/MethodologyPage.php:701
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:85
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:101
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:244
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:96
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:105
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:101
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:88
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:86
 msgid "Shipped"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:73
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:93
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:109
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:252
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:102
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:111
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:107
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:97
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:95
 msgid "Read-only"
 msgstr ""
 
@@ -19771,6 +19818,7 @@ msgid "Identity"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:62
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:44
 msgid "Tagline"
 msgstr ""
 
@@ -19780,43 +19828,52 @@ msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:69
 #: src/Modules/Methodology/Admin/MethodologyPage.php:556
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:45
 #: src/Modules/Methodology/Frontend/MethodologyView.php:195
 msgid "Inleiding"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:70
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:46
 msgid "Voetbalmodel — toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:71
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:47
 msgid "Voetbalhandelingen — toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:72
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:48
 msgid "Vier fasen — toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:73
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:49
 msgid "Leerdoelen — toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:74
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:50
 msgid "Factoren van invloed — toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:75
 #: src/Modules/Methodology/Admin/MethodologyPage.php:547
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:51
 #: src/Modules/Methodology/Frontend/MethodologyView.php:215
 msgid "Reflectie"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:76
 #: src/Modules/Methodology/Admin/MethodologyPage.php:548
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:52
 #: src/Modules/Methodology/Frontend/MethodologyView.php:216
 msgid "De toekomst"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:81
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:90
 msgid "Create framework primer"
 msgstr ""
 
@@ -19855,16 +19912,19 @@ msgid "Title (EN)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:86
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:172
 msgid "Sub-factors (JSON)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:89
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:175
 msgid ""
 "Optional JSON array of sub-cards. Each entry needs slug + title (nl/en) + "
 "description (nl/en). Leave empty for no sub-cards."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:94
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:180
 msgid "Create influence factor"
 msgstr ""
 
@@ -19886,10 +19946,14 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:424
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:54
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:81
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:160
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:150
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:152
 msgid "Side"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:71
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:168
 msgid "Linked team-task (optional)"
 msgstr ""
 
@@ -19904,6 +19968,7 @@ msgid "Bullets (EN — one per line)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:103
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:201
 msgid "Create learning goal"
 msgstr ""
 
@@ -19969,6 +20034,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:63
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:60
 #: src/Modules/Methodology/Frontend/MethodologyView.php:97
 msgid "Raamwerk"
 msgstr ""
@@ -19986,11 +20052,13 @@ msgid "Formaties & Posities"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:66
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:34
 #: src/Modules/Methodology/Frontend/MethodologyView.php:101
 msgid "Spelhervattingen"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:67
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:35
 #: src/Modules/Methodology/Frontend/MethodologyView.php:96
 msgid "Visie"
 msgstr ""
@@ -20073,7 +20141,11 @@ msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:225
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:80
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:94
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:102
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:95
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:83
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:81
 #: src/Modules/Methodology/Frontend/MethodologyView.php:408
 msgid "(untitled)"
 msgstr ""
@@ -20196,6 +20268,7 @@ msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:545
 #: src/Modules/Methodology/Admin/MethodologyPage.php:642
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:35
 #: src/Modules/Methodology/Frontend/MethodologyView.php:213
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:267
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:320
@@ -20204,6 +20277,7 @@ msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:546
 #: src/Modules/Methodology/Admin/MethodologyPage.php:683
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:35
 #: src/Modules/Methodology/Frontend/MethodologyView.php:214
 msgid "Factoren van invloed"
 msgstr ""
@@ -20256,6 +20330,7 @@ msgid "Add phase"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:64
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:158
 msgid "Phase number (1–4)"
 msgstr ""
 
@@ -20268,6 +20343,7 @@ msgid "Goal (EN)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:85
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:181
 msgid "Create phase"
 msgstr ""
 
@@ -20289,6 +20365,7 @@ msgid "Add position"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PositionEditPage.php:65
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:212
 msgid "Back to formations"
 msgstr ""
 
@@ -20325,6 +20402,7 @@ msgid "Defending tasks (EN — one per line)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PositionEditPage.php:121
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:342
 msgid "Create position"
 msgstr ""
 
@@ -20414,6 +20492,7 @@ msgid "Back to set pieces"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:121
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:186
 msgid "Create set piece"
 msgstr ""
 
@@ -20435,6 +20514,7 @@ msgid "Back to vision"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/VisionEditPage.php:84
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:72
 msgid "Style of play"
 msgstr ""
 
@@ -20463,10 +20543,12 @@ msgid "Notes (EN)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:102
 msgid "Save vision"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/VisionEditPage.php:152
+#: src/Modules/Methodology/Rest/VisionRestController.php:88
 msgid "The shipped sample vision is read-only."
 msgstr ""
 
@@ -20505,17 +20587,45 @@ msgstr ""
 
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:171
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:190
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:359
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:378
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:400
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:118
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:161
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:195
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:184
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:216
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:169
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:196
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:176
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:205
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:224
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:167
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:201
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:88
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:130
 msgid "Dutch (NL)"
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:175
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:194
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:363
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:382
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:404
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:126
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:165
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:199
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:188
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:220
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:173
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:200
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:180
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:209
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:228
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:171
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:205
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:92
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:134
 msgid "English (EN)"
 msgstr ""
 
@@ -20566,6 +20676,345 @@ msgstr ""
 msgid "Could not create the football action."
 msgstr ""
 
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:38
+#: src/Modules/Methodology/Frontend/MethodologyView.php:98
+msgid "Formaties"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:79
+msgid "+ New formation"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:84
+msgid "No formations yet. Use “+ New formation” to author the first one."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:114
+msgid "Delete this formation and its position cards? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:135
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:197
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:290
+msgid "That formation could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:139
+msgid ""
+"Shipped formations are read-only reference content and cannot be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:175
+msgid "Diagram data (JSON)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:178
+msgid ""
+"Optional. Normalized 0–100 position coordinates for the pitch diagram. Leave "
+"blank to use the default layout."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:183
+msgid "Save formation"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:183
+msgid "Create formation"
+msgstr ""
+
+#. translators: %s is the formation name
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:208
+#, php-format
+msgid "Positions — %s"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:219
+msgid "+ New position"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:222
+msgid ""
+"Shipped formations are read-only reference content; their positions cannot "
+"be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:227
+msgid "No positions on this formation yet."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:236
+msgid "(unnamed position)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:257
+msgid "Delete this position? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:279
+msgid "That position could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:283
+msgid "Shipped positions are read-only reference content and cannot be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:294
+msgid ""
+"Shipped formations are read-only reference content; positions cannot be "
+"added."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:336
+msgid "Short name"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:337
+msgid "Long name"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:338
+msgid "Attacking tasks (one per line)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:339
+msgid "Defending tasks (one per line)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:342
+msgid "Save position"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:449
+msgid "That formation could not be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:451
+msgid "Formation deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:462
+#: src/Modules/Methodology/Rest/FormationsRestController.php:108
+#: src/Modules/Methodology/Rest/FormationsRestController.php:138
+msgid "A formation needs a slug."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:481
+msgid "That formation could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:484
+msgid "Formation saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:490
+msgid "Formation created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:490
+msgid "Could not create the formation."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:502
+msgid "That position could not be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:504
+msgid "Position deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:538
+msgid "That position could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:541
+msgid "Position saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:546
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:552
+msgid "Could not create the position."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:552
+msgid "Position created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:77
+msgid ""
+"The framework primer is a single record. Edit its intro sections here; they "
+"appear on the read view’s Raamwerk tab."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:90
+msgid "Save framework primer"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:188
+msgid "That framework primer could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:191
+msgid "Framework primer saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:198
+msgid "Framework primer created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:198
+msgid "Could not create the framework primer."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:64
+msgid ""
+"Author the framework primer first — influence factors hang off it. Open the "
+"Raamwerk tab and save the primer."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:68
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:68
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:68
+msgid "Go to Raamwerk"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:75
+msgid "+ New influence factor"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:80
+msgid ""
+"No influence factors yet. Use “+ New influence factor” to author the first "
+"one."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:107
+msgid "Delete this influence factor? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:126
+msgid "That influence factor could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:130
+msgid ""
+"Shipped influence factors are read-only reference content and cannot be "
+"edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:180
+msgid "Save influence factor"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:260
+msgid ""
+"That influence factor could not be deleted. Shipped reference factors cannot "
+"be removed."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:262
+msgid "Influence factor deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:271
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:62
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:98
+msgid "An influence factor needs a slug."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:298
+msgid "That influence factor could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:301
+msgid "Influence factor saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:308
+msgid "Influence factor created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:308
+msgid "Could not create the influence factor."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:64
+msgid ""
+"Author the framework primer first — learning goals hang off it. Open the "
+"Raamwerk tab and save the primer."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:75
+msgid "+ New learning goal"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:80
+msgid ""
+"No learning goals yet. Use “+ New learning goal” to author the first one."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:116
+msgid "Delete this learning goal? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:135
+msgid "That learning goal could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:139
+msgid ""
+"Shipped learning goals are read-only reference content and cannot be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:181
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:164
+msgid "Bullets (one per line)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:201
+msgid "Save learning goal"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:287
+msgid ""
+"That learning goal could not be deleted. Shipped reference goals cannot be "
+"removed."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:289
+msgid "Learning goal deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:298
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:265
+msgid "Please choose a valid side."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:303
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:67
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:105
+msgid "A learning goal needs a slug."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:308
+msgid "Please choose a valid team-task."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:329
+msgid "That learning goal could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:332
+msgid "Learning goal saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:339
+msgid "Learning goal created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:339
+msgid "Could not create the learning goal."
+msgstr ""
+
 #: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php:35
 #: src/Modules/Methodology/Frontend/MethodologyView.php:71
 msgid "Manage methodology"
@@ -20585,6 +21034,71 @@ msgstr ""
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php:127
 msgid "Methodology entities"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:35
+msgid "Fasen"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:64
+msgid ""
+"Author the framework primer first — phases hang off it. Open the Raamwerk "
+"tab and save the primer."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:75
+msgid "+ New phase"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:80
+msgid "No phases yet. Use “+ New phase” to author the first one."
+msgstr ""
+
+#. translators: %d: phase number 1–4
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:98
+#, php-format
+msgid "Phase %d"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:112
+msgid "Delete this phase? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:131
+msgid "That phase could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:135
+msgid "Shipped phases are read-only reference content and cannot be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:181
+msgid "Save phase"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:254
+msgid ""
+"That phase could not be deleted. Shipped reference phases cannot be removed."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:256
+msgid "Phase deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:284
+msgid "That phase could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:287
+msgid "Phase saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:294
+msgid "Phase created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:294
+msgid "Could not create the phase."
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:61
@@ -20646,16 +21160,121 @@ msgstr ""
 msgid "Could not create the principle."
 msgstr ""
 
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:59
+msgid "+ New set piece"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:64
+msgid "No set pieces yet. Use “+ New set piece” to author the first one."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:100
+msgid "Delete this set piece? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:119
+msgid "That set piece could not be found."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:123
+msgid ""
+"Shipped set pieces are read-only reference content and cannot be edited."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:178
+msgid "Diagram overlay (JSON)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:181
+msgid ""
+"Optional. Raw JSON describing marker positions on the pitch diagram. Leave "
+"blank if none."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:186
+msgid "Save set piece"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:278
+msgid ""
+"That set piece could not be deleted. Shipped reference set pieces cannot be "
+"removed."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:280
+msgid "Set piece deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:290
+msgid "Please choose a valid kind and side."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:295
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:71
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:104
+msgid "A set piece needs a slug."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:316
+msgid "That set piece could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:319
+msgid "Set piece saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:325
+msgid "Set piece created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:325
+msgid "Could not create the set piece."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:53
+msgid ""
+"The club vision is a single record. Edit it here; it appears on the read "
+"view’s Vision tab."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:82
+msgid "Way of playing"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:85
+msgid "Important traits (one per line)"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:102
+msgid "Create vision"
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:198
+msgid "Please choose a valid style of play."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:221
+msgid "That vision could not be saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:224
+msgid "Vision saved."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:231
+msgid "Vision created."
+msgstr ""
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:231
+msgid "Could not create the vision."
+msgstr ""
+
 #: src/Modules/Methodology/Frontend/MethodologyView.php:52
 msgid "You do not have permission to view the methodology library."
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:80
 msgid "Print referentiekaart"
-msgstr ""
-
-#: src/Modules/Methodology/Frontend/MethodologyView.php:98
-msgid "Formaties"
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:104
@@ -20683,6 +21302,9 @@ msgid "No set pieces available."
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:546
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:58
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:91
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:118
 msgid "Set piece not found."
 msgstr ""
 
@@ -20968,6 +21590,142 @@ msgid ""
 "Unlink them first."
 msgstr ""
 
+#: src/Modules/Methodology/Rest/FormationsRestController.php:93
+#: src/Modules/Methodology/Rest/FormationsRestController.php:128
+#: src/Modules/Methodology/Rest/FormationsRestController.php:152
+#: src/Modules/Methodology/Rest/FormationsRestController.php:167
+#: src/Modules/Methodology/Rest/FormationsRestController.php:193
+msgid "Formation not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:118
+msgid "Could not save the formation."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:131
+#: src/Modules/Methodology/Rest/FormationsRestController.php:196
+msgid "Shipped formations are read-only. Clone it to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:155
+msgid "Shipped formations cannot be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:181
+#: src/Modules/Methodology/Rest/FormationsRestController.php:218
+#: src/Modules/Methodology/Rest/FormationsRestController.php:239
+msgid "Position not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:207
+msgid "Could not save the position."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:221
+msgid "Shipped positions are read-only. Clone it to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FormationsRestController.php:242
+msgid "Shipped positions cannot be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php:93
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php:105
+msgid "Framework primer not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php:108
+msgid "The shipped framework primer is read-only. Clone it to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php:118
+msgid ""
+"The framework primer is a single record and cannot be created over REST."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php:122
+msgid ""
+"The framework primer is a single record and cannot be deleted over REST."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:52
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:88
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:112
+msgid "Influence factor not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:67
+msgid "Author the framework primer before adding influence factors."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:78
+msgid "Could not save the influence factor."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:91
+msgid "Shipped influence factors are read-only. Clone the primer to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php:115
+msgid "Shipped influence factors cannot be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:54
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:93
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:119
+msgid "Learning goal not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:72
+msgid "Author the framework primer before adding learning goals."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:83
+msgid "Could not save the learning goal."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:96
+msgid "Shipped learning goals are read-only. Clone the primer to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:122
+msgid "Shipped learning goals cannot be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:137
+#: src/Modules/Methodology/Rest/PhasesRestController.php:62
+#: src/Modules/Methodology/Rest/PhasesRestController.php:93
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:201
+msgid "Invalid side."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php:143
+#: src/Modules/Methodology/Rest/PrinciplesRestController.php:195
+msgid "Invalid team-task."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php:53
+#: src/Modules/Methodology/Rest/PhasesRestController.php:87
+#: src/Modules/Methodology/Rest/PhasesRestController.php:105
+msgid "Phase not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php:67
+msgid "Author the framework primer before adding phases."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php:77
+msgid "Could not save the phase."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php:90
+msgid "Shipped phases are read-only. Clone the primer to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php:108
+msgid "Shipped phases cannot be deleted."
+msgstr ""
+
 #: src/Modules/Methodology/Rest/PrinciplesRestController.php:78
 msgid "Could not save the principle."
 msgstr ""
@@ -20984,8 +21742,37 @@ msgstr ""
 msgid "Invalid team-function."
 msgstr ""
 
-#: src/Modules/Methodology/Rest/PrinciplesRestController.php:195
-msgid "Invalid team-task."
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:81
+msgid "Could not save the set piece."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:94
+msgid "Shipped set pieces are read-only. Clone it to edit."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:121
+msgid "Shipped set pieces cannot be deleted."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:196
+msgid "Invalid set-piece kind."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/VisionRestController.php:73
+#: src/Modules/Methodology/Rest/VisionRestController.php:85
+msgid "Vision not found."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/VisionRestController.php:94
+msgid "Invalid style of play."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/VisionRestController.php:105
+msgid "The vision is a single record and cannot be created over REST."
+msgstr ""
+
+#: src/Modules/Methodology/Rest/VisionRestController.php:109
+msgid "The vision is a single record and cannot be deleted over REST."
 msgstr ""
 
 #: src/Modules/Mfa/Auth/RememberDeviceCookie.php:160
