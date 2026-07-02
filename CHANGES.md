@@ -1,3 +1,79 @@
+# TalentTrack v4.70.0 — Frontend authoring for the club vision + framework primer (#2226)
+
+The methodology authoring surface gains two more tabs: **Vision** and
+**Framework primer** (Raamwerk). Both are single-record editors — each club
+has exactly one vision and one framework primer — so the tab opens straight
+onto its edit form (no list, no "+ New", no delete). The Vision tab edits the
+formation, style of play, way of playing, important traits and notes; the
+Framework primer tab edits the title, tagline and every intro section
+(inleiding, per-theme toelichtingen for voetbalmodel, voetbalhandelingen, the
+four phases, learning goals and influence factors, plus reflection and
+future). Every field carries side-by-side Dutch + English inputs, and the
+first save creates the record while later saves update it. The shipped sample
+vision and shipped primer stay read-only. What you save is reflected on the
+read view's Visie and Raamwerk tabs.
+
+Both are also exposed over REST at
+`/wp-json/talenttrack/v1/methodology/vision` and
+`/wp-json/talenttrack/v1/methodology/framework-primer` (GET + PUT, read and
+update only — no create/delete for the singletons), club-scoped and gated on
+`tt_edit_methodology`, so a future SaaS front end gets identical answers.
+
+# TalentTrack v4.70.0 — Methodology authoring: Formations tab with nested positions (#2227)
+
+The frontend methodology-authoring surface gains a **Formaties** tab.
+Editors can now create, edit and delete formations (slug, Dutch/English
+name and description, optional diagram-data JSON) and manage each
+formation's position cards (jersey number, Dutch/English short and long
+names, and newline-separated attacking and defending task lists) — no
+wp-admin needed. Dutch and English round-trip; shipped reference
+formations and positions stay read-only.
+
+A matching REST surface ships alongside at
+`/wp-json/talenttrack/v1/methodology/formations` (and the nested
+`/{id}/positions`), gated on `tt_edit_methodology` and club-scoped, so a
+future non-WordPress front end gets the same CRUD.
+
+# TalentTrack v4.70.0 — Frontend authoring for set pieces (#2228)
+
+Academy editors can now author **set pieces** from the frontend, no wp-admin
+required. The methodology "Manage" surface gains a **Spelhervattingen** tab:
+list, create, edit and delete club-authored set pieces with a slug, a
+kind (corner, free kick, penalty, throw-in) and side, side-by-side Dutch +
+English inputs for the title, a Dutch and English coaching-point list (one
+bullet per line) and an optional diagram-overlay JSON blob. Shipped reference
+set pieces stay read-only, and saved set pieces show up in the read view's
+Set pieces tab.
+
+The same data is exposed over REST at
+`/wp-json/talenttrack/v1/methodology/set-pieces` (GET/POST/PUT/DELETE),
+club-scoped and gated on `tt_edit_methodology`, so a future SaaS front end
+gets identical answers. Built on the #2225 tab-registry + REST-base scaffold.
+
+# TalentTrack v4.70.0 — Frontend authoring for phases, learning goals and influence factors (#2229)
+
+Academy editors can now author the framework primer's three children from the
+frontend, no wp-admin required. The methodology "Manage" surface gains three
+tabs, each scoped to the club's framework primer:
+
+- **Fasen** — the four attacking and four defending phases, each with a side,
+  a phase number (1–4) and side-by-side Dutch + English title and goal.
+- **Leerdoelen** — coachable learning goals per side, optionally tied to a
+  teamtaak, with a Dutch + English title and a per-language bullet checklist.
+- **Factoren van invloed** — the factors shaping development, with a Dutch +
+  English title and description plus an optional array of sub-factor cards.
+
+All three list, create, edit and delete club-authored rows; shipped reference
+content stays read-only, and a tab points the editor to the Raamwerk tab first
+when no primer exists yet.
+
+The same data is exposed over REST at
+`/wp-json/talenttrack/v1/methodology/phases`,
+`/methodology/learning-goals` and `/methodology/influence-factors`
+(GET/POST/PUT/DELETE), club-scoped and gated on `tt_edit_methodology`, so a
+future SaaS front end gets identical answers. Built on the #2225 tab-registry +
+REST-base scaffold.
+
 # TalentTrack v4.69.0 — Configurable player-profile cards (#2207)
 
 The player-profile **Profile** tab cards can now be shown or hidden
