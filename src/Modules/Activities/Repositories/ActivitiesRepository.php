@@ -76,9 +76,15 @@ final class ActivitiesRepository {
         $p     = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
         $archive_clause = $include_archived ? '' : 'AND s.archived_at IS NULL';
+        // #2221 — surface the team-level last Spond sync timestamp so the
+        // detail view can show honest data-freshness on Spond-sourced
+        // activities. It lives on tt_teams (migration 0041), not per
+        // activity; the label makes the team scope explicit. Resolution
+        // stays in the domain layer (CLAUDE.md §4).
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT s.*, t.name AS team_name FROM {$p}tt_activities s
+            "SELECT s.*, t.name AS team_name, t.spond_last_sync_at AS team_spond_last_sync_at
+             FROM {$p}tt_activities s
              LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
              WHERE s.id = %d {$archive_clause} {$scope}",
             $activity_id
@@ -865,6 +871,82 @@ final class ActivitiesRepository {
             }
         }
         return $out;
+    }
+
+    /**
+     * #2220 — compact stat strip for the activity detail panel. Returns
+     * the key numbers the detail header shows above the section cards,
+     * derived entirely from data the detail surface already reads
+     * (attendance breakdown + line-up + the resolved match length). The
+     * view composes these into cells; no derivation lives in the view
+     * (CLAUDE.md §4).
+     *
+     * Match:    present / roster · substitutes (bench count) · match length (min).
+     * Training: present / roster · duration (min, from the time window).
+     *
+     * Each value degrades to null when unavailable so the strip can skip
+     * an empty cell rather than show a placeholder.
+     *
+     * @return object {
+     *   present:?int, roster_size:?int, substitutes:?int,
+     *   match_length_minutes:?int, duration_minutes:?int
+     * }
+     */
+    public function statStripForActivity( int $activity_id, int $team_id, bool $is_match, string $start_time, string $end_time, int $explicit_match_length = 0 ): object {
+        $out = (object) [
+            'present'              => null,
+            'roster_size'         => null,
+            'substitutes'          => null,
+            'match_length_minutes' => null,
+            'duration_minutes'     => null,
+        ];
+        if ( $activity_id <= 0 ) return $out;
+
+        // Present / roster — reuse the same breakdown the Attendance card reads.
+        if ( $team_id > 0 ) {
+            $bd = $this->attendanceBreakdownForActivity( $activity_id, $team_id );
+            if ( (int) $bd->roster_size > 0 ) {
+                $out->present     = (int) $bd->present;
+                $out->roster_size = (int) $bd->roster_size;
+            }
+        }
+
+        if ( $is_match ) {
+            // Substitutes — bench count from the captured line-up.
+            $lineup = $this->lineupForActivity( $activity_id );
+            if ( $lineup->starting !== [] || $lineup->bench !== [] ) {
+                $out->substitutes = count( $lineup->bench );
+            }
+            // Match length — stored per-match override, else resolved from
+            // the age-group config (MatchPrep domain service).
+            if ( class_exists( '\\TT\\Modules\\MatchPrep\\Services\\MatchLengthResolver' ) ) {
+                $minutes = ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )
+                    ->matchMinutesForActivity( $activity_id, $explicit_match_length > 0 ? (int) ceil( $explicit_match_length / 2 ) : 0 );
+                if ( $minutes > 0 ) $out->match_length_minutes = $minutes;
+            } elseif ( $explicit_match_length > 0 ) {
+                $out->match_length_minutes = $explicit_match_length;
+            }
+        } else {
+            // Duration — minutes between start + end of the time window.
+            $dur = self::minutesBetween( $start_time, $end_time );
+            if ( $dur > 0 ) $out->duration_minutes = $dur;
+        }
+
+        return $out;
+    }
+
+    /**
+     * #2220 — minutes between two `HH:MM[:SS]` clock times on the same
+     * day. Returns 0 when either is missing / unparseable or the window
+     * is non-positive.
+     */
+    private static function minutesBetween( string $start, string $end ): int {
+        if ( ! preg_match( '/^(\d{1,2}):(\d{2})/', $start, $s ) ) return 0;
+        if ( ! preg_match( '/^(\d{1,2}):(\d{2})/', $end, $e ) )   return 0;
+        $start_min = (int) $s[1] * 60 + (int) $s[2];
+        $end_min   = (int) $e[1] * 60 + (int) $e[2];
+        $diff      = $end_min - $start_min;
+        return $diff > 0 ? $diff : 0;
     }
 
     /**

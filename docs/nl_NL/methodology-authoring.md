@@ -19,6 +19,9 @@ De beheeromgeving heeft een tabblad per methodologie-onderdeel, net als de leesw
 **Spelprincipes**, **Visie** en **Raamwerk** zijn beschikbaar. Formaties, spelhervattingen en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 
 Twee van deze tabbladen — **Visie** en **Raamwerk** — zijn *één-record*-formulieren in plaats van lijsten: elke club heeft precies één visie en één raamwerk-introductie, dus het tabblad opent meteen op het bewerkformulier (geen lijst, geen "+ Nieuw", geen verwijderen).
+**Spelprincipes** en **Formaties** zijn nu beschikbaar. Spelhervattingen, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
+**Spelprincipes** en **Spelhervattingen** zijn nu beschikbaar. Formaties, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
+**Spelprincipes** en **Voetbalhandelingen** zijn beschikbaar. Formaties, spelhervattingen, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 
 ## Een principe bewerken
 
@@ -52,10 +55,56 @@ Het tabblad **Raamwerk** bewerkt de ene raamwerk-introductie van je club — de 
 - **Reflectie** en **De toekomst** — afsluitende secties.
 
 Elke sectie heeft naast elkaar Nederlandse en Engelse tekst. De eerste keer opslaan maakt de introductie aan; latere keren werken die bij. De introductie is de ouder van de fasen, leerdoelen en factoren van invloed die op hun eigen tabbladen worden beheerd. Wat je opslaat verschijnt op het tabblad **Raamwerk** van de leesweergave.
+## Een formatie bewerken
+
+Het tabblad **Formaties** toont je formaties. Elke formatie bevat:
+
+- **Slug** — de korte verwijzing zoals `1-4-3-3`.
+- **Naam** en **Beschrijving** — elk met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+- **Diagramgegevens (JSON)** — optioneel. Genormaliseerde 0–100-coördinaten voor het opstellingsdiagram (`{"positions":{"1":{"x":50,"y":92,"label":"K"}}}`). Laat het leeg voor de standaardopstelling.
+
+Opslaan en Annuleren staan samen onderaan — Annuleren brengt je terug naar de formatielijst (of naar waar je vandaan kwam). Een formatie verwijderen wist deze en al haar positiekaarten definitief, na een bevestiging.
+
+## Formatieposities bewerken
+
+Elke formatie heeft maximaal elf **positiekaarten** — één per rugnummer. Gebruik in de formatielijst de actie **Posities** om de posities van een formatie te openen, en daarna **+ Nieuwe positie** om er een toe te voegen. Een positie bevat:
+
+- **Rugnummer** — 1–11.
+- **Korte naam** en **Lange naam** — naast elkaar Nederlandse en Engelse invoer (bijv. "Vleugelverdediger" / "Wing-back").
+- **Aanvallende taken** en **Verdedigende taken** — Nederlandse en Engelse tekstvakken, **één taak per regel**. Lege regels vervallen.
+
+Posities horen bij hun formatie; een formatie verwijderen verwijdert ook haar posities.
 
 ## Meegeleverd vs. clubeigen
 
-Meegeleverde principes van TalentTrack zijn hier **alleen-lezen** — ze tonen een label "Meegeleverd" en hebben geen bewerk- of verwijderactie, zodat je de naslaginhoud niet per ongeluk kunt beschadigen. Clubeigen principes zijn volledig te bewerken en te verwijderen.
+Meegeleverde principes, formaties en posities van TalentTrack zijn hier **alleen-lezen** — ze tonen een label "Meegeleverd" en hebben geen bewerk- of verwijderactie, zodat je de naslaginhoud niet per ongeluk kunt beschadigen. Clubeigen records zijn volledig te bewerken en te verwijderen.
+## Een spelhervatting bewerken
+
+Een spelhervatting bevat:
+
+- **Slug** — de korte verwijzing zoals `corner-attacking-far-post`.
+- **Soort** — corner, vrije trap (direct), vrije trap (voorzet), penalty of inworp.
+- **Kant** — aanvallend, verdedigend of omschakelen.
+- **Titel** — met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+- **Punten** — een Nederlandse en een Engelse lijst met coachpunten, één punt per regel in elk tekstvak.
+- **Diagram-overlay (JSON)** — optionele ruwe JSON die de markerposities op het veldschema beschrijft. Laat leeg als je die niet hebt; ongeldige JSON wordt bij het opslaan genegeerd.
+
+Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands wanneer de taal van een lezer Engels is maar er geen Engelse tekst is opgegeven. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam). Een spelhervatting verwijderen is definitief en vraagt eerst om bevestiging. Opgeslagen spelhervattingen zijn zichtbaar in het tabblad **Spelhervattingen** van de leesweergave.
+## Een voetbalhandeling bewerken
+
+Een voetbalhandeling bevat:
+
+- **Slug** — de korte machineverwijzing zoals `aannemen`.
+- **Categorie** — een van *Met balcontact*, *Zonder balcontact* of *Ondersteunend*.
+- **Naam** en **Omschrijving** — elk met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+
+Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands wanneer de taal van een lezer Engels is maar er geen Engelse tekst is opgegeven. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam).
+
+Een voetbalhandeling verwijderen is definitief en vraagt eerst om bevestiging. Een handeling waaraan een doel nog is gekoppeld (via de gekoppelde handeling) kun je **niet** verwijderen — je krijgt een melding met het aantal doelen dat ernaar verwijst. Ontkoppel die doelen eerst en verwijder daarna.
+
+## Meegeleverd vs. clubeigen
+
+Meegeleverde inhoud van TalentTrack (principes, spelhervattingen en de overige onderdelen) is hier **alleen-lezen** — die toont een label "Meegeleverd" en heeft geen bewerk- of verwijderactie, zodat je de naslaginhoud niet per ongeluk kunt beschadigen. Clubeigen records zijn volledig te bewerken en te verwijderen.
 
 ## REST-API
 
@@ -74,8 +123,35 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer` | De actieve raamwerk-introductie van de club. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | Eén introductie, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | De raamwerk-introductie bewerken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Spelhervattingen tonen (per club; filter op `kind`, `side`, `source`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Een clubeigen spelhervatting aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Eén spelhervatting, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Een clubeigen spelhervatting bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Een clubeigen spelhervatting verwijderen. |
 
-Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige velden (`title`, `explanation`, `team_guidance`, `line_guidance`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`.
+Formaties (en hun geneste positiekaarten) bieden dezelfde CRUD:
+
+| Methode | Route | Doel |
+| --- | --- | --- |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations` | Formaties tonen (per club). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations` | Een clubeigen formatie aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Eén formatie, met haar posities. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Een clubeigen formatie bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Een clubeigen formatie (en haar posities) verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | De posities van een formatie tonen. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | Een positie op de formatie aanmaken. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Een positie bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Een positie verwijderen. |
+
+Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige tekstvelden (`title`, `explanation`, `team_guidance`, `name`, `description`, `short_name`, `long_name`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`; lijstvelden (`attacking_tasks`, `defending_tasks`) gebruiken `{ "nl": ["…"], "en": ["…"] }`. Een meegeleverd record bewerken of verwijderen geeft `409`.
+Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige tekstvelden (principe `title`, `explanation`, `team_guidance`, `line_guidance`; spelhervatting `title`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`. Het veld `bullets` van een spelhervatting neemt `{ "nl": ["…"], "en": ["…"] }`, en `diagram_overlay` is een vrij JSON-object.
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions` | Voetbalhandelingen tonen (per club). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/football-actions` | Een clubeigen voetbalhandeling aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Eén voetbalhandeling, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Een clubeigen voetbalhandeling bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Een clubeigen voetbalhandeling verwijderen (geweigerd met `409` zolang een doel eraan gekoppeld is). |
+
+Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige velden voor principes (`title`, `explanation`, `team_guidance`, `line_guidance`) en voor voetbalhandelingen (`name`, `description`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`.
 
 De **visie** en de **raamwerk-introductie** zijn één record per club, dus ze bieden alleen lezen + bijwerken — geen `POST` aanmaken, geen `DELETE`. Hun meertalige velden (visie: `way_of_playing`, `notes`, `important_traits`; introductie: `title`, `tagline`, `intro`, de `*_intro` per thema, `reflection`, `future`) accepteren en retourneren dezelfde `{ "nl": …, "en": … }`-vorm; `important_traits` is per taal een lijst met strings.
 

@@ -38,6 +38,16 @@ class MethodologyModule implements ModuleInterface {
         // expose the same CRUD over /wp-json/talenttrack/v1/methodology/*.
         Frontend\Manage\PrinciplesManageTab::register();
         Rest\PrinciplesRestController::init();
+        Frontend\Manage\FootballActionsManageTab::register();
+        Rest\FootballActionsRestController::init();
+
+        // #2228 — set-pieces manage tab + REST, built on the #2225 scaffold.
+        Frontend\Manage\SetPiecesManageTab::register();
+        Rest\SetPiecesRestController::init();
+
+        // #2227 — formations (+ nested position cards) authoring tab + REST.
+        Frontend\Manage\FormationsManageTab::register();
+        Rest\FormationsRestController::init();
 
         // #2226 — Vision + Framework primer authoring. Both are singletons
         // (one editable record per club), so their tabs render a single

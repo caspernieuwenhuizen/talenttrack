@@ -19,6 +19,9 @@ The manage surface is tabbed by methodology entity, mirroring the read view. Eac
 **Principles**, **Vision** and **Framework primer** are available. Formations, set-pieces and the remaining entities are added in later releases; each appears as its own tab as it ships.
 
 Two of these tabs — **Vision** and **Framework primer** — are *single-record* editors rather than lists: each club has exactly one vision and one framework primer, so the tab opens straight onto its edit form (no list, no "+ New", no delete).
+**Principles** and **Formations** are available now. Set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
+**Principles** and **Set pieces** are available today. Formations, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
+**Principles** and **Football actions** (voetbalhandelingen) are available. Formations, set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 
 ## Editing a principle
 
@@ -52,10 +55,56 @@ The **Framework primer** (Raamwerk) tab edits your club's single framework prime
 - **Reflectie** and **De toekomst** — closing sections.
 
 Every section has side-by-side Dutch and English text. The first save creates the primer; later saves update it. The primer is the parent of the phases, learning goals and influence factors authored on their own tabs. What you save appears on the read view's **Raamwerk** tab.
+## Editing a formation
+
+The **Formaties** tab lists your formations. Each formation carries:
+
+- **Slug** — the short reference like `1-4-3-3`.
+- **Name** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs.
+- **Diagram data (JSON)** — optional. Normalized 0–100 position coordinates for the pitch diagram (`{"positions":{"1":{"x":50,"y":92,"label":"K"}}}`). Leave it blank to use the default layout.
+
+Save and Cancel sit together at the bottom — Cancel returns you to the formation list (or to wherever you came from). Deleting a formation removes it and all its position cards permanently, after a confirmation.
+
+## Editing formation positions
+
+Each formation has up to eleven **position cards** — one per jersey slot. From the formation list, use the **Positions** action to open a formation's positions, then **+ New position** to add one. A position carries:
+
+- **Jersey number** — 1–11.
+- **Short name** and **Long name** — side-by-side Dutch and English inputs (e.g. "Vleugelverdediger" / "Wing-back").
+- **Attacking tasks** and **Defending tasks** — Dutch and English textareas, **one task per line**. Blank lines are dropped.
+
+Positions belong to their formation; deleting a formation deletes its positions too.
 
 ## Shipped vs club-authored
 
-Shipped principles curated by TalentTrack are **read-only** here — they show a "Shipped" badge and no edit or delete action, so you can't accidentally break the reference content. Club-authored principles are fully editable and deletable.
+Shipped principles, formations and positions curated by TalentTrack are **read-only** here — they show a "Shipped" badge and no edit or delete action, so you can't accidentally break the reference content. Club-authored records are fully editable and deletable.
+## Editing a set piece
+
+A set piece carries:
+
+- **Slug** — the short reference like `corner-attacking-far-post`.
+- **Kind** — corner, free kick (direct), free kick (cross), penalty or throw-in.
+- **Side** — attacking, defending or transition.
+- **Title** — with side-by-side **Dutch (NL)** and **English (EN)** inputs.
+- **Bullets** — a Dutch and an English coaching-point list, one bullet per line in each textarea.
+- **Diagram overlay (JSON)** — optional raw JSON describing marker positions on the pitch diagram. Leave it blank if you have none; malformed JSON is discarded on save.
+
+Fill in Dutch first; English is optional and falls back to Dutch when a viewer's language is English but no English text was supplied. Save and Cancel sit together at the bottom of the form — Cancel returns you to the list (or to wherever you came from). Deleting a set piece removes it permanently and asks for confirmation first. Saved set pieces are reflected in the read view's **Set pieces** tab.
+## Editing a football action
+
+A football action (voetbalhandeling) carries:
+
+- **Slug** — the short machine reference like `aannemen`.
+- **Category** — one of *Met balcontact* (with ball), *Zonder balcontact* (without ball) or *Ondersteunend* (support).
+- **Name** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs.
+
+Fill in Dutch first; English is optional and falls back to Dutch when a viewer's language is English but no English text was supplied. Save and Cancel sit together at the bottom of the form — Cancel returns you to the list (or to wherever you came from).
+
+Deleting a football action removes it permanently and asks for confirmation first. An action that a goal still links to (via its linked action) **cannot** be deleted — you'll get a notice telling you how many goals reference it. Unlink those goals first, then delete.
+
+## Shipped vs club-authored
+
+Shipped content curated by TalentTrack (principles, set pieces and the other entities) is **read-only** here — it shows a "Shipped" badge and no edit or delete action, so you can't accidentally break the reference content. Club-authored records are fully editable and deletable.
 
 ## REST API
 
@@ -74,8 +123,35 @@ Everything the manage surface does is also available over REST, so a future non-
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer` | The active club framework primer. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | One primer, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | Edit the club framework primer. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces` | List set pieces (club-scoped; filter by `kind`, `side`, `source`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Create a club-authored set piece. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | One set piece, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Edit a club-authored set piece. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Delete a club-authored set piece. |
 
-Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Multilingual fields (`title`, `explanation`, `team_guidance`, `line_guidance`) accept and return an `{ "nl": "…", "en": "…" }` shape.
+Formations (and their nested position cards) expose the same CRUD:
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations` | List formations (club-scoped). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations` | Create a club-authored formation. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | One formation, with its positions. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Edit a club-authored formation. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Delete a club-authored formation (and its positions). |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | List a formation's positions. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | Create a position on the formation. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Edit a position. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Delete a position. |
+
+Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Multilingual string fields (`title`, `explanation`, `team_guidance`, `name`, `description`, `short_name`, `long_name`) accept and return an `{ "nl": "…", "en": "…" }` shape; array fields (`attacking_tasks`, `defending_tasks`) use `{ "nl": ["…"], "en": ["…"] }`. Editing or deleting a shipped record returns `409`.
+Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Multilingual string fields (principle `title`, `explanation`, `team_guidance`, `line_guidance`; set-piece `title`) accept and return an `{ "nl": "…", "en": "…" }` shape. The set-piece `bullets` field takes `{ "nl": ["…"], "en": ["…"] }`, and `diagram_overlay` is a free-form JSON object.
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions` | List football actions (club-scoped). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/football-actions` | Create a club-authored football action. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | One football action, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Edit a club-authored football action. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Delete a club-authored football action (blocked with `409` while a goal links to it). |
+
+Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Principle multilingual fields (`title`, `explanation`, `team_guidance`, `line_guidance`) and football-action fields (`name`, `description`) accept and return an `{ "nl": "…", "en": "…" }` shape.
 
 The **vision** and **framework primer** are single records per club, so they expose read + update only — no `POST` create, no `DELETE`. Their multilingual fields (vision: `way_of_playing`, `notes`, `important_traits`; primer: `title`, `tagline`, `intro`, the per-theme `*_intro`, `reflection`, `future`) accept and return the same `{ "nl": …, "en": … }` shape; `important_traits` is a list of strings per language.
 

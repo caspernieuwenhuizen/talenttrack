@@ -11,6 +11,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Players\Services\ProfileCardsConfig;
 use TT\Shared\Frontend\Components\EmptyStateCard;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -1073,13 +1074,26 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! empty( $player->date_joined ) ) {
             $academy_rows[] = [ __( 'Date joined', 'talenttrack' ), esc_html( (string) $player->date_joined ) ];
         }
+        // #2207 — Academy / Parents / Discovery are club-configurable and
+        // may be hidden academy-wide (Identity is always-on). The staff-only
+        // gating on Parents / Discovery still applies inside their renderers,
+        // on top of this visibility check.
+        $show_academy   = ProfileCardsConfig::isVisible( ProfileCardsConfig::CARD_ACADEMY );
+        $show_parents   = ProfileCardsConfig::isVisible( ProfileCardsConfig::CARD_PARENTS );
+        $show_discovery = ProfileCardsConfig::isVisible( ProfileCardsConfig::CARD_DISCOVERY );
         ?>
         <div class="tt-player-profile-grid">
             <?php
             self::renderProfileCard( __( 'Identity', 'talenttrack' ), $identity_rows );
-            self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
-            self::renderParentsCard( $player_id );
-            self::renderDiscoveryCard( $player_id );
+            if ( $show_academy ) {
+                self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
+            }
+            if ( $show_parents ) {
+                self::renderParentsCard( $player_id );
+            }
+            if ( $show_discovery ) {
+                self::renderDiscoveryCard( $player_id );
+            }
             ?>
         </div>
 

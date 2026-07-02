@@ -473,6 +473,14 @@ class ActivitiesRestController {
             // generated, migration 0040) and editable via the Lookups
             // admin page.
             'activity_source_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_source', (string) ( $row->activity_source_key ?? 'manual' ) ),
+            // #2221 — team-level last Spond sync timestamp (from tt_teams,
+            // migration 0041). Only meaningful on Spond-sourced activities;
+            // null on list shapes / non-Spond rows. A future front end
+            // renders the same "team last synced" freshness line the PHP
+            // detail view shows, keyed off activity_source_key === 'spond'.
+            'team_spond_last_sync_at'   => isset( $row->team_spond_last_sync_at ) && $row->team_spond_last_sync_at !== null
+                ? (string) $row->team_spond_last_sync_at
+                : null,
             'attendance_count'         => $count,
             'present_count'            => $present,
             'roster_size'              => $roster,
@@ -1193,6 +1201,15 @@ class ActivitiesRestController {
         $update = [];
         if ( isset( $r['status'] ) )         $update['status']         = sanitize_text_field( (string) $r['status'] );
         if ( isset( $r['notes'] ) )          $update['notes']          = sanitize_text_field( (string) $r['notes'] );
+        // #2224 — correct recorded minutes on a finalized match execution.
+        // Same `can_edit` gate as every attendance write; the row-scoped
+        // PATCH avoids the destructive wipe-and-rewrite the session PUT
+        // performs. Empty string clears the figure; otherwise clamp to a
+        // sane 0–200 range so a fat-fingered value can't corrupt reports.
+        if ( array_key_exists( 'minutes_played', (array) $r->get_params() ) ) {
+            $mp = $r['minutes_played'];
+            $update['minutes_played'] = ( $mp === '' || $mp === null ) ? null : max( 0, min( 200, absint( $mp ) ) );
+        }
         if ( isset( $r['guest_notes'] ) )    $update['guest_notes']    = sanitize_textarea_field( (string) $r['guest_notes'] );
         if ( isset( $r['guest_name'] ) )     $update['guest_name']     = sanitize_text_field( (string) $r['guest_name'] );
         if ( isset( $r['guest_position'] ) ) $update['guest_position'] = sanitize_text_field( (string) $r['guest_position'] );

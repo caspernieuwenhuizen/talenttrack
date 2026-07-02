@@ -17,7 +17,7 @@ The **Activities** tile opens a date-bucketed card list. The buckets read top to
 
 Empty buckets don't render their header at all — if there's nothing on for next week, the "Next week" header simply doesn't appear.
 
-Each row is a card: a date badge on the left (month + day, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Tap anywhere on the card to open the activity detail page.
+Each row is a card: a date badge on the left (month + day, painted blue for today and orange for past-still-open rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Activities imported from Spond carry a small blue **Spond** chip on the card so you can tell at a glance which ones came from the integration; manually-created and generated activities show none. Tap anywhere on the card to open the activity detail page.
 
 ### Past activities
 
@@ -41,18 +41,19 @@ Every choice survives in the URL (`?team_id=N&activity_type_key=match&period=thi
 
 ## The activity detail page
 
-Tapping a card opens the activity's detail page, laid out as a set of cards so every registered detail is visible at a glance. It adapts between a **training** and a **match day**:
+Tapping a card opens the activity's detail page. The whole detail body sits inside one **grouping panel** — a bounded, softly-tinted container that holds the hero, a compact key-numbers strip and the section cards, so they read as a single, deliberate record rather than loose cards floating on the page (even when only a couple of sections apply). It adapts between a **training** and a **match day**:
 
 - **Hero** — a type-coloured icon chip, the title, and a sub-line reading `date · time · team · location`. For a match day with both teams known the title reads `Your team vs Opponent` and the sub-line shows the kick-off time and whether it's home or away. Pills below the title show the type (plus the game subtype or the Other label) and the status. Edit, Mark attendance and the other actions stay in the page header above.
+- **Stat strip** — a compact row of the key numbers under the hero. A match shows **Present** (turned up / roster) · **Substitutes** · **Match length**; a training shows **Present** · **Duration**. Numbers with no value are left out.
 - **Facts strip** — four quick facts. A training shows Date · Time · Type · Status; a match day shows Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out.
-- **Cards** — only the cards that have something to show appear, so the page stays uncluttered:
+- **Cards** — each with a titled header, only the cards that have something to show appear, so the page stays uncluttered:
   - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
   - **Notes** — the activity's free-text notes.
   - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
   - **Expected attendance** — the planned roster (see below).
   - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row.
   - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
-- **Audit footer** — who created and last changed the activity.
+- **Audit footer** — who created and last changed the activity. For an activity imported from Spond it also shows **Team last synced from Spond: <time>** — the team's most recent Spond sync (the timestamp is team-level, not per activity, and the label says so), so you can judge how fresh the imported data is.
 
 The page reads cleanly on a phone: the cards stack in a single column and widen to two columns on a tablet or desktop.
 

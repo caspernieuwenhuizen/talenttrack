@@ -151,6 +151,23 @@
     font-style: italic;
 }
 
+/* ── nested sub-list header (formation → positions, #2227) ─────────── */
+
+.tt-dashboard .tt-mmg-subhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 1rem;
+}
+
+.tt-dashboard .tt-mmg-subhead__title {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
 /* ── flat NL/EN form ───────────────────────────────────────────────── */
 
 /* Singleton tabs (vision, framework primer) open straight onto their edit
@@ -196,6 +213,19 @@
     gap: 0.4rem;
 }
 
+/* Optional per-field hint below an input (e.g. the diagram-data note). */
+.tt-dashboard .tt-mmg-form .tt-field-hint {
+    margin: 0.35rem 0 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Monospace input for the raw diagram-data JSON textarea. */
+.tt-dashboard .tt-mmg-form .tt-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+}
+
 /* Single-column NL/EN stack on phones; two columns from the large-phone
    breakpoint up. .tt-grid-2 is the shared helper; this local override keeps
    the base single-column even if the shared grid defaults to 2. */
@@ -209,4 +239,13 @@
     .tt-dashboard .tt-mmg-form .tt-grid-2 {
         grid-template-columns: 1fr 1fr;
     }
+}
+
+/* Monospace textarea for raw-JSON fields (set-piece diagram overlay). */
+.tt-dashboard .tt-mmg-code {
+    font-family: var(--tt-font-mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+    font-size: 0.9rem;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
 }
