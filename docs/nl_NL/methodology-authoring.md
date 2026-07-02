@@ -16,6 +16,7 @@ De omgeving biedt altijd een link **Gepubliceerde methodologie bekijken** terug 
 
 De beheeromgeving heeft een tabblad per methodologie-onderdeel, net als de leesweergave. Elk tabblad is een op zichzelf staande beheerpagina — een lijst met records, een knop "+ Nieuw …", bewerk- en verwijderacties per rij, en een plat aanmaak-/bewerkformulier.
 
+**Spelprincipes** en **Formaties** zijn nu beschikbaar. Spelhervattingen, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 **Spelprincipes** en **Spelhervattingen** zijn nu beschikbaar. Formaties, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 **Spelprincipes** en **Voetbalhandelingen** zijn beschikbaar. Formaties, spelhervattingen, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 
@@ -32,6 +33,29 @@ Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands
 
 Een principe verwijderen is definitief en vraagt eerst om bevestiging.
 
+## Een formatie bewerken
+
+Het tabblad **Formaties** toont je formaties. Elke formatie bevat:
+
+- **Slug** — de korte verwijzing zoals `1-4-3-3`.
+- **Naam** en **Beschrijving** — elk met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+- **Diagramgegevens (JSON)** — optioneel. Genormaliseerde 0–100-coördinaten voor het opstellingsdiagram (`{"positions":{"1":{"x":50,"y":92,"label":"K"}}}`). Laat het leeg voor de standaardopstelling.
+
+Opslaan en Annuleren staan samen onderaan — Annuleren brengt je terug naar de formatielijst (of naar waar je vandaan kwam). Een formatie verwijderen wist deze en al haar positiekaarten definitief, na een bevestiging.
+
+## Formatieposities bewerken
+
+Elke formatie heeft maximaal elf **positiekaarten** — één per rugnummer. Gebruik in de formatielijst de actie **Posities** om de posities van een formatie te openen, en daarna **+ Nieuwe positie** om er een toe te voegen. Een positie bevat:
+
+- **Rugnummer** — 1–11.
+- **Korte naam** en **Lange naam** — naast elkaar Nederlandse en Engelse invoer (bijv. "Vleugelverdediger" / "Wing-back").
+- **Aanvallende taken** en **Verdedigende taken** — Nederlandse en Engelse tekstvakken, **één taak per regel**. Lege regels vervallen.
+
+Posities horen bij hun formatie; een formatie verwijderen verwijdert ook haar posities.
+
+## Meegeleverd vs. clubeigen
+
+Meegeleverde principes, formaties en posities van TalentTrack zijn hier **alleen-lezen** — ze tonen een label "Meegeleverd" en hebben geen bewerk- of verwijderactie, zodat je de naslaginhoud niet per ongeluk kunt beschadigen. Clubeigen records zijn volledig te bewerken en te verwijderen.
 ## Een spelhervatting bewerken
 
 Een spelhervatting bevat:
@@ -77,6 +101,21 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `PUT` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Een clubeigen spelhervatting bewerken. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Een clubeigen spelhervatting verwijderen. |
 
+Formaties (en hun geneste positiekaarten) bieden dezelfde CRUD:
+
+| Methode | Route | Doel |
+| --- | --- | --- |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations` | Formaties tonen (per club). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations` | Een clubeigen formatie aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Eén formatie, met haar posities. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Een clubeigen formatie bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Een clubeigen formatie (en haar posities) verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | De posities van een formatie tonen. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | Een positie op de formatie aanmaken. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Een positie bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Een positie verwijderen. |
+
+Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige tekstvelden (`title`, `explanation`, `team_guidance`, `name`, `description`, `short_name`, `long_name`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`; lijstvelden (`attacking_tasks`, `defending_tasks`) gebruiken `{ "nl": ["…"], "en": ["…"] }`. Een meegeleverd record bewerken of verwijderen geeft `409`.
 Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige tekstvelden (principe `title`, `explanation`, `team_guidance`, `line_guidance`; spelhervatting `title`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`. Het veld `bullets` van een spelhervatting neemt `{ "nl": ["…"], "en": ["…"] }`, en `diagram_overlay` is een vrij JSON-object.
 | `GET` | `/wp-json/talenttrack/v1/methodology/football-actions` | Voetbalhandelingen tonen (per club). |
 | `POST` | `/wp-json/talenttrack/v1/methodology/football-actions` | Een clubeigen voetbalhandeling aanmaken. |

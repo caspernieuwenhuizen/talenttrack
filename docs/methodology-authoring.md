@@ -16,6 +16,7 @@ The surface always offers a **View published methodology** link back to the read
 
 The manage surface is tabbed by methodology entity, mirroring the read view. Each tab is a self-contained authoring page — a list of that entity's records with a "+ New …" button, edit and delete row actions, and a flat create/edit form.
 
+**Principles** and **Formations** are available now. Set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 **Principles** and **Set pieces** are available today. Formations, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 **Principles** and **Football actions** (voetbalhandelingen) are available. Formations, set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 
@@ -32,6 +33,29 @@ Fill in Dutch first; English is optional and falls back to Dutch when a viewer's
 
 Deleting a principle removes it permanently and asks for confirmation first.
 
+## Editing a formation
+
+The **Formaties** tab lists your formations. Each formation carries:
+
+- **Slug** — the short reference like `1-4-3-3`.
+- **Name** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs.
+- **Diagram data (JSON)** — optional. Normalized 0–100 position coordinates for the pitch diagram (`{"positions":{"1":{"x":50,"y":92,"label":"K"}}}`). Leave it blank to use the default layout.
+
+Save and Cancel sit together at the bottom — Cancel returns you to the formation list (or to wherever you came from). Deleting a formation removes it and all its position cards permanently, after a confirmation.
+
+## Editing formation positions
+
+Each formation has up to eleven **position cards** — one per jersey slot. From the formation list, use the **Positions** action to open a formation's positions, then **+ New position** to add one. A position carries:
+
+- **Jersey number** — 1–11.
+- **Short name** and **Long name** — side-by-side Dutch and English inputs (e.g. "Vleugelverdediger" / "Wing-back").
+- **Attacking tasks** and **Defending tasks** — Dutch and English textareas, **one task per line**. Blank lines are dropped.
+
+Positions belong to their formation; deleting a formation deletes its positions too.
+
+## Shipped vs club-authored
+
+Shipped principles, formations and positions curated by TalentTrack are **read-only** here — they show a "Shipped" badge and no edit or delete action, so you can't accidentally break the reference content. Club-authored records are fully editable and deletable.
 ## Editing a set piece
 
 A set piece carries:
@@ -77,6 +101,21 @@ Everything the manage surface does is also available over REST, so a future non-
 | `PUT` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Edit a club-authored set piece. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Delete a club-authored set piece. |
 
+Formations (and their nested position cards) expose the same CRUD:
+
+| Method | Route | Purpose |
+| --- | --- | --- |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations` | List formations (club-scoped). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations` | Create a club-authored formation. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | One formation, with its positions. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Edit a club-authored formation. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}` | Delete a club-authored formation (and its positions). |
+| `GET` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | List a formation's positions. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions` | Create a position on the formation. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Edit a position. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/formations/{id}/positions/{pid}` | Delete a position. |
+
+Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Multilingual string fields (`title`, `explanation`, `team_guidance`, `name`, `description`, `short_name`, `long_name`) accept and return an `{ "nl": "…", "en": "…" }` shape; array fields (`attacking_tasks`, `defending_tasks`) use `{ "nl": ["…"], "en": ["…"] }`. Editing or deleting a shipped record returns `409`.
 Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Multilingual string fields (principle `title`, `explanation`, `team_guidance`, `line_guidance`; set-piece `title`) accept and return an `{ "nl": "…", "en": "…" }` shape. The set-piece `bullets` field takes `{ "nl": ["…"], "en": ["…"] }`, and `diagram_overlay` is a free-form JSON object.
 | `GET` | `/wp-json/talenttrack/v1/methodology/football-actions` | List football actions (club-scoped). |
 | `POST` | `/wp-json/talenttrack/v1/methodology/football-actions` | Create a club-authored football action. |
