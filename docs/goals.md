@@ -52,3 +52,18 @@ edit form:
 
 Evidence is stored independently of the goal's methodology links, so the two
 don't interfere.
+
+## On the goal detail page (#2218)
+
+Opening a goal shows, alongside the status, priority, target date, owner and
+description, three fields that were previously only editable but never
+displayed:
+
+- **Progress** — the progress percentage as a bar. A goal with no progress set
+  shows a dash (—) rather than a fabricated 0%.
+- **Connected principle** — the linked methodology principle, when one is set.
+- **Connected football action** — the linked football action, when one is set.
+
+Both the coach view and the player's own goal view show these fields, so a
+coach and player see the same picture of where the goal stands and what it
+develops.

@@ -69,6 +69,25 @@ final class FootballActionsRepository {
         return $row ?: null;
     }
 
+    /**
+     * Resolve a single action to its human-readable name for the
+     * current locale. Falls back to the slug when the name JSON is
+     * empty, and returns '' when the id is unknown. Keeps name
+     * resolution in the domain layer (CLAUDE.md § 4) so views and REST
+     * share one answer.
+     */
+    public function displayName( int $id ): string {
+        if ( $id <= 0 ) {
+            return '';
+        }
+        $row = $this->find( $id );
+        if ( ! $row ) {
+            return '';
+        }
+        $name = \TT\Modules\Methodology\Helpers\MultilingualField::string( $row->name_json ?? null );
+        return $name !== '' ? $name : (string) ( $row->slug ?? '' );
+    }
+
     /** @param array<string,mixed> $data */
     public function create( array $data ): int {
         global $wpdb;
@@ -96,6 +115,36 @@ final class FootballActionsRepository {
     }
 
     /**
+     * Number of goals that link to this action via
+     * `tt_goals.linked_action_id` (club-scoped). Deletion is guarded on
+     * this count so a referenced action is never orphaned.
+     */
+    public function countLinkedGoals( int $id ): int {
+        global $wpdb;
+        $goals = $wpdb->prefix . 'tt_goals';
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$goals} WHERE linked_action_id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * Delete a club-authored action. Refuses shipped rows (read-only
+     * reference content) and rows still referenced by a goal — the caller
+     * inspects countLinkedGoals() first to surface a clear message.
+     */
+    public function delete( int $id ): bool {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        if ( $this->countLinkedGoals( $id ) > 0 ) return false;
+        global $wpdb;
+        return $wpdb->delete(
+            $this->table(),
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
      * @param array<string,mixed> $data
      * @return array<string,mixed>
      */
@@ -107,6 +156,7 @@ final class FootballActionsRepository {
             $out['sort_order']   = isset( $data['sort_order'] ) ? (int) $data['sort_order'] : 0;
             $out['is_shipped']   = ! empty( $data['is_shipped'] ) ? 1 : 0;
         } else {
+            if ( array_key_exists( 'slug',         $data ) ) $out['slug']         = sanitize_key( (string) $data['slug'] );
             if ( array_key_exists( 'category_key', $data ) ) $out['category_key'] = sanitize_key( (string) $data['category_key'] );
             if ( array_key_exists( 'sort_order',   $data ) ) $out['sort_order']   = (int) $data['sort_order'];
         }

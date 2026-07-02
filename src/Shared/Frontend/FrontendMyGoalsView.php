@@ -228,6 +228,11 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <div class="tt-goal-detail-field__value"><?php echo wp_kses_post( wpautop( \TT\Modules\Translations\TranslationLayer::render( (string) $goal->description ) ) ); ?></div>
                 </div>
             <?php endif; ?>
+            <?php
+            // #2218 — progress %, connected principle + football action.
+            // Name resolution lives in the repositories (CLAUDE.md § 4).
+            \TT\Shared\Frontend\Components\GoalDetailFields::render( $goal );
+            ?>
         </article>
 
         <?php
