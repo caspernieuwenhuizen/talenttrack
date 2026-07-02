@@ -473,6 +473,14 @@ class ActivitiesRestController {
             // generated, migration 0040) and editable via the Lookups
             // admin page.
             'activity_source_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_source', (string) ( $row->activity_source_key ?? 'manual' ) ),
+            // #2221 — team-level last Spond sync timestamp (from tt_teams,
+            // migration 0041). Only meaningful on Spond-sourced activities;
+            // null on list shapes / non-Spond rows. A future front end
+            // renders the same "team last synced" freshness line the PHP
+            // detail view shows, keyed off activity_source_key === 'spond'.
+            'team_spond_last_sync_at'   => isset( $row->team_spond_last_sync_at ) && $row->team_spond_last_sync_at !== null
+                ? (string) $row->team_spond_last_sync_at
+                : null,
             'attendance_count'         => $count,
             'present_count'            => $present,
             'roster_size'              => $roster,

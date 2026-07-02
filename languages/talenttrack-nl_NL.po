@@ -45584,6 +45584,14 @@ msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
+msgid "Team last synced from Spond: %s"
+msgstr "Team laatst gesynchroniseerd vanuit Spond: %s"
+
+msgid "Substitutes"
+msgstr "Wissels"
+
+msgid "Match length"
+msgstr "Wedstrijdduur"
 msgid "Connected principle"
 msgstr "Gekoppeld principe"
 
