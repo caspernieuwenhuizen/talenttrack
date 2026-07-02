@@ -45584,6 +45584,29 @@ msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
+msgid "Done editing"
+msgstr "Klaar met bewerken"
+
+msgid "Correct recorded minutes"
+msgstr "Geregistreerde minuten corrigeren"
+
+msgid "Recorded minutes"
+msgstr "Geregistreerde minuten"
+
+msgid "The match is finalized. Correct a recorded figure here if a player's minutes were logged wrong."
+msgstr "De wedstrijd is afgesloten. Corrigeer hier een geregistreerd getal als de minuten van een speler verkeerd zijn vastgelegd."
+
+msgid "Save minutes"
+msgstr "Minuten opslaan"
+
+msgid "Recorded minutes for %s"
+msgstr "Geregistreerde minuten voor %s"
+
+msgid "Recorded minutes saved."
+msgstr "Geregistreerde minuten opgeslagen."
+
+msgid "Could not save recorded minutes:"
+msgstr "Kon geregistreerde minuten niet opslaan:"
 msgid "Team last synced from Spond: %s"
 msgstr "Team laatst gesynchroniseerd vanuit Spond: %s"
 

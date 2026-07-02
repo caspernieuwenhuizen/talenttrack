@@ -500,4 +500,95 @@
         document.body.appendChild(el);
         setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 3000);
     }
+
+    // --- #2222 — explicit edit affordance for the live data controls ---
+    // The view opens read-only (root data-edit-mode="off"); the mutating
+    // controls (score steppers, +action / →on buttons, sub-target, late
+    // events) are hidden via CSS until the coach opts in. Toggling flips
+    // the attribute; the button label + aria-pressed follow.
+    (function wireEditToggle() {
+        var btn = root.querySelector('[data-tt-mexec-edit-toggle]');
+        if (!btn) return;
+        var label = btn.querySelector('.tt-mexec-edit-label');
+        btn.addEventListener('click', function () {
+            var on = root.getAttribute('data-edit-mode') !== 'on';
+            root.setAttribute('data-edit-mode', on ? 'on' : 'off');
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            if (label) {
+                label.textContent = on
+                    ? (label.getAttribute('data-label-done') || 'Done editing')
+                    : (label.getAttribute('data-label-edit') || 'Edit');
+            }
+        });
+    })();
+
+    // --- #2224 — correct recorded minutes (finalized only) ---
+    // Read-only by default; the "Correct recorded minutes" button flips the
+    // section into edit mode (numeric inputs + Save/Cancel). Each changed
+    // figure is written through the row-scoped PATCH /attendance/{id} (the
+    // existing #2159 minutes column, gated on can_edit) — no new endpoint,
+    // no wipe-and-rewrite of the activity.
+    (function wireMinutesCorrection() {
+        var section = root.querySelector('[data-tt-mexec-minutes-section]');
+        if (!section) return;
+        var toggle = section.querySelector('[data-tt-mexec-minutes-edit]');
+        var form = section.querySelector('[data-tt-mexec-minutes-form]');
+        if (!toggle || !form) return;
+
+        toggle.addEventListener('click', function () {
+            var on = section.getAttribute('data-edit-mode') !== 'on';
+            section.setAttribute('data-edit-mode', on ? 'on' : 'off');
+            toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var base = cfg.attendance_rest_base;
+            if (!base) return;
+            var saveBtn = form.querySelector('.tt-save-btn');
+
+            // Collect only rows whose minutes actually changed, keyed by
+            // attendance row id.
+            var changes = [];
+            var rows = form.querySelectorAll('.tt-mexec-minutes-row');
+            Array.prototype.forEach.call(rows, function (row) {
+                var attId = parseInt(row.getAttribute('data-attendance-id'), 10) || 0;
+                if (attId <= 0) return;
+                var input = row.querySelector('[data-tt-mexec-minutes-input]');
+                if (!input) return;
+                var raw = input.value.trim();
+                var orig = input.defaultValue.trim();
+                if (raw === orig) return;
+                changes.push({
+                    id: attId,
+                    minutes_played: raw === '' ? '' : String(Math.max(0, parseInt(raw, 10) || 0))
+                });
+            });
+
+            if (!changes.length) { window.location.reload(); return; }
+            if (saveBtn) saveBtn.setAttribute('data-state', 'saving');
+
+            Promise.all(changes.map(function (c) {
+                return fetch(base + c.id, {
+                    method: 'PATCH',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                    body: JSON.stringify({ minutes_played: c.minutes_played })
+                }).then(function (r) {
+                    if (r.ok) return null;
+                    return r.json().then(function (j) {
+                        return (j && j.errors && j.errors[0] && j.errors[0].message) || ('HTTP ' + r.status);
+                    });
+                });
+            })).then(function (results) {
+                var errs = results.filter(function (x) { return x; });
+                if (!errs.length) { window.location.reload(); return; }
+                if (saveBtn) saveBtn.setAttribute('data-state', 'error');
+                window.alert((i18n.minutes_save_error || 'Could not save recorded minutes:') + ' ' + errs[0]);
+            }).catch(function () {
+                if (saveBtn) saveBtn.setAttribute('data-state', 'error');
+                window.alert((i18n.minutes_save_error || 'Could not save recorded minutes:') + ' network error.');
+            });
+        });
+    })();
 })();

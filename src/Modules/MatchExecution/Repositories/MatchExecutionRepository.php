@@ -259,6 +259,38 @@ class MatchExecutionRepository {
     }
 
     /**
+     * #2224 — the roster (non-guest) attendance row id + current minutes
+     * per player for an activity. The finalized minutes-correction form
+     * needs the attendance row id so each corrected figure can be written
+     * through the surgical `PATCH /attendance/{id}` path (no wipe-and-
+     * rewrite of the whole activity). Includes rows with a NULL / 0
+     * minutes value so a never-recorded player can still be corrected.
+     *
+     * @return array<int, array{attendance_id:int, minutes:?int}> player_id => row
+     */
+    public function attendanceRowsByActivity( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT id, player_id, minutes_played
+               FROM {$this->wpdb->prefix}tt_attendance
+              WHERE activity_id = %d
+                AND club_id = %d
+                AND is_guest = 0",
+            $activity_id, CurrentClub::id()
+        ) );
+        $map = [];
+        foreach ( (array) $rows as $r ) {
+            $pid = (int) $r->player_id;
+            if ( $pid <= 0 ) continue;
+            $map[ $pid ] = [
+                'attendance_id' => (int) $r->id,
+                'minutes'       => $r->minutes_played !== null ? (int) $r->minutes_played : null,
+            ];
+        }
+        return $map;
+    }
+
+    /**
      * Compute per-player minutes from the substitution log + the half
      * lengths. Players who started the half + were never subbed off get
      * the full half length; subbed-off players get the minute they

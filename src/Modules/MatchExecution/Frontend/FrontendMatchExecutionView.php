@@ -123,6 +123,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // is ended; players without a value get no chip.
         $minutes_by_id = $exec_repo->loggedMinutesByActivity( $activity_id );
 
+        // #2224 — attendance row ids per player, so the finalized minutes-
+        // correction form can PATCH the exact row (no wipe-and-rewrite).
+        $attendance_rows = $exec_repo->attendanceRowsByActivity( $activity_id );
+
         // #1713 — vertical positional pitch (first-half starting XI) and
         // the chronological "Live verloop" feed. Both come from domain
         // services so the REST endpoints and this render agree.
@@ -149,7 +153,18 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             $pitch_meta
         );
         $event_feed = ( new MatchEventFeedService() )->feedForActivity( $activity_id );
-        FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
+        // #2224 Part A — link the parent activity through the breadcrumb
+        // chain (Dashboard / Activities / <activity> / Match execution). The
+        // intermediate activity crumb is the standards-compliant back-to-
+        // activity affordance (CLAUDE.md §5); no hand-rolled back button.
+        $activity_crumb_label = (string) ( $activity->title ?? '' );
+        if ( $activity_crumb_label === '' ) {
+            $activity_crumb_label = __( 'Activity', 'talenttrack' );
+        }
+        FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ), [
+            FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ),
+            FrontendBreadcrumbs::viewCrumb( 'activities', $activity_crumb_label, [ 'id' => $activity_id ] ),
+        ] );
         parent::enqueueAssets();
         self::enqueueViewAssets( $activity_id, $execution );
 
@@ -180,6 +195,22 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         $away_score = $execution ? (int) $execution->away_score : 0;
         $state      = $execution ? (string) $execution->state : MatchExecutionState::NOT_STARTED;
 
+        // #2222 — editing the live data (score, goals, subs, late events) is
+        // opt-in. The view opens read-only for every state; the coach must
+        // tap "Edit" to reveal the mutating controls, and only when the
+        // execution state still accepts writes. A FINALIZED execution is
+        // read-only — no Edit affordance, matching the REST 409 the score /
+        // goal / sub endpoints already return via assertEditable(). The
+        // capability is the existing tt_edit_activities (checked at the top
+        // of render() and again server-side); this adds no new capability.
+        $is_editable = MatchExecutionState::isEditable( $state );
+
+        // #2224 Part B — recorded minutes are hand-correctable only once the
+        // execution is finalized (no further auto-recompute runs then, so a
+        // manual correction can't be clobbered). Separate affordance from the
+        // #2222 live-edit; same tt_edit_activities capability.
+        $minutes_editable = ( $state === MatchExecutionState::FINALIZED );
+
         $session_date = (string) ( $activity->session_date ?? '' );
         $kickoff      = (string) ( $activity->kickoff_time ?? '' );
         $when         = trim( $session_date . ( $kickoff !== '' ? ' ' . substr( $kickoff, 0, 5 ) : '' ) );
@@ -200,7 +231,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             );
         }
         ?>
-        <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
+        <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-editable="<?php echo $is_editable ? '1' : '0'; ?>" data-edit-mode="off" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
 
             <header class="tt-mexec-header">
                 <p class="tt-mexec-header-meta">
@@ -214,6 +245,19 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <span class="tt-mexec-when"><?php echo esc_html( $when ); ?></span>
                     <?php endif; ?>
                 </p>
+                <?php // #2222 — explicit edit affordance. Read-only by default;
+                      // shown only for states that still accept live-data writes
+                      // (never on FINALIZED). Toggles the container's
+                      // data-edit-mode so the CSS reveals/hides the score
+                      // steppers, goal/sub buttons, and late-event panels. ?>
+                <?php if ( $is_editable ) : ?>
+                    <div class="tt-mexec-edit-toggle">
+                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="false">
+                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
+                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></span>
+                        </button>
+                    </div>
+                <?php endif; ?>
             </header>
 
             <section class="tt-mexec-score" aria-label="<?php esc_attr_e( 'Score', 'talenttrack' ); ?>">
@@ -221,17 +265,17 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <div class="tt-mexec-score-col">
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $home_abbr ); ?></p>
                         <div class="tt-mexec-score-stepper" aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $home_abbr ) ); ?>">
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step" data-tt-mexec-score="home" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease home score', 'talenttrack' ); ?>">−</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="home" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease home score', 'talenttrack' ); ?>">−</button>
                             <output class="tt-mexec-score-num" data-tt-mexec-home-score><?php echo (int) $home_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step" data-tt-mexec-score="home" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase home score', 'talenttrack' ); ?>">+</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="home" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase home score', 'talenttrack' ); ?>">+</button>
                         </div>
                     </div>
                     <div class="tt-mexec-score-col">
                         <p class="tt-mexec-score-team-label"><?php echo esc_html( $away_abbr ); ?></p>
                         <div class="tt-mexec-score-stepper" aria-label="<?php echo esc_attr( sprintf( __( '%s score', 'talenttrack' ), $away_abbr ) ); ?>">
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step" data-tt-mexec-score="away" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease away score', 'talenttrack' ); ?>">−</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--minus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="away" data-tt-mexec-delta="-1" aria-label="<?php esc_attr_e( 'Decrease away score', 'talenttrack' ); ?>">−</button>
                             <output class="tt-mexec-score-num" data-tt-mexec-away-score><?php echo (int) $away_score; ?></output>
-                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step" data-tt-mexec-score="away" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase away score', 'talenttrack' ); ?>">+</button>
+                            <button type="button" class="tt-mexec-score-btn tt-mexec-score-btn--plus tt-mexec-step tt-mexec-edit-only" data-tt-mexec-score="away" data-tt-mexec-delta="+1" aria-label="<?php esc_attr_e( 'Increase away score', 'talenttrack' ); ?>">+</button>
                         </div>
                     </div>
                 </div>
@@ -280,7 +324,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         $name   = (string) $slot['player_name'];
                         $jersey = $slot['jersey'];
                         $filled = (int) $slot['player_id'] > 0 && $name !== '';
-                        // Surname-first short label keeps the slot legible at 360px.
+                        // #2223 — first name + last initial keeps the slot
+                        // legible at 360px and reads how coaches speak.
                         $short  = $name !== '' ? self::pitchShortName( $name ) : '';
                         ?>
                         <div class="tt-mxp-slot<?php echo $filled ? '' : ' tt-mxp-slot-empty'; ?>"
@@ -384,7 +429,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                         <small><?php echo esc_html( sprintf( __( 'flagged: %s', 'talenttrack' ), $goal_label ) ); ?></small>
                                     <?php endif; ?>
                                 </span>
-                                <div class="tt-mexec-player-actions">
+                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
                                     <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-goal-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
                                 </div>
                                 <div class="tt-mexec-player-goals">
@@ -431,7 +476,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                         <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
                                     </div>
                                 <?php endif; ?>
-                                <div class="tt-mexec-player-actions">
+                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
                                     <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
                                 </div>
                             </li>
@@ -440,7 +485,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <?php endif; ?>
             </section>
 
-            <section class="tt-mexec-sub-target" aria-label="<?php esc_attr_e( 'Choose who comes off', 'talenttrack' ); ?>" data-tt-mexec-onpitch-section>
+            <section class="tt-mexec-sub-target tt-mexec-edit-only" aria-label="<?php esc_attr_e( 'Choose who comes off', 'talenttrack' ); ?>" data-tt-mexec-onpitch-section>
                 <div class="tt-mexec-sub-target-banner" role="status">
                     <span data-tt-mexec-sub-banner><?php esc_html_e( 'Tap a player to swap', 'talenttrack' ); ?></span>
                     <button type="button" class="tt-mexec-sub-cancel" data-tt-mexec-sub-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
@@ -477,6 +522,86 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
+            <?php // #2224 Part B — correct recorded minutes. A separate,
+                  // explicitly-labelled affordance available ONLY on a
+                  // finalized execution (where no auto-recompute can clobber
+                  // a manual correction). Distinct from #2222's live-edit,
+                  // which stays locked on finalize. Read-only until the coach
+                  // taps "Correct recorded minutes"; each changed figure is
+                  // written through the existing row-scoped attendance PATCH
+                  // (the #2159 minutes column), not a new endpoint.
+                  // Only players with a roster attendance row are correctable
+                  // (the row id is the PATCH target). Ordered available-then-
+                  // bench so the on-pitch names read first.
+                  $minutes_players = [];
+                  foreach ( array_merge( $available_ids, $bench_ids ) as $mpid ) {
+                      $mpid = (int) $mpid;
+                      if ( $mpid > 0
+                          && isset( $players_by_id[ $mpid ] )
+                          && isset( $attendance_rows[ $mpid ] )
+                          && ! isset( $minutes_players[ $mpid ] )
+                      ) {
+                          $minutes_players[ $mpid ] = $players_by_id[ $mpid ];
+                      }
+                  }
+                  // Cancel returns to the read-only detail; §6 says tt_back
+                  // overrides when the entry URL captured a back-target.
+                  $minutes_self_url = add_query_arg(
+                      [ 'tt_view' => 'match-execution', 'activity_id' => $activity_id ],
+                      \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                  );
+                  $minutes_back     = \TT\Shared\Frontend\Components\BackLink::resolve();
+                  $minutes_cancel_url = ( $minutes_back !== null ) ? $minutes_back['url'] : $minutes_self_url;
+                  ?>
+            <?php if ( $minutes_editable && ! empty( $minutes_players ) ) : ?>
+                <section class="tt-mexec-minutes-correct" data-tt-mexec-minutes-section data-edit-mode="off" aria-label="<?php esc_attr_e( 'Correct recorded minutes', 'talenttrack' ); ?>">
+                    <div class="tt-mexec-section-head">
+                        <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Recorded minutes', 'talenttrack' ); ?></h2>
+                        <button type="button" class="tt-mexec-minutes-edit-btn" data-tt-mexec-minutes-edit aria-pressed="false">
+                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
+                            <?php esc_html_e( 'Correct recorded minutes', 'talenttrack' ); ?>
+                        </button>
+                    </div>
+                    <p class="tt-mexec-minutes-help"><?php esc_html_e( 'The match is finalized. Correct a recorded figure here if a player\'s minutes were logged wrong.', 'talenttrack' ); ?></p>
+                    <form class="tt-mexec-minutes-form" data-tt-mexec-minutes-form data-activity-id="<?php echo (int) $activity_id; ?>">
+                        <ul class="tt-mexec-minutes-list">
+                            <?php foreach ( $minutes_players as $mpid => $mpl ) :
+                                $m_row    = $attendance_rows[ $mpid ] ?? [ 'attendance_id' => 0, 'minutes' => null ];
+                                $m_val    = $m_row['minutes'];
+                                $m_att_id = (int) $m_row['attendance_id'];
+                                $m_jersey = $mpl->jersey_number !== null ? (string) (int) $mpl->jersey_number : '';
+                                $m_input_id = 'tt-mexec-mins-' . (int) $mpid;
+                                ?>
+                                <li class="tt-mexec-minutes-row" data-player-id="<?php echo (int) $mpid; ?>" data-attendance-id="<?php echo (int) $m_att_id; ?>">
+                                    <span class="tt-mexec-player-number"><?php echo esc_html( $m_jersey ); ?></span>
+                                    <label class="tt-mexec-minutes-name" for="<?php echo esc_attr( $m_input_id ); ?>">
+                                        <?php echo esc_html( QueryHelpers::player_display_name( $mpl ) ); ?>
+                                    </label>
+                                    <span class="tt-mexec-minutes-value" data-tt-mexec-minutes-value>
+                                        <?php echo $m_val !== null ? esc_html( sprintf( "%d'", (int) $m_val ) ) : '—'; ?>
+                                    </span>
+                                    <input type="number" inputmode="numeric" min="0" max="200" step="1"
+                                           id="<?php echo esc_attr( $m_input_id ); ?>"
+                                           class="tt-mexec-minutes-input tt-mexec-edit-only"
+                                           data-tt-mexec-minutes-input
+                                           value="<?php echo $m_val !== null ? (int) $m_val : ''; ?>"
+                                           aria-label="<?php echo esc_attr( sprintf( __( 'Recorded minutes for %s', 'talenttrack' ), QueryHelpers::player_display_name( $mpl ) ) ); ?>" />
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <div class="tt-mexec-edit-only">
+                            <?php
+                            echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+                                'label'      => __( 'Save minutes', 'talenttrack' ),
+                                'variant'    => 'primary',
+                                'cancel_url' => $minutes_cancel_url,
+                            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            ?>
+                        </div>
+                    </form>
+                </section>
+            <?php endif; ?>
+
             <?php // #1049 — late-event affordances. Two collapsible
                   // panels in PENDING_REVIEW for adding the goal or
                   // sub the coach forgot to tap during the live match.
@@ -489,7 +614,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 $picker_players = $players_by_id;
                 ksort( $picker_players );
                 ?>
-                <section class="tt-mexec-late-event" aria-label="<?php esc_attr_e( 'Add late events', 'talenttrack' ); ?>">
+                <section class="tt-mexec-late-event tt-mexec-edit-only" aria-label="<?php esc_attr_e( 'Add late events', 'talenttrack' ); ?>">
                     <header class="tt-mexec-late-event-head">
                         <h2 class="tt-mexec-late-event-title">
                             <?php esc_html_e( 'Add late events', 'talenttrack' ); ?>
@@ -909,6 +1034,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         );
         wp_localize_script( 'tt-match-execution', 'TT_MATCH_EXECUTION', [
             'rest_url'    => esc_url_raw( rest_url( 'talenttrack/v1/match-execution/' . $activity_id . '/' ) ),
+            // #2224 — the recorded-minutes correction writes each corrected
+            // figure through the existing row-scoped attendance PATCH
+            // (PATCH /attendance/{id}, gated on can_edit), not a new
+            // endpoint. Row-scoped avoids the destructive wipe-and-rewrite
+            // the whole-activity PUT performs.
+            'attendance_rest_base' => esc_url_raw( rest_url( 'talenttrack/v1/attendance/' ) ),
             'rest_nonce'  => wp_create_nonce( 'wp_rest' ),
             'activity_id' => $activity_id,
             'i18n'        => [
@@ -930,6 +1061,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'half_label_break'  => __( 'Half time', 'talenttrack' ),
                 'half_label_pending'=> __( 'Kickoff pending', 'talenttrack' ),
                 'half_label_final'  => __( 'Final', 'talenttrack' ),
+                // #2224 — recorded-minutes correction feedback.
+                'minutes_saved'     => __( 'Recorded minutes saved.', 'talenttrack' ),
+                'minutes_save_error'=> __( 'Could not save recorded minutes:', 'talenttrack' ),
             ],
         ] );
     }
@@ -1017,9 +1151,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
     }
 
     /**
-     * #1713 — compact pitch label for a player. Prefers the surname so
-     * the slot stays legible at 360px; falls back to the first token
-     * when there's only one. Display-only formatting, no business logic.
+     * #2223 — compact pitch label for a player: first name + last initial
+     * (e.g. "Daan Portzgen" → "Daan P."). Coaches recognise players by
+     * first name on the sideline; the last initial disambiguates two
+     * players who share one. Single-token names render as-is (no stray
+     * dot). Kept short enough for the 360px pitch slot. Display-only
+     * formatting, no business logic.
      */
     private static function pitchShortName( string $name ): string {
         $name = trim( $name );
@@ -1030,6 +1167,17 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
             return $name;
         }
-        return (string) $parts[ count( $parts ) - 1 ];
+        $first = (string) $parts[0];
+        if ( count( $parts ) === 1 ) {
+            return $first;
+        }
+        $last    = (string) $parts[ count( $parts ) - 1 ];
+        $initial = function_exists( 'mb_substr' )
+            ? mb_strtoupper( mb_substr( $last, 0, 1, 'UTF-8' ), 'UTF-8' )
+            : strtoupper( substr( $last, 0, 1 ) );
+        if ( $initial === '' ) {
+            return $first;
+        }
+        return $first . ' ' . $initial . '.';
     }
 }
