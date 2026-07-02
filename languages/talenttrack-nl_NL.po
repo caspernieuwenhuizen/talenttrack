@@ -45499,3 +45499,9 @@ msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Connected principle"
+msgstr "Gekoppeld principe"
+
+msgid "Connected football action"
+msgstr "Gekoppelde voetbalhandeling"

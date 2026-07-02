@@ -69,6 +69,25 @@ final class FootballActionsRepository {
         return $row ?: null;
     }
 
+    /**
+     * Resolve a single action to its human-readable name for the
+     * current locale. Falls back to the slug when the name JSON is
+     * empty, and returns '' when the id is unknown. Keeps name
+     * resolution in the domain layer (CLAUDE.md § 4) so views and REST
+     * share one answer.
+     */
+    public function displayName( int $id ): string {
+        if ( $id <= 0 ) {
+            return '';
+        }
+        $row = $this->find( $id );
+        if ( ! $row ) {
+            return '';
+        }
+        $name = \TT\Modules\Methodology\Helpers\MultilingualField::string( $row->name_json ?? null );
+        return $name !== '' ? $name : (string) ( $row->slug ?? '' );
+    }
+
     /** @param array<string,mixed> $data */
     public function create( array $data ): int {
         global $wpdb;

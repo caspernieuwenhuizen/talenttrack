@@ -98,6 +98,28 @@ class PrinciplesRepository {
         return $row ?: null;
     }
 
+    /**
+     * Resolve a single principle to its human-readable label
+     * ("<code> · <title>") for the current locale. Returns '' when the
+     * id is unknown. Keeps name resolution in the domain layer
+     * (CLAUDE.md § 4) so views and REST share one answer.
+     */
+    public function displayName( int $id ): string {
+        if ( $id <= 0 ) {
+            return '';
+        }
+        $row = $this->find( $id );
+        if ( ! $row ) {
+            return '';
+        }
+        $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $row->title_json ?? null );
+        $code  = (string) ( $row->code ?? '' );
+        if ( $code !== '' && $title !== '' ) {
+            return $code . ' · ' . $title;
+        }
+        return $title !== '' ? $title : $code;
+    }
+
     /** @param array<string,mixed> $data */
     public function create( array $data ): int {
         global $wpdb;
