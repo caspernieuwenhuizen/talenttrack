@@ -55,6 +55,41 @@ Het tabblad **Raamwerk** bewerkt de ene raamwerk-introductie van je club — de 
 - **Reflectie** en **De toekomst** — afsluitende secties.
 
 Elke sectie heeft naast elkaar Nederlandse en Engelse tekst. De eerste keer opslaan maakt de introductie aan; latere keren werken die bij. De introductie is de ouder van de fasen, leerdoelen en factoren van invloed die op hun eigen tabbladen worden beheerd. Wat je opslaat verschijnt op het tabblad **Raamwerk** van de leesweergave.
+
+## Een fase bewerken
+
+Het tabblad **Fasen** toont de fasen die onder je raamwerk-introductie hangen — de vier aanvallende en vier verdedigende fasen die beschrijven hoe je club door de wedstrijd beweegt. Een fase bevat:
+
+- **Kant** — aanvallend, verdedigend of omschakelen.
+- **Fasenummer** — 1 t/m 4.
+- **Titel** en **Doel** — elk met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+
+Fasen hangen onder de raamwerk-introductie, dus sla die eerst op via het tabblad **Raamwerk** — tot dan wijst het tabblad Fasen je daarheen. Opslaan en Annuleren staan samen onderaan het formulier. Een fase verwijderen is definitief en vraagt eerst om bevestiging.
+
+## Een leerdoel bewerken
+
+Het tabblad **Leerdoelen** toont je leerdoelen — coachbare aandachtsgebieden binnen aanvallen of verdedigen. Een leerdoel bevat:
+
+- **Slug** — de korte verwijzing zoals `positiespel-verbeteren`.
+- **Kant** — aanvallend, verdedigend of omschakelen.
+- **Gekoppelde teamtaak** — optioneel; koppelt het doel aan een teamtaak zodat de leesweergave het kan groeperen.
+- **Titel** — naast elkaar Nederlands en Engels.
+- **Punten** — een Nederlandse en een Engelse checklist met waarneembare handelingen, één punt per regel in elk tekstvak.
+- **Sorteervolgorde** — bepaalt de volgorde binnen een kant.
+
+Leerdoelen hangen onder de raamwerk-introductie; maak die eerst aan. Opslaan en Annuleren staan samen onderaan. Een leerdoel verwijderen is definitief en vraagt eerst om bevestiging.
+
+## Een factor van invloed bewerken
+
+Het tabblad **Factoren van invloed** toont de factoren die de ontwikkeling van een speler bepalen. Een factor van invloed bevat:
+
+- **Slug** — de korte verwijzing zoals `spelers`.
+- **Sorteervolgorde** — de positie in de lijst.
+- **Titel** en **Omschrijving** — elk met naast elkaar Nederlandse en Engelse invoer.
+- **Subfactoren (JSON)** — optionele reeks subkaarten. Elk item heeft een `slug` plus `title` en `description` in beide talen: `[{"slug":"motivatie","title":{"nl":"Motivatie","en":"Motivation"},"description":{"nl":"…","en":"…"}}]`. Laat leeg voor geen; ongeldige JSON wordt bij het opslaan genegeerd.
+
+Factoren van invloed hangen onder de raamwerk-introductie; maak die eerst aan. Opslaan en Annuleren staan samen onderaan. Een factor verwijderen is definitief en vraagt eerst om bevestiging.
+
 ## Een formatie bewerken
 
 Het tabblad **Formaties** toont je formaties. Elke formatie bevat:
@@ -123,6 +158,23 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer` | De actieve raamwerk-introductie van de club. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | Eén introductie, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | De raamwerk-introductie bewerken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/phases` | De fasen van de actieve introductie tonen. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/phases` | Een clubeigen fase aanmaken op de actieve introductie. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | Eén fase, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | Een clubeigen fase bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | Een clubeigen fase verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/learning-goals` | De leerdoelen van de actieve introductie tonen (filter op `side`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/learning-goals` | Een clubeigen leerdoel aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | Eén leerdoel, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | Een clubeigen leerdoel bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | Een clubeigen leerdoel verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/influence-factors` | De factoren van invloed van de actieve introductie tonen. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/influence-factors` | Een clubeigen factor van invloed aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | Eén factor van invloed, met Nederlandse + Engelse waarden en subfactoren. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | Een clubeigen factor van invloed bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | Een clubeigen factor van invloed verwijderen. |
+
+De kinderen van de raamwerk-introductie — **fasen**, **leerdoelen** en **factoren van invloed** — vallen onder de actieve clubeigen introductie: `POST` vereist dat er een introductie bestaat (anders `409`), en `GET` (lijst) geeft een lege set tot die er is. Fase `goal`, leerdoel `title` en factor `title` / `description` gebruiken de vorm `{ "nl": …, "en": … }`; leerdoel `bullets` gebruikt `{ "nl": ["…"], "en": ["…"] }`; het veld `sub_factors` van een factor is een reeks kaarten `{ slug, title:{nl,en}, description:{nl,en} }`.
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Spelhervattingen tonen (per club; filter op `kind`, `side`, `source`). |
 | `POST` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Een clubeigen spelhervatting aanmaken. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Eén spelhervatting, met Nederlandse + Engelse waarden. |

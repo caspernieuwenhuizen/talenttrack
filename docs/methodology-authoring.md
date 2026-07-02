@@ -55,6 +55,41 @@ The **Framework primer** (Raamwerk) tab edits your club's single framework prime
 - **Reflectie** and **De toekomst** — closing sections.
 
 Every section has side-by-side Dutch and English text. The first save creates the primer; later saves update it. The primer is the parent of the phases, learning goals and influence factors authored on their own tabs. What you save appears on the read view's **Raamwerk** tab.
+
+## Editing a phase
+
+The **Fasen** tab lists the phases that hang off your framework primer — the four attacking and four defending phases that describe how your club moves through the game. A phase carries:
+
+- **Side** — attacking, defending or transition.
+- **Phase number** — 1 to 4.
+- **Title** and **Goal** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs.
+
+Phases hang off the framework primer, so author (save) the primer on the **Raamwerk** tab first — until then the Fasen tab points you there. Save and Cancel sit together at the bottom of the form. Deleting a phase removes it permanently after a confirmation.
+
+## Editing a learning goal
+
+The **Leerdoelen** tab lists your learning goals — coachable focus areas within attacking or defending. A learning goal carries:
+
+- **Slug** — the short reference like `positiespel-verbeteren`.
+- **Side** — attacking, defending or transition.
+- **Linked team-task** — optional; ties the goal to a teamtaak so the read view can group it.
+- **Title** — side-by-side Dutch and English.
+- **Bullets** — a Dutch and an English observable-checklist, one bullet per line in each textarea.
+- **Sort order** — controls the order within a side.
+
+Learning goals hang off the framework primer; author it first. Save and Cancel sit together at the bottom. Deleting a learning goal removes it permanently after a confirmation.
+
+## Editing an influence factor
+
+The **Factoren van invloed** tab lists the factors that shape a player's development. An influence factor carries:
+
+- **Slug** — the short reference like `spelers`.
+- **Sort order** — its position in the list.
+- **Title** and **Description** — each with side-by-side Dutch and English inputs.
+- **Sub-factors (JSON)** — optional array of sub-cards. Each entry needs a `slug` plus `title` and `description` in both languages: `[{"slug":"motivatie","title":{"nl":"Motivatie","en":"Motivation"},"description":{"nl":"…","en":"…"}}]`. Leave it blank for none; malformed JSON is discarded on save.
+
+Influence factors hang off the framework primer; author it first. Save and Cancel sit together at the bottom. Deleting a factor removes it permanently after a confirmation.
+
 ## Editing a formation
 
 The **Formaties** tab lists your formations. Each formation carries:
@@ -123,6 +158,23 @@ Everything the manage surface does is also available over REST, so a future non-
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer` | The active club framework primer. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | One primer, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | Edit the club framework primer. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/phases` | List the active primer's phases. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/phases` | Create a club-authored phase on the active primer. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | One phase, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | Edit a club-authored phase. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/phases/{id}` | Delete a club-authored phase. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/learning-goals` | List the active primer's learning goals (filter by `side`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/learning-goals` | Create a club-authored learning goal. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | One learning goal, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | Edit a club-authored learning goal. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/learning-goals/{id}` | Delete a club-authored learning goal. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/influence-factors` | List the active primer's influence factors. |
+| `POST` | `/wp-json/talenttrack/v1/methodology/influence-factors` | Create a club-authored influence factor. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | One influence factor, with Dutch + English values and sub-factors. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | Edit a club-authored influence factor. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/influence-factors/{id}` | Delete a club-authored influence factor. |
+
+The framework primer's children — **phases**, **learning goals** and **influence factors** — are scoped to the active club-authored primer: `POST` needs a primer to exist (else `409`), and `GET` list returns an empty set until one does. Phase `goal`, learning-goal `title` and influence-factor `title` / `description` use the `{ "nl": …, "en": … }` shape; learning-goal `bullets` uses `{ "nl": ["…"], "en": ["…"] }`; the influence-factor `sub_factors` field is an array of `{ slug, title:{nl,en}, description:{nl,en} }` cards.
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces` | List set pieces (club-scoped; filter by `kind`, `side`, `source`). |
 | `POST` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Create a club-authored set piece. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | One set piece, with Dutch + English values. |

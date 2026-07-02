@@ -46047,3 +46047,247 @@ msgstr "De raamwerk-introductie is één record en kan niet via REST worden aang
 #: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php
 msgid "The framework primer is a single record and cannot be deleted over REST."
 msgstr "De raamwerk-introductie is één record en kan niet via REST worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Fasen"
+msgstr "Fasen"
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "+ New phase"
+msgstr "+ Nieuwe fase"
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "No phases yet. Use “+ New phase” to author the first one."
+msgstr "Nog geen fasen. Gebruik “+ Nieuwe fase” om de eerste toe te voegen."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Phase %d"
+msgstr "Fase %d"
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Delete this phase? This cannot be undone."
+msgstr "Deze fase verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "That phase could not be found."
+msgstr "Die fase kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Shipped phases are read-only reference content and cannot be edited."
+msgstr "Meegeleverde fasen zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Save phase"
+msgstr "Fase opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Author the framework primer first — phases hang off it. Open the Raamwerk tab and save the primer."
+msgstr "Maak eerst de raamwerk-introductie aan — fasen hangen daaronder. Open het tabblad Raamwerk en sla de introductie op."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Go to Raamwerk"
+msgstr "Naar Raamwerk"
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "That phase could not be deleted. Shipped reference phases cannot be removed."
+msgstr "Die fase kon niet worden verwijderd. Meegeleverde naslagfasen kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Phase deleted."
+msgstr "Fase verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Please choose a valid side."
+msgstr "Kies een geldige kant."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "That phase could not be saved."
+msgstr "Die fase kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Phase saved."
+msgstr "Fase opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Could not create the phase."
+msgstr "Kon de fase niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php
+msgid "Phase created."
+msgstr "Fase aangemaakt."
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php
+msgid "Phase not found."
+msgstr "Fase niet gevonden."
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php
+msgid "Author the framework primer before adding phases."
+msgstr "Maak de raamwerk-introductie aan voordat je fasen toevoegt."
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php
+msgid "Could not save the phase."
+msgstr "Kon de fase niet opslaan."
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php
+msgid "Shipped phases are read-only. Clone the primer to edit."
+msgstr "Meegeleverde fasen zijn alleen-lezen. Kopieer de introductie om te bewerken."
+
+#: src/Modules/Methodology/Rest/PhasesRestController.php
+msgid "Shipped phases cannot be deleted."
+msgstr "Meegeleverde fasen kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "+ New learning goal"
+msgstr "+ Nieuw leerdoel"
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "No learning goals yet. Use “+ New learning goal” to author the first one."
+msgstr "Nog geen leerdoelen. Gebruik “+ Nieuw leerdoel” om het eerste toe te voegen."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Delete this learning goal? This cannot be undone."
+msgstr "Dit leerdoel verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "That learning goal could not be found."
+msgstr "Dat leerdoel kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Shipped learning goals are read-only reference content and cannot be edited."
+msgstr "Meegeleverde leerdoelen zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Save learning goal"
+msgstr "Leerdoel opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Author the framework primer first — learning goals hang off it. Open the Raamwerk tab and save the primer."
+msgstr "Maak eerst de raamwerk-introductie aan — leerdoelen hangen daaronder. Open het tabblad Raamwerk en sla de introductie op."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "That learning goal could not be deleted. Shipped reference goals cannot be removed."
+msgstr "Dat leerdoel kon niet worden verwijderd. Meegeleverde naslagleerdoelen kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Learning goal deleted."
+msgstr "Leerdoel verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "A learning goal needs a slug."
+msgstr "Een leerdoel heeft een slug nodig."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Please choose a valid team-task."
+msgstr "Kies een geldige teamtaak."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "That learning goal could not be saved."
+msgstr "Dat leerdoel kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Learning goal saved."
+msgstr "Leerdoel opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Could not create the learning goal."
+msgstr "Kon het leerdoel niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php
+msgid "Learning goal created."
+msgstr "Leerdoel aangemaakt."
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php
+msgid "Learning goal not found."
+msgstr "Leerdoel niet gevonden."
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php
+msgid "Author the framework primer before adding learning goals."
+msgstr "Maak de raamwerk-introductie aan voordat je leerdoelen toevoegt."
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php
+msgid "Could not save the learning goal."
+msgstr "Kon het leerdoel niet opslaan."
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php
+msgid "Shipped learning goals are read-only. Clone the primer to edit."
+msgstr "Meegeleverde leerdoelen zijn alleen-lezen. Kopieer de introductie om te bewerken."
+
+#: src/Modules/Methodology/Rest/LearningGoalsRestController.php
+msgid "Shipped learning goals cannot be deleted."
+msgstr "Meegeleverde leerdoelen kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "+ New influence factor"
+msgstr "+ Nieuwe factor van invloed"
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "No influence factors yet. Use “+ New influence factor” to author the first one."
+msgstr "Nog geen factoren van invloed. Gebruik “+ Nieuwe factor van invloed” om de eerste toe te voegen."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Delete this influence factor? This cannot be undone."
+msgstr "Deze factor van invloed verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "That influence factor could not be found."
+msgstr "Die factor van invloed kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Shipped influence factors are read-only reference content and cannot be edited."
+msgstr "Meegeleverde factoren van invloed zijn alleen-lezen naslaginhoud en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Save influence factor"
+msgstr "Factor van invloed opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Author the framework primer first — influence factors hang off it. Open the Raamwerk tab and save the primer."
+msgstr "Maak eerst de raamwerk-introductie aan — factoren van invloed hangen daaronder. Open het tabblad Raamwerk en sla de introductie op."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "That influence factor could not be deleted. Shipped reference factors cannot be removed."
+msgstr "Die factor van invloed kon niet worden verwijderd. Meegeleverde naslagfactoren kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Influence factor deleted."
+msgstr "Factor van invloed verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "An influence factor needs a slug."
+msgstr "Een factor van invloed heeft een slug nodig."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "That influence factor could not be saved."
+msgstr "Die factor van invloed kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Influence factor saved."
+msgstr "Factor van invloed opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Could not create the influence factor."
+msgstr "Kon de factor van invloed niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php
+msgid "Influence factor created."
+msgstr "Factor van invloed aangemaakt."
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php
+msgid "Influence factor not found."
+msgstr "Factor van invloed niet gevonden."
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php
+msgid "Author the framework primer before adding influence factors."
+msgstr "Maak de raamwerk-introductie aan voordat je factoren van invloed toevoegt."
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php
+msgid "Could not save the influence factor."
+msgstr "Kon de factor van invloed niet opslaan."
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php
+msgid "Shipped influence factors are read-only. Clone the primer to edit."
+msgstr "Meegeleverde factoren van invloed zijn alleen-lezen. Kopieer de introductie om te bewerken."
+
+#: src/Modules/Methodology/Rest/InfluenceFactorsRestController.php
+msgid "Shipped influence factors cannot be deleted."
+msgstr "Meegeleverde factoren van invloed kunnen niet worden verwijderd."

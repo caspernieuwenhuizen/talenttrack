@@ -57,6 +57,17 @@ class MethodologyModule implements ModuleInterface {
         Rest\VisionRestController::init();
         Rest\FrameworkPrimerRestController::init();
 
+        // #2229 — the framework primer's children: phases, learning goals
+        // and influence factors. Each is its own manage tab (list ⇄ flat
+        // create/edit/delete form) + REST controller, all scoped to the
+        // active club-authored primer, on the #2225 scaffold.
+        Frontend\Manage\PhasesManageTab::register();
+        Frontend\Manage\LearningGoalsManageTab::register();
+        Frontend\Manage\InfluenceFactorsManageTab::register();
+        Rest\PhasesRestController::init();
+        Rest\LearningGoalsRestController::init();
+        Rest\InfluenceFactorsRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();

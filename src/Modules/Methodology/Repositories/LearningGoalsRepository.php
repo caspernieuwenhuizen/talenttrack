@@ -70,6 +70,19 @@ final class LearningGoalsRepository {
     }
 
     /**
+     * Hard-delete a club-authored learning goal. Shipped rows are
+     * read-only reference content and are never removed. Returns false
+     * when the row is shipped or the delete affected no rows (wrong id /
+     * other club).
+     */
+    public function delete( int $id ): bool {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->is_shipped ) ) return false;
+        global $wpdb;
+        return $wpdb->delete( $this->table(), [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
+    }
+
+    /**
      * @param array<string,mixed> $data
      * @return array<string,mixed>
      */
