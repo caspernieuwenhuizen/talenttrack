@@ -266,14 +266,14 @@ a.tt-goal-card:focus-visible {
 }
 @media (min-width: 768px) {
     .tt-dashboard .tt-goal-detail-grid {
-        grid-template-columns: 1.15fr 0.85fr;
+        grid-template-columns: 1.3fr 0.7fr;
         align-items: start;
     }
 }
 
 /* ---- Coach detail card -------------------------------------------- */
 .tt-dashboard .tt-goal-detail-card {
-    max-width: 640px;
+    max-width: 100%;
 }
 .tt-dashboard .tt-goal-detail-card .tt-goal-card__meta {
     margin-bottom: 0.4rem;

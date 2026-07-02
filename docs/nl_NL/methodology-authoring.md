@@ -17,6 +17,7 @@ De omgeving biedt altijd een link **Gepubliceerde methodologie bekijken** terug 
 De beheeromgeving heeft een tabblad per methodologie-onderdeel, net als de leesweergave. Elk tabblad is een op zichzelf staande beheerpagina — een lijst met records, een knop "+ Nieuw …", bewerk- en verwijderacties per rij, en een plat aanmaak-/bewerkformulier.
 
 **Spelprincipes** en **Spelhervattingen** zijn nu beschikbaar. Formaties, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
+**Spelprincipes** en **Voetbalhandelingen** zijn beschikbaar. Formaties, spelhervattingen, visies, de raamwerk-introductie en de overige onderdelen volgen in latere releases; elk verschijnt als eigen tabblad zodra het wordt opgeleverd.
 
 ## Een principe bewerken
 
@@ -43,6 +44,17 @@ Een spelhervatting bevat:
 - **Diagram-overlay (JSON)** — optionele ruwe JSON die de markerposities op het veldschema beschrijft. Laat leeg als je die niet hebt; ongeldige JSON wordt bij het opslaan genegeerd.
 
 Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands wanneer de taal van een lezer Engels is maar er geen Engelse tekst is opgegeven. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam). Een spelhervatting verwijderen is definitief en vraagt eerst om bevestiging. Opgeslagen spelhervattingen zijn zichtbaar in het tabblad **Spelhervattingen** van de leesweergave.
+## Een voetbalhandeling bewerken
+
+Een voetbalhandeling bevat:
+
+- **Slug** — de korte machineverwijzing zoals `aannemen`.
+- **Categorie** — een van *Met balcontact*, *Zonder balcontact* of *Ondersteunend*.
+- **Naam** en **Omschrijving** — elk met naast elkaar een **Nederlands (NL)**- en **Engels (EN)**-invoer.
+
+Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands wanneer de taal van een lezer Engels is maar er geen Engelse tekst is opgegeven. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam).
+
+Een voetbalhandeling verwijderen is definitief en vraagt eerst om bevestiging. Een handeling waaraan een doel nog is gekoppeld (via de gekoppelde handeling) kun je **niet** verwijderen — je krijgt een melding met het aantal doelen dat ernaar verwijst. Ontkoppel die doelen eerst en verwijder daarna.
 
 ## Meegeleverd vs. clubeigen
 
@@ -66,6 +78,13 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | Een clubeigen spelhervatting verwijderen. |
 
 Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige tekstvelden (principe `title`, `explanation`, `team_guidance`, `line_guidance`; spelhervatting `title`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`. Het veld `bullets` van een spelhervatting neemt `{ "nl": ["…"], "en": ["…"] }`, en `diagram_overlay` is een vrij JSON-object.
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions` | Voetbalhandelingen tonen (per club). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/football-actions` | Een clubeigen voetbalhandeling aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Eén voetbalhandeling, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Een clubeigen voetbalhandeling bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Een clubeigen voetbalhandeling verwijderen (geweigerd met `409` zolang een doel eraan gekoppeld is). |
+
+Elke route vereist het recht `tt_edit_methodology` en is beperkt tot de huidige club. Meertalige velden voor principes (`title`, `explanation`, `team_guidance`, `line_guidance`) en voor voetbalhandelingen (`name`, `description`) accepteren en retourneren een vorm `{ "nl": "…", "en": "…" }`.
 
 ## Voor ontwikkelaars — een onderdeeltabblad toevoegen
 
