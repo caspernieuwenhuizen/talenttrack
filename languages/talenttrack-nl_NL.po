@@ -45154,21 +45154,6 @@ msgstr "Meegeleverde principes zijn alleen-lezen. Kloon het om te bewerken."
 msgid "Shipped principles cannot be deleted."
 msgstr "Meegeleverde principes kunnen niet worden verwijderd."
 
-#. translators: %d: count of past activities not yet closed off
-#: src/Shared/Frontend/FrontendActivitiesManageView.php
-#, php-format
-msgid "%d not closed off"
-msgid_plural "%d not closed off"
-msgstr[0] "%d niet afgerond"
-msgstr[1] "%d niet afgerond"
-
-#: src/Shared/Frontend/Components/GoalDetailFields.php
-msgid "Connected principle"
-msgstr "Gekoppeld principe"
-
-#: src/Shared/Frontend/Components/GoalDetailFields.php
-msgid "Connected football action"
-msgstr "Gekoppelde voetbalhandeling"
 #~ msgid "recomputed"
 #~ msgstr "herberekend"
 
@@ -45514,3 +45499,9 @@ msgstr "Gekoppelde voetbalhandeling"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Connected principle"
+msgstr "Gekoppeld principe"
+
+msgid "Connected football action"
+msgstr "Gekoppelde voetbalhandeling"
