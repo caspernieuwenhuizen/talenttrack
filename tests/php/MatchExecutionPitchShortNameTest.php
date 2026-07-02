@@ -32,7 +32,7 @@ final class MatchExecutionPitchShortNameTest extends WP_UnitTestCase {
     }
 
     public function test_three_token_name_uses_first_and_last_initial(): void {
-        $this->assertSame( 'Jan V.', $this->shortName( 'Jan van Dijk' ) );
+        $this->assertSame( 'Jan D.', $this->shortName( 'Jan van Dijk' ) );
     }
 
     public function test_empty_name_returns_empty_string(): void {
