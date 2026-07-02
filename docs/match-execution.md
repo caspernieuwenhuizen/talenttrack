@@ -7,6 +7,22 @@ runs from the sideline during a match. It opens from a match activity's
 detail page once the match has been prepared (see *Match preparation*) and
 keeps the score, the timer, and the per-player tracking in one place.
 
+The breadcrumb above the screen links back to the parent activity:
+**Dashboard / Activities / {activity} / Match execution**. Tapping the
+activity crumb returns you to the match activity's detail page.
+
+## Editing is opt-in
+
+The screen opens **read-only**. The score, goals, and substitutions are
+shown but not editable until you tap **Edit** in the header. Editing is
+only offered while the match still accepts changes — during play, at
+half-time, and in the post-match review window. Once a match is
+**finalized**, the Edit button disappears and the live controls stay
+locked: a finalized match is the record of what the players actually did,
+so it cannot be silently rewritten. (The server enforces the same lock, so
+a finalized match refuses score, goal, and substitution changes regardless
+of the screen.)
+
 ## Line-up — the vertical pitch
 
 At the top of the screen, below the score and timer, a vertical pitch
@@ -15,7 +31,9 @@ sits on the spot their match-prep line-up slot maps to, using the bound
 formation's shape (4-3-3, 4-2-3-1, 4-4-2, and the other supported shapes).
 
 - A filled spot shows the player's shirt number (or position label when no
-  number is set) and a short name.
+  number is set) and a short name. The short name is the player's **first
+  name plus last initial** (e.g. "Daan P."), the way a coach names a player
+  from the sideline; a player with a single-word name shows it as-is.
 - An empty spot — a slot with no player assigned in the prep — shows a
   dashed marker with the position label.
 
@@ -41,6 +59,25 @@ The feed is built from the same goal and substitution events the live
 surface already records as you tap them during the match (and from any late
 goal or substitution added during the post-match review window). Red and
 yellow cards are not tracked, so they do not appear in the feed.
+
+## Correcting recorded minutes
+
+Each player's **recorded minutes** are computed automatically from the
+substitution log while the match is live and in the post-match review
+window. Once the match is **finalized**, no further automatic recompute
+runs — so a finalized match adds a **Correct recorded minutes** action
+under *Recorded minutes*.
+
+Tap it to reveal a numeric field per player, correct any figure that was
+logged wrong, and **Save** (or **Cancel** to leave without changing
+anything). This is a data correction on the attendance record only — it
+does **not** reopen the locked match, so the score, goals, and
+substitutions stay locked. The corrected value flows straight into the
+minutes reports. Before the match is finalized, fix the substitution log
+instead and the minutes recompute correctly.
+
+Correcting minutes needs the `tt_edit_activities` capability, the same
+permission that gates the rest of the match-execution screen.
 
 ## Where the data comes from
 

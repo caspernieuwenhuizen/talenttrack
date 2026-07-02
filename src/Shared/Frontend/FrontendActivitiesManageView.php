@@ -349,8 +349,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '<div class="tt-act-detail">';
 
-        // ---- Hero -------------------------------------------------
+        // #2220 — Grouping panel. Hero + stat strip + section cards +
+        // audit footer live inside ONE tinted container so they read as a
+        // single, deliberate group (three tonal layers: page → tinted
+        // panel → white cards) even when only a couple of sections apply.
+        echo '<div class="tt-act-panel">';
+
+        // ---- Hero (de-elevated inside the panel) ------------------
         self::renderDetailHero( $session, $type_key, $status_key, $is_match, $team_id, $team_name, $window );
+
+        // #2220 — compact key-numbers strip under the hero.
+        self::renderDetailStatStrip( $session, $type_key, $status_key, $is_match );
 
         // ---- Facts strip ------------------------------------------
         self::renderDetailFacts( $session, $type_key, $status_key, $is_match, $window );
@@ -400,7 +409,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         self::renderEvalSkippedNotice( $session );
 
         // #1471 — created/changed audit footer (renders nothing for
-        // pre-audit rows with no recorded author).
+        // pre-audit rows with no recorded author). #2221 — appends the
+        // team's last Spond sync line for Spond-sourced activities.
         echo '<div class="tt-act-detail__audit">';
         \TT\Shared\Frontend\Components\AuditMeta::render( [
             'created_by' => isset( $session->created_by ) ? (int) $session->created_by : 0,
@@ -408,9 +418,101 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'updated_by' => isset( $session->updated_by ) ? (int) $session->updated_by : 0,
             'updated_at' => (string) ( $session->updated_at ?? '' ),
         ] );
+        self::renderSpondSyncLine( $session );
         echo '</div>';
 
+        echo '</div>'; // .tt-act-panel
+
         echo '</div>'; // .tt-act-detail
+    }
+
+    /**
+     * #2221 — team-level "last synced from Spond" line, shown only on
+     * Spond-sourced activities. The timestamp is the TEAM's
+     * `spond_last_sync_at` (tt_teams, migration 0041), resolved in the
+     * repository; the label makes the team scope explicit so the freshness
+     * claim stays honest (it is not a per-activity sync time). Renders
+     * nothing for manual / generated activities or when the team has never
+     * synced.
+     */
+    private static function renderSpondSyncLine( object $session ): void {
+        if ( strtolower( (string) ( $session->activity_source_key ?? '' ) ) !== 'spond' ) return;
+        $synced_at = (string) ( $session->team_spond_last_sync_at ?? '' );
+        if ( $synced_at === '' ) return;
+
+        echo '<p class="tt-act-detail__spond-sync">'
+            . esc_html( sprintf(
+                /* translators: %s = date/time the team was last synced from Spond */
+                __( 'Team last synced from Spond: %s', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::dateTime( $synced_at )
+            ) )
+            . '</p>';
+    }
+
+    /**
+     * #2220 — compact stat strip under the hero. Match: Present ·
+     * Substitutes · Match length. Training: Present · Duration. Numbers
+     * are derived in the repository (CLAUDE.md §4); the view only lays
+     * out the cells and skips any that have no value.
+     */
+    private static function renderDetailStatStrip( object $session, string $type_key, string $status_key, bool $is_match ): void {
+        $activity_id = (int) ( $session->id ?? 0 );
+        $team_id     = (int) ( $session->team_id ?? 0 );
+        if ( $activity_id <= 0 ) return;
+
+        $explicit_len = isset( $session->match_length_minutes ) && $session->match_length_minutes !== null
+            ? (int) $session->match_length_minutes
+            : 0;
+
+        $stats = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->statStripForActivity(
+                $activity_id,
+                $team_id,
+                $is_match,
+                (string) ( $session->start_time ?? '' ),
+                (string) ( $session->end_time ?? '' ),
+                $explicit_len
+            );
+
+        $cells = [];
+        if ( $stats->present !== null && $stats->roster_size !== null ) {
+            $cells[] = [
+                (string) $stats->present . ' / ' . (string) $stats->roster_size,
+                __( 'Present', 'talenttrack' ),
+            ];
+        }
+        if ( $is_match ) {
+            if ( $stats->substitutes !== null ) {
+                $cells[] = [ (string) $stats->substitutes, __( 'Substitutes', 'talenttrack' ) ];
+            }
+            if ( $stats->match_length_minutes !== null ) {
+                // Minutes rendered in football "90'" notation (locale-neutral).
+                $cells[] = [
+                    esc_html( (string) $stats->match_length_minutes . "'" ),
+                    __( 'Match length', 'talenttrack' ),
+                    true, // value already escaped
+                ];
+            }
+        } elseif ( $stats->duration_minutes !== null ) {
+            $cells[] = [
+                esc_html( (string) $stats->duration_minutes . "'" ),
+                __( 'Duration', 'talenttrack' ),
+                true,
+            ];
+        }
+
+        if ( count( $cells ) < 2 ) return; // a strip of one number isn't a strip
+
+        $cols_cls = ' tt-act-stats--' . count( $cells );
+        echo '<div class="tt-act-stats' . esc_attr( $cols_cls ) . '">';
+        foreach ( $cells as $cell ) {
+            $pre_escaped = isset( $cell[2] ) && $cell[2] === true;
+            echo '<div class="tt-act-stat">';
+            echo '<div class="tt-act-stat__num">' . ( $pre_escaped ? $cell[0] : esc_html( $cell[0] ) ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<div class="tt-act-stat__label">' . esc_html( $cell[1] ) . '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
     }
 
     /**
@@ -1535,6 +1637,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 ? self::lookupLabelByName( 'activity_status', ActivityStatusKey::CANCELLED )
                 : $status_label;
             $meta_bits[] = '<span class="tt-act-pill" data-status="' . esc_attr( $pill_status ) . '">' . esc_html( $pill_label !== '' ? $pill_label : ucfirst( $pill_status ) ) . '</span>';
+        }
+
+        // #2221 — Spond-source chip. Signals at a glance that this
+        // activity was imported from Spond (vs. a manually-created or
+        // generated one), so a coach can trust its provenance. Only the
+        // 'spond' source shows a chip; manual / generated show none. The
+        // source key is set on import by SpondSync (migration 0040).
+        if ( strtolower( (string) ( $row->activity_source_key ?? '' ) ) === 'spond' ) {
+            $meta_bits[] = '<span class="tt-act-pill tt-act-pill--spond">'
+                . esc_html__( 'Spond', 'talenttrack' ) . '</span>';
         }
 
         // Team / time / "still planned" tail (plain text).
