@@ -53,3 +53,19 @@ bewerkformulier van het doel:
 
 Bewijslast wordt los van de methodiekkoppelingen van het doel opgeslagen, dus
 de twee zitten elkaar niet in de weg.
+
+## Op de doeldetailpagina (#2218)
+
+Bij het openen van een doel worden — naast status, prioriteit, streefdatum,
+eigenaar en omschrijving — drie velden getoond die voorheen wel te bewerken
+maar nooit zichtbaar waren:
+
+- **Voortgang** — het voortgangspercentage als balk. Een doel zonder ingestelde
+  voortgang toont een streepje (—) in plaats van een verzonnen 0%.
+- **Gekoppeld principe** — het gekoppelde methodiekprincipe, wanneer ingesteld.
+- **Gekoppelde voetbalhandeling** — de gekoppelde voetbalhandeling, wanneer
+  ingesteld.
+
+Zowel de coachweergave als de eigen-doelweergave van de speler tonen deze
+velden, zodat coach en speler hetzelfde beeld hebben van waar het doel staat en
+wat het ontwikkelt.

@@ -45508,3 +45508,8 @@ msgstr "Wissels"
 
 msgid "Match length"
 msgstr "Wedstrijdduur"
+msgid "Connected principle"
+msgstr "Gekoppeld principe"
+
+msgid "Connected football action"
+msgstr "Gekoppelde voetbalhandeling"

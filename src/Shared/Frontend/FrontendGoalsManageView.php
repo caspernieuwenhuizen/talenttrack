@@ -225,6 +225,10 @@ class FrontendGoalsManageView extends FrontendViewBase {
             echo '</div>';
         }
 
+        // #2218 — surface progress %, connected principle + football
+        // action. Name resolution lives in the repositories (CLAUDE.md § 4).
+        \TT\Shared\Frontend\Components\GoalDetailFields::render( $goal );
+
         echo '</article>';
 
         // v3.110.53 — Edit + Archive moved to the page-header actions
