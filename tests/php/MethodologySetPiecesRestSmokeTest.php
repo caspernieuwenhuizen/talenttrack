@@ -86,7 +86,7 @@ final class MethodologySetPiecesRestSmokeTest extends WP_UnitTestCase {
         $create = new WP_REST_Request( 'POST', self::BASE );
         $create->set_header( 'Content-Type', 'application/json' );
         $create->set_body( wp_json_encode( [
-            'slug'     => 'corner-attacking-far-post',
+            'slug'     => 'tt-test-corner-far-post',
             'kind_key' => 'corner',
             'side'     => 'attacking',
             'title'    => [ 'nl' => 'Hoekschop verre paal', 'en' => 'Corner far post' ],
@@ -105,7 +105,7 @@ final class MethodologySetPiecesRestSmokeTest extends WP_UnitTestCase {
         $this->assertSame( 200, $get_res->get_status() );
         $get_body = $get_res->get_data();
         $this->assertEnvelopeSuccess( $get_body );
-        $this->assertSame( 'corner-attacking-far-post', $get_body['data']['slug'] ?? null );
+        $this->assertSame( 'tt-test-corner-far-post', $get_body['data']['slug'] ?? null );
         $this->assertSame( 'corner', $get_body['data']['kind_key'] ?? null );
         $this->assertSame( 'Hoekschop verre paal', $get_body['data']['title_i18n']['nl'] ?? null, 'Dutch title round-trips' );
         $this->assertSame( 'Corner far post', $get_body['data']['title_i18n']['en'] ?? null, 'English title round-trips' );
