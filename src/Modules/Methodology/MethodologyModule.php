@@ -49,6 +49,14 @@ class MethodologyModule implements ModuleInterface {
         Frontend\Manage\FormationsManageTab::register();
         Rest\FormationsRestController::init();
 
+        // #2226 — Vision + Framework primer authoring. Both are singletons
+        // (one editable record per club), so their tabs render a single
+        // edit form and their REST controllers expose read + update only.
+        Frontend\Manage\VisionManageTab::register();
+        Frontend\Manage\FrameworkPrimerManageTab::register();
+        Rest\VisionRestController::init();
+        Rest\FrameworkPrimerRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();

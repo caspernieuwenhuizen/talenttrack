@@ -21950,6 +21950,10 @@ msgstr "Speelwijze (NL)"
 msgid "Way of playing (EN)"
 msgstr "Speelwijze (EN)"
 
+#: src/Modules/Methodology/Frontend/Manage/VisionPrimerManageTab.php
+msgid "Way of playing"
+msgstr "Speelwijze"
+
 #: src/Modules/Methodology/Admin/VisionEditPage.php:103
 msgid "Important traits (NL — one per line)"
 msgstr "Belangrijke eigenschappen (NL — één per regel)"
@@ -45955,3 +45959,91 @@ msgstr "Die positie kon niet worden gevonden."
 
 msgid "That position could not be saved."
 msgstr "Die positie kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "The club vision is a single record. Edit it here; it appears on the read view’s Vision tab."
+msgstr "De clubvisie is één record. Bewerk die hier; ze verschijnt op het tabblad Visie van de leesweergave."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Important traits (one per line)"
+msgstr "Belangrijke eigenschappen (één per regel)"
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Create vision"
+msgstr "Visie aanmaken"
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Vision saved."
+msgstr "Visie opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Vision created."
+msgstr "Visie aangemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Could not create the vision."
+msgstr "Kon de visie niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "Please choose a valid style of play."
+msgstr "Kies een geldige speelstijl."
+
+#: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php
+msgid "That vision could not be saved."
+msgstr "Die visie kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Rest/VisionRestController.php
+msgid "Vision not found."
+msgstr "Visie niet gevonden."
+
+#: src/Modules/Methodology/Rest/VisionRestController.php
+msgid "Invalid style of play."
+msgstr "Ongeldige speelstijl."
+
+#: src/Modules/Methodology/Rest/VisionRestController.php
+msgid "The vision is a single record and cannot be created over REST."
+msgstr "De visie is één record en kan niet via REST worden aangemaakt."
+
+#: src/Modules/Methodology/Rest/VisionRestController.php
+msgid "The vision is a single record and cannot be deleted over REST."
+msgstr "De visie is één record en kan niet via REST worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "The framework primer is a single record. Edit its intro sections here; they appear on the read view’s Raamwerk tab."
+msgstr "De raamwerk-introductie is één record. Bewerk de introductiesecties hier; ze verschijnen op het tabblad Raamwerk van de leesweergave."
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "Save framework primer"
+msgstr "Raamwerk-introductie opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "Framework primer saved."
+msgstr "Raamwerk-introductie opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "Framework primer created."
+msgstr "Raamwerk-introductie aangemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "Could not create the framework primer."
+msgstr "Kon de raamwerk-introductie niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php
+msgid "That framework primer could not be saved."
+msgstr "Die raamwerk-introductie kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php
+msgid "Framework primer not found."
+msgstr "Raamwerk-introductie niet gevonden."
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php
+msgid "The shipped framework primer is read-only. Clone it to edit."
+msgstr "De meegeleverde raamwerk-introductie is alleen-lezen. Kloon die om te bewerken."
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php
+msgid "The framework primer is a single record and cannot be created over REST."
+msgstr "De raamwerk-introductie is één record en kan niet via REST worden aangemaakt."
+
+#: src/Modules/Methodology/Rest/FrameworkPrimerRestController.php
+msgid "The framework primer is a single record and cannot be deleted over REST."
+msgstr "De raamwerk-introductie is één record en kan niet via REST worden verwijderd."

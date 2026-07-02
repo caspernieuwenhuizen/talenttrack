@@ -16,6 +16,9 @@ The surface always offers a **View published methodology** link back to the read
 
 The manage surface is tabbed by methodology entity, mirroring the read view. Each tab is a self-contained authoring page — a list of that entity's records with a "+ New …" button, edit and delete row actions, and a flat create/edit form.
 
+**Principles**, **Vision** and **Framework primer** are available. Formations, set-pieces and the remaining entities are added in later releases; each appears as its own tab as it ships.
+
+Two of these tabs — **Vision** and **Framework primer** — are *single-record* editors rather than lists: each club has exactly one vision and one framework primer, so the tab opens straight onto its edit form (no list, no "+ New", no delete).
 **Principles** and **Formations** are available now. Set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 **Principles** and **Set pieces** are available today. Formations, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
 **Principles** and **Football actions** (voetbalhandelingen) are available. Formations, set-pieces, visions, the framework primer and the other entities are added in later releases; each appears as its own tab as it ships.
@@ -33,6 +36,25 @@ Fill in Dutch first; English is optional and falls back to Dutch when a viewer's
 
 Deleting a principle removes it permanently and asks for confirmation first.
 
+## Editing the club vision
+
+The **Vision** tab edits your club's single vision record. It carries:
+
+- **Formation** and **Style of play** — picked from the methodology's formation list and the fixed style vocabulary.
+- **Way of playing** and **Notes** — each with side-by-side **Dutch (NL)** and **English (EN)** text.
+- **Important traits** — a Dutch and English list, one trait per line.
+
+The first save creates your club's vision; later saves update it. The shipped sample vision is read-only and is never touched here. What you save appears on the read view's **Visie** tab.
+
+## Editing the framework primer
+
+The **Framework primer** (Raamwerk) tab edits your club's single framework primer — the introductory text that frames the methodology and each of its themes:
+
+- **Title** and **Tagline** — single-line, NL/EN.
+- **Inleiding**, plus a **toelichting** (intro) for each theme: **Voetbalmodel**, **Voetbalhandelingen**, **Vier fasen**, **Leerdoelen** and **Factoren van invloed**.
+- **Reflectie** and **De toekomst** — closing sections.
+
+Every section has side-by-side Dutch and English text. The first save creates the primer; later saves update it. The primer is the parent of the phases, learning goals and influence factors authored on their own tabs. What you save appears on the read view's **Raamwerk** tab.
 ## Editing a formation
 
 The **Formaties** tab lists your formations. Each formation carries:
@@ -95,6 +117,12 @@ Everything the manage surface does is also available over REST, so a future non-
 | `GET` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | One principle, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Edit a club-authored principle. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Delete a club-authored principle. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/vision` | The active club vision. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | One vision, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | Edit the club vision. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer` | The active club framework primer. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | One primer, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/framework-primer/{id}` | Edit the club framework primer. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces` | List set pieces (club-scoped; filter by `kind`, `side`, `source`). |
 | `POST` | `/wp-json/talenttrack/v1/methodology/set-pieces` | Create a club-authored set piece. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/set-pieces/{id}` | One set piece, with Dutch + English values. |
@@ -124,6 +152,8 @@ Every route requires the `tt_edit_methodology` capability and is scoped to the c
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/football-actions/{id}` | Delete a club-authored football action (blocked with `409` while a goal links to it). |
 
 Every route requires the `tt_edit_methodology` capability and is scoped to the current club. Principle multilingual fields (`title`, `explanation`, `team_guidance`, `line_guidance`) and football-action fields (`name`, `description`) accept and return an `{ "nl": "…", "en": "…" }` shape.
+
+The **vision** and **framework primer** are single records per club, so they expose read + update only — no `POST` create, no `DELETE`. Their multilingual fields (vision: `way_of_playing`, `notes`, `important_traits`; primer: `title`, `tagline`, `intro`, the per-theme `*_intro`, `reflection`, `future`) accept and return the same `{ "nl": …, "en": … }` shape; `important_traits` is a list of strings per language.
 
 ## For developers — adding an entity tab
 
