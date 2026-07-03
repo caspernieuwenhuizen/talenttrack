@@ -715,6 +715,20 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
+/* #2248 — per-player plan status pill on the expected-attendance card. */
+.tt-dashboard .tt-act-rp__plan {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--tt-warning, #b46a1f);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.tt-dashboard .tt-act-card-d__sub {
+    margin: 0 0 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-ink-soft, #5b6e75);
+}
 .tt-dashboard .tt-act-lineup__group {
     font-weight: 700;
     font-size: 0.6875rem;
@@ -949,4 +963,26 @@
     color: var(--tt-muted, #5b6e75);
     margin: 0 0 12px;
     max-width: 60ch;
+}
+
+/* ---- #2248 — planned (expected) attendance edit section ------ */
+.tt-dashboard .tt-planned-attendance {
+    margin: 24px 0 0;
+}
+.tt-dashboard .tt-planned-attendance__title {
+    margin: 24px 0 4px;
+}
+.tt-dashboard .tt-planned-attendance__hint {
+    margin: 0 0 12px;
+    color: var(--tt-ink-soft, #5b6e75);
+    font-style: italic;
+}
+.tt-dashboard .tt-planned-attendance .tt-planned-guest {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: var(--tt-surface-muted, #eef2f4);
+    color: var(--tt-ink-soft, #5b6e75);
 }
