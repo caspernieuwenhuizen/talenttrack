@@ -150,6 +150,20 @@ Settings-level edits (custom fields, eval categories, functional roles, config) 
 
 Same body shape. The handler **only wipes `is_guest = 0` rows** before re-inserting roster attendance — guest rows survive a session edit.
 
+#2248 — the PUT also accepts an optional `planned_attendance` sub-resource (form-encoded as `planned[<player_id>][status|note]`) that records **expected** attendance for a not-yet-completed activity:
+
+```json
+{
+  "planned": {
+    "<player_id>": { "status": "expected",   "note": "" },
+    "<player_id>": { "status": "not_coming",  "note": "texted, injured" },
+    "<player_id>": { "status": "maybe",       "note": "exam that afternoon" }
+  }
+}
+```
+
+The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each expected row's `status`, `plan_status`, and `notes`. Gated on `tt_edit_activities`.
+
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json

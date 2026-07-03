@@ -409,7 +409,12 @@ final class ActivitiesRepository {
      * so both surfaces (and REST) read planned attendance from one
      * place rather than re-querying `tt_attendance` in a view.
      *
-     * @return list<object> each: {player_id:int, is_guest:int, name:string}
+     * #2248 — each row also carries its expected `status` (present /
+     * absent / excused, mapping to Expected / Not coming / Maybe) and the
+     * free-text `notes`, so the activity edit form can render an editable
+     * plan and the detail card can summarise it.
+     *
+     * @return list<object> each: {player_id:int, is_guest:int, name:string, status:string, notes:string}
      */
     public function plannedRosterForActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
@@ -418,6 +423,7 @@ final class ActivitiesRepository {
         $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id, att.guest_player_id, att.is_guest,
+                    att.status, att.notes,
                     COALESCE( gpl.first_name, pl.first_name ) AS first_name,
                     COALESCE( gpl.last_name,  pl.last_name )  AS last_name
                FROM {$p}tt_attendance att
@@ -441,9 +447,57 @@ final class ActivitiesRepository {
                 'player_id' => $pid,
                 'is_guest'  => $is_guest ? 1 : 0,
                 'name'      => $name,
+                'status'    => (string) ( $r->status ?? '' ),
+                'notes'     => (string) ( $r->notes ?? '' ),
             ];
         }
         return $out;
+    }
+
+    /**
+     * #2248 — replace the planned (expected) attendance rows for an
+     * activity with the supplied per-player status + notes. Club-scoped;
+     * only `record_type='expected'` rows are touched, so recorded
+     * (`actual`) attendance and guest visits are never disturbed. Guests
+     * that were already in the plan are preserved by re-inserting them
+     * with `is_guest=1` / `guest_player_id` pinned (mirrors the wizard's
+     * ReviewStep::insertExpectedAttendance shape).
+     *
+     * @param array<int, array{status:string, notes:string, is_guest?:int}> $rows keyed by player id
+     */
+    public function replacePlannedAttendance( int $activity_id, array $rows ): void {
+        if ( $activity_id <= 0 ) return;
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+
+        // Wipe only the expected rows for this activity; actual + guest
+        // actual rows are on other record_type / managed separately.
+        $wpdb->delete( "{$p}tt_attendance", [
+            'activity_id' => $activity_id,
+            'club_id'     => $club,
+            'record_type' => 'expected',
+        ] );
+
+        foreach ( $rows as $pid => $fields ) {
+            $pid = (int) $pid;
+            if ( $pid <= 0 ) continue;
+            $is_guest = ! empty( $fields['is_guest'] );
+            $insert = [
+                'club_id'     => $club,
+                'activity_id' => $activity_id,
+                'player_id'   => $is_guest ? 0 : $pid,
+                'is_guest'    => $is_guest ? 1 : 0,
+                'status'      => (string) ( $fields['status'] ?? '' ),
+                'notes'       => (string) ( $fields['notes'] ?? '' ),
+                'record_type' => 'expected',
+            ];
+            if ( $is_guest ) {
+                $insert['guest_player_id'] = $pid;
+            }
+            $wpdb->insert( "{$p}tt_attendance", $insert );
+        }
     }
 
     /**

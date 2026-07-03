@@ -79,7 +79,15 @@ The activity list shows the type as a colour-coded pill so trainings, games, tou
 
 When you create an activity you pick which players are expected — the roster step defaults to the whole team, and you untick anyone you already know is away. Those picks are the activity's **planned roster**.
 
-Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up still happens on the edit form (or the Mark attendance wizard) — the planned roster is what you expected, the marked attendance is what happened.
+Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up still happens on the edit form (or the Mark attendance wizard) — the planned roster is what you expected, the marked attendance is what happened.
+
+### Adjusting the plan (v4.71.0)
+
+The plan is not frozen at creation. Edit an activity that has **not yet been completed** and you'll find a **Planned attendance** section: one row per planned player with a status you can set — **Expected**, **Not coming**, or **Maybe** — plus a free-text **note** (e.g. "texted, injured"). Save and the plan updates. The detail panel's **Edit plan** link jumps you straight there.
+
+If the activity was created with "Set attendance later" (so it has no planned roster yet), the section seeds itself from the current team roster with everyone set to **Expected**, so you can start managing the plan from scratch.
+
+Marking a player **Not coming** early feeds the later attendance defaults: when you eventually complete the activity, the match-prep availability step already knows who you didn't expect, so your early note isn't lost. Adjusting the plan never touches recorded (completed) attendance — the two are kept separate, so the attendance reports are unaffected.
 
 If you create an activity **already marked Completed** (it happened in the past) and don't enter attendance, the full active roster is recorded as **present** automatically so the activity is immediately rateable — adjust any absences on the edit form afterward.
 
