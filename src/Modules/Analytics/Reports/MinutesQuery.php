@@ -48,15 +48,18 @@ final class MinutesQuery {
 
         if ( $team_id <= 0 ) return [];
 
-        // 1. Match activities for the team in the window. Both 'match'
-        //    and 'game' keys treated as match-type (see #988 follow-up
-        //    on the legacy 'game' / new 'match' co-existence).
+        // 1. Match activities for the team in the window. 'match' and
+        //    'game' keys are treated as match-type (see #988 follow-up on
+        //    the legacy 'game' / new 'match' co-existence). #2253 —
+        //    'tournament' is a minutes-bearing type too (single-game
+        //    tournaments via match execution, multi-game days via the
+        //    manual per-player minutes entry, #2159), so it joins the set.
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, game_subtype_key, session_date
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game' )
+                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
                 AND session_date BETWEEN %s AND %s
               ORDER BY session_date ASC",
             $club_id, $team_id, $from, $to
@@ -82,14 +85,25 @@ final class MinutesQuery {
 
             // #2158/#2159 — read persisted actual minutes FIRST. A
             // manually-recorded "paper match" (#2159) has minutes on
-            // tt_attendance but no match-prep; it must still appear. So we
-            // no longer skip prep-less matches outright — only matches that
-            // have neither a prep nor any persisted minutes are skipped.
+            // tt_attendance but no match-prep; it must still appear. The
+            // recorded minutes — not the presence of a prep line-up — are
+            // what qualify a match to count (see the #2252 gate below).
             $minutes_map = self::persistedMinutes( $aid, $club_id );
 
             $prep = $prep_repo->findByActivity( $aid );
-            if ( ! $prep && empty( $minutes_map ) ) {
-                continue; // no lineup AND no recorded minutes — nothing to count.
+
+            // #2252 — a match contributes to starts / available_minutes /
+            // subs ONLY when it was actually recorded (produced persisted
+            // `record_type='actual'` minutes), consistent with how
+            // matches / total_minutes already work. A match that was
+            // planned (has a prep lineup) but never played/recorded has an
+            // empty $minutes_map and must contribute 0 across the board —
+            // otherwise its lineup inflates `starts` above `matches`
+            // ("3 basisplaatsen, 1 wedstrijd") and its length inflates the
+            // "% beschikbaar" denominator. So skip any activity with no
+            // recorded minutes, regardless of whether a lineup exists.
+            if ( empty( $minutes_map ) ) {
+                continue; // no recorded minutes — nothing to count.
             }
 
             $half_length = $prep ? (int) $prep->half_length_minutes : 0;
@@ -276,7 +290,7 @@ final class MinutesQuery {
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game' )
+                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
                 AND {$date_col} BETWEEN %s AND %s
               ORDER BY {$date_col} ASC",
             $club_id, $team_id, $from, $to

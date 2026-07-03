@@ -72,6 +72,23 @@ simply reads that stored value; a match that was played but never finalised
 therefore shows nothing until its minutes are recorded, rather than being
 reconstructed from the planned line-up.
 
+**Matches, games and tournaments all count.** The minutes reports treat
+matches, games and tournaments the same way — each is a minutes-bearing
+activity. A single-game tournament records minutes exactly like a match (plan a
+line-up, run the live match surface, finalise); a multi-game-day tournament
+records minutes with the by-hand per-player entry on the attendance screen (how
+many minutes each player actually played across the day). Either way the minutes
+land on the attendance row and every report reads them. A tournament with no
+recorded minutes still shows nothing — the same honest zero as a match.
+
+**Starts (basisplaatsen) count only recorded matches.** A player's *starts* and
+the *% available* figure count only matches that were actually recorded (that
+produced stored minutes) — a match that was planned, with a line-up, but never
+played or recorded contributes nothing to either. Starts can therefore never
+exceed matches. For a multi-game-day tournament the line-up-derived "starts" are
+approximate (one line-up covers several games), so the recorded *minutes* are
+the meaningful figure there, not the start count.
+
 Every player's minutes total is a **drill-down**: open it to see the per-match
 rows that sum to it — date, match, type, source (`actual` recorded minutes) and
 minutes. The breakdown reconciles

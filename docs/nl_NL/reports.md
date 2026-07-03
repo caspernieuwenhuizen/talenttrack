@@ -73,6 +73,26 @@ alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
 is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
 herleid uit de geplande opstelling.
 
+**Wedstrijden, games en toernooien tellen allemaal mee.** De minutenrapporten
+behandelen wedstrijden, games en toernooien op dezelfde manier — elk is een
+activiteit die minuten oplevert. Een toernooi met één wedstrijd legt minuten
+precies als een wedstrijd vast (opstelling plannen, het live-wedstrijdscherm
+draaien, afronden); een toernooidag met meerdere wedstrijden legt minuten vast
+met de handmatige invoer per speler op het aanwezigheidsscherm (hoeveel minuten
+elke speler die dag daadwerkelijk speelde). Hoe dan ook belanden de minuten op de
+aanwezigheidsregel en leest elk rapport ze. Een toernooi zonder vastgelegde
+minuten toont nog steeds niets — dezelfde eerlijke nul als een wedstrijd.
+
+**Basisplaatsen tellen alleen vastgelegde wedstrijden.** De *basisplaatsen* van
+een speler en het *% beschikbaar* tellen alleen wedstrijden die daadwerkelijk zijn
+vastgelegd (die minuten hebben opgeleverd) — een wedstrijd die wel gepland was,
+met een opstelling, maar nooit gespeeld of vastgelegd werd, telt voor geen van
+beide mee. Basisplaatsen kunnen daarom nooit meer zijn dan wedstrijden. Voor een
+toernooidag met meerdere wedstrijden zijn de uit de opstelling afgeleide
+"basisplaatsen" bij benadering (één opstelling dekt meerdere wedstrijden), dus
+zijn daar de vastgelegde *minuten* de betekenisvolle waarde, niet het aantal
+basisplaatsen.
+
 Het minutentotaal van elke speler is een **drill-down**: open het om de rijen per
 wedstrijd te zien die optellen tot het totaal — datum, wedstrijd, type, bron
 (`werkelijk` vastgelegde minuten) en minuten. De uitsplitsing sluit exact aan op

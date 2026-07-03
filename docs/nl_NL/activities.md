@@ -85,6 +85,15 @@ Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit
 
 Wanneer je een **wedstrijd**-type activiteit voltooit die nooit live is gevolgd, krijgt de aanwezigheidsstap van de wizard kolommen **Basisspeler** en **Minuten** zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld. De minuten voeden het minutenrapport en het belastingsbeeld van de speler. Voor een wedstrijd die je *wel* live volgde, komen de minuten uit het afronden van de wedstrijduitvoering.
 
+### Toernooiminuten
+
+**Ook toernooien leggen minuten vast** — het is een minuut-dragend type net als een wedstrijd. Hoe je ze vastlegt hangt af van het toernooi:
+
+- **Toernooi met één wedstrijd** — plan een **wedstrijdvoorbereiding** (opstelling) en draai het **live-wedstrijd**scherm precies zoals bij een wedstrijd; de minuten komen uit het afronden. De knoppen **Wedstrijdvoorbereiding plannen** en de wedstrijddag-CTA's verschijnen op de detailweergave van een toernooi net als bij een wedstrijd.
+- **Toernooidag met meerdere wedstrijden** — leg de minuten met de hand vast via de **Minuten**-invoer op het aanwezigheidsscherm (dezelfde kolommen Basisspeler/Minuten als bij een papieren wedstrijd), waarbij je registreert hoeveel minuten elke speler die dag heeft gespeeld.
+
+Beide paden schrijven de vastgelegde minuten naar de aanwezigheidsregel, zodat de minutenrapporten ze oppikken. Voor een dag met meerdere wedstrijden zijn de uit de opstelling afgeleide **basisplaatsen** bij benadering — één opstelling dekt meerdere wedstrijden — dus zijn de vastgelegde *minuten* de betekenisvolle waarde, niet het aantal basisplaatsen. Een toernooi zonder vastgelegde minuten toont nog steeds 0, precies als een wedstrijd.
+
 In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedstrijden, toernooien, besprekingen en overige activiteiten in één oogopslag te onderscheiden zijn.
 
 ## Verwachte opkomst
