@@ -306,6 +306,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
                     AND a.archived_at IS NULL
                     AND a.trashed_at IS NULL
+                    AND a.plan_state <> 'cancelled'
+                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
@@ -402,6 +404,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                       JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
                            AND a.archived_at IS NULL
                            AND a.trashed_at IS NULL
+                           AND a.plan_state <> 'cancelled'
+                           AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
                      WHERE att.record_type = 'actual'
                        AND att.is_guest = 0
                        AND a.activity_type_key IN ('match','game','tournament')

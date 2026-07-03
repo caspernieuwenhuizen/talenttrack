@@ -230,6 +230,39 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
         $this->assertSame( 60, (int) $breakdown[0]['minutes'] );
     }
 
+    /**
+     * #2259 — cancelled matches must contribute NOTHING to the minutes
+     * report. An activity is cancelled when EITHER `plan_state='cancelled'`
+     * OR `activity_status_key='cancelled'`; both markers must exclude it,
+     * even when recorded actual minutes exist. A live (non-cancelled) match
+     * with identical data is unaffected.
+     */
+    public function test_cancelled_matches_are_excluded(): void {
+        global $wpdb;
+        $team_id   = $this->insertTeam( 'U17 cancelled' );
+        $player_id = $this->insertPlayer( $team_id, 'Can', 'Celled' );
+
+        $live            = $this->insertMatch( $team_id, '2026-09-01' );
+        $cancelled_plan  = $this->insertMatch( $team_id, '2026-09-08' );
+        $cancelled_stat  = $this->insertMatch( $team_id, '2026-09-15' );
+
+        $this->insertAttendance( $live,           $player_id, 'actual', 0, 60 );
+        $this->insertAttendance( $cancelled_plan, $player_id, 'actual', 0, 90 );
+        $this->insertAttendance( $cancelled_stat, $player_id, 'actual', 0, 90 );
+
+        // Two cancellation markers: plan_state on one, activity_status_key
+        // on the other. Either must exclude the match.
+        $wpdb->update( "{$this->p}tt_activities", [ 'plan_state' => 'cancelled' ], [ 'id' => $cancelled_plan ] );
+        $wpdb->update( "{$this->p}tt_activities", [ 'activity_status_key' => 'cancelled' ], [ 'id' => $cancelled_stat ] );
+
+        $rows = ( new MinutesQuery() )->forTeam( $team_id, '2026-01-01', '2026-12-31' );
+        $this->assertSame( 60, $this->totalFor( $rows, $player_id ), 'only the live match counts; cancelled (by either marker) excluded' );
+
+        $breakdown = ( new MinutesQuery() )->matchBreakdownForPlayer( $team_id, $player_id, '2026-01-01', '2026-12-31' );
+        $this->assertCount( 1, $breakdown, 'the per-match breakdown must contain only the live match' );
+        $this->assertSame( 60, (int) $breakdown[0]['minutes'] );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     /** @param list<array<string,mixed>> $rows */

@@ -253,6 +253,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
+               AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
                AND a.session_date <= CURDATE()
                {$where_type}
                {$where_scope}

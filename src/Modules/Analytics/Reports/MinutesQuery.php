@@ -63,6 +63,8 @@ final class MinutesQuery {
                 AND session_date BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
+                AND plan_state <> 'cancelled'
+                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
               ORDER BY session_date ASC",
             $club_id, $team_id, $from, $to
         ) );
@@ -296,6 +298,8 @@ final class MinutesQuery {
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
+                AND plan_state <> 'cancelled'
+                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
               ORDER BY {$date_col} ASC",
             $club_id, $team_id, $from, $to
         ) );
