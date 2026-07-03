@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.72.0
+Stable tag: 4.73.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.0 — Team minutes report: planned (unrecorded) matches no longer counted as starts (#2252) The team minutes report (Reports → Minutes played per player) could show more starts (basisplaatsen) than matches — e.g. "3 basisplaatsen, 1 wedstrijd" — which is impossible, and it inflated the "% available" figure to match. The cause: starts, available minutes and substitutions were accumulated from every planned prep line-up, including matches that were planned but never played or recorded, while matches and total minutes correctly counted only recorded matches. Now a match contributes to starts, available minutes and subs only when it actually produced recorded minutes, exactly like matches and totals already did. A planned-but-unrecorded match contributes 0 across the board, so starts can never exceed matches. Recorded minutes totals are unchanged. =
+
+= 4.73.0 — Tournament minutes: recordable and counted in the minutes reports (#2253) Tournaments are now treated as a minutes-bearing activity type just like matches and games, everywhere. A single-game tournament can be planned and run through the live match surface (match prep + execution) exactly like a match; a multi-game-day tournament records minutes with the by-hand per-player minutes entry on the attendance screen. Both write the recorded minutes to the attendance row. The team and player minutes reports now use one consistent activity-type set (match, game, tournament), so a player who played tournament minutes shows those minutes instead of a 0. No fabrication: a tournament with no recorded minutes still shows 0, and for a multi-game day the line-up-derived starts are approximate — the recorded minutes are the meaningful figure. =
 
 = 4.72.0 — Complete-activity buttons launch the type-aware evaluation flow (#2245) Completing an activity is now an explicit button, not a status dropdown. A planned activity shows **Complete activity** on both its list card and its detail view; the button is type-aware — training and paper matches open the evaluation wizard (matches also collect minutes), while a live-tracked match routes to its Resume/Finalize flow. The activity only flips to completed when the flow finishes, so abandoning leaves it planned. The detail view gains **Cancel activity** / **Reopen** as direct confirmed status changes. The edit form no longer changes status or holds the inline attendance table — it edits details only. =
 
