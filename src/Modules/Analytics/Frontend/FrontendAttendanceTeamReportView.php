@@ -247,7 +247,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
                 SUM( CASE WHEN LOWER(att.status) = 'excused' THEN 1 ELSE 0 END ) AS excused,
                 SUM( CASE WHEN LOWER(att.status) = 'injured' THEN 1 ELSE 0 END ) AS injured
               FROM {$wpdb->prefix}tt_teams t
-              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
+              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL AND a.trashed_at IS NULL
               JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
              WHERE t.club_id = %d
                AND att.record_type = 'actual'

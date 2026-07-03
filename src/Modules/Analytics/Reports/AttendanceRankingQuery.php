@@ -92,7 +92,7 @@ final class AttendanceRankingQuery {
                 SUM( CASE WHEN LOWER(att.status) = 'excused' THEN 1 ELSE 0 END ) AS excused,
                 SUM( CASE WHEN LOWER(att.status) = 'injured' THEN 1 ELSE 0 END ) AS injured
               FROM {$wpdb->prefix}tt_attendance att
-              JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
+              JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL AND a.trashed_at IS NULL
               JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND p.archived_at IS NULL
               LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id
              WHERE p.club_id = %d
@@ -200,7 +200,7 @@ final class AttendanceRankingQuery {
         $recent = $wpdb->get_results( $wpdb->prepare(
             "SELECT LOWER(att.status) AS status
                FROM {$wpdb->prefix}tt_attendance att
-               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
+               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL AND a.trashed_at IS NULL
               WHERE att.player_id = %d
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'

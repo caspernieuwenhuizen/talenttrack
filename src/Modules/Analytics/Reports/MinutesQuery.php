@@ -61,6 +61,8 @@ final class MinutesQuery {
                 AND team_id = %d
                 AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
                 AND session_date BETWEEN %s AND %s
+                AND archived_at IS NULL
+                AND trashed_at IS NULL
               ORDER BY session_date ASC",
             $club_id, $team_id, $from, $to
         ) );
@@ -292,6 +294,8 @@ final class MinutesQuery {
                 AND team_id = %d
                 AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
                 AND {$date_col} BETWEEN %s AND %s
+                AND archived_at IS NULL
+                AND trashed_at IS NULL
               ORDER BY {$date_col} ASC",
             $club_id, $team_id, $from, $to
         ) );

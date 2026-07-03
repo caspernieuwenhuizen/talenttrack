@@ -304,6 +304,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     COALESCE( SUM( att.minutes_played ), 0 ) AS minutes_played
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
+                    AND a.archived_at IS NULL
+                    AND a.trashed_at IS NULL
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
@@ -398,6 +400,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                            SUM( att.minutes_played ) AS match_minutes
                       FROM {$wpdb->prefix}tt_attendance att
                       JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
+                           AND a.archived_at IS NULL
+                           AND a.trashed_at IS NULL
                      WHERE att.record_type = 'actual'
                        AND att.is_guest = 0
                        AND a.activity_type_key IN ('match','game','tournament')

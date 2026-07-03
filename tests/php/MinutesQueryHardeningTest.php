@@ -199,6 +199,37 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
         $this->assertSame( 120, (int) $breakdown[0]['minutes'] );
     }
 
+    /**
+     * #2257 — archived and trashed (recycle-bin) matches must contribute
+     * NOTHING to the minutes report. An archived match or a match moved to
+     * the recycle bin is not part of the live record; counting its minutes
+     * inflates totals and starts. A clean (non-archived, non-trashed) match
+     * with identical data is unaffected.
+     */
+    public function test_archived_and_trashed_matches_are_excluded(): void {
+        global $wpdb;
+        $team_id   = $this->insertTeam( 'U17 archived-trashed' );
+        $player_id = $this->insertPlayer( $team_id, 'Arch', 'Trash' );
+
+        $live     = $this->insertMatch( $team_id, '2026-08-01' );
+        $archived = $this->insertMatch( $team_id, '2026-08-08' );
+        $trashed  = $this->insertMatch( $team_id, '2026-08-15' );
+
+        $this->insertAttendance( $live,     $player_id, 'actual', 0, 60 );
+        $this->insertAttendance( $archived, $player_id, 'actual', 0, 90 );
+        $this->insertAttendance( $trashed,  $player_id, 'actual', 0, 90 );
+
+        $wpdb->update( "{$this->p}tt_activities", [ 'archived_at' => '2026-08-09 10:00:00' ], [ 'id' => $archived ] );
+        $wpdb->update( "{$this->p}tt_activities", [ 'trashed_at'  => '2026-08-16 10:00:00' ], [ 'id' => $trashed ] );
+
+        $rows = ( new MinutesQuery() )->forTeam( $team_id, '2026-01-01', '2026-12-31' );
+        $this->assertSame( 60, $this->totalFor( $rows, $player_id ), 'only the live match counts; archived + trashed excluded' );
+
+        $breakdown = ( new MinutesQuery() )->matchBreakdownForPlayer( $team_id, $player_id, '2026-01-01', '2026-12-31' );
+        $this->assertCount( 1, $breakdown, 'the per-match breakdown must contain only the live match' );
+        $this->assertSame( 60, (int) $breakdown[0]['minutes'] );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     /** @param list<array<string,mixed>> $rows */
