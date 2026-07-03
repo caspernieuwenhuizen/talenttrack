@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.71.0
+Stable tag: 4.72.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.72.0 — Complete-activity buttons launch the type-aware evaluation flow (#2245) Completing an activity is now an explicit button, not a status dropdown. A planned activity shows **Complete activity** on both its list card and its detail view; the button is type-aware — training and paper matches open the evaluation wizard (matches also collect minutes), while a live-tracked match routes to its Resume/Finalize flow. The activity only flips to completed when the flow finishes, so abandoning leaves it planned. The detail view gains **Cancel activity** / **Reopen** as direct confirmed status changes. The edit form no longer changes status or holds the inline attendance table — it edits details only. =
+
+= 4.72.0 — New-evaluation wizard opens with an explicit activity/player choice (#2246) The New-evaluation wizard now starts with a clear two-way choice — **Evaluate an activity** or **Evaluate 1 player** — instead of guessing the path from a hidden smart-default. Choosing an activity leads to the activity picker, attendance and rating; choosing a player leads to the player picker and deep rating. Previous returns to the two buttons, so switching paths is one tap. An empty activity list now shows guidance rather than silently jumping to the player path. =
+
+= 4.72.0 — One evaluation wizard behind every door (#2249) The dashboard "Mark attendance" hero, the activity completion buttons and the New-evaluation wizard now all reach the same unified flow. The old `mark-attendance` wizard is now a thin alias that seeds the activity branch, so existing links and bookmarks keep working. The activity path is attendance → "rate now?" → quick rating; behaviour rating moved to the "Evaluate 1 player" deep path so it isn't lost. No data-model change — the same attendance and evaluation rows are written as before. =
 
 = 4.71.0 — Planned attendance is now editable on the activity edit form (#2248) The planned (expected) roster is no longer frozen at activity creation. Edit a not-yet-completed activity and you get a **Planned attendance** section: one row per planned player with a status you can set — **Expected**, **Not coming** or **Maybe** — plus an optional note (e.g. "texted, injured"). Activities created with "Set attendance later" seed the section from the current team roster so you can start a plan from scratch. The detail page's Expected attendance panel now summarises who is away ("2 not coming · 1 maybe") and links straight to **Edit plan**.  Marking a player "Not coming" early carries into the later attendance defaults via the match-prep availability step. Planned rows are stored as `record_type='expected'` and are written independently of recorded (`actual`) attendance, so the attendance reports are unaffected. Reachable via `PUT /activities/{id}` (a `planned_attendance` sub-resource) and `GET /activities/{id}/planned-attendance`; gated on `tt_edit_activities`. No migration — "Maybe" reuses the existing `excused` status. =
 

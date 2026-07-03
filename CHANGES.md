@@ -1,3 +1,35 @@
+# TalentTrack v4.72.0 — Complete-activity buttons launch the type-aware evaluation flow (#2245)
+
+Completing an activity is now an explicit button, not a status dropdown.
+A planned activity shows **Complete activity** on both its list card and
+its detail view; the button is type-aware — training and paper matches
+open the evaluation wizard (matches also collect minutes), while a
+live-tracked match routes to its Resume/Finalize flow. The activity only
+flips to completed when the flow finishes, so abandoning leaves it
+planned. The detail view gains **Cancel activity** / **Reopen** as direct
+confirmed status changes. The edit form no longer changes status or holds
+the inline attendance table — it edits details only.
+
+# TalentTrack v4.72.0 — New-evaluation wizard opens with an explicit activity/player choice (#2246)
+
+The New-evaluation wizard now starts with a clear two-way choice —
+**Evaluate an activity** or **Evaluate 1 player** — instead of guessing
+the path from a hidden smart-default. Choosing an activity leads to the
+activity picker, attendance and rating; choosing a player leads to the
+player picker and deep rating. Previous returns to the two buttons, so
+switching paths is one tap. An empty activity list now shows guidance
+rather than silently jumping to the player path.
+
+# TalentTrack v4.72.0 — One evaluation wizard behind every door (#2249)
+
+The dashboard "Mark attendance" hero, the activity completion buttons and
+the New-evaluation wizard now all reach the same unified flow. The old
+`mark-attendance` wizard is now a thin alias that seeds the activity
+branch, so existing links and bookmarks keep working. The activity path
+is attendance → "rate now?" → quick rating; behaviour rating moved to the
+"Evaluate 1 player" deep path so it isn't lost. No data-model change —
+the same attendance and evaluation rows are written as before.
+
 # TalentTrack v4.71.0 — Planned attendance is now editable on the activity edit form (#2248)
 
 The planned (expected) roster is no longer frozen at activity creation. Edit
