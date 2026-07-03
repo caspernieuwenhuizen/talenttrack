@@ -79,7 +79,15 @@ In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedst
 
 Bij het aanmaken van een activiteit kies je welke spelers worden verwacht — de selectiestap staat standaard op het hele team, en je vinkt iedereen uit van wie je al weet dat die er niet is. Die keuze is de **geplande selectie** van de activiteit.
 
-Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je nog steeds op het bewerkformulier (of via de wizard Aanwezigheid markeren) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde.
+Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Zijn er spelers afgemeld, dan toont het paneel een samenvatting zoals *"2 komen niet · 1 misschien"* en wordt elke betrokken speler gemarkeerd. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je nog steeds op het bewerkformulier (of via de wizard Aanwezigheid markeren) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde.
+
+### De planning aanpassen (v4.71.0)
+
+De planning ligt niet vast bij het aanmaken. Bewerk je een activiteit die **nog niet is voltooid**, dan vind je een sectie **Geplande opkomst**: één rij per verwachte speler met een status die je kunt instellen — **Verwacht**, **Komt niet** of **Misschien** — plus een vrij **notitie**veld (bijv. "geappt, geblesseerd"). Opslaan en de planning is bijgewerkt. De link **Planning bewerken** in het detailpaneel brengt je er direct naartoe.
+
+Is de activiteit aangemaakt met "Aanwezigheid later instellen" (dus zonder geplande selectie), dan vult de sectie zich met de huidige teamselectie waarbij iedereen op **Verwacht** staat, zodat je vanaf nul kunt beginnen met plannen.
+
+Een speler vroeg op **Komt niet** zetten voedt de latere aanwezigheidsstandaarden: bij het voltooien van de activiteit weet de wedstrijdvoorbereidingsstap al wie je niet verwachtte, zodat je vroege notitie niet verloren gaat. Het aanpassen van de planning raakt nooit de geregistreerde (voltooide) aanwezigheid — die twee blijven gescheiden, dus de aanwezigheidsrapporten worden niet beïnvloed.
 
 Maak je een activiteit aan die **al op Voltooid staat** (ze vond in het verleden plaats) en vul je geen aanwezigheid in, dan wordt de volledige actieve selectie automatisch als **aanwezig** geregistreerd, zodat de activiteit meteen te beoordelen is — pas eventuele afwezigheden daarna aan op het bewerkformulier.
 

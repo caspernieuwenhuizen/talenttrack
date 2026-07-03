@@ -648,6 +648,16 @@ class ActivitiesRestController {
             }
         }
 
+        // #2248 — planned (expected) attendance edited on the activity
+        // form for a not-yet-completed activity. Separate from the
+        // actual-attendance block above: it only ever touches
+        // `record_type='expected'` rows, so recorded attendance and the
+        // reports (which count `actual`) are unaffected. Gated on the same
+        // `tt_edit_activities` cap as the whole PUT.
+        if ( isset( $r['planned'] ) && is_array( $r['planned'] ) ) {
+            $repo->replacePlannedAttendance( $activity_id, self::planned_attendance_from_request( $r ) );
+        }
+
         // v3.71.6 — see create_session above. Frontend updates were
         // not firing the workflow event, so a coach moving a game from
         // planned → completed via the frontend never triggered the
@@ -905,6 +915,75 @@ class ActivitiesRestController {
                 $row['minutes_played'] = $m === '' ? null : max( 0, (int) $m );
             }
             $out[ $pid ] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * #2248 — the plan-status keys the activity edit form submits, mapped
+     * to the stored `attendance_status`. Expected → present, Not coming →
+     * absent, Maybe → excused (reused so no lookup seed / migration is
+     * needed; the expected/actual `record_type` split keeps these rows out
+     * of the actual-attendance KPIs).
+     *
+     * @return array<string, string>
+     */
+    private static function plannedStatusMap(): array {
+        return [
+            'expected'   => 'present',
+            'not_coming' => 'absent',
+            'maybe'      => 'excused',
+        ];
+    }
+
+    /**
+     * #2248 — inverse of plannedStatusMap: the stored attendance_status
+     * (case-insensitive; tolerates a renamed lookup by matching the seed
+     * present/absent/excused keys) back to the plan-status key the form
+     * uses. Anything unrecognised defaults to 'expected'.
+     */
+    private static function plannedStatusToKey( string $status ): string {
+        $s = strtolower( trim( $status ) );
+        foreach ( self::plannedStatusMap() as $key => $stored ) {
+            if ( $s === $stored ) return $key;
+        }
+        return 'expected';
+    }
+
+    /**
+     * #2248 — read the `planned[{pid}][status|note]` sub-resource off the
+     * activity PUT and normalise it into rows the repository upserts as
+     * `record_type='expected'`. Guests already in the plan are flagged so
+     * the repository re-pins `is_guest`/`guest_player_id`.
+     *
+     * @return array<int, array{status:string, notes:string, is_guest:int}>
+     */
+    private static function planned_attendance_from_request( \WP_REST_Request $r ): array {
+        $raw = $r['planned'] ?? [];
+        if ( ! is_array( $raw ) ) return [];
+
+        // Which planned players are guests? Look at the current expected
+        // rows so we preserve the guest flag the form can't re-derive.
+        $guest_ids = [];
+        foreach ( self::repo()->plannedRosterForActivity( absint( $r['id'] ) ) as $row ) {
+            if ( (int) ( $row->is_guest ?? 0 ) === 1 ) {
+                $guest_ids[ (int) $row->player_id ] = true;
+            }
+        }
+
+        $map = self::plannedStatusMap();
+        $out = [];
+        foreach ( $raw as $player_id => $fields ) {
+            if ( ! is_array( $fields ) ) continue;
+            $pid = absint( $player_id );
+            if ( $pid <= 0 ) continue;
+            $plan_key = sanitize_text_field( (string) ( $fields['status'] ?? 'expected' ) );
+            $stored   = $map[ $plan_key ] ?? 'present';
+            $out[ $pid ] = [
+                'status'   => $stored,
+                'notes'    => sanitize_text_field( (string) ( $fields['note'] ?? '' ) ),
+                'is_guest' => isset( $guest_ids[ $pid ] ) ? 1 : 0,
+            ];
         }
         return $out;
     }
@@ -1171,10 +1250,16 @@ class ActivitiesRestController {
 
         $roster = $repo->plannedRosterForActivity( $id );
         $out = array_map( static function ( $row ) {
+            $status = (string) ( $row->status ?? '' );
             return [
-                'player_id' => (int) ( $row->player_id ?? 0 ),
-                'is_guest'  => (int) ( $row->is_guest ?? 0 ) === 1,
-                'name'      => (string) ( $row->name ?? '' ),
+                'player_id'   => (int) ( $row->player_id ?? 0 ),
+                'is_guest'    => (int) ( $row->is_guest ?? 0 ) === 1,
+                'name'        => (string) ( $row->name ?? '' ),
+                // #2248 — the raw attendance_status stored on the expected
+                // row plus its plan meaning (expected / not_coming / maybe).
+                'status'      => $status,
+                'plan_status' => self::plannedStatusToKey( $status ),
+                'notes'       => (string) ( $row->notes ?? '' ),
             ];
         }, $roster );
 

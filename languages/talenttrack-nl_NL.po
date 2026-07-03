@@ -46235,6 +46235,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Planned attendance"
+msgstr "Geplande opkomst"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Set who you expect before the activity happens. This carries into the attendance defaults once it is completed."
+msgstr "Stel in wie je verwacht voordat de activiteit plaatsvindt. Dit wordt overgenomen in de aanwezigheidsstandaarden zodra ze is voltooid."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Expected"
+msgstr "Verwacht"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Not coming"
+msgstr "Komt niet"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Maybe"
+msgstr "Misschien"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Edit plan"
+msgstr "Planning bewerken"
+
+#. translators: %d = number of players marked not coming
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d not coming"
+msgid_plural "%d not coming"
+msgstr[0] "%d komt niet"
+msgstr[1] "%d komen niet"
+
+#. translators: %d = number of players marked maybe
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d maybe"
+msgid_plural "%d maybe"
+msgstr[0] "%d misschien"
+msgstr[1] "%d misschien"
+
 #, php-format
 #~ msgid "%d past, still planned"
 #~ msgid_plural "%d past, still planned"

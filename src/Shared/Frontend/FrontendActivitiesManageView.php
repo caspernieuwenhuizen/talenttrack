@@ -841,6 +841,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ->plannedRosterForActivity( $activity_id );
         if ( empty( $roster ) ) return;
 
+        // #2248 — the plan now carries a per-player status (Expected /
+        // Not coming / Maybe). Summarise the non-expected ones so a coach
+        // scanning the card sees "2 not coming" at a glance.
+        $not_coming = 0;
+        $maybe      = 0;
+        foreach ( $roster as $row ) {
+            $s = strtolower( trim( (string) ( $row->status ?? '' ) ) );
+            if ( $s === 'absent' )  $not_coming++;
+            if ( $s === 'excused' ) $maybe++;
+        }
+
+        // #2248 — matrix-aware edit gate for the "Edit plan" link.
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+        $edit_url = '';
+        if ( $can_edit ) {
+            $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg(
+                    [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                )
+            );
+        }
+
         echo '<div class="tt-act-card-d">';
         echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
             . esc_html(
@@ -850,15 +873,38 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     count( $roster )
                 )
             )
-            . '</h3></div>';
+            . '</h3>';
+        if ( $edit_url !== '' ) {
+            echo '<a class="tt-act-card-d__link" href="' . esc_url( $edit_url ) . '">'
+                . esc_html__( 'Edit plan', 'talenttrack' ) . ' →</a>';
+        }
+        echo '</div>';
+        if ( $not_coming > 0 || $maybe > 0 ) {
+            $bits = [];
+            if ( $not_coming > 0 ) {
+                /* translators: %d = number of players marked not coming */
+                $bits[] = sprintf( _n( '%d not coming', '%d not coming', $not_coming, 'talenttrack' ), $not_coming );
+            }
+            if ( $maybe > 0 ) {
+                /* translators: %d = number of players marked maybe */
+                $bits[] = sprintf( _n( '%d maybe', '%d maybe', $maybe, 'talenttrack' ), $maybe );
+            }
+            echo '<p class="tt-act-card-d__sub">' . esc_html( implode( ' · ', $bits ) ) . '</p>';
+        }
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
             $name     = (string) ( $row->name ?? '' );
             $is_guest = (int) ( $row->is_guest ?? 0 ) === 1;
+            $s        = strtolower( trim( (string) ( $row->status ?? '' ) ) );
+            $label    = $s === 'absent'  ? __( 'Not coming', 'talenttrack' )
+                      : ( $s === 'excused' ? __( 'Maybe', 'talenttrack' ) : '' );
             echo '<span class="tt-act-rp">';
             echo esc_html( $name );
             if ( $is_guest ) {
                 echo ' <span class="tt-act-rp__guest">' . esc_html__( 'Guest', 'talenttrack' ) . '</span>';
+            }
+            if ( $label !== '' ) {
+                echo ' <span class="tt-act-rp__plan">' . esc_html( $label ) . '</span>';
             }
             echo '</span>';
         }
@@ -2320,7 +2366,97 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $participation = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
                     ->matchParticipationSummary( $match_id, $match_length );
             }
+
+            // #2248 — planned (expected) attendance is editable while the
+            // activity has NOT yet happened (inverse of $attendance_visible).
+            // Seeded from the stored expected rows; when none exist (the
+            // "set attendance later" path) the current team roster seeds the
+            // plan, all defaulting to Expected. The repository owns the read
+            // (§4); the view only composes rows.
+            // Edit-only: the create path (POST /activities) has no planned
+            // write handler, so seeding a plan there would silently drop it.
+            $planned_visible = $is_edit && ! $attendance_visible;
+            $planned_rows    = [];
+            if ( $is_edit && $match_id > 0 ) {
+                foreach ( ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+                    ->plannedRosterForActivity( $match_id ) as $prow ) {
+                    $planned_rows[ (int) $prow->player_id ] = $prow;
+                }
+            }
+            // Seed from the team roster when the plan is still empty so the
+            // coach can start managing it (all default to Expected).
+            if ( empty( $planned_rows ) ) {
+                foreach ( $all_players as $pid => $pl ) {
+                    $planned_rows[ (int) $pid ] = (object) [
+                        'player_id' => (int) $pid,
+                        'is_guest'  => 0,
+                        'name'      => QueryHelpers::player_display_name( $pl ),
+                        'status'    => '',
+                        'notes'     => '',
+                    ];
+                }
+            }
+            // Plan-status → stored attendance_status map (mirrors the REST
+            // controller). Kept here only to pre-select the right option.
+            $plan_status_options = [
+                'expected'   => __( 'Expected', 'talenttrack' ),
+                'not_coming' => __( 'Not coming', 'talenttrack' ),
+                'maybe'      => __( 'Maybe', 'talenttrack' ),
+            ];
+            $stored_to_plan_key = static function ( string $stored ): string {
+                $s = strtolower( trim( $stored ) );
+                if ( $s === 'absent' )  return 'not_coming';
+                if ( $s === 'excused' ) return 'maybe';
+                return 'expected';
+            };
             ?>
+            <?php if ( $is_edit ) : ?>
+            <div class="tt-planned-attendance" data-tt-planned-section<?php echo $planned_visible ? '' : ' hidden'; ?>>
+                <h3 class="tt-planned-attendance__title"><?php esc_html_e( 'Planned attendance', 'talenttrack' ); ?></h3>
+                <p class="tt-planned-attendance__hint">
+                    <?php esc_html_e( 'Set who you expect before the activity happens. This carries into the attendance defaults once it is completed.', 'talenttrack' ); ?>
+                </p>
+                <?php if ( empty( $planned_rows ) ) : ?>
+                    <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
+                <?php else : ?>
+                    <table class="tt-table tt-attendance-table">
+                        <thead><tr>
+                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
+                        </tr></thead>
+                        <tbody>
+                        <?php foreach ( $planned_rows as $pid => $prow ) :
+                            $pid        = (int) $pid;
+                            $plan_key   = $stored_to_plan_key( (string) ( $prow->status ?? '' ) );
+                            $prow_notes = (string) ( $prow->notes ?? '' );
+                            $prow_guest = (int) ( $prow->is_guest ?? 0 ) === 1;
+                            ?>
+                            <tr class="tt-attendance-row">
+                                <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
+                                    <?php echo esc_html( (string) ( $prow->name ?? ( '#' . $pid ) ) ); ?>
+                                    <?php if ( $prow_guest ) : ?>
+                                        <span class="tt-planned-guest"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                                    <select class="tt-input tt-attendance-status" name="planned[<?php echo $pid; ?>][status]">
+                                        <?php foreach ( $plan_status_options as $opt_key => $opt_label ) : ?>
+                                            <option value="<?php echo esc_attr( $opt_key ); ?>" <?php selected( $plan_key, $opt_key ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td data-label="<?php esc_attr_e( 'Note', 'talenttrack' ); ?>">
+                                    <input type="text" class="tt-input" name="planned[<?php echo $pid; ?>][note]" value="<?php echo esc_attr( $prow_notes ); ?>" />
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
+            <?php endif; // $is_edit planned section ?>
+
             <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
 
@@ -2421,10 +2557,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( ! statusSel ) return;
                 var section = document.querySelector('[data-tt-attendance-section]');
                 var hint    = document.querySelector('[data-tt-attendance-hidden-hint]');
+                var planned = document.querySelector('[data-tt-planned-section]');
+                // #2248 — a hidden section's inputs still POST, which would
+                // let a planned edit write actual rows (and vice-versa).
+                // Disable the fields of whichever section is hidden so
+                // exactly one attendance payload (att[] OR planned[]) submits,
+                // keeping the expected/actual record_type split intact.
+                function setDisabled( scope, off ){
+                    if ( ! scope ) return;
+                    var fields = scope.querySelectorAll('input, select, textarea');
+                    for ( var i = 0; i < fields.length; i++ ) { fields[i].disabled = off; }
+                }
                 function sync(){
                     var ok = statusSel.value === 'completed';
                     if ( section ) section.toggleAttribute('hidden', ! ok);
                     if ( hint )    hint.toggleAttribute('hidden', ok);
+                    // #2248 — planned attendance is the inverse: editable
+                    // only while the activity has not yet been completed.
+                    if ( planned ) planned.toggleAttribute('hidden', ok);
+                    setDisabled( section, ! ok );
+                    setDisabled( planned, ok );
                 }
                 statusSel.addEventListener('change', sync);
                 sync();
