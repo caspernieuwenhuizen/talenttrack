@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.73.1
+Stable tag: 4.73.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.2 — Reports: exclude archived + trashed activities from minutes & attendance (#2257) Minutes and attendance reports no longer count activities that have been archived or moved to the recycle bin. Every report surface — team minutes, player minutes, the attendance team report, the attendance leaderboard, and the at-risk list — now filters out both `archived_at` and `trashed_at` activities, so an archived or binned match can no longer inflate minutes, starts, attendance %, or activity counts. Numbers for clean (live) data are unchanged. Query-only change. =
 
 = 4.73.1 — Wizard: cleaner branched progress rail + Cancel always exits (#2254) Wizards that branch (like the evaluation wizard's "Evaluate an activity" vs "Evaluate 1 player" choice) now show a clean progress rail: only the steps on the path you actually picked appear, instead of listing both branches with half of them greyed out as "Not applicable". The step counter reflects the active path too.  Cancel no longer loops. Previously, after moving through a step or two, the Cancel link could send you back into the same wizard (its own URL had become the browser referer) — an inescapable loop. Cancel now always returns you to where you opened the wizard from (the list you came from, otherwise the dashboard), never back into the wizard. Framework-level, so every wizard benefits. =
 
