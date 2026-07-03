@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.70.0
+Stable tag: 4.71.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.71.0 — Planned attendance is now editable on the activity edit form (#2248) The planned (expected) roster is no longer frozen at activity creation. Edit a not-yet-completed activity and you get a **Planned attendance** section: one row per planned player with a status you can set — **Expected**, **Not coming** or **Maybe** — plus an optional note (e.g. "texted, injured"). Activities created with "Set attendance later" seed the section from the current team roster so you can start a plan from scratch. The detail page's Expected attendance panel now summarises who is away ("2 not coming · 1 maybe") and links straight to **Edit plan**.  Marking a player "Not coming" early carries into the later attendance defaults via the match-prep availability step. Planned rows are stored as `record_type='expected'` and are written independently of recorded (`actual`) attendance, so the attendance reports are unaffected. Reachable via `PUT /activities/{id}` (a `planned_attendance` sub-resource) and `GET /activities/{id}/planned-attendance`; gated on `tt_edit_activities`. No migration — "Maybe" reuses the existing `excused` status. =
 
 = 4.70.0 — Frontend authoring for the club vision + framework primer (#2226) The methodology authoring surface gains two more tabs: **Vision** and **Framework primer** (Raamwerk). Both are single-record editors — each club has exactly one vision and one framework primer — so the tab opens straight onto its edit form (no list, no "+ New", no delete). The Vision tab edits the formation, style of play, way of playing, important traits and notes; the Framework primer tab edits the title, tagline and every intro section (inleiding, per-theme toelichtingen for voetbalmodel, voetbalhandelingen, the four phases, learning goals and influence factors, plus reflection and future). Every field carries side-by-side Dutch + English inputs, and the first save creates the record while later saves update it. The shipped sample vision and shipped primer stay read-only. What you save is reflected on the read view's Visie and Raamwerk tabs.  Both are also exposed over REST at `/wp-json/talenttrack/v1/methodology/vision` and `/wp-json/talenttrack/v1/methodology/framework-primer` (GET + PUT, read and update only — no create/delete for the singletons), club-scoped and gated on `tt_edit_methodology`, so a future SaaS front end gets identical answers. =
 
