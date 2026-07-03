@@ -103,13 +103,15 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             // jargon a coach uses, and in the populated state there's
             // nothing left to select.
             $primary_label  = __( 'Pick an activity', 'talenttrack' );
-            // v3.110.84 — `restart=1` forces a fresh wizard run.
-            // Belt-and-suspenders alongside the autosave removal: even
-            // if a stale `tt_wizard_drafts` row somehow lingered, the
-            // hero entry CTA always nukes the wizard state before
-            // first render. Coaches expect the hero to start a new
-            // motion, not resume an abandoned one.
-            $primary_url    = add_query_arg( [ 'restart' => 1 ], WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) ) );
+            // #2249 — the hero lands directly in the unified evaluation
+            // wizard's activity branch (`mode=activity`), skipping the
+            // mode step. `restart=1` forces a fresh run so a stale
+            // draft never resurrects the hero at an abandoned step.
+            $primary_url    = WizardEntryPoint::urlFor(
+                'new-evaluation',
+                $ctx->viewUrl( 'activities' ),
+                [ 'mode' => 'activity', 'restart' => 1 ]
+            );
             $secondary_html = '';
         } else {
             $aid     = (int) $next->id;
@@ -128,13 +130,20 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
                 : ( $user_title !== '' ? $user_title : __( 'Activity', 'talenttrack' ) );
             $detail     = self::buildDetail( $next, $type_label !== '' ? $user_title : '' );
 
-            $wizard_base   = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
+            // #2249 — land directly in the unified evaluation wizard's
+            // activity branch (`mode=activity` + `activity_id`), skipping
+            // the mode step and picker.
+            $wizard_base   = WizardEntryPoint::urlFor(
+                'new-evaluation',
+                $ctx->viewUrl( 'activities' ),
+                [ 'mode' => 'activity' ]
+            );
             // #1350 — resume instead of restart when an in-flight run
             // for THIS activity exists: a coach who stepped away
             // mid-attendance and taps the hero again expects to land
             // where they were, not lose the run. A run for a different
-            // activity (or none) keeps the v3.110.84 fresh-start nuke.
-            $in_flight   = WizardState::load( $ctx->user_id, 'mark-attendance' );
+            // activity (or none) keeps the fresh-start nuke.
+            $in_flight   = WizardState::load( $ctx->user_id, 'new-evaluation' );
             $resume_same = (int) ( $in_flight['activity_id'] ?? 0 ) === $aid;
             $url_args    = [ 'activity_id' => $aid ];
             if ( ! $resume_same ) {

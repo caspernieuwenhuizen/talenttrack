@@ -1,5 +1,5 @@
 <?php
-namespace TT\Modules\Wizards\MarkAttendance;
+namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -8,39 +8,48 @@ use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * RateConfirmStep (#0092) — the at-the-pitch fork.
+ * RateConfirmStep (#0092, relocated to the Evaluation namespace in
+ * #2249) — the "rate now?" fork on the unified activity path.
  *
- * Sits between AttendanceStep and RateActorsStep in the
- * `mark-attendance` wizard. The coach has already saved attendance
- * (AttendanceStep persisted real `tt_attendance` rows in its
- * validate()). This step asks the only useful question that's left:
+ * Sits between AttendanceStep and RateActorsStep. The coach has already
+ * saved attendance (AttendanceStep persisted real `tt_attendance` rows
+ * in its validate()). This step asks the only useful question left:
  * "do you want to rate the players who were here, or are we done?"
  *
  *   - "Rate the present players" → nextStep returns `rate-actors`,
- *     dropping the coach into the existing roster-style rating UX.
- *   - "Skip rating, save attendance" → nextStep returns `null` so
- *     the framework calls submit(), which clears wizard state and
- *     redirects back to the activity detail page. No `tt_evaluations`
- *     rows are written.
+ *     dropping the coach into the roster-style rating UX.
+ *   - "Skip rating" → nextStep returns `null` so the framework calls
+ *     submit(), which flips the activity to completed, clears wizard
+ *     state, and redirects. No `tt_evaluations` rows are written.
  *
  * No persistence happens in this step's validate(). Attendance was
  * already written by AttendanceStep; evaluations are written by the
  * downstream ReviewStep if the coach proceeds.
+ *
+ * Applies only on the activity path (`_path = 'activity-first'`); the
+ * player path never routes through here.
  */
 final class RateConfirmStep implements WizardStepInterface {
 
     public function slug(): string  { return 'rate-confirm'; }
     public function label(): string { return __( 'Rate now?', 'talenttrack' ); }
 
+    public function notApplicableFor( array $state ): bool {
+        return ( $state['_path'] ?? '' ) !== 'activity-first';
+    }
+
     public function render( array $state ): void {
+        if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
+            wp_enqueue_style( 'tt-rate-confirm', TT_PLUGIN_URL . 'assets/css/rate-confirm.css', [], TT_VERSION );
+        }
         $aid     = (int) ( $state['activity_id'] ?? 0 );
         $present = self::countRatable( $aid );
         ?>
-        <p style="color:var(--tt-muted);max-width:60ch;">
+        <p class="tt-rate-confirm-intro">
             <?php esc_html_e( "Attendance is saved. While you're here, do you want to rate the players who were present?", 'talenttrack' ); ?>
         </p>
         <?php if ( $present > 0 ) : ?>
-            <p style="margin: var(--tt-sp-2, 12px) 0; color: var(--tt-muted);">
+            <p class="tt-rate-confirm-count">
                 <?php
                 printf(
                     /* translators: %d: number of players present or late on the activity */
@@ -51,17 +60,17 @@ final class RateConfirmStep implements WizardStepInterface {
             </p>
         <?php endif; ?>
 
-        <div class="tt-rate-confirm-actions" style="display:flex; flex-direction:column; gap:12px; margin: var(--tt-sp-3, 16px) 0;">
-            <button type="submit" name="_rate_choice" value="yes" class="tt-button tt-button-primary" style="min-height:56px; font-size:1.05rem;">
+        <div class="tt-rate-confirm-actions">
+            <button type="submit" name="_rate_choice" value="yes" class="tt-button tt-button-primary tt-rate-confirm-btn">
                 <?php esc_html_e( 'Rate the present players', 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_open" class="tt-button tt-button-secondary" style="min-height:56px;" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_open" class="tt-button tt-button-secondary tt-rate-confirm-btn" formnovalidate>
                 <?php esc_html_e( "Skip rating — I'll rate later", 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-button tt-button-secondary" style="min-height:56px;" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-button tt-button-secondary tt-rate-confirm-btn" formnovalidate>
                 <?php esc_html_e( 'Skip rating — no rating needed', 'talenttrack' ); ?>
             </button>
-            <p class="tt-muted" style="font-size:13px;margin:0;">
+            <p class="tt-rate-confirm-hint">
                 <?php esc_html_e( "I'll rate later: activity stays available for rating from the eval wizard. No rating needed: activity is closed and won't appear in the rating picker anymore (can be re-opened from the activity detail).", 'talenttrack' ); ?>
             </p>
         </div>
@@ -74,11 +83,9 @@ final class RateConfirmStep implements WizardStepInterface {
 
     public function validate( array $post, array $state ) {
         $choice = isset( $post['_rate_choice'] ) ? sanitize_key( (string) $post['_rate_choice'] ) : '';
-        // v3.110.138 — three-way choice (was binary). The "skip_closed"
-        // branch sets `evaluation_skipped=1` on the activity so the
-        // eval-wizard's picker filters it out. The "skip_open" branch
-        // keeps the activity rateable; the coach can return to it via
-        // the picker later. "yes" advances to the rating step.
+        // Three-way choice: "skip_closed" sets `evaluation_skipped=1` on
+        // the activity so the eval-wizard's picker filters it out;
+        // "skip_open" keeps the activity rateable; "yes" advances.
         $closed = $choice === 'skip_closed';
         $skip   = $choice !== 'yes';
         return [
@@ -94,44 +101,27 @@ final class RateConfirmStep implements WizardStepInterface {
 
     /**
      * Skip path — wizard exits here. Attendance was already persisted by
-     * AttendanceStep; no evaluation rows to write. Returns a redirect to
-     * the activity's detail page so the coach lands on the surface
-     * where they can edit attendance after the fact if needed.
+     * AttendanceStep; no evaluation rows to write. Flips the activity to
+     * completed and redirects.
      *
      * @return array<string,mixed>
      */
     public function submit( array $state ) {
         $aid = (int) ( $state['activity_id'] ?? 0 );
 
-        // v3.110.81 — terminal completion. Flip the activity to
-        // `completed` HERE (the Skip-rating exit), not in
-        // AttendanceStep::validate. The earlier placement caused the
-        // activity to disappear from the hero mid-wizard whenever the
-        // coach saved attendance then Cancelled — they hadn't
-        // finished the flow but the auto-flip had already run.
         if ( $aid > 0 ) {
-            \TT\Modules\Wizards\Evaluation\AttendanceStep::completeActivityIfNotTerminal( $aid );
+            AttendanceStep::completeActivityIfNotTerminal( $aid );
 
-            // v3.110.138 — when the coach chose "Skip rating — no
-            // rating needed", flip `evaluation_skipped=1` so the
-            // eval-wizard's activity picker filters this row out.
-            // Reversible from the activity detail view.
             if ( ! empty( $state['_skip_closes_rating'] ) ) {
                 global $wpdb;
                 $wpdb->update(
                     $wpdb->prefix . 'tt_activities',
                     [ 'evaluation_skipped' => 1 ],
-                    [ 'id' => $aid, 'club_id' => \TT\Infrastructure\Tenancy\CurrentClub::id() ]
+                    [ 'id' => $aid, 'club_id' => CurrentClub::id() ]
                 );
             }
         }
 
-        // v3.110.73 — respect `_done_redirect` from the wizard's initial
-        // state so the coach returns to where they started the flow
-        // (the dashboard hero, per MarkAttendanceWizard::initialState).
-        // Falls back to the activity detail page when the hint isn't
-        // set — keeps a sensible "see what you just saved" landing for
-        // any future caller that uses this step without the hint.
         $override = isset( $state['_done_redirect'] ) ? (string) $state['_done_redirect'] : '';
         if ( $override !== '' ) {
             return [ 'redirect_url' => $override ];
@@ -146,14 +136,6 @@ final class RateConfirmStep implements WizardStepInterface {
         if ( $activity_id <= 0 ) return 0;
         global $wpdb;
         $p = $wpdb->prefix;
-        // v3.110.78 — case-insensitive status match. Pre-v3.110.78
-        // this hardcoded `status IN ('present', 'late')` and missed
-        // any row whose status had a different case (e.g. 'Present'
-        // from the legacy form path before the v3.110.4 normalisation
-        // hadn't yet run) or a localised value if a club ever renamed
-        // the lookups. Symptom: RateConfirmStep displayed
-        // "0 players marked Present or Late" right after the coach
-        // had just saved a roster of presents on the prior step.
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance
               WHERE activity_id = %d AND club_id = %d

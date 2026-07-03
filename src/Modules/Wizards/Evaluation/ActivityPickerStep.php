@@ -8,15 +8,19 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * ActivityPickerStep (#0072) — primary landing for the new-evaluation
- * wizard. Lists the coach's recent rateable activities (last 30 days,
- * extendable to 90), grouped by week.
+ * ActivityPickerStep (#0072; #2246 explicit-fork rework) — the activity
+ * landing on the unified evaluation wizard's `mode=activity` branch.
+ * Lists the coach's recent rateable activities (last 90 days).
  *
- * The framework auto-skips this step via `notApplicableFor()` when the
- * coach has zero recent rateable activities — they go straight to
- * `PlayerPickerStep` (the player-first fallback). Either landing
- * surfaces an escape-hatch link to the other path so neither is a
- * dead end.
+ * #2246 removed the implicit branching this step used to carry: the
+ * "auto-skip to PlayerPicker when empty" smart-default and the
+ * "→ Rate a player directly" escape-hatch link are gone — the explicit
+ * EvaluationModeStep now owns the activity-vs-player choice. This step
+ * is skipped only when a caller pre-seeded an `activity_id` (the
+ * dashboard hero, the activity-completion doors, the `mark-attendance`
+ * alias). When the coach picks "Evaluate an activity" but has no
+ * rateable activities, the empty-state guidance renders — never a
+ * silent jump to the player path.
  */
 final class ActivityPickerStep implements WizardStepInterface {
 
@@ -33,87 +37,37 @@ final class ActivityPickerStep implements WizardStepInterface {
     public function label(): string { return __( 'Activity', 'talenttrack' ); }
 
     /**
-     * Skip the activity-picker entirely when the coach has no rateable
-     * activities in the last 30 days — straight to PlayerPickerStep.
-     * #0063's `FrontendWizardView` honours this opt-in.
+     * #2246 — skip only when a caller pre-seeded an `activity_id` (the
+     * dashboard hero / activity-completion doors / mark-attendance
+     * alias); otherwise always render, even with an empty list, so the
+     * coach who chose "Evaluate an activity" sees guidance rather than a
+     * silent redirect to the player path.
      */
     public function notApplicableFor( array $state ): bool {
-        // If the coach explicitly chose the "rate a player directly"
-        // escape hatch, skip the activity picker even if they have
-        // rateable activities.
-        if ( ! empty( $state['_path'] ) && $state['_path'] === 'player-first' ) return true;
+        // Never applies on the player branch.
+        if ( ( $state['_path'] ?? '' ) === 'player-first' ) return true;
 
-        // #0092 — when the wizard was entered with `activity_id`
-        // pre-seeded (e.g. from the mark-attendance dashboard widget)
-        // the picker has nothing to add; skip straight to attendance.
+        // Pre-seeded activity → the picker has nothing to add.
         if ( ( $state['_path'] ?? '' ) === 'activity-first'
              && (int) ( $state['activity_id'] ?? 0 ) > 0 ) {
             return true;
         }
 
-        // v3.110.83 — when entered from the mark-attendance wizard
-        // with no preselected activity, ALWAYS render the picker (or
-        // its empty-state notice) instead of falling through to the
-        // next step. The eval wizard's "auto-skip when empty →
-        // PlayerPicker fallback" only fits eval-style flows; the
-        // mark-attendance wizard has no PlayerPicker, so a fall-through
-        // would land the coach on RateConfirmStep with no context.
-        // Symptom (pilot): coach completed the wizard, returned to
-        // dashboard (now showing the empty hero), clicked **Pick a
-        // session**, was dropped on the confirm step of the
-        // already-finished run.
-        if ( ! empty( $state['_attendance_force_render'] ) ) {
-            return false;
-        }
-
-        $user_id = get_current_user_id();
-        $rows = self::recentRateableActivities( $user_id, self::DEFAULT_DAYS );
-        return empty( $rows );
+        return false;
     }
 
     public function render( array $state ): void {
+        if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
+            wp_enqueue_style( 'tt-evaluation-mode', TT_PLUGIN_URL . 'assets/css/evaluation-mode.css', [], TT_VERSION );
+        }
         $rows = self::recentRateableActivities( get_current_user_id(), self::DEFAULT_DAYS );
-        // v3.110.83 — render-time context check. When entered from
-        // the mark-attendance wizard, the eval-wizard's intro copy
-        // and the "Rate a player directly" escape hatch don't fit:
-        // there's no PlayerPicker in that wizard, and the coach is
-        // here to mark attendance, not to rate ad-hoc. Show a
-        // narrower intro + a context-specific empty state.
-        $is_mark_attendance = ! empty( $state['_attendance_force_render'] );
         ?>
-        <?php if ( $is_mark_attendance ) : ?>
-            <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick an activity from the last 90 days to mark attendance for. Scheduled activities appear from their planned date; the activity type must be rateable.', 'talenttrack' ); ?>
-            </p>
-        <?php else : ?>
-            <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick an activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Scheduled activities appear from their planned date; activities with every present player rated drop off the list.', 'talenttrack' ); ?>
-            </p>
-
-            <p style="margin: var(--tt-sp-3) 0;">
-                <?php
-                // v3.110.102 — `formnovalidate` skips HTML5 validation
-                // when this submit fires. Without it, the `<input
-                // type="radio" required>` on the activity list above
-                // blocked the player-first escape hatch: clicking the
-                // button submitted the form, the browser ran the
-                // required-radio check, saw no activity selected, and
-                // refused to submit — looking like a broken button.
-                // formnovalidate is the standard HTML5 pattern for
-                // "this submit is intentional, skip validation".
-                ?>
-                <button type="submit" name="_path" value="player-first" class="tt-button tt-button-secondary" formnovalidate>
-                    <?php esc_html_e( '→ Rate a player directly', 'talenttrack' ); ?>
-                </button>
-            </p>
-        <?php endif; ?>
+        <p class="tt-eval-mode-intro">
+            <?php esc_html_e( 'Pick an activity from the last 90 days to rate the players who attended. Scheduled activities appear from their planned date; activities with every present player rated drop off the list.', 'talenttrack' ); ?>
+        </p>
 
         <?php if ( empty( $rows ) ) : ?>
-            <?php if ( $is_mark_attendance ) : ?>
-                <p class="tt-notice"><?php esc_html_e( 'No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here.', 'talenttrack' ); ?></p>
-            <?php else : ?>
-                <p class="tt-notice"><?php esc_html_e( 'No rateable activities in the last 90 days. Schedule or complete an activity with a rateable type to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
-            <?php endif; ?>
+            <p class="tt-notice"><?php esc_html_e( 'No rateable activities in the last 90 days. Schedule or complete an activity with a rateable type to see it here. To rate a player without an activity, go back and choose "Evaluate 1 player".', 'talenttrack' ); ?></p>
         <?php else : ?>
             <div role="radiogroup" class="tt-activity-picker">
                 <?php foreach ( $rows as $r ) :
@@ -143,30 +97,18 @@ final class ActivityPickerStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        // The "→ Rate a player directly" button posts _path=player-first.
-        $path = isset( $post['_path'] ) ? sanitize_key( (string) $post['_path'] ) : '';
-        if ( $path === 'player-first' ) {
-            return [ '_path' => 'player-first' ];
-        }
         $aid = isset( $post['activity_id'] ) ? absint( $post['activity_id'] ) : 0;
         if ( $aid <= 0 ) {
-            return new \WP_Error( 'no_activity', __( 'Pick an activity, or use "Rate a player directly".', 'talenttrack' ) );
+            return new \WP_Error( 'no_activity', __( 'Pick an activity to continue.', 'talenttrack' ) );
         }
         return [ 'activity_id' => $aid, '_path' => 'activity-first' ];
     }
 
     public function nextStep( array $state ): ?string {
-        $path = (string) ( $state['_path'] ?? '' );
-        if ( $path === 'player-first' )   return 'player-picker';
-        if ( $path === 'activity-first' ) return 'attendance';
-        // #1266 — auto-skip case: `notApplicableFor()` returned true
-        // because the user has no rateable activities (admin, scout,
-        // brand-new coach). Route to player-picker so the player-
-        // first fallback gets a chance to render, instead of
-        // cascading through every activity-first-only step
-        // (attendance / rate-actors / behaviour) straight to Review
-        // with empty state and a wp_die-friendly NULL player_id.
-        return 'player-picker';
+        // #2246 — this step only ever runs on the activity branch now
+        // (the mode step routes the player branch straight to the
+        // player picker). Always advance to attendance.
+        return 'attendance';
     }
 
     public function submit( array $state ) { return null; }

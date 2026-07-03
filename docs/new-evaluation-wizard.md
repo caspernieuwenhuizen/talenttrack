@@ -6,20 +6,30 @@
 
 ## What it does
 
-A single wizard with two paths through it. Pick the path that matches what you actually did:
+A single wizard with an **explicit two-way choice** at the start. The
+first step asks *what* you're evaluating, with two big buttons:
 
-- **Activity-first** — *"I just finished training with U14, let me rate the players who were there."* Pick a recent rateable activity, the wizard surfaces present + late players from attendance, you quick-rate or deep-rate each, one Submit creates N evaluations.
-- **Player-first (ad-hoc)** — *"I noticed something in a tournament I want to capture."* Pick a player, fill date + setting + reason + ratings, one Submit creates one evaluation with no activity link.
+- **Evaluate an activity** — *"I just finished training with U14, let me rate the players who were there."* Pick a recent rateable activity, the wizard surfaces present + late players from attendance, you mark attendance, optionally rate, and one Submit records it all.
+- **Evaluate 1 player** — *"I noticed something in a tournament I want to capture."* Pick a player, fill date + setting + reason + ratings (and an optional behaviour rating), one Submit creates one evaluation with no activity link.
 
-The wizard auto-picks the path. If you have at least one rateable activity in the last 30 days on a team you coach, you land on the activity picker. Otherwise you land directly on the player picker. Both landings have an escape-hatch link to the other path.
+There is no hidden auto-pick anymore. You choose the path; **Previous**
+on the next step returns you to the two buttons so switching is one tap.
 
-## Path 1 — activity-first (the daily flow)
+Every "activity" door in the app now lands in the same flow: the
+dashboard **Mark attendance** hero, the activity **Complete activity**
+buttons, and this wizard's *Evaluate an activity* button all reach the
+identical `mode=activity` path. (The old `mark-attendance` link still
+works — it resolves to this wizard seeded with the activity branch.)
+
+## Path 1 — Evaluate an activity (the daily flow)
+
+`Activity picker → Attendance → Rate now? → Rate players → Review`
 
 ### Step 1 · Activity Picker
 
-Lists rateable activities from the last 30 days, on teams you're assigned to via Functional Roles (or all teams if you're HoD / Academy Admin), where the activity type is marked **rateable** in the lookups admin (default: yes; off by default for clinics, methodology lectures, and team meetings).
+Lists rateable activities from the last 90 days, on teams you're assigned to via Functional Roles (or all teams if you're HoD / Academy Admin), where the activity type is marked **rateable** in the lookups admin (default: yes; off by default for clinics, methodology lectures, and team meetings).
 
-Click an activity to select it, then **Continue**. Or click **→ Rate a player directly** to switch to the player-first path.
+Click an activity to select it, then **Continue**. If the list is empty, the step tells you so — it never silently jumps to the player path; go **Back** and choose *Evaluate 1 player* to rate a player without an activity. (This step is skipped when a door already preselected an activity, e.g. the dashboard hero or a Complete-activity button.)
 
 ### Step 2 · Attendance
 
@@ -29,7 +39,11 @@ For the common "everyone was here" case there's a one-tap shortcut at the top �
 
 Only **present** + **late** players flow into the rating step. Absent and excused players are recorded for reports but skipped from rating.
 
-### Step 3 · Rate players
+### Step 3 · Rate now?
+
+Attendance is saved at this point, so the wizard asks whether you want to rate the present players now. **Rate the present players** continues to the rating step. **Skip rating — I'll rate later** finishes here (the activity stays available for rating later). **Skip rating — no rating needed** finishes and closes the activity for rating (reversible from the activity detail). Either skip marks the activity **completed**.
+
+### Step 4 · Rate players
 
 For each present/late player, you get a row per **quick-rate** category (Technical, Tactical, Physical, Mental by default — clubs can flip individual categories on or off via Configuration → Evaluation Categories). Type a number 1-5 (or whatever your rating-scale max is configured to).
 
@@ -41,13 +55,17 @@ Add per-player notes inline. The deep-rate panel for a single player is a follow
 
 **Training default:** when the activity is a training session, the **Mental** category is surfaced first and pre-expanded (its detailed sub-categories shown). This is a presentation default only — you can still rate every other category and you are never required to enter a Mental rating to submit.
 
-### Step 4 · Review
+The activity path uses **quick rating** — the main categories only. Behaviour ratings live in the *Evaluate 1 player* deep path, not here.
+
+### Step 5 · Review
 
 Lists how many evaluations will be created. If any present player is unrated and not skipped, you get a soft warn at the top: *"X players were present but not rated. Submit anyway, or go back?"* Both buttons available.
 
-Click **Submit**. The wizard writes one `tt_evaluations` row per rated player with `activity_id` set, plus the per-category rating rows.
+Click **Submit**. The wizard writes one `tt_evaluations` row per rated player with `activity_id` set, plus the per-category rating rows, and marks the activity **completed**.
 
-## Path 2 — player-first (ad-hoc)
+## Path 2 — Evaluate 1 player (ad-hoc, deep)
+
+`Player picker → Deep rate → Behaviour → Review`
 
 ### Step 1 · Player Picker
 
@@ -61,9 +79,13 @@ Each main category is a **collapsible block, collapsed by default**. The summary
 
 When you set the Type to **Training**, the **Mental** category jumps to the top of the list and opens automatically. Pick any other type and it returns to its place. It stays a default only — no Mental rating is required to save.
 
-### Step 3 · Review + Submit
+### Step 3 · Behaviour (optional)
 
-Single evaluation row. Submit creates one `tt_evaluations` row with `activity_id = NULL`.
+Behaviour is tracked separately from performance. This optional pass records conduct, not football: give the player a behaviour rating and an optional one-line note, or leave it blank and tap **Next**. The step is skipped entirely if you don't hold the behaviour-rating permission. This is the only place behaviour is captured — the quick activity path doesn't ask for it.
+
+### Step 4 · Review + Submit
+
+Single evaluation row. Submit creates one `tt_evaluations` row with `activity_id = NULL`, plus a behaviour row when you filled one in.
 
 ## Cross-device drafts
 

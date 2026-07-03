@@ -6,20 +6,31 @@
 
 ## Wat het doet
 
-Eén wizard met twee paden. Kies het pad dat past bij wat je daadwerkelijk hebt gedaan:
+Eén wizard met een **expliciete keuze vooraf**. De eerste stap vraagt
+*wat* je evalueert, met twee grote knoppen:
 
-- **Activiteit-eerst** — *"Ik ben net klaar met de training met U14, laat me de spelers beoordelen die er waren."* Kies een recente rateable activiteit, de wizard toont aanwezige + te-laat-spelers, je beoordeelt elk, één Submit maakt N evaluaties.
-- **Speler-eerst (ad-hoc)** — *"Ik zag iets in een toernooi dat ik wil vastleggen."* Kies een speler, vul datum + context + ratings in, één Submit maakt één evaluatie zonder activiteit-koppeling.
+- **Een activiteit evalueren** — *"Ik ben net klaar met de training met U14, laat me de spelers beoordelen die er waren."* Kies een recente rateable activiteit, de wizard toont aanwezige + te-laat-spelers, je legt aanwezigheid vast, beoordeelt optioneel, en één Submit legt alles vast.
+- **1 speler evalueren** — *"Ik zag iets in een toernooi dat ik wil vastleggen."* Kies een speler, vul datum + context + ratings in (en een optionele gedragsbeoordeling), één Submit maakt één evaluatie zonder activiteit-koppeling.
 
-De wizard kiest automatisch het pad. Heb je minstens één rateable activiteit in de laatste 30 dagen op een ploeg die je traint, dan land je op de activiteitkiezer. Anders land je direct op de spelerkiezer. Beide landingen hebben een ontsnappingslink naar het andere pad.
+Er is geen verborgen automatische keuze meer. Jij kiest het pad;
+**Vorige** op de volgende stap brengt je terug naar de twee knoppen, dus
+wisselen is één tik.
 
-## Pad 1 — activiteit-eerst (de dagelijkse flow)
+Elke "activiteit"-deur in de app landt nu in dezelfde flow: de
+dashboard-hero **Aanwezigheid registreren**, de **Activiteit voltooien**-
+knoppen en de knop *Een activiteit evalueren* van deze wizard bereiken
+allemaal hetzelfde `mode=activity`-pad. (De oude `mark-attendance`-link
+werkt nog steeds — die verwijst naar deze wizard met het activiteitpad.)
+
+## Pad 1 — Een activiteit evalueren (de dagelijkse flow)
+
+`Activiteit kiezen → Aanwezigheid → Nu beoordelen? → Spelers beoordelen → Controleren`
 
 ### Stap 1 · Activiteit kiezen
 
-Toont rateable activiteiten van de laatste 30 dagen, op ploegen waaraan je via Functionele Rollen bent toegewezen (of alle ploegen als je HoD / Academy Admin bent), waar het activiteitstype als **rateable** is gemarkeerd in de lookups-admin (standaard: ja; standaard uit voor clinics, methodology-lectures en team-meetings).
+Toont rateable activiteiten van de laatste 90 dagen, op ploegen waaraan je via Functionele Rollen bent toegewezen (of alle ploegen als je HoD / Academy Admin bent), waar het activiteitstype als **rateable** is gemarkeerd in de lookups-admin (standaard: ja; standaard uit voor clinics, methodology-lectures en team-meetings).
 
-Klik een activiteit aan en **Doorgaan**. Of klik **→ Beoordeel direct een speler** om naar het speler-eerst-pad over te schakelen.
+Klik een activiteit aan en **Doorgaan**. Is de lijst leeg, dan zegt de stap dat — hij springt nooit stilletjes naar het spelerpad; ga **Terug** en kies *1 speler evalueren* om een speler zonder activiteit te beoordelen. (Deze stap wordt overgeslagen als een deur al een activiteit vooraf koos, bijv. de dashboard-hero of een Activiteit-voltooien-knop.)
 
 ### Stap 2 · Aanwezigheid
 
@@ -29,7 +40,11 @@ Voor het veelvoorkomende "iedereen was er"-geval is er bovenaan een sneltoets �
 
 Alleen **aanwezig** + **te laat** spelers stromen door naar de beoordeelstap. Afwezig en verontschuldigd worden vastgelegd voor rapporten maar overgeslagen bij beoordelen.
 
-### Stap 3 · Spelers beoordelen
+### Stap 3 · Nu beoordelen?
+
+De aanwezigheid is nu opgeslagen, dus de wizard vraagt of je de aanwezige spelers meteen wilt beoordelen. **Beoordeel de aanwezige spelers** gaat door naar de beoordeelstap. **Sla beoordelen over — ik doe het later** stopt hier (de activiteit blijft beschikbaar om later te beoordelen). **Sla beoordelen over — geen beoordeling nodig** stopt en sluit de activiteit voor beoordeling (omkeerbaar vanaf het activiteitdetail). Beide varianten markeren de activiteit als **voltooid**.
+
+### Stap 4 · Spelers beoordelen
 
 Voor elke aanwezige/te-late speler krijg je een rij per **snelbeoordeel-categorie** (standaard Technisch / Tactisch / Fysiek / Mentaal — clubs kunnen individuele categorieën aan/uit zetten via Configuratie → Evaluatiecategorieën). Typ een getal 1-5 (of wat je rating-schaal-max ook is).
 
@@ -41,13 +56,17 @@ Voeg per-speler notities inline toe. Het deep-rate-panel voor een enkele speler 
 
 **Standaard bij training:** wanneer de activiteit een trainingssessie is, wordt de categorie **Mentaal** als eerste getoond en alvast uitgeklapt (met de gedetailleerde subcategorieën zichtbaar). Dit is alleen een weergavestandaard — je kunt nog steeds elke andere categorie beoordelen en je bent nooit verplicht een Mentaal-score in te vullen om te kunnen opslaan.
 
-### Stap 4 · Controleren
+Het activiteitpad gebruikt **snelbeoordelen** — alleen de hoofdcategorieën. Gedragsbeoordelingen zitten in het diepe pad *1 speler evalueren*, niet hier.
+
+### Stap 5 · Controleren
 
 Toont hoeveel evaluaties er gemaakt zullen worden. Is er een aanwezige speler ongerated en niet overgeslagen, dan krijg je bovenaan een zachte waarschuwing: *"X spelers waren aanwezig maar niet beoordeeld. Toch versturen, of terug?"* Beide knoppen beschikbaar.
 
-Klik **Versturen**. De wizard schrijft één `tt_evaluations`-rij per beoordeelde speler met `activity_id` ingesteld, plus de per-categorie ratings.
+Klik **Versturen**. De wizard schrijft één `tt_evaluations`-rij per beoordeelde speler met `activity_id` ingesteld, plus de per-categorie ratings, en markeert de activiteit als **voltooid**.
 
-## Pad 2 — speler-eerst (ad-hoc)
+## Pad 2 — 1 speler evalueren (ad-hoc, diep)
+
+`Speler kiezen → Diep beoordelen → Gedrag → Controleren`
 
 ### Stap 1 · Speler kiezen
 
@@ -61,9 +80,13 @@ Elke hoofdcategorie is een **inklapbaar blok, standaard ingeklapt**. De samenvat
 
 Zet je het Type op **Training**, dan springt de categorie **Mentaal** naar boven in de lijst en klapt automatisch open. Kies je een ander type, dan keert Mentaal terug naar de normale positie. Het blijft een standaard — een Mentaal-score is niet verplicht om op te slaan.
 
-### Stap 3 · Controleren + Versturen
+### Stap 3 · Gedrag (optioneel)
 
-Eén evaluatie-rij. Versturen maakt één `tt_evaluations`-rij met `activity_id = NULL`.
+Gedrag wordt los van prestatie bijgehouden. Deze optionele ronde legt gedrag vast, geen voetbal: geef de speler een gedragsbeoordeling en een optionele regel notitie, of laat het leeg en tik op **Volgende**. De stap wordt volledig overgeslagen als je het gedragsbeoordelings-recht niet hebt. Dit is de enige plek waar gedrag wordt vastgelegd — het snelle activiteitpad vraagt er niet naar.
+
+### Stap 4 · Controleren + Versturen
+
+Eén evaluatie-rij. Versturen maakt één `tt_evaluations`-rij met `activity_id = NULL`, plus een gedragsrij als je die hebt ingevuld.
 
 ## Cross-device concepten
 

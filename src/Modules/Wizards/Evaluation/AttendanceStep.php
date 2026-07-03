@@ -463,11 +463,12 @@ final class AttendanceStep implements WizardStepInterface {
     }
 
     public function nextStep( array $state ): ?string {
-        // #0092 — wizards using this step can route the next step via
-        // state. Default 'rate-actors' keeps the new-evaluation chain
-        // unchanged; mark-attendance sets `_attendance_next = 'rate-confirm'`.
+        // #2249 — the unified activity path now always routes through
+        // RateConfirmStep (Yes / Skip). The legacy `_attendance_next`
+        // hint is still honoured for back-compat with any seeded caller,
+        // but the default is `rate-confirm`, not `rate-actors`.
         $hint = isset( $state['_attendance_next'] ) ? (string) $state['_attendance_next'] : '';
-        return $hint !== '' ? $hint : 'rate-actors';
+        return $hint !== '' ? $hint : 'rate-confirm';
     }
     public function submit( array $state ) { return null; }
 

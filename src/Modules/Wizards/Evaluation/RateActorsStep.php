@@ -639,7 +639,9 @@ final class RateActorsStep implements WizardStepInterface {
         return [ 'ratings' => $clean, 'notes' => $notes, 'player_feedback' => $player_feedback, 'skip' => $skip ];
     }
 
-    public function nextStep( array $state ): ?string { return 'behaviour'; }
+    // #2249 — BehaviourStep moved to the player deep path; the quick
+    // activity path goes straight from rating to review.
+    public function nextStep( array $state ): ?string { return 'review'; }
     public function submit( array $state ) { return null; }
 
     /**

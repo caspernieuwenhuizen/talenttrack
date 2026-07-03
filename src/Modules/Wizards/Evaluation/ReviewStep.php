@@ -127,40 +127,6 @@ final class ReviewStep implements WizardStepInterface {
             </div>
         <?php endif; ?>
 
-        <?php
-        // #869 — Behaviour summary. Renders only when BehaviourStep
-        // captured at least one rating; the step itself is auto-skipped
-        // for users without `tt_rate_player_behaviour` (and on the
-        // player-first path), so absence here is expected.
-        $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
-        $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
-        if ( ! empty( $behaviour_ratings ) ) :
-            // Build a quick player-id → name map from the rateable
-            // roster so the summary reads as names, not IDs.
-            $name_by_pid = [];
-            foreach ( $present_players as $pl ) {
-                $name_by_pid[ (int) $pl->id ] = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
-            }
-            ?>
-            <p style="margin-top:16px;color:var(--tt-muted);">
-                <strong><?php esc_html_e( 'Behaviour ratings to record:', 'talenttrack' ); ?></strong>
-            </p>
-            <ul style="margin:6px 0 12px 18px;color:var(--tt-muted);font-size:13px;">
-            <?php foreach ( $behaviour_ratings as $pid => $rating ) :
-                $pid = (int) $pid;
-                $note = (string) ( $behaviour_notes[ $pid ] ?? '' );
-                $name = (string) ( $name_by_pid[ $pid ] ?? ( 'Player #' . $pid ) );
-                ?>
-                <li>
-                    <?php echo esc_html( $name ); ?> — <strong><?php echo (int) $rating; ?></strong>
-                    <?php if ( $note !== '' ) : ?>
-                        <span style="color:var(--tt-muted);">— <?php echo esc_html( $note ); ?></span>
-                    <?php endif; ?>
-                </li>
-            <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-
         <p style="color:var(--tt-muted);font-size:13px;"><?php esc_html_e( 'Click Submit to write the evaluations.', 'talenttrack' ); ?></p>
         <div class="tt-pd-eval-progress" data-tt-eval-progress hidden>
             <progress class="tt-pd-eval-progress-bar" max="100" value="0"></progress>
@@ -203,6 +169,25 @@ final class ReviewStep implements WizardStepInterface {
                 count( $non_zero )
             );
         ?></p>
+        <?php
+        // #2249 — Behaviour summary on the player-first deep path.
+        // Renders only when BehaviourStep captured a rating; the step is
+        // auto-skipped for users without `tt_rate_player_behaviour`, so
+        // absence here is expected.
+        $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
+        $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
+        $behaviour_rating  = isset( $behaviour_ratings[ $pid ] ) ? (int) $behaviour_ratings[ $pid ] : 0;
+        if ( $behaviour_rating > 0 ) :
+            $behaviour_note = (string) ( $behaviour_notes[ $pid ] ?? '' );
+            ?>
+            <p class="tt-review-behaviour">
+                <strong><?php esc_html_e( 'Behaviour rating to record:', 'talenttrack' ); ?></strong>
+                <?php echo (int) $behaviour_rating; ?>
+                <?php if ( $behaviour_note !== '' ) : ?>
+                    <span class="tt-review-behaviour__note">— <?php echo esc_html( $behaviour_note ); ?></span>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
         <p style="color:var(--tt-muted);font-size:13px;"><?php esc_html_e( 'Click Submit to write the evaluation.', 'talenttrack' ); ?></p>
         <?php
     }
@@ -438,6 +423,23 @@ final class ReviewStep implements WizardStepInterface {
                     'rating'        => $val,
                 ] );
             }
+        }
+
+        // #2249 — Behaviour rating captured by BehaviourStep on the deep
+        // path. Skippable, so a no-op when empty. No `related_activity_id`
+        // on this path (standalone assessment).
+        $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
+        $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
+        $behaviour_rating  = isset( $behaviour_ratings[ $pid ] ) ? (float) $behaviour_ratings[ $pid ] : 0.0;
+        if ( $behaviour_rating > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) {
+            ( new \TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository() )->create( [
+                'player_id'           => $pid,
+                'rating'              => $behaviour_rating,
+                'rated_at'            => current_time( 'mysql' ),
+                'rated_by'            => get_current_user_id(),
+                'related_activity_id' => null,
+                'notes'               => (string) ( $behaviour_notes[ $pid ] ?? '' ),
+            ] );
         }
 
         $redirect = add_query_arg( [
