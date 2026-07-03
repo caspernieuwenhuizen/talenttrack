@@ -307,7 +307,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.activity_type_key IN ('match','tournament')
+                AND a.activity_type_key IN ('match','game','tournament')
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
               LIMIT 50",
@@ -400,7 +400,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                       JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
                      WHERE att.record_type = 'actual'
                        AND att.is_guest = 0
-                       AND a.activity_type_key IN ('match','tournament')
+                       AND a.activity_type_key IN ('match','game','tournament')
                        AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
                      GROUP BY att.player_id, att.{$att_fk}
                   ) m ON m.player_id = p.id
@@ -414,7 +414,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         $match_count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities
-              WHERE team_id = %d AND activity_type_key IN ('match','tournament')
+              WHERE team_id = %d AND activity_type_key IN ('match','game','tournament')
                 AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
             $team_id
         ) );

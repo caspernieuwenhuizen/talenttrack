@@ -125,7 +125,7 @@ class MatchExecutionRepository {
                  WHERE a.club_id = %d
                    AND a.team_id IN ({$placeholders})
                    AND a.session_date = %s
-                   AND a.activity_type_key IN ('match','game')
+                   AND a.activity_type_key IN ('match','game','tournament')
                    AND a.archived_at IS NULL
                    AND ( e.state IS NULL OR e.state = 'not_started' )
                    AND a.club_id = %d

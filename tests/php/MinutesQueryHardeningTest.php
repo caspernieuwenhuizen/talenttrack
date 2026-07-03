@@ -131,6 +131,74 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->totalFor( $rows, $player_id ), 'no persisted actual minutes → 0, never a lineup recompute' );
     }
 
+    /**
+     * #2252 — a player in the starting lineup of THREE planned matches, of
+     * which only ONE was actually recorded (persisted actual minutes), must
+     * show starts=1 and matches=1 — NOT starts=3. A planned-but-unrecorded
+     * match contributes 0 across the board (0 starts, 0 available minutes,
+     * 0 matches), so `starts <= matches` always holds. Before #2252 the two
+     * unrecorded lineups inflated `starts` to 3 ("3 basisplaatsen, 1
+     * wedstrijd") and padded the `% beschikbaar` denominator.
+     */
+    public function test_planned_unrecorded_matches_do_not_count_starts(): void {
+        $team_id   = $this->insertTeam( 'U17 starts-gate' );
+        $player_id = $this->insertPlayer( $team_id, 'Start', 'Gate' );
+
+        // Three planned matches, each with a prep lineup putting the player
+        // in the starting XI (both halves).
+        $planned_a = $this->insertMatch( $team_id, '2026-06-01' );
+        $planned_b = $this->insertMatch( $team_id, '2026-06-08' );
+        $recorded  = $this->insertMatch( $team_id, '2026-06-15' );
+
+        foreach ( [ $planned_a, $planned_b, $recorded ] as $aid ) {
+            $prep_id = $this->insertPrep( $aid, 35 );
+            $this->insertLineup( $prep_id, 1, 1, $player_id );
+            $this->insertLineup( $prep_id, 2, 1, $player_id );
+        }
+
+        // ONLY the third match was actually played + recorded (persisted
+        // actual minutes). The first two remain planned-but-unrecorded.
+        $this->insertAttendance( $recorded, $player_id, 'actual', 0, 70 );
+
+        $rows = ( new MinutesQuery() )->forTeam( $team_id, '2026-01-01', '2026-12-31' );
+
+        $row = null;
+        foreach ( $rows as $r ) {
+            if ( (int) $r['player_id'] === $player_id ) { $row = $r; break; }
+        }
+        $this->assertNotNull( $row, 'the player must appear in the team report' );
+        $this->assertSame( 1, (int) $row['starts'], 'only the recorded match counts as a start (not the two planned)' );
+        $this->assertSame( 1, (int) $row['matches'], 'only the recorded match counts as a match' );
+        $this->assertLessThanOrEqual( (int) $row['matches'], (int) $row['starts'], 'starts must never exceed matches' );
+        $this->assertSame( 70, (int) $row['total_minutes'] );
+        // available_minutes counts only the one recorded match (2 * 35).
+        $this->assertSame( 70, (int) $row['available_minutes'], 'available minutes must count only recorded matches' );
+    }
+
+    /**
+     * #2253 — a tournament activity with persisted actual minutes must be
+     * counted like a match in the team minutes report. Before #2253 the
+     * team report filtered `IN ('match','game')`, excluding tournaments
+     * entirely, so a player who played a tournament showed 0 minutes.
+     */
+    public function test_tournament_minutes_are_counted(): void {
+        $team_id   = $this->insertTeam( 'U17 tourney' );
+        $player_id = $this->insertPlayer( $team_id, 'Tour', 'Nament' );
+        $activity_id = $this->insertTournament( $team_id, '2026-07-01' );
+
+        // Multi-game-day tournament: minutes recorded via the manual
+        // per-player entry (#2159) → persisted actual attendance minutes.
+        $this->insertAttendance( $activity_id, $player_id, 'actual', 0, 120 );
+
+        $rows  = ( new MinutesQuery() )->forTeam( $team_id, '2026-01-01', '2026-12-31' );
+        $this->assertSame( 120, $this->totalFor( $rows, $player_id ), 'tournament minutes must be counted in the team report' );
+
+        // And the per-match breakdown must include the tournament row.
+        $breakdown = ( new MinutesQuery() )->matchBreakdownForPlayer( $team_id, $player_id, '2026-01-01', '2026-12-31' );
+        $this->assertCount( 1, $breakdown, 'the tournament must appear in the per-match breakdown' );
+        $this->assertSame( 120, (int) $breakdown[0]['minutes'] );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     /** @param list<array<string,mixed>> $rows */
@@ -167,6 +235,19 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
             'session_date'      => $date,
             'activity_type_key' => 'match',
             'game_subtype_key'  => 'League',
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    private function insertTournament( int $team_id, string $date ): int {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'           => $this->club,
+            'team_id'           => $team_id,
+            'title'             => 'Tournament ' . $date,
+            'session_date'      => $date,
+            'activity_type_key' => 'tournament',
+            'game_subtype_key'  => 'Cup',
         ] );
         return (int) $wpdb->insert_id;
     }

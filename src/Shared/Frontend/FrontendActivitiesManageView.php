@@ -170,7 +170,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // no prep row exists, or directly to the form when it
                 // does (FrontendMatchPrepView handles the redirect).
                 $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
-                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME ], true ) && $can_edit_acts ) {
+                // #2253 — tournaments are minutes-bearing too. A single-game
+                // tournament runs the same match-prep + execution surface as
+                // a match; a multi-game day records minutes via the manual
+                // per-player entry (#2159). Both write actual minutes.
+                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true ) && $can_edit_acts ) {
                     // #1479 — carry the back-target so match prep can
                     // render the "← Back to <activity>" pill (CLAUDE.md §5).
                     $prep_url = \TT\Shared\Frontend\Components\BackLink::appendTo(

@@ -85,6 +85,15 @@ The detail view also carries **Cancel activity** (on a planned activity) and **R
 
 When you complete a **match**-type activity that was never live-tracked, the wizard's attendance step gains **Starter** and **Minutes** columns so you can log how long each player actually played. The minutes feed the minutes report and the player's load picture. For a match you *did* live-track, the minutes come from the match execution's finalize instead.
 
+### Tournament minutes
+
+**Tournaments record minutes too** — they're a minutes-bearing type just like a match. How you record them depends on the tournament:
+
+- **Single-game tournament** — plan a **match prep** line-up and run the **live match** surface exactly as you would for a match; minutes come from the finalize. The **Plan match prep** and match-day CTAs appear on a tournament's detail view just like a match's.
+- **Multi-game-day tournament** — record minutes with the by-hand **Minutes** entry on the attendance screen (the same Starter/Minutes columns as a paper match), logging how many minutes each player played across the whole day.
+
+Both paths write the recorded minutes to the attendance row, so the minutes reports pick them up. For a multi-game day the line-up-derived **starts (basisplaatsen)** are approximate — one line-up covers several games — so the recorded *minutes* are the meaningful figure, not the start count. A tournament with no recorded minutes still shows 0, exactly like a match.
+
 The activity list shows the type as a colour-coded pill so trainings, games, tournaments, meetings and other activities are easy to scan at a glance.
 
 ## Expected attendance
