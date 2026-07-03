@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.73.2
+Stable tag: 4.73.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.3 — Reports: exclude cancelled activities from minutes and attendance (#2259) Cancelled matches and trainings no longer contribute to the minutes or attendance reports. An activity counts as cancelled when either its `plan_state` is `cancelled` or its `activity_status_key` is `cancelled`, and both markers are now honoured across the team and player minutes reports, the standard-report minutes queries, and the attendance-ranking and team attendance reports. Previously the minutes reports counted cancelled activities entirely, and the attendance reports only caught the `plan_state` marker — a completed-then-cancelled activity still skewed the numbers. Non-cancelled activities, including manual "paper match" minutes, are unaffected. Query-only change. =
 
 = 4.73.2 — Reports: exclude archived + trashed activities from minutes & attendance (#2257) Minutes and attendance reports no longer count activities that have been archived or moved to the recycle bin. Every report surface — team minutes, player minutes, the attendance team report, the attendance leaderboard, and the at-risk list — now filters out both `archived_at` and `trashed_at` activities, so an archived or binned match can no longer inflate minutes, starts, attendance %, or activity counts. Numbers for clean (live) data are unchanged. Query-only change. =
 
