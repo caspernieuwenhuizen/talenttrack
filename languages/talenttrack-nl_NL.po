@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-07-03T16:44:02+00:00\n"
+"POT-Creation-Date: 2026-07-03T16:48:27+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2083,7 +2083,7 @@ msgstr "Gepubliceerd"
 #: src/Shared/Frontend/FrontendExportsView.php:123
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:362
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:167
-#: src/Shared/Frontend/FrontendWizardView.php:780
+#: src/Shared/Frontend/FrontendWizardView.php:816
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -4660,7 +4660,7 @@ msgstr "Prospects per scout vastgelegd"
 #: src/Modules/Invitations/InvitationStatus.php:61
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendWizardView.php:782
+#: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -7811,7 +7811,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:184
 #: src/Shared/Frontend/FrontendTranslationsView.php:214
 #: src/Shared/Frontend/FrontendViewBase.php:82
-#: src/Shared/Frontend/FrontendWizardView.php:291
+#: src/Shared/Frontend/FrontendWizardView.php:320
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -11361,7 +11361,7 @@ msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:471
 #: src/Shared/Frontend/FrontendSetupView.php:90
-#: src/Shared/Frontend/FrontendWizardView.php:582
+#: src/Shared/Frontend/FrontendWizardView.php:611
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
@@ -13724,13 +13724,13 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/FrontendWizardView.php:307
+#: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
 #: src/Shared/Frontend/Components/BackLabelResolver.php:80
-#: src/Shared/Frontend/FrontendWizardView.php:300
+#: src/Shared/Frontend/FrontendWizardView.php:329
 msgid "Back"
 msgstr "Terug"
 
@@ -13757,7 +13757,7 @@ msgstr "Widget opslaan"
 #: src/Shared/Frontend/FrontendSpondView.php:155
 #: src/Shared/Frontend/FrontendTeamDetailView.php:384
 #: src/Shared/Frontend/FrontendTranslationsView.php:211
-#: src/Shared/Frontend/FrontendWizardView.php:844
+#: src/Shared/Frontend/FrontendWizardView.php:877
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -19174,7 +19174,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:740
 #: src/Shared/Frontend/FrontendSeasonsView.php:80
 #: src/Shared/Frontend/FrontendSeasonsView.php:96
-#: src/Shared/Frontend/FrontendWizardView.php:781
+#: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Current"
 msgstr "Huidig"
 
@@ -23868,7 +23868,7 @@ msgstr "Datumnotatie"
 #: src/Shared/Frontend/FrontendSetupView.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:200
 #: src/Shared/Frontend/FrontendSetupView.php:255
-#: src/Shared/Frontend/FrontendWizardView.php:580
+#: src/Shared/Frontend/FrontendWizardView.php:609
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -30949,7 +30949,7 @@ msgstr "Gekoppelde spelers"
 #: src/Shared/Frontend/DashboardShortcode.php:76
 #: src/Shared/Frontend/DashboardShortcode.php:1603
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:457
-#: src/Shared/Frontend/FrontendWizardView.php:308
+#: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
 msgstr "Bezig met laden…"
 
@@ -34896,7 +34896,7 @@ msgstr ""
 "activiteit heeft plaatsgevonden — dan ontgrendelt de "
 "aanwezigheidsregistratie op de activiteitspagina."
 
-#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:66
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:69
 msgid ""
 "Pick an activity from the last 90 days to rate the players who attended. "
 "Scheduled activities appear from their planned date; activities with every "
@@ -34907,7 +34907,7 @@ msgstr ""
 "activiteiten waarvan elke aanwezige speler is beoordeeld, verdwijnen uit de "
 "lijst."
 
-#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:70
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:73
 msgid ""
 "No rateable activities in the last 90 days. Schedule or complete an activity "
 "with a rateable type to see it here. To rate a player without an activity, "
@@ -34918,14 +34918,14 @@ msgstr ""
 "evalueren\" via Vorige om een speler zonder activiteit te beoordelen."
 
 #. translators: %d = number of present players without a rating yet
-#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:87
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:90
 #, php-format
 msgid "%d player still unrated"
 msgid_plural "%d players still unrated"
 msgstr[0] "%d speler nog niet beoordeeld"
 msgstr[1] "%d spelers nog niet beoordeeld"
 
-#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:102
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:105
 msgid "Pick an activity to continue."
 msgstr "Kies een activiteit om verder te gaan."
 
@@ -35100,7 +35100,7 @@ msgstr "— kies een type —"
 msgid "New evaluation"
 msgstr "Nieuwe evaluatie"
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:29
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:33
 msgid ""
 "Pick the player you're evaluating. Use this for ad-hoc observations not "
 "anchored to an activity row — a tournament moment, something you noticed in "
@@ -35110,11 +35110,11 @@ msgstr ""
 "activiteit-koppeling — een toernooi-moment, iets dat je in het voorbijgaan "
 "opmerkte."
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:47
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:51
 msgid "Which player?"
 msgstr "Welke speler?"
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:62
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:66
 #: src/Modules/Wizards/Goal/PlayerStep.php:115
 msgid "Please pick a player."
 msgstr "Kies een speler."
@@ -43948,7 +43948,7 @@ msgid "Could not save. Please try again."
 msgstr "Opslaan mislukt. Probeer het opnieuw."
 
 #: src/Shared/Frontend/FrontendSetupView.php:422
-#: src/Shared/Frontend/FrontendWizardView.php:308
+#: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Creating…"
 msgstr "Aanmaken…"
 
@@ -45685,11 +45685,11 @@ msgid ""
 msgstr ""
 "Je hebt geen toegang tot deze wizard, of de wizard staat momenteel uit."
 
-#: src/Shared/Frontend/FrontendWizardView.php:139
+#: src/Shared/Frontend/FrontendWizardView.php:154
 msgid "Wizard misconfigured (no steps)."
 msgstr "Wizard onjuist geconfigureerd (geen stappen)."
 
-#: src/Shared/Frontend/FrontendWizardView.php:153
+#: src/Shared/Frontend/FrontendWizardView.php:168
 msgid ""
 "Your session expired while this step was open. Please reload the page and "
 "try again — your edits on this step will need to be re-entered."
@@ -45698,65 +45698,60 @@ msgstr ""
 "probeer opnieuw — wijzigingen op deze stap moeten opnieuw worden ingevuld."
 
 # v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
-#: src/Shared/Frontend/FrontendWizardView.php:294
+#: src/Shared/Frontend/FrontendWizardView.php:323
 msgid "Save as draft"
 msgstr "Opslaan als concept"
 
-#: src/Shared/Frontend/FrontendWizardView.php:307
+#: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Create"
 msgstr "Aanmaken"
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:576
+#: src/Shared/Frontend/FrontendWizardView.php:605
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:751
+#: src/Shared/Frontend/FrontendWizardView.php:788
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: current step number, 2: total step count
-#: src/Shared/Frontend/FrontendWizardView.php:761
+#: src/Shared/Frontend/FrontendWizardView.php:798
 #, php-format
 msgid "Step %1$d of %2$d"
 msgstr "Stap %1$d van %2$d"
 
 #. translators: 1: step number, 2: step label, 3: state
-#: src/Shared/Frontend/FrontendWizardView.php:777
+#: src/Shared/Frontend/FrontendWizardView.php:813
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
-#: src/Shared/Frontend/FrontendWizardView.php:782
-#: src/Shared/Frontend/FrontendWizardView.php:791
-msgid "Not applicable"
-msgstr "Niet van toepassing"
-
-#: src/Shared/Frontend/FrontendWizardView.php:789
+#: src/Shared/Frontend/FrontendWizardView.php:824
 msgid "You are here"
 msgstr "Je bent hier"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:804
+#: src/Shared/Frontend/FrontendWizardView.php:837
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:845
+#: src/Shared/Frontend/FrontendWizardView.php:878
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:846
+#: src/Shared/Frontend/FrontendWizardView.php:879
 msgid "Save failed"
 msgstr "Opslaan mislukt"
 
-#: src/Shared/Frontend/FrontendWizardView.php:868
+#: src/Shared/Frontend/FrontendWizardView.php:901
 msgid "This field is required."
 msgstr "Dit veld is verplicht."
 
-#: src/Shared/Frontend/FrontendWizardView.php:869
+#: src/Shared/Frontend/FrontendWizardView.php:902
 msgid "Fill in every required field to continue."
 msgstr "Vul elk verplicht veld in om door te gaan."
 
@@ -46312,6 +46307,9 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Not applicable"
+#~ msgstr "Niet van toepassing"
 
 # v3.110.102 — #0092 ActivityPickerStep intro + empty-state copy NL coverage.
 # #1349 — eligibility widened: scheduled sessions appear from their date.
