@@ -13,8 +13,8 @@ The "+ New" buttons on Players, Teams, Evaluations, and Goals can either open th
 
 Each wizard is a small sequence of pages:
 
-- A progress strip shows where you are.
-- The button at the bottom right advances to the next step. The middle button skips the current step. The link button cancels.
+- A progress strip shows where you are. In a wizard that branches (for example the evaluation wizard's *Evaluate an activity* vs *Evaluate 1 player* choice), the strip lists **only the steps on the path you picked** — the other branch's steps are not shown.
+- The button at the bottom right advances to the next step. The middle button skips the current step. The link button cancels — and returns you to where you opened the wizard from (the list you came from, otherwise the dashboard), never back into the wizard.
 - Closing the page mid-wizard preserves the answers for an hour, so you can come back to the same view and pick up where you left off (the URL stays the same).
 - If your answers change during the flow — say, you switch from "roster" to "trial" on the new-player wizard — only the steps that still apply are run again.
 

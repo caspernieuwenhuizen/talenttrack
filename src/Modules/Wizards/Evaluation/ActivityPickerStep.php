@@ -44,12 +44,15 @@ final class ActivityPickerStep implements WizardStepInterface {
      * silent redirect to the player path.
      */
     public function notApplicableFor( array $state ): bool {
-        // Never applies on the player branch.
-        if ( ( $state['_path'] ?? '' ) === 'player-first' ) return true;
+        // #2254 — only applies once the ACTIVITY branch is chosen. While
+        // `_path` is still unset (the coach is on the mode step) or on the
+        // player branch, this step stays out of the rail. The mode step is
+        // always first and sets `_path` before navigation advances, so the
+        // picker is still reached on the activity branch.
+        if ( ( $state['_path'] ?? '' ) !== 'activity-first' ) return true;
 
         // Pre-seeded activity → the picker has nothing to add.
-        if ( ( $state['_path'] ?? '' ) === 'activity-first'
-             && (int) ( $state['activity_id'] ?? 0 ) > 0 ) {
+        if ( (int) ( $state['activity_id'] ?? 0 ) > 0 ) {
             return true;
         }
 
