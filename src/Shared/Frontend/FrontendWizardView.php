@@ -129,6 +129,21 @@ class FrontendWizardView extends FrontendViewBase {
                     $state = WizardState::merge( $user_id, $slug, $seed );
                 }
             }
+
+            // #2254 — capture the entry return-target into wizard state so
+            // Cancel returns to the origin on EVERY step. The step-nav
+            // return URL strips query args, so `tt_back` / `return_to`
+            // would otherwise be lost after the first Next, dropping Cancel
+            // onto the referer — which is the wizard itself (→ loop).
+            $entry_back = '';
+            if ( isset( $_GET['return_to'] ) ) {
+                $entry_back = esc_url_raw( wp_unslash( (string) $_GET['return_to'] ) );
+            } elseif ( isset( $_GET['tt_back'] ) ) {
+                $entry_back = esc_url_raw( wp_unslash( (string) $_GET['tt_back'] ) );
+            }
+            if ( $entry_back !== '' ) {
+                $state = WizardState::merge( $user_id, $slug, [ '_cancel_to' => $entry_back ] );
+            }
         }
 
         $current_slug = (string) $state['_step'];
@@ -221,7 +236,21 @@ class FrontendWizardView extends FrontendViewBase {
         if ( $return_to === '' && isset( $_GET['tt_back'] ) ) {
             $return_to = esc_url_raw( wp_unslash( (string) $_GET['tt_back'] ) );
         }
-        $referer   = wp_get_referer();
+        // #2254 — on steps past the first, the entry `tt_back` is gone from
+        // the URL; fall back to the copy stashed in wizard state on entry.
+        if ( $return_to === '' && ! empty( $state['_cancel_to'] ) ) {
+            $return_to = (string) $state['_cancel_to'];
+        }
+        $referer = wp_get_referer();
+        // #2254 — never fall back to a referer that points back INTO a
+        // wizard. After navigating any step the referer IS the wizard URL,
+        // so using it as the Cancel target re-enters the wizard (an
+        // inescapable loop — the pilot symptom). Drop it and fall through
+        // to the dashboard when no explicit return target was wired.
+        if ( $referer && ( strpos( $referer, 'tt_view=wizard' ) !== false
+            || strpos( $referer, 'tt_wizard=' ) !== false ) ) {
+            $referer = '';
+        }
         $cancel_url = $return_to !== ''
             ? $return_to
             : ( $referer ?: \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
@@ -716,36 +745,44 @@ class FrontendWizardView extends FrontendViewBase {
         $steps = $wizard->steps();
         if ( count( $steps ) <= 1 ) return;
 
-        // Pre-pass: resolve state for each step so we can compute the
-        // "Step X of Y" label for the mobile toggle without re-walking.
+        // Pre-pass: resolve state for each step. #2254 — non-applicable
+        // steps (the other fork of a branched wizard) are filtered OUT of
+        // the rail entirely, not shown greyed, so the rail reflects only
+        // the path the user is on. Displayed numbers + "Step X of Y" are
+        // computed from the applicable steps only.
         $resolved = [];
         $found_current = false;
-        $current_idx = 0;
+        $current_pos = 0; // 1-based position of the current step in the rail
         $current_label = '';
-        foreach ( $steps as $i => $step ) {
-            $is_current = $step->slug() === $current_slug;
-            if ( $is_current ) {
-                $found_current = true;
-                $current_idx = $i;
-                $current_label = (string) $step->label();
-            }
+        foreach ( $steps as $step ) {
+            $is_current     = $step->slug() === $current_slug;
             $not_applicable = method_exists( $step, 'notApplicableFor' )
                 ? (bool) $step->notApplicableFor( $state )
                 : false;
+            // Drop non-applicable steps (keep one only if it is somehow the
+            // current step, so the rail never renders empty mid-flow).
             if ( $not_applicable && ! $is_current ) {
-                $cls = 'is-na';
+                continue;
+            }
+            if ( $is_current ) {
+                $cls           = 'is-current';
+                $found_current = true;
+                $current_label = (string) $step->label();
             } else {
-                $cls = $is_current ? 'is-current' : ( ! $found_current ? 'is-done' : 'is-pending' );
+                $cls = $found_current ? 'is-pending' : 'is-done';
             }
             $resolved[] = [
-                'step'  => $step,
-                'cls'   => $cls,
-                'na'    => $not_applicable,
-                'i'     => $i,
+                'step' => $step,
+                'cls'  => $cls,
+                'n'    => count( $resolved ) + 1,
             ];
+            if ( $is_current ) {
+                $current_pos = count( $resolved );
+            }
         }
 
-        $total = count( $steps );
+        $total       = count( $resolved );
+        $current_idx = $current_pos > 0 ? $current_pos - 1 : 0;
 
         ?>
         <aside class="tt-wizard-rail-region" aria-label="<?php esc_attr_e( 'Wizard steps', 'talenttrack' ); ?>">
@@ -771,15 +808,13 @@ class FrontendWizardView extends FrontendViewBase {
                 <?php foreach ( $resolved as $r ) :
                     $is_done    = $r['cls'] === 'is-done';
                     $is_current = $r['cls'] === 'is-current';
-                    $is_na      = $r['cls'] === 'is-na';
                     $aria = sprintf(
                         /* translators: 1: step number, 2: step label, 3: state */
                         __( 'Step %1$d: %2$s (%3$s)', 'talenttrack' ),
-                        (int) ( $r['i'] + 1 ),
+                        (int) $r['n'],
                         (string) $r['step']->label(),
-                        $is_done    ? __( 'Completed', 'talenttrack' )
-                        : ( $is_current ? __( 'Current',  'talenttrack' )
-                        : ( $is_na ? __( 'Not applicable', 'talenttrack' ) : __( 'Pending', 'talenttrack' ) ) )
+                        $is_done ? __( 'Completed', 'talenttrack' )
+                        : ( $is_current ? __( 'Current', 'talenttrack' ) : __( 'Pending', 'talenttrack' ) )
                     );
                     ?>
                     <li class="<?php echo esc_attr( $r['cls'] ); ?>" aria-label="<?php echo esc_attr( $aria ); ?>">
@@ -787,8 +822,6 @@ class FrontendWizardView extends FrontendViewBase {
                         <span class="tt-wizard-rail-label"><?php echo esc_html( $r['step']->label() ); ?></span>
                         <?php if ( $is_current ) : ?>
                             <span class="tt-wizard-rail-caption"><?php esc_html_e( 'You are here', 'talenttrack' ); ?></span>
-                        <?php elseif ( $is_na ) : ?>
-                            <span class="tt-wizard-rail-caption"><?php esc_html_e( 'Not applicable', 'talenttrack' ); ?></span>
                         <?php endif; ?>
                     </li>
                 <?php endforeach; ?>

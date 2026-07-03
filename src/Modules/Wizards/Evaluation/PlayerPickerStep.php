@@ -19,7 +19,11 @@ final class PlayerPickerStep implements WizardStepInterface {
     public function label(): string { return __( 'Player', 'talenttrack' ); }
 
     public function notApplicableFor( array $state ): bool {
-        return ( $state['_path'] ?? '' ) === 'activity-first';
+        // #2254 — only applies once the PLAYER branch is chosen; unset
+        // (still on the mode step) or the activity branch keeps it out of
+        // the rail. The mode step sets `_path` before nav advances, so the
+        // picker is still reached on the player branch.
+        return ( $state['_path'] ?? '' ) !== 'player-first';
     }
 
     public function render( array $state ): void {
