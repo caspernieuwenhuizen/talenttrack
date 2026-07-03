@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.73.0
+Stable tag: 4.73.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.1 — Wizard: cleaner branched progress rail + Cancel always exits (#2254) Wizards that branch (like the evaluation wizard's "Evaluate an activity" vs "Evaluate 1 player" choice) now show a clean progress rail: only the steps on the path you actually picked appear, instead of listing both branches with half of them greyed out as "Not applicable". The step counter reflects the active path too.  Cancel no longer loops. Previously, after moving through a step or two, the Cancel link could send you back into the same wizard (its own URL had become the browser referer) — an inescapable loop. Cancel now always returns you to where you opened the wizard from (the list you came from, otherwise the dashboard), never back into the wizard. Framework-level, so every wizard benefits. =
 
 = 4.73.0 — Team minutes report: planned (unrecorded) matches no longer counted as starts (#2252) The team minutes report (Reports → Minutes played per player) could show more starts (basisplaatsen) than matches — e.g. "3 basisplaatsen, 1 wedstrijd" — which is impossible, and it inflated the "% available" figure to match. The cause: starts, available minutes and substitutions were accumulated from every planned prep line-up, including matches that were planned but never played or recorded, while matches and total minutes correctly counted only recorded matches. Now a match contributes to starts, available minutes and subs only when it actually produced recorded minutes, exactly like matches and totals already did. A planned-but-unrecorded match contributes 0 across the board, so starts can never exceed matches. Recorded minutes totals are unchanged. =
 
