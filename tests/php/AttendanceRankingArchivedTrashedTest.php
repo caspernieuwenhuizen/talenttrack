@@ -55,6 +55,40 @@ final class AttendanceRankingArchivedTrashedTest extends WP_UnitTestCase {
         $this->assertSame( 100.0, $row['present_pct'], 'present % reflects only the live activity' );
     }
 
+    /**
+     * #2259 — a completed activity that carries `activity_status_key =
+     * 'cancelled'` (the completed-then-status-cancelled edge) must be
+     * excluded from the attendance ranking. The existing `plan_state =
+     * 'completed'` guard already drops `plan_state='cancelled'`, but not
+     * this status-key marker. A clean completed activity is unaffected.
+     */
+    public function test_status_cancelled_activity_is_excluded(): void {
+        global $wpdb;
+        $team_id   = $this->insertTeam( 'U17 attendance-cancelled' );
+        $player_id = $this->insertPlayer( $team_id, 'Can', 'Celled' );
+
+        $live      = $this->insertActivity( $team_id, '2020-03-01' );
+        $cancelled = $this->insertActivity( $team_id, '2020-03-08' );
+
+        $this->insertAttendance( $live,      $player_id, 'present' );
+        $this->insertAttendance( $cancelled, $player_id, 'absent' );
+
+        // Completed but status-cancelled → must not count.
+        $wpdb->update( "{$this->p}tt_activities", [ 'activity_status_key' => 'cancelled' ], [ 'id' => $cancelled ] );
+
+        $rows = ( new AttendanceRankingQuery() )->rows( '2020-01-01', '2020-12-31', $team_id );
+
+        $row = null;
+        foreach ( $rows as $r ) {
+            if ( (int) $r['player_id'] === $player_id ) { $row = $r; break; }
+        }
+        $this->assertNotNull( $row, 'the player must appear in the ranking' );
+        $this->assertSame( 1, (int) $row['activities'], 'only the live activity counts; status-cancelled excluded' );
+        $this->assertSame( 1, (int) $row['total'], 'only the live attendance row counts' );
+        $this->assertSame( 0, (int) $row['absent'], 'the absent row sits on a cancelled activity and must not count' );
+        $this->assertSame( 100.0, $row['present_pct'], 'present % reflects only the live activity' );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     private function insertTeam( string $name ): int {
