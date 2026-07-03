@@ -225,15 +225,65 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         ];
                     }
                 }
+                // #2245 — status transition buttons replace the status
+                // dropdown on the edit form. The type-branch decision
+                // (wizard vs. match-execution) lives in the domain-layer
+                // resolver; the detail button and the list-card button
+                // both use it. Cancel / Reopen are direct, confirmed
+                // status changes via POST /activities/{id}/status.
+                $status_now  = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
+                $is_completed = ( $status_now === ActivityStatusKey::COMPLETED );
+                $detail_back  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id );
+                $status_rest  = 'activities/' . (int) $session->id . '/status';
+
+                if ( $status_now === ActivityStatusKey::PLANNED ) {
+                    $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                        (int) $session->id,
+                        (string) ( $session->activity_type_key ?? '' ),
+                        $detail_back
+                    );
+                    $detail_actions[] = [
+                        'label'   => __( 'Complete activity', 'talenttrack' ),
+                        'href'    => $complete_url,
+                        'primary' => true,
+                    ];
+                    $detail_actions[] = [
+                        'label'      => __( 'Cancel activity', 'talenttrack' ),
+                        'variant'    => 'secondary',
+                        'data_attrs' => [
+                            'tt-archive-rest-path'     => $status_rest,
+                            'tt-archive-method'        => 'POST',
+                            'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::CANCELLED ] ),
+                            'tt-archive-confirm'       => __( 'Cancel this activity? It will be marked cancelled; you can reopen it later.', 'talenttrack' ),
+                            'tt-archive-confirm-label' => __( 'Cancel activity', 'talenttrack' ),
+                            'tt-archive-redirect'      => $detail_back,
+                        ],
+                    ];
+                } else {
+                    // Completed or cancelled → Reopen (→ planned).
+                    $detail_actions[] = [
+                        'label'      => __( 'Reopen', 'talenttrack' ),
+                        'data_attrs' => [
+                            'tt-archive-rest-path'     => $status_rest,
+                            'tt-archive-method'        => 'POST',
+                            'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::PLANNED ] ),
+                            'tt-archive-confirm'       => __( 'Reopen this activity? It returns to planned.', 'talenttrack' ),
+                            'tt-archive-confirm-label' => __( 'Reopen', 'talenttrack' ),
+                            'tt-archive-variant'       => 'primary',
+                            'tt-archive-redirect'      => $detail_back,
+                        ],
+                    ];
+                }
+
                 // v3.110.97 — Continue rating. Only on completed
                 // activities (attendance + rating only make sense
                 // after the session happened). Cap-gated on the
-                // mark-attendance wizard's `tt_edit_evaluations`.
-                $is_completed = ( (string) ( $session->activity_status_key ?? '' ) === ActivityStatusKey::COMPLETED );
+                // evaluation wizard's `tt_edit_evaluations`.
                 if ( $is_completed && current_user_can( 'tt_edit_evaluations' ) ) {
                     $rate_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl(
-                        'mark-attendance',
+                        'new-evaluation',
                         [
+                            'mode'        => 'activity',
                             'activity_id' => (int) $session->id,
                             'restart'     => 1,
                         ]
@@ -1728,6 +1778,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $card .= '</div>';
         $card .= '<span class="tt-act-card__chev" aria-hidden="true">›</span>';
         $card .= '</a>';
+
+        // #2245 — "Complete activity" quick-action on planned cards, so
+        // most activities complete in one click without opening the
+        // detail page. Sits OUTSIDE the card's tap-to-open `<a>` so the
+        // two affordances don't fight. Type-aware target via the
+        // domain-layer resolver (same one the detail button uses).
+        $status_lower = strtolower( $status_key );
+        $is_planned   = ! $is_cancelled
+            && ( $status_lower === '' || $status_lower === ActivityStatusKey::PLANNED )
+            && in_array( $mode, [ 'today', 'this_week', 'next_week', 'later_this_month', 'later', 'attention' ], true );
+        if ( $is_planned && current_user_can( 'tt_edit_evaluations' ) ) {
+            $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                $id,
+                $type_key,
+                RecordLink::detailUrlFor( 'activities', $id )
+            );
+            $card .= '<a class="tt-btn tt-btn-secondary tt-act-card__complete" href="' . esc_url( $complete_url ) . '">'
+                . esc_html__( 'Complete activity', 'talenttrack' ) . '</a>';
+        }
+
         $card .= '</li>';
         return $card;
     }
@@ -2092,20 +2162,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-field">
-                    <label class="tt-field-label" for="tt-activity-status"><?php esc_html_e( 'Status', 'talenttrack' ); ?></label>
-                    <select id="tt-activity-status" class="tt-input" name="activity_status_key">
-                        <?php foreach ( $activity_status_rows as $status_row ) :
-                            $row_name = (string) $status_row->name;
-                            // #0061 — skip statuses flagged hidden_from_form (e.g. `draft`).
-                            $meta   = is_string( $status_row->meta ?? null ) ? json_decode( (string) $status_row->meta, true ) : null;
-                            $hidden = is_array( $meta ) && ! empty( $meta['hidden_from_form'] );
-                            if ( $hidden && $current_status !== $row_name ) continue;
-                            ?>
-                            <option value="<?php echo esc_attr( $row_name ); ?>" <?php selected( $current_status, $row_name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $status_row ) ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <?php
+                // #2245 — the status dropdown was removed. The edit form
+                // now edits details only; status transitions (Complete /
+                // Cancel / Reopen) live as explicit buttons on the detail
+                // view. Preserve the current status on save so a details
+                // edit never resets it (the REST controller reads this
+                // field; leaving it out would fall to the column default).
+                ?>
+                <input type="hidden" name="activity_status_key" value="<?php echo esc_attr( $current_status ); ?>" />
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-activity-title"><?php esc_html_e( 'Title', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-title" class="tt-input" name="title" required value="<?php echo esc_attr( (string) ( $session->title ?? '' ) ); ?>" />
@@ -2338,34 +2403,21 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             </script>
 
             <?php
-            // #0061 — Hide the attendance section unless the activity has actually
-            // happened (status = completed). Planned + cancelled don't get
-            // attendance rows. The wrapper carries data-tt-attendance-section
-            // so the status `<select>` JS below can toggle it without a reload.
+            // #2245 — the inline editable *actual* attendance table (and its
+            // status-toggle JS) were removed from the edit form. The
+            // evaluation wizard's AttendanceStep is now the single
+            // attendance path (launched via the detail view's "Complete
+            // activity" / "Continue rating" buttons and the list-card
+            // quick-action). The edit form edits details + planned
+            // (expected) attendance only. The read-only attendance summary
+            // stays on the detail view.
+            //
+            // #0061 — $attendance_visible mirrors "has the activity actually
+            // happened?" (status = completed). It no longer gates an
+            // in-form actual-attendance table (that moved to the wizard); it
+            // survives only as the inverse gate for the planned section
+            // below — planned attendance is editable *until* completion.
             $attendance_visible = ( $current_status === ActivityStatusKey::COMPLETED );
-
-            // #1726 — direct per-player minutes entry on match completion.
-            // Resolve the full match length: stored value wins, else the
-            // match prep's explicit half, else the per-age-category
-            // default (#1727), else the global 35'/half fallback. The
-            // resolution itself lives in the domain layer (§4).
-            // `renderForm` has no `$id` of its own — resolve the activity id
-            // from the loaded session. Create-mode matches have no id yet, so
-            // they skip the prep/participation lookups (which take a
-            // non-nullable int and would fatal on a null id).
-            $match_id      = ( $is_edit && $session ) ? (int) $session->id : 0;
-            $match_length  = (int) ( $session->match_length_minutes ?? 0 );
-            $participation = [ 'subs_on' => 0, 'subs_off' => 0 ];
-            if ( $is_match_type && $match_id > 0 ) {
-                if ( $match_length <= 0 ) {
-                    $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $match_id );
-                    $prep_half = $prep_row ? (int) ( $prep_row->half_length_minutes ?? 0 ) : 0;
-                    $match_length = ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )
-                        ->matchMinutesForActivity( $match_id, $prep_half );
-                }
-                $participation = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-                    ->matchParticipationSummary( $match_id, $match_length );
-            }
 
             // #2248 — planned (expected) attendance is editable while the
             // activity has NOT yet happened (inverse of $attendance_visible).
@@ -2375,11 +2427,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // (§4); the view only composes rows.
             // Edit-only: the create path (POST /activities) has no planned
             // write handler, so seeding a plan there would silently drop it.
+            //
+            // `renderForm` has no `$id` of its own — resolve the activity id
+            // from the loaded session. Create-mode rows have no id yet and
+            // skip the roster lookup.
+            $activity_id_for_plan = ( $is_edit && $session ) ? (int) $session->id : 0;
             $planned_visible = $is_edit && ! $attendance_visible;
             $planned_rows    = [];
-            if ( $is_edit && $match_id > 0 ) {
+            if ( $is_edit && $activity_id_for_plan > 0 ) {
                 foreach ( ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-                    ->plannedRosterForActivity( $match_id ) as $prow ) {
+                    ->plannedRosterForActivity( $activity_id_for_plan ) as $prow ) {
                     $planned_rows[ (int) $prow->player_id ] = $prow;
                 }
             }
@@ -2410,8 +2467,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 return 'expected';
             };
             ?>
-            <?php if ( $is_edit ) : ?>
-            <div class="tt-planned-attendance" data-tt-planned-section<?php echo $planned_visible ? '' : ' hidden'; ?>>
+            <?php
+            // #2245 + #2248 — planned attendance renders only while the
+            // activity has not yet been completed ($planned_visible). The
+            // status `<select>` + toggle JS that used to reveal/hide this
+            // client-side were removed with the actual-attendance table;
+            // status changes now happen via the detail-view transition
+            // buttons and reload the form. Gating the whole section on
+            // $planned_visible (not just $is_edit) keeps the `planned[]`
+            // inputs out of the POST once the activity is completed, so a
+            // stale expected write can't overwrite the recorded attendance.
+            ?>
+            <?php if ( $planned_visible ) : ?>
+            <div class="tt-planned-attendance" data-tt-planned-section>
                 <h3 class="tt-planned-attendance__title"><?php esc_html_e( 'Planned attendance', 'talenttrack' ); ?></h3>
                 <p class="tt-planned-attendance__hint">
                     <?php esc_html_e( 'Set who you expect before the activity happens. This carries into the attendance defaults once it is completed.', 'talenttrack' ); ?>
@@ -2455,133 +2523,31 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     </table>
                 <?php endif; ?>
             </div>
-            <?php endif; // $is_edit planned section ?>
+            <?php endif; // $planned_visible planned section ?>
 
-            <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
-            <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
-
-            <?php if ( $is_match_type ) : ?>
-                <div class="tt-match-minutes-meta" data-tt-match-minutes data-tt-match-length-default="<?php echo (int) $match_length; ?>">
-                    <label class="tt-field-label" for="tt-match-length"><?php esc_html_e( 'Match length (minutes)', 'talenttrack' ); ?></label>
-                    <input type="number" inputmode="numeric" min="0" max="300" id="tt-match-length" class="tt-input tt-match-minutes-length" name="match_length_minutes" value="<?php echo esc_attr( (string) $match_length ); ?>" data-tt-match-length />
-                    <p class="tt-match-minutes-summary" data-tt-subs-summary
-                       data-tt-subs-on="<?php echo (int) $participation['subs_on']; ?>"
-                       data-tt-subs-off="<?php echo (int) $participation['subs_off']; ?>">
-                        <?php echo esc_html( sprintf(
-                            /* translators: 1: number of substitutes brought on, 2: starters subbed off */
-                            __( 'Subs: %1$d on · %2$d off', 'talenttrack' ),
-                            (int) $participation['subs_on'],
-                            (int) $participation['subs_off']
-                        ) ); ?>
-                    </p>
-                </div>
-            <?php endif; ?>
-
-            <?php if ( ! $all_players ) : ?>
-                <p><em><?php esc_html_e( 'No players on your teams yet.', 'talenttrack' ); ?></em></p>
-            <?php else : ?>
-                <?php
-                // Tell the JS which option value counts as "Present" for
-                // the live summary count + Mark-all-present default. Defaults
-                // to the literal English seed name; if the admin renamed the
-                // first attendance_status row (e.g. to 'Aanwezig'), we use
-                // that — the first row in sort_order is the canonical
-                // "present" by convention (#0019 Sprint 2 lookup contract).
-                $present_value = ! empty( $statuses ) ? (string) $statuses[0] : 'Present';
+            <?php
+            // #2245 — the *actual* (completed) attendance table used to live
+            // here. It moved to the evaluation wizard's AttendanceStep, so
+            // the edit form only links out to the guided completion flow.
+            // Status now changes via the detail view's transition buttons —
+            // there is no status `<select>` on this form and no toggle JS.
+            if ( $is_edit && current_user_can( 'tt_edit_evaluations' ) ) :
+                $attendance_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                    (int) $session->id,
+                    (string) ( $session->activity_type_key ?? '' ),
+                    add_query_arg( [ 'tt_view' => 'activities', 'id' => (int) $session->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
+                );
                 ?>
-                <div class="tt-attendance" data-tt-attendance="1" data-current-team="<?php echo (int) $selected_team; ?>" data-tt-attendance-present-value="<?php echo esc_attr( $present_value ); ?>">
-                    <div class="tt-attendance-toolbar">
-                        <button type="button" class="tt-btn tt-btn-secondary tt-attendance-mark-all" data-tt-attendance-mark-all="1">
-                            <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
-                        </button>
-                        <span class="tt-attendance-summary" data-tt-attendance-summary="1"></span>
-                    </div>
-
-                    <table class="tt-table tt-attendance-table<?php echo $is_match_type ? ' tt-attendance-table--match' : ''; ?>">
-                        <thead><tr>
-                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                            <?php if ( $is_match_type ) : ?>
-                                <th><?php esc_html_e( 'Starter', 'talenttrack' ); ?></th>
-                                <th><?php esc_html_e( 'Minutes', 'talenttrack' ); ?></th>
-                            <?php endif; ?>
-                            <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
-                        </tr></thead>
-                        <tbody>
-                        <?php foreach ( $all_players as $pid => $pl ) :
-                            $row_team_id = (int) $pl->team_id;
-                            $row_status  = (string) ( $attendance[ $pid ]->status ?? 'Present' );
-                            $row_notes   = (string) ( $attendance[ $pid ]->notes  ?? '' );
-                            $row_starter = strtolower( (string) ( $attendance[ $pid ]->lineup_role ?? '' ) ) === 'start';
-                            $row_minutes = $attendance[ $pid ]->minutes_played ?? null;
-                            ?>
-                            <tr class="tt-attendance-row" data-team-id="<?php echo $row_team_id; ?>">
-                                <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
-                                    <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
-                                </td>
-                                <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
-                                    <select class="tt-input tt-attendance-status" name="att[<?php echo (int) $pid; ?>][status]" data-tt-attendance-status="1">
-                                        <?php foreach ( $statuses as $s ) : ?>
-                                            <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $row_status, $s ); ?>><?php echo esc_html( LabelTranslator::attendanceStatus( $s ) ); ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                                <?php if ( $is_match_type ) : ?>
-                                    <td data-label="<?php esc_attr_e( 'Starter', 'talenttrack' ); ?>">
-                                        <input type="checkbox" class="tt-attendance-starter" name="att[<?php echo (int) $pid; ?>][starter]" value="1" <?php checked( $row_starter ); ?> data-tt-attendance-starter />
-                                    </td>
-                                    <td data-label="<?php esc_attr_e( 'Minutes', 'talenttrack' ); ?>">
-                                        <input type="number" inputmode="numeric" min="0" max="300" class="tt-input tt-attendance-minutes" name="att[<?php echo (int) $pid; ?>][minutes]" value="<?php echo esc_attr( $row_minutes === null ? '' : (string) (int) $row_minutes ); ?>" data-tt-attendance-minutes />
-                                    </td>
-                                <?php endif; ?>
-                                <td data-label="<?php esc_attr_e( 'Notes', 'talenttrack' ); ?>">
-                                    <input type="text" class="tt-input" name="att[<?php echo (int) $pid; ?>][notes]" value="<?php echo esc_attr( $row_notes ); ?>" />
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                        </tbody>
-                    </table>
-
-                    <p class="tt-attendance-show-all" data-tt-attendance-show-all="1" hidden>
-                        <button type="button" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Show all', 'talenttrack' ); ?></button>
-                    </p>
-                </div>
+                <h3 class="tt-act-form-attendance-head"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
+                <p class="tt-act-form-attendance-note">
+                    <?php esc_html_e( 'Attendance and ratings are captured in the guided completion flow, not on this form.', 'talenttrack' ); ?>
+                </p>
+                <p>
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $attendance_url ); ?>">
+                        <?php esc_html_e( 'Complete activity', 'talenttrack' ); ?>
+                    </a>
+                </p>
             <?php endif; ?>
-            </div>
-            <p data-tt-attendance-hidden-hint<?php echo $attendance_visible ? ' hidden' : ''; ?> style="color:#5b6e75;font-style:italic;margin:16px 0;">
-                <?php esc_html_e( 'Attendance is recorded once the activity is marked Completed.', 'talenttrack' ); ?>
-            </p>
-            <script>
-            (function(){
-                var statusSel = document.getElementById('tt-activity-status');
-                if ( ! statusSel ) return;
-                var section = document.querySelector('[data-tt-attendance-section]');
-                var hint    = document.querySelector('[data-tt-attendance-hidden-hint]');
-                var planned = document.querySelector('[data-tt-planned-section]');
-                // #2248 — a hidden section's inputs still POST, which would
-                // let a planned edit write actual rows (and vice-versa).
-                // Disable the fields of whichever section is hidden so
-                // exactly one attendance payload (att[] OR planned[]) submits,
-                // keeping the expected/actual record_type split intact.
-                function setDisabled( scope, off ){
-                    if ( ! scope ) return;
-                    var fields = scope.querySelectorAll('input, select, textarea');
-                    for ( var i = 0; i < fields.length; i++ ) { fields[i].disabled = off; }
-                }
-                function sync(){
-                    var ok = statusSel.value === 'completed';
-                    if ( section ) section.toggleAttribute('hidden', ! ok);
-                    if ( hint )    hint.toggleAttribute('hidden', ok);
-                    // #2248 — planned attendance is the inverse: editable
-                    // only while the activity has not yet been completed.
-                    if ( planned ) planned.toggleAttribute('hidden', ok);
-                    setDisabled( section, ! ok );
-                    setDisabled( planned, ok );
-                }
-                statusSel.addEventListener('change', sync);
-                sync();
-            })();
-            </script>
 
             <?php
             // #0037 — guest section renders in both modes. On create it

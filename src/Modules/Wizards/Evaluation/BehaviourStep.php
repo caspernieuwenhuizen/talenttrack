@@ -7,28 +7,32 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * BehaviourStep (#869) — optional "Behaviour today" step in the
- * activity-first new-evaluation flow.
+ * BehaviourStep (#869; relocated to the player-first deep path in
+ * #2249) — optional "Behaviour today" step.
  *
- * Sits between RateActorsStep and ReviewStep on the activity-first
- * path. Renders the rateable roster for the activity with a per-player
- * rating dropdown + notes input. Step is fully skippable — submitting
- * with all blank values writes zero behaviour rows.
+ * #2249 — the unified activity path is quick-rating only (main
+ * categories via RateActorsStep); behaviour capture moved to the
+ * **"Evaluate 1 player"** deep path so it isn't lost. HybridDeepRateStep
+ * rates evaluation categories/sub-ratings only — it does NOT write the
+ * separate `tt_player_behaviour_ratings` rows — so this step is what
+ * keeps behaviour reachable. Sits between HybridDeepRateStep and
+ * ReviewStep on the player path.
+ *
+ * Renders a single-player behaviour form (the picked `player_id`) with a
+ * rating dropdown + notes input. Fully skippable — submitting blank
+ * writes zero behaviour rows.
  *
  * Auto-skipped (`notApplicableFor`):
- *   - When the wizard is on the player-first path (`_path !== 'activity-first'`).
+ *   - When the wizard is NOT on the player-first path.
  *   - When the current user lacks `tt_rate_player_behaviour`.
  *
- * Writing the rows is delegated to ReviewStep::submitActivityFirst()
+ * Writing the rows is delegated to ReviewStep::submitPlayerFirst()
  * which iterates `behaviour_ratings` from accumulated state and calls
  * `PlayerBehaviourRatingsRepository::create()` once per non-null rating.
- * The behaviour row's `related_activity_id` is the wizard's selected
- * activity so the player-status calculator can attribute the rating
- * to the same session as the evaluation it was captured alongside.
  *
- * Per parent epic #867: ties behaviour capture to the same flow most
- * coaches already use for player data entry, eliminating the most
- * common reason coaches never record behaviour (the context-switch tax).
+ * Per parent epic #867: ties behaviour capture to the deep-rating flow
+ * so the context-switch tax that stopped coaches recording behaviour is
+ * removed.
  */
 final class BehaviourStep implements WizardStepInterface {
 
@@ -36,14 +40,17 @@ final class BehaviourStep implements WizardStepInterface {
     public function label(): string { return __( 'Behaviour today', 'talenttrack' ); }
 
     public function notApplicableFor( array $state ): bool {
-        if ( ( $state['_path'] ?? '' ) !== 'activity-first' ) return true;
+        if ( ( $state['_path'] ?? '' ) !== 'player-first' ) return true;
         if ( ! current_user_can( 'tt_rate_player_behaviour' ) ) return true;
         return false;
     }
 
     public function render( array $state ): void {
-        $aid = (int) ( $state['activity_id'] ?? 0 );
-        $players = RateActorsStep::ratablePlayersForActivity( $aid );
+        if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
+            wp_enqueue_style( 'tt-behaviour-step', TT_PLUGIN_URL . 'assets/css/behaviour-step.css', [], TT_VERSION );
+        }
+        // #2249 — player-first path: rate the single picked player.
+        $players = self::playersForState( $state );
 
         $min = (int) round( (float) QueryHelpers::get_config( 'rating_min', '5' ) );
         $max = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
@@ -64,13 +71,13 @@ final class BehaviourStep implements WizardStepInterface {
         $last_choice = (string) get_user_meta( get_current_user_id(), 'tt_behaviour_step_last', true );
         $start_open  = $last_choice !== 'skipped' || ! empty( array_filter( $existing_ratings ) );
         ?>
-        <p style="color:var(--tt-muted);max-width:60ch;">
-            <?php esc_html_e( 'Behaviour is tracked separately from performance — this optional second pass records conduct, not football. Leave everything blank (or keep this section closed) and tap Next if you only want performance ratings today.', 'talenttrack' ); ?>
+        <p class="tt-behaviour-intro">
+            <?php esc_html_e( 'Behaviour is tracked separately from performance — this optional pass records conduct, not football. Leave it blank (or keep this section closed) and tap Next if you only want the performance rating.', 'talenttrack' ); ?>
         </p>
 
         <details class="tt-behaviour-disclosure" <?php echo $start_open ? 'open' : ''; ?>>
-            <summary class="tt-rate-player-summary" style="min-height:48px;display:flex;align-items:center;cursor:pointer;touch-action:manipulation;">
-                <strong><?php esc_html_e( 'Rate behaviour for this activity', 'talenttrack' ); ?></strong>
+            <summary class="tt-rate-player-summary tt-behaviour-summary">
+                <strong><?php esc_html_e( 'Rate behaviour', 'talenttrack' ); ?></strong>
             </summary>
 
         <div class="tt-rate-roster">
@@ -167,4 +174,29 @@ final class BehaviourStep implements WizardStepInterface {
 
     public function nextStep( array $state ): ?string { return 'review'; }
     public function submit( array $state ) { return null; }
+
+    /**
+     * #2249 — resolve the roster this step rates. On the player-first
+     * path there's a single picked `player_id`; on the (legacy)
+     * activity path the rateable roster for the activity. Returns
+     * `[ (object){ id, first_name, last_name } ]`.
+     *
+     * @return list<object>
+     */
+    private static function playersForState( array $state ): array {
+        if ( ( $state['_path'] ?? '' ) === 'player-first' ) {
+            $pid = (int) ( $state['player_id'] ?? 0 );
+            if ( $pid <= 0 ) return [];
+            global $wpdb;
+            $p = $wpdb->prefix;
+            $row = $wpdb->get_row( $wpdb->prepare(
+                "SELECT id, first_name, last_name FROM {$p}tt_players
+                  WHERE id = %d AND club_id = %d AND archived_at IS NULL",
+                $pid, \TT\Infrastructure\Tenancy\CurrentClub::id()
+            ) );
+            return $row ? [ $row ] : [];
+        }
+        $aid = (int) ( $state['activity_id'] ?? 0 );
+        return RateActorsStep::ratablePlayersForActivity( $aid );
+    }
 }

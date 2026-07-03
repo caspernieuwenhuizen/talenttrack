@@ -262,6 +262,9 @@ final class HybridDeepRateStep implements WizardStepInterface {
         ];
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    // #2249 — behaviour capture lives on the deep path now; route to
+    // BehaviourStep (which auto-skips when the coach lacks
+    // `tt_rate_player_behaviour`, falling through to review).
+    public function nextStep( array $state ): ?string { return 'behaviour'; }
     public function submit( array $state ) { return null; }
 }

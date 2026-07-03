@@ -146,14 +146,25 @@
                     }
 
                     btn.disabled = true;
-                    fetch(rest_root + path, {
+                    // #2245 — optional JSON body (e.g. the status
+                    // transition endpoint needs `{ status: '…' }`).
+                    // Backward-compatible: archive / restore / permanent
+                    // buttons carry no body and send none.
+                    var bodyRaw = btn.getAttribute('data-tt-archive-body') || '';
+                    var headers = {
+                        'Accept': 'application/json',
+                        'X-WP-Nonce': rest_nonce
+                    };
+                    var fetchOpts = {
                         method: method,
                         credentials: 'same-origin',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-WP-Nonce': rest_nonce
-                        }
-                    }).then(function (res) {
+                        headers: headers
+                    };
+                    if (bodyRaw) {
+                        headers['Content-Type'] = 'application/json';
+                        fetchOpts.body = bodyRaw;
+                    }
+                    fetch(rest_root + path, fetchOpts).then(function (res) {
                         return res.json().then(function (body) {
                             return { status: res.status, body: body };
                         }).catch(function () {

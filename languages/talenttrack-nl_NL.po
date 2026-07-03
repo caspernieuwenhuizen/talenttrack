@@ -46289,6 +46289,109 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "What are you evaluating?"
+msgstr "Wat evalueer je?"
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Pick how you want to evaluate. You can switch back with Previous."
+msgstr "Kies hoe je wilt evalueren. Je kunt terug met Vorige."
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Evaluation mode"
+msgstr "Evaluatiemodus"
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Evaluate an activity"
+msgstr "Een activiteit evalueren"
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Rate the players who took part in a training or match."
+msgstr "Beoordeel de spelers die aan een training of wedstrijd deelnamen."
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Evaluate 1 player"
+msgstr "1 speler evalueren"
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "A standalone assessment outside a registered activity."
+msgstr "Een losse beoordeling buiten een geregistreerde activiteit om."
+
+#: src/Modules/Wizards/Evaluation/EvaluationModeStep.php
+msgid "Pick whether you are evaluating an activity or a single player."
+msgstr "Kies of je een activiteit of één speler evalueert."
+
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php
+msgid ""
+"Pick an activity from the last 90 days to rate the players who attended. "
+"Scheduled activities appear from their planned date; activities with every "
+"present player rated drop off the list."
+msgstr ""
+"Kies een activiteit uit de laatste 90 dagen om de aanwezige spelers te "
+"beoordelen. Geplande activiteiten verschijnen vanaf hun geplande datum; "
+"activiteiten waarvan elke aanwezige speler is beoordeeld, verdwijnen uit de "
+"lijst."
+
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php
+msgid ""
+"No rateable activities in the last 90 days. Schedule or complete an activity "
+"with a rateable type to see it here. To rate a player without an activity, "
+"go back and choose \"Evaluate 1 player\"."
+msgstr ""
+"Geen te beoordelen activiteiten in de laatste 90 dagen. Plan of voltooi een "
+"activiteit met een beoordeelbaar type om die hier te zien. Kies \"1 speler "
+"evalueren\" via Vorige om een speler zonder activiteit te beoordelen."
+
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php
+msgid "Pick an activity to continue."
+msgstr "Kies een activiteit om verder te gaan."
+
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php
+msgid ""
+"Behaviour is tracked separately from performance — this optional pass "
+"records conduct, not football. Leave it blank (or keep this section closed) "
+"and tap Next if you only want the performance rating."
+msgstr ""
+"Gedrag wordt los van prestatie bijgehouden — deze optionele ronde legt "
+"gedrag vast, geen voetbal. Laat het leeg (of houd dit gedeelte dicht) en tik "
+"op Volgende als je alleen de prestatiebeoordeling wilt."
+
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php
+msgid "Rate behaviour"
+msgstr "Gedrag beoordelen"
+
+#: src/Modules/Wizards/Evaluation/ReviewStep.php
+msgid "Behaviour rating to record:"
+msgstr "Vast te leggen gedragsbeoordeling:"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Complete activity"
+msgstr "Activiteit voltooien"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Cancel activity"
+msgstr "Activiteit annuleren"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Cancel this activity? It will be marked cancelled; you can reopen it later."
+msgstr "Deze activiteit annuleren? Ze wordt als geannuleerd gemarkeerd; je kunt haar later heropenen."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Reopen this activity? It returns to planned."
+msgstr "Deze activiteit heropenen? Ze gaat terug naar gepland."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Attendance and ratings are captured in the guided completion flow, not on this form."
+msgstr "Aanwezigheid en beoordelingen worden vastgelegd in de begeleide voltooiingsflow, niet op dit formulier."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Only Cancel and Reopen are allowed here. Completing an activity runs through the evaluation flow."
+msgstr "Hier zijn alleen Annuleren en Heropenen toegestaan. Een activiteit voltooien verloopt via de evaluatieflow."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Could not update the activity status."
+msgstr "Kon de activiteitsstatus niet bijwerken."
+
 #, php-format
 #~ msgid "%d past, still planned"
 #~ msgid_plural "%d past, still planned"

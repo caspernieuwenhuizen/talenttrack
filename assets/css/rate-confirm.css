@@ -1,0 +1,32 @@
+/* #2249 — RateConfirmStep: Yes / Skip fork on the unified activity path. */
+
+.tt-rate-confirm-intro {
+    color: var(--tt-muted);
+    max-width: 60ch;
+}
+
+.tt-rate-confirm-count {
+    margin: var(--tt-sp-2) 0;
+    color: var(--tt-muted);
+}
+
+.tt-rate-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    margin: var(--tt-sp-3) 0;
+}
+
+.tt-rate-confirm-btn {
+    min-height: 56px;
+}
+
+.tt-rate-confirm-btn.tt-button-primary {
+    font-size: var(--tt-fs-lg);
+}
+
+.tt-rate-confirm-hint {
+    font-size: var(--tt-fs-sm);
+    margin: 0;
+    color: var(--tt-muted);
+}

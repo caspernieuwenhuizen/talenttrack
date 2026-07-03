@@ -1,0 +1,68 @@
+/* #2246 — EvaluationModeStep: two big mode-choice buttons.
+ * Mobile-first: stacked at 360px, side-by-side from 480px up. */
+
+.tt-eval-mode-intro {
+    color: var(--tt-muted);
+    max-width: 60ch;
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-eval-mode-choices {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+}
+
+@media (min-width: 480px) {
+    .tt-eval-mode-choices {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.tt-eval-mode-btn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    align-items: flex-start;
+    text-align: left;
+    min-height: 96px;
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    border: 2px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: border-color var(--tt-motion-duration) var(--tt-motion-easing),
+                background var(--tt-motion-duration) var(--tt-motion-easing);
+}
+
+.tt-eval-mode-btn:hover {
+    border-color: var(--tt-primary);
+}
+
+.tt-eval-mode-btn:focus-visible {
+    outline: 3px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+.tt-eval-mode-btn:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-eval-mode-btn__title {
+    font-size: var(--tt-fs-lg);
+    font-weight: 700;
+}
+
+.tt-eval-mode-btn__desc {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    line-height: var(--tt-lh-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-eval-mode-btn {
+        transition: none;
+    }
+}

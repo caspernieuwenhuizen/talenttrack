@@ -103,6 +103,7 @@ final class RestSmokeTest extends WP_UnitTestCase {
 
             // Activities + goals (write surfaces).
             'POST /activities'              => [ 'POST',   '/talenttrack/v1/activities' ],
+            'POST /activities/1/status'     => [ 'POST',   '/talenttrack/v1/activities/1/status' ],
             'POST /goals'                   => [ 'POST',   '/talenttrack/v1/goals' ],
 
             // Cross-cutting / admin surfaces.

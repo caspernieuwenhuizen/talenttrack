@@ -61,17 +61,29 @@ De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en v
 
 1. Open de tegel **Activiteiten**.
 2. Kies het **type** uit de keuzelijst. Vijf types staan standaard klaar (Training, Wedstrijd, Toernooi, Bespreking, Overig) en je academie kan ze hernoemen of nieuwe toevoegen.
-3. Kies de **status** — Gepland, Voltooid of Geannuleerd. Nieuwe activiteiten staan standaard op Gepland; zet hem op Voltooid zodra de activiteit is geweest, of op Geannuleerd als hij niet doorging.
-4. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
-5. Bij **Overig**: geef het een korte omschrijving.
-6. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe. Bij een wedstrijd vult het invoeren van de aftraptijd automatisch de eindtijd 105 minuten later in (90' spelen + 15' rust); je kunt die altijd aanpassen.
-7. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnt een optioneel veld **Aanwezigheidstijd** — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
-8. Opslaan. De spelerslijst wordt automatisch gevuld vanuit het team.
-8. Markeer iedere speler als Aanwezig, Afwezig, Te laat of Afgemeld. Zet er een notitie bij waar handig.
+3. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
+4. Bij **Overig**: geef het een korte omschrijving.
+5. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe. Bij een wedstrijd vult het invoeren van de aftraptijd automatisch de eindtijd 105 minuten later in (90' spelen + 15' rust); je kunt die altijd aanpassen.
+6. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnt een optioneel veld **Aanwezigheidstijd** — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
+7. Opslaan. Nieuwe activiteiten starten op **Gepland**.
 
-### Speelminuten (afgeronde wedstrijden)
+Het bewerkformulier verandert geen status meer en legt geen aanwezigheid meer vast — het bewerkt alleen de details. **Status verander je met expliciete knoppen** (zie [Een activiteit voltooien](#een-activiteit-voltooien)), en aanwezigheid leg je vast in de begeleide voltooiingsflow.
 
-Wanneer een activiteit van het type **wedstrijd** op **Voltooid** staat, krijgt de opkomsttabel twee extra kolommen — **Basisspeler** en **Minuten** — zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld, ook voor een voorbije wedstrijd die je niet live hebt gevolgd. Boven de tabel staat een veld **Wedstrijdduur (minuten)**; dat wordt voorgevuld vanuit de twee helften van de wedstrijdvoorbereiding (of 70 minuten als er geen voorbereiding is) en je kunt het aanpassen. Op basis van de basisspeler-vinkjes, de minuten en de wedstrijdduur toont het formulier een samenvatting **Wissels: N in · N uit** — invallers die erin kwamen en basisspelers die eruit gingen — die ververst bij het opslaan. De ingevoerde minuten voeden het minutenrapport en het belastingsbeeld van de speler.
+### Een activiteit voltooien
+
+Je zet de status niet meer met een keuzelijst. Een **geplande** activiteit toont een knop **Activiteit voltooien** — zowel op de **lijstkaart** (zodat de meeste activiteiten in één klik voltooid zijn zonder de detailpagina te openen) als op het **detailscherm**. De knop is type-bewust:
+
+- **Training** → opent de evaluatiewizard op de activiteit: aanwezigheid registreren, optioneel beoordelen, klaar.
+- **Wedstrijd zonder live-gevolgde uitvoering** ("papieren wedstrijd") → dezelfde wizard, maar bij aanwezigheid worden ook per-speler **minuten** verzameld.
+- **Wedstrijd met een live-match-uitvoering** → gaat naar de **Hervatten / Afronden**-flow van de wedstrijd; de minuten komen uit het afronden, dus de wizard vraagt er niet opnieuw naar.
+
+De activiteit gaat pas op **Voltooid** als de flow is afgerond (de laatste stap van de wizard, of het afronden van de wedstrijd). Onderbreek je de flow, dan blijft ze **Gepland** — opnieuw starten hervat zonder aanwezigheid te dupliceren.
+
+Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit) en **Heropenen** (bij een voltooide of geannuleerde) — directe, bevestigde statuswijzigingen.
+
+### Speelminuten (papieren wedstrijden)
+
+Wanneer je een **wedstrijd**-type activiteit voltooit die nooit live is gevolgd, krijgt de aanwezigheidsstap van de wizard kolommen **Basisspeler** en **Minuten** zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld. De minuten voeden het minutenrapport en het belastingsbeeld van de speler. Voor een wedstrijd die je *wel* live volgde, komen de minuten uit het afronden van de wedstrijduitvoering.
 
 In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedstrijden, toernooien, besprekingen en overige activiteiten in één oogopslag te onderscheiden zijn.
 
@@ -79,7 +91,7 @@ In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedst
 
 Bij het aanmaken van een activiteit kies je welke spelers worden verwacht — de selectiestap staat standaard op het hele team, en je vinkt iedereen uit van wie je al weet dat die er niet is. Die keuze is de **geplande selectie** van de activiteit.
 
-Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Zijn er spelers afgemeld, dan toont het paneel een samenvatting zoals *"2 komen niet · 1 misschien"* en wordt elke betrokken speler gemarkeerd. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je nog steeds op het bewerkformulier (of via de wizard Aanwezigheid markeren) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde.
+Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Zijn er spelers afgemeld, dan toont het paneel een samenvatting zoals *"2 komen niet · 1 misschien"* en wordt elke betrokken speler gemarkeerd. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je in de begeleide voltooiingsflow (**Activiteit voltooien** / **Beoordelen voortzetten**) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde. Het detailscherm houdt een alleen-lezen aanwezigheidssamenvatting bij op voltooide activiteiten.
 
 ### De planning aanpassen (v4.71.0)
 
@@ -89,7 +101,7 @@ Is de activiteit aangemaakt met "Aanwezigheid later instellen" (dus zonder gepla
 
 Een speler vroeg op **Komt niet** zetten voedt de latere aanwezigheidsstandaarden: bij het voltooien van de activiteit weet de wedstrijdvoorbereidingsstap al wie je niet verwachtte, zodat je vroege notitie niet verloren gaat. Het aanpassen van de planning raakt nooit de geregistreerde (voltooide) aanwezigheid — die twee blijven gescheiden, dus de aanwezigheidsrapporten worden niet beïnvloed.
 
-Maak je een activiteit aan die **al op Voltooid staat** (ze vond in het verleden plaats) en vul je geen aanwezigheid in, dan wordt de volledige actieve selectie automatisch als **aanwezig** geregistreerd, zodat de activiteit meteen te beoordelen is — pas eventuele afwezigheden daarna aan op het bewerkformulier.
+Maak je een activiteit aan die **al op Voltooid staat** (ze vond in het verleden plaats) en vul je geen aanwezigheid in, dan wordt de volledige actieve selectie automatisch als **aanwezig** geregistreerd, zodat de activiteit meteen te beoordelen is — pas eventuele afwezigheden daarna aan in de begeleide voltooiingsflow.
 
 ## Waarom het type ertoe doet
 
@@ -104,7 +116,7 @@ Je beheerder kan via **Configuratie → Activiteittypes** wijzigen welk sjabloon
 
 Naast het type heeft elke activiteit twee extra velden:
 
-- **Status** — waar de activiteit zich in de levenscyclus bevindt. **Gepland** is de standaard bij nieuwe activiteiten; zet hem op **Voltooid** zodra de activiteit is geweest zodat rapportages en KPI's hem als historisch behandelen, of op **Geannuleerd** als hij niet doorging. De lijst statuswaarden is uitbreidbaar via **Configuratie → Lookups** (lookup-type `activity_status`).
+- **Status** — waar de activiteit zich in de levenscyclus bevindt. **Gepland** is de standaard bij nieuwe activiteiten. Hij gaat op **Voltooid** wanneer je de begeleide voltooiingsflow afrondt (zie [Een activiteit voltooien](#een-activiteit-voltooien)), en op **Geannuleerd** via de knop **Activiteit annuleren** op het detailscherm; **Heropenen** zet hem terug op Gepland. De lijst statuswaarden is uitbreidbaar via **Configuratie → Lookups** (lookup-type `activity_status`).
 - **Bron** — wie of wat de activiteit heeft aangemaakt. **Handmatig** voor activiteiten die in de app zijn gemaakt, **Gegenereerd** voor activiteiten van de demo-data-generator, en **Spond** voor activiteiten die uit een Spond-agenda zijn gesynchroniseerd (zodra de integratie aanstaat). De bron wordt automatisch gezet, niet handmatig op het formulier. Net als status is de lijst bronnen uitbreidbaar.
 
 De 90-daagse rollup die het Hoofd Opleidingen gebruikt toont één regel per actief type — hernoem of voeg types toe en de rollup volgt automatisch.

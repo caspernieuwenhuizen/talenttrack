@@ -1,0 +1,14 @@
+/* #2249 — BehaviourStep on the player-first deep path. */
+
+.tt-behaviour-intro {
+    color: var(--tt-muted);
+    max-width: 60ch;
+}
+
+.tt-behaviour-summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: manipulation;
+}
