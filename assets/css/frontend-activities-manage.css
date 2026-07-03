@@ -195,6 +195,26 @@
     outline-offset: -2px;
 }
 
+/* #2245 — "Complete activity" quick-action on planned cards. Sits
+ * below the tap-to-open link as its own affordance so the two don't
+ * fight; full-width tap target, right-aligned label. */
+.tt-dashboard .tt-act-card__complete {
+    display: block;
+    margin: 0 16px 12px auto;
+    min-height: 48px;
+    line-height: 48px;
+    padding: 0 16px;
+    text-align: center;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-act-card__complete {
+        display: inline-block;
+        min-width: 180px;
+    }
+}
+
 /* Date badge — 44px square, mute background by default. */
 .tt-dashboard .tt-act-date {
     text-align: center;
@@ -919,4 +939,14 @@
     width: 24px;
     height: 24px;
     touch-action: manipulation;
+}
+
+/* #2245 — edit-form attendance handoff note (inline table removed). */
+.tt-dashboard .tt-act-form-attendance-head {
+    margin: 24px 0 8px;
+}
+.tt-dashboard .tt-act-form-attendance-note {
+    color: var(--tt-muted, #5b6e75);
+    margin: 0 0 12px;
+    max-width: 60ch;
 }

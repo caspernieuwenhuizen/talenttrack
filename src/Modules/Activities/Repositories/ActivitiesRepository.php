@@ -1481,6 +1481,30 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #2245 — set an activity's status + plan_state together
+     * (club-scoped). Used by the detail-view transition buttons
+     * (Cancel / Reopen). Cancel → cancelled; Reopen → planned. The
+     * Complete transition is NOT done here — completion runs through the
+     * evaluation flow and flips status at its final save.
+     */
+    public function setStatus( int $activity_id, string $status_key ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        // `plan_state` has its own vocabulary (scheduled/…/cancelled);
+        // a `planned` status maps to the `scheduled` plan_state so the
+        // planner's "what's coming up" bucket picks the row back up.
+        $plan_state = $status_key === ActivityStatusKey::PLANNED ? 'scheduled' : $status_key;
+        return $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'activity_status_key' => $status_key,
+                'plan_state'          => $plan_state,
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
      * #1712 — toggle the per-activity `evaluation_skipped` flag
      * (club-scoped). Dedicated method (not the audited `update()`) to
      * preserve the pre-sweep behaviour of not stamping `updated_by`.

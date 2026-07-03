@@ -61,17 +61,29 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 
 1. Open the **Activities** tile.
 2. Pick the **type** from the dropdown. Five types ship by default — Training, Game, Tournament, Meeting and Other — and your academy can rename or add new ones.
-3. Pick the **status** — Planned, Completed or Cancelled. New activities default to Planned; flip to Completed once the activity has happened, or to Cancelled if it didn't go ahead.
-4. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
-5. If you picked **Other**, give it a short label.
-6. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
-7. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
-8. Save. The player list fills in automatically from the team roster.
-8. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
+3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
+4. If you picked **Other**, give it a short label.
+5. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
+6. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
+7. Save. New activities start **Planned**.
 
-### Match minutes (completed matches)
+The edit form no longer changes status or captures attendance — it edits details only. **Status is changed with explicit buttons** (see [Completing an activity](#completing-an-activity)), and attendance is recorded in the guided completion flow.
 
-When a **match**-type activity is marked **Completed**, the attendance table gains two extra columns — **Starter** and **Minutes** — so you can log how long each player actually played, even for a past match you never live-tracked. A **Match length (minutes)** field sits above the table; it prefills from the match prep's two halves (or 70 minutes when there's no prep) and you can adjust it. From the starter flags, the minutes and the match length, the form shows a **Subs: N on · N off** summary — substitutes who came on, and starters who were taken off — which refreshes when you save. The minutes you enter feed the minutes report and the player's load picture.
+### Completing an activity
+
+You don't set status with a dropdown anymore. A **planned** activity shows a **Complete activity** button — both on its **list card** (so most activities complete in one click without opening the detail page) and on its **detail view**. The button is type-aware:
+
+- **Training** → opens the evaluation wizard on the activity: mark attendance, optionally rate, done.
+- **Match with no live-tracked execution** ("paper match") → the same wizard, but attendance also collects per-player **minutes**.
+- **Match with a live match-execution** → routes to the match's **Resume / Finalize** flow instead; minutes come from finalize, so the wizard doesn't re-ask.
+
+The activity flips to **Completed** only when the flow finishes (the wizard's final save, or the match finalize). Abandoning the flow leaves it **Planned** — re-launching resumes without duplicating attendance.
+
+The detail view also carries **Cancel activity** (on a planned activity) and **Reopen** (on a completed or cancelled one) — direct, confirmed status changes.
+
+### Match minutes (paper matches)
+
+When you complete a **match**-type activity that was never live-tracked, the wizard's attendance step gains **Starter** and **Minutes** columns so you can log how long each player actually played. The minutes feed the minutes report and the player's load picture. For a match you *did* live-track, the minutes come from the match execution's finalize instead.
 
 The activity list shows the type as a colour-coded pill so trainings, games, tournaments, meetings and other activities are easy to scan at a glance.
 
@@ -79,9 +91,7 @@ The activity list shows the type as a colour-coded pill so trainings, games, tou
 
 When you create an activity you pick which players are expected — the roster step defaults to the whole team, and you untick anyone you already know is away. Those picks are the activity's **planned roster**.
 
-Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up still happens on the edit form (or the Mark attendance wizard) — the planned roster is what you expected, the marked attendance is what happened.
-
-If you create an activity **already marked Completed** (it happened in the past) and don't enter attendance, the full active roster is recorded as **present** automatically so the activity is immediately rateable — adjust any absences on the edit form afterward.
+Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up happens in the guided completion flow (**Complete activity** / **Continue rating**) — the planned roster is what you expected, the marked attendance is what happened. The detail view keeps a read-only attendance summary on completed activities.
 
 ## Why the type matters
 
@@ -96,7 +106,7 @@ Your academy admin can change which template fires for each type — or add a ne
 
 Every activity carries two extra fields beyond the headline type:
 
-- **Status** — where the activity is in its lifecycle. **Planned** is the default for newly-created activities; flip to **Completed** when the activity has happened so reports and KPIs treat it as historical, or to **Cancelled** if it didn't go ahead. Status values are admin-extensible under **Configuration → Lookups** (lookup type `activity_status`).
+- **Status** — where the activity is in its lifecycle. **Planned** is the default for newly-created activities. It flips to **Completed** when you finish the guided completion flow (see [Completing an activity](#completing-an-activity)), and to **Cancelled** via the detail view's **Cancel activity** button; **Reopen** returns it to Planned. Status values are admin-extensible under **Configuration → Lookups** (lookup type `activity_status`).
 - **Source** — who or what created the activity. **Manual** for activities created in the app, **Generated** for ones produced by the demo-data generator, and **Spond** for activities synced from a Spond calendar (when the integration is enabled). Source is set automatically; you don't pick it on the form. Like status, the list of sources is admin-extensible.
 
 The Head of Development's 90-day quarterly rollup also uses these types: it shows one row per type in use, so renaming or adding types reflects there automatically.

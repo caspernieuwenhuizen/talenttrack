@@ -99,6 +99,18 @@ class ActivitiesRestController {
         // wizard's "Skip rating — no rating needed" branch sets this
         // to 1; the activity detail view exposes a "Re-open for
         // rating" button that flips it back to 0.
+        // #2245 — direct, confirmed status transitions (Cancel / Reopen)
+        // for the detail-view buttons. POST body: `{ status: 'cancelled'
+        // | 'planned' }`. Completion is NOT a valid target here — it
+        // runs through the evaluation flow, which flips the status at
+        // its final save. Cap-gated via can_edit (never __return_true).
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/status', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'set_status' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/evaluation-skipped', [
             [
                 'methods'             => 'PATCH',
@@ -1136,6 +1148,36 @@ class ActivitiesRestController {
             return RestResponse::error( 'db_error', $msg, 500, [ 'db_error' => $err ] );
         }
         return RestResponse::success( [ 'id' => $new_id ] + self::format_guest_row( self::find_attendance( $new_id ) ) );
+    }
+
+    /**
+     * POST /activities/{id}/status — direct, confirmed status transition
+     * (#2245). Body: `{ status: 'cancelled' | 'planned' }`.
+     *
+     * Only Cancel (→ cancelled) and Reopen (→ planned) go through here;
+     * Completion is intentionally rejected because it runs through the
+     * evaluation flow (which flips the status at its final save), never
+     * as a bare field write.
+     */
+    public static function set_status( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+
+        $status = sanitize_key( (string) ( $r['status'] ?? '' ) );
+        $allowed = [ ActivityStatusKey::CANCELLED, ActivityStatusKey::PLANNED ];
+        if ( ! in_array( $status, $allowed, true ) ) {
+            return RestResponse::error(
+                'bad_status',
+                __( 'Only Cancel and Reopen are allowed here. Completing an activity runs through the evaluation flow.', 'talenttrack' ),
+                400
+            );
+        }
+
+        if ( ! self::repo()->setStatus( $id, $status ) ) {
+            return RestResponse::error( 'db_error', __( 'Could not update the activity status.', 'talenttrack' ), 500 );
+        }
+        do_action( 'tt_activity_status_changed', $id, $status );
+        return RestResponse::success( [ 'id' => $id, 'activity_status_key' => $status ] );
     }
 
     /**
