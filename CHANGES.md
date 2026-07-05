@@ -1,3 +1,23 @@
+# TalentTrack v4.73.4 — Live match execution: sub controls visible by default again (#2261)
+
+Fixes a regression where, during a live match, the substitution controls
+(the bench "→ on" buttons and the "who comes off" panel) plus the score /
+goal steppers were hidden behind the "Edit" toggle — so a coach on the
+sideline saw only the bench list and couldn't sub. The read-only-by-default
+edit gate now applies only to post-match editing: a live in-progress match
+(first half / half time / second half) opens with the mutating controls
+already revealed, while the post-match review window keeps the accidental-edit
+guard (tap Edit to enable) and finalized matches stay fully read-only.
+
+# TalentTrack v4.73.4 — Reliable plugin updates: auto-install + missing-token notice (#2262)
+
+TalentTrack now installs its own updates automatically once a new release
+is detected — no click needed. It also shows a clear admin notice when the
+GitHub token is missing from wp-config.php: without a token the update
+check runs unauthenticated and GitHub rate-limits it (HTTP 403) after a few
+tries, which is why updates sometimes stopped being detected. The notice
+explains the one-line fix (`define( 'TT_GITHUB_PAT', 'ghp_…' );`).
+
 # TalentTrack v4.73.3 — Reports: exclude cancelled activities from minutes and attendance (#2259)
 
 Cancelled matches and trainings no longer contribute to the minutes or

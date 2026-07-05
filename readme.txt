@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.73.3
+Stable tag: 4.73.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.4 — Live match execution: sub controls visible by default again (#2261) Fixes a regression where, during a live match, the substitution controls (the bench "→ on" buttons and the "who comes off" panel) plus the score / goal steppers were hidden behind the "Edit" toggle — so a coach on the sideline saw only the bench list and couldn't sub. The read-only-by-default edit gate now applies only to post-match editing: a live in-progress match (first half / half time / second half) opens with the mutating controls already revealed, while the post-match review window keeps the accidental-edit guard (tap Edit to enable) and finalized matches stay fully read-only. =
+
+= 4.73.4 — Reliable plugin updates: auto-install + missing-token notice (#2262) TalentTrack now installs its own updates automatically once a new release is detected — no click needed. It also shows a clear admin notice when the GitHub token is missing from wp-config.php: without a token the update check runs unauthenticated and GitHub rate-limits it (HTTP 403) after a few tries, which is why updates sometimes stopped being detected. The notice explains the one-line fix (`define( 'TT_GITHUB_PAT', 'ghp_…' );`). =
 
 = 4.73.3 — Reports: exclude cancelled activities from minutes and attendance (#2259) Cancelled matches and trainings no longer contribute to the minutes or attendance reports. An activity counts as cancelled when either its `plan_state` is `cancelled` or its `activity_status_key` is `cancelled`, and both markers are now honoured across the team and player minutes reports, the standard-report minutes queries, and the attendance-ranking and team attendance reports. Previously the minutes reports counted cancelled activities entirely, and the attendance reports only caught the `plan_state` marker — a completed-then-cancelled activity still skewed the numbers. Non-cancelled activities, including manual "paper match" minutes, are unaffected. Query-only change. =
 
