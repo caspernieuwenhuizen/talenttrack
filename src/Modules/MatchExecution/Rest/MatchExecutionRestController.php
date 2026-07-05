@@ -63,10 +63,17 @@ class MatchExecutionRestController {
             ] );
         }
 
+        // #2275 — PATCH corrects a logged goal's half + minute (ours or the
+        // opponent's), mirroring the substitution PATCH.
         register_rest_route( self::NS, $base . '/goal-event/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'route_goal_event_delete' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'route_goal_event_update' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -392,9 +399,15 @@ class MatchExecutionRestController {
         $player_id  = (int) ( $body['player_id'] ?? 0 );
         $half       = (int) ( $body['half'] ?? 0 );
         $minute     = (int) ( $body['minute'] ?? 0 );
+        // #2275 — a goal belongs to a team. Ours ('home') carry the scorer;
+        // the opponent's ('away') have no tracked individual scorer.
+        $team       = ( (string) ( $body['team'] ?? 'home' ) === 'away' ) ? 'away' : 'home';
 
-        if ( $event_uuid === '' || $player_id <= 0 || $half < 1 || $half > 2 ) {
+        if ( $event_uuid === '' || $half < 1 || $half > 2 ) {
             return RestResponse::error( 'bad_input', __( 'Goal-event payload missing required fields.', 'talenttrack' ), 400 );
+        }
+        if ( $team === 'home' && $player_id <= 0 ) {
+            return RestResponse::error( 'bad_input', __( 'A home goal needs a scorer.', 'talenttrack' ), 400 );
         }
         // #2268 — reject an out-of-range minute (< 0 or > half length + 10
         // stoppage) rather than clamping a fat-fingered value.
@@ -403,14 +416,50 @@ class MatchExecutionRestController {
         if ( $minute_err ) return $minute_err;
 
         $repo = new MatchExecutionRepository();
-        $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute );
+        $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute, $team );
+        // #2275 — the opponent's timed goals now drive the away scoreline.
+        if ( $team === 'away' ) $repo->syncAwayScoreFromGoals( $exec_id );
         // #1048 — goal events don't affect minutes_played directly
         // (computeMinutes ignores goal_events), but they do affect
         // any downstream summary that mirrors the goal log. Recompute
         // call is cheap and keeps the contract uniform; if profiling
         // shows it's hot, gate this on a config switch.
         self::recomputeIfPendingReview( $repo, $exec_id );
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid, 'team' => $team ] );
+    }
+
+    /**
+     * #2275 — PATCH /<activity_id>/goal-event/<event_uuid> {half, minute}.
+     * Corrects the half + minute of an already-logged goal (ours or the
+     * opponent's). Same guards as the substitution PATCH.
+     */
+    public static function route_goal_event_update( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+
+        $event_uuid = (string) $r['event_uuid'];
+        $body   = $r->get_json_params();
+        $half   = (int) ( $body['half'] ?? 0 );
+        $minute = (int) ( $body['minute'] ?? 0 );
+
+        if ( $event_uuid === '' || $half < 1 || $half > 2 ) {
+            return RestResponse::error( 'bad_input', __( 'Goal update payload missing required fields.', 'talenttrack' ), 400 );
+        }
+
+        $repo = new MatchExecutionRepository();
+        if ( ! $repo->goalEventExists( $event_uuid ) ) {
+            return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
+        }
+
+        [ $half_length ] = self::prepContext( absint( $r['activity_id'] ) );
+        $minute_err = self::assertMinuteInRange( $minute, $half_length );
+        if ( $minute_err ) return $minute_err;
+
+        $repo->updateGoalEventMinute( $event_uuid, $half, $minute );
+        self::recomputeIfPendingReview( $repo, $exec_id );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid, 'half' => $half, 'minute' => $minute ] );
     }
 
     public static function route_goal_event_delete( \WP_REST_Request $r ): \WP_REST_Response {
@@ -421,6 +470,8 @@ class MatchExecutionRestController {
         $event_uuid = (string) $r['event_uuid'];
         $repo = new MatchExecutionRepository();
         $repo->reverseGoalEvent( $event_uuid );
+        // #2275 — keep the away scoreline in step if an opponent goal was removed.
+        $repo->syncAwayScoreFromGoals( $exec_id );
         self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }

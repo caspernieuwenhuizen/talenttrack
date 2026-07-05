@@ -598,3 +598,264 @@
         line-height: 1.35;
     }
 }
+
+/* ================================================================
+ * #2273 — contained cards + live-sub bench story + match goals.
+ * Ported from live.html / review.html. Mobile-first, base 360px.
+ * ================================================================ */
+
+/* ----- Contained cards (live.html) ----- */
+/* Bench = pastel-yellow contained card; Tracked players = soft-green.
+ * Both get a border + radius + subtle shadow so they read as discrete
+ * cards rather than edge-to-edge sections. */
+.tt-mexec-bench {
+    margin: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
+    background: #fdf7db;
+    border: 1px solid #e6d488;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(120, 100, 10, 0.08);
+    border-bottom: 1px solid #e6d488;
+    overflow: hidden;
+}
+.tt-mexec-bench .tt-mexec-section-title { color: #6b5a12; }
+.tt-mexec-bench .tt-mexec-player { border-bottom-color: #ecdfa4; }
+.tt-mexec-bench .tt-mexec-player-number {
+    background: #fff;
+    border: 1px solid #e0cf7f;
+    color: #6b5a12;
+}
+.tt-mexec-on-pitch {
+    margin: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
+    background: #eef8f1;
+    border: 1px solid #bfe0cc;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(20, 110, 60, 0.07);
+    border-bottom: 1px solid #bfe0cc;
+    overflow: hidden;
+}
+.tt-mexec-on-pitch .tt-mexec-section-title { color: #1f6a41; }
+.tt-mexec-on-pitch .tt-mexec-player { border-bottom-color: #d8ecdf; }
+
+/* ----- Live-sub bench story + transient "just came off" pill ----- */
+.tt-mexec-player[data-just-off="true"] { background: #fff4ee; }
+/* The story is a block child of the name cell; let that cell grow to two
+ * lines so the story isn't clipped by the single-line ellipsis rule. */
+.tt-mexec-player[data-just-off="true"] .tt-mexec-player-name {
+    white-space: normal;
+    overflow: visible;
+}
+.tt-mexec-bench-story {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-off-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #a3352e;
+    background: #fbe0dd;
+    border: 1px solid #f3c4bf;
+    border-radius: 999px;
+    white-space: nowrap;
+    animation: tt-mexec-pillin 0.25s ease-out;
+}
+@keyframes tt-mexec-pillin {
+    from { opacity: 0; transform: translateY(-2px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-mexec-off-pill { animation: none; }
+}
+
+/* ----- Match goals (review.html) ----- */
+.tt-mexec-match-goals {
+    margin: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: var(--tt-mexec-radius);
+    padding-bottom: var(--tt-mexec-gap);
+    overflow: hidden;
+}
+.tt-mexec-match-goals-note,
+.tt-mexec-match-goals-empty {
+    margin: 0 var(--tt-mexec-gap-lg) 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-goals-split {
+    margin: 12px var(--tt-mexec-gap-lg) 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.tt-mexec-goals-split--home { color: #1f7a3a; }
+.tt-mexec-goals-split--away { color: #6a7481; }
+
+.tt-mexec-goal-ev {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin: 0 var(--tt-mexec-gap-lg) 8px;
+    padding: 10px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: var(--tt-mexec-radius);
+    background: var(--tt-mexec-paper);
+}
+/* Our goal = green edge stripe; opponent = grey edge stripe + tint. */
+.tt-mexec-goal-ev--home { box-shadow: inset 4px 0 0 #2f9e5e; }
+.tt-mexec-goal-ev--away {
+    box-shadow: inset 4px 0 0 #9aa2ab;
+    background: #f5f6f8;
+}
+.tt-mexec-goal-ev-when {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 56px;
+}
+.tt-mexec-goal-ev-min {
+    font-size: 15px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-goal-ev-half {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-goal-ev-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.tt-mexec-goal-ev-body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.tt-mexec-goal-ev-dir { font-weight: 800; flex: 0 0 auto; }
+.tt-mexec-goal-ev--away .tt-mexec-goal-ev-dir { color: #8a929b; }
+.tt-mexec-goal-ev-team {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    flex: 0 0 auto;
+}
+.tt-mexec-goal-ev-team--home { background: #e3f4ea; color: #1f7a3a; }
+.tt-mexec-goal-ev-team--away { background: #eceff1; color: #55606c; }
+.tt-mexec-goal-ev-who {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-mexec-goal-ev--away .tt-mexec-goal-ev-who { color: var(--tt-mexec-ink-soft); }
+.tt-mexec-goal-ev-del {
+    margin-left: auto;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 8px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-danger);
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-ev-del:active { background: var(--tt-mexec-mute); }
+/* When the minute stepper is showing (edit mode), hide the static minute. */
+.tt-mexec[data-edit-mode="on"] .tt-mexec-goal-ev-min.tt-mexec-edit-hide { display: none; }
+
+/* Add-an-opponent-goal form (revealed via the open button). */
+.tt-mexec-add-goal { margin: 8px var(--tt-mexec-gap-lg) 0; }
+.tt-mexec-add-goal-open {
+    width: 100%;
+    min-height: 46px;
+    border: 1.5px dashed #b7c3ba;
+    border-radius: var(--tt-mexec-radius);
+    background: #f6f9f6;
+    color: var(--tt-mexec-accent);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-add-goal-open:active { background: #edf3ed; }
+.tt-mexec-add-goal-form {
+    display: none;
+    margin-top: 8px;
+    padding: 12px;
+    border: 1px solid #cbe0d3;
+    border-radius: var(--tt-mexec-radius);
+    background: #f0faf4;
+    gap: 10px;
+}
+.tt-mexec-add-goal-form.is-open { display: grid; }
+.tt-mexec-add-goal-field { display: grid; gap: 4px; }
+.tt-mexec-add-goal-field span {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-add-goal-field select,
+.tt-mexec-add-goal-field input {
+    min-height: 46px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 8px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 16px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+}
+.tt-mexec-add-goal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 2px;
+}
+.tt-mexec-add-goal-cancel,
+.tt-mexec-add-goal-save {
+    min-height: 46px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-add-goal-cancel {
+    border: 1px solid var(--tt-mexec-line);
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+}
+.tt-mexec-add-goal-save {
+    border: 0;
+    background: var(--tt-mexec-accent);
+    color: #fff;
+}
+.tt-mexec-add-goal-save:disabled { opacity: 0.6; cursor: not-allowed; }

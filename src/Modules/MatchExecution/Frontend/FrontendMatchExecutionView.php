@@ -117,6 +117,22 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             $goal_counts[ $pid ] = ( $goal_counts[ $pid ] ?? 0 ) + 1;
         }
 
+        // #2273 — the post-match Squad timeline + editable Match goals need
+        // the substitution log and the second-half starting XI. Both come
+        // from the data already loaded above (lineup + execution); no extra
+        // query beyond the substitution list.
+        $substitutions = $execution ? $exec_repo->listSubstitutions( $execution_id ) : [];
+        // #2273 — build the second-half XI the SAME way
+        // MatchExecutionRepository::computeMinutes() does (raw lineup half 2,
+        // no fallback), so the timeline's minutes are always identical to the
+        // stored tt_attendance.minutes_played the reports read. Papering over
+        // an unplanned half-2 line-up here would make the timeline disagree
+        // with the minutes chip — worse than reflecting the data as recorded.
+        $starting_xi_half2 = [];
+        foreach ( $lineup as $l ) {
+            if ( (int) $l->half === 2 ) $starting_xi_half2[] = (int) $l->player_id;
+        }
+
         // #1864 — per-player logged minutes, read from the persisted
         // tt_attendance.minutes_played the finish/finalize step writes
         // (same source the minutes report reads). Empty until the match
@@ -377,6 +393,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             $minute  = (int) $ev['minute'];
                             $half    = (int) $ev['half'];
                             $is_goal = ( $type === 'goal' );
+                            $on_name  = (string) ( $ev['player_on_name'] ?? '' );
+                            $off_name = (string) ( $ev['player_off_name'] ?? '' );
                             if ( $is_goal ) {
                                 $type_label = __( 'Goal scored', 'talenttrack' );
                                 $icon       = '⚽';
@@ -387,8 +405,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                 $detail     = sprintf(
                                     /* translators: 1: player coming on, 2: player coming off */
                                     __( '%1$s on for %2$s', 'talenttrack' ),
-                                    (string) $ev['player_on_name'],
-                                    (string) $ev['player_off_name']
+                                    $on_name,
+                                    $off_name
                                 );
                             }
                             $minute_label = sprintf(
@@ -405,10 +423,24 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     <span class="tt-mxp-log-icon" aria-hidden="true"><?php echo esc_html( $icon ); ?></span>
                                     <span class="tt-mxp-log-type"><?php echo esc_html( $type_label ); ?></span>
                                 </span>
-                                <span class="tt-mxp-log-detail"><?php echo esc_html( $detail ); ?></span>
+                                <?php // #2273 — substitutions render as a paired ▲On / ▼Off
+                                      // two-line card (mockup live.html); goals keep the single
+                                      // detail line + running-score chip. ?>
                                 <?php if ( $is_goal ) : ?>
+                                    <span class="tt-mxp-log-detail"><?php echo esc_html( $detail ); ?></span>
                                     <span class="tt-mxp-log-score" aria-label="<?php esc_attr_e( 'Running score', 'talenttrack' ); ?>">
                                         <?php echo esc_html( sprintf( '%d–%d', (int) $ev['running_home'], (int) $ev['running_away'] ) ); ?>
+                                    </span>
+                                <?php else : ?>
+                                    <span class="tt-mxp-log-swap">
+                                        <span class="tt-mxp-log-swap-line tt-mxp-log-swap-line--on">
+                                            <span class="tt-mxp-log-swap-dir" aria-hidden="true">▲</span>
+                                            <span class="tt-mxp-log-swap-who"><?php echo esc_html( $on_name ); ?></span>
+                                        </span>
+                                        <span class="tt-mxp-log-swap-line tt-mxp-log-swap-line--off">
+                                            <span class="tt-mxp-log-swap-dir" aria-hidden="true">▼</span>
+                                            <span class="tt-mxp-log-swap-who"><?php echo esc_html( $off_name ); ?></span>
+                                        </span>
                                     </span>
                                 <?php endif; ?>
                                 <?php // #2269 — reload-safe Undo. Keyed by the server
@@ -448,6 +480,241 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     </ol>
                 <?php endif; ?>
             </section>
+            <?php // #2273 — Squad timeline (post-match headline). One 0'→FT
+                  // bar per player: green on-pitch segments over a hatched
+                  // bench track, ▲/▼ markers on each sub boundary, ⚽ on that
+                  // player's home goals, minutes played on the right. Grouped
+                  // "Started — XI" then "Started — bench". Intervals computed
+                  // server-side with the same logic as the persisted minutes.
+                  if ( $state === MatchExecutionState::PENDING_REVIEW || $state === MatchExecutionState::FINALIZED ) :
+                      $tl_half_length = (int) $prep->half_length_minutes;
+                      $tl_full_time   = max( 1, $tl_half_length * 2 );
+                      $tl_data        = self::computeTimelineIntervals( $substitutions, $starting_xi_half1, $starting_xi_half2, $tl_half_length );
+                      $tl_intervals   = $tl_data['intervals'];
+                      $tl_minutes     = $tl_data['minutes'];
+                      // Absolute-minute home goals per player, for the ⚽ marks.
+                      $tl_goal_minutes = [];
+                      foreach ( $goal_events as $ge ) {
+                          $ge_team = (string) ( $ge->team ?? 'home' );
+                          if ( $ge_team === 'away' ) continue;
+                          $gpid = (int) $ge->player_id;
+                          if ( $gpid <= 0 ) continue;
+                          $g_offset = ( (int) $ge->half === 2 ) ? $tl_half_length : 0;
+                          $tl_goal_minutes[ $gpid ][] = $g_offset + (int) $ge->minute_in_half;
+                      }
+                      // Sub boundaries per player (absolute minute + direction).
+                      $tl_marks = [];
+                      foreach ( $substitutions as $sub ) {
+                          $s_offset = ( (int) $sub->half === 2 ) ? $tl_half_length : 0;
+                          $s_min    = $s_offset + (int) $sub->minute_in_half;
+                          $tl_marks[ (int) $sub->player_on_id ][]  = [ 'min' => $s_min, 'dir' => 'on' ];
+                          $tl_marks[ (int) $sub->player_off_id ][] = [ 'min' => $s_min, 'dir' => 'off' ];
+                      }
+                      $tl_bench_ids = array_values( array_diff( $available_ids, $starting_xi_half1 ) );
+                      $tl_groups = [
+                          __( 'Started — XI', 'talenttrack' )     => $starting_xi_half1,
+                          __( 'Started — bench', 'talenttrack' )  => $tl_bench_ids,
+                      ];
+                      $tl_pct = static function ( $minute ) use ( $tl_full_time ) {
+                          return round( ( (float) $minute / (float) $tl_full_time ) * 100, 3 );
+                      };
+                      ?>
+                <section class="tt-mexec-section" aria-label="<?php esc_attr_e( 'Squad timeline', 'talenttrack' ); ?>">
+                    <div class="tt-mexec-section-head">
+                        <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Squad timeline', 'talenttrack' ); ?></h2>
+                        <span class="tt-mexec-section-count"><?php esc_html_e( 'minutes played', 'talenttrack' ); ?></span>
+                    </div>
+                    <div class="tt-mexec-tl-scale" aria-hidden="true">
+                        <span>0'</span>
+                        <span><?php echo esc_html( sprintf( "%d'", $tl_half_length ) ); ?></span>
+                        <span><?php echo esc_html( sprintf( "%d'", $tl_full_time ) ); ?></span>
+                    </div>
+                    <?php foreach ( $tl_groups as $group_label => $group_ids ) : ?>
+                        <p class="tt-mexec-tl-group"><?php echo esc_html( $group_label ); ?></p>
+                        <?php foreach ( $group_ids as $tpid ) :
+                            $tpid = (int) $tpid;
+                            $tpl  = $players_by_id[ $tpid ] ?? null;
+                            if ( ! $tpl ) continue;
+                            $t_jersey = $tpl->jersey_number !== null ? (string) (int) $tpl->jersey_number : '';
+                            // Displayed minutes = the persisted tt_attendance value the
+                            // reports read (single source of truth), so the timeline number
+                            // can never disagree with the minutes report. The computed
+                            // intervals below are for the bar shape only; fall back to them
+                            // only before minutes have been written (shouldn't happen post-
+                            // match, but keeps the number non-empty either way).
+                            $t_mins   = (int) ( $minutes_by_id[ $tpid ] ?? $tl_minutes[ $tpid ] ?? 0 );
+                            $t_ivs    = $tl_intervals[ $tpid ] ?? [];
+                            ?>
+                            <div class="tt-mexec-tl-row">
+                                <div class="tt-mexec-tl-who">
+                                    <span class="tt-mexec-tl-num"><?php echo esc_html( $t_jersey ); ?></span>
+                                    <span class="tt-mexec-tl-name"><?php echo esc_html( QueryHelpers::player_display_name( $tpl ) ); ?></span>
+                                </div>
+                                <div class="tt-mexec-tl-bar">
+                                    <?php foreach ( $t_ivs as $iv ) :
+                                        $iv_left  = $tl_pct( $iv[0] );
+                                        $iv_width = $tl_pct( $iv[1] - $iv[0] );
+                                        ?>
+                                        <span class="tt-mexec-tl-seg tt-mexec-tl-seg--on" style="left:<?php echo esc_attr( (string) $iv_left ); ?>%;width:<?php echo esc_attr( (string) $iv_width ); ?>%"><?php /* tt-inline-ok */ ?></span>
+                                    <?php endforeach; ?>
+                                    <?php foreach ( ( $tl_marks[ $tpid ] ?? [] ) as $mk ) : ?>
+                                        <span class="tt-mexec-tl-mark tt-mexec-tl-mark--<?php echo esc_attr( $mk['dir'] ); ?>" data-min="<?php echo esc_attr( sprintf( "%d'", (int) $mk['min'] ) ); ?>" style="left:<?php echo esc_attr( (string) $tl_pct( $mk['min'] ) ); ?>%"><?php /* tt-inline-ok */ ?></span>
+                                    <?php endforeach; ?>
+                                    <?php foreach ( ( $tl_goal_minutes[ $tpid ] ?? [] ) as $gmin ) : ?>
+                                        <span class="tt-mexec-tl-goal" style="left:<?php echo esc_attr( (string) $tl_pct( $gmin ) ); ?>%"><?php /* tt-inline-ok */ ?>⚽</span>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="tt-mexec-tl-mins <?php echo $t_mins === 0 ? 'tt-mexec-tl-mins--zero' : ''; ?>">
+                                    <?php echo $t_mins === 0 ? esc_html__( "0' · unused", 'talenttrack' ) : esc_html( sprintf( "%d'", $t_mins ) ); ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                    <div class="tt-mexec-tl-legend">
+                        <span><i class="tt-mexec-tl-key tt-mexec-tl-key--on"></i> <?php esc_html_e( 'On the pitch', 'talenttrack' ); ?></span>
+                        <span><i class="tt-mexec-tl-key tt-mexec-tl-key--bench"></i> <?php esc_html_e( 'On the bench', 'talenttrack' ); ?></span>
+                        <span><i class="tt-mexec-tl-legend-mark tt-mexec-tl-mark--on"></i> <?php esc_html_e( 'Came on', 'talenttrack' ); ?></span>
+                        <span><i class="tt-mexec-tl-legend-mark tt-mexec-tl-mark--off"></i> <?php esc_html_e( 'Came off', 'talenttrack' ); ?></span>
+                        <span>⚽ <?php esc_html_e( 'Goal', 'talenttrack' ); ?></span>
+                    </div>
+                </section>
+
+                <?php // #2275 — Match goals: both teams' goals that make up the
+                      // score. Our goals (home) carry a scorer and render green;
+                      // opponent goals (away) render grey and have no scorer.
+                      // In edit mode the coach can add an opponent goal with a
+                      // minute, correct its minute, or remove it — backed by the
+                      // existing goal-event REST (POST/PATCH/DELETE with
+                      // team:'away'). The away score syncs server-side.
+                      $mg_half_length = (int) $prep->half_length_minutes;
+                      $mg_minute_max  = $mg_half_length + 10;
+                      $mg_home = [];
+                      $mg_away = [];
+                      foreach ( $goal_events as $ge ) {
+                          $ge_team = (string) ( $ge->team ?? 'home' );
+                          if ( $ge_team === 'away' ) {
+                              $mg_away[] = $ge;
+                          } else {
+                              $mg_home[] = $ge;
+                          }
+                      }
+                      ?>
+                <section class="tt-mexec-section tt-mexec-match-goals" aria-label="<?php esc_attr_e( 'Match goals', 'talenttrack' ); ?>" data-tt-mexec-match-goals>
+                    <div class="tt-mexec-section-head">
+                        <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Match goals', 'talenttrack' ); ?></h2>
+                        <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
+                            /* translators: %d: total number of goals in the match */
+                            _n( '%d goal', '%d goals', count( $goal_events ), 'talenttrack' ),
+                            count( $goal_events )
+                        ) ); ?></span>
+                    </div>
+                    <p class="tt-mexec-match-goals-note">
+                        <?php echo esc_html( sprintf(
+                            /* translators: 1: home team label, 2: away team label */
+                            __( 'These make up the score — %1$s and %2$s. Individual development actions live under Tracked players.', 'talenttrack' ),
+                            $home_abbr,
+                            $away_abbr
+                        ) ); ?>
+                    </p>
+
+                    <p class="tt-mexec-goals-split tt-mexec-goals-split--home">
+                        <?php echo esc_html( sprintf( '%s — %d', $home_abbr, count( $mg_home ) ) ); ?>
+                    </p>
+                    <?php if ( empty( $mg_home ) ) : ?>
+                        <p class="tt-mexec-match-goals-empty"><?php esc_html_e( 'No goals logged for our team.', 'talenttrack' ); ?></p>
+                    <?php else : ?>
+                        <?php foreach ( $mg_home as $ge ) :
+                            $g_pl   = $players_by_id[ (int) $ge->player_id ] ?? null;
+                            $g_half = (int) $ge->half;
+                            $g_min  = (int) $ge->minute_in_half;
+                            $g_half_label = $g_half === 2 ? __( '2nd half', 'talenttrack' ) : __( '1st half', 'talenttrack' );
+                            ?>
+                            <div class="tt-mexec-goal-ev tt-mexec-goal-ev--home">
+                                <div class="tt-mexec-goal-ev-when">
+                                    <span class="tt-mexec-goal-ev-min"><?php echo esc_html( sprintf( "%d'", $g_min ) ); ?></span>
+                                    <span class="tt-mexec-goal-ev-half"><?php echo esc_html( $g_half_label ); ?></span>
+                                </div>
+                                <div class="tt-mexec-goal-ev-body">
+                                    <span class="tt-mexec-goal-ev-dir" aria-hidden="true">⚽</span>
+                                    <span class="tt-mexec-goal-ev-team tt-mexec-goal-ev-team--home"><?php echo esc_html( $home_abbr ); ?></span>
+                                    <span class="tt-mexec-goal-ev-who">
+                                        <?php echo esc_html( $g_pl ? QueryHelpers::player_display_name( $g_pl ) : __( 'Our goal', 'talenttrack' ) ); ?>
+                                    </span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+
+                    <p class="tt-mexec-goals-split tt-mexec-goals-split--away">
+                        <?php echo esc_html( sprintf(
+                            /* translators: 1: opponent label, 2: opponent goal count */
+                            __( '%1$s (opponent) — %2$d', 'talenttrack' ),
+                            $away_abbr,
+                            count( $mg_away )
+                        ) ); ?>
+                    </p>
+                    <?php if ( empty( $mg_away ) ) : ?>
+                        <p class="tt-mexec-match-goals-empty"><?php esc_html_e( 'No opponent goals logged.', 'talenttrack' ); ?></p>
+                    <?php endif; ?>
+                    <?php foreach ( $mg_away as $ge ) :
+                        $g_uuid = (string) ( $ge->event_uuid ?? '' );
+                        $g_half = (int) $ge->half;
+                        $g_min  = (int) $ge->minute_in_half;
+                        $g_half_label = $g_half === 2 ? __( '2nd half', 'talenttrack' ) : __( '1st half', 'talenttrack' );
+                        ?>
+                        <div class="tt-mexec-goal-ev tt-mexec-goal-ev--away" data-tt-mexec-away-goal data-event-uuid="<?php echo esc_attr( $g_uuid ); ?>" data-half="<?php echo (int) $g_half; ?>">
+                            <div class="tt-mexec-goal-ev-when">
+                                <span class="tt-mexec-goal-ev-min tt-mexec-edit-hide"><?php echo esc_html( sprintf( "%d'", $g_min ) ); ?></span>
+                                <?php if ( $is_editable ) : ?>
+                                    <span class="tt-mexec-goal-ev-step tt-mexec-edit-only">
+                                        <button type="button" class="tt-mxp-min-btn" data-tt-mexec-away-min-dec aria-label="<?php esc_attr_e( 'One minute earlier', 'talenttrack' ); ?>">−</button>
+                                        <input type="number" inputmode="numeric" min="0" max="<?php echo (int) $mg_minute_max; ?>"
+                                               class="tt-mxp-min-input" data-tt-mexec-away-min-input value="<?php echo (int) $g_min; ?>"
+                                               aria-label="<?php esc_attr_e( 'Opponent goal minute', 'talenttrack' ); ?>">
+                                        <button type="button" class="tt-mxp-min-btn" data-tt-mexec-away-min-inc aria-label="<?php esc_attr_e( 'One minute later', 'talenttrack' ); ?>">+</button>
+                                    </span>
+                                <?php endif; ?>
+                                <span class="tt-mexec-goal-ev-half"><?php echo esc_html( $g_half_label ); ?></span>
+                            </div>
+                            <div class="tt-mexec-goal-ev-body">
+                                <span class="tt-mexec-goal-ev-dir" aria-hidden="true">⚽</span>
+                                <span class="tt-mexec-goal-ev-team tt-mexec-goal-ev-team--away"><?php echo esc_html( $away_abbr ); ?></span>
+                                <span class="tt-mexec-goal-ev-who"><?php esc_html_e( 'Opponent goal', 'talenttrack' ); ?></span>
+                                <?php if ( $is_editable && $g_uuid !== '' ) : ?>
+                                    <button type="button" class="tt-mexec-goal-ev-del tt-mexec-edit-only" data-tt-mexec-away-goal-del aria-label="<?php esc_attr_e( 'Remove opponent goal', 'talenttrack' ); ?>">×</button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <?php if ( $is_editable ) : ?>
+                        <div class="tt-mexec-add-goal tt-mexec-edit-only">
+                            <button type="button" class="tt-mexec-add-goal-open" data-tt-mexec-away-goal-open>
+                                <?php esc_html_e( '+ Add an opponent goal', 'talenttrack' ); ?>
+                            </button>
+                            <form class="tt-mexec-add-goal-form" data-tt-mexec-away-goal-form>
+                                <label class="tt-mexec-add-goal-field">
+                                    <span><?php esc_html_e( 'Half', 'talenttrack' ); ?></span>
+                                    <select name="half">
+                                        <option value="1"><?php esc_html_e( '1st half', 'talenttrack' ); ?></option>
+                                        <option value="2"><?php esc_html_e( '2nd half', 'talenttrack' ); ?></option>
+                                    </select>
+                                </label>
+                                <label class="tt-mexec-add-goal-field">
+                                    <span><?php esc_html_e( 'Minute', 'talenttrack' ); ?></span>
+                                    <input type="number" inputmode="numeric" name="minute" min="0" max="<?php echo (int) $mg_minute_max; ?>"
+                                           placeholder="<?php echo esc_attr( (string) $mg_minute_max ); ?>">
+                                </label>
+                                <div class="tt-mexec-add-goal-actions">
+                                    <button type="button" class="tt-mexec-add-goal-cancel" data-tt-mexec-away-goal-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                                    <button type="submit" class="tt-mexec-add-goal-save"><?php esc_html_e( 'Add opponent goal', 'talenttrack' ); ?></button>
+                                </div>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+
             <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
@@ -1193,6 +1460,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 // #2224 — recorded-minutes correction feedback.
                 'minutes_saved'     => __( 'Recorded minutes saved.', 'talenttrack' ),
                 'minutes_save_error'=> __( 'Could not save recorded minutes:', 'talenttrack' ),
+                // #2273 — transient "just came off" bench pill (live sub).
+                'came_off'          => __( 'Off', 'talenttrack' ),
+                'just_came_off_for' => __( 'Just came off for', 'talenttrack' ),
+                // #2275 — opponent-goal review affordances.
+                'away_goal_del_confirm' => __( 'Remove this opponent goal? The score updates.', 'talenttrack' ),
+                'away_goal_minute_error'=> __( 'Enter a valid minute.', 'talenttrack' ),
+                'away_goal_add_error'   => __( 'Could not add the opponent goal.', 'talenttrack' ),
             ],
         ] );
     }
@@ -1277,6 +1551,64 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             $abbr .= mb_substr( $last, 1, 3 - mb_strlen( $abbr ) );
         }
         return mb_strtoupper( $abbr );
+    }
+
+    /**
+     * #2273 — per-player on-pitch intervals across the whole match, in
+     * absolute match minutes (0 → full-time). Mirrors
+     * MatchExecutionRepository::computeMinutes() exactly: a starter is on
+     * from the half's start until subbed off or the half ends; a subbed-on
+     * player is on from their sub minute until subbed off again or the half
+     * ends. Half 2 is offset by the half length so both halves live on one
+     * 0→FT bar. Returns [ player_id => list<[start,end]> ] plus per-player
+     * total minutes. Display-derivation only — the persisted minutes still
+     * come from the repository's computeMinutes / recompute path.
+     *
+     * @param object[] $subs             substitution rows (->half, ->minute_in_half, ->player_off_id, ->player_on_id)
+     * @param list<int> $starting_half1
+     * @param list<int> $starting_half2
+     * @return array{intervals: array<int, list<array{0:int,1:int}>>, minutes: array<int, int>}
+     */
+    private static function computeTimelineIntervals( array $subs, array $starting_half1, array $starting_half2, int $half_length ): array {
+        $intervals = [];
+        $minutes   = [];
+
+        foreach ( [ 1 => $starting_half1, 2 => $starting_half2 ] as $half => $starting ) {
+            $offset   = ( $half === 2 ) ? $half_length : 0;
+            $half_end = $offset + $half_length;
+
+            $off_at = []; // player_id => absolute minute they came off
+            $on_at  = []; // player_id => absolute minute they came on
+            foreach ( $subs as $sub ) {
+                if ( (int) $sub->half !== $half ) continue;
+                $minute = $offset + (int) $sub->minute_in_half;
+                $off_at[ (int) $sub->player_off_id ] = $minute;
+                $on_at[ (int) $sub->player_on_id ]   = $minute;
+            }
+
+            foreach ( $starting as $pid ) {
+                $pid = (int) $pid;
+                $end = isset( $off_at[ $pid ] ) ? $off_at[ $pid ] : $half_end;
+                $end = max( $offset, min( $half_end, $end ) );
+                if ( $end > $offset ) {
+                    $intervals[ $pid ][] = [ $offset, $end ];
+                    $minutes[ $pid ]     = ( $minutes[ $pid ] ?? 0 ) + ( $end - $offset );
+                }
+            }
+            foreach ( $on_at as $pid => $start ) {
+                $pid = (int) $pid;
+                if ( in_array( $pid, array_map( 'intval', $starting ), true ) ) continue; // already counted as a starter
+                $end = $off_at[ $pid ] ?? $half_end;
+                $start = max( $offset, min( $half_end, $start ) );
+                $end   = max( $offset, min( $half_end, $end ) );
+                if ( $end > $start ) {
+                    $intervals[ $pid ][] = [ $start, $end ];
+                    $minutes[ $pid ]     = ( $minutes[ $pid ] ?? 0 ) + ( $end - $start );
+                }
+            }
+        }
+
+        return [ 'intervals' => $intervals, 'minutes' => $minutes ];
     }
 
     /**

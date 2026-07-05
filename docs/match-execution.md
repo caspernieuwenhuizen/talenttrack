@@ -68,6 +68,31 @@ came on loses (or gains) it. You never edit minutes directly — you fix the
 *time* of the event, and the minutes follow. The corrected minute is range-
 checked like any other (see below).
 
+## Squad timeline — who played, when
+
+After the match, the review screen shows a **Squad timeline**: one bar per
+player across the whole match (0' to full time). A green segment is time on
+the pitch; a hatched segment is time on the bench. Each substitution sits on
+the boundary with its minute — `▲` where a player came on, `▼` where one came
+off — and a `⚽` marks each of that player's goals. The minutes played sit at
+the end of each row, read from the same recorded figure the reports use, so
+the timeline can never disagree with the minutes report. Players are grouped
+into **Started — XI** and **Started — bench**; a substitute who never came on
+shows `0' · unused`. This is the at-a-glance answer to "who started on the
+bench, when did they come on, for whom, and how long did each play?"
+
+## Opponent goals
+
+The scoreline is made of **match goals** for both teams. Our goals are logged
+per player (the tracked-player action, or a late goal); the opponent's are
+recorded as their own timed events. On the review screen, the **Match goals**
+section lists both — our goals with the scorer, the opponent's as "Opponent
+goal" — and with **Edit** on you can add an opponent goal (half + minute),
+correct its minute, or remove it. The away score follows the count of the
+opponent's goals automatically. Match goals are distinct from **Tracked
+players**, which count individual development actions and never touch the
+score.
+
 ## Minute and roster checks
 
 The screen refuses an impossible substitution — you cannot take off a

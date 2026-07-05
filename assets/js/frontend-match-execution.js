@@ -383,6 +383,10 @@
         subCancelEl.addEventListener('click', closeSubSheet);
     }
 
+    // #2273 — the "just came off" pill lives for one minute, then the bench
+    // row reverts to its normal state. Mirrors the mockup's OFF_PILL_MS.
+    var OFF_PILL_MS = 60000;
+
     function commitSub(pid_on, pid_off) {
         // Move on_pitch <-> bench.
         var idx = state.on_pitch.indexOf(pid_off);
@@ -393,9 +397,25 @@
         if (b_idx >= 0) state.bench.splice(b_idx, 1);
         state.bench.push(pid_off);
 
+        // #2273 — mark the outgoing player as "just came off" so the bench
+        // row shows a transient "↓ Off <min>" pill + "Just came off for
+        // <incoming>" line. Auto-clears after ~60s (matching live.html).
+        var minute = currentMinute();
+        state.recently_off = state.recently_off || {};
+        if (state.recently_off[pid_off] && state.recently_off[pid_off].timer) {
+            clearTimeout(state.recently_off[pid_off].timer);
+        }
+        state.recently_off[pid_off] = {
+            min: minute,
+            replacedBy: name(pid_on),
+            timer: setTimeout(function () {
+                if (state.recently_off) delete state.recently_off[pid_off];
+                renderBenchAndOnPitch();
+            }, OFF_PILL_MS)
+        };
+
         renderBenchAndOnPitch();
         var uuid = uuidv4();
-        var minute = currentMinute();
         api('substitution', {
             event_uuid: uuid,
             half: state.half,
@@ -417,6 +437,11 @@
                 var bi = state.bench.indexOf(pid_off);
                 if (bi >= 0) state.bench.splice(bi, 1);
                 state.bench.push(pid_on);
+                // #2273 — clear the just-came-off pill for the reverted player.
+                if (state.recently_off && state.recently_off[pid_off]) {
+                    if (state.recently_off[pid_off].timer) clearTimeout(state.recently_off[pid_off].timer);
+                    delete state.recently_off[pid_off];
+                }
                 renderBenchAndOnPitch();
                 apiDelete('substitution/' + uuid);
             }
@@ -532,9 +557,23 @@
                 li.setAttribute('data-tt-mexec-bench', '');
                 li.setAttribute('data-player-id', String(pid));
                 var jersey = pl.jersey != null ? String(pl.jersey) : '';
+                // #2273 — transient "just came off" pill + story line for a
+                // player subbed off within the last minute.
+                var off = state.recently_off && state.recently_off[pid];
+                if (off) li.setAttribute('data-just-off', 'true');
+                var pill = off
+                    ? ' <span class="tt-mexec-off-pill">' +
+                        escapeHtml('↓ ' + (i18n.came_off || 'Off') + ' ' + off.min + "'") +
+                      '</span>'
+                    : '';
+                var story = off
+                    ? '<span class="tt-mexec-bench-story">' +
+                        escapeHtml((i18n.just_came_off_for || 'Just came off for') + ' ' + off.replacedBy) +
+                      '</span>'
+                    : '';
                 li.innerHTML =
                     '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
-                    '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + '</span>' +
+                    '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + pill + story + '</span>' +
                     '<div class="tt-mexec-player-actions">' +
                         '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="Bring on">' +
                             escapeHtml('→ on') +
@@ -730,6 +769,87 @@
                     : (label.getAttribute('data-label-edit') || 'Edit');
             }
         });
+    })();
+
+    // --- #2275 — opponent (away) goals in the post-match review ---
+    // Add / remove / correct-the-minute of an opponent goal. Backed by the
+    // existing goal-event REST (POST team:'away', PATCH {half,minute},
+    // DELETE); the away score syncs server-side. Reload on success so the
+    // recomputed score + goal list are authoritative (same pattern as the
+    // live goal flow and the sub-minute correction).
+    (function wireAwayGoals() {
+        var section = root.querySelector('[data-tt-mexec-match-goals]');
+        if (!section) return;
+        var MG_MAX = HALF_LENGTH + 10;
+
+        // Correct-minute steppers + delete on each existing away goal.
+        Array.prototype.forEach.call(section.querySelectorAll('[data-tt-mexec-away-goal]'), function (card) {
+            var uuid  = card.getAttribute('data-event-uuid');
+            var half  = parseInt(card.getAttribute('data-half'), 10) || 1;
+            var input = card.querySelector('[data-tt-mexec-away-min-input]');
+            var dec   = card.querySelector('[data-tt-mexec-away-min-dec]');
+            var inc   = card.querySelector('[data-tt-mexec-away-min-inc]');
+            var del   = card.querySelector('[data-tt-mexec-away-goal-del]');
+
+            function commit(v) {
+                if (!uuid || !input) return;
+                v = Math.max(0, Math.min(MG_MAX, isNaN(v) ? 0 : v));
+                if (v === (parseInt(input.getAttribute('value'), 10) || 0)) { input.value = v; return; }
+                input.value = v;
+                input.disabled = true;
+                apiPatch('goal-event/' + uuid, { half: half, minute: v }).then(function () {
+                    window.location.reload();
+                }).catch(function () { input.disabled = false; });
+            }
+            if (input && dec) dec.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) - 1); });
+            if (input && inc) inc.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) + 1); });
+            if (input) input.addEventListener('change', function () { commit(parseInt(input.value, 10)); });
+
+            if (del && uuid) {
+                del.addEventListener('click', function () {
+                    if (!window.confirm(i18n.away_goal_del_confirm || 'Remove this opponent goal? The score updates.')) return;
+                    del.disabled = true;
+                    apiDelete('goal-event/' + uuid).then(function () {
+                        window.location.reload();
+                    }).catch(function () { del.disabled = false; });
+                });
+            }
+        });
+
+        // Add-an-opponent-goal form.
+        var openBtn = section.querySelector('[data-tt-mexec-away-goal-open]');
+        var form    = section.querySelector('[data-tt-mexec-away-goal-form]');
+        var cancel  = section.querySelector('[data-tt-mexec-away-goal-cancel]');
+        if (openBtn && form) {
+            openBtn.addEventListener('click', function () { form.classList.add('is-open'); });
+        }
+        if (cancel && form) {
+            cancel.addEventListener('click', function () { form.classList.remove('is-open'); });
+        }
+        if (form) {
+            var submitting = false;
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (submitting) return;
+                var half   = parseInt(form.querySelector('[name="half"]').value, 10) || 0;
+                var minute = parseInt(form.querySelector('[name="minute"]').value, 10);
+                if (half !== 1 && half !== 2) return;
+                if (isNaN(minute) || minute < 0 || minute > MG_MAX) {
+                    window.alert(i18n.away_goal_minute_error || 'Enter a valid minute.');
+                    return;
+                }
+                submitting = true;
+                var saveBtn = form.querySelector('.tt-mexec-add-goal-save');
+                if (saveBtn) saveBtn.disabled = true;
+                api('goal-event', { event_uuid: uuidv4(), half: half, minute: minute, team: 'away' }).then(function () {
+                    window.location.reload();
+                }).catch(function () {
+                    submitting = false;
+                    if (saveBtn) saveBtn.disabled = false;
+                    window.alert(i18n.away_goal_add_error || 'Could not add the opponent goal.');
+                });
+            });
+        }
     })();
 
     // --- #2224 — correct recorded minutes (finalized only) ---

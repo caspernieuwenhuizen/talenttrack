@@ -199,13 +199,21 @@ class MatchExecutionRepository {
         ) ) > 0;
     }
 
-    public function logGoalEvent( int $execution_id, string $event_uuid, int $player_id, int $half, int $minute ): bool {
-        if ( $execution_id <= 0 || $event_uuid === '' || $player_id <= 0 ) return false;
+    /**
+     * #2275 — log a goal event for either team. Our goals (`team = 'home'`)
+     * carry the scorer's `player_id`; the opponent's (`team = 'away'`) have no
+     * tracked individual scorer and store `player_id = 0`. Together, the
+     * non-reversed goal events make up the scoreline (see {@see goalCountsByTeam}).
+     */
+    public function logGoalEvent( int $execution_id, string $event_uuid, int $player_id, int $half, int $minute, string $team = 'home' ): bool {
+        $team = ( $team === 'away' ) ? 'away' : 'home';
+        if ( $execution_id <= 0 || $event_uuid === '' ) return false;
+        if ( $team === 'home' && $player_id <= 0 ) return false; // our goals need a scorer
         $ok = $this->wpdb->query( $this->wpdb->prepare(
             "INSERT IGNORE INTO {$this->t_goals}
-               (event_uuid, club_id, execution_id, player_id, half, minute_in_half)
-             VALUES (%s, %d, %d, %d, %d, %d)",
-            $event_uuid, CurrentClub::id(), $execution_id, $player_id, $half, max( 0, $minute )
+               (event_uuid, club_id, execution_id, team, player_id, half, minute_in_half)
+             VALUES (%s, %d, %d, %s, %d, %d, %d)",
+            $event_uuid, CurrentClub::id(), $execution_id, $team, max( 0, $player_id ), $half, max( 0, $minute )
         ) );
         return $ok !== false;
     }
@@ -217,6 +225,68 @@ class MatchExecutionRepository {
             [ 'reversed_at' => current_time( 'mysql', true ) ],
             [ 'event_uuid' => $event_uuid, 'club_id' => CurrentClub::id() ]
         );
+    }
+
+    /**
+     * #2275 — correct the half + minute of an already-logged, non-reversed
+     * goal event (ours or the opponent's). Mirrors {@see updateSubstitutionMinute}.
+     */
+    public function updateGoalEventMinute( string $event_uuid, int $half, int $minute ): bool {
+        if ( $event_uuid === '' || $half < 1 || $half > 2 ) return false;
+        $ok = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->t_goals}
+                SET half = %d, minute_in_half = %d
+              WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+            $half, max( 0, $minute ), $event_uuid, CurrentClub::id()
+        ) );
+        return $ok !== false;
+    }
+
+    /**
+     * #2275 — does a goal event with this client event_uuid exist (reversed
+     * or not)? Guards the PATCH/DELETE endpoints.
+     */
+    public function goalEventExists( string $event_uuid ): bool {
+        if ( $event_uuid === '' ) return false;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->t_goals} WHERE event_uuid = %s AND club_id = %d",
+            $event_uuid, CurrentClub::id()
+        ) ) > 0;
+    }
+
+    /**
+     * #2275 — non-reversed goal-event counts per team for an execution. The
+     * scoreline derives from these once goals are logged individually: home =
+     * our per-player goals, away = the opponent's timed goals.
+     *
+     * @return array{home:int, away:int}
+     */
+    public function goalCountsByTeam( int $execution_id ): array {
+        $out = [ 'home' => 0, 'away' => 0 ];
+        if ( $execution_id <= 0 ) return $out;
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT team, COUNT(*) AS n FROM {$this->t_goals}
+              WHERE execution_id = %d AND club_id = %d AND reversed_at IS NULL
+              GROUP BY team",
+            $execution_id, CurrentClub::id()
+        ) );
+        foreach ( (array) $rows as $r ) {
+            $t = ( (string) $r->team === 'away' ) ? 'away' : 'home';
+            $out[ $t ] = (int) $r->n;
+        }
+        return $out;
+    }
+
+    /**
+     * #2275 — sync the opponent's stored `away_score` on the execution row to
+     * the count of non-reversed away goal events, so the scoreline the feed +
+     * review + reports read stays true after an opponent goal is added, edited
+     * or removed. Idempotent.
+     */
+    public function syncAwayScoreFromGoals( int $execution_id ): void {
+        if ( $execution_id <= 0 ) return;
+        $counts = $this->goalCountsByTeam( $execution_id );
+        $this->update( $execution_id, [ 'away_score' => (int) $counts['away'] ] );
     }
 
     /**
