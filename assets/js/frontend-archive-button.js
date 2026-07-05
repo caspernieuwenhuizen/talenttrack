@@ -33,6 +33,8 @@
  *   data-tt-archive-confirm-label="Restore"— confirm-button label
  *   data-tt-archive-variant="primary"      — confirm-button style
  *                                            ('danger' default)
+ *   data-tt-archive-confirm-title="Reopen activity" — modal title
+ *                                            (#2265; default "Archive record")
  * Restore (POST .../restore) and permanent-delete (DELETE .../permanent)
  * on the activities archived list ride on these; existing archive
  * buttons keep the DELETE / danger defaults and are untouched.
@@ -92,6 +94,14 @@
             return;
         }
         dialog.querySelector( '[data-tt-archive-modal-msg]' ).textContent = msg;
+        // #2265 — retarget the modal TITLE per action too. The dialog is
+        // shared across archive / restore / reopen / cancel; without this
+        // a Reopen or Cancel kept the fixed "Archive record" title. Reset
+        // every open, falling back to the localised default.
+        var titleEl = dialog.querySelector( '.tt-modal-title' );
+        if ( titleEl ) {
+            titleEl.textContent = opts.title || i18n.title;
+        }
         // #1555 — retarget the confirm button label + variant per action
         // (Archive / Restore / Delete) so the modal reads correctly for
         // each step of the lifecycle.
@@ -132,6 +142,7 @@
                 var confirm_text = btn.getAttribute('data-tt-archive-confirm') || modal_i18n.title;
                 var method   = ( btn.getAttribute('data-tt-archive-method') || 'DELETE' ).toUpperCase();
                 var opts = {
+                    title:        btn.getAttribute('data-tt-archive-confirm-title') || '',
                     confirmLabel: btn.getAttribute('data-tt-archive-confirm-label') || '',
                     variant:      btn.getAttribute('data-tt-archive-variant') || 'danger'
                 };

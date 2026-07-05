@@ -260,6 +260,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::CANCELLED ] ),
                             'tt-archive-confirm'       => __( 'Cancel this activity? It will be marked cancelled; you can reopen it later.', 'talenttrack' ),
                             'tt-archive-confirm-label' => __( 'Cancel activity', 'talenttrack' ),
+                            'tt-archive-confirm-title' => __( 'Cancel activity', 'talenttrack' ),
                             'tt-archive-redirect'      => $detail_back,
                         ],
                     ];
@@ -273,6 +274,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::PLANNED ] ),
                             'tt-archive-confirm'       => __( 'Reopen this activity? It returns to planned.', 'talenttrack' ),
                             'tt-archive-confirm-label' => __( 'Reopen', 'talenttrack' ),
+                            'tt-archive-confirm-title' => __( 'Reopen activity', 'talenttrack' ),
                             'tt-archive-variant'       => 'primary',
                             'tt-archive-redirect'      => $detail_back,
                         ],
@@ -318,6 +320,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             'tt-archive-method'         => 'POST',
                             'tt-archive-confirm'        => __( 'Restore this activity? It returns to the active list.', 'talenttrack' ),
                             'tt-archive-confirm-label'  => __( 'Restore', 'talenttrack' ),
+                            'tt-archive-confirm-title'  => __( 'Restore activity', 'talenttrack' ),
                             'tt-archive-variant'        => 'primary',
                             'tt-archive-redirect'       => $restore_redirect,
                         ],
@@ -1601,6 +1604,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     . ' data-tt-archive-method="POST"'
                     . ' data-tt-archive-variant="primary"'
                     . ' data-tt-archive-confirm-label="' . esc_attr__( 'Restore', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm-title="' . esc_attr__( 'Restore activity', 'talenttrack' ) . '"'
                     . ' data-tt-archive-confirm="' . esc_attr__( 'Restore this activity? It will reappear in the active list.', 'talenttrack' ) . '"'
                     . ' data-tt-archive-redirect="' . esc_url( $redirect_url ) . '">'
                     . esc_html__( 'Restore', 'talenttrack' ) . '</button>';
@@ -1611,6 +1615,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     . ' data-tt-archive-method="DELETE"'
                     . ' data-tt-archive-variant="danger"'
                     . ' data-tt-archive-confirm-label="' . esc_attr__( 'Delete permanently', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm-title="' . esc_attr__( 'Delete activity', 'talenttrack' ) . '"'
                     . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this activity? This cannot be undone.', 'talenttrack' ) . '"'
                     . ' data-tt-archive-redirect="' . esc_url( $redirect_url ) . '">'
                     . esc_html__( 'Delete permanently', 'talenttrack' ) . '</button>';
