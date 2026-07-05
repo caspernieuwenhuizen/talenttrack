@@ -608,13 +608,16 @@
 /* Bench = pastel-yellow contained card; Tracked players = soft-green.
  * Both get a border + radius + subtle shadow so they read as discrete
  * cards rather than edge-to-edge sections. */
-.tt-mexec-bench {
+/* Selectors intentionally carry .tt-mexec .tt-mexec-section.<modifier>
+ * (specificity 0,3,0) so the pastel card background beats the 2026 chrome
+ * sheet's `.tt-mexec .tt-mexec-section { background:#fff }` (0,2,0), which
+ * loads after this file. Without the extra class the white always won. */
+.tt-mexec .tt-mexec-section.tt-mexec-bench {
     margin: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
     background: #fdf7db;
     border: 1px solid #e6d488;
     border-radius: 14px;
     box-shadow: 0 1px 2px rgba(120, 100, 10, 0.08);
-    border-bottom: 1px solid #e6d488;
     overflow: hidden;
 }
 .tt-mexec-bench .tt-mexec-section-title { color: #6b5a12; }
@@ -624,13 +627,27 @@
     border: 1px solid #e0cf7f;
     color: #6b5a12;
 }
-.tt-mexec-on-pitch {
+/* Bench rows use a flex row so the minutes chip AND the "→ on" button both
+ * sit inline on the right, in both view mode (minutes only) and edit mode
+ * (minutes + bring-on). The base `.tt-mexec-player` is a 3-col grid whose
+ * `.tt-mexec-player-goals` spans the full width (grid-column:1/-1), dropping
+ * the minutes onto its own line and — with the 4th item in edit mode —
+ * wrapping the bring-on button onto a second row. Flex avoids both. */
+.tt-mexec-bench .tt-mexec-player {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-mexec-gap, 12px);
+    flex-wrap: nowrap;
+}
+.tt-mexec-bench .tt-mexec-player-name { flex: 1 1 auto; min-width: 0; }
+.tt-mexec-bench .tt-mexec-player-goals { margin: 0; flex: 0 0 auto; }
+.tt-mexec-bench .tt-mexec-player-actions { flex: 0 0 auto; }
+.tt-mexec .tt-mexec-section.tt-mexec-on-pitch {
     margin: var(--tt-mexec-gap) var(--tt-mexec-gap-lg);
     background: #eef8f1;
     border: 1px solid #bfe0cc;
     border-radius: 14px;
     box-shadow: 0 1px 2px rgba(20, 110, 60, 0.07);
-    border-bottom: 1px solid #bfe0cc;
     overflow: hidden;
 }
 .tt-mexec-on-pitch .tt-mexec-section-title { color: #1f6a41; }
