@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.76.1
+Stable tag: 4.76.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.76.2 — Match execution: bench above the timeline, inline Undo, clearer "Match goals" label (#2280) Polish on the after-match review:  - The **Bench** now sits directly above the **Squad timeline**, so a player's   bench status reads right next to their played-minutes bar. - In edit mode the **Undo** ("Ongedaan maken") button now sits inline at the end   of each event row instead of wrapping onto its own second line under every   goal and substitution. - The Dutch label for the scored-goals section changed from the ambiguous   "Wedstrijddoelen" (reads as match *objectives*) to **"Doelpunten"**. =
 
 = 4.76.1 — Match execution: fix the redesign's cards, bench minutes and opponent-goal feed (#2278) Follow-up polish on the v4.76.0 match-execution redesign, verified against the mockups with a headless render:  - The **bench** and **tracked-players** sections now actually show their pastel   card backgrounds (yellow / green) — the 2026 chrome sheet was overriding them   with white. - A bench player's **minutes** now sit inline on the right instead of dropping   onto their own line, and the **↑ Bring on** button no longer wraps to a second   row in edit mode. - An **opponent goal** in Live progress now reads "Opponent goal · <team>" with a   distinct grey chip instead of a blank "Goal", and the **running score counts   each side separately** — an opponent goal no longer bumps our tally. - After a match the review screen still opens read-only, but the **Edit button is   now prominent** (filled) so the correction controls are easy to find. =
 
