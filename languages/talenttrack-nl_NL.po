@@ -46747,3 +46747,12 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Reopen activity"
+msgstr "Activiteit heropenen"
+
+msgid "Restore activity"
+msgstr "Activiteit herstellen"
+
+msgid "Delete activity"
+msgstr "Activiteit verwijderen"
