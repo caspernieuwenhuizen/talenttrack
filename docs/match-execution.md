@@ -13,15 +13,56 @@ activity crumb returns you to the match activity's detail page.
 
 ## Editing is opt-in
 
-The screen opens **read-only**. The score, goals, and substitutions are
-shown but not editable until you tap **Edit** in the header. Editing is
-only offered while the match still accepts changes — during play, at
-half-time, and in the post-match review window. Once a match is
-**finalized**, the Edit button disappears and the live controls stay
-locked: a finalized match is the record of what the players actually did,
-so it cannot be silently rewritten. (The server enforces the same lock, so
-a finalized match refuses score, goal, and substitution changes regardless
-of the screen.)
+During play the mutating controls are already revealed — substituting a
+player is the whole point of the sideline tool, so you never have to tap
+Edit first. In the **post-match review window** the screen opens read-only
+to guard against accidental taps: the score, goals, and substitutions are
+shown but not editable until you tap **Edit** in the header.
+
+## After the match — adjust every datapoint
+
+Once the match ends it enters **pending review**. This is the full
+review-and-edit state: with Edit turned on you can adjust **every measured
+datapoint** — bump the **score**, **add or undo a substitution**, **add or
+undo a goal**, and correct **minutes** (by fixing the substitution log, or
+via the *Add late goal / substitution* panels for events you forgot to tap
+live). Correcting a substitution re-runs the minutes calculation, so the
+recorded minutes the reports read stay in step with what you change.
+
+When you are done, tap **Finalize match** to lock it. A finalized match is
+the record of what the players actually did, so the live controls stay
+locked and the Edit button disappears. (The server enforces the same lock,
+so a finalized match refuses score, goal, and substitution changes
+regardless of the screen.)
+
+### Re-opening a finalized match
+
+Finalizing is a deliberate lock, but never a dead-end. A finalized match
+shows a **Re-open for corrections** action. Tapping it (you'll be asked to
+confirm) returns the match to *pending review* so you can correct any
+datapoint — score, subs, goals or minutes — then finalize again. Every
+re-open is recorded in the audit log, and re-opening re-runs the minutes
+calculation so the reports stay consistent.
+
+Both finalizing and re-opening need the `tt_edit_activities` capability,
+the same permission that gates the rest of the match-execution screen.
+
+## Undoing a goal or substitution
+
+Every logged goal and substitution in the **Live progress** feed carries an
+inline **Undo** link while the match still accepts edits. Undo works after
+a page reload — it is keyed to the stored event, not to a short-lived tap
+memory — so a mis-tapped goal or a wrong substitution can be corrected at
+any point up to finalize. A just-logged substitution also offers a quick
+**Undo** in its confirmation toast.
+
+## Minute and roster checks
+
+The screen refuses an impossible substitution — you cannot take off a
+player who is not on the pitch, or bring on a player who is already on —
+and a goal or substitution minute outside the match length (plus a short
+stoppage allowance) is rejected rather than silently clamped. These checks
+run on the server, so they hold for any client.
 
 ## Line-up — the vertical pitch
 
@@ -92,6 +133,11 @@ future web app:
   — the merged, time-ordered goal + substitution feed with running score.
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/pitch-lineup`
   — the first-half starting eleven with position coordinates.
+- `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
+  — undo a logged substitution (soft-delete; the minutes recompute).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
+  — re-open a finalized match for corrections (returns it to *pending
+  review*; audit-logged).
 
-Both require the `tt_edit_activities` capability, the same permission that
+All require the `tt_edit_activities` capability, the same permission that
 gates the match-execution screen itself.

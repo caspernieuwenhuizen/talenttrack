@@ -46336,6 +46336,68 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Review match"
+msgstr "Wedstrijd nabespreken"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Re-open for corrections"
+msgstr "Heropenen voor correcties"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Ended · pending review"
+msgstr "Geëindigd · nabespreking"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Undo this event?"
+msgstr "Deze gebeurtenis ongedaan maken?"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Re-open this finalized match for corrections?"
+msgstr "Deze afgesloten wedstrijd heropenen voor correcties?"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not re-open the match:"
+msgstr "Kon de wedstrijd niet heropenen:"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "A player cannot be substituted for themselves."
+msgstr "Een speler kan niet voor zichzelf worden gewisseld."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "The player coming off is not currently on the pitch."
+msgstr "De speler die eruit gaat, staat momenteel niet in het veld."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "The player coming on is already on the pitch."
+msgstr "De speler die erin komt, staat al in het veld."
+
+#. translators: %d: highest accepted minute (half length + 10 stoppage)
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+#, php-format
+msgid "Minute must be between 0 and %d."
+msgstr "De minuut moet tussen 0 en %d liggen."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Only a finalized match can be re-opened for corrections."
+msgstr "Alleen een afgesloten wedstrijd kan worden heropend voor correcties."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Could not re-open the match."
+msgstr "Kon de wedstrijd niet heropenen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Review the score, subs, goals and minutes below. Turn on Edit to correct any datapoint, then Finalize to lock the match."
+msgstr "Controleer hieronder de stand, wissels, doelpunten en minuten. Zet Bewerken aan om een gegeven te corrigeren en sluit daarna af om de wedstrijd te vergrendelen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Locks the match. You can still re-open it later to correct a datapoint."
+msgstr "Vergrendelt de wedstrijd. Je kunt hem later opnieuw heropenen om een gegeven te corrigeren."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Re-opening lets you correct the score, subs, goals or minutes. The change is logged."
+msgstr "Bij heropenen kun je de stand, wissels, doelpunten of minuten corrigeren. De wijziging wordt vastgelegd."
+
 #~ msgid "Not applicable"
 #~ msgstr "Niet van toepassing"
 
