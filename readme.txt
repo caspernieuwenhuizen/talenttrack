@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.73.4
+Stable tag: 4.73.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.73.5 — Reopen / Cancel confirm dialog now shows the right title (#2265) The confirm dialog for an activity's Reopen and Cancel actions showed the title "Archive record" (it reused the shared archive modal). It now shows the correct title for the action — "Reopen activity", "Cancel activity", "Restore activity" — so the dialog no longer contradicts itself. The archive dialog everywhere else is unchanged. =
 
 = 4.73.4 — Live match execution: sub controls visible by default again (#2261) Fixes a regression where, during a live match, the substitution controls (the bench "→ on" buttons and the "who comes off" panel) plus the score / goal steppers were hidden behind the "Edit" toggle — so a coach on the sideline saw only the bench list and couldn't sub. The read-only-by-default edit gate now applies only to post-match editing: a live in-progress match (first half / half time / second half) opens with the mutating controls already revealed, while the post-match review window keeps the accidental-edit guard (tap Edit to enable) and finalized matches stay fully read-only. =
 

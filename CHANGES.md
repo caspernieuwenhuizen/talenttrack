@@ -1,3 +1,11 @@
+# TalentTrack v4.73.5 — Reopen / Cancel confirm dialog now shows the right title (#2265)
+
+The confirm dialog for an activity's Reopen and Cancel actions showed the
+title "Archive record" (it reused the shared archive modal). It now shows
+the correct title for the action — "Reopen activity", "Cancel activity",
+"Restore activity" — so the dialog no longer contradicts itself. The
+archive dialog everywhere else is unchanged.
+
 # TalentTrack v4.73.4 — Live match execution: sub controls visible by default again (#2261)
 
 Fixes a regression where, during a live match, the substitution controls
