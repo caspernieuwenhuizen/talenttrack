@@ -213,13 +213,21 @@ You do nothing. ~30 seconds after the tag push, the release exists.
 
 Your running WordPress install has the Plugin Update Checker (PUC) plugin that polls GitHub.
 
+**Set `TT_GITHUB_PAT` in `wp-config.php` — required for reliable updates.** Without it, PUC calls the GitHub API unauthenticated, which is capped at **60 requests/hour per server IP** (shared across every site on the host). PUC makes ~3 calls per check, so that budget is exhausted quickly and checks start returning **HTTP 403** (`puc-github-http-error`) — new releases then go undetected. Define a token to move to the **5,000/hr** tier:
+
+```php
+define( 'TT_GITHUB_PAT', 'ghp_…' );   // public repo → token needs ZERO scopes
+```
+
+The plugin shows an admin notice on the Plugins / Updates / Dashboard screens when this constant is missing (#2262). Since #2262 TalentTrack also **auto-installs** its own updates unattended (an `auto_update_plugin` filter scoped to this plugin only) — a detected release installs on WP's twice-daily cron with no click.
+
 When a new release exists, PUC caches on a 12-hour timer by default. To force an immediate check:
 
   wp-admin → Dashboard → Updates → Check again
 
 Or add `?puc_check_now=1&puc_slug=talenttrack` to any wp-admin URL.
 
-Once the update appears in wp-admin → Plugins, click Update. The TalentTrack v3.0.0+ SchemaStatus banner catches any migration needed — click "Run migrations now" if shown. Done.
+Once the update appears in wp-admin → Plugins, click Update (or let auto-update install it). The TalentTrack v3.0.0+ SchemaStatus banner catches any migration needed — click "Run migrations now" if shown. Done.
 
 ## What to do when something goes wrong
 
