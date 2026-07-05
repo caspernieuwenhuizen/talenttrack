@@ -54,7 +54,6 @@ final class MatchEventFeedService {
             return [];
         }
         $execution_id = (int) $execution->id;
-        $away_total   = (int) ( $execution->away_score ?? 0 );
 
         $goals = $exec_repo->listGoalEvents( $execution_id );
         $subs  = $exec_repo->listSubstitutions( $execution_id );
@@ -76,18 +75,23 @@ final class MatchEventFeedService {
             $half   = (int) $g->half;
             $minute = (int) $g->minute_in_half;
             $pid    = (int) $g->player_id;
+            // #2275 — a goal belongs to a team. The opponent's ('away') has no
+            // tracked scorer; the view labels it "Opponent goal" rather than
+            // showing a blank name.
+            $team = ( (string) ( $g->team ?? 'home' ) === 'away' ) ? 'away' : 'home';
             $rows[] = [
                 'type'            => 'goal',
+                'team'            => $team,
                 'half'            => $half,
                 'minute'          => $minute,
                 'sort'            => $half * 1000 + $minute,
-                'player_name'     => $names[ $pid ] ?? '',
+                'player_name'     => $team === 'away' ? '' : ( $names[ $pid ] ?? '' ),
                 'player_off_name' => '',
                 'player_on_name'  => '',
                 // #2269 — carry the server event id so the view can render a
                 // reload-safe Undo link keyed by it.
                 'event_uuid'      => (string) ( $g->event_uuid ?? '' ),
-                'label'           => __( 'Goal scored', 'talenttrack' ),
+                'label'           => $team === 'away' ? __( 'Opponent goal', 'talenttrack' ) : __( 'Goal scored', 'talenttrack' ),
             ];
         }
 
@@ -98,6 +102,7 @@ final class MatchEventFeedService {
             $on     = (int) $s->player_on_id;
             $rows[] = [
                 'type'            => 'substitution',
+                'team'            => 'home',
                 'half'            => $half,
                 'minute'          => $minute,
                 'sort'            => $half * 1000 + $minute,
@@ -118,18 +123,27 @@ final class MatchEventFeedService {
             return ( $a['type'] === 'goal' ? 0 : 1 ) <=> ( $b['type'] === 'goal' ? 0 : 1 );
         } );
 
+        // #2275 — running score tracks BOTH sides: a home goal advances the
+        // home tally, an opponent goal the away tally. (Previously every goal
+        // bumped the home count, so an opponent goal wrongly credited us.)
         $running_home = 0;
+        $running_away = 0;
         $feed = [];
         foreach ( $rows as $row ) {
             if ( $row['type'] === 'goal' ) {
-                $running_home++;
+                if ( ( $row['team'] ?? 'home' ) === 'away' ) {
+                    $running_away++;
+                } else {
+                    $running_home++;
+                }
             }
             $feed[] = [
                 'type'            => $row['type'],
+                'team'            => $row['team'] ?? 'home',
                 'half'            => $row['half'],
                 'minute'          => $row['minute'],
                 'running_home'    => $running_home,
-                'running_away'    => $away_total,
+                'running_away'    => $running_away,
                 'player_name'     => $row['player_name'],
                 'player_off_name' => $row['player_off_name'],
                 'player_on_name'  => $row['player_on_name'],

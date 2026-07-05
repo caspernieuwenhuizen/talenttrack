@@ -190,6 +190,12 @@
     color: var( --tt-info, #235ea8 );
 }
 
+/* #2275 — an opponent goal reads grey, distinct from our green goal chip. */
+.tt-mxp-log-chip--goal-away {
+    background: #eceff1;
+    color: #55606c;
+}
+
 .tt-mxp-log-icon {
     font-size: 0.8125rem;
     line-height: 1;

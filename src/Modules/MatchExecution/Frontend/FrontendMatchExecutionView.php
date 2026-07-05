@@ -395,10 +395,15 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             $is_goal = ( $type === 'goal' );
                             $on_name  = (string) ( $ev['player_on_name'] ?? '' );
                             $off_name = (string) ( $ev['player_off_name'] ?? '' );
+                            $is_away_goal = ( $is_goal && (string) ( $ev['team'] ?? 'home' ) === 'away' );
                             if ( $is_goal ) {
-                                $type_label = __( 'Goal scored', 'talenttrack' );
+                                // #2275 — an opponent goal has no tracked scorer; label it
+                                // clearly and show the opponent's name instead of a blank.
+                                $type_label = $is_away_goal ? __( 'Opponent goal', 'talenttrack' ) : __( 'Goal scored', 'talenttrack' );
                                 $icon       = '⚽';
-                                $detail     = (string) $ev['player_name'];
+                                $detail     = $is_away_goal
+                                    ? ( $away_label !== '' ? $away_label : $away_abbr )
+                                    : (string) $ev['player_name'];
                             } else {
                                 $type_label = __( 'Substitution', 'talenttrack' );
                                 $icon       = '⇄';
@@ -419,7 +424,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             ?>
                             <li class="tt-mxp-log-row tt-mxp-log-row--<?php echo esc_attr( $type ); ?>">
                                 <span class="tt-mxp-log-minute"><?php echo esc_html( $minute_label ); ?></span>
-                                <span class="tt-mxp-log-chip tt-mxp-log-chip--<?php echo esc_attr( $type ); ?>">
+                                <span class="tt-mxp-log-chip tt-mxp-log-chip--<?php echo esc_attr( $type ); ?><?php echo $is_away_goal ? ' tt-mxp-log-chip--goal-away' : ''; ?>">
                                     <span class="tt-mxp-log-icon" aria-hidden="true"><?php echo esc_html( $icon ); ?></span>
                                     <span class="tt-mxp-log-type"><?php echo esc_html( $type_label ); ?></span>
                                 </span>
