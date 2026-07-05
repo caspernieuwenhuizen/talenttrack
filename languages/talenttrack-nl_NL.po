@@ -19806,6 +19806,11 @@ msgstr "Gewisseld"
 msgid "Match goals"
 msgstr "Wedstrijddoelen"
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgctxt "scored goals section"
+msgid "Match goals"
+msgstr "Doelpunten"
+
 #. translators: %d: total number of goals in the match
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:607
 #, php-format

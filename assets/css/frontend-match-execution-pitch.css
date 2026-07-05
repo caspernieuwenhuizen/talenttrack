@@ -103,7 +103,10 @@
 
 .tt-mxp-log-row {
     display: grid;
-    grid-template-columns: auto auto 1fr auto;
+    /* 5th column holds the edit-mode Undo button inline; without it the Undo
+     * wrapped onto its own second line under every event (#2280). The minute
+     * stepper (subs) still spans all columns onto its own line by design. */
+    grid-template-columns: auto auto 1fr auto auto;
     align-items: center;
     gap: var( --tt-sp-2, 8px );
     min-height: 3rem; /* 48px tap/scan target */
@@ -112,6 +115,8 @@
     border-radius: var( --tt-radius, 8px );
     background: var( --tt-paper, #fff );
 }
+/* Keep the Undo button compact so it fits inline at the row's end. */
+.tt-mxp-log-row .tt-mexec-undo-btn { white-space: nowrap; }
 
 .tt-mxp-log-minute {
     font-variant-numeric: tabular-nums;
