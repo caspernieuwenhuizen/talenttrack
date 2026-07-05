@@ -1,3 +1,42 @@
+# TalentTrack v4.74.0 — Match execution: timer no longer keeps running after the match ends (#2267)
+
+The live-match screen now understands the real post-match states
+(pending review and finalized) instead of a legacy value the server never
+sends. On a finished match the clock stops, the state pill and the sticky
+bottom action read correctly, and a reload stays in step with the server.
+
+# TalentTrack v4.74.0 — Match execution: reject impossible subs and out-of-range minutes (#2268)
+
+Logging a substitution now checks the roster on the server: you cannot take
+off a player who is not on the pitch or bring on a player who is already on.
+Goal and substitution minutes outside the match length (plus a short
+stoppage allowance) are rejected instead of being silently clamped. The
+same checks run in the browser so a mistake is caught before it is sent.
+
+# TalentTrack v4.74.0 — Match execution: undo a substitution, reload-safe goal/sub undo (#2269)
+
+Every logged goal and substitution in the Live progress feed now carries an
+inline Undo that works even after a page reload, because it is keyed to the
+stored event rather than a short-lived tap memory. A just-logged
+substitution can also be undone straight from its confirmation toast.
+
+# TalentTrack v4.74.0 — Match execution: sideline robustness polish (#2270)
+
+Small reliability fixes on the live-match screen: a failed goal-undo rolls
+the count back instead of drifting, the late-event forms cannot be
+double-submitted, the timer stops the instant you finalize, and the header
+meta line wraps rather than clipping the team names on a very narrow phone.
+
+# TalentTrack v4.74.0 — Match execution: adjust every datapoint after the match (#2271)
+
+After a match ends you can now correct every measured datapoint — score,
+substitutions, goals and minutes — from the post-match review state, and
+corrections re-run the minutes calculation so the reports stay consistent.
+A finalized match is no longer a dead-end: a new "Re-open for corrections"
+action returns it to review so any datapoint can still be fixed. Re-opening
+is capability-gated to the same coaches who edit the match, and is recorded
+in the audit log.
+
 # TalentTrack v4.73.5 — Reopen / Cancel confirm dialog now shows the right title (#2265)
 
 The confirm dialog for an activity's Reopen and Cancel actions showed the
