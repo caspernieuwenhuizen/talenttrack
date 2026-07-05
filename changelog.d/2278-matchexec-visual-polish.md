@@ -13,3 +13,5 @@ mockups with a headless render:
 - An **opponent goal** in Live progress now reads "Opponent goal · <team>" with a
   distinct grey chip instead of a blank "Goal", and the **running score counts
   each side separately** — an opponent goal no longer bumps our tally.
+- After a match the review screen still opens read-only, but the **Edit button is
+  now prominent** (filled) so the correction controls are easy to find.

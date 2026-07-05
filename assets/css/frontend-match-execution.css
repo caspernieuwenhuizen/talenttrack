@@ -422,6 +422,18 @@
     color: var(--tt-mexec-paper);
     border-color: var(--tt-mexec-accent);
 }
+/* #2278 follow-up — the post-match review surface opens read-only, so the
+ * Edit button IS the primary call to action there (coaches were missing it).
+ * Make it prominent (filled attention-orange) while editing is still off; it
+ * reverts to the accent "Done editing" style once tapped on. Live states keep
+ * the subtle outline — subbing is already visible there. */
+.tt-mexec[data-state="pending_review"] .tt-mexec-edit-btn[aria-pressed="false"],
+.tt-mexec[data-state="finalized"] .tt-mexec-edit-btn[aria-pressed="false"] {
+    background: var(--tt-mexec-warn);
+    color: #fff;
+    border-color: var(--tt-mexec-warn);
+    box-shadow: 0 2px 6px rgba(199, 92, 31, 0.28);
+}
 .tt-mexec-edit-icon { font-size: 15px; line-height: 1; }
 
 /* ----- #2224 — correct recorded minutes (finalized only) ----- */
