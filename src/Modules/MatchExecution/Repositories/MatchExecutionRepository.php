@@ -236,6 +236,28 @@ class MatchExecutionRepository {
     }
 
     /**
+     * #2273 — correct the half + minute of an already-logged, non-reversed
+     * substitution. Coaches routinely log a sub late during the live match,
+     * so the recorded minute is wrong; because `minutes_played` is derived
+     * from the sub log (see {@see computeMinutes}), fixing the minute here
+     * and re-running {@see recomputeAttendanceAndMinutes} makes both
+     * players' totals correct — the coach never edits minutes directly.
+     * Only touches a non-reversed row owned by the current club. Returns
+     * false on a malformed uuid/half; the query itself is a no-op when no
+     * such row exists.
+     */
+    public function updateSubstitutionMinute( string $event_uuid, int $half, int $minute ): bool {
+        if ( $event_uuid === '' || $half < 1 || $half > 2 ) return false;
+        $ok = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->t_subs}
+                SET half = %d, minute_in_half = %d
+              WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+            $half, max( 0, $minute ), $event_uuid, CurrentClub::id()
+        ) );
+        return $ok !== false;
+    }
+
+    /**
      * #2268 — the set of player ids currently on the pitch, derived from
      * the first-half starting XI plus every non-reversed substitution
      * applied in chronological order. Used to validate a live / late

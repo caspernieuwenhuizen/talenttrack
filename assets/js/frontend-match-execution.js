@@ -320,6 +320,34 @@
         });
     });
 
+    // #2273 — correct a logged substitution's minute post-match. The coach
+    // often logs a sub late; because minutes derive from the sub time, PATCH
+    // the corrected minute and reload so the recomputed minutes show. Reload
+    // keeps the derived timeline / minutes in sync with the server truth.
+    root.querySelectorAll('[data-tt-mexec-sub-minute]').forEach(function (box) {
+        var uuid  = box.getAttribute('data-event-uuid');
+        var half  = parseInt(box.getAttribute('data-half'), 10) || 1;
+        var input = box.querySelector('[data-tt-mexec-sub-minute-input]');
+        if (!uuid || !input) return;
+        var max = parseInt(input.getAttribute('max'), 10) || (HALF_LENGTH + 10);
+        function commit(v) {
+            v = Math.max(0, Math.min(max, isNaN(v) ? 0 : v));
+            if (v === (parseInt(input.getAttribute('value'), 10) || 0)) { input.value = v; return; }
+            input.value = v;
+            input.disabled = true;
+            apiPatch('substitution/' + uuid, { half: half, minute: v }).then(function () {
+                window.location.reload();
+            }).catch(function () {
+                input.disabled = false;
+            });
+        }
+        var dec = box.querySelector('[data-tt-mexec-sub-minute-dec]');
+        var inc = box.querySelector('[data-tt-mexec-sub-minute-inc]');
+        if (dec) dec.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) - 1); });
+        if (inc) inc.addEventListener('click', function () { commit((parseInt(input.value, 10) || 0) + 1); });
+        input.addEventListener('change', function () { commit(parseInt(input.value, 10)); });
+    });
+
     // #956 — inline sub-target reveal (replaces the v4.1.7 modal sheet).
     // Populates the .tt-mexec-sub-target section below the bench with
     // the full on-pitch XI; coach taps a row to complete the swap.
@@ -562,6 +590,15 @@
         return doFetch(url, 'DELETE', null).catch(function (err) {
             if (err && err.isHttp) throw err;
             enqueue({ url: url, method: 'DELETE', body: null });
+        });
+    }
+    // #2273 — PATCH a logged substitution's minute. Mirrors api()/apiDelete:
+    // online-first, offline-queued on network failure, re-thrown on HTTP error.
+    function apiPatch(path, body) {
+        var url = (cfg.rest_url || '/wp-json/talenttrack/v1/match-execution/0/') + path;
+        return doFetch(url, 'PATCH', body).catch(function (err) {
+            if (err && err.isHttp) throw err;
+            enqueue({ url: url, method: 'PATCH', body: body });
         });
     }
     function doFetch(url, method, body) {

@@ -72,10 +72,17 @@ class MatchExecutionRestController {
         ] );
 
         // #2269 — undo a logged substitution by its client event_uuid.
+        // #2273 — PATCH corrects the half + minute of a logged sub (coach
+        // forgot to log it on time); minutes recompute follows.
         register_rest_route( self::NS, $base . '/substitution/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'route_substitution_delete' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'route_substitution_update' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -435,6 +442,43 @@ class MatchExecutionRestController {
         $repo->reverseSubstitution( $event_uuid );
         self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
+    }
+
+    /**
+     * #2273 — PATCH /<activity_id>/substitution/<event_uuid> {half, minute}.
+     * Corrects the half + minute of an already-logged, non-reversed sub. The
+     * coach fixes the *time* they came on/off (the thing they forgot to log
+     * live); because minutes_played is derived from the sub log, the recompute
+     * that follows updates both players' totals. Same guards as the other
+     * write endpoints: refuse once FINALIZED, validate the minute range.
+     */
+    public static function route_substitution_update( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+
+        $event_uuid = (string) $r['event_uuid'];
+        $body   = $r->get_json_params();
+        $half   = (int) ( $body['half'] ?? 0 );
+        $minute = (int) ( $body['minute'] ?? 0 );
+
+        if ( $event_uuid === '' || $half < 1 || $half > 2 ) {
+            return RestResponse::error( 'bad_input', __( 'Substitution update payload missing required fields.', 'talenttrack' ), 400 );
+        }
+
+        $repo = new MatchExecutionRepository();
+        if ( ! $repo->substitutionExists( $event_uuid ) ) {
+            return RestResponse::error( 'not_found', __( 'Substitution not found.', 'talenttrack' ), 404 );
+        }
+
+        [ $half_length ] = self::prepContext( absint( $r['activity_id'] ) );
+        $minute_err = self::assertMinuteInRange( $minute, $half_length );
+        if ( $minute_err ) return $minute_err;
+
+        $repo->updateSubstitutionMinute( $event_uuid, $half, $minute );
+        self::recomputeIfPendingReview( $repo, $exec_id );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid, 'half' => $half, 'minute' => $minute ] );
     }
 
     // -----------------------------------------------------------------

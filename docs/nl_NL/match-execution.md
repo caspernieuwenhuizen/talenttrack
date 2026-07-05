@@ -65,6 +65,19 @@ tikgeheugen — zodat een verkeerd getikt doelpunt of een foute wissel op elk
 moment tot aan het afsluiten kan worden hersteld. Een net vastgelegde
 wissel biedt ook een snelle **Ongedaan maken** in de bevestigingsmelding.
 
+## De minuut van een wissel corrigeren
+
+Coaches leggen een wissel vaak net te laat vast — het wisselmoment was 55'
+maar je tikte het pas op 58' in. Met **Bewerken** aan toont elke wissel in
+het **Live verloop** een stapper **Minuut corrigeren** (− / + en een
+invoerveld). De gecorrigeerde minuut wordt opgeslagen en de
+minutenberekening loopt opnieuw, zodat de vastgelegde minuten van **beide**
+spelers meebewegen: de speler die eruit ging wint (of verliest) het
+verschil, en de speler die erin kwam verliest (of wint) het. Je bewerkt de
+minuten nooit rechtstreeks — je corrigeert het *tijdstip* van de
+gebeurtenis en de minuten volgen. De gecorrigeerde minuut wordt op bereik
+gecontroleerd, net als elke andere.
+
 ## Minuut- en opstellingscontroles
 
 Het scherm weigert een onmogelijke wissel — je kunt geen speler wisselen
