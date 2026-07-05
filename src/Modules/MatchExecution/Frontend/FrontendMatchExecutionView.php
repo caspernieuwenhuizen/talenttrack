@@ -205,6 +205,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // of render() and again server-side); this adds no new capability.
         $is_editable = MatchExecutionState::isEditable( $state );
 
+        // #2261 — the #2222 read-only-by-default gate must NOT apply to a
+        // live, in-progress match: substituting players is the whole point of
+        // the sideline tool, so the coach can't be made to tap "Edit" first.
+        // Live states (first/half/second half) open with the mutating controls
+        // already revealed (data-edit-mode="on"); the coach can still toggle
+        // "Done editing" to hide them. PENDING_REVIEW keeps the #2222
+        // accidental-edit guard (opens "off", Edit-to-enable); FINALIZED /
+        // non-editable states render fully read-only with no toggle.
+        $initial_edit_mode = MatchExecutionState::isLive( $state ) ? 'on' : 'off';
+
         // #2224 Part B — recorded minutes are hand-correctable only once the
         // execution is finalized (no further auto-recompute runs then, so a
         // manual correction can't be clobbered). Separate affordance from the
@@ -231,7 +241,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             );
         }
         ?>
-        <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-editable="<?php echo $is_editable ? '1' : '0'; ?>" data-edit-mode="off" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
+        <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-editable="<?php echo $is_editable ? '1' : '0'; ?>" data-edit-mode="<?php echo esc_attr( $initial_edit_mode ); ?>" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
 
             <header class="tt-mexec-header">
                 <p class="tt-mexec-header-meta">
@@ -249,12 +259,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                       // shown only for states that still accept live-data writes
                       // (never on FINALIZED). Toggles the container's
                       // data-edit-mode so the CSS reveals/hides the score
-                      // steppers, goal/sub buttons, and late-event panels. ?>
+                      // steppers, goal/sub buttons, and late-event panels.
+                      // #2261 — for a live match the controls open already
+                      // revealed, so the toggle initialises to the "Done
+                      // editing" / pressed state to stay honest. ?>
                 <?php if ( $is_editable ) : ?>
+                    <?php $edit_on = ( $initial_edit_mode === 'on' ); ?>
                     <div class="tt-mexec-edit-toggle">
-                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="false">
+                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
                             <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
-                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></span>
+                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php echo $edit_on ? esc_html__( 'Done editing', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ); ?></span>
                         </button>
                     </div>
                 <?php endif; ?>
