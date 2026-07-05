@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.75.0
+Stable tag: 4.76.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.76.0 — Match execution: post-match squad timeline, contained cards, paired swaps, opponent goals (#2273) The after-match review now leads with a **Squad timeline** — one 0'→full-time bar per player showing on-pitch (green) versus bench time, substitution in/out markers, own-goal marks and minutes played, grouped into the starting XI and the bench.  Live-match cards are now visually contained: the bench reads as a pastel-yellow card and tracked players as a soft-green card. When a player is substituted off, their bench row shows a transient "just came off" pill and a "Just came off for …" line that clears after a minute.  Substitutions in the live progress feed render as a paired ▲ on / ▼ off card. In the after-match review the coach can now add, remove, or correct the minute of an opponent (away) goal; the away score stays in sync. =
 
 = 4.75.0 — Match execution: correct a substitution's minute after the match (#2273) Coaches often log a substitution a little late, so the recorded minute is wrong — and because playing minutes are derived from the substitution times, that skews both players' totals. With Edit on, every substitution in the Live progress feed now shows a **Correct minute** stepper. Changing it saves the corrected minute and re-runs the minutes calculation, so the player who came off and the player who came on both move to match. You fix the *time* of the event; the minutes follow — you never edit minutes directly. The corrected minute is range-checked and blocked once the match is finalized, the same as every other post-match edit. New `PATCH /match-execution/{id}/substitution/{uuid}` endpoint backs it.  This is the first slice of the match-execution redesign (#2273); the squad timeline, contained bench/tracked cards and timed opponent goals follow in their own changes. =
 
