@@ -46433,6 +46433,119 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Squad timeline"
+msgstr "Wedstrijdtijdlijn"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "minutes played"
+msgstr "gespeelde minuten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Started — XI"
+msgstr "Gestart — basiself"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Started — bench"
+msgstr "Gestart — bank"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "0' · unused"
+msgstr "0' · niet gebruikt"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "On the pitch"
+msgstr "Op het veld"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "On the bench"
+msgstr "Op de bank"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Came on"
+msgstr "Ingebracht"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Came off"
+msgstr "Gewisseld"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Just came off for"
+msgstr "Zojuist gewisseld voor"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Our goal"
+msgstr "Ons doelpunt"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Opponent goal"
+msgstr "Doelpunt tegenstander"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Add opponent goal"
+msgstr "Doelpunt tegenstander toevoegen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "+ Add an opponent goal"
+msgstr "+ Doelpunt tegenstander toevoegen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Remove opponent goal"
+msgstr "Doelpunt tegenstander verwijderen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Opponent goal minute"
+msgstr "Minuut doelpunt tegenstander"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "No goals logged for our team."
+msgstr "Nog geen doelpunten voor ons team vastgelegd."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "No opponent goals logged."
+msgstr "Nog geen doelpunten van de tegenstander vastgelegd."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Remove this opponent goal? The score updates."
+msgstr "Dit doelpunt van de tegenstander verwijderen? De stand wordt bijgewerkt."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Enter a valid minute."
+msgstr "Voer een geldige minuut in."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not add the opponent goal."
+msgstr "Kon het doelpunt van de tegenstander niet toevoegen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+#, php-format
+msgid "%1$s (opponent) — %2$d'"
+msgstr "%1$s (tegenstander) — %2$d'"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+#, php-format
+msgid ""
+"These make up the score — %1$s and %2$s. Individual development actions live "
+"under Tracked players."
+msgstr ""
+"Deze bepalen de stand — %1$s en %2$s. Individuele ontwikkelacties staan onder "
+"Gevolgde spelers."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+#, php-format
+msgid "%d goal"
+msgid_plural "%d goals"
+msgstr[0] "%d doelpunt"
+msgstr[1] "%d doelpunten"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "A home goal needs a scorer."
+msgstr "Een eigen doelpunt heeft een maker nodig."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Goal update payload missing required fields."
+msgstr "Doelpuntupdate mist verplichte velden."
+
 #~ msgid "Locks the match. Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Vergrendelt de wedstrijd. Doelpunten, wissels en eindstand kunnen daarna "

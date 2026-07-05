@@ -78,6 +78,33 @@ minuten nooit rechtstreeks — je corrigeert het *tijdstip* van de
 gebeurtenis en de minuten volgen. De gecorrigeerde minuut wordt op bereik
 gecontroleerd, net als elke andere.
 
+## Wedstrijdtijdlijn — wie speelde, wanneer
+
+Na de wedstrijd toont het nabesprekingsscherm een **Wedstrijdtijdlijn**: één
+balk per speler over de hele wedstrijd (0' tot einde). Een groen segment is
+tijd op het veld; een gearceerd segment is tijd op de bank. Elke wissel staat
+op de grens met de minuut — `▲` waar een speler erin kwam, `▼` waar er een
+eruit ging — en een `⚽` markeert elk doelpunt van die speler. De gespeelde
+minuten staan aan het eind van elke rij, uit hetzelfde vastgelegde getal dat
+de rapporten gebruiken, zodat de tijdlijn nooit afwijkt van het minutenrapport.
+Spelers zijn gegroepeerd in **Gestart — basiself** en **Gestart — bank**; een
+wisselspeler die niet inviel toont `0' · niet gebruikt`. Dit is in één
+oogopslag het antwoord op "wie startte op de bank, wanneer kwam die erin, voor
+wie, en hoe lang speelde iedereen?"
+
+## Doelpunten van de tegenstander
+
+De stand bestaat uit **wedstrijddoelpunten** voor beide teams. Onze doelpunten
+worden per speler vastgelegd (de actie bij gevolgde spelers, of een laat
+doelpunt); die van de tegenstander worden als eigen gebeurtenissen met een
+tijd vastgelegd. Op het nabesprekingsscherm toont het onderdeel
+**Wedstrijddoelpunten** beide — onze doelpunten met de maker, die van de
+tegenstander als "Doelpunt tegenstander" — en met **Bewerken** aan kun je een
+doelpunt van de tegenstander toevoegen (helft + minuut), de minuut corrigeren
+of het verwijderen. De uitstand volgt automatisch het aantal doelpunten van de
+tegenstander. Wedstrijddoelpunten staan los van **Gevolgde spelers**, die
+individuele ontwikkelacties tellen en nooit de stand raken.
+
 ## Minuut- en opstellingscontroles
 
 Het scherm weigert een onmogelijke wissel — je kunt geen speler wisselen

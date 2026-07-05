@@ -214,6 +214,186 @@
     white-space: nowrap;
 }
 
+/* ---- #2273 — paired swap card in the Live progress feed ------------- */
+/* Substitution rows render as a two-line ▲On / ▼Off card. The existing
+   4-column grid (minute · chip · body · undo) is reused; the swap block
+   sits in the body column (1fr) as a stacked pair. Goals keep the single
+   detail line + running-score chip. */
+.tt-mxp-log-row--substitution {
+    align-items: start;
+}
+.tt-mxp-log-swap {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+.tt-mxp-log-swap-line {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8125rem;
+    min-width: 0;
+}
+.tt-mxp-log-swap-dir {
+    width: 16px;
+    flex: 0 0 16px;
+    text-align: center;
+    font-weight: 800;
+}
+.tt-mxp-log-swap-line--on .tt-mxp-log-swap-dir { color: var( --tt-success, #2f9e5e ); }
+.tt-mxp-log-swap-line--off .tt-mxp-log-swap-dir { color: var( --tt-danger, #d8453b ); }
+.tt-mxp-log-swap-line--off .tt-mxp-log-swap-who { color: var( --tt-ink-soft, #6a6d66 ); }
+.tt-mxp-log-swap-who {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---- #2273 — Squad timeline (post-match) ---------------------------- */
+/* One 0'→FT bar per player: green on-pitch segments over a hatched bench
+   track, ▲/▼ sub markers, ⚽ goal marks, minutes on the right. Ported from
+   review.html's .tl-* with the repo's tt-mexec- prefix. */
+.tt-mexec-tl-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var( --tt-ink-soft, #6a6d66 );
+    padding: 0 44px 6px 92px;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-group {
+    margin: 14px 0 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var( --tt-ink-soft, #6a6d66 );
+}
+.tt-mexec-tl-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 44px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+}
+.tt-mexec-tl-row + .tt-mexec-tl-row {
+    border-top: 1px solid var( --tt-mute, #f0f3f2 );
+}
+.tt-mexec-tl-who {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+.tt-mexec-tl-num {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 50%;
+    background: var( --tt-primary, #0b3d2e );
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-mexec-tl-bar {
+    position: relative;
+    height: 22px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: repeating-linear-gradient( 45deg, #eef1ee, #eef1ee 5px, #e6eae6 5px, #e6eae6 10px );
+}
+.tt-mexec-tl-seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+.tt-mexec-tl-seg--on { background: #2f9e5e; }
+.tt-mexec-tl-goal {
+    position: absolute;
+    top: 50%;
+    transform: translate( -50%, -50% );
+    z-index: 3;
+    font-size: 11px;
+}
+.tt-mexec-tl-mark {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    z-index: 2;
+}
+.tt-mexec-tl-mark--on  { background: #1f7a3a; }
+.tt-mexec-tl-mark--off { background: #d8453b; }
+.tt-mexec-tl-mark::after {
+    content: attr( data-min );
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX( -50% );
+    font-size: 9px;
+    font-weight: 800;
+    color: #333;
+    background: #fff;
+    padding: 0 2px;
+    white-space: nowrap;
+}
+.tt-mexec-tl-mins {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 800;
+    color: var( --tt-ink, #0e1a14 );
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-mins--zero {
+    color: #a4a8a2;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 1.15;
+}
+.tt-mexec-tl-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var( --tt-line, #e3e6e1 );
+    font-size: 11px;
+    color: var( --tt-ink-soft, #6a6d66 );
+}
+.tt-mexec-tl-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.tt-mexec-tl-key {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+.tt-mexec-tl-key--on { background: #2f9e5e; }
+.tt-mexec-tl-key--bench {
+    background: repeating-linear-gradient( 45deg, #eef1ee, #eef1ee 3px, #e6eae6 3px, #e6eae6 6px );
+}
+.tt-mexec-tl-legend-mark {
+    position: relative;
+    width: 2px;
+    height: 12px;
+    display: inline-block;
+}
+
 /* ---- Scale up on larger phones / tablets ---------------------------- */
 
 @media ( min-width: 480px ) {
