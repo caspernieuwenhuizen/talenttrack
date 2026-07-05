@@ -46519,8 +46519,8 @@ msgstr "Kon het doelpunt van de tegenstander niet toevoegen."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 #, php-format
-msgid "%1$s (opponent) — %2$d'"
-msgstr "%1$s (tegenstander) — %2$d'"
+msgid "%1$s (opponent) — %2$d"
+msgstr "%1$s (tegenstander) — %2$d"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 #, php-format
