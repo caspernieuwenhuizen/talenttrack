@@ -46733,3 +46733,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "<strong>TalentTrack updates:</strong> no GitHub token is configured, so update checks run unauthenticated and GitHub rate-limits them (HTTP 403) after a few tries — new releases may not be detected or installed. Add %s to <code>wp-config.php</code> (a public-repo token needs no scopes)."
+msgstr "<strong>TalentTrack-updates:</strong> er is geen GitHub-token ingesteld, dus updatecontroles verlopen zonder authenticatie en GitHub beperkt ze (HTTP 403) na een paar pogingen — nieuwe releases worden mogelijk niet gedetecteerd of geïnstalleerd. Voeg %s toe aan <code>wp-config.php</code> (een token voor een publieke repo heeft geen scopes nodig)."

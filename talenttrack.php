@@ -87,6 +87,11 @@ if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.p
     }
 }
 
+// #2262 — force unattended auto-install of TalentTrack releases + warn the
+// operator when TT_GITHUB_PAT is missing (unauthenticated GitHub API =
+// 60/hr per IP → 403 rate-limit → updates stop being detected).
+\TT\Core\UpdateHardening::register();
+
 register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
 register_deactivation_hook( __FILE__, [ 'TT\\Core\\Activator', 'deactivate' ] );
 
