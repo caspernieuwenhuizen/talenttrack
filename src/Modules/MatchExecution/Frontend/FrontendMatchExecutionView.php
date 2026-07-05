@@ -485,6 +485,98 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     </ol>
                 <?php endif; ?>
             </section>
+
+            <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
+                <div class="tt-mexec-section-head">
+                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
+                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
+                        /* translators: %d: number of flagged players */
+                        _n( '%d flagged', '%d flagged', count( $specific_goal_ids ), 'talenttrack' ),
+                        count( $specific_goal_ids )
+                    ) ); ?></span>
+                </div>
+                <?php if ( empty( $specific_goal_ids ) ) : ?>
+                    <p class="tt-mexec-empty"><?php esc_html_e( 'No players flagged with a specific goal in the match prep.', 'talenttrack' ); ?></p>
+                <?php else : ?>
+                    <ul class="tt-mexec-player-list">
+                        <?php foreach ( $specific_goal_ids as $pid ) :
+                            $pl = $players_by_id[ $pid ] ?? null;
+                            if ( ! $pl ) continue;
+                            $count = (int) ( $goal_counts[ $pid ] ?? 0 );
+                            $goal_label = trim( (string) ( $player_goal_labels[ $pid ] ?? '' ) );
+                            $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
+                            ?>
+                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-goal-row data-player-id="<?php echo (int) $pid; ?>">
+                                <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
+                                <span class="tt-mexec-player-name">
+                                    <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                    <?php if ( $goal_label !== '' ) : ?>
+                                        <small><?php echo esc_html( sprintf( __( 'flagged: %s', 'talenttrack' ), $goal_label ) ); ?></small>
+                                    <?php endif; ?>
+                                </span>
+                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-goal-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
+                                </div>
+                                <div class="tt-mexec-player-goals">
+                                    <?php if ( $goal_label !== '' ) : ?>
+                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                    <?php else : ?>
+                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                    <?php endif; ?>
+                                    <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
+                                    <?php if ( $mins !== null ) : ?>
+                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </section>
+
+            <section class="tt-mexec-section tt-mexec-bench" aria-label="<?php esc_attr_e( 'Bench', 'talenttrack' ); ?>">
+                <div class="tt-mexec-section-head">
+                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Bench', 'talenttrack' ); ?></h2>
+                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
+                        /* translators: %d: number of bench players */
+                        _n( '%d available', '%d available', count( $bench_ids ), 'talenttrack' ),
+                        count( $bench_ids )
+                    ) ); ?></span>
+                </div>
+                <?php if ( empty( $bench_ids ) ) : ?>
+                    <p class="tt-mexec-empty"><?php esc_html_e( 'No bench players available.', 'talenttrack' ); ?></p>
+                <?php else : ?>
+                    <ul class="tt-mexec-player-list">
+                        <?php foreach ( $bench_ids as $pid ) :
+                            $pl = $players_by_id[ $pid ] ?? null;
+                            if ( ! $pl ) continue;
+                            $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
+                            ?>
+                            <li class="tt-mexec-player" data-tt-mexec-bench data-player-id="<?php echo (int) $pid; ?>">
+                                <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
+                                <span class="tt-mexec-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
+                                <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
+                                <?php if ( $mins !== null ) : ?>
+                                    <div class="tt-mexec-player-goals">
+                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
+                                    </div>
+                                <?php endif; ?>
+                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
+                                </div>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </section>
+
+            <section class="tt-mexec-sub-target tt-mexec-edit-only" aria-label="<?php esc_attr_e( 'Choose who comes off', 'talenttrack' ); ?>" data-tt-mexec-onpitch-section>
+                <div class="tt-mexec-sub-target-banner" role="status">
+                    <span data-tt-mexec-sub-banner><?php esc_html_e( 'Tap a player to swap', 'talenttrack' ); ?></span>
+                    <button type="button" class="tt-mexec-sub-cancel" data-tt-mexec-sub-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                </div>
+                <ul class="tt-mexec-player-list" data-tt-mexec-onpitch-list></ul>
+            </section>
             <?php // #2273 — Squad timeline (post-match headline). One 0'→FT
                   // bar per player: green on-pitch segments over a hatched
                   // bench track, ▲/▼ markers on each sub boundary, ⚽ on that
@@ -604,9 +696,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                           }
                       }
                       ?>
-                <section class="tt-mexec-section tt-mexec-match-goals" aria-label="<?php esc_attr_e( 'Match goals', 'talenttrack' ); ?>" data-tt-mexec-match-goals>
+                <section class="tt-mexec-section tt-mexec-match-goals" aria-label="<?php echo esc_attr_x( 'Match goals', 'scored goals section', 'talenttrack' ); ?>" data-tt-mexec-match-goals>
                     <div class="tt-mexec-section-head">
-                        <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Match goals', 'talenttrack' ); ?></h2>
+                        <h2 class="tt-mexec-section-title"><?php echo esc_html_x( 'Match goals', 'scored goals section', 'talenttrack' ); ?></h2>
                         <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
                             /* translators: %d: total number of goals in the match */
                             _n( '%d goal', '%d goals', count( $goal_events ), 'talenttrack' ),
@@ -719,98 +811,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <?php endif; ?>
                 </section>
             <?php endif; ?>
-
-            <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
-                <div class="tt-mexec-section-head">
-                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
-                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
-                        /* translators: %d: number of flagged players */
-                        _n( '%d flagged', '%d flagged', count( $specific_goal_ids ), 'talenttrack' ),
-                        count( $specific_goal_ids )
-                    ) ); ?></span>
-                </div>
-                <?php if ( empty( $specific_goal_ids ) ) : ?>
-                    <p class="tt-mexec-empty"><?php esc_html_e( 'No players flagged with a specific goal in the match prep.', 'talenttrack' ); ?></p>
-                <?php else : ?>
-                    <ul class="tt-mexec-player-list">
-                        <?php foreach ( $specific_goal_ids as $pid ) :
-                            $pl = $players_by_id[ $pid ] ?? null;
-                            if ( ! $pl ) continue;
-                            $count = (int) ( $goal_counts[ $pid ] ?? 0 );
-                            $goal_label = trim( (string) ( $player_goal_labels[ $pid ] ?? '' ) );
-                            $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
-                            ?>
-                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-goal-row data-player-id="<?php echo (int) $pid; ?>">
-                                <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
-                                <span class="tt-mexec-player-name">
-                                    <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
-                                    <?php if ( $goal_label !== '' ) : ?>
-                                        <small><?php echo esc_html( sprintf( __( 'flagged: %s', 'talenttrack' ), $goal_label ) ); ?></small>
-                                    <?php endif; ?>
-                                </span>
-                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-goal-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
-                                </div>
-                                <div class="tt-mexec-player-goals">
-                                    <?php if ( $goal_label !== '' ) : ?>
-                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
-                                    <?php else : ?>
-                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
-                                    <?php endif; ?>
-                                    <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
-                                    <?php if ( $mins !== null ) : ?>
-                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </section>
-
-            <section class="tt-mexec-section tt-mexec-bench" aria-label="<?php esc_attr_e( 'Bench', 'talenttrack' ); ?>">
-                <div class="tt-mexec-section-head">
-                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Bench', 'talenttrack' ); ?></h2>
-                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
-                        /* translators: %d: number of bench players */
-                        _n( '%d available', '%d available', count( $bench_ids ), 'talenttrack' ),
-                        count( $bench_ids )
-                    ) ); ?></span>
-                </div>
-                <?php if ( empty( $bench_ids ) ) : ?>
-                    <p class="tt-mexec-empty"><?php esc_html_e( 'No bench players available.', 'talenttrack' ); ?></p>
-                <?php else : ?>
-                    <ul class="tt-mexec-player-list">
-                        <?php foreach ( $bench_ids as $pid ) :
-                            $pl = $players_by_id[ $pid ] ?? null;
-                            if ( ! $pl ) continue;
-                            $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
-                            ?>
-                            <li class="tt-mexec-player" data-tt-mexec-bench data-player-id="<?php echo (int) $pid; ?>">
-                                <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
-                                <span class="tt-mexec-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
-                                <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
-                                <?php if ( $mins !== null ) : ?>
-                                    <div class="tt-mexec-player-goals">
-                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php endif; ?>
-            </section>
-
-            <section class="tt-mexec-sub-target tt-mexec-edit-only" aria-label="<?php esc_attr_e( 'Choose who comes off', 'talenttrack' ); ?>" data-tt-mexec-onpitch-section>
-                <div class="tt-mexec-sub-target-banner" role="status">
-                    <span data-tt-mexec-sub-banner><?php esc_html_e( 'Tap a player to swap', 'talenttrack' ); ?></span>
-                    <button type="button" class="tt-mexec-sub-cancel" data-tt-mexec-sub-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                </div>
-                <ul class="tt-mexec-player-list" data-tt-mexec-onpitch-list></ul>
-            </section>
 
             <?php // #1033 — post-match status bar. PENDING_REVIEW shows
                   // a visible "ended · pending review" pill + an explicit
