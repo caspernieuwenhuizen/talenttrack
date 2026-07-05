@@ -121,6 +121,53 @@
     white-space: nowrap;
 }
 
+/* #2273 — inline "correct minute" stepper on a substitution row. Sits as a
+   full-width second line (grid-column 1/-1) so the 4-column row layout is
+   untouched; edit-mode only via .tt-mexec-edit-only. */
+.tt-mxp-log-editminute {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var( --tt-line, #e3e6ea );
+}
+.tt-mxp-log-editminute-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var( --tt-ink-soft, #5b6e75 );
+    margin-right: auto;
+}
+.tt-mxp-min-btn {
+    width: 44px;
+    min-height: 44px;
+    border: 1px solid var( --tt-line, #e3e6ea );
+    background: var( --tt-mute, #f0f3f2 );
+    border-radius: var( --tt-radius, 8px );
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var( --tt-primary, #0b3d2e );
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mxp-min-btn:active { background: var( --tt-line, #e3e6ea ); }
+.tt-mxp-min-input {
+    width: 3.5rem;
+    min-height: 44px;
+    text-align: center;
+    border: 1px solid var( --tt-line, #e3e6ea );
+    border-radius: var( --tt-radius, 8px );
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+}
+.tt-mxp-min-input::-webkit-outer-spin-button,
+.tt-mxp-min-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
 .tt-mxp-log-chip {
     display: inline-flex;
     align-items: center;

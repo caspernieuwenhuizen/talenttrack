@@ -424,6 +424,25 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                         <?php esc_html_e( 'Undo', 'talenttrack' ); ?>
                                     </button>
                                 <?php endif; ?>
+                                <?php // #2273 — correct a substitution's minute post-match. Coaches
+                                      // routinely log a sub late; because minutes_played derive from
+                                      // the sub time, the coach fixes the *time* here and the server
+                                      // recompute updates both players' totals (never edits minutes
+                                      // directly). Edit-mode only, subs only. ?>
+                                <?php if ( ! $is_goal && $is_editable && $event_uuid !== '' ) : ?>
+                                    <div class="tt-mxp-log-editminute tt-mexec-edit-only"
+                                         data-tt-mexec-sub-minute
+                                         data-event-uuid="<?php echo esc_attr( $event_uuid ); ?>"
+                                         data-half="<?php echo (int) $half; ?>">
+                                        <span class="tt-mxp-log-editminute-label"><?php esc_html_e( 'Correct minute', 'talenttrack' ); ?></span>
+                                        <button type="button" class="tt-mxp-min-btn" data-tt-mexec-sub-minute-dec aria-label="<?php esc_attr_e( 'One minute earlier', 'talenttrack' ); ?>">−</button>
+                                        <input type="number" inputmode="numeric" min="0" max="<?php echo (int) $prep->half_length_minutes + 10; ?>"
+                                               class="tt-mxp-min-input" data-tt-mexec-sub-minute-input
+                                               value="<?php echo (int) $minute; ?>"
+                                               aria-label="<?php esc_attr_e( 'Substitution minute', 'talenttrack' ); ?>">
+                                        <button type="button" class="tt-mxp-min-btn" data-tt-mexec-sub-minute-inc aria-label="<?php esc_attr_e( 'One minute later', 'talenttrack' ); ?>">+</button>
+                                    </div>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ol>

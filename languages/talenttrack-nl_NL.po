@@ -46409,6 +46409,30 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Correct minute"
+msgstr "Minuut corrigeren"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "One minute earlier"
+msgstr "Eén minuut eerder"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "One minute later"
+msgstr "Eén minuut later"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Substitution minute"
+msgstr "Wisselminuut"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Substitution update payload missing required fields."
+msgstr "Wisselupdate mist verplichte velden."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Substitution not found."
+msgstr "Wissel niet gevonden."
+
 #~ msgid "Locks the match. Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Vergrendelt de wedstrijd. Doelpunten, wissels en eindstand kunnen daarna "

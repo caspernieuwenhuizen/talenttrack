@@ -56,6 +56,18 @@ memory — so a mis-tapped goal or a wrong substitution can be corrected at
 any point up to finalize. A just-logged substitution also offers a quick
 **Undo** in its confirmation toast.
 
+## Correcting a substitution's minute
+
+Coaches often log a substitution a little late — the swap happened at 55'
+but you tapped it in at 58'. With **Edit** on, every substitution in the
+**Live progress** feed shows a **Correct minute** stepper (− / + and a
+number field). Changing it saves the corrected minute and re-runs the
+minutes calculation, so **both** players' recorded minutes move to match:
+the player who came off gains (or loses) the difference, and the player who
+came on loses (or gains) it. You never edit minutes directly — you fix the
+*time* of the event, and the minutes follow. The corrected minute is range-
+checked like any other (see below).
+
 ## Minute and roster checks
 
 The screen refuses an impossible substitution — you cannot take off a
