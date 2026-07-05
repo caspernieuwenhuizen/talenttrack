@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.76.0
+Stable tag: 4.76.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.76.1 — Match execution: fix the redesign's cards, bench minutes and opponent-goal feed (#2278) Follow-up polish on the v4.76.0 match-execution redesign, verified against the mockups with a headless render:  - The **bench** and **tracked-players** sections now actually show their pastel   card backgrounds (yellow / green) — the 2026 chrome sheet was overriding them   with white. - A bench player's **minutes** now sit inline on the right instead of dropping   onto their own line, and the **↑ Bring on** button no longer wraps to a second   row in edit mode. - An **opponent goal** in Live progress now reads "Opponent goal · <team>" with a   distinct grey chip instead of a blank "Goal", and the **running score counts   each side separately** — an opponent goal no longer bumps our tally. - After a match the review screen still opens read-only, but the **Edit button is   now prominent** (filled) so the correction controls are easy to find. =
 
 = 4.76.0 — Match execution: post-match squad timeline, contained cards, paired swaps, opponent goals (#2273) The after-match review now leads with a **Squad timeline** — one 0'→full-time bar per player showing on-pitch (green) versus bench time, substitution in/out markers, own-goal marks and minutes played, grouped into the starting XI and the bench.  Live-match cards are now visually contained: the bench reads as a pastel-yellow card and tracked players as a soft-green card. When a player is substituted off, their bench row shows a transient "just came off" pill and a "Just came off for …" line that clears after a minute.  Substitutions in the live progress feed render as a paired ▲ on / ▼ off card. In the after-match review the coach can now add, remove, or correct the minute of an opponent (away) goal; the away score stays in sync. =
 
