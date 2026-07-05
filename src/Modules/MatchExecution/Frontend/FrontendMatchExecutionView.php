@@ -397,6 +397,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                 $half,
                                 $minute
                             );
+                            $event_uuid = (string) ( $ev['event_uuid'] ?? '' );
                             ?>
                             <li class="tt-mxp-log-row tt-mxp-log-row--<?php echo esc_attr( $type ); ?>">
                                 <span class="tt-mxp-log-minute"><?php echo esc_html( $minute_label ); ?></span>
@@ -409,6 +410,19 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     <span class="tt-mxp-log-score" aria-label="<?php esc_attr_e( 'Running score', 'talenttrack' ); ?>">
                                         <?php echo esc_html( sprintf( '%d–%d', (int) $ev['running_home'], (int) $ev['running_away'] ) ); ?>
                                     </span>
+                                <?php endif; ?>
+                                <?php // #2269 — reload-safe Undo. Keyed by the server
+                                      // event id, so undo works after a reload (not
+                                      // just from the live long-press memory). Shown
+                                      // only while the match still accepts edits, and
+                                      // only in edit-mode (the #2222 / #2261 gate). ?>
+                                <?php if ( $is_editable && $event_uuid !== '' ) : ?>
+                                    <button type="button"
+                                            class="tt-mexec-undo-btn tt-mexec-edit-only"
+                                            data-tt-mexec-undo="<?php echo esc_attr( $type ); ?>"
+                                            data-event-uuid="<?php echo esc_attr( $event_uuid ); ?>">
+                                        <?php esc_html_e( 'Undo', 'talenttrack' ); ?>
+                                    </button>
                                 <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
@@ -526,11 +540,25 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         ?>
                     </p>
                     <?php if ( $state === MatchExecutionState::PENDING_REVIEW ) : ?>
+                        <p class="tt-mexec-finalize-help">
+                            <?php esc_html_e( 'Review the score, subs, goals and minutes below. Turn on Edit to correct any datapoint, then Finalize to lock the match.', 'talenttrack' ); ?>
+                        </p>
                         <button type="button" class="tt-mexec-finalize-btn" data-tt-mexec-finalize>
                             <?php esc_html_e( 'Finalize match', 'talenttrack' ); ?>
                         </button>
                         <p class="tt-mexec-finalize-help">
-                            <?php esc_html_e( 'Locks the match. Goals, subs, and score cannot be edited after.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Locks the match. You can still re-open it later to correct a datapoint.', 'talenttrack' ); ?>
+                        </p>
+                    <?php else : ?>
+                        <?php // #2271 — a finalized match is never a dead-end.
+                              // "Re-open for corrections" transitions it back to
+                              // pending_review (cap-gated + audited server-side)
+                              // so score / subs / goals / minutes can be fixed. ?>
+                        <button type="button" class="tt-mexec-reopen-btn" data-tt-mexec-reopen>
+                            <?php esc_html_e( 'Re-open for corrections', 'talenttrack' ); ?>
+                        </button>
+                        <p class="tt-mexec-finalize-help">
+                            <?php esc_html_e( 'Re-opening lets you correct the score, subs, goals or minutes. The change is logged.', 'talenttrack' ); ?>
                         </p>
                     <?php endif; ?>
                 </section>
@@ -913,6 +941,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         (function () {
             var cfg = window.TT_MATCH_EXECUTION || {};
             var errPrefix = <?php echo wp_json_encode( __( 'Could not save:', 'talenttrack' ) ); ?>;
+            // #2268 — mirror the server-side minute range client-side so a
+            // fat-fingered minute is caught before the request. Max is the
+            // half length plus the locked 10-minute stoppage allowance.
+            var MINUTE_MAX = <?php echo (int) ( ( (int) $prep->half_length_minutes ) + 10 ); ?>;
 
             // Finalize button.
             var finalizeBtn = document.querySelector( '[data-tt-mexec-finalize]' );
@@ -943,6 +975,37 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 } );
             }
 
+            // #2271 — Re-open a finalized match for corrections. Server
+            // transitions it back to pending_review (cap-gated + audited);
+            // on success reload so the full edit surface comes back.
+            var reopenBtn = document.querySelector( '[data-tt-mexec-reopen]' );
+            if ( reopenBtn ) {
+                var reopenConfirm = <?php echo wp_json_encode( __( 'Re-open this finalized match for corrections?', 'talenttrack' ) ); ?>;
+                var reopenErr = <?php echo wp_json_encode( __( 'Could not re-open the match:', 'talenttrack' ) ); ?>;
+                reopenBtn.addEventListener( 'click', function () {
+                    if ( ! window.confirm( reopenConfirm ) ) return;
+                    reopenBtn.disabled = true;
+                    fetch( cfg.rest_url + 'reopen', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        body: '{}'
+                    } )
+                        .then( function ( r ) {
+                            if ( r.ok ) { window.location.reload(); return; }
+                            return r.json().then( function ( j ) {
+                                reopenBtn.disabled = false;
+                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( reopenErr + ' ' + r.status );
+                                window.alert( msg );
+                            } );
+                        } )
+                        .catch( function () {
+                            reopenBtn.disabled = false;
+                            window.alert( reopenErr + ' network error.' );
+                        } );
+                } );
+            }
+
             // #1049 — late-event UUIDs are client-generated so the
             // existing offline-queue replay path doesn't double-insert.
             function uuid() {
@@ -956,12 +1019,23 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
             function wireLateForm( form, endpoint, build ) {
                 if ( ! form ) return;
+                // #2270 item 2 — hard double-submit guard. Disabling the
+                // button alone doesn't stop an Enter-key re-submit that
+                // races the first request; a submitting flag keeps the
+                // button disabled until the promise settles.
+                var submitting = false;
                 form.addEventListener( 'submit', function ( e ) {
                     e.preventDefault();
+                    if ( submitting ) return;
                     var body = build( form );
                     if ( ! body ) return;
+                    submitting = true;
                     var btn = form.querySelector( '.tt-mexec-late-event-submit' );
                     if ( btn ) btn.disabled = true;
+                    var reenable = function () {
+                        submitting = false;
+                        if ( btn ) btn.disabled = false;
+                    };
                     fetch( cfg.rest_url + endpoint, {
                         method: 'POST',
                         credentials: 'same-origin',
@@ -971,13 +1045,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         .then( function ( r ) {
                             if ( r.ok ) { window.location.reload(); return; }
                             return r.json().then( function ( j ) {
-                                if ( btn ) btn.disabled = false;
+                                reenable();
                                 var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
                                 window.alert( msg );
                             } );
                         } )
                         .catch( function () {
-                            if ( btn ) btn.disabled = false;
+                            reenable();
                             window.alert( errPrefix + ' network error.' );
                         } );
                 } );
@@ -991,7 +1065,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
                     var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
                     if ( pid <= 0 || ( half !== 1 && half !== 2 ) ) return null;
-                    if ( isNaN( minute ) || minute < 0 ) return null;
+                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
                     return { event_uuid: uuid(), player_id: pid, half: half, minute: minute };
                 }
             );
@@ -1006,7 +1080,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
                     if ( off <= 0 || on <= 0 || off === on ) return null;
                     if ( half !== 1 && half !== 2 ) return null;
-                    if ( isNaN( minute ) || minute < 0 ) return null;
+                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
                     return { event_uuid: uuid(), half: half, minute: minute, player_off: off, player_on: on };
                 }
             );
@@ -1048,6 +1122,18 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         );
         wp_localize_script( 'tt-match-execution', 'TT_MATCH_EXECUTION', [
             'rest_url'    => esc_url_raw( rest_url( 'talenttrack/v1/match-execution/' . $activity_id . '/' ) ),
+            // #2267 — export the canonical MatchExecutionState values so the
+            // JS state machine compares against the real server states
+            // (pending_review / finalized) instead of a hardcoded legacy
+            // 'finished'. Keeps the JS in lock-step with the PHP enum.
+            'states'      => [
+                'not_started'    => MatchExecutionState::NOT_STARTED,
+                'first_half'     => MatchExecutionState::FIRST_HALF,
+                'half_time'      => MatchExecutionState::HALF_TIME,
+                'second_half'    => MatchExecutionState::SECOND_HALF,
+                'pending_review' => MatchExecutionState::PENDING_REVIEW,
+                'finalized'      => MatchExecutionState::FINALIZED,
+            ],
             // #2224 — the recorded-minutes correction writes each corrected
             // figure through the existing row-scoped attendance PATCH
             // (PATCH /attendance/{id}, gated on can_edit), not a new
@@ -1075,6 +1161,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'half_label_break'  => __( 'Half time', 'talenttrack' ),
                 'half_label_pending'=> __( 'Kickoff pending', 'talenttrack' ),
                 'half_label_final'  => __( 'Final', 'talenttrack' ),
+                // #2267 — post-match CTA + state-pill labels the JS state
+                // machine now renders for pending_review / finalized.
+                'review_match'      => __( 'Review match', 'talenttrack' ),
+                'reopen_match'      => __( 'Re-open for corrections', 'talenttrack' ),
+                'half_label_review' => __( 'Ended · pending review', 'talenttrack' ),
+                'half_label_locked' => __( 'Finalized', 'talenttrack' ),
+                'undo_confirm'      => __( 'Undo this event?', 'talenttrack' ),
+                // #2271 — re-open a finalized match for corrections.
+                'reopen_confirm'    => __( 'Re-open this finalized match for corrections?', 'talenttrack' ),
+                'reopen_error'      => __( 'Could not re-open the match:', 'talenttrack' ),
                 // #2224 — recorded-minutes correction feedback.
                 'minutes_saved'     => __( 'Recorded minutes saved.', 'talenttrack' ),
                 'minutes_save_error'=> __( 'Could not save recorded minutes:', 'talenttrack' ),

@@ -184,6 +184,21 @@ class MatchExecutionRepository {
         return $ok !== false;
     }
 
+    /**
+     * #2268 — does a substitution with this client event_uuid already
+     * exist (reversed or not)? Used to keep the offline-queue replay path
+     * idempotent: a replay of an already-accepted sub must not be rejected
+     * by the roster validator (the pitch has already moved on), it should
+     * fall through to the idempotent INSERT IGNORE unchanged.
+     */
+    public function substitutionExists( string $event_uuid ): bool {
+        if ( $event_uuid === '' ) return false;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->t_subs} WHERE event_uuid = %s AND club_id = %d",
+            $event_uuid, CurrentClub::id()
+        ) ) > 0;
+    }
+
     public function logGoalEvent( int $execution_id, string $event_uuid, int $player_id, int $half, int $minute ): bool {
         if ( $execution_id <= 0 || $event_uuid === '' || $player_id <= 0 ) return false;
         $ok = $this->wpdb->query( $this->wpdb->prepare(
@@ -202,6 +217,65 @@ class MatchExecutionRepository {
             [ 'reversed_at' => current_time( 'mysql', true ) ],
             [ 'event_uuid' => $event_uuid, 'club_id' => CurrentClub::id() ]
         );
+    }
+
+    /**
+     * #2269 — soft-delete (undo) a logged substitution by its client
+     * `event_uuid`. Mirrors {@see reverseGoalEvent}: the sub-log table is
+     * append-only, so undo stamps `reversed_at`; `listSubstitutions` and
+     * the minutes recompute already skip reversed rows. Idempotent — a
+     * second reverse of the same uuid is a harmless no-op UPDATE.
+     */
+    public function reverseSubstitution( string $event_uuid ): bool {
+        if ( $event_uuid === '' ) return false;
+        return false !== $this->wpdb->update(
+            $this->t_subs,
+            [ 'reversed_at' => current_time( 'mysql', true ) ],
+            [ 'event_uuid' => $event_uuid, 'club_id' => CurrentClub::id() ]
+        );
+    }
+
+    /**
+     * #2268 — the set of player ids currently on the pitch, derived from
+     * the first-half starting XI plus every non-reversed substitution
+     * applied in chronological order. Used to validate a live / late
+     * substitution server-side: the `player_off` must be on the pitch and
+     * the `player_on` must not already be. Read-only; no writes.
+     *
+     * @param list<int> $starting_xi_half1
+     * @return list<int>
+     */
+    public function onPitchPlayerIds( int $execution_id, array $starting_xi_half1 ): array {
+        $on_pitch = [];
+        foreach ( $starting_xi_half1 as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $on_pitch[ $pid ] = true;
+        }
+        foreach ( $this->listSubstitutions( $execution_id ) as $sub ) {
+            $off = (int) $sub->player_off_id;
+            $on  = (int) $sub->player_on_id;
+            if ( $off > 0 ) unset( $on_pitch[ $off ] );
+            if ( $on > 0 )  $on_pitch[ $on ] = true;
+        }
+        return array_map( 'intval', array_keys( $on_pitch ) );
+    }
+
+    /**
+     * #2271 — re-open a FINALIZED execution back to PENDING_REVIEW so the
+     * coach can correct any datapoint (score, subs, goals, minutes) after
+     * finalizing. Only transitions from FINALIZED; any other state is a
+     * no-op that returns false (the caller maps that to a 409). The state
+     * flip is the whole job here — the caller re-runs
+     * {@see recomputeAttendanceAndMinutes} and audit-logs the transition.
+     */
+    public function reopenForCorrections( int $execution_id ): bool {
+        if ( $execution_id <= 0 ) return false;
+        $current = (string) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT state FROM {$this->t_exec} WHERE id = %d AND club_id = %d",
+            $execution_id, CurrentClub::id()
+        ) );
+        if ( $current !== MatchExecutionState::FINALIZED ) return false;
+        return $this->update( $execution_id, [ 'state' => MatchExecutionState::PENDING_REVIEW ] );
     }
 
     /** @return object[] */

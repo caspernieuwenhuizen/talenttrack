@@ -25,7 +25,10 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   POST   /<activity_id>/substitution   {event_uuid, half, minute, player_off, player_on}
  *   POST   /<activity_id>/goal-event     {event_uuid, player_id, half, minute}
  *   DELETE /<activity_id>/goal-event/<event_uuid>
+ *   DELETE /<activity_id>/substitution/<event_uuid>   (#2269 undo)
  *   POST   /<activity_id>/finish
+ *   POST   /<activity_id>/finalize
+ *   POST   /<activity_id>/reopen        (#2271 re-open finalized)
  *
  * Idempotent endpoints take a client-generated `event_uuid` so the
  * offline-queue flush can replay without double-inserting.
@@ -48,7 +51,9 @@ class MatchExecutionRestController {
         // stays on the URL surface (it's the live-tap "End match"
         // route) but now lands in PENDING_REVIEW so the coach can
         // still edit goals / subs / score post-match.
-        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'score', 'substitution', 'goal-event', 'finish', 'finalize' ] as $action ) {
+        // #2271 — `reopen` transitions a FINALIZED execution back to
+        // PENDING_REVIEW so any datapoint can be corrected post-finalize.
+        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'score', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
             register_rest_route( self::NS, $base . '/' . $action, [
                 [
                     'methods'             => 'POST',
@@ -62,6 +67,15 @@ class MatchExecutionRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'route_goal_event_delete' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
+        // #2269 — undo a logged substitution by its client event_uuid.
+        register_rest_route( self::NS, $base . '/substitution/(?P<event_uuid>[a-f0-9-]+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'route_substitution_delete' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -315,7 +329,43 @@ class MatchExecutionRestController {
         if ( $event_uuid === '' || $half < 1 || $half > 2 || $player_off_id <= 0 || $player_on_id <= 0 ) {
             return RestResponse::error( 'bad_input', __( 'Substitution payload missing required fields.', 'talenttrack' ), 400 );
         }
+        if ( $player_off_id === $player_on_id ) {
+            return RestResponse::error( 'bad_input', __( 'A player cannot be substituted for themselves.', 'talenttrack' ), 400 );
+        }
+
         $repo = new MatchExecutionRepository();
+
+        // #2268 — server-side validation the HTML `max` / disabled options
+        // can't guarantee. Reject an out-of-range minute and a roster-
+        // impossible swap (off-player not on the pitch, or on-player
+        // already on it), so a crafted or fat-fingered write is refused
+        // instead of silently clamped. Skip the validation for an
+        // offline-queue REPLAY of an already-accepted sub (same
+        // event_uuid): the pitch has moved on since it was first logged,
+        // so it must fall through to the idempotent INSERT IGNORE unchanged
+        // rather than fail the roster check and retry-loop in the queue.
+        if ( ! $repo->substitutionExists( $event_uuid ) ) {
+            [ $half_length, $starting_xi ] = self::prepContext( absint( $r['activity_id'] ) );
+            $minute_err = self::assertMinuteInRange( $minute, $half_length );
+            if ( $minute_err ) return $minute_err;
+
+            $on_pitch = $repo->onPitchPlayerIds( $exec_id, $starting_xi );
+            if ( ! in_array( $player_off_id, $on_pitch, true ) ) {
+                return RestResponse::error(
+                    'player_off_not_on_pitch',
+                    __( 'The player coming off is not currently on the pitch.', 'talenttrack' ),
+                    400
+                );
+            }
+            if ( in_array( $player_on_id, $on_pitch, true ) ) {
+                return RestResponse::error(
+                    'player_on_already_on',
+                    __( 'The player coming on is already on the pitch.', 'talenttrack' ),
+                    400
+                );
+            }
+        }
+
         $repo->logSubstitution( $exec_id, $event_uuid, $half, $minute, $player_off_id, $player_on_id );
         // #1048 — sub log changed → minutes need to be re-derived.
         // Only when state is PENDING_REVIEW; live writes happen too
@@ -339,6 +389,12 @@ class MatchExecutionRestController {
         if ( $event_uuid === '' || $player_id <= 0 || $half < 1 || $half > 2 ) {
             return RestResponse::error( 'bad_input', __( 'Goal-event payload missing required fields.', 'talenttrack' ), 400 );
         }
+        // #2268 — reject an out-of-range minute (< 0 or > half length + 10
+        // stoppage) rather than clamping a fat-fingered value.
+        [ $half_length ] = self::prepContext( absint( $r['activity_id'] ) );
+        $minute_err = self::assertMinuteInRange( $minute, $half_length );
+        if ( $minute_err ) return $minute_err;
+
         $repo = new MatchExecutionRepository();
         $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute );
         // #1048 — goal events don't affect minutes_played directly
@@ -358,6 +414,25 @@ class MatchExecutionRestController {
         $event_uuid = (string) $r['event_uuid'];
         $repo = new MatchExecutionRepository();
         $repo->reverseGoalEvent( $event_uuid );
+        self::recomputeIfPendingReview( $repo, $exec_id );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
+    }
+
+    /**
+     * #2269 — DELETE /<activity_id>/substitution/<event_uuid>. Soft-
+     * deletes (undoes) a logged substitution. Mirrors the goal-event
+     * delete: refuse once the match is FINALIZED, reverse the row, then
+     * re-derive minutes so the undone sub flows back out of the persisted
+     * `record_type='actual'` totals the reports read.
+     */
+    public static function route_substitution_delete( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+        $event_uuid = (string) $r['event_uuid'];
+        $repo = new MatchExecutionRepository();
+        $repo->reverseSubstitution( $event_uuid );
         self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
@@ -482,6 +557,116 @@ class MatchExecutionRestController {
             'activity_id'  => (int) $exec->activity_id,
             'state'        => MatchExecutionState::FINALIZED,
         ] );
+    }
+
+    /**
+     * #2271 — re-open a FINALIZED execution back to PENDING_REVIEW so the
+     * coach can correct any datapoint (score, subs, goals, minutes) after
+     * finalizing. Finalize stays an intentional lock, but never a dead-end.
+     *
+     * Cap-gated on the same `tt_edit_activities` capability as every other
+     * write here (head-coach per #2222). Audit-logged via AuditService so
+     * the re-open is traceable. Re-runs `recomputeAttendanceAndMinutes`
+     * on the way back so the derived minutes stay consistent, and any
+     * subsequent correction re-fires it too (recomputeIfPendingReview).
+     *
+     * Returns 409 when the execution is not FINALIZED (nothing to re-open).
+     */
+    public static function route_reopen( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $exec = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, state, activity_id FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
+            $exec_id, CurrentClub::id()
+        ) );
+        if ( ! $exec ) return RestResponse::error( 'not_found', __( 'Execution not found.', 'talenttrack' ), 404 );
+
+        $current = (string) ( $exec->state ?? '' );
+        if ( $current !== MatchExecutionState::FINALIZED ) {
+            return RestResponse::error(
+                'bad_state',
+                __( 'Only a finalized match can be re-opened for corrections.', 'talenttrack' ),
+                409
+            );
+        }
+
+        $repo = new MatchExecutionRepository();
+        if ( ! $repo->reopenForCorrections( $exec_id ) ) {
+            return RestResponse::error( 'db_error', __( 'Could not re-open the match.', 'talenttrack' ), 500 );
+        }
+
+        // Re-derive minutes so a re-opened match starts from a consistent
+        // baseline; every subsequent correction re-fires this too.
+        $repo->recomputeAttendanceAndMinutes( $exec_id );
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record(
+            'match_execution.reopened',
+            'match_execution',
+            $exec_id,
+            [ 'activity_id' => (int) $exec->activity_id ]
+        );
+
+        Logger::info( 'match_execution.reopen', [
+            'execution_id' => $exec_id,
+            'activity_id'  => (int) $exec->activity_id,
+        ] );
+
+        return RestResponse::success( [
+            'execution_id' => $exec_id,
+            'activity_id'  => (int) $exec->activity_id,
+            'state'        => MatchExecutionState::PENDING_REVIEW,
+        ] );
+    }
+
+    /**
+     * #2268 — half length + first-half starting XI for the activity's
+     * match prep, used to validate substitution rosters + minute ranges.
+     * Returns [ half_length_minutes, list<int> starting_xi_half1 ]. A
+     * missing prep yields the locked default half length + an empty XI.
+     *
+     * @return array{0:int, 1:list<int>}
+     */
+    private static function prepContext( int $activity_id ): array {
+        $prep_repo = new MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
+        if ( ! $prep ) {
+            return [ 35, [] ];
+        }
+        $half_length = (int) $prep->half_length_minutes;
+        if ( $half_length <= 0 ) $half_length = 35;
+
+        $starting_xi = [];
+        foreach ( $prep_repo->listLineup( (int) $prep->id ) as $l ) {
+            if ( (int) $l->half === 1 ) {
+                $pid = (int) $l->player_id;
+                if ( $pid > 0 ) $starting_xi[] = $pid;
+            }
+        }
+        return [ $half_length, $starting_xi ];
+    }
+
+    /**
+     * #2268 — reject a minute outside [0, half_length + 10]. The +10 is
+     * the locked stoppage allowance shared with the late-event form's
+     * client hint. Returns null when in range, an HTTP 400 otherwise.
+     */
+    private static function assertMinuteInRange( int $minute, int $half_length ): ?\WP_REST_Response {
+        $max = $half_length + 10;
+        if ( $minute < 0 || $minute > $max ) {
+            return RestResponse::error(
+                'minute_out_of_range',
+                sprintf(
+                    /* translators: %d: highest accepted minute (half length + 10 stoppage) */
+                    __( 'Minute must be between 0 and %d.', 'talenttrack' ),
+                    $max
+                ),
+                400
+            );
+        }
+        return null;
     }
 
     /**

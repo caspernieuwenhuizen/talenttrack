@@ -15,16 +15,63 @@ wedstrijdactiviteit.
 
 ## Bewerken is een bewuste keuze
 
-Het scherm opent **alleen-lezen**. De stand, doelpunten en wissels worden
-getoond maar zijn niet bewerkbaar totdat je op **Bewerken** tikt in de
-kop. Bewerken wordt alleen aangeboden zolang de wedstrijd nog wijzigingen
-accepteert — tijdens het spel, in de rust en in de nabesprekingsperiode.
-Zodra een wedstrijd is **afgesloten**, verdwijnt de knop Bewerken en
-blijven de live-knoppen vergrendeld: een afgesloten wedstrijd is de
-vastlegging van wat de spelers werkelijk deden en mag niet stilzwijgend
-worden herschreven. (De server dwingt dezelfde vergrendeling af, dus een
-afgesloten wedstrijd weigert wijzigingen aan stand, doelpunten en wissels,
-ongeacht het scherm.)
+Tijdens het spel zijn de bewerkingsknoppen al zichtbaar — een speler
+wisselen is de kern van het scherm langs de lijn, dus je hoeft niet eerst
+op Bewerken te tikken. In de **nabesprekingsperiode** opent het scherm
+alleen-lezen om per ongeluk tikken te voorkomen: de stand, doelpunten en
+wissels worden getoond maar zijn niet bewerkbaar totdat je op **Bewerken**
+tikt in de kop.
+
+## Na de wedstrijd — elk gegeven aanpassen
+
+Zodra de wedstrijd eindigt, komt hij in **nabespreking**. Dit is de
+volledige controle-en-bewerkstatus: met Bewerken aan kun je **elk gemeten
+gegeven** aanpassen — de **stand** bijstellen, een **wissel toevoegen of
+ongedaan maken**, een **doelpunt toevoegen of ongedaan maken** en de
+**minuten** corrigeren (door het wissellog te herstellen, of via de
+panelen *Laat doelpunt / wissel toevoegen* voor gebeurtenissen die je live
+vergat aan te tikken). Een wissel corrigeren herberekent de minuten, dus de
+geregistreerde minuten die de rapporten lezen blijven in lijn met wat je
+wijzigt.
+
+Als je klaar bent, tik je op **Wedstrijd afsluiten** om te vergrendelen.
+Een afgesloten wedstrijd is de vastlegging van wat de spelers werkelijk
+deden, dus de live-knoppen blijven vergrendeld en de knop Bewerken
+verdwijnt. (De server dwingt dezelfde vergrendeling af, dus een afgesloten
+wedstrijd weigert wijzigingen aan stand, doelpunten en wissels, ongeacht
+het scherm.)
+
+### Een afgesloten wedstrijd heropenen
+
+Afsluiten is een bewuste vergrendeling, maar nooit een doodlopende weg. Een
+afgesloten wedstrijd toont de actie **Heropenen voor correcties**. Als je
+erop tikt (er wordt om bevestiging gevraagd) keert de wedstrijd terug naar
+*nabespreking* zodat je elk gegeven kunt corrigeren — stand, wissels,
+doelpunten of minuten — en daarna weer kunt afsluiten. Elke heropening
+wordt vastgelegd in het auditlog, en heropenen herberekent de minuten zodat
+de rapporten kloppend blijven.
+
+Zowel afsluiten als heropenen vereist de capability `tt_edit_activities`,
+dezelfde rechten die ook de rest van het wedstrijduitvoeringsscherm
+afschermen.
+
+## Een doelpunt of wissel ongedaan maken
+
+Elk vastgelegd doelpunt en elke wissel in het **Live verloop** heeft een
+inline **Ongedaan maken**-link zolang de wedstrijd nog wijzigingen
+accepteert. Ongedaan maken werkt ook na het herladen van de pagina — het is
+gekoppeld aan de opgeslagen gebeurtenis, niet aan een kortstondig
+tikgeheugen — zodat een verkeerd getikt doelpunt of een foute wissel op elk
+moment tot aan het afsluiten kan worden hersteld. Een net vastgelegde
+wissel biedt ook een snelle **Ongedaan maken** in de bevestigingsmelding.
+
+## Minuut- en opstellingscontroles
+
+Het scherm weigert een onmogelijke wissel — je kunt geen speler wisselen
+die niet in het veld staat, of een speler inbrengen die al speelt — en een
+doelpunt- of wisselminuut buiten de wedstrijdduur (plus een korte
+blessuretijdmarge) wordt geweigerd in plaats van stilzwijgend afgekapt. Deze
+controles draaien op de server, dus ze gelden voor elke client.
 
 ## Opstelling — het verticale veld
 
@@ -102,6 +149,12 @@ toekomstige webapp:
   tussenstand.
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/pitch-lineup`
   — de basiself van de eerste helft met positiecoördinaten.
+- `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
+  — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
+  herberekenen).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
+  — een afgesloten wedstrijd heropenen voor correcties (terug naar
+  *nabespreking*; vastgelegd in het auditlog).
 
-Beide vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
+Alle vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
 het wedstrijduitvoeringsscherm zelf afschermen.

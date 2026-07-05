@@ -22,6 +22,25 @@
     })();
     var cfg = window.TT_MATCH_EXECUTION || {};
     var i18n = cfg.i18n || {};
+    // #2267 — the canonical MatchExecutionState values, exported from the
+    // PHP enum via the bootstrap config. The state machine compares against
+    // these instead of the legacy hardcoded 'finished' literal (which no
+    // longer exists in storage). Defaults keep the JS honest if the config
+    // is ever absent.
+    var S = cfg.states || {};
+    var ST = {
+        NOT_STARTED:    S.not_started    || 'not_started',
+        FIRST_HALF:     S.first_half     || 'first_half',
+        HALF_TIME:      S.half_time      || 'half_time',
+        SECOND_HALF:    S.second_half    || 'second_half',
+        PENDING_REVIEW: S.pending_review || 'pending_review',
+        FINALIZED:      S.finalized      || 'finalized'
+    };
+    // Post-match, terminal-for-the-timer states: the clock is parked and
+    // the half-transition CTA no longer runs the live flow.
+    function isPostMatch(s) {
+        return s === ST.PENDING_REVIEW || s === ST.FINALIZED;
+    }
     // #1473 — the match can only be started on match day. The server
     // enforces this too; this keeps the UI honest (disabled CTA + timer,
     // dated tooltip). Defaults to allowed when the flag is absent.
@@ -66,6 +85,12 @@
     };
 
     // --- Boot ---
+    // #2267 — if we boot straight into a post-match state (a reload of a
+    // finished / finalized match), the timer must never start ticking.
+    // Nothing here starts an interval; renderClock() paints the frozen
+    // 00:00 (no persisted elapsed on a fresh load) and stopTimer() is a
+    // no-op guard so a stray running flag can't leak a live clock.
+    if (isPostMatch(state.state)) stopTimer();
     renderStateButton();
     renderHalfLabel();
     renderClock();
@@ -87,17 +112,21 @@
 
     // --- Timer toggle ---
     els.timerBtn.addEventListener('click', function () {
-        if (state.state === 'finished') return;
+        // #2267 — the timer is inert once the match is post-match
+        // (pending_review / finalized). The legacy guard only checked a
+        // 'finished' value the server never emits, so the clock kept
+        // ticking; compare against the real terminal states now.
+        if (isPostMatch(state.state)) return;
         if (!state.running) {
             // Starting the timer for the current half.
-            if (state.state === 'not_started') {
+            if (state.state === ST.NOT_STARTED) {
                 // #1473 — block the start before match day.
                 if (!IS_MATCH_DAY) return;
-                state.state = 'first_half'; state.half = 1;
+                state.state = ST.FIRST_HALF; state.half = 1;
                 api('start-half', { half: 1 });
                 renderStateButton(); renderHalfLabel();
-            } else if (state.state === 'half_time') {
-                state.state = 'second_half'; state.half = 2;
+            } else if (state.state === ST.HALF_TIME) {
+                state.state = ST.SECOND_HALF; state.half = 2;
                 state.elapsed_ms_before_pause = 0;
                 api('start-half', { half: 2 });
                 renderStateButton(); renderHalfLabel();
@@ -111,8 +140,7 @@
         } else {
             // Pause: snapshot elapsed; tell server we paused.
             state.elapsed_ms_before_pause += Date.now() - state.clock_start_ms;
-            state.running = false;
-            clearInterval(state.timer_interval);
+            stopTimer();
             api('pause', { half: state.half });
             renderStateButton(); renderHalfLabel();
         }
@@ -120,37 +148,81 @@
 
     // --- Sticky bottom action (half transitions) ---
     els.stateBtn.addEventListener('click', function () {
-        if (state.state === 'not_started') {
+        if (state.state === ST.NOT_STARTED) {
             // #1473 — block the start before match day.
             if (!IS_MATCH_DAY) return;
             // Footer CTA shortcut for "Start match" — same effect as the
             // timer Start button. v4.3.19 (#956) maps this footer state
             // explicitly per the spec table.
             els.timerBtn.click();
-        } else if (state.state === 'first_half') {
+        } else if (state.state === ST.FIRST_HALF) {
             api('end-half', { half: 1 });
-            state.state = 'half_time';
-            state.running = false;
-            clearInterval(state.timer_interval);
+            state.state = ST.HALF_TIME;
+            stopTimer();
             renderStateButton(); renderHalfLabel();
-        } else if (state.state === 'half_time') {
+        } else if (state.state === ST.HALF_TIME) {
             // Footer CTA shortcut for "Start second half" — same effect
             // as the timer Start button.
             els.timerBtn.click();
-        } else if (state.state === 'second_half') {
+        } else if (state.state === ST.SECOND_HALF) {
+            // #2267 — end the match: stop the clock, then finish() and
+            // adopt the server's returned state (pending_review). The
+            // legacy code hardcoded 'finished' and never read the response,
+            // so a reload disagreed with the server. The state lives in the
+            // REST success envelope's `data` object (r.data.state).
             api('end-half', { half: 2 });
-            state.state = 'finished';
-            state.running = false;
-            clearInterval(state.timer_interval);
-            api('finish', {});
+            stopTimer();
+            api('finish', {}).then(function (r) {
+                var srvState = (r && r.data && r.data.state) || (r && r.state);
+                state.state = srvState || ST.PENDING_REVIEW;
+                stopTimer();
+                renderStateButton(); renderHalfLabel();
+                // A reload surfaces the pending-review affordances (late
+                // events, finalize) the server-rendered view carries.
+                window.location.reload();
+            });
+            state.state = ST.PENDING_REVIEW;
             renderStateButton(); renderHalfLabel();
-        } else if (state.state === 'finished') {
-            // v4.3.19 (#956) — "Return to dashboard" CTA on a finished
-            // match navigates the coach back to the activity's detail
-            // page (or the dashboard root if no referrer is available).
-            window.location.href = document.referrer || (window.location.pathname || '/');
+        } else if (state.state === ST.PENDING_REVIEW) {
+            // #2267 — "Review match": scroll to the post-match review
+            // panel (finalize + late events) rather than navigate away.
+            var panel = root.querySelector('.tt-mexec-post-match');
+            if (panel && typeof panel.scrollIntoView === 'function') {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else if (state.state === ST.FINALIZED) {
+            // #2271 — a finalized match is never a dead-end: the footer CTA
+            // re-opens it for corrections (server transitions it back to
+            // pending_review, then reload surfaces the edit affordances).
+            reopenForCorrections();
         }
     });
+
+    // #2267 — single chokepoint for parking the timer. Clears the tick
+    // interval and drops the running flag so no code path can leave a
+    // live clock behind on a state transition.
+    function stopTimer() {
+        state.running = false;
+        if (state.timer_interval) {
+            clearInterval(state.timer_interval);
+            state.timer_interval = null;
+        }
+    }
+
+    // #2271 — re-open a finalized match. Cap-gated + audited server-side;
+    // on success the server returns to pending_review and we reload so the
+    // full review-&-edit surface (score steppers, subs, goals, minutes,
+    // late events) comes back.
+    function reopenForCorrections() {
+        if (!window.confirm(i18n.reopen_confirm || 'Re-open this finalized match for corrections?')) return;
+        if (els.stateBtn) els.stateBtn.disabled = true;
+        doFetch((cfg.rest_url || '') + 'reopen', 'POST', {}).then(function () {
+            window.location.reload();
+        }).catch(function () {
+            if (els.stateBtn) els.stateBtn.disabled = false;
+            window.alert(i18n.reopen_error || 'Could not re-open the match:');
+        });
+    }
 
     // --- Goal counters (tap = +1, long-press = -1) ---
     root.querySelectorAll('[data-tt-mexec-goal-inc]').forEach(function (btn) {
@@ -175,7 +247,15 @@
                 if (last) {
                     state.goal_counts[pid] = Math.max(0, (state.goal_counts[pid] || 0) - 1);
                     renderChip();
-                    apiDelete('goal-event/' + last);
+                    // #2270 item 1 — if the DELETE is rejected outright (a
+                    // real HTTP error, not just an offline-queue enqueue),
+                    // roll the optimistic decrement + the uuid stack back so
+                    // the chip count doesn't drift out of sync with storage.
+                    apiDelete('goal-event/' + last).catch(function () {
+                        state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
+                        renderChip();
+                        pending.push(last);
+                    });
                 }
             }, 600);
         });
@@ -205,6 +285,38 @@
             var pid_on = parseInt(li.getAttribute('data-player-id'), 10);
             if (!pid_on) return;
             openSubSheet(pid_on);
+        });
+    });
+
+    // #2270 item 3 — stop the clock the instant Finalize is tapped, before
+    // the network round-trip + reload. The finalize handler itself lives in
+    // the view's inline script (it owns the confirm + POST); the timer lives
+    // here, so parking it on the same click keeps the clock from visibly
+    // ticking during the request. Runs in the capture phase so it lands
+    // before the inline handler's confirm dialog blocks the thread.
+    (function wireFinalizeStopsClock() {
+        var fb = root.querySelector('[data-tt-mexec-finalize]');
+        if (!fb) return;
+        fb.addEventListener('click', function () { stopTimer(); }, true);
+    })();
+
+    // #2269 — reload-safe Undo on each logged goal/sub chip in the event
+    // feed. Keyed by the server event id (data-event-uuid), so undo works
+    // after a reload — no reliance on the live long-press UUID memory.
+    // Goals hit DELETE goal-event/<uuid>; subs hit DELETE substitution/<uuid>.
+    root.querySelectorAll('[data-tt-mexec-undo]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var uuid = btn.getAttribute('data-event-uuid');
+            var kind = btn.getAttribute('data-tt-mexec-undo');
+            if (!uuid) return;
+            if (!window.confirm(i18n.undo_confirm || 'Undo this event?')) return;
+            btn.disabled = true;
+            var path = (kind === 'goal' ? 'goal-event/' : 'substitution/') + uuid;
+            apiDelete(path).then(function () {
+                window.location.reload();
+            }).catch(function () {
+                btn.disabled = false;
+            });
         });
     });
 
@@ -263,7 +375,24 @@
             player_off: pid_off,
             player_on: pid_on
         });
-        toast((i18n.sub_toast_format || '✓ %1$s on for %2$s · %3$s\'').replace('%1$s', name(pid_on)).replace('%2$s', name(pid_off)).replace('%3$s', minute));
+        // #2269 — offer an inline Undo on the just-logged sub (matching the
+        // goal long-press UX). Reverts the on-pitch swap locally and soft-
+        // deletes the sub server-side. The event-feed chip carries the same
+        // Undo after a reload, so a mis-tap is recoverable either way.
+        toast(
+            (i18n.sub_toast_format || '✓ %1$s on for %2$s · %3$s\'').replace('%1$s', name(pid_on)).replace('%2$s', name(pid_off)).replace('%3$s', minute),
+            i18n.undo || 'Undo',
+            function () {
+                // Revert the local swap: on-player back to bench, off-player on.
+                var idx = state.on_pitch.indexOf(pid_on);
+                if (idx >= 0) state.on_pitch.splice(idx, 1, pid_off);
+                var bi = state.bench.indexOf(pid_off);
+                if (bi >= 0) state.bench.splice(bi, 1);
+                state.bench.push(pid_on);
+                renderBenchAndOnPitch();
+                apiDelete('substitution/' + uuid);
+            }
+        );
     }
 
     // --- Renderers ---
@@ -275,15 +404,19 @@
         if (!els.halfLabel) return;
         var label;
         var status = '';
-        if (state.state === 'first_half') {
+        if (state.state === ST.FIRST_HALF) {
             label = i18n.half_label_first || 'First half';
             status = state.running ? 'live' : '';
-        } else if (state.state === 'half_time') {
+        } else if (state.state === ST.HALF_TIME) {
             label = i18n.half_label_break || 'Half time';
-        } else if (state.state === 'second_half') {
+        } else if (state.state === ST.SECOND_HALF) {
             label = i18n.half_label_second || 'Second half';
             status = state.running ? 'live' : '';
-        } else if (state.state === 'finished') {
+        } else if (state.state === ST.PENDING_REVIEW) {
+            // #2267 — the match has ended but review is open; the clock is
+            // parked, the label reads "ended · pending review".
+            label = i18n.half_label_review || 'Ended · pending review';
+        } else if (state.state === ST.FINALIZED) {
             label = i18n.half_label_final || 'Final';
         } else {
             label = i18n.half_label_pending || 'Kickoff pending';
@@ -304,21 +437,29 @@
         if (!els.stateBtn) return;
         // #956 — state→CTA mapping per the spec table. data-action also
         // drives the CSS colour-coding on the footer CTA.
-        if (state.state === 'first_half') {
+        if (state.state === ST.FIRST_HALF) {
             els.stateBtn.textContent = i18n.end_first_half || 'End first half';
             els.stateBtn.setAttribute('data-action', 'end-first-half');
             els.stateBtn.disabled = false;
-        } else if (state.state === 'half_time') {
+        } else if (state.state === ST.HALF_TIME) {
             els.stateBtn.textContent = i18n.start_second_half || 'Start second half';
             els.stateBtn.setAttribute('data-action', 'start-second-half');
             els.stateBtn.disabled = false;
-        } else if (state.state === 'second_half') {
+        } else if (state.state === ST.SECOND_HALF) {
             els.stateBtn.textContent = i18n.end_match || 'End match';
             els.stateBtn.setAttribute('data-action', 'end-match');
             els.stateBtn.disabled = false;
-        } else if (state.state === 'finished') {
-            els.stateBtn.textContent = i18n.match_finished || 'Return to dashboard';
-            els.stateBtn.setAttribute('data-action', 'done');
+        } else if (state.state === ST.PENDING_REVIEW) {
+            // #2267 — post-match, review-open. CTA jumps to the review
+            // panel (finalize + late events) instead of the old
+            // navigate-away behaviour.
+            els.stateBtn.textContent = i18n.review_match || 'Review match';
+            els.stateBtn.setAttribute('data-action', 'review-match');
+            els.stateBtn.disabled = false;
+        } else if (state.state === ST.FINALIZED) {
+            // #2271 — finalized is never a dead-end: offer re-open.
+            els.stateBtn.textContent = i18n.reopen_match || 'Re-open for corrections';
+            els.stateBtn.setAttribute('data-action', 'reopen-match');
             els.stateBtn.disabled = false;
         } else {
             els.stateBtn.textContent = i18n.start_match || 'Start match';
@@ -332,7 +473,12 @@
         root.setAttribute('data-state', state.state);
         if (els.timerBtn) {
             // Timer button label + data-action drive its colour.
-            if (state.state === 'not_started') {
+            if (isPostMatch(state.state)) {
+                // #2267 — post-match: the clock is parked, no start/resume.
+                els.timerBtn.textContent = i18n.half_label_locked || 'Finalized';
+                els.timerBtn.setAttribute('data-action', 'locked');
+                els.timerBtn.disabled = true;
+            } else if (state.state === ST.NOT_STARTED) {
                 els.timerBtn.textContent = i18n.start || 'Start';
                 els.timerBtn.setAttribute('data-action', 'start');
                 // #1473 — keep the timer Start disabled until match day.
@@ -399,15 +545,22 @@
     }
 
     // --- Network with offline queue ---
+    // #2270 — a rejected request is one of two kinds: a *network* failure
+    // (offline / DNS / timeout) which is queued for replay, or an *HTTP*
+    // failure (4xx/5xx — a rejected write, e.g. a finalized-match 409 or a
+    // validation 400) which must NOT be queued (it would retry-loop) and
+    // instead rejects so the caller can roll back its optimistic UI.
     function api(action, body) {
         var url = (cfg.rest_url || '/wp-json/talenttrack/v1/match-execution/0/') + action;
-        return doFetch(url, 'POST', body).catch(function () {
+        return doFetch(url, 'POST', body).catch(function (err) {
+            if (err && err.isHttp) throw err;
             enqueue({ url: url, method: 'POST', body: body });
         });
     }
     function apiDelete(path) {
         var url = (cfg.rest_url || '/wp-json/talenttrack/v1/match-execution/0/') + path;
-        return doFetch(url, 'DELETE', null).catch(function () {
+        return doFetch(url, 'DELETE', null).catch(function (err) {
+            if (err && err.isHttp) throw err;
             enqueue({ url: url, method: 'DELETE', body: null });
         });
     }
@@ -422,7 +575,12 @@
             },
             body: body ? JSON.stringify(body) : undefined
         }).then(function (r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
+            if (!r.ok) {
+                var httpErr = new Error('HTTP ' + r.status);
+                httpErr.isHttp = true;
+                httpErr.status = r.status;
+                throw httpErr;
+            }
             updateConnectionStatus(true);
             return r.json();
         });
@@ -493,12 +651,27 @@
         if (state.running) ms += Date.now() - state.clock_start_ms;
         return Math.floor(ms / 60000);
     }
-    function toast(text) {
+    function toast(text, actionLabel, onAction) {
         var el = document.createElement('div');
         el.className = 'tt-mexec-toast';
-        el.textContent = text;
+        var span = document.createElement('span');
+        span.className = 'tt-mexec-toast-text';
+        span.textContent = text;
+        el.appendChild(span);
+        // #2269 — optional inline action (e.g. Undo a just-logged sub).
+        if (actionLabel && typeof onAction === 'function') {
+            var act = document.createElement('button');
+            act.type = 'button';
+            act.className = 'tt-mexec-toast-action';
+            act.textContent = actionLabel;
+            act.addEventListener('click', function () {
+                onAction();
+                if (el.parentNode) el.parentNode.removeChild(el);
+            });
+            el.appendChild(act);
+        }
         document.body.appendChild(el);
-        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 3000);
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 5000);
     }
 
     // --- #2222 — explicit edit affordance for the live data controls ---

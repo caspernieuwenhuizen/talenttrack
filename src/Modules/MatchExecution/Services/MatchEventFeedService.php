@@ -39,6 +39,7 @@ final class MatchEventFeedService {
      *   player_name:string,
      *   player_off_name:string,
      *   player_on_name:string,
+     *   event_uuid:string,
      *   label:string
      * }>
      */
@@ -68,7 +69,7 @@ final class MatchEventFeedService {
         }
         $names = $this->playerNames( $player_ids );
 
-        /** @var list<array{type:string,half:int,minute:int,sort:int,player_name:string,player_off_name:string,player_on_name:string,label:string}> $rows */
+        /** @var list<array{type:string,half:int,minute:int,sort:int,player_name:string,player_off_name:string,player_on_name:string,event_uuid:string,label:string}> $rows */
         $rows = [];
 
         foreach ( $goals as $g ) {
@@ -83,6 +84,9 @@ final class MatchEventFeedService {
                 'player_name'     => $names[ $pid ] ?? '',
                 'player_off_name' => '',
                 'player_on_name'  => '',
+                // #2269 — carry the server event id so the view can render a
+                // reload-safe Undo link keyed by it.
+                'event_uuid'      => (string) ( $g->event_uuid ?? '' ),
                 'label'           => __( 'Goal scored', 'talenttrack' ),
             ];
         }
@@ -100,6 +104,7 @@ final class MatchEventFeedService {
                 'player_name'     => '',
                 'player_off_name' => $names[ $off ] ?? '',
                 'player_on_name'  => $names[ $on ] ?? '',
+                'event_uuid'      => (string) ( $s->event_uuid ?? '' ),
                 'label'           => __( 'Substitution', 'talenttrack' ),
             ];
         }
@@ -128,6 +133,7 @@ final class MatchEventFeedService {
                 'player_name'     => $row['player_name'],
                 'player_off_name' => $row['player_off_name'],
                 'player_on_name'  => $row['player_on_name'],
+                'event_uuid'      => $row['event_uuid'],
                 'label'           => $row['label'],
             ];
         }

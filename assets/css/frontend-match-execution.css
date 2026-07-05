@@ -370,15 +370,24 @@
 .tt-mexec-footer-sub[data-state="offline"] .tt-mexec-footer-dot { background: var(--tt-mexec-danger); }
 
 /* ----- State-driven visibility ----- */
-.tt-mexec[data-state="not_started"] .tt-mexec-score-btn,
-.tt-mexec[data-state="finished"]    .tt-mexec-score-btn { visibility: hidden; }
+/* #2267 — the post-match states are `pending_review` and `finalized`
+ * (the legacy `finished` value the server never emits anymore). The
+ * mutating controls stay reachable in pending_review via the Edit
+ * toggle (#2261 / #2271 full adjust-all), so only the timer chrome +
+ * empty pre-kickoff sections key off the real states here. The
+ * score/bench/action visibility in post-match states is handled by the
+ * #2222 edit-only gate, not a blanket data-state hide. */
+.tt-mexec[data-state="not_started"] .tt-mexec-score-btn { visibility: hidden; }
 .tt-mexec[data-state="not_started"] .tt-mexec-on-pitch  { display: none; }
 .tt-mexec[data-state="not_started"] .tt-mexec-bench     { display: none; }
-.tt-mexec[data-state="finished"]    .tt-mexec-bench     { display: none; }
-.tt-mexec[data-state="finished"]    .tt-mexec-player-actions { visibility: hidden; }
-.tt-mexec[data-state="finished"]    .tt-mexec-timer-btn { display: none; }
-.tt-mexec[data-state="finished"]    .tt-mexec-timer-half { color: var(--tt-mexec-ink-soft); }
-.tt-mexec[data-state="finished"]    .tt-mexec-timer-half::before { display: none; }
+/* Post-match: park the timer chrome. The clock is frozen (JS) and the
+ * timer button is inert, so hide the button and mute the half label. */
+.tt-mexec[data-state="finalized"]      .tt-mexec-timer-btn,
+.tt-mexec[data-state="pending_review"] .tt-mexec-timer-btn { display: none; }
+.tt-mexec[data-state="finalized"]      .tt-mexec-timer-half,
+.tt-mexec[data-state="pending_review"] .tt-mexec-timer-half { color: var(--tt-mexec-ink-soft); }
+.tt-mexec[data-state="finalized"]      .tt-mexec-timer-half::before,
+.tt-mexec[data-state="pending_review"] .tt-mexec-timer-half::before { display: none; }
 
 /* ----- #2222 — explicit edit affordance ----- */
 /* The live-data controls (score steppers, +action / →on buttons,
@@ -495,4 +504,97 @@
 }
 .tt-mexec-minutes-form .tt-form-actions {
     margin-top: var(--tt-mexec-gap);
+}
+
+/* ----- #2271 — re-open a finalized match for corrections ----- */
+.tt-mexec-reopen-btn {
+    display: block;
+    width: 100%;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1.5px solid var(--tt-mexec-accent);
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-accent);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-reopen-btn:active { background: var(--tt-mexec-mute); }
+.tt-mexec-reopen-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ----- #2269 — inline Undo affordance on a logged goal/sub chip ----- */
+/* Reload-safe: the server event id lives in the data attribute, so an
+ * undo survives a page reload (no reliance on in-memory long-press
+ * memory). Rendered as a small text button meeting the 48px tap target
+ * via padding + min-height. */
+.tt-mexec-undo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--tt-mexec-tap-min);
+    min-width: var(--tt-mexec-tap-min);
+    padding: 6px 10px;
+    margin-left: 6px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 6px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-danger);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-undo-btn:active { background: var(--tt-mexec-mute); }
+.tt-mexec-undo-btn[hidden] { display: none; }
+
+/* ----- #2269 — sideline toast (with optional inline Undo action) ----- */
+.tt-mexec-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100% - 24px);
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--tt-mexec-ink);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.tt-mexec-toast-text { flex: 1 1 auto; }
+.tt-mexec-toast-action {
+    flex: 0 0 auto;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-toast-action:active { background: rgba(255, 255, 255, 0.15); }
+
+/* ----- #2270 item 5 — header meta wraps / abbreviates < 360px ----- */
+/* The condensed single-line header can overflow on a narrow sideline
+ * phone. Below 360px, let it wrap to two lines instead of clipping the
+ * team names with an ellipsis. */
+@media (max-width: 359px) {
+    .tt-mexec-header-meta {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        line-height: 1.35;
+    }
 }
