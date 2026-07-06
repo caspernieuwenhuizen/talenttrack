@@ -47189,3 +47189,23 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Minutes for this match are managed on the match-execution screen. Set a per-player override there."
+msgstr "De minuten voor deze wedstrijd worden beheerd op het wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "This player is not flagged for tracking in the match plan."
+msgstr "Deze speler is in het wedstrijdplan niet gemarkeerd om te volgen."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "No roster row for this player to override."
+msgstr "Geen selectieregel voor deze speler om te overschrijven."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "That tracked action was not found."
+msgstr "Die gevolgde actie is niet gevonden."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "Tracked-event payload missing required fields."
+msgstr "Verplichte velden ontbreken in de gevolgde-gebeurtenis."
