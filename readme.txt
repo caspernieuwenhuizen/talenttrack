@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.78.0
+Stable tag: 4.78.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.78.1 — Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288) Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288) =
 
 = 4.78.0 — Spond: per-team accounts that override the club login (#2286) A team can now sync with its own Spond account instead of the club-wide one. Each team on the Spond page shows which account it uses ("Uses club account" or "Own account: <email>"); expand its Account panel to set a per-team email + password, which overrules the club login for that team's syncs. Leave the email blank (or hit "Use club account") to fall back to the club account. Per-team passwords are encrypted at rest and each team keeps its own cached token; the resolution (`CredentialsManager::forTeam`) is the single seam the sync, preview and monitor all use. =
 

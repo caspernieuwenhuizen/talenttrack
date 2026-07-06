@@ -1,1 +1,0 @@
-Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288)

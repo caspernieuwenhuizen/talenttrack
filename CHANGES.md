@@ -1,3 +1,7 @@
+# TalentTrack v4.78.1 — Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288)
+
+Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288)
+
 # TalentTrack v4.78.0 — Spond: per-team accounts that override the club login (#2286)
 
 A team can now sync with its own Spond account instead of the club-wide one.
