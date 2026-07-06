@@ -276,8 +276,11 @@ class MatchExecutionRestController {
     public static function route_minutes_override( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        $finalized_err = self::assertEditable( $exec_id );
-        if ( $finalized_err ) return $finalized_err;
+        // No editable-state gate here: the override lives in a separate
+        // column that recompute never clobbers, so it is safe to set in
+        // PENDING_REVIEW and — the #2224 use case — on a FINALIZED match,
+        // where the coach corrects an obviously-wrong recorded figure
+        // without re-opening the whole match.
 
         $activity_id = absint( $r['activity_id'] );
         $body        = $r->get_json_params();

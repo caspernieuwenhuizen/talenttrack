@@ -858,12 +858,15 @@
         }
     })();
 
-    // --- #2224 — correct recorded minutes (finalized only) ---
+    // --- Correct recorded minutes (per-player override) ---
     // Read-only by default; the "Correct recorded minutes" button flips the
-    // section into edit mode (numeric inputs + Save/Cancel). Each changed
-    // figure is written through the row-scoped PATCH /attendance/{id} (the
-    // existing #2159 minutes column, gated on can_edit) — no new endpoint,
-    // no wipe-and-rewrite of the activity.
+    // section into edit mode (numeric inputs + Save/Cancel). Rebuild: each
+    // changed figure is now written as a per-player OVERRIDE through
+    // PATCH /match-execution/{activity_id}/minutes {player_id, minutes}.
+    // The override wins over the sub-log-derived minutes and survives
+    // recompute; the old raw /attendance/{id} path is refused (409) once an
+    // execution owns the activity. An empty field clears the override
+    // (minutes: null) so the derived value shows again.
     (function wireMinutesCorrection() {
         var section = root.querySelector('[data-tt-mexec-minutes-section]');
         if (!section) return;
@@ -879,25 +882,23 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            var base = cfg.attendance_rest_base;
-            if (!base) return;
             var saveBtn = form.querySelector('.tt-save-btn');
 
             // Collect only rows whose minutes actually changed, keyed by
-            // attendance row id.
+            // player id (the override endpoint is player-scoped).
             var changes = [];
             var rows = form.querySelectorAll('.tt-mexec-minutes-row');
             Array.prototype.forEach.call(rows, function (row) {
-                var attId = parseInt(row.getAttribute('data-attendance-id'), 10) || 0;
-                if (attId <= 0) return;
+                var pid = parseInt(row.getAttribute('data-player-id'), 10) || 0;
+                if (pid <= 0) return;
                 var input = row.querySelector('[data-tt-mexec-minutes-input]');
                 if (!input) return;
                 var raw = input.value.trim();
                 var orig = input.defaultValue.trim();
                 if (raw === orig) return;
                 changes.push({
-                    id: attId,
-                    minutes_played: raw === '' ? '' : String(Math.max(0, parseInt(raw, 10) || 0))
+                    player_id: pid,
+                    minutes: raw === '' ? null : Math.max(0, parseInt(raw, 10) || 0)
                 });
             });
 
@@ -905,16 +906,11 @@
             if (saveBtn) saveBtn.setAttribute('data-state', 'saving');
 
             Promise.all(changes.map(function (c) {
-                return fetch(base + c.id, {
-                    method: 'PATCH',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
-                    body: JSON.stringify({ minutes_played: c.minutes_played })
-                }).then(function (r) {
-                    if (r.ok) return null;
-                    return r.json().then(function (j) {
-                        return (j && j.errors && j.errors[0] && j.errors[0].message) || ('HTTP ' + r.status);
-                    });
+                return doFetch((cfg.rest_url || '') + 'minutes', 'PATCH', {
+                    player_id: c.player_id,
+                    minutes: c.minutes
+                }).then(function () { return null; }).catch(function (err) {
+                    return (err && err.status) ? ('HTTP ' + err.status) : 'network error';
                 });
             })).then(function (results) {
                 var errs = results.filter(function (x) { return x; });

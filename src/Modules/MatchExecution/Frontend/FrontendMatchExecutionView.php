@@ -238,7 +238,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // execution is finalized (no further auto-recompute runs then, so a
         // manual correction can't be clobbered). Separate affordance from the
         // #2222 live-edit; same tt_edit_activities capability.
-        $minutes_editable = ( $state === MatchExecutionState::FINALIZED );
+        // Rebuild — the per-player minute override is a review-surface
+        // correction, available in PENDING_REVIEW and FINALIZED. It writes
+        // to a separate override column that survives recompute, so it's
+        // safe in both (the finalized case is the original #2224 need).
+        $minutes_editable = in_array( $state, [ MatchExecutionState::PENDING_REVIEW, MatchExecutionState::FINALIZED ], true );
 
         $session_date = (string) ( $activity->session_date ?? '' );
         $kickoff      = (string) ( $activity->kickoff_time ?? '' );
@@ -858,17 +862,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
-            <?php // #2224 Part B — correct recorded minutes. A separate,
-                  // explicitly-labelled affordance available ONLY on a
-                  // finalized execution (where no auto-recompute can clobber
-                  // a manual correction). Distinct from #2222's live-edit,
-                  // which stays locked on finalize. Read-only until the coach
-                  // taps "Correct recorded minutes"; each changed figure is
-                  // written through the existing row-scoped attendance PATCH
-                  // (the #2159 minutes column), not a new endpoint.
-                  // Only players with a roster attendance row are correctable
-                  // (the row id is the PATCH target). Ordered available-then-
-                  // bench so the on-pitch names read first.
+            <?php // Correct recorded minutes — the per-player override.
+                  // Available in PENDING_REVIEW + FINALIZED. Read-only until
+                  // the coach taps "Correct recorded minutes"; each changed
+                  // figure is written as an override through
+                  // PATCH /match-execution/{activity_id}/minutes, which wins
+                  // over the sub-log-derived value and survives recompute.
+                  // Only players with a roster attendance row are correctable.
+                  // Ordered available-then-bench so on-pitch names read first.
                   $minutes_players = [];
                   foreach ( array_merge( $available_ids, $bench_ids ) as $mpid ) {
                       $mpid = (int) $mpid;
