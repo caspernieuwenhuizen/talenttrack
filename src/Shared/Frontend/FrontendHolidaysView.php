@@ -65,7 +65,7 @@ final class FrontendHolidaysView extends FrontendViewBase {
         ] );
         self::renderHeader( __( 'Academy holidays', 'talenttrack' ), $actions_html );
 
-        echo '<p class="tt-muted" style="max-width:640px; margin:0 0 12px;">'
+        echo '<p class="tt-muted tt-holidays-intro">'
             . esc_html__( 'Academy-wide holiday periods. They show as a banner across the affected days on every team planner.', 'talenttrack' )
             . '</p>';
 
