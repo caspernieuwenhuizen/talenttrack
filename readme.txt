@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.77.0
+Stable tag: 4.78.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.78.0 — Spond: per-team accounts that override the club login (#2286) A team can now sync with its own Spond account instead of the club-wide one. Each team on the Spond page shows which account it uses ("Uses club account" or "Own account: <email>"); expand its Account panel to set a per-team email + password, which overrules the club login for that team's syncs. Leave the email blank (or hit "Use club account") to fall back to the club account. Per-team passwords are encrypted at rest and each team keeps its own cached token; the resolution (`CredentialsManager::forTeam`) is the single seam the sync, preview and monitor all use. =
 
 = 4.77.0 — Spond integration monitor — see live what the Spond API returns (#2284) New diagnostic page (Spond → **Open integration monitor**) that fetches the Spond API **live** for a team and shows exactly what's coming in — every event with its classified type, date, times and location — plus a per-event **diff**: whether a real sync would create it, or update an existing activity (and precisely which fields it would overwrite), and which stored activities would be archived. It is a **dry run**: nothing is written. This is the tool for answering "why does the printed activity differ from what I set in Spond?" — a stale cache, a changed event UID, or a field Spond owns all become visible at a glance. =
 
