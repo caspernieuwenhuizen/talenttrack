@@ -40,6 +40,22 @@ final class CredentialsManager {
         return self::getEmail() !== '' && self::getPassword() !== '';
     }
 
+    /**
+     * #2286 — resolve the Spond account to use for a team: its own per-team
+     * override when one is stored, otherwise the club-wide account. This is
+     * the single seam that lets a per-team account "overrule" the club one —
+     * SpondClient authenticates against whatever this returns.
+     */
+    public static function forTeam( int $team_id ): SpondAccount {
+        $team = new TeamSpondAccount( $team_id );
+        return $team->hasCredentials() ? $team : new ClubSpondAccount();
+    }
+
+    /** The club-wide account as a SpondAccount (the default / fallback). */
+    public static function club(): SpondAccount {
+        return new ClubSpondAccount();
+    }
+
     public static function getEmail(): string {
         return QueryHelpers::get_config( self::KEY_EMAIL );
     }

@@ -77,3 +77,13 @@ overwrite), or archive a stored activity no longer in the feed. Use it to
 explain why a printed activity differs from what you set in Spond — a stale
 cache, a changed event UID, or a field Spond owns all become visible here. Gated
 on the same `tt_edit_teams` capability as the sync.
+
+## Per-team accounts (override the club login)
+
+Each team on the Spond page shows which account it syncs with — **Uses club
+account** by default, or **Own account: <email>** when overridden. Expand the
+team's **Account** panel to give it its own Spond login (email + password):
+that per-team account then **overrules** the club account for that team's syncs.
+Leave the email blank (or use **Use club account**) to remove the override and
+fall back to the club login. Per-team passwords are encrypted at rest and each
+team keeps its own cached token. Requires the Spond-credentials capability.

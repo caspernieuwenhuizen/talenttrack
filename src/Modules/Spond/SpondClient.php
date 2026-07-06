@@ -171,8 +171,9 @@ final class SpondClient {
      *
      * @return array{ok:bool,groups:list<array{id:string,name:string}>,error_code?:string,error_message?:string,http_code?:int}
      */
-    public static function fetchGroups(): array {
-        $token = self::ensureToken();
+    public static function fetchGroups( ?SpondAccount $account = null ): array {
+        $account = $account ?? new ClubSpondAccount();
+        $token   = self::ensureToken( $account );
         if ( $token === null ) {
             return [ 'ok' => false, 'groups' => [], 'error_code' => 'no_credentials', 'error_message' => __( 'No Spond credentials configured.', 'talenttrack' ) ];
         }
@@ -180,7 +181,7 @@ final class SpondClient {
             return [ 'ok' => false, 'groups' => [] ] + $token;
         }
 
-        $result = self::authedGet( '/groups/', [], $token );
+        $result = self::authedGet( '/groups/', [], $token, false, $account );
         if ( ! $result['ok'] ) {
             return [ 'ok' => false, 'groups' => [] ] + $result;
         }
@@ -201,12 +202,13 @@ final class SpondClient {
      *
      * @return array{ok:bool,events:list<array<string,mixed>>,error_code?:string,error_message?:string,http_code?:int}
      */
-    public static function fetchEvents( string $group_id ): array {
+    public static function fetchEvents( string $group_id, ?SpondAccount $account = null ): array {
         if ( $group_id === '' ) {
             return [ 'ok' => false, 'events' => [], 'error_code' => 'empty_group_id', 'error_message' => __( 'No Spond group selected for this team.', 'talenttrack' ) ];
         }
 
-        $token = self::ensureToken();
+        $account = $account ?? new ClubSpondAccount();
+        $token   = self::ensureToken( $account );
         if ( $token === null ) {
             return [ 'ok' => false, 'events' => [], 'error_code' => 'no_credentials', 'error_message' => __( 'No Spond credentials configured.', 'talenttrack' ) ];
         }
@@ -249,7 +251,7 @@ final class SpondClient {
                 'order'             => 'asc',
                 'max'               => (string) $page_size,
             ];
-            $result = self::authedGet( '/sponds/', $params, $token );
+            $result = self::authedGet( '/sponds/', $params, $token, false, $account );
             if ( ! $result['ok'] ) {
                 return [ 'ok' => false, 'events' => [] ] + $result;
             }
@@ -306,12 +308,17 @@ final class SpondClient {
      *
      * @return string|null|array{ok:bool,error_code:string,error_message:string,http_code?:int}
      */
-    private static function ensureToken() {
-        $cached = CredentialsManager::getCachedToken();
+    private static function ensureToken( ?SpondAccount $account = null ) {
+        // #2286 — authenticate against the passed account (per-team override
+        // or the club fallback). Defaults to the club account so every
+        // existing call site keeps working unchanged.
+        $account = $account ?? new ClubSpondAccount();
+
+        $cached = $account->getCachedToken();
         if ( $cached !== '' ) return $cached;
 
-        $email    = CredentialsManager::getEmail();
-        $password = CredentialsManager::getPassword();
+        $email    = $account->getEmail();
+        $password = $account->getPassword();
         if ( $email === '' || $password === '' ) return null;
 
         $login = self::login( $email, $password );
@@ -323,7 +330,7 @@ final class SpondClient {
                 'http_code'     => (int)    ( $login['http_code']     ?? 0 ),
             ];
         }
-        CredentialsManager::cacheToken( $login['token'] );
+        $account->cacheToken( $login['token'], CredentialsManager::TOKEN_CACHE_SECONDS );
         return $login['token'];
     }
 
@@ -331,7 +338,8 @@ final class SpondClient {
      * @param array<string,string> $params
      * @return array{ok:bool,data:mixed,error_code?:string,error_message?:string,http_code?:int}
      */
-    private static function authedGet( string $path, array $params, string $token, bool $is_retry = false ): array {
+    private static function authedGet( string $path, array $params, string $token, bool $is_retry = false, ?SpondAccount $account = null ): array {
+        $account = $account ?? new ClubSpondAccount();
         $query = $params ? '?' . http_build_query( $params ) : '';
 
         $response = wp_remote_get( self::baseUrl() . $path . $query, [
@@ -359,14 +367,14 @@ final class SpondClient {
         $code = (int) wp_remote_retrieve_response_code( $response );
 
         if ( ( $code === 401 || $code === 403 ) && ! $is_retry ) {
-            CredentialsManager::clearToken();
-            $email    = CredentialsManager::getEmail();
-            $password = CredentialsManager::getPassword();
+            $account->clearToken();
+            $email    = $account->getEmail();
+            $password = $account->getPassword();
             if ( $email !== '' && $password !== '' ) {
                 $login = self::login( $email, $password );
                 if ( $login['ok'] ) {
-                    CredentialsManager::cacheToken( $login['token'] );
-                    return self::authedGet( $path, $params, $login['token'], true );
+                    $account->cacheToken( $login['token'], CredentialsManager::TOKEN_CACHE_SECONDS );
+                    return self::authedGet( $path, $params, $login['token'], true, $account );
                 }
                 return [
                     'ok'            => false,

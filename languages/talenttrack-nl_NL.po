@@ -46710,6 +46710,38 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Own account"
+msgstr "Eigen account"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Uses club account"
+msgstr "Gebruikt clubaccount"
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Leave email blank to use the club account."
+msgstr "Laat e-mail leeg om het clubaccount te gebruiken."
+
+#: src/Shared/Frontend/FrontendSpondView.php
+msgid "Use club account"
+msgstr "Clubaccount gebruiken"
+
+#: src/Modules/Spond/SpondSync.php
+msgid "No Spond credentials configured for the club or this team."
+msgstr "Geen Spond-inloggegevens ingesteld voor de club of dit team."
+
+#: assets/js/frontend-spond.js
+msgid "Team account saved."
+msgstr "Teamaccount opgeslagen."
+
+#: assets/js/frontend-spond.js
+msgid "Team now uses the club account."
+msgstr "Team gebruikt nu het clubaccount."
+
+#: assets/js/frontend-spond.js
+msgid "Use the club account for this team? The team's own Spond login will be removed."
+msgstr "Het clubaccount voor dit team gebruiken? De eigen Spond-login van het team wordt verwijderd."
+
 #~ msgid "Locks the match. Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Vergrendelt de wedstrijd. Doelpunten, wissels en eindstand kunnen daarna "
