@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-07-06T14:23:47+00:00\n"
+"POT-Creation-Date: 2026-07-06T14:49:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -896,8 +896,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:385
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:103
-#: src/Shared/Frontend/FrontendHolidaysView.php:89
-#: src/Shared/Frontend/FrontendHolidaysView.php:240
+#: src/Shared/Frontend/FrontendHolidaysView.php:103
+#: src/Shared/Frontend/FrontendHolidaysView.php:254
 #: src/Shared/Frontend/FrontendPersonDetailView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:503
 #: src/Shared/Frontend/FrontendSeasonsView.php:102
@@ -1428,7 +1428,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:222
 #: src/Shared/Frontend/FrontendGoalsManageView.php:389
 #: src/Shared/Frontend/FrontendGoalsManageView.php:414
-#: src/Shared/Frontend/FrontendHolidaysView.php:78
+#: src/Shared/Frontend/FrontendHolidaysView.php:92
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:128
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2019
@@ -1621,7 +1621,7 @@ msgstr "Andere"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:223
 #: src/Shared/Frontend/FrontendExportsView.php:124
 #: src/Shared/Frontend/FrontendGoalsManageView.php:415
-#: src/Shared/Frontend/FrontendHolidaysView.php:79
+#: src/Shared/Frontend/FrontendHolidaysView.php:93
 #: src/Shared/Frontend/FrontendPeopleManageView.php:129
 #: src/Shared/Frontend/FrontendPlayersManageView.php:247
 #: src/Shared/Frontend/FrontendTeamDetailView.php:230
@@ -3751,7 +3751,7 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:353
 #: src/Shared/Frontend/FrontendGoalsManageView.php:385
 #: src/Shared/Frontend/FrontendGoalsManageView.php:514
-#: src/Shared/Frontend/FrontendHolidaysView.php:76
+#: src/Shared/Frontend/FrontendHolidaysView.php:90
 #: src/Shared/Frontend/FrontendMigrationsView.php:73
 #: src/Shared/Frontend/FrontendPeopleManageView.php:126
 #: src/Shared/Frontend/FrontendPersonDetailView.php:142
@@ -4675,7 +4675,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:25
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:53
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
-#: src/Shared/Frontend/FrontendHolidaysView.php:129
+#: src/Shared/Frontend/FrontendHolidaysView.php:143
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:33
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
@@ -5128,7 +5128,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:379
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:339
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1366
-#: src/Shared/Frontend/FrontendHolidaysView.php:276
+#: src/Shared/Frontend/FrontendHolidaysView.php:290
 msgid "Period"
 msgstr ""
 
@@ -5386,8 +5386,8 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
 #: src/Shared/Frontend/FrontendConfigurationView.php:986
-#: src/Shared/Frontend/FrontendHolidaysView.php:65
-#: src/Shared/Frontend/FrontendHolidaysView.php:166
+#: src/Shared/Frontend/FrontendHolidaysView.php:79
+#: src/Shared/Frontend/FrontendHolidaysView.php:180
 #: src/Shared/Frontend/FrontendMigrationsView.php:91
 #: src/Shared/Frontend/FrontendMigrationsView.php:115
 #: src/Shared/Frontend/FrontendPeopleManageView.php:107
@@ -5410,7 +5410,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1443
 #: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
-#: src/Shared/Frontend/FrontendHolidaysView.php:66
+#: src/Shared/Frontend/FrontendHolidaysView.php:80
 #: src/Shared/Frontend/FrontendPeopleManageView.php:256
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:199
 msgid "Start"
@@ -5418,7 +5418,7 @@ msgstr "Start"
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:145
 #: src/Modules/Pdp/Admin/SeasonsPage.php:66
-#: src/Shared/Frontend/FrontendHolidaysView.php:67
+#: src/Shared/Frontend/FrontendHolidaysView.php:81
 #: src/Shared/Frontend/FrontendPeopleManageView.php:257
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:200
 msgid "End"
@@ -5935,7 +5935,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:391
 #: src/Shared/Frontend/FrontendGoalsManageView.php:127
 #: src/Shared/Frontend/FrontendGoalsManageView.php:412
-#: src/Shared/Frontend/FrontendHolidaysView.php:94
+#: src/Shared/Frontend/FrontendHolidaysView.php:108
 #: src/Shared/Frontend/FrontendPersonDetailView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:541
 #: src/Shared/Frontend/FrontendTeamDetailView.php:327
@@ -6784,10 +6784,10 @@ msgstr ""
 #: src/Modules/Documentation/HelpTopics.php:62
 #: src/Shared/CoreSurfaceRegistration.php:1065
 #: src/Shared/Frontend/FrontendHolidaysView.php:46
-#: src/Shared/Frontend/FrontendHolidaysView.php:130
-#: src/Shared/Frontend/FrontendHolidaysView.php:140
-#: src/Shared/Frontend/FrontendHolidaysView.php:148
-#: src/Shared/Frontend/FrontendHolidaysView.php:206
+#: src/Shared/Frontend/FrontendHolidaysView.php:144
+#: src/Shared/Frontend/FrontendHolidaysView.php:154
+#: src/Shared/Frontend/FrontendHolidaysView.php:162
+#: src/Shared/Frontend/FrontendHolidaysView.php:220
 #: src/Shared/Modules/ModuleMetadata.php:253
 msgid "Holidays"
 msgstr ""
@@ -7304,8 +7304,8 @@ msgstr ""
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2503
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2526
-#: src/Shared/Frontend/FrontendHolidaysView.php:68
-#: src/Shared/Frontend/FrontendHolidaysView.php:286
+#: src/Shared/Frontend/FrontendHolidaysView.php:82
+#: src/Shared/Frontend/FrontendHolidaysView.php:300
 msgid "Note"
 msgstr ""
 
@@ -8005,7 +8005,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:354
-#: src/Shared/Frontend/FrontendHolidaysView.php:171
+#: src/Shared/Frontend/FrontendHolidaysView.php:185
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:498
 #: src/Shared/Frontend/FrontendTrialsManageView.php:469
@@ -8019,7 +8019,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
-#: src/Shared/Frontend/FrontendHolidaysView.php:175
+#: src/Shared/Frontend/FrontendHolidaysView.php:189
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:504
 #: src/Shared/Frontend/FrontendTrialsManageView.php:470
@@ -12819,7 +12819,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:876
 #: src/Shared/Frontend/FrontendConfigurationView.php:1064
 #: src/Shared/Frontend/FrontendConfigurationView.php:2501
-#: src/Shared/Frontend/FrontendHolidaysView.php:324
+#: src/Shared/Frontend/FrontendHolidaysView.php:338
 #: src/Shared/Frontend/FrontendSeasonsView.php:186
 #: src/Shared/Frontend/FrontendSetupView.php:161
 #: src/Shared/Frontend/FrontendSetupView.php:201
@@ -16786,13 +16786,13 @@ msgid "Holiday details"
 msgstr ""
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:27
-#: src/Shared/Frontend/FrontendHolidaysView.php:167
+#: src/Shared/Frontend/FrontendHolidaysView.php:181
 msgid "e.g. Christmas break"
 msgstr ""
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:41
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
-#: src/Shared/Frontend/FrontendHolidaysView.php:180
+#: src/Shared/Frontend/FrontendHolidaysView.php:194
 msgid "Note (optional)"
 msgstr ""
 
@@ -16801,6 +16801,7 @@ msgid "Both a start and end date are required."
 msgstr ""
 
 #: src/Modules/Holidays/Wizards/NewHolidayWizard.php:15
+#: src/Shared/Frontend/FrontendHolidaysView.php:59
 msgid "New holiday"
 msgstr ""
 
@@ -17999,7 +18000,7 @@ msgstr ""
 #: src/Modules/Vct/Wizard/DurationStep.php:19
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:556
-#: src/Shared/Frontend/FrontendHolidaysView.php:281
+#: src/Shared/Frontend/FrontendHolidaysView.php:295
 msgid "Duration"
 msgstr ""
 
@@ -19670,7 +19671,7 @@ msgid "e.g. On track"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:458
-#: src/Shared/Frontend/FrontendHolidaysView.php:292
+#: src/Shared/Frontend/FrontendHolidaysView.php:306
 msgid "Colour"
 msgstr ""
 
@@ -25035,7 +25036,7 @@ msgstr ""
 #. translators: %d: days since last rating
 #. translators: %d: number of days
 #: src/Modules/PersonaDashboard/TableSources/BehaviourPendingSource.php:103
-#: src/Shared/Frontend/FrontendHolidaysView.php:266
+#: src/Shared/Frontend/FrontendHolidaysView.php:280
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
@@ -26454,7 +26455,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:230
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:125
 #: src/Shared/Frontend/FrontendBackupsView.php:453
-#: src/Shared/Frontend/FrontendHolidaysView.php:325
+#: src/Shared/Frontend/FrontendHolidaysView.php:339
 #: src/Shared/Frontend/FrontendSeasonsView.php:187
 msgid "Something went wrong. Please try again."
 msgstr ""
@@ -38623,79 +38624,79 @@ msgstr ""
 msgid "You do not have permission to view holidays."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:47
+#: src/Shared/Frontend/FrontendHolidaysView.php:66
 msgid "Academy holidays"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:50
+#: src/Shared/Frontend/FrontendHolidaysView.php:69
 msgid ""
 "Academy-wide holiday periods. They show as a banner across the affected days "
 "on every team planner."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:97
+#: src/Shared/Frontend/FrontendHolidaysView.php:111
 msgid "Archive this holiday?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:104
+#: src/Shared/Frontend/FrontendHolidaysView.php:118
 msgid "Search holidays…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:106
+#: src/Shared/Frontend/FrontendHolidaysView.php:120
 msgid "No holidays match your search."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:109
+#: src/Shared/Frontend/FrontendHolidaysView.php:123
 msgid "No holidays yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:110
+#: src/Shared/Frontend/FrontendHolidaysView.php:124
 msgid ""
 "Add the academy holiday periods so coaches see them on the planner and avoid "
 "scheduling on closed days."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:111
+#: src/Shared/Frontend/FrontendHolidaysView.php:125
 msgid "Add first holiday"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:132
+#: src/Shared/Frontend/FrontendHolidaysView.php:146
 msgid "You do not have permission to manage holidays."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:139
-#: src/Shared/Frontend/FrontendHolidaysView.php:210
+#: src/Shared/Frontend/FrontendHolidaysView.php:153
+#: src/Shared/Frontend/FrontendHolidaysView.php:224
 msgid "Holiday not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:142
-#: src/Shared/Frontend/FrontendHolidaysView.php:211
+#: src/Shared/Frontend/FrontendHolidaysView.php:156
+#: src/Shared/Frontend/FrontendHolidaysView.php:225
 msgid "That holiday no longer exists."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:147
-#: src/Shared/Frontend/FrontendHolidaysView.php:150
+#: src/Shared/Frontend/FrontendHolidaysView.php:161
+#: src/Shared/Frontend/FrontendHolidaysView.php:164
 msgid "Edit holiday"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:185
+#: src/Shared/Frontend/FrontendHolidaysView.php:199
 msgid "Update holiday"
 msgstr ""
 
 #. translators: 1: start date, 2: end date
-#: src/Shared/Frontend/FrontendHolidaysView.php:256
+#: src/Shared/Frontend/FrontendHolidaysView.php:270
 #, php-format
 msgctxt "holiday period range"
 msgid "%1$s – %2$s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:305
+#: src/Shared/Frontend/FrontendHolidaysView.php:319
 msgid ""
 "This holiday shows as a banner across these days on every team planner, so "
 "coaches plan around the closed days."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:326
+#: src/Shared/Frontend/FrontendHolidaysView.php:340
 #: src/Shared/Frontend/FrontendSeasonsView.php:188
 msgid "End date must be after the start date."
 msgstr ""
