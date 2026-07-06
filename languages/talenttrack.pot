@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.76.2\n"
+"Project-Id-Version: TalentTrack 4.76.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-05T21:36:55+00:00\n"
+"POT-Creation-Date: 2026-07-06T07:06:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -2177,10 +2177,10 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:721
 #: src/Infrastructure/REST/ActivitiesRestController.php:739
 #: src/Infrastructure/REST/ActivitiesRestController.php:764
-#: src/Infrastructure/REST/ActivitiesRestController.php:1133
-#: src/Infrastructure/REST/ActivitiesRestController.php:1243
-#: src/Infrastructure/REST/ActivitiesRestController.php:1269
-#: src/Infrastructure/REST/ActivitiesRestController.php:1287
+#: src/Infrastructure/REST/ActivitiesRestController.php:1142
+#: src/Infrastructure/REST/ActivitiesRestController.php:1252
+#: src/Infrastructure/REST/ActivitiesRestController.php:1278
+#: src/Infrastructure/REST/ActivitiesRestController.php:1296
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:131
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:148
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:844
@@ -2199,8 +2199,8 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:727
 #: src/Infrastructure/REST/ActivitiesRestController.php:744
 #: src/Infrastructure/REST/ActivitiesRestController.php:774
-#: src/Infrastructure/REST/ActivitiesRestController.php:1137
-#: src/Infrastructure/REST/ActivitiesRestController.php:1291
+#: src/Infrastructure/REST/ActivitiesRestController.php:1146
+#: src/Infrastructure/REST/ActivitiesRestController.php:1300
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:57
@@ -2208,57 +2208,57 @@ msgstr ""
 msgid "Activity not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:894
+#: src/Infrastructure/REST/ActivitiesRestController.php:903
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1158
+#: src/Infrastructure/REST/ActivitiesRestController.php:1167
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1162
+#: src/Infrastructure/REST/ActivitiesRestController.php:1171
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1165
+#: src/Infrastructure/REST/ActivitiesRestController.php:1174
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1225
+#: src/Infrastructure/REST/ActivitiesRestController.php:1234
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1226
+#: src/Infrastructure/REST/ActivitiesRestController.php:1235
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1250
+#: src/Infrastructure/REST/ActivitiesRestController.php:1259
 msgid "Only Cancel and Reopen are allowed here. Completing an activity runs through the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1256
+#: src/Infrastructure/REST/ActivitiesRestController.php:1265
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1272
+#: src/Infrastructure/REST/ActivitiesRestController.php:1281
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1323
-#: src/Infrastructure/REST/ActivitiesRestController.php:1367
+#: src/Infrastructure/REST/ActivitiesRestController.php:1332
+#: src/Infrastructure/REST/ActivitiesRestController.php:1376
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1326
+#: src/Infrastructure/REST/ActivitiesRestController.php:1335
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1354
+#: src/Infrastructure/REST/ActivitiesRestController.php:1363
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1370
+#: src/Infrastructure/REST/ActivitiesRestController.php:1379
 msgid "The attendance row could not be deleted."
 msgstr ""
 
