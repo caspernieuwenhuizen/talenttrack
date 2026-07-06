@@ -199,10 +199,17 @@ final class MatchExecutionMinutesArbiterRestTest extends WP_UnitTestCase {
         $this->assertSame( self::HALF_LENGTH, $row['minutes_derived'], 'derived recomputed to full half' );
     }
 
-    public function test_override_refused_once_finalized(): void {
+    public function test_override_allowed_once_finalized(): void {
+        // Finalizing locks the match EVENTS (goals, subs, tracked actions),
+        // but recorded minutes stay correctable — this is the #2224
+        // capability the override replaces. The override is a separate
+        // column that can't corrupt the event record, so no re-open is
+        // needed to fix an obviously-wrong recorded figure.
         ( new MatchExecutionRepository() )->update( $this->exec_id, [ 'state' => MatchExecutionState::FINALIZED ] );
         $res = $this->patchMinutesOverride( [ 'player_id' => 1, 'minutes' => 12 ] );
-        $this->assertSame( 409, $res->get_status(), 'no edits once finalized' );
+        $this->assertSame( 200, $res->get_status(), 'recorded minutes stay correctable once finalized' );
+        $row = ( new MatchExecutionRepository() )->attendanceRowsByActivity( self::ACTIVITY_ID )[1];
+        $this->assertSame( 12, $row['minutes_override'] );
     }
 
     public function test_override_no_roster_row_returns_409(): void {
