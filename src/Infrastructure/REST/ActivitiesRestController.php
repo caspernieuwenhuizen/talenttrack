@@ -849,6 +849,15 @@ class ActivitiesRestController {
             'start_time'          => $start_time,
             'end_time'            => $end_time,
             'time_of_presence'    => $time_of_presence,
+            // #2282 — mirror start_time into kickoff_time for match types
+            // (game / tournament). The edit form only exposes start_time
+            // ("Begintijd"), but the week-plan print shows "Aftrap" from
+            // kickoff_time — which Spond seeds on import. Without this, a
+            // coach editing the start time on a Spond-imported match left
+            // kickoff_time stale, so the print disagreed with the form.
+            // Keeping them in sync on every save fixes that divergence;
+            // non-match types null it out.
+            'kickoff_time'        => in_array( $type, [ ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true ) ? $start_time : null,
             'team_id'             => absint( $r['team_id'] ?? 0 ),
             'coach_id'            => get_current_user_id(),
             'location'            => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
