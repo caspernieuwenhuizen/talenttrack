@@ -1079,155 +1079,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>
-        <style>
-            /* #1033 — post-match status pill + Finalize CTA. Mobile-first
-             * 48px touch target on the button; visible warning colour on
-             * the pending pill so it doesn\'t get missed in the coach\'s
-             * scroll past the score / timer. */
-            .tt-mexec-post-match {
-                margin: 12px 0;
-                padding: 12px 14px;
-                border: 1px solid #e3e6ea;
-                border-radius: 8px;
-                background: #fff;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                align-items: stretch;
-            }
-            .tt-mexec-state-pill {
-                margin: 0;
-                display: inline-block;
-                align-self: flex-start;
-                padding: 4px 10px;
-                border-radius: 999px;
-                font-size: 12px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-            }
-            .tt-mexec-state-pill--pending_review { background: #fff4d4; color: #92651b; }
-            .tt-mexec-state-pill--finalized     { background: #e6e9ed; color: #5b6e75; }
-            .tt-mexec-finalize-btn {
-                display: block;
-                width: 100%;
-                min-height: 48px;
-                padding: 12px 16px;
-                border-radius: 8px;
-                border: 1.5px solid #d63638;
-                background: #d63638;
-                color: #fff;
-                font: inherit;
-                font-size: 15px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            .tt-mexec-finalize-btn:hover { background: #b32a2c; border-color: #b32a2c; }
-            .tt-mexec-finalize-btn:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
-            .tt-mexec-finalize-help {
-                margin: 0;
-                font-size: 12px;
-                color: #5b6e75;
-                line-height: 1.4;
-            }
-            /* #1049 — late-event affordances. Two collapsible panels
-             * for adding retroactive goals/subs the coach forgot to
-             * tap live. Dashed warn-border so it reads as a corrective
-             * surface, not a primary action. */
-            .tt-mexec-late-event {
-                margin: 12px 0;
-                padding: 12px 14px;
-                border: 2px dashed #c75c1f;
-                border-radius: 8px;
-                background: #fff;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            .tt-mexec-late-event-head {
-                display: flex;
-                align-items: baseline;
-                justify-content: space-between;
-                gap: 8px;
-            }
-            .tt-mexec-late-event-title {
-                margin: 0;
-                font-size: 13px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-                color: #c75c1f;
-            }
-            .tt-mexec-late-event-hint {
-                font-size: 11px;
-                color: #5b6e75;
-            }
-            .tt-mexec-late-event-panel {
-                border: 1px solid #f5dba0;
-                background: #fff8e1;
-                border-radius: 6px;
-                padding: 0;
-            }
-            .tt-mexec-late-event-summary {
-                padding: 12px 14px;
-                cursor: pointer;
-                font-weight: 600;
-                color: #8a5e0a;
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-                list-style: none;
-            }
-            .tt-mexec-late-event-summary::-webkit-details-marker { display: none; }
-            .tt-mexec-late-event-panel[open] .tt-mexec-late-event-summary {
-                border-bottom: 1px solid #f5dba0;
-            }
-            .tt-mexec-late-event-form {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                padding: 12px 14px;
-            }
-            .tt-mexec-late-event-field {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .tt-mexec-late-event-field > span {
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-                color: #5b6e75;
-            }
-            .tt-mexec-late-event-field select,
-            .tt-mexec-late-event-field input[type="number"] {
-                font: inherit;
-                font-size: 16px;
-                padding: 10px 12px;
-                border: 1px solid #d6dadd;
-                border-radius: 6px;
-                background: #fff;
-                color: #1a1d21;
-                min-height: 48px;
-                width: 100%;
-            }
-            .tt-mexec-late-event-submit {
-                margin-top: 4px;
-                min-height: 48px;
-                padding: 12px 16px;
-                border-radius: 6px;
-                border: 1.5px solid #8a5e0a;
-                background: #8a5e0a;
-                color: #fff;
-                font: inherit;
-                font-size: 14px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            .tt-mexec-late-event-submit:hover { background: #6e4a08; border-color: #6e4a08; }
-            .tt-mexec-late-event-submit:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
-        </style>
         <script>
         (function () {
             // This inline script sits in the page body, but the config it
@@ -1387,26 +1238,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
     }
 
     private static function enqueueViewAssets( int $activity_id, ?object $execution ): void {
+        // Rebuild — a single consolidated sheet. The former -2026 (chrome
+        // restyle) and -pitch (vertical pitch + event log) sheets are
+        // folded in; depends on the app-chrome sheet for the brand tokens
+        // + KPI-tile styles they relied on.
         wp_enqueue_style(
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/css/frontend-match-execution.css',
-            [],
-            TT_VERSION
-        );
-        // #1684 — 2026 "chrome" restyle layers on top of the base sheet.
-        // Depends on the shared app-chrome sheet (#1690) so the KPI tile
-        // styles + brand tokens are present; loading after the base sheet
-        // means its additive rules win without !important.
-        wp_enqueue_style(
-            'tt-match-execution-2026',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-2026.css',
-            [ 'tt-match-execution', 'tt-frontend-app-chrome' ],
-            TT_VERSION
-        );
-        // #1713 — vertical positional pitch + chronological event log.
-        wp_enqueue_style(
-            'tt-match-execution-pitch',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-pitch.css',
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
