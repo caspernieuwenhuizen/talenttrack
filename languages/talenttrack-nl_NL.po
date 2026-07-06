@@ -46616,10 +46616,6 @@ msgid "Failing"
 msgstr "Mislukt"
 
 #: src/Shared/Frontend/FrontendSpondMonitorView.php
-msgid "Last sync:"
-msgstr "Laatste synchronisatie:"
-
-#: src/Shared/Frontend/FrontendSpondMonitorView.php
 #, php-format
 msgid "%1$d linked · %2$d failing"
 msgstr "%1$d gekoppeld · %2$d mislukt"
