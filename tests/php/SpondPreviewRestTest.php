@@ -73,7 +73,9 @@ final class SpondPreviewRestTest extends WP_UnitTestCase {
         $req = new WP_REST_Request( 'POST', '/talenttrack/v1/teams/' . $this->team_id . '/spond/preview' );
         $res = rest_do_request( $req );
 
-        $this->assertSame( 401, $res->get_status(), 'a user without tt_edit_teams is rejected' );
+        // A logged-in user lacking the cap is Forbidden (403); 401 is for
+        // an unauthenticated request.
+        $this->assertSame( 403, $res->get_status(), 'a user without tt_edit_teams is rejected' );
     }
 
     public function test_team_with_no_group_returns_no_group_envelope(): void {
