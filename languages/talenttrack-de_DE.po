@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-07-06T07:06:28+00:00\n"
+"POT-Creation-Date: 2026-07-06T07:40:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1553
+#: src/Shared/Frontend/DashboardShortcode.php:1562
 #: src/Shared/Frontend/FrontendConfigurationView.php:2539
 #: src/Shared/Frontend/FrontendPeopleManageView.php:289
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1558
+#: src/Shared/Frontend/DashboardShortcode.php:1567
 msgid "Team Manager"
 msgstr ""
 
@@ -161,7 +161,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:115
-#: src/Shared/Frontend/DashboardShortcode.php:1552
+#: src/Shared/Frontend/DashboardShortcode.php:1561
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2501
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2513
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2648
@@ -236,7 +236,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1556
+#: src/Shared/Frontend/DashboardShortcode.php:1565
 #: src/Shared/Frontend/FrontendConfigurationView.php:2533
 #: src/Shared/Frontend/FrontendPeopleManageView.php:285
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1565,7 +1565,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1557
+#: src/Shared/Frontend/DashboardShortcode.php:1566
 #: src/Shared/Frontend/FrontendConfigurationView.php:2537
 #: src/Shared/Frontend/FrontendPeopleManageView.php:288
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1645,7 +1645,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1555
+#: src/Shared/Frontend/DashboardShortcode.php:1564
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1656,7 +1656,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1554
+#: src/Shared/Frontend/DashboardShortcode.php:1563
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -2100,7 +2100,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayersManageView.php:367
 #: src/Shared/Frontend/FrontendRateCardView.php:129
 #: src/Shared/Frontend/FrontendReportDetailView.php:99
-#: src/Shared/Frontend/FrontendSpondView.php:201
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:81
+#: src/Shared/Frontend/FrontendSpondView.php:213
 #: src/Shared/Frontend/FrontendStandardReportsView.php:633
 #: src/Shared/Frontend/FrontendStandardReportsView.php:857
 #: src/Shared/Frontend/FrontendTeamDetailView.php:214
@@ -2140,6 +2141,7 @@ msgstr "Bewertung"
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:37
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:609
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:142
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:199
 #: src/Shared/Frontend/PlayerDashboardView.php:177
 msgid "Activity"
 msgstr "Aktivität"
@@ -3045,7 +3047,8 @@ msgid "Player id is required."
 msgstr ""
 
 #: src/Infrastructure/REST/PlayerStatusRestController.php:131
-#: src/Infrastructure/REST/SpondRestController.php:89
+#: src/Infrastructure/REST/SpondRestController.php:102
+#: src/Infrastructure/REST/SpondRestController.php:124
 msgid "Team id is required."
 msgstr ""
 
@@ -3080,21 +3083,52 @@ msgstr ""
 msgid "The rollover could not be completed."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:109
+# #0018 — team development sprint 1 (REST stubs)
+#: src/Infrastructure/REST/SpondRestController.php:138
+#: src/Infrastructure/REST/TeamsRestController.php:291
+#: src/Infrastructure/REST/TeamsRestController.php:366
+#: src/Infrastructure/REST/TeamsRestController.php:379
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:148
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:806
+#: src/Modules/Spond/SpondSync.php:59
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:222
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:251
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:292
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:312
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:385
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:443
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:511
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:607
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:618
+msgid "Team not found."
+msgstr ""
+
+#: src/Infrastructure/REST/SpondRestController.php:149
+msgid ""
+"This team has no Spond group linked. Pick a group on the team edit form "
+"first."
+msgstr ""
+
+#: src/Infrastructure/REST/SpondRestController.php:159
+msgid "Could not fetch events from Spond."
+msgstr ""
+
+#: src/Infrastructure/REST/SpondRestController.php:351
 msgid "A Spond email address is required."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:121
+#: src/Infrastructure/REST/SpondRestController.php:363
 msgid "A Spond password is required."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:168
+#: src/Infrastructure/REST/SpondRestController.php:410
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:414
-#: src/Shared/Frontend/FrontendSpondView.php:339
+#: src/Shared/Frontend/FrontendSpondView.php:351
 msgid "Spond login failed."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:196
+#: src/Infrastructure/REST/SpondRestController.php:438
 msgid "That URL does not look like a valid http(s) endpoint."
 msgstr ""
 
@@ -3123,26 +3157,6 @@ msgstr ""
 
 #: src/Infrastructure/REST/TeamDetailPreferencesRestController.php:69
 msgid "Expected an object under `sections`."
-msgstr ""
-
-# #0018 — team development sprint 1 (REST stubs)
-#: src/Infrastructure/REST/TeamsRestController.php:291
-#: src/Infrastructure/REST/TeamsRestController.php:366
-#: src/Infrastructure/REST/TeamsRestController.php:379
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:148
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:806
-#: src/Modules/Spond/SpondSync.php:59
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:222
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:251
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:292
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:312
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:385
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:443
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:511
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:607
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:618
-msgid "Team not found."
 msgstr ""
 
 #: src/Infrastructure/REST/TeamsRestController.php:307
@@ -3624,6 +3638,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:109
 #: src/Shared/Frontend/FrontendPeopleManageView.php:115
 #: src/Shared/Frontend/FrontendPeopleManageView.php:184
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:189
 #: src/Shared/Frontend/FrontendStandardReportsView.php:235
 #: src/Shared/Frontend/FrontendStandardReportsView.php:347
 #: src/Shared/Frontend/FrontendTeamDetailView.php:742
@@ -3738,7 +3753,7 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2018
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendPlayersManageView.php:241
-#: src/Shared/Frontend/FrontendSpondView.php:204
+#: src/Shared/Frontend/FrontendSpondView.php:216
 #: src/Shared/Frontend/FrontendTeamDetailView.php:534
 #: src/Shared/Frontend/FrontendTeamDetailView.php:690
 #: src/Shared/Frontend/FrontendTeamDetailView.php:743
@@ -3918,6 +3933,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachForms.php:530
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2266
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:80
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:191
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
 msgid "Location"
 msgstr "Ort"
@@ -4641,9 +4657,9 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:677
 #: src/Shared/Frontend/DashboardShortcode.php:868
 #: src/Shared/Frontend/DashboardShortcode.php:877
-#: src/Shared/Frontend/DashboardShortcode.php:1148
-#: src/Shared/Frontend/DashboardShortcode.php:1156
-#: src/Shared/Frontend/DashboardShortcode.php:1164
+#: src/Shared/Frontend/DashboardShortcode.php:1157
+#: src/Shared/Frontend/DashboardShortcode.php:1165
+#: src/Shared/Frontend/DashboardShortcode.php:1173
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -4697,7 +4713,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:798
 #: src/Shared/CoreSurfaceRegistration.php:1566
 #: src/Shared/CoreSurfaceRegistration.php:1873
-#: src/Shared/Frontend/DashboardShortcode.php:1298
+#: src/Shared/Frontend/DashboardShortcode.php:1307
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr ""
@@ -4798,7 +4814,7 @@ msgstr "Spieler"
 #: src/Shared/CoreSurfaceRegistration.php:1452
 #: src/Shared/CoreSurfaceRegistration.php:1819
 #: src/Shared/Frontend/FrontendPersonDetailView.php:164
-#: src/Shared/Frontend/FrontendSpondView.php:177
+#: src/Shared/Frontend/FrontendSpondView.php:184
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:45
 #: src/Shared/Frontend/FrontendTeamDetailView.php:73
 #: src/Shared/Frontend/FrontendTeamDetailView.php:222
@@ -6550,6 +6566,7 @@ msgstr "Schlüssel"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:223
 #: src/Shared/Frontend/FrontendGoalsManageView.php:528
 #: src/Shared/Frontend/FrontendMyGoalsView.php:227
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:194
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 msgid "Description"
 msgstr "Beschreibung"
@@ -7262,6 +7279,7 @@ msgstr ""
 #: src/Modules/Vct/Wizard/WhenStep.php:27
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/FrontendAuditLogView.php:408
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:190
 msgid "When"
 msgstr ""
 
@@ -7289,7 +7307,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1559
+#: src/Shared/Frontend/DashboardShortcode.php:1568
 msgid "Academy Admin"
 msgstr ""
 
@@ -7490,7 +7508,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSetupView.php:204
 #: src/Shared/Frontend/FrontendSetupView.php:259
 #: src/Shared/Frontend/FrontendSetupView.php:285
-#: src/Shared/Frontend/FrontendSpondView.php:158
+#: src/Shared/Frontend/FrontendSpondView.php:165
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:184
 #: src/Shared/Frontend/FrontendTranslationsView.php:214
 #: src/Shared/Frontend/FrontendViewBase.php:82
@@ -10457,7 +10475,7 @@ msgstr "Aktiviert"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:408
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:255
-#: src/Shared/Frontend/FrontendSpondView.php:259
+#: src/Shared/Frontend/FrontendSpondView.php:271
 msgid "Disabled"
 msgstr "Deaktiviert"
 
@@ -11368,7 +11386,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:110
 #: src/Shared/Frontend/FrontendConfigurationView.php:493
 #: src/Shared/Frontend/FrontendConfigurationView.php:1087
-#: src/Shared/Frontend/FrontendSpondView.php:255
+#: src/Shared/Frontend/FrontendSpondView.php:267
 msgid "Error"
 msgstr ""
 
@@ -12798,7 +12816,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSetupView.php:161
 #: src/Shared/Frontend/FrontendSetupView.php:201
 #: src/Shared/Frontend/FrontendSetupView.php:256
-#: src/Shared/Frontend/FrontendSpondView.php:155
+#: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendTeamDetailView.php:384
 #: src/Shared/Frontend/FrontendTranslationsView.php:211
 #: src/Shared/Frontend/FrontendWizardView.php:877
@@ -14890,7 +14908,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1791
 #: src/Shared/CoreSurfaceRegistration.php:1978
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1593
+#: src/Shared/Frontend/DashboardShortcode.php:1602
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -16421,7 +16439,7 @@ msgstr "Drucken"
 #: src/Shared/Frontend/Components/FilterBar.php:111
 #: src/Shared/Frontend/Components/FilterBar.php:230
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1598
+#: src/Shared/Frontend/DashboardShortcode.php:1607
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Schließen"
@@ -17345,7 +17363,7 @@ msgstr ""
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:141
 #: src/Shared/CoreSurfaceRegistration.php:1360
 #: src/Shared/Frontend/FrontendMyProfileView.php:292
-#: src/Shared/Frontend/FrontendSpondView.php:119
+#: src/Shared/Frontend/FrontendSpondView.php:126
 msgid "Account"
 msgstr "Konto"
 
@@ -24702,8 +24720,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1508
-#: src/Shared/Frontend/DashboardShortcode.php:1509
+#: src/Shared/Frontend/DashboardShortcode.php:1517
+#: src/Shared/Frontend/DashboardShortcode.php:1518
 msgid "Help & docs"
 msgstr ""
 
@@ -26438,7 +26456,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendBackupsView.php:454
 #: src/Shared/Frontend/FrontendRecycleBinView.php:296
 #: src/Shared/Frontend/FrontendSetupView.php:421
-#: src/Shared/Frontend/FrontendSpondView.php:345
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:182
+#: src/Shared/Frontend/FrontendSpondView.php:357
 #: src/Shared/Frontend/FrontendTranslationsView.php:299
 msgid "Network error. Please try again."
 msgstr ""
@@ -27459,8 +27478,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1149
-#: src/Shared/Frontend/DashboardShortcode.php:1157
+#: src/Shared/Frontend/DashboardShortcode.php:1158
+#: src/Shared/Frontend/DashboardShortcode.php:1166
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -27890,18 +27909,18 @@ msgid "You do not have permission to view this page."
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:106
-#: src/Shared/Frontend/FrontendSpondView.php:288
+#: src/Shared/Frontend/FrontendSpondView.php:300
 msgid "API endpoint"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:108
-#: src/Shared/Frontend/FrontendSpondView.php:290
+#: src/Shared/Frontend/FrontendSpondView.php:302
 msgid "(default)"
 msgstr ""
 
 #. translators: %s: default Spond API URL the plugin ships with.
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:115
-#: src/Shared/Frontend/FrontendSpondView.php:297
+#: src/Shared/Frontend/FrontendSpondView.php:309
 #, php-format
 msgid ""
 "Override the Spond API base URL. Default is %s. Change only if Spond "
@@ -27910,17 +27929,17 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:124
-#: src/Shared/Frontend/FrontendSpondView.php:304
+#: src/Shared/Frontend/FrontendSpondView.php:316
 msgid "API base URL"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:310
+#: src/Shared/Frontend/FrontendSpondView.php:322
 msgid "Save endpoint"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:134
-#: src/Shared/Frontend/FrontendSpondView.php:308
+#: src/Shared/Frontend/FrontendSpondView.php:320
 msgid "Leave blank and save to revert to the default."
 msgstr ""
 
@@ -27932,12 +27951,12 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:151
-#: src/Shared/Frontend/FrontendSpondView.php:136
+#: src/Shared/Frontend/FrontendSpondView.php:143
 msgid "Spond email"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:155
-#: src/Shared/Frontend/FrontendSpondView.php:143
+#: src/Shared/Frontend/FrontendSpondView.php:150
 msgid "Spond password"
 msgstr ""
 
@@ -27946,7 +27965,7 @@ msgid "••••••••  (leave blank to keep)"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:158
-#: src/Shared/Frontend/FrontendSpondView.php:148
+#: src/Shared/Frontend/FrontendSpondView.php:155
 msgid ""
 "Stored encrypted at rest. Rotating the WordPress AUTH_KEY salt invalidates "
 "the stored value and requires re-entry."
@@ -27954,12 +27973,12 @@ msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:163
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:154
+#: src/Shared/Frontend/FrontendSpondView.php:161
 msgid "Save credentials"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:166
-#: src/Shared/Frontend/FrontendSpondView.php:164
+#: src/Shared/Frontend/FrontendSpondView.php:171
 msgid "Test connection"
 msgstr ""
 
@@ -27970,13 +27989,13 @@ msgstr ""
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:169
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:85
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:120
-#: src/Shared/Frontend/FrontendSpondView.php:168
+#: src/Shared/Frontend/FrontendSpondView.php:175
 msgid "Disconnect"
 msgstr ""
 
 #. translators: 1: total teams 2: connected 3: errored
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:180
-#: src/Shared/Frontend/FrontendSpondView.php:182
+#: src/Shared/Frontend/FrontendSpondView.php:194
 #, php-format
 msgid ""
 "%1$d teams. %2$d connected to a Spond group. %3$d with the last sync errored."
@@ -27984,7 +28003,7 @@ msgstr ""
 
 #. translators: %s: relative time until next cron
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:189
-#: src/Shared/Frontend/FrontendSpondView.php:191
+#: src/Shared/Frontend/FrontendSpondView.php:203
 #, php-format
 msgid "Next automatic sync in about %s."
 msgstr ""
@@ -27995,23 +28014,23 @@ msgstr ""
 #: src/Modules/Wizards/Team/ReviewStep.php:32
 #: src/Modules/Wizards/Team/SpondGroupStep.php:25
 #: src/Modules/Wizards/Team/SpondGroupStep.php:49
-#: src/Shared/Frontend/FrontendSpondView.php:202
+#: src/Shared/Frontend/FrontendSpondView.php:214
 msgid "Spond group"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:201
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:187
-#: src/Shared/Frontend/FrontendSpondView.php:203
+#: src/Shared/Frontend/FrontendSpondView.php:215
 msgid "Last sync"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:227
-#: src/Shared/Frontend/FrontendSpondView.php:228
+#: src/Shared/Frontend/FrontendSpondView.php:240
 msgid "Connect account first"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:229
-#: src/Shared/Frontend/FrontendSpondView.php:230
+#: src/Shared/Frontend/FrontendSpondView.php:242
 msgid "Not connected"
 msgstr ""
 
@@ -28024,19 +28043,19 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:160
 #: src/Shared/Frontend/DashboardShortcode.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:128
-#: src/Shared/Frontend/FrontendSpondView.php:253
+#: src/Shared/Frontend/FrontendSpondView.php:265
 msgid "OK"
 msgstr "OK"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:253
-#: src/Shared/Frontend/FrontendSpondView.php:257
+#: src/Shared/Frontend/FrontendSpondView.php:269
 msgid "Partial"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:266
 #: src/Modules/Teams/Admin/TeamsPage.php:220
 #: src/Modules/Teams/Admin/TeamsPage.php:246
-#: src/Shared/Frontend/FrontendSpondView.php:267
+#: src/Shared/Frontend/FrontendSpondView.php:279
 msgid "Refresh now"
 msgstr ""
 
@@ -28045,14 +28064,14 @@ msgid "Pick group"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:279
-#: src/Shared/Frontend/FrontendSpondView.php:280
+#: src/Shared/Frontend/FrontendSpondView.php:292
 msgid ""
 "No teams yet. Add a team first, then come back to pick a Spond group on the "
 "team edit form."
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:398
-#: src/Shared/Frontend/FrontendSpondView.php:343
+#: src/Shared/Frontend/FrontendSpondView.php:355
 msgid "Sync triggered. Reload to see the updated status."
 msgstr ""
 
@@ -28964,6 +28983,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:24
 #: src/Shared/Frontend/FrontendRolesView.php:28
 #: src/Shared/Frontend/FrontendSetupView.php:41
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:41
 #: src/Shared/Frontend/FrontendSpondView.php:50
 #: src/Shared/Frontend/FrontendTranslationsView.php:43
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:48
@@ -29015,6 +29035,7 @@ msgstr ""
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:106
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:229
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:117
 msgid "Not configured"
 msgstr ""
 
@@ -29044,7 +29065,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSetupView.php:162
 #: src/Shared/Frontend/FrontendSetupView.php:202
 #: src/Shared/Frontend/FrontendSetupView.php:257
-#: src/Shared/Frontend/FrontendSpondView.php:156
+#: src/Shared/Frontend/FrontendSpondView.php:163
 #: src/Shared/Frontend/FrontendTranslationsView.php:212
 msgid "Saved"
 msgstr ""
@@ -29083,7 +29104,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:174
 #: src/Shared/Frontend/DashboardShortcode.php:76
-#: src/Shared/Frontend/DashboardShortcode.php:1603
+#: src/Shared/Frontend/DashboardShortcode.php:1612
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:457
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -29094,7 +29115,7 @@ msgid "Last activity"
 msgstr ""
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:219
-#: src/Shared/Frontend/FrontendSpondView.php:337
+#: src/Shared/Frontend/FrontendSpondView.php:349
 msgid "Credentials saved."
 msgstr ""
 
@@ -29136,7 +29157,7 @@ msgid "%1$d connected of %2$d players who have started linking."
 msgstr ""
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:236
-#: src/Shared/Frontend/FrontendSpondView.php:123
+#: src/Shared/Frontend/FrontendSpondView.php:130
 msgid "Connected"
 msgstr "Verbunden"
 
@@ -30596,6 +30617,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Teams/Admin/TeamsPage.php:208
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:150
 msgid "Last sync:"
 msgstr ""
 
@@ -35119,6 +35141,9 @@ msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1664
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1754
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:39
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:49
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:196
 #: src/Shared/Frontend/FrontendSpondView.php:49
 #: src/Shared/Frontend/FrontendSpondView.php:56
 #: src/Shared/Modules/ModuleMetadata.php:325
@@ -35701,7 +35726,8 @@ msgstr "Senden"
 #. translators: %s is human-readable relative time
 #. translators: %s: human-readable elapsed time, e.g. "3 hours".
 #: src/Shared/Frontend/Components/FrontendThreadView.php:110
-#: src/Shared/Frontend/FrontendSpondView.php:242
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:128
+#: src/Shared/Frontend/FrontendSpondView.php:254
 #, php-format
 msgid "%s ago"
 msgstr ""
@@ -36080,79 +36106,79 @@ msgstr ""
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1165
+#: src/Shared/Frontend/DashboardShortcode.php:1174
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1300
+#: src/Shared/Frontend/DashboardShortcode.php:1309
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1424
+#: src/Shared/Frontend/DashboardShortcode.php:1433
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1427
+#: src/Shared/Frontend/DashboardShortcode.php:1436
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1430
+#: src/Shared/Frontend/DashboardShortcode.php:1439
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1453
+#: src/Shared/Frontend/DashboardShortcode.php:1462
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1487
+#: src/Shared/Frontend/DashboardShortcode.php:1496
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1527
+#: src/Shared/Frontend/DashboardShortcode.php:1536
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1534
+#: src/Shared/Frontend/DashboardShortcode.php:1543
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1546
+#: src/Shared/Frontend/DashboardShortcode.php:1555
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1549
+#: src/Shared/Frontend/DashboardShortcode.php:1558
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1573
+#: src/Shared/Frontend/DashboardShortcode.php:1582
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1577
+#: src/Shared/Frontend/DashboardShortcode.php:1586
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1595
+#: src/Shared/Frontend/DashboardShortcode.php:1604
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1667
+#: src/Shared/Frontend/DashboardShortcode.php:1676
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1668
+#: src/Shared/Frontend/DashboardShortcode.php:1677
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -37448,6 +37474,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1654
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:187
 msgid "NEW"
 msgstr ""
 
@@ -41080,7 +41107,7 @@ msgid "Run again"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendSetupView.php:420
-#: src/Shared/Frontend/FrontendSpondView.php:344
+#: src/Shared/Frontend/FrontendSpondView.php:356
 #: src/Shared/Frontend/FrontendTranslationsView.php:298
 msgid "Could not save. Please try again."
 msgstr ""
@@ -41096,7 +41123,104 @@ msgid ""
 "created (teams, staff, pages) is kept."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:113
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:38
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:48
+msgid "Spond monitor"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:51
+msgid "Spond integration monitor"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:69
+msgid ""
+"Fetch Spond live and preview how each event would map onto activities — "
+"nothing is saved. Use this to diagnose why a printed activity differs from "
+"what you set in Spond."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:77
+msgid ""
+"No teams are linked to a Spond group yet. Pick a Spond group on a team edit "
+"form first, then come back to preview it here."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:96
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:180
+msgid "Fetch now"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:114
+msgid "Healthy"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:115
+msgid "Stale"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:116
+msgid "Failing"
+msgstr ""
+
+#. translators: 1: linked team count 2: failed team count
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:143
+#, php-format
+msgid "%1$d linked · %2$d failing"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:179
+msgid "Fetching…"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:181
+msgid "Pick a team first."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:183
+msgid "Could not fetch. Please try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:184
+#, php-format
+msgid "%1$d new · %2$d update · %3$d archive"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:185
+#, php-format
+msgid "%d events fetched from Spond."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:186
+msgid "Spond returned no events for this group."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:188
+msgid "UPDATE"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:192
+msgid "Would change:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:193
+msgid "No schedule changes — already in step with Spond."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:195
+msgid "stored"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:197
+msgid "Would be archived"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:198
+msgid ""
+"These stored activities are no longer in the Spond feed and a real sync "
+"would archive them."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondView.php:120
 msgid ""
 "One Spond login per club syncs each connected team's calendar into the "
 "player timeline. Use a dedicated coach/manager account that's a member of "
@@ -41105,36 +41229,40 @@ msgid ""
 msgstr ""
 
 #. translators: %s: the connected Spond account email.
-#: src/Shared/Frontend/FrontendSpondView.php:127
+#: src/Shared/Frontend/FrontendSpondView.php:134
 #, php-format
 msgid "as %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:146
+#: src/Shared/Frontend/FrontendSpondView.php:153
 msgid "Leave blank to keep current password"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:270
+#: src/Shared/Frontend/FrontendSpondView.php:187
+msgid "Open integration monitor"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSpondView.php:282
 msgid "Pick a group on the team edit form"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:338
+#: src/Shared/Frontend/FrontendSpondView.php:350
 msgid "Spond login successful."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:340
+#: src/Shared/Frontend/FrontendSpondView.php:352
 msgid "Spond disconnected."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:341
+#: src/Shared/Frontend/FrontendSpondView.php:353
 msgid "API endpoint saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:342
+#: src/Shared/Frontend/FrontendSpondView.php:354
 msgid "Refreshing…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendSpondView.php:346
+#: src/Shared/Frontend/FrontendSpondView.php:358
 msgid ""
 "Disconnect Spond? Existing imported activities are kept; per-team group "
 "selections stay on file."
