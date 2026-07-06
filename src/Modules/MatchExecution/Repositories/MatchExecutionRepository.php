@@ -59,6 +59,23 @@ class MatchExecutionRepository {
     }
 
     /**
+     * Does an execution row exist for this activity? Cheap COUNT — no row
+     * hydrate. This is the minutes-authority arbiter: when an execution
+     * owns an activity, match-execution owns its minutes and the manual
+     * attendance-minutes write path defers to it (see the 409 gate in
+     * ActivitiesRestController::patch_attendance). A match a coach never
+     * prepped/ran has no execution row, so manual minutes entry works as
+     * before.
+     */
+    public function existsForActivity( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->t_exec} WHERE activity_id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) ) > 0;
+    }
+
+    /**
      * #879 — find the most-recently-updated live execution on one of
      * the supplied teams. "Live" means state ∈ {first_half, half_time,
      * second_half}. Returns null when none exists. Used by the coach
@@ -406,14 +423,17 @@ class MatchExecutionRepository {
      */
     public function loggedMinutesByActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
+        // #2290-rebuild — effective minutes = COALESCE(minutes_override,
+        // minutes_played). The override is the coach's explicit correction
+        // on the match surface; the derived value stays in minutes_played.
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT player_id, minutes_played
+            "SELECT player_id, COALESCE(minutes_override, minutes_played) AS minutes_played
                FROM {$this->wpdb->prefix}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
                 AND is_guest = 0
-                AND minutes_played IS NOT NULL
-                AND minutes_played > 0",
+                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
+                AND COALESCE(minutes_override, minutes_played) > 0",
             $activity_id, CurrentClub::id()
         ) );
         $map = [];
@@ -432,12 +452,12 @@ class MatchExecutionRepository {
      * rewrite of the whole activity). Includes rows with a NULL / 0
      * minutes value so a never-recorded player can still be corrected.
      *
-     * @return array<int, array{attendance_id:int, minutes:?int}> player_id => row
+     * @return array<int, array{attendance_id:int, minutes:?int, minutes_derived:?int, minutes_override:?int}> player_id => row
      */
     public function attendanceRowsByActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT id, player_id, minutes_played
+            "SELECT id, player_id, minutes_played, minutes_override
                FROM {$this->wpdb->prefix}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
@@ -448,12 +468,41 @@ class MatchExecutionRepository {
         foreach ( (array) $rows as $r ) {
             $pid = (int) $r->player_id;
             if ( $pid <= 0 ) continue;
+            $derived  = $r->minutes_played   !== null ? (int) $r->minutes_played   : null;
+            $override = $r->minutes_override !== null ? (int) $r->minutes_override : null;
             $map[ $pid ] = [
-                'attendance_id' => (int) $r->id,
-                'minutes'       => $r->minutes_played !== null ? (int) $r->minutes_played : null,
+                'attendance_id'    => (int) $r->id,
+                // `minutes` is the effective value the surface displays.
+                'minutes'          => $override ?? $derived,
+                'minutes_derived'  => $derived,
+                'minutes_override' => $override,
             ];
         }
         return $map;
+    }
+
+    /**
+     * Set (int minutes) or clear (null) the per-player minute override on
+     * the roster attendance row for this activity. The override wins over
+     * the sub-log-derived minutes_played and survives recompute because it
+     * lives in a separate column. Targets the existing non-guest row
+     * (recompute creates the roster rows); returns false when no such row
+     * exists so the controller can 409.
+     */
+    public function setMinuteOverride( int $activity_id, int $player_id, ?int $minutes ): bool {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+        $value = $minutes === null ? null : max( 0, min( 200, $minutes ) );
+        $affected = $this->wpdb->update(
+            $this->wpdb->prefix . 'tt_attendance',
+            [ 'minutes_override' => $value ],
+            [
+                'activity_id' => $activity_id,
+                'player_id'   => $player_id,
+                'club_id'     => CurrentClub::id(),
+                'is_guest'    => 0,
+            ]
+        );
+        return $affected !== false && $affected > 0;
     }
 
     /**

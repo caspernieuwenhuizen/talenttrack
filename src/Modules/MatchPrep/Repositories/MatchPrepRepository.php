@@ -199,6 +199,32 @@ class MatchPrepRepository {
     }
 
     /**
+     * The prep-flagged ("tracked") players for a prep: a player is tracked
+     * when `is_specific_goal` is set OR `attention_text` is non-empty. The
+     * `attention_text` is the action label the live match-execution +/-
+     * counter records. Used by the match-execution surface to know which
+     * players get a tracked-action counter and what to call the action.
+     *
+     * @return array<int, array{attention_text:string, is_specific_goal:bool, analyst_appointed:bool}>
+     */
+    public function listTrackedPlayers( int $prep_id ): array {
+        $out = [];
+        foreach ( $this->listPlayerGoals( $prep_id ) as $row ) {
+            $pid       = (int) $row->player_id;
+            $attention = (string) ( $row->attention_text ?? '' );
+            $specific  = (int) ( $row->is_specific_goal ?? 0 ) === 1;
+            if ( $pid <= 0 ) continue;
+            if ( ! $specific && trim( $attention ) === '' ) continue;
+            $out[ $pid ] = [
+                'attention_text'   => $attention,
+                'is_specific_goal' => $specific,
+                'analyst_appointed'=> (int) ( $row->analyst_appointed ?? 0 ) === 1,
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Upsert all player-goal rows in one pass.
      *
      * @param array<int, array{attention_text?:string, is_specific_goal?:bool, analyst_appointed?:bool}> $rows

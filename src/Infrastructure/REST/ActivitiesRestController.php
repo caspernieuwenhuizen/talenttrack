@@ -1337,12 +1337,25 @@ class ActivitiesRestController {
         $update = [];
         if ( isset( $r['status'] ) )         $update['status']         = sanitize_text_field( (string) $r['status'] );
         if ( isset( $r['notes'] ) )          $update['notes']          = sanitize_text_field( (string) $r['notes'] );
-        // #2224 — correct recorded minutes on a finalized match execution.
-        // Same `can_edit` gate as every attendance write; the row-scoped
-        // PATCH avoids the destructive wipe-and-rewrite the session PUT
-        // performs. Empty string clears the figure; otherwise clamp to a
-        // sane 0–200 range so a fat-fingered value can't corrupt reports.
+        // Minutes-authority arbiter (match-execution rebuild): when an
+        // execution row owns this activity, match-execution owns its
+        // minutes. Manual minutes edits must go through the execution
+        // surface's per-player override endpoint
+        // (PATCH /match-execution/{activity_id}/minutes), not this raw
+        // attendance path — refuse with 409 rather than silently drop, so
+        // the coach is routed to the right place. A match with no execution
+        // (never prepped/run on the sideline) is unaffected: manual minutes
+        // entry works exactly as before.
         if ( array_key_exists( 'minutes_played', (array) $r->get_params() ) ) {
+            $activity_id = (int) ( $row->activity_id ?? 0 );
+            if ( $activity_id > 0
+                && ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->existsForActivity( $activity_id ) ) {
+                return RestResponse::error(
+                    'minutes_owned_by_execution',
+                    __( 'Minutes for this match are managed on the match-execution screen. Set a per-player override there.', 'talenttrack' ),
+                    409
+                );
+            }
             $mp = $r['minutes_played'];
             $update['minutes_played'] = ( $mp === '' || $mp === null ) ? null : max( 0, min( 200, absint( $mp ) ) );
         }

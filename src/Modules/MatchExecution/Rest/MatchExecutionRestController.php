@@ -8,6 +8,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
+use TT\Modules\MatchExecution\Repositories\TrackedEventsRepository;
 use TT\Modules\MatchExecution\Services\MatchEventFeedService;
 use TT\Modules\MatchExecution\Services\PitchLayoutService;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
@@ -111,6 +112,36 @@ class MatchExecutionRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+
+        // Rebuild — per-player minute override. When an execution owns an
+        // activity's minutes (see the arbiter), this is the ONLY way to
+        // hand-correct a player's minutes; the manual attendance path
+        // defers with a 409. {player_id, minutes|null} — null clears.
+        register_rest_route( self::NS, $base . '/minutes', [
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'route_minutes_override' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
+        // Rebuild — tracked development-action events. One per coach tap of
+        // the +/- counter on a prep-flagged player. Distinct from goals;
+        // these do not affect the score. Append-only, soft-delete on undo.
+        register_rest_route( self::NS, $base . '/tracked-event', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'route_tracked_event' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+        register_rest_route( self::NS, $base . '/tracked-event/(?P<event_uuid>[a-f0-9-]+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'route_tracked_event_delete' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
     }
 
     public static function can_edit(): bool {
@@ -180,9 +211,24 @@ class MatchExecutionRestController {
             $player_meta
         );
 
+        // Rebuild — tracked development-action map for the live surface:
+        // prep-flagged players + their action label + the current
+        // non-reversed tap count (server-persisted so counts survive
+        // reconnect / reload).
+        $tracked_map = [];
+        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        $counts = $exec ? ( new TrackedEventsRepository() )->countsByPlayer( (int) $exec->id ) : [];
+        foreach ( $prep_repo->listTrackedPlayers( (int) $prep->id ) as $pid => $flag ) {
+            $tracked_map[ $pid ] = [
+                'action_label' => (string) ( $flag['attention_text'] ?? '' ),
+                'count'        => (int) ( $counts[ $pid ] ?? 0 ),
+            ];
+        }
+
         return RestResponse::success( [
             'activity_id' => $activity_id,
             'slots'       => $slots,
+            'tracked'     => $tracked_map,
         ] );
     }
 
@@ -215,6 +261,123 @@ class MatchExecutionRestController {
             ];
         }
         return $out;
+    }
+
+    // -----------------------------------------------------------------
+    // Rebuild — minute override + tracked development-action events
+    // -----------------------------------------------------------------
+
+    /**
+     * PATCH /<activity_id>/minutes {player_id, minutes|null}. Sets or clears
+     * an explicit per-player minute override on the roster attendance row.
+     * The override wins over the sub-log-derived minutes and survives
+     * recompute (separate column). Refused once FINALIZED (re-open first).
+     */
+    public static function route_minutes_override( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+
+        $activity_id = absint( $r['activity_id'] );
+        $body        = $r->get_json_params();
+        $player_id   = (int) ( $body['player_id'] ?? 0 );
+        if ( $player_id <= 0 ) {
+            return RestResponse::error( 'bad_input', __( 'A player is required.', 'talenttrack' ), 400 );
+        }
+
+        // null (or omitted) clears the override; an int sets it. Clamp 0..200.
+        $has_minutes = array_key_exists( 'minutes', (array) $body );
+        $minutes = ( ! $has_minutes || $body['minutes'] === null )
+            ? null
+            : max( 0, min( 200, (int) $body['minutes'] ) );
+
+        $repo = new MatchExecutionRepository();
+        if ( ! $repo->setMinuteOverride( $activity_id, $player_id, $minutes ) ) {
+            return RestResponse::error(
+                'no_attendance_row',
+                __( 'No roster row for this player to override.', 'talenttrack' ),
+                409
+            );
+        }
+        return RestResponse::success( [
+            'activity_id' => $activity_id,
+            'player_id'   => $player_id,
+            'minutes'     => $minutes,
+        ] );
+    }
+
+    /**
+     * POST /<activity_id>/tracked-event {event_uuid, player_id, half, minute,
+     * action_label?, action_key?}. Logs one development-action tap for a
+     * prep-flagged (tracked) player. Rejects a non-tracked player. The
+     * action_label defaults to the player's prep attention_text.
+     */
+    public static function route_tracked_event( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+
+        $activity_id = absint( $r['activity_id'] );
+        $body        = $r->get_json_params();
+        $event_uuid  = (string) ( $body['event_uuid'] ?? '' );
+        $player_id   = (int) ( $body['player_id'] ?? 0 );
+        $half        = (int) ( $body['half'] ?? 0 );
+        $minute      = (int) ( $body['minute'] ?? 0 );
+        $action_key  = isset( $body['action_key'] ) ? (string) $body['action_key'] : null;
+        $action_label = (string) ( $body['action_label'] ?? '' );
+
+        if ( $event_uuid === '' || $player_id <= 0 || $half < 1 || $half > 2 ) {
+            return RestResponse::error( 'bad_input', __( 'Tracked-event payload missing required fields.', 'talenttrack' ), 400 );
+        }
+
+        $tracked_repo = new TrackedEventsRepository();
+        // Idempotent replay: an already-accepted event falls through to the
+        // INSERT IGNORE without re-validating (the roster/tracked set may
+        // have shifted since it was first logged offline).
+        if ( ! $tracked_repo->trackedEventExists( $event_uuid ) ) {
+            [ $half_length ] = self::prepContext( $activity_id );
+            $minute_err = self::assertMinuteInRange( $minute, $half_length );
+            if ( $minute_err ) return $minute_err;
+
+            // Verify the player is actually tracked in the prep, and resolve
+            // the action label from the prep when the client didn't send one.
+            $prep = ( new MatchPrepRepository() )->findByActivity( $activity_id );
+            $tracked = $prep ? ( new MatchPrepRepository() )->listTrackedPlayers( (int) $prep->id ) : [];
+            if ( ! isset( $tracked[ $player_id ] ) ) {
+                return RestResponse::error(
+                    'player_not_tracked',
+                    __( 'This player is not flagged for tracking in the match plan.', 'talenttrack' ),
+                    400
+                );
+            }
+            if ( $action_label === '' ) {
+                $action_label = (string) ( $tracked[ $player_id ]['attention_text'] ?? '' );
+            }
+        }
+
+        $tracked_repo->logTrackedEvent( $exec_id, $event_uuid, $player_id, $half, $minute, $action_label, $action_key );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
+    }
+
+    /**
+     * DELETE /<activity_id>/tracked-event/<event_uuid> — undo (soft-delete)
+     * a tracked action. Refused once FINALIZED.
+     */
+    public static function route_tracked_event_delete( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
+
+        $event_uuid = (string) $r['event_uuid'];
+        $tracked_repo = new TrackedEventsRepository();
+        if ( ! $tracked_repo->trackedEventExists( $event_uuid ) ) {
+            return RestResponse::error( 'not_found', __( 'That tracked action was not found.', 'talenttrack' ), 404 );
+        }
+        $tracked_repo->reverseTrackedEvent( $event_uuid );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
 
     // -----------------------------------------------------------------
