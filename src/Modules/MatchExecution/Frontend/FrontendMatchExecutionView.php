@@ -1230,7 +1230,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         </style>
         <script>
         (function () {
-            var cfg = window.TT_MATCH_EXECUTION || {};
+            // This inline script sits in the page body, but the config it
+            // needs (window.TT_MATCH_EXECUTION) is printed by
+            // wp_localize_script on the footer-enqueued tt-match-execution
+            // handle — i.e. AFTER this block parses. Capturing it once here
+            // would bind to `undefined` and every fetch below would hit
+            // `undefinedfinalize` (404). Resolve it lazily at event time.
+            function cfg() { return window.TT_MATCH_EXECUTION || {}; }
             var errPrefix = <?php echo wp_json_encode( __( 'Could not save:', 'talenttrack' ) ); ?>;
             // #2268 — mirror the server-side minute range client-side so a
             // fat-fingered minute is caught before the request. Max is the
@@ -1245,10 +1251,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 finalizeBtn.addEventListener( 'click', function () {
                     if ( ! window.confirm( confirmMsg ) ) return;
                     finalizeBtn.disabled = true;
-                    fetch( cfg.rest_url + 'finalize', {
+                    fetch( cfg().rest_url + 'finalize', {
                         method: 'POST',
                         credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
                         body: '{}'
                     } )
                         .then( function ( r ) {
@@ -1276,10 +1282,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 reopenBtn.addEventListener( 'click', function () {
                     if ( ! window.confirm( reopenConfirm ) ) return;
                     reopenBtn.disabled = true;
-                    fetch( cfg.rest_url + 'reopen', {
+                    fetch( cfg().rest_url + 'reopen', {
                         method: 'POST',
                         credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
                         body: '{}'
                     } )
                         .then( function ( r ) {
@@ -1327,10 +1333,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         submitting = false;
                         if ( btn ) btn.disabled = false;
                     };
-                    fetch( cfg.rest_url + endpoint, {
+                    fetch( cfg().rest_url + endpoint, {
                         method: 'POST',
                         credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
                         body: JSON.stringify( body )
                     } )
                         .then( function ( r ) {
