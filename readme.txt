@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.76.3
+Stable tag: 4.77.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.77.0 — Spond integration monitor — see live what the Spond API returns (#2284) New diagnostic page (Spond → **Open integration monitor**) that fetches the Spond API **live** for a team and shows exactly what's coming in — every event with its classified type, date, times and location — plus a per-event **diff**: whether a real sync would create it, or update an existing activity (and precisely which fields it would overwrite), and which stored activities would be archived. It is a **dry run**: nothing is written. This is the tool for answering "why does the printed activity differ from what I set in Spond?" — a stale cache, a changed event UID, or a field Spond owns all become visible at a glance. =
 
 = 4.76.3 — Week plan: keep the printed "Aftrap" (kickoff) in step with the activity's start time (#2282) The weekly team-plan print shows a match/tournament's kickoff ("Aftrap") from the `kickoff_time` field, but the activity edit form only ever wrote `start_time` ("Begintijd"). For a Spond-imported match — where Spond had seeded `kickoff_time` — editing the start time in TalentTrack left the printed kickoff stale, so the print disagreed with the form. Saving a game or tournament now mirrors the start time into `kickoff_time` (and clears it for non-match types), so the two always match. (This does not change Spond's re-sync behaviour, which still owns the schedule fields.) =
 

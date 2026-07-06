@@ -1,3 +1,14 @@
+# TalentTrack v4.77.0 — Spond integration monitor — see live what the Spond API returns (#2284)
+
+New diagnostic page (Spond → **Open integration monitor**) that fetches the Spond
+API **live** for a team and shows exactly what's coming in — every event with its
+classified type, date, times and location — plus a per-event **diff**: whether a
+real sync would create it, or update an existing activity (and precisely which
+fields it would overwrite), and which stored activities would be archived. It is a
+**dry run**: nothing is written. This is the tool for answering "why does the
+printed activity differ from what I set in Spond?" — a stale cache, a changed
+event UID, or a field Spond owns all become visible at a glance.
+
 # TalentTrack v4.76.3 — Week plan: keep the printed "Aftrap" (kickoff) in step with the activity's start time (#2282)
 
 The weekly team-plan print shows a match/tournament's kickoff ("Aftrap") from the
