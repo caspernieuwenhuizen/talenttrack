@@ -224,35 +224,40 @@
         });
     }
 
-    // --- Goal counters (tap = +1, long-press = -1) ---
-    root.querySelectorAll('[data-tt-mexec-goal-inc]').forEach(function (btn) {
+    // --- Tracked development-action counters (tap = +1, long-press = -1) ---
+    // Rebuild — these log tracked-events (per-player development actions),
+    // NOT goal-events. Tracked actions are distinct from the score; the
+    // action label comes from the prep flag (data-action-label). Counts are
+    // seeded server-side and persist across reload.
+    state.tracked_counts = {};
+    root.querySelectorAll('[data-tt-mexec-tracked-inc]').forEach(function (btn) {
         var pressTimer = null;
         var longPressed = false;
-        var row = btn.closest('[data-tt-mexec-goal-row]');
+        var row = btn.closest('[data-tt-mexec-tracked-row]');
         var pid = parseInt(row.getAttribute('data-player-id'), 10);
+        var actionLabel = row.getAttribute('data-action-label') || '';
 
-        // #956 — count chip renders inside `.tt-mexec-goal-chip > strong`
-        // (was inline on the button label). Button text stays "+ action".
-        var chipCountEl = row.querySelector('[data-tt-mexec-goal-count]');
+        var chipCountEl = row.querySelector('[data-tt-mexec-tracked-count]');
+        // Seed from the server-rendered count so a reload keeps the tally.
+        state.tracked_counts[pid] = parseInt(chipCountEl && chipCountEl.textContent, 10) || 0;
         function renderChip() {
-            if (chipCountEl) chipCountEl.textContent = String(state.goal_counts[pid] || 0);
+            if (chipCountEl) chipCountEl.textContent = String(state.tracked_counts[pid] || 0);
         }
 
         btn.addEventListener('pointerdown', function () {
             longPressed = false;
             pressTimer = setTimeout(function () {
                 longPressed = true;
-                var pending = (state.recent_goals && state.recent_goals[pid]) || [];
+                var pending = (state.recent_tracked && state.recent_tracked[pid]) || [];
                 var last = pending.pop();
                 if (last) {
-                    state.goal_counts[pid] = Math.max(0, (state.goal_counts[pid] || 0) - 1);
+                    state.tracked_counts[pid] = Math.max(0, (state.tracked_counts[pid] || 0) - 1);
                     renderChip();
-                    // #2270 item 1 — if the DELETE is rejected outright (a
-                    // real HTTP error, not just an offline-queue enqueue),
-                    // roll the optimistic decrement + the uuid stack back so
-                    // the chip count doesn't drift out of sync with storage.
-                    apiDelete('goal-event/' + last).catch(function () {
-                        state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
+                    // Roll back the optimistic decrement + uuid stack if the
+                    // DELETE is rejected outright (a real HTTP error, not a
+                    // queued offline retry).
+                    apiDelete('tracked-event/' + last).catch(function () {
+                        state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
                         renderChip();
                         pending.push(last);
                     });
@@ -263,16 +268,17 @@
             clearTimeout(pressTimer);
             if (longPressed) return;
             var uuid = uuidv4();
-            state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
+            state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
             renderChip();
-            state.recent_goals = state.recent_goals || {};
-            state.recent_goals[pid] = state.recent_goals[pid] || [];
-            state.recent_goals[pid].push(uuid);
-            api('goal-event', {
+            state.recent_tracked = state.recent_tracked || {};
+            state.recent_tracked[pid] = state.recent_tracked[pid] || [];
+            state.recent_tracked[pid].push(uuid);
+            api('tracked-event', {
                 event_uuid: uuid,
                 player_id: pid,
                 half: state.half,
-                minute: currentMinute()
+                minute: currentMinute(),
+                action_label: actionLabel
             });
         });
         btn.addEventListener('pointerleave', function () { clearTimeout(pressTimer); });

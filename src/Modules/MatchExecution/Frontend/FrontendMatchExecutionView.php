@@ -78,7 +78,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
         $availability = $prep_repo->listAvailability( (int) $prep->id );
         $lineup       = $prep_repo->listLineup( (int) $prep->id );
-        $player_goals = $prep_repo->listPlayerGoals( (int) $prep->id );
 
         $starting_xi_half1 = [];
         foreach ( $lineup as $l ) {
@@ -95,21 +94,25 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
         $players_by_id = self::loadPlayersById( array_merge( $available_ids, $starting_xi_half1, $bench_ids ) );
 
-        // Flagged players (with a specific goal in match prep) get the
-        // inline goal-chip + action-counter row in the Tracked Players
-        // section.
-        $specific_goal_ids = [];
+        // Rebuild — "Tracked players" are the prep-flagged players
+        // (is_specific_goal set OR a non-empty attention_text). The
+        // attention_text is the action label the live +/- counter records.
+        // These are development actions logged as tracked-events — distinct
+        // from goals, they do NOT affect the score.
+        $tracked_players    = $prep_repo->listTrackedPlayers( (int) $prep->id );
+        $specific_goal_ids  = array_keys( $tracked_players );
         $player_goal_labels = [];
-        foreach ( $player_goals as $g ) {
-            if ( ! empty( $g->is_specific_goal ) ) {
-                $pid = (int) $g->player_id;
-                $specific_goal_ids[] = $pid;
-                // Capture the operator-set goal label per player for the
-                // chip text. Falls back gracefully when not set.
-                $player_goal_labels[ $pid ] = (string) ( $g->goal_label ?? $g->label ?? '' );
-            }
+        foreach ( $tracked_players as $pid => $flag ) {
+            $player_goal_labels[ (int) $pid ] = (string) ( $flag['attention_text'] ?? '' );
         }
+        // Live tracked-event tallies per player (server-persisted, so they
+        // survive reload / reconnect).
+        $tracked_counts = $execution
+            ? ( new \TT\Modules\MatchExecution\Repositories\TrackedEventsRepository() )->countsByPlayer( $execution_id )
+            : [];
 
+        // Goal events power the review "Match goals" list + the scoreline
+        // (real goals only now that tracked actions log to their own table).
         $goal_events = $execution ? $exec_repo->listGoalEvents( $execution_id ) : [];
         $goal_counts = [];
         foreach ( $goal_events as $ge ) {
@@ -502,11 +505,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <?php foreach ( $specific_goal_ids as $pid ) :
                             $pl = $players_by_id[ $pid ] ?? null;
                             if ( ! $pl ) continue;
-                            $count = (int) ( $goal_counts[ $pid ] ?? 0 );
+                            $count = (int) ( $tracked_counts[ $pid ] ?? 0 );
                             $goal_label = trim( (string) ( $player_goal_labels[ $pid ] ?? '' ) );
                             $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
                             ?>
-                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-goal-row data-player-id="<?php echo (int) $pid; ?>">
+                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-tracked-row data-player-id="<?php echo (int) $pid; ?>" data-action-label="<?php echo esc_attr( $goal_label ); ?>">
                                 <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
                                 <span class="tt-mexec-player-name">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
@@ -515,13 +518,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     <?php endif; ?>
                                 </span>
                                 <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-goal-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-tracked-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
                                 </div>
                                 <div class="tt-mexec-player-goals">
                                     <?php if ( $goal_label !== '' ) : ?>
-                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-tracked-count><?php echo (int) $count; ?></strong></span>
                                     <?php else : ?>
-                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-tracked-count><?php echo (int) $count; ?></strong></span>
                                     <?php endif; ?>
                                     <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
                                     <?php if ( $mins !== null ) : ?>
