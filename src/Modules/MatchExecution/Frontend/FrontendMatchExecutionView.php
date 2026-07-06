@@ -1079,161 +1079,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>
-        <script>
-        (function () {
-            // This inline script sits in the page body, but the config it
-            // needs (window.TT_MATCH_EXECUTION) is printed by
-            // wp_localize_script on the footer-enqueued tt-match-execution
-            // handle — i.e. AFTER this block parses. Capturing it once here
-            // would bind to `undefined` and every fetch below would hit
-            // `undefinedfinalize` (404). Resolve it lazily at event time.
-            function cfg() { return window.TT_MATCH_EXECUTION || {}; }
-            var errPrefix = <?php echo wp_json_encode( __( 'Could not save:', 'talenttrack' ) ); ?>;
-            // #2268 — mirror the server-side minute range client-side so a
-            // fat-fingered minute is caught before the request. Max is the
-            // half length plus the locked 10-minute stoppage allowance.
-            var MINUTE_MAX = <?php echo (int) ( ( (int) $prep->half_length_minutes ) + 10 ); ?>;
-
-            // Finalize button.
-            var finalizeBtn = document.querySelector( '[data-tt-mexec-finalize]' );
-            if ( finalizeBtn ) {
-                var confirmMsg = <?php echo wp_json_encode( __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ) ); ?>;
-                var finErrPrefix = <?php echo wp_json_encode( __( 'Could not finalize:', 'talenttrack' ) ); ?>;
-                finalizeBtn.addEventListener( 'click', function () {
-                    if ( ! window.confirm( confirmMsg ) ) return;
-                    finalizeBtn.disabled = true;
-                    fetch( cfg().rest_url + 'finalize', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: '{}'
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                finalizeBtn.disabled = false;
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( finErrPrefix + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            finalizeBtn.disabled = false;
-                            window.alert( finErrPrefix + ' network error.' );
-                        } );
-                } );
-            }
-
-            // #2271 — Re-open a finalized match for corrections. Server
-            // transitions it back to pending_review (cap-gated + audited);
-            // on success reload so the full edit surface comes back.
-            var reopenBtn = document.querySelector( '[data-tt-mexec-reopen]' );
-            if ( reopenBtn ) {
-                var reopenConfirm = <?php echo wp_json_encode( __( 'Re-open this finalized match for corrections?', 'talenttrack' ) ); ?>;
-                var reopenErr = <?php echo wp_json_encode( __( 'Could not re-open the match:', 'talenttrack' ) ); ?>;
-                reopenBtn.addEventListener( 'click', function () {
-                    if ( ! window.confirm( reopenConfirm ) ) return;
-                    reopenBtn.disabled = true;
-                    fetch( cfg().rest_url + 'reopen', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: '{}'
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                reopenBtn.disabled = false;
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( reopenErr + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            reopenBtn.disabled = false;
-                            window.alert( reopenErr + ' network error.' );
-                        } );
-                } );
-            }
-
-            // #1049 — late-event UUIDs are client-generated so the
-            // existing offline-queue replay path doesn't double-insert.
-            function uuid() {
-                if ( window.crypto && crypto.randomUUID ) return crypto.randomUUID();
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
-                    var r = ( Math.random() * 16 ) | 0;
-                    var v = c === 'x' ? r : ( r & 0x3 ) | 0x8;
-                    return v.toString( 16 );
-                } );
-            }
-
-            function wireLateForm( form, endpoint, build ) {
-                if ( ! form ) return;
-                // #2270 item 2 — hard double-submit guard. Disabling the
-                // button alone doesn't stop an Enter-key re-submit that
-                // races the first request; a submitting flag keeps the
-                // button disabled until the promise settles.
-                var submitting = false;
-                form.addEventListener( 'submit', function ( e ) {
-                    e.preventDefault();
-                    if ( submitting ) return;
-                    var body = build( form );
-                    if ( ! body ) return;
-                    submitting = true;
-                    var btn = form.querySelector( '.tt-mexec-late-event-submit' );
-                    if ( btn ) btn.disabled = true;
-                    var reenable = function () {
-                        submitting = false;
-                        if ( btn ) btn.disabled = false;
-                    };
-                    fetch( cfg().rest_url + endpoint, {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: JSON.stringify( body )
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                reenable();
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            reenable();
-                            window.alert( errPrefix + ' network error.' );
-                        } );
-                } );
-            }
-
-            wireLateForm(
-                document.querySelector( '[data-tt-mexec-late-goal-form]' ),
-                'goal-event',
-                function ( f ) {
-                    var pid = parseInt( f.querySelector( '[name="player_id"]' ).value, 10 ) || 0;
-                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
-                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
-                    if ( pid <= 0 || ( half !== 1 && half !== 2 ) ) return null;
-                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
-                    return { event_uuid: uuid(), player_id: pid, half: half, minute: minute };
-                }
-            );
-
-            wireLateForm(
-                document.querySelector( '[data-tt-mexec-late-sub-form]' ),
-                'substitution',
-                function ( f ) {
-                    var off = parseInt( f.querySelector( '[name="player_off"]' ).value, 10 ) || 0;
-                    var on  = parseInt( f.querySelector( '[name="player_on"]' ).value, 10 ) || 0;
-                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
-                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
-                    if ( off <= 0 || on <= 0 || off === on ) return null;
-                    if ( half !== 1 && half !== 2 ) return null;
-                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
-                    return { event_uuid: uuid(), half: half, minute: minute, player_off: off, player_on: on };
-                }
-            );
-        })();
-        </script>
         <?php
     }
 
@@ -1316,6 +1161,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'away_goal_del_confirm' => __( 'Remove this opponent goal? The score updates.', 'talenttrack' ),
                 'away_goal_minute_error'=> __( 'Enter a valid minute.', 'talenttrack' ),
                 'away_goal_add_error'   => __( 'Could not add the opponent goal.', 'talenttrack' ),
+                // Rebuild — finalize + late-event handlers moved from the
+                // view's inline <script> into the JS module.
+                'finalize_confirm'  => __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ),
+                'finalize_error'    => __( 'Could not finalize:', 'talenttrack' ),
+                'late_save_error'   => __( 'Could not save:', 'talenttrack' ),
             ],
         ] );
     }

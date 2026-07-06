@@ -921,4 +921,89 @@
             });
         });
     })();
+
+    // --- Finalize / re-open / late events (rebuild — moved out of the
+    // PHP view's inline <script> so the module owns 100% of behaviour and
+    // the view emits zero script). All three reuse the module's own
+    // api()/doFetch()/uuidv4() helpers instead of a second lazy-cfg copy. ---
+    var MINUTE_MAX = HALF_LENGTH + 10;
+
+    // Finalize — lock the match. Confirm, POST, reload; surface a server
+    // error message inline.
+    (function wireFinalize() {
+        var btn = root.querySelector('[data-tt-mexec-finalize]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.finalize_confirm || 'Finalize this match? Goals, subs, and score cannot be edited after.')) return;
+            btn.disabled = true;
+            doFetch((cfg.rest_url || '') + 'finalize', 'POST', {}).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                window.alert((i18n.finalize_error || 'Could not finalize:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+            });
+        });
+    })();
+
+    // Re-open the dedicated post-match-panel button (distinct from the
+    // footer state CTA, which also re-opens when FINALIZED).
+    (function wireReopenButton() {
+        var btn = root.querySelector('[data-tt-mexec-reopen]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.reopen_confirm || 'Re-open this finalized match for corrections?')) return;
+            btn.disabled = true;
+            doFetch((cfg.rest_url || '') + 'reopen', 'POST', {}).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                window.alert((i18n.reopen_error || 'Could not re-open the match:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+            });
+        });
+    })();
+
+    // Late-event forms — add a goal / sub the coach forgot to log live.
+    // Client-generated event_uuid keeps the offline-queue replay idempotent.
+    (function wireLateEvents() {
+        function wireLateForm(form, endpoint, build) {
+            if (!form) return;
+            var submitting = false;
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (submitting) return;
+                var body = build(form);
+                if (!body) return;
+                submitting = true;
+                var btn = form.querySelector('.tt-mexec-late-event-submit');
+                if (btn) btn.disabled = true;
+                var reenable = function () { submitting = false; if (btn) btn.disabled = false; };
+                doFetch((cfg.rest_url || '') + endpoint, 'POST', body).then(function () {
+                    window.location.reload();
+                }).catch(function (err) {
+                    reenable();
+                    window.alert((i18n.late_save_error || 'Could not save:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                });
+            });
+        }
+
+        wireLateForm(root.querySelector('[data-tt-mexec-late-goal-form]'), 'goal-event', function (f) {
+            var pid = parseInt(f.querySelector('[name="player_id"]').value, 10) || 0;
+            var half = parseInt(f.querySelector('[name="half"]').value, 10) || 0;
+            var minute = parseInt(f.querySelector('[name="minute"]').value, 10);
+            if (pid <= 0 || (half !== 1 && half !== 2)) return null;
+            if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
+            return { event_uuid: uuidv4(), player_id: pid, half: half, minute: minute };
+        });
+
+        wireLateForm(root.querySelector('[data-tt-mexec-late-sub-form]'), 'substitution', function (f) {
+            var off = parseInt(f.querySelector('[name="player_off"]').value, 10) || 0;
+            var on = parseInt(f.querySelector('[name="player_on"]').value, 10) || 0;
+            var half = parseInt(f.querySelector('[name="half"]').value, 10) || 0;
+            var minute = parseInt(f.querySelector('[name="minute"]').value, 10);
+            if (off <= 0 || on <= 0 || off === on) return null;
+            if (half !== 1 && half !== 2) return null;
+            if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
+            return { event_uuid: uuidv4(), half: half, minute: minute, player_off: off, player_on: on };
+        });
+    })();
 })();
