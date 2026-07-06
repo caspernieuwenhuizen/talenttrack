@@ -107,6 +107,13 @@ class FrontendSpondView extends FrontendViewBase {
             [ 'tt_view' => 'configuration' ],
             remove_query_arg( [ 'tt_view' ] )
         );
+
+        // #2284 — link to the dry-run integration monitor (diagnose why a
+        // printed activity differs from Spond, without a real sync).
+        $monitor_url = add_query_arg(
+            [ 'tt_view' => 'spond-monitor' ],
+            remove_query_arg( [ 'tt_view' ] )
+        );
         ?>
         <div class="tt-spond" data-tt-spond>
             <p class="tt-spond__intro">
@@ -175,6 +182,11 @@ class FrontendSpondView extends FrontendViewBase {
 
             <section class="tt-spond__section">
                 <h2><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h2>
+                <p class="tt-spond__monitor-link">
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $monitor_url ); ?>">
+                        <?php esc_html_e( 'Open integration monitor', 'talenttrack' ); ?>
+                    </a>
+                </p>
                 <p class="tt-spond__summary">
                     <?php
                     printf(

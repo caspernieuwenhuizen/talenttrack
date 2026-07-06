@@ -1,0 +1,299 @@
+/*
+ * frontend-spond-monitor.css — FrontendSpondMonitorView (#2284).
+ *
+ * Dry-run Spond integration monitor: sync-health panel, team picker +
+ * "Fetch now", and the rendered preview (status chips, event cards, the
+ * per-field change diff, and the "would be archived" list).
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale up.
+ * Scoped under .tt-dashboard. Design tokens only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-spm {
+    max-width: 900px;
+}
+
+.tt-dashboard .tt-spm__intro {
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-4);
+    line-height: 1.5;
+}
+
+.tt-dashboard .tt-spm__section {
+    margin-top: var(--tt-sp-5);
+}
+
+/* ---- Health panel --------------------------------------------------- */
+.tt-dashboard .tt-spm__health {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    padding: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spm__health-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spm__health-meta {
+    color: var(--tt-muted);
+    font-size: 0.9375rem;
+}
+
+/* ---- Controls ------------------------------------------------------- */
+.tt-dashboard .tt-spm__controls {
+    display: grid;
+    gap: var(--tt-sp-3);
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-spm__controls {
+        grid-template-columns: 1fr auto;
+        align-items: end;
+    }
+}
+
+.tt-dashboard .tt-spm__field {
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spm__label {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-spm__select {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    width: 100%;
+}
+
+.tt-dashboard .tt-spm__fetch {
+    min-height: 48px;
+}
+
+/* ---- Results -------------------------------------------------------- */
+.tt-dashboard .tt-spm__results {
+    margin-top: var(--tt-sp-5);
+}
+
+.tt-dashboard .tt-spm__msg {
+    padding: var(--tt-sp-3);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    margin: 0;
+}
+
+.tt-dashboard .tt-spm__msg--error {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+}
+
+.tt-dashboard .tt-spm__result-summary {
+    font-size: 1rem;
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-spm__result-fetched {
+    color: var(--tt-muted);
+}
+
+.tt-dashboard .tt-spm__empty {
+    color: var(--tt-muted);
+    margin: var(--tt-sp-3) 0;
+}
+
+/* ---- Status chips --------------------------------------------------- */
+.tt-dashboard .tt-spm__chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 2px var(--tt-sp-2);
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-spm__chip--new {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-spm__chip--update {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+}
+
+.tt-dashboard .tt-spm__chip--archive {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+}
+
+.tt-dashboard .tt-spm__chip--ok {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+
+.tt-dashboard .tt-spm__chip--partial {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+}
+
+.tt-dashboard .tt-spm__chip--error {
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+}
+
+.tt-dashboard .tt-spm__chip--muted {
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+}
+
+/* ---- Event cards ---------------------------------------------------- */
+.tt-dashboard .tt-spm__events {
+    display: grid;
+    gap: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spm__event {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: #fff;
+    overflow: hidden;
+}
+
+.tt-dashboard .tt-spm__event-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    min-height: 48px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.tt-dashboard .tt-spm__event-head::-webkit-details-marker {
+    display: none;
+}
+
+.tt-dashboard .tt-spm__event-title {
+    font-weight: 600;
+    color: var(--tt-ink);
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-spm__event-type {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-spm__event-body {
+    padding: 0 var(--tt-sp-3) var(--tt-sp-3);
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-dashboard .tt-spm__meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--tt-sp-1) var(--tt-sp-3);
+    margin: var(--tt-sp-3) 0;
+}
+
+.tt-dashboard .tt-spm__meta dt {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+}
+
+.tt-dashboard .tt-spm__meta dd {
+    margin: 0;
+    color: var(--tt-ink);
+    word-break: break-word;
+}
+
+/* ---- Change diff ---------------------------------------------------- */
+.tt-dashboard .tt-spm__changes-label {
+    font-weight: 600;
+    margin: var(--tt-sp-3) 0 var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spm__no-changes {
+    color: var(--tt-success);
+    margin: var(--tt-sp-2) 0;
+}
+
+.tt-dashboard .tt-spm__changes {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.tt-dashboard .tt-spm__changes th,
+.tt-dashboard .tt-spm__changes td {
+    text-align: left;
+    padding: var(--tt-sp-2);
+    border-bottom: 1px solid var(--tt-line-soft);
+    vertical-align: top;
+    word-break: break-word;
+}
+
+.tt-dashboard .tt-spm__changes-field {
+    color: var(--tt-muted);
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-spm__changes-from {
+    color: var(--tt-danger);
+}
+
+.tt-dashboard .tt-spm__changes-to {
+    color: var(--tt-success);
+}
+
+/* ---- Archive list --------------------------------------------------- */
+.tt-dashboard .tt-spm__archive {
+    margin-top: var(--tt-sp-5);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spm__archive-title {
+    font-size: 1rem;
+    margin: 0 0 var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spm__archive-hint {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spm__archive-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spm__archive-item {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 40px;
+}
+
+.tt-dashboard .tt-spm__archive-name {
+    color: var(--tt-ink);
+    word-break: break-word;
+}

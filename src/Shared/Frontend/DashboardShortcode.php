@@ -1028,6 +1028,15 @@ class DashboardShortcode {
                 // gate on tt_edit_spond_credentials at the REST layer.
                 FrontendSpondView::render( $user_id, $is_admin );
                 return true;
+            case 'spond-monitor':
+                // #2284 — dry-run Spond integration monitor. Fetches Spond
+                // live and previews how each event would map onto
+                // activities WITHOUT writing anything, to diagnose why a
+                // printed activity differs from Spond. Gates on
+                // tt_edit_teams internally; the preview endpoint re-checks
+                // the same cap at the REST layer.
+                FrontendSpondMonitorView::render( $user_id, $is_admin );
+                return true;
             case 'strava-admin':
                 // #2127 (epic #2002) — Strava operator console: app
                 // credentials + webhook subscription + connected-players
