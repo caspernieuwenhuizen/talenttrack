@@ -1,3 +1,12 @@
+# TalentTrack v4.78.2 — Holidays: "New holiday" button always available on the list (#2290)
+
+The academy Holidays list now shows a persistent "New holiday" button in
+its header, gated on the manage-holidays capability. Previously the only
+create affordance was the empty-state card, which disappears once at least
+one holiday exists — so a manager with full rights had no visible way to
+add another and had to reach the wizard by URL. The empty-state CTA is
+unchanged.
+
 # TalentTrack v4.78.1 — Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288)
 
 Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288)

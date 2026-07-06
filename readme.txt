@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.78.1
+Stable tag: 4.78.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.78.2 — Holidays: "New holiday" button always available on the list (#2290) The academy Holidays list now shows a persistent "New holiday" button in its header, gated on the manage-holidays capability. Previously the only create affordance was the empty-state card, which disappears once at least one holiday exists — so a manager with full rights had no visible way to add another and had to reach the wizard by URL. The empty-state CTA is unchanged. =
 
 = 4.78.1 — Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288) Fixed the live match surface so Finalize, Re-open and the late goal/substitution forms work again. They were hitting a 404 (`/undefinedfinalize`) because the inline script read its REST config before the footer defined it; the config is now resolved when the button is tapped. (#2288) =
 
