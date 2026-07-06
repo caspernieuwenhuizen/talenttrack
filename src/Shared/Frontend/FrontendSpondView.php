@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Spond\CredentialsManager;
 use TT\Modules\Spond\SpondClient;
 use TT\Modules\Spond\SpondModule;
+use TT\Modules\Spond\TeamSpondAccount;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 
@@ -214,6 +215,7 @@ class FrontendSpondView extends FrontendViewBase {
                             <th><?php esc_html_e( 'Spond group', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Last sync', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Account', 'talenttrack' ); ?></th>
                             <th></th>
                         </tr>
                     </thead>
@@ -225,6 +227,11 @@ class FrontendSpondView extends FrontendViewBase {
                         $status    = (string) ( $row->spond_last_sync_status ?: '' );
                         $message   = (string) ( $row->spond_last_sync_message ?: '' );
                         $group_nm  = $has_group ? ( $group_map[ $gid ] ?? $gid ) : '';
+                        $team_id   = (int) $row->id;
+                        // #2286 — which account does this team sync through?
+                        $team_acct  = CredentialsManager::forTeam( $team_id );
+                        $is_override = $team_acct->isTeamOverride();
+                        $own_email   = $is_override ? ( new TeamSpondAccount( $team_id ) )->getEmail() : '';
                         ?>
                         <tr>
                             <td>
@@ -272,6 +279,42 @@ class FrontendSpondView extends FrontendViewBase {
                                 <?php else : ?>
                                     <span class="tt-spond__muted">—</span>
                                 <?php endif; ?>
+                            </td>
+                            <td>
+                                <details class="tt-spond__team-account" data-team-id="<?php echo (int) $team_id; ?>">
+                                    <summary class="tt-spond__team-account-summary">
+                                        <?php if ( $is_override ) : ?>
+                                            <span class="tt-spond__badge tt-spond__badge--override"><?php esc_html_e( 'Own account', 'talenttrack' ); ?></span>
+                                            <span class="tt-spond__muted"><?php echo esc_html( $own_email ); ?></span>
+                                        <?php else : ?>
+                                            <span class="tt-spond__badge tt-spond__badge--muted"><?php esc_html_e( 'Uses club account', 'talenttrack' ); ?></span>
+                                        <?php endif; ?>
+                                    </summary>
+
+                                    <?php if ( $can_edit_creds ) : ?>
+                                        <form class="tt-spond__team-account-form" data-tt-spond-team-creds-form data-team-id="<?php echo (int) $team_id; ?>">
+                                            <div class="tt-spond__field">
+                                                <label class="tt-spond__legend" for="tt-spond-team-email-<?php echo (int) $team_id; ?>"><?php esc_html_e( 'Spond email', 'talenttrack' ); ?></label>
+                                                <input type="email" inputmode="email" id="tt-spond-team-email-<?php echo (int) $team_id; ?>" class="tt-spond__input" name="email"
+                                                    value="<?php echo esc_attr( $own_email ); ?>" autocomplete="off" />
+                                            </div>
+                                            <div class="tt-spond__field">
+                                                <label class="tt-spond__legend" for="tt-spond-team-password-<?php echo (int) $team_id; ?>"><?php esc_html_e( 'Spond password', 'talenttrack' ); ?></label>
+                                                <input type="password" id="tt-spond-team-password-<?php echo (int) $team_id; ?>" class="tt-spond__input" name="password"
+                                                    value="" autocomplete="new-password"
+                                                    placeholder="<?php echo $is_override ? esc_attr__( 'Leave blank to keep current password', 'talenttrack' ) : ''; ?>" />
+                                            </div>
+                                            <p class="tt-spond__hint"><?php esc_html_e( 'Leave email blank to use the club account.', 'talenttrack' ); ?></p>
+                                            <div class="tt-spond__team-account-actions">
+                                                <button type="submit" class="tt-btn tt-btn-primary" data-tt-spond-team-save><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
+                                                <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-team-test><?php esc_html_e( 'Test', 'talenttrack' ); ?></button>
+                                                <?php if ( $is_override ) : ?>
+                                                    <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-team-use-club><?php esc_html_e( 'Use club account', 'talenttrack' ); ?></button>
+                                                <?php endif; ?>
+                                            </div>
+                                        </form>
+                                    <?php endif; ?>
+                                </details>
                             </td>
                             <td>
                                 <?php if ( $has_group ) : ?>
@@ -356,6 +399,9 @@ class FrontendSpondView extends FrontendViewBase {
                     'error'            => __( 'Could not save. Please try again.', 'talenttrack' ),
                     'network_error'    => __( 'Network error. Please try again.', 'talenttrack' ),
                     'disconnect_confirm' => __( 'Disconnect Spond? Existing imported activities are kept; per-team group selections stay on file.', 'talenttrack' ),
+                    'team_saved'         => __( 'Team account saved.', 'talenttrack' ),
+                    'team_cleared'       => __( 'Team now uses the club account.', 'talenttrack' ),
+                    'team_use_club_confirm' => __( 'Use the club account for this team? The team\'s own Spond login will be removed.', 'talenttrack' ),
                 ],
             ]
         );

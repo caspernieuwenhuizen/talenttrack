@@ -11,6 +11,7 @@ use TT\Modules\Spond\SpondClient;
 use TT\Modules\Spond\SpondParser;
 use TT\Modules\Spond\SpondSync;
 use TT\Modules\Spond\SpondTypeResolver;
+use TT\Modules\Spond\TeamSpondAccount;
 
 /**
  * SpondRestController (#0031, extended #1936) — REST surface for the
@@ -21,6 +22,9 @@ use TT\Modules\Spond\SpondTypeResolver;
  *   POST /spond/test                  — live login check (#1936)
  *   DELETE /spond/credentials         — disconnect / clear (#1936)
  *   POST /spond/base-url              — override / revert API base URL (#1936)
+ *   POST /teams/{id}/spond/credentials   — save per-team override (#2286)
+ *   DELETE /teams/{id}/spond/credentials — clear per-team override (#2286)
+ *   POST /teams/{id}/spond/test          — live login for a team override (#2286)
  *
  * The per-team sync stays gated on `tt_edit_teams` (it edits team rows).
  * Credential + base-url mutations gate on `tt_edit_spond_credentials`
@@ -60,6 +64,29 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_preview' ],
             'permission_callback' => [ __CLASS__, 'canEdit' ],
+        ] );
+
+        // #2286 — per-team Spond account override. Same credential cap as
+        // the club routes (tt_edit_spond_credentials); a set override
+        // overrules the club account for that team's syncs. The password
+        // and cached token never round-trip.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/credentials', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'route_save_team_credentials' ],
+                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'route_delete_team_credentials' ],
+                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/test', [
+            'methods'             => 'POST',
+            'callback'            => [ __CLASS__, 'route_test_team_credentials' ],
+            'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
         ] );
 
         register_rest_route( self::NS, '/spond/credentials', [
@@ -150,7 +177,9 @@ final class SpondRestController {
             ] );
         }
 
-        $fetch = SpondClient::fetchEvents( $group_id );
+        // #2286 — preview through the team's own Spond account when set,
+        // else the club account (same resolution a real sync uses).
+        $fetch = SpondClient::fetchEvents( $group_id, CredentialsManager::forTeam( $team_id ) );
         if ( empty( $fetch['ok'] ) ) {
             return RestResponse::success( [
                 'ok'            => false,
@@ -450,5 +479,129 @@ final class SpondRestController {
             'base_url'   => SpondClient::baseUrl(),
             'is_default' => $sanitised === '',
         ] );
+    }
+
+    /**
+     * Resolve a club-scoped team id, returning null (and letting the caller
+     * emit a 404) when it doesn't exist for the current club. Mirrors the
+     * lookup route_preview does before touching the team.
+     */
+    private static function teamExists( int $team_id ): bool {
+        global $wpdb;
+        $found = $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id, CurrentClub::id()
+        ) );
+        return ! empty( $found );
+    }
+
+    /**
+     * Save (or rotate) a per-team Spond account override (#2286). A blank
+     * email clears the override entirely (team falls back to the club
+     * account); a non-empty email with a blank password keeps the stored
+     * password — TeamSpondAccount::save handles both. The password is
+     * encrypted at rest and never echoed; the response reports only the
+     * stored email, the connected flag, and override:true.
+     */
+    public static function route_save_team_credentials( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+        if ( ! self::teamExists( $team_id ) ) {
+            return RestResponse::notFound( 'team_not_found', __( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $email    = sanitize_email( (string) ( $r->get_param( 'email' ) ?? '' ) );
+        $password = trim( (string) ( $r->get_param( 'password' ) ?? '' ) );
+
+        $account = new TeamSpondAccount( $team_id );
+        $account->save( $email, $password );
+
+        Logger::info( 'rest.spond.team_credentials_saved', [
+            'user' => get_current_user_id(),
+            'team' => $team_id,
+        ] );
+
+        return RestResponse::success( [
+            'ok'        => true,
+            'email'     => $account->getEmail(),
+            'connected' => $account->hasCredentials(),
+            'override'  => true,
+        ] );
+    }
+
+    /**
+     * Clear a per-team Spond override (#2286) — the team reverts to the
+     * club account.
+     */
+    public static function route_delete_team_credentials( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+        if ( ! self::teamExists( $team_id ) ) {
+            return RestResponse::notFound( 'team_not_found', __( 'Team not found.', 'talenttrack' ) );
+        }
+
+        ( new TeamSpondAccount( $team_id ) )->clear();
+        Logger::info( 'rest.spond.team_credentials_cleared', [
+            'user' => get_current_user_id(),
+            'team' => $team_id,
+        ] );
+
+        return RestResponse::success( [ 'ok' => true, 'override' => false ] );
+    }
+
+    /**
+     * Live login check for a per-team override (#2286). Uses the posted
+     * email + password when present, otherwise the team's stored override
+     * credentials. On success caches the token on the team account so the
+     * next sync skips a login. The response never contains the password or
+     * the token — only ok / a non-sensitive error message.
+     */
+    public static function route_test_team_credentials( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+        if ( ! self::teamExists( $team_id ) ) {
+            return RestResponse::notFound( 'team_not_found', __( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $account = new TeamSpondAccount( $team_id );
+
+        $email        = $account->getEmail();
+        $posted_email = sanitize_email( (string) ( $r->get_param( 'email' ) ?? '' ) );
+        if ( $posted_email !== '' ) {
+            $email = $posted_email;
+        }
+
+        $password = trim( (string) ( $r->get_param( 'password' ) ?? '' ) );
+        if ( $password === '' ) {
+            $password = $account->getPassword();
+        }
+
+        $result = SpondClient::login( $email, $password );
+
+        if ( ! empty( $result['ok'] ) ) {
+            $account->cacheToken( (string) $result['token'], CredentialsManager::TOKEN_CACHE_SECONDS );
+            Logger::info( 'rest.spond.team_test_ok', [
+                'user' => get_current_user_id(),
+                'team' => $team_id,
+            ] );
+            return RestResponse::success( [ 'ok' => true ] );
+        }
+
+        Logger::warning( 'rest.spond.team_test_failed', [
+            'user' => get_current_user_id(),
+            'team' => $team_id,
+            'code' => (string) ( $result['error_code'] ?? 'login_failed' ),
+        ] );
+        return RestResponse::error(
+            (string) ( $result['error_code'] ?? 'login_failed' ),
+            (string) ( $result['error_message'] ?? __( 'Spond login failed.', 'talenttrack' ) ),
+            422
+        );
     }
 }

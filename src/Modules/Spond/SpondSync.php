@@ -66,13 +66,17 @@ final class SpondSync {
             ) );
         }
 
-        if ( ! CredentialsManager::hasCredentials() ) {
+        // #2286 — use the team's own Spond account when it has one, else the
+        // club account. The resolved account authenticates the fetch, so a
+        // per-team login overrules the club one.
+        $account = CredentialsManager::forTeam( $team_id );
+        if ( ! $account->hasCredentials() ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond credentials configured for the club.', 'talenttrack' )
+                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond credentials configured for the club or this team.', 'talenttrack' )
             ) );
         }
 
-        $fetch = SpondClient::fetchEvents( $group_id );
+        $fetch = SpondClient::fetchEvents( $group_id, $account );
         if ( ! $fetch['ok'] ) {
             Logger::error( 'spond.fetch.failed', [
                 'team_id'    => $team_id,

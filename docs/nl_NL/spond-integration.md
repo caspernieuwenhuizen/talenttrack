@@ -79,3 +79,14 @@ het om te verklaren waarom een afgedrukte activiteit afwijkt van wat je in Spond
 hebt ingesteld — een verouderde cache, een gewijzigde gebeurtenis-UID of een veld
 dat Spond beheert worden hier zichtbaar. Vereist dezelfde \`tt_edit_teams\`-
 capaciteit als de synchronisatie.
+
+## Accounts per team (het clublogin overschrijven)
+
+Elk team op de Spond-pagina toont met welk account het synchroniseert —
+standaard **Gebruikt clubaccount**, of **Eigen account: <e-mail>** bij een
+override. Klap het **Account**-paneel van het team open om het een eigen
+Spond-login te geven (e-mail + wachtwoord): dat teamaccount **overschrijft**
+dan het clubaccount voor de synchronisaties van dat team. Laat de e-mail leeg
+(of gebruik **Clubaccount gebruiken**) om de override te verwijderen en terug te
+vallen op het clublogin. Wachtwoorden per team worden versleuteld bewaard en
+elk team houdt zijn eigen token-cache. Vereist de Spond-inloggegevens-capaciteit.

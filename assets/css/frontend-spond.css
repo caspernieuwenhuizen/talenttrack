@@ -206,6 +206,38 @@
     color: var(--tt-danger);
 }
 
+/* ---- Per-team account override (#2286) ------------------------------ */
+.tt-dashboard .tt-spond__badge--override {
+    color: var(--tt-accent, var(--tt-ink));
+    background: var(--tt-accent-subtle, transparent);
+}
+
+.tt-dashboard .tt-spond__team-account-summary {
+    cursor: pointer;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    flex-wrap: wrap;
+}
+
+.tt-dashboard .tt-spond__team-account-form {
+    margin-top: var(--tt-sp-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-spond__team-account-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-spond__team-account-actions .tt-btn {
+    min-height: 48px;
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-spond__field {
         max-width: 28rem;

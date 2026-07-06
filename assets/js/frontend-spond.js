@@ -9,6 +9,9 @@
  *   POST   /wp-json/talenttrack/v1/spond/test
  *   POST   /wp-json/talenttrack/v1/spond/base-url
  *   POST   /wp-json/talenttrack/v1/teams/{id}/spond/sync
+ *   POST   /wp-json/talenttrack/v1/teams/{id}/spond/credentials
+ *   DELETE /wp-json/talenttrack/v1/teams/{id}/spond/credentials
+ *   POST   /wp-json/talenttrack/v1/teams/{id}/spond/test
  *
  * The view composes the payload here; the controller decides (keep-on-
  * blank password, the live login, the override write live server-side).
@@ -182,5 +185,83 @@
                 setMsg(i18n.network_error || 'Network error.', 'error');
             });
         });
+    });
+
+    // ---- Per-team Spond account override (#2286) -----------------------
+    root.querySelectorAll('[data-tt-spond-team-creds-form]').forEach(function (form) {
+        var teamId = parseInt(form.getAttribute('data-team-id') || '0', 10);
+        if (!teamId) return;
+
+        var base = 'teams/' + teamId + '/spond/';
+        var saveBtn = form.querySelector('[data-tt-spond-team-save]');
+        var testBtn = form.querySelector('[data-tt-spond-team-test]');
+        var useClubBtn = form.querySelector('[data-tt-spond-team-use-club]');
+
+        function creds() {
+            var fd = new FormData(form);
+            return {
+                email: String(fd.get('email') || ''),
+                password: String(fd.get('password') || '')
+            };
+        }
+
+        // Save (POST credentials).
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (saveBtn) saveBtn.disabled = true;
+            setMsg('', '');
+            post(base + 'credentials', creds()).then(function (r) {
+                if (saveBtn) saveBtn.disabled = false;
+                if (r.ok && r.json && r.json.success) {
+                    setMsg(i18n.team_saved || 'Saved.', 'success');
+                    reloadSoon();
+                } else {
+                    setMsg(firstError(r.json) || i18n.error || 'Error.', 'error');
+                }
+            }).catch(function () {
+                if (saveBtn) saveBtn.disabled = false;
+                setMsg(i18n.network_error || 'Network error.', 'error');
+            });
+        });
+
+        // Test (POST test).
+        if (testBtn) {
+            testBtn.addEventListener('click', function () {
+                testBtn.disabled = true;
+                setMsg('', '');
+                post(base + 'test', creds()).then(function (r) {
+                    testBtn.disabled = false;
+                    if (r.ok && r.json && r.json.success) {
+                        setMsg(i18n.test_ok || 'Login successful.', 'success');
+                    } else {
+                        setMsg(firstError(r.json) || i18n.test_failed || 'Login failed.', 'error');
+                    }
+                }).catch(function () {
+                    testBtn.disabled = false;
+                    setMsg(i18n.network_error || 'Network error.', 'error');
+                });
+            });
+        }
+
+        // Use club account (DELETE the override).
+        if (useClubBtn) {
+            useClubBtn.addEventListener('click', function () {
+                if (!window.confirm(i18n.team_use_club_confirm || 'Use the club account for this team?')) return;
+                useClubBtn.disabled = true;
+                setMsg('', '');
+                post(base + 'credentials', {}, 'DELETE').then(function (r) {
+                    useClubBtn.disabled = false;
+                    if (r.ok && r.json && r.json.success) {
+                        setMsg(i18n.team_cleared || 'Team now uses the club account.', 'success');
+                        reloadSoon();
+                    } else {
+                        setMsg(firstError(r.json) || i18n.error || 'Error.', 'error');
+                    }
+                }).catch(function () {
+                    useClubBtn.disabled = false;
+                    setMsg(i18n.network_error || 'Network error.', 'error');
+                });
+            });
+        }
     });
 })();
