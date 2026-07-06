@@ -5,9 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Spond\CredentialsManager;
 use TT\Modules\Spond\SpondClient;
+use TT\Modules\Spond\SpondParser;
 use TT\Modules\Spond\SpondSync;
+use TT\Modules\Spond\SpondTypeResolver;
 
 /**
  * SpondRestController (#0031, extended #1936) — REST surface for the
@@ -46,6 +49,16 @@ final class SpondRestController {
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/sync', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'syncTeam' ],
+            'permission_callback' => [ __CLASS__, 'canEdit' ],
+        ] );
+
+        // #2284 — dry-run preview for the Spond integration monitor.
+        // Fetches Spond live, parses + classifies, and diffs each event
+        // against the stored tt_activities row WITHOUT writing anything.
+        // Gated on the same tt_edit_teams cap the sync route uses.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/preview', [
+            'methods'             => 'POST',
+            'callback'            => [ __CLASS__, 'route_preview' ],
             'permission_callback' => [ __CLASS__, 'canEdit' ],
         ] );
 
@@ -90,6 +103,235 @@ final class SpondRestController {
         }
         $result = SpondSync::syncTeam( $team_id );
         return RestResponse::success( $result );
+    }
+
+    /** Activity types that carry kickoff + presence times (mirrors SpondSync). */
+    private const MATCH_TYPES = [ 'game', 'match', 'friendly', 'tournament' ];
+
+    /**
+     * Dry-run preview of what a Spond sync would do for one team (#2284).
+     *
+     * Read-only: fetches Spond live, parses + classifies, and diffs each
+     * incoming event against the stored tt_activities row. NEVER writes to
+     * the DB — it's a diagnostic surface to explain "why does the printed
+     * activity differ from what I set in Spond". The diff mirrors
+     * SpondSync's Spond-wins field set and its UTC→site-local time
+     * conversion, so the preview matches what a real sync would store.
+     */
+    public static function route_preview( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+
+        $team = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, spond_group_id FROM {$p}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id, $club
+        ) );
+        if ( ! $team ) {
+            return RestResponse::notFound(
+                'team_not_found',
+                __( 'Team not found.', 'talenttrack' )
+            );
+        }
+
+        $group_id = (string) ( $team->spond_group_id ?? '' );
+        if ( $group_id === '' ) {
+            // 200 envelope with ok:false so the UI can render the reason
+            // inline rather than treating it as a hard HTTP failure.
+            return RestResponse::success( [
+                'ok'            => false,
+                'error_code'    => 'no_group_linked',
+                'error_message' => __( 'This team has no Spond group linked. Pick a group on the team edit form first.', 'talenttrack' ),
+            ] );
+        }
+
+        $fetch = SpondClient::fetchEvents( $group_id );
+        if ( empty( $fetch['ok'] ) ) {
+            return RestResponse::success( [
+                'ok'            => false,
+                'group_id'      => $group_id,
+                'error_code'    => (string) ( $fetch['error_code']    ?? 'fetch_failed' ),
+                'error_message' => (string) ( $fetch['error_message'] ?? __( 'Could not fetch events from Spond.', 'talenttrack' ) ),
+                'http_code'     => (int)    ( $fetch['http_code']     ?? 0 ),
+            ] );
+        }
+
+        $parsed  = SpondParser::parse( (array) ( $fetch['events'] ?? [] ) );
+        $events  = [];
+        $seen    = [];
+        $counts  = [ 'new' => 0, 'update' => 0, 'archive' => 0 ];
+
+        foreach ( $parsed as $event ) {
+            $uid = (string) ( $event['uid'] ?? '' );
+            if ( $uid === '' ) continue;
+            $seen[ $uid ] = true;
+
+            $title       = (string) ( $event['summary'] ?? '' );
+            $location    = (string) ( $event['location'] ?? '' );
+            $description = (string) ( $event['description'] ?? '' );
+            $dtstart     = (string) ( $event['dtstart'] ?? '' );
+            $dtend       = (string) ( $event['dtend'] ?? '' );
+            $meetup      = (string) ( $event['meetup'] ?? '' );
+
+            $type = SpondTypeResolver::classify( $title, $description );
+
+            // Local-time conversion mirrors SpondSync::localParts().
+            [ , $start_time ] = self::localParts( $dtstart );
+            [ , $end_time ]   = self::localParts( $dtend );
+            [ , $meet_time ]  = self::localParts( $meetup );
+
+            $existing = $wpdb->get_row( $wpdb->prepare(
+                "SELECT id, title, location, activity_type_key, session_date,
+                        start_time, end_time, kickoff_time, time_of_presence
+                   FROM {$p}tt_activities
+                  WHERE external_id = %s
+                    AND activity_source_key = %s
+                    AND club_id = %d
+                  LIMIT 1",
+                $uid, 'spond', $club
+            ) );
+
+            if ( $existing ) {
+                $status  = 'update';
+                $changes = self::diffChanges(
+                    $existing, $title, $location, $start_time, $end_time, $meet_time
+                );
+                $counts['update']++;
+            } else {
+                $status  = 'new';
+                $changes = [];
+                $counts['new']++;
+            }
+
+            $events[] = [
+                'uid'         => $uid,
+                'summary'     => $title,
+                'type'        => $type,
+                'dtstart'     => $dtstart,
+                'dtend'       => $dtend,
+                'meetup'      => $meetup,
+                'start_time'  => $start_time,
+                'end_time'    => $end_time,
+                'meet_time'   => $meet_time,
+                'location'    => $location,
+                'description' => $description,
+                'status'      => $status,
+                'activity_id' => $existing ? (int) $existing->id : null,
+                'changes'     => $changes,
+            ];
+        }
+
+        // Archive candidates: stored Spond rows for this team, not
+        // archived, whose external_id is no longer in the fetched set.
+        $archive = [];
+        $rows    = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, title, external_id
+               FROM {$p}tt_activities
+              WHERE team_id = %d
+                AND club_id = %d
+                AND activity_source_key = 'spond'
+                AND archived_at IS NULL",
+            $team_id, $club
+        ) );
+        foreach ( (array) $rows as $row ) {
+            $ext = (string) ( $row->external_id ?? '' );
+            if ( $ext !== '' && isset( $seen[ $ext ] ) ) continue;
+            $archive[] = [
+                'activity_id' => (int) $row->id,
+                'title'       => (string) ( $row->title ?? '' ),
+            ];
+        }
+        $counts['archive'] = count( $archive );
+
+        return RestResponse::success( [
+            'ok'            => true,
+            'group_id'      => $group_id,
+            'fetched_count' => count( $parsed ),
+            'counts'        => $counts,
+            'events'        => $events,
+            'archive'       => $archive,
+        ] );
+    }
+
+    /**
+     * Build the field-diff list for an existing activity row against the
+     * incoming Spond values. Compares only the Spond-wins fields SpondSync
+     * overwrites: title, location, and the local-time columns
+     * (start / end / kickoff / presence). activity_type_key and notes are
+     * TalentTrack-wins after first import, so they are deliberately not
+     * diffed here. A change is emitted only when the stored value actually
+     * differs from what the sync would write.
+     *
+     * @return list<array{field:string,from:string,to:string}>
+     */
+    private static function diffChanges(
+        object $existing,
+        string $title,
+        string $location,
+        string $start_time,
+        string $end_time,
+        string $meet_time
+    ): array {
+        $changes = [];
+
+        $compare = static function ( string $field, string $from, string $to ) use ( &$changes ): void {
+            if ( trim( $from ) !== trim( $to ) ) {
+                $changes[] = [ 'field' => $field, 'from' => $from, 'to' => $to ];
+            }
+        };
+
+        $compare( 'title',    (string) ( $existing->title ?? '' ),    $title );
+        $compare( 'location', (string) ( $existing->location ?? '' ), $location );
+
+        // start_time / end_time are stored for every activity type.
+        $compare( 'start_time', self::hhmm( (string) ( $existing->start_time ?? '' ) ), self::hhmm( $start_time ) );
+        $compare( 'end_time',   self::hhmm( (string) ( $existing->end_time   ?? '' ) ), self::hhmm( $end_time ) );
+
+        // kickoff_time / time_of_presence only apply to match-type rows —
+        // exactly the rows SpondSync writes those columns for.
+        $type = (string) ( $existing->activity_type_key ?? '' );
+        if ( in_array( $type, self::MATCH_TYPES, true ) ) {
+            $compare( 'kickoff_time',     self::hhmm( (string) ( $existing->kickoff_time     ?? '' ) ), self::hhmm( $start_time ) );
+            $compare( 'time_of_presence', self::hhmm( (string) ( $existing->time_of_presence ?? '' ) ), self::hhmm( $meet_time ) );
+        }
+
+        return $changes;
+    }
+
+    /** Normalise a stored/incoming time to HH:MM for a stable comparison. */
+    private static function hhmm( string $time ): string {
+        $time = trim( $time );
+        if ( $time === '' ) return '';
+        // Accept "HH:MM:SS" or "HH:MM" — compare on HH:MM.
+        if ( preg_match( '/^(\d{1,2}):(\d{2})/', $time, $m ) ) {
+            return sprintf( '%02d:%02d', (int) $m[1], (int) $m[2] );
+        }
+        return $time;
+    }
+
+    /**
+     * Split a UTC `Y-m-d H:i:s` into a local `[ date, time ]` pair using
+     * the site timezone — identical to SpondSync::localParts() so the
+     * preview's times match what a real sync would store. Returns
+     * `[ '', '' ]` for empty / unparseable input.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function localParts( string $utc ): array {
+        $utc = trim( $utc );
+        if ( $utc === '' ) return [ '', '' ];
+        try {
+            $dt = new \DateTimeImmutable( $utc, new \DateTimeZone( 'UTC' ) );
+            $dt = $dt->setTimezone( wp_timezone() );
+            return [ $dt->format( 'Y-m-d' ), $dt->format( 'H:i:s' ) ];
+        } catch ( \Exception $e ) {
+            return [ '', '' ];
+        }
     }
 
     /**

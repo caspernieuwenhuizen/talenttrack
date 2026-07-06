@@ -65,3 +65,17 @@ Verhuist Spond ooit zijn API naar een nieuw adres, dan kan een beheerder TalentT
 ## Overstappen vanaf de iCal-flow (vóór v3.69.0)
 
 Heb je eerder iCal-URL's in het team-formulier geplakt? Dan worden die automatisch geleegd door migratie 0052. Verbind opnieuw door op **Configuratie → Spond** je Spond-e-mailadres + wachtwoord in te voeren en per ploeg de groep te kiezen. Bestaande geïmporteerde activiteiten blijven staan en gaan weer updaten zodra een groep is gekoppeld.
+
+## Integratiemonitor (proefrun)
+
+Via de Spond-pagina opent **Integratiemonitor openen** een diagnostisch scherm
+dat de Spond-API **live** ophaalt voor een gekozen team en toont wat er
+binnenkomt — er wordt niets opgeslagen. Per gebeurtenis toont het het
+geclassificeerde type, de datum, tijden en locatie, plus een **verschil**: of
+een echte synchronisatie hem zou aanmaken (`NEW`), een bestaande activiteit zou
+bijwerken (`UPDATE`, met precies welke velden zouden worden overschreven), of
+een opgeslagen activiteit zou archiveren die niet meer in de feed staat. Gebruik
+het om te verklaren waarom een afgedrukte activiteit afwijkt van wat je in Spond
+hebt ingesteld — een verouderde cache, een gewijzigde gebeurtenis-UID of een veld
+dat Spond beheert worden hier zichtbaar. Vereist dezelfde \`tt_edit_teams\`-
+capaciteit als de synchronisatie.

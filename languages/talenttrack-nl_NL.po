@@ -46573,6 +46573,115 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Spond monitor"
+msgstr "Spond-monitor"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Spond integration monitor"
+msgstr "Spond-integratiemonitor"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid ""
+"Fetch Spond live and preview how each event would map onto activities — "
+"nothing is saved. Use this to diagnose why a printed activity differs from "
+"what you set in Spond."
+msgstr ""
+"Haal Spond live op en bekijk hoe elke gebeurtenis op activiteiten zou worden "
+"toegepast — er wordt niets opgeslagen. Gebruik dit om te achterhalen waarom "
+"een afgedrukte activiteit afwijkt van wat je in Spond hebt ingesteld."
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "No teams are linked to a Spond group yet. Pick a Spond group on a team edit form first, then come back to preview it here."
+msgstr "Er zijn nog geen teams gekoppeld aan een Spond-groep. Kies eerst een Spond-groep op een teambewerkformulier en kom dan hier terug om het te bekijken."
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Fetch now"
+msgstr "Nu ophalen"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Open integration monitor"
+msgstr "Integratiemonitor openen"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Healthy"
+msgstr "Gezond"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Stale"
+msgstr "Verouderd"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Failing"
+msgstr "Mislukt"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+msgid "Last sync:"
+msgstr "Laatste synchronisatie:"
+
+#: src/Shared/Frontend/FrontendSpondMonitorView.php
+#, php-format
+msgid "%1$d linked · %2$d failing"
+msgstr "%1$d gekoppeld · %2$d mislukt"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Fetching…"
+msgstr "Ophalen…"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Pick a team first."
+msgstr "Kies eerst een team."
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Could not fetch. Please try again."
+msgstr "Ophalen mislukt. Probeer het opnieuw."
+
+#: assets/js/frontend-spond-monitor.js
+#, php-format
+msgid "%1$d new · %2$d update · %3$d archive"
+msgstr "%1$d nieuw · %2$d bijwerken · %3$d archiveren"
+
+#: assets/js/frontend-spond-monitor.js
+#, php-format
+msgid "%d events fetched from Spond."
+msgstr "%d gebeurtenissen opgehaald uit Spond."
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Spond returned no events for this group."
+msgstr "Spond gaf geen gebeurtenissen terug voor deze groep."
+
+#: assets/js/frontend-spond-monitor.js
+msgid "UPDATE"
+msgstr "BIJWERKEN"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Would change:"
+msgstr "Zou wijzigen:"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "No schedule changes — already in step with Spond."
+msgstr "Geen roosterwijzigingen — al gelijk met Spond."
+
+#: assets/js/frontend-spond-monitor.js
+msgid "stored"
+msgstr "opgeslagen"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "Would be archived"
+msgstr "Zou worden gearchiveerd"
+
+#: assets/js/frontend-spond-monitor.js
+msgid "These stored activities are no longer in the Spond feed and a real sync would archive them."
+msgstr "Deze opgeslagen activiteiten staan niet meer in de Spond-feed en zouden bij een echte synchronisatie worden gearchiveerd."
+
+#: src/Infrastructure/REST/SpondRestController.php
+msgid "Could not fetch events from Spond."
+msgstr "Kon geen gebeurtenissen ophalen uit Spond."
+
+#: src/Infrastructure/REST/SpondRestController.php
+msgid "This team has no Spond group linked. Pick a group on the team edit form first."
+msgstr "Dit team heeft geen Spond-groep gekoppeld. Kies eerst een groep op het teambewerkformulier."
+
 #~ msgid "Locks the match. Goals, subs, and score cannot be edited after."
 #~ msgstr ""
 #~ "Vergrendelt de wedstrijd. Doelpunten, wissels en eindstand kunnen daarna "

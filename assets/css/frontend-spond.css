@@ -39,6 +39,11 @@
     font-weight: 600;
 }
 
+/* #2284 — link to the dry-run integration monitor. */
+.tt-dashboard .tt-spond__monitor-link {
+    margin: 0 0 var(--tt-sp-3);
+}
+
 /* ---- Form fields ---------------------------------------------------- */
 .tt-dashboard .tt-spond__field {
     display: grid;

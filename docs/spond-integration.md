@@ -65,3 +65,15 @@ If Spond ever moves its API to a new address, an operator can redirect TalentTra
 ## Migrating from the iCal flow (pre-v3.69.0)
 
 If you previously pasted iCal URLs in the team form, those URLs are nulled out automatically by migration 0052. Reconnect by entering your Spond email + password on **Configuration → Spond** and picking each team's group. Existing imported activities are kept and continue to update once a group is linked again.
+
+## Integration monitor (dry run)
+
+From the Spond page, **Open integration monitor** opens a diagnostic surface
+that fetches the Spond API **live** for a chosen team and shows what's coming in
+— nothing is saved. For each event it lists the classified type, date, times and
+location, and a per-event **diff**: whether a real sync would create it (`NEW`),
+update an existing activity (`UPDATE`, listing exactly which fields it would
+overwrite), or archive a stored activity no longer in the feed. Use it to
+explain why a printed activity differs from what you set in Spond — a stale
+cache, a changed event UID, or a field Spond owns all become visible here. Gated
+on the same `tt_edit_teams` capability as the sync.
