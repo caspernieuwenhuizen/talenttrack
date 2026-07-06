@@ -44,16 +44,30 @@ final class FrontendHolidaysView extends FrontendViewBase {
         }
 
         FrontendBreadcrumbs::fromDashboard( __( 'Holidays', 'talenttrack' ) );
-        self::renderHeader( __( 'Academy holidays', 'talenttrack' ) );
-
-        echo '<p class="tt-muted" style="max-width:640px; margin:0 0 12px;">'
-            . esc_html__( 'Academy-wide holiday periods. They show as a banner across the affected days on every team planner.', 'talenttrack' )
-            . '</p>';
 
         $wizard_url = add_query_arg(
             [ 'tt_view' => 'wizard', 'slug' => 'holiday' ],
             RecordLink::dashboardUrl()
         );
+
+        // #2290 — persistent create CTA in the header (cap-gated). Without
+        // it, the only create affordance was the empty-state card, which
+        // disappears once at least one holiday exists — leaving managers
+        // with no way to add another.
+        $actions_html = self::pageActionsHtml( [
+            [
+                'label'   => __( 'New holiday', 'talenttrack' ),
+                'href'    => $wizard_url,
+                'primary' => true,
+                'icon'    => '+',
+                'cap'     => 'tt_manage_holidays',
+            ],
+        ] );
+        self::renderHeader( __( 'Academy holidays', 'talenttrack' ), $actions_html );
+
+        echo '<p class="tt-muted" style="max-width:640px; margin:0 0 12px;">'
+            . esc_html__( 'Academy-wide holiday periods. They show as a banner across the affected days on every team planner.', 'talenttrack' )
+            . '</p>';
 
         echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
             'rest_path' => 'holidays',
