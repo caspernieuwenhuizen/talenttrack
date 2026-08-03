@@ -241,16 +241,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $status_rest  = 'activities/' . (int) $session->id . '/status';
 
                 if ( $status_now === ActivityStatusKey::PLANNED ) {
-                    $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                    // §7 (#2325) — only surface "Complete activity" when the
+                    // user can actually reach the completion flow; otherwise
+                    // completionUrl() resolves to an empty href and the button
+                    // silently dead-clicks. Cancel stays available regardless.
+                    if ( \TT\Modules\Activities\Services\ActivityCompletionResolver::canComplete(
                         (int) $session->id,
                         (string) ( $session->activity_type_key ?? '' ),
-                        $detail_back
-                    );
-                    $detail_actions[] = [
-                        'label'   => __( 'Complete activity', 'talenttrack' ),
-                        'href'    => $complete_url,
-                        'primary' => true,
-                    ];
+                        get_current_user_id()
+                    ) ) {
+                        $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                            (int) $session->id,
+                            (string) ( $session->activity_type_key ?? '' ),
+                            $detail_back
+                        );
+                        $detail_actions[] = [
+                            'label'   => __( 'Complete activity', 'talenttrack' ),
+                            'href'    => $complete_url,
+                            'primary' => true,
+                        ];
+                    }
                     $detail_actions[] = [
                         'label'      => __( 'Cancel activity', 'talenttrack' ),
                         'variant'    => 'secondary',
@@ -1811,7 +1821,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $is_planned   = ! $is_cancelled
             && ( $status_lower === '' || $status_lower === ActivityStatusKey::PLANNED )
             && in_array( $mode, [ 'today', 'this_week', 'next_week', 'later_this_month', 'later', 'attention' ], true );
-        if ( $is_planned && current_user_can( 'tt_edit_evaluations' ) ) {
+        if ( $is_planned && \TT\Modules\Activities\Services\ActivityCompletionResolver::canComplete( $id, $type_key, get_current_user_id() ) ) {
             $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                 $id,
                 $type_key,
