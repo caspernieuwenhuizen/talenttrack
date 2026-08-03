@@ -46970,6 +46970,15 @@ msgstr "Voeg weken toe aan het faseprofiel hierboven om thema's te labelen."
 msgid "Week"
 msgstr "Week"
 
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "This report is limited to the teams you coach."
+msgstr "Dit rapport is beperkt tot de teams die je traint."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "View the %1$d missed activities for %2$s"
+msgstr "Bekijk de %1$d gemiste activiteiten van %2$s"
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 
