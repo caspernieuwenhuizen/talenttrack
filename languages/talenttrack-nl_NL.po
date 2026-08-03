@@ -46898,6 +46898,78 @@ msgstr "Dit is de laatst overgebleven speelwijze en kan niet worden gearchiveerd
 msgid "Could not update the active methodology."
 msgstr "Kon de actieve speelwijze niet bijwerken."
 
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Periodisering"
+msgstr "Periodisering"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "The VCT module is not enabled, so there is no periodisation cycle to show."
+msgstr "De VCT-module is niet ingeschakeld, dus er is geen periodiseringscyclus om te tonen."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "The season is split into macro-blocks. Each week combines a speelwijze theme (what to work on tactically) with the VCT conditioning phase and its intensity multiplier."
+msgstr "Het seizoen is opgedeeld in macroblokken. Elke week combineert een speelwijze-thema (wat je tactisch traint) met de VCT-conditiefase en de bijbehorende intensiteitsfactor."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "No weekly profile set for this block yet."
+msgstr "Nog geen weekprofiel ingesteld voor dit blok."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Conditiefase"
+msgstr "Conditiefase"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Intensiteit"
+msgstr "Intensiteit"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "No periodisation cycle set up yet."
+msgstr "Nog geen periodiseringscyclus ingesteld."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "The season periodisation combines a weekly speelwijze theme with the VCT conditioning cycle. Define the club-default macro-blocks for the current season to see them here."
+msgstr "De seizoensperiodisering combineert een wekelijks speelwijze-thema met de VCT-conditiecyclus. Stel de macroblokken als clubstandaard in voor het huidige seizoen om ze hier te zien."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Set up macro-blocks"
+msgstr "Macroblokken instellen"
+
+#: src/Modules/Vct/Validation/VctMacroBlockValidator.php
+msgid "Block %1$d has an unknown speelwijze theme \"%2$s\"."
+msgstr "Blok %1$d heeft een onbekend speelwijze-thema \"%2$s\"."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Optional. Array of { week, phase, multiplier, tactical_theme } objects. Leave blank for the default profile."
+msgstr "Optioneel. Array van { week, phase, multiplier, tactical_theme }-objecten. Laat leeg voor het standaardprofiel."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Speelwijze-thema per week"
+msgstr "Speelwijze-thema per week"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Optionally tag each week with a playing-style theme. Weeks come from the phase profile above."
+msgstr "Label elke week optioneel met een speelwijze-thema. De weken komen uit het faseprofiel hierboven."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Speelwijze-thema"
+msgstr "Speelwijze-thema"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "— geen —"
+msgstr "— geen —"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Week %d"
+msgstr "Week %d"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Add weeks to the phase profile above to tag themes."
+msgstr "Voeg weken toe aan het faseprofiel hierboven om thema's te labelen."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Week"
+msgstr "Week"
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 

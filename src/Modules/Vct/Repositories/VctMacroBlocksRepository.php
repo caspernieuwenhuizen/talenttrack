@@ -140,7 +140,38 @@ class VctMacroBlocksRepository {
             'label'         => (string) $row->label,
             'start_date'    => (string) $row->start_date,
             'end_date'      => (string) $row->end_date,
-            'phase_profile' => is_array( $profile ) ? $profile : [],
+            'phase_profile' => is_array( $profile ) ? self::normalisePhaseProfile( $profile ) : [],
         ];
+    }
+
+    /**
+     * Normalise the decoded weekly phase profile so every week entry
+     * carries the full shape { week, phase, multiplier, tactical_theme }.
+     *
+     * `tactical_theme` (#2322) is the per-week speelwijze theme layered on
+     * top of the conditioning phase. It is OPTIONAL — legacy blocks stored
+     * before #2322 have no `tactical_theme` key; those default to null here
+     * so the read tab and any consumer can treat "no theme" uniformly. The
+     * key is validated against the canonical `vct_tactical_theme` vocabulary
+     * on write (REST layer); read is trusting.
+     *
+     * @param array<int,mixed> $profile
+     * @return list<array<string,mixed>>
+     */
+    private static function normalisePhaseProfile( array $profile ): array {
+        $out = [];
+        foreach ( $profile as $week ) {
+            if ( ! is_array( $week ) ) continue;
+            $theme = isset( $week['tactical_theme'] ) && $week['tactical_theme'] !== ''
+                ? (string) $week['tactical_theme']
+                : null;
+            $out[] = [
+                'week'           => isset( $week['week'] ) ? (int) $week['week'] : 0,
+                'phase'          => isset( $week['phase'] ) ? (string) $week['phase'] : '',
+                'multiplier'     => isset( $week['multiplier'] ) ? (float) $week['multiplier'] : 1.0,
+                'tactical_theme' => $theme,
+            ];
+        }
+        return $out;
     }
 }

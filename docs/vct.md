@@ -123,6 +123,16 @@ The wizard publishes a `tt_vct_sessions` row. The coach view (#1085) reads that 
 
 The Configuration tiles (#1087) link into the HoD's VCT configuration sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`) so the HoD has a one-tap entry from the Configuration grid.
 
+## Speelwijze theme per week
+
+Each macro-block already carries a per-week conditioning cycle — a phase (introduction, build, peak, deload, …) and an intensity multiplier. On top of that, each week can carry an optional **speelwijze theme** (`tactical_theme`): the tactical focus for that week (build-up, defending, possession, …), drawn from the same `vct_tactical_theme` vocabulary the exercise library uses. The theme is optional — a week with no theme is simply untagged, and blocks authored before this feature are unaffected.
+
+Set the theme on the VCT configuration tile (**Configuration → VCT → Macro-blocks**): open a block's **Advanced** section and pick a theme for each week under *Speelwijze-thema per week*. The weeks come from the block's phase profile, so add the weekly phases first.
+
+The combined cycle — theme + conditioning phase + intensity, week by week — is surfaced read-only on the methodology library's **Periodisation** tab for the club-default calendar of the current season.
+
+A JO13-1 5-week speelwijze reference template ships as a starting point (build-up → defending → possession → defending → a neutral week). Feeding the per-week theme into VCT exercise selection is a planned follow-up; today the theme is descriptive.
+
 ## Privacy
 
 PHV (Physical / Health / Vitality) panel + pill follows CLAUDE.md §1 — staff (HoD / coach / admin) see full reason + ceiling + notes; other parents see nothing; AC-also-parent sees own child via the parent persona only. The reason picker is an enum to discourage long medical text leaking via free-text.
