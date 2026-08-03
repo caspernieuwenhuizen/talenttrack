@@ -268,50 +268,66 @@ class PlayersRestController {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
-        // #0070 — join parent person so the list can render a clickable
-        // parent name. Left-joined; null when no parent_person_id is set
-        // or the parent record has been removed.
-        $list_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group,
-                            par.id AS parent_id,
-                            par.first_name AS parent_first_name,
-                            par.last_name AS parent_last_name
-                     FROM {$p}tt_players p
-                     LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
-                     LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
-                     WHERE {$where_sql}
-                     ORDER BY {$orderby} {$order}
-                     LIMIT %d OFFSET %d";
-        $offset = ( $page - 1 ) * $per_page;
-        $list_params = array_merge( $params, [ $per_page, $offset ] );
-
-        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) ) ?: [];
-
-        // Row-level visibility filter — same as v2.x but applied
-        // post-fetch. AuthorizationService is per-player; checking it
-        // pre-fetch would require either inlining its logic or N+1
-        // queries. With the page-level cap (100/page max) the post-fetch
-        // filter cost is bounded.
+        // #2331 — authorize BEFORE paginating. canViewPlayer is the sole
+        // coach/parent visibility gate (there is no team scope in the SQL
+        // WHERE), so applying it AFTER LIMIT/OFFSET under-fills the page and
+        // strands authorized players sorted past the first SQL page — while
+        // `total`, computed over the whole set, disagrees with the rendered
+        // rows. Instead: fetch the full ordered id set, authorize it once
+        // (single source of truth), then paginate the authorized ids and
+        // hydrate full rows for just that page.
         $user_id = get_current_user_id();
-        $rows = array_values( array_filter( $rows, function ( $pl ) use ( $user_id ) {
-            return AuthorizationService::canViewPlayer( $user_id, (int) $pl->id );
-        } ) );
+        $offset  = ( $page - 1 ) * $per_page;
 
-        // Total count — same WHERE clause, post-AuthZ.
-        $count_sql = "SELECT p.id FROM {$p}tt_players p
-                      LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
-                      WHERE {$where_sql}";
+        // Ordered ids over the same WHERE + joins the ORDER BY may reference.
+        $id_sql = "SELECT p.id FROM {$p}tt_players p
+                   LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
+                   LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
+                   WHERE {$where_sql}
+                   ORDER BY {$orderby} {$order}";
         $all_ids = $params
-            ? $wpdb->get_col( $wpdb->prepare( $count_sql, ...$params ) )
-            : $wpdb->get_col( $count_sql );
-        // #1359 — reviewed and kept as-is: canViewPlayer resolves from
-        // AuthorizationService's per-request caches after the first
-        // call (role scopes + team links load once), so this loop is
-        // O(ids) array work, not N+1 queries. Replicating the matrix
-        // + parent-link + team-scope logic in SQL would fork the
-        // authorization rules into a second implementation.
-        $total = 0;
-        foreach ( (array) $all_ids as $pid ) {
-            if ( AuthorizationService::canViewPlayer( $user_id, (int) $pid ) ) $total++;
+            ? $wpdb->get_col( $wpdb->prepare( $id_sql, ...$params ) )
+            : $wpdb->get_col( $id_sql );
+
+        // #1359 — canViewPlayer resolves from AuthorizationService's
+        // per-request caches after the first call (role scopes + team links
+        // load once), so this is O(ids) array work, not N+1 queries.
+        // Replicating the matrix + parent-link + team-scope logic in SQL
+        // would fork the authorization rules into a second implementation.
+        $auth_ids = array_values( array_filter(
+            array_map( 'intval', (array) $all_ids ),
+            static function ( $pid ) use ( $user_id ) {
+                return AuthorizationService::canViewPlayer( $user_id, $pid );
+            }
+        ) );
+        $total = count( $auth_ids );
+
+        // Page the authorized ids, then hydrate full rows for just this page.
+        // #0070 — join parent person so the list can render a clickable
+        // parent name (null when unset / removed). SQL `IN` does not
+        // preserve order, so reorder in PHP to match the authorized page.
+        $page_ids = array_slice( $auth_ids, $offset, $per_page );
+        $rows = [];
+        if ( $page_ids ) {
+            $in       = implode( ',', array_fill( 0, count( $page_ids ), '%d' ) );
+            $rows_sql = "SELECT p.*, t.name AS team_name, t.age_group AS team_age_group,
+                                par.id AS parent_id,
+                                par.first_name AS parent_first_name,
+                                par.last_name AS parent_last_name
+                         FROM {$p}tt_players p
+                         LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
+                         LEFT JOIN {$p}tt_people par ON par.id = p.parent_person_id AND par.club_id = p.club_id
+                         WHERE p.id IN ($in)";
+            $fetched = $wpdb->get_results( $wpdb->prepare( $rows_sql, ...$page_ids ) ) ?: [];
+            $by_id   = [];
+            foreach ( $fetched as $row ) {
+                $by_id[ (int) $row->id ] = $row;
+            }
+            foreach ( $page_ids as $pid ) {
+                if ( isset( $by_id[ $pid ] ) ) {
+                    $rows[] = $by_id[ $pid ];
+                }
+            }
         }
 
         return RestResponse::success( [
