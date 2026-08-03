@@ -1,3 +1,115 @@
+# TalentTrack v4.80.0 — Manage methodology sets + per-team selection (#2320)
+
+Academies can now manage their methodology sets from the frontend. A new **Speelwijzen** tab leads the methodology manage surface: it lists every set (with Actief and Shipped badges), creates and renames sets through a flat multilingual form, makes any set the install-wide active one with a single "Maak actief" action, and archives sets it no longer needs — refusing to touch shipped reference sets or strand the install with zero methodologies. Each team can override which set it uses through a new "Methodology set" dropdown on the team edit form, defaulting to the install-wide active set. The same operations are exposed over REST at `/methodology/sets`, including `PUT /methodology/sets/{id}/default`, so a future SaaS front end gets identical answers.
+
+Wizard plan: exemption — methodology set is a single-record named container, analogous to a lookup/vocabulary edit (§3 exemption a).
+
+# TalentTrack v4.80.0 — Second shipped methodology: JO13-1 Hedel (#2321)
+
+TalentTrack now ships a second methodology alongside the default JO14-1 Hedel (1-4-2-3-1): JO13-1 Hedel, a 1-4-3-3 playing style converted from the club's "Speelwijze Jeugd 13-1 Hedel" document. It carries its own vision, formation with eleven position cards, sixteen coded principles (defending, both transitions and attacking), a framework primer with its phases, and learning goals — all scoped to the new set so its content stays isolated from the default. Building on the selectable-methodology foundation (epic #2316), a team can be pointed at whichever set fits its playing style, and the Methodology tabs then show that set's content. Shipped content remains read-only; clone an entry to edit your own copy.
+
+# TalentTrack v4.80.0 — Methodology periodisation combined with VCT week-cycle (#2322)
+
+The VCT macro-block week schedule now carries an optional per-week speelwijze theme (`tactical_theme`) alongside the existing conditioning phase and intensity multiplier, reusing the canonical `vct_tactical_theme` vocabulary. A new "Periodisering" tab on the methodology library reads the club-default cycle for the current season and shows, per week, the speelwijze theme + conditioning phase + intensity — the single surface that combines the methodology and VCT views. The VCT configuration tile gains a per-week theme picker inside each block's advanced editor, and a JO13-1 5-week speelwijze reference template ships as a seed. Feeding the per-week theme into VCT exercise selection is a deliberate follow-up and is intentionally out of scope here.
+
+# TalentTrack v4.80.0 — Animated per-phase tactical scenes (#2323)
+
+The methodology library gains a **Speelwijze** tab with animated per-phase tactical scenes: an SVG pitch that plays out player and ball movement for each game phase, with coaching points alongside. Scenes are grouped by aanvallen / verdedigen / omschakelen and ship for the JO13-1 Hedel set. Play / Pause / Restart controls are keyboard-accessible and honour reduced-motion (no autoplay — the final frame renders statically). Scenes are authorable over a new REST resource (`/methodology/tactical-scenes`); an in-app drag-and-draw scene editor is a planned follow-up.
+
+Wizard plan: exemption — this ships no in-app record-creation flow. Scenes are shipped seed content, read-only in the app; creation is REST-only for a future editor. No "+ New" affordance, so no wizard applies (the drag-and-draw editor, when built, gets its own wizard decision).
+
+# TalentTrack v4.80.0 — Clickable KPI tiles on the standard reports (#2343)
+
+The standard-reports KPI strip can now turn a tile into a drill-down link:
+each KPI accepts an optional `href` (and an optional `cap` to gate it, hiding
+the link for viewers who lack the capability). Tiles without an `href` render
+exactly as before, so no existing report changes. The clickable tile gains a
+visible keyboard focus ring and keeps its 48px touch target.
+
+# TalentTrack v4.80.0 — Honest, context-aware empty states on the standard reports (#2344)
+
+When a standard report has nothing to show it now says why in plain terms —
+"No matches recorded in this period", "No evaluations recorded for this team in
+this window", "No prospects logged in this window", and so on — instead of the
+old generic "adjust a filter and try again" copy (most of these reports have no
+filter to adjust). The Season summary no longer renders a blank page below its
+headline tiles when no teams exist.
+
+# TalentTrack v4.80.0 — Standard-reports query fixes: archived join, honest window + cap, last-evaluated date (#2346)
+
+Three mechanical corrections to the standard reports. The Season summary's
+per-team match counts now exclude soft-archived activities on the join itself,
+not just in the count, removing a source of inflated joins (values are
+unchanged). Player · Minutes played now states its 12-month window in the page
+sub-line and surfaces the "showing the 50 most recent matches" cap so a longer
+history is never silently dropped. Team · Squad evaluation summary shows a
+**Last evaluated** date per player so a stale row is visible at a glance.
+
+# TalentTrack v4.80.0 — Trial funnel reconciles: pending row, window label, scout links (#2347)
+
+The Season · Trial funnel's Per-decision table now lists the outcomes of cases
+opened in the window plus a **Pending (not yet decided)** row and a **Total**
+row that sums to *Trial cases opened*, so the breakdown reconciles. The
+Decision rate tile carries a one-line note that its numerator (cases decided,
+by decision date) and denominator (cases opened, by open date) use different
+windows. Each scout name in the Per-scout table links to that scout's Scout
+report card, gated on the same `tt_view_reports` capability the card enforces.
+
+# TalentTrack v4.80.0 — One shared per-match minutes breakdown component (#2348)
+
+The per-match minutes breakdown table used by the Team · Minutes distribution
+report and the Analytics minutes-played report is now a single shared component
+(`MinutesBreakdown`), replacing two near-identical copies that had already
+drifted in markup. Both reports render identical rows that still reconcile
+exactly to the player's total. Presentation-only — no query or data change.
+
+# TalentTrack v4.80.0 — Minutes-played (team) report: shared filter bar + KPI strip (#2349)
+
+The Minutes-played (team) report now uses the shared filter bar (team,
+retrospective period pills — Last week / This month / This season — a match-type
+select and a manual From/To range) and the shared KPI strip, matching the
+attendance reports. The default window is the current season; on a phone the
+filters collapse into the standard bottom-sheet with 48px touch targets. The
+report's one-off stylesheet was trimmed to the few genuinely report-specific
+rules that remain.
+
+# TalentTrack v4.80.0 — Attendance leaderboard: filter + chrome parity (#2350)
+
+The attendance leaderboard now shares the same filter bar and chrome as the player attendance report: a team picker, retrospective period pills, an activity-type filter and a manual date range, plus the leaderboard's "How many" cap. Opening it with no filters defaults to the current season. A KPI strip above the tables summarises the ranked players (total, average attendance, at-risk count), computed from the data already fetched — no extra query. Flagged players in the "Needs attention" table keep their missed-count badge, and the empty-state messages now say what to try next.
+
+# TalentTrack v4.80.0 — Attendance reports: type filter + at-risk drill-down + season-pill state (#2351)
+
+The team and player attendance reports now surface the silently-seeded
+season-default window as an active **This season** pill instead of reading
+"Custom range", so the filter bar reflects the window you're actually looking
+at on first open. When a coach only sees the teams they're assigned to, the
+empty-state message now says the report is limited to those teams, so an empty
+window no longer reads as "the academy has no data". On the player report the
+inline at-risk ⚠ badge — and each name in the At-risk players panel — is now a
+link that drills to the player's missed-activities list (this player, the
+report's team, the report's window), matching the existing Activities-count
+drill-down and carrying a back hint to the report.
+
+# TalentTrack v4.80.0 — Team ratings report: fix N*M query fan-out (#2352)
+
+The admin Team rating averages report now computes its numbers with two grouped database queries instead of one query per team and per category cell. On academies with many teams and categories this cuts the report from dozens of queries to two, so the page loads noticeably faster. The displayed averages and evaluation counts are unchanged.
+
+# TalentTrack v4.80.0 — Coach activity report: club scope guard + name fallback (#2353)
+
+The Coach activity report now scopes its per-coach evaluation counts to the current club, so it can never surface a coach from another academy in a multi-tenant install. Coaches whose user account has been deleted are labelled **Unknown coach** instead of a raw account number, while still keeping their saved evaluations in the count.
+
+# TalentTrack v4.80.0 — Explorer: visible row-cap notice + filter validation (#2354)
+
+The dimension explorer now surfaces its hidden 5000-row cap: when a drill-down hits the limit, a notice under the table tells the user the tail is being dropped and to group the data to aggregate larger sets. Filters are also validated against the KPI's declared explore dimensions — a filter for a dimension the KPI doesn't offer is ignored instead of being applied, so the filters shown on screen always match the ones applied to CSV/PDF exports.
+
+# TalentTrack v4.80.0 — Usage statistics: season default, truncation labels, better empty states (#2355)
+
+The Application KPIs dashboard now defaults to a season-aware window instead of a fixed 30 days, picking the smallest period that spans the running season so far. Truncated tables (Active users, Dormant users) carry a "(Showing top N)" label so it's clear the list is capped, not complete. A collapsible "How these numbers are measured" note explains that stickiness is always a 30-day MAU ratio, that visits end after 30 minutes idle, and that observed time online is a lower bound. Role labels now render as shared role chips, and the empty states for "Top features used" and "Dormant users" suggest a next action.
+
+# TalentTrack v4.80.0 — Reports launcher: honest empty state when no tiles are available (#2357)
+
+When every report tile was filtered out — all reports switched off for the academy, or none within the viewer's scope — the Reports launcher rendered a blank grid with no explanation. It now shows a clear notice explaining that no reports are available and pointing the user to ask an administrator to enable a report or widen their scope. When any tile survives the filtering, output is unchanged.
+
 # TalentTrack v4.79.0 — Centralized cross-view link authorization affordances (#2304)
 
 Cross-view navigation links, tiles and buttons that point at another view are now hidden through one shared helper (`CrossViewLink`) backed by a registry that mirrors each target view's actual access guard, instead of hand-rolled inline capability checks that drifted from the destination. The measurements execution links (Manage tests, Record measurements, Testing coverage), the team-detail Planner link, the team-development chemistry and blueprint tiles, the activity methodology link, and the player "Chemistry attributes" action all route through it — same users see each link, with the player-attributes entry now correctly tightened to the per-player evaluation check the target enforces. A new diff-only CI gate stops future cross-view links from skipping the helper.
