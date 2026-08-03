@@ -34,3 +34,7 @@ Wil je vanuit een geleverde regel beginnen zonder het origineel aan te raken? Kl
 ## Diagrammen en afbeeldingen
 
 Bij elke regel kun je diagrammen en afbeeldingen toevoegen. Op de bewerkpagina zit een sectie waar je beelden kunt kiezen of uploaden. De eerste afbeelding wordt het hero-beeld; je kunt bijschriften toevoegen en wisselen welk beeld primair is.
+
+## Selecteerbare methodologieën
+
+TalentTrack levert nu **twee** methodologieën. Naast de standaard **JO14-1 Hedel** (1-4-2-3-1) is er een tweede geleverde methodologie **JO13-1 Hedel** (1-4-3-3). Die heeft een eigen visie, formatie en positiekaarten, spelprincipes, raamwerk-introductie, fasen en leerdoelen. Een team kan worden gekoppeld aan de set die bij zijn speelwijze past; de Methodologie-tabbladen tonen dan de inhoud van die set. Zoals alle geleverde inhoud is die alleen-lezen — kloon een regel om je eigen kopie te bewerken.

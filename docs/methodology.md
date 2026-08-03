@@ -34,3 +34,7 @@ To start from a shipped entry without touching the original, click **Clone & edi
 ## Diagrams and images
 
 Every entry can carry diagrams and images. Each entry's edit page has a section for adding pictures — pick from the media library or upload new ones. The first image becomes the hero image; you can add captions and switch which image is primary.
+
+## Selectable methodologies
+
+TalentTrack now ships **two** methodologies. Alongside the default **JO14-1 Hedel** (1-4-2-3-1), a second shipped methodology **JO13-1 Hedel** (1-4-3-3) is available. It carries its own vision, formation and position cards, principles, framework primer, phases and learning goals. A team can be pointed at whichever set fits its playing style; the Methodology tabs then show that set's content. Like all shipped content it is read-only — clone an entry to edit your own copy.
