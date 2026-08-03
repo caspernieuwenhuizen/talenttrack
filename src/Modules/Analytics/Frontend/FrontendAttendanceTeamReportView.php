@@ -271,14 +271,11 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
     }
 
     /**
-     * Default window: 90 days back from today.
+     * Default window: current season start through today (90-day fallback).
      * @return array{from:string,to:string}
      */
     private static function defaultWindow(): array {
-        return [
-            'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ),
-            'to'   => gmdate( 'Y-m-d' ),
-        ];
+        return ReportFilters::seasonDefaultWindow();
     }
 
     /**

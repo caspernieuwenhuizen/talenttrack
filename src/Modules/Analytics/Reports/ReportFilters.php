@@ -86,6 +86,30 @@ final class ReportFilters {
     }
 
     /**
+     * The default From/To window a report seeds when the user has picked
+     * neither a period pill nor a manual range. Starts at the current
+     * season's start date and ends today, so the default matches how the
+     * academy thinks about the year (and equals the `This season` pill's
+     * From — it reuses the same SeasonsRepository resolver as
+     * `periodWindow('this_season', …)`). Falls back to a 90-day rolling
+     * window when the seasons repository is unavailable, no current season
+     * exists, or its start date is empty, so a report never fatals or
+     * renders empty just because no season is configured.
+     *
+     * @return array{from:string,to:string}
+     */
+    public static function seasonDefaultWindow(): array {
+        $to = gmdate( 'Y-m-d' );
+        if ( class_exists( '\\TT\\Modules\\Pdp\\Repositories\\SeasonsRepository' ) ) {
+            $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
+            if ( $season && ! empty( $season->start_date ) ) {
+                return [ 'from' => (string) $season->start_date, 'to' => $to ];
+            }
+        }
+        return [ 'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ), 'to' => $to ]; // fallback
+    }
+
+    /**
      * Activity-type select options (lookup name => translated label),
      * matching the activities list's Type filter.
      *
