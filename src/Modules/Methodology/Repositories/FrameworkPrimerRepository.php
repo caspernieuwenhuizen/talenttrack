@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * FrameworkPrimerRepository — `tt_methodology_framework_primers`.
@@ -22,16 +23,19 @@ final class FrameworkPrimerRepository {
     public function activeForClub( ?string $club_scope = null ): ?object {
         global $wpdb;
         $t = $this->table();
+        $mid     = MethodologyScope::active();
+        $mclause = $mid > 0 ? ' AND methodology_id = %d' : '';
+        $margs   = $mid > 0 ? [ $mid ] : [];
         if ( $club_scope !== null && $club_scope !== '' ) {
             $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT * FROM {$t} WHERE club_scope = %s AND club_id = %d AND archived_at IS NULL ORDER BY id DESC LIMIT 1",
-                $club_scope, CurrentClub::id()
+                "SELECT * FROM {$t} WHERE club_scope = %s AND club_id = %d AND archived_at IS NULL{$mclause} ORDER BY id DESC LIMIT 1",
+                $club_scope, CurrentClub::id(), ...$margs
             ) );
             if ( $row ) return $row;
         }
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE club_scope IS NULL AND club_id = %d AND archived_at IS NULL ORDER BY is_shipped DESC, id DESC LIMIT 1",
-            CurrentClub::id()
+            "SELECT * FROM {$t} WHERE club_scope IS NULL AND club_id = %d AND archived_at IS NULL{$mclause} ORDER BY is_shipped DESC, id DESC LIMIT 1",
+            CurrentClub::id(), ...$margs
         ) );
         return $row ?: null;
     }
@@ -53,9 +57,15 @@ final class FrameworkPrimerRepository {
         $where = $include_archived
             ? ' WHERE club_id = %d'
             : ' WHERE club_id = %d AND archived_at IS NULL';
+        $args = [ CurrentClub::id() ];
+        $mid  = MethodologyScope::active();
+        if ( $mid > 0 ) {
+            $where .= ' AND methodology_id = %d';
+            $args[] = $mid;
+        }
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$t}{$where} ORDER BY is_shipped DESC, id ASC",
-            CurrentClub::id()
+            ...$args
         ) );
     }
 
@@ -64,6 +74,10 @@ final class FrameworkPrimerRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }

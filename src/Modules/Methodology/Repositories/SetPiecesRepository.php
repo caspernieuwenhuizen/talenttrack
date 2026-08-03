@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * SetPiecesRepository — `tt_set_pieces` data access. Same shape as
@@ -45,6 +46,14 @@ class SetPiecesRepository {
         if ( $source === 'shipped' )      $where[] = 'is_shipped = 1';
         elseif ( $source === 'club' )     $where[] = 'is_shipped = 0';
 
+        $mid = array_key_exists( 'methodology_id', $filters )
+            ? (int) $filters['methodology_id']
+            : MethodologyScope::active();
+        if ( $mid > 0 ) {
+            $where[] = 'methodology_id = %d';
+            $args[]  = $mid;
+        }
+
         $where_sql = empty( $where ) ? '' : ' WHERE ' . implode( ' AND ', $where );
         $sql = "SELECT * FROM {$t}{$where_sql} ORDER BY side ASC, kind_key ASC, slug ASC";
 
@@ -68,6 +77,10 @@ class SetPiecesRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
