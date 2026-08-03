@@ -13587,6 +13587,18 @@ msgstr[1] ""
 msgid "Search classes"
 msgstr "Klassen zoeken"
 
+#: src/Shared/Frontend/FrontendModulesView.php:190
+msgid "Search modules and features"
+msgstr "Zoek modules en functies"
+
+#: src/Shared/Frontend/FrontendModulesView.php:195
+msgid "Search modules and features…"
+msgstr "Zoek modules en functies…"
+
+#: src/Shared/Frontend/FrontendModulesView.php:299
+msgid "No modules or features match your search."
+msgstr "Geen modules of functies komen overeen met je zoekopdracht."
+
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:978
 msgid "e.g. card, btn, table…"
 msgstr "bijv. card, btn, table…"
