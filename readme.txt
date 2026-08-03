@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.78.2
+Stable tag: 4.78.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.78.3 — Search box on the Modules & features page (#2300) The frontend **Modules & features** page (`?tt_view=modules`) now has a search box at the top that filters the module cards and their nested feature toggles live as you type, matching on name or description. A match inside a feature auto-expands its module; empty categories drop out and an empty-state line shows when nothing matches. With dozens of per-report and per-export toggles, finding a specific one no longer means scrolling the whole list. Client-side only — no reload, and the full list still renders with JavaScript off. =
+
+= 4.78.3 — Player comparison and Podium are now switchable features (#2302) The **Player comparison** and **Podium** analytics tiles can now be turned off per academy from the Modules & features page (`?tt_view=modules`), the same way as the other analytics surfaces. Both ship **on**, so nothing changes on upgrade; switching one off hides its dashboard tile and blocks a direct link to its `?tt_view` route. Until now these two tiles were hard-wired on and had no toggle. =
+
+= 4.78.3 — Upgrade dompdf to 3.x (security) (#2313) Bumped the `dompdf/dompdf` dependency from `^2.0` to `^3.0`. Every 2.0.x release is now flagged by published security advisories, which blocked `composer install` in CI. dompdf 3.x carries no advisories and still supports PHP 7.4, so the plugin's minimum PHP is unchanged. PDF export behaviour is unaffected — the renderer uses only the stable dompdf API. =
 
 = 4.78.2 — Holidays: "New holiday" button always available on the list (#2290) The academy Holidays list now shows a persistent "New holiday" button in its header, gated on the manage-holidays capability. Previously the only create affordance was the empty-state card, which disappears once at least one holiday exists — so a manager with full rights had no visible way to add another and had to reach the wizard by URL. The empty-state CTA is unchanged. =
 
