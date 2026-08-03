@@ -164,6 +164,13 @@
 .tt-dashboard a.tt-kpi--link:hover {
     box-shadow: var(--tt-shadow-lg);
 }
+/* #2343 — clickable KPI tile. The block padding already clears the 48px
+   touch minimum; add a visible keyboard focus ring (never a hover-only
+   affordance) per CLAUDE.md §2. */
+.tt-dashboard a.tt-kpi--link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
 .tt-dashboard .tt-kpi--flag-red   { border-left: 4px solid #d8453b; }
 .tt-dashboard .tt-kpi--flag-green { border-left: 4px solid #2f9e5e; }
 .tt-kpi__label {
@@ -228,6 +235,14 @@
     margin: 0;
     width: 100%;
 }
+
+/* #2348 — shared per-match minutes breakdown (MinutesBreakdown component).
+   One home for the drill-down table used by the Team·Minutes report and the
+   Minutes-played (team) report; both surfaces used to carry their own copy
+   (.tt-rep-bar-breakdown / .tt-min-breakdown) which had already drifted. */
+.tt-dashboard .tt-minutes-breakdown { padding: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px); }
+.tt-dashboard .tt-minutes-breakdown table { width: 100%; }
+.tt-dashboard .tt-minutes-breakdown__total td { font-weight: 600; }
 
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 560px) {

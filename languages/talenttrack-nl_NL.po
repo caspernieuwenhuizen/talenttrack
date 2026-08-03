@@ -47459,3 +47459,48 @@ msgstr "Meegeleverde speelwijze-scènes kunnen niet worden verwijderd."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "%s · last 12 months"
+msgstr "%s · laatste 12 maanden"
+
+msgid "Cases opened in the window, by outcome. Pending = opened but not yet decided. Rows sum to Trial cases opened."
+msgstr "Dossiers geopend in de periode, per uitkomst. In behandeling = geopend maar nog niet besloten. Rijen tellen op tot Geopende proefdossiers."
+
+msgid "Decided (by decision date) ÷ opened (by open date)"
+msgstr "Besloten (op besluitdatum) ÷ geopend (op openingsdatum)"
+
+msgid "Last evaluated"
+msgstr "Laatst beoordeeld"
+
+msgid "No coaches have evaluations in this selection."
+msgstr "Geen trainers met beoordelingen in deze selectie."
+
+msgid "No evaluations recorded for the selected players yet. Pick different players or record an evaluation first."
+msgstr "Nog geen beoordelingen vastgelegd voor de geselecteerde spelers. Kies andere spelers of leg eerst een beoordeling vast."
+
+msgid "No evaluations recorded for this team in this window."
+msgstr "Geen beoordelingen vastgelegd voor dit team in deze periode."
+
+msgid "No matches recorded in this period. Check the Activities log or widen the window."
+msgstr "Geen wedstrijden vastgelegd in deze periode. Controleer het activiteitenlog of verruim de periode."
+
+msgid "No players with recorded match minutes for this team in the last 12 months."
+msgstr "Geen spelers met vastgelegde wedstrijdminuten voor dit team in de laatste 12 maanden."
+
+msgid "No prospects logged in this window."
+msgstr "Geen prospects vastgelegd in deze periode."
+
+msgid "No teams have been created for this academy yet."
+msgstr "Er zijn nog geen teams aangemaakt voor deze academie."
+
+msgid "No trial cases or prospects logged in the last 12 months."
+msgstr "Geen proefdossiers of prospects vastgelegd in de laatste 12 maanden."
+
+msgid "Pending (not yet decided)"
+msgstr "In behandeling (nog niet besloten)"
+
+msgid "Showing the %d most recent matches in the window."
+msgstr "Toont de %d meest recente wedstrijden in de periode."
+
+msgid "Total (should equal cases opened)"
+msgstr "Totaal (moet gelijk zijn aan geopende dossiers)"

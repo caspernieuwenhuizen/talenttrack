@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\ExplorerUrl;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\MinutesBreakdown;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -184,7 +185,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     }
 
     /**
-     * Render a KPI strip from `[ [ 'num' => N, 'label' => 'X', 'sub' => '…' (optional), 'warn' => bool ], … ]`.
+     * Render a KPI strip from `[ [ 'num' => N, 'label' => 'X', 'sub' => '…' (optional), 'warn' => bool, 'href' => '…' (optional), 'cap' => '…' (optional) ], … ]`.
+     *
+     * #2343 — an optional `href` turns a tile into a clickable drill-down;
+     * `kpiTile()` already wraps its output in an `<a>` when `href` is set.
+     * An optional `cap` capability gates the drill-down (§7 hide-don't-tease):
+     * when the current user lacks it the tile still renders, but as a static
+     * tile with no link. When `href` is absent the tile is byte-identical to
+     * before, so no existing caller changes.
      *
      * @param array<int,array<string,mixed>> $kpis
      */
@@ -195,66 +203,38 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             // 2026 restyle (B3) — render through the shared KPI tile helper
             // so the strip matches every other surface. The optional `sub`
             // line maps to the tile's delta; a `warn` sub flags the tile gold.
-            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+            $href = (string) ( $k['href'] ?? '' );
+            $cap  = (string) ( $k['cap'] ?? '' );
+            // §7 — an href-carrying tile whose destination is cap-gated only
+            // links when the viewer holds the cap; otherwise it stays static.
+            if ( $href !== '' && $cap !== '' && ! current_user_can( $cap ) ) {
+                $href = '';
+            }
+            $args = [
                 'label' => (string) ( $k['label'] ?? '' ),
                 'value' => (string) ( $k['num'] ?? '0' ),
                 'delta' => (string) ( $k['sub'] ?? '' ),
                 'flag'  => ! empty( $k['warn'] ) ? 'red' : '',
-            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+            ];
+            if ( $href !== '' ) $args['href'] = $href;
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( $args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
         }
         echo '</div>';
-    }
-
-    private static function renderEmpty(): void {
-        echo '<div class="tt-rep-section"><div class="tt-rep-empty">';
-        echo '<strong>' . esc_html__( 'No data for this selection', 'talenttrack' ) . '</strong>';
-        echo esc_html__( 'Adjust a filter and try again.', 'talenttrack' );
-        echo '</div></div>';
     }
 
     /**
-     * #2160 — per-match minutes breakdown table for one player. The rows
-     * come from {@see MinutesQuery::matchBreakdownForPlayer()} so they sum
-     * EXACTLY to the player's report total. Shows the record_type so the
-     * operator can confirm only `actual` rows are counted.
-     *
-     * @param list<array{activity_id:int,session_date:string,title:string,type_key:string,minutes:int,record_type:string}> $breakdown
+     * #2344 — honest, context-aware empty state. Most standard reports have
+     * no filter to "adjust", so the generic "Adjust a filter and try again"
+     * copy was nonsense there. Callers now pass a concrete, next-action
+     * message that names what was searched. When no message is supplied the
+     * generic copy is kept (used by the scope-guard early-returns, where a
+     * filter genuinely does exist upstream).
      */
-    private static function renderMinutesBreakdown( array $breakdown, int $player_id ): void {
-        echo '<div class="tt-rep-bar-breakdown">';
-        if ( ! $breakdown ) {
-            echo '<p class="tt-rep-section__hint">' . esc_html__( 'No per-match minutes recorded in this window.', 'talenttrack' ) . '</p>';
-            echo '</div>';
-            return;
-        }
-        $sum = 0;
-        foreach ( $breakdown as $b ) $sum += (int) $b['minutes'];
-        echo '<table class="tt-table"><thead><tr>'
-            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Source', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
-        foreach ( $breakdown as $b ) {
-            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
-            $title = (string) $b['title'];
-            if ( $title === '' ) $title = '—';
-            // #2193 — every breakdown row is a persisted actual-minutes
-            // row; minutes are never recomputed at report time. The source
-            // is therefore always "actual".
-            $source = __( 'actual', 'talenttrack' );
-            echo '<tr>';
-            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $b['session_date'] ) ) . '</td>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
-            echo '<td>' . esc_html( (string) $b['type_key'] ) . '</td>';
-            echo '<td>' . esc_html( $source ) . '</td>';
-            echo '<td class="num">' . (int) $b['minutes'] . '</td>';
-            echo '</tr>';
-        }
-        echo '<tr class="tt-rep-bar-breakdown__total"><td colspan="4">' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num">' . (int) $sum . '</td></tr>';
-        echo '</tbody></table>';
-        echo '</div>';
+    private static function renderEmpty( ?string $message = null ): void {
+        echo '<div class="tt-rep-section"><div class="tt-rep-empty">';
+        echo '<strong>' . esc_html__( 'No data for this selection', 'talenttrack' ) . '</strong>';
+        echo esc_html( $message ?? __( 'Adjust a filter and try again.', 'talenttrack' ) );
+        echo '</div></div>';
     }
 
     // ── #1090 Player · Minutes played ────────────────────────────────
@@ -296,6 +276,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // literal in source.
         $att_fk    = 'activity_id';
         $date_col  = 'sess' . 'ion_date';
+        // #2346 — an explicit 12-month window matching the Explorer link's
+        // `-12 months`. The report previously had no date bound yet the
+        // Explorer drill advertised a 12-month span; the two now agree. The
+        // 50-row cap is also surfaced in the KPI strip below so a longer
+        // history is never silently dropped.
+        $bd_from = gmdate( 'Y-m-d', strtotime( '-12 months' ) );
+        $bd_to   = gmdate( 'Y-m-d' );
+        $row_cap = 50;
         // #2158 — count only canonical recorded attendance: actual,
         // non-guest. SUM per (player, activity) so a duplicate attendance
         // row can't fan the JOIN out and double the minutes.
@@ -312,10 +300,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
                 AND a.activity_type_key IN ('match','game','tournament')
+                AND a.{$date_col} BETWEEN %s AND %s
               GROUP BY a.id, a.{$date_col}, a.title, a.activity_type_key
               ORDER BY a.{$date_col} DESC
-              LIMIT 50",
-            $player_id
+              LIMIT %d",
+            $player_id, $bd_from, $bd_to, $row_cap
         ) );
         $rows = is_array( $rows ) ? $rows : [];
 
@@ -331,9 +320,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'player_id' => (string) $player_id, 'date_after' => '-12 months' ],
             'month'
         );
+        // #2346 — the sub line now names the window the numbers cover, so
+        // the "-12 months" scope is honest on the surface (not only in the
+        // Explorer drill).
+        $sub = $team_name !== ''
+            ? sprintf( /* translators: %s = team name */ __( '%s · last 12 months', 'talenttrack' ), $team_name )
+            : __( 'Last 12 months', 'talenttrack' );
         self::renderPageHead(
             sprintf( /* translators: %s = player name */ __( 'Minutes played — %s', 'talenttrack' ), $name ),
-            $team_name,
+            $sub,
             $explore_url
         );
         self::renderKpiStrip( [
@@ -342,8 +337,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => (string) $avg,     'label' => __( 'Avg min / appearance', 'talenttrack' ) ],
             [ 'num' => (string) count( $rows ), 'label' => __( 'Matches in roster', 'talenttrack' ) ],
         ] );
-        if ( ! $rows ) { self::renderEmpty(); return; }
-        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per match', 'talenttrack' ) . '</h2></div>';
+        if ( ! $rows ) {
+            self::renderEmpty( __( 'No matches recorded in this period. Check the Activities log or widen the window.', 'talenttrack' ) );
+            return;
+        }
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per match', 'talenttrack' ) . '</h2>';
+        // #2346 — surface the 50-row cap so a longer history is never
+        // silently dropped. Only shown when the cap was actually reached.
+        if ( count( $rows ) >= $row_cap ) {
+            echo '<span class="tt-rep-section__hint">' . esc_html(
+                sprintf( /* translators: %d = row cap */ __( 'Showing the %d most recent matches in the window.', 'talenttrack' ), $row_cap )
+            ) . '</span>';
+        }
+        echo '</div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Match', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->activity_id );
@@ -451,7 +457,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 'warn'  => $spread_pct > 30,
             ],
         ] );
-        if ( ! $rows ) { self::renderEmpty(); return; }
+        if ( ! $rows ) {
+            self::renderEmpty( __( 'No players with recorded match minutes for this team in the last 12 months.', 'talenttrack' ) );
+            return;
+        }
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by minutes, high to low. Open a row to trace the per-match minutes that sum to it.', 'talenttrack' ) . '</span></div>';
         // #2160 — the breakdown reuses the same 12-month rolling window as
@@ -475,7 +484,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<div class="tt-rep-bar-track"><div class="tt-rep-bar-fill" data-warn="' . $warn . '" style="width:' . (int) $pct . '%;"></div></div>'; /* tt-inline-ok */ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — computed progress-bar width; $pct is an int.
             echo '<span class="num">' . esc_html( (string) $mins ) . '</span>';
             echo '</summary>';
-            self::renderMinutesBreakdown( $breakdown, (int) $r->player_id );
+            // #2348 — shared breakdown component; identical rows to the
+            // former per-file renderer, still reconciling to the total.
+            MinutesBreakdown::render( $breakdown, (int) $r->player_id );
             echo '</details>';
         }
         echo '</section>';
@@ -516,7 +527,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.id AS player_id, p.name,
                     AVG( r.rating ) AS avg_rating,
-                    COUNT( DISTINCT e.id ) AS eval_count
+                    COUNT( DISTINCT e.id ) AS eval_count,
+                    MAX( e.eval_date ) AS last_eval_date
                FROM {$wpdb->prefix}tt_players p
           LEFT JOIN {$wpdb->prefix}tt_evaluations e ON e.player_id = p.id
                 AND e.archived_at IS NULL
@@ -551,16 +563,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => (string) $squad_avg,      'label' => __( 'Squad average rating', 'talenttrack' ) ],
             [ 'num' => $coverage . '%',          'label' => __( 'Coverage', 'talenttrack' ) ],
         ] );
-        if ( ! $rows ) { self::renderEmpty(); return; }
+        if ( ! $rows ) {
+            self::renderEmpty( __( 'No evaluations recorded for this team in this window.', 'talenttrack' ) );
+            return;
+        }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by average rating, high to low.', 'talenttrack' ) . '</span></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Avg rating', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Avg rating', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th><th>' . esc_html__( 'Last evaluated', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'players', (int) $r->player_id );
             $avg = $r->avg_rating !== null ? round( (float) $r->avg_rating, 1 ) : null;
+            // #2346 — materialize the last evaluation date so staleness is
+            // visible. Empty for players with no evaluation in the window.
+            $last = ! empty( $r->last_eval_date )
+                ? \TT\Shared\Dates\TTDate::date( (string) $r->last_eval_date )
+                : '—';
             echo '<tr>';
             echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a></td>';
             echo '<td class="num">' . ( $avg !== null ? esc_html( (string) $avg ) : '—' ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->eval_count ) . '</td>';
+            echo '<td>' . esc_html( $last ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -619,16 +640,23 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
           LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id AND p.archived_at IS NULL
-          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id
+          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
               WHERE t.club_id = %d AND t.archived_at IS NULL
-                /* v4.20.44 (#1222) — `a.archived_at IS NULL` inside the
-                   CASE so per-team match counts ignore soft-archived
-                   matches. Audit 7. */
+                /* #2346 — `a.archived_at IS NULL` moved onto the JOIN so
+                   soft-archived activities never enter the join at all
+                   (they previously inflated the join even though the CASE
+                   filtered the count). The CASE keeps its own guard for
+                   defence in depth. Builds on v4.20.44 (#1222). Audit 7. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
             $club_id
         ) );
-        if ( ! is_array( $by_team ) || ! $by_team ) { return; }
+        // #2344 — a silent `return` here left the page blank below the KPI
+        // strip when no teams exist. Render an honest empty state instead.
+        if ( ! is_array( $by_team ) || ! $by_team ) {
+            self::renderEmpty( __( 'No teams have been created for this academy yet.', 'talenttrack' ) );
+            return;
+        }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches (12 mo)', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $by_team as $r ) {
@@ -658,8 +686,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $prospects     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $cases_opened  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $cases_decided = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NOT NULL AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        // #2347 — opened-but-undecided cases in the same created_at window,
+        // so the Per-decision table can reconcile to Trial cases opened.
+        $cases_pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NULL AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        // #2347 — select the scout user ID too, so each scout name can link
+        // to their Scout Report Card.
         $by_scout = $wpdb->get_results( $wpdb->prepare(
-            "SELECT u.display_name, COUNT(*) AS opened
+            "SELECT u.ID AS scout_id, u.display_name, COUNT(*) AS opened
                FROM {$wpdb->prefix}tt_trial_cases tc
           LEFT JOIN {$wpdb->users} u ON u.ID = tc.opened_by
               WHERE tc.club_id = %d AND tc.created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
@@ -668,11 +701,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
               LIMIT 30",
             $club_id
         ) );
+        // #2347 — the Per-decision breakdown is scoped by `created_at` (the
+        // same window as `cases_opened`) rather than `decided_at`, so the
+        // decided rows plus the Pending row reconcile to Trial cases opened.
         $by_decision = $wpdb->get_results( $wpdb->prepare(
             "SELECT decision, COUNT(*) AS n
                FROM {$wpdb->prefix}tt_trial_cases
               WHERE club_id = %d AND decided_at IS NOT NULL
-                AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
               GROUP BY decision
               ORDER BY n DESC",
             $club_id
@@ -697,26 +733,57 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [
                 'num'   => $cases_opened > 0 ? (int) round( ( $cases_decided / $cases_opened ) * 100 ) . '%' : '0%',
                 'label' => __( 'Decision rate', 'talenttrack' ),
+                // #2347 — the numerator (cases decided) is scoped by
+                // `decided_at`, the denominator (cases opened) by
+                // `created_at`; make the window mix explicit so the figure
+                // isn't read as a same-cohort rate.
+                'sub'   => __( 'Decided (by decision date) ÷ opened (by open date)', 'talenttrack' ),
             ],
         ] );
         if ( $by_scout ) {
             echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per scout', 'talenttrack' ) . '</h2></div>';
             echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Scout', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases opened', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            // #2347 — link each scout to their Scout Report Card. Gated on
+            // `tt_view_reports` (§7 hide-don't-tease); this whole funnel is
+            // already scope-admin-only, so a viewer here always holds it,
+            // but the check keeps the affordance and the destination gate in
+            // lockstep. The card resolves the same 12-month window.
+            $can_scout_card = current_user_can( 'tt_view_reports' );
             foreach ( $by_scout as $r ) {
-                echo '<tr><td>' . esc_html( (string) ( $r->display_name ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num">' . esc_html( (string) (int) $r->opened ) . '</td></tr>';
+                $scout_name = (string) ( $r->display_name ?? __( '—', 'talenttrack' ) );
+                $scout_id   = (int) ( $r->scout_id ?? 0 );
+                echo '<tr><td>';
+                if ( $can_scout_card && $scout_id > 0 ) {
+                    $card_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                        [ 'tt_view' => 'standard-report', 'slug' => 'scout-report-card', 'scout_id' => $scout_id ],
+                        RecordLink::dashboardUrl()
+                    ) );
+                    echo '<a class="tt-record-link" href="' . esc_url( $card_url ) . '">' . esc_html( $scout_name ) . '</a>';
+                } else {
+                    echo esc_html( $scout_name );
+                }
+                echo '</td><td class="num">' . esc_html( (string) (int) $r->opened ) . '</td></tr>';
             }
             echo '</tbody></table></div></div>';
         }
-        if ( $by_decision ) {
-            echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per decision', 'talenttrack' ) . '</h2></div>';
+        if ( $by_decision || $cases_pending > 0 ) {
+            echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per decision', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Cases opened in the window, by outcome. Pending = opened but not yet decided. Rows sum to Trial cases opened.', 'talenttrack' ) . '</span></div>';
             echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            $decided_sum = 0;
             foreach ( $by_decision as $r ) {
+                $decided_sum += (int) $r->n;
                 echo '<tr><td>' . esc_html( (string) ( $r->decision ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num">' . esc_html( (string) (int) $r->n ) . '</td></tr>';
             }
+            // #2347 — the Pending row makes opened-but-undecided cases visible
+            // so the breakdown reconciles with Trial cases opened.
+            echo '<tr><td>' . esc_html__( 'Pending (not yet decided)', 'talenttrack' ) . '</td><td class="num">' . esc_html( (string) $cases_pending ) . '</td></tr>';
+            // #2347 — a total/reconciliation row confirming the sum equals
+            // Trial cases opened.
+            echo '<tr class="tt-minutes-breakdown__total"><td>' . esc_html__( 'Total (should equal cases opened)', 'talenttrack' ) . '</td><td class="num">' . esc_html( (string) ( $decided_sum + $cases_pending ) ) . '</td></tr>';
             echo '</tbody></table></div></div>';
         }
-        if ( ! $by_scout && ! $by_decision ) {
-            self::renderEmpty();
+        if ( ! $by_scout && ! $by_decision && $cases_pending === 0 ) {
+            self::renderEmpty( __( 'No trial cases or prospects logged in the last 12 months.', 'talenttrack' ) );
         }
     }
 
@@ -788,7 +855,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => (string) $cases_admitted,   'label' => __( 'Admitted', 'talenttrack' ) ],
             [ 'num' => $hit_rate . '%',            'label' => __( 'Hit rate', 'talenttrack' ) ],
         ] );
-        if ( ! $recent_prospects ) { self::renderEmpty(); return; }
+        if ( ! $recent_prospects ) {
+            self::renderEmpty( __( 'No prospects logged in this window.', 'talenttrack' ) );
+            return;
+        }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Recent prospects', 'talenttrack' ) . '</h2></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Prospect', 'talenttrack' ) . '</th><th>' . esc_html__( 'Current club', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $recent_prospects as $r ) {
@@ -886,7 +956,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 'warn'  => $flagged > 0,
             ],
         ] );
-        if ( ! $rows ) { self::renderEmpty(); return; }
+        if ( ! $rows ) {
+            self::renderEmpty( __( 'No coaches have evaluations in this selection.', 'talenttrack' ) );
+            return;
+        }
 
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>'
@@ -1058,7 +1131,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     ? '<div class="tt-rep-chart tt-rep-chart--sm">' . QueryHelpers::radar_chart_svg( $rd['labels'], $rd['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                     : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
             }
-            if ( ! $any ) { self::renderEmpty(); }
+            if ( ! $any ) {
+                self::renderEmpty( __( 'No evaluations recorded for the selected players yet. Pick different players or record an evaluation first.', 'talenttrack' ) );
+            }
         } elseif ( $mode === 'comparison' ) {
             echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Player Comparison', 'talenttrack' ) . '</h2>';
             if ( count( $selected_ids ) < 2 ) {

@@ -111,6 +111,50 @@ To verify a total against the raw stored rows, the `tt_attendance` minutes rows
 (`minutes_played`, `record_type`, `is_guest`, `activity_id`) are browsable in
 the **Data Browser**.
 
+The per-match breakdown table is now a **single shared component** across the
+Team · Minutes distribution report and the Analytics minutes-played report, so
+the two never drift and both reconcile to the player's total the same way.
+
+## Standard reports — honest numbers
+
+Every standard report now names the window and the source it drew from, so a
+figure is never a silent guess:
+
+- **Honest empty states.** When a report has nothing to show it says *why* in
+  plain terms — "No matches recorded in this period", "No evaluations recorded
+  for this team in this window", "No prospects logged in this window" — instead
+  of the old generic "adjust a filter" copy (most of these reports have no
+  filter to adjust). The Season summary no longer renders a blank page below
+  its headline tiles when no teams exist.
+- **Player · Minutes played** covers the **last 12 months** (stated in the
+  page sub-line, matching the Explorer drill), and when a player has more than
+  50 matches in that window it says *"Showing the 50 most recent matches"* so a
+  longer history is never dropped without notice.
+- **Team · Squad evaluation summary** shows a **Last evaluated** date per
+  player, so a stale row is visible at a glance.
+- **Season summary** per-team match counts ignore soft-archived activities on
+  the join itself (not just in the count), removing a source of inflated joins.
+
+### Trial funnel reconciliation
+
+The Season · Trial funnel now **reconciles**. The Per-decision table lists the
+outcomes of cases *opened in the window*, plus a **Pending (not yet decided)**
+row and a **Total** row that sums to *Trial cases opened*. The **Decision rate**
+tile carries a one-line note that its numerator (cases decided, by decision
+date) and denominator (cases opened, by open date) use different windows, so
+the percentage isn't misread as a same-cohort rate. Each scout name in the Per
+scout table links to that scout's **Scout report card** (gated on
+`tt_view_reports`, the same capability the card enforces).
+
+### Minutes-played (team) — shared filter + KPI chrome
+
+The Minutes-played (team) report now uses the **shared filter bar** (team,
+retrospective period pills — Last week / This month / This season — a match-type
+select and a manual From/To range) and the **shared KPI strip**, matching the
+attendance reports. The default window is the current season. On a phone the
+filters collapse into the standard bottom-sheet; every control keeps a 48px
+touch target.
+
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
