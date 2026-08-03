@@ -470,11 +470,14 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * back on the dashboard tile grid.
      */
     private static function renderTeamDevelopmentLinks( int $team_id ): void {
-        // §7 — the team-development surfaces are gated by the team_chemistry
-        // matrix (TeamChemistryAccess::canRead), independently of the
-        // tt_edit_teams cap that lets a user reach this edit form. Don't
-        // surface launchpads the user can't actually open.
-        if ( ! \TT\Modules\TeamDevelopment\TeamChemistryAccess::canRead( get_current_user_id() ) ) {
+        // §7 (#2304) — the team-development surfaces are gated by the
+        // team_chemistry matrix (TeamChemistryAccess::canRead), independently
+        // of the tt_edit_teams cap that reaches this edit form. Per-tile
+        // gating via CrossViewLink; if NEITHER tile is reachable, render
+        // nothing at all (no empty heading).
+        $can_chem = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'team-chemistry' );
+        $can_bp   = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'team-blueprints' );
+        if ( ! $can_chem && ! $can_bp ) {
             return;
         }
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
@@ -489,14 +492,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Team development', 'talenttrack' ); ?></h3>
         <div class="tt-tile-std" style="<?php echo esc_attr( \TT\Shared\Frontend\Components\TileGridStandard::cssVars() ); ?>">
             <div class="tt-tile-grid-std">
+                <?php \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-chemistry', static function () use ( $chem_url ): void { ?>
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $chem_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
                     <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
                 </a>
+                <?php } ); ?>
+                <?php \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-blueprints', static function () use ( $bp_url ): void { ?>
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $bp_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
                     <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
                 </a>
+                <?php } ); ?>
             </div>
         </div>
         <?php

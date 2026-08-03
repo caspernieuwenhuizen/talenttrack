@@ -12,6 +12,7 @@ use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -98,20 +99,21 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         echo '<div class="tt-mt-links">';
         self::renderNewTestButton();
 
-        // §7 — gate each cross-link on the target surface's own capability.
-        // Managing test definitions (this page) doesn't imply recording
-        // measurements or reading session coverage — separate matrix entities.
-        if ( MatrixGate::canAnyScope( $user_id, 'measurements', 'change' ) ) {
+        // §7 (#2304) — gate each cross-link on the target surface's own
+        // guard via the CrossViewLinkRegistry. Managing test definitions
+        // (this page) doesn't imply recording measurements or reading
+        // session coverage — separate matrix entities encoded in the gates.
+        CrossViewLink::render( 'measurements-entry', static function () use ( $base ): void {
             $record_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-entry' ], $base ) );
             echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $record_url ) . '">'
                 . esc_html__( 'Record measurements', 'talenttrack' ) . '</a>';
-        }
+        } );
 
-        if ( MatrixGate::canAnyScope( $user_id, 'measurement_sessions', 'read' ) ) {
+        CrossViewLink::render( 'measurements-coverage', static function () use ( $base ): void {
             $coverage_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-coverage' ], $base ) );
             echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $coverage_url ) . '">'
                 . esc_html__( 'Testing coverage', 'talenttrack' ) . '</a>';
-        }
+        } );
         echo '</div>';
     }
 

@@ -69,9 +69,64 @@ final class CoreSurfaceRegistration {
     public static function register(): void {
         self::registerFrontendTiles();
         self::registerSlugOwnerships();
+        self::registerCrossViewLinkGates();
         self::registerAdminSubmenu();
         self::registerAdminDashboardTiles();
         self::registerMobileClasses();
+    }
+
+    /**
+     * #2304 — cross-view link gates. Maps each `tt_view` slug reachable via
+     * an in-body cross-view link to the gate that mirrors the TARGET VIEW's
+     * OWN early-return guard — NOT the dashboard-tile visibility entity
+     * (those differ: e.g. the `team-planner` tile declares `activities_panel`
+     * for dashboard visibility, but the team-planner view enforces
+     * `tt_view_plan`). `CrossViewLink::render()` consults these so an
+     * affordance is hidden exactly when its destination would refuse the
+     * user, and the checks can no longer drift per call site.
+     *
+     * Closure bodies guard `class_exists` / `method_exists` so registration
+     * never fatals if a module is absent.
+     */
+    private static function registerCrossViewLinkGates(): void {
+        $reg = '\\TT\\Shared\\Frontend\\Components\\CrossViewLinkRegistry';
+        if ( ! class_exists( $reg ) ) return;
+
+        // team-planner view guard: tt_view_plan.
+        $reg::register( 'team-planner', 'tt_view_plan' );
+
+        // methodology view guard: tt_view_methodology.
+        $reg::register( 'methodology', 'tt_view_methodology' );
+
+        // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
+        $chem_gate = static function ( int $uid ): bool {
+            if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )
+                || ! method_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess', 'canRead' ) ) {
+                return true;
+            }
+            return \TT\Modules\TeamDevelopment\TeamChemistryAccess::canRead( $uid );
+        };
+        $reg::register( 'team-chemistry', $chem_gate );
+        $reg::register( 'team-blueprints', $chem_gate );
+
+        // Measurements execution surfaces — matrix entity/activity pairs
+        // mirroring each view's own MatrixGate guard.
+        $reg::register( 'measurement-tests', [ 'measurement_definitions', 'change' ] );
+        $reg::register( 'measurements-entry', [ 'measurements', 'change' ] );
+        $reg::register( 'measurements-coverage', [ 'measurement_sessions', 'read' ] );
+
+        // player-attributes guard: per-player canEvaluatePlayer (tighter than
+        // the tt_edit_evaluations cap the old inline check used).
+        $reg::register( 'player-attributes', static function ( int $uid, array $ctx ): bool {
+            if ( ! class_exists( '\\TT\\Infrastructure\\Security\\AuthorizationService' )
+                || ! method_exists( '\\TT\\Infrastructure\\Security\\AuthorizationService', 'canEvaluatePlayer' ) ) {
+                return true;
+            }
+            return \TT\Infrastructure\Security\AuthorizationService::canEvaluatePlayer(
+                $uid,
+                (int) ( $ctx['player_id'] ?? 0 )
+            );
+        } );
     }
 
     /**

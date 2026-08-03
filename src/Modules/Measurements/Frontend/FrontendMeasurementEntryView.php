@@ -11,6 +11,7 @@ use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -359,12 +360,11 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
      * two-affordance contract.
      */
     private static function renderModuleLinks( int $user_id ): void {
-        // §7 — only surface the "Manage tests" catalogue link to users who
-        // can reach it (measurement_definitions/change), matching the
-        // measurement-tests dispatch gate. Recording measurements
-        // (measurements/change) does not imply managing test definitions.
-        if ( MatrixGate::canAnyScope( $user_id, 'measurement_definitions', 'change' )
-            || current_user_can( 'manage_options' ) ) {
+        // §7 (#2304) — only surface the "Manage tests" catalogue link to
+        // users who can reach it. The `measurement-tests` gate encodes the
+        // target view's own guard (measurement_definitions/change; admins
+        // pass via matrix), so the check can't drift from the destination.
+        CrossViewLink::render( 'measurement-tests', static function (): void {
             $manage_url = BackLink::appendTo( add_query_arg(
                 [ 'tt_view' => 'measurement-tests' ],
                 RecordLink::dashboardUrl()
@@ -374,7 +374,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
                 . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
             echo '</p>';
-        }
+        } );
 
         self::renderNewTestButton();
     }

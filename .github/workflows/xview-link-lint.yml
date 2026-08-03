@@ -1,0 +1,90 @@
+name: Cross-view link containment
+
+# #2304 — forward-only containment of ungated in-body cross-view links.
+# A navigation affordance (in-body link, tile, cross-view button) MUST be
+# hidden when the current user can't reach its target view (CLAUDE.md §7).
+# The `CrossViewLink` helper centralizes that decision; hand-rolled inline
+# capability checks drift from the target view's real guard.
+#
+# This gate is DIFF-ONLY: it fails a PR that ADDS a cross-view link — the
+# clear `add_query_arg( [ 'tt_view' => '...' ]` pattern rendered as an
+# `<a>`/tile — inside a `src/**/Frontend/**` file WITHOUT routing it through
+# `CrossViewLink::`. Existing lines are grandfathered (only added lines are
+# scanned). The heuristic is deliberately conservative to avoid false
+# positives; for a genuine exception add a trailing `/* tt-xview-ok */` on
+# the same line.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/Frontend/**'
+      - '.github/workflows/xview-link-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No ungated cross-view links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fail on added ungated tt_view cross-view links
+        shell: bash
+        run: |
+          set -e
+          BASE_REF="${{ github.base_ref }}"
+          git fetch origin "$BASE_REF" --quiet || true
+          BASE="origin/$BASE_REF"
+
+          # Changed PHP files under a Frontend dir in this PR.
+          FILES=$(git diff --name-only --diff-filter=d "$BASE"...HEAD -- 'src' \
+            | grep -E '/Frontend/.*\.php$' || true)
+          if [ -z "$FILES" ]; then
+            echo "OK — no changed Frontend PHP files."
+            exit 0
+          fi
+
+          FAIL=0
+          for f in $FILES; do
+            # Added lines only (leading '+', excluding the '+++' file header).
+            # Flag the clear cross-view link pattern:
+            #   add_query_arg( [ 'tt_view' => '...' ]
+            # (whitespace-insensitive between the tokens). Exclude the escape
+            # hatch, lines that route through CrossViewLink::, and lines using
+            # the pageActionsHtml 'cap' mechanism (header +New buttons, which
+            # gate correctly by their own means).
+            HIT=$(git diff "$BASE"...HEAD -- "$f" \
+              | grep -E '^\+' | grep -vE '^\+\+\+' \
+              | grep -E "add_query_arg\(\s*\[\s*'tt_view'\s*=>" \
+              | grep -vE 'tt-xview-ok|CrossViewLink::|pageActionsHtml' \
+              || true)
+            if [ -n "$HIT" ]; then
+              echo "::error file=$f::Adds a cross-view tt_view link outside CrossViewLink:: (CLAUDE.md §7 — gate the affordance)."
+              echo "--- $f ---"
+              echo "$HIT"
+              FAIL=1
+            fi
+          done
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "This PR adds an in-body cross-view link (a tt_view target"
+            echo "rendered as an <a>/tile) that does not route through the"
+            echo "CrossViewLink helper. A navigation affordance must be hidden"
+            echo "when the current user can't reach its target view (CLAUDE.md §7)."
+            echo ""
+            echo "Wrap the link in CrossViewLink::render( '<slug>', function () { … } )"
+            echo "and register the slug's gate in"
+            echo "CoreSurfaceRegistration::registerCrossViewLinkGates() so it"
+            echo "mirrors the target view's own early-return guard."
+            echo ""
+            echo "Escape hatch: for a genuine exception (e.g. a same-view link,"
+            echo "or an affordance gated by another mechanism) add a trailing"
+            echo "  /* tt-xview-ok */  on the same line. See #2304 for background."
+            exit 1
+          fi
+          echo "OK — no new ungated cross-view links added."
