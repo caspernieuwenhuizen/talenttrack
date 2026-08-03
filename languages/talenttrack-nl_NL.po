@@ -46786,6 +46786,114 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Speelwijzen"
+msgstr "Speelwijzen"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "+ Nieuwe speelwijze"
+msgstr "+ Nieuwe speelwijze"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Actief"
+msgstr "Actief"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Maak actief"
+msgstr "Maak actief"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "No methodology sets yet."
+msgstr "Nog geen speelwijzen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Archive this methodology set?"
+msgstr "Deze speelwijze archiveren?"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "That methodology set could not be found."
+msgstr "Die speelwijze kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Slug (optional)"
+msgstr "Slug (optioneel)"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Save methodology set"
+msgstr "Speelwijze opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Create methodology set"
+msgstr "Speelwijze aanmaken"
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Could not change the active methodology."
+msgstr "Kon de actieve speelwijze niet wijzigen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Active methodology updated."
+msgstr "Actieve speelwijze bijgewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "That methodology set could not be archived."
+msgstr "Die speelwijze kon niet worden gearchiveerd."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Methodology set archived."
+msgstr "Speelwijze gearchiveerd."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "A methodology set needs a name."
+msgstr "Een speelwijze heeft een naam nodig."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "That methodology set could not be saved."
+msgstr "Die speelwijze kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Methodology set saved."
+msgstr "Speelwijze opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Could not create the methodology set."
+msgstr "Kon de speelwijze niet aanmaken."
+
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php
+msgid "Methodology set created."
+msgstr "Speelwijze aangemaakt."
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Methodology set"
+msgstr "Speelwijze"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Use install default"
+msgstr "Installatie-standaard gebruiken"
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "Methodology set not found."
+msgstr "Speelwijze niet gevonden."
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "Shipped methodology sets are read-only."
+msgstr "Meegeleverde speelwijzen zijn alleen-lezen."
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "Could not save the methodology set."
+msgstr "Kon de speelwijze niet opslaan."
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "Shipped methodology sets cannot be archived."
+msgstr "Meegeleverde speelwijzen kunnen niet worden gearchiveerd."
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "This is the last remaining methodology set and cannot be archived."
+msgstr "Dit is de laatst overgebleven speelwijze en kan niet worden gearchiveerd."
+
+#: src/Modules/Methodology/Rest/MethodologySetsRestController.php
+msgid "Could not update the active methodology."
+msgstr "Kon de actieve speelwijze niet bijwerken."
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 
