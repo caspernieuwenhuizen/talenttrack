@@ -155,6 +155,7 @@ final class ArchivedDetailCard {
                 'label'         => __( 'Restore', 'talenttrack' ),
                 'confirm'       => __( 'Restore this record? It returns to the active list.', 'talenttrack' ),
                 'confirm_label' => __( 'Restore', 'talenttrack' ),
+                'confirm_title' => __( 'Restore record', 'talenttrack' ),
                 'variant'       => 'primary',
                 'redirect'      => $restore_redirect,
             ] );
@@ -165,6 +166,8 @@ final class ArchivedDetailCard {
                 'label'         => __( 'Move to recycle bin', 'talenttrack' ),
                 'confirm'       => __( 'Move this record to the recycle bin? It will be permanently deleted after the retention window unless restored.', 'talenttrack' ),
                 'confirm_label' => __( 'Move to recycle bin', 'talenttrack' ),
+                'confirm_title' => __( 'Move to recycle bin', 'talenttrack' ),
+                'cap'           => 'tt_edit_settings',
                 'variant'       => 'danger',
                 'redirect'      => $list_url,
             ] );
@@ -200,6 +203,8 @@ final class ArchivedDetailCard {
             'label'         => __( 'Restore to archive', 'talenttrack' ),
             'confirm'       => __( 'Restore this record out of the recycle bin? It returns to the archive.', 'talenttrack' ),
             'confirm_label' => __( 'Restore to archive', 'talenttrack' ),
+            'confirm_title' => __( 'Restore record', 'talenttrack' ),
+            'cap'           => 'tt_manage_recycle_bin',
             'variant'       => 'primary',
             'redirect'      => $restore_redirect,
         ] );
@@ -210,6 +215,8 @@ final class ArchivedDetailCard {
             'label'         => __( 'Delete permanently now', 'talenttrack' ),
             'confirm'       => __( 'Permanently delete this record now? This cannot be undone.', 'talenttrack' ),
             'confirm_label' => __( 'Delete permanently', 'talenttrack' ),
+            'confirm_title' => __( 'Delete permanently', 'talenttrack' ),
+            'cap'           => 'tt_manage_recycle_bin',
             'variant'       => 'danger',
             'redirect'      => $list_url,
         ] );
@@ -243,15 +250,26 @@ final class ArchivedDetailCard {
      * confirm + nonce'd fetch governs; semantic native element, 48px target via
      * the .tt-btn sizing.
      *
-     * @param array{rest_path:string,method:string,label:string,confirm:string,confirm_label:string,variant:string,redirect:string} $a
+     * When a `cap` is supplied and the current user lacks it, the button is NOT
+     * rendered (CLAUDE.md §7 — hide, don't tease). This is a SUPPLEMENT to the
+     * route's own `permission_callback`, gating on the same capability so the
+     * affordance can't drift from the server-side gate.
+     *
+     * @param array{rest_path:string,method:string,label:string,confirm:string,confirm_label:string,variant:string,redirect:string,cap?:string,confirm_title?:string} $a
      */
     private static function actionButton( array $a ): void {
+        $cap = (string) ( $a['cap'] ?? '' );
+        if ( $cap !== '' && ! current_user_can( $cap ) ) {
+            return;
+        }
+        $confirm_title = (string) ( $a['confirm_title'] ?? '' );
         $variant_class = $a['variant'] === 'primary' ? 'tt-btn-primary' : 'tt-btn-danger';
         echo '<button type="button" class="tt-btn ' . esc_attr( $variant_class ) . ' tt-archived-detail__action"'
             . ' data-tt-archive-rest-path="' . esc_attr( $a['rest_path'] ) . '"'
             . ' data-tt-archive-method="' . esc_attr( $a['method'] ) . '"'
             . ' data-tt-archive-confirm="' . esc_attr( $a['confirm'] ) . '"'
             . ' data-tt-archive-confirm-label="' . esc_attr( $a['confirm_label'] ) . '"'
+            . ( $confirm_title !== '' ? ' data-tt-archive-confirm-title="' . esc_attr( $confirm_title ) . '"' : '' )
             . ' data-tt-archive-variant="' . esc_attr( $a['variant'] ) . '"'
             . ( $a['redirect'] !== '' ? ' data-tt-archive-redirect="' . esc_attr( $a['redirect'] ) . '"' : '' )
             . '>' . esc_html( $a['label'] ) . '</button>';
