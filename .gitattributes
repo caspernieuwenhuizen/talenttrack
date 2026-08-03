@@ -15,6 +15,13 @@ SEQUENCE.md       merge=union
 languages/*.po    merge=union
 languages/*.mo    binary
 
+# Report docs are append-heavy (each report change adds its own section),
+# so parallel report branches collide on them the same way the release
+# plumbing does. Union keeps every branch's added section. Safe: these are
+# additive prose docs, never code.
+docs/reports.md       merge=union
+docs/nl_NL/reports.md merge=union
+
 # Note: never put CODE files under merge=union — it would keep both
 # versions of a conflicting line and silently break the code. union is
 # only safe for append-only text. The version constant lives in
