@@ -819,6 +819,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'compare',
             'color'        => '#7c3a9e',
             'cap'          => 'tt_view_reports',
+            // #2302 — per-tile feature toggle (default on). Turning it off
+            // hides the tile while the rest of the Stats module stays available.
+            'feature'      => 'analytics_player_compare',
         ]);
         // #0063 — frontend Reports tile that mirrors the wp-admin
         // launcher. Detail views still render in wp-admin (heavy
@@ -913,6 +916,9 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Team rankings and top performers.', 'talenttrack' ),
             'icon'         => 'podium',
             'color'        => '#e8b624',
+            // #2302 — per-tile feature toggle (default on). Turning it off
+            // hides the tile while the rest of the Stats module stays available.
+            'feature'      => 'analytics_podium',
         ]);
         // v3.110.189 (#797) — central Exports surface tile. The view
         // itself filters cards per-cap so users without specific

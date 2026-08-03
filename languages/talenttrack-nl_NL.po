@@ -451,6 +451,22 @@ msgstr ""
 "centrale Analyse-scherm en de analyse-engine blijven beschikbaar wanneer dit "
 "uit staat."
 
+#: src/Core/FeatureRegistry.php:172
+msgid ""
+"The Player comparison tile and view (compare up to 4 players side-by-side). "
+"Turn off to hide it from this academy."
+msgstr ""
+"De tegel en weergave Spelervergelijking (vergelijk maximaal 4 spelers naast "
+"elkaar). Zet uit om deze te verbergen voor deze academie."
+
+#: src/Core/FeatureRegistry.php:181
+msgid ""
+"The Podium tile and view (team rankings and top performers). Turn off to hide "
+"it from this academy."
+msgstr ""
+"De tegel en weergave Podium (teamranglijsten en topspelers). Zet uit om deze "
+"te verbergen voor deze academie."
+
 #: src/Core/FeatureRegistry.php:157
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:64
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:65
