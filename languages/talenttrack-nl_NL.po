@@ -43728,6 +43728,10 @@ msgstr "Verwijderd:"
 msgid "Your role does not have access to reports."
 msgstr "Je rol heeft geen toegang tot rapporten."
 
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:229
+msgid "No reports are available to you yet. They may be switched off for this academy, or outside your current access — ask an administrator to enable a report or widen your scope."
+msgstr "Er zijn nog geen rapporten voor je beschikbaar. Ze zijn mogelijk uitgeschakeld voor deze academie of vallen buiten je huidige toegang — vraag een beheerder om een rapport in te schakelen of je bereik te verruimen."
+
 #: src/Shared/Frontend/FrontendReportDetailView.php:57
 msgid "Report"
 msgstr "Rapport"

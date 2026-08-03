@@ -4,6 +4,8 @@
 
 De tegel **Rapporten** is een launcher voor verschillende manieren om naar je gegevens te kijken. De rapporten zijn gegroepeerd op doel zodat je het juiste rapport snel vindt: **Ontwikkeling & prestaties** (beoordelingen, voortgang, rate cards), **Speeltijd** (gespeelde minuten en selectiebelasting), **Aanwezigheid** (aanwezigheidsstatistieken per team en speler en de ranglijst), **Werving** (scouting, prospects, trial funnel), **Staf & kwaliteit** (coachactiviteit en beoordelingskwaliteit) en **Seizoensoverzicht** (de jaarlijkse review). Secties waartoe je geen toegang hebt — werving en seizoensbrede rapporten zijn alleen voor academy-beheerders — verschijnen gewoon niet. Alle standaardrapporten — waaronder team- en spelersaanwezigheid, de ranglijst en minuten-per-team — staan hier en tonen **Rapporten** in het kruimelpad; ze staan niet langer dubbel op het Analytics-dashboard.
 
+Als **geen enkel** rapport voor je beschikbaar is — alle uitgeschakeld voor je academie, of geen ervan binnen je toegang — meldt de launcher dat duidelijk in plaats van een leeg raster te tonen, en verwijst je om een beheerder te vragen een rapport in te schakelen of je bereik te verruimen.
+
 ## Spelersvoortgang
 
 Snelle visuele rapporten voor coaches:
