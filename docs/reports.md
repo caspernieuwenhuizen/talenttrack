@@ -24,6 +24,8 @@ A quick way to see which team is strongest this season.
 
 How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 180 or 365 days). Useful for spotting a coach who has fallen behind, or for confirming that a planned assessment period actually happened.
 
+Only coaches within your own club are counted — the report is scoped to the current tenant and never surfaces activity from another academy. A coach whose user account has been deleted still appears (their saved evaluations remain in the window) but is labelled **Unknown coach** rather than a raw account number.
+
 ## Coach · Evaluation quality (v4.20.123)
 
 The head-of-development's evaluation spot-check as a report: one row per coach with their evaluation count, rating count, mean rating, standard deviation, the most-given rating (and what share of all their ratings sits at it), and the date of their last evaluation. Filterable by team and date range.

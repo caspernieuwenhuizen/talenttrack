@@ -46970,6 +46970,10 @@ msgstr "Voeg weken toe aan het faseprofiel hierboven om thema's te labelen."
 msgid "Week"
 msgstr "Week"
 
+#: src/Shared/Frontend/FrontendReportDetailView.php
+msgid "Unknown coach"
+msgstr "Onbekende coach"
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 
