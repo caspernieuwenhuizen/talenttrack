@@ -53,6 +53,8 @@ Both the team report and the player report carry the same filtering vocabulary a
 - **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. These are retrospective (the reports look back). Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
 - **Activity type** — narrow to one type (training / game / tournament, whatever your academy has configured). The type filter narrows every figure consistently: the KPI tiles, the table, the leaderboard and the at-risk panel.
 
+**Default window.** When you open a report without picking a pill or typing a From/To range, it defaults to **the current season** — from the season's start date through today. This matches the *This season* pill and how the academy thinks about the year, rather than an arbitrary rolling window. If no season is configured, the report falls back to the last **90 days** so it always shows something. The team-minutes report follows the same default. Picking a pill or typing a manual From/To still overrides it.
+
 On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
 
 ## Drilling into a team's players (team report)

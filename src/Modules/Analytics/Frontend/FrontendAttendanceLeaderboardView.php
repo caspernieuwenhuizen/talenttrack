@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
+use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -232,10 +233,7 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
 
     /** @return array{from:string,to:string} */
     private static function defaultWindow(): array {
-        return [
-            'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ),
-            'to'   => gmdate( 'Y-m-d' ),
-        ];
+        return ReportFilters::seasonDefaultWindow();
     }
 
     /**

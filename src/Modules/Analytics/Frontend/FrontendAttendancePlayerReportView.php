@@ -276,10 +276,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
 
     /** @return array{from:string,to:string} */
     private static function defaultWindow(): array {
-        return [
-            'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ),
-            'to'   => gmdate( 'Y-m-d' ),
-        ];
+        return ReportFilters::seasonDefaultWindow();
     }
 
     /**

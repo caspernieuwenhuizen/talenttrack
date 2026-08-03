@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -358,14 +359,11 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
     }
 
     /**
-     * Default window: 365 days back from today (one season).
+     * Default window: current season start through today (90-day fallback).
      * @return array{from:string,to:string}
      */
     private static function defaultWindow(): array {
-        return [
-            'from' => gmdate( 'Y-m-d', strtotime( '-365 days' ) ),
-            'to'   => gmdate( 'Y-m-d' ),
-        ];
+        return ReportFilters::seasonDefaultWindow();
     }
 
     /**

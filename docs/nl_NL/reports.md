@@ -53,6 +53,8 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 - **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. Deze kijken terug (de rapporten zijn retrospectief). Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
 - **Activiteittype** — beperk tot één type (training / wedstrijd / toernooi, afhankelijk van wat jullie academy heeft ingesteld). Het typefilter beperkt elk cijfer consistent: de KPI-tegels, de tabel, de ranglijst en het risicopaneel.
 
+**Standaardperiode.** Wanneer je een rapport opent zonder een pil te kiezen of een Van/Tot-bereik te typen, staat het standaard op **het huidige seizoen** — van de startdatum van het seizoen tot vandaag. Dit komt overeen met de pil *Dit seizoen* en met hoe de academie over het jaar denkt, in plaats van een willekeurig meelopend venster. Als er geen seizoen is ingesteld, valt het rapport terug op de laatste **90 dagen**, zodat er altijd iets te zien is. Het minutenrapport per team volgt dezelfde standaard. Een pil kiezen of een handmatig Van/Tot typen overschrijft dit nog steeds.
+
 Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
 
 ## Inzoomen op de spelers van een team (teamrapport)
