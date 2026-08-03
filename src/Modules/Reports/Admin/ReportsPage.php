@@ -191,30 +191,41 @@ class ReportsPage {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ( $teams as $team ) :
+                <?php
+                // #2352 — two grouped queries replace the teams × (1 + categories)
+                // per-cell loop (10 teams × 6 categories used to fire 70 queries).
+                // Mirrors FrontendReportDetailView::renderTeamRatings(); archived
+                // players and archived evaluations excluded identically.
+                $eval_counts = [];
+                foreach ( (array) $wpdb->get_results(
+                    "SELECT pl.team_id, COUNT(e.id) AS n
+                       FROM {$p}tt_evaluations e
+                       JOIN {$p}tt_players pl ON e.player_id = pl.id
+                      WHERE pl.archived_at IS NULL AND e.archived_at IS NULL
+                      GROUP BY pl.team_id"
+                ) as $crow ) {
+                    $eval_counts[ (int) $crow->team_id ] = (int) $crow->n;
+                }
+                $cat_avgs = [];
+                foreach ( (array) $wpdb->get_results(
+                    "SELECT pl.team_id, r.category_id, AVG(r.rating) AS avg_rating
+                       FROM {$p}tt_eval_ratings r
+                       JOIN {$p}tt_evaluations e ON r.evaluation_id = e.id
+                       JOIN {$p}tt_players pl ON e.player_id = pl.id
+                      WHERE pl.archived_at IS NULL AND e.archived_at IS NULL
+                      GROUP BY pl.team_id, r.category_id"
+                ) as $arow ) {
+                    $cat_avgs[ (int) $arow->team_id ][ (int) $arow->category_id ] = (float) $arow->avg_rating;
+                }
+
+                foreach ( $teams as $team ) :
                     if ( isset( $team->archived_at ) && $team->archived_at !== null ) continue;
-                    $eval_count = (int) $wpdb->get_var( $wpdb->prepare(
-                        "SELECT COUNT(e.id)
-                         FROM {$p}tt_evaluations e
-                         JOIN {$p}tt_players pl ON e.player_id = pl.id
-                         WHERE pl.team_id = %d AND pl.archived_at IS NULL AND e.archived_at IS NULL",
-                        $team->id
-                    ) );
+                    $eval_count = $eval_counts[ (int) $team->id ] ?? 0;
                     ?>
                     <tr>
                         <td><strong><?php echo esc_html( (string) $team->name ); ?></strong><?php if ( ! empty( $team->age_group ) ) : ?> <span style="color:#888;">(<?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?>)</span><?php endif; ?></td>
                         <?php foreach ( $categories as $cat ) :
-                            $avg = $wpdb->get_var( $wpdb->prepare(
-                                "SELECT AVG(r.rating)
-                                 FROM {$p}tt_eval_ratings r
-                                 JOIN {$p}tt_evaluations e ON r.evaluation_id = e.id
-                                 JOIN {$p}tt_players pl ON e.player_id = pl.id
-                                 WHERE pl.team_id = %d
-                                   AND r.category_id = %d
-                                   AND pl.archived_at IS NULL
-                                   AND e.archived_at IS NULL",
-                                $team->id, $cat->id
-                            ) );
+                            $avg = $cat_avgs[ (int) $team->id ][ (int) $cat->id ] ?? null;
                             ?>
                             <td style="font-variant-numeric:tabular-nums;">
                                 <?php echo $avg === null ? '—' : esc_html( (string) round( (float) $avg, 2 ) ); ?>
