@@ -110,7 +110,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
             <summary><?php esc_html_e( 'How these numbers are measured', 'talenttrack' ); ?></summary>
             <ul>
                 <li><?php esc_html_e( 'Stickiness (DAU/MAU) always divides average daily active users by the 30-day monthly-active total, regardless of the period you select above.', 'talenttrack' ); ?></li>
-                <li><?php esc_html_e( 'A session ends after 30 minutes of inactivity; a gap longer than that starts a new session.', 'talenttrack' ); ?></li>
+                <li><?php esc_html_e( 'A visit ends after 30 minutes of inactivity; a longer gap starts a new visit.', 'talenttrack' ); ?></li>
                 <li><?php esc_html_e( 'Time online is observed activity only — it is a lower bound, not exact time in the app.', 'talenttrack' ); ?></li>
             </ul>
         </details>

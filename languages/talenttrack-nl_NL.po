@@ -46979,8 +46979,8 @@ msgid "Stickiness (DAU/MAU) always divides average daily active users by the 30-
 msgstr "Kleefkracht (DAU/MAU) deelt het gemiddeld dagelijks-actief altijd door het maandelijks-actief over 30 dagen, ongeacht de periode die je hierboven kiest."
 
 #: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "A session ends after 30 minutes of inactivity; a gap longer than that starts a new session."
-msgstr "Een sessie eindigt na 30 minuten inactiviteit; een langere tussenpoos start een nieuwe sessie."
+msgid "A visit ends after 30 minutes of inactivity; a longer gap starts a new visit."
+msgstr "Een bezoek eindigt na 30 minuten inactiviteit; een langere onderbreking start een nieuw bezoek."
 
 #: src/Shared/Frontend/FrontendUsageStatsView.php
 msgid "Time online is observed activity only — it is a lower bound, not exact time in the app."
