@@ -26,6 +26,8 @@ Een snelle manier om te zien welk team dit seizoen het sterkst is.
 
 Hoeveel evaluaties elke coach heeft opgeslagen in het gekozen venster (laatste 7, 30, 90, 180 of 365 dagen). Handig om coaches te signaleren die achterlopen, of om te bevestigen dat een geplande beoordelingsperiode echt heeft plaatsgevonden.
 
+Alleen coaches binnen je eigen club worden meegeteld — het rapport is beperkt tot de huidige tenant en toont nooit activiteit van een andere academie. Een coach van wie het gebruikersaccount is verwijderd verschijnt nog steeds (de opgeslagen evaluaties blijven binnen het venster) maar krijgt het label **Onbekende coach** in plaats van een ruw accountnummer.
+
 ## Coach · Evaluatiekwaliteit (v4.20.123)
 
 De evaluatie-steekproef van het hoofd opleiding als rapport: één rij per coach met het aantal evaluaties, het aantal beoordelingen, de gemiddelde score, de standaarddeviatie, de meest gegeven score (en welk aandeel van alle beoordelingen daarop zit) en de datum van de laatste evaluatie. Filterbaar op team en datumbereik.

@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * FrontendReportDetailView — frontend-native renderer for the two
@@ -173,13 +174,17 @@ final class FrontendReportDetailView extends FrontendViewBase {
         }
         echo '</select></label></form>';
 
+        $club_id = (int) CurrentClub::id();
+
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.coach_id, COUNT(*) AS total_in_window, MAX(e.created_at) AS last_eval
              FROM {$p}tt_evaluations e
              WHERE e.created_at >= %s AND e.archived_at IS NULL
+               AND ( e.club_id = %d OR e.club_id IS NULL )
              GROUP BY e.coach_id
              ORDER BY total_in_window DESC, last_eval DESC",
-            $cutoff
+            $cutoff,
+            $club_id
         ) );
 
         if ( empty( $rows ) ) {
@@ -195,7 +200,9 @@ final class FrontendReportDetailView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $user = get_userdata( (int) $r->coach_id );
-            $name = $user ? (string) $user->display_name : sprintf( '(user %d)', (int) $r->coach_id );
+            $name = ( $user && (string) $user->display_name !== '' )
+                ? (string) $user->display_name
+                : __( 'Unknown coach', 'talenttrack' );
             echo '<tr><td>' . esc_html( $name ) . '</td>';
             echo '<td class="num">' . (int) $r->total_in_window . '</td>';
             echo '<td>' . esc_html( (string) $r->last_eval ) . '</td></tr>';

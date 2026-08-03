@@ -47158,6 +47158,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Capped at 5000 rows — use grouping to aggregate larger sets."
 msgstr "Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."
 
+#: src/Shared/Frontend/FrontendReportDetailView.php
+msgid "Unknown coach"
+msgstr "Onbekende coach"
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 
