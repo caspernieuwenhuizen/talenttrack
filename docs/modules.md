@@ -18,6 +18,8 @@ Categories, in order: **Player data**, **Coaching & development**, **Planning & 
 
 Where a module owns sub-features, the card carries a feature count (e.g. "2 features") and an expandable panel. Each feature sits inside its parent card with its own **Feature** pill (visually distinct from the Module tag), its description and its own switch. Features only appear while their parent module is on. The page is mobile-first: cards stack to one column on a phone and the switches meet the 48px touch target.
 
+A **search box** at the top of the frontend page (`?tt_view=modules`, v4.x+) filters the list live as you type — matching a module or feature by its name or description. When a match is a nested feature, its module card auto-expands so the row is visible; categories with no remaining matches drop out, and an empty-state line shows when nothing matches. It's a client-side filter (no reload), and with JavaScript off the full list simply renders unfiltered. The wp-admin Modules page has no search — the frontend page is the surface being carried forward.
+
 ## Why turn a module off?
 
 - **Demo to a non-paying prospect.** Disable License so the upgrade banner stays out of the way.

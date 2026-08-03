@@ -157,6 +157,14 @@ class FrontendModulesView extends FrontendViewBase {
             [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
+        // #2300 — client-side filter over the module + feature list.
+        wp_enqueue_script(
+            'tt-frontend-modules-search',
+            TT_PLUGIN_URL . 'assets/js/frontend-modules-search.js',
+            [],
+            TT_VERSION,
+            true
+        );
         FrontendBreadcrumbs::fromDashboard( __( 'Modules', 'talenttrack' ) );
         self::renderHeader( __( 'Modules', 'talenttrack' ) );
 
@@ -181,7 +189,16 @@ class FrontendModulesView extends FrontendViewBase {
         <p class="tt-modules-intro">
             <?php esc_html_e( 'Turn TalentTrack modules on or off. A disabled module registers no hooks, REST routes, pages, or capabilities until re-enabled. Core modules cannot be disabled.', 'talenttrack' ); ?>
         </p>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-modules-form"
+        <div class="tt-modules-search" role="search">
+            <label for="tt-modules-search-input" class="tt-screen-reader-text">
+                <?php esc_html_e( 'Search modules and features', 'talenttrack' ); ?>
+            </label>
+            <input type="search" id="tt-modules-search-input" class="tt-modules-search-input"
+                   inputmode="search" autocomplete="off" spellcheck="false"
+                   aria-controls="tt-modules-form"
+                   placeholder="<?php esc_attr_e( 'Search modules and features…', 'talenttrack' ); ?>" />
+        </div>
+        <form id="tt-modules-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-modules-form"
               onsubmit="return confirm('<?php echo esc_js( __( 'Change active modules now? Disabling a module hides its surfaces immediately — reload other open tabs after saving.', 'talenttrack' ) ); ?>');">
             <?php wp_nonce_field( 'tt_modules_frontend_save', 'tt_nonce' ); ?>
             <input type="hidden" name="action" value="tt_modules_frontend_save" />
@@ -289,6 +306,10 @@ class FrontendModulesView extends FrontendViewBase {
                     </div>
                 </section>
             <?php endforeach; ?>
+
+            <p class="tt-modules-empty" hidden>
+                <?php esc_html_e( 'No modules or features match your search.', 'talenttrack' ); ?>
+            </p>
 
             <?php
             echo FormSaveButton::render( [

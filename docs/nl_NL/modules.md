@@ -18,6 +18,8 @@ De categorieën, op volgorde: **Spelersgegevens**, **Coaching & ontwikkeling**, 
 
 Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 functies") en een uitklapbaar paneel. Elke functie staat in de kaart van de bovenliggende module, met een eigen **Functie**-pil (visueel anders dan het Module-label), de omschrijving en een eigen schakelaar. Functies verschijnen alleen zolang hun bovenliggende module aanstaat. De pagina is mobile-first: kaarten stapelen op een telefoon in één kolom en de schakelaars voldoen aan het 48px-aanraakdoel.
 
+Een **zoekbalk** boven aan de frontendpagina (`?tt_view=modules`, v4.x+) filtert de lijst live tijdens het typen — op naam of omschrijving van een module of functie. Is de treffer een geneste functie, dan klapt de modulekaart automatisch open zodat de rij zichtbaar is; categorieën zonder overgebleven treffers vallen weg en er verschijnt een leeg-melding wanneer niets overeenkomt. Het is een filter aan de clientkant (geen herlaad), en met JavaScript uit verschijnt gewoon de volledige lijst. De wp-admin Modules-pagina heeft geen zoekfunctie — de frontendpagina is de surface die wordt voortgezet.
+
 ## Waarom een module uitschakelen?
 
 - **Demo aan een niet-betalende prospect.** Schakel License uit zodat de upgrade-banner niet stoort.
