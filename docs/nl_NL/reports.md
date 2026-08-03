@@ -131,6 +131,8 @@ De drempel staat onder **Configuratie → Algemeen → Risicodrempel aanwezighei
 
 Een aparte ranglijst die je opent vanuit de Rapporten-startpagina (*Aanwezigheidsranglijst*). Hij rangschikt spelers over de gekozen periode in twee tabellen naast elkaar: **Aandacht nodig** (de laagste aanwezigheid-%, waar risicospelers hun ⚠-badge houden) en **Meest betrouwbaar** (de hoogste aanwezigheid-%). Standaard toont hij **alle** spelers in de periode; typ een aantal in *Hoeveel* om elke tabel tot dat aantal rijen te beperken. Beperk eventueel tot één team. Coaches zien alleen hun eigen teams; academy-brede rollen zien de hele club.
 
+Hij deelt dezelfde filterbalk en chrome als het spelersaanwezigheidsrapport: een **team**-keuze, retrospectieve **periode**-pillen (afgelopen week / maand / seizoen enzovoort), een **activiteittype**-filter en een handmatig **datumbereik** dat de actieve periode overschrijft, plus de ranglijst-specifieke *Hoeveel*-limiet. Open je hem zonder filters, dan valt hij terug op het huidige **seizoen**. Boven de tabellen vat een KPI-strip de gerangschikte spelers samen — aantal spelers, gemiddelde aanwezigheid en hoeveel er risico lopen — berekend uit dezelfde gegevens, dus zonder extra query.
+
 Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scrollen; vanaf tabletbreedte staan ze naast elkaar. Bovenop de standaardrangschikking is elke kolom sorteerbaar.
 
 Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:

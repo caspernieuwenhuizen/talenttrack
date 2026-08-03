@@ -127,6 +127,8 @@ The threshold lives in **Configuration → General → Attendance at-risk thresh
 
 A dedicated league table reachable from the Reports launcher (*Attendance leaderboard*). It ranks players over the chosen window into two side-by-side tables: **Needs attention** (the lowest attendance %, where at-risk players keep their ⚠ badge) and **Most reliable** (the highest attendance %). By default it shows **all** players in the window; type a number in *How many* to narrow each table to that many rows. Optionally narrow to a single team. Coaches see only their own teams; academy-wide roles see the club.
 
+It shares the same filter bar and chrome as the player attendance report: a **team** picker, retrospective **period** pills (last week / month / season and so on), an **activity type** filter, and a manual **date range** that overrides the active period, plus the leaderboard-only *How many* cap. Opening it with no filters defaults to the **current season** window. Above the tables a KPI strip summarises the ranked players — total players, average attendance across them, and how many are at-risk — computed from the same data, so it never triggers an extra query.
+
 On a phone the two tables stack into one column with no horizontal scroll; from tablet width up they sit side-by-side. Every column is sortable on top of the default ranking.
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
