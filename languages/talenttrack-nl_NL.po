@@ -46970,6 +46970,58 @@ msgstr "Voeg weken toe aan het faseprofiel hierboven om thema's te labelen."
 msgid "Week"
 msgstr "Week"
 
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "No tactical scenes available yet."
+msgstr "Nog geen speelwijze-scènes beschikbaar."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid ""
+"Animated per-phase scenes: press Play to watch the player and ball movement "
+"for each game phase, then read the coaching points."
+msgstr ""
+"Geanimeerde scènes per fase: druk op Afspelen om de speler- en balbeweging "
+"per spelfase te bekijken en lees daarna de coachpunten."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Tactical scene: %s"
+msgstr "Speelwijze-scène: %s"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Tactical scene"
+msgstr "Speelwijze-scène"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "(untitled scene)"
+msgstr "(scène zonder titel)"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Play"
+msgstr "Afspelen"
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Restart"
+msgstr "Opnieuw"
+
+#: src/Modules/Methodology/Rest/TacticalScenesRestController.php
+msgid "Tactical scene not found."
+msgstr "Speelwijze-scène niet gevonden."
+
+#: src/Modules/Methodology/Rest/TacticalScenesRestController.php
+msgid "The scene payload must be a well-formed JSON object."
+msgstr "De scène-payload moet een geldig JSON-object zijn."
+
+#: src/Modules/Methodology/Rest/TacticalScenesRestController.php
+msgid "Could not save the tactical scene."
+msgstr "Kon de speelwijze-scène niet opslaan."
+
+#: src/Modules/Methodology/Rest/TacticalScenesRestController.php
+msgid "Shipped tactical scenes are read-only."
+msgstr "Meegeleverde speelwijze-scènes zijn alleen-lezen."
+
+#: src/Modules/Methodology/Rest/TacticalScenesRestController.php
+msgid "Shipped tactical scenes cannot be deleted."
+msgstr "Meegeleverde speelwijze-scènes kunnen niet worden verwijderd."
+
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
 

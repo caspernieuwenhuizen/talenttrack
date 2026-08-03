@@ -248,3 +248,40 @@ All mutating actions require the `tt_edit_methodology` capability; a viewer with
 Each team can override which set it uses. On the team edit form a **Methodology set** dropdown lists every set, with **Use install default** as the first option. Leaving it on the default (value `0`) clears the override so the team follows the install-wide active set; picking a specific set pins the team to it. The picker only appears once at least one set exists.
 
 The same operations are available over REST at `/wp-json/talenttrack/v1/methodology/sets` (list / create / read / update / archive) plus `PUT /methodology/sets/{id}/default` to make a set active.
+
+## Tactical scenes (Speelwijze animations)
+
+Per-phase tactical scenes are authored over REST at `/wp-json/talenttrack/v1/methodology/tactical-scenes` (list / create / read / update / delete). Every route requires the `tt_edit_methodology` capability and is club-scoped; reads and creates resolve to the active methodology set (pass an optional `methodology_id` query param to target a specific set). Shipped scenes are read-only — update and delete refuse them; create always writes a club-authored scene.
+
+Routes:
+
+- `GET /methodology/tactical-scenes` — list scenes for the active set. Optional `phase_side` (`attacking` / `defending` / `transition`) and `phase_number` filters.
+- `POST /methodology/tactical-scenes` — create a club-authored scene.
+- `GET /methodology/tactical-scenes/{id}` — one scene, with the raw NL + EN title/description under `title_i18n` / `description_i18n`.
+- `PUT /methodology/tactical-scenes/{id}` — edit a club-authored scene.
+- `DELETE /methodology/tactical-scenes/{id}` — delete a club-authored scene.
+
+A scene carries a multilingual `title` and `description` (`{ "nl": "…", "en": "…" }`), an optional `phase_side` + `phase_number` (the soft link to a phase), an optional `formation_id`, a `sort_order`, and a free-form `scene` object — the animation payload. The `scene` object is validated only as well-formed JSON; the renderer and a future editor own its schema.
+
+### The `scene` animation payload
+
+Coordinates are normalized `0–100` in both axes (0,0 = top-left, `y` grows toward the goal we defend at the bottom), the same convention the formation diagrams use. `t` is normalized time `0..1`; the renderer interpolates linearly between a player's keyframes across `duration_ms`.
+
+```json
+{
+  "duration_ms": 5000,
+  "players": [
+    { "slot": 9, "label": "9", "team": "own",
+      "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 1, "x": 55, "y": 35 } ] }
+  ],
+  "opponents": [
+    { "label": "", "team": "opp", "keyframes": [ { "t": 0, "x": 50, "y": 20 } ] }
+  ],
+  "ball": { "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 0.6, "x": 55, "y": 35 } ] },
+  "arrows": [
+    { "kind": "run", "from": { "x": 50, "y": 55 }, "to": { "x": 55, "y": 35 } }
+  ]
+}
+```
+
+`arrows[].kind` is one of `run`, `pass`, `press` or `dribble` (each draws in its own colour). Any entity with a single keyframe stays put; the ball and every player/opponent share the same interpolation. A drag-and-draw scene editor in the app is a planned follow-up — for now scenes are authored over this API or seeded.

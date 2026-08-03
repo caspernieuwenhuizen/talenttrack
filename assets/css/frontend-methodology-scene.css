@@ -1,0 +1,146 @@
+/*
+ * frontend-methodology-scene.css (#2323) — animated per-phase tactical
+ * scenes on the methodology "Speelwijze" tab. Enqueued by MethodologyView
+ * only on that surface, alongside methodology-tactical-scene.js.
+ *
+ * Mobile-first (CLAUDE.md §2): base rules target the smallest viewport;
+ * scale up with min-width queries. Controls meet the 48×48 touch target
+ * and spacing minimums. Design tokens drive colour — no raw hex where a
+ * token exists. Reads the shared pitch look from FormationDiagram.
+ */
+
+.tt-tsc {
+    margin: 0 0 var(--tt-sp-4, 1.25rem);
+}
+
+.tt-tsc__head {
+    margin: 0 0 var(--tt-sp-2, 0.5rem);
+}
+
+.tt-tsc__title {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    color: var(--tt-ink, #12212b);
+}
+
+.tt-tsc__phase {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #5b6470);
+}
+
+/* Layout: single column on phones, diagram + coaching text side-by-side
+   from the tablet breakpoint up. */
+.tt-tsc__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 0.75rem);
+    align-items: start;
+}
+
+@media (min-width: 768px) {
+    .tt-tsc__grid {
+        grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+        gap: var(--tt-sp-4, 1.25rem);
+    }
+}
+
+.tt-tsc__coaching {
+    margin: 0;
+    white-space: pre-wrap;
+    line-height: var(--tt-lh-body, 1.5);
+    color: var(--tt-ink-soft, #2b3a44);
+}
+
+/* ── the animated pitch ─────────────────────────────────────────── */
+
+.tt-tactical-scene {
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-tsc-stage {
+    width: 100%;
+    max-width: 22rem;
+}
+
+.tt-tsc-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.tt-tsc-svg .tt-tsc-pitch { fill: #f3f7f3; stroke: currentColor; stroke-width: 0.5; }
+.tt-tsc-svg .tt-tsc-line  { stroke: currentColor; stroke-width: 0.4; }
+
+.tt-tsc-svg .tt-tsc-token circle { stroke-width: 0.5; }
+.tt-tsc-svg .tt-tsc-token--own circle { fill: var(--tt-primary, #0b3d2e); stroke: var(--tt-primary, #0b3d2e); }
+.tt-tsc-svg .tt-tsc-token--own text   { fill: #fff; }
+.tt-tsc-svg .tt-tsc-token--opp circle { fill: #fff; stroke: var(--tt-danger, #b32d2e); }
+.tt-tsc-svg .tt-tsc-token--opp text   { fill: var(--tt-danger, #b32d2e); }
+
+.tt-tsc-svg .tt-tsc-ball { fill: #f6c445; stroke: #7a5c00; stroke-width: 0.4; }
+
+/* Movement-intent arrows, coloured by kind. */
+.tt-tsc-svg .tt-tsc-arrow { stroke-width: 0.6; fill: none; }
+.tt-tsc-svg .tt-tsc-arrow--run     { stroke: var(--tt-primary, #0b3d2e); stroke-dasharray: 2 1.4; }
+.tt-tsc-svg .tt-tsc-arrow--pass    { stroke: var(--tt-info, #2f6fed); }
+.tt-tsc-svg .tt-tsc-arrow--dribble { stroke: var(--tt-primary, #0b3d2e); stroke-dasharray: 0.8 1.2; }
+.tt-tsc-svg .tt-tsc-arrow--press   { stroke: var(--tt-danger, #b32d2e); stroke-dasharray: 2 1.4; }
+.tt-tsc-svg #tt-tsc-arrow-head path { fill: currentColor; }
+
+/* Give the token position transitions a soft feel where motion is OK;
+   the JS drives per-frame transforms, so this only smooths sub-frame
+   jitter. Disabled under reduced-motion. */
+.tt-tsc-svg .tt-tsc-token,
+.tt-tsc-svg .tt-tsc-ball {
+    will-change: transform;
+}
+
+/* ── controls ───────────────────────────────────────────────────── */
+
+.tt-tsc-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-tsc-btn {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0 1rem;
+    border: 1px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius, 6px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #12212b);
+    font-size: var(--tt-fs-body, 1rem);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-tsc-btn--play {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+
+.tt-tsc-btn:active {
+    transform: translateY(1px);
+}
+
+.tt-tsc-btn:focus-visible {
+    outline: 2px solid var(--tt-secondary, #2f6fed);
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-tsc-svg .tt-tsc-token,
+    .tt-tsc-svg .tt-tsc-ball {
+        will-change: auto;
+    }
+    .tt-tsc-btn:active {
+        transform: none;
+    }
+}

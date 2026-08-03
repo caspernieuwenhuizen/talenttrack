@@ -50,3 +50,16 @@ Every entry can carry diagrams and images. Each entry's edit page has a section 
 ## Selectable methodologies
 
 TalentTrack now ships **two** methodologies. Alongside the default **JO14-1 Hedel** (1-4-2-3-1), a second shipped methodology **JO13-1 Hedel** (1-4-3-3) is available. It carries its own vision, formation and position cards, principles, framework primer, phases and learning goals. A team can be pointed at whichever set fits its playing style; the Methodology tabs then show that set's content. Like all shipped content it is read-only — clone an entry to edit your own copy.
+
+## Tactical scenes (Speelwijze animations)
+
+The **Speelwijze** tab shows animated per-phase tactical scenes for the active methodology set. Each scene is a game-phase snapshot — an SVG pitch with your players (filled circles), the opponents (outlined circles) and the ball — that animates the movement for that phase when you press **Play**.
+
+- Scenes are grouped by phase side: **Aanvallend**, **Verdedigend** and **Omschakelen**.
+- Every scene carries **coaching points** beside the pitch — the key sub-principes for that phase.
+- **Play / Pause / Restart** controls sit under each pitch. Nothing moves until you press Play, so the page never surprises you with motion.
+- If your device asks for reduced motion, scenes do not autoplay: the final frame is shown statically and you can still press Play to watch it.
+
+Movement is drawn with coloured arrows: a run, a pass, a press, or a dribble. The player and ball positions use the same pitch layout as the formation diagrams, so the two read consistently.
+
+Scenes are shipped content for the JO13-1 Hedel set today and are read-only in the app. They can be created and edited over the REST API (see the authoring guide); a drag-and-draw scene editor is a planned follow-up.
