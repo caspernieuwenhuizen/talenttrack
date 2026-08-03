@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-03T21:55:56+00:00\n"
+"POT-Creation-Date: 2026-08-03T21:59:32+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -84,8 +84,8 @@ msgstr "Team Manager"
 #: src/Modules/Analytics/AnalyticsModule.php:175
 #: src/Modules/Analytics/AnalyticsModule.php:234
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:230
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:149
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:182
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:207
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:201
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:52
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:143
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:306
@@ -194,7 +194,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTrialsManageView.php:443
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:295
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:646
-#: src/Shared/Frontend/FrontendUsageStatsView.php:295
+#: src/Shared/Frontend/FrontendUsageStatsView.php:373
 msgid "Player"
 msgstr "Speler"
 
@@ -216,12 +216,12 @@ msgstr "Speler"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:187
 #: src/Shared/Frontend/FrontendEvaluationsView.php:461
 #: src/Shared/Frontend/FrontendPeopleManageView.php:282
-#: src/Shared/Frontend/FrontendReportDetailView.php:192
+#: src/Shared/Frontend/FrontendReportDetailView.php:197
 #: src/Shared/Frontend/FrontendRolesView.php:75
 #: src/Shared/Frontend/FrontendStandardReportsView.php:966
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:297
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:645
-#: src/Shared/Frontend/FrontendUsageStatsView.php:294
+#: src/Shared/Frontend/FrontendUsageStatsView.php:372
 #: src/Shared/Frontend/PlayerDashboardView.php:108
 msgid "Coach"
 msgstr "Trainer"
@@ -834,7 +834,7 @@ msgstr "Speler · Voortgang & radar"
 #: src/Core/FeatureRegistry.php:375
 #: src/Modules/Reports/Admin/ReportsPage.php:61
 #: src/Modules/Reports/Admin/ReportsPage.php:173
-#: src/Shared/Frontend/FrontendReportDetailView.php:54
+#: src/Shared/Frontend/FrontendReportDetailView.php:55
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:68
 msgid "Team rating averages"
 msgstr "Team-beoordelingsgemiddelden"
@@ -842,7 +842,7 @@ msgstr "Team-beoordelingsgemiddelden"
 #: src/Core/FeatureRegistry.php:376
 #: src/Modules/Reports/Admin/ReportsPage.php:68
 #: src/Modules/Reports/Admin/ReportsPage.php:261
-#: src/Shared/Frontend/FrontendReportDetailView.php:55
+#: src/Shared/Frontend/FrontendReportDetailView.php:56
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:74
 msgid "Coach activity"
 msgstr "Coachactiviteit"
@@ -856,9 +856,9 @@ msgid "Player · Attendance statistics"
 msgstr "Speler · Aanwezigheidsstatistieken"
 
 #: src/Core/FeatureRegistry.php:379
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:70
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:78
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:81
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:89
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:92
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:127
 msgid "Attendance leaderboard"
 msgstr "Aanwezigheidsranglijst"
@@ -1744,7 +1744,7 @@ msgstr "Scout"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:335
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:647
-#: src/Shared/Frontend/FrontendUsageStatsView.php:296
+#: src/Shared/Frontend/FrontendUsageStatsView.php:374
 msgid "Other"
 msgstr "Overig"
 
@@ -2145,11 +2145,11 @@ msgstr "Radarkaarten"
 #: src/Modules/Analytics/AnalyticsModule.php:135
 #: src/Modules/Analytics/AnalyticsModule.php:158
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:231
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:150
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:217
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:183
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:368
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:147
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:208
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:335
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:202
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:416
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:159
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:414
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
@@ -2257,7 +2257,7 @@ msgstr "Radarkaarten"
 #: src/Shared/Frontend/FrontendPlayersManageView.php:220
 #: src/Shared/Frontend/FrontendPlayersManageView.php:367
 #: src/Shared/Frontend/FrontendRateCardView.php:129
-#: src/Shared/Frontend/FrontendReportDetailView.php:99
+#: src/Shared/Frontend/FrontendReportDetailView.php:100
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:81
 #: src/Shared/Frontend/FrontendSpondView.php:214
 #: src/Shared/Frontend/FrontendStandardReportsView.php:661
@@ -3606,10 +3606,10 @@ msgstr "Alle types"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:151
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:184
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:139
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:148
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:203
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:151
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:160
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixPage.php:700
 #: src/Modules/Authorization/Admin/RolesPage.php:492
@@ -3811,8 +3811,9 @@ msgstr "Titel"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:93
 #: src/Modules/Activities/Admin/ActivitiesPage.php:266
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:383
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:343
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:350
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:431
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:373
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
@@ -4536,8 +4537,8 @@ msgstr "Totaal minuten"
 #: src/Shared/Frontend/FrontendOverviewView.php:236
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:158
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1007
-#: src/Shared/Frontend/FrontendReportDetailView.php:103
-#: src/Shared/Frontend/FrontendReportDetailView.php:193
+#: src/Shared/Frontend/FrontendReportDetailView.php:104
+#: src/Shared/Frontend/FrontendReportDetailView.php:198
 #: src/Shared/Frontend/FrontendStandardReportsView.php:571
 #: src/Shared/Frontend/FrontendStandardReportsView.php:947
 #: src/Shared/Frontend/FrontendStandardReportsView.php:967
@@ -4758,7 +4759,7 @@ msgid "%1$s — %2$s"
 msgstr "%1$s — %2$s"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:763
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:796
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
@@ -4840,7 +4841,7 @@ msgid "No analytics available for this entity yet."
 msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:48
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:59
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:70
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:55
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:60
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:51
@@ -4905,7 +4906,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendPersonDetailView.php:23
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:196
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:34
-#: src/Shared/Frontend/FrontendReportDetailView.php:45
+#: src/Shared/Frontend/FrontendReportDetailView.php:46
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:38
 #: src/Shared/Frontend/FrontendReportWizardView.php:60
 #: src/Shared/Frontend/FrontendRolesView.php:27
@@ -4920,7 +4921,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:39
 #: src/Shared/Frontend/FrontendTrialsManageView.php:72
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:47
-#: src/Shared/Frontend/FrontendUsageStatsView.php:47
+#: src/Shared/Frontend/FrontendUsageStatsView.php:65
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:38
 msgid "Not authorized"
 msgstr "Niet geautoriseerd"
@@ -4978,7 +4979,8 @@ msgid "No analytics registered for this entity type yet."
 msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:155
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:186
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
@@ -5025,7 +5027,7 @@ msgid "Players"
 msgstr "Spelers"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:138
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:150
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:105
 #: src/Modules/Authorization/Admin/MatrixPage.php:699
 #: src/Modules/Authorization/Admin/RolesPage.php:489
@@ -5087,9 +5089,9 @@ msgstr "Geen vermeldingen."
 msgid "Season"
 msgstr "Seizoen"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:60
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:71
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:79
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:82
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:90
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:56
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:67
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:75
@@ -5117,7 +5119,7 @@ msgstr "Seizoen"
 #: src/Shared/CoreSurfaceRegistration.php:892
 #: src/Shared/CoreSurfaceRegistration.php:1633
 #: src/Shared/CoreSurfaceRegistration.php:1938
-#: src/Shared/Frontend/FrontendReportDetailView.php:61
+#: src/Shared/Frontend/FrontendReportDetailView.php:62
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:52
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:53
 #: src/Shared/Frontend/FrontendReportWizardView.php:48
@@ -5129,7 +5131,7 @@ msgstr "Seizoen"
 msgid "Reports"
 msgstr "Rapporten"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:62
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:73
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:58
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:63
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:54
@@ -5137,7 +5139,7 @@ msgstr "Rapporten"
 msgid "You do not have permission to view this report."
 msgstr "Je hebt geen rechten om dit rapport te bekijken."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:73
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:84
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:74
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
@@ -5147,60 +5149,77 @@ msgstr "Je hebt geen rechten om dit rapport te bekijken."
 msgid "This report has been switched off for your academy."
 msgstr "Dit rapport is uitgeschakeld voor je academie."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:102
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:114
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:111
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:127
 msgid ""
-"You don't coach any teams yet, so there is no attendance to show. Ask an "
+"You don't coach any teams yet, so there is no attendance to rank. Ask an "
 "administrator to assign you to a team."
 msgstr ""
-"Je coacht nog geen teams, dus er is geen aanwezigheid om te tonen. Vraag een "
-"beheerder om je aan een team toe te wijzen."
+"Je coacht nog geen teams, dus er is geen aanwezigheid om te rangschikken. "
+"Vraag een beheerder om je aan een team toe te wijzen."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:109
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:117
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:122
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:135
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:119
-msgid "No attendance recorded in the selected window."
-msgstr "Geen aanwezigheid geregistreerd in het gekozen tijdvenster."
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:134
+msgid ""
+"This team has no attendance recorded in the selected window. Try widening "
+"the date range or picking another period."
+msgstr ""
+"Voor dit team is in de gekozen periode geen aanwezigheid vastgelegd. Verruim "
+"het datumbereik of kies een andere periode."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:123
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:142
+msgid ""
+"No attendance recorded in the selected window. Try widening the date range "
+"or picking another period."
+msgstr ""
+"Geen aanwezigheid vastgelegd in de gekozen periode. Verruim het datumbereik "
+"of kies een andere periode."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:150
 msgid "Needs attention — lowest attendance"
 msgstr "Aandacht nodig — laagste aanwezigheid"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:128
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:155
 msgid "Most reliable — highest attendance"
 msgstr "Meest betrouwbaar — hoogste aanwezigheid"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:142
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:187
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:165
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:152
+msgid "Avg. attendance"
+msgstr "Gem. aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:188
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:166
+msgid "At-risk players"
+msgstr "Spelers met risico"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:200
 msgid "No players to rank yet."
 msgstr "Nog geen spelers om te rangschikken."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:148
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:206
 #: src/Modules/Methodology/Admin/MethodologyPage.php:355
 #: src/Shared/Frontend/FrontendPlayersManageView.php:214
 #: src/Shared/Frontend/FrontendTeamsManageView.php:348
 msgid "#"
 msgstr "#"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:152
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:185
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:210
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:204
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:53
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:149
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:161
 msgid "Present %"
 msgstr "Aanwezig %"
 
 #. translators: %d missed activities
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:168
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:174
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:222
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:228
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:193
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:245
 #, php-format
 msgid "%d missed"
 msgstr "%d gemist"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:219
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:317
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:282
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
@@ -5214,9 +5233,41 @@ msgstr "%d gemist"
 msgid "All teams"
 msgstr "Alle teams"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:224
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:393
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:353
+#. translators: %d row cap
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:321
+#, php-format
+msgid "Top %d"
+msgstr "Top %d"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:343
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:424
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:366
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:422
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1390
+#: src/Shared/Frontend/FrontendHolidaysView.php:290
+msgid "Period"
+msgstr "Periode"
+
+# v4.7.0 (#973) — activities list date-bucket redesign.
+# (Apply, Next week, %d activity, %1$s · %2$s reuse existing msgids
+#  elsewhere in this catalogue — no entries added for them.)
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:353
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:434
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:376
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1384
+msgid "— all types —"
+msgstr "— alle types —"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:359
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:440
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:382
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:438
+msgid "Date range"
+msgstr "Datumbereik"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:360
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:441
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:383
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:439
 #: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
@@ -5242,9 +5293,9 @@ msgstr "Alle teams"
 msgid "From"
 msgstr "Vanaf"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:226
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:394
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:354
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:361
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:442
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:384
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:440
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
@@ -5263,11 +5314,11 @@ msgstr "Vanaf"
 msgid "To"
 msgstr "T/m"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:228
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:372
 msgid "How many"
 msgstr "Aantal"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:229
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:375
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
@@ -5287,20 +5338,6 @@ msgstr "Aantal"
 msgid "All"
 msgstr "Alle"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:230
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:177
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:746
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:269
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
-#: src/Shared/Admin/BulkActionsHelper.php:176
-#: src/Shared/Frontend/Components/FilterBar.php:154
-#: src/Shared/Frontend/Components/FilterBar.php:246
-#: src/Shared/Frontend/Components/FilterBar.php:440
-#: src/Shared/Frontend/FrontendStandardReportsView.php:937
-msgid "Apply"
-msgstr "Toepassen"
-
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:66
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:74
 msgid "Player attendance"
@@ -5311,69 +5348,64 @@ msgstr "Speler-aanwezigheid"
 msgid "Player attendance statistics"
 msgstr "Aanwezigheidsstatistieken per speler"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:156
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:140
-msgid "Avg. attendance"
-msgstr "Gem. aanwezigheid"
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:119
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:118
+msgid ""
+"You don't coach any teams yet, so there is no attendance to show. Ask an "
+"administrator to assign you to a team."
+msgstr ""
+"Je coacht nog geen teams, dus er is geen aanwezigheid om te tonen. Vraag een "
+"beheerder om je aan een team toe te wijzen."
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:157
-msgid "At-risk players"
-msgstr "Spelers met risico"
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:127
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:142
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:131
+msgid "No attendance recorded in the selected window."
+msgstr "Geen aanwezigheid geregistreerd in het gekozen tijdvenster."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:128
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:143
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:129
+msgid "This report is limited to the teams you coach."
+msgstr "Dit rapport is beperkt tot de teams die je traint."
 
 #. translators: %d is the missed-activities threshold
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:166
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:175
 #, php-format
 msgid "At-risk players (%d or more missed)"
 msgstr "Risicospelers (%d of meer gemist)"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:186
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:150
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:205
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:162
 msgid "Late %"
 msgstr "Te laat %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:187
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:151
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:206
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:163
 msgid "Absent %"
 msgstr "Afwezig %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:188
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:152
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:207
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:164
 msgid "Excused %"
 msgstr "Verontschuldigd %"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:189
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:153
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:208
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:165
 msgid "Injured %"
 msgstr "Geblesseerd %"
 
+#. translators: 1: missed count, 2: player name
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:250
+#, php-format
+msgid "View the %1$d missed activities for %2$s"
+msgstr "Bekijk de %1$d gemiste activiteiten van %2$s"
+
 #. translators: 1: activity count, 2: player name
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:235
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:265
 #, php-format
 msgid "View the %1$d activities counted for %2$s"
 msgstr "Bekijk de %1$d activiteiten die voor %2$s zijn geteld"
-
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:376
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:336
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:422
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1390
-#: src/Shared/Frontend/FrontendHolidaysView.php:290
-msgid "Period"
-msgstr "Periode"
-
-# v4.7.0 (#973) — activities list date-bucket redesign.
-# (Apply, Next week, %d activity, %1$s · %2$s reuse existing msgids
-#  elsewhere in this catalogue — no entries added for them.)
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:386
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:346
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1384
-msgid "— all types —"
-msgstr "— alle types —"
-
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:392
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:352
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:438
-msgid "Date range"
-msgstr "Datumbereik"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:49
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:155
@@ -5402,15 +5434,15 @@ msgstr "Team-aanwezigheid"
 msgid "Team attendance statistics"
 msgstr "Aanwezigheidsstatistieken per team"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:141
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:153
 msgid "Teams below 70%"
 msgstr "Teams onder 70%"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:183
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:195
 msgid "Open team"
 msgstr "Team openen"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:184
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:196
 msgid "View players"
 msgstr "Spelers bekijken"
 
@@ -5635,8 +5667,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:197
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:114
-#: src/Shared/Frontend/FrontendUsageStatsView.php:163
-#: src/Shared/Frontend/FrontendUsageStatsView.php:175
+#: src/Shared/Frontend/FrontendUsageStatsView.php:197
+#: src/Shared/Frontend/FrontendUsageStatsView.php:209
 msgid "Name"
 msgstr "Naam"
 
@@ -5826,6 +5858,19 @@ msgstr "Groeperen op:"
 msgid "— None —"
 msgstr "— Geen —"
 
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:177
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:746
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:269
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
+#: src/Shared/Admin/BulkActionsHelper.php:176
+#: src/Shared/Frontend/Components/FilterBar.php:154
+#: src/Shared/Frontend/Components/FilterBar.php:246
+#: src/Shared/Frontend/Components/FilterBar.php:440
+#: src/Shared/Frontend/FrontendStandardReportsView.php:937
+msgid "Apply"
+msgstr "Toepassen"
+
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:186
 msgid ""
 "Pick a dimension above to break the headline down by groups, or browse the "
@@ -5888,38 +5933,43 @@ msgid "PDF rendering failed. Run `composer install` and try again."
 msgstr ""
 "PDF-weergave mislukt. Voer `composer install` uit en probeer het opnieuw."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:610
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:636
 msgid "Date after"
 msgstr "Datum na"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:616
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:642
 msgid "Date before"
 msgstr "Datum vóór"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:633
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:659
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:287
 msgid "Apply filters"
 msgstr "Filters toepassen"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:655
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:681
 msgid "No data for the current filters."
 msgstr "Geen data voor de huidige filters."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:720
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:749
+msgid "Capped at 5000 rows — use grouping to aggregate larger sets."
+msgstr ""
+"Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."
+
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:753
 msgid "No fact rows match the current filters."
 msgstr "Geen feitrijen die aan de huidige filters voldoen."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:785
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:818
 msgid "← Prev"
 msgstr "← Vorige"
 
 #. translators: 1: current page, 2: total pages, 3: total rows
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:789
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:822
 #, php-format
 msgid "Page %1$d of %2$d (%3$d rows)"
 msgstr "Pagina %1$d van %2$d (%3$d rijen)"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:793
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:826
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:563
@@ -5927,7 +5977,7 @@ msgid "Next →"
 msgstr "Volgende →"
 
 #. translators: %d: total row count
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:800
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:833
 #, php-format
 msgid "Showing %d row(s)."
 msgstr "%d rij(en) weergegeven."
@@ -6709,9 +6759,9 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamsManageView.php:457
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:146
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:574
-#: src/Shared/Frontend/FrontendUsageStatsView.php:139
-#: src/Shared/Frontend/FrontendUsageStatsView.php:164
-#: src/Shared/Frontend/FrontendUsageStatsView.php:176
+#: src/Shared/Frontend/FrontendUsageStatsView.php:166
+#: src/Shared/Frontend/FrontendUsageStatsView.php:198
+#: src/Shared/Frontend/FrontendUsageStatsView.php:210
 msgid "Role"
 msgstr "Rol"
 
@@ -8309,7 +8359,7 @@ msgstr "Geen gebruikers met TT-rol gevonden."
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:362
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:422
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:573
-#: src/Shared/Frontend/FrontendUsageStatsView.php:236
+#: src/Shared/Frontend/FrontendUsageStatsView.php:277
 msgid "User"
 msgstr "Gebruiker"
 
@@ -11318,7 +11368,7 @@ msgstr "Status"
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:768
 #: src/Shared/Frontend/FrontendModulesView.php:285
-#: src/Shared/Frontend/FrontendUsageStatsView.php:200
+#: src/Shared/Frontend/FrontendUsageStatsView.php:234
 msgid "Feature"
 msgstr "Functie"
 
@@ -16139,7 +16189,7 @@ msgstr "Dit onderwerp is leeg."
 #: src/Modules/Documentation/AudienceResolver.php:45
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:500
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:644
-#: src/Shared/Frontend/FrontendUsageStatsView.php:293
+#: src/Shared/Frontend/FrontendUsageStatsView.php:371
 msgid "Admin"
 msgstr "Beheerder"
 
@@ -19287,7 +19337,7 @@ msgstr "Spelerkaarten"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1489
 #: src/Shared/Frontend/FrontendConfigurationView.php:2584
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:254
-#: src/Shared/Frontend/FrontendReportDetailView.php:60
+#: src/Shared/Frontend/FrontendReportDetailView.php:61
 #: src/Shared/Frontend/FrontendTrialCaseView.php:109
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:666
 msgid "Dashboard"
@@ -28070,8 +28120,8 @@ msgstr "Ploegoverzicht"
 #. translators: %d is the number of days
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:67
 #: src/Modules/Reports/Admin/ReportsPage.php:279
-#: src/Shared/Frontend/FrontendReportDetailView.php:171
-#: src/Shared/Frontend/FrontendUsageStatsView.php:100
+#: src/Shared/Frontend/FrontendReportDetailView.php:172
+#: src/Shared/Frontend/FrontendUsageStatsView.php:127
 #, php-format
 msgid "Last %d days"
 msgstr "Laatste %d dagen"
@@ -29611,7 +29661,7 @@ msgstr ""
 "Gearchiveerde spelers en gearchiveerde evaluaties worden uitgesloten."
 
 #: src/Modules/Reports/Admin/ReportsPage.php:179
-#: src/Shared/Frontend/FrontendReportDetailView.php:94
+#: src/Shared/Frontend/FrontendReportDetailView.php:95
 msgid "No teams configured."
 msgstr "Geen teams geconfigureerd."
 
@@ -29626,19 +29676,19 @@ msgstr ""
 "evaluaties worden uitgesloten."
 
 #: src/Modules/Reports/Admin/ReportsPage.php:273
-#: src/Shared/Frontend/FrontendReportDetailView.php:166
+#: src/Shared/Frontend/FrontendReportDetailView.php:167
 #: src/Shared/Frontend/FrontendTrialsManageView.php:392
 #: src/Shared/Frontend/FrontendTrialsManageView.php:411
 msgid "Window"
 msgstr "Venster"
 
 #: src/Modules/Reports/Admin/ReportsPage.php:288
-#: src/Shared/Frontend/FrontendReportDetailView.php:186
+#: src/Shared/Frontend/FrontendReportDetailView.php:191
 msgid "No evaluations saved in this window."
 msgstr "Geen evaluaties opgeslagen in dit venster."
 
 #: src/Modules/Reports/Admin/ReportsPage.php:297
-#: src/Shared/Frontend/FrontendReportDetailView.php:194
+#: src/Shared/Frontend/FrontendReportDetailView.php:199
 #: src/Shared/Frontend/FrontendStandardReportsView.php:972
 msgid "Last evaluation"
 msgstr "Laatste evaluatie"
@@ -29854,7 +29904,7 @@ msgid "Sent"
 msgstr "Verstuurd"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:89
-#: src/Shared/Frontend/FrontendUsageStatsView.php:201
+#: src/Shared/Frontend/FrontendUsageStatsView.php:235
 msgid "Views"
 msgstr "Weergaven"
 
@@ -29908,7 +29958,7 @@ msgid "Generated:"
 msgstr "Gemaakt:"
 
 #: src/Modules/Reports/PlayerReportRenderer.php:146
-#: src/Shared/Frontend/FrontendUsageStatsView.php:92
+#: src/Shared/Frontend/FrontendUsageStatsView.php:119
 msgid "Period:"
 msgstr "Periode:"
 
@@ -31029,8 +31079,8 @@ msgstr "Gebeurtenissen"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:341
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:149
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:364
-#: src/Shared/Frontend/FrontendUsageStatsView.php:165
-#: src/Shared/Frontend/FrontendUsageStatsView.php:177
+#: src/Shared/Frontend/FrontendUsageStatsView.php:199
+#: src/Shared/Frontend/FrontendUsageStatsView.php:211
 msgid "Last seen"
 msgstr "Laatst actief"
 
@@ -31271,7 +31321,7 @@ msgid "No inactive users — everyone has been active recently."
 msgstr "Geen inactieve gebruikers — iedereen is recent actief geweest."
 
 #: src/Modules/Stats/Admin/UsageStatsPage.php:220
-#: src/Shared/Frontend/FrontendUsageStatsView.php:237
+#: src/Shared/Frontend/FrontendUsageStatsView.php:278
 msgid "Last login"
 msgstr "Laatste login"
 
@@ -31336,7 +31386,7 @@ msgstr "Strava"
 #: src/Shared/Frontend/FrontendSpondView.php:51
 #: src/Shared/Frontend/FrontendTranslationsView.php:43
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:48
-#: src/Shared/Frontend/FrontendUsageStatsView.php:48
+#: src/Shared/Frontend/FrontendUsageStatsView.php:66
 msgid "You do not have permission to view this section."
 msgstr "Je hebt geen rechten om deze sectie te bekijken."
 
@@ -37887,8 +37937,8 @@ msgstr "Bulkexports: spelers, aanwezigheid, doelen, meer."
 # 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
 #: src/Shared/CoreSurfaceRegistration.php:1008
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:59
-#: src/Shared/Frontend/FrontendUsageStatsView.php:53
-#: src/Shared/Frontend/FrontendUsageStatsView.php:54
+#: src/Shared/Frontend/FrontendUsageStatsView.php:71
+#: src/Shared/Frontend/FrontendUsageStatsView.php:72
 msgid "Application KPIs"
 msgstr "Applicatie-KPIs"
 
@@ -43980,25 +44030,25 @@ msgstr "Prullenbak niet beschikbaar: REST-configuratie ontbreekt."
 msgid "Removed:"
 msgstr "Verwijderd:"
 
-#: src/Shared/Frontend/FrontendReportDetailView.php:46
+#: src/Shared/Frontend/FrontendReportDetailView.php:47
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:39
 #: src/Shared/Frontend/FrontendStandardReportsView.php:96
 msgid "Your role does not have access to reports."
 msgstr "Je rol heeft geen toegang tot rapporten."
 
-#: src/Shared/Frontend/FrontendReportDetailView.php:57
+#: src/Shared/Frontend/FrontendReportDetailView.php:58
 msgid "Report"
 msgstr "Rapport"
 
-#: src/Shared/Frontend/FrontendReportDetailView.php:68
+#: src/Shared/Frontend/FrontendReportDetailView.php:69
 msgid "Print / Save as PDF"
 msgstr "Afdrukken / Opslaan als PDF"
 
-#: src/Shared/Frontend/FrontendReportDetailView.php:79
+#: src/Shared/Frontend/FrontendReportDetailView.php:80
 msgid "Unknown report."
 msgstr "Onbekend rapport."
 
-#: src/Shared/Frontend/FrontendReportDetailView.php:90
+#: src/Shared/Frontend/FrontendReportDetailView.php:91
 msgid ""
 "Average rating per team across main categories, computed from all "
 "evaluations of players currently assigned to each team. Archived rows are "
@@ -44009,13 +44059,17 @@ msgstr ""
 "Gearchiveerde rijen zijn uitgesloten."
 
 #. translators: %d is number of days
-#: src/Shared/Frontend/FrontendReportDetailView.php:158
+#: src/Shared/Frontend/FrontendReportDetailView.php:159
 #, php-format
 msgid ""
 "Evaluations saved per coach in the last %d days. Archived rows excluded."
 msgstr ""
 "Per coach opgeslagen evaluaties in de laatste %d dagen. Gearchiveerde rijen "
 "uitgesloten."
+
+#: src/Shared/Frontend/FrontendReportDetailView.php:205
+msgid "Unknown coach"
+msgstr "Onbekende coach"
 
 # v3.91.5 — Reports launcher tile descriptions
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:75
@@ -46374,7 +46428,7 @@ msgstr "Paginering"
 msgid "← Previous"
 msgstr "← Vorige"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:88
+#: src/Shared/Frontend/FrontendUsageStatsView.php:106
 msgid ""
 "Application-level KPIs over the selected window. Events older than 90 days "
 "are deleted automatically. No IP addresses or user agents are recorded."
@@ -46383,87 +46437,128 @@ msgstr ""
 "dagen worden automatisch verwijderd. Geen IP-adressen of user agents "
 "opgeslagen."
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:104
+#: src/Shared/Frontend/FrontendUsageStatsView.php:110
+msgid "How these numbers are measured"
+msgstr "Hoe deze cijfers worden gemeten"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:112
+msgid ""
+"Stickiness (DAU/MAU) always divides average daily active users by the 30-day "
+"monthly-active total, regardless of the period you select above."
+msgstr ""
+"Kleefkracht (DAU/MAU) deelt het gemiddeld dagelijks-actief altijd door het "
+"maandelijks-actief over 30 dagen, ongeacht de periode die je hierboven kiest."
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:113
+msgid ""
+"A visit ends after 30 minutes of inactivity; a longer gap starts a new visit."
+msgstr ""
+"Een bezoek eindigt na 30 minuten inactiviteit; een langere onderbreking "
+"start een nieuw bezoek."
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:114
+msgid ""
+"Time online is observed activity only — it is a lower bound, not exact time "
+"in the app."
+msgstr ""
+"Tijd online telt alleen gemeten activiteit — het is een ondergrens, niet de "
+"exacte tijd in de app."
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:131
 msgid "Open in wp-admin"
 msgstr "In wp-admin openen"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:111
-#: src/Shared/Frontend/FrontendUsageStatsView.php:265
+#: src/Shared/Frontend/FrontendUsageStatsView.php:138
+#: src/Shared/Frontend/FrontendUsageStatsView.php:306
 msgid "Active users"
 msgstr "Actieve gebruikers"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:112
+#: src/Shared/Frontend/FrontendUsageStatsView.php:139
 msgid "Logins / user"
 msgstr "Logins / gebruiker"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:113
+#: src/Shared/Frontend/FrontendUsageStatsView.php:140
 msgid "Stickiness (DAU/MAU)"
 msgstr "Kleefkracht (DAU/MAU)"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:114
+#: src/Shared/Frontend/FrontendUsageStatsView.php:141
 msgid "Avg session"
 msgstr "Gem. sessie"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:115
+#: src/Shared/Frontend/FrontendUsageStatsView.php:142
 msgid "Time online (observed)"
 msgstr "Tijd online (gemeten)"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:116
+#: src/Shared/Frontend/FrontendUsageStatsView.php:143
 msgid "Actions / user"
 msgstr "Acties / gebruiker"
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:124
+#: src/Shared/Frontend/FrontendUsageStatsView.php:151
 #, php-format
 msgid "Daily active users (%d days)"
 msgstr "Dagelijks actieve gebruikers (%d dagen)"
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:135
+#: src/Shared/Frontend/FrontendUsageStatsView.php:162
 #, php-format
 msgid "Active users by role (%d days)"
 msgstr "Actieve gebruikers per rol (%d dagen)"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:140
+#: src/Shared/Frontend/FrontendUsageStatsView.php:167
 msgid "Users"
 msgstr "Gebruikers"
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:158
+#: src/Shared/Frontend/FrontendUsageStatsView.php:185
 #, php-format
 msgid "Active users (%d days)"
 msgstr "Actieve gebruikers (%d dagen)"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:194
+#. translators: %d is the maximum number of rows shown
+#: src/Shared/Frontend/FrontendUsageStatsView.php:189
+#: src/Shared/Frontend/FrontendUsageStatsView.php:267
+#, php-format
+msgid "(Showing top %d)"
+msgstr "(Toon top %d)"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:228
 msgid "Top features used"
 msgstr "Meest gebruikte functies"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:196
-msgid "No views recorded in this window yet."
-msgstr "Nog geen weergaven in deze periode."
+#: src/Shared/Frontend/FrontendUsageStatsView.php:230
+msgid ""
+"No views recorded in this window yet. Widen the period above, or check back "
+"once people start using the app."
+msgstr ""
+"Nog geen weergaven in deze periode. Verruim de periode hierboven, of kom "
+"terug zodra mensen de app gaan gebruiken."
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:202
+#: src/Shared/Frontend/FrontendUsageStatsView.php:236
 msgid "Share"
 msgstr "Aandeel"
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:229
+#: src/Shared/Frontend/FrontendUsageStatsView.php:263
 #, php-format
 msgid "Dormant users (no login in %d days)"
 msgstr "Inactieve gebruikers (geen login in %d dagen)"
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:232
-msgid "Everyone with an account has logged in recently."
-msgstr "Iedereen met een account heeft recent ingelogd."
+#: src/Shared/Frontend/FrontendUsageStatsView.php:273
+msgid ""
+"Everyone with an account has logged in recently — no one to nudge right now."
+msgstr ""
+"Iedereen met een account heeft recent ingelogd — er is nu niemand om een "
+"seintje te geven."
 
 #. translators: %s is a number of minutes
-#: src/Shared/Frontend/FrontendUsageStatsView.php:320
+#: src/Shared/Frontend/FrontendUsageStatsView.php:398
 #, php-format
 msgid "%s min"
 msgstr "%s min"
 
 #. translators: %s is a number of hours
-#: src/Shared/Frontend/FrontendUsageStatsView.php:326
+#: src/Shared/Frontend/FrontendUsageStatsView.php:404
 #, php-format
 msgid "%s h"
 msgstr "%s u"
@@ -47147,85 +47242,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#~ msgid "No views recorded in this window yet."
+#~ msgstr "Nog geen weergaven in deze periode."
+
+#~ msgid "Everyone with an account has logged in recently."
+#~ msgstr "Iedereen met een account heeft recent ingelogd."
+
 #~ msgid ""
 #~ "Optional. Array of { week, phase, multiplier } objects. Leave blank for "
 #~ "the default profile."
 #~ msgstr ""
 #~ "Optioneel. Een reeks { week, phase, multiplier }-objecten. Laat leeg voor "
 #~ "het standaardprofiel."
-
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php
-msgid "Capped at 5000 rows — use grouping to aggregate larger sets."
-msgstr "Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."
-
-#: src/Shared/Frontend/FrontendReportDetailView.php
-msgid "Unknown coach"
-msgstr "Onbekende coach"
-
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
-msgid "This report is limited to the teams you coach."
-msgstr "Dit rapport is beperkt tot de teams die je traint."
-
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
-msgid "View the %1$d missed activities for %2$s"
-msgstr "Bekijk de %1$d gemiste activiteiten van %2$s"
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "How these numbers are measured"
-msgstr "Hoe deze cijfers worden gemeten"
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "Stickiness (DAU/MAU) always divides average daily active users by the 30-day monthly-active total, regardless of the period you select above."
-msgstr "Kleefkracht (DAU/MAU) deelt het gemiddeld dagelijks-actief altijd door het maandelijks-actief over 30 dagen, ongeacht de periode die je hierboven kiest."
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "A visit ends after 30 minutes of inactivity; a longer gap starts a new visit."
-msgstr "Een bezoek eindigt na 30 minuten inactiviteit; een langere onderbreking start een nieuw bezoek."
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "Time online is observed activity only — it is a lower bound, not exact time in the app."
-msgstr "Tijd online telt alleen gemeten activiteit — het is een ondergrens, niet de exacte tijd in de app."
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "(Showing top %d)"
-msgstr "(Toon top %d)"
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "No views recorded in this window yet. Widen the period above, or check back once people start using the app."
-msgstr "Nog geen weergaven in deze periode. Verruim de periode hierboven, of kom terug zodra mensen de app gaan gebruiken."
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php
-msgid "Everyone with an account has logged in recently — no one to nudge right now."
-msgstr "Iedereen met een account heeft recent ingelogd — er is nu niemand om een seintje te geven."
-
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
-msgid ""
-"You don't coach any teams yet, so there is no attendance to rank. Ask an "
-"administrator to assign you to a team."
-msgstr ""
-"Je coacht nog geen teams, dus er is geen aanwezigheid om te rangschikken. "
-"Vraag een beheerder om je aan een team toe te wijzen."
-
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
-msgid ""
-"This team has no attendance recorded in the selected window. Try widening the "
-"date range or picking another period."
-msgstr ""
-"Voor dit team is in de gekozen periode geen aanwezigheid vastgelegd. Verruim "
-"het datumbereik of kies een andere periode."
-
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
-msgid ""
-"No attendance recorded in the selected window. Try widening the date range or "
-"picking another period."
-msgstr ""
-"Geen aanwezigheid vastgelegd in de gekozen periode. Verruim het datumbereik "
-"of kies een andere periode."
-
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
-msgid "Top %d"
-msgstr "Top %d"
 
 #~ msgid "No Spond credentials configured for the club."
 #~ msgstr "Geen Spond-credentials geconfigureerd voor de club."
