@@ -47,7 +47,7 @@ final class FootballActionsRepository {
         $args = [ CurrentClub::id() ];
         $mid  = MethodologyScope::active();
         if ( $mid > 0 ) {
-            $where .= ' AND methodology_id = %d';
+            $where .= ' AND (methodology_id = %d OR methodology_id IS NULL)';
             $args[] = $mid;
         }
         return (array) $wpdb->get_results( $wpdb->prepare(

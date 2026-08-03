@@ -64,6 +64,20 @@ final class MethodologyScopingTest extends WP_UnitTestCase {
         $this->assertNotContains( 'ZZ-DEF', $codes );
     }
 
+    public function test_unassigned_content_is_visible_in_any_scope(): void {
+        // A row with no methodology_id (legacy / direct insert) must never
+        // vanish — it belongs to no set and shows under every scope.
+        $this->seedPrinciple( 'ZZ-NUL', 0 );
+        global $wpdb;
+        $wpdb->query( "UPDATE {$wpdb->prefix}tt_principles SET methodology_id = NULL WHERE code = 'ZZ-NUL'" );
+
+        MethodologyScope::set( $this->secondSetId );
+        $this->assertContains( 'ZZ-NUL', $this->codes( ( new PrinciplesRepository() )->listFiltered() ) );
+
+        MethodologyScope::set( $this->defaultSetId );
+        $this->assertContains( 'ZZ-NUL', $this->codes( ( new PrinciplesRepository() )->listFiltered() ) );
+    }
+
     public function test_create_stamps_the_active_set(): void {
         MethodologyScope::set( $this->secondSetId );
         $repo = new PrinciplesRepository();

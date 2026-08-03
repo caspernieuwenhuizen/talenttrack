@@ -42,7 +42,7 @@ class MethodologyVisionRepository {
         global $wpdb;
         $t = $this->table();
         $mid     = MethodologyScope::active();
-        $mclause = $mid > 0 ? ' AND methodology_id = %d' : '';
+        $mclause = $mid > 0 ? ' AND (methodology_id = %d OR methodology_id IS NULL)' : '';
         $margs   = $mid > 0 ? [ $mid ] : [];
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 0{$mclause} ORDER BY updated_at DESC LIMIT 1",
@@ -61,7 +61,7 @@ class MethodologyVisionRepository {
         global $wpdb;
         $t = $this->table();
         $mid     = MethodologyScope::active();
-        $mclause = $mid > 0 ? ' AND methodology_id = %d' : '';
+        $mclause = $mid > 0 ? ' AND (methodology_id = %d OR methodology_id IS NULL)' : '';
         $margs   = $mid > 0 ? [ $mid ] : [];
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL{$mclause} ORDER BY is_shipped ASC, updated_at DESC",

@@ -24,7 +24,7 @@ final class FrameworkPrimerRepository {
         global $wpdb;
         $t = $this->table();
         $mid     = MethodologyScope::active();
-        $mclause = $mid > 0 ? ' AND methodology_id = %d' : '';
+        $mclause = $mid > 0 ? ' AND (methodology_id = %d OR methodology_id IS NULL)' : '';
         $margs   = $mid > 0 ? [ $mid ] : [];
         if ( $club_scope !== null && $club_scope !== '' ) {
             $row = $wpdb->get_row( $wpdb->prepare(
@@ -60,7 +60,7 @@ final class FrameworkPrimerRepository {
         $args = [ CurrentClub::id() ];
         $mid  = MethodologyScope::active();
         if ( $mid > 0 ) {
-            $where .= ' AND methodology_id = %d';
+            $where .= ' AND (methodology_id = %d OR methodology_id IS NULL)';
             $args[] = $mid;
         }
         return (array) $wpdb->get_results( $wpdb->prepare(

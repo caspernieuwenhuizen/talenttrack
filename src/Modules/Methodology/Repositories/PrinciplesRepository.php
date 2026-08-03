@@ -64,7 +64,7 @@ class PrinciplesRepository {
             ? (int) $filters['methodology_id']
             : MethodologyScope::active();
         if ( $mid > 0 ) {
-            $where[] = 'methodology_id = %d';
+            $where[] = '(methodology_id = %d OR methodology_id IS NULL)';
             $args[]  = $mid;
         }
         if ( ! empty( $filters['formation_id'] ) ) {
