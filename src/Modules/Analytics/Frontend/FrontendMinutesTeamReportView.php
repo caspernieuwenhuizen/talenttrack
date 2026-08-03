@@ -8,7 +8,10 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FilterBar;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\MinutesBreakdown;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -113,14 +116,26 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         }
 
         $defaults = self::defaultWindow();
-        $from = isset( $_GET['from'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : $defaults['from'];
-        $to   = isset( $_GET['to'] )   ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : $defaults['to'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
+        // #2349 — a retrospective period pill resolves the window unless the
+        // user typed an explicit From/To (manual override wins), matching the
+        // attendance reports' shared behaviour.
+        $period = ReportFilters::sanitizePeriod( isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '' );
+        $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
+        $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
+        $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
+        $from = $has_manual_from
+            ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) )
+            : ( $window['from'] ?? $defaults['from'] );
+        $to = $has_manual_to
+            ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
+            : ( $window['to'] ?? $defaults['to'] );
 
         $type_filter = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : 'all';
+        // #2349 — the shared FilterBar's placeholder option submits an empty
+        // `type=`; normalize it back to the report's 'all' sentinel.
+        if ( $type_filter === '' ) $type_filter = 'all';
 
-        self::renderFilterForm( $teams, $team_id, $from, $to, $type_filter );
+        self::renderFilterForm( $teams, $team_id, $from, $to, $type_filter, $period );
 
         $rows = ( new MinutesQuery() )->forTeam( $team_id, $from, $to );
 
@@ -182,20 +197,25 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             $visible_rows[] = $r;
         }
 
-        // KPI strip — squad-wide headline totals for the window.
-        echo '<div class="tt-rep-kpi-row" role="group" aria-label="' . esc_attr__( 'Minutes summary', 'talenttrack' ) . '">';
-        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+        // KPI strip — squad-wide headline totals for the window. #2349 —
+        // uses the shared `.tt-report-kpis` grid (frontend-app-chrome.css)
+        // like every other report surface, retiring the bespoke
+        // `tt-rep-kpi-row` markup + its one-off CSS.
+        echo '<div class="tt-report-kpis" role="group" aria-label="' . esc_attr__( 'Minutes summary', 'talenttrack' ) . '">';
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+        echo FrontendAppChrome::kpiTile( [
             'label' => __( 'Players', 'talenttrack' ),
             'value' => (string) count( $visible_rows ),
-        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
-        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+        ] );
+        echo FrontendAppChrome::kpiTile( [
             'label' => __( 'Total minutes', 'talenttrack' ),
             'value' => number_format_i18n( $sum_minutes ),
-        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
-        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+        ] );
+        echo FrontendAppChrome::kpiTile( [
             'label' => __( 'Total starts', 'talenttrack' ),
             'value' => number_format_i18n( $sum_starts ),
-        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+        ] );
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</div>';
 
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable">';
@@ -247,56 +267,13 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             $breakdown = $minutes_query->matchBreakdownForPlayer( $team_id, $pid, $from, $to );
             echo '<tr class="tt-min-breakdown-row" id="tt-min-bd-' . $pid . '">';
             echo '<td colspan="' . (int) $col_count . '">';
-            self::renderMinutesBreakdown( $breakdown );
+            // #2348 — shared breakdown component; identical rows to the
+            // former per-file renderer, still reconciling to the Total.
+            MinutesBreakdown::render( $breakdown, $pid );
             echo '</td></tr>';
         }
         echo '</tbody></table></div></div>';
         self::enqueueDrilldownAssets();
-    }
-
-    /**
-     * #2160 — render the per-match minutes breakdown for one player as a
-     * nested table. Rows come from
-     * {@see MinutesQuery::matchBreakdownForPlayer()} so they reconcile
-     * exactly with the player's Total. Shows record_type so the operator
-     * can confirm only `actual` rows count.
-     *
-     * @param list<array{activity_id:int,session_date:string,title:string,type_key:string,minutes:int,record_type:string}> $breakdown
-     */
-    private static function renderMinutesBreakdown( array $breakdown ): void {
-        echo '<div class="tt-min-breakdown">';
-        if ( ! $breakdown ) {
-            echo '<p class="tt-rep-section__hint">' . esc_html__( 'No per-match minutes recorded in this window.', 'talenttrack' ) . '</p>';
-            echo '</div>';
-            return;
-        }
-        $sum = 0;
-        foreach ( $breakdown as $b ) $sum += (int) $b['minutes'];
-        echo '<table class="tt-table"><thead><tr>'
-            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
-            . '<th>' . esc_html__( 'Source', 'talenttrack' ) . '</th>'
-            . '<th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
-        foreach ( $breakdown as $b ) {
-            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) $b['activity_id'] );
-            $title = (string) $b['title'];
-            if ( $title === '' ) $title = '—';
-            // #2193 — every breakdown row is a persisted actual-minutes
-            // row; minutes are never recomputed at report time.
-            $source = __( 'actual', 'talenttrack' );
-            echo '<tr>';
-            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $b['session_date'] ) ) . '</td>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( $title ) . '</a></td>';
-            echo '<td>' . esc_html( (string) $b['type_key'] ) . '</td>';
-            echo '<td>' . esc_html( $source ) . '</td>';
-            echo '<td class="num">' . (int) $b['minutes'] . '</td>';
-            echo '</tr>';
-        }
-        echo '<tr class="tt-min-breakdown__total"><td colspan="4">' . esc_html__( 'Total', 'talenttrack' ) . '</td><td class="num">' . (int) $sum . '</td></tr>';
-        echo '</tbody></table>';
-        echo '</div>';
     }
 
     /**
@@ -367,41 +344,104 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
     }
 
     /**
+     * #2349 — render the filter row through the shared FilterBar for visual
+     * + a11y parity with the attendance reports (period quick-pills, mobile
+     * bottom-sheet, 48px targets). The team + match-type selects auto-submit;
+     * the retrospective period pills are link-based (set `?period=`); the
+     * From/To range is the manual override.
+     *
      * @param list<object> $teams
      */
-    private static function renderFilterForm( array $teams, int $team_id, string $from, string $to, string $type_filter ): void {
-        $action = remove_query_arg( [ 'team_id', 'from', 'to', 'type' ] );
-        echo '<form method="get" class="tt-rep-filter">';
-        echo '<input type="hidden" name="tt_view" value="minutes-report-team" />';
+    private static function renderFilterForm( array $teams, int $team_id, string $from, string $to, string $type_filter, string $period ): void {
+        $dash_url = RecordLink::dashboardUrl();
+        $period_labels = ReportFilters::periodLabels();
 
-        echo '<label><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<select name="team_id">';
-        foreach ( $teams as $t ) {
-            $sel = ( (int) $t->id === $team_id ) ? ' selected' : '';
-            echo '<option value="' . (int) $t->id . '"' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
-        }
-        echo '</select></label>';
-
-        echo '<label><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
-        echo '<label><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
-
-        $types = [
-            'all'      => __( 'All types', 'talenttrack' ),
-            'League'   => __( 'League',    'talenttrack' ),
-            'Cup'      => __( 'Cup',       'talenttrack' ),
-            'Friendly' => __( 'Friendly',  'talenttrack' ),
+        // Match-type buckets (subtype, distinct from ReportFilters' activity
+        // type — this report splits League / Cup / Friendly).
+        $type_options = [
+            'League'   => __( 'League',   'talenttrack' ),
+            'Cup'      => __( 'Cup',      'talenttrack' ),
+            'Friendly' => __( 'Friendly', 'talenttrack' ),
         ];
-        echo '<label><span>' . esc_html__( 'Match type', 'talenttrack' ) . '</span>';
-        echo '<select name="type">';
-        foreach ( $types as $key => $label ) {
-            $sel = ( $key === $type_filter ) ? ' selected' : '';
-            echo '<option value="' . esc_attr( $key ) . '"' . $sel . '>' . esc_html( $label ) . '</option>';
-        }
-        echo '</select></label>';
 
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
-        echo '</form>';
+        // Team options keyed by id for the shared select group.
+        $team_options = [];
+        foreach ( $teams as $t ) {
+            $team_options[ (string) (int) $t->id ] = (string) $t->name;
+        }
+
+        // Base args every period pill preserves (team + type + back-target).
+        $pill_base = [ 'tt_view' => 'minutes-report-team', 'team_id' => $team_id ];
+        if ( $type_filter !== 'all' )      $pill_base['type']    = $type_filter;
+        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $period_options = [];
+        foreach ( $period_labels as $key => $label ) {
+            $args = $pill_base;
+            if ( $key !== '' ) $args['period'] = $key;
+            // Picking a pill drops any manual From/To so the window follows.
+            $period_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $period === $key ),
+            ];
+        }
+
+        // Hidden fields the auto-submitting selects carry so the link-based
+        // period + back-target survive a team/type change.
+        $hidden = [ 'tt_view' => 'minutes-report-team' ];
+        if ( $period !== '' )              $hidden['period']  = $period;
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $active_count = 0;
+        $chips = [];
+        if ( $period !== '' )         { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        if ( $type_filter !== 'all' && isset( $type_options[ $type_filter ] ) ) { $active_count++; $chips[] = $type_options[ $type_filter ]; }
+
+        $reset_args = [ 'tt_view' => 'minutes-report-team', 'team_id' => $team_id ];
+        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'groups'       => [
+                [
+                    'type'     => 'select',
+                    'key'      => 'team',
+                    'label'    => __( 'Team', 'talenttrack' ),
+                    'name'     => 'team_id',
+                    'selected' => (string) $team_id,
+                    'options'  => $team_options,
+                ],
+                [
+                    'type'         => 'period',
+                    'key'          => 'period',
+                    'label'        => __( 'Period', 'talenttrack' ),
+                    'active_label' => (string) ( $period_labels[ $period ] ?? $period_labels[''] ),
+                    'options'      => $period_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'type',
+                    'label'       => __( 'Match type', 'talenttrack' ),
+                    'name'        => 'type',
+                    'selected'    => $type_filter === 'all' ? '' : $type_filter,
+                    'placeholder' => __( 'All types', 'talenttrack' ),
+                    'options'     => $type_options,
+                ],
+                [
+                    'type'       => 'date_range',
+                    'key'        => 'range',
+                    'label'      => __( 'Date range', 'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To', 'talenttrack' ),
+                    'from'       => [ 'name' => 'from', 'value' => $from ],
+                    'to'         => [ 'name' => 'to', 'value' => $to ],
+                ],
+            ],
+        ] );
     }
 }

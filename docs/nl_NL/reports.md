@@ -113,6 +113,55 @@ Om een totaal tegen de ruwe opgeslagen rijen te controleren, zijn de
 `tt_attendance`-minutenrijen (`minutes_played`, `record_type`, `is_guest`,
 `activity_id`) doorzoekbaar in de **Data Browser**.
 
+De uitsplitsingstabel per wedstrijd is nu één **gedeelde component** voor zowel
+het rapport Team · Minutenverdeling als het Analytics-minutenrapport, zodat de
+twee nooit uit elkaar lopen en beide op dezelfde manier aansluiten op het
+totaal van de speler.
+
+## Standaardrapporten — eerlijke cijfers
+
+Elk standaardrapport benoemt nu de periode en de bron waaruit het put, zodat een
+cijfer nooit een stille gok is:
+
+- **Eerlijke lege toestanden.** Als een rapport niets te tonen heeft, zegt het
+  in gewone taal *waarom* — "Geen wedstrijden geregistreerd in deze periode",
+  "Geen beoordelingen geregistreerd voor dit team in deze periode", "Geen
+  scoutingskandidaten geregistreerd in deze periode" — in plaats van de oude
+  algemene "pas een filter aan"-tekst (de meeste van deze rapporten hebben geen
+  filter om aan te passen). Het Seizoensoverzicht toont geen lege pagina meer
+  onder de kop-tegels wanneer er geen teams zijn.
+- **Speler · Gespeelde minuten** beslaat de **laatste 12 maanden** (vermeld in
+  de subregel van de pagina, gelijk aan de Explorer-drill), en wanneer een
+  speler meer dan 50 wedstrijden in die periode heeft, staat er *"De 50 meest
+  recente wedstrijden worden getoond"* zodat een langere historie nooit
+  ongemerkt wegvalt.
+- **Team · Teambeoordelingsoverzicht** toont per speler een datum **Laatst
+  beoordeeld**, zodat een verouderde rij in één oogopslag zichtbaar is.
+- **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
+  wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
+  waardoor een bron van opgeblazen joins verdwijnt.
+
+### Aansluiting van de trial-trechter
+
+De Seizoen · Trial-trechter **sluit nu aan**. De tabel Per beslissing toont de
+uitkomsten van cases die *in de periode geopend* zijn, plus een rij **In
+afwachting (nog niet beslist)** en een **Totaal**-rij die optelt tot *Geopende
+trial-cases*. De tegel **Beslissingspercentage** draagt een korte toelichting
+dat de teller (besliste cases, op beslisdatum) en de noemer (geopende cases, op
+openingsdatum) verschillende periodes gebruiken, zodat het percentage niet als
+één-cohortpercentage wordt gelezen. Elke scoutnaam in de tabel Per scout linkt
+naar de **Scoutrapportkaart** van die scout (afgeschermd op `tt_view_reports`,
+dezelfde rechten die de kaart afdwingt).
+
+### Gespeelde minuten (team) — gedeelde filter- en KPI-chrome
+
+Het rapport Gespeelde minuten (team) gebruikt nu de **gedeelde filterbalk**
+(team, retrospectieve periodepillen — Vorige week / Deze maand / Dit seizoen —
+een wedstrijdtype-keuze en een handmatig Van/Tot-bereik) en de **gedeelde
+KPI-strip**, gelijk aan de aanwezigheidsrapporten. De standaardperiode is het
+huidige seizoen. Op een telefoon klappen de filters in het gebruikelijke
+bottom-sheet; elke bediening houdt een aanraakdoel van 48px.
+
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).
