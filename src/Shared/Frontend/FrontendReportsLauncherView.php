@@ -223,6 +223,21 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             )
         ) );
 
+        // #2357 — honest empty state. When every tile has been filtered
+        // away — no report is enabled for this academy, or the viewer's
+        // scope caps hide them all — render a clear notice instead of a
+        // blank grid, so the user knows the surface loaded correctly and
+        // what to do next (ask an admin to enable a report or grant scope).
+        if ( empty( $tiles ) ) {
+            echo '<p class="tt-notice">';
+            esc_html_e(
+                'No reports are available to you yet. They may be switched off for this academy, or outside your current access — ask an administrator to enable a report or widen your scope.',
+                'talenttrack'
+            );
+            echo '</p>';
+            return;
+        }
+
         // #1503 — group the tiles by purpose/theme instead of one flat
         // grid. Each group declares its tiles by slug in display order;
         // the scope filter above may have removed some, so a group with
