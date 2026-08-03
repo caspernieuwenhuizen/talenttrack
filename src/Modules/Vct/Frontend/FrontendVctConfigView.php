@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
@@ -249,9 +250,22 @@ class FrontendVctConfigView extends FrontendViewBase {
 
         // Season/team auto-load + structured block repeater.
         wp_enqueue_script( 'tt-vct-config', TT_PLUGIN_URL . 'assets/js/frontend-vct-config.js', [], TT_VERSION, true );
+
+        // #2322 — the canonical speelwijze (tactical-theme) vocabulary, for
+        // the optional per-week theme picker inside the advanced editor.
+        // Same `vct_tactical_theme` keys the exercise catalogue uses.
+        $themes = [];
+        foreach ( QueryHelpers::get_lookup_names( 'vct_tactical_theme' ) as $name ) {
+            $themes[] = [
+                'key'   => (string) $name,
+                'label' => LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $name ),
+            ];
+        }
+
         wp_localize_script( 'tt-vct-config', 'TT_VCT_CONFIG', [
             'rest_root' => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
             'nonce'     => wp_create_nonce( 'wp_rest' ),
+            'themes'    => $themes,
             'i18n'      => [
                 /* translators: %d = block number, 1-indexed */
                 'block_label'    => __( 'Block %d', 'talenttrack' ),
@@ -262,7 +276,13 @@ class FrontendVctConfigView extends FrontendViewBase {
                 'move_up'        => __( 'Move up', 'talenttrack' ),
                 'move_down'      => __( 'Move down', 'talenttrack' ),
                 'advanced'       => __( 'Advanced: weekly phase profile (JSON)', 'talenttrack' ),
-                'phase_hint'     => __( 'Optional. Array of { week, phase, multiplier } objects. Leave blank for the default profile.', 'talenttrack' ),
+                'phase_hint'     => __( 'Optional. Array of { week, phase, multiplier, tactical_theme } objects. Leave blank for the default profile.', 'talenttrack' ),
+                'themes_title'   => __( 'Speelwijze-thema per week', 'talenttrack' ),
+                'themes_hint'    => __( 'Optionally tag each week with a playing-style theme. Weeks come from the phase profile above.', 'talenttrack' ),
+                'theme_label'    => __( 'Speelwijze-thema', 'talenttrack' ),
+                'theme_none'     => __( '— geen —', 'talenttrack' ),
+                'week_label'     => __( 'Week %d', 'talenttrack' ),
+                'no_weeks'       => __( 'Add weeks to the phase profile above to tag themes.', 'talenttrack' ),
                 'name_ph'        => __( 'e.g. Build-up block', 'talenttrack' ),
                 'saving'         => __( 'Saving…', 'talenttrack' ),
                 'saved'          => __( 'Block set saved.', 'talenttrack' ),

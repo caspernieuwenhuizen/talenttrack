@@ -3,6 +3,8 @@ namespace TT\Modules\Vct\Validation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
+
 /**
  * VctMacroBlockValidator — server-side validation for a season's
  * macro-block set, shared by the REST controller and the configuration
@@ -91,6 +93,30 @@ class VctMacroBlockValidator {
                 );
             }
         }
+
+        // #2322 — per-week speelwijze theme. Optional; when present it must
+        // be one of the canonical `vct_tactical_theme` vocabulary keys, so
+        // the periodisation cycle and exercise catalogue share one theme
+        // vocabulary. Unknown key → reject (400 at the REST layer).
+        $themes = array_map( 'strval', QueryHelpers::get_lookup_names( 'vct_tactical_theme' ) );
+        foreach ( $blocks as $b ) {
+            $profile = is_array( $b['phase_profile'] ?? null ) ? $b['phase_profile'] : [];
+            foreach ( $profile as $week ) {
+                if ( ! is_array( $week ) ) continue;
+                if ( ! array_key_exists( 'tactical_theme', $week ) ) continue;
+                $theme = $week['tactical_theme'];
+                if ( $theme === null || $theme === '' ) continue;
+                if ( ! in_array( (string) $theme, $themes, true ) ) {
+                    return sprintf(
+                        /* translators: 1: block sequence, 2: the unknown theme key */
+                        __( 'Block %1$d has an unknown speelwijze theme "%2$s".', 'talenttrack' ),
+                        (int) $b['sequence'],
+                        (string) $theme
+                    );
+                }
+            }
+        }
+
         return null;
     }
 }

@@ -132,6 +132,21 @@
     margin-top: 18px;
 }
 
+/* #2322 — Periodisering tab: combined speelwijze + VCT week grid. */
+.tt-mlogy-period-dates {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.85rem;
+    margin: 2px 0 8px;
+}
+.tt-mlogy-period-table {
+    width: 100%;
+    margin-bottom: 18px;
+}
+.tt-mlogy-period-table th,
+.tt-mlogy-period-table td {
+    text-align: left;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .tt-mlogy-tab,
     .tt-mlogy-acc__chevron {

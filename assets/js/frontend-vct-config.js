@@ -119,19 +119,27 @@
                     '<summary>' + escapeHtml(i18n.advanced || 'Advanced: weekly phase profile (JSON)') + '</summary>' +
                     '<textarea class="tt-input tt-vct-phase" data-field="phase" rows="4" spellcheck="false">' + escapeHtml(r.phase) + '</textarea>' +
                     '<p class="tt-field-hint">' + escapeHtml(i18n.phase_hint || '') + '</p>' +
+                    '<div class="tt-vct-week-themes" data-week-themes>' +
+                        '<h4 class="tt-vct-week-themes-title">' + escapeHtml(i18n.themes_title || 'Weekly theme') + '</h4>' +
+                        '<p class="tt-field-hint">' + escapeHtml(i18n.themes_hint || '') + '</p>' +
+                        '<div data-week-theme-rows></div>' +
+                    '</div>' +
                 '</details>';
 
             row.querySelectorAll('[data-field]').forEach(function (input) {
                 var field = input.getAttribute('data-field');
                 input.addEventListener('input', function () {
                     state.rows[i][field] = input.value;
+                    if (field === 'phase') renderWeekThemes(row, i);
                     if (field !== 'phase') renderMessages();
                 });
                 input.addEventListener('change', function () {
                     state.rows[i][field] = input.value;
+                    if (field === 'phase') renderWeekThemes(row, i);
                     renderMessages();
                 });
             });
+            renderWeekThemes(row, i);
             row.querySelector('[data-remove]').addEventListener('click', function () {
                 state.rows.splice(i, 1);
                 renderRows();
@@ -151,6 +159,81 @@
                 renderRows();
             });
             return row;
+        }
+
+        // #2322 — per-week speelwijze theme editor. Reads the weeks from the
+        // block's phase-profile JSON, renders a <select> per week, and writes
+        // the chosen `tactical_theme` back into the same JSON (the save path
+        // sends phase_profile verbatim, so the theme persists).
+        function parsePhase(raw) {
+            if (!raw || !raw.trim()) return [];
+            try {
+                var parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function renderWeekThemes(row, i) {
+            var host = row.querySelector('[data-week-theme-rows]');
+            if (!host) return;
+            var themes = cfg.themes || [];
+            var weeks = parsePhase(state.rows[i].phase);
+            host.innerHTML = '';
+
+            if (!weeks.length || !themes.length) {
+                var note = document.createElement('p');
+                note.className = 'tt-field-hint';
+                note.textContent = i18n.no_weeks || 'Add weeks to the phase profile above to tag themes.';
+                host.appendChild(note);
+                return;
+            }
+
+            var weekTpl = i18n.week_label || 'Week %d';
+            weeks.forEach(function (wk, wi) {
+                var weekNo = (wk && wk.week) ? wk.week : (wi + 1);
+                var current = (wk && wk.tactical_theme) ? String(wk.tactical_theme) : '';
+
+                var field = document.createElement('label');
+                field.className = 'tt-field tt-vct-week-theme';
+
+                var span = document.createElement('span');
+                span.className = 'tt-field-label';
+                span.textContent = weekTpl.replace('%d', String(weekNo)) +
+                    ' — ' + (i18n.theme_label || 'Theme');
+                field.appendChild(span);
+
+                var sel = document.createElement('select');
+                sel.className = 'tt-input';
+
+                var blank = document.createElement('option');
+                blank.value = '';
+                blank.textContent = i18n.theme_none || '— none —';
+                sel.appendChild(blank);
+
+                themes.forEach(function (t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.key;
+                    opt.textContent = t.label;
+                    if (t.key === current) opt.selected = true;
+                    sel.appendChild(opt);
+                });
+
+                sel.addEventListener('change', function () {
+                    var arr = parsePhase(state.rows[i].phase);
+                    if (!arr[wi] || typeof arr[wi] !== 'object') arr[wi] = { week: weekNo };
+                    if (sel.value) arr[wi].tactical_theme = sel.value;
+                    else if (arr[wi]) delete arr[wi].tactical_theme;
+                    var json = JSON.stringify(arr);
+                    state.rows[i].phase = json;
+                    var ta = row.querySelector('[data-field="phase"]');
+                    if (ta) ta.value = json;
+                });
+
+                field.appendChild(sel);
+                host.appendChild(field);
+            });
         }
 
         function validate() {

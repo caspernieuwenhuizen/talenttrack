@@ -8,7 +8,7 @@ The Methodology library is where your academy's coaching framework lives in Tale
 
 Open the **Methodology** tile in the **Reference** group of the dashboard.
 
-## Six tabs
+## The tabs
 
 The tabs lead with **Vision** — the club's playing vision opens by default, so you see where the academy is going before the framework reference.
 
@@ -18,6 +18,18 @@ The tabs lead with **Vision** — the club's playing vision opens by default, so
 4. **Principles** — coded principles like AO-01 (build-up) or VS-02 (disrupting). Each one has an explanation, team-level guidance, per-line guidance for forwards / midfielders / defenders / goalkeeper, a formation diagram and a primary illustration.
 5. **Football actions** — the catalogue of football actions (receiving, passing, dribbling, shooting, heading, plus running free, marking, pressing, and supporting actions like game insight and communication).
 6. **Set pieces** — corners, free kicks, penalties and throw-ins, illustrated, with attacking and defending variants.
+
+When the VCT module is switched on, a seventh tab appears — **Periodisation** (see below).
+
+## Periodisation
+
+The **Periodisation** tab combines the methodology with the VCT conditioning cycle. It reads the club-default macro-block calendar for the current season and shows, per week, three things side by side:
+
+- the **speelwijze theme** — what to work on tactically that week (build-up, defending, possession, and so on), drawn from the same theme vocabulary the VCT exercise library uses;
+- the **conditioning phase** — the VCT intensity phase for that week (introduction, build, peak, deload, …);
+- the **intensity multiplier** — how hard the week is relative to a normal week.
+
+The tab is read-only. The weekly cycle itself — the macro-blocks and, per week, the theme — is authored on the VCT configuration tile (**Configuration → VCT → Macro-blocks**). If no club-default cycle exists yet for the current season, the tab shows a short prompt and (for admins) a link to set it up. The tab only appears while the VCT module is enabled; with VCT off there is no cycle to show.
 
 ## Two kinds of content
 

@@ -93,13 +93,20 @@ class MethodologyView extends FrontendViewBase {
         };
 
         $tabs = [
-            'vision'     => __( 'Visie',             'talenttrack' ),
-            'framework'  => __( 'Raamwerk',          'talenttrack' ),
-            'formations' => __( 'Formaties',          'talenttrack' ),
-            'principles' => __( 'Spelprincipes',     'talenttrack' ),
-            'actions'    => __( 'Voetbalhandelingen', 'talenttrack' ),
-            'set_pieces' => __( 'Spelhervattingen',  'talenttrack' ),
+            'vision'       => __( 'Visie',             'talenttrack' ),
+            'framework'    => __( 'Raamwerk',          'talenttrack' ),
+            'formations'   => __( 'Formaties',          'talenttrack' ),
+            'principles'   => __( 'Spelprincipes',     'talenttrack' ),
+            'actions'      => __( 'Voetbalhandelingen', 'talenttrack' ),
+            'set_pieces'   => __( 'Spelhervattingen',  'talenttrack' ),
         ];
+        // #2322 — the Periodisering tab combines the methodology speelwijze
+        // cycle with the VCT conditioning periodisation. Only surfaced when
+        // the VCT module is enabled; without it there is no macro-block cycle
+        // to read and the tab would be an empty promise.
+        if ( \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class ) ) {
+            $tabs['periodisation'] = __( 'Periodisering', 'talenttrack' );
+        }
         ?>
         <nav class="tt-mlogy-tabs" aria-label="<?php esc_attr_e( 'Methodology sections', 'talenttrack' ); ?>">
             <?php foreach ( $tabs as $k => $label ) :
@@ -134,10 +141,126 @@ class MethodologyView extends FrontendViewBase {
             case 'actions':
                 self::renderFootballActions();
                 break;
+            case 'periodisation':
+                self::renderPeriodisation();
+                break;
             case 'vision':
             default:
                 self::renderVision();
         }
+    }
+
+    /**
+     * Periodisering (#2322) — the combined methodology + VCT read surface.
+     *
+     * Renders the club-default macro-block cycle for the current season as a
+     * per-week grid: the speelwijze theme (tactical_theme) alongside the VCT
+     * conditioning phase and intensity multiplier that already live on each
+     * `phase_profile` week. Read-only; the cycle is authored on the VCT
+     * configuration tile (?tt_view=vct-config&tab=blocks).
+     *
+     * Data composition (season resolution, club-default lookup, per-week
+     * shape) lives in VctMacroBlocksRepository — this method only presents.
+     */
+    private static function renderPeriodisation(): void {
+        // Guard again defensively: the tab is only offered when VCT is on,
+        // but a stale bookmarked ?mtab=periodisation must not render a
+        // broken surface if the module was since disabled.
+        if ( ! \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class ) ) {
+            echo '<p><em>' . esc_html__( 'The VCT module is not enabled, so there is no periodisation cycle to show.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
+        $blocks = [];
+        if ( $season ) {
+            // Club default: team_id = 0. listForSeason with team_id 0 returns
+            // only the club-wide rows (no per-team override to prefer).
+            $blocks = ( new \TT\Modules\Vct\Repositories\VctMacroBlocksRepository() )
+                ->listForSeason( 0, (int) $season->id );
+        }
+
+        if ( empty( $blocks ) ) {
+            self::renderPeriodisationEmpty();
+            return;
+        }
+
+        $theme_labels = self::tacticalThemeLabels();
+
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'The season is split into macro-blocks. Each week combines a speelwijze theme (what to work on tactically) with the VCT conditioning phase and its intensity multiplier.', 'talenttrack' ) . '</p>';
+
+        foreach ( $blocks as $block ) {
+            $weeks = is_array( $block['phase_profile'] ) ? $block['phase_profile'] : [];
+            echo '<h3 class="tt-mlogy-subhead">' . esc_html( (string) $block['label'] ) . '</h3>';
+            echo '<div class="tt-mlogy-period-dates">'
+                . esc_html( (string) $block['start_date'] ) . ' – ' . esc_html( (string) $block['end_date'] )
+                . '</div>';
+
+            if ( empty( $weeks ) ) {
+                echo '<p><em>' . esc_html__( 'No weekly profile set for this block yet.', 'talenttrack' ) . '</em></p>';
+                continue;
+            }
+
+            echo '<table class="tt-table tt-mlogy-period-table">';
+            echo '<thead><tr>'
+                . '<th>' . esc_html__( 'Week', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Speelwijze-thema', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Conditiefase', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Intensiteit', 'talenttrack' ) . '</th>'
+                . '</tr></thead><tbody>';
+            foreach ( $weeks as $wk ) {
+                $week_no = isset( $wk['week'] ) ? (int) $wk['week'] : 0;
+                $theme   = isset( $wk['tactical_theme'] ) && $wk['tactical_theme'] !== null
+                    ? (string) $wk['tactical_theme'] : '';
+                $phase   = isset( $wk['phase'] ) ? (string) $wk['phase'] : '';
+                $mult    = isset( $wk['multiplier'] ) ? (float) $wk['multiplier'] : 1.0;
+                $theme_display = $theme !== ''
+                    ? ( $theme_labels[ $theme ] ?? $theme )
+                    : '—';
+                echo '<tr>';
+                echo '<td>' . esc_html( (string) $week_no ) . '</td>';
+                echo '<td>' . esc_html( $theme_display ) . '</td>';
+                echo '<td>' . esc_html( $phase !== '' ? $phase : '—' ) . '</td>';
+                echo '<td>' . esc_html( number_format_i18n( $mult, 2 ) . '×' ) . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }
+    }
+
+    /**
+     * Friendly empty state for the Periodisering tab when no club-default
+     * macro-block cycle exists for the current season. Links to the VCT
+     * configuration tile where the cycle is authored.
+     */
+    private static function renderPeriodisationEmpty(): void {
+        $vct_url = add_query_arg(
+            [ 'tt_view' => 'vct-config', 'tab' => 'blocks' ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
+        echo '<div class="tt-notice tt-notice--info">';
+        echo '<p><strong>' . esc_html__( 'No periodisation cycle set up yet.', 'talenttrack' ) . '</strong></p>';
+        echo '<p>' . esc_html__( 'The season periodisation combines a weekly speelwijze theme with the VCT conditioning cycle. Define the club-default macro-blocks for the current season to see them here.', 'talenttrack' ) . '</p>';
+        if ( current_user_can( 'tt_vct_admin_library' ) ) {
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $vct_url ) . '">'
+                . esc_html__( 'Set up macro-blocks', 'talenttrack' ) . '</a></p>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Map of `vct_tactical_theme` lookup keys → translated labels, for
+     * rendering the speelwijze theme column. Empty when the vocabulary is
+     * unavailable (VCT lookups not seeded); callers fall back to the key.
+     *
+     * @return array<string,string>
+     */
+    private static function tacticalThemeLabels(): array {
+        $out = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookup_names( 'vct_tactical_theme' ) as $name ) {
+            $out[ (string) $name ] = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $name );
+        }
+        return $out;
     }
 
     /**
