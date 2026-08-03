@@ -245,6 +245,28 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 </div>
             </div>
 
+            <?php
+            // #2320 — per-team methodology set override (epic #2316). An
+            // empty / 0 value clears the override so the team falls back to
+            // the install default (ActiveMethodologyResolver::forInstall()).
+            $mset_repo    = new \TT\Modules\Methodology\Repositories\MethodologiesRepository();
+            $mset_options = $mset_repo->tableReady() ? $mset_repo->allForClub() : [];
+            if ( ! empty( $mset_options ) ) :
+                $current_mid = (int) ( $team->methodology_id ?? 0 );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-team-methodology"><?php esc_html_e( 'Methodology set', 'talenttrack' ); ?></label>
+                    <select id="tt-team-methodology" class="tt-input" name="methodology_id">
+                        <option value="0" <?php selected( $current_mid, 0 ); ?>><?php esc_html_e( 'Use install default', 'talenttrack' ); ?></option>
+                        <?php foreach ( $mset_options as $mset ) : ?>
+                            <option value="<?php echo (int) $mset->id; ?>" <?php selected( $current_mid, (int) $mset->id ); ?>>
+                                <?php echo esc_html( \TT\Modules\Methodology\Helpers\MultilingualField::string( $mset->name_json ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            <?php endif; ?>
+
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-team-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                 <textarea id="tt-team-notes" class="tt-input" name="notes" rows="2"><?php echo esc_textarea( (string) ( $team->notes ?? '' ) ); ?></textarea>

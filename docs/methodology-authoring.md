@@ -230,3 +230,21 @@ The REST side has a matching base: extend `TT\Modules\Methodology\Rest\AbstractM
 ## Methodology sets (the active methodology)
 
 Methodology content belongs to a **methodology set** — a named collection an install can run more than one of, choosing which is active per team with an install-wide default. Every list read and every create resolves to the **active set** automatically (via the ambient `MethodologyScope`, the methodology counterpart to club tenancy), so the read view shows one methodology at a time and newly authored content is stamped into the active set. To browse or author against a specific set over REST, pass an optional `methodology_id` query param on any of the routes above; omit it to use the active set.
+
+
+## Managing methodology sets
+
+A **methodology set** is the named container the rest of the library authors into (see [Methodology sets](#methodology-sets-the-active-methodology) above). The **Speelwijzen** tab — first in the manage tab bar — is where you create, rename and select sets.
+
+- **List** — every non-archived set for the club. The install-active set carries an **Actief** badge; shipped reference sets carry a **Shipped** badge.
+- **+ Nieuwe speelwijze** opens a flat create form: a multilingual Name (NL + EN), an optional Slug (derived from the NL name when left blank) and a multilingual Description. Save + Cancel behave like every other record form.
+- **Make active** (`Maak actief`) makes that set the install-wide default — new content is authored into it and teams without their own override use it. It is hidden on the already-active set.
+- **Archive** soft-deletes a set. It is hidden on shipped sets and on the active set, and the last remaining active set can never be archived, so an install always has at least one methodology.
+
+All mutating actions require the `tt_edit_methodology` capability; a viewer without it sees the list only.
+
+### Choosing a set per team
+
+Each team can override which set it uses. On the team edit form a **Methodology set** dropdown lists every set, with **Use install default** as the first option. Leaving it on the default (value `0`) clears the override so the team follows the install-wide active set; picking a specific set pins the team to it. The picker only appears once at least one set exists.
+
+The same operations are available over REST at `/wp-json/talenttrack/v1/methodology/sets` (list / create / read / update / archive) plus `PUT /methodology/sets/{id}/default` to make a set active.

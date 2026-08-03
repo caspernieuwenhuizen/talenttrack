@@ -127,6 +127,11 @@
     color: var(--tt-info, #2d6fb3);
 }
 
+.tt-dashboard .tt-mmg-chip--active {
+    background: var(--tt-success-subtle, #e2f3e6);
+    color: var(--tt-success, #2f7d43);
+}
+
 .tt-dashboard .tt-mmg-row__actions {
     display: flex;
     flex-wrap: wrap;

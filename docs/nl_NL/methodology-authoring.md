@@ -230,3 +230,21 @@ De REST-kant heeft een bijpassende basis: breid `TT\Modules\Methodology\Rest\Abs
 ## Speelwijze-sets (de actieve methodiek)
 
 Methodiek-inhoud hoort bij een **speelwijze-set** — een benoemde verzameling waarvan een installatie er meerdere kan draaien en per team kiest welke actief is, met een installatiebrede standaard. Elke lijst-leesactie en elke aanmaak lost automatisch op naar de **actieve set** (via de omgevings-`MethodologyScope`, de methodiek-tegenhanger van de club-tenancy), zodat de leesweergave één methodiek tegelijk toont en nieuw geschreven inhoud in de actieve set wordt gestempeld. Geef een optionele `methodology_id`-queryparameter mee op een van de bovenstaande routes om een specifieke set te bekijken of te bewerken; laat hem weg om de actieve set te gebruiken.
+
+
+## Speelwijzen beheren
+
+Een **speelwijze-set** is de benoemde houder waar de rest van de bibliotheek inhoud in schrijft (zie [Speelwijze-sets](#speelwijze-sets-de-actieve-methodiek) hierboven). Het tabblad **Speelwijzen** — als eerste in de tabbladbalk — is waar je sets aanmaakt, hernoemt en selecteert.
+
+- **Lijst** — elke niet-gearchiveerde set van de club. De installatie-actieve set draagt een **Actief**-badge; meegeleverde referentiesets een **Shipped**-badge.
+- **+ Nieuwe speelwijze** opent een plat aanmaakformulier: een meertalige naam (NL + EN), een optionele slug (afgeleid van de NL-naam als je hem leeg laat) en een meertalige omschrijving. Opslaan + Annuleren werken zoals bij elk ander recordformulier.
+- **Maak actief** maakt die set de installatiebrede standaard — nieuwe inhoud wordt erin geschreven en teams zonder eigen override gebruiken hem. De knop is verborgen op de al-actieve set.
+- **Archive** archiveert een set. De knop is verborgen op meegeleverde sets en op de actieve set, en de laatste overgebleven actieve set kan nooit worden gearchiveerd, zodat een installatie altijd minstens één methodiek heeft.
+
+Alle wijzigende acties vereisen de capability `tt_edit_methodology`; een lezer zonder die capability ziet alleen de lijst.
+
+### Per team een set kiezen
+
+Elk team kan overschrijven welke set het gebruikt. Op het teambewerkformulier toont een dropdown **Speelwijze-set** elke set, met **Installatie-standaard gebruiken** als eerste optie. Laat je hem op de standaard (waarde `0`) staan, dan wist dat de override zodat het team de installatiebrede actieve set volgt; kies je een specifieke set, dan wordt het team eraan vastgezet. De keuzelijst verschijnt pas zodra er ten minste één set bestaat.
+
+Dezelfde bewerkingen zijn beschikbaar via REST op `/wp-json/talenttrack/v1/methodology/sets` (lijst / aanmaken / lezen / bijwerken / archiveren) plus `PUT /methodology/sets/{id}/default` om een set actief te maken.

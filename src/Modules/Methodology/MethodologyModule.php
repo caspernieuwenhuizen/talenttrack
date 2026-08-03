@@ -36,6 +36,12 @@ class MethodologyModule implements ModuleInterface {
         // entities #2226–#2230 register their own tab the same way, without
         // editing a shared switch). The REST base + Principles controller
         // expose the same CRUD over /wp-json/talenttrack/v1/methodology/*.
+        // #2320 — the methodology *sets* manage tab + REST (epic #2316).
+        // Registered first (low order) so "Speelwijzen" leads the tab bar:
+        // it is the container the other entity tabs author content into.
+        Frontend\Manage\MethodologySetsManageTab::register();
+        Rest\MethodologySetsRestController::init();
+
         Frontend\Manage\PrinciplesManageTab::register();
         Rest\PrinciplesRestController::init();
         Frontend\Manage\FootballActionsManageTab::register();
