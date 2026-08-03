@@ -226,3 +226,7 @@ MethodologyManageRegistry::register( [
 - Use `MethodologyManageView::tabUrl( $mtab, $args )` and `MethodologyManageView::cancelUrl( $mtab )` to build in-tab links and the Save/Cancel target.
 
 The REST side has a matching base: extend `TT\Modules\Methodology\Rest\AbstractMethodologyRestController`, set `restBase()` (e.g. `methodology/formations`) and implement the five CRUD callbacks. The base wires the `tt_edit_methodology` permission callback, club scoping and the standard JSON envelope. `PrinciplesManageTab` and `PrinciplesRestController` are the reference implementations to copy.
+
+## Methodology sets (the active methodology)
+
+Methodology content belongs to a **methodology set** — a named collection an install can run more than one of, choosing which is active per team with an install-wide default. Every list read and every create resolves to the **active set** automatically (via the ambient `MethodologyScope`, the methodology counterpart to club tenancy), so the read view shows one methodology at a time and newly authored content is stamped into the active set. To browse or author against a specific set over REST, pass an optional `methodology_id` query param on any of the routes above; omit it to use the active set.

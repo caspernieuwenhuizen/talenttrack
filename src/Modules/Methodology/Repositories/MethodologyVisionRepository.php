@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * MethodologyVisionRepository — `tt_methodology_visions` data access.
@@ -40,14 +41,17 @@ class MethodologyVisionRepository {
     public function activeForClub(): ?object {
         global $wpdb;
         $t = $this->table();
+        $mid     = MethodologyScope::active();
+        $mclause = $mid > 0 ? ' AND (methodology_id = %d OR methodology_id IS NULL)' : '';
+        $margs   = $mid > 0 ? [ $mid ] : [];
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 0 ORDER BY updated_at DESC LIMIT 1",
-            CurrentClub::id()
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 0{$mclause} ORDER BY updated_at DESC LIMIT 1",
+            CurrentClub::id(), ...$margs
         ) );
         if ( $row ) return $row;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 1 ORDER BY updated_at DESC LIMIT 1",
-            CurrentClub::id()
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL AND is_shipped = 1{$mclause} ORDER BY updated_at DESC LIMIT 1",
+            CurrentClub::id(), ...$margs
         ) );
         return $row ?: null;
     }
@@ -56,9 +60,12 @@ class MethodologyVisionRepository {
     public function listAll(): array {
         global $wpdb;
         $t = $this->table();
+        $mid     = MethodologyScope::active();
+        $mclause = $mid > 0 ? ' AND (methodology_id = %d OR methodology_id IS NULL)' : '';
+        $margs   = $mid > 0 ? [ $mid ] : [];
         return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL ORDER BY is_shipped ASC, updated_at DESC",
-            CurrentClub::id()
+            "SELECT * FROM {$t} WHERE club_id = %d AND archived_at IS NULL{$mclause} ORDER BY is_shipped ASC, updated_at DESC",
+            CurrentClub::id(), ...$margs
         ) );
     }
 
@@ -67,6 +74,10 @@ class MethodologyVisionRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }

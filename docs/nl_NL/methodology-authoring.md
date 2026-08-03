@@ -226,3 +226,7 @@ MethodologyManageRegistry::register( [
 - Gebruik `MethodologyManageView::tabUrl( $mtab, $args )` en `MethodologyManageView::cancelUrl( $mtab )` voor links binnen het tabblad en het Opslaan/Annuleren-doel.
 
 De REST-kant heeft een bijpassende basis: breid `TT\Modules\Methodology\Rest\AbstractMethodologyRestController` uit, stel `restBase()` in (bijv. `methodology/formations`) en implementeer de vijf CRUD-callbacks. De basis regelt de permission-callback `tt_edit_methodology`, de clubscope en het standaard JSON-envelope. `PrinciplesManageTab` en `PrinciplesRestController` zijn de referentie-implementaties om te kopiëren.
+
+## Speelwijze-sets (de actieve methodiek)
+
+Methodiek-inhoud hoort bij een **speelwijze-set** — een benoemde verzameling waarvan een installatie er meerdere kan draaien en per team kiest welke actief is, met een installatiebrede standaard. Elke lijst-leesactie en elke aanmaak lost automatisch op naar de **actieve set** (via de omgevings-`MethodologyScope`, de methodiek-tegenhanger van de club-tenancy), zodat de leesweergave één methodiek tegelijk toont en nieuw geschreven inhoud in de actieve set wordt gestempeld. Geef een optionele `methodology_id`-queryparameter mee op een van de bovenstaande routes om een specifieke set te bekijken of te bewerken; laat hem weg om de actieve set te gebruiken.
