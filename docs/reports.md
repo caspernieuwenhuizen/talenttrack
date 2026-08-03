@@ -136,3 +136,10 @@ Integrations can read the same data — with the same `tt_view_analytics` gate a
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold }`.
 
 The optional `activity_type_key` on every attendance endpoint narrows to one activity type, matching the report UI's Type filter.
+
+## Dimension explorer — row cap and filter validation
+
+The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric's underlying fact rows and drill into them. Two safeguards keep the drill-down honest:
+
+- **5000-row cap, now visible.** The explorer reads at most **5000** fact rows for a drill-down. When a filtered set hits that ceiling the table shows a **"Capped at 5000 rows — use grouping to aggregate larger sets."** notice under the pager, so the visible page count is never mistaken for the whole dataset. Group by a dimension to aggregate larger sets instead of paging through raw rows.
+- **Filters validated against the KPI's dimensions.** Only the dimensions a KPI actually offers for exploration are accepted as filters. A `filter_<key>` for a dimension the KPI doesn't declare is silently ignored — it never reaches the query or the CSV/PDF export, so the filters you see on screen always match the filters applied to the exported file.

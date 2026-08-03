@@ -140,3 +140,10 @@ Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold }`.
 
 De optionele `activity_type_key` op elk aanwezigheids-endpoint beperkt tot één activiteittype, gelijk aan het Type-filter in de rapport-UI.
+
+## Dimensieverkenner — rijlimiet en filtervalidatie
+
+De dimensieverkenner (de *Verken*-actie bij een KPI) laat je de onderliggende feitrijen van een metriek filteren en erop inzoomen. Twee waarborgen houden het inzoomen betrouwbaar:
+
+- **Limiet van 5000 rijen, nu zichtbaar.** De verkenner leest per inzoomactie maximaal **5000** feitrijen. Wanneer een gefilterde set die grens raakt, toont de tabel onder de paginering de melding **"Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."**, zodat het zichtbare aantal pagina's nooit voor de volledige dataset wordt aangezien. Groepeer op een dimensie om grotere sets samen te vatten in plaats van door ruwe rijen te bladeren.
+- **Filters gevalideerd tegen de dimensies van de KPI.** Alleen de dimensies die een KPI daadwerkelijk aanbiedt om te verkennen, worden als filter geaccepteerd. Een `filter_<key>` voor een dimensie die de KPI niet aanbiedt, wordt stilzwijgend genegeerd — het bereikt de query of de CSV-/PDF-export nooit, zodat de filters die je op het scherm ziet altijd overeenkomen met de filters die op het geëxporteerde bestand zijn toegepast.

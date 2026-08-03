@@ -576,6 +576,12 @@ class FrontendExploreView extends FrontendViewBase {
             if ( $stripped === '' ) continue;
             // Ignore the date_* shortcuts handled above.
             if ( $stripped === 'date_after' || $stripped === 'date_before' ) continue;
+            // Drop any filter whose dimension isn't one this KPI declares
+            // as explorable. Permissive-safe: an undeclared `filter_<key>`
+            // is silently ignored, so it never reaches the query or the
+            // export — keeping on-screen and exported filters in sync and
+            // preventing filters on columns the user was never offered.
+            if ( ! in_array( self::dimensionOf( $stripped ), $kpi->exploreDimensions, true ) ) continue;
             // Sanitize the value(s).
             if ( is_array( $raw_val ) ) {
                 $clean = array_values( array_filter( array_map(
@@ -591,6 +597,26 @@ class FrontendExploreView extends FrontendViewBase {
             }
         }
         return $filters;
+    }
+
+    /**
+     * Strip a trailing filter operator (`_eq`, `_in`, `_not_eq`,
+     * `_not_in`) off a `<dim>_<op>` key, returning the bare dimension
+     * key. Mirrors `FactQuery::splitFilterKey()` so validation here
+     * lines up with what the query layer actually consumes. Falls back
+     * to the input unchanged when no known operator suffix matches.
+     */
+    private static function dimensionOf( string $stripped ): string {
+        // Longest suffixes first so `_not_eq` wins over `_eq`.
+        $ops = [ 'not_eq', 'not_in', 'eq', 'in' ];
+        foreach ( $ops as $op ) {
+            $suffix = '_' . $op;
+            $len    = strlen( $suffix );
+            if ( strlen( $stripped ) > $len && substr( $stripped, -$len ) === $suffix ) {
+                return substr( $stripped, 0, -$len );
+            }
+        }
+        return $stripped;
     }
 
     /**
@@ -715,6 +741,13 @@ class FrontendExploreView extends FrontendViewBase {
         $total = FactQuery::countRows( $kpi->factKey, $filters );
         $rows  = FactQuery::rows( $kpi->factKey, $filters, $per_page, $offset );
 
+        // `FactQuery` caps counts + rows at 5000. When the count lands
+        // exactly on the cap the true dataset is 5000-or-more and its
+        // tail is being silently dropped — surface that to the user so
+        // the visible page count isn't mistaken for the whole picture.
+        $capped     = ( $total === 5000 );
+        $cap_notice = esc_html__( 'Capped at 5000 rows — use grouping to aggregate larger sets.', 'talenttrack' );
+
         if ( $total === 0 ) {
             echo '<div class="tt-empty tt-explore-empty">'
                 . esc_html__( 'No fact rows match the current filters.', 'talenttrack' )
@@ -801,6 +834,10 @@ class FrontendExploreView extends FrontendViewBase {
                 $total
             );
             echo '</p>';
+        }
+
+        if ( $capped ) {
+            echo '<p class="tt-notice tt-explore-cap-notice">' . $cap_notice . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         }
     }
 }
