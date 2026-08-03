@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-03T13:49:25+00:00\n"
+"POT-Creation-Date: 2026-08-03T16:26:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -21786,17 +21786,17 @@ msgid "%1$s · Spelprincipes (%2$d) · v %3$s"
 msgstr ""
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:187
-#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:28
+#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:29
 msgid "Met balcontact"
 msgstr ""
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:188
-#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:29
+#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:30
 msgid "Zonder balcontact"
 msgstr ""
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:189
-#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:30
+#: src/Modules/Methodology/Repositories/FootballActionsRepository.php:31
 msgid "Ondersteunend"
 msgstr ""
 
