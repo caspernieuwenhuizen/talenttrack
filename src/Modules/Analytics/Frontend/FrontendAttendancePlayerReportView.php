@@ -95,6 +95,11 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
             : ( $window['to'] ?? $defaults['to'] );
 
+        // #2351 — parity with the team report: surface the silent season
+        // default as an active "This season" pill rather than a blank "Custom
+        // range" when the seeded window equals the current season window.
+        $effective_period = self::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
+
         // v4.20.4 (#1147) — analytics scope honours the user's team
         // assignment. Global-read-on-`activities` holders keep the
         // club-wide view; everyone else (notably AC, scoped to
@@ -118,12 +123,14 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // If user picked a team they're not allowed to see, fall through
         // to empty — no row leak via URL tampering.
         if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
-            self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $period, $type_key );
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $effective_period, $type_key );
+            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' )
+                . ( $allowed_team_ids !== null ? ' ' . esc_html__( 'This report is limited to the teams you coach.', 'talenttrack' ) : '' )
+                . '</p>';
             return;
         }
 
-        self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $period, $type_key );
+        self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids, $effective_period, $type_key );
 
         // #1488 — ranking, the missed count, and the at-risk flag all
         // come from the shared AttendanceRankingQuery so the report, the
@@ -132,7 +139,9 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // client-side sortable on any column on top of that default.
         $rows = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed_team_ids, $type_key );
         if ( $rows === [] ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' )
+                . ( $allowed_team_ids !== null ? ' ' . esc_html__( 'This report is limited to the teams you coach.', 'talenttrack' ) : '' )
+                . '</p>';
             return;
         }
 
@@ -170,7 +179,17 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             foreach ( $at_risk as $r ) {
                 $nm = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
                 if ( $nm === '' ) $nm = '#' . (int) $r['player_id'];
-                echo '<li>' . esc_html( $nm ) . ' <span class="missed">'
+                // #2351 — mirror the inline-badge drill-down: the summary-card
+                // row links to this player's missed-activities list too.
+                $card_args = [
+                    'tt_view'   => 'activities',
+                    'player_id' => (int) $r['player_id'],
+                    'date_from' => $from,
+                    'date_to'   => $to,
+                ];
+                if ( $team_id > 0 ) $card_args['team_id'] = $team_id;
+                $card_url = BackLink::appendTo( add_query_arg( $card_args, RecordLink::dashboardUrl() ) );
+                echo '<li><a class="tt-record-link tt-att-drill" href="' . esc_url( $card_url ) . '">' . esc_html( $nm ) . '</a> <span class="missed">'
                     . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
                     . '</span></li>';
             }
@@ -216,11 +235,22 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 add_query_arg( $drill_args, RecordLink::dashboardUrl() )
             );
             // #1488 — inline at-risk badge for flagged players (#1695: chip styling).
+            // #2351 — the badge drills to the same missed-activities list the
+            // Activities count links to (the #2185 player_id + window scope),
+            // so a coach can trace the flag to the actual dated sessions where
+            // the player was absent/excused/injured. BackLink carries the
+            // tt_back hint back to this report, matching the count drill-down.
             $badge = '';
             if ( ! empty( $r['flagged'] ) ) {
-                $badge = ' <span class="tt-flag-badge" title="'
-                    . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
-                    . '">⚠ ' . (int) $r['missed'] . '</span>';
+                $missed_label = sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] );
+                $badge = ' <a class="tt-flag-badge tt-att-drill" href="' . esc_url( $activities_url ) . '" title="'
+                    . esc_attr( $missed_label ) . '" aria-label="'
+                    . esc_attr( sprintf(
+                        /* translators: 1: missed count, 2: player name */
+                        __( 'View the %1$d missed activities for %2$s', 'talenttrack' ),
+                        (int) $r['missed'],
+                        $player_name
+                    ) ) . '">⚠ ' . (int) $r['missed'] . '</a>';
             }
             $present_pct = (int) $r['total'] > 0 ? ( (int) $r['present'] / (int) $r['total'] ) * 100 : null;
             echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
@@ -277,6 +307,24 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
     /** @return array{from:string,to:string} */
     private static function defaultWindow(): array {
         return ReportFilters::seasonDefaultWindow();
+    }
+
+    /**
+     * #2351 — resolve the period the FilterBar should show as active. An
+     * explicit `?period=` always wins. Otherwise, when the user typed no
+     * manual From/To and the seeded window equals the current season window,
+     * report `this_season` so the season-default seed reads as an active pill
+     * rather than a blank "Custom range". Mirrors the team report's helper so
+     * the two reports can't drift.
+     */
+    private static function effectivePeriod( string $period, bool $has_manual_from, bool $has_manual_to, string $from, string $to ): string {
+        if ( $period !== '' ) return $period;
+        if ( $has_manual_from || $has_manual_to ) return '';
+        $season = ReportFilters::periodWindow( 'this_season', gmdate( 'Y-m-d' ) );
+        if ( $season !== null && $season['from'] === $from && $season['to'] === $to ) {
+            return 'this_season';
+        }
+        return '';
     }
 
     /**
