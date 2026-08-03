@@ -87,7 +87,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         // Definitions exist on this path, so surface the catalogue links
         // (Manage tests + the wizard) so staff move Record → Configure
         // without the dashboard (§5 back-pill via BackLink::appendTo).
-        self::renderModuleLinks();
+        self::renderModuleLinks( $user_id );
 
         if ( $team_id <= 0 || $definition_id <= 0 ) {
             return;
@@ -358,16 +358,23 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
      * in-body actions, not breadcrumb / back chrome, so they respect the
      * two-affordance contract.
      */
-    private static function renderModuleLinks(): void {
-        $manage_url = BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'measurement-tests' ],
-            RecordLink::dashboardUrl()
-        ) );
+    private static function renderModuleLinks( int $user_id ): void {
+        // §7 — only surface the "Manage tests" catalogue link to users who
+        // can reach it (measurement_definitions/change), matching the
+        // measurement-tests dispatch gate. Recording measurements
+        // (measurements/change) does not imply managing test definitions.
+        if ( MatrixGate::canAnyScope( $user_id, 'measurement_definitions', 'change' )
+            || current_user_can( 'manage_options' ) ) {
+            $manage_url = BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'measurement-tests' ],
+                RecordLink::dashboardUrl()
+            ) );
 
-        echo '<p class="tt-me-links">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
-            . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
-        echo '</p>';
+            echo '<p class="tt-me-links">';
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
+                . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
+            echo '</p>';
+        }
 
         self::renderNewTestButton();
     }

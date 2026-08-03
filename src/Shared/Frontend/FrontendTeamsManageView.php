@@ -114,7 +114,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
             ];
         }
-        if ( ! $at_team_cap ) {
+        if ( ! $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
             $page_actions[] = [
                 'label'   => __( 'New team', 'talenttrack' ),
@@ -470,6 +470,13 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * back on the dashboard tile grid.
      */
     private static function renderTeamDevelopmentLinks( int $team_id ): void {
+        // §7 — the team-development surfaces are gated by the team_chemistry
+        // matrix (TeamChemistryAccess::canRead), independently of the
+        // tt_edit_teams cap that lets a user reach this edit form. Don't
+        // surface launchpads the user can't actually open.
+        if ( ! \TT\Modules\TeamDevelopment\TeamChemistryAccess::canRead( get_current_user_id() ) ) {
+            return;
+        }
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $chem_url = add_query_arg( [ 'tt_view' => 'team-chemistry',   'team_id' => $team_id ], $base );
         $bp_url   = add_query_arg( [ 'tt_view' => 'team-blueprints',  'team_id' => $team_id ], $base );

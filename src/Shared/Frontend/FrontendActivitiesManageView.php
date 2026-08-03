@@ -724,11 +724,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $methodology_url = add_query_arg( [ 'tt_view' => 'methodology', 'mtab' => 'principles' ], $base );
 
+        // §7 — the "Methodology" library link and the clickable principle
+        // pills are gated on tt_view_methodology. Without it the linked
+        // principles still show (development content), just not as dead-end
+        // links into a library the user can't open.
+        $can_view_meth = current_user_can( 'tt_view_methodology' );
+
         echo '<div class="tt-act-card-d tt-act-card-d--span2">';
         echo '<div class="tt-act-card-d__head">';
         echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Linked principles', 'talenttrack' ) . '</h3>';
-        echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
-            . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
+        if ( $can_view_meth ) {
+            echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
+                . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
+        }
         echo '</div>';
         echo '<div class="tt-act-card-d__body">';
         foreach ( $linked_ids as $pid ) {
@@ -747,8 +755,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $first = $code !== '' ? strtoupper( $code[0] ) : '';
             $bucket = in_array( $first, [ 'O', 'A', 'V' ], true ) ? $first : 'O';
             $label  = $code . ( $title !== '' ? ' · ' . $title : '' );
-            echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
-                . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
+            if ( $can_view_meth ) {
+                echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
+                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
+            } else {
+                echo '<span class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '"'
+                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</span>';
+            }
         }
         echo '</div>';
         echo '</div>';
