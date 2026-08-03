@@ -8,6 +8,8 @@
  *   - the inline period pill-dropdown popover (open/close, outside-click)
  *   - auto-submit on [data-tt-filter-submit] controls (selects, toggle)
  *   - reflecting the toggle checkbox state onto the visual switch
+ *   - keeping the duplicate inline/sheet copies of each field in sync so
+ *     the stale copy can't overwrite the user's edit on submit (#2327)
  *
  * No globals beyond the TT namespace; strings come from TT_FILTER_BAR
  * (localized in PHP) merged onto TT.i18n. Mirrors the mockup script.
@@ -34,23 +36,34 @@
 		}
 	}
 
-	// #2201 — keep every same-named toggle checkbox in a form (the inline and
-	// sheet copies) in lockstep with the one the user just changed, and reflect
-	// each onto its `.tt-switch` UI, so unchecking one copy doesn't leave the
-	// other submitting a stale checked value.
-	function syncCheckboxes( form, source ) {
+	// #2201 / #2327 — the inline row and the bottom sheet each render their own
+	// copy of a control with the SAME name inside one <form>. On GET submit the
+	// browser serializes both copies and PHP keeps the last (the stale sheet
+	// copy), so the user's edit reverts. Mirror the control the user just
+	// changed onto every same-named sibling in the form: `.checked` for
+	// checkbox/radio (reflecting the `.tt-switch` UI as before, #2201) and
+	// `.value` for selects / date inputs / text inputs (#2327), so both copies
+	// agree before the form submits.
+	function syncField( form, source ) {
 		var name = source.name;
-		var mates = form.querySelectorAll(
-			'input[type="checkbox"][name="' + ( window.CSS && CSS.escape ? CSS.escape( name ) : name ) + '"]'
-		);
-		Array.prototype.forEach.call( mates, function ( cb ) {
-			if ( cb === source ) {
+		if ( ! name ) {
+			return;
+		}
+		var esc = window.CSS && CSS.escape ? CSS.escape( name ) : name;
+		var mates = form.querySelectorAll( '[name="' + esc + '"]' );
+		var isToggle = source.type === 'checkbox' || source.type === 'radio';
+		Array.prototype.forEach.call( mates, function ( mate ) {
+			if ( mate === source ) {
 				return;
 			}
-			cb.checked = source.checked;
-			var sw = cb.closest ? cb.closest( '[data-tt-switch]' ) : null;
-			if ( sw ) {
-				sw.classList.toggle( 'tt-switch--on', cb.checked );
+			if ( isToggle ) {
+				mate.checked = source.checked;
+				var sw = mate.closest ? mate.closest( '[data-tt-switch]' ) : null;
+				if ( sw ) {
+					sw.classList.toggle( 'tt-switch--on', mate.checked );
+				}
+			} else {
+				mate.value = source.value;
 			}
 		} );
 	}
@@ -153,21 +166,33 @@
 					if ( ! form ) {
 						return;
 					}
-					// #2201 — the inline row and the bottom sheet each render
-					// their own copy of a toggle checkbox with the SAME name.
-					// If the user unchecks one while the other stays checked,
-					// the still-checked copy re-submits the flag and the toggle
-					// appears stuck ON. Mirror the changed checkbox's state onto
-					// every same-named checkbox (and its visual switch) before
-					// submitting, so both copies agree and turning the toggle
-					// off actually clears the filter.
-					if ( ctrl.type === 'checkbox' && ctrl.name ) {
-						syncCheckboxes( form, ctrl );
-					}
+					// #2201 / #2327 — the inline row and the bottom sheet each
+					// render their own copy of this control with the SAME name.
+					// Mirror the changed control (checkbox toggle OR select)
+					// onto its same-named siblings before submitting, so both
+					// copies agree and the stale copy can't overwrite the edit.
+					syncField( form, ctrl );
 					if ( typeof form.requestSubmit === 'function' ) {
 						form.requestSubmit();
 					} else {
 						form.submit();
+					}
+				} );
+			}
+		);
+
+		// ---- Sync (no submit) the non-auto-submitting inputs ----
+		// The Date range From/To and free-text inputs have their own explicit
+		// Apply button rather than auto-submitting. #2327 — keep each edit in
+		// lockstep with its same-named sheet/inline sibling on change, so when
+		// Apply finally submits, the stale copy can't overwrite the user's edit.
+		Array.prototype.forEach.call(
+			bar.querySelectorAll( '.tt-fildate__input, .tt-filtext__input' ),
+			function ( input ) {
+				input.addEventListener( 'change', function () {
+					var form = input.form || bar.querySelector( '[data-tt-filterbar-form]' );
+					if ( form ) {
+						syncField( form, input );
 					}
 				} );
 			}
