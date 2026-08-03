@@ -29,8 +29,8 @@ final class ActiveMethodologyResolverTest extends WP_UnitTestCase {
         $wpdb->insert( $wpdb->prefix . 'tt_methodologies', [
             'club_id'    => 1,
             'uuid'       => wp_generate_uuid4(),
-            'slug'       => 'jo13-1-hedel',
-            'name_json'  => wp_json_encode( [ 'nl' => 'JO13-1 Hedel', 'en' => 'JO13-1 Hedel' ] ),
+            'slug'       => 'resolver-test-set-b',
+            'name_json'  => wp_json_encode( [ 'nl' => 'Test set B', 'en' => 'Test set B' ] ),
             'is_default' => 0,
             'is_shipped' => 1,
         ] );
