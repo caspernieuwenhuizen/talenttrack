@@ -1,3 +1,0 @@
-# FilterBar: filters no longer revert on Apply (#2327)
-
-The shared filter bar renders each control twice inside one form — a desktop inline row and a mobile bottom sheet — both carrying the same field name. On submit the browser sent both values and PHP kept the stale sheet copy, so editing the Date range From/To or changing the Team/Type select silently reverted on Apply. The change-sync that #2201 added for toggle checkboxes now covers every control: date inputs, text inputs and selects mirror their value onto the same-named sibling before the form submits, so the inline and sheet copies always agree. Progressive enhancement and the JS-off Apply fallback are unchanged.

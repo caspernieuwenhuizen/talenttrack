@@ -1,3 +1,44 @@
+# TalentTrack v4.79.0 — Centralized cross-view link authorization affordances (#2304)
+
+Cross-view navigation links, tiles and buttons that point at another view are now hidden through one shared helper (`CrossViewLink`) backed by a registry that mirrors each target view's actual access guard, instead of hand-rolled inline capability checks that drifted from the destination. The measurements execution links (Manage tests, Record measurements, Testing coverage), the team-detail Planner link, the team-development chemistry and blueprint tiles, the activity methodology link, and the player "Chemistry attributes" action all route through it — same users see each link, with the player-attributes entry now correctly tightened to the per-player evaluation check the target enforces. A new diff-only CI gate stops future cross-view links from skipping the helper.
+
+# TalentTrack v4.79.0 — Methodology sets — schema foundation (#2317)
+
+Internal schema groundwork for selectable methodologies (epic #2316). A new `tt_methodologies` table makes a methodology a first-class, named set, and every methodology entity (principles, vision, formation, phases, learning goals, influence factors, set pieces, football actions, framework primer) gains a `methodology_id` linking it to one. Existing shipped content is backfilled into a default "JO14-1 Hedel" set, so nothing is orphaned and the read view is unchanged. No user-visible behaviour yet — selection and the second methodology land in follow-ups.
+
+# TalentTrack v4.79.0 — Methodology sets — per-team selection + install default (#2318)
+
+Adds the resolution layer for selectable methodologies (epic #2316): an install-wide default set stored in `tt_config` (`active_methodology_id`) plus an optional per-team override (`tt_teams.methodology_id`). A new `ActiveMethodologyResolver` picks the set for a given team — team override, then install default, then the club's default set — degrading gracefully to legacy behaviour before the tables exist. No user-visible surface yet; the read view and admin selector consume this in follow-ups.
+
+# TalentTrack v4.79.0 — Methodology sets — content scoped to the active set (#2319)
+
+The methodology library, its repositories and the authoring REST endpoints now read and write within the active methodology set (epic #2316). A new ambient `MethodologyScope` — parallel to how club tenancy already works — makes every list read and every create resolve to the install's active set by default, so the read view shows one methodology at a time and new content is stamped into it. REST callers can scope to a specific set with an optional `methodology_id` query param. With a single set installed there is no visible change; it's the switch that lets two methodologies coexist without their content bleeding together.
+
+# TalentTrack v4.79.0 — Hide "Complete activity" when the user can't complete it (#2325)
+
+The "Complete activity" button on the activity detail page (and the quick-action on planned activity cards) is now hidden when the current user can't reach the completion flow, instead of rendering a dead button that silently reloaded the page. Completing a training or paper-match routes through the evaluation wizard (which needs evaluation rights); completing a match with a running match-execution routes through its finalize view (which needs activity-edit rights). The gate now mirrors whichever destination applies, via a domain-layer `ActivityCompletionResolver::canComplete()` used by both buttons. Head coaches and evaluators are unaffected; assistant coaches who can't evaluate no longer see a button that does nothing.
+
+# TalentTrack v4.79.0 — FilterBar: filters no longer revert on Apply (#2327)
+
+The shared filter bar renders each control twice inside one form — a desktop inline row and a mobile bottom sheet — both carrying the same field name. On submit the browser sent both values and PHP kept the stale sheet copy, so editing the Date range From/To or changing the Team/Type select silently reverted on Apply. The change-sync that #2201 added for toggle checkboxes now covers every control: date inputs, text inputs and selects mirror their value onto the same-named sibling before the form submits, so the inline and sheet copies always agree. Progressive enhancement and the JS-off Apply fallback are unchanged.
+
+# TalentTrack v4.79.0 — Reports default to the current season's date window (#2328)
+
+The standard reports (player attendance, team attendance, the attendance leaderboard and team minutes) now seed their From/To filter to the current season — from the season's start date through today — when you open them without a period pill or a manual range. This matches the *This season* pill and how the academy thinks about the year, instead of an arbitrary rolling window that spanned season boundaries. When no current season is configured the reports fall back to the previous 90-day window, so they never render empty or fatal. Period pills and manual From/To ranges still override the default. The default now lives in one shared helper (`ReportFilters::seasonDefaultWindow()`) so the four reports can't drift.
+
+# TalentTrack v4.79.0 — Archived-record actions hidden without permission + correct confirm titles (#2330)
+
+The archived/trashed record card now hides lifecycle buttons whose REST route the
+current user can't reach: "Move to recycle bin" only shows for users who can manage
+settings, and "Restore to archive" / "Delete permanently now" only for recycle-bin
+managers. Head coaches no longer hit a dead-end "Action failed." on an archived
+record. The confirm-modal title now matches the action ("Move to recycle bin",
+"Restore record", "Delete permanently") instead of always reading "Archive record".
+
+# TalentTrack v4.79.0 — Players list: fix count/rows mismatch and unreachable players (#2331)
+
+The players list could show fewer rows than its own total (e.g. "1–15 of 15" while only 11 rows rendered), and players sorted past the first page were unreachable. Cause: per-player view permission was applied *after* SQL pagination, so a page under-filled and authorized players beyond it were both miscounted and unpageable. The list endpoint now authorizes the full result set first and paginates the authorized players, so the total always matches the rows you can page through and every player you may see is reachable. No change to which players a user may view.
+
 # TalentTrack v4.78.4 — Hide unauthorized navigation affordances across seven views (#2306, #2307, #2308, #2309, #2310, #2311, #2312)
 
 Buttons and links that pointed at capability-gated destinations are now hidden from users who lack the matching capability, instead of leading to a "you are not authorized" dead end (CLAUDE.md §7). Affected affordances: the "New player" and "New team" header buttons (require the respective edit capability), the "Manage tests" link and the "Record measurements" / "Testing coverage" cross-links on the measurements surfaces (each gated on its own measurement entity), the "Team chemistry" / "Team blueprints" tiles on the team edit form (team-chemistry read access), the "Planner" link on the team detail page (plan-view access), and the "Methodology" library link plus principle pills on the activity detail card (methodology-view access — the linked principles still display, just not as links). Each affordance now checks the same capability its target already enforces; the server-side gates are unchanged.
