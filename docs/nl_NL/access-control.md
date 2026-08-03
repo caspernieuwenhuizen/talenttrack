@@ -83,6 +83,39 @@ Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt
 
 Dashboardtegels die uitkomen op een coach- of beheerderssurface declareren een tegelspecifieke matrixentiteit (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `wp_admin_portal`) los van de onderliggende data-entiteit (`team`, `players`, `evaluations`, …). De data-entiteiten blijven REST + repository-reads sturen — de dispatcher en de tegel-gate vragen het `*_panel`-entiteit aan, zodat het verlenen van "scout leest teamdata globaal" niet langer een coach-tegel **Mijn teams** op het scoutdashboard plaatst. De dispatcher (`DashboardShortcode`) leest de entiteit uit het tegelregister en raadpleegt `MatrixGate::canAnyScope` voor hetzelfde antwoord als de tegel-gate, zodat de eerdere situatie waarin een tegel rendert maar de bestemming alsnog *"Dit onderdeel is alleen beschikbaar voor coaches en beheerders."* meldt, definitief weg is.
 
+## Kruislinks tussen weergaven — `CrossViewLink` (#2304)
+
+<!-- audience: developer -->
+
+Een in-body navigatie-affordance — een kruislink, tegel of knop die naar een andere `?tt_view=<slug>`-weergave verwijst — moet **verborgen zijn wanneer de huidige gebruiker de doelweergave niet kan bereiken**. Voorheen controleerde elke zo'n link de rechten van het doel inline, en die controles liepen uit de pas met de daadwerkelijke early-return-guard van de doelweergave.
+
+`\TT\Shared\Frontend\Components\CrossViewLink` centraliseert die beslissing. De HTML van de link wordt alleen weggeschreven wanneer de huidige gebruiker slaagt voor de gate van de doel-slug:
+
+```php
+CrossViewLink::render( 'team-planner', function () use ( $url ) {
+    echo '<a class="tt-player-action" href="' . esc_url( $url ) . '">'
+        . esc_html__( 'Planner', 'talenttrack' ) . '</a>';
+} );
+```
+
+Voor een keuze tussen link en span (een actieve link bij toegang, anders een inerte `<span>`) vertak je op de beslishulp: `CrossViewLink::allows( 'methodology' )`.
+
+**Gates staan op één plek.** `CoreSurfaceRegistration::registerCrossViewLinkGates()` koppelt elke slug aan een gate die de **eigen guard van de doelweergave** weerspiegelt — *niet* de zichtbaarheidsentiteit van de dashboardtegel, die vaak verschilt (de `team-planner`-tegel declareert bijvoorbeeld de entiteit `activities_panel` voor tegelzichtbaarheid, maar de team-planner-weergave dwingt `tt_view_plan` af). Een gate is één van:
+
+- een **rechten-string** (bv. `'tt_view_plan'`) → geëvalueerd via `AuthorizationService::userCanOrMatrix`;
+- een **`[entity, activity]`-paar** (bv. `['measurements','change']`) → geëvalueerd via `MatrixGate::canAnyScope`;
+- een **closure** `fn(int $uid, array $ctx): bool` — voor guards die context nodig hebben (bv. `player-attributes` draait `AuthorizationService::canEvaluatePlayer($uid, $ctx['player_id'])`).
+
+Geef context per link door via `['ctx' => [...]]`; geef een eenmalige expliciete gate door via `['gate' => …]` om het register te overschrijven.
+
+**Een gegate kruislink toevoegen:**
+
+1. Registreer de gate van de doel-slug in `registerCrossViewLinkGates()`, spiegelend aan de echte early-return-guard van die weergave.
+2. Verpak de link-render in `CrossViewLink::render( '<slug>', … )` (of vertak op `CrossViewLink::allows`).
+3. Als de link recordcontext nodig heeft (een speler-id, team-id), geef die door via `['ctx' => …]` en lees hem in de gate-closure.
+
+Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de gedeclareerde entiteit van de tegel op `read` wanneer de matrix actief is, anders toestaan), zodat bestaande interne links blijven werken; de CI-gate `xview-link-lint.yml` laat een PR falen die een **nieuwe** ongegate `tt_view`-kruislink toevoegt in een `src/**/Frontend/**`-bestand. Voor een terechte uitzondering plaats je een afsluitend `/* tt-xview-ok */` op de regel.
+
 ## Entiteiten van de instroompijplijn (#0081)
 
 De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzettelijk smal toegangsbereik omdat prospect-gegevens de gevoeligste PII in het systeem zijn (verzameld voordat er een contractuele relatie bestaat — wettelijke grondslag is toestemming):

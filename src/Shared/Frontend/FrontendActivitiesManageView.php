@@ -724,19 +724,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $methodology_url = add_query_arg( [ 'tt_view' => 'methodology', 'mtab' => 'principles' ], $base );
 
-        // §7 — the "Methodology" library link and the clickable principle
-        // pills are gated on tt_view_methodology. Without it the linked
-        // principles still show (development content), just not as dead-end
-        // links into a library the user can't open.
-        $can_view_meth = current_user_can( 'tt_view_methodology' );
+        // §7 (#2304) — the "Methodology" library link and the clickable
+        // principle pills are gated on the methodology view's own guard
+        // (tt_view_methodology) via the CrossViewLinkRegistry. Without it the
+        // linked principles still show (development content), just not as
+        // dead-end links into a library the user can't open.
+        $can_view_meth = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'methodology' );
 
         echo '<div class="tt-act-card-d tt-act-card-d--span2">';
         echo '<div class="tt-act-card-d__head">';
         echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Linked principles', 'talenttrack' ) . '</h3>';
-        if ( $can_view_meth ) {
+        \TT\Shared\Frontend\Components\CrossViewLink::render( 'methodology', static function () use ( $methodology_url ): void {
             echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
                 . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
-        }
+        } );
         echo '</div>';
         echo '<div class="tt-act-card-d__body">';
         foreach ( $linked_ids as $pid ) {

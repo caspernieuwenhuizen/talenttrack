@@ -521,17 +521,27 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php endif; ?>
                         <?php
                         // #1017 Phase 7 — chemistry-attribute entry for staff
-                        // who can rate players.
-                        if ( current_user_can( 'tt_edit_evaluations' ) ) :
-                            $attr_url = add_query_arg(
-                                [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
-                                RecordLink::dashboardUrl()
-                            );
-                            ?>
-                            <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
-                                <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
-                            </a>
-                        <?php endif; ?>
+                        // who can rate players. §7 (#2304) — gated via the
+                        // `player-attributes` registry gate, which tightens
+                        // this to the per-player canEvaluatePlayer check the
+                        // target view enforces (was a flat tt_edit_evaluations
+                        // cap here).
+                        \TT\Shared\Frontend\Components\CrossViewLink::render(
+                            'player-attributes',
+                            static function () use ( $player_id ): void {
+                                $attr_url = add_query_arg(
+                                    [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
+                                    RecordLink::dashboardUrl()
+                                );
+                                ?>
+                                <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
+                                    <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
+                                </a>
+                                <?php
+                            },
+                            [ 'ctx' => [ 'player_id' => $player_id ] ]
+                        );
+                        ?>
                         <button type="button"
                                 class="tt-player-action tt-player-action--danger"
                                 role="menuitem"

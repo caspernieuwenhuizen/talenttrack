@@ -268,9 +268,10 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             <?php endif; ?>
 
             <?php
-            // §7 — the team planner is gated on tt_view_plan, independently
-            // of the tt_view_teams access that reaches this detail page.
-            if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_plan' ) ) :
+            // §7 (#2304) — the team planner is gated on tt_view_plan,
+            // independently of the tt_view_teams access that reaches this
+            // detail page. The `team-planner` gate mirrors that guard.
+            \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-planner', static function () use ( $team_id ): void {
                 $planner_url = add_query_arg(
                     [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
                     RecordLink::dashboardUrl()
@@ -279,7 +280,9 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 <a class="tt-player-action" href="<?php echo esc_url( $planner_url ); ?>">
                     <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
                 </a>
-            <?php endif; ?>
+                <?php
+            } );
+            ?>
 
             <?php if ( $can_edit ) :
                 $edit_url = add_query_arg(
