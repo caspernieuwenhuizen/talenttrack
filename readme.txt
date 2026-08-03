@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.78.3
+Stable tag: 4.78.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.78.4 — Hide unauthorized navigation affordances across seven views (#2306, #2307, #2308, #2309, #2310, #2311, #2312) Buttons and links that pointed at capability-gated destinations are now hidden from users who lack the matching capability, instead of leading to a "you are not authorized" dead end (CLAUDE.md §7). Affected affordances: the "New player" and "New team" header buttons (require the respective edit capability), the "Manage tests" link and the "Record measurements" / "Testing coverage" cross-links on the measurements surfaces (each gated on its own measurement entity), the "Team chemistry" / "Team blueprints" tiles on the team edit form (team-chemistry read access), the "Planner" link on the team detail page (plan-view access), and the "Methodology" library link plus principle pills on the activity detail card (methodology-view access — the linked principles still display, just not as links). Each affordance now checks the same capability its target already enforces; the server-side gates are unchanged. =
 
 = 4.78.3 — Search box on the Modules & features page (#2300) The frontend **Modules & features** page (`?tt_view=modules`) now has a search box at the top that filters the module cards and their nested feature toggles live as you type, matching on name or description. A match inside a feature auto-expands its module; empty categories drop out and an empty-state line shows when nothing matches. With dozens of per-report and per-export toggles, finding a specific one no longer means scrolling the whole list. Client-side only — no reload, and the full list still renders with JavaScript off. =
 

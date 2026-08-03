@@ -1,5 +1,0 @@
-# Hide unauthorized navigation affordances across seven views (#2306, #2307, #2308, #2309, #2310, #2311, #2312)
-
-Bump: patch
-
-Buttons and links that pointed at capability-gated destinations are now hidden from users who lack the matching capability, instead of leading to a "you are not authorized" dead end (CLAUDE.md §7). Affected affordances: the "New player" and "New team" header buttons (require the respective edit capability), the "Manage tests" link and the "Record measurements" / "Testing coverage" cross-links on the measurements surfaces (each gated on its own measurement entity), the "Team chemistry" / "Team blueprints" tiles on the team edit form (team-chemistry read access), the "Planner" link on the team detail page (plan-view access), and the "Methodology" library link plus principle pills on the activity detail card (methodology-view access — the linked principles still display, just not as links). Each affordance now checks the same capability its target already enforces; the server-side gates are unchanged.
