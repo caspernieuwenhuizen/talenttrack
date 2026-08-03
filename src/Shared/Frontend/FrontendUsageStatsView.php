@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Usage\UsageTracker;
+use TT\Modules\Analytics\Reports\ReportFilters;
 
 /**
  * FrontendUsageStatsView — Application KPIs dashboard.
@@ -19,13 +20,22 @@ use TT\Infrastructure\Usage\UsageTracker;
  * are football *outcomes* (report content) and live in the Reports
  * launcher, not on a usage dashboard.
  *
- * Period is selectable (30 / 60 / 90 days, default 30). The route slug
- * stays `usage-stats` so existing URLs / tiles / docs links don't break.
+ * Period is selectable (30 / 60 / 90 days). The default window is
+ * season-aware (#2355): when a running season covers more days than the
+ * shortest period, the default lands on the smallest period option that
+ * spans the season so far (capped at 90). The route slug stays
+ * `usage-stats` so existing URLs / tiles / docs links don't break.
  */
 class FrontendUsageStatsView extends FrontendViewBase {
 
     /** Period choices in days. */
     private const PERIODS = [ 30, 60, 90 ];
+
+    /** Row cap for the "Active users" table (matches the query LIMIT). */
+    private const ACTIVE_USERS_CAP = 200;
+
+    /** Row cap for the "Dormant users" table (matches the query LIMIT). */
+    private const DORMANT_USERS_CAP = 15;
 
     /**
      * #1695 — pull in the 2026 green/gold usage-stats stylesheet (KPI
@@ -38,6 +48,14 @@ class FrontendUsageStatsView extends FrontendViewBase {
             'tt-usage-stats',
             TT_PLUGIN_URL . 'assets/css/frontend-usage-stats.css',
             [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        // #2355 — the shared `.tt-role-chip` style lives in the details
+        // sheet; pull it in so role labels render as chips here too.
+        wp_enqueue_style(
+            'tt-usage-stats-details',
+            TT_PLUGIN_URL . 'assets/css/frontend-usage-stats-details.css',
+            [ 'tt-usage-stats' ],
             TT_VERSION
         );
     }
@@ -68,7 +86,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
         $dau   = UsageTracker::dailyActiveUsers( $days );
         $roles = UsageTracker::activeByRole( $days );
         // #1765 — the names behind the role buckets.
-        $active_user_rows = UsageTracker::activeUsers( $days );
+        $active_user_rows = UsageTracker::activeUsers( $days, self::ACTIVE_USERS_CAP );
 
         // Stickiness — average daily-active / monthly-active, the classic
         // "how habitual is the tool?" ratio. MAU is always the 30-day
@@ -87,6 +105,15 @@ class FrontendUsageStatsView extends FrontendViewBase {
         <p class="tt-usage-intro">
             <?php esc_html_e( 'Application-level KPIs over the selected window. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded.', 'talenttrack' ); ?>
         </p>
+
+        <details class="tt-usage-methodology">
+            <summary><?php esc_html_e( 'How these numbers are measured', 'talenttrack' ); ?></summary>
+            <ul>
+                <li><?php esc_html_e( 'Stickiness (DAU/MAU) always divides average daily active users by the 30-day monthly-active total, regardless of the period you select above.', 'talenttrack' ); ?></li>
+                <li><?php esc_html_e( 'A session ends after 30 minutes of inactivity; a gap longer than that starts a new session.', 'talenttrack' ); ?></li>
+                <li><?php esc_html_e( 'Time online is observed activity only — it is a lower bound, not exact time in the app.', 'talenttrack' ); ?></li>
+            </ul>
+        </details>
 
         <div class="tt-usage-periods">
             <span class="tt-usage-periods__label"><?php esc_html_e( 'Period:', 'talenttrack' ); ?></span>
@@ -142,7 +169,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     <tbody>
                     <?php foreach ( $roles as $role => $count ) : ?>
                         <tr>
-                            <td><?php echo esc_html( self::roleLabel( (string) $role ) ); ?></td>
+                            <td><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $role ) ); ?></span></td>
                             <td style="text-align:right;"><?php echo (int) $count; ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -156,6 +183,13 @@ class FrontendUsageStatsView extends FrontendViewBase {
                 <h3 class="tt-usage-panel__title"><?php
                     /* translators: %d is the number of days */
                     printf( esc_html__( 'Active users (%d days)', 'talenttrack' ), (int) $days );
+                    if ( count( $active_user_rows ) >= self::ACTIVE_USERS_CAP ) {
+                        echo ' <span class="tt-usage-truncation">' . sprintf(
+                            /* translators: %d is the maximum number of rows shown */
+                            esc_html__( '(Showing top %d)', 'talenttrack' ),
+                            (int) self::ACTIVE_USERS_CAP
+                        ) . '</span>';
+                    }
                 ?></h3>
                 <div class="tt-table-wrap">
                 <table class="tt-table">
@@ -173,7 +207,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
                         ?>
                         <tr>
                             <td data-label="<?php esc_attr_e( 'Name', 'talenttrack' ); ?>"><a href="<?php echo esc_url( $name_url ); ?>"><?php echo esc_html( (string) $u['display_name'] ); ?></a></td>
-                            <td data-label="<?php esc_attr_e( 'Role', 'talenttrack' ); ?>"><?php echo esc_html( self::roleLabel( (string) $u['role'] ) ); ?></td>
+                            <td data-label="<?php esc_attr_e( 'Role', 'talenttrack' ); ?>"><span class="tt-role-chip"><?php echo esc_html( self::roleLabel( (string) $u['role'] ) ); ?></span></td>
                             <td data-label="<?php esc_attr_e( 'Last seen', 'talenttrack' ); ?>"><?php echo esc_html( (string) $u['last_active'] ); ?></td>
                         </tr>
                     <?php endforeach; ?>
@@ -193,7 +227,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
         <div class="tt-usage-panel">
             <h3 class="tt-usage-panel__title"><?php esc_html_e( 'Top features used', 'talenttrack' ); ?></h3>
             <?php if ( empty( $top_features ) ) : ?>
-                <p><em><?php esc_html_e( 'No views recorded in this window yet.', 'talenttrack' ); ?></em></p>
+                <p class="tt-notice"><?php esc_html_e( 'No views recorded in this window yet. Widen the period above, or check back once people start using the app.', 'talenttrack' ); ?></p>
             <?php else : ?>
                 <table class="tt-table">
                     <thead><tr>
@@ -221,15 +255,22 @@ class FrontendUsageStatsView extends FrontendViewBase {
         <?php
         // Dormant users — invited people who haven't logged in for the
         // selected window. Who to nudge.
-        $dormant = UsageTracker::inactiveUsers( $days, 15 );
+        $dormant = UsageTracker::inactiveUsers( $days, self::DORMANT_USERS_CAP );
         ?>
         <div class="tt-usage-panel">
             <h3 class="tt-usage-panel__title"><?php
                 /* translators: %d is the number of days */
                 printf( esc_html__( 'Dormant users (no login in %d days)', 'talenttrack' ), (int) $days );
+                if ( count( $dormant ) >= self::DORMANT_USERS_CAP ) {
+                    echo ' <span class="tt-usage-truncation">' . sprintf(
+                        /* translators: %d is the maximum number of rows shown */
+                        esc_html__( '(Showing top %d)', 'talenttrack' ),
+                        (int) self::DORMANT_USERS_CAP
+                    ) . '</span>';
+                }
             ?></h3>
             <?php if ( empty( $dormant ) ) : ?>
-                <p><em><?php esc_html_e( 'Everyone with an account has logged in recently.', 'talenttrack' ); ?></em></p>
+                <p class="tt-notice"><?php esc_html_e( 'Everyone with an account has logged in recently — no one to nudge right now.', 'talenttrack' ); ?></p>
             <?php else : ?>
                 <table class="tt-table">
                     <thead><tr>
@@ -279,9 +320,46 @@ class FrontendUsageStatsView extends FrontendViewBase {
         <?php
     }
 
+    /**
+     * Resolve the active window in days. An explicit `?days=` (one of the
+     * PERIODS options) always wins; otherwise the default is season-aware
+     * (#2355) — the smallest period that spans the running season so far,
+     * capped at the longest available option.
+     */
     private static function periodFromQuery(): int {
-        $raw = isset( $_GET['days'] ) ? (int) $_GET['days'] : 30;
-        return in_array( $raw, self::PERIODS, true ) ? $raw : 30;
+        if ( isset( $_GET['days'] ) ) {
+            $raw = (int) $_GET['days'];
+            if ( in_array( $raw, self::PERIODS, true ) ) {
+                return $raw;
+            }
+        }
+        return self::seasonDefaultPeriod();
+    }
+
+    /**
+     * Map the season default window (#2328) onto the discrete period
+     * options this view supports. Picks the smallest PERIODS value that
+     * covers the elapsed season length, clamped to the longest option.
+     */
+    private static function seasonDefaultPeriod(): int {
+        $default  = self::PERIODS[0];
+        $longest  = self::PERIODS[ count( self::PERIODS ) - 1 ];
+        if ( ! class_exists( ReportFilters::class ) ) {
+            return $default;
+        }
+        $window = ReportFilters::seasonDefaultWindow();
+        $from   = strtotime( (string) ( $window['from'] ?? '' ) );
+        $to     = strtotime( (string) ( $window['to'] ?? '' ) );
+        if ( ! $from || ! $to || $to <= $from ) {
+            return $default;
+        }
+        $elapsed_days = (int) ceil( ( $to - $from ) / DAY_IN_SECONDS );
+        foreach ( self::PERIODS as $opt ) {
+            if ( $elapsed_days <= $opt ) {
+                return $opt;
+            }
+        }
+        return $longest;
     }
 
     /**
