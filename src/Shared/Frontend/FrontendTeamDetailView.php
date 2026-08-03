@@ -268,14 +268,18 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             <?php endif; ?>
 
             <?php
-            $planner_url = add_query_arg(
-                [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
-                RecordLink::dashboardUrl()
-            );
-            ?>
-            <a class="tt-player-action" href="<?php echo esc_url( $planner_url ); ?>">
-                <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
-            </a>
+            // §7 — the team planner is gated on tt_view_plan, independently
+            // of the tt_view_teams access that reaches this detail page.
+            if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_plan' ) ) :
+                $planner_url = add_query_arg(
+                    [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
+                    RecordLink::dashboardUrl()
+                );
+                ?>
+                <a class="tt-player-action" href="<?php echo esc_url( $planner_url ); ?>">
+                    <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
 
             <?php if ( $can_edit ) :
                 $edit_url = add_query_arg(

@@ -80,7 +80,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-success">' . esc_html( $flash ) . '</div>';
         }
 
-        self::renderModuleLinks();
+        self::renderModuleLinks( $user_id );
         self::renderList();
     }
 
@@ -92,19 +92,26 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
      * these are in-body actions, so they do not breach the two-affordance
      * contract.
      */
-    private static function renderModuleLinks(): void {
+    private static function renderModuleLinks( int $user_id ): void {
         $base = RecordLink::dashboardUrl();
 
         echo '<div class="tt-mt-links">';
         self::renderNewTestButton();
 
-        $record_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-entry' ], $base ) );
-        echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $record_url ) . '">'
-            . esc_html__( 'Record measurements', 'talenttrack' ) . '</a>';
+        // §7 — gate each cross-link on the target surface's own capability.
+        // Managing test definitions (this page) doesn't imply recording
+        // measurements or reading session coverage — separate matrix entities.
+        if ( MatrixGate::canAnyScope( $user_id, 'measurements', 'change' ) ) {
+            $record_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-entry' ], $base ) );
+            echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $record_url ) . '">'
+                . esc_html__( 'Record measurements', 'talenttrack' ) . '</a>';
+        }
 
-        $coverage_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-coverage' ], $base ) );
-        echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $coverage_url ) . '">'
-            . esc_html__( 'Testing coverage', 'talenttrack' ) . '</a>';
+        if ( MatrixGate::canAnyScope( $user_id, 'measurement_sessions', 'read' ) ) {
+            $coverage_url = BackLink::appendTo( add_query_arg( [ 'tt_view' => 'measurements-coverage' ], $base ) );
+            echo '<a class="tt-btn tt-btn-secondary tt-mt-link" href="' . esc_url( $coverage_url ) . '">'
+                . esc_html__( 'Testing coverage', 'talenttrack' ) . '</a>';
+        }
         echo '</div>';
     }
 
