@@ -16,6 +16,7 @@ use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
 use TT\Modules\Methodology\Repositories\PhasesRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
+use TT\Modules\Methodology\Repositories\TacticalScenesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -97,6 +98,7 @@ class MethodologyView extends FrontendViewBase {
             'framework'    => __( 'Raamwerk',          'talenttrack' ),
             'formations'   => __( 'Formaties',          'talenttrack' ),
             'principles'   => __( 'Spelprincipes',     'talenttrack' ),
+            'scenes'       => __( 'Speelwijze',        'talenttrack' ),
             'actions'      => __( 'Voetbalhandelingen', 'talenttrack' ),
             'set_pieces'   => __( 'Spelhervattingen',  'talenttrack' ),
         ];
@@ -137,6 +139,9 @@ class MethodologyView extends FrontendViewBase {
                 $sid = isset( $_GET['sid'] ) ? absint( $_GET['sid'] ) : 0;
                 if ( $sid > 0 ) self::renderSetPieceDetail( $sid );
                 else            self::renderSetPieces();
+                break;
+            case 'scenes':
+                self::renderTacticalScenes();
                 break;
             case 'actions':
                 self::renderFootballActions();
@@ -758,6 +763,103 @@ class MethodologyView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endforeach;
+    }
+
+    // Tactical scenes (Speelwijze, #2323)
+
+    /**
+     * Speelwijze — animated per-phase tactical scenes. The repository has
+     * already scoped the rows to the active methodology set (and its
+     * phases). Each scene renders its title, the animated pitch container
+     * (`.tt-tactical-scene` carrying the scene JSON) and the coaching-point
+     * description. Grouped by phase side so the read narrative follows
+     * aanvallen → verdedigen → omschakelen.
+     *
+     * The scene renderer JS + CSS are enqueued only here.
+     */
+    private static function renderTacticalScenes(): void {
+        $scenes = ( new TacticalScenesRepository() )->listFiltered();
+        if ( empty( $scenes ) ) {
+            echo '<p><em>' . esc_html__( 'No tactical scenes available yet.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        self::enqueueSceneAssets();
+
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'Animated per-phase scenes: press Play to watch the player and ball movement for each game phase, then read the coaching points.', 'talenttrack' ) . '</p>';
+
+        $by_side = [];
+        foreach ( $scenes as $s ) {
+            $by_side[ (string) $s->phase_side ][] = $s;
+        }
+
+        foreach ( MethodologyEnums::sides() as $side_key => $side_label ) {
+            if ( empty( $by_side[ $side_key ] ) ) continue;
+            echo '<h3 class="tt-mlogy-subhead">' . esc_html( $side_label ) . '</h3>';
+            foreach ( $by_side[ $side_key ] as $scene ) {
+                self::renderTacticalScene( $scene );
+            }
+        }
+    }
+
+    /** Render a single animated tactical scene card. */
+    private static function renderTacticalScene( object $scene ): void {
+        $title    = MultilingualField::string( $scene->title_json );
+        $coaching = MultilingualField::string( $scene->description_json );
+        $payload  = isset( $scene->scene_decoded ) && is_array( $scene->scene_decoded ) ? $scene->scene_decoded : [];
+        $aria     = $title !== ''
+            ? sprintf(
+                /* translators: %s is the tactical scene title */
+                __( 'Tactical scene: %s', 'talenttrack' ),
+                $title
+            )
+            : __( 'Tactical scene', 'talenttrack' );
+        ?>
+        <section class="tt-tsc">
+            <header class="tt-tsc__head">
+                <h4 class="tt-tsc__title"><?php echo esc_html( $title ?: __( '(untitled scene)', 'talenttrack' ) ); ?></h4>
+            </header>
+            <div class="tt-tsc__grid">
+                <div
+                    class="tt-tactical-scene"
+                    data-i18n-label="<?php echo esc_attr( $aria ); ?>"
+                    data-i18n-play="<?php esc_attr_e( 'Play', 'talenttrack' ); ?>"
+                    data-i18n-pause="<?php esc_attr_e( 'Pause', 'talenttrack' ); ?>"
+                    data-i18n-restart="<?php esc_attr_e( 'Restart', 'talenttrack' ); ?>"
+                >
+                    <script type="application/json"><?php
+                        echo wp_json_encode( $payload ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — JSON in a script type=application/json block is safe
+                    ?></script>
+                </div>
+                <?php if ( $coaching !== '' ) : ?>
+                    <p class="tt-tsc__coaching"><?php echo esc_html( $coaching ); ?></p>
+                <?php endif; ?>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * Enqueue the tactical-scene renderer + its stylesheet. Called only on
+     * the Speelwijze tab so the animation bundle stays off every other
+     * methodology surface. The stylesheet reads the shared design tokens
+     * via the app-chrome dependency.
+     */
+    private static function enqueueSceneAssets(): void {
+        if ( ! function_exists( 'wp_enqueue_style' ) ) return;
+        wp_enqueue_style(
+            'tt-frontend-methodology-scene',
+            TT_PLUGIN_URL . 'assets/css/frontend-methodology-scene.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-methodology-tactical-scene',
+            TT_PLUGIN_URL . 'assets/js/methodology-tactical-scene.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     // Asset rendering helpers

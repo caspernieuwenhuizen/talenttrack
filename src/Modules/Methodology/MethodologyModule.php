@@ -74,6 +74,11 @@ class MethodologyModule implements ModuleInterface {
         Rest\LearningGoalsRestController::init();
         Rest\InfluenceFactorsRestController::init();
 
+        // #2323 — per-phase animated tactical scenes (Speelwijze). REST
+        // CRUD only; a drag/draw authoring UI is a follow-up. The read
+        // surface lives on the MethodologyView "Speelwijze" tab.
+        Rest\TacticalScenesRestController::init();
+
         if ( is_admin() ) {
             Admin\MethodologyPage::init();
             Admin\PrincipleEditPage::init();

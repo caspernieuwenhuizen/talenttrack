@@ -248,3 +248,40 @@ Alle wijzigende acties vereisen de capability `tt_edit_methodology`; een lezer z
 Elk team kan overschrijven welke set het gebruikt. Op het teambewerkformulier toont een dropdown **Speelwijze-set** elke set, met **Installatie-standaard gebruiken** als eerste optie. Laat je hem op de standaard (waarde `0`) staan, dan wist dat de override zodat het team de installatiebrede actieve set volgt; kies je een specifieke set, dan wordt het team eraan vastgezet. De keuzelijst verschijnt pas zodra er ten minste één set bestaat.
 
 Dezelfde bewerkingen zijn beschikbaar via REST op `/wp-json/talenttrack/v1/methodology/sets` (lijst / aanmaken / lezen / bijwerken / archiveren) plus `PUT /methodology/sets/{id}/default` om een set actief te maken.
+
+## Speelwijze-animaties (tactische scènes)
+
+Tactische scènes per fase worden bewerkt via REST op `/wp-json/talenttrack/v1/methodology/tactical-scenes` (lijst / aanmaken / lezen / bijwerken / verwijderen). Elke route vereist de capability `tt_edit_methodology` en is club-gescoped; lezen en aanmaken lossen op naar de actieve speelwijze-set (geef een optionele `methodology_id`-queryparameter mee om een specifieke set te kiezen). Geleverde scènes zijn alleen-lezen — bijwerken en verwijderen weigeren ze; aanmaken schrijft altijd een club-eigen scène.
+
+Routes:
+
+- `GET /methodology/tactical-scenes` — lijst scènes voor de actieve set. Optionele filters `phase_side` (`attacking` / `defending` / `transition`) en `phase_number`.
+- `POST /methodology/tactical-scenes` — maak een club-eigen scène aan.
+- `GET /methodology/tactical-scenes/{id}` — één scène, met de ruwe NL + EN titel/omschrijving onder `title_i18n` / `description_i18n`.
+- `PUT /methodology/tactical-scenes/{id}` — bewerk een club-eigen scène.
+- `DELETE /methodology/tactical-scenes/{id}` — verwijder een club-eigen scène.
+
+Een scène draagt een meertalige `title` en `description` (`{ "nl": "…", "en": "…" }`), een optionele `phase_side` + `phase_number` (de zachte koppeling naar een fase), een optionele `formation_id`, een `sort_order` en een vrij-vorm `scene`-object — de animatie-payload. Het `scene`-object wordt alleen als geldige JSON gevalideerd; de renderer en een toekomstige editor bepalen het schema.
+
+### De `scene`-animatie-payload
+
+Coördinaten zijn genormaliseerd `0–100` op beide assen (0,0 = linksboven, `y` loopt op naar het doel dat wij verdedigen, onderaan), dezelfde conventie als de formatiediagrammen. `t` is genormaliseerde tijd `0..1`; de renderer interpoleert lineair tussen de keyframes van een speler over `duration_ms`.
+
+```json
+{
+  "duration_ms": 5000,
+  "players": [
+    { "slot": 9, "label": "9", "team": "own",
+      "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 1, "x": 55, "y": 35 } ] }
+  ],
+  "opponents": [
+    { "label": "", "team": "opp", "keyframes": [ { "t": 0, "x": 50, "y": 20 } ] }
+  ],
+  "ball": { "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 0.6, "x": 55, "y": 35 } ] },
+  "arrows": [
+    { "kind": "run", "from": { "x": 50, "y": 55 }, "to": { "x": 55, "y": 35 } }
+  ]
+}
+```
+
+`arrows[].kind` is één van `run`, `pass`, `press` of `dribble` (elk in een eigen kleur getekend). Een entiteit met één keyframe blijft staan; de bal en elke speler/tegenstander delen dezelfde interpolatie. Een sleep-en-teken-editor voor scènes in de app is een geplande vervolgstap — voorlopig worden scènes via deze API bewerkt of geseed.

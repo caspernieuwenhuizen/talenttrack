@@ -50,3 +50,16 @@ Bij elke regel kun je diagrammen en afbeeldingen toevoegen. Op de bewerkpagina z
 ## Selecteerbare methodologieën
 
 TalentTrack levert nu **twee** methodologieën. Naast de standaard **JO14-1 Hedel** (1-4-2-3-1) is er een tweede geleverde methodologie **JO13-1 Hedel** (1-4-3-3). Die heeft een eigen visie, formatie en positiekaarten, spelprincipes, raamwerk-introductie, fasen en leerdoelen. Een team kan worden gekoppeld aan de set die bij zijn speelwijze past; de Methodologie-tabbladen tonen dan de inhoud van die set. Zoals alle geleverde inhoud is die alleen-lezen — kloon een regel om je eigen kopie te bewerken.
+
+## Speelwijze-animaties (tactische scènes)
+
+Het tabblad **Speelwijze** toont geanimeerde tactische scènes per fase voor de actieve speelwijze-set. Elke scène is een momentopname van een spelfase — een SVG-veld met je eigen spelers (gevulde cirkels), de tegenstanders (open cirkels) en de bal — die de beweging voor die fase afspeelt wanneer je op **Afspelen** drukt.
+
+- Scènes zijn gegroepeerd per faserichting: **Aanvallend**, **Verdedigend** en **Omschakelen**.
+- Bij elke scène staan **coachpunten** naast het veld — de belangrijkste sub-principes voor die fase.
+- De knoppen **Afspelen / Pauzeren / Opnieuw** staan onder elk veld. Er beweegt niets tot je op Afspelen drukt, dus de pagina verrast je nooit met beweging.
+- Vraagt je apparaat om minder beweging, dan spelen scènes niet automatisch af: het laatste beeld wordt statisch getoond en je kunt alsnog op Afspelen drukken om het te bekijken.
+
+Beweging wordt getekend met gekleurde pijlen: een loopactie, een pass, druk zetten of een dribbel. De speler- en balposities gebruiken dezelfde veldindeling als de formatiediagrammen, zodat beide consistent leesbaar zijn.
+
+Scènes zijn vandaag geleverde inhoud voor de set JO13-1 Hedel en zijn in de app alleen-lezen. Ze kunnen via de REST-API worden aangemaakt en bewerkt (zie de auteursgids); een sleep-en-teken-editor voor scènes is een geplande vervolgstap.
