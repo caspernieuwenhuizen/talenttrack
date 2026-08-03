@@ -8,6 +8,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FilterBar;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -22,6 +24,14 @@ use TT\Shared\Frontend\FrontendViewBase;
  * ranking + the rows themselves come from `AttendanceRankingQuery`, the
  * same service the player report and the REST surface use — the view
  * only composes (CLAUDE.md §4).
+ *
+ * #2350 — chrome parity with `FrontendAttendancePlayerReportView`:
+ * shared FilterBar (team + retrospective period pills + activity-type +
+ * date range + the leaderboard's "How many" cap), a
+ * `ReportFilters::seasonDefaultWindow()` default, a KPI summary strip
+ * (Players / Avg. attendance / At-risk), and the at-risk badge on
+ * flagged bottom rows. The KPI values are a presentation-level
+ * aggregation of the already-fetched board — no extra query.
  *
  * Cap-gated on `tt_view_analytics`; scope follows the analytics
  * team-scope rule (global-scope read on `activities` sees the club,
@@ -39,7 +49,8 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     /**
      * #1695 — pull in the 2026 green/gold leaderboard stylesheet (card
      * tables, inline present-% bars, flag chips). Depends on the
-     * app-chrome handle the base view registers.
+     * app-chrome handle the base view registers (which also carries the
+     * shared `.tt-report-kpis` KPI-strip grid — #2350).
      */
     protected static function enqueueAssets(): void {
         parent::enqueueAssets();
@@ -81,14 +92,28 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         self::renderHeader( __( 'Attendance leaderboard', 'talenttrack' ) );
 
         $defaults = self::defaultWindow();
-        $from    = isset( $_GET['from'] )    ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) ) : $defaults['from'];
-        $to      = isset( $_GET['to'] )      ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )   : $defaults['to'];
-        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        $team_id  = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         // #2205 — blank/unset "How many" means all players in the window
         // (n = 0). A supplied number narrows each column to that many.
-        $n       = ( isset( $_GET['n'] ) && $_GET['n'] !== '' ) ? absint( $_GET['n'] ) : self::DEFAULT_N;
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
+        $n = ( isset( $_GET['n'] ) && $_GET['n'] !== '' ) ? absint( $_GET['n'] ) : self::DEFAULT_N;
+
+        // #2350 — retrospective period pills + activity-type filter, shared
+        // with the player + team reports via ReportFilters. A manual From/To
+        // overrides the active period; the type filter flows into the shared
+        // ranking query (which already accepts it).
+        $period   = ReportFilters::sanitizePeriod( isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '' );
+        $type_key = ReportFilters::sanitizeActivityType( isset( $_GET['activity_type_key'] ) ? (string) $_GET['activity_type_key'] : '' );
+
+        $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
+        $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
+
+        $window = $period !== '' ? ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) ) : null;
+        $from = $has_manual_from
+            ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) )
+            : ( $window['from'] ?? $defaults['from'] );
+        $to = $has_manual_to
+            ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
+            : ( $window['to'] ?? $defaults['to'] );
 
         // #1942 — academy-wide = global-scope read on `activities`; the
         // settings-admin flag stays as the WP-admin fallback.
@@ -99,24 +124,26 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
 
         if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
-            echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to rank. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
             return;
         }
 
         // URL-tamper guard: a team the coach isn't allowed to see → empty.
         if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
-            self::renderFilterForm( $from, $to, $team_id, $n, $allowed_team_ids );
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            self::renderFilterForm( $from, $to, $team_id, $n, $allowed_team_ids, $period, $type_key );
+            echo '<p class="tt-notice">' . esc_html__( 'This team has no attendance recorded in the selected window. Try widening the date range or picking another period.', 'talenttrack' ) . '</p>';
             return;
         }
 
-        self::renderFilterForm( $from, $to, $team_id, $n, $allowed_team_ids );
+        self::renderFilterForm( $from, $to, $team_id, $n, $allowed_team_ids, $period, $type_key );
 
-        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed_team_ids );
+        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed_team_ids, $type_key );
         if ( ( $board['total'] ?? 0 ) === 0 ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window. Try widening the date range or picking another period.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        self::renderKpiStrip( $board );
 
         echo '<div class="tt-leaderboard-grid">';
         self::renderTable(
@@ -129,6 +156,37 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             $board['top'],
             false
         );
+        echo '</div>';
+    }
+
+    /**
+     * #2350 — KPI summary strip, computed from the already-fetched board
+     * (presentation-level aggregation only; the ranking query stays the
+     * source of truth). Players = ranked total; Avg. attendance = the
+     * present-weighted mean across every ranked player; At-risk = flagged
+     * count. The `bottom` slice holds every ranked player when n = 0 (the
+     * default), so it doubles as the full population for these figures;
+     * when n is capped, the strip describes the shown slice.
+     *
+     * @param array{bottom:list<array<string,mixed>>, top:list<array<string,mixed>>, total:int} $board
+     */
+    private static function renderKpiStrip( array $board ): void {
+        $rows = $board['bottom'];
+        $player_count = count( $rows );
+        $sum_present = 0; $sum_total = 0; $at_risk_count = 0;
+        foreach ( $rows as $r ) {
+            $sum_present += (int) $r['present'];
+            $sum_total   += (int) $r['total'];
+            if ( ! empty( $r['flagged'] ) ) $at_risk_count++;
+        }
+        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+
+        echo '<div class="tt-report-kpis">';
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Players', 'talenttrack' ),         'value' => (string) $player_count ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Avg. attendance', 'talenttrack' ), 'value' => $avg ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'At-risk players', 'talenttrack' ), 'value' => (string) $at_risk_count, 'flag' => $at_risk_count > 0 ? 'red' : 'green' ] );
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</div>';
     }
 
@@ -162,6 +220,8 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             ) );
             $team   = (string) $r['team_name'];
             $present_pct = $r['present_pct'] !== null ? (float) $r['present_pct'] : null;
+            // #2350 — at-risk badge on flagged bottom rows, matching the
+            // player report's inline chip markup for cross-report parity.
             $badge  = '';
             if ( $is_bottom && ! empty( $r['flagged'] ) ) {
                 $badge = ' <span class="tt-flag-badge" title="'
@@ -183,9 +243,16 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     }
 
     /**
+     * #2350 — Team select + retrospective period pills + activity-type
+     * filter + From/To range + the leaderboard-specific "How many" cap,
+     * through the shared FilterBar for visual + a11y parity with the
+     * player report and the activities list. Pills + period are
+     * link-based; Team and Type auto-submit; the date range and the
+     * "How many" cap are the manual overrides.
+     *
      * @param list<int>|null $allowed_team_ids
      */
-    private static function renderFilterForm( string $from, string $to, int $team_id, int $n, ?array $allowed_team_ids ): void {
+    private static function renderFilterForm( string $from, string $to, int $team_id, int $n, ?array $allowed_team_ids, string $period = '', string $type_key = '' ): void {
         global $wpdb;
         if ( $allowed_team_ids !== null ) {
             if ( $allowed_team_ids === [] ) {
@@ -212,23 +279,104 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             ) );
         }
 
-        echo '<form method="get" class="tt-filter-row" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:12px;">';
-        echo '<input type="hidden" name="tt_view" value="attendance-leaderboard" />';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<select name="team_id">';
-        echo '<option value="0">' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
+        $team_options = [ '0' => __( 'All teams', 'talenttrack' ) ];
         foreach ( (array) $teams as $t ) {
-            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . selected( $team_id, (int) $t->id, false ) . '>' . esc_html( (string) $t->name ) . '</option>';
+            $team_options[ (string) (int) $t->id ] = (string) $t->name;
         }
-        echo '</select></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'How many', 'talenttrack' ) . '</span>';
-        echo '<input type="number" name="n" inputmode="numeric" min="1" step="1" value="' . esc_attr( $n > 0 ? (string) $n : '' ) . '" placeholder="' . esc_attr__( 'All', 'talenttrack' ) . '" /></label>';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
-        echo '</form>';
+
+        $dash_url      = RecordLink::dashboardUrl();
+        $period_labels = ReportFilters::periodLabels();
+        $type_options  = ReportFilters::activityTypeOptions();
+
+        // Base args each period pill preserves (team / type / cap / back-target).
+        $pill_base = [ 'tt_view' => 'attendance-leaderboard' ];
+        if ( $team_id > 0 )                $pill_base['team_id']           = $team_id;
+        if ( $type_key !== '' )            $pill_base['activity_type_key'] = $type_key;
+        if ( $n > 0 )                      $pill_base['n']                 = $n;
+        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']           = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $period_options = [];
+        foreach ( $period_labels as $key => $label ) {
+            $args = $pill_base;
+            if ( $key !== '' ) $args['period'] = $key;
+            $period_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $period === $key ),
+            ];
+        }
+
+        // Hidden fields the auto-submitting Team / Type selects must carry
+        // so the link-based period + back-target survive a change.
+        $hidden = [ 'tt_view' => 'attendance-leaderboard' ];
+        if ( $period !== '' )              $hidden['period']  = $period;
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $active_count = 0;
+        $chips = [];
+        if ( $team_id > 0 && isset( $team_options[ (string) $team_id ] ) ) { $active_count++; $chips[] = $team_options[ (string) $team_id ]; }
+        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+        if ( $type_key !== '' && isset( $type_options[ $type_key ] ) ) { $active_count++; $chips[] = $type_options[ $type_key ]; }
+        if ( $n > 0 ) { $active_count++; $chips[] = sprintf( /* translators: %d row cap */ __( 'Top %d', 'talenttrack' ), $n ); }
+
+        $reset_args = [ 'tt_view' => 'attendance-leaderboard' ];
+        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'groups'       => [
+                [
+                    'type'     => 'select',
+                    'key'      => 'team',
+                    'label'    => __( 'Team', 'talenttrack' ),
+                    'name'     => 'team_id',
+                    'selected' => $team_id > 0 ? (string) $team_id : '0',
+                    'options'  => $team_options,
+                ],
+                [
+                    'type'         => 'period',
+                    'key'          => 'period',
+                    'label'        => __( 'Period', 'talenttrack' ),
+                    'active_label' => (string) ( $period_labels[ $period ] ?? $period_labels[''] ),
+                    'options'      => $period_options,
+                ],
+                [
+                    'type'        => 'select',
+                    'key'         => 'type',
+                    'label'       => __( 'Type', 'talenttrack' ),
+                    'name'        => 'activity_type_key',
+                    'selected'    => $type_key,
+                    'placeholder' => __( '— all types —', 'talenttrack' ),
+                    'options'     => $type_options,
+                ],
+                [
+                    'type'       => 'date_range',
+                    'key'        => 'range',
+                    'label'      => __( 'Date range', 'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To', 'talenttrack' ),
+                    'from'       => [ 'name' => 'from', 'value' => $from ],
+                    'to'         => [ 'name' => 'to', 'value' => $to ],
+                ],
+                [
+                    // Leaderboard-specific row cap. Rendered as a text group
+                    // (FilterBar has no numeric group); inputmode="numeric"
+                    // keeps the mobile keypad correct (CLAUDE.md §2). A blank
+                    // value means "all ranked players".
+                    'type'        => 'text',
+                    'key'         => 'howmany',
+                    'label'       => __( 'How many', 'talenttrack' ),
+                    'name'        => 'n',
+                    'value'       => $n > 0 ? (string) $n : '',
+                    'placeholder' => __( 'All', 'talenttrack' ),
+                    'inputmode'   => 'numeric',
+                ],
+            ],
+        ] );
     }
 
     /** @return array{from:string,to:string} */
