@@ -119,6 +119,51 @@ The per-match breakdown table is now a **single shared component** across the
 Team · Minutes distribution report and the Analytics minutes-played report, so
 the two never drift and both reconcile to the player's total the same way.
 
+## Minutes audit — games × players auditability matrix
+
+The **Minutes audit** report (reachable from the Reports launcher under *Playing
+time*, or directly at `?tt_view=minutes-audit`) is the auditability companion to
+the minutes report. It answers a different question: *for each game, which squad
+players have recorded minutes and which do not?* — so an admin or head coach can
+spot and chase the gaps before a season's minutes data goes stale.
+
+It is **read-only**. Each row's *Edit* / *Record* link opens the game's activity
+detail, where minutes are actually recorded; the in-place editable grid is a
+separate, later feature.
+
+The surface is a spreadsheet-style matrix:
+
+- **Rows** are the team's game, match and tournament activities in the window
+  (the same set the minutes report counts).
+- **Columns** are the squad — every player who appears on the **attendance** of
+  those games. The squad is resolved from attendance, not from a player's team
+  assignment, so a player who was borrowed for one game still shows up, and a
+  player who left the team but played earlier in the window is not silently
+  dropped.
+- **Cells** show the minutes recorded for that player in that game. A green cell
+  is minutes recorded; a red **0** is a player who was in the squad but has no
+  minutes recorded (a gap to chase); a hatched dash is a player who was not in
+  that game's squad.
+- Each row carries a **row total**, a completeness **status chip** — *Complete*
+  (every squad player has minutes), *Incomplete* (some do, some don't), or *Not
+  recorded* (nothing recorded for the game) — and the bottom **column-total** row
+  sums each player's minutes across the visible games.
+
+Above the matrix, four **gap KPIs** — *Games*, *Fully recorded*, *Incomplete*,
+*Not recorded* — summarise the window. Each KPI is clickable and filters the
+matrix to that completeness bucket, so *Not recorded* jumps straight to the games
+still missing minutes.
+
+Because the audit reads the **same** recorded, actual, non-guest minutes as the
+minutes report, its numbers reconcile with that report exactly. The honest-zero
+rules apply here too: a team with games but no recorded minutes shows every game,
+honest *Not recorded* chips, and a clear next-action note — never a misleading
+"0 players" empty state. An empty window (no games at all) says so distinctly.
+
+Coaches see only the teams they coach; academy-wide roles see the whole club. The
+filter bar carries the shared team / period / match-type / date-range controls
+and defaults to the current-season window.
+
 ## Standard reports — honest numbers
 
 Every standard report now names the window and the source it drew from, so a

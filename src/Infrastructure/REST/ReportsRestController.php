@@ -100,6 +100,67 @@ final class ReportsRestController extends BaseController {
                 'args'                => $attendance_args,
             ],
         ] );
+        // #2368 — read-only minutes-audit matrix (games × players) for a
+        // team + window. Gated on `tt_view_analytics` (the same cap the
+        // PHP-rendered view dispatch checks); results are additionally
+        // narrowed to the caller's team scope below.
+        register_rest_route( self::NS, '/reports/minutes-audit', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'minutesAudit' ],
+                'permission_callback' => self::permCanFeature( 'tt_view_analytics', 'report_minutes_audit' ),
+                'args'                => [
+                    'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
+                    'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'type'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                ],
+            ],
+        ] );
+    }
+
+    /**
+     * #2368 — the minutes-audit matrix for one team + window, narrowed to
+     * one match-type when `type` is a game_subtype_key (else all). Reads
+     * the same persisted `record_type='actual'` minutes as the minutes
+     * report (#2193), so the two reconcile exactly. Team scope is enforced
+     * via {@see attendanceScope()} — a coach who passes a team they don't
+     * coach gets an empty matrix, not another team's data.
+     */
+    public static function minutesAudit( WP_REST_Request $req ): \WP_REST_Response {
+        $team_id  = (int) $req->get_param( 'team_id' );
+        [ $from, $to ] = self::minutesAuditWindow( $req );
+        $type     = (string) $req->get_param( 'type' );
+        if ( ! in_array( $type, [ 'League', 'Cup', 'Friendly' ], true ) ) $type = 'all';
+
+        $allowed = self::attendanceScope( $team_id );
+        if ( $allowed['blocked'] || $team_id <= 0 ) {
+            return RestResponse::success( [
+                'games'         => [],
+                'players'       => [],
+                'column_totals' => [],
+                'grand_total'   => 0,
+                'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0 ],
+            ] );
+        }
+
+        $matrix = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type );
+        return RestResponse::success( $matrix );
+    }
+
+    /**
+     * Resolve the audit window: season default unless valid `from`/`to`
+     * are supplied, matching the PHP view's default.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function minutesAuditWindow( WP_REST_Request $req ): array {
+        $from = (string) $req->get_param( 'from' );
+        $to   = (string) $req->get_param( 'to' );
+        $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
+        return [ $from, $to ];
     }
 
     public static function attendanceRows( WP_REST_Request $req ): \WP_REST_Response {

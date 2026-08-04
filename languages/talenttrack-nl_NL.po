@@ -47247,6 +47247,101 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Everyone with an account has logged in recently."
 #~ msgstr "Iedereen met een account heeft recent ingelogd."
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Minutes audit"
+msgstr "Minuten-audit"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Check and chase recorded match minutes. Rows are games, columns are squad players; each cell shows the minutes recorded for that player in that game."
+msgstr "Controleer en achterhaal geregistreerde wedstrijdminuten. Rijen zijn wedstrijden, kolommen zijn spelers uit de selectie; elke cel toont de geregistreerde minuten van die speler in die wedstrijd."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "You don't coach any teams yet, so there is no minutes data to audit. Ask an administrator to assign you to a team."
+msgstr "Je coacht nog geen teams, dus er zijn geen minutengegevens om te controleren. Vraag een beheerder om je aan een team toe te wijzen."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "No games for this team in the selected window. Widen the date range or pick another team."
+msgstr "Geen wedstrijden voor dit team in het gekozen venster. Verruim het datumbereik of kies een ander team."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Games present, no minutes recorded yet."
+msgstr "Wedstrijden aanwezig, nog geen minuten geregistreerd."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Minutes come only from recorded actual entries (via match-execution or manual minutes entry). Open a game below and record its minutes."
+msgstr "Minuten komen uitsluitend uit geregistreerde werkelijke invoer (via match-uitvoering of handmatige minuteninvoer). Open hieronder een wedstrijd en registreer de minuten."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Minutes audit summary"
+msgstr "Samenvatting minuten-audit"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Games"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Fully recorded"
+msgstr "Volledig geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Incomplete"
+msgstr "Onvolledig"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Not recorded"
+msgstr "Niet geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Game × player"
+msgstr "Wedstrijd × speler"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "minutes recorded per player"
+msgstr "geregistreerde minuten per speler"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "No games match this filter. Clear the filter to see every game."
+msgstr "Geen wedstrijden komen overeen met dit filter. Wis het filter om alle wedstrijden te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Game"
+msgstr "Wedstrijd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Not in squad"
+msgstr "Niet in selectie"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "On squad, 0 recorded"
+msgstr "In selectie, 0 geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Column total"
+msgstr "Kolomtotaal"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Record"
+msgstr "Registreer"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "minutes recorded"
+msgstr "minuten geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "in squad, 0 recorded"
+msgstr "in selectie, 0 geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "not in squad"
+msgstr "niet in selectie"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Complete"
+msgstr "Volledig"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps."
+msgstr "Matrix wedstrijden × spelers die toont welke wedstrijden volledige, onvolledige of ontbrekende geregistreerde minuten hebben — pak de gaten aan."
 
 #~ msgid ""
 #~ "Optional. Array of { week, phase, multiplier } objects. Leave blank for "

@@ -1,0 +1,196 @@
+/* ================================================================
+   Minutes audit (#2368) — read-only games × players auditability matrix.
+   Design-of-record: B color-zoned chrome + C spreadsheet tables
+   (.local-mockups/minutes-audit/index.html). Mobile-first: base 360px,
+   the data-dense matrix scrolls horizontally; scales up at 720 / 1024.
+   Reads the neutral design tokens (tokens.css) + the brand shade
+   var(--tt-primary). All classes prefixed .tt-maud- (Minutes AUDit).
+   Depends on frontend-app-chrome.css for .tt-report-kpis / .tt-kpi.
+   ================================================================ */
+
+.tt-maud-lead {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    max-width: 60ch;
+}
+
+/* ---- Honest "games present, no minutes" note ------------------- */
+.tt-maud-note {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border: 1px solid var(--tt-warning, #e8902b);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Clickable-KPI active state (#2343 href tiles) ------------- */
+.tt-maud-kpis .tt-kpi--link[data-active="1"] {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
+/* ---- Card wrapper (B zoned header) ----------------------------- */
+.tt-maud-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    overflow: hidden;
+    margin: var(--tt-sp-4, 16px) 0;
+}
+.tt-maud-card__head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tt-sp-3, 12px);
+    flex-wrap: wrap;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+.tt-maud-card__title { margin: 0; font-size: var(--tt-fs-lg, 1.125rem); color: #fff; }
+.tt-maud-card__hint { font-size: var(--tt-fs-sm, 0.85rem); color: rgba(255, 255, 255, 0.8); }
+
+.tt-maud-empty { margin: var(--tt-sp-4, 16px); }
+
+/* ================================================================
+   Spreadsheet matrix (C tables) — games rows × players columns.
+   Scrolls horizontally on narrow screens; the game column freezes.
+   ================================================================ */
+.tt-maud-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+table.tt-maud-matrix {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+}
+.tt-maud-matrix th,
+.tt-maud-matrix td {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    padding: var(--tt-sp-2, 8px);
+    text-align: center;
+    white-space: nowrap;
+}
+.tt-maud-matrix thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+/* frozen game column */
+.tt-maud-matrix th.tt-maud-matrix__game,
+.tt-maud-matrix td.tt-maud-matrix__game {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--tt-paper, #fff);
+    text-align: left;
+    min-width: 10.75rem;
+    box-shadow: 1px 0 0 var(--tt-line, #e3e6e1);
+}
+.tt-maud-matrix thead th.tt-maud-matrix__game {
+    z-index: 3;
+    background: var(--tt-primary, #0b3d2e);
+}
+.tt-maud-matrix__game b { display: block; font-size: var(--tt-fs-sm, 0.85rem); }
+.tt-maud-matrix__game small { color: var(--tt-ink-soft, #6a6d66); }
+
+/* vertical player headers keep the matrix narrow */
+.tt-maud-matrix__player {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    height: 6rem;
+    padding: var(--tt-sp-2, 8px) 2px;
+}
+.tt-maud-matrix__player span { font-size: 0.7rem; }
+
+/* zebra rows (C ledger) */
+.tt-maud-matrix tbody tr:nth-child(odd) td { background: #fbfcfa; }
+
+/* cell states — the data-quality signal, constant across chrome */
+.tt-maud-cell { font-weight: 600; }
+.tt-maud-cell--min {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: #1c6b3f;
+}
+.tt-maud-matrix tbody tr:nth-child(odd) td.tt-maud-cell--min { background: var(--tt-success-subtle, #dff5e1); }
+.tt-maud-cell--zero {
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: #9a2b23;
+}
+.tt-maud-matrix tbody tr:nth-child(odd) td.tt-maud-cell--zero { background: var(--tt-danger-subtle, #fde2e2); }
+.tt-maud-cell--na {
+    background: repeating-linear-gradient(45deg, #fafbfa, #fafbfa 5px, #f1f3f1 5px, #f1f3f1 10px);
+    color: #b3b8b2;
+}
+.tt-maud-cell--tot {
+    background: var(--tt-line-soft, #eef0ec);
+    font-weight: 800;
+}
+
+/* row accents by completeness */
+.tt-maud-matrix tr.is-gap td.tt-maud-matrix__game { border-left: 4px solid var(--tt-warning, #e8902b); }
+.tt-maud-matrix tr.is-none td.tt-maud-matrix__game { border-left: 4px solid var(--tt-danger, #d8453b); }
+.tt-maud-matrix__footrow td { background: var(--tt-line-soft, #eef0ec); }
+
+/* the per-row edit / record affordance — 48px tap target */
+.tt-maud-matrix__editcell a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+/* ---- Status chips ---------------------------------------------- */
+.tt-maud-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+}
+.tt-maud-chip__dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.tt-maud-chip--ok { background: var(--tt-success-subtle, #dff5e1); color: #1c6b3f; }
+.tt-maud-chip--partial { background: var(--tt-warning-subtle, #fdf3d8); color: #8a3d10; }
+.tt-maud-chip--none { background: var(--tt-danger-subtle, #fde2e2); color: #9a2b23; }
+
+/* ---- Legend ---------------------------------------------------- */
+.tt-maud-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-maud-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.tt-maud-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-maud-swatch--min { background: var(--tt-success-subtle, #dff5e1); }
+.tt-maud-swatch--zero { background: var(--tt-danger-subtle, #fde2e2); }
+.tt-maud-swatch--na { background: repeating-linear-gradient(45deg, #fafbfa, #fafbfa 5px, #f1f3f1 5px, #f1f3f1 10px); }
+
+/* ---- Responsive ------------------------------------------------ */
+@media (min-width: 1024px) {
+    .tt-maud-matrix__player { height: 5.25rem; }
+}

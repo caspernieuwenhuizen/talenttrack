@@ -124,6 +124,56 @@ het rapport Team · Minutenverdeling als het Analytics-minutenrapport, zodat de
 twee nooit uit elkaar lopen en beide op dezelfde manier aansluiten op het
 totaal van de speler.
 
+## Minuten-audit — wedstrijden × spelers auditmatrix
+
+Het rapport **Minuten-audit** (bereikbaar vanuit de rapportenlauncher onder
+*Speeltijd*, of rechtstreeks via `?tt_view=minutes-audit`) is de audit-tegenhanger
+van het minutenrapport. Het beantwoordt een andere vraag: *welke spelers uit de
+selectie hebben per wedstrijd wél en welke géén geregistreerde minuten?* — zodat
+een beheerder of hoofdcoach de gaten kan opsporen en aanpakken voordat de
+minutengegevens van een seizoen verouderen.
+
+Het is **alleen-lezen**. De link *Bewerk* / *Registreer* per rij opent het
+activiteitendetail van de wedstrijd, waar de minuten daadwerkelijk worden
+geregistreerd; het direct bewerkbare raster is een aparte, latere functie.
+
+Het scherm is een matrix in spreadsheet-stijl:
+
+- **Rijen** zijn de wedstrijd-, match- en toernooiactiviteiten van het team in de
+  periode (dezelfde set die het minutenrapport telt).
+- **Kolommen** zijn de selectie — elke speler die voorkomt op de **aanwezigheid**
+  van die wedstrijden. De selectie wordt bepaald op basis van aanwezigheid, niet
+  op basis van de teamindeling van een speler, zodat een speler die voor één
+  wedstrijd werd geleend toch verschijnt en een speler die het team verliet maar
+  eerder in de periode speelde niet stil wordt weggelaten.
+- **Cellen** tonen de geregistreerde minuten van die speler in die wedstrijd. Een
+  groene cel is geregistreerde minuten; een rode **0** is een speler die in de
+  selectie zat maar geen geregistreerde minuten heeft (een gat om aan te pakken);
+  een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
+  zat.
+- Elke rij heeft een **rijtotaal**, een **statuschip** voor volledigheid —
+  *Volledig* (elke speler uit de selectie heeft minuten), *Onvolledig* (sommigen
+  wel, sommigen niet) of *Niet geregistreerd* (niets geregistreerd voor de
+  wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
+  over de zichtbare wedstrijden op.
+
+Boven de matrix vatten vier **gat-KPI's** — *Wedstrijden*, *Volledig
+geregistreerd*, *Onvolledig*, *Niet geregistreerd* — de periode samen. Elke KPI is
+klikbaar en filtert de matrix op die volledigheidscategorie, zodat *Niet
+geregistreerd* meteen naar de wedstrijden springt die nog minuten missen.
+
+Omdat de audit **dezelfde** geregistreerde, werkelijke, niet-gast-minuten leest
+als het minutenrapport, sluiten de cijfers exact aan op dat rapport. De
+eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder
+geregistreerde minuten toont elke wedstrijd, eerlijke *Niet geregistreerd*-chips
+en een duidelijke vervolgstap — nooit een misleidende "0 spelers"-lege staat. Een
+lege periode (helemaal geen wedstrijden) meldt dat apart.
+
+Coaches zien alleen de teams die ze coachen; academiebrede rollen zien de hele
+club. De filterbalk heeft de gedeelde besturing voor team / periode /
+wedstrijdtype / datumbereik en staat standaard op het venster van het huidige
+seizoen.
+
 ## Standaardrapporten — eerlijke cijfers
 
 Elk standaardrapport benoemt nu de periode en de bron waaruit het put, zodat een
