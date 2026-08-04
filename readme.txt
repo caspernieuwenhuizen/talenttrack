@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.80.0
+Stable tag: 4.81.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.81.0 — Minutes-audit overview: read-only games × players matrix (#2368) New **Minutes audit** report (Reports launcher → *Playing time*, or `?tt_view=minutes-audit`): a read-only games × players auditability matrix that makes recorded-minutes gaps obvious. Rows are the team's games in the window, columns are the squad (resolved from attendance on those games, not the player's team assignment), and each cell shows the minutes recorded for that player — green for recorded, red for on-squad-but-zero, hatched for not-in-squad. Every row carries a total and a completeness chip (Complete / Incomplete / Not recorded), with a column-total footer. Four clickable gap KPIs (Games, Fully recorded, Incomplete, Not recorded) summarise and filter the matrix. Each row deep-links to the game's activity detail to record its minutes.  The audit reads the same recorded, actual, non-guest minutes as the minutes report, so its numbers reconcile exactly; a team with games but no recorded minutes shows an honest "not recorded" state rather than a misleading "0 players". Reachable via a REST read endpoint (`GET /reports/minutes-audit`) gated on `tt_view_analytics` plus the `report_minutes_audit` toggle, with the caller's team scope enforced. =
 
 = 4.80.0 — Manage methodology sets + per-team selection (#2320) Academies can now manage their methodology sets from the frontend. A new **Speelwijzen** tab leads the methodology manage surface: it lists every set (with Actief and Shipped badges), creates and renames sets through a flat multilingual form, makes any set the install-wide active one with a single "Maak actief" action, and archives sets it no longer needs — refusing to touch shipped reference sets or strand the install with zero methodologies. Each team can override which set it uses through a new "Methodology set" dropdown on the team edit form, defaulting to the install-wide active set. The same operations are exposed over REST at `/methodology/sets`, including `PUT /methodology/sets/{id}/default`, so a future SaaS front end gets identical answers.  Wizard plan: exemption — methodology set is a single-record named container, analogous to a lookup/vocabulary edit (§3 exemption a). =
 
