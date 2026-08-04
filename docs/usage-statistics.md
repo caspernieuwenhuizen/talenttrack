@@ -33,6 +33,22 @@ Panels:
 - **Top features used** — most-opened frontend views + admin pages
 - **Dormant users** — who hasn't logged in during the window (who to nudge)
 
+## Default window & period
+
+The period selector offers **30 / 60 / 90 days**. When no period is picked in the URL, the default is **season-aware**: it lands on the smallest option that spans the running season so far (capped at 90 days), so early in a season you see a tighter window and later you see the full 90. Pick any option to override; your choice sticks via the `?days=` URL parameter.
+
+## How the numbers are measured
+
+A collapsible **"How these numbers are measured"** note sits under the intro. It spells out three things that are easy to misread:
+
+- **Stickiness (DAU/MAU)** always divides average daily-active users by the **30-day** monthly-active total, *regardless of the period selected* — MAU is fixed so the ratio stays comparable window to window.
+- A **session ends after 30 minutes of inactivity**; a longer gap starts a new session.
+- **Time online** counts observed activity only — it is a **lower bound**, not exact time in the app.
+
+## Truncated lists
+
+The **Active users** table shows at most **200** rows and **Dormant users** at most **15**. When a list hits its cap, the panel title carries a **"(Showing top N)"** label so you know the list is truncated, not complete.
+
 ## Drill-downs
 
 Every tile, chart data point, and row is clickable. Click "Logins (7 days)" to see every login event. Click a dot on the DAU chart to see which users were active that specific day. Click a role bar to see just those users. Every detail view has the breadcrumb back button to return to the dashboard.

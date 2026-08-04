@@ -36,8 +36,18 @@ class MethodologyModule implements ModuleInterface {
         // entities #2226–#2230 register their own tab the same way, without
         // editing a shared switch). The REST base + Principles controller
         // expose the same CRUD over /wp-json/talenttrack/v1/methodology/*.
+        // #2320 — the methodology *sets* manage tab + REST (epic #2316).
+        // Registered first (low order) so "Speelwijzen" leads the tab bar:
+        // it is the container the other entity tabs author content into.
+        Frontend\Manage\MethodologySetsManageTab::register();
+        Rest\MethodologySetsRestController::init();
+
         Frontend\Manage\PrinciplesManageTab::register();
         Rest\PrinciplesRestController::init();
+        // #2369 — sub-principles: per-line coaching points under a phase,
+        // promoted from principle line_guidance to a first-class entity.
+        Frontend\Manage\SubPrinciplesManageTab::register();
+        Rest\SubPrinciplesRestController::init();
         Frontend\Manage\FootballActionsManageTab::register();
         Rest\FootballActionsRestController::init();
 
@@ -67,6 +77,11 @@ class MethodologyModule implements ModuleInterface {
         Rest\PhasesRestController::init();
         Rest\LearningGoalsRestController::init();
         Rest\InfluenceFactorsRestController::init();
+
+        // #2323 — per-phase animated tactical scenes (Speelwijze). REST
+        // CRUD only; a drag/draw authoring UI is a follow-up. The read
+        // surface lives on the MethodologyView "Speelwijze" tab.
+        Rest\TacticalScenesRestController::init();
 
         if ( is_admin() ) {
             Admin\MethodologyPage::init();

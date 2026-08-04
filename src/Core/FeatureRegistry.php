@@ -161,6 +161,28 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'cohort-board' ],
                 'entities'        => [],
             ],
+            // #2302 — per-tile toggles for the two Stats analytics surfaces
+            // that were always-on until now (Player comparison, Podium).
+            // Default ON, so existing installs are unchanged; an academy
+            // admin can now switch either off, which hides the tile AND
+            // blocks its ?tt_view route (viewSlugDisabled()). Gated by
+            // view-slug only — each tile keeps its existing entity + cap.
+            'analytics_player_compare' => [
+                'label'           => __( 'Player comparison', 'talenttrack' ),
+                'description'     => __( 'The Player comparison tile and view (compare up to 4 players side-by-side). Turn off to hide it from this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Stats\\StatsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'compare' ],
+                'entities'        => [],
+            ],
+            'analytics_podium' => [
+                'label'           => __( 'Podium', 'talenttrack' ),
+                'description'     => __( 'The Podium tile and view (team rankings and top performers). Turn off to hide it from this academy.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Stats\\StatsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'podium' ],
+                'entities'        => [],
+            ],
             // #1537 — the Custom widgets builder (#0078). Migrated from the
             // `tt_custom_widgets_enabled` option; migration 0166 carries the
             // existing on/off state forward. Default off, matching the
@@ -356,6 +378,7 @@ class FeatureRegistry {
             'attendance_report_player'      => __( 'Player · Attendance statistics', 'talenttrack' ),
             'attendance_leaderboard'        => __( 'Attendance leaderboard', 'talenttrack' ),
             'minutes_report_team'           => __( 'Minutes played per team', 'talenttrack' ),
+            'minutes_audit'                 => __( 'Minutes audit', 'talenttrack' ),
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
         ];
         $report_toggle_desc = __( 'Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link.', 'talenttrack' );

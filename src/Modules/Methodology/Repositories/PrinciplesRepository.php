@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * PrinciplesRepository — data access for `tt_principles`.
@@ -58,6 +59,13 @@ class PrinciplesRepository {
             $where[] = 'is_shipped = 1';
         } elseif ( $source === 'club' ) {
             $where[] = 'is_shipped = 0';
+        }
+        $mid = array_key_exists( 'methodology_id', $filters )
+            ? (int) $filters['methodology_id']
+            : MethodologyScope::active();
+        if ( $mid > 0 ) {
+            $where[] = '(methodology_id = %d OR methodology_id IS NULL)';
+            $args[]  = $mid;
         }
         if ( ! empty( $filters['formation_id'] ) ) {
             $where[] = 'default_formation_id = %d';
@@ -125,6 +133,10 @@ class PrinciplesRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }

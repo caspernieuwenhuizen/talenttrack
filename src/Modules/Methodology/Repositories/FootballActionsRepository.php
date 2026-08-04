@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * FootballActionsRepository — `tt_football_actions`.
@@ -43,9 +44,15 @@ final class FootballActionsRepository {
         $where = $include_archived
             ? ' WHERE club_id = %d'
             : ' WHERE club_id = %d AND archived_at IS NULL';
+        $args = [ CurrentClub::id() ];
+        $mid  = MethodologyScope::active();
+        if ( $mid > 0 ) {
+            $where .= ' AND (methodology_id = %d OR methodology_id IS NULL)';
+            $args[] = $mid;
+        }
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM {$t}{$where} ORDER BY category_key ASC, sort_order ASC, slug ASC",
-            CurrentClub::id()
+            ...$args
         ) );
     }
 
@@ -93,6 +100,10 @@ final class FootballActionsRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }

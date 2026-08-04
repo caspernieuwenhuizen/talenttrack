@@ -33,6 +33,22 @@ Panelen:
 - **Meest gebruikte functies** — meest geopende frontend-weergaven + beheerpagina's
 - **Inactieve gebruikers** — wie er in de periode niet heeft ingelogd (wie je een seintje geeft)
 
+## Standaardperiode & selectie
+
+De periodekeuze biedt **30 / 60 / 90 dagen**. Als er geen periode in de URL staat, is de standaard **seizoensbewust**: hij kiest de kleinste optie die het lopende seizoen tot nu toe omvat (met een maximum van 90 dagen), zodat je vroeg in het seizoen een krappere periode ziet en later de volledige 90. Kies een optie om dit te overschrijven; je keuze blijft bewaard via de URL-parameter `?days=`.
+
+## Hoe de cijfers worden gemeten
+
+Onder de intro staat een uitklapbare notitie **"Hoe deze cijfers worden gemeten"**. Die legt drie dingen uit die makkelijk verkeerd te lezen zijn:
+
+- **Kleefkracht (DAU/MAU)** deelt altijd het gemiddeld dagelijks-actief door het maandelijks-actief over **30 dagen**, *ongeacht de gekozen periode* — MAU staat vast zodat de verhouding vergelijkbaar blijft tussen periodes.
+- Een **sessie eindigt na 30 minuten inactiviteit**; een langere tussenpoos start een nieuwe sessie.
+- **Tijd online** telt alleen gemeten activiteit — het is een **ondergrens**, niet de exacte tijd in de app.
+
+## Ingekorte lijsten
+
+De tabel **Actieve gebruikers** toont maximaal **200** rijen en **Inactieve gebruikers** maximaal **15**. Wanneer een lijst zijn maximum bereikt, staat er in de paneeltitel een label **"(Toon top N)"**, zodat je weet dat de lijst is ingekort en niet volledig.
+
 ## Drill-downs
 
 Elke tegel, elk grafiekpunt en elke rij is klikbaar. Klik op "Logins (7 dagen)" om elk login-event te zien. Klik op een punt in de DAU-grafiek om te zien welke gebruikers die specifieke dag actief waren. Klik op een rolbalk voor alleen die gebruikers. Elke detailweergave heeft een broodkruimel met een Terug-knop naar het dashboard.

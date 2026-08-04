@@ -62,6 +62,26 @@ final class ActivityCompletionResolver {
     }
 
     /**
+     * Whether `$user_id` can actually reach the completion flow for this
+     * activity — mirrors the gate the resolved destination enforces, so a
+     * caller can hide the "Complete activity" affordance instead of
+     * rendering a button whose URL resolves to empty (§7, #2325).
+     *
+     *  - Match WITH a match-execution → the finalize view (tt_edit_activities).
+     *  - Training / paper match → the evaluation wizard, whose availability
+     *    already folds in its `tt_edit_evaluations` cap + the wizard config.
+     */
+    public static function canComplete( int $activity_id, string $type_key, int $user_id ): bool {
+        if ( $activity_id <= 0 || $user_id <= 0 ) {
+            return false;
+        }
+        if ( self::routesToMatchExecution( $activity_id, $type_key ) ) {
+            return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_activities' );
+        }
+        return \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-evaluation', $user_id );
+    }
+
+    /**
      * True when the activity is a match type AND a match-execution row
      * already exists — in which case completion runs through the
      * execution's Resume/Finalize flow (the minutes source) rather than

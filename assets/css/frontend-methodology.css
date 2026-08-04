@@ -132,6 +132,21 @@
     margin-top: 18px;
 }
 
+/* #2322 — Periodisering tab: combined speelwijze + VCT week grid. */
+.tt-mlogy-period-dates {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.85rem;
+    margin: 2px 0 8px;
+}
+.tt-mlogy-period-table {
+    width: 100%;
+    margin-bottom: 18px;
+}
+.tt-mlogy-period-table th,
+.tt-mlogy-period-table td {
+    text-align: left;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .tt-mlogy-tab,
     .tt-mlogy-acc__chevron {
@@ -251,6 +266,27 @@
     color: var(--tt-primary, #0b3d2e);
 }
 
+/* Sub-principes (#2369) — per-phase, per-line coaching points. */
+.tt-mlogy-subprinciples-head {
+    margin-top: 28px;
+}
+.tt-mlogy-subprinciple-phase {
+    margin: 0 0 16px;
+}
+.tt-mlogy-subprinciple-lines {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+.tt-mlogy-subprinciple-line strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--tt-primary, #0b3d2e);
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+}
+
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-mlogy-grid {
@@ -258,6 +294,9 @@
     }
     .tt-mlogy-factor-subs {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .tt-mlogy-subprinciple-lines {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
 }
 @media (min-width: 768px) {

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * AbstractMethodologyRestController (#2225) — the shared REST base for
@@ -87,8 +88,19 @@ abstract class AbstractMethodologyRestController {
      * The single gate for the whole methodology-authoring surface: the
      * `tt_edit_methodology` capability. Portable across auth backends —
      * a SaaS front end that maps the same cap gets the same answer.
+     *
+     * Runs before every handler, so it doubles as the pinning point for
+     * the optional `methodology_id` query param (#2319): when present it
+     * scopes the request to that set; otherwise repositories fall back
+     * to the install's active methodology.
      */
-    public static function can_edit(): bool {
+    public static function can_edit( ?\WP_REST_Request $request = null ): bool {
+        if ( $request instanceof \WP_REST_Request ) {
+            $mid = (int) $request->get_param( 'methodology_id' );
+            if ( $mid > 0 ) {
+                MethodologyScope::set( $mid );
+            }
+        }
         return current_user_can( static::CAP );
     }
 

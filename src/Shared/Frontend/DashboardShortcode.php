@@ -1359,6 +1359,11 @@ class DashboardShortcode {
             case 'minutes-report-team':
                 \TT\Modules\Analytics\Frontend\FrontendMinutesTeamReportView::render( $user_id, $is_admin );
                 return true;
+            // #2368 — read-only minutes-audit overview (games × players
+            // matrix). Self-gates on tt_view_analytics + team scope.
+            case 'minutes-audit':
+                \TT\Modules\Analytics\Frontend\FrontendMinutesAuditView::render( $user_id, $is_admin );
+                return true;
             case 'eval-coverage':
                 \TT\Modules\Analytics\Frontend\FrontendEvalCoverageView::render( $user_id, $is_admin );
                 return true;

@@ -98,6 +98,13 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
             : ( $window['to'] ?? $defaults['to'] );
 
+        // #2351 — when neither a period pill nor a manual From/To was chosen,
+        // the report silently seeds the season-default window. Surface that as
+        // an active "This season" pill instead of a blank "Custom range" when
+        // the seeded window actually equals the season window, so the FilterBar
+        // reflects the state the user is looking at.
+        $effective_period = self::effectivePeriod( $period, $has_manual_from, $has_manual_to, $from, $to );
+
         // v4.20.4 (#1147) — same team-scope pattern as the player report.
         // #1942 — academy-wide = global-scope read on `activities`; the
         // settings-admin flag stays as the WP-admin fallback.
@@ -112,11 +119,16 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             return;
         }
 
-        self::renderFilterForm( $from, $to, $period, $type_key );
+        self::renderFilterForm( $from, $to, $effective_period, $type_key );
 
         $rows = self::query( $from, $to, $allowed_team_ids, $type_key );
         if ( $rows === [] ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            // #2351 — when the coach only sees teams they're assigned to, say
+            // so, so an empty window doesn't read as "the academy has no data".
+            $scope_note = ( $allowed_team_ids !== null )
+                ? ' ' . esc_html__( 'This report is limited to the teams you coach.', 'talenttrack' )
+                : '';
+            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . $scope_note . '</p>';
             return;
         }
 
@@ -271,14 +283,29 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
     }
 
     /**
-     * Default window: 90 days back from today.
+     * Default window: current season start through today (90-day fallback).
      * @return array{from:string,to:string}
      */
     private static function defaultWindow(): array {
-        return [
-            'from' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ),
-            'to'   => gmdate( 'Y-m-d' ),
-        ];
+        return ReportFilters::seasonDefaultWindow();
+    }
+
+    /**
+     * #2351 — resolve the period the FilterBar should show as active. An
+     * explicit `?period=` always wins. Otherwise, when the user typed no
+     * manual From/To and the seeded window equals the current season window,
+     * report `this_season` so the season-default seed reads as an active pill
+     * rather than a blank "Custom range". A manual From/To (or a window that
+     * doesn't match the season) stays blank/custom.
+     */
+    private static function effectivePeriod( string $period, bool $has_manual_from, bool $has_manual_to, string $from, string $to ): string {
+        if ( $period !== '' ) return $period;
+        if ( $has_manual_from || $has_manual_to ) return '';
+        $season = ReportFilters::periodWindow( 'this_season', gmdate( 'Y-m-d' ) );
+        if ( $season !== null && $season['from'] === $from && $season['to'] === $to ) {
+            return 'this_season';
+        }
+        return '';
     }
 
     /**

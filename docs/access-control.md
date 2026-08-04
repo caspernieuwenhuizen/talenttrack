@@ -89,6 +89,39 @@ Assigning a person via Functional Roles also writes a row to `tt_user_role_scope
 
 Dashboard tiles that resolve to a coach- or admin-only surface declare a tile-specific matrix entity (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `wp_admin_portal`) distinct from the underlying data entity (`team`, `players`, `evaluations`, …). The data entities continue to gate REST + repository reads — the dispatcher and tile gate consult the *_panel entity, so granting "scout reads team data globally" no longer puts a coach-side **My teams** tile on the scout's dashboard. The dispatcher (`DashboardShortcode`) reads the entity from the tile registry and asks `MatrixGate::canAnyScope` for the same answer as the tile gate, eliminating the previous case where a tile rendered but the destination view rejected with *"This section is only available for coaches and administrators."*
 
+## Cross-view link gating — `CrossViewLink` (#2304)
+
+<!-- audience: developer -->
+
+An in-body navigation affordance — a cross-view link, tile, or button that points at another `?tt_view=<slug>` surface — must be **hidden when the current user can't reach its target view**. Previously each such link hand-checked the target's capability inline, and those checks drifted from the destination view's actual early-return guard.
+
+`\TT\Shared\Frontend\Components\CrossViewLink` centralizes the decision. The link's HTML is emitted only when the current user passes the target slug's gate:
+
+```php
+CrossViewLink::render( 'team-planner', function () use ( $url ) {
+    echo '<a class="tt-player-action" href="' . esc_url( $url ) . '">'
+        . esc_html__( 'Planner', 'talenttrack' ) . '</a>';
+} );
+```
+
+For a link-vs-span choice (render a live link when allowed, an inert `<span>` otherwise), branch on the decision helper: `CrossViewLink::allows( 'methodology' )`.
+
+**Gates live in one place.** `CoreSurfaceRegistration::registerCrossViewLinkGates()` maps each slug to a gate that mirrors the **target view's own guard** — *not* the dashboard-tile visibility entity, which frequently differs (e.g. the `team-planner` tile declares the `activities_panel` entity for tile visibility, but the team-planner view enforces `tt_view_plan`). A gate is one of:
+
+- a **cap string** (e.g. `'tt_view_plan'`) → evaluated via `AuthorizationService::userCanOrMatrix`;
+- an **`[entity, activity]` pair** (e.g. `['measurements','change']`) → evaluated via `MatrixGate::canAnyScope`;
+- a **closure** `fn(int $uid, array $ctx): bool` — for guards that need context (e.g. `player-attributes` runs `AuthorizationService::canEvaluatePlayer($uid, $ctx['player_id'])`).
+
+Pass per-link context through `['ctx' => [...]]`; pass an explicit one-off gate through `['gate' => …]` to override the registry.
+
+**Adding a gated cross-view link:**
+
+1. Register the target slug's gate in `registerCrossViewLinkGates()`, mirroring that view's real early-return guard.
+2. Wrap the link render in `CrossViewLink::render( '<slug>', … )` (or branch on `CrossViewLink::allows`).
+3. If the link needs record context (a player id, team id), pass it via `['ctx' => …]` and read it in the gate closure.
+
+An unregistered slug falls back to a permissive read check (the tile's declared entity at `read` when the matrix is active, else allow) so pre-existing internal links keep working; the `xview-link-lint.yml` CI gate fails a PR that adds a **new** ungated `tt_view` cross-view link in a `src/**/Frontend/**` file. For a genuine exception, add a trailing `/* tt-xview-ok */` on the line.
+
 ## Onboarding-pipeline entities (#0081)
 
 The recruitment funnel introduces two new matrix entities, scoped consent-sensitively because prospect data is the most-sensitive PII the system holds (collected before any contractual relationship, legal basis is consent):

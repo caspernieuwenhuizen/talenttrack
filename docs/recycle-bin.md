@@ -240,11 +240,14 @@ carries **no Edit button**: to change a non-active record you restore it first,
 then edit.
 
 - An **archived** record shows an amber banner — "This record is archived",
-  with who archived it and when — and two actions: **Restore** (back to the
-  active list) and **Move to recycle bin**.
+  with who archived it and when — and up to two actions: **Restore** (back to
+  the active list) and **Move to recycle bin**. Because moving to the recycle
+  bin is an admin-only operation, the **Move to recycle bin** button appears
+  only for users who hold that capability; everyone else sees just **Restore**.
 - A **trashed** record shows a red banner — "In the recycle bin — deletes in
   N days" — and two actions: **Restore to archive** (out of the bin, back to
-  the archived tier) and **Delete permanently now**.
+  the archived tier) and **Delete permanently now**. Both are admin-only, so
+  neither button is shown to a user without recycle-bin management rights.
 
 A trashed record is only reachable this way by an admin who can manage the bin.
 Anyone else who opens a trashed record's link gets the ordinary "not found"

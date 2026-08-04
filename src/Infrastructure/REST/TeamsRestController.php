@@ -431,11 +431,22 @@ class TeamsRestController {
         // #1315 — `head_coach_id` retired. Head-coach assignment lives
         // entirely in `tt_team_people` via the Staff section; the legacy
         // wp-user pointer no longer ships in the request shape.
-        return [
+        $data = [
             'name'      => sanitize_text_field( (string) ( $r['name'] ?? '' ) ),
             'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
             'notes'     => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
         ];
+
+        // #2320 — per-team methodology set override (epic #2316). Only
+        // written when the field is present so callers that don't manage
+        // it (e.g. the wizard) leave the column untouched; 0 / blank
+        // clears the override (NULL) → the team uses the install default.
+        if ( $r->has_param( 'methodology_id' ) ) {
+            $mid = absint( $r['methodology_id'] );
+            $data['methodology_id'] = $mid > 0 ? $mid : null;
+        }
+
+        return $data;
     }
 
     private static function clamp_per_page( $value ): int {

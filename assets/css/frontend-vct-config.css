@@ -280,6 +280,27 @@
     color: #5b6e75;
 }
 
+/* #2322 — per-week speelwijze theme picker inside the advanced editor. */
+.tt-dashboard .tt-vct-week-themes {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #e5e7ea;
+}
+.tt-dashboard .tt-vct-week-themes-title {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #33484f;
+}
+.tt-dashboard .tt-vct-week-theme {
+    display: block;
+    margin-top: 8px;
+}
+.tt-dashboard .tt-vct-week-theme .tt-input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+}
+
 .tt-dashboard .tt-vct-blocks-actions {
     margin: 0 0 12px;
 }

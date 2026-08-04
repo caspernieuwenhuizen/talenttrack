@@ -57,6 +57,12 @@
     align-items: center;
 }
 
+.tt-dashboard .tt-mmg-group-head {
+    margin: 1.2rem 0 0.4rem;
+    font-size: 0.95rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+
 .tt-dashboard .tt-mmg-list {
     list-style: none;
     margin: 0;
@@ -125,6 +131,11 @@
 .tt-dashboard .tt-mmg-chip--shipped {
     background: var(--tt-info-subtle, #e4eef8);
     color: var(--tt-info, #2d6fb3);
+}
+
+.tt-dashboard .tt-mmg-chip--active {
+    background: var(--tt-success-subtle, #e2f3e6);
+    color: var(--tt-success, #2f7d43);
 }
 
 .tt-dashboard .tt-mmg-row__actions {

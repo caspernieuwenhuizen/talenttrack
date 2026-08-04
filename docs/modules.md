@@ -18,6 +18,8 @@ Categories, in order: **Player data**, **Coaching & development**, **Planning & 
 
 Where a module owns sub-features, the card carries a feature count (e.g. "2 features") and an expandable panel. Each feature sits inside its parent card with its own **Feature** pill (visually distinct from the Module tag), its description and its own switch. Features only appear while their parent module is on. The page is mobile-first: cards stack to one column on a phone and the switches meet the 48px touch target.
 
+A **search box** at the top of the frontend page (`?tt_view=modules`, v4.x+) filters the list live as you type — matching a module or feature by its name or description. When a match is a nested feature, its module card auto-expands so the row is visible; categories with no remaining matches drop out, and an empty-state line shows when nothing matches. It's a client-side filter (no reload), and with JavaScript off the full list simply renders unfiltered. The wp-admin Modules page has no search — the frontend page is the surface being carried forward.
+
 ## Why turn a module off?
 
 - **Demo to a non-paying prospect.** Disable License so the upgrade banner stays out of the way.
@@ -101,6 +103,8 @@ The features that ship **on by default** (they run today; turning them off is an
 - **Dashboard layout editor** (Persona Dashboard module, default **on**) — the drag-and-drop builder for persona dashboard layouts. Turning it off hides the editor menu entry, its Configuration tile and the editor page itself; the rendered dashboards keep working from their saved layouts.
 - **Match prep PDF export** (Match Prep module, default **on**) — the A4 match-preparation sheet's print / export-to-PDF actions. Turning it off hides the Print / export buttons and refuses both the client print route and the server-side DomPDF export; the on-screen match-prep editor is unaffected.
 - **Tournament auto-balance** (Tournaments module, default **on**) — the greedy fair-share auto-planner that fills a match grid by eligibility, equal-share minutes and starts distribution. Turning it off hides the Auto-balance button on every match card and makes the `auto-plan` REST route return 403 so it can't be triggered directly; the per-match planner grid and manual click-to-swap planning are unaffected, so a Head of Development who plans minutes by hand can remove the shortcut without losing the planner.
+- **Player comparison** (Stats module, default **on**) — the Player comparison tile and view (`?tt_view=compare`) for comparing up to four players side-by-side. Turning it off hides the tile and blocks a direct link to it; the rest of the Stats module (Podium, Application KPIs) is unaffected.
+- **Podium** (Stats module, default **on**) — the Podium tile and view (`?tt_view=podium`) of team rankings and top performers. Turning it off hides the tile and blocks a direct link to it; the rest of the Stats module (Player comparison, Application KPIs) is unaffected.
 
 What an off feature does, on the next page load:
 

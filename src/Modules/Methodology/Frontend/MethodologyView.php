@@ -16,6 +16,8 @@ use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
 use TT\Modules\Methodology\Repositories\PhasesRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
+use TT\Modules\Methodology\Repositories\SubPrinciplesRepository;
+use TT\Modules\Methodology\Repositories\TacticalScenesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -93,13 +95,21 @@ class MethodologyView extends FrontendViewBase {
         };
 
         $tabs = [
-            'vision'     => __( 'Visie',             'talenttrack' ),
-            'framework'  => __( 'Raamwerk',          'talenttrack' ),
-            'formations' => __( 'Formaties',          'talenttrack' ),
-            'principles' => __( 'Spelprincipes',     'talenttrack' ),
-            'actions'    => __( 'Voetbalhandelingen', 'talenttrack' ),
-            'set_pieces' => __( 'Spelhervattingen',  'talenttrack' ),
+            'vision'       => __( 'Visie',             'talenttrack' ),
+            'framework'    => __( 'Raamwerk',          'talenttrack' ),
+            'formations'   => __( 'Formaties',          'talenttrack' ),
+            'principles'   => __( 'Spelprincipes',     'talenttrack' ),
+            'scenes'       => __( 'Speelwijze',        'talenttrack' ),
+            'actions'      => __( 'Voetbalhandelingen', 'talenttrack' ),
+            'set_pieces'   => __( 'Spelhervattingen',  'talenttrack' ),
         ];
+        // #2322 — the Periodisering tab combines the methodology speelwijze
+        // cycle with the VCT conditioning periodisation. Only surfaced when
+        // the VCT module is enabled; without it there is no macro-block cycle
+        // to read and the tab would be an empty promise.
+        if ( \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class ) ) {
+            $tabs['periodisation'] = __( 'Periodisering', 'talenttrack' );
+        }
         ?>
         <nav class="tt-mlogy-tabs" aria-label="<?php esc_attr_e( 'Methodology sections', 'talenttrack' ); ?>">
             <?php foreach ( $tabs as $k => $label ) :
@@ -131,13 +141,132 @@ class MethodologyView extends FrontendViewBase {
                 if ( $sid > 0 ) self::renderSetPieceDetail( $sid );
                 else            self::renderSetPieces();
                 break;
+            case 'scenes':
+                self::renderTacticalScenes();
+                break;
             case 'actions':
                 self::renderFootballActions();
+                break;
+            case 'periodisation':
+                self::renderPeriodisation();
                 break;
             case 'vision':
             default:
                 self::renderVision();
         }
+    }
+
+    /**
+     * Periodisering (#2322) — the combined methodology + VCT read surface.
+     *
+     * Renders the club-default macro-block cycle for the current season as a
+     * per-week grid: the speelwijze theme (tactical_theme) alongside the VCT
+     * conditioning phase and intensity multiplier that already live on each
+     * `phase_profile` week. Read-only; the cycle is authored on the VCT
+     * configuration tile (?tt_view=vct-config&tab=blocks).
+     *
+     * Data composition (season resolution, club-default lookup, per-week
+     * shape) lives in VctMacroBlocksRepository — this method only presents.
+     */
+    private static function renderPeriodisation(): void {
+        // Guard again defensively: the tab is only offered when VCT is on,
+        // but a stale bookmarked ?mtab=periodisation must not render a
+        // broken surface if the module was since disabled.
+        if ( ! \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class ) ) {
+            echo '<p><em>' . esc_html__( 'The VCT module is not enabled, so there is no periodisation cycle to show.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
+        $blocks = [];
+        if ( $season ) {
+            // Club default: team_id = 0. listForSeason with team_id 0 returns
+            // only the club-wide rows (no per-team override to prefer).
+            $blocks = ( new \TT\Modules\Vct\Repositories\VctMacroBlocksRepository() )
+                ->listForSeason( 0, (int) $season->id );
+        }
+
+        if ( empty( $blocks ) ) {
+            self::renderPeriodisationEmpty();
+            return;
+        }
+
+        $theme_labels = self::tacticalThemeLabels();
+
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'The season is split into macro-blocks. Each week combines a speelwijze theme (what to work on tactically) with the VCT conditioning phase and its intensity multiplier.', 'talenttrack' ) . '</p>';
+
+        foreach ( $blocks as $block ) {
+            $weeks = is_array( $block['phase_profile'] ) ? $block['phase_profile'] : [];
+            echo '<h3 class="tt-mlogy-subhead">' . esc_html( (string) $block['label'] ) . '</h3>';
+            echo '<div class="tt-mlogy-period-dates">'
+                . esc_html( (string) $block['start_date'] ) . ' – ' . esc_html( (string) $block['end_date'] )
+                . '</div>';
+
+            if ( empty( $weeks ) ) {
+                echo '<p><em>' . esc_html__( 'No weekly profile set for this block yet.', 'talenttrack' ) . '</em></p>';
+                continue;
+            }
+
+            echo '<table class="tt-table tt-mlogy-period-table">';
+            echo '<thead><tr>'
+                . '<th>' . esc_html__( 'Week', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Speelwijze-thema', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Conditiefase', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Intensiteit', 'talenttrack' ) . '</th>'
+                . '</tr></thead><tbody>';
+            foreach ( $weeks as $wk ) {
+                $week_no = isset( $wk['week'] ) ? (int) $wk['week'] : 0;
+                $theme   = isset( $wk['tactical_theme'] ) && $wk['tactical_theme'] !== null
+                    ? (string) $wk['tactical_theme'] : '';
+                $phase   = isset( $wk['phase'] ) ? (string) $wk['phase'] : '';
+                $mult    = isset( $wk['multiplier'] ) ? (float) $wk['multiplier'] : 1.0;
+                $theme_display = $theme !== ''
+                    ? ( $theme_labels[ $theme ] ?? $theme )
+                    : '—';
+                echo '<tr>';
+                echo '<td>' . esc_html( (string) $week_no ) . '</td>';
+                echo '<td>' . esc_html( $theme_display ) . '</td>';
+                echo '<td>' . esc_html( $phase !== '' ? $phase : '—' ) . '</td>';
+                echo '<td>' . esc_html( number_format_i18n( $mult, 2 ) . '×' ) . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }
+    }
+
+    /**
+     * Friendly empty state for the Periodisering tab when no club-default
+     * macro-block cycle exists for the current season. Links to the VCT
+     * configuration tile where the cycle is authored.
+     */
+    private static function renderPeriodisationEmpty(): void {
+        $vct_url = add_query_arg(
+            [ 'tt_view' => 'vct-config', 'tab' => 'blocks' ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
+        echo '<div class="tt-notice tt-notice--info">';
+        echo '<p><strong>' . esc_html__( 'No periodisation cycle set up yet.', 'talenttrack' ) . '</strong></p>';
+        echo '<p>' . esc_html__( 'The season periodisation combines a weekly speelwijze theme with the VCT conditioning cycle. Define the club-default macro-blocks for the current season to see them here.', 'talenttrack' ) . '</p>';
+        if ( current_user_can( 'tt_vct_admin_library' ) ) {
+            echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $vct_url ) . '">'
+                . esc_html__( 'Set up macro-blocks', 'talenttrack' ) . '</a></p>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Map of `vct_tactical_theme` lookup keys → translated labels, for
+     * rendering the speelwijze theme column. Empty when the vocabulary is
+     * unavailable (VCT lookups not seeded); callers fall back to the key.
+     *
+     * @return array<string,string>
+     */
+    private static function tacticalThemeLabels(): array {
+        $out = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookup_names( 'vct_tactical_theme' ) as $name ) {
+            $out[ (string) $name ] = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $name );
+        }
+        return $out;
     }
 
     /**
@@ -380,6 +509,62 @@ class MethodologyView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endforeach;
+
+        self::renderSubPrinciples();
+    }
+
+    /**
+     * Sub-principes (#2369) — the per-line coaching points, promoted from
+     * principle line_guidance into a first-class entity. Rendered as a
+     * dedicated section under the Spelprincipes list, grouped by phase
+     * (side + number) then line (aanvallers / middenvelders / verdedigers
+     * / algemeen) as titled bullet lists. The repository has already
+     * scoped rows to the active methodology set.
+     */
+    private static function renderSubPrinciples(): void {
+        $rows = ( new SubPrinciplesRepository() )->listFiltered();
+        if ( empty( $rows ) ) return;
+
+        $sides = MethodologyEnums::sides();
+        $lines = MethodologyEnums::lines();
+
+        // Group by phase (side + number), then by line, preserving the
+        // sort_order the repository returns.
+        $by_phase = [];
+        foreach ( $rows as $r ) {
+            $phase_key = (string) $r->phase_side . ':' . (int) $r->phase_number;
+            $by_phase[ $phase_key ]['side']   = (string) $r->phase_side;
+            $by_phase[ $phase_key ]['number'] = (int) $r->phase_number;
+            $by_phase[ $phase_key ]['lines'][ (string) $r->line_key ][] = $r;
+        }
+
+        echo '<h3 class="tt-mlogy-subhead tt-mlogy-subprinciples-head">' . esc_html__( 'Sub-principes', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen.', 'talenttrack' ) . '</p>';
+
+        foreach ( $by_phase as $phase ) {
+            $side_label = $sides[ $phase['side'] ] ?? $phase['side'];
+            $heading = $phase['number'] > 0
+                ? sprintf( '%s %d', $side_label, (int) $phase['number'] )
+                : $side_label;
+            echo '<div class="tt-mlogy-subprinciple-phase">';
+            echo '<h4 class="tt-mlogy-subhead">' . esc_html( $heading ) . '</h4>';
+            echo '<div class="tt-mlogy-subprinciple-lines">';
+            foreach ( $lines as $line_key => $line_label ) {
+                if ( empty( $phase['lines'][ $line_key ] ) ) continue;
+                echo '<div class="tt-mlogy-card tt-mlogy-subprinciple-line">';
+                echo '<strong>' . esc_html( $line_label ) . '</strong>';
+                echo '<ul class="tt-mlogy-bullets">';
+                foreach ( $phase['lines'][ $line_key ] as $sp ) {
+                    $title = MultilingualField::string( $sp->title_json );
+                    if ( $title === '' ) continue;
+                    echo '<li>' . esc_html( $title ) . '</li>';
+                }
+                echo '</ul>';
+                echo '</div>';
+            }
+            echo '</div>';
+            echo '</div>';
+        }
     }
 
     private static function renderPrincipleDetail( int $principle_id ): void {
@@ -635,6 +820,103 @@ class MethodologyView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endforeach;
+    }
+
+    // Tactical scenes (Speelwijze, #2323)
+
+    /**
+     * Speelwijze — animated per-phase tactical scenes. The repository has
+     * already scoped the rows to the active methodology set (and its
+     * phases). Each scene renders its title, the animated pitch container
+     * (`.tt-tactical-scene` carrying the scene JSON) and the coaching-point
+     * description. Grouped by phase side so the read narrative follows
+     * aanvallen → verdedigen → omschakelen.
+     *
+     * The scene renderer JS + CSS are enqueued only here.
+     */
+    private static function renderTacticalScenes(): void {
+        $scenes = ( new TacticalScenesRepository() )->listFiltered();
+        if ( empty( $scenes ) ) {
+            echo '<p><em>' . esc_html__( 'No tactical scenes available yet.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        self::enqueueSceneAssets();
+
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'Animated per-phase scenes: press Play to watch the player and ball movement for each game phase, then read the coaching points.', 'talenttrack' ) . '</p>';
+
+        $by_side = [];
+        foreach ( $scenes as $s ) {
+            $by_side[ (string) $s->phase_side ][] = $s;
+        }
+
+        foreach ( MethodologyEnums::sides() as $side_key => $side_label ) {
+            if ( empty( $by_side[ $side_key ] ) ) continue;
+            echo '<h3 class="tt-mlogy-subhead">' . esc_html( $side_label ) . '</h3>';
+            foreach ( $by_side[ $side_key ] as $scene ) {
+                self::renderTacticalScene( $scene );
+            }
+        }
+    }
+
+    /** Render a single animated tactical scene card. */
+    private static function renderTacticalScene( object $scene ): void {
+        $title    = MultilingualField::string( $scene->title_json );
+        $coaching = MultilingualField::string( $scene->description_json );
+        $payload  = isset( $scene->scene_decoded ) && is_array( $scene->scene_decoded ) ? $scene->scene_decoded : [];
+        $aria     = $title !== ''
+            ? sprintf(
+                /* translators: %s is the tactical scene title */
+                __( 'Tactical scene: %s', 'talenttrack' ),
+                $title
+            )
+            : __( 'Tactical scene', 'talenttrack' );
+        ?>
+        <section class="tt-tsc">
+            <header class="tt-tsc__head">
+                <h4 class="tt-tsc__title"><?php echo esc_html( $title ?: __( '(untitled scene)', 'talenttrack' ) ); ?></h4>
+            </header>
+            <div class="tt-tsc__grid">
+                <div
+                    class="tt-tactical-scene"
+                    data-i18n-label="<?php echo esc_attr( $aria ); ?>"
+                    data-i18n-play="<?php esc_attr_e( 'Play', 'talenttrack' ); ?>"
+                    data-i18n-pause="<?php esc_attr_e( 'Pause', 'talenttrack' ); ?>"
+                    data-i18n-restart="<?php esc_attr_e( 'Restart', 'talenttrack' ); ?>"
+                >
+                    <script type="application/json"><?php
+                        echo wp_json_encode( $payload ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — JSON in a script type=application/json block is safe
+                    ?></script>
+                </div>
+                <?php if ( $coaching !== '' ) : ?>
+                    <p class="tt-tsc__coaching"><?php echo esc_html( $coaching ); ?></p>
+                <?php endif; ?>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * Enqueue the tactical-scene renderer + its stylesheet. Called only on
+     * the Speelwijze tab so the animation bundle stays off every other
+     * methodology surface. The stylesheet reads the shared design tokens
+     * via the app-chrome dependency.
+     */
+    private static function enqueueSceneAssets(): void {
+        if ( ! function_exists( 'wp_enqueue_style' ) ) return;
+        wp_enqueue_style(
+            'tt-frontend-methodology-scene',
+            TT_PLUGIN_URL . 'assets/css/frontend-methodology-scene.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-methodology-tactical-scene',
+            TT_PLUGIN_URL . 'assets/js/methodology-tactical-scene.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     // Asset rendering helpers

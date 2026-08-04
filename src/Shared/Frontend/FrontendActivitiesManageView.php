@@ -241,16 +241,26 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $status_rest  = 'activities/' . (int) $session->id . '/status';
 
                 if ( $status_now === ActivityStatusKey::PLANNED ) {
-                    $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                    // §7 (#2325) — only surface "Complete activity" when the
+                    // user can actually reach the completion flow; otherwise
+                    // completionUrl() resolves to an empty href and the button
+                    // silently dead-clicks. Cancel stays available regardless.
+                    if ( \TT\Modules\Activities\Services\ActivityCompletionResolver::canComplete(
                         (int) $session->id,
                         (string) ( $session->activity_type_key ?? '' ),
-                        $detail_back
-                    );
-                    $detail_actions[] = [
-                        'label'   => __( 'Complete activity', 'talenttrack' ),
-                        'href'    => $complete_url,
-                        'primary' => true,
-                    ];
+                        get_current_user_id()
+                    ) ) {
+                        $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                            (int) $session->id,
+                            (string) ( $session->activity_type_key ?? '' ),
+                            $detail_back
+                        );
+                        $detail_actions[] = [
+                            'label'   => __( 'Complete activity', 'talenttrack' ),
+                            'href'    => $complete_url,
+                            'primary' => true,
+                        ];
+                    }
                     $detail_actions[] = [
                         'label'      => __( 'Cancel activity', 'talenttrack' ),
                         'variant'    => 'secondary',
@@ -724,11 +734,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $methodology_url = add_query_arg( [ 'tt_view' => 'methodology', 'mtab' => 'principles' ], $base );
 
+        // §7 (#2304) — the "Methodology" library link and the clickable
+        // principle pills are gated on the methodology view's own guard
+        // (tt_view_methodology) via the CrossViewLinkRegistry. Without it the
+        // linked principles still show (development content), just not as
+        // dead-end links into a library the user can't open.
+        $can_view_meth = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'methodology' );
+
         echo '<div class="tt-act-card-d tt-act-card-d--span2">';
         echo '<div class="tt-act-card-d__head">';
         echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Linked principles', 'talenttrack' ) . '</h3>';
-        echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
-            . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
+        \TT\Shared\Frontend\Components\CrossViewLink::render( 'methodology', static function () use ( $methodology_url ): void {
+            echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
+                . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
+        } );
         echo '</div>';
         echo '<div class="tt-act-card-d__body">';
         foreach ( $linked_ids as $pid ) {
@@ -747,8 +766,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $first = $code !== '' ? strtoupper( $code[0] ) : '';
             $bucket = in_array( $first, [ 'O', 'A', 'V' ], true ) ? $first : 'O';
             $label  = $code . ( $title !== '' ? ' · ' . $title : '' );
-            echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
-                . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
+            if ( $can_view_meth ) {
+                echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
+                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
+            } else {
+                echo '<span class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '"'
+                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</span>';
+            }
         }
         echo '</div>';
         echo '</div>';
@@ -1797,7 +1821,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $is_planned   = ! $is_cancelled
             && ( $status_lower === '' || $status_lower === ActivityStatusKey::PLANNED )
             && in_array( $mode, [ 'today', 'this_week', 'next_week', 'later_this_month', 'later', 'attention' ], true );
-        if ( $is_planned && current_user_can( 'tt_edit_evaluations' ) ) {
+        if ( $is_planned && \TT\Modules\Activities\Services\ActivityCompletionResolver::canComplete( $id, $type_key, get_current_user_id() ) ) {
             $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                 $id,
                 $type_key,

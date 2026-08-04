@@ -129,6 +129,16 @@ De wizard publiceert een `tt_vct_sessions`-rij. De coach-view (#1085) leest die 
 
 De Configuratie-tegels (#1087) linken naar de HoO VCT-configuratie sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`), zodat de HoO één-tap-entry heeft vanuit het Configuratie-overzicht.
 
+## Speelwijze-thema per week
+
+Elk macroblok draagt al een conditiecyclus per week — een fase (introductie, opbouw, piek, deload, …) en een intensiteitsfactor. Daarbovenop kan elke week een optioneel **speelwijze-thema** (`tactical_theme`) dragen: de tactische focus voor die week (opbouw, verdedigen, balbezit, …), uit dezelfde `vct_tactical_theme`-vocabulaire die de oefeningenbibliotheek gebruikt. Het thema is optioneel — een week zonder thema is simpelweg ongelabeld, en blokken die vóór deze functie zijn aangemaakt blijven ongewijzigd.
+
+Stel het thema in op de VCT-configuratietegel (**Configuratie → VCT → Macroblokken**): open de sectie **Geavanceerd** van een blok en kies per week een thema onder *Speelwijze-thema per week*. De weken komen uit het faseprofiel van het blok, dus voeg eerst de weekfasen toe.
+
+De gecombineerde cyclus — thema + conditiefase + intensiteit, week voor week — is alleen-lezen zichtbaar op het tabblad **Periodisering** van de methodologiebibliotheek, voor de clubstandaard-kalender van het huidige seizoen.
+
+Een JO13-1 5-weekse speelwijze-referentietemplate wordt als startpunt meegeleverd (opbouw → verdedigen → balbezit → verdedigen → een neutrale week). Het per-week-thema doorvoeren in de VCT-oefeningkeuze is een geplande vervolgstap; vandaag is het thema beschrijvend.
+
 ## Privacy
 
 PHV (Fysiek / Health / Vitality) paneel + pill volgt CLAUDE.md §1 — staf (HoO / trainer / admin) ziet volledige reden + plafond + notities; andere ouders zien niets; AC-die-ook-ouder-is ziet eigen kind via parent-persona alleen. De redenpicker is een enum om lange medische vrije tekst te ontmoedigen.

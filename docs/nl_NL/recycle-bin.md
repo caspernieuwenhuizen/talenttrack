@@ -263,12 +263,16 @@ heeft **geen Bewerken-knop**: om een niet-actief record te wijzigen herstel je
 het eerst, daarna bewerk je het.
 
 - Een **gearchiveerd** record toont een amberkleurige banner — "Dit record is
-  gearchiveerd", met wie het archiveerde en wanneer — en twee acties:
-  **Herstellen** (terug naar de actieve lijst) en **Naar prullenbak**.
+  gearchiveerd", met wie het archiveerde en wanneer — en maximaal twee acties:
+  **Herstellen** (terug naar de actieve lijst) en **Naar prullenbak**. Omdat het
+  verplaatsen naar de prullenbak alleen voor beheerders is, verschijnt de knop
+  **Naar prullenbak** alleen voor wie die rechten heeft; iedereen anders ziet
+  enkel **Herstellen**.
 - Een record in de **prullenbak** toont een rode banner — "In de prullenbak —
   wordt over N dagen verwijderd" — en twee acties: **Terugzetten naar archief**
   (uit de prullenbak, terug naar de gearchiveerde laag) en **Nu definitief
-  verwijderen**.
+  verwijderen**. Beide zijn alleen voor beheerders, dus geen van beide knoppen
+  wordt getoond aan een gebruiker zonder beheerrechten voor de prullenbak.
 
 Een record in de prullenbak is op deze manier alleen bereikbaar voor een
 beheerder die de prullenbak mag beheren. Iedereen anders die de link van zo'n

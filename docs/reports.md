@@ -4,6 +4,8 @@
 
 The **Reports** tile is a launcher for different ways of looking at your data. The reports are grouped by purpose so the right one is easy to find: **Development & performance** (ratings, progress, rate cards), **Playing time** (minutes played and squad load), **Attendance** (team and player attendance statistics and the leaderboard), **Recruitment** (scouting, prospects, trial funnel), **Staff & quality** (coach activity and evaluation quality), and **Season overview** (the annual review). Sections you don't have access to — recruitment and season-wide reports are academy-admin only — simply don't appear. All standard reports — including team attendance, player attendance, the leaderboard and minutes-per-team — live here and breadcrumb under **Reports**; they are no longer duplicated on the Analytics dashboard.
 
+If **every** report is unavailable to you — all of them switched off for your academy, or none within your access — the launcher says so plainly instead of showing a blank grid, and points you to ask an administrator to enable a report or widen your scope.
+
 ## Player progress
 
 Quick visual reports for coaches:
@@ -23,6 +25,8 @@ A quick way to see which team is strongest this season.
 ## Coach activity
 
 How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 180 or 365 days). Useful for spotting a coach who has fallen behind, or for confirming that a planned assessment period actually happened.
+
+Only coaches within your own club are counted — the report is scoped to the current tenant and never surfaces activity from another academy. A coach whose user account has been deleted still appears (their saved evaluations remain in the window) but is labelled **Unknown coach** rather than a raw account number.
 
 ## Coach · Evaluation quality (v4.20.123)
 
@@ -52,6 +56,10 @@ Both the team report and the player report carry the same filtering vocabulary a
 
 - **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. These are retrospective (the reports look back). Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
 - **Activity type** — narrow to one type (training / game / tournament, whatever your academy has configured). The type filter narrows every figure consistently: the KPI tiles, the table, the leaderboard and the at-risk panel.
+
+**Default window.** When you open a report without picking a pill or typing a From/To range, it defaults to **the current season** — from the season's start date through today. This matches the *This season* pill and how the academy thinks about the year, rather than an arbitrary rolling window. If no season is configured, the report falls back to the last **90 days** so it always shows something. The team-minutes report follows the same default. Picking a pill or typing a manual From/To still overrides it. Because this default *is* the season window, both attendance reports now show the ***This season* pill highlighted** on first open — the filter bar reflects the window you're actually looking at, instead of reading "Custom range".
+
+**Scope note.** When you only coach some teams, the attendance reports show just those teams. If your filters return nothing, the empty-state message says the report is **limited to the teams you coach**, so an empty window doesn't read as "the academy has no data".
 
 On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
 
@@ -107,11 +115,102 @@ To verify a total against the raw stored rows, the `tt_attendance` minutes rows
 (`minutes_played`, `record_type`, `is_guest`, `activity_id`) are browsable in
 the **Data Browser**.
 
+The per-match breakdown table is now a **single shared component** across the
+Team · Minutes distribution report and the Analytics minutes-played report, so
+the two never drift and both reconcile to the player's total the same way.
+
+## Minutes audit — games × players auditability matrix
+
+The **Minutes audit** report (reachable from the Reports launcher under *Playing
+time*, or directly at `?tt_view=minutes-audit`) is the auditability companion to
+the minutes report. It answers a different question: *for each game, which squad
+players have recorded minutes and which do not?* — so an admin or head coach can
+spot and chase the gaps before a season's minutes data goes stale.
+
+It is **read-only**. Each row's *Edit* / *Record* link opens the game's activity
+detail, where minutes are actually recorded; the in-place editable grid is a
+separate, later feature.
+
+The surface is a spreadsheet-style matrix:
+
+- **Rows** are the team's game, match and tournament activities in the window
+  (the same set the minutes report counts).
+- **Columns** are the squad — every player who appears on the **attendance** of
+  those games. The squad is resolved from attendance, not from a player's team
+  assignment, so a player who was borrowed for one game still shows up, and a
+  player who left the team but played earlier in the window is not silently
+  dropped.
+- **Cells** show the minutes recorded for that player in that game. A green cell
+  is minutes recorded; a red **0** is a player who was in the squad but has no
+  minutes recorded (a gap to chase); a hatched dash is a player who was not in
+  that game's squad.
+- Each row carries a **row total**, a completeness **status chip** — *Complete*
+  (every squad player has minutes), *Incomplete* (some do, some don't), or *Not
+  recorded* (nothing recorded for the game) — and the bottom **column-total** row
+  sums each player's minutes across the visible games.
+
+Above the matrix, four **gap KPIs** — *Games*, *Fully recorded*, *Incomplete*,
+*Not recorded* — summarise the window. Each KPI is clickable and filters the
+matrix to that completeness bucket, so *Not recorded* jumps straight to the games
+still missing minutes.
+
+Because the audit reads the **same** recorded, actual, non-guest minutes as the
+minutes report, its numbers reconcile with that report exactly. The honest-zero
+rules apply here too: a team with games but no recorded minutes shows every game,
+honest *Not recorded* chips, and a clear next-action note — never a misleading
+"0 players" empty state. An empty window (no games at all) says so distinctly.
+
+Coaches see only the teams they coach; academy-wide roles see the whole club. The
+filter bar carries the shared team / period / match-type / date-range controls
+and defaults to the current-season window.
+
+## Standard reports — honest numbers
+
+Every standard report now names the window and the source it drew from, so a
+figure is never a silent guess:
+
+- **Honest empty states.** When a report has nothing to show it says *why* in
+  plain terms — "No matches recorded in this period", "No evaluations recorded
+  for this team in this window", "No prospects logged in this window" — instead
+  of the old generic "adjust a filter" copy (most of these reports have no
+  filter to adjust). The Season summary no longer renders a blank page below
+  its headline tiles when no teams exist.
+- **Player · Minutes played** covers the **last 12 months** (stated in the
+  page sub-line, matching the Explorer drill), and when a player has more than
+  50 matches in that window it says *"Showing the 50 most recent matches"* so a
+  longer history is never dropped without notice.
+- **Team · Squad evaluation summary** shows a **Last evaluated** date per
+  player, so a stale row is visible at a glance.
+- **Season summary** per-team match counts ignore soft-archived activities on
+  the join itself (not just in the count), removing a source of inflated joins.
+
+### Trial funnel reconciliation
+
+The Season · Trial funnel now **reconciles**. The Per-decision table lists the
+outcomes of cases *opened in the window*, plus a **Pending (not yet decided)**
+row and a **Total** row that sums to *Trial cases opened*. The **Decision rate**
+tile carries a one-line note that its numerator (cases decided, by decision
+date) and denominator (cases opened, by open date) use different windows, so
+the percentage isn't misread as a same-cohort rate. Each scout name in the Per
+scout table links to that scout's **Scout report card** (gated on
+`tt_view_reports`, the same capability the card enforces).
+
+### Minutes-played (team) — shared filter + KPI chrome
+
+The Minutes-played (team) report now uses the **shared filter bar** (team,
+retrospective period pills — Last week / This month / This season — a match-type
+select and a manual From/To range) and the **shared KPI strip**, matching the
+attendance reports. The default window is the current season. On a phone the
+filters collapse into the standard bottom-sheet; every control keeps a 48px
+touch target.
+
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
 Players who have **missed** a configurable number of activities in the window (absent / excused / injured) are **flagged**: an inline ⚠ badge with the missed count, a tinted row, and an **At-risk players** panel above the table listing them worst-first. The threshold (default **3**) is the *single source of truth* shared with the daily attendance-flag notification, so the report and the nudge email always agree.
+
+The ⚠ badge (and each name in the **At-risk players** panel) is a **link** — tap it to trace the flag to the sessions behind it. It opens the same player-scoped activities list the *Activities* count uses (this player, the report's team, the report's window), so you can see the dated sessions the player attended and reconcile the missed count. A **← Back** link returns to the report.
 
 ### Tracing the activity count (drill-down)
 
@@ -125,6 +224,8 @@ The threshold lives in **Configuration → General → Attendance at-risk thresh
 
 A dedicated league table reachable from the Reports launcher (*Attendance leaderboard*). It ranks players over the chosen window into two side-by-side tables: **Needs attention** (the lowest attendance %, where at-risk players keep their ⚠ badge) and **Most reliable** (the highest attendance %). By default it shows **all** players in the window; type a number in *How many* to narrow each table to that many rows. Optionally narrow to a single team. Coaches see only their own teams; academy-wide roles see the club.
 
+It shares the same filter bar and chrome as the player attendance report: a **team** picker, retrospective **period** pills (last week / month / season and so on), an **activity type** filter, and a manual **date range** that overrides the active period, plus the leaderboard-only *How many* cap. Opening it with no filters defaults to the **current season** window. Above the tables a KPI strip summarises the ranked players — total players, average attendance across them, and how many are at-risk — computed from the same data, so it never triggers an extra query.
+
 On a phone the two tables stack into one column with no horizontal scroll; from tablet width up they sit side-by-side. Every column is sortable on top of the default ranking.
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
@@ -134,3 +235,10 @@ Integrations can read the same data — with the same `tt_view_analytics` gate a
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold }`.
 
 The optional `activity_type_key` on every attendance endpoint narrows to one activity type, matching the report UI's Type filter.
+
+## Dimension explorer — row cap and filter validation
+
+The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric's underlying fact rows and drill into them. Two safeguards keep the drill-down honest:
+
+- **5000-row cap, now visible.** The explorer reads at most **5000** fact rows for a drill-down. When a filtered set hits that ceiling the table shows a **"Capped at 5000 rows — use grouping to aggregate larger sets."** notice under the pager, so the visible page count is never mistaken for the whole dataset. Group by a dimension to aggregate larger sets instead of paging through raw rows.
+- **Filters validated against the KPI's dimensions.** Only the dimensions a KPI actually offers for exploration are accepted as filters. A `filter_<key>` for a dimension the KPI doesn't declare is silently ignored — it never reaches the query or the CSV/PDF export, so the filters you see on screen always match the filters applied to the exported file.

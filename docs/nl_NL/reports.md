@@ -4,6 +4,8 @@
 
 De tegel **Rapporten** is een launcher voor verschillende manieren om naar je gegevens te kijken. De rapporten zijn gegroepeerd op doel zodat je het juiste rapport snel vindt: **Ontwikkeling & prestaties** (beoordelingen, voortgang, rate cards), **Speeltijd** (gespeelde minuten en selectiebelasting), **Aanwezigheid** (aanwezigheidsstatistieken per team en speler en de ranglijst), **Werving** (scouting, prospects, trial funnel), **Staf & kwaliteit** (coachactiviteit en beoordelingskwaliteit) en **Seizoensoverzicht** (de jaarlijkse review). Secties waartoe je geen toegang hebt — werving en seizoensbrede rapporten zijn alleen voor academy-beheerders — verschijnen gewoon niet. Alle standaardrapporten — waaronder team- en spelersaanwezigheid, de ranglijst en minuten-per-team — staan hier en tonen **Rapporten** in het kruimelpad; ze staan niet langer dubbel op het Analytics-dashboard.
 
+Als **geen enkel** rapport voor je beschikbaar is — alle uitgeschakeld voor je academie, of geen ervan binnen je toegang — meldt de launcher dat duidelijk in plaats van een leeg raster te tonen, en verwijst je om een beheerder te vragen een rapport in te schakelen of je bereik te verruimen.
+
 ## Spelersvoortgang
 
 Snelle visuele rapporten voor coaches:
@@ -23,6 +25,8 @@ Een snelle manier om te zien welk team dit seizoen het sterkst is.
 ## Coachactiviteit
 
 Hoeveel evaluaties elke coach heeft opgeslagen in het gekozen venster (laatste 7, 30, 90, 180 of 365 dagen). Handig om coaches te signaleren die achterlopen, of om te bevestigen dat een geplande beoordelingsperiode echt heeft plaatsgevonden.
+
+Alleen coaches binnen je eigen club worden meegeteld — het rapport is beperkt tot de huidige tenant en toont nooit activiteit van een andere academie. Een coach van wie het gebruikersaccount is verwijderd verschijnt nog steeds (de opgeslagen evaluaties blijven binnen het venster) maar krijgt het label **Onbekende coach** in plaats van een ruw accountnummer.
 
 ## Coach · Evaluatiekwaliteit (v4.20.123)
 
@@ -52,6 +56,10 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 
 - **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. Deze kijken terug (de rapporten zijn retrospectief). Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
 - **Activiteittype** — beperk tot één type (training / wedstrijd / toernooi, afhankelijk van wat jullie academy heeft ingesteld). Het typefilter beperkt elk cijfer consistent: de KPI-tegels, de tabel, de ranglijst en het risicopaneel.
+
+**Standaardperiode.** Wanneer je een rapport opent zonder een pil te kiezen of een Van/Tot-bereik te typen, staat het standaard op **het huidige seizoen** — van de startdatum van het seizoen tot vandaag. Dit komt overeen met de pil *Dit seizoen* en met hoe de academie over het jaar denkt, in plaats van een willekeurig meelopend venster. Als er geen seizoen is ingesteld, valt het rapport terug op de laatste **90 dagen**, zodat er altijd iets te zien is. Het minutenrapport per team volgt dezelfde standaard. Een pil kiezen of een handmatig Van/Tot typen overschrijft dit nog steeds. Omdat deze standaard *het* seizoensvenster is, tonen beide aanwezigheidsrapporten nu de pil ***Dit seizoen* gemarkeerd** bij het openen — de filterbalk weerspiegelt het venster dat je echt bekijkt, in plaats van "Aangepast bereik".
+
+**Bereikmelding.** Als je maar enkele teams traint, tonen de aanwezigheidsrapporten alleen die teams. Levert je filter niets op, dan meldt de lege-status dat het rapport **beperkt is tot de teams die je traint**, zodat een leeg venster niet leest als "de academie heeft geen data".
 
 Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
 
@@ -111,11 +119,112 @@ Om een totaal tegen de ruwe opgeslagen rijen te controleren, zijn de
 `tt_attendance`-minutenrijen (`minutes_played`, `record_type`, `is_guest`,
 `activity_id`) doorzoekbaar in de **Data Browser**.
 
+De uitsplitsingstabel per wedstrijd is nu één **gedeelde component** voor zowel
+het rapport Team · Minutenverdeling als het Analytics-minutenrapport, zodat de
+twee nooit uit elkaar lopen en beide op dezelfde manier aansluiten op het
+totaal van de speler.
+
+## Minuten-audit — wedstrijden × spelers auditmatrix
+
+Het rapport **Minuten-audit** (bereikbaar vanuit de rapportenlauncher onder
+*Speeltijd*, of rechtstreeks via `?tt_view=minutes-audit`) is de audit-tegenhanger
+van het minutenrapport. Het beantwoordt een andere vraag: *welke spelers uit de
+selectie hebben per wedstrijd wél en welke géén geregistreerde minuten?* — zodat
+een beheerder of hoofdcoach de gaten kan opsporen en aanpakken voordat de
+minutengegevens van een seizoen verouderen.
+
+Het is **alleen-lezen**. De link *Bewerk* / *Registreer* per rij opent het
+activiteitendetail van de wedstrijd, waar de minuten daadwerkelijk worden
+geregistreerd; het direct bewerkbare raster is een aparte, latere functie.
+
+Het scherm is een matrix in spreadsheet-stijl:
+
+- **Rijen** zijn de wedstrijd-, match- en toernooiactiviteiten van het team in de
+  periode (dezelfde set die het minutenrapport telt).
+- **Kolommen** zijn de selectie — elke speler die voorkomt op de **aanwezigheid**
+  van die wedstrijden. De selectie wordt bepaald op basis van aanwezigheid, niet
+  op basis van de teamindeling van een speler, zodat een speler die voor één
+  wedstrijd werd geleend toch verschijnt en een speler die het team verliet maar
+  eerder in de periode speelde niet stil wordt weggelaten.
+- **Cellen** tonen de geregistreerde minuten van die speler in die wedstrijd. Een
+  groene cel is geregistreerde minuten; een rode **0** is een speler die in de
+  selectie zat maar geen geregistreerde minuten heeft (een gat om aan te pakken);
+  een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
+  zat.
+- Elke rij heeft een **rijtotaal**, een **statuschip** voor volledigheid —
+  *Volledig* (elke speler uit de selectie heeft minuten), *Onvolledig* (sommigen
+  wel, sommigen niet) of *Niet geregistreerd* (niets geregistreerd voor de
+  wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
+  over de zichtbare wedstrijden op.
+
+Boven de matrix vatten vier **gat-KPI's** — *Wedstrijden*, *Volledig
+geregistreerd*, *Onvolledig*, *Niet geregistreerd* — de periode samen. Elke KPI is
+klikbaar en filtert de matrix op die volledigheidscategorie, zodat *Niet
+geregistreerd* meteen naar de wedstrijden springt die nog minuten missen.
+
+Omdat de audit **dezelfde** geregistreerde, werkelijke, niet-gast-minuten leest
+als het minutenrapport, sluiten de cijfers exact aan op dat rapport. De
+eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder
+geregistreerde minuten toont elke wedstrijd, eerlijke *Niet geregistreerd*-chips
+en een duidelijke vervolgstap — nooit een misleidende "0 spelers"-lege staat. Een
+lege periode (helemaal geen wedstrijden) meldt dat apart.
+
+Coaches zien alleen de teams die ze coachen; academiebrede rollen zien de hele
+club. De filterbalk heeft de gedeelde besturing voor team / periode /
+wedstrijdtype / datumbereik en staat standaard op het venster van het huidige
+seizoen.
+
+## Standaardrapporten — eerlijke cijfers
+
+Elk standaardrapport benoemt nu de periode en de bron waaruit het put, zodat een
+cijfer nooit een stille gok is:
+
+- **Eerlijke lege toestanden.** Als een rapport niets te tonen heeft, zegt het
+  in gewone taal *waarom* — "Geen wedstrijden geregistreerd in deze periode",
+  "Geen beoordelingen geregistreerd voor dit team in deze periode", "Geen
+  scoutingskandidaten geregistreerd in deze periode" — in plaats van de oude
+  algemene "pas een filter aan"-tekst (de meeste van deze rapporten hebben geen
+  filter om aan te passen). Het Seizoensoverzicht toont geen lege pagina meer
+  onder de kop-tegels wanneer er geen teams zijn.
+- **Speler · Gespeelde minuten** beslaat de **laatste 12 maanden** (vermeld in
+  de subregel van de pagina, gelijk aan de Explorer-drill), en wanneer een
+  speler meer dan 50 wedstrijden in die periode heeft, staat er *"De 50 meest
+  recente wedstrijden worden getoond"* zodat een langere historie nooit
+  ongemerkt wegvalt.
+- **Team · Teambeoordelingsoverzicht** toont per speler een datum **Laatst
+  beoordeeld**, zodat een verouderde rij in één oogopslag zichtbaar is.
+- **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
+  wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
+  waardoor een bron van opgeblazen joins verdwijnt.
+
+### Aansluiting van de trial-trechter
+
+De Seizoen · Trial-trechter **sluit nu aan**. De tabel Per beslissing toont de
+uitkomsten van cases die *in de periode geopend* zijn, plus een rij **In
+afwachting (nog niet beslist)** en een **Totaal**-rij die optelt tot *Geopende
+trial-cases*. De tegel **Beslissingspercentage** draagt een korte toelichting
+dat de teller (besliste cases, op beslisdatum) en de noemer (geopende cases, op
+openingsdatum) verschillende periodes gebruiken, zodat het percentage niet als
+één-cohortpercentage wordt gelezen. Elke scoutnaam in de tabel Per scout linkt
+naar de **Scoutrapportkaart** van die scout (afgeschermd op `tt_view_reports`,
+dezelfde rechten die de kaart afdwingt).
+
+### Gespeelde minuten (team) — gedeelde filter- en KPI-chrome
+
+Het rapport Gespeelde minuten (team) gebruikt nu de **gedeelde filterbalk**
+(team, retrospectieve periodepillen — Vorige week / Deze maand / Dit seizoen —
+een wedstrijdtype-keuze en een handmatig Van/Tot-bereik) en de **gedeelde
+KPI-strip**, gelijk aan de aanwezigheidsrapporten. De standaardperiode is het
+huidige seizoen. Op een telefoon klappen de filters in het gebruikelijke
+bottom-sheet; elke bediening houdt een aanraakdoel van 48px.
+
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).
 
 Spelers die een instelbaar aantal activiteiten hebben **gemist** in de periode (afwezig / afgemeld / geblesseerd) worden **gemarkeerd**: een ⚠-badge met het aantal gemiste activiteiten, een licht gekleurde rij, en een paneel **Risicospelers** boven de tabel. De drempel (standaard **3**) is de *enige bron van waarheid* die gedeeld wordt met de dagelijkse aanwezigheidsmelding, zodat het rapport en de melding altijd overeenkomen.
+
+De ⚠-badge (en elke naam in het paneel **Risicospelers**) is een **link** — tik erop om de markering te herleiden tot de onderliggende sessies. Hij opent dezelfde spelergerichte activiteitenlijst als het *Activiteiten*-aantal (deze speler, het team van het rapport, de periode van het rapport), zodat je de datumsessies ziet die de speler bijwoonde en het aantal gemiste activiteiten kunt verifiëren. Een **← Terug**-link keert terug naar het rapport.
 
 ### Het activiteitenaantal natrekken (drill-down)
 
@@ -129,6 +238,8 @@ De drempel staat onder **Configuratie → Algemeen → Risicodrempel aanwezighei
 
 Een aparte ranglijst die je opent vanuit de Rapporten-startpagina (*Aanwezigheidsranglijst*). Hij rangschikt spelers over de gekozen periode in twee tabellen naast elkaar: **Aandacht nodig** (de laagste aanwezigheid-%, waar risicospelers hun ⚠-badge houden) en **Meest betrouwbaar** (de hoogste aanwezigheid-%). Standaard toont hij **alle** spelers in de periode; typ een aantal in *Hoeveel* om elke tabel tot dat aantal rijen te beperken. Beperk eventueel tot één team. Coaches zien alleen hun eigen teams; academy-brede rollen zien de hele club.
 
+Hij deelt dezelfde filterbalk en chrome als het spelersaanwezigheidsrapport: een **team**-keuze, retrospectieve **periode**-pillen (afgelopen week / maand / seizoen enzovoort), een **activiteittype**-filter en een handmatig **datumbereik** dat de actieve periode overschrijft, plus de ranglijst-specifieke *Hoeveel*-limiet. Open je hem zonder filters, dan valt hij terug op het huidige **seizoen**. Boven de tabellen vat een KPI-strip de gerangschikte spelers samen — aantal spelers, gemiddelde aanwezigheid en hoeveel er risico lopen — berekend uit dezelfde gegevens, dus zonder extra query.
+
 Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scrollen; vanaf tabletbreedte staan ze naast elkaar. Bovenop de standaardrangschikking is elke kolom sorteerbaar.
 
 Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:
@@ -138,3 +249,10 @@ Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold }`.
 
 De optionele `activity_type_key` op elk aanwezigheids-endpoint beperkt tot één activiteittype, gelijk aan het Type-filter in de rapport-UI.
+
+## Dimensieverkenner — rijlimiet en filtervalidatie
+
+De dimensieverkenner (de *Verken*-actie bij een KPI) laat je de onderliggende feitrijen van een metriek filteren en erop inzoomen. Twee waarborgen houden het inzoomen betrouwbaar:
+
+- **Limiet van 5000 rijen, nu zichtbaar.** De verkenner leest per inzoomactie maximaal **5000** feitrijen. Wanneer een gefilterde set die grens raakt, toont de tabel onder de paginering de melding **"Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."**, zodat het zichtbare aantal pagina's nooit voor de volledige dataset wordt aangezien. Groepeer op een dimensie om grotere sets samen te vatten in plaats van door ruwe rijen te bladeren.
+- **Filters gevalideerd tegen de dimensies van de KPI.** Alleen de dimensies die een KPI daadwerkelijk aanbiedt om te verkennen, worden als filter geaccepteerd. Een `filter_<key>` voor een dimensie die de KPI niet aanbiedt, wordt stilzwijgend genegeerd — het bereikt de query of de CSV-/PDF-export nooit, zodat de filters die je op het scherm ziet altijd overeenkomen met de filters die op het geëxporteerde bestand zijn toegepast.

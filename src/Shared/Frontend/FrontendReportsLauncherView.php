@@ -136,6 +136,15 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base_url ),
             ],
+            // #2368 — read-only auditability matrix (games × players) that
+            // makes recorded-minutes gaps obvious. Reconciles with the
+            // minutes report; self-gates on tt_view_analytics + team scope.
+            [
+                'slug'  => 'minutes-audit',
+                'label' => __( 'Minutes audit', 'talenttrack' ),
+                'desc'  => __( 'Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'minutes-audit' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + scope (§7) */
+            ],
             [
                 'slug'  => 'team-squad-evaluation-summary',
                 'label' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
@@ -223,6 +232,21 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             )
         ) );
 
+        // #2357 — honest empty state. When every tile has been filtered
+        // away — no report is enabled for this academy, or the viewer's
+        // scope caps hide them all — render a clear notice instead of a
+        // blank grid, so the user knows the surface loaded correctly and
+        // what to do next (ask an admin to enable a report or grant scope).
+        if ( empty( $tiles ) ) {
+            echo '<p class="tt-notice">';
+            esc_html_e(
+                'No reports are available to you yet. They may be switched off for this academy, or outside your current access — ask an administrator to enable a report or widen your scope.',
+                'talenttrack'
+            );
+            echo '</p>';
+            return;
+        }
+
         // #1503 — group the tiles by purpose/theme instead of one flat
         // grid. Each group declares its tiles by slug in display order;
         // the scope filter above may have removed some, so a group with
@@ -232,7 +256,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
-            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team' ] ],
+            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
             [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],

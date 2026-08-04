@@ -344,3 +344,47 @@
         transition: none;
     }
 }
+
+/* ----------------------------------------------------------------------
+   #2300 — client-side filter for the modules + features list.
+   A single search box narrows the visible module cards (and their nested
+   features) by label/description text. Progressive enhancement: with JS
+   off, nothing is hidden.
+   ---------------------------------------------------------------------- */
+.tt-dashboard .tt-modules-search {
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-modules-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px; /* touch target (CLAUDE.md §2) */
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    font-size: 1rem; /* >=16px: no iOS focus-zoom */
+    line-height: 1.4;
+    color: var(--tt-ink, #1a1c19);
+    background: var(--tt-bg-soft, #f6f7f4);
+    border: 1px solid var(--tt-line, #d6d8d1);
+    border-radius: var(--tt-r-md, 10px);
+}
+
+.tt-dashboard .tt-modules-search-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b7a4b);
+    outline-offset: 2px;
+}
+
+/* Filtered-out rows are hidden via the `hidden` attribute the script sets;
+   this is just a belt-and-braces rule for that attribute inside our scope. */
+.tt-dashboard .tt-modules-cat[hidden],
+.tt-dashboard .tt-module-card[hidden],
+.tt-dashboard .tt-feature-item[hidden] {
+    display: none;
+}
+
+.tt-dashboard .tt-modules-empty {
+    margin: var(--tt-sp-4, 16px) 0;
+    padding: var(--tt-sp-6, 24px) var(--tt-sp-4, 16px);
+    text-align: center;
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.875rem);
+}

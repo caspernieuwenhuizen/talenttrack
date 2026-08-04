@@ -11,6 +11,7 @@ use TT\Modules\Measurements\Repositories\MeasurementResultsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -87,7 +88,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         // Definitions exist on this path, so surface the catalogue links
         // (Manage tests + the wizard) so staff move Record → Configure
         // without the dashboard (§5 back-pill via BackLink::appendTo).
-        self::renderModuleLinks();
+        self::renderModuleLinks( $user_id );
 
         if ( $team_id <= 0 || $definition_id <= 0 ) {
             return;
@@ -358,16 +359,22 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
      * in-body actions, not breadcrumb / back chrome, so they respect the
      * two-affordance contract.
      */
-    private static function renderModuleLinks(): void {
-        $manage_url = BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'measurement-tests' ],
-            RecordLink::dashboardUrl()
-        ) );
+    private static function renderModuleLinks( int $user_id ): void {
+        // §7 (#2304) — only surface the "Manage tests" catalogue link to
+        // users who can reach it. The `measurement-tests` gate encodes the
+        // target view's own guard (measurement_definitions/change; admins
+        // pass via matrix), so the check can't drift from the destination.
+        CrossViewLink::render( 'measurement-tests', static function (): void {
+            $manage_url = BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'measurement-tests' ],
+                RecordLink::dashboardUrl()
+            ) );
 
-        echo '<p class="tt-me-links">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
-            . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
-        echo '</p>';
+            echo '<p class="tt-me-links">';
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
+                . esc_html__( 'Manage tests', 'talenttrack' ) . '</a>';
+            echo '</p>';
+        } );
 
         self::renderNewTestButton();
     }

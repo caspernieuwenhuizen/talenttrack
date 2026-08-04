@@ -4,6 +4,7 @@ namespace TT\Modules\Methodology\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyScope;
 
 /**
  * InfluenceFactorsRepository — `tt_methodology_influence_factors`.
@@ -46,6 +47,10 @@ final class InfluenceFactorsRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
+        $mid = MethodologyScope::active();
+        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
+            $row['methodology_id'] = $mid;
+        }
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }

@@ -48,6 +48,7 @@ final class MethodologyEnums {
     public const LINE_MIDDENVELDERS = 'middenvelders';
     public const LINE_VERDEDIGERS   = 'verdedigers';
     public const LINE_KEEPER        = 'keeper';
+    public const LINE_ALGEMEEN      = 'algemeen';
 
     /** @return array<string,string> slug => translated label */
     public static function teamFunctions(): array {
@@ -102,13 +103,21 @@ final class MethodologyEnums {
         ];
     }
 
-    /** @return array<string,string> */
+    /**
+     * The lines a sub-principle can be scoped to. `algemeen` (#2369)
+     * carries phase-wide points that apply to the whole team rather than
+     * a single line; the shipped JO13 sub-principles use it for the
+     * "algemeen" bullets that the PPT lists above the per-line columns.
+     *
+     * @return array<string,string>
+     */
     public static function lines(): array {
         return [
             self::LINE_AANVALLERS    => __( 'Aanvallers',    'talenttrack' ),
             self::LINE_MIDDENVELDERS => __( 'Middenvelders', 'talenttrack' ),
             self::LINE_VERDEDIGERS   => __( 'Verdedigers',   'talenttrack' ),
             self::LINE_KEEPER        => __( 'Keeper',        'talenttrack' ),
+            self::LINE_ALGEMEEN      => __( 'Algemeen',      'talenttrack' ),
         ];
     }
 
@@ -117,4 +126,5 @@ final class MethodologyEnums {
     public static function isValidKind( string $key ): bool     { return array_key_exists( $key, self::setPieceKinds() ); }
     public static function isValidSide( string $key ): bool     { return array_key_exists( $key, self::sides() ); }
     public static function isValidStyle( string $key ): bool    { return array_key_exists( $key, self::stylesOfPlay() ); }
+    public static function isValidLine( string $key ): bool     { return array_key_exists( $key, self::lines() ); }
 }

@@ -114,7 +114,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
             ];
         }
-        if ( ! $at_team_cap ) {
+        if ( ! $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
             $page_actions[] = [
                 'label'   => __( 'New team', 'talenttrack' ),
@@ -244,6 +244,28 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     </select>
                 </div>
             </div>
+
+            <?php
+            // #2320 — per-team methodology set override (epic #2316). An
+            // empty / 0 value clears the override so the team falls back to
+            // the install default (ActiveMethodologyResolver::forInstall()).
+            $mset_repo    = new \TT\Modules\Methodology\Repositories\MethodologiesRepository();
+            $mset_options = $mset_repo->tableReady() ? $mset_repo->allForClub() : [];
+            if ( ! empty( $mset_options ) ) :
+                $current_mid = (int) ( $team->methodology_id ?? 0 );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-team-methodology"><?php esc_html_e( 'Methodology set', 'talenttrack' ); ?></label>
+                    <select id="tt-team-methodology" class="tt-input" name="methodology_id">
+                        <option value="0" <?php selected( $current_mid, 0 ); ?>><?php esc_html_e( 'Use install default', 'talenttrack' ); ?></option>
+                        <?php foreach ( $mset_options as $mset ) : ?>
+                            <option value="<?php echo (int) $mset->id; ?>" <?php selected( $current_mid, (int) $mset->id ); ?>>
+                                <?php echo esc_html( \TT\Modules\Methodology\Helpers\MultilingualField::string( $mset->name_json ) ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            <?php endif; ?>
 
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-team-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
@@ -470,6 +492,16 @@ class FrontendTeamsManageView extends FrontendViewBase {
      * back on the dashboard tile grid.
      */
     private static function renderTeamDevelopmentLinks( int $team_id ): void {
+        // §7 (#2304) — the team-development surfaces are gated by the
+        // team_chemistry matrix (TeamChemistryAccess::canRead), independently
+        // of the tt_edit_teams cap that reaches this edit form. Per-tile
+        // gating via CrossViewLink; if NEITHER tile is reachable, render
+        // nothing at all (no empty heading).
+        $can_chem = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'team-chemistry' );
+        $can_bp   = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'team-blueprints' );
+        if ( ! $can_chem && ! $can_bp ) {
+            return;
+        }
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $chem_url = add_query_arg( [ 'tt_view' => 'team-chemistry',   'team_id' => $team_id ], $base );
         $bp_url   = add_query_arg( [ 'tt_view' => 'team-blueprints',  'team_id' => $team_id ], $base );
@@ -482,14 +514,18 @@ class FrontendTeamsManageView extends FrontendViewBase {
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Team development', 'talenttrack' ); ?></h3>
         <div class="tt-tile-std" style="<?php echo esc_attr( \TT\Shared\Frontend\Components\TileGridStandard::cssVars() ); ?>">
             <div class="tt-tile-grid-std">
+                <?php \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-chemistry', static function () use ( $chem_url ): void { ?>
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $chem_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
                     <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
                 </a>
+                <?php } ); ?>
+                <?php \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-blueprints', static function () use ( $bp_url ): void { ?>
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $bp_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
                     <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
                 </a>
+                <?php } ); ?>
             </div>
         </div>
         <?php

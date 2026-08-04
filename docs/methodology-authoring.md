@@ -36,6 +36,17 @@ Fill in Dutch first; English is optional and falls back to Dutch when a viewer's
 
 Deleting a principle removes it permanently and asks for confirmation first.
 
+## Editing a sub-principle
+
+The **Sub-principes** tab authors the concrete per-line coaching points that sit under the main principles. The list is grouped by game phase; each sub-principle carries:
+
+- **Phase side** — Aanvallend, Verdedigend or Omschakelen.
+- **Phase number** — which phase within that side (e.g. Verdedigen 1, 2, 3).
+- **Line** — Aanvallers, Middenvelders, Verdedigers, Keeper or **Algemeen** (a phase-wide point that applies to the whole team).
+- **Title** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs. The title is the short bullet a coach reads out; the description is optional detail.
+
+Fill in Dutch first; English is optional and falls back to Dutch. Save and Cancel sit together at the bottom of the form — Cancel returns you to the list (or to wherever you came from). Deleting a sub-principle removes it permanently and asks for confirmation first. Shipped sub-principles (such as the JO13-1 Hedel set's) are read-only reference content and show a "Shipped" badge instead of edit/delete actions.
+
 ## Editing the club vision
 
 The **Vision** tab edits your club's single vision record. It carries:
@@ -152,6 +163,11 @@ Everything the manage surface does is also available over REST, so a future non-
 | `GET` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | One principle, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Edit a club-authored principle. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Delete a club-authored principle. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles` | List sub-principles (club-scoped; filter by `phase_side`, `phase_number`, `line_key`, `principle_id`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Create a club-authored sub-principle. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | One sub-principle, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Edit a club-authored sub-principle. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Delete a club-authored sub-principle. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision` | The active club vision. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | One vision, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | Edit the club vision. |
@@ -226,3 +242,62 @@ MethodologyManageRegistry::register( [
 - Use `MethodologyManageView::tabUrl( $mtab, $args )` and `MethodologyManageView::cancelUrl( $mtab )` to build in-tab links and the Save/Cancel target.
 
 The REST side has a matching base: extend `TT\Modules\Methodology\Rest\AbstractMethodologyRestController`, set `restBase()` (e.g. `methodology/formations`) and implement the five CRUD callbacks. The base wires the `tt_edit_methodology` permission callback, club scoping and the standard JSON envelope. `PrinciplesManageTab` and `PrinciplesRestController` are the reference implementations to copy.
+
+## Methodology sets (the active methodology)
+
+Methodology content belongs to a **methodology set** — a named collection an install can run more than one of, choosing which is active per team with an install-wide default. Every list read and every create resolves to the **active set** automatically (via the ambient `MethodologyScope`, the methodology counterpart to club tenancy), so the read view shows one methodology at a time and newly authored content is stamped into the active set. To browse or author against a specific set over REST, pass an optional `methodology_id` query param on any of the routes above; omit it to use the active set.
+
+
+## Managing methodology sets
+
+A **methodology set** is the named container the rest of the library authors into (see [Methodology sets](#methodology-sets-the-active-methodology) above). The **Speelwijzen** tab — first in the manage tab bar — is where you create, rename and select sets.
+
+- **List** — every non-archived set for the club. The install-active set carries an **Actief** badge; shipped reference sets carry a **Shipped** badge.
+- **+ Nieuwe speelwijze** opens a flat create form: a multilingual Name (NL + EN), an optional Slug (derived from the NL name when left blank) and a multilingual Description. Save + Cancel behave like every other record form.
+- **Make active** (`Maak actief`) makes that set the install-wide default — new content is authored into it and teams without their own override use it. It is hidden on the already-active set.
+- **Archive** soft-deletes a set. It is hidden on shipped sets and on the active set, and the last remaining active set can never be archived, so an install always has at least one methodology.
+
+All mutating actions require the `tt_edit_methodology` capability; a viewer without it sees the list only.
+
+### Choosing a set per team
+
+Each team can override which set it uses. On the team edit form a **Methodology set** dropdown lists every set, with **Use install default** as the first option. Leaving it on the default (value `0`) clears the override so the team follows the install-wide active set; picking a specific set pins the team to it. The picker only appears once at least one set exists.
+
+The same operations are available over REST at `/wp-json/talenttrack/v1/methodology/sets` (list / create / read / update / archive) plus `PUT /methodology/sets/{id}/default` to make a set active.
+
+## Tactical scenes (Speelwijze animations)
+
+Per-phase tactical scenes are authored over REST at `/wp-json/talenttrack/v1/methodology/tactical-scenes` (list / create / read / update / delete). Every route requires the `tt_edit_methodology` capability and is club-scoped; reads and creates resolve to the active methodology set (pass an optional `methodology_id` query param to target a specific set). Shipped scenes are read-only — update and delete refuse them; create always writes a club-authored scene.
+
+Routes:
+
+- `GET /methodology/tactical-scenes` — list scenes for the active set. Optional `phase_side` (`attacking` / `defending` / `transition`) and `phase_number` filters.
+- `POST /methodology/tactical-scenes` — create a club-authored scene.
+- `GET /methodology/tactical-scenes/{id}` — one scene, with the raw NL + EN title/description under `title_i18n` / `description_i18n`.
+- `PUT /methodology/tactical-scenes/{id}` — edit a club-authored scene.
+- `DELETE /methodology/tactical-scenes/{id}` — delete a club-authored scene.
+
+A scene carries a multilingual `title` and `description` (`{ "nl": "…", "en": "…" }`), an optional `phase_side` + `phase_number` (the soft link to a phase), an optional `formation_id`, a `sort_order`, and a free-form `scene` object — the animation payload. The `scene` object is validated only as well-formed JSON; the renderer and a future editor own its schema.
+
+### The `scene` animation payload
+
+Coordinates are normalized `0–100` in both axes (0,0 = top-left, `y` grows toward the goal we defend at the bottom), the same convention the formation diagrams use. `t` is normalized time `0..1`; the renderer interpolates linearly between a player's keyframes across `duration_ms`.
+
+```json
+{
+  "duration_ms": 5000,
+  "players": [
+    { "slot": 9, "label": "9", "team": "own",
+      "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 1, "x": 55, "y": 35 } ] }
+  ],
+  "opponents": [
+    { "label": "", "team": "opp", "keyframes": [ { "t": 0, "x": 50, "y": 20 } ] }
+  ],
+  "ball": { "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 0.6, "x": 55, "y": 35 } ] },
+  "arrows": [
+    { "kind": "run", "from": { "x": 50, "y": 55 }, "to": { "x": 55, "y": 35 } }
+  ]
+}
+```
+
+`arrows[].kind` is one of `run`, `pass`, `press` or `dribble` (each draws in its own colour). Any entity with a single keyframe stays put; the ball and every player/opponent share the same interpolation. A drag-and-draw scene editor in the app is a planned follow-up — for now scenes are authored over this API or seeded.

@@ -36,6 +36,17 @@ Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands
 
 Een principe verwijderen is definitief en vraagt eerst om bevestiging.
 
+## Een sub-principe bewerken
+
+Het tabblad **Sub-principes** beheert de concrete afspraken per linie die onder de hoofdprincipes vallen. De lijst is gegroepeerd per spelfase; elk sub-principe bevat:
+
+- **Fasezijde** — Aanvallend, Verdedigend of Omschakelen.
+- **Fasenummer** — welke fase binnen die zijde (bv. Verdedigen 1, 2, 3).
+- **Linie** — Aanvallers, Middenvelders, Verdedigers, Keeper of **Algemeen** (een fasebreed punt dat voor het hele team geldt).
+- **Titel** en **Beschrijving** — elk met **Nederlands (NL)** en **Engels (EN)** naast elkaar. De titel is de korte afspraak die een trainer benoemt; de beschrijving is optionele toelichting.
+
+Vul eerst Nederlands in; Engels is optioneel en valt terug op Nederlands. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam). Een sub-principe verwijderen is definitief en vraagt eerst om bevestiging. Geleverde sub-principes (zoals die van de JO13-1 Hedel-set) zijn alleen-lezen referentiemateriaal en tonen een "Shipped"-badge in plaats van bewerk-/verwijderacties.
+
 ## De clubvisie bewerken
 
 Het tabblad **Visie** bewerkt de ene visierecord van je club. Die bevat:
@@ -152,6 +163,11 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `GET` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Eén principe, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Een clubeigen principe bewerken. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Een clubeigen principe verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Sub-principes tonen (clubgescoped; filter op `phase_side`, `phase_number`, `line_key`, `principle_id`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Een clubeigen sub-principe aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Eén sub-principe, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Een clubeigen sub-principe bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Een clubeigen sub-principe verwijderen. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision` | De actieve clubvisie. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | Eén visie, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | De clubvisie bewerken. |
@@ -226,3 +242,62 @@ MethodologyManageRegistry::register( [
 - Gebruik `MethodologyManageView::tabUrl( $mtab, $args )` en `MethodologyManageView::cancelUrl( $mtab )` voor links binnen het tabblad en het Opslaan/Annuleren-doel.
 
 De REST-kant heeft een bijpassende basis: breid `TT\Modules\Methodology\Rest\AbstractMethodologyRestController` uit, stel `restBase()` in (bijv. `methodology/formations`) en implementeer de vijf CRUD-callbacks. De basis regelt de permission-callback `tt_edit_methodology`, de clubscope en het standaard JSON-envelope. `PrinciplesManageTab` en `PrinciplesRestController` zijn de referentie-implementaties om te kopiëren.
+
+## Speelwijze-sets (de actieve methodiek)
+
+Methodiek-inhoud hoort bij een **speelwijze-set** — een benoemde verzameling waarvan een installatie er meerdere kan draaien en per team kiest welke actief is, met een installatiebrede standaard. Elke lijst-leesactie en elke aanmaak lost automatisch op naar de **actieve set** (via de omgevings-`MethodologyScope`, de methodiek-tegenhanger van de club-tenancy), zodat de leesweergave één methodiek tegelijk toont en nieuw geschreven inhoud in de actieve set wordt gestempeld. Geef een optionele `methodology_id`-queryparameter mee op een van de bovenstaande routes om een specifieke set te bekijken of te bewerken; laat hem weg om de actieve set te gebruiken.
+
+
+## Speelwijzen beheren
+
+Een **speelwijze-set** is de benoemde houder waar de rest van de bibliotheek inhoud in schrijft (zie [Speelwijze-sets](#speelwijze-sets-de-actieve-methodiek) hierboven). Het tabblad **Speelwijzen** — als eerste in de tabbladbalk — is waar je sets aanmaakt, hernoemt en selecteert.
+
+- **Lijst** — elke niet-gearchiveerde set van de club. De installatie-actieve set draagt een **Actief**-badge; meegeleverde referentiesets een **Shipped**-badge.
+- **+ Nieuwe speelwijze** opent een plat aanmaakformulier: een meertalige naam (NL + EN), een optionele slug (afgeleid van de NL-naam als je hem leeg laat) en een meertalige omschrijving. Opslaan + Annuleren werken zoals bij elk ander recordformulier.
+- **Maak actief** maakt die set de installatiebrede standaard — nieuwe inhoud wordt erin geschreven en teams zonder eigen override gebruiken hem. De knop is verborgen op de al-actieve set.
+- **Archive** archiveert een set. De knop is verborgen op meegeleverde sets en op de actieve set, en de laatste overgebleven actieve set kan nooit worden gearchiveerd, zodat een installatie altijd minstens één methodiek heeft.
+
+Alle wijzigende acties vereisen de capability `tt_edit_methodology`; een lezer zonder die capability ziet alleen de lijst.
+
+### Per team een set kiezen
+
+Elk team kan overschrijven welke set het gebruikt. Op het teambewerkformulier toont een dropdown **Speelwijze-set** elke set, met **Installatie-standaard gebruiken** als eerste optie. Laat je hem op de standaard (waarde `0`) staan, dan wist dat de override zodat het team de installatiebrede actieve set volgt; kies je een specifieke set, dan wordt het team eraan vastgezet. De keuzelijst verschijnt pas zodra er ten minste één set bestaat.
+
+Dezelfde bewerkingen zijn beschikbaar via REST op `/wp-json/talenttrack/v1/methodology/sets` (lijst / aanmaken / lezen / bijwerken / archiveren) plus `PUT /methodology/sets/{id}/default` om een set actief te maken.
+
+## Speelwijze-animaties (tactische scènes)
+
+Tactische scènes per fase worden bewerkt via REST op `/wp-json/talenttrack/v1/methodology/tactical-scenes` (lijst / aanmaken / lezen / bijwerken / verwijderen). Elke route vereist de capability `tt_edit_methodology` en is club-gescoped; lezen en aanmaken lossen op naar de actieve speelwijze-set (geef een optionele `methodology_id`-queryparameter mee om een specifieke set te kiezen). Geleverde scènes zijn alleen-lezen — bijwerken en verwijderen weigeren ze; aanmaken schrijft altijd een club-eigen scène.
+
+Routes:
+
+- `GET /methodology/tactical-scenes` — lijst scènes voor de actieve set. Optionele filters `phase_side` (`attacking` / `defending` / `transition`) en `phase_number`.
+- `POST /methodology/tactical-scenes` — maak een club-eigen scène aan.
+- `GET /methodology/tactical-scenes/{id}` — één scène, met de ruwe NL + EN titel/omschrijving onder `title_i18n` / `description_i18n`.
+- `PUT /methodology/tactical-scenes/{id}` — bewerk een club-eigen scène.
+- `DELETE /methodology/tactical-scenes/{id}` — verwijder een club-eigen scène.
+
+Een scène draagt een meertalige `title` en `description` (`{ "nl": "…", "en": "…" }`), een optionele `phase_side` + `phase_number` (de zachte koppeling naar een fase), een optionele `formation_id`, een `sort_order` en een vrij-vorm `scene`-object — de animatie-payload. Het `scene`-object wordt alleen als geldige JSON gevalideerd; de renderer en een toekomstige editor bepalen het schema.
+
+### De `scene`-animatie-payload
+
+Coördinaten zijn genormaliseerd `0–100` op beide assen (0,0 = linksboven, `y` loopt op naar het doel dat wij verdedigen, onderaan), dezelfde conventie als de formatiediagrammen. `t` is genormaliseerde tijd `0..1`; de renderer interpoleert lineair tussen de keyframes van een speler over `duration_ms`.
+
+```json
+{
+  "duration_ms": 5000,
+  "players": [
+    { "slot": 9, "label": "9", "team": "own",
+      "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 1, "x": 55, "y": 35 } ] }
+  ],
+  "opponents": [
+    { "label": "", "team": "opp", "keyframes": [ { "t": 0, "x": 50, "y": 20 } ] }
+  ],
+  "ball": { "keyframes": [ { "t": 0, "x": 50, "y": 55 }, { "t": 0.6, "x": 55, "y": 35 } ] },
+  "arrows": [
+    { "kind": "run", "from": { "x": 50, "y": 55 }, "to": { "x": 55, "y": 35 } }
+  ]
+}
+```
+
+`arrows[].kind` is één van `run`, `pass`, `press` of `dribble` (elk in een eigen kleur getekend). Een entiteit met één keyframe blijft staan; de bal en elke speler/tegenstander delen dezelfde interpolatie. Een sleep-en-teken-editor voor scènes in de app is een geplande vervolgstap — voorlopig worden scènes via deze API bewerkt of geseed.

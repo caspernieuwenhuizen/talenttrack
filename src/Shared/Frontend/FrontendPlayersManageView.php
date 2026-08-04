@@ -116,7 +116,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'player-accounts' ], $base_url ),
             ];
         }
-        if ( ! $at_player_cap ) {
+        if ( ! $at_player_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_players' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
             $page_actions[] = [
                 'label'   => __( 'New player', 'talenttrack' ),
