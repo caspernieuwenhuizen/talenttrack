@@ -47546,6 +47546,126 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Sub-principes"
+msgstr "Sub-principes"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "+ New sub-principle"
+msgstr "+ Nieuw sub-principe"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "No sub-principles yet. Use “+ New sub-principle” to author the first one."
+msgstr "Nog geen sub-principes. Gebruik “+ Nieuw sub-principe” om het eerste toe te voegen."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Delete this sub-principle? This cannot be undone."
+msgstr "Dit sub-principe verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "That sub-principle could not be found."
+msgstr "Dat sub-principe kon niet worden gevonden."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Shipped sub-principles are read-only reference content and cannot be edited."
+msgstr "Meegeleverde sub-principes zijn alleen-lezen referentiemateriaal en kunnen niet worden bewerkt."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Phase side"
+msgstr "Fasezijde"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Phase number"
+msgstr "Fasenummer"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Line"
+msgstr "Linie"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Save sub-principle"
+msgstr "Sub-principe opslaan"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Create sub-principle"
+msgstr "Sub-principe aanmaken"
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "That sub-principle could not be deleted."
+msgstr "Dat sub-principe kon niet worden verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Sub-principle deleted."
+msgstr "Sub-principe verwijderd."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Please choose a valid phase side."
+msgstr "Kies een geldige fasezijde."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Please choose a valid line."
+msgstr "Kies een geldige linie."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "That sub-principle could not be saved."
+msgstr "Dat sub-principe kon niet worden opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Sub-principle saved."
+msgstr "Sub-principe opgeslagen."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Sub-principle created."
+msgstr "Sub-principe aangemaakt."
+
+#: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php
+msgid "Could not create the sub-principle."
+msgstr "Kon het sub-principe niet aanmaken."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Sub-principle not found."
+msgstr "Sub-principe niet gevonden."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Invalid phase side."
+msgstr "Ongeldige fasezijde."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Invalid line."
+msgstr "Ongeldige linie."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Shipped sub-principles are read-only."
+msgstr "Meegeleverde sub-principes zijn alleen-lezen."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Shipped sub-principles cannot be deleted."
+msgstr "Meegeleverde sub-principes kunnen niet worden verwijderd."
+
+#: src/Modules/Methodology/Rest/SubPrinciplesRestController.php
+msgid "Could not save the sub-principle."
+msgstr "Kon het sub-principe niet opslaan."
+
+#: src/Modules/Methodology/Frontend/MethodologyView.php
+msgid "Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen."
+msgstr "Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Show roster"
+msgstr "Toon aanwezigheid"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "This activity is completed. Correct who attended below, then Update activity to save."
+msgstr "Deze activiteit is voltooid. Corrigeer hieronder wie aanwezig was en klik daarna op Activiteit bijwerken om op te slaan."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Attendance and ratings were captured in the guided completion flow. Review or update them there."
+msgstr "Aanwezigheid en beoordelingen zijn vastgelegd in de begeleide afrondingsflow. Bekijk of werk ze daar bij."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Continue rating in the guided flow →"
+msgstr "Ga verder met beoordelen in de begeleide flow →"
+
 #~ msgid "No views recorded in this window yet."
 #~ msgstr "Nog geen weergaven in deze periode."
 

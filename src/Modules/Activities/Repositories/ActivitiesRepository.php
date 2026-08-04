@@ -455,6 +455,65 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #2371 — the actual (recorded) attendance roster for the read-only
+     * detail summary and the flat edit form's editable table. Starts FROM
+     * the activity's current team players (so every squad member has a row
+     * even with no attendance stored yet) and LEFT JOINs the recorded
+     * `record_type='actual'`, non-guest row for its status + notes. Guests
+     * are excluded — they're managed via the dedicated guest endpoints and
+     * shown in their own section. Club-scoped (§4: the view composes, the
+     * repository decides).
+     *
+     * @return array<int, object{player_id:int, name:string, jersey:int, status:string, notes:string}>
+     */
+    public function actualRosterForActivity( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+
+        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, $club
+        ) );
+        if ( $team_id <= 0 ) return [];
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number,
+                    att.status, att.notes
+               FROM {$p}tt_players pl
+               LEFT JOIN {$p}tt_attendance att
+                      ON att.player_id  = pl.id
+                     AND att.activity_id = %d
+                     AND att.club_id     = %d
+                     AND att.is_guest    = 0
+                     AND att.record_type = 'actual'
+              WHERE pl.team_id = %d
+                AND pl.club_id = %d
+                AND pl.archived_at IS NULL
+              ORDER BY pl.last_name ASC, pl.first_name ASC",
+            $activity_id, $club, $team_id, $club
+        ) );
+
+        $out = [];
+        foreach ( $rows ?: [] as $r ) {
+            $pid = (int) $r->player_id;
+            if ( $pid <= 0 ) continue;
+            $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
+            if ( $name === '' ) $name = '#' . $pid;
+            $out[] = (object) [
+                'player_id' => $pid,
+                'name'      => $name,
+                'jersey'    => (int) ( $r->jersey_number ?? 0 ),
+                'status'    => (string) ( $r->status ?? '' ),
+                'notes'     => (string) ( $r->notes ?? '' ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * #2248 — replace the planned (expected) attendance rows for an
      * activity with the supplied per-player status + notes. Club-scoped;
      * only `record_type='expected'` rows are touched, so recorded

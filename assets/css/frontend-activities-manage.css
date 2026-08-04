@@ -783,6 +783,79 @@
     font-style: italic;
 }
 
+/* #2371 — read-only per-player roster, collapsible under the breakdown.
+ * Native <details>; the summary is a 48px tap target. */
+.tt-dashboard .tt-act-att__roster {
+    margin-top: 12px;
+    border-top: 1px solid var(--tt-mute, #f0f3f2);
+}
+.tt-dashboard .tt-act-att__roster-toggle {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-accent, #2271b1);
+    list-style: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-att__roster-toggle::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-act-att__roster-toggle::before {
+    content: "▸";
+    margin-right: 8px;
+    transition: transform 0.15s ease;
+}
+.tt-dashboard .tt-act-att__roster[open] .tt-act-att__roster-toggle::before {
+    transform: rotate(90deg);
+}
+.tt-dashboard .tt-act-att__roster-toggle:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-act-att__roster-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.tt-dashboard .tt-act-att__roster-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 48px;
+    padding: 4px 0;
+    border-top: 1px solid var(--tt-mute, #f0f3f2);
+    font-size: 0.875rem;
+}
+.tt-dashboard .tt-act-att__roster-name {
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-dashboard .tt-act-att__roster-guest {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--tt-ink-soft, #5b6e75);
+    background: var(--tt-mute, #f0f3f2);
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 4px;
+}
+.tt-dashboard .tt-act-att__pill {
+    flex: 0 0 auto;
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 999px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-act-att__roster-toggle::before { transition: none; }
+}
+
 /* ---- Audit footer ------------------------------------------- */
 .tt-dashboard .tt-act-detail__audit {
     color: var(--tt-ink-soft, #5b6e75);
