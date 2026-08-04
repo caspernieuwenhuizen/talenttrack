@@ -16,6 +16,7 @@ use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
 use TT\Modules\Methodology\Repositories\PhasesRepository;
 use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Methodology\Repositories\SetPiecesRepository;
+use TT\Modules\Methodology\Repositories\SubPrinciplesRepository;
 use TT\Modules\Methodology\Repositories\TacticalScenesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -508,6 +509,62 @@ class MethodologyView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endforeach;
+
+        self::renderSubPrinciples();
+    }
+
+    /**
+     * Sub-principes (#2369) — the per-line coaching points, promoted from
+     * principle line_guidance into a first-class entity. Rendered as a
+     * dedicated section under the Spelprincipes list, grouped by phase
+     * (side + number) then line (aanvallers / middenvelders / verdedigers
+     * / algemeen) as titled bullet lists. The repository has already
+     * scoped rows to the active methodology set.
+     */
+    private static function renderSubPrinciples(): void {
+        $rows = ( new SubPrinciplesRepository() )->listFiltered();
+        if ( empty( $rows ) ) return;
+
+        $sides = MethodologyEnums::sides();
+        $lines = MethodologyEnums::lines();
+
+        // Group by phase (side + number), then by line, preserving the
+        // sort_order the repository returns.
+        $by_phase = [];
+        foreach ( $rows as $r ) {
+            $phase_key = (string) $r->phase_side . ':' . (int) $r->phase_number;
+            $by_phase[ $phase_key ]['side']   = (string) $r->phase_side;
+            $by_phase[ $phase_key ]['number'] = (int) $r->phase_number;
+            $by_phase[ $phase_key ]['lines'][ (string) $r->line_key ][] = $r;
+        }
+
+        echo '<h3 class="tt-mlogy-subhead tt-mlogy-subprinciples-head">' . esc_html__( 'Sub-principes', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-mlogy-prose">' . esc_html__( 'Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen.', 'talenttrack' ) . '</p>';
+
+        foreach ( $by_phase as $phase ) {
+            $side_label = $sides[ $phase['side'] ] ?? $phase['side'];
+            $heading = $phase['number'] > 0
+                ? sprintf( '%s %d', $side_label, (int) $phase['number'] )
+                : $side_label;
+            echo '<div class="tt-mlogy-subprinciple-phase">';
+            echo '<h4 class="tt-mlogy-subhead">' . esc_html( $heading ) . '</h4>';
+            echo '<div class="tt-mlogy-subprinciple-lines">';
+            foreach ( $lines as $line_key => $line_label ) {
+                if ( empty( $phase['lines'][ $line_key ] ) ) continue;
+                echo '<div class="tt-mlogy-card tt-mlogy-subprinciple-line">';
+                echo '<strong>' . esc_html( $line_label ) . '</strong>';
+                echo '<ul class="tt-mlogy-bullets">';
+                foreach ( $phase['lines'][ $line_key ] as $sp ) {
+                    $title = MultilingualField::string( $sp->title_json );
+                    if ( $title === '' ) continue;
+                    echo '<li>' . esc_html( $title ) . '</li>';
+                }
+                echo '</ul>';
+                echo '</div>';
+            }
+            echo '</div>';
+            echo '</div>';
+        }
     }
 
     private static function renderPrincipleDetail( int $principle_id ): void {

@@ -36,6 +36,17 @@ Fill in Dutch first; English is optional and falls back to Dutch when a viewer's
 
 Deleting a principle removes it permanently and asks for confirmation first.
 
+## Editing a sub-principle
+
+The **Sub-principes** tab authors the concrete per-line coaching points that sit under the main principles. The list is grouped by game phase; each sub-principle carries:
+
+- **Phase side** — Aanvallend, Verdedigend or Omschakelen.
+- **Phase number** — which phase within that side (e.g. Verdedigen 1, 2, 3).
+- **Line** — Aanvallers, Middenvelders, Verdedigers, Keeper or **Algemeen** (a phase-wide point that applies to the whole team).
+- **Title** and **Description** — each with side-by-side **Dutch (NL)** and **English (EN)** inputs. The title is the short bullet a coach reads out; the description is optional detail.
+
+Fill in Dutch first; English is optional and falls back to Dutch. Save and Cancel sit together at the bottom of the form — Cancel returns you to the list (or to wherever you came from). Deleting a sub-principle removes it permanently and asks for confirmation first. Shipped sub-principles (such as the JO13-1 Hedel set's) are read-only reference content and show a "Shipped" badge instead of edit/delete actions.
+
 ## Editing the club vision
 
 The **Vision** tab edits your club's single vision record. It carries:
@@ -152,6 +163,11 @@ Everything the manage surface does is also available over REST, so a future non-
 | `GET` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | One principle, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Edit a club-authored principle. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Delete a club-authored principle. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles` | List sub-principles (club-scoped; filter by `phase_side`, `phase_number`, `line_key`, `principle_id`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Create a club-authored sub-principle. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | One sub-principle, with Dutch + English values. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Edit a club-authored sub-principle. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Delete a club-authored sub-principle. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision` | The active club vision. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | One vision, with Dutch + English values. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | Edit the club vision. |

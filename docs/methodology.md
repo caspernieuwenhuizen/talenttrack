@@ -15,7 +15,7 @@ The tabs lead with **Vision** — the club's playing vision opens by default, so
 1. **Vision** — the club's umbrella record: chosen formation, style of play, way of playing and important player traits.
 2. **Framework** — your academy's primer: introduction, the football model, football actions, the four phases of attacking and defending, learning goals, factors of influence, and reflection. Each section can carry illustrations. The sections are **collapsible** — the first opens automatically and the rest are tucked away; expand the ones you need. Your open/closed choices are remembered the next time you return.
 3. **Formations & positions** — the formation visual plus a card for each shirt number. Position cards list attacking and defending tasks and an optional diagram.
-4. **Principles** — coded principles like AO-01 (build-up) or VS-02 (disrupting). Each one has an explanation, team-level guidance, per-line guidance for forwards / midfielders / defenders / goalkeeper, a formation diagram and a primary illustration.
+4. **Principles** — coded principles like AO-01 (build-up) or VS-02 (disrupting). Each one has an explanation, team-level guidance, per-line guidance for forwards / midfielders / defenders / goalkeeper, a formation diagram and a primary illustration. Below the principle grid, the **Sub-principes** section lists the concrete per-line coaching points for each game phase (see below).
 5. **Football actions** — the catalogue of football actions (receiving, passing, dribbling, shooting, heading, plus running free, marking, pressing, and supporting actions like game insight and communication).
 6. **Set pieces** — corners, free kicks, penalties and throw-ins, illustrated, with attacking and defending variants.
 
@@ -47,9 +47,17 @@ To start from a shipped entry without touching the original, click **Clone & edi
 
 Every entry can carry diagrams and images. Each entry's edit page has a section for adding pictures — pick from the media library or upload new ones. The first image becomes the hero image; you can add captions and switch which image is primary.
 
+## Sub-principes
+
+Under the **Principles** tab, the **Sub-principes** section lists the concrete per-line coaching points that support each main principle, grouped by game phase (Verdedigen 1/2/3, the transition phases, Aanvallen 1/2) and then by line — **Aanvallers**, **Middenvelders**, **Verdedigers** and **Algemeen** (phase-wide points that apply to the whole team). These are the specific agreements a coach reads out on the pitch: "screen the passing lanes", "keep the axis closed", "at least three players in the box".
+
+Sub-principes are a first-class entity: they can be listed, created, edited and deleted through the authoring surface and the REST API (see the authoring guide), and shipped sub-principes are read-only reference content. The **JO13-1 Hedel** set ships with the full per-line sub-principes from its playing-style document.
+
 ## Selectable methodologies
 
-TalentTrack now ships **two** methodologies. Alongside the default **JO14-1 Hedel** (1-4-2-3-1), a second shipped methodology **JO13-1 Hedel** (1-4-3-3) is available. It carries its own vision, formation and position cards, principles, framework primer, phases and learning goals. A team can be pointed at whichever set fits its playing style; the Methodology tabs then show that set's content. Like all shipped content it is read-only — clone an entry to edit your own copy.
+TalentTrack now ships **two** methodologies. Alongside the default **JO14-1 Hedel** (1-4-2-3-1), a second shipped methodology **JO13-1 Hedel** (1-4-3-3) is available. It carries its own vision, formation and position cards, principles, sub-principes, framework primer, phases and learning goals. A team can be pointed at whichever set fits its playing style; the Methodology tabs then show that set's content. Like all shipped content it is read-only — clone an entry to edit your own copy.
+
+The JO13-1 formation now renders its real **1-4-3-3** on both the **Formaties** and **Visie** tabs (previously it fell back to a generic shape because its diagram coordinates were missing).
 
 ## Tactical scenes (Speelwijze animations)
 
