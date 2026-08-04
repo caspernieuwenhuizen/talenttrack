@@ -378,6 +378,7 @@ class FeatureRegistry {
             'attendance_report_player'      => __( 'Player · Attendance statistics', 'talenttrack' ),
             'attendance_leaderboard'        => __( 'Attendance leaderboard', 'talenttrack' ),
             'minutes_report_team'           => __( 'Minutes played per team', 'talenttrack' ),
+            'minutes_audit'                 => __( 'Minutes audit', 'talenttrack' ),
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
         ];
         $report_toggle_desc = __( 'Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link.', 'talenttrack' );

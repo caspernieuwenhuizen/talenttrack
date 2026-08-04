@@ -136,6 +136,15 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base_url ),
             ],
+            // #2368 — read-only auditability matrix (games × players) that
+            // makes recorded-minutes gaps obvious. Reconciles with the
+            // minutes report; self-gates on tt_view_analytics + team scope.
+            [
+                'slug'  => 'minutes-audit',
+                'label' => __( 'Minutes audit', 'talenttrack' ),
+                'desc'  => __( 'Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'minutes-audit' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + scope (§7) */
+            ],
             [
                 'slug'  => 'team-squad-evaluation-summary',
                 'label' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
@@ -247,7 +256,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
-            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team' ] ],
+            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
             [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],
