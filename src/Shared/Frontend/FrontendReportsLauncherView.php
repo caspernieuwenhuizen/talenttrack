@@ -143,7 +143,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'slug'  => 'minutes-audit',
                 'label' => __( 'Minutes audit', 'talenttrack' ),
                 'desc'  => __( 'Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps.', 'talenttrack' ),
-                'url'   => add_query_arg( [ 'tt_view' => 'minutes-audit' ], $base_url ),
+                'url'   => add_query_arg( [ 'tt_view' => 'minutes-audit' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + scope (§7) */
             ],
             [
                 'slug'  => 'team-squad-evaluation-summary',
