@@ -78,7 +78,6 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
         $availability = $prep_repo->listAvailability( (int) $prep->id );
         $lineup       = $prep_repo->listLineup( (int) $prep->id );
-        $player_goals = $prep_repo->listPlayerGoals( (int) $prep->id );
 
         $starting_xi_half1 = [];
         foreach ( $lineup as $l ) {
@@ -95,21 +94,25 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
         $players_by_id = self::loadPlayersById( array_merge( $available_ids, $starting_xi_half1, $bench_ids ) );
 
-        // Flagged players (with a specific goal in match prep) get the
-        // inline goal-chip + action-counter row in the Tracked Players
-        // section.
-        $specific_goal_ids = [];
+        // Rebuild — "Tracked players" are the prep-flagged players
+        // (is_specific_goal set OR a non-empty attention_text). The
+        // attention_text is the action label the live +/- counter records.
+        // These are development actions logged as tracked-events — distinct
+        // from goals, they do NOT affect the score.
+        $tracked_players    = $prep_repo->listTrackedPlayers( (int) $prep->id );
+        $specific_goal_ids  = array_keys( $tracked_players );
         $player_goal_labels = [];
-        foreach ( $player_goals as $g ) {
-            if ( ! empty( $g->is_specific_goal ) ) {
-                $pid = (int) $g->player_id;
-                $specific_goal_ids[] = $pid;
-                // Capture the operator-set goal label per player for the
-                // chip text. Falls back gracefully when not set.
-                $player_goal_labels[ $pid ] = (string) ( $g->goal_label ?? $g->label ?? '' );
-            }
+        foreach ( $tracked_players as $pid => $flag ) {
+            $player_goal_labels[ (int) $pid ] = (string) ( $flag['attention_text'] ?? '' );
         }
+        // Live tracked-event tallies per player (server-persisted, so they
+        // survive reload / reconnect).
+        $tracked_counts = $execution
+            ? ( new \TT\Modules\MatchExecution\Repositories\TrackedEventsRepository() )->countsByPlayer( $execution_id )
+            : [];
 
+        // Goal events power the review "Match goals" list + the scoreline
+        // (real goals only now that tracked actions log to their own table).
         $goal_events = $execution ? $exec_repo->listGoalEvents( $execution_id ) : [];
         $goal_counts = [];
         foreach ( $goal_events as $ge ) {
@@ -235,7 +238,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // execution is finalized (no further auto-recompute runs then, so a
         // manual correction can't be clobbered). Separate affordance from the
         // #2222 live-edit; same tt_edit_activities capability.
-        $minutes_editable = ( $state === MatchExecutionState::FINALIZED );
+        // Rebuild — the per-player minute override is a review-surface
+        // correction, available in PENDING_REVIEW and FINALIZED. It writes
+        // to a separate override column that survives recompute, so it's
+        // safe in both (the finalized case is the original #2224 need).
+        $minutes_editable = in_array( $state, [ MatchExecutionState::PENDING_REVIEW, MatchExecutionState::FINALIZED ], true );
 
         $session_date = (string) ( $activity->session_date ?? '' );
         $kickoff      = (string) ( $activity->kickoff_time ?? '' );
@@ -502,11 +509,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <?php foreach ( $specific_goal_ids as $pid ) :
                             $pl = $players_by_id[ $pid ] ?? null;
                             if ( ! $pl ) continue;
-                            $count = (int) ( $goal_counts[ $pid ] ?? 0 );
+                            $count = (int) ( $tracked_counts[ $pid ] ?? 0 );
                             $goal_label = trim( (string) ( $player_goal_labels[ $pid ] ?? '' ) );
                             $jersey = $pl->jersey_number !== null ? (string) (int) $pl->jersey_number : '';
                             ?>
-                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-goal-row data-player-id="<?php echo (int) $pid; ?>">
+                            <li class="tt-mexec-player" data-flagged="true" data-tt-mexec-tracked-row data-player-id="<?php echo (int) $pid; ?>" data-action-label="<?php echo esc_attr( $goal_label ); ?>">
                                 <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
                                 <span class="tt-mexec-player-name">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
@@ -515,13 +522,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     <?php endif; ?>
                                 </span>
                                 <div class="tt-mexec-player-actions tt-mexec-edit-only">
-                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-goal-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--goal" data-tt-mexec-tracked-inc aria-label="<?php esc_attr_e( 'Tap to add one (long-press to remove last)', 'talenttrack' ); ?>"><?php esc_html_e( '+ action', 'talenttrack' ); ?></button>
                                 </div>
                                 <div class="tt-mexec-player-goals">
                                     <?php if ( $goal_label !== '' ) : ?>
-                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                        <span class="tt-mexec-goal-chip"><?php echo esc_html( $goal_label ); ?> <strong data-tt-mexec-tracked-count><?php echo (int) $count; ?></strong></span>
                                     <?php else : ?>
-                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
+                                        <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-tracked-count><?php echo (int) $count; ?></strong></span>
                                     <?php endif; ?>
                                     <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
                                     <?php if ( $mins !== null ) : ?>
@@ -855,17 +862,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
-            <?php // #2224 Part B — correct recorded minutes. A separate,
-                  // explicitly-labelled affordance available ONLY on a
-                  // finalized execution (where no auto-recompute can clobber
-                  // a manual correction). Distinct from #2222's live-edit,
-                  // which stays locked on finalize. Read-only until the coach
-                  // taps "Correct recorded minutes"; each changed figure is
-                  // written through the existing row-scoped attendance PATCH
-                  // (the #2159 minutes column), not a new endpoint.
-                  // Only players with a roster attendance row are correctable
-                  // (the row id is the PATCH target). Ordered available-then-
-                  // bench so the on-pitch names read first.
+            <?php // Correct recorded minutes — the per-player override.
+                  // Available in PENDING_REVIEW + FINALIZED. Read-only until
+                  // the coach taps "Correct recorded minutes"; each changed
+                  // figure is written as an override through
+                  // PATCH /match-execution/{activity_id}/minutes, which wins
+                  // over the sub-log-derived value and survives recompute.
+                  // Only players with a roster attendance row are correctable.
+                  // Ordered available-then-bench so on-pitch names read first.
                   $minutes_players = [];
                   foreach ( array_merge( $available_ids, $bench_ids ) as $mpid ) {
                       $mpid = (int) $mpid;
@@ -1079,334 +1083,17 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>
-        <style>
-            /* #1033 — post-match status pill + Finalize CTA. Mobile-first
-             * 48px touch target on the button; visible warning colour on
-             * the pending pill so it doesn\'t get missed in the coach\'s
-             * scroll past the score / timer. */
-            .tt-mexec-post-match {
-                margin: 12px 0;
-                padding: 12px 14px;
-                border: 1px solid #e3e6ea;
-                border-radius: 8px;
-                background: #fff;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                align-items: stretch;
-            }
-            .tt-mexec-state-pill {
-                margin: 0;
-                display: inline-block;
-                align-self: flex-start;
-                padding: 4px 10px;
-                border-radius: 999px;
-                font-size: 12px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-            }
-            .tt-mexec-state-pill--pending_review { background: #fff4d4; color: #92651b; }
-            .tt-mexec-state-pill--finalized     { background: #e6e9ed; color: #5b6e75; }
-            .tt-mexec-finalize-btn {
-                display: block;
-                width: 100%;
-                min-height: 48px;
-                padding: 12px 16px;
-                border-radius: 8px;
-                border: 1.5px solid #d63638;
-                background: #d63638;
-                color: #fff;
-                font: inherit;
-                font-size: 15px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            .tt-mexec-finalize-btn:hover { background: #b32a2c; border-color: #b32a2c; }
-            .tt-mexec-finalize-btn:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
-            .tt-mexec-finalize-help {
-                margin: 0;
-                font-size: 12px;
-                color: #5b6e75;
-                line-height: 1.4;
-            }
-            /* #1049 — late-event affordances. Two collapsible panels
-             * for adding retroactive goals/subs the coach forgot to
-             * tap live. Dashed warn-border so it reads as a corrective
-             * surface, not a primary action. */
-            .tt-mexec-late-event {
-                margin: 12px 0;
-                padding: 12px 14px;
-                border: 2px dashed #c75c1f;
-                border-radius: 8px;
-                background: #fff;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            .tt-mexec-late-event-head {
-                display: flex;
-                align-items: baseline;
-                justify-content: space-between;
-                gap: 8px;
-            }
-            .tt-mexec-late-event-title {
-                margin: 0;
-                font-size: 13px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-                color: #c75c1f;
-            }
-            .tt-mexec-late-event-hint {
-                font-size: 11px;
-                color: #5b6e75;
-            }
-            .tt-mexec-late-event-panel {
-                border: 1px solid #f5dba0;
-                background: #fff8e1;
-                border-radius: 6px;
-                padding: 0;
-            }
-            .tt-mexec-late-event-summary {
-                padding: 12px 14px;
-                cursor: pointer;
-                font-weight: 600;
-                color: #8a5e0a;
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-                list-style: none;
-            }
-            .tt-mexec-late-event-summary::-webkit-details-marker { display: none; }
-            .tt-mexec-late-event-panel[open] .tt-mexec-late-event-summary {
-                border-bottom: 1px solid #f5dba0;
-            }
-            .tt-mexec-late-event-form {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                padding: 12px 14px;
-            }
-            .tt-mexec-late-event-field {
-                display: flex;
-                flex-direction: column;
-                gap: 4px;
-            }
-            .tt-mexec-late-event-field > span {
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.4px;
-                color: #5b6e75;
-            }
-            .tt-mexec-late-event-field select,
-            .tt-mexec-late-event-field input[type="number"] {
-                font: inherit;
-                font-size: 16px;
-                padding: 10px 12px;
-                border: 1px solid #d6dadd;
-                border-radius: 6px;
-                background: #fff;
-                color: #1a1d21;
-                min-height: 48px;
-                width: 100%;
-            }
-            .tt-mexec-late-event-submit {
-                margin-top: 4px;
-                min-height: 48px;
-                padding: 12px 16px;
-                border-radius: 6px;
-                border: 1.5px solid #8a5e0a;
-                background: #8a5e0a;
-                color: #fff;
-                font: inherit;
-                font-size: 14px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            .tt-mexec-late-event-submit:hover { background: #6e4a08; border-color: #6e4a08; }
-            .tt-mexec-late-event-submit:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
-        </style>
-        <script>
-        (function () {
-            // This inline script sits in the page body, but the config it
-            // needs (window.TT_MATCH_EXECUTION) is printed by
-            // wp_localize_script on the footer-enqueued tt-match-execution
-            // handle — i.e. AFTER this block parses. Capturing it once here
-            // would bind to `undefined` and every fetch below would hit
-            // `undefinedfinalize` (404). Resolve it lazily at event time.
-            function cfg() { return window.TT_MATCH_EXECUTION || {}; }
-            var errPrefix = <?php echo wp_json_encode( __( 'Could not save:', 'talenttrack' ) ); ?>;
-            // #2268 — mirror the server-side minute range client-side so a
-            // fat-fingered minute is caught before the request. Max is the
-            // half length plus the locked 10-minute stoppage allowance.
-            var MINUTE_MAX = <?php echo (int) ( ( (int) $prep->half_length_minutes ) + 10 ); ?>;
-
-            // Finalize button.
-            var finalizeBtn = document.querySelector( '[data-tt-mexec-finalize]' );
-            if ( finalizeBtn ) {
-                var confirmMsg = <?php echo wp_json_encode( __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ) ); ?>;
-                var finErrPrefix = <?php echo wp_json_encode( __( 'Could not finalize:', 'talenttrack' ) ); ?>;
-                finalizeBtn.addEventListener( 'click', function () {
-                    if ( ! window.confirm( confirmMsg ) ) return;
-                    finalizeBtn.disabled = true;
-                    fetch( cfg().rest_url + 'finalize', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: '{}'
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                finalizeBtn.disabled = false;
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( finErrPrefix + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            finalizeBtn.disabled = false;
-                            window.alert( finErrPrefix + ' network error.' );
-                        } );
-                } );
-            }
-
-            // #2271 — Re-open a finalized match for corrections. Server
-            // transitions it back to pending_review (cap-gated + audited);
-            // on success reload so the full edit surface comes back.
-            var reopenBtn = document.querySelector( '[data-tt-mexec-reopen]' );
-            if ( reopenBtn ) {
-                var reopenConfirm = <?php echo wp_json_encode( __( 'Re-open this finalized match for corrections?', 'talenttrack' ) ); ?>;
-                var reopenErr = <?php echo wp_json_encode( __( 'Could not re-open the match:', 'talenttrack' ) ); ?>;
-                reopenBtn.addEventListener( 'click', function () {
-                    if ( ! window.confirm( reopenConfirm ) ) return;
-                    reopenBtn.disabled = true;
-                    fetch( cfg().rest_url + 'reopen', {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: '{}'
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                reopenBtn.disabled = false;
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( reopenErr + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            reopenBtn.disabled = false;
-                            window.alert( reopenErr + ' network error.' );
-                        } );
-                } );
-            }
-
-            // #1049 — late-event UUIDs are client-generated so the
-            // existing offline-queue replay path doesn't double-insert.
-            function uuid() {
-                if ( window.crypto && crypto.randomUUID ) return crypto.randomUUID();
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
-                    var r = ( Math.random() * 16 ) | 0;
-                    var v = c === 'x' ? r : ( r & 0x3 ) | 0x8;
-                    return v.toString( 16 );
-                } );
-            }
-
-            function wireLateForm( form, endpoint, build ) {
-                if ( ! form ) return;
-                // #2270 item 2 — hard double-submit guard. Disabling the
-                // button alone doesn't stop an Enter-key re-submit that
-                // races the first request; a submitting flag keeps the
-                // button disabled until the promise settles.
-                var submitting = false;
-                form.addEventListener( 'submit', function ( e ) {
-                    e.preventDefault();
-                    if ( submitting ) return;
-                    var body = build( form );
-                    if ( ! body ) return;
-                    submitting = true;
-                    var btn = form.querySelector( '.tt-mexec-late-event-submit' );
-                    if ( btn ) btn.disabled = true;
-                    var reenable = function () {
-                        submitting = false;
-                        if ( btn ) btn.disabled = false;
-                    };
-                    fetch( cfg().rest_url + endpoint, {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg().rest_nonce },
-                        body: JSON.stringify( body )
-                    } )
-                        .then( function ( r ) {
-                            if ( r.ok ) { window.location.reload(); return; }
-                            return r.json().then( function ( j ) {
-                                reenable();
-                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
-                                window.alert( msg );
-                            } );
-                        } )
-                        .catch( function () {
-                            reenable();
-                            window.alert( errPrefix + ' network error.' );
-                        } );
-                } );
-            }
-
-            wireLateForm(
-                document.querySelector( '[data-tt-mexec-late-goal-form]' ),
-                'goal-event',
-                function ( f ) {
-                    var pid = parseInt( f.querySelector( '[name="player_id"]' ).value, 10 ) || 0;
-                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
-                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
-                    if ( pid <= 0 || ( half !== 1 && half !== 2 ) ) return null;
-                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
-                    return { event_uuid: uuid(), player_id: pid, half: half, minute: minute };
-                }
-            );
-
-            wireLateForm(
-                document.querySelector( '[data-tt-mexec-late-sub-form]' ),
-                'substitution',
-                function ( f ) {
-                    var off = parseInt( f.querySelector( '[name="player_off"]' ).value, 10 ) || 0;
-                    var on  = parseInt( f.querySelector( '[name="player_on"]' ).value, 10 ) || 0;
-                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
-                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
-                    if ( off <= 0 || on <= 0 || off === on ) return null;
-                    if ( half !== 1 && half !== 2 ) return null;
-                    if ( isNaN( minute ) || minute < 0 || minute > MINUTE_MAX ) return null;
-                    return { event_uuid: uuid(), half: half, minute: minute, player_off: off, player_on: on };
-                }
-            );
-        })();
-        </script>
         <?php
     }
 
     private static function enqueueViewAssets( int $activity_id, ?object $execution ): void {
+        // Rebuild — a single consolidated sheet. The former -2026 (chrome
+        // restyle) and -pitch (vertical pitch + event log) sheets are
+        // folded in; depends on the app-chrome sheet for the brand tokens
+        // + KPI-tile styles they relied on.
         wp_enqueue_style(
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/css/frontend-match-execution.css',
-            [],
-            TT_VERSION
-        );
-        // #1684 — 2026 "chrome" restyle layers on top of the base sheet.
-        // Depends on the shared app-chrome sheet (#1690) so the KPI tile
-        // styles + brand tokens are present; loading after the base sheet
-        // means its additive rules win without !important.
-        wp_enqueue_style(
-            'tt-match-execution-2026',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-2026.css',
-            [ 'tt-match-execution', 'tt-frontend-app-chrome' ],
-            TT_VERSION
-        );
-        // #1713 — vertical positional pitch + chronological event log.
-        wp_enqueue_style(
-            'tt-match-execution-pitch',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-pitch.css',
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
@@ -1478,6 +1165,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'away_goal_del_confirm' => __( 'Remove this opponent goal? The score updates.', 'talenttrack' ),
                 'away_goal_minute_error'=> __( 'Enter a valid minute.', 'talenttrack' ),
                 'away_goal_add_error'   => __( 'Could not add the opponent goal.', 'talenttrack' ),
+                // Rebuild — finalize + late-event handlers moved from the
+                // view's inline <script> into the JS module.
+                'finalize_confirm'  => __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ),
+                'finalize_error'    => __( 'Could not finalize:', 'talenttrack' ),
+                'late_save_error'   => __( 'Could not save:', 'talenttrack' ),
             ],
         ] );
     }

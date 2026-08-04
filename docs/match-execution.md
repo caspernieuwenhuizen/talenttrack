@@ -47,6 +47,40 @@ calculation so the reports stay consistent.
 Both finalizing and re-opening need the `tt_edit_activities` capability,
 the same permission that gates the rest of the match-execution screen.
 
+## Tracked players
+
+Any player you flagged in the match plan — with a specific goal or an
+attention note — appears in the **Tracked players** section with a live
+counter. Tap **+ action** each time that player does the thing you're
+watching for (a run in behind, a duel won, a shot on target — whatever the
+note says); long-press to remove the last one you counted.
+
+These tallies are **development actions, not goals**. They are recorded as
+their own timed events and never change the scoreline. Goals that make up
+the score are logged separately (the score steppers, and the *Match goals*
+list in the review). Keeping the two apart means a player's development
+tally can't accidentally inflate the result.
+
+## Who owns the minutes
+
+Minutes played are **derived automatically** from the starting eleven and
+the substitution log — you never have to type them. Because they're
+derived, the way to fix a wrong figure is normally to correct the
+substitution that produced it.
+
+When a genuine correction can't be expressed through the sub log — a player
+who left with a knock and no substitution was logged, say — the review
+screen's **Recorded minutes → Correct** panel lets you set an explicit
+per-player override. An override wins over the derived figure and survives
+every later recalculation; clear the field to fall back to the derived
+value. This is the one place minutes are hand-set for a match that was run
+through this screen, which is why the ordinary attendance minutes field
+steps aside and points you here for those matches.
+
+Matches you never run through match execution are unaffected: there's no
+execution to own their minutes, so you record them the usual way on the
+activity's attendance.
+
 ## Undoing a goal or substitution
 
 Every logged goal and substitution in the **Live progress** feed carries an
@@ -175,6 +209,12 @@ future web app:
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
   — re-open a finalized match for corrections (returns it to *pending
   review*; audit-logged).
+- `PATCH /wp-json/talenttrack/v1/match-execution/{activity_id}/minutes`
+  — set (`{player_id, minutes}`) or clear (`{player_id, minutes: null}`)
+  a per-player minute override.
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/tracked-event`
+  and `DELETE .../tracked-event/{event_uuid}` — log or undo a tracked
+  development action for a flagged player.
 
 All require the `tt_edit_activities` capability, the same permission that
 gates the match-execution screen itself.

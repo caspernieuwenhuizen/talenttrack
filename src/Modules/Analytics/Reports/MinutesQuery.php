@@ -249,15 +249,18 @@ final class MinutesQuery {
     private static function persistedMinutes( int $activity_id, int $club_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;
+        // Effective minutes = COALESCE(minutes_override, minutes_played) so
+        // an explicit coach override on the match-execution surface is what
+        // reports read (the derived value stays in minutes_played).
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT player_id, SUM( minutes_played ) AS minutes_played
+            "SELECT player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
                FROM {$p}tt_attendance
               WHERE activity_id = %d
                 AND club_id = %d
                 AND record_type = 'actual'
                 AND is_guest = 0
-                AND minutes_played IS NOT NULL
-                AND minutes_played > 0
+                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
+                AND COALESCE(minutes_override, minutes_played) > 0
               GROUP BY player_id",
             $activity_id, $club_id
         ) );
