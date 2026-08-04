@@ -47496,6 +47496,22 @@ msgstr "Kon het sub-principe niet opslaan."
 msgid "Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen."
 msgstr "Per fase en per linie: de concrete afspraken die de hoofdprincipes ondersteunen."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Show roster"
+msgstr "Toon aanwezigheid"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "This activity is completed. Correct who attended below, then Update activity to save."
+msgstr "Deze activiteit is voltooid. Corrigeer hieronder wie aanwezig was en klik daarna op Activiteit bijwerken om op te slaan."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Attendance and ratings were captured in the guided completion flow. Review or update them there."
+msgstr "Aanwezigheid en beoordelingen zijn vastgelegd in de begeleide afrondingsflow. Bekijk of werk ze daar bij."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Continue rating in the guided flow →"
+msgstr "Ga verder met beoordelen in de begeleide flow →"
+
 #~ msgid "No views recorded in this window yet."
 #~ msgstr "Nog geen weergaven in deze periode."
 

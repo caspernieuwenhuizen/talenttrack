@@ -51,7 +51,7 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
   - **Notes** — the activity's free-text notes.
   - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
   - **Expected attendance** — the planned roster (see below).
-  - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row.
+  - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row. A collapsible **Show roster** list underneath names each registered player with their status pill (guests tagged), so you can see who had which status without opening the edit form.
   - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
 - **Audit footer** — who created and last changed the activity. For an activity imported from Spond it also shows **Team last synced from Spond: <time>** — the team's most recent Spond sync (the timestamp is team-level, not per activity, and the label says so), so you can judge how fresh the imported data is.
 
@@ -67,7 +67,7 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 6. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
 7. Save. New activities start **Planned**.
 
-The edit form no longer changes status or captures attendance — it edits details only. **Status is changed with explicit buttons** (see [Completing an activity](#completing-an-activity)), and attendance is recorded in the guided completion flow.
+The edit form does not change status — **status is changed with explicit buttons** (see [Completing an activity](#completing-an-activity)). Attendance is normally recorded in the guided completion flow, but once a **training** (non-match) activity is **completed** its edit form also shows an **editable attendance table** — one row per player with a status dropdown and a note — so you can correct a missed or wrong attendance right there and hit **Update activity**. This is also the fallback when the guided wizards are switched off. Match-type activities keep their minutes-aware completion flow, so their attendance stays there (the edit form links you to it).
 
 ### Completing an activity
 

@@ -51,7 +51,7 @@ Door op een kaart te tikken open je de detailpagina van de activiteit. De hele d
   - **Notities** — de vrije tekstnotities van de activiteit.
   - **Opstelling** (wedstrijddag) — de basiself en de bank, elke speler met rugnummer en de gespeelde positie (met terugval op de voorkeurspositie).
   - **Verwachte opkomst** — de geplande selectie (zie hieronder).
-  - **Opkomst** (afgeronde activiteiten) — een verdeelbalk met legenda over Aanwezig / Afwezig / Te laat / Met kennisgeving / Geblesseerd (plus eventuele eigen statussen), met de kop `X / Y aanwezig (Z%)` die linkt naar het opkomstformulier. Een melding waarschuwt wanneer selectiespelers nog geen opkomstregel hebben.
+  - **Opkomst** (afgeronde activiteiten) — een verdeelbalk met legenda over Aanwezig / Afwezig / Te laat / Met kennisgeving / Geblesseerd (plus eventuele eigen statussen), met de kop `X / Y aanwezig (Z%)` die linkt naar het opkomstformulier. Een melding waarschuwt wanneer selectiespelers nog geen opkomstregel hebben. Daaronder toont een inklapbare lijst **Toon aanwezigheid** elke geregistreerde speler met zijn statuslabel (gasten getagd), zodat je ziet wie welke status had zonder het bewerkformulier te openen.
   - **Toernooi** — voor toernooi-activiteiten het gekoppelde toernooi met data en aantal wedstrijden.
 - **Auditvoettekst** — wie de activiteit heeft aangemaakt en als laatste gewijzigd. Bij een activiteit die vanuit Spond is geïmporteerd staat er ook **Team laatst gesynchroniseerd vanuit Spond: <tijd>** — de meest recente Spond-synchronisatie van het team (het tijdstip is op teamniveau, niet per activiteit, en het label zegt dat ook), zodat je kunt inschatten hoe vers de geïmporteerde gegevens zijn.
 
@@ -67,7 +67,7 @@ De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en v
 6. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnt een optioneel veld **Aanwezigheidstijd** — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
 7. Opslaan. Nieuwe activiteiten starten op **Gepland**.
 
-Het bewerkformulier verandert geen status meer en legt geen aanwezigheid meer vast — het bewerkt alleen de details. **Status verander je met expliciete knoppen** (zie [Een activiteit voltooien](#een-activiteit-voltooien)), en aanwezigheid leg je vast in de begeleide voltooiingsflow.
+Het bewerkformulier verandert geen status — **status verander je met expliciete knoppen** (zie [Een activiteit voltooien](#een-activiteit-voltooien)). Aanwezigheid leg je normaal vast in de begeleide voltooiingsflow, maar zodra een **training** (niet-wedstrijd) is **voltooid** toont het bewerkformulier óók een **bewerkbare aanwezigheidstabel** — één regel per speler met een statuskeuzelijst en een notitie — zodat je een gemiste of verkeerde aanwezigheid daar direct corrigeert en op **Activiteit bijwerken** klikt. Dit is ook de terugvaloptie wanneer de begeleide wizards zijn uitgeschakeld. Wedstrijdactiviteiten houden hun minuten-bewuste voltooiingsflow, dus hun aanwezigheid blijft daar (het bewerkformulier linkt je ernaartoe).
 
 ### Een activiteit voltooien
 

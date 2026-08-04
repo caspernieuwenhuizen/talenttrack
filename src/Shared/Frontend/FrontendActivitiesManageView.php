@@ -1046,13 +1046,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // excused grey / injured purple). Custom statuses fall back to a
         // neutral slate. Hidden when no rows recorded yet (total = 0).
         if ( $total > 0 ) {
-            $palette = [
-                'present' => '#2e7d4f',
-                'absent'  => '#d63638',
-                'late'    => '#d9a006',
-                'excused' => '#9aa3a8',
-                'injured' => '#7b53b6',
-            ];
+            $palette = self::attendanceStatusPalette();
             $seeded = array_keys( $palette );
 
             // Ordered list of (key, label, count, colour) for present
@@ -1105,6 +1099,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     ) )
                     . '</p>';
             }
+
+            // #2371 — read-only per-player roster. The aggregate above
+            // answers "how many"; this answers "who" without leaving for
+            // the completion flow. Collapsible so the card stays compact
+            // for large squads; native <details> gives keyboard + no-JS
+            // behaviour for free. Editing lives on the edit form (§3
+            // fallback) / the completion wizard, not here — a detail view
+            // must not mutate.
+            self::renderAttendanceRosterReadonly( $activity_id );
         } else {
             echo '<p class="tt-act-att__warn">'
                 . esc_html__( 'No attendance recorded yet.', 'talenttrack' )
@@ -1113,6 +1116,71 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</div>';
         echo '</div>';
+    }
+
+    /**
+     * #2371 — the status → bar/pill colour map. Single source of truth for
+     * the attendance legend, the read-only roster pills, and the edit-form
+     * status options. Mirrors the mockup (present green / absent red / late
+     * amber / excused grey / injured purple). Custom statuses outside this
+     * set fall back to a neutral slate at the call site.
+     *
+     * @return array<string,string>
+     */
+    private static function attendanceStatusPalette(): array {
+        return [
+            'present' => '#2e7d4f',
+            'absent'  => '#d63638',
+            'late'    => '#d9a006',
+            'excused' => '#9aa3a8',
+            'injured' => '#7b53b6',
+        ];
+    }
+
+    /**
+     * #2371 — read-only per-player attendance roster for the detail view,
+     * rendered inside a collapsed <details>. Guests are included (marked)
+     * so the coach reads the full recorded picture. Each row: player name +
+     * a status pill coloured from {@see attendanceStatusPalette()}, label
+     * via LabelTranslator. Read-only by design — no inputs, no edit
+     * affordance (the card head's Edit link is the edit path).
+     */
+    private static function renderAttendanceRosterReadonly( int $activity_id ): void {
+        if ( $activity_id <= 0 ) return;
+
+        $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->listRosterAttendance( $activity_id, true );
+        if ( empty( $roster ) ) return;
+
+        $palette = self::attendanceStatusPalette();
+
+        echo '<details class="tt-act-att__roster">';
+        echo '<summary class="tt-act-att__roster-toggle">'
+            . esc_html__( 'Show roster', 'talenttrack' ) . '</summary>';
+        echo '<ul class="tt-act-att__roster-list">';
+        foreach ( $roster as $row ) {
+            $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+            if ( $name === '' ) $name = '#' . (int) ( $row->player_id ?? 0 );
+            $status_raw = (string) ( $row->status ?? '' );
+            $status_key = strtolower( trim( $status_raw ) );
+            $color      = $palette[ $status_key ] ?? '#64748b';
+            $label      = $status_raw === ''
+                ? esc_html__( 'Not recorded', 'talenttrack' )
+                : \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $status_raw ) );
+            $is_guest   = (int) ( $row->is_guest ?? 0 ) === 1;
+
+            echo '<li class="tt-act-att__roster-row">';
+            echo '<span class="tt-act-att__roster-name">' . esc_html( $name );
+            if ( $is_guest ) {
+                echo ' <span class="tt-act-att__roster-guest">' . esc_html__( 'Guest', 'talenttrack' ) . '</span>';
+            }
+            echo '</span>';
+            echo '<span class="tt-act-att__pill" style="background:' . esc_attr( $color ) . ';">' /* tt-inline-ok */
+                . esc_html( $label ) . '</span>';
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '</details>';
     }
 
     /**
@@ -2559,27 +2627,103 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             <?php endif; // $planned_visible planned section ?>
 
             <?php
-            // #2245 — the *actual* (completed) attendance table used to live
-            // here. It moved to the evaluation wizard's AttendanceStep, so
-            // the edit form only links out to the guided completion flow.
-            // Status now changes via the detail view's transition buttons —
-            // there is no status `<select>` on this form and no toggle JS.
-            if ( $is_edit && current_user_can( 'tt_edit_evaluations' ) ) :
-                $attendance_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+            // #2245 — the *actual* attendance table moved to the evaluation
+            // wizard's AttendanceStep; the wizard is the primary path.
+            // #2371 — but the wizard is toggleable (`tt_wizards_enabled`) and
+            // completion routes through `WizardEntryPoint::buildUrl` with an
+            // EMPTY flat fallback, so with wizards OFF there was no way to
+            // correct recorded attendance at all — violating CLAUDE.md §3
+            // ("the flat-form path remains as the power-user fallback").
+            // Restore an editable actual-attendance table on the flat edit
+            // form for a *completed* activity. It posts
+            // `attendance[{pid}][status|notes]` — the SAME payload the REST
+            // `write_attendance` path already consumes (record_type='actual');
+            // no new write logic, no separate handler. Scoped to NON-match
+            // types: match minutes are owned by the match-execution / finalize
+            // flow, and `update_session` wipes-then-rewrites roster rows, so a
+            // status-only table would drop recorded minutes.
+            $is_match_type    = \TT\Modules\Activities\Services\ActivityCompletionResolver::isMatchType( (string) ( $session->activity_type_key ?? '' ) );
+            $show_edit_roster = $is_edit && $attendance_visible && ! $is_match_type && current_user_can( 'tt_edit_activities' );
+
+            if ( $is_edit && ( current_user_can( 'tt_edit_evaluations' ) || $show_edit_roster ) ) :
+                $completion_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                     (int) $session->id,
                     (string) ( $session->activity_type_key ?? '' ),
                     add_query_arg( [ 'tt_view' => 'activities', 'id' => (int) $session->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
                 );
                 ?>
                 <h3 class="tt-act-form-attendance-head"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
-                <p class="tt-act-form-attendance-note">
-                    <?php esc_html_e( 'Attendance and ratings are captured in the guided completion flow, not on this form.', 'talenttrack' ); ?>
-                </p>
-                <p>
-                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $attendance_url ); ?>">
-                        <?php esc_html_e( 'Complete activity', 'talenttrack' ); ?>
-                    </a>
-                </p>
+
+                <?php if ( $show_edit_roster ) :
+                    $actual_rows = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+                        ->actualRosterForActivity( (int) $session->id );
+                    // Status options + selected value use the shared palette
+                    // keys so the flat form, the legend and the read-only
+                    // roster pills all agree on the vocabulary.
+                    $status_keys = array_keys( self::attendanceStatusPalette() );
+                    ?>
+                    <p class="tt-act-form-attendance-note">
+                        <?php esc_html_e( 'This activity is completed. Correct who attended below, then Update activity to save.', 'talenttrack' ); ?>
+                    </p>
+                    <?php if ( empty( $actual_rows ) ) : ?>
+                        <p><em><?php esc_html_e( 'No players on this team yet.', 'talenttrack' ); ?></em></p>
+                    <?php else : ?>
+                        <table class="tt-table tt-attendance-table">
+                            <thead><tr>
+                                <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                                <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                                <th><?php esc_html_e( 'Note', 'talenttrack' ); ?></th>
+                            </tr></thead>
+                            <tbody>
+                            <?php foreach ( $actual_rows as $arow ) :
+                                $apid     = (int) $arow->player_id;
+                                $a_status = strtolower( trim( (string) $arow->status ) );
+                                if ( ! in_array( $a_status, $status_keys, true ) ) $a_status = 'present';
+                                ?>
+                                <tr class="tt-attendance-row">
+                                    <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>"><?php echo esc_html( (string) $arow->name ); ?></td>
+                                    <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
+                                        <select class="tt-input tt-attendance-status" name="attendance[<?php echo $apid; ?>][status]">
+                                            <?php foreach ( $status_keys as $sk ) : ?>
+                                                <option value="<?php echo esc_attr( $sk ); ?>" <?php selected( $a_status, $sk ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $sk ) ) ); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td data-label="<?php esc_attr_e( 'Note', 'talenttrack' ); ?>">
+                                        <input type="text" class="tt-input" name="attendance[<?php echo $apid; ?>][notes]" value="<?php echo esc_attr( (string) $arow->notes ); ?>" />
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                    <?php if ( current_user_can( 'tt_edit_evaluations' ) && $completion_url !== '' ) : ?>
+                        <p class="tt-act-form-attendance-note">
+                            <a href="<?php echo esc_url( $completion_url ); ?>"><?php esc_html_e( 'Continue rating in the guided flow →', 'talenttrack' ); ?></a>
+                        </p>
+                    <?php endif; ?>
+
+                <?php elseif ( current_user_can( 'tt_edit_evaluations' ) ) :
+                    // Not-completed, or a match type (owned by the completion
+                    // flow). Wording branches on whether the activity already
+                    // happened so a completed match reads "review", never
+                    // "will be captured".
+                    ?>
+                    <p class="tt-act-form-attendance-note">
+                        <?php echo $attendance_visible
+                            ? esc_html__( 'Attendance and ratings were captured in the guided completion flow. Review or update them there.', 'talenttrack' )
+                            : esc_html__( 'Attendance and ratings are captured in the guided completion flow, not on this form.', 'talenttrack' ); ?>
+                    </p>
+                    <?php if ( $completion_url !== '' ) : ?>
+                    <p>
+                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $completion_url ); ?>">
+                            <?php echo $attendance_visible
+                                ? esc_html__( 'Continue rating', 'talenttrack' )
+                                : esc_html__( 'Complete activity', 'talenttrack' ); ?>
+                        </a>
+                    </p>
+                    <?php endif; ?>
+                <?php endif; ?>
             <?php endif; ?>
 
             <?php
