@@ -44,6 +44,10 @@ class MethodologyModule implements ModuleInterface {
 
         Frontend\Manage\PrinciplesManageTab::register();
         Rest\PrinciplesRestController::init();
+        // #2369 — sub-principles: per-line coaching points under a phase,
+        // promoted from principle line_guidance to a first-class entity.
+        Frontend\Manage\SubPrinciplesManageTab::register();
+        Rest\SubPrinciplesRestController::init();
         Frontend\Manage\FootballActionsManageTab::register();
         Rest\FootballActionsRestController::init();
 

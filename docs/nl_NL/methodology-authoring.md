@@ -36,6 +36,17 @@ Vul eerst het Nederlands in; Engels is optioneel en valt terug op het Nederlands
 
 Een principe verwijderen is definitief en vraagt eerst om bevestiging.
 
+## Een sub-principe bewerken
+
+Het tabblad **Sub-principes** beheert de concrete afspraken per linie die onder de hoofdprincipes vallen. De lijst is gegroepeerd per spelfase; elk sub-principe bevat:
+
+- **Fasezijde** — Aanvallend, Verdedigend of Omschakelen.
+- **Fasenummer** — welke fase binnen die zijde (bv. Verdedigen 1, 2, 3).
+- **Linie** — Aanvallers, Middenvelders, Verdedigers, Keeper of **Algemeen** (een fasebreed punt dat voor het hele team geldt).
+- **Titel** en **Beschrijving** — elk met **Nederlands (NL)** en **Engels (EN)** naast elkaar. De titel is de korte afspraak die een trainer benoemt; de beschrijving is optionele toelichting.
+
+Vul eerst Nederlands in; Engels is optioneel en valt terug op Nederlands. Opslaan en Annuleren staan samen onderaan het formulier — Annuleren brengt je terug naar de lijst (of naar waar je vandaan kwam). Een sub-principe verwijderen is definitief en vraagt eerst om bevestiging. Geleverde sub-principes (zoals die van de JO13-1 Hedel-set) zijn alleen-lezen referentiemateriaal en tonen een "Shipped"-badge in plaats van bewerk-/verwijderacties.
+
 ## De clubvisie bewerken
 
 Het tabblad **Visie** bewerkt de ene visierecord van je club. Die bevat:
@@ -152,6 +163,11 @@ Alles wat de beheeromgeving doet, is ook via REST beschikbaar, zodat een toekoms
 | `GET` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Eén principe, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Een clubeigen principe bewerken. |
 | `DELETE` | `/wp-json/talenttrack/v1/methodology/principles/{id}` | Een clubeigen principe verwijderen. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Sub-principes tonen (clubgescoped; filter op `phase_side`, `phase_number`, `line_key`, `principle_id`). |
+| `POST` | `/wp-json/talenttrack/v1/methodology/sub-principles` | Een clubeigen sub-principe aanmaken. |
+| `GET` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Eén sub-principe, met Nederlandse + Engelse waarden. |
+| `PUT` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Een clubeigen sub-principe bewerken. |
+| `DELETE` | `/wp-json/talenttrack/v1/methodology/sub-principles/{id}` | Een clubeigen sub-principe verwijderen. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision` | De actieve clubvisie. |
 | `GET` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | Eén visie, met Nederlandse + Engelse waarden. |
 | `PUT` | `/wp-json/talenttrack/v1/methodology/vision/{id}` | De clubvisie bewerken. |

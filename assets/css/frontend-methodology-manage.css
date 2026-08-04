@@ -57,6 +57,12 @@
     align-items: center;
 }
 
+.tt-dashboard .tt-mmg-group-head {
+    margin: 1.2rem 0 0.4rem;
+    font-size: 0.95rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+
 .tt-dashboard .tt-mmg-list {
     list-style: none;
     margin: 0;
