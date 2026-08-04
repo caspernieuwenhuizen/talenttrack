@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-03T21:59:32+00:00\n"
+"POT-Creation-Date: 2026-08-04T07:03:32+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -61,7 +61,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1562
+#: src/Shared/Frontend/DashboardShortcode.php:1567
 #: src/Shared/Frontend/FrontendConfigurationView.php:2539
 #: src/Shared/Frontend/FrontendPeopleManageView.php:289
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -71,7 +71,7 @@ msgstr "Ouder"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1567
+#: src/Shared/Frontend/DashboardShortcode.php:1572
 msgid "Team Manager"
 msgstr "Team Manager"
 
@@ -163,7 +163,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:115
-#: src/Shared/Frontend/DashboardShortcode.php:1561
+#: src/Shared/Frontend/DashboardShortcode.php:1566
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2525
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2537
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2672
@@ -238,7 +238,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1565
+#: src/Shared/Frontend/DashboardShortcode.php:1570
 #: src/Shared/Frontend/FrontendConfigurationView.php:2533
 #: src/Shared/Frontend/FrontendPeopleManageView.php:285
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -796,7 +796,7 @@ msgid "Team · Minutes distribution"
 msgstr "Team · Minutenverdeling"
 
 #: src/Core/FeatureRegistry.php:369
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:141
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:150
 #: src/Shared/Frontend/FrontendStandardReportsView.php:512
 #: src/Shared/Frontend/FrontendStandardReportsView.php:521
 msgid "Team · Squad evaluation summary"
@@ -818,7 +818,7 @@ msgstr "Scout · Rapportkaart"
 # merge these into the proper position on next run; meanwhile they land
 # here verbatim so a Dutch install reads correctly today.
 #: src/Core/FeatureRegistry.php:373
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:167
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:176
 #: src/Shared/Frontend/FrontendStandardReportsView.php:897
 msgid "Coach · Evaluation quality"
 msgstr "Coach · Evaluatiekwaliteit"
@@ -827,7 +827,7 @@ msgstr "Coach · Evaluatiekwaliteit"
 # will merge these into the proper position on next run; meanwhile they
 # land here verbatim so a Dutch install reads correctly today.
 #: src/Core/FeatureRegistry.php:374
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:176
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:185
 msgid "Player · Progress & radar"
 msgstr "Speler · Voortgang & radar"
 
@@ -869,14 +869,22 @@ msgid "Minutes played per team"
 msgstr "Gespeelde minuten per team"
 
 #: src/Core/FeatureRegistry.php:381
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:65
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:73
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:76
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:144
+msgid "Minutes audit"
+msgstr "Minuten-audit"
+
+#: src/Core/FeatureRegistry.php:382
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:265
 #: src/Shared/Frontend/FrontendRateCardView.php:51
 #: src/Shared/Frontend/FrontendRateCardView.php:52
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:185
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:194
 msgid "Rate cards"
 msgstr "Rapportkaarten"
 
-#: src/Core/FeatureRegistry.php:383
+#: src/Core/FeatureRegistry.php:384
 msgid ""
 "Show this report and allow it to open. When off, the report tile is hidden "
 "and the report is rejected even via a direct link."
@@ -886,7 +894,7 @@ msgstr ""
 "link."
 
 #. translators: %s = report name, e.g. "Player · Minutes played".
-#: src/Core/FeatureRegistry.php:387
+#: src/Core/FeatureRegistry.php:388
 #, php-format
 msgid "Report: %s"
 msgstr "Rapport: %s"
@@ -962,6 +970,7 @@ msgstr "Detail"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:27
 #: src/Modules/Activities/Admin/ActivitiesPage.php:142
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:287
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:602
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:762
@@ -1720,7 +1729,7 @@ msgstr "Fysio"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1566
+#: src/Shared/Frontend/DashboardShortcode.php:1571
 #: src/Shared/Frontend/FrontendConfigurationView.php:2537
 #: src/Shared/Frontend/FrontendPeopleManageView.php:288
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1800,7 +1809,7 @@ msgstr "Clubbeheerder"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1564
+#: src/Shared/Frontend/DashboardShortcode.php:1569
 msgid "Head Coach"
 msgstr "Hoofdtrainer"
 
@@ -1811,7 +1820,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1563
+#: src/Shared/Frontend/DashboardShortcode.php:1568
 msgid "Assistant Coach"
 msgstr "Assistent-trainer"
 
@@ -2151,6 +2160,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:416
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:159
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:419
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:414
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:156
@@ -3596,6 +3606,8 @@ msgid "Upcoming activities"
 msgstr "Aankomende activiteiten"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:54
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:357
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:437
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:432
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:204
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
@@ -3871,6 +3883,7 @@ msgstr "Type"
 #: src/Modules/Analytics/AnalyticsModule.php:176
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:307
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:246
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:100
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
@@ -4000,6 +4013,7 @@ msgid "Source"
 msgstr "Bron"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:97
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:247
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:176
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
@@ -4258,7 +4272,7 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1029
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2574
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:643
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:251
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:260
 #: src/Shared/Frontend/FrontendTeamDetailView.php:463
 #: src/Shared/Frontend/FrontendTrialCaseView.php:493
 #: src/Shared/Frontend/PlayerDashboardView.php:49
@@ -4846,6 +4860,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:60
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:51
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:51
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:60
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:57
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:90
@@ -5100,6 +5115,9 @@ msgstr "Seizoen"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:80
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:52
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:62
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:55
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:66
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:74
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:61
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:72
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:80
@@ -5135,6 +5153,7 @@ msgstr "Rapporten"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:58
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:63
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:54
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:57
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:63
 msgid "You do not have permission to view this report."
 msgstr "Je hebt geen rechten om dit rapport te bekijken."
@@ -5142,6 +5161,7 @@ msgstr "Je hebt geen rechten om dit rapport te bekijken."
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:84
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:74
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
 #: src/Modules/Reports/Admin/ReportsPage.php:39
 #: src/Shared/Frontend/FrontendRateCardView.php:57
@@ -5242,6 +5262,7 @@ msgstr "Top %d"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:343
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:424
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:366
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:427
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:422
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1390
 #: src/Shared/Frontend/FrontendHolidaysView.php:290
@@ -5261,6 +5282,7 @@ msgstr "— alle types —"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:359
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:440
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:382
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:443
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:438
 msgid "Date range"
 msgstr "Datumbereik"
@@ -5268,6 +5290,7 @@ msgstr "Datumbereik"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:360
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:441
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:383
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:444
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:439
 #: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
@@ -5296,6 +5319,7 @@ msgstr "Vanaf"
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:361
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:442
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:384
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:445
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:440
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
@@ -5982,6 +6006,157 @@ msgstr "Volgende →"
 msgid "Showing %d row(s)."
 msgstr "%d rij(en) weergegeven."
 
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:78
+msgid ""
+"Check and chase recorded match minutes. Rows are games, columns are squad "
+"players; each cell shows the minutes recorded for that player in that game."
+msgstr ""
+"Controleer en achterhaal geregistreerde wedstrijdminuten. Rijen zijn "
+"wedstrijden, kolommen zijn spelers uit de selectie; elke cel toont de "
+"geregistreerde minuten van die speler in die wedstrijd."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:92
+msgid ""
+"You don't coach any teams yet, so there is no minutes data to audit. Ask an "
+"administrator to assign you to a team."
+msgstr ""
+"Je coacht nog geen teams, dus er zijn geen minutengegevens om te "
+"controleren. Vraag een beheerder om je aan een team toe te wijzen."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:98
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:105
+msgid "No teams yet — add one to enable this report."
+msgstr "Nog geen teams — voeg er een toe om dit rapport in te schakelen."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:104
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:111
+msgid "No data for the selected team in your scope."
+msgstr "Geen gegevens voor het geselecteerde team binnen jouw bereik."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:141
+msgid ""
+"No games for this team in the selected window. Widen the date range or pick "
+"another team."
+msgstr ""
+"Geen wedstrijden voor dit team in het gekozen venster. Verruim het "
+"datumbereik of kies een ander team."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:149
+msgid "Games present, no minutes recorded yet."
+msgstr "Wedstrijden aanwezig, nog geen minuten geregistreerd."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:150
+msgid ""
+"Minutes come only from recorded actual entries (via match-execution or "
+"manual minutes entry). Open a game below and record its minutes."
+msgstr ""
+"Minuten komen uitsluitend uit geregistreerde werkelijke invoer (via match-"
+"uitvoering of handmatige minuteninvoer). Open hieronder een wedstrijd en "
+"registreer de minuten."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:173
+msgid "Minutes audit summary"
+msgstr "Samenvatting minuten-audit"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:176
+msgid "Games"
+msgstr "Wedstrijden"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:182
+msgid "Fully recorded"
+msgstr "Volledig geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:189
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:330
+msgid "Incomplete"
+msgstr "Onvolledig"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:195
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:331
+msgid "Not recorded"
+msgstr "Niet geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:227
+msgid "Game × player"
+msgstr "Wedstrijd × speler"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:228
+msgid "minutes recorded per player"
+msgstr "geregistreerde minuten per speler"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:232
+msgid "No games match this filter. Clear the filter to see every game."
+msgstr ""
+"Geen wedstrijden komen overeen met dit filter. Wis het filter om alle "
+"wedstrijden te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:240
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
+msgid "Game"
+msgstr "Wedstrijd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:245
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:224
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:71
+#: src/Shared/Frontend/Components/MinutesBreakdown.php:82
+msgid "Total"
+msgstr "Totaal"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:272
+msgid "Not in squad"
+msgstr "Niet in selectie"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:276
+msgid "On squad, 0 recorded"
+msgstr "In selectie, 0 geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:287
+msgid "Record"
+msgstr "Registreer"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:305
+msgid "Column total"
+msgstr "Kolomtotaal"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:321
+msgid "minutes recorded"
+msgstr "minuten geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:322
+msgid "in squad, 0 recorded"
+msgstr "in selectie, 0 geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:323
+msgid "not in squad"
+msgstr "niet in selectie"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:329
+msgid "Complete"
+msgstr "Volledig"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:358
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:151
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:362
+msgid "League"
+msgstr "Competitie"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:359
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:152
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:363
+msgid "Cup"
+msgstr "Beker"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:360
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:153
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:364
+msgid "Friendly"
+msgstr "Oefen"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:434
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:429
+msgid "Match type"
+msgstr "Wedstrijdtype"
+
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:71
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:79
 msgid "Minutes played (team)"
@@ -5999,32 +6174,9 @@ msgstr ""
 "Je coacht nog geen teams, dus er zijn geen minutengegevens om te tonen. "
 "Vraag een beheerder om je aan een team toe te wijzen."
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:105
-msgid "No teams yet — add one to enable this report."
-msgstr "Nog geen teams — voeg er een toe om dit rapport in te schakelen."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:111
-msgid "No data for the selected team in your scope."
-msgstr "Geen gegevens voor het geselecteerde team binnen jouw bereik."
-
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:143
 msgid "No minutes recorded for this team in the selected window."
 msgstr "Geen minuten geregistreerd voor dit team in het geselecteerde venster."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:151
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:362
-msgid "League"
-msgstr "Competitie"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:152
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:363
-msgid "Cup"
-msgstr "Beker"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:153
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:364
-msgid "Friendly"
-msgstr "Oefen"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:204
 msgid "Minutes summary"
@@ -6033,12 +6185,6 @@ msgstr "Minutenoverzicht"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:215
 msgid "Total starts"
 msgstr "Totaal basisplaatsen"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:224
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:71
-#: src/Shared/Frontend/Components/MinutesBreakdown.php:82
-msgid "Total"
-msgstr "Totaal"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:225
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:31
@@ -6068,10 +6214,6 @@ msgstr "Gem. / wedstrijd"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:233
 msgid "% available"
 msgstr "% beschikbaar"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:429
-msgid "Match type"
-msgstr "Wedstrijdtype"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:58
 msgid "You do not have permission to manage scheduled reports."
@@ -7709,7 +7851,7 @@ msgstr "Hoofd Opleidingen"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1568
+#: src/Shared/Frontend/DashboardShortcode.php:1573
 msgid "Academy Admin"
 msgstr "Academy Admin"
 
@@ -16170,7 +16312,7 @@ msgstr "Geen passende onderwerpen."
 #: src/Shared/CoreSurfaceRegistration.php:1852
 #: src/Shared/CoreSurfaceRegistration.php:2039
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1602
+#: src/Shared/Frontend/DashboardShortcode.php:1607
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -17806,7 +17948,7 @@ msgstr "Printen"
 #: src/Shared/Frontend/Components/FilterBar.php:111
 #: src/Shared/Frontend/Components/FilterBar.php:230
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1607
+#: src/Shared/Frontend/DashboardShortcode.php:1612
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Sluiten"
@@ -26832,8 +26974,8 @@ msgstr "Mijn toegewezen spelers"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1517
-#: src/Shared/Frontend/DashboardShortcode.php:1518
+#: src/Shared/Frontend/DashboardShortcode.php:1522
+#: src/Shared/Frontend/DashboardShortcode.php:1523
 msgid "Help & docs"
 msgstr "Help & docs"
 
@@ -31515,7 +31657,7 @@ msgstr "Gekoppelde spelers"
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:174
 #: src/Shared/Frontend/DashboardShortcode.php:76
-#: src/Shared/Frontend/DashboardShortcode.php:1612
+#: src/Shared/Frontend/DashboardShortcode.php:1617
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:457
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -39093,15 +39235,15 @@ msgstr ""
 "De Analytics-verkenner staat uit. Je rapporten werken nog — die vind je "
 "onder Rapporten. Een beheerder kan de verkenner weer aanzetten onder Modules."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1433
+#: src/Shared/Frontend/DashboardShortcode.php:1438
 msgid "Section unavailable"
 msgstr "Sectie niet beschikbaar"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1436
+#: src/Shared/Frontend/DashboardShortcode.php:1441
 msgid "This section is currently unavailable."
 msgstr "Dit onderdeel is momenteel niet beschikbaar."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1439
+#: src/Shared/Frontend/DashboardShortcode.php:1444
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
@@ -39110,7 +39252,7 @@ msgstr ""
 "Probeer het later opnieuw, of neem contact op met je beheerder als je "
 "toegang nodig hebt."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1462
+#: src/Shared/Frontend/DashboardShortcode.php:1467
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
@@ -39119,48 +39261,48 @@ msgstr ""
 "demomodus wordt uitgeschakeld."
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1496
+#: src/Shared/Frontend/DashboardShortcode.php:1501
 msgid "DEMO"
 msgstr "DEMO"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1536
+#: src/Shared/Frontend/DashboardShortcode.php:1541
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr "Mijn instellingen"
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1543
+#: src/Shared/Frontend/DashboardShortcode.php:1548
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr "Mijn sessies"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1555
+#: src/Shared/Frontend/DashboardShortcode.php:1560
 msgid "View as"
 msgstr "Bekijken als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1558
+#: src/Shared/Frontend/DashboardShortcode.php:1563
 msgid "All personas (default)"
 msgstr "Alle persona's (standaard)"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1582
+#: src/Shared/Frontend/DashboardShortcode.php:1587
 msgid "Go to Admin"
 msgstr "Naar beheer"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1586
+#: src/Shared/Frontend/DashboardShortcode.php:1591
 msgid "Log out"
 msgstr "Uitloggen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1604
+#: src/Shared/Frontend/DashboardShortcode.php:1609
 msgid "Open full Help & Docs"
 msgstr "Volledige Help & Docs openen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1676
+#: src/Shared/Frontend/DashboardShortcode.php:1681
 msgid "You are viewing as"
 msgstr "Je bekijkt als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1677
+#: src/Shared/Frontend/DashboardShortcode.php:1682
 msgid "Switch back to all personas"
 msgstr "Terug naar alle persona's"
 
@@ -44128,18 +44270,26 @@ msgstr ""
 "opgesplitst naar wedstrijdtype (Competitie / Beker / Vriendschappelijk) met "
 "basisplaatsen / wissels / % beschikbaar."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:142
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:145
+msgid ""
+"Games × players matrix showing which games have complete, incomplete or "
+"missing recorded minutes — chase the gaps."
+msgstr ""
+"Matrix wedstrijden × spelers die toont welke wedstrijden volledige, "
+"onvolledige of ontbrekende geregistreerde minuten hebben — pak de gaten aan."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:151
 msgid "Per-player average rating and evaluation count over the last 6 months."
 msgstr ""
 "Per-speler gemiddelde rating en aantal evaluaties over de afgelopen 6 "
 "maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:147
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:156
 #: src/Shared/Frontend/FrontendStandardReportsView.php:621
 msgid "Season summary — annual review"
 msgstr "Seizoensoverzicht — jaarreview"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:148
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:157
 msgid ""
 "Academy-wide totals across players, matches, evaluations, prospects, and "
 "trial decisions over the last 12 months."
@@ -44147,11 +44297,11 @@ msgstr ""
 "Academy-brede totalen voor spelers, wedstrijden, evaluaties, prospects en "
 "stagebesluiten over de afgelopen 12 maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:153
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:162
 msgid "Trial funnel"
 msgstr "Stagefunnel"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:154
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:163
 msgid ""
 "Prospects → trial cases opened → decided, broken out per scout and per "
 "decision."
@@ -44159,20 +44309,20 @@ msgstr ""
 "Prospects → stagedossiers geopend → beslist, uitgesplitst per scout en per "
 "beslissing."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:159
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:168
 #: src/Shared/Frontend/FrontendStandardReportsView.php:795
 #: src/Shared/Frontend/FrontendStandardReportsView.php:804
 msgid "Scout report card"
 msgstr "Scout-rapport"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:160
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:169
 msgid ""
 "Per-scout dashboard — prospects logged, cases opened, admissions, hit rate."
 msgstr ""
 "Per-scout-dashboard — vastgelegde prospects, geopende dossiers, toelatingen, "
 "hit-rate."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:168
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:177
 msgid ""
 "Per-coach rating distribution and variance — spots the rate-everyone-the-"
 "same pattern."
@@ -44180,7 +44330,7 @@ msgstr ""
 "Beoordelingsverdeling en variatie per coach — signaleert het patroon waarbij "
 "iedereen hetzelfde cijfer krijgt."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:177
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:186
 msgid ""
 "Radar charts over evaluation categories — per-player progress, player "
 "comparison, team averages."
@@ -44188,15 +44338,15 @@ msgstr ""
 "Radargrafieken over evaluatiecategorieën — voortgang per speler, "
 "spelersvergelijking, teamgemiddelden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:186
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:195
 msgid "Per-player rating cards with trends."
 msgstr "Rapportkaarten per speler met trends."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:192
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:201
 msgid "Pick a report."
 msgstr "Kies een rapport."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:233
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:242
 msgid ""
 "No reports are available to you yet. They may be switched off for this "
 "academy, or outside your current access — ask an administrator to enable a "
@@ -44206,27 +44356,27 @@ msgstr ""
 "uitgeschakeld voor deze academie of vallen buiten je huidige toegang — vraag "
 "een beheerder om een rapport in te schakelen of je bereik te verruimen."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:249
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:258
 msgid "Development & performance"
 msgstr "Ontwikkeling & prestaties"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:250
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:259
 msgid "Playing time"
 msgstr "Speeltijd"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:252
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:261
 msgid "Recruitment"
 msgstr "Werving"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:253
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:262
 msgid "Staff & quality"
 msgstr "Staf & kwaliteit"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:254
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:263
 msgid "Season overview"
 msgstr "Seizoensoverzicht"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:277
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:286
 msgid "Other reports"
 msgstr "Overige rapporten"
 
@@ -47247,101 +47397,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Everyone with an account has logged in recently."
 #~ msgstr "Iedereen met een account heeft recent ingelogd."
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Minutes audit"
-msgstr "Minuten-audit"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Check and chase recorded match minutes. Rows are games, columns are squad players; each cell shows the minutes recorded for that player in that game."
-msgstr "Controleer en achterhaal geregistreerde wedstrijdminuten. Rijen zijn wedstrijden, kolommen zijn spelers uit de selectie; elke cel toont de geregistreerde minuten van die speler in die wedstrijd."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "You don't coach any teams yet, so there is no minutes data to audit. Ask an administrator to assign you to a team."
-msgstr "Je coacht nog geen teams, dus er zijn geen minutengegevens om te controleren. Vraag een beheerder om je aan een team toe te wijzen."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "No games for this team in the selected window. Widen the date range or pick another team."
-msgstr "Geen wedstrijden voor dit team in het gekozen venster. Verruim het datumbereik of kies een ander team."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Games present, no minutes recorded yet."
-msgstr "Wedstrijden aanwezig, nog geen minuten geregistreerd."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Minutes come only from recorded actual entries (via match-execution or manual minutes entry). Open a game below and record its minutes."
-msgstr "Minuten komen uitsluitend uit geregistreerde werkelijke invoer (via match-uitvoering of handmatige minuteninvoer). Open hieronder een wedstrijd en registreer de minuten."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Minutes audit summary"
-msgstr "Samenvatting minuten-audit"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Games"
-msgstr "Wedstrijden"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Fully recorded"
-msgstr "Volledig geregistreerd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Incomplete"
-msgstr "Onvolledig"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Not recorded"
-msgstr "Niet geregistreerd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Game × player"
-msgstr "Wedstrijd × speler"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "minutes recorded per player"
-msgstr "geregistreerde minuten per speler"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "No games match this filter. Clear the filter to see every game."
-msgstr "Geen wedstrijden komen overeen met dit filter. Wis het filter om alle wedstrijden te zien."
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Game"
-msgstr "Wedstrijd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Not in squad"
-msgstr "Niet in selectie"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "On squad, 0 recorded"
-msgstr "In selectie, 0 geregistreerd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Column total"
-msgstr "Kolomtotaal"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Record"
-msgstr "Registreer"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "minutes recorded"
-msgstr "minuten geregistreerd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "in squad, 0 recorded"
-msgstr "in selectie, 0 geregistreerd"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "not in squad"
-msgstr "niet in selectie"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "Complete"
-msgstr "Volledig"
-
-#: src/Shared/Frontend/FrontendReportsLauncherView.php
-msgid "Games × players matrix showing which games have complete, incomplete or missing recorded minutes — chase the gaps."
-msgstr "Matrix wedstrijden × spelers die toont welke wedstrijden volledige, onvolledige of ontbrekende geregistreerde minuten hebben — pak de gaten aan."
 
 #~ msgid ""
 #~ "Optional. Array of { week, phase, multiplier } objects. Leave blank for "
