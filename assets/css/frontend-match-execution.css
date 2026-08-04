@@ -888,3 +888,817 @@
     color: #fff;
 }
 .tt-mexec-add-goal-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+
+/* =====================================================================
+ * Folded in from frontend-match-execution-2026.css (rebuild — 4 sheets -> 1).
+ * 2026 chrome restyle. Depends on tokens via the app-chrome enqueue dep.
+ * ===================================================================== */
+/*
+ * frontend-match-execution-2026.css — 2026 "chrome" restyle of the
+ * assistant-coach live-match surface (#1684, parity epic #1695).
+ *
+ * Loads AFTER frontend-match-execution.css and LAYERS the 2026 look on
+ * top: brand-token cards (white, 1px #e3e6e1, radius 12–14px,
+ * var(--tt-shadow-md)), a dark-green/gold live score + clock chrome,
+ * clean event-style rows with icon chips, and a KPI footer. No selector
+ * or data-attribute the live JS binds to is touched — every rule here is
+ * additive styling on the EXISTING markup, so the timer / score-stepper /
+ * goal-counter / sub-flow hooks keep working unchanged.
+ *
+ * Mobile-first per CLAUDE.md §2: base targets ~360px; min-width queries
+ * scale up. Live-action buttons stay ≥44–48px. Brand tokens come from
+ * public.css (--tt-primary #0b3d2e, --tt-secondary #e8b624, --tt-ink,
+ * --tt-muted, --tt-shadow-md) — no new palette.
+ */
+
+/* ---- Surface ------------------------------------------------------- */
+.tt-mexec {
+    /* Local aliases onto the brand tokens so the rules below read clean
+     * and inherit operator overrides from the visual editor. */
+    --tt-mx-primary: var(--tt-primary, #0b3d2e);
+    --tt-mx-gold:    var(--tt-secondary, #e8b624);
+    --tt-mx-ink:     var(--tt-ink, #0e1a14);
+    --tt-mx-muted:   var(--tt-muted, #6a6d66);
+    --tt-mx-line:    #e3e6e1;
+    --tt-mx-card-radius: 14px;
+    background: transparent;
+    color: var(--tt-mx-ink);
+}
+
+/* ---- Condensed header --------------------------------------------- */
+.tt-mexec .tt-mexec-header {
+    background: transparent;
+    border-bottom: none;
+    padding: 0 0 0.75rem;
+}
+.tt-mexec .tt-mexec-header-meta {
+    color: var(--tt-mx-muted);
+    font-size: 0.85rem;
+    white-space: normal;
+}
+.tt-mexec .tt-mexec-team-name { color: var(--tt-mx-primary); font-weight: 800; }
+.tt-mexec .tt-mexec-vs,
+.tt-mexec .tt-mexec-sep,
+.tt-mexec .tt-mexec-when { color: var(--tt-mx-muted); }
+
+/* ---- Card chrome shared by the major sections --------------------- */
+.tt-mexec .tt-mexec-score,
+.tt-mexec .tt-mexec-timer,
+.tt-mexec .tt-mexec-section {
+    background: #fff;
+    border: 1px solid var(--tt-mx-line);
+    border-bottom: 1px solid var(--tt-mx-line);
+    border-radius: var(--tt-mx-card-radius);
+    box-shadow: var(--tt-shadow-md);
+    margin: 0 0 0.85rem;
+}
+
+/* ---- Live score — dark-green / gold clock chrome ------------------ */
+.tt-mexec .tt-mexec-score {
+    background: var(--tt-mx-primary);
+    border-color: var(--tt-mx-primary);
+    color: #fff;
+    padding: 1rem 1.1rem;
+}
+.tt-mexec .tt-mexec-score-team-label {
+    color: rgba(255, 255, 255, 0.78);
+    letter-spacing: 0.08em;
+    font-weight: 800;
+}
+.tt-mexec .tt-mexec-score-num {
+    background: transparent;
+    border: none;
+    color: var(--tt-mx-gold);
+    font-size: 2.1rem;
+    font-weight: 800;
+}
+/* Steppers: keep the +/- tap targets, recolor onto the green band. */
+.tt-mexec .tt-mexec-score-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+.tt-mexec .tt-mexec-score-btn:active { background: rgba(255, 255, 255, 0.22); }
+.tt-mexec .tt-mexec-score-btn--plus {
+    background: var(--tt-mx-gold);
+    border-color: var(--tt-mx-gold);
+    color: var(--tt-mx-primary);
+}
+.tt-mexec .tt-mexec-score-btn--plus:active { background: #d8a91d; }
+
+/* ---- Timer — clock chip + live dot -------------------------------- */
+.tt-mexec .tt-mexec-timer { padding: 0.9rem 1.1rem; }
+.tt-mexec .tt-mexec-timer-half {
+    color: var(--tt-mx-muted);
+    font-weight: 700;
+}
+.tt-mexec .tt-mexec-timer-half[data-status="live"] { color: var(--tt-mx-primary); }
+.tt-mexec .tt-mexec-timer-half[data-status="live"]::before { color: var(--tt-mx-primary); }
+.tt-mexec .tt-mexec-timer-clock {
+    /* Gold-on-green clock chip echoing the mockup's `.clock`. */
+    display: inline-block;
+    background: var(--tt-mx-primary);
+    color: var(--tt-mx-gold);
+    padding: 0.15rem 0.6rem;
+    border-radius: 8px;
+    font-size: 1.6rem;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec .tt-mexec-timer-btn {
+    border-radius: 999px;
+    border-color: var(--tt-mx-line);
+}
+.tt-mexec .tt-mexec-timer-btn[data-action="start"],
+.tt-mexec .tt-mexec-timer-btn[data-action="resume"] {
+    background: var(--tt-mx-primary);
+    border-color: var(--tt-mx-primary);
+}
+
+/* ---- KPI summary strip -------------------------------------------- */
+.tt-mexec .tt-mexec-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 0 0 0.85rem;
+}
+.tt-mexec .tt-mexec-kpis .tt-kpi {
+    /* Inherit the shared .tt-kpi card styling from frontend-app-chrome.css;
+     * the strip just lays the tiles out two-up on mobile. */
+    margin: 0;
+}
+
+/* ---- Section heads ------------------------------------------------ */
+.tt-mexec .tt-mexec-section-head { padding: 0.85rem 1.1rem 0.35rem; }
+.tt-mexec .tt-mexec-section-title {
+    color: var(--tt-mx-primary);
+    letter-spacing: 0.06em;
+}
+.tt-mexec .tt-mexec-section-count { color: var(--tt-mx-muted); }
+.tt-mexec .tt-mexec-empty { color: var(--tt-mx-muted); padding: 0.85rem 1.1rem; }
+
+/* ---- Player / event rows — clean rows with chips ------------------ */
+.tt-mexec .tt-mexec-player {
+    padding: 0.6rem 1.1rem;
+    border-bottom: 1px solid var(--tt-mx-line);
+}
+.tt-mexec .tt-mexec-player:last-child { border-bottom: none; }
+.tt-mexec .tt-mexec-player[data-flagged="true"] {
+    background: #fbf6e4;
+}
+.tt-mexec .tt-mexec-player-number {
+    background: var(--tt-mx-primary);
+    color: #fff;
+}
+.tt-mexec .tt-mexec-player[data-flagged="true"] .tt-mexec-player-number {
+    background: var(--tt-mx-gold);
+    color: var(--tt-mx-primary);
+}
+.tt-mexec .tt-mexec-player-name { color: var(--tt-mx-ink); }
+.tt-mexec .tt-mexec-player-name small { color: var(--tt-mx-muted); }
+
+/* Action buttons keep their live-JS classes; restyle to brand. */
+.tt-mexec .tt-mexec-action-btn {
+    border-radius: 999px;
+    border-color: var(--tt-mx-line);
+}
+.tt-mexec .tt-mexec-action-btn--goal {
+    background: #fbf6e4;
+    border-color: var(--tt-mx-gold);
+    color: #7a5a00;
+}
+.tt-mexec .tt-mexec-action-btn--goal:active { background: #f4e7b8; }
+.tt-mexec .tt-mexec-action-btn--sub-on {
+    background: var(--tt-mx-primary);
+    border-color: var(--tt-mx-primary);
+    color: #fff;
+}
+
+/* Goal chip — pill echoing the mockup event-log chips. */
+.tt-mexec .tt-mexec-goal-chip {
+    background: #e3f4ea;
+    border-color: #bfe3cd;
+    color: var(--tt-mx-primary);
+}
+
+/* Logged-minutes chip — neutral pill so it reads as a stat, not a goal. */
+.tt-mexec .tt-mexec-minutes-chip {
+    background: var(--tt-mx-mute, #f1f3f4);
+    border-color: var(--tt-mx-line, #d6dadd);
+    color: var(--tt-mx-ink-soft, #5b6e75);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Sub-target reveal -------------------------------------------- */
+.tt-mexec .tt-mexec-sub-target {
+    border: 1px solid var(--tt-mx-line);
+    border-top: 3px solid var(--tt-mx-primary);
+    border-radius: var(--tt-mx-card-radius);
+    box-shadow: var(--tt-shadow-md);
+    margin: 0 0 0.85rem;
+    overflow: hidden;
+}
+.tt-mexec .tt-mexec-sub-target-banner { background: var(--tt-mx-primary); }
+.tt-mexec .tt-mexec-sub-target .tt-mexec-player:active { background: #eef5f0; }
+
+/* ---- Post-match status pill + Finalize ---------------------------- */
+.tt-mexec .tt-mexec-post-match {
+    border: 1px solid var(--tt-mx-line);
+    border-radius: var(--tt-mx-card-radius);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-mexec .tt-mexec-state-pill--pending_review { background: #fdf3d8; color: #7a5a00; }
+.tt-mexec .tt-mexec-state-pill--finalized      { background: #eef0ec; color: var(--tt-mx-muted); }
+
+/* ---- Late-event corrective surface -------------------------------- */
+.tt-mexec .tt-mexec-late-event {
+    border-radius: var(--tt-mx-card-radius);
+}
+
+/* ---- Sticky footer CTA -------------------------------------------- */
+.tt-mexec .tt-mexec-footer-cta { border-radius: 999px; }
+.tt-mexec .tt-mexec-footer-cta[data-action="start-match"],
+.tt-mexec .tt-mexec-footer-cta[data-action="start-second-half"] {
+    background: var(--tt-mx-primary);
+}
+.tt-mexec .tt-mexec-footer-dot { background: var(--tt-mx-primary); }
+
+/* ---- Scale up ----------------------------------------------------- */
+@media (min-width: 768px) {
+    .tt-mexec .tt-mexec-score-num { font-size: 2.4rem; }
+    .tt-mexec .tt-mexec-timer-clock { font-size: 1.8rem; }
+}
+
+
+/* =====================================================================
+ * Folded in from frontend-match-execution-pitch.css (rebuild — 4 sheets -> 1).
+ * Vertical positional pitch + chronological event log (#1713).
+ * ===================================================================== */
+/*
+ * frontend-match-execution-pitch.css (#1713)
+ *
+ * Vertical positional pitch + chronological "Live verloop" event log
+ * for the live match-execution surface. Mobile-first: the pitch renders
+ * at 360px via aspect-ratio + percentage-positioned slots (no fixed px
+ * widths). Depends on the shared app-chrome sheet for tokens.
+ */
+
+.tt-mxp-pitch-section,
+.tt-mxp-log-section {
+    margin: var( --tt-sp-3, 12px ) 0;
+}
+
+/* ---- Vertical pitch -------------------------------------------------- */
+
+.tt-mxp-pitch {
+    position: relative;
+    width: 100%;
+    /* Portrait half-and-half pitch: taller than wide so the XI reads
+     * top (attack) to bottom (goalkeeper) on a phone. */
+    aspect-ratio: 68 / 100;
+    max-width: 26rem;
+    margin: 0 auto;
+    border-radius: var( --tt-radius-lg, 14px );
+    overflow: hidden;
+    background:
+        linear-gradient( 180deg, #4ea35f 0%, #3c8a4d 100% );
+    box-shadow: var( --tt-shadow-md, 0 6px 18px rgba( 0, 0, 0, 0.14 ) );
+    /* Pitch markings drawn with layered gradients so the sheet stays
+     * asset-free: centre line + a faint stripe pattern. */
+    background-image:
+        linear-gradient( 180deg, rgba( 255, 255, 255, 0.85 ) 0, rgba( 255, 255, 255, 0.85 ) 2px, transparent 2px ),
+        repeating-linear-gradient( 180deg, transparent 0, transparent 9%, rgba( 255, 255, 255, 0.05 ) 9%, rgba( 255, 255, 255, 0.05 ) 18% ),
+        linear-gradient( 180deg, #4ea35f 0%, #3c8a4d 100% );
+    background-position: center center, 0 0, 0 0;
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.tt-mxp-slot {
+    position: absolute;
+    transform: translate( -50%, -50% );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.tt-mxp-slot-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var( --tt-paper, #fff );
+    border: 2px solid var( --tt-ink, #1a1d21 );
+    color: var( --tt-ink, #1a1d21 );
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: var( --tt-shadow-sm, 0 2px 6px rgba( 0, 0, 0, 0.18 ) );
+}
+
+.tt-mxp-slot-name {
+    max-width: 5.5rem;
+    padding: 1px 4px;
+    border-radius: 6px;
+    background: rgba( 0, 0, 0, 0.45 );
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-mxp-slot-empty .tt-mxp-slot-badge {
+    background: rgba( 255, 255, 255, 0.55 );
+    border-style: dashed;
+    color: var( --tt-ink-soft, #5b6e75 );
+}
+
+.tt-mxp-slot-empty .tt-mxp-slot-name {
+    background: rgba( 0, 0, 0, 0.3 );
+}
+
+/* ---- Event log ("Live verloop") ------------------------------------- */
+
+.tt-mxp-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var( --tt-sp-2, 8px );
+}
+
+.tt-mxp-log-row {
+    display: grid;
+    /* 5th column holds the edit-mode Undo button inline; without it the Undo
+     * wrapped onto its own second line under every event (#2280). The minute
+     * stepper (subs) still spans all columns onto its own line by design. */
+    grid-template-columns: auto auto 1fr auto auto;
+    align-items: center;
+    gap: var( --tt-sp-2, 8px );
+    min-height: 3rem; /* 48px tap/scan target */
+    padding: var( --tt-sp-2, 8px ) var( --tt-sp-3, 12px );
+    border: 1px solid var( --tt-line, #e3e6ea );
+    border-radius: var( --tt-radius, 8px );
+    background: var( --tt-paper, #fff );
+}
+/* Keep the Undo button compact so it fits inline at the row's end. */
+.tt-mxp-log-row .tt-mexec-undo-btn { white-space: nowrap; }
+
+.tt-mxp-log-minute {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var( --tt-ink-soft, #5b6e75 );
+    white-space: nowrap;
+}
+
+/* #2273 — inline "correct minute" stepper on a substitution row. Sits as a
+   full-width second line (grid-column 1/-1) so the 4-column row layout is
+   untouched; edit-mode only via .tt-mexec-edit-only. */
+.tt-mxp-log-editminute {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var( --tt-line, #e3e6ea );
+}
+.tt-mxp-log-editminute-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var( --tt-ink-soft, #5b6e75 );
+    margin-right: auto;
+}
+.tt-mxp-min-btn {
+    width: 44px;
+    min-height: 44px;
+    border: 1px solid var( --tt-line, #e3e6ea );
+    background: var( --tt-mute, #f0f3f2 );
+    border-radius: var( --tt-radius, 8px );
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var( --tt-primary, #0b3d2e );
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mxp-min-btn:active { background: var( --tt-line, #e3e6ea ); }
+.tt-mxp-min-input {
+    width: 3.5rem;
+    min-height: 44px;
+    text-align: center;
+    border: 1px solid var( --tt-line, #e3e6ea );
+    border-radius: var( --tt-radius, 8px );
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+}
+.tt-mxp-min-input::-webkit-outer-spin-button,
+.tt-mxp-min-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.tt-mxp-log-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Colour + icon + text, never colour alone. */
+.tt-mxp-log-chip--goal {
+    background: var( --tt-success-subtle, #e3f4e6 );
+    color: var( --tt-success, #1f7a3a );
+}
+
+.tt-mxp-log-chip--substitution {
+    background: var( --tt-info-subtle, #e4eefb );
+    color: var( --tt-info, #235ea8 );
+}
+
+/* #2275 — an opponent goal reads grey, distinct from our green goal chip. */
+.tt-mxp-log-chip--goal-away {
+    background: #eceff1;
+    color: #55606c;
+}
+
+.tt-mxp-log-icon {
+    font-size: 0.8125rem;
+    line-height: 1;
+}
+
+.tt-mxp-log-detail {
+    font-size: 0.8125rem;
+    color: var( --tt-ink, #1a1d21 );
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-mxp-log-score {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var( --tt-ink, #1a1d21 );
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var( --tt-bg-soft, #f3f5f7 );
+    white-space: nowrap;
+}
+
+/* ---- #2273 — paired swap card in the Live progress feed ------------- */
+/* Substitution rows render as a two-line ▲On / ▼Off card. The existing
+   4-column grid (minute · chip · body · undo) is reused; the swap block
+   sits in the body column (1fr) as a stacked pair. Goals keep the single
+   detail line + running-score chip. */
+.tt-mxp-log-row--substitution {
+    align-items: start;
+}
+.tt-mxp-log-swap {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+}
+.tt-mxp-log-swap-line {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8125rem;
+    min-width: 0;
+}
+.tt-mxp-log-swap-dir {
+    width: 16px;
+    flex: 0 0 16px;
+    text-align: center;
+    font-weight: 800;
+}
+.tt-mxp-log-swap-line--on .tt-mxp-log-swap-dir { color: var( --tt-success, #2f9e5e ); }
+.tt-mxp-log-swap-line--off .tt-mxp-log-swap-dir { color: var( --tt-danger, #d8453b ); }
+.tt-mxp-log-swap-line--off .tt-mxp-log-swap-who { color: var( --tt-ink-soft, #6a6d66 ); }
+.tt-mxp-log-swap-who {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---- #2273 — Squad timeline (post-match) ---------------------------- */
+/* One 0'→FT bar per player: green on-pitch segments over a hatched bench
+   track, ▲/▼ sub markers, ⚽ goal marks, minutes on the right. Ported from
+   review.html's .tl-* with the repo's tt-mexec- prefix. */
+.tt-mexec-tl-scale {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var( --tt-ink-soft, #6a6d66 );
+    padding: 0 44px 6px 92px;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-group {
+    margin: 14px 0 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var( --tt-ink-soft, #6a6d66 );
+}
+.tt-mexec-tl-row {
+    display: grid;
+    grid-template-columns: 92px 1fr 44px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+}
+.tt-mexec-tl-row + .tt-mexec-tl-row {
+    border-top: 1px solid var( --tt-mute, #f0f3f2 );
+}
+.tt-mexec-tl-who {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+}
+.tt-mexec-tl-num {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border-radius: 50%;
+    background: var( --tt-primary, #0b3d2e );
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-mexec-tl-bar {
+    position: relative;
+    height: 22px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: repeating-linear-gradient( 45deg, #eef1ee, #eef1ee 5px, #e6eae6 5px, #e6eae6 10px );
+}
+.tt-mexec-tl-seg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+.tt-mexec-tl-seg--on { background: #2f9e5e; }
+.tt-mexec-tl-goal {
+    position: absolute;
+    top: 50%;
+    transform: translate( -50%, -50% );
+    z-index: 3;
+    font-size: 11px;
+}
+.tt-mexec-tl-mark {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    z-index: 2;
+}
+.tt-mexec-tl-mark--on  { background: #1f7a3a; }
+.tt-mexec-tl-mark--off { background: #d8453b; }
+.tt-mexec-tl-mark::after {
+    content: attr( data-min );
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX( -50% );
+    font-size: 9px;
+    font-weight: 800;
+    color: #333;
+    background: #fff;
+    padding: 0 2px;
+    white-space: nowrap;
+}
+.tt-mexec-tl-mins {
+    text-align: right;
+    font-size: 12px;
+    font-weight: 800;
+    color: var( --tt-ink, #0e1a14 );
+    font-variant-numeric: tabular-nums;
+}
+.tt-mexec-tl-mins--zero {
+    color: #a4a8a2;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 1.15;
+}
+.tt-mexec-tl-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var( --tt-line, #e3e6e1 );
+    font-size: 11px;
+    color: var( --tt-ink-soft, #6a6d66 );
+}
+.tt-mexec-tl-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.tt-mexec-tl-key {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+.tt-mexec-tl-key--on { background: #2f9e5e; }
+.tt-mexec-tl-key--bench {
+    background: repeating-linear-gradient( 45deg, #eef1ee, #eef1ee 3px, #e6eae6 3px, #e6eae6 6px );
+}
+.tt-mexec-tl-legend-mark {
+    position: relative;
+    width: 2px;
+    height: 12px;
+    display: inline-block;
+}
+
+/* ---- Scale up on larger phones / tablets ---------------------------- */
+
+@media ( min-width: 480px ) {
+    .tt-mxp-slot-badge {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.875rem;
+    }
+
+    .tt-mxp-slot-name {
+        font-size: 0.6875rem;
+        max-width: 6.5rem;
+    }
+}
+
+@media ( min-width: 768px ) {
+    .tt-mxp-pitch {
+        max-width: 30rem;
+    }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+    .tt-mxp-log-row {
+        transition: none;
+    }
+}
+
+
+/* =====================================================================
+ * De-inlined from FrontendMatchExecutionView.php (rebuild — no inline
+ * <style> in src PHP, CLAUDE.md §2). Post-match status pill + Finalize
+ * CTA (#1033) and the late-event affordances (#1049). Raw hex mapped to
+ * design tokens with fallbacks.
+ * ===================================================================== */
+.tt-mexec-post-match {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 1px solid var(--tt-line, #e3e6ea);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+}
+.tt-mexec-state-pill {
+    margin: 0;
+    display: inline-block;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.tt-mexec-state-pill--pending_review { background: var(--tt-warning-subtle, #fff4d4); color: var(--tt-warning, #92651b); }
+.tt-mexec-state-pill--finalized     { background: var(--tt-bg-soft, #e6e9ed);     color: var(--tt-ink-soft, #5b6e75); }
+.tt-mexec-finalize-btn {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: var(--tt-radius, 8px);
+    border: 1.5px solid var(--tt-danger, #d63638);
+    background: var(--tt-danger, #d63638);
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-finalize-btn:active { filter: brightness(0.92); }
+.tt-mexec-finalize-btn:disabled { background: var(--tt-line, #b0b3b6); border-color: var(--tt-line, #b0b3b6); cursor: not-allowed; }
+.tt-mexec-finalize-help {
+    margin: 0;
+    font-size: 12px;
+    color: var(--tt-ink-soft, #5b6e75);
+    line-height: 1.4;
+}
+.tt-mexec-late-event {
+    margin: 12px 0;
+    padding: 12px 14px;
+    border: 2px dashed var(--tt-warning, #c75c1f);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.tt-mexec-late-event-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+.tt-mexec-late-event-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-warning, #c75c1f);
+}
+.tt-mexec-late-event-hint { font-size: 11px; color: var(--tt-ink-soft, #5b6e75); }
+.tt-mexec-late-event-panel {
+    border: 1px solid var(--tt-warning-subtle, #f5dba0);
+    background: var(--tt-warning-subtle, #fff8e1);
+    border-radius: 6px;
+    padding: 0;
+}
+.tt-mexec-late-event-summary {
+    padding: 12px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--tt-warning, #8a5e0a);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    list-style: none;
+}
+.tt-mexec-late-event-summary::-webkit-details-marker { display: none; }
+.tt-mexec-late-event-panel[open] .tt-mexec-late-event-summary { border-bottom: 1px solid var(--tt-warning-subtle, #f5dba0); }
+.tt-mexec-late-event-form { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+.tt-mexec-late-event-field { display: flex; flex-direction: column; gap: 4px; }
+.tt-mexec-late-event-field > span {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-mexec-late-event-field select,
+.tt-mexec-late-event-field input[type="number"] {
+    font: inherit;
+    font-size: 16px;
+    padding: 10px 12px;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 6px;
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #1a1d21);
+    min-height: 48px;
+    width: 100%;
+}
+.tt-mexec-late-event-submit {
+    margin-top: 4px;
+    min-height: 48px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1.5px solid var(--tt-warning, #8a5e0a);
+    background: var(--tt-warning, #8a5e0a);
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-late-event-submit:active { filter: brightness(0.92); }
+.tt-mexec-late-event-submit:disabled { background: var(--tt-line, #b0b3b6); border-color: var(--tt-line, #b0b3b6); cursor: not-allowed; }

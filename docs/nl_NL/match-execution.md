@@ -55,6 +55,42 @@ Zowel afsluiten als heropenen vereist de capability `tt_edit_activities`,
 dezelfde rechten die ook de rest van het wedstrijduitvoeringsscherm
 afschermen.
 
+## Gevolgde spelers
+
+Elke speler die je in het wedstrijdplan hebt gemarkeerd — met een
+specifiek doel of een aandachtspunt — verschijnt in het onderdeel
+**Gevolgde spelers** met een live-teller. Tik op **+ actie** telkens
+wanneer die speler doet waar je op let (een loopactie in de diepte, een
+gewonnen duel, een schot op doel — wat de notitie ook zegt); houd
+ingedrukt om de laatst getelde actie te verwijderen.
+
+Deze tellingen zijn **ontwikkelacties, geen doelpunten**. Ze worden als
+eigen gebeurtenissen met tijdstip vastgelegd en veranderen de stand nooit.
+Doelpunten die de stand bepalen leg je apart vast (de scoreknoppen en de
+lijst *Wedstrijddoelpunten* in de review). Door die twee gescheiden te
+houden kan een ontwikkeltelling de uitslag niet per ongeluk beïnvloeden.
+
+## Wie is eigenaar van de minuten
+
+Gespeelde minuten worden **automatisch afgeleid** uit de basisopstelling en
+het wissellog — je hoeft ze nooit in te typen. Omdat ze worden afgeleid,
+corrigeer je een verkeerde waarde normaal gesproken door de wissel te
+corrigeren die hem veroorzaakte.
+
+Als een echte correctie niet via het wissellog uit te drukken is — een
+speler die met een blessure van het veld ging zonder dat er een wissel is
+gelogd, bijvoorbeeld — kun je in het reviewscherm via **Geregistreerde
+minuten → Corrigeren** een expliciete overschrijving per speler instellen.
+Een overschrijving wint van de afgeleide waarde en overleeft elke latere
+herberekening; maak het veld leeg om terug te vallen op de afgeleide
+waarde. Dit is de enige plek waar minuten met de hand worden gezet voor een
+wedstrijd die via dit scherm is gespeeld — daarom stapt het gewone
+minutenveld op het aanwezigheidsscherm opzij en verwijst het je hierheen.
+
+Wedstrijden die je nooit via wedstrijduitvoering speelt, blijven
+ongewijzigd: er is geen uitvoering die de minuten bezit, dus registreer je
+ze op de gebruikelijke manier bij de aanwezigheid van de activiteit.
+
 ## Een doelpunt of wissel ongedaan maken
 
 Elk vastgelegd doelpunt en elke wissel in het **Live verloop** heeft een
@@ -195,6 +231,12 @@ toekomstige webapp:
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
   — een afgesloten wedstrijd heropenen voor correcties (terug naar
   *nabespreking*; vastgelegd in het auditlog).
+- `PATCH /wp-json/talenttrack/v1/match-execution/{activity_id}/minutes`
+  — een minutenoverschrijving per speler instellen (`{player_id, minutes}`)
+  of wissen (`{player_id, minutes: null}`).
+- `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/tracked-event`
+  en `DELETE .../tracked-event/{event_uuid}` — een gevolgde ontwikkelactie
+  van een gemarkeerde speler vastleggen of ongedaan maken.
 
 Alle vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
 het wedstrijduitvoeringsscherm zelf afschermen.

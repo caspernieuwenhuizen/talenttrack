@@ -224,35 +224,40 @@
         });
     }
 
-    // --- Goal counters (tap = +1, long-press = -1) ---
-    root.querySelectorAll('[data-tt-mexec-goal-inc]').forEach(function (btn) {
+    // --- Tracked development-action counters (tap = +1, long-press = -1) ---
+    // Rebuild — these log tracked-events (per-player development actions),
+    // NOT goal-events. Tracked actions are distinct from the score; the
+    // action label comes from the prep flag (data-action-label). Counts are
+    // seeded server-side and persist across reload.
+    state.tracked_counts = {};
+    root.querySelectorAll('[data-tt-mexec-tracked-inc]').forEach(function (btn) {
         var pressTimer = null;
         var longPressed = false;
-        var row = btn.closest('[data-tt-mexec-goal-row]');
+        var row = btn.closest('[data-tt-mexec-tracked-row]');
         var pid = parseInt(row.getAttribute('data-player-id'), 10);
+        var actionLabel = row.getAttribute('data-action-label') || '';
 
-        // #956 — count chip renders inside `.tt-mexec-goal-chip > strong`
-        // (was inline on the button label). Button text stays "+ action".
-        var chipCountEl = row.querySelector('[data-tt-mexec-goal-count]');
+        var chipCountEl = row.querySelector('[data-tt-mexec-tracked-count]');
+        // Seed from the server-rendered count so a reload keeps the tally.
+        state.tracked_counts[pid] = parseInt(chipCountEl && chipCountEl.textContent, 10) || 0;
         function renderChip() {
-            if (chipCountEl) chipCountEl.textContent = String(state.goal_counts[pid] || 0);
+            if (chipCountEl) chipCountEl.textContent = String(state.tracked_counts[pid] || 0);
         }
 
         btn.addEventListener('pointerdown', function () {
             longPressed = false;
             pressTimer = setTimeout(function () {
                 longPressed = true;
-                var pending = (state.recent_goals && state.recent_goals[pid]) || [];
+                var pending = (state.recent_tracked && state.recent_tracked[pid]) || [];
                 var last = pending.pop();
                 if (last) {
-                    state.goal_counts[pid] = Math.max(0, (state.goal_counts[pid] || 0) - 1);
+                    state.tracked_counts[pid] = Math.max(0, (state.tracked_counts[pid] || 0) - 1);
                     renderChip();
-                    // #2270 item 1 — if the DELETE is rejected outright (a
-                    // real HTTP error, not just an offline-queue enqueue),
-                    // roll the optimistic decrement + the uuid stack back so
-                    // the chip count doesn't drift out of sync with storage.
-                    apiDelete('goal-event/' + last).catch(function () {
-                        state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
+                    // Roll back the optimistic decrement + uuid stack if the
+                    // DELETE is rejected outright (a real HTTP error, not a
+                    // queued offline retry).
+                    apiDelete('tracked-event/' + last).catch(function () {
+                        state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
                         renderChip();
                         pending.push(last);
                     });
@@ -263,16 +268,17 @@
             clearTimeout(pressTimer);
             if (longPressed) return;
             var uuid = uuidv4();
-            state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
+            state.tracked_counts[pid] = (state.tracked_counts[pid] || 0) + 1;
             renderChip();
-            state.recent_goals = state.recent_goals || {};
-            state.recent_goals[pid] = state.recent_goals[pid] || [];
-            state.recent_goals[pid].push(uuid);
-            api('goal-event', {
+            state.recent_tracked = state.recent_tracked || {};
+            state.recent_tracked[pid] = state.recent_tracked[pid] || [];
+            state.recent_tracked[pid].push(uuid);
+            api('tracked-event', {
                 event_uuid: uuid,
                 player_id: pid,
                 half: state.half,
-                minute: currentMinute()
+                minute: currentMinute(),
+                action_label: actionLabel
             });
         });
         btn.addEventListener('pointerleave', function () { clearTimeout(pressTimer); });
@@ -852,12 +858,15 @@
         }
     })();
 
-    // --- #2224 — correct recorded minutes (finalized only) ---
+    // --- Correct recorded minutes (per-player override) ---
     // Read-only by default; the "Correct recorded minutes" button flips the
-    // section into edit mode (numeric inputs + Save/Cancel). Each changed
-    // figure is written through the row-scoped PATCH /attendance/{id} (the
-    // existing #2159 minutes column, gated on can_edit) — no new endpoint,
-    // no wipe-and-rewrite of the activity.
+    // section into edit mode (numeric inputs + Save/Cancel). Rebuild: each
+    // changed figure is now written as a per-player OVERRIDE through
+    // PATCH /match-execution/{activity_id}/minutes {player_id, minutes}.
+    // The override wins over the sub-log-derived minutes and survives
+    // recompute; the old raw /attendance/{id} path is refused (409) once an
+    // execution owns the activity. An empty field clears the override
+    // (minutes: null) so the derived value shows again.
     (function wireMinutesCorrection() {
         var section = root.querySelector('[data-tt-mexec-minutes-section]');
         if (!section) return;
@@ -873,25 +882,23 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            var base = cfg.attendance_rest_base;
-            if (!base) return;
             var saveBtn = form.querySelector('.tt-save-btn');
 
             // Collect only rows whose minutes actually changed, keyed by
-            // attendance row id.
+            // player id (the override endpoint is player-scoped).
             var changes = [];
             var rows = form.querySelectorAll('.tt-mexec-minutes-row');
             Array.prototype.forEach.call(rows, function (row) {
-                var attId = parseInt(row.getAttribute('data-attendance-id'), 10) || 0;
-                if (attId <= 0) return;
+                var pid = parseInt(row.getAttribute('data-player-id'), 10) || 0;
+                if (pid <= 0) return;
                 var input = row.querySelector('[data-tt-mexec-minutes-input]');
                 if (!input) return;
                 var raw = input.value.trim();
                 var orig = input.defaultValue.trim();
                 if (raw === orig) return;
                 changes.push({
-                    id: attId,
-                    minutes_played: raw === '' ? '' : String(Math.max(0, parseInt(raw, 10) || 0))
+                    player_id: pid,
+                    minutes: raw === '' ? null : Math.max(0, parseInt(raw, 10) || 0)
                 });
             });
 
@@ -899,16 +906,11 @@
             if (saveBtn) saveBtn.setAttribute('data-state', 'saving');
 
             Promise.all(changes.map(function (c) {
-                return fetch(base + c.id, {
-                    method: 'PATCH',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
-                    body: JSON.stringify({ minutes_played: c.minutes_played })
-                }).then(function (r) {
-                    if (r.ok) return null;
-                    return r.json().then(function (j) {
-                        return (j && j.errors && j.errors[0] && j.errors[0].message) || ('HTTP ' + r.status);
-                    });
+                return doFetch((cfg.rest_url || '') + 'minutes', 'PATCH', {
+                    player_id: c.player_id,
+                    minutes: c.minutes
+                }).then(function () { return null; }).catch(function (err) {
+                    return (err && err.status) ? ('HTTP ' + err.status) : 'network error';
                 });
             })).then(function (results) {
                 var errs = results.filter(function (x) { return x; });
@@ -919,6 +921,91 @@
                 if (saveBtn) saveBtn.setAttribute('data-state', 'error');
                 window.alert((i18n.minutes_save_error || 'Could not save recorded minutes:') + ' network error.');
             });
+        });
+    })();
+
+    // --- Finalize / re-open / late events (rebuild — moved out of the
+    // PHP view's inline <script> so the module owns 100% of behaviour and
+    // the view emits zero script). All three reuse the module's own
+    // api()/doFetch()/uuidv4() helpers instead of a second lazy-cfg copy. ---
+    var MINUTE_MAX = HALF_LENGTH + 10;
+
+    // Finalize — lock the match. Confirm, POST, reload; surface a server
+    // error message inline.
+    (function wireFinalize() {
+        var btn = root.querySelector('[data-tt-mexec-finalize]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.finalize_confirm || 'Finalize this match? Goals, subs, and score cannot be edited after.')) return;
+            btn.disabled = true;
+            doFetch((cfg.rest_url || '') + 'finalize', 'POST', {}).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                window.alert((i18n.finalize_error || 'Could not finalize:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+            });
+        });
+    })();
+
+    // Re-open the dedicated post-match-panel button (distinct from the
+    // footer state CTA, which also re-opens when FINALIZED).
+    (function wireReopenButton() {
+        var btn = root.querySelector('[data-tt-mexec-reopen]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.reopen_confirm || 'Re-open this finalized match for corrections?')) return;
+            btn.disabled = true;
+            doFetch((cfg.rest_url || '') + 'reopen', 'POST', {}).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                window.alert((i18n.reopen_error || 'Could not re-open the match:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+            });
+        });
+    })();
+
+    // Late-event forms — add a goal / sub the coach forgot to log live.
+    // Client-generated event_uuid keeps the offline-queue replay idempotent.
+    (function wireLateEvents() {
+        function wireLateForm(form, endpoint, build) {
+            if (!form) return;
+            var submitting = false;
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (submitting) return;
+                var body = build(form);
+                if (!body) return;
+                submitting = true;
+                var btn = form.querySelector('.tt-mexec-late-event-submit');
+                if (btn) btn.disabled = true;
+                var reenable = function () { submitting = false; if (btn) btn.disabled = false; };
+                doFetch((cfg.rest_url || '') + endpoint, 'POST', body).then(function () {
+                    window.location.reload();
+                }).catch(function (err) {
+                    reenable();
+                    window.alert((i18n.late_save_error || 'Could not save:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                });
+            });
+        }
+
+        wireLateForm(root.querySelector('[data-tt-mexec-late-goal-form]'), 'goal-event', function (f) {
+            var pid = parseInt(f.querySelector('[name="player_id"]').value, 10) || 0;
+            var half = parseInt(f.querySelector('[name="half"]').value, 10) || 0;
+            var minute = parseInt(f.querySelector('[name="minute"]').value, 10);
+            if (pid <= 0 || (half !== 1 && half !== 2)) return null;
+            if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
+            return { event_uuid: uuidv4(), player_id: pid, half: half, minute: minute };
+        });
+
+        wireLateForm(root.querySelector('[data-tt-mexec-late-sub-form]'), 'substitution', function (f) {
+            var off = parseInt(f.querySelector('[name="player_off"]').value, 10) || 0;
+            var on = parseInt(f.querySelector('[name="player_on"]').value, 10) || 0;
+            var half = parseInt(f.querySelector('[name="half"]').value, 10) || 0;
+            var minute = parseInt(f.querySelector('[name="minute"]').value, 10);
+            if (off <= 0 || on <= 0 || off === on) return null;
+            if (half !== 1 && half !== 2) return null;
+            if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
+            return { event_uuid: uuidv4(), half: half, minute: minute, player_off: off, player_on: on };
         });
     })();
 })();
