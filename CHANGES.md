@@ -1,4 +1,4 @@
-# TalentTrack v4.82.1 — Edit attendance on a completed activity, and see the roster without opening Edit (#2371)
+# TalentTrack v4.82.2 — Edit attendance on a completed activity, and see the roster without opening Edit (#2371)
 
 The activity detail page now has a collapsible **Show roster** list under the
 attendance breakdown — every registered player with their status (guests
