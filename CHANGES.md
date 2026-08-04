@@ -1,3 +1,40 @@
+# TalentTrack v4.82.0 — First-class sub-principles + JO13-1 formation diagram fix (#2369)
+
+Methodology sub-principles are now a first-class entity: the concrete per-line
+coaching points that support each main principle (grouped by game phase, then
+by line — aanvallers / middenvelders / verdedigers / algemeen). They have their
+own read surface under the **Spelprincipes** tab, a **Sub-principes** authoring
+tab, and full REST CRUD at `/methodology/sub-principles`. The JO13-1 Hedel set
+ships with its complete per-line sub-principes seeded from the playing-style
+document. Separately, the JO13-1 **1-4-3-3** formation now renders correctly on
+both the Formaties and Visie tabs — its diagram coordinates were missing, so it
+previously fell back to a generic shape.
+
+Wizard plan: exemption (a) — a sub-principle is a lookup-like, single-line
+coaching note authored under an existing principle/phase, so it takes the flat
+inline-editor path like the other methodology vocabulary tabs; a multi-step
+wizard would add friction without value.
+
+# TalentTrack v4.82.0 — Match execution: minutes-authority arbiter, tracked players, frontend cleanup
+
+Rebuilt the match-execution surface to remove the "semi-connected parts"
+friction:
+
+- **Minutes have one owner.** When a match has a running/recorded execution,
+  its per-player minutes are derived from the starting XI + substitution log,
+  and the only way to hand-correct a figure is the per-player override on the
+  match-execution screen (Recorded minutes → Correct). The manual minutes
+  field on the attendance screen now defers to the execution (it reports that
+  minutes are managed there). Matches that were never run through execution
+  keep manual minute entry exactly as before.
+- **Tracked players.** Players flagged in the match plan (a specific goal or an
+  attention note) get a live +/- counter during the match to tally a
+  development action. These are recorded as their own timed events — separate
+  from goals, so they never affect the score.
+- **Cleaner, faster surface.** The four match-execution stylesheets are
+  consolidated into one, and the last inline styles and scripts were moved out
+  of the page into the enqueued sheet and JS module.
+
 # TalentTrack v4.81.0 — Minutes-audit overview: read-only games × players matrix (#2368)
 
 New **Minutes audit** report (Reports launcher → *Playing time*, or
