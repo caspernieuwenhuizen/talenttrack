@@ -47562,6 +47562,14 @@ msgstr "Aanwezigheid en beoordelingen zijn vastgelegd in de begeleide afrondings
 msgid "Continue rating in the guided flow →"
 msgstr "Ga verder met beoordelen in de begeleide flow →"
 
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Academy-wide signals · %1$s – %2$s"
+msgstr "Academy-brede signalen · %1$s – %2$s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No trial cases or prospects logged in this window."
+msgstr "Geen proefzaken of prospects vastgelegd in deze periode."
+
 #~ msgid "No views recorded in this window yet."
 #~ msgstr "Nog geen weergaven in deze periode."
 
@@ -48008,3 +48016,6 @@ msgstr "Ga verder met beoordelen in de begeleide flow →"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"

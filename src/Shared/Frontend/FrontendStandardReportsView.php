@@ -237,6 +237,104 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '</div></div>';
     }
 
+    /**
+     * #2345 — resolve the active date window for a standard report from the
+     * shared `ReportFilters` vocabulary, matching the attendance / minutes
+     * reports. A retrospective period pill (`?period=`) sets the window unless
+     * the user typed an explicit From/To (manual override wins); with neither,
+     * the window seeds from `ReportFilters::seasonDefaultWindow()` (current
+     * season start → today, 90-day fallback). No new vocabulary is introduced.
+     *
+     * @return array{from:string,to:string,period:string}
+     */
+    private static function resolveReportWindow(): array {
+        $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $period   = \TT\Modules\Analytics\Reports\ReportFilters::sanitizePeriod(
+            isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : ''
+        );
+        $has_manual_from = isset( $_GET['from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['from'] );
+        $has_manual_to   = isset( $_GET['to'] )   && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['to'] );
+        $window = $period !== ''
+            ? \TT\Modules\Analytics\Reports\ReportFilters::periodWindow( $period, gmdate( 'Y-m-d' ) )
+            : null;
+        $from = $has_manual_from
+            ? sanitize_text_field( wp_unslash( (string) $_GET['from'] ) )
+            : ( $window['from'] ?? $defaults['from'] );
+        $to = $has_manual_to
+            ? sanitize_text_field( wp_unslash( (string) $_GET['to'] ) )
+            : ( $window['to'] ?? $defaults['to'] );
+        return [ 'from' => $from, 'to' => $to, 'period' => $period ];
+    }
+
+    /**
+     * #2345 — render the shared FilterBar for a standard report: retrospective
+     * period pills (Last week / This month / This season) + a manual From/To
+     * range, the SAME vocabulary the attendance reports offer. `$slug` is the
+     * report key; `$extra_hidden` carries the entity selection (team_id /
+     * scout_id) so the period pills and the auto-submitting range preserve it.
+     *
+     * @param array<string,int|string> $extra_hidden
+     */
+    private static function renderPeriodFilterBar( string $slug, string $from, string $to, string $period, array $extra_hidden = [] ): void {
+        $dash_url      = RecordLink::dashboardUrl();
+        $period_labels = \TT\Modules\Analytics\Reports\ReportFilters::periodLabels();
+
+        // Base args every period pill preserves (view + slug + entity + back).
+        $pill_base = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
+        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $period_options = [];
+        foreach ( $period_labels as $key => $label ) {
+            $args = $pill_base;
+            if ( $key !== '' ) $args['period'] = $key;
+            // Picking a pill drops any manual From/To so the window follows.
+            $period_options[] = [
+                'value'  => $key,
+                'label'  => $label,
+                'url'    => add_query_arg( $args, $dash_url ),
+                'active' => ( $period === $key ),
+            ];
+        }
+
+        // Hidden fields the auto-submitting range carries so the link-based
+        // period + entity + back-target survive a manual From/To change.
+        $hidden = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], array_map( 'strval', $extra_hidden ) );
+        if ( $period !== '' )              $hidden['period']  = $period;
+        if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        $active_count = 0;
+        $chips = [];
+        if ( $period !== '' ) { $active_count++; $chips[] = (string) ( $period_labels[ $period ] ?? '' ); }
+
+        $reset_args = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
+        if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
+
+        \TT\Shared\Frontend\Components\FilterBar::render( [
+            'hidden'       => $hidden,
+            'active_count' => $active_count,
+            'chips'        => $chips,
+            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'groups'       => [
+                [
+                    'type'         => 'period',
+                    'key'          => 'period',
+                    'label'        => __( 'Period', 'talenttrack' ),
+                    'active_label' => (string) ( $period_labels[ $period ] ?? $period_labels[''] ),
+                    'options'      => $period_options,
+                ],
+                [
+                    'type'       => 'date_range',
+                    'key'        => 'range',
+                    'label'      => __( 'Date range', 'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To', 'talenttrack' ),
+                    'from'       => [ 'name' => 'from', 'value' => $from ],
+                    'to'         => [ 'name' => 'to', 'value' => $to ],
+                ],
+            ],
+        ] );
+    }
+
     // ── #1090 Player · Minutes played ────────────────────────────────
 
     private static function renderPlayerMinutesPlayed(): void {
@@ -391,23 +489,34 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // on the current schema. The activity date column was not renamed.
         $att_fk   = 'activity_id';
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities
-        // #2158 — aggregate match minutes per player on this team over the
-        // last 12 months. The attendance rows are summed per (player,
-        // activity) in a derived table FIRST, then joined to the player —
-        // so a player with more than one `actual` attendance row for the
-        // same match cannot fan the JOIN out and double-count. Only
-        // canonical recorded rows count: `record_type='actual'`,
-        // `is_guest=0`.
+        $club_id  = CurrentClub::id();
+        // #2339 — resolve the squad the SAME way the rest of analytics does:
+        // players with recorded attendance on THIS TEAM's match/game/tournament
+        // activities (`tt_activities.team_id`), NOT `tt_players.team_id`. The
+        // old `FROM tt_players p WHERE p.team_id = %d` gate diverged from the
+        // activity-team definition — for installs where `tt_players.team_id`
+        // is unset it returned an empty squad while the match count (keyed on
+        // `tt_activities.team_id`) still found matches ("18 matches, 0
+        // players"). Mirrors AttendanceRankingQuery (population from attendance
+        // on the team's activities) and MinutesQuery::forTeam (minutes summed
+        // per player, `record_type='actual'` only, #2193). A player is in the
+        // squad if they have ANY canonical attendance row on the team's
+        // activities in the window — so players appear even with 0 recorded
+        // minutes, and the squad + match count share one team-membership
+        // definition. Minutes are summed per (player, activity) in a derived
+        // table FIRST so a duplicate `actual` row can't fan the JOIN out.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.id AS player_id, p.name, p.jersey_number,
                     COALESCE( SUM( m.match_minutes ), 0 ) AS total_minutes,
                     COUNT( CASE WHEN m.match_minutes > 0 THEN 1 END ) AS apps
-               FROM {$wpdb->prefix}tt_players p
-          LEFT JOIN (
-                    SELECT att.player_id, att.{$att_fk} AS activity_id,
-                           SUM( att.minutes_played ) AS match_minutes
+               FROM (
+                    SELECT att.player_id,
+                           att.{$att_fk} AS activity_id,
+                           SUM( COALESCE( att.minutes_override, att.minutes_played, 0 ) ) AS match_minutes
                       FROM {$wpdb->prefix}tt_attendance att
                       JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
+                           AND a.team_id = %d
+                           AND a.club_id = %d
                            AND a.archived_at IS NULL
                            AND a.trashed_at IS NULL
                            AND a.plan_state <> 'cancelled'
@@ -417,20 +526,21 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                        AND a.activity_type_key IN ('match','game','tournament')
                        AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
                      GROUP BY att.player_id, att.{$att_fk}
-                  ) m ON m.player_id = p.id
-              WHERE p.team_id = %d AND p.archived_at IS NULL
+                  ) m
+               JOIN {$wpdb->prefix}tt_players p ON p.id = m.player_id AND p.archived_at IS NULL
               GROUP BY p.id, p.name, p.jersey_number
               ORDER BY total_minutes DESC, p.name ASC
               LIMIT 60",
-            $team_id
+            $team_id, $club_id
         ) );
         $rows = is_array( $rows ) ? $rows : [];
 
         $match_count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities
-              WHERE team_id = %d AND activity_type_key IN ('match','game','tournament')
+              WHERE team_id = %d AND club_id = %d
+                AND activity_type_key IN ('match','game','tournament')
                 AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
-            $team_id
+            $team_id, $club_id
         ) );
         $top = $rows ? (int) $rows[0]->total_minutes : 0;
         $bottom = $rows ? (int) $rows[ count( $rows ) - 1 ]->total_minutes : 0;
@@ -441,14 +551,28 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'team_id' => (string) $team_id, 'date_after' => '-12 months' ],
             'player_id'
         );
+        // #2356 — drill-down targets (#2185 pattern): the squad KPI opens the
+        // team's roster; the Matches KPI opens the activities list filtered to
+        // this team's matches. Both carry a `tt_back` hint via BackLink so the
+        // destination renders a "← Back to …" pill. Gated on the destination's
+        // own cap (§7 hide-don't-tease) so the tile stays static for a viewer
+        // who can't reach it.
+        $squad_url = RecordLink::detailUrlForWithBack( 'teams', $team_id );
+        // The activities list has no rolling-12-month pill; leaving `period`
+        // off keeps the drill honest (a `this_season` pill would under-count
+        // vs. the report's 12-month window). The user narrows from there.
+        $matches_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'activities', 'team_id' => $team_id, 'activity_type_key' => 'match' ],
+            RecordLink::dashboardUrl()
+        ) );
         self::renderPageHead(
             sprintf( /* translators: %s = team name */ __( 'Minutes distribution — %s', 'talenttrack' ), (string) $team->name ),
             sprintf( /* translators: %d = match count */ _n( '%d match in the window', '%d matches in the window', $match_count, 'talenttrack' ), $match_count ),
             $explore_url
         );
         self::renderKpiStrip( [
-            [ 'num' => (string) count( $rows ), 'label' => __( 'Players in selection', 'talenttrack' ) ],
-            [ 'num' => (string) $match_count,   'label' => __( 'Matches', 'talenttrack' ) ],
+            [ 'num' => (string) count( $rows ), 'label' => __( 'Players in selection', 'talenttrack' ), 'href' => $squad_url, 'cap' => 'tt_view_teams' ],
+            [ 'num' => (string) $match_count,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'cap' => 'tt_view_activities' ],
             [ 'num' => (string) $top,           'label' => __( 'Max minutes / player', 'talenttrack' ) ],
             [
                 'num'   => $spread_pct . '%',
@@ -522,8 +646,17 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             self::renderEmpty();
             return;
         }
+        // #2345 — shared FilterBar + season-default window, replacing the
+        // hardcoded 6-month bound. The period pills / manual range now drive
+        // the evaluation window, matching the attendance reports' vocabulary.
+        $win    = self::resolveReportWindow();
+        $from   = $win['from'];
+        $to     = $win['to'];
+        $period = $win['period'];
+
         global $wpdb;
-        // Per-player average rating across all categories, last 6 mo.
+        // Per-player average rating across all categories, over the selected
+        // window.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.id AS player_id, p.name,
                     AVG( r.rating ) AS avg_rating,
@@ -532,13 +665,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                FROM {$wpdb->prefix}tt_players p
           LEFT JOIN {$wpdb->prefix}tt_evaluations e ON e.player_id = p.id
                 AND e.archived_at IS NULL
-                AND e.eval_date >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                AND e.eval_date BETWEEN %s AND %s
           LEFT JOIN {$wpdb->prefix}tt_eval_ratings r ON r.evaluation_id = e.id
               WHERE p.team_id = %d AND p.archived_at IS NULL
               GROUP BY p.id, p.name
               ORDER BY avg_rating DESC, p.name ASC
               LIMIT 60",
-            $team_id
+            $from, $to, $team_id
         ) );
         $rows = is_array( $rows ) ? $rows : [];
         $rated = array_filter( $rows, static fn( $r ): bool => $r->eval_count > 0 );
@@ -547,18 +680,26 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $squad_avg = $rated ? round( $sum_avg / count( $rated ), 1 ) : 0;
         $coverage = count( $rows ) > 0 ? (int) round( ( count( $rated ) / count( $rows ) ) * 100 ) : 0;
 
+        // #2345 — the Explorer drill now advertises the same window the report
+        // is showing (the resolved From), so the two agree.
         $explore_url = ExplorerUrl::build(
             'evaluations_received',
-            [ 'team_id' => (string) $team_id, 'date_after' => '-6 months' ],
+            [ 'team_id' => (string) $team_id, 'date_after' => $from ],
             'month'
         );
         self::renderPageHead(
             sprintf( /* translators: %s = team name */ __( 'Squad evaluation summary — %s', 'talenttrack' ), (string) $team->name ),
-            __( 'Last 6 months', 'talenttrack' ),
+            /* translators: 1: from date, 2: to date */
+            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
             $explore_url
         );
+        self::renderPeriodFilterBar( 'team-squad-evaluation-summary', $from, $to, $period, [ 'team_id' => $team_id ] );
+        // #2356 — the squad KPI opens the team roster (§2185 drill pattern);
+        // gated on the destination cap (§7). Player rows below already link to
+        // each player detail.
+        $squad_url = RecordLink::detailUrlForWithBack( 'teams', $team_id );
         self::renderKpiStrip( [
-            [ 'num' => (string) count( $rows ),  'label' => __( 'Players', 'talenttrack' ) ],
+            [ 'num' => (string) count( $rows ),  'label' => __( 'Players', 'talenttrack' ), 'href' => $squad_url, 'cap' => 'tt_view_teams' ],
             [ 'num' => (string) count( $rated ), 'label' => __( 'Evaluated', 'talenttrack' ) ],
             [ 'num' => (string) $squad_avg,      'label' => __( 'Squad average rating', 'talenttrack' ) ],
             [ 'num' => $coverage . '%',          'label' => __( 'Coverage', 'talenttrack' ) ],
@@ -600,42 +741,62 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This academy-wide summary is only available to Head of Development and academy admins.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #2345 — the academy-wide activity counts now honour the shared
+        // period pills / manual range (season-default window), replacing the
+        // fixed rolling 12 months. Active players / teams stay point-in-time
+        // (a roster count isn't a windowed event), so they're unaffected.
+        $win    = self::resolveReportWindow();
+        $from   = $win['from'];
+        $to     = $win['to'];
+        $period = $win['period'];
+
         global $wpdb;
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities (#0035 lint-safe)
         $club_id = CurrentClub::id();
         $players_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         // v4.20.44 (#1222) — added `archived_at IS NULL`. Soft-archived
-        // matches were inflating the HoD season-summary KPI. Audit 7.
-        $matches_12m   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN ('match','tournament') AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
-        $evals_12m     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
-        $prospects_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
-        $trial_decisions_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        // matches were inflating the HoD season-summary KPI. Audit 7. #2345 —
+        // now bounded by the selected window.
+        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN ('match','tournament') AND {$date_col} BETWEEN %s AND %s", $club_id, $from, $to ) );
+        $evals_win     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date BETWEEN %s AND %s", $club_id, $from, $to ) );
+        $prospects_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
+        $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
 
+        // #2345 — the Explorer drill advertises the same From the report shows.
         $explore_url = ExplorerUrl::build(
             'evaluations_received',
-            [ 'date_after' => '-12 months' ],
+            [ 'date_after' => $from ],
             'month'
         );
         self::renderPageHead(
             __( 'Season summary — annual review', 'talenttrack' ),
-            __( 'Academy-wide signals over the last 12 months', 'talenttrack' ),
+            /* translators: 1: from date, 2: to date */
+            sprintf( __( 'Academy-wide signals · %1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
             $explore_url
         );
+        self::renderPeriodFilterBar( 'season-summary', $from, $to, $period );
+        // #2356 — academy-wide KPIs drill to the filtered lists they count
+        // (§2185 pattern), each carrying a `tt_back` hint and gated on the
+        // destination cap (§7). Point-in-time roster counts open the full
+        // lists; the windowed activity/eval counts open their lists.
+        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
         self::renderKpiStrip( [
-            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ) ],
-            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ) ],
-            [ 'num' => (string) $matches_12m,   'label' => __( 'Matches (12 mo)', 'talenttrack' ) ],
-            [ 'num' => (string) $evals_12m,     'label' => __( 'Evaluations (12 mo)', 'talenttrack' ) ],
-            [ 'num' => (string) $prospects_12m, 'label' => __( 'Prospects logged (12 mo)', 'talenttrack' ) ],
-            [ 'num' => (string) $trial_decisions_12m, 'label' => __( 'Trial decisions (12 mo)', 'talenttrack' ) ],
+            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'cap' => 'tt_view_players' ],
+            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'cap' => 'tt_view_teams' ],
+            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'cap' => 'tt_view_activities' ],
+            [ 'num' => (string) $evals_win,     'label' => __( 'Evaluations', 'talenttrack' ) ],
+            [ 'num' => (string) $prospects_win, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
+            [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],
         ] );
 
         $by_team = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id, t.name,
                     COUNT( DISTINCT p.id ) AS player_count,
                     COUNT( DISTINCT CASE WHEN a.activity_type_key IN ('match','tournament')
-                                          AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                                          AND a.{$date_col} BETWEEN %s AND %s
                                           AND a.archived_at IS NULL
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
@@ -646,10 +807,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                    soft-archived activities never enter the join at all
                    (they previously inflated the join even though the CASE
                    filtered the count). The CASE keeps its own guard for
-                   defence in depth. Builds on v4.20.44 (#1222). Audit 7. */
+                   defence in depth. Builds on v4.20.44 (#1222). Audit 7.
+                   #2345 — the CASE window now follows the selected range. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
-            $club_id
+            $from, $to, $club_id
         ) );
         // #2344 — a silent `return` here left the page blank below the KPI
         // strip when no teams exist. Render an honest empty state instead.
@@ -658,7 +820,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             return;
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
-        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches (12 mo)', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $by_team as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'teams', (int) $r->id );
             echo '<tr>';
@@ -680,26 +842,35 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'This academy-wide funnel report is only available to Head of Development and academy admins.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #2345 — shared FilterBar + season-default window replaces the fixed
+        // rolling 12 months. `$to_dt` bounds the datetime columns (created_at /
+        // decided_at) through end-of-day so the last day is inclusive.
+        $win    = self::resolveReportWindow();
+        $from   = $win['from'];
+        $to     = $win['to'];
+        $to_dt  = $to . ' 23:59:59';
+        $period = $win['period'];
+
         global $wpdb;
         $club_id = CurrentClub::id();
         // Funnel stages: prospects → trial_cases opened → decided.
-        $prospects     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
-        $cases_opened  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
-        $cases_decided = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NOT NULL AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        $prospects     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
+        $cases_opened  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
+        $cases_decided = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NOT NULL AND decided_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
         // #2347 — opened-but-undecided cases in the same created_at window,
         // so the Per-decision table can reconcile to Trial cases opened.
-        $cases_pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NULL AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        $cases_pending = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at IS NULL AND created_at BETWEEN %s AND %s", $club_id, $from, $to_dt ) );
         // #2347 — select the scout user ID too, so each scout name can link
         // to their Scout Report Card.
         $by_scout = $wpdb->get_results( $wpdb->prepare(
             "SELECT u.ID AS scout_id, u.display_name, COUNT(*) AS opened
                FROM {$wpdb->prefix}tt_trial_cases tc
           LEFT JOIN {$wpdb->users} u ON u.ID = tc.opened_by
-              WHERE tc.club_id = %d AND tc.created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+              WHERE tc.club_id = %d AND tc.created_at BETWEEN %s AND %s
               GROUP BY u.ID, u.display_name
               ORDER BY opened DESC
               LIMIT 30",
-            $club_id
+            $club_id, $from, $to_dt
         ) );
         // #2347 — the Per-decision breakdown is scoped by `created_at` (the
         // same window as `cases_opened`) rather than `decided_at`, so the
@@ -708,26 +879,35 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             "SELECT decision, COUNT(*) AS n
                FROM {$wpdb->prefix}tt_trial_cases
               WHERE club_id = %d AND decided_at IS NOT NULL
-                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                AND created_at BETWEEN %s AND %s
               GROUP BY decision
               ORDER BY n DESC",
-            $club_id
+            $club_id, $from, $to_dt
         ) );
         $by_scout = is_array( $by_scout ) ? $by_scout : [];
         $by_decision = is_array( $by_decision ) ? $by_decision : [];
 
+        // #2345 — the Explorer drill advertises the same From the report shows.
         $explore_url = ExplorerUrl::build(
             'prospects_logged_per_scout',
-            [ 'date_after' => '-12 months' ],
+            [ 'date_after' => $from ],
             'discovered_by_user_id'
         );
         self::renderPageHead(
             __( 'Trial funnel — per scout, per period', 'talenttrack' ),
-            __( 'Last 12 months', 'talenttrack' ),
+            /* translators: 1: from date, 2: to date */
+            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
             $explore_url
         );
+        self::renderPeriodFilterBar( 'season-trial-funnel', $from, $to, $period );
+        // #2356 — the Prospects KPI drills to the prospects list (§2185
+        // pattern), carrying a `tt_back` hint and gated on `tt_view_prospects`
+        // (§7). The scout / decision breakdown tables below already drill.
+        $prospects_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'prospects' ], RecordLink::dashboardUrl()
+        ) );
         self::renderKpiStrip( [
-            [ 'num' => (string) $prospects,     'label' => __( 'Prospects logged', 'talenttrack' ) ],
+            [ 'num' => (string) $prospects,     'label' => __( 'Prospects logged', 'talenttrack' ), 'href' => $prospects_url, 'cap' => 'tt_view_prospects' ],
             [ 'num' => (string) $cases_opened,  'label' => __( 'Trial cases opened', 'talenttrack' ) ],
             [ 'num' => (string) $cases_decided, 'label' => __( 'Decided', 'talenttrack' ) ],
             [
@@ -783,7 +963,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '</tbody></table></div></div>';
         }
         if ( ! $by_scout && ! $by_decision && $cases_pending === 0 ) {
-            self::renderEmpty( __( 'No trial cases or prospects logged in the last 12 months.', 'talenttrack' ) );
+            self::renderEmpty( __( 'No trial cases or prospects logged in this window.', 'talenttrack' ) );
         }
     }
 
@@ -805,6 +985,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Viewing another scout’s report card requires academy-wide access.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #2345 — shared FilterBar + season-default window replaces the fixed
+        // rolling 12 months. `$to_dt` bounds the datetime columns inclusively.
+        $win    = self::resolveReportWindow();
+        $from   = $win['from'];
+        $to     = $win['to'];
+        $to_dt  = $to . ' 23:59:59';
+        $period = $win['period'];
+
         global $wpdb;
         $user = get_userdata( $scout_id );
         $name = $user ? (string) $user->display_name : sprintf( __( 'Scout #%d', 'talenttrack' ), $scout_id );
@@ -812,20 +1000,20 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $prospects_logged = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects
               WHERE club_id = %d AND discovered_by_user_id = %d
-                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
-            $club_id, $scout_id
+                AND created_at BETWEEN %s AND %s",
+            $club_id, $scout_id, $from, $to_dt
         ) );
         $cases_opened = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases
               WHERE club_id = %d AND opened_by = %d
-                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
-            $club_id, $scout_id
+                AND created_at BETWEEN %s AND %s",
+            $club_id, $scout_id, $from, $to_dt
         ) );
         $cases_admitted = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases
               WHERE club_id = %d AND opened_by = %d AND decision = 'admit'
-                AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
-            $club_id, $scout_id
+                AND decided_at BETWEEN %s AND %s",
+            $club_id, $scout_id, $from, $to_dt
         ) );
         $hit_rate = $cases_opened > 0 ? (int) round( ( $cases_admitted / $cases_opened ) * 100 ) : 0;
 
@@ -833,22 +1021,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             "SELECT id, first_name, last_name, current_club, created_at
                FROM {$wpdb->prefix}tt_prospects
               WHERE club_id = %d AND discovered_by_user_id = %d
-                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                AND created_at BETWEEN %s AND %s
               ORDER BY created_at DESC LIMIT 20",
-            $club_id, $scout_id
+            $club_id, $scout_id, $from, $to_dt
         ) );
         $recent_prospects = is_array( $recent_prospects ) ? $recent_prospects : [];
 
+        // #2345 — the Explorer drill advertises the same From the report shows.
         $explore_url = ExplorerUrl::build(
             'prospects_logged_per_scout',
-            [ 'discovered_by_user_id' => (string) $scout_id, 'date_after' => '-12 months' ],
+            [ 'discovered_by_user_id' => (string) $scout_id, 'date_after' => $from ],
             'month'
         );
         self::renderPageHead(
             sprintf( /* translators: %s = scout name */ __( 'Scout report card — %s', 'talenttrack' ), $name ),
-            __( 'Last 12 months', 'talenttrack' ),
+            /* translators: 1: from date, 2: to date */
+            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
             $explore_url
         );
+        self::renderPeriodFilterBar( 'scout-report-card', $from, $to, $period, [ 'scout_id' => $scout_id ] );
         self::renderKpiStrip( [
             [ 'num' => (string) $prospects_logged, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $cases_opened,     'label' => __( 'Trial cases opened', 'talenttrack' ) ],
