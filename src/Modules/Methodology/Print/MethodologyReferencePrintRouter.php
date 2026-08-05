@@ -4,11 +4,21 @@ namespace TT\Modules\Methodology\Print;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Methodology\MethodologyEnums;
+use TT\Modules\Methodology\Repositories\FootballActionsRepository;
+use TT\Modules\Methodology\Repositories\FrameworkPrimerRepository;
+use TT\Modules\Methodology\Repositories\LearningGoalsRepository;
+use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 
 /**
  * MethodologyReferencePrintRouter (#1064) — printable methodology
  * reference card. Coach prints once per season, laminates, brings to
  * every goal-setting 1:1.
+ *
+ * #2376 — the card follows the **active methodology set**: it reads
+ * through the scoped repositories (which honour MethodologyScope), so
+ * the print reflects exactly the methodology the read view shows, and
+ * two installed methodologies never bleed onto one card.
  *
  * URL: ?tt_methodology_ref_print=1[&sections=principles,actions,leerdoelen]
  *
@@ -97,29 +107,35 @@ class MethodologyReferencePrintRouter {
     }
 
     private static function renderPrinciplesPage( string $academy, string $season ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $rows = $wpdb->get_results(
-            "SELECT code, title_json, team_function_key, team_task_key
-               FROM {$p}tt_principles
-              WHERE archived_at IS NULL AND is_shipped = 1
-              ORDER BY code ASC"
-        );
+        // #2376 — scoped to the active methodology via the repository, so
+        // the card matches the read view and two sets never mix.
+        $rows = ( new PrinciplesRepository() )->listFiltered();
 
-        // Group by team_function + team_task. The natural ordering of
-        // the codes (AO, AS, OV, VS, VV, OA) already buckets them.
-        $bucket_labels = [
-            'AO' => __( 'Aanvallen · opbouwen',              'talenttrack' ),
-            'AS' => __( 'Aanvallen · scoren',                'talenttrack' ),
-            'OV' => __( 'Omschakelen · na balverlies',       'talenttrack' ),
-            'VS' => __( 'Verdedigen · storen',               'talenttrack' ),
-            'VV' => __( 'Verdedigen · doelpunten voorkomen', 'talenttrack' ),
-            'OA' => __( 'Omschakelen · na balwinst',         'talenttrack' ),
-        ];
+        // Group by (team_function, team_task) rather than by code prefix,
+        // so any methodology's principles bucket correctly regardless of
+        // its code scheme. Order follows the enum maps.
+        $functions = MethodologyEnums::teamFunctions();
+        $tasks     = MethodologyEnums::teamTasks();
         $by_bucket = [];
         foreach ( (array) $rows as $r ) {
-            $prefix = substr( (string) $r->code, 0, 2 );
-            $by_bucket[ $prefix ][] = $r;
+            $key = (string) ( $r->team_function_key ?? '' ) . '|' . (string) ( $r->team_task_key ?? '' );
+            $by_bucket[ $key ][] = $r;
+        }
+        $bucket_labels = [];
+        foreach ( array_keys( $functions ) as $fn ) {
+            foreach ( array_keys( $tasks ) as $tk ) {
+                $key = $fn . '|' . $tk;
+                if ( ! empty( $by_bucket[ $key ] ) ) {
+                    $bucket_labels[ $key ] = $functions[ $fn ] . ' · ' . $tasks[ $tk ];
+                }
+            }
+        }
+        // Defensive: any pair the enum maps don't cover renders last.
+        foreach ( array_keys( $by_bucket ) as $key ) {
+            if ( ! isset( $bucket_labels[ $key ] ) ) {
+                [ $fn, $tk ] = array_pad( explode( '|', $key ), 2, '' );
+                $bucket_labels[ $key ] = trim( ( $functions[ $fn ] ?? $fn ) . ' · ' . ( $tasks[ $tk ] ?? $tk ), ' ·' );
+            }
         }
         ?>
         <article class="paper">
@@ -170,14 +186,8 @@ class MethodologyReferencePrintRouter {
     }
 
     private static function renderActionsPage( string $academy, string $season ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $rows = $wpdb->get_results(
-            "SELECT slug, category_key, name_json, description_json
-               FROM {$p}tt_football_actions
-              WHERE archived_at IS NULL AND is_shipped = 1
-              ORDER BY sort_order ASC"
-        );
+        // #2376 — scoped to the active methodology via the repository.
+        $rows = ( new FootballActionsRepository() )->listAll();
         $by_cat = [ 'with_ball' => [], 'without_ball' => [], 'support' => [] ];
         foreach ( (array) $rows as $r ) {
             $cat = (string) $r->category_key;
@@ -232,14 +242,11 @@ class MethodologyReferencePrintRouter {
     }
 
     private static function renderLeerdoelenPage( string $academy, string $season ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $rows = $wpdb->get_results(
-            "SELECT slug, side, team_task_key, title_json, bullets_json
-               FROM {$p}tt_methodology_learning_goals
-              WHERE archived_at IS NULL AND is_shipped = 1
-              ORDER BY side ASC, sort_order ASC"
-        );
+        // #2376 — scoped to the active methodology's framework primer.
+        $primer = ( new FrameworkPrimerRepository() )->activeForClub();
+        $rows   = $primer
+            ? ( new LearningGoalsRepository() )->listForPrimer( (int) $primer->id )
+            : [];
         $by_side = [ 'attacking' => [], 'defending' => [], 'transition' => [] ];
         foreach ( (array) $rows as $r ) {
             $side = (string) $r->side;

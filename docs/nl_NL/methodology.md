@@ -71,3 +71,7 @@ Het tabblad **Speelwijze** toont geanimeerde tactische scènes per fase voor de 
 Beweging wordt getekend met gekleurde pijlen: een loopactie, een pass, druk zetten of een dribbel. De speler- en balposities gebruiken dezelfde veldindeling als de formatiediagrammen, zodat beide consistent leesbaar zijn.
 
 Scènes zijn vandaag geleverde inhoud voor de set JO13-1 Hedel en zijn in de app alleen-lezen. Ze kunnen via de REST-API worden aangemaakt en bewerkt (zie de auteursgids); een sleep-en-teken-editor voor scènes is een geplande vervolgstap.
+
+## Printbare referentiekaart
+
+De actie **Print referentiekaart** maakt een lamineerbare A4-kaart met de spelprincipes, voetbalhandelingen en leerdoelen van de methodiek. De kaart volgt de **actieve methodiek**: ze print precies de set die de bibliotheek toont, dus het wisselen van de actieve methodiek (of van de set van een team) verandert wat er op de kaart staat — de twee lopen nooit door elkaar op één blad.
