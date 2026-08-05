@@ -46,8 +46,18 @@ async function seedPlayer( page, lastName ) {
     await gotoAddNew( page, 'tt-players' );
     await page.fill( 'input[name="first_name"]', 'E2E' );
     await page.fill( 'input[name="last_name"]', lastName );
-    await page.click( 'input[type="submit"], button[type="submit"]' );
-    await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+    // wp-admin submit: use requestSubmit (not click) + wait for the
+    // navigation, never `networkidle` — the admin heartbeat/ajax means
+    // networkidle rarely settles and a notice layout-shift can make the
+    // submit button non-actionable for click() (repo e2e gotcha).
+    await Promise.all( [
+        page.waitForNavigation( { waitUntil: 'load', timeout: 30000 } ),
+        page.evaluate( () => {
+            const b = document.querySelector( '#submit' )
+                || document.querySelector( 'input[type="submit"], button[type="submit"]' );
+            if ( b && b.form ) { b.form.requestSubmit( b ); }
+        } ),
+    ] );
 }
 
 /**
@@ -71,7 +81,7 @@ async function gotoPlayersList( page ) {
 
     // The list body hydrates via REST after DOMContentLoaded. Wait for
     // the async row fetch to settle so counts are stable.
-    await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+    await page.waitForLoadState( 'load', { timeout: 30000 } );
     return true;
 }
 
@@ -111,7 +121,7 @@ test.describe( 'FilterBar list filtering (Players)', () => {
 
         // Type the wanted surname; the hydrator debounces + re-fetches.
         await search.fill( wanted );
-        await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+        await page.waitForLoadState( 'load', { timeout: 30000 } );
 
         // The wanted row is present, the unwanted one is gone — proves
         // the search actually narrowed rather than no-op'd.
@@ -156,7 +166,7 @@ test.describe( 'FilterBar list filtering (Players)', () => {
         await teamSelect.selectOption( value );
         // Select change auto-applies through the hydrator (live re-fetch,
         // no full reload); URL is synced via replaceState.
-        await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+        await page.waitForLoadState( 'load', { timeout: 30000 } );
 
         // The chosen filter reaches the URL as `filter[team_id]=<value>`.
         await expect( page ).toHaveURL(
@@ -196,7 +206,7 @@ test.describe( 'FilterBar list filtering (Players)', () => {
 
         // After the reload the pill for the active state is marked on,
         // and the list re-hydrated for the archived scope.
-        await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+        await page.waitForLoadState( 'load', { timeout: 30000 } );
         await expect(
             page.locator( '[data-tt-filterbar] a.tt-statpill[data-k="archived"]' ).first()
         ).toHaveClass( /tt-statpill--on/ );
@@ -236,7 +246,7 @@ test.describe( 'FilterBar list filtering (Players)', () => {
         const sheetSearch = sheet.locator( 'input[name="search"]' ).first();
         if ( await sheetSearch.count() > 0 ) {
             await sheetSearch.fill( 'zzz-no-match-' + Date.now() );
-            await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+            await page.waitForLoadState( 'load', { timeout: 30000 } );
         }
 
         // Close via the sheet's close control; it hides after the
