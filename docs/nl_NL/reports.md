@@ -254,6 +254,40 @@ KPI-strip**, gelijk aan de aanwezigheidsrapporten. De standaardperiode is het
 huidige seizoen. Op een telefoon klappen de filters in het gebruikelijke
 bottom-sheet; elke bediening houdt een aanraakdoel van 48px.
 
+### Standaardrapporten — gedeelde filterbalk, selectiefix, drill-downs
+
+Vier standaardrapporten dragen nu **dezelfde gedeelde filterbalk** die de
+aanwezigheids- en minutenrapporten gebruiken: retrospectieve **periodepillen**
+(Vorige week / Deze maand / Dit seizoen) plus een handmatig **Van/Tot**-bereik.
+De standaardperiode is het **huidige seizoen** (seizoensstart → vandaag; een
+voortschrijdend venster van 90 dagen als er geen seizoen is ingesteld). Een
+periodepil kiezen laat een handmatig bereik vallen; een Van/Tot typen overschrijft
+de pil. Het betreft **Team · Teambeoordelingssamenvatting**, **Seizoensoverzicht**,
+**Seizoen · Trial-trechter** en de **Scoutrapportkaart**. Op een telefoon klappen
+de filters in het gebruikelijke bottom-sheet; elke bediening houdt een aanraakdoel
+van 48px. De subregel van elk rapport en de Verkenner-drill noemen nu hetzelfde
+venster, zodat het cijfer en de drill overeenkomen.
+
+Het rapport **Team · Minutenverdeling** had een selectiefout: het telde
+wedstrijden op basis van de activiteiten van het team, maar bouwde de spelerslijst
+op uit `tt_players.team_id` — dus een team waarvan de spelers geen `team_id`
+hadden, toonde "18 wedstrijden, 0 spelers". De selectie wordt nu op **dezelfde
+manier bepaald als in de rest van de analytics** — spelers met geregistreerde
+aanwezigheid op de wedstrijd-/toernooiactiviteiten van het team — zodat de
+spelerslijst en het wedstrijdaantal één definitie delen, en een speler
+verschijnt ook met **0 geregistreerde minuten**. Minuten komen nog steeds
+uitsluitend uit vastgelegde `record_type='actual'`-aanwezigheidsrijen (ze worden
+nooit geschat), dus een wedstrijd zonder geregistreerde minuten telt 0.
+
+**KPI's van standaardrapporten zijn nu drill-downs** waar een gefilterde lijst
+aansluit op het cijfer: de tegel *Spelers* van Team · Minutenverdeling opent de
+teamselectie en de tegel *Wedstrijden* de activiteitenlijst gefilterd op de
+wedstrijden van dat team; de tegels *Actieve spelers / Actieve teams /
+Wedstrijden* van het Seizoensoverzicht openen hun lijsten; de tegel *Prospects
+vastgelegd* van de Trial-trechter opent de prospectslijst. Elke drill draagt een
+**← Terug naar …**-hint en is verborgen wanneer de gebruiker de capability van
+de bestemming mist (§7 verbergen-niet-plagen).
+
 ## Spelersaanwezigheid — ranglijst + risicomarkering (v4.21.36)
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).

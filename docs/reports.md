@@ -237,6 +237,38 @@ attendance reports. The default window is the current season. On a phone the
 filters collapse into the standard bottom-sheet; every control keeps a 48px
 touch target.
 
+### Standard reports — shared filter bar, squad fix, drill-downs
+
+Four of the standard reports now carry the **same shared filter bar** the
+attendance and minutes reports use: retrospective **period pills** (Last week /
+This month / This season) plus a manual **From / To** range. The default window
+is the **current season** (season start → today; a 90-day rolling window when no
+season is configured). Picking a period pill drops any manual range; typing a
+From / To overrides the pill. The reports affected are **Team · Squad
+evaluation summary**, **Season summary**, **Season · Trial funnel** and
+**Scout report card**. On a phone the filters collapse into the standard
+bottom-sheet; every control keeps a 48px touch target. Each report's page
+sub-line and its Explorer drill now name the same window, so the figure and the
+drill agree.
+
+The **Team · Minutes distribution** report had a squad-resolution bug: it counted
+matches from the team's activities but built the player list from
+`tt_players.team_id`, so a team whose players had no `team_id` set showed
+"18 matches, 0 players". The squad is now derived the **same way the rest of
+analytics resolves a team** — players with recorded attendance on the team's
+match / game / tournament activities — so the player list and the match count
+share one definition, and a player appears even with **0 recorded minutes**.
+Minutes still come only from persisted `record_type='actual'` attendance rows
+(they are never estimated), so a match with no recorded minutes contributes 0.
+
+Standard-report **KPIs are now drill-downs** where a filtered list reconciles to
+the count: the Team · Minutes distribution *Players* tile opens the team roster
+and its *Matches* tile opens the activities list filtered to that team's matches;
+the Season summary *Active players / Active teams / Matches* tiles open their
+lists; the Trial funnel *Prospects logged* tile opens the prospects list. Every
+drill carries a **← Back to …** hint and is hidden when the viewer lacks the
+destination's capability (§7 hide-don't-tease).
+
 ## Player attendance — ranking + at-risk flags (v4.21.36)
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).

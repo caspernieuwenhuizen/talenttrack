@@ -47617,6 +47617,13 @@ msgstr "Deze speler heeft geen selectierij om minuten op vast te leggen."
 #: src/Infrastructure/REST/ReportsRestController.php
 msgid "Match not found."
 msgstr "Wedstrijd niet gevonden."
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Academy-wide signals · %1$s – %2$s"
+msgstr "Academy-brede signalen · %1$s – %2$s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No trial cases or prospects logged in this window."
+msgstr "Geen proefzaken of prospects vastgelegd in deze periode."
 
 #~ msgid "No views recorded in this window yet."
 #~ msgstr "Nog geen weergaven in deze periode."
@@ -48064,3 +48071,6 @@ msgstr "Wedstrijd niet gevonden."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"
