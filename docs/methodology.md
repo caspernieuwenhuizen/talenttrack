@@ -71,3 +71,7 @@ The **Speelwijze** tab shows animated per-phase tactical scenes for the active m
 Movement is drawn with coloured arrows: a run, a pass, a press, or a dribble. The player and ball positions use the same pitch layout as the formation diagrams, so the two read consistently.
 
 Scenes are shipped content for the JO13-1 Hedel set today and are read-only in the app. They can be created and edited over the REST API (see the authoring guide); a drag-and-draw scene editor is a planned follow-up.
+
+## Printable reference card
+
+The **Print referentiekaart** action produces a laminatable A4 card of the methodology's principles, football actions and learning goals. The card follows the **active methodology**: it prints exactly the set the library is showing, so switching the active methodology (or a team's set) changes what the card contains — the two never mix onto one sheet.
