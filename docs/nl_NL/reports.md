@@ -133,9 +133,10 @@ selectie hebben per wedstrijd wél en welke géén geregistreerde minuten?* — 
 een beheerder of hoofdcoach de gaten kan opsporen en aanpakken voordat de
 minutengegevens van een seizoen verouderen.
 
-Het is **alleen-lezen**. De link *Bewerk* / *Registreer* per rij opent het
-activiteitendetail van de wedstrijd, waar de minuten daadwerkelijk worden
-geregistreerd; het direct bewerkbare raster is een aparte, latere functie.
+Het overzicht is alleen-lezen. De link *Bewerk* / *Registreer* per rij — alleen
+zichtbaar voor gebruikers die geregistreerde minuten mogen bewerken — opent de
+**per-wedstrijd minuten-editor** (zie hieronder). Gebruikers zonder die
+bevoegdheid zien de volledige matrix, alleen zonder de bewerklink.
 
 Het scherm is een matrix in spreadsheet-stijl:
 
@@ -173,6 +174,41 @@ Coaches zien alleen de teams die ze coachen; academiebrede rollen zien de hele
 club. De filterbalk heeft de gedeelde besturing voor team / periode /
 wedstrijdtype / datumbereik en staat standaard op het venster van het huidige
 seizoen.
+
+### Per-wedstrijd minuten-editor
+
+De link *Bewerk* / *Registreer* op een matrixrij opent de **per-wedstrijd
+minuten-editor** (`?tt_view=minutes-audit&match_id=N`). Deze toont de selectie van
+de wedstrijd en laat een beheerder of hoofdcoach de **geregistreerde minuten per
+speler** corrigeren, waarbij de gezaghebbende geregistreerde waarde wordt
+weggeschreven — dezelfde bron die de rapporten en het wedstrijdverloop-scherm
+lezen. Een wedstrijd die *na* een audit-bewerking in het wedstrijdverloop wordt
+geopend, toont de gewijzigde cijfers.
+
+De editor kiest automatisch het juiste schrijfpad:
+
+- Voor een wedstrijd die is voorbereid en langs de lijn is gespeeld (met een
+  wedstrijdverloop) legt een opgeslagen cijfer een **expliciete correctie per
+  speler** vast. Die correctie staat naast de waarde die uit het wissellog wordt
+  afgeleid, zodat ze elke latere herberekening overleeft en corrigeerbaar blijft
+  zelfs nadat de wedstrijd is afgerond.
+- Voor een papieren wedstrijd (zonder wedstrijdverloop) schrijft een opgeslagen
+  cijfer de geregistreerde minuten van de speler rechtstreeks.
+
+Het bewerken gaat behoedzaam met wedstrijdgegevens om: een leeggemaakt veld is een
+*expliciete* wissing (de correctie of geregistreerde waarde wordt gewist en valt
+terug op een eventueel afgeleid cijfer), nooit een stille nul, en een rij die je
+niet aanraakt wordt nooit weggeschreven. Elke rij toont het afgeleide cijfer naast
+de bewerkbare waarde, zodat een correctie altijd zichtbaar is.
+
+De editor is afgeschermd met dezelfde bewerkbevoegdheid die de schrijf-endpoints
+afdwingen, zodat de link nooit verschijnt voor een gebruiker die niet kan opslaan.
+Opslaan en Annuleren zijn beide aanwezig; Annuleren keert terug naar het overzicht.
+
+**Reikwijdte van deze eerste versie:** de editor bewerkt de **totale minuten per
+speler** — de waarde die de geregistreerde gegevens werkelijk opslaan. Het bewerken
+van de basisopstelling per helft en het wissellog (met de minuut van elke wissel)
+is een geplande vervolgstap; die staan vandaag op het wedstrijdverloop-scherm.
 
 ## Standaardrapporten — eerlijke cijfers
 

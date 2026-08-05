@@ -127,9 +127,10 @@ the minutes report. It answers a different question: *for each game, which squad
 players have recorded minutes and which do not?* — so an admin or head coach can
 spot and chase the gaps before a season's minutes data goes stale.
 
-It is **read-only**. Each row's *Edit* / *Record* link opens the game's activity
-detail, where minutes are actually recorded; the in-place editable grid is a
-separate, later feature.
+The overview is read-only. Each row carries an *Edit* / *Record* link — shown
+only to users who can edit recorded minutes — that opens the **per-match minutes
+editor** (see below). Users without that permission still see the full matrix,
+just without the edit link.
 
 The surface is a spreadsheet-style matrix:
 
@@ -163,6 +164,38 @@ honest *Not recorded* chips, and a clear next-action note — never a misleading
 Coaches see only the teams they coach; academy-wide roles see the whole club. The
 filter bar carries the shared team / period / match-type / date-range controls
 and defaults to the current-season window.
+
+### Per-match minutes editor
+
+The *Edit* / *Record* link on a matrix row opens the **per-match minutes editor**
+(`?tt_view=minutes-audit&match_id=N`). It lists the game's squad and lets an
+admin or head coach correct the **minutes recorded per player**, writing the
+authoritative recorded value — the same source the reports and the match-execution
+screen read. A match opened in match-execution *after* an audit edit reflects the
+changed numbers.
+
+The editor writes through the right path automatically:
+
+- For a match that was prepped and run on the sideline (it has a match-execution),
+  a saved figure sets an **explicit per-player override**. The override lives
+  alongside the value the sub-log derives, so it survives every later recompute
+  and stays correctable even once the match is finalized.
+- For a paper match (no match-execution), a saved figure writes the player's
+  recorded minutes directly.
+
+Editing is conservative with match data: an emptied field is an *explicit* clear
+(the override or recorded value is cleared, falling back to any derived figure),
+never a silent zero, and a row you do not touch is never written. Each row shows
+the derived figure next to the editable value, so an override is always visible.
+
+The editor is gated on the same edit permission the write endpoints enforce, so
+the link never appears for a user who could not save. Save and Cancel are both
+present; Cancel returns to the overview.
+
+**Scope of this first version:** the editor edits the **total minutes per player**
+— the value the recorded data actually stores. Editing the starting line-up per
+half and the substitution log (with the minute each happened) is a planned
+follow-up; those live on the match-execution screen today.
 
 ## Standard reports — honest numbers
 

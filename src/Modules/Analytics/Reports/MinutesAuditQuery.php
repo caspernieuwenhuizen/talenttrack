@@ -123,17 +123,22 @@ final class MinutesAuditQuery {
 
         // 3. Recorded actual minutes per game+player (the same source
         //    MinutesQuery sums). Aggregated so a player with more than one
-        //    matching row for an activity is counted once.
+        //    matching row for an activity is counted once. Effective minutes
+        //    = COALESCE(minutes_override, minutes_played) so an explicit
+        //    coach override on the match-execution / audit surface is what
+        //    the overview reflects — consistent with MinutesQuery and the
+        //    minutes-authority arbiter (#2367). Harmless before any override
+        //    exists (the column is null → minutes_played wins).
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $minute_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT activity_id, player_id, SUM( minutes_played ) AS minutes_played
+            "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
                FROM {$p}tt_attendance
               WHERE activity_id IN ($in_ids)
                 AND club_id = %d
                 AND record_type = 'actual'
                 AND is_guest = 0
-                AND minutes_played IS NOT NULL
-                AND minutes_played > 0
+                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
+                AND COALESCE(minutes_override, minutes_played) > 0
               GROUP BY activity_id, player_id",
             array_merge( $activity_ids, [ $club_id ] )
         ) );
@@ -285,6 +290,127 @@ final class MinutesAuditQuery {
             'column_totals' => $column_totals,
             'grand_total'   => $grand_total,
             'summary'       => $summary,
+        ];
+    }
+
+    /**
+     * Per-match editor read model (#2367). Resolves the squad for ONE game
+     * activity + each player's effective / derived / override minutes and
+     * their roster attendance-row id, plus whether a match-execution owns
+     * the activity's minutes (the arbiter, #2301).
+     *
+     * The client uses `owned_by_execution` to route each per-player write:
+     *   - owned  → PATCH /match-execution/{activity}/minutes  (sets/clears
+     *              the explicit override; survives recompute, #2301).
+     *   - not    → PATCH /attendance/{attendance_id} {minutes_played} (the
+     *              manual attendance path, #2159 — no execution to defer to).
+     *
+     * Squad resolution mirrors {@see matrix()}: players with a non-guest
+     * attendance row on the activity (NOT tt_players.team_id, the #2339 bug).
+     * A player with recorded minutes but no explicit attendance row still
+     * counts (a paper match, #2159).
+     *
+     * @return array{
+     *   activity: array{ id:int, team_id:int, title:string, session_date:string, type_key:string },
+     *   owned_by_execution: bool,
+     *   half_length: int,
+     *   players: list<array{
+     *     player_id:int, first_name:string, last_name:string, jersey_number:?int,
+     *     attendance_id:int, minutes:?int, minutes_derived:?int, minutes_override:?int
+     *   }>
+     * }|null  null when the activity does not exist in the caller's club.
+     */
+    public function editorRows( int $activity_id ): ?array {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+        if ( $activity_id <= 0 ) return null;
+
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $activity = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, team_id, title, game_subtype_key, {$date_col} AS session_date
+               FROM {$p}tt_activities
+              WHERE id = %d AND club_id = %d
+                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )",
+            $activity_id, $club_id
+        ) );
+        if ( ! $activity ) return null;
+
+        // Effective / derived / override minutes + the attendance-row id per
+        // roster player — the same read model the finalized minutes-
+        // correction form uses (MatchExecutionRepository::attendanceRowsByActivity).
+        $rows = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )
+            ->attendanceRowsByActivity( $activity_id );
+
+        // Union the squad: every non-guest attendance row (planned OR actual)
+        // plus anyone who already has a minutes row above.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $squad = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT player_id
+               FROM {$p}tt_attendance
+              WHERE activity_id = %d AND club_id = %d AND is_guest = 0 AND player_id > 0",
+            $activity_id, $club_id
+        ) );
+        $pids = [];
+        foreach ( (array) $squad as $pid ) { $pids[ (int) $pid ] = true; }
+        foreach ( array_keys( $rows ) as $pid )     { $pids[ (int) $pid ] = true; }
+        $pids = array_keys( $pids );
+
+        $players = [];
+        if ( $pids !== [] ) {
+            $in_p = implode( ',', array_fill( 0, count( $pids ), '%d' ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $raw = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, first_name, last_name, jersey_number
+                   FROM {$p}tt_players
+                  WHERE id IN ($in_p) AND club_id = %d",
+                array_merge( $pids, [ $club_id ] )
+            ) );
+            foreach ( (array) $raw as $pl ) {
+                $pid = (int) $pl->id;
+                $row = $rows[ $pid ] ?? [ 'attendance_id' => 0, 'minutes' => null, 'minutes_derived' => null, 'minutes_override' => null ];
+                $players[] = [
+                    'player_id'        => $pid,
+                    'first_name'       => (string) $pl->first_name,
+                    'last_name'        => (string) $pl->last_name,
+                    'jersey_number'    => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
+                    'attendance_id'    => (int) $row['attendance_id'],
+                    'minutes'          => $row['minutes'],
+                    'minutes_derived'  => $row['minutes_derived'],
+                    'minutes_override' => $row['minutes_override'],
+                ];
+            }
+            usort( $players, static function ( array $a, array $b ): int {
+                $ja = $a['jersey_number'] ?? PHP_INT_MAX;
+                $jb = $b['jersey_number'] ?? PHP_INT_MAX;
+                if ( $ja !== $jb ) return $ja <=> $jb;
+                return strcasecmp( $a['last_name'], $b['last_name'] );
+            } );
+        }
+
+        $owned = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )
+            ->existsForActivity( $activity_id );
+
+        // Half length hint (default 35') from the match prep when present.
+        $half_length = 35;
+        $prep = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $activity_id );
+        if ( $prep && (int) ( $prep->half_length_minutes ?? 0 ) > 0 ) {
+            $half_length = (int) $prep->half_length_minutes;
+        }
+
+        return [
+            'activity' => [
+                'id'           => (int) $activity->id,
+                'team_id'      => (int) $activity->team_id,
+                'title'        => (string) ( $activity->title ?? '' ),
+                'session_date' => (string) $activity->session_date,
+                'type_key'     => (string) ( $activity->game_subtype_key ?? '' ),
+            ],
+            'owned_by_execution' => $owned,
+            'half_length'        => $half_length,
+            'players'            => $players,
         ];
     }
 }

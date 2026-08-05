@@ -280,12 +280,21 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             echo '<td class="tt-maud-cell tt-maud-cell--tot">' . esc_html( (string) number_format_i18n( (int) $g['total_minutes'] ) ) . '</td>';
             echo '<td>' . self::statusChip( $status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
 
-            $edit_url = BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'activities', 'id' => (int) $g['activity_id'] ],
-                $dash_url
-            ) );
-            $edit_label = $status === 'none' ? __( 'Record', 'talenttrack' ) : __( 'Edit', 'talenttrack' );
-            echo '<td class="tt-maud-matrix__editcell"><a class="tt-record-link" href="' . esc_url( $edit_url ) . '">' . esc_html( $edit_label ) . '</a></td>';
+            // #2367 — the per-row affordance now deep-links to the minutes
+            // EDITOR (?tt_view=minutes-audit&match_id=N), not the activity
+            // detail page. §7 — hidden entirely for a user who lacks the
+            // write cap the editor + its endpoints enforce; they still see
+            // the read-only matrix, just no edit pill.
+            if ( current_user_can( 'tt_edit_activities' ) ) {
+                $edit_url = BackLink::appendTo( add_query_arg(
+                    [ 'tt_view' => 'minutes-audit', 'match_id' => (int) $g['activity_id'] ],
+                    $dash_url
+                ) );
+                $edit_label = $status === 'none' ? __( 'Record', 'talenttrack' ) : __( 'Edit', 'talenttrack' );
+                echo '<td class="tt-maud-matrix__editcell"><a class="tt-record-link" href="' . esc_url( $edit_url ) . '">' . esc_html( $edit_label ) . '</a></td>';
+            } else {
+                echo '<td class="tt-maud-matrix__editcell"></td>';
+            }
             echo '</tr>';
         }
 
