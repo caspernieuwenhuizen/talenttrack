@@ -85,7 +85,7 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
         $reports_crumb = FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) );
         $audit_crumb   = [
             'label' => __( 'Minutes audit', 'talenttrack' ),
-            'url'   => BackLink::appendTo( add_query_arg( [ 'tt_view' => 'minutes-audit' ], RecordLink::dashboardUrl() ) ),
+            'url'   => BackLink::appendTo( add_query_arg( [ 'tt_view' => 'minutes-audit' ], RecordLink::dashboardUrl() ) ), /* tt-xview-ok - same-tool back-link to the minutes-audit overview; editor is cap-gated */
         ];
 
         // §7 — the editor is gated on the SAME cap the write endpoints
@@ -178,7 +178,7 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
         // Cancel → back to the overview (or tt_back when captured, §6).
         $back = BackLink::resolve();
         $cancel_url = $back['url']
-            ?? add_query_arg( [ 'tt_view' => 'minutes-audit' ], RecordLink::dashboardUrl() );
+            ?? add_query_arg( [ 'tt_view' => 'minutes-audit' ], RecordLink::dashboardUrl() ); /* tt-xview-ok - same-tool back-link to the minutes-audit overview; editor is cap-gated */
 
         $owned = ! empty( $data['owned_by_execution'] );
 
