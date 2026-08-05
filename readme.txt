@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.83.0
+Stable tag: 4.83.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.83.1 — My activities list: 2026 FilterBar chrome (#2074) The player and parent **My activities** list now reads as crisply as the staff Activities list. Its filter row already renders through the shared 2026 filter bar (a single inline row on tablet and desktop, a bottom sheet on phones); this release brings the table itself up to the same standard, giving the column headings the 2026 small-caps treatment and adding a subtle row hover. Your own attendance status (Present / Absent / …) stays the list's status column. No change to what you see or how filtering works — only the polish. =
+
+= 4.83.1 — Lineup card: two-column, styled Starting XI / Bench (#2232) The activity/match detail line-up card now presents Starting XI and Bench side-by-side on tablet and desktop (≥768px) and stacks to a single column on phones. Each player renders as a structured row — jersey number, name (first name + last initial, matching the sideline convention), and a position chip using the resolved short codes — consistently aligned and spaced. Group headings carry a player count. No raw JSON positions, no horizontal scroll at 360px. =
+
+= 4.83.1 — Printable methodology reference card follows the active methodology (#2376) The printable methodology reference (`?tt_methodology_ref_print=1`) now reflects the **active methodology set** instead of merging every shipped set onto one card. It reads through the scoped repositories, so the Spelprincipes, Voetbalhandelingen and Leerdoelen pages show exactly the methodology the read view shows — and JO13-1's `VD`/`AV` principles, previously dropped because the card bucketed by the JO14 code prefixes, now render (principles are grouped by team-function and team-task instead). A club's own (non-shipped) active set prints too. =
 
 = 4.83.0 — Team · Minutes distribution: fix "18 matches / 0 players" (#2339) The Team · Minutes distribution standard report resolved its squad from `tt_players.team_id` while counting matches from the team's activities, so a team whose players had no `team_id` set showed a match count but zero players and no minutes. The squad is now derived the same way the rest of analytics resolves a team — players with recorded attendance on the team's match / game / tournament activities — so the player list and the match count share one team-membership definition, and a player appears even with 0 recorded minutes. Minutes still come only from persisted `record_type='actual'` attendance rows (never estimated), so a match with no recorded minutes contributes 0. =
 
