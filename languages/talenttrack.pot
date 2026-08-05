@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-05T20:51:58+00:00\n"
+"POT-Creation-Date: 2026-08-05T20:54:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -15775,7 +15775,7 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:294
 #: src/Modules/License/Admin/AccountPage.php:194
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:176
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:82
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:75
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:153
 msgid "Print"
@@ -15785,7 +15785,7 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:295
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:756
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:179
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:83
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:93
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:755
@@ -18376,13 +18376,13 @@ msgstr ""
 
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:208
 #: src/Modules/Methodology/MethodologyEnums.php:56
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:249
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:256
 msgid "Aanvallen"
 msgstr ""
 
 #: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:209
 #: src/Modules/Methodology/MethodologyEnums.php:59
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:250
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:257
 msgid "Verdedigen"
 msgstr ""
 
@@ -19190,8 +19190,8 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:34
 #: src/Modules/Methodology/Frontend/MethodologyView.php:103
 #: src/Modules/Methodology/Frontend/MethodologyView.php:340
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:196
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:228
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:206
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:238
 #: src/Shared/CoreSurfaceRegistration.php:1611
 msgid "Voetbalhandelingen"
 msgstr ""
@@ -19493,8 +19493,8 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:64
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:36
 #: src/Modules/Methodology/Frontend/MethodologyView.php:101
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:129
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:166
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:145
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:182
 msgid "Spelprincipes"
 msgstr ""
 
@@ -19725,8 +19725,8 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:642
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:35
 #: src/Modules/Methodology/Frontend/MethodologyView.php:342
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:267
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:320
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:274
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:327
 msgid "Leerdoelen"
 msgstr ""
 
@@ -21018,7 +21018,7 @@ msgid "Inworp"
 msgstr ""
 
 #: src/Modules/Methodology/MethodologyEnums.php:91
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:251
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:258
 msgid "Omschakelen"
 msgstr ""
 
@@ -21058,150 +21058,126 @@ msgstr ""
 msgid "Keeper"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:35
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:45
 msgid "Log in to print the methodology reference."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:38
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:48
 msgid "You do not have access to print the methodology reference."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:47
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:57
 msgid "Pick at least one section to print."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:76
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:86
 msgid "Methodiek-referentie"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:112
-msgid "Aanvallen · opbouwen"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:113
-msgid "Aanvallen · scoren"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:114
-msgid "Omschakelen · na balverlies"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:115
-msgid "Verdedigen · storen"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:116
-msgid "Verdedigen · doelpunten voorkomen"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:117
-msgid "Omschakelen · na balwinst"
-msgstr ""
-
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:128
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:195
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:266
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:144
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:205
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:273
 msgid "TalentTrack · methodiek-referentie"
 msgstr ""
 
 #. translators: 1: academy name, 2: number of principles
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:132
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:148
 #, php-format
 msgid "%1$s — speelmodel · %2$d principes · gebruik de codes bij het opstellen van doelen."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:137
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:204
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:275
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:153
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:214
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:282
 msgid "Eenmaal printen · lamineren · bewaren in de doelenmap"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:141
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:157
 msgid "Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:143
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:159
 msgid "Bespreek het ontwikkelpunt van de speler in gewone taal."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:144
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:160
 msgid "Kies samen 1–2 principes die hieraan raken (de code komt op het intakeformulier)."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:145
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:161
 msgid "Ga daarna naar de voetbalhandelingen en kies 1–2 handelingen die — als ze beter worden — het principe versterken."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:165
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:181
 #, php-format
 msgid "%1$s · Spelprincipes (%2$d) · v %3$s"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:187
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:197
 #: src/Modules/Methodology/Repositories/FootballActionsRepository.php:29
 msgid "Met balcontact"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:188
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:198
 #: src/Modules/Methodology/Repositories/FootballActionsRepository.php:30
 msgid "Zonder balcontact"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:189
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:199
 #: src/Modules/Methodology/Repositories/FootballActionsRepository.php:31
 msgid "Ondersteunend"
 msgstr ""
 
 #. translators: %d = number of football actions
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:199
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:209
 #, php-format
 msgid "De %d voetbalhandelingen die elke speler oefent — kies er 1–2 per doel."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:227
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:237
 #, php-format
 msgid "%1$s · Voetbalhandelingen (%2$d) · v %3$s"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:255
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:262
 msgid "opbouwen"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:256
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:263
 msgid "scoren"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:257
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:264
 msgid "storen"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:258
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:265
 msgid "doelpunten voorkomen"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:259
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:266
 msgid "na balwinst"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:260
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:267
 msgid "na balverlies"
 msgstr ""
 
 #. translators: 1: academy name, 2: number of learning goals
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:270
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:277
 #, php-format
 msgid "%1$s — %2$d leerdoelen · onderbouwen de spelprincipes met concrete deelvaardigheden."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:279
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:286
 msgid "Hoe je deze kaart gebruikt:"
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:280
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:287
 msgid " elk leerdoel bestaat uit een titel + 4–5 deelvaardigheden. Tijdens de doelenintake kies je samen met de speler één deelvaardigheid om aan te werken — die wordt het \"waarom dit belangrijk is\" of \"hoe we dit meten\" op het intakeformulier."
 msgstr ""
 
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:319
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:326
 #, php-format
 msgid "%1$s · Leerdoelen (%2$d) · v %3$s"
 msgstr ""
