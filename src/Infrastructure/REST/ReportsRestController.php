@@ -117,6 +117,55 @@ final class ReportsRestController extends BaseController {
                 ],
             ],
         ] );
+        // #2367 — per-match minutes editor read model: the squad + each
+        // player's effective / derived / override minutes + roster
+        // attendance-row id + whether a match-execution owns the activity
+        // (the arbiter, so the client can route each write). Gated on the
+        // SAME `tt_edit_activities` capability the two write paths enforce
+        // (PATCH /match-execution/{activity}/minutes and PATCH /attendance),
+        // so this read never surfaces an editor a viewer-only user can't
+        // commit. Team scope is enforced on the activity's team below.
+        register_rest_route( self::NS, '/reports/minutes-audit/(?P<activity_id>\d+)/editor', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'minutesAuditEditor' ],
+                'permission_callback' => self::permCanFeature( 'tt_edit_activities', 'report_minutes_audit' ),
+                'args'                => [
+                    'activity_id' => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
+                ],
+            ],
+        ] );
+    }
+
+    /**
+     * #2367 — the per-match minutes editor read model. Returns the squad
+     * with each player's effective / derived / override minutes + the
+     * roster attendance-row id, plus `owned_by_execution` so the client can
+     * route each write:
+     *   - owned  → PATCH /match-execution/{activity}/minutes  (override)
+     *   - not    → PATCH /attendance/{attendance_id} {minutes_played}
+     *
+     * Cap: `tt_edit_activities` (the write-through cap). Team scope is
+     * enforced on the activity's own team — a coach who deep-links to a
+     * match on a team they don't coach gets a 403, not another team's roster.
+     */
+    public static function minutesAuditEditor( WP_REST_Request $req ): \WP_REST_Response {
+        $activity_id = (int) $req->get_param( 'activity_id' );
+        $data = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->editorRows( $activity_id );
+        if ( $data === null ) {
+            return RestResponse::error( 'not_found', __( 'Match not found.', 'talenttrack' ), 404 );
+        }
+
+        $scope = self::attendanceScope( (int) $data['activity']['team_id'] );
+        if ( $scope['blocked'] ) {
+            return RestResponse::error(
+                'forbidden_team',
+                __( 'You do not coach this match’s team.', 'talenttrack' ),
+                403
+            );
+        }
+
+        return RestResponse::success( $data );
     }
 
     /**

@@ -47562,6 +47562,61 @@ msgstr "Aanwezigheid en beoordelingen zijn vastgelegd in de begeleide afrondings
 msgid "Continue rating in the guided flow →"
 msgstr "Ga verder met beoordelen in de begeleide flow →"
 
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Record minutes"
+msgstr "Minuten registreren"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "You do not have permission to edit recorded minutes."
+msgstr "Je hebt geen toestemming om geregistreerde minuten te bewerken."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "That match was not found, or it is not a game activity."
+msgstr "Die wedstrijd is niet gevonden, of het is geen wedstrijdactiviteit."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "You do not coach this match’s team."
+msgstr "Je coacht het team van deze wedstrijd niet."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Correct the recorded minutes per player for this match. Saved minutes write the authoritative recorded value — the same source the reports and match-execution read."
+msgstr "Corrigeer de geregistreerde minuten per speler voor deze wedstrijd. Opgeslagen minuten schrijven de gezaghebbende geregistreerde waarde weg — dezelfde bron die de rapporten en het wedstrijdverloop lezen."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Match-execution match"
+msgstr "Wedstrijdverloop-wedstrijd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "editable — writes the recorded value"
+msgstr "bewerkbaar — schrijft de geregistreerde waarde"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Derived"
+msgstr "Afgeleid"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "No squad players are recorded for this match yet. Add attendance on the activity first, then record minutes here."
+msgstr "Er zijn nog geen selectiespelers geregistreerd voor deze wedstrijd. Voeg eerst aanwezigheid toe op de activiteit en registreer hier daarna de minuten."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Minutes for %s"
+msgstr "Minuten voor %s"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Could not save. Check the value and try again."
+msgstr "Kon niet opslaan. Controleer de waarde en probeer opnieuw."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "Minutes for this match are managed on the match-execution screen."
+msgstr "De minuten van deze wedstrijd worden beheerd op het wedstrijdverloop-scherm."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php
+msgid "This player has no roster row to record minutes against."
+msgstr "Deze speler heeft geen selectierij om minuten op vast te leggen."
+
+#: src/Infrastructure/REST/ReportsRestController.php
+msgid "Match not found."
+msgstr "Wedstrijd niet gevonden."
 #: src/Shared/Frontend/FrontendStandardReportsView.php
 msgid "Academy-wide signals · %1$s – %2$s"
 msgstr "Academy-brede signalen · %1$s – %2$s"

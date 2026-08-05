@@ -1361,8 +1361,15 @@ class DashboardShortcode {
                 return true;
             // #2368 — read-only minutes-audit overview (games × players
             // matrix). Self-gates on tt_view_analytics + team scope.
+            // #2367 — a `match_id` param routes to the per-match minutes
+            // EDITOR (self-gates on tt_edit_activities + team scope); the
+            // bare view stays the read-only overview.
             case 'minutes-audit':
-                \TT\Modules\Analytics\Frontend\FrontendMinutesAuditView::render( $user_id, $is_admin );
+                if ( isset( $_GET['match_id'] ) && absint( wp_unslash( $_GET['match_id'] ) ) > 0 ) {
+                    \TT\Modules\Analytics\Frontend\FrontendMinutesAuditEditView::render( $user_id, $is_admin );
+                } else {
+                    \TT\Modules\Analytics\Frontend\FrontendMinutesAuditView::render( $user_id, $is_admin );
+                }
                 return true;
             case 'eval-coverage':
                 \TT\Modules\Analytics\Frontend\FrontendEvalCoverageView::render( $user_id, $is_admin );

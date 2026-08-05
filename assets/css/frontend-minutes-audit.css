@@ -194,3 +194,88 @@ table.tt-maud-matrix {
 @media (min-width: 1024px) {
     .tt-maud-matrix__player { height: 5.25rem; }
 }
+
+/* ================================================================
+   Per-match minutes EDITOR (#2367) — edit.html port (B chrome + C
+   tables). Mobile-first: base 360px; the minutes grid scrolls
+   horizontally when needed, inputs are 48px tall touch targets.
+   ================================================================ */
+
+/* Match header strip below the page title */
+.tt-maud-matchhead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-maud-matchhead b { color: var(--tt-ink, #0e1a14); font-size: var(--tt-fs-md, 1rem); }
+
+/* Minutes input — 48px touch target, tabular numerals */
+.tt-min-in {
+    width: 4.5rem;
+    min-height: 48px;
+    padding: 6px 8px;
+    font-size: 16px; /* ≥16px prevents iOS focus-zoom */
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-sm, 6px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-min-in:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-min-in:disabled { opacity: 0.55; }
+
+/* Editor minutes table (C ledger) */
+table.tt-maud-mins {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+}
+.tt-maud-mins th,
+.tt-maud-mins td {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    padding: var(--tt-sp-2, 8px);
+    text-align: center;
+    white-space: nowrap;
+}
+.tt-maud-mins thead th {
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.tt-maud-mins tbody tr:nth-child(odd) td { background: #fbfcfa; }
+.tt-maud-mins__name {
+    text-align: left;
+    min-width: 9.5rem;
+    font-weight: 600;
+}
+.tt-maud-mins__derived { color: var(--tt-ink-soft, #6a6d66); }
+.tt-maud-mins__state { min-width: 5rem; font-size: 0.72rem; }
+.tt-maud-mins__state[data-kind="ok"] { color: #1c6b3f; }
+.tt-maud-mins__state[data-kind="error"] { color: #9a2b23; white-space: normal; }
+.tt-maud-mins__state[data-kind="saving"] { color: var(--tt-ink-soft, #6a6d66); }
+
+/* override-flagged row accent */
+.tt-maud-mins__row.is-override td.tt-maud-mins__name {
+    border-left: 4px solid var(--tt-primary, #0b3d2e);
+}
+.tt-maud-flag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-primary, #0b3d2e);
+}
