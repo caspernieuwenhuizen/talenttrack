@@ -780,9 +780,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // (§2185 pattern), each carrying a `tt_back` hint and gated on the
         // destination cap (§7). Point-in-time roster counts open the full
         // lists; the windowed activity/eval counts open their lists.
-        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) );
-        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) );
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) );
+        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
         self::renderKpiStrip( [
             [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'cap' => 'tt_view_players' ],
             [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'cap' => 'tt_view_teams' ],
