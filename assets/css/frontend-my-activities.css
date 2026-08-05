@@ -50,6 +50,25 @@
    a narrow column with empty space to the right. */
 .tt-dashboard .tt-myact-list { max-width: none; }
 
+/* #2074 — bring the table head/rows up to the 2026 list standard, mirroring
+   the players list (frontend-players-list.css). The filter row itself already
+   renders through the shared FilterBar (FrontendListTable, #2082); this is the
+   remaining per-view polish so the player's own activity timeline reads as
+   crisp as the staff Activities list. Scoped to `.tt-myact-list` so the shared
+   list component is untouched elsewhere. Rows here are not clickable (#1986),
+   so the treatment is head small-caps + a subtle row hover only. */
+.tt-dashboard .tt-myact-list .tt-list-table-table thead th {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-myact-list .tt-list-table-table tbody tr:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
 @media (max-width: 639px) {
     .tt-dashboard .tt-myact-list .tt-list-table-table tbody tr {
         background: #fff;
