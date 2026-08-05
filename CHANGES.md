@@ -1,3 +1,58 @@
+# TalentTrack v4.83.0 — Team · Minutes distribution: fix "18 matches / 0 players" (#2339)
+
+The Team · Minutes distribution standard report resolved its squad from
+`tt_players.team_id` while counting matches from the team's activities, so a
+team whose players had no `team_id` set showed a match count but zero players
+and no minutes. The squad is now derived the same way the rest of analytics
+resolves a team — players with recorded attendance on the team's
+match / game / tournament activities — so the player list and the match count
+share one team-membership definition, and a player appears even with 0 recorded
+minutes. Minutes still come only from persisted `record_type='actual'`
+attendance rows (never estimated), so a match with no recorded minutes
+contributes 0.
+
+# TalentTrack v4.83.0 — Standard reports: shared filter bar + season-default window (#2345)
+
+Team · Squad evaluation summary, Season summary, Season · Trial funnel and the
+Scout report card now carry the shared filter bar — retrospective period pills
+(Last week / This month / This season) plus a manual From / To range — with the
+same season-default window the attendance and minutes reports use (current
+season start → today, 90-day fallback). Each report's query, page sub-line and
+Explorer drill now follow the selected window, replacing the hardcoded rolling
+6- / 12-month bounds.
+
+# TalentTrack v4.83.0 — Standard reports: auditability drill-downs on KPIs (#2356)
+
+KPI tiles on the standard reports now drill to the filtered list they count:
+Team · Minutes distribution's Players tile opens the team roster and its Matches
+tile the activities list filtered to that team's matches; Season summary's
+Active players / Active teams / Matches tiles open their lists; the Trial funnel
+Prospects logged tile opens the prospects list. Every drill carries a
+"← Back to …" hint and is hidden when the viewer lacks the destination's
+capability.
+
+# TalentTrack v4.83.0 — Minutes-audit per-match editor (#2367)
+
+The Minutes-audit tool gains an editable per-match surface. From the audit
+overview, admins and head coaches can now open a match and correct the
+recorded minutes per player, writing the authoritative recorded value — the
+same source the reports and the match-execution screen read, so a match
+opened in match-execution after an audit edit reflects the changed numbers.
+
+The editor routes each write automatically: a match with a match-execution
+takes an explicit per-player override that survives every recompute and
+stays correctable once finalized; a paper match writes the recorded minutes
+directly. Editing is conservative — an emptied field is an explicit clear,
+never a silent zero, and untouched rows are never written. The overview's
+edit link is hidden for users who cannot save.
+
+The audit overview now reflects effective minutes
+(`COALESCE(minutes_override, minutes_played)`), consistent with the minutes
+report and the minutes-authority arbiter.
+
+This first version edits total minutes per player; editing the starting
+line-up per half and the substitution log is a planned follow-up.
+
 # TalentTrack v4.82.2 — Edit attendance on a completed activity, and see the roster without opening Edit (#2371)
 
 The activity detail page now has a collapsible **Show roster** list under the

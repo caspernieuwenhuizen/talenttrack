@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.82.2
+Stable tag: 4.83.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.83.0 — Team · Minutes distribution: fix "18 matches / 0 players" (#2339) The Team · Minutes distribution standard report resolved its squad from `tt_players.team_id` while counting matches from the team's activities, so a team whose players had no `team_id` set showed a match count but zero players and no minutes. The squad is now derived the same way the rest of analytics resolves a team — players with recorded attendance on the team's match / game / tournament activities — so the player list and the match count share one team-membership definition, and a player appears even with 0 recorded minutes. Minutes still come only from persisted `record_type='actual'` attendance rows (never estimated), so a match with no recorded minutes contributes 0. =
+
+= 4.83.0 — Standard reports: shared filter bar + season-default window (#2345) Team · Squad evaluation summary, Season summary, Season · Trial funnel and the Scout report card now carry the shared filter bar — retrospective period pills (Last week / This month / This season) plus a manual From / To range — with the same season-default window the attendance and minutes reports use (current season start → today, 90-day fallback). Each report's query, page sub-line and Explorer drill now follow the selected window, replacing the hardcoded rolling 6- / 12-month bounds. =
+
+= 4.83.0 — Standard reports: auditability drill-downs on KPIs (#2356) KPI tiles on the standard reports now drill to the filtered list they count: Team · Minutes distribution's Players tile opens the team roster and its Matches tile the activities list filtered to that team's matches; Season summary's Active players / Active teams / Matches tiles open their lists; the Trial funnel Prospects logged tile opens the prospects list. Every drill carries a "← Back to …" hint and is hidden when the viewer lacks the destination's capability. =
+
+= 4.83.0 — Minutes-audit per-match editor (#2367) The Minutes-audit tool gains an editable per-match surface. From the audit overview, admins and head coaches can now open a match and correct the recorded minutes per player, writing the authoritative recorded value — the same source the reports and the match-execution screen read, so a match opened in match-execution after an audit edit reflects the changed numbers.  The editor routes each write automatically: a match with a match-execution takes an explicit per-player override that survives every recompute and stays correctable once finalized; a paper match writes the recorded minutes directly. Editing is conservative — an emptied field is an explicit clear, never a silent zero, and untouched rows are never written. The overview's edit link is hidden for users who cannot save.  The audit overview now reflects effective minutes (`COALESCE(minutes_override, minutes_played)`), consistent with the minutes report and the minutes-authority arbiter.  This first version edits total minutes per player; editing the starting line-up per half and the substitution log is a planned follow-up. =
 
 = 4.82.2 — Edit attendance on a completed activity, and see the roster without opening Edit (#2371) The activity detail page now has a collapsible **Show roster** list under the attendance breakdown — every registered player with their status (guests tagged), so you can see who had which attendance without opening the edit form.  A completed **training** now also carries an **editable attendance table** on its edit form: correct a missed or wrong status (and note) per player and hit Update activity. This restores the flat-form path as the fallback for when the guided wizards are switched off — previously, with wizards disabled, recorded attendance could not be corrected at all. Reuses the existing recorded- attendance write path (no new write logic); match-type activities keep their minutes-aware completion flow. The completed-activity wording no longer implies attendance is still to be captured. =
 
