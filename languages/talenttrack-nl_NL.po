@@ -48017,5 +48017,5 @@ msgstr "Geen proefzaken of prospects vastgelegd in deze periode."
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
-msgid "%1\$s – %2\$s"
-msgstr "%1\$s – %2\$s"
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"
