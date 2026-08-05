@@ -10,9 +10,23 @@ use TT\Infrastructure\Activities\ActivitiesRepository;
  * FrontendMyActivitiesView — the "My sessions" tile destination.
  *
  * Lists activities attended by the logged-in player, most-recent
- * first. Filterable by status, date range, and free-text search
- * (matches activity title + notes). Filter pattern matches the
- * coach-side evaluation list so the UX is consistent.
+ * first. Filterable by date range and free-text search. Rendered via
+ * the shared FrontendListTable, whose filter chrome is the shared 2026
+ * FilterBar (component-level migration, #2082 / epic #2017), so this
+ * player surface matches the staff Activities list one-for-one — the
+ * inline row on tablet+, the bottom sheet on phones.
+ *
+ * #2074 (epic #2017 Phase 2) decisions:
+ *   - Q1 filter altitude: path (A), component-level — FrontendListTable
+ *     already renders its filters through FilterBar, so no per-view
+ *     filter code is needed here.
+ *   - Q2 status column: keep "Your status" (the player's own attendance:
+ *     Present / Absent / …). Player-centric — the activity-status lens
+ *     (Planned / Completed) is the staff view's concern, not the
+ *     player's.
+ *   - Q3 table head/rows: the 2026 restyle (small-caps head + row hover)
+ *     lives in assets/css/frontend-my-activities.css, scoped to
+ *     `.tt-myact-list`, mirroring frontend-players-list.css.
  */
 class FrontendMyActivitiesView extends FrontendViewBase {
 
@@ -62,6 +76,12 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         // accepts `filter[player_id]` (added in this release) and the
         // `can_view` permission gate allows the player or their parent
         // to read their own attendance via this filter.
+        //
+        // #2074 — the filter row this renders is the shared 2026 FilterBar
+        // (FrontendListTable routes its filters through it since #2082), so
+        // no per-view filter markup is needed. The static `player_id` scope
+        // below keeps the list to the player's OWN activities; the REST
+        // contract is unchanged.
         echo '<div class="tt-myact-list">';
         echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
             'rest_path' => 'activities',
