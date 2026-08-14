@@ -236,10 +236,21 @@ final class SpondSync {
         }
     }
 
+    /** #2389 — default match length, minutes: kick-off + this = end time. */
+    private const MATCH_DEFAULT_MINUTES = 105;
+
     /**
      * Build the time columns for an activity row. Every event gets
      * start/end times; match-type events additionally get the kickoff
      * (= start) and presence (= meet-up) times. Empty values become null.
+     *
+     * #2389 — Spond match events frequently omit an end time, which left
+     * the synced `end_time` blank for matches (only trainings, which carry
+     * ends, looked right). The kick-off + 105 min default from #1863 was
+     * wired into the create wizard only (client-side), never the sync. So
+     * for a match type with a start but no Spond end, default the end to
+     * kick-off + 105 min here too. A real Spond end always wins — the
+     * default fills only the blank.
      *
      * @return array<string,string|null>
      */
@@ -249,10 +260,26 @@ final class SpondSync {
             'end_time'   => $end_time   !== '' ? $end_time   : null,
         ];
         if ( in_array( $type_key, self::MATCH_TYPES, true ) ) {
+            if ( $cols['end_time'] === null && $start_time !== '' ) {
+                $cols['end_time'] = self::matchEndFallback( $start_time );
+            }
             $cols['kickoff_time']     = $start_time !== '' ? $start_time : null;
             $cols['time_of_presence'] = $meet_time  !== '' ? $meet_time  : null;
         }
         return $cols;
+    }
+
+    /**
+     * #2389 — a match's fallback end = kick-off + MATCH_DEFAULT_MINUTES,
+     * mirroring the create wizard's #1863 default. Clamped to end-of-day
+     * (23:59) rather than wrapping past midnight, since `end_time` is a
+     * bare TIME with no date to carry the roll-over.
+     */
+    private static function matchEndFallback( string $start_time ): string {
+        $parts = explode( ':', $start_time );
+        $mins  = (int) ( $parts[0] ?? 0 ) * 60 + (int) ( $parts[1] ?? 0 ) + self::MATCH_DEFAULT_MINUTES;
+        if ( $mins > 1439 ) $mins = 1439; // clamp to 23:59
+        return sprintf( '%02d:%02d:00', intdiv( $mins, 60 ), $mins % 60 );
     }
 
     /**
