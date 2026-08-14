@@ -47823,6 +47823,51 @@ msgstr "Deze functie wordt nog gebouwd en kan veranderen."
 msgid "Supply enabled and/or under_development."
 msgstr "Geef enabled en/of under_development op."
 
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Saved views"
+msgstr "Opgeslagen weergaven"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "No saved views yet."
+msgstr "Nog geen opgeslagen weergaven."
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Save current filters…"
+msgstr "Huidige filters opslaan…"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Name for this saved view"
+msgstr "Naam voor deze opgeslagen weergave"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "e.g. U17 league games"
+msgstr "bijv. JO17 competitiewedstrijden"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+#, php-format
+msgid "Delete saved view %s"
+msgstr "Opgeslagen weergave %s verwijderen"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Give this view a name first."
+msgstr "Geef deze weergave eerst een naam."
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Saved."
+msgstr "Opgeslagen."
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Delete this saved view?"
+msgstr "Deze opgeslagen weergave verwijderen?"
+
+#: src/Infrastructure/REST/ReportsRestController.php
+msgid "Could not save this view."
+msgstr "Kon deze weergave niet opslaan."
+
+#: src/Infrastructure/REST/ReportsRestController.php
+msgid "View not found."
+msgstr "Weergave niet gevonden."
+
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

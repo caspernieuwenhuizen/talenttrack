@@ -63,6 +63,10 @@ Both the team report and the player report carry the same filtering vocabulary a
 
 On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
 
+## Saving a filter set as a named view (v4.x+)
+
+Above the filter bar on every standard report — the team, player and leaderboard attendance reports, and the minutes reports — there's a **Saved views** strip. Set the filters you keep coming back to (a team, an activity type, a period), click **Save current filters…**, give it a name like *"U17 league games"*, and it becomes a one-click chip you can re-apply any time. Saved views are **personal** — only you see yours — and each belongs to the one report you saved it on. A view remembers a period pill as a **relative** choice (*This season* stays "this season" next month too); a manual From/To range is remembered as the exact dates. Delete a view with the **×** on its chip. Saving, listing and deleting run over the REST API (`GET/POST /reports/filter-presets`, `DELETE /reports/filter-presets/{id}`) gated on the same `tt_view_analytics` capability the reports use.
+
 ## Drilling into a team's players (team report)
 
 On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.

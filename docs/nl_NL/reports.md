@@ -63,6 +63,10 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 
 Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
 
+## Een filterset opslaan als benoemde weergave (v4.x+)
+
+Boven de filterbalk staat op elk standaardrapport — de team-, speler- en ranglijst-aanwezigheidsrapporten en de minutenrapporten — een strip **Opgeslagen weergaven**. Stel de filters in waar je steeds naar terugkeert (een team, een activiteittype, een periode), klik op **Huidige filters opslaan…**, geef het een naam zoals *"JO17 competitiewedstrijden"*, en het wordt een chip die je met één klik opnieuw toepast. Opgeslagen weergaven zijn **persoonlijk** — alleen jij ziet die van jou — en horen elk bij het ene rapport waarop je ze hebt opgeslagen. Een weergave onthoudt een periodepil als **relatieve** keuze (*Dit seizoen* blijft volgende maand ook "dit seizoen"); een handmatig Van/Tot-bereik wordt als exacte data onthouden. Verwijder een weergave met de **×** op de chip. Opslaan, tonen en verwijderen lopen via de REST-API (`GET/POST /reports/filter-presets`, `DELETE /reports/filter-presets/{id}`), afgeschermd met dezelfde `tt_view_analytics`-capability als de rapporten.
+
 ## Inzoomen op de spelers van een team (teamrapport)
 
 In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.

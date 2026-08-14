@@ -1,0 +1,96 @@
+/* #2385 — saved filter presets strip, above the reports' filter bar.
+   Mobile-first; scales up. Reads design tokens (tokens.css). */
+.tt-saved-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-saved-filters__label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-saved-filters__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-saved-filters__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 40px;
+    padding: 4px 4px 4px 12px;
+    border: 1px solid var(--tt-line, #d8dcde);
+    border-radius: 999px;
+    background: #fff;
+}
+
+.tt-saved-filters__apply {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 500;
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+.tt-saved-filters__del {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-saved-filters__del:hover,
+.tt-saved-filters__del:focus-visible {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-saved-filters__empty {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    list-style: none;
+}
+
+.tt-saved-filters__save {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-saved-filters__save-form {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-saved-filters__name {
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 16px; /* prevent iOS auto-zoom */
+    border: 1px solid var(--tt-line, #d8dcde);
+    border-radius: var(--tt-radius, 8px);
+}
+
+@media (min-width: 768px) {
+    .tt-saved-filters__name { min-width: 220px; }
+}
