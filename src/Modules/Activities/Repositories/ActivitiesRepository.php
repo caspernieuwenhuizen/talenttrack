@@ -1710,27 +1710,39 @@ final class ActivitiesRepository {
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
 
-        $existing_id = (int) $wpdb->get_var( $wpdb->prepare(
+        // All existing recorded rows for this (activity, player), newest last.
+        // Legacy dirty data can leave more than one `actual` row (a wizard row
+        // and a match-execution row); heal it here so the grid stops being
+        // ambiguous — keep the latest, drop the rest.
+        $existing_ids = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$p}tt_attendance
               WHERE activity_id = %d AND player_id = %d AND club_id = %d
                 AND is_guest = 0 AND record_type = 'actual'
-              ORDER BY id ASC LIMIT 1",
+              ORDER BY id ASC",
             $activity_id, $player_id, $club_id
-        ) );
+        ) ) );
+        $keep_id = $existing_ids ? (int) end( $existing_ids ) : 0;
+        $stale   = array_filter( $existing_ids, static fn( int $id ): bool => $id !== $keep_id );
 
-        // Blank status clears the cell — remove the recorded row (if any).
+        // Blank status clears the cell — remove every recorded row.
         if ( $status === '' ) {
-            if ( $existing_id > 0 ) {
-                return $wpdb->delete( "{$p}tt_attendance", [ 'id' => $existing_id, 'club_id' => $club_id ] ) !== false;
+            $ok = true;
+            foreach ( $existing_ids as $id ) {
+                if ( $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] ) === false ) $ok = false;
             }
-            return true;
+            return $ok;
         }
 
-        if ( $existing_id > 0 ) {
+        // Drop the stale duplicates, then update the one we keep (or insert).
+        foreach ( $stale as $id ) {
+            $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] );
+        }
+
+        if ( $keep_id > 0 ) {
             return $wpdb->update(
                 "{$p}tt_attendance",
                 [ 'status' => $status ],
-                [ 'id' => $existing_id, 'club_id' => $club_id ]
+                [ 'id' => $keep_id, 'club_id' => $club_id ]
             ) !== false;
         }
 

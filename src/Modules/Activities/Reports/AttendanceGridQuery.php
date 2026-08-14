@@ -137,10 +137,15 @@ final class AttendanceGridQuery {
                 AND club_id = %d
                 AND is_guest = 0
                 AND player_id > 0
-                AND record_type = 'actual'",
+                AND record_type = 'actual'
+              ORDER BY id ASC",
             array_merge( $activity_ids, [ $club_id ] )
         ) );
 
+        // Fold into cells. Ordering by id ascending means that if legacy dirty
+        // data left more than one `actual` row for the same (activity, player)
+        // — e.g. a wizard row and a match-execution row — the LATEST row wins
+        // deterministically, matching the row the bulk-save upsert keeps.
         $cells = [];
         foreach ( (array) $att_rows as $r ) {
             $pid = (int) $r->player_id;

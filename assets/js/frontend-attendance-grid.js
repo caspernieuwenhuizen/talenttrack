@@ -44,6 +44,30 @@
 		}
 	}
 
+	// Live-recompute a row's Present % from its current dropdowns, so the
+	// figure tracks the edits in the grid instead of the page-load snapshot.
+	// Present + Late count as attended, over the cells that carry a status.
+	function recomputeRate( tr ) {
+		if ( ! tr ) {
+			return;
+		}
+		var cell = tr.querySelector( '.tt-agrid__rate' );
+		if ( ! cell ) {
+			return;
+		}
+		var recorded = 0;
+		var attended = 0;
+		tr.querySelectorAll( 'select.tt-agrid-sel' ).forEach( function ( s ) {
+			if ( s.value !== '' ) {
+				recorded++;
+				if ( s.value === 'present' || s.value === 'late' ) {
+					attended++;
+				}
+			}
+		} );
+		cell.textContent = recorded > 0 ? Math.round( attended / recorded * 100 ) + '%' : '—';
+	}
+
 	function refresh() {
 		var n = dirty.size;
 		if ( statusEl ) {
@@ -75,6 +99,7 @@
 			}
 			paintCell( td, sel.value );
 			markDirty( td );
+			recomputeRate( sel.closest( 'tr' ) );
 		} );
 	} );
 
@@ -90,6 +115,7 @@
 					markDirty( td );
 				}
 			} );
+			grid.querySelectorAll( 'tbody tr' ).forEach( recomputeRate );
 		} );
 	} );
 
@@ -171,5 +197,6 @@
 		}
 	} );
 
+	grid.querySelectorAll( 'tbody tr' ).forEach( recomputeRate );
 	refresh();
 }() );
