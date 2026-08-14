@@ -47810,6 +47810,31 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+msgid "Spond connection"
+msgstr "Spond-koppeling"
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+#, php-format
+msgid "Spond connection — %s"
+msgstr "Spond-koppeling — %s"
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+msgid "You do not have access to this team's Spond connection."
+msgstr "Je hebt geen toegang tot de Spond-koppeling van dit team."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+msgid "Connect this team's own Spond account so its calendar syncs into the players' timelines. Use a Spond login that's a member of this team's group. Two-factor authentication is not supported — use a non-2FA account. Leaving the email blank falls back to the club-wide account."
+msgstr "Koppel het eigen Spond-account van dit team zodat de kalender in de tijdlijnen van de spelers wordt gesynchroniseerd. Gebruik een Spond-login die lid is van de groep van dit team. Tweefactorauthenticatie wordt niet ondersteund — gebruik een account zonder 2FA. Laat je het e-mailadres leeg, dan valt het terug op het clubbrede account."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+msgid "A Spond group is linked to this team. Sync pulls its calendar into the team's activities."
+msgstr "Er is een Spond-groep aan dit team gekoppeld. Synchroniseren haalt de kalender ervan op in de activiteiten van het team."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php
+msgid "No Spond group is linked to this team yet. Once a group is linked on the team edit form, syncing pulls its calendar in."
+msgstr "Er is nog geen Spond-groep aan dit team gekoppeld. Zodra er op het teambewerkingsformulier een groep is gekoppeld, haalt synchroniseren de kalender ervan op."
 #: src/Shared/Frontend/Components/DevelopmentPill.php
 #: src/Shared/Frontend/FrontendModulesView.php
 msgid "Under development"
@@ -47834,6 +47859,46 @@ msgstr "Kalenderweergave"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
 msgid "No teams available for a calendar view — assign yourself to a team first."
 msgstr "Geen teams beschikbaar voor een kalenderweergave — wijs jezelf eerst aan een team toe."
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Saved views"
+msgstr "Opgeslagen weergaven"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "No saved views yet."
+msgstr "Nog geen opgeslagen weergaven."
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Save current filters…"
+msgstr "Huidige filters opslaan…"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Name for this saved view"
+msgstr "Naam voor deze opgeslagen weergave"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "e.g. U17 league games"
+msgstr "bijv. JO17 competitiewedstrijden"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+#, php-format
+msgid "Delete saved view %s"
+msgstr "Opgeslagen weergave %s verwijderen"
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Give this view a name first."
+msgstr "Geef deze weergave eerst een naam."
+
+#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
+msgid "Delete this saved view?"
+msgstr "Deze opgeslagen weergave verwijderen?"
+
+#: src/Infrastructure/REST/ReportsRestController.php
+msgid "Could not save this view."
+msgstr "Kon deze weergave niet opslaan."
+
+#: src/Infrastructure/REST/ReportsRestController.php
+msgid "View not found."
+msgstr "Weergave niet gevonden."
 
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"

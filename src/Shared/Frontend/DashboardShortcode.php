@@ -1051,6 +1051,14 @@ class DashboardShortcode {
                 // the same cap at the REST layer.
                 FrontendSpondMonitorView::render( $user_id, $is_admin );
                 return true;
+            case 'team-spond':
+                // #2388 — head-coach-facing per-team Spond connection panel,
+                // linked from the team detail page. Gates on TeamSpondAccess
+                // (spond_integration.change for this exact team) internally,
+                // and the per-team credential/test/sync endpoints re-check
+                // the same authority at the REST layer.
+                FrontendMyTeamSpondView::render( $user_id, $detail_id );
+                return true;
             case 'strava-admin':
                 // #2127 (epic #2002) — Strava operator console: app
                 // credentials + webhook subscription + connected-players

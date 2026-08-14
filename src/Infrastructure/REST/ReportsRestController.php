@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\CoachEvalQualityQuery;
 use TT\Modules\Analytics\Reports\PlayerRadarQuery;
+use TT\Modules\Analytics\Reports\SavedFiltersRepository;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use WP_REST_Request;
 
@@ -135,6 +136,108 @@ final class ReportsRestController extends BaseController {
                 ],
             ],
         ] );
+        // #2385 — personal named filter presets for the standard reports'
+        // shared filter bar. Gated on `tt_view_analytics` (the reports cap);
+        // every row is scoped to the current user + club in the repository,
+        // so a user only ever lists/mutates their own presets.
+        register_rest_route( self::NS, '/reports/filter-presets', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'listFilterPresets' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => [
+                    'report_key' => [ 'sanitize_callback' => 'sanitize_key', 'required' => true ],
+                ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'saveFilterPreset' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => [
+                    'report_key' => [ 'sanitize_callback' => 'sanitize_key',        'required' => true ],
+                    'name'       => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => true ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/filter-presets/(?P<id>\d+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ self::class, 'deleteFilterPreset' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => [
+                    'id' => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
+                ],
+            ],
+        ] );
+    }
+
+    /** #2385 — a user's saved presets for one report. */
+    public static function listFilterPresets( WP_REST_Request $req ): \WP_REST_Response {
+        $report_key = (string) $req->get_param( 'report_key' );
+        $rows = ( new SavedFiltersRepository() )->listForUser( get_current_user_id(), $report_key );
+        return RestResponse::success( [ 'presets' => array_values( array_map(
+            [ self::class, 'shapePreset' ],
+            $rows
+        ) ) ] );
+    }
+
+    /** #2385 — persist the current filter set under a name. */
+    public static function saveFilterPreset( WP_REST_Request $req ): \WP_REST_Response {
+        $report_key  = (string) $req->get_param( 'report_key' );
+        $name        = (string) $req->get_param( 'name' );
+        $filters_raw = $req->get_param( 'filters' );
+        $filters     = self::sanitizeFilterPayload( is_array( $filters_raw ) ? $filters_raw : [] );
+
+        $row = ( new SavedFiltersRepository() )->create( get_current_user_id(), $report_key, $name, $filters );
+        if ( $row === null ) {
+            return RestResponse::error( 'save_failed', __( 'Could not save this view.', 'talenttrack' ), 422 );
+        }
+        return RestResponse::success( self::shapePreset( $row ) );
+    }
+
+    /** #2385 — delete one of the caller's own presets. */
+    public static function deleteFilterPreset( WP_REST_Request $req ): \WP_REST_Response {
+        $id = (int) $req->get_param( 'id' );
+        $ok = ( new SavedFiltersRepository() )->delete( $id, get_current_user_id() );
+        if ( ! $ok ) {
+            return RestResponse::error( 'not_found', __( 'View not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'deleted' => true ] );
+    }
+
+    /** @return array{id:int,name:string,filters:array<string,string>} */
+    private static function shapePreset( object $row ): array {
+        $filters = json_decode( (string) ( $row->filters_json ?? '' ), true );
+        return [
+            'id'      => (int) $row->id,
+            'name'    => (string) $row->name,
+            'filters' => is_array( $filters ) ? $filters : [],
+        ];
+    }
+
+    /**
+     * #2385 — whitelist + sanitise the stored filter payload. Only the
+     * shared filter bar's known params are kept; the period is stored as a
+     * key (relative), from/to as resolved dates (frozen range).
+     *
+     * @param array<string,mixed> $raw
+     * @return array<string,string>
+     */
+    private static function sanitizeFilterPayload( array $raw ): array {
+        $out = [];
+        foreach ( [ 'period', 'activity_type_key', 'from', 'to', 'team_id', 'n' ] as $key ) {
+            if ( ! isset( $raw[ $key ] ) || is_array( $raw[ $key ] ) ) continue;
+            $val = (string) $raw[ $key ];
+            if ( $val === '' ) continue;
+            if ( $key === 'team_id' || $key === 'n' ) {
+                $out[ $key ] = (string) absint( $val );
+            } elseif ( $key === 'from' || $key === 'to' ) {
+                $out[ $key ] = sanitize_text_field( $val );
+            } else {
+                $out[ $key ] = sanitize_key( $val );
+            }
+        }
+        return $out;
     }
 
     /**
