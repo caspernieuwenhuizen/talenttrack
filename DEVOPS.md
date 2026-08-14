@@ -76,6 +76,20 @@ Ask "show me what you did" before saying "ship it" if you want to review in the 
 
 To ship: "merge the PR and delete the branch". Claude Code runs `gh pr merge --squash --delete-branch`.
 
+### Local checks before you push
+
+`tools/dev-check.ps1` runs the gating checks locally so a red PR is the exception, not the norm:
+
+```powershell
+.\tools\dev-check.ps1          # fast — only files changed vs origin/main
+.\tools\dev-check.ps1 -All     # full sweep, like CI
+.\tools\dev-check.ps1 -E2E     # adds the Playwright leg (needs npx wp-env start)
+```
+
+It covers PHP lint, PHPStan, the `bin/*-selfcheck.php` scripts and `.po` syntax. The grep-based gates (wizard-form-lint, lookup-translation-lint, inline-style, migration-lint, docs-audience) still run in CI on the PR — they only fail if a banned token is reintroduced.
+
+`tools/go-live-local.ps1` is the other half of the loop, for a machine running WordPress against the checkout: after a release lands it switches the repo root to `main`, pulls `--ff-only`, and bootstraps WordPress via wp-cli so pending migrations run. It refuses to switch when tracked files are dirty — it never stashes work. Paths default to a stock XAMPP layout; override with `TT_WP_PATH` / `TT_PHP` / `TT_WP_CLI`.
+
 ### Ship-along rules — non-optional, part of every feature PR
 
 These three are always bundled with the code change, not chased later.

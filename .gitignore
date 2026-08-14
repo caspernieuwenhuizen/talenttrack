@@ -14,3 +14,6 @@ tests/e2e/.auth/
 
 # Temp dumps accidentally created from Windows c:\temp paths
 ctemp*
+
+# Per-machine local dev notes (hardcodes one machine's XAMPP + account paths)
+/LOCAL-DEV.md
