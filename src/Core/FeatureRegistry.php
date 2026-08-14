@@ -198,6 +198,18 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'attendance-grid' ],
                 'entities'        => [],
             ],
+            // #2386 (epic #2381) — the sibling desktop minutes grid (players ×
+            // match activities). Default ON; off hides the affordance + blocks
+            // the ?tt_view=minutes-grid route. Gated by view-slug only; reuses
+            // the activities entity + tt_edit_activities cap.
+            'minutes_grid' => [
+                'label'           => __( 'Minutes grid', 'talenttrack' ),
+                'description'     => __( 'The desktop minutes-entry grid (players × matches) — a spreadsheet way to record and correct match minutes across a period. The per-match minutes editor stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Activities\\ActivitiesModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'minutes-grid' ],
+                'entities'        => [],
+            ],
             // #1537 — the Custom widgets builder (#0078). Migrated from the
             // `tt_custom_widgets_enabled` option; migration 0166 carries the
             // existing on/off state forward. Default off, matching the

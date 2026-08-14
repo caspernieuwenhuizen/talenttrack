@@ -166,6 +166,31 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
             ],
         ] );
+        // #2386 (epic #2381) — the minutes grid (players × match activities).
+        // A read endpoint for the matrix and a bulk write that routes each
+        // edit through the minutes-ownership arbiter (#2367): a match owned by
+        // a match-execution takes an override, a paper match writes minutes
+        // directly. Gated on `tt_edit_activities` AND the `minutes_grid`
+        // feature. Team scope enforced per-activity in the handlers.
+        register_rest_route( self::NS, '/activities/minutes-grid', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'minutes_grid_data' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
+                'args'                => [
+                    'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
+                    'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/minutes/bulk', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'bulk_minutes' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
+            ],
+        ] );
     }
 
     public static function can_view( ?\WP_REST_Request $r = null ): bool {
@@ -312,6 +337,89 @@ class ActivitiesRestController {
                 $saved++;
             } else {
                 $failed++;
+            }
+        }
+
+        return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped, 'failed' => $failed ] );
+    }
+
+    /**
+     * #2386 — the minutes-grid gate: `tt_edit_activities` (matrix-aware) AND
+     * the `minutes_grid` feature toggle. Same gate the view enforces (§7).
+     */
+    public static function can_edit_minutes_grid(): bool {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) return false;
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'minutes_grid' ) ) return false;
+        return true;
+    }
+
+    /**
+     * #2386 — GET /activities/minutes-grid — the players × match-activities
+     * minutes matrix for a team + window. Team scope enforced on the team.
+     */
+    public static function minutes_grid_data( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['team_id'] );
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed !== null && ! in_array( $team_id, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        }
+
+        $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
+        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : $defaults['to'];
+
+        $matrix = ( new \TT\Modules\Activities\Reports\MinutesGridQuery() )->matrix( $team_id, $from, $to );
+        return RestResponse::success( $matrix );
+    }
+
+    /**
+     * #2386 — POST /minutes/bulk — apply a batch of minutes-grid edits. Body:
+     * `{ changes: [ { activity_id, player_id, minutes } ] }`. A blank minutes
+     * clears the value. Each edit is routed through the minutes-ownership
+     * arbiter: a match owned by a match-execution takes an override that
+     * survives recompute; a paper match writes minutes_played directly. Only
+     * squad players (an existing non-guest attendance row) can be written, so
+     * a change with no row is skipped rather than inventing one.
+     */
+    public static function bulk_minutes( \WP_REST_Request $r ): \WP_REST_Response {
+        $changes = $r['changes'] ?? null;
+        if ( ! is_array( $changes ) ) {
+            return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
+        }
+
+        $allowed = self::gridAllowedTeamIds();
+        $repo    = self::repo();
+        $exec    = new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository();
+        $saved   = 0;
+        $skipped = 0;
+        $failed  = 0;
+
+        foreach ( $changes as $c ) {
+            if ( ! is_array( $c ) ) { $skipped++; continue; }
+            $aid = absint( $c['activity_id'] ?? 0 );
+            $pid = absint( $c['player_id'] ?? 0 );
+            if ( $aid <= 0 || $pid <= 0 ) { $skipped++; continue; }
+
+            $raw = $c['minutes'] ?? '';
+            $minutes = ( $raw === '' || $raw === null ) ? null : max( 0, min( 200, absint( $raw ) ) );
+
+            $team = $repo->activityTeamId( $aid );
+            if ( $team <= 0 ) { $skipped++; continue; }
+            if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) { $skipped++; continue; }
+            if ( $repo->playerTeamId( $pid ) !== $team ) { $skipped++; continue; }
+
+            // The arbiter (#2367): an execution owns the minutes → write the
+            // override (survives recompute); otherwise write minutes_played on
+            // the paper-match attendance row. Both target an existing squad
+            // row; a non-squad cell can't be edited in the grid.
+            $ok = $exec->existsForActivity( $aid )
+                ? $exec->setMinuteOverride( $aid, $pid, $minutes )
+                : $repo->updateActualAttendanceMinutes( $aid, $pid, $minutes );
+
+            if ( $ok ) {
+                $saved++;
+            } else {
+                $skipped++; // no squad row to write onto — not a hard failure
             }
         }
 

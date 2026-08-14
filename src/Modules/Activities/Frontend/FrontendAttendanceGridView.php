@@ -84,6 +84,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             'talenttrack'
         ) . '</p>';
 
+        self::renderModeNav();
+
         // Team scope mirrors the activities + minutes surfaces: academy-wide
         // roles see every team, coaches only the teams they coach.
         $is_scope_admin = $is_admin
@@ -140,6 +142,20 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         }
 
         self::renderGrid( $matrix, $team_id );
+    }
+
+    /** Segmented Attendance | Minutes toggle across the two grid surfaces. */
+    private static function renderModeNav(): void {
+        $dash = RecordLink::dashboardUrl();
+        $team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        $min_args = [ 'tt_view' => 'minutes-grid' ]; /* tt-xview-ok — sibling grid, gated by the minutes_grid feature below */
+        if ( $team > 0 ) $min_args['team_id'] = $team;
+        echo '<div class="tt-agrid-modes" role="tablist">';
+        echo '<span class="tt-agrid-mode is-on" aria-current="page">' . esc_html__( 'Attendance', 'talenttrack' ) . '</span>';
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'minutes_grid' ) ) {
+            echo '<a class="tt-agrid-mode" href="' . esc_url( add_query_arg( $min_args, $dash ) ) . '">' . esc_html__( 'Minutes', 'talenttrack' ) . '</a>';
+        }
+        echo '</div>';
     }
 
     /** Canonical breadcrumb chain — used on every code path (§5). */
