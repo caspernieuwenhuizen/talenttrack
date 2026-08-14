@@ -12,6 +12,7 @@ use TT\Modules\Spond\SpondParser;
 use TT\Modules\Spond\SpondSync;
 use TT\Modules\Spond\SpondTypeResolver;
 use TT\Modules\Spond\TeamSpondAccount;
+use TT\Modules\Spond\TeamSpondAccess;
 
 /**
  * SpondRestController (#0031, extended #1936) — REST surface for the
@@ -26,10 +27,18 @@ use TT\Modules\Spond\TeamSpondAccount;
  *   DELETE /teams/{id}/spond/credentials — clear per-team override (#2286)
  *   POST /teams/{id}/spond/test          — live login for a team override (#2286)
  *
- * The per-team sync stays gated on `tt_edit_teams` (it edits team rows).
- * Credential + base-url mutations gate on `tt_edit_spond_credentials`
- * (the matrix `spond_integration → change` cap) — never a role-string
- * compare, never `__return_true`.
+ * Club-level credential + base-url mutations gate on
+ * `tt_edit_spond_credentials` (the matrix `spond_integration → change`
+ * cap) — never a role-string compare, never `__return_true`.
+ *
+ * #2388 — the per-team routes gate on `TeamSpondAccess::canManage()`,
+ * which checks `spond_integration → change` for *this exact team* (global
+ * for an academy admin, `team` scope for a head coach of the team). This
+ * scopes a head coach to their own team and closes the earlier hole where
+ * the per-team credential routes, gated on the any-scope
+ * `tt_edit_spond_credentials` cap, accepted a head coach's write against
+ * any team. The per-team sync/preview additionally accept `tt_edit_teams`
+ * (the academy admin path they always had).
  *
  * Controllers stay thin: the encryption, keep-on-blank password, live
  * login, and override-write logic all live in `CredentialsManager` /
@@ -53,40 +62,39 @@ final class SpondRestController {
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/sync', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'syncTeam' ],
-            'permission_callback' => [ __CLASS__, 'canEdit' ],
+            'permission_callback' => [ __CLASS__, 'canSyncTeam' ],
         ] );
 
         // #2284 — dry-run preview for the Spond integration monitor.
         // Fetches Spond live, parses + classifies, and diffs each event
         // against the stored tt_activities row WITHOUT writing anything.
-        // Gated on the same tt_edit_teams cap the sync route uses.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/preview', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_preview' ],
-            'permission_callback' => [ __CLASS__, 'canEdit' ],
+            'permission_callback' => [ __CLASS__, 'canSyncTeam' ],
         ] );
 
-        // #2286 — per-team Spond account override. Same credential cap as
-        // the club routes (tt_edit_spond_credentials); a set override
-        // overrules the club account for that team's syncs. The password
-        // and cached token never round-trip.
+        // #2286 — per-team Spond account override. #2388 tightened the gate
+        // to this exact team (TeamSpondAccess): an academy admin (global)
+        // or the team's head coach may write it. The password and cached
+        // token never round-trip.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/credentials', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'route_save_team_credentials' ],
-                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+                'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'route_delete_team_credentials' ],
-                'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+                'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
             ],
         ] );
 
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/test', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_test_team_credentials' ],
-            'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
         ] );
 
         register_rest_route( self::NS, '/spond/credentials', [
@@ -121,6 +129,26 @@ final class SpondRestController {
 
     public static function canEditCredentials(): bool {
         return current_user_can( 'tt_edit_spond_credentials' );
+    }
+
+    /**
+     * #2388 — may the caller manage the Spond connection of the team in
+     * the route? Change authority on `spond_integration` for that exact
+     * team (admin global, or head coach of the team). Single source of
+     * truth shared with the connect view + its affordance.
+     */
+    public static function canManageTeamSpond( \WP_REST_Request $r ): bool {
+        return TeamSpondAccess::canManage( get_current_user_id(), (int) ( $r['id'] ?? 0 ) );
+    }
+
+    /**
+     * #2388 — per-team sync/preview: the academy-admin `tt_edit_teams`
+     * path they always had, OR a head coach who may manage that team's
+     * Spond connection (so connecting is actually usable — they can pull
+     * their own team's events).
+     */
+    public static function canSyncTeam( \WP_REST_Request $r ): bool {
+        return current_user_can( 'tt_edit_teams' ) || self::canManageTeamSpond( $r );
     }
 
     public static function syncTeam( \WP_REST_Request $r ): \WP_REST_Response {

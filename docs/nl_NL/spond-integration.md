@@ -52,6 +52,12 @@ Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond-integrati
 - **Loskoppelen**: klik op **Loskoppelen** op de Spond-weergave. Bestaande geïmporteerde activiteiten blijven staan; toekomstige sync's pauzeren. Per-team groep-selecties blijven bewaard, zodat heropnieuw verbinden naadloos doorgaat.
 - Credentials opslaan, de verbinding testen, loskoppelen en de API-endpoint-override lopen allemaal via de REST-API (`POST/DELETE /spond/credentials`, `POST /spond/test`, `POST /spond/base-url`), afgeschermd met de capability `tt_edit_spond_credentials`. De pagina bekijken en per team **Nu vernieuwen** zijn afgeschermd met `tt_edit_teams`.
 
+## Hoofdtrainers koppelen hun eigen team (v4.x+)
+
+Een hoofdtrainer heeft geen academie-beheerder meer nodig om Spond te koppelen voor het team dat hij leidt. Op de teampagina staat een actie **Spond-koppeling** die een paneel opent om het eigen Spond-e-mailadres + wachtwoord van het team op te slaan, de login te testen en (zodra een groep is gekoppeld) een synchronisatie te starten — dezelfde per-team-accountoverride die een beheerder op de clubbrede Spond-pagina kan instellen, nu bereikbaar voor de trainer voor zijn eigen team.
+
+De toegang is beperkt tot het exacte team: de per-team-endpoints voor credentials, test en synchronisatie (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) vereisen **wijzigingsrechten op `spond_integration` voor dat team** — een academie-beheerder heeft ze globaal, een hoofdtrainer voor zijn eigen team. De actie **Spond-koppeling** is verborgen voor wie die rechten niet heeft. (Dit sloot ook een eerder gat waarbij de per-team-credential-endpoints, die alleen op de any-team-capability `tt_edit_spond_credentials` waren afgeschermd, een schrijfactie van een hoofdtrainer op een ander team accepteerden.) De feitelijke Spond-*groep* koppelen gebeurt nog steeds op het teambewerkingsformulier.
+
 ## API-endpoint-override
 
 Verhuist Spond ooit zijn API naar een nieuw adres, dan kan een beheerder TalentTrack omleiden zonder code-release: open de inklapbare sectie **API-endpoint** op de Spond-weergave, voer de nieuwe basis-URL in en sla op. Laat het leeg en sla op om terug te keren naar de meegeleverde standaard. Een verkeerde URL laat elke sync mislukken, dus wijzig dit alleen als Spond een nieuw endpoint aankondigt of om tegen een privé-mock te testen.
