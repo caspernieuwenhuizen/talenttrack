@@ -47823,6 +47823,18 @@ msgstr "Deze functie wordt nog gebouwd en kan veranderen."
 msgid "Supply enabled and/or under_development."
 msgstr "Geef enabled en/of under_development op."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "List view"
+msgstr "Lijstweergave"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Calendar view"
+msgstr "Kalenderweergave"
+
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+msgid "No teams available for a calendar view — assign yourself to a team first."
+msgstr "Geen teams beschikbaar voor een kalenderweergave — wijs jezelf eerst aan een team toe."
+
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

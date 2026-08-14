@@ -39,6 +39,10 @@ The bar holds five controls, each under its own label:
 
 Every choice survives in the URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view, and the controls combine freely.
 
+## List or calendar view (v4.x+)
+
+A **Calendar view** button in the header switches the activities page from the chronological list to a **week-grid calendar** — the same read-only grid the Team Planner uses, with the days as columns and one row per team. Click **List view** to switch back. Your choice is remembered per user, so the page opens the way you left it. The calendar shows the teams you can see (the same scope as the list); arriving with a `?team_id=N` filter narrows it to that one team. It's a read-only glance — creating and editing activities still happens from the list and the activity form, and the full editable planner stays on its own **Team planner** page.
+
 ## The activity detail page
 
 Tapping a card opens the activity's detail page. The whole detail body sits inside one **grouping panel** — a bounded, softly-tinted container that holds the hero, a compact key-numbers strip and the section cards, so they read as a single, deliberate record rather than loose cards floating on the page (even when only a couple of sections apply). It adapts between a **training** and a **match day**:
