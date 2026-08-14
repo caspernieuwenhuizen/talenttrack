@@ -268,7 +268,10 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
 
         // Save + Cancel (§6). Save is JS-driven (bulk upsert); Cancel returns
         // to the activities list (or the tt_back target when present).
-        $cancel_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() );
+        // Cancel is a form action (§6), not a discovery affordance: the user
+        // is editing activities and reached the grid from the activities list,
+        // so activities access is a given. tt-xview-ok escapes the gate.
+        $cancel_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
         $back = \TT\Shared\Frontend\Components\BackLink::resolve();
         if ( $back !== null ) {
             $cancel_url = $back['url'];

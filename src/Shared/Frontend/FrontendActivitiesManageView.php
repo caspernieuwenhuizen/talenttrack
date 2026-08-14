@@ -386,8 +386,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) {
                 $page_actions[] = [
                     'label' => __( 'Attendance grid', 'talenttrack' ),
+                    // Already gated by the enclosing tt_edit_activities check +
+                    // the attendance_grid feature toggle — the same gates the
+                    // target view enforces (§7). tt-xview-ok escapes the grep.
                     'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo(
-                        add_query_arg( [ 'tt_view' => 'attendance-grid' ], $list_base_url )
+                        add_query_arg( [ 'tt_view' => 'attendance-grid' ], $list_base_url ) /* tt-xview-ok */
                     ),
                 ];
             }
