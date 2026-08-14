@@ -47810,6 +47810,19 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/Components/DevelopmentPill.php
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Under development"
+msgstr "In ontwikkeling"
+
+#: src/Shared/Frontend/Components/DevelopmentPill.php
+msgid "This feature is still being built and may change."
+msgstr "Deze functie wordt nog gebouwd en kan veranderen."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Supply enabled and/or under_development."
+msgstr "Geef enabled en/of under_development op."
+
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

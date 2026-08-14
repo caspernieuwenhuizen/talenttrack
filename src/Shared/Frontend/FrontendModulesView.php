@@ -65,8 +65,10 @@ class FrontendModulesView extends FrontendViewBase {
                 'callback'            => [ self::class, 'restFeatureToggle' ],
                 'permission_callback' => [ self::class, 'restPermission' ],
                 'args'                => [
-                    'key'     => [ 'required' => true, 'type' => 'string' ],
-                    'enabled' => [ 'required' => true, 'type' => 'boolean' ],
+                    'key'               => [ 'required' => true, 'type' => 'string' ],
+                    'enabled'           => [ 'required' => false, 'type' => 'boolean' ],
+                    // #2387 — cosmetic under-development flag.
+                    'under_development' => [ 'required' => false, 'type' => 'boolean' ],
                 ],
             ],
         ] );
@@ -85,21 +87,46 @@ class FrontendModulesView extends FrontendViewBase {
                 'description'  => (string) $f['description'],
                 'module_class' => (string) $f['module_class'],
                 'enabled'      => ! empty( $f['enabled'] ),
+                // #2387 — cosmetic per-feature flag, independent of enabled.
+                'under_development' => ! empty( $f['under_development'] ),
             ],
             FeatureRegistry::allWithState()
         );
         return new \WP_REST_Response( array_values( $out ), 200 );
     }
 
-    /** @return \WP_REST_Response|\WP_Error */
+    /**
+     * Toggle a feature's `enabled` and/or `under_development` flag. Both
+     * params are optional; supply at least one. #2387 added the
+     * under_development flag alongside the original enabled toggle.
+     *
+     * @return \WP_REST_Response|\WP_Error
+     */
     public static function restFeatureToggle( \WP_REST_Request $req ) {
-        $key     = (string) $req->get_param( 'key' );
-        $enabled = (bool) $req->get_param( 'enabled' );
+        $key = (string) $req->get_param( 'key' );
         if ( ! FeatureRegistry::exists( $key ) ) {
             return new \WP_Error( 'tt_unknown_feature', __( 'Unknown feature.', 'talenttrack' ), [ 'status' => 404 ] );
         }
-        FeatureRegistry::setEnabled( $key, $enabled );
-        return new \WP_REST_Response( [ 'key' => $key, 'enabled' => $enabled ], 200 );
+        $has_enabled = $req->get_param( 'enabled' ) !== null;
+        $has_dev     = $req->get_param( 'under_development' ) !== null;
+        if ( ! $has_enabled && ! $has_dev ) {
+            return new \WP_Error(
+                'tt_no_field',
+                __( 'Supply enabled and/or under_development.', 'talenttrack' ),
+                [ 'status' => 400 ]
+            );
+        }
+        if ( $has_enabled ) {
+            FeatureRegistry::setEnabled( $key, (bool) $req->get_param( 'enabled' ) );
+        }
+        if ( $has_dev ) {
+            FeatureRegistry::setUnderDevelopment( $key, (bool) $req->get_param( 'under_development' ) );
+        }
+        return new \WP_REST_Response( [
+            'key'               => $key,
+            'enabled'           => FeatureRegistry::isEnabled( $key ),
+            'under_development' => FeatureRegistry::isUnderDevelopment( $key ),
+        ], 200 );
     }
 
     /** @return \WP_REST_Response */
@@ -277,25 +304,37 @@ class FrontendModulesView extends FrontendViewBase {
                                         <ul class="tt-feature-list">
                                         <?php foreach ( $features as $f ) :
                                             $f_on  = ! empty( $f['enabled'] );
+                                            $f_dev = ! empty( $f['under_development'] );
                                             $f_lbl = (string) $f['label'];
+                                            $f_key = (string) $f['key'];
                                             ?>
                                             <li class="tt-feature-item">
                                                 <div class="tt-feature-titles">
                                                     <span class="tt-feature-name"><?php echo esc_html( $f_lbl ); ?></span>
                                                     <span class="tt-tag tt-tag-feature"><?php esc_html_e( 'Feature', 'talenttrack' ); ?></span>
+                                                    <?php if ( $f_dev ) : ?>
+                                                        <span class="tt-tag tt-tag-dev"><?php esc_html_e( 'Under development', 'talenttrack' ); ?></span>
+                                                    <?php endif; ?>
                                                     <p class="tt-feature-desc"><?php echo esc_html( (string) $f['description'] ); ?></p>
                                                 </div>
-                                                <label class="tt-module-toggle tt-feature-toggle">
-                                                    <span class="tt-screen-reader-text">
-                                                        <?php
-                                                        /* translators: %s: feature name */
-                                                        printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( $f_lbl ) );
-                                                        ?>
-                                                    </span>
-                                                    <input type="checkbox" name="features[]" value="<?php echo esc_attr( (string) $f['key'] ); ?>"
-                                                        <?php checked( $f_on ); ?> />
-                                                    <span class="tt-switch" aria-hidden="true"></span>
-                                                </label>
+                                                <div class="tt-feature-controls">
+                                                    <label class="tt-module-toggle tt-feature-toggle">
+                                                        <span class="tt-screen-reader-text">
+                                                            <?php
+                                                            /* translators: %s: feature name */
+                                                            printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( $f_lbl ) );
+                                                            ?>
+                                                        </span>
+                                                        <input type="checkbox" name="features[]" value="<?php echo esc_attr( $f_key ); ?>"
+                                                            <?php checked( $f_on ); ?> />
+                                                        <span class="tt-switch" aria-hidden="true"></span>
+                                                    </label>
+                                                    <label class="tt-feature-dev-toggle">
+                                                        <input type="checkbox" name="dev[]" value="<?php echo esc_attr( $f_key ); ?>"
+                                                            <?php checked( $f_dev ); ?> />
+                                                        <?php esc_html_e( 'Under development', 'talenttrack' ); ?>
+                                                    </label>
+                                                </div>
                                             </li>
                                         <?php endforeach; ?>
                                         </ul>
@@ -348,11 +387,20 @@ class FrontendModulesView extends FrontendViewBase {
         $features_checked = isset( $_POST['features'] ) && is_array( $_POST['features'] )
             ? array_flip( array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['features'] ) ) )
             : [];
+        // #2387 — under-development flags, submitted as dev[]. Same
+        // "present features only" contract as the enabled toggles above.
+        $dev_checked = isset( $_POST['dev'] ) && is_array( $_POST['dev'] )
+            ? array_flip( array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['dev'] ) ) )
+            : [];
         foreach ( FeatureRegistry::allWithState() as $f ) {
             $key = (string) $f['key'];
             $now = isset( $features_checked[ $key ] );
             if ( $now !== ! empty( $f['enabled'] ) ) {
                 FeatureRegistry::setEnabled( $key, $now );
+            }
+            $dev_now = isset( $dev_checked[ $key ] );
+            if ( $dev_now !== ! empty( $f['under_development'] ) ) {
+                FeatureRegistry::setUnderDevelopment( $key, $dev_now );
             }
         }
 
