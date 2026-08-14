@@ -20,6 +20,10 @@ Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 fun
 
 Een **zoekbalk** boven aan de frontendpagina (`?tt_view=modules`, v4.x+) filtert de lijst live tijdens het typen — op naam of omschrijving van een module of functie. Is de treffer een geneste functie, dan klapt de modulekaart automatisch open zodat de rij zichtbaar is; categorieën zonder overgebleven treffers vallen weg en er verschijnt een leeg-melding wanneer niets overeenkomt. Het is een filter aan de clientkant (geen herlaad), en met JavaScript uit verschijnt gewoon de volledige lijst. De wp-admin Modules-pagina heeft geen zoekfunctie — de frontendpagina is de surface die wordt voortgezet.
 
+## Een functie "in ontwikkeling" markeren (v4.x+)
+
+Elke functierij heeft naast de aan/uit-schakelaar een tweede besturingselement: een **In ontwikkeling**-selectievakje. Vink je het aan, dan toont elke weergave die de functie bezit boven aan een klein amberkleurig **In ontwikkeling**-label, zodat iedereen die het scherm gebruikt — coaches, spelers én ouders — weet dat het nog wordt gebouwd en kan veranderen. Het label is puur informatief: het schakelt niets uit en verbergt niets, en de functie blijft precies zo werken als voorheen. Het staat los van de aan/uit-schakelaar, dus een functie kan live *en* gemarkeerd zijn, en je kunt de markering weer uitzetten zonder te raken aan of de functie aanstaat. Alleen beheerders die modules mogen beheren (`tt_manage_modules`) zien of wijzigen de markering; het label zelf is zichtbaar voor elke gebruiker van het gemarkeerde scherm. De markering is ook te lezen en te zetten via het REST-endpoint `/talenttrack/v1/features`.
+
 ## Waarom een module uitschakelen?
 
 - **Demo aan een niet-betalende prospect.** Schakel License uit zodat de upgrade-banner niet stoort.
