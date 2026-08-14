@@ -428,6 +428,53 @@ class FrontendTeamPlannerView extends FrontendViewBase {
     }
 
     /**
+     * #2390 — a self-contained, READ-ONLY week-grid calendar of
+     * activities, for embedding on the activities page's calendar view.
+     * Reuses the planner's team-scope resolution, range window and the
+     * condensed multi-team grid (one row per team per week, day columns),
+     * so the activities page never duplicates a second calendar. The
+     * editable single-team planner stays at `?tt_view=team-planner`.
+     *
+     * Scope matches the activities list exactly (same `teamsForUser`
+     * filter). Narrows to one team when `$team_id_filter` is a team the
+     * user can see; otherwise shows every such team condensed. Enqueues
+     * the planner grid CSS and returns the HTML.
+     */
+    public static function renderReadOnlyCalendar( int $user_id, int $team_id_filter = 0, string $range = '4weeks' ): string {
+        $teams = self::teamsForUser( $user_id );
+        if ( empty( $teams ) ) {
+            return '<p class="tt-notice">'
+                . esc_html__( 'No teams available for a calendar view — assign yourself to a team first.', 'talenttrack' )
+                . '</p>';
+        }
+
+        wp_enqueue_style(
+            'tt-team-planner',
+            TT_PLUGIN_URL . 'assets/css/components/team-planner.css',
+            [],
+            TT_VERSION
+        );
+
+        $names   = [];
+        $all_ids = [];
+        foreach ( $teams as $t ) {
+            $tid = (int) ( $t->id ?? 0 );
+            if ( $tid <= 0 ) continue;
+            $names[ $tid ] = (string) ( $t->name ?? '' );
+            $all_ids[]     = $tid;
+        }
+        $selected_ids = ( $team_id_filter > 0 && isset( $names[ $team_id_filter ] ) )
+            ? [ $team_id_filter ]
+            : $all_ids;
+
+        $range = self::resolveRange( $range );
+        [ $range_start, $range_end, $weeks_count ] = self::resolveRangeWindow( $range, self::resolveWeekStart( '' ) );
+
+        $activities = self::activitiesForRangeMulti( $selected_ids, $range_start, $range_end );
+        return self::renderMultiTeamGrid( $activities, $range_start, $weeks_count, $selected_ids, $names );
+    }
+
+    /**
      * Render `weeks_count` consecutive 7-day grids starting at
      * `range_start`. Each week sits in its own row; mobile collapses
      * to one column per day.
