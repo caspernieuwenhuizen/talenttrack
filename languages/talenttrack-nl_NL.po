@@ -47835,6 +47835,18 @@ msgstr "Er is een Spond-groep aan dit team gekoppeld. Synchroniseren haalt de ka
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php
 msgid "No Spond group is linked to this team yet. Once a group is linked on the team edit form, syncing pulls its calendar in."
 msgstr "Er is nog geen Spond-groep aan dit team gekoppeld. Zodra er op het teambewerkingsformulier een groep is gekoppeld, haalt synchroniseren de kalender ervan op."
+#: src/Shared/Frontend/Components/DevelopmentPill.php
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Under development"
+msgstr "In ontwikkeling"
+
+#: src/Shared/Frontend/Components/DevelopmentPill.php
+msgid "This feature is still being built and may change."
+msgstr "Deze functie wordt nog gebouwd en kan veranderen."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Supply enabled and/or under_development."
+msgstr "Geef enabled en/of under_development op."
 
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"

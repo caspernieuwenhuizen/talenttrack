@@ -335,14 +335,22 @@ class DashboardShortcode {
             // which view class belongs to which class of users.
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
-        } elseif ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
-            // v3.110.172 — every bool-returning dispatcher passed on the
-            // slug. No surface owns it; render the branded 404 (#2035). The
-            // breadcrumb chain is the back affordance here (we are already
-            // inside the dashboard shell), so the inner content omits its own
-            // "Back to dashboard" button — §5 two-affordance contract.
-            FrontendBreadcrumbs::fromDashboard( __( 'Page not found', 'talenttrack' ) );
-            echo '<div class="tt-404">' . \TT\Shared\Frontend\Components\Tt404Page::innerHtml( false ) . '</div>';
+        } else {
+            // #2387 — an informational "Under development" pill above the
+            // view when its owning feature is flagged on the module page.
+            // Cosmetic decoration (§5: not a nav affordance); renders
+            // nothing for views no flagged feature owns.
+            \TT\Shared\Frontend\Components\DevelopmentPill::render( $view );
+
+            if ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
+                // v3.110.172 — every bool-returning dispatcher passed on the
+                // slug. No surface owns it; render the branded 404 (#2035). The
+                // breadcrumb chain is the back affordance here (we are already
+                // inside the dashboard shell), so the inner content omits its own
+                // "Back to dashboard" button — §5 two-affordance contract.
+                FrontendBreadcrumbs::fromDashboard( __( 'Page not found', 'talenttrack' ) );
+                echo '<div class="tt-404">' . \TT\Shared\Frontend\Components\Tt404Page::innerHtml( false ) . '</div>';
+            }
         }
 
         echo '</div>';

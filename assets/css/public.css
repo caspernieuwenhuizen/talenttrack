@@ -260,6 +260,31 @@
     .tt-back-link:active { transform: none; }
 }
 
+/* #2387 — informational "Under development" pill, rendered above a view
+   whose owning feature is flagged on the module page. Cosmetic only. */
+.tt-dev-pill-wrap { margin: 8px 0 12px; }
+.tt-dev-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 1px solid var(--tt-warning, #e8902b);
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-ink, #0e1a14);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.2;
+}
+.tt-dev-pill__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tt-warning, #e8902b);
+    flex: 0 0 auto;
+}
+
 /* v3.110.53 — `.tt-page-head` + `.tt-page-actions` page-header slot for
    primary / secondary action buttons next to the H1. The H1 row wraps
    on narrow viewports so primary + secondary actions drop to a new
