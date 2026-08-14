@@ -354,6 +354,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         $reset_args = [ 'tt_view' => 'attendance-report-team' ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
+        // #2385 — personal saved views for this report, above the filter bar.
+        SavedFiltersBar::render( 'attendance_team', $dash_url, [ 'tt_view' => 'attendance-report-team' ] );
+
         FilterBar::render( [
             'hidden'       => $hidden,
             'active_count' => $active_count,
