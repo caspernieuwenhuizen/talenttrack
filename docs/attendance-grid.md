@@ -7,9 +7,10 @@ in one screen — the desktop alternative to the step-by-step attendance wizard.
 It works the way a coach's Excel register does: one row per player, one column
 per activity, a status in every cell.
 
-Open it from **Activities → Attendance grid** (you need permission to edit
-activities). It's built for a desktop or laptop; on a phone the guided wizard
-is the easier path.
+Open it from **Activities → Attendance grid**, or with the **Attendance grid**
+button on any activity's own page (which opens the grid on that activity). You
+need permission to edit activities. It's built for a desktop or laptop; on a
+phone the guided wizard is the easier path.
 
 ## What you see
 

@@ -19,3 +19,8 @@ Gated on the `tt_edit_activities` capability and a new **Minutes grid** feature
 toggle (on by default; switch it off to hide the grid and block its route; the
 per-match minutes editor stays available). Also exposed over REST
 (`GET /activities/minutes-grid`, `POST /minutes/bulk`).
+
+Both grids are now also reachable straight **from an activity's detail page** —
+an "Attendance grid" action on every activity and a "Minutes grid" action on
+matches, each opening the grid for that team pre-filtered to the activity's
+date, with a back-link that returns to the activity.

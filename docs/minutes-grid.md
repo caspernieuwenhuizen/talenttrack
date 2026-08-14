@@ -7,8 +7,9 @@ across a whole period — the desktop, spreadsheet-style companion to the
 [attendance grid](attendance-grid.md), restricted to matches.
 
 Open it from the **Attendance / Minutes** toggle at the top of the grid
-surface, or go straight to it from **Activities** (you need permission to edit
-activities). Like the attendance grid, it's built for a desktop or laptop.
+surface, from the **Activities** list, or with the **Minutes grid** button on a
+match's own page (which opens the grid on that match). You need permission to
+edit activities. Like the attendance grid, it's built for a desktop or laptop.
 
 ## What you see
 
