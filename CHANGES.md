@@ -1,3 +1,78 @@
+# TalentTrack v4.85.0 — Attendance reports: "This season" pill now spans the whole season (#2384)
+
+The *This season* period pill on the attendance reports (team, player and
+leaderboard) now covers the full season — from the season's start date
+through the season's own end date — instead of stopping at today. Picking
+the pill mid-season no longer silently truncates the window to the part of
+the season that has already happened. The silent default window shown when
+no pill or manual range is chosen is unchanged: it still runs season-start
+through today, so reports stay retrospective by default.
+
+# TalentTrack v4.85.0 — Reports: save a filter set as a named view (#2385)
+
+Every standard report with the shared filter bar — the team, player and
+leaderboard attendance reports and the minutes reports — now has a **Saved
+views** strip above the bar. Set the filters you keep returning to, click
+**Save current filters…**, name it (e.g. "U17 league games"), and it
+becomes a one-click chip. Saved views are personal (only you see yours) and
+belong to the report you saved them on. A period pill is remembered as a
+relative choice (*This season* stays relative next month); a manual From/To
+range is frozen to the exact dates. Presets live in a new `tt_saved_filters`
+table (club- and user-scoped, with a uuid) and are managed over REST
+(`GET/POST /reports/filter-presets`, `DELETE /reports/filter-presets/{id}`)
+gated on `tt_view_analytics`.
+
+# TalentTrack v4.85.0 — "Under development" pill for features (#2387)
+
+Admins who manage modules can now mark any feature as **under development**
+from the module/feature page (`?tt_view=modules`) with a checkbox beside its
+on/off switch. When set, every view that feature owns shows a small,
+informational amber "Under development" pill at the top, visible to everyone
+(coaches, players, parents) so they know the surface is still being built and
+may change. The flag is purely cosmetic — it never disables or hides
+anything — and is independent of the on/off switch, so a feature can be live
+and flagged at once. The flag is stored per club on `tt_feature_state` and is
+readable/settable through the `/talenttrack/v1/features` REST endpoint.
+
+# TalentTrack v4.85.0 — Head coaches connect their own team's Spond account (#2388)
+
+A head coach can now link their team's own Spond account themselves, from a
+**Spond connection** action on the team's page — save the team email +
+password, test the login, and trigger a sync — without waiting for an
+academy admin. Previously only an admin could connect Spond, on the
+club-wide page.
+
+Access is scoped to the exact team via change authority on the
+`spond_integration` matrix entity (admin globally, head coach for their own
+team). This also **closes a scoping hole**: the per-team Spond credential
+endpoints previously gated on the any-team `tt_edit_spond_credentials`
+capability, which let a head coach write another team's credentials; they
+now require change authority on that specific team, and the affordance is
+hidden for anyone without it.
+
+# TalentTrack v4.85.0 — Spond sync: matches with no end time now default to kick-off + 105 min (#2389)
+
+Spond match events frequently carry no end time, which left imported
+**matches** with a blank end while trainings (which do carry ends) looked
+right — the "end time is wrong only for matches" report. The kick-off +
+105 minute default already used by the "+ New activity" wizard (#1863) was
+never wired into the Spond sync. Now, when a Spond match gives a start but
+no end, the sync fills the end with kick-off + 105 min (clamped to
+end-of-day for a very late kick-off). A real Spond end always wins — the
+default only fills the blank — and trainings are unaffected.
+
+# TalentTrack v4.85.0 — Activities: switch between list and calendar view (#2390)
+
+The activities page now has a **Calendar view** toggle in the header that
+swaps the chronological list for a week-grid calendar — the same read-only
+grid the Team Planner uses, days as columns, one row per team — and a **List
+view** button to swap back. The choice is remembered per user. The calendar
+honours the same team scope as the list, narrowing to one team when a
+`?team_id` filter is set. It's a read-only glance; creating and editing
+activities stays on the list and the activity form, and the full editable
+planner remains on its own Team planner page. Reuses the Team Planner's
+condensed multi-team grid rather than adding a second calendar.
+
 # TalentTrack v4.84.0 — Attendance entry grid — a desktop, spreadsheet-style alternative to the wizard (#2382)
 
 A new desktop **Attendance grid** (`?tt_view=attendance-grid`, reachable from

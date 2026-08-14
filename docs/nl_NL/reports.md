@@ -54,7 +54,7 @@ Beide aanwezigheidsrapporten — en de ranglijst en het risicopaneel die dezelfd
 
 Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de activiteitenlijst:
 
-- **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. Deze kijken terug (de rapporten zijn retrospectief). Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
+- **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. *Vorige week* en *Deze maand* kijken terug (tot vandaag). ***Dit seizoen* beslaat het hele seizoen** — van de startdatum van het seizoen tot en met de **einddatum** van het seizoen — dus het dekt de hele campagne, niet alleen het deel dat al voorbij is. Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
 - **Activiteittype** — beperk tot één type (training / wedstrijd / toernooi, afhankelijk van wat jullie academy heeft ingesteld). Het typefilter beperkt elk cijfer consistent: de KPI-tegels, de tabel, de ranglijst en het risicopaneel.
 
 **Standaardperiode.** Wanneer je een rapport opent zonder een pil te kiezen of een Van/Tot-bereik te typen, staat het standaard op **het huidige seizoen** — van de startdatum van het seizoen tot vandaag. Dit komt overeen met de pil *Dit seizoen* en met hoe de academie over het jaar denkt, in plaats van een willekeurig meelopend venster. Als er geen seizoen is ingesteld, valt het rapport terug op de laatste **90 dagen**, zodat er altijd iets te zien is. Het minutenrapport per team volgt dezelfde standaard. Een pil kiezen of een handmatig Van/Tot typen overschrijft dit nog steeds. Omdat deze standaard *het* seizoensvenster is, tonen beide aanwezigheidsrapporten nu de pil ***Dit seizoen* gemarkeerd** bij het openen — de filterbalk weerspiegelt het venster dat je echt bekijkt, in plaats van "Aangepast bereik".
@@ -62,6 +62,10 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 **Bereikmelding.** Als je maar enkele teams traint, tonen de aanwezigheidsrapporten alleen die teams. Levert je filter niets op, dan meldt de lege-status dat het rapport **beperkt is tot de teams die je traint**, zodat een leeg venster niet leest als "de academie heeft geen data".
 
 Op een telefoon klappen de filters samen tot een **Filters**-knop die een bottom sheet opent; vanaf desktopbreedte staan ze inline. Elke besturing is met het toetsenbord te bedienen.
+
+## Een filterset opslaan als benoemde weergave (v4.x+)
+
+Boven de filterbalk staat op elk standaardrapport — de team-, speler- en ranglijst-aanwezigheidsrapporten en de minutenrapporten — een strip **Opgeslagen weergaven**. Stel de filters in waar je steeds naar terugkeert (een team, een activiteittype, een periode), klik op **Huidige filters opslaan…**, geef het een naam zoals *"JO17 competitiewedstrijden"*, en het wordt een chip die je met één klik opnieuw toepast. Opgeslagen weergaven zijn **persoonlijk** — alleen jij ziet die van jou — en horen elk bij het ene rapport waarop je ze hebt opgeslagen. Een weergave onthoudt een periodepil als **relatieve** keuze (*Dit seizoen* blijft volgende maand ook "dit seizoen"); een handmatig Van/Tot-bereik wordt als exacte data onthouden. Verwijder een weergave met de **×** op de chip. Opslaan, tonen en verwijderen lopen via de REST-API (`GET/POST /reports/filter-presets`, `DELETE /reports/filter-presets/{id}`), afgeschermd met dezelfde `tt_view_analytics`-capability als de rapporten.
 
 ## Inzoomen op de spelers van een team (teamrapport)
 

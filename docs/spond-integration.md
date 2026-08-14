@@ -26,6 +26,7 @@ That's it. Within an hour, every Spond event for each linked group appears as a 
 - **Date / time / location / title** — Spond wins. If a coach changes one of those fields on a Spond-imported activity in TalentTrack, the next sync will overwrite it. The "Spond" source pill is the warning. Spond's times are converted from UTC to your site's timezone, so the imported start time matches the clock the event was scheduled at.
 - **Location (venue + address)** — when a Spond event's location has both a venue name and a street address, TalentTrack keeps **both** on one line, separated by a pipe: `Venue | Address`. Because location is a "Spond wins" field, editing it in TalentTrack is overwritten on the next sync.
 - **Start / end time** — taken from the Spond event and stored on every imported activity (previously only the date was kept).
+- **Match end time (fallback)** — Spond match events often carry no end time, which used to leave imported **matches** with a blank end. When Spond gives a start but no end, a match type now defaults its end to **kick-off + 105 minutes** (the same default the "+ New activity" wizard uses), clamped to end-of-day for a very late kick-off. A real Spond end always wins — the default only fills the blank. Trainings are unaffected: a training with no Spond end stays blank.
 - **Kickoff & presence time (matches)** — for **match** types (game, tournament), the Spond start time becomes the **kickoff time** and the Spond meet-up time (Spond's "meet X minutes before" setting) becomes the **presence time** ("Aanwezig"). Both print on the weekly planner PDF.
 - **Activity type** — TalentTrack's keyword classifier picks training, game, tournament, or meeting from the event title. If a coach changes the type later, the system preserves that change across future syncs.
 - **Notes** — seeded from the Spond event's description on the **first import only**, then TalentTrack-owned. After that, a coach's notes are never overwritten by a re-sync — and a later edit to the description **in Spond** no longer flows into the activity. (Same "set once, then TalentTrack wins" model as activity type.)
@@ -50,6 +51,12 @@ Last-sync status appears in the **Configuration → Spond integration** table �
 - **Credentials never appear in any phone-home payload** — the v1 phone-home schema explicitly excludes Spond credentials and group IDs.
 - To **disconnect**: click **Disconnect** on the Spond view. Existing imported activities are kept; future syncs are paused. Per-team group selections are kept on file so reconnecting later resumes seamlessly.
 - Saving credentials, testing the connection, disconnecting, and the API-endpoint override all run over the REST API (`POST/DELETE /spond/credentials`, `POST /spond/test`, `POST /spond/base-url`) gated on the `tt_edit_spond_credentials` capability. Viewing the page and triggering a per-team **Refresh now** are gated on `tt_edit_teams`.
+
+## Head coaches connect their own team (v4.x+)
+
+A head coach no longer needs an academy admin to link Spond for the team they run. On their team's page there's a **Spond connection** action that opens a panel to save the team's own Spond email + password, test the login, and (once a group is linked) trigger a sync — the same per-team account override an admin can set on the club-wide Spond page, now reachable by the coach for their own team.
+
+Access is scoped to the exact team: the per-team credential, test and sync endpoints (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) require **change authority on `spond_integration` for that team** — an academy admin holds it globally, a head coach holds it for their own team. The **Spond connection** action is hidden for anyone without that authority. (This also closed an earlier gap where the per-team credential endpoints, gated only on the any-team `tt_edit_spond_credentials` cap, accepted a head coach's write against another team.) Linking the actual Spond *group* still happens on the team edit form.
 
 ## API endpoint override
 

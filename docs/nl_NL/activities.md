@@ -39,6 +39,10 @@ De balk heeft vijf knoppen, elk onder een eigen label:
 
 Elke keuze blijft bewaard in de URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen, en de knoppen vrij combineren.
 
+## Lijst- of kalenderweergave (v4.x+)
+
+Een knop **Kalenderweergave** in de kop schakelt de activiteitenpagina van de chronologische lijst naar een **weekraster** — hetzelfde alleen-lezen raster dat de Teamplanner gebruikt, met de dagen als kolommen en één rij per team. Klik op **Lijstweergave** om terug te schakelen. Je keuze wordt per gebruiker onthouden, zodat de pagina opent zoals je hem verliet. De kalender toont de teams die je mag zien (dezelfde scope als de lijst); kom je binnen met een `?team_id=N`-filter, dan wordt hij tot dat ene team beperkt. Het is een alleen-lezen overzicht — activiteiten aanmaken en bewerken gebeurt nog steeds vanuit de lijst en het activiteitenformulier, en de volledige bewerkbare planner blijft op zijn eigen **Teamplanner**-pagina.
+
 ## De activiteitdetailpagina
 
 Door op een kaart te tikken open je de detailpagina van de activiteit. De hele detailweergave zit in één **groeperingspaneel** — een begrensde, zacht getinte container met de hero, een compacte kerncijferstrook en de sectiekaarten, zodat ze als één bewust opgezet geheel lezen in plaats van losse kaarten op de pagina (ook als slechts een paar secties van toepassing zijn). De pagina past zich aan tussen een **training** en een **wedstrijddag**:

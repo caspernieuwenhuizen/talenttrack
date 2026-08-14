@@ -54,7 +54,7 @@ Both attendance reports — and the leaderboard and at-risk panel that share the
 
 Both the team report and the player report carry the same filtering vocabulary as the activities list:
 
-- **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. These are retrospective (the reports look back). Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
+- **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. *Last week* and *This month* are retrospective (they look back to today). ***This season* spans the whole season** — from the season's start date through the season's own **end date** — so it covers the entire campaign, not just the part that has happened so far. Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
 - **Activity type** — narrow to one type (training / game / tournament, whatever your academy has configured). The type filter narrows every figure consistently: the KPI tiles, the table, the leaderboard and the at-risk panel.
 
 **Default window.** When you open a report without picking a pill or typing a From/To range, it defaults to **the current season** — from the season's start date through today. This matches the *This season* pill and how the academy thinks about the year, rather than an arbitrary rolling window. If no season is configured, the report falls back to the last **90 days** so it always shows something. The team-minutes report follows the same default. Picking a pill or typing a manual From/To still overrides it. Because this default *is* the season window, both attendance reports now show the ***This season* pill highlighted** on first open — the filter bar reflects the window you're actually looking at, instead of reading "Custom range".
@@ -62,6 +62,10 @@ Both the team report and the player report carry the same filtering vocabulary a
 **Scope note.** When you only coach some teams, the attendance reports show just those teams. If your filters return nothing, the empty-state message says the report is **limited to the teams you coach**, so an empty window doesn't read as "the academy has no data".
 
 On a phone the filters collapse into a **Filters** button that opens a bottom sheet; from desktop width up they sit inline. Every control is keyboard-operable.
+
+## Saving a filter set as a named view (v4.x+)
+
+Above the filter bar on every standard report — the team, player and leaderboard attendance reports, and the minutes reports — there's a **Saved views** strip. Set the filters you keep coming back to (a team, an activity type, a period), click **Save current filters…**, give it a name like *"U17 league games"*, and it becomes a one-click chip you can re-apply any time. Saved views are **personal** — only you see yours — and each belongs to the one report you saved it on. A view remembers a period pill as a **relative** choice (*This season* stays "this season" next month too); a manual From/To range is remembered as the exact dates. Delete a view with the **×** on its chip. Saving, listing and deleting run over the REST API (`GET/POST /reports/filter-presets`, `DELETE /reports/filter-presets/{id}`) gated on the same `tt_view_analytics` capability the reports use.
 
 ## Drilling into a team's players (team report)
 

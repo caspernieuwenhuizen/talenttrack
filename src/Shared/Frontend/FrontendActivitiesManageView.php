@@ -398,6 +398,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #1319 — matrix-aware cap checks. ActivitiesRestController
         // already routes via userCanOrMatrix; render surfaces follow.
         $current_uid = get_current_user_id();
+
+        // #2390 — list ↔ calendar display toggle, remembered per user. A
+        // pure display switch (no nav affordance, §5); the calendar reuses
+        // the Team Planner's read-only week grid.
+        $view_mode     = ActivitiesViewMode::resolve( $current_uid );
+        $toggle_to     = $view_mode === ActivitiesViewMode::CALENDAR ? ActivitiesViewMode::LIST : ActivitiesViewMode::CALENDAR;
+        $toggle_label  = $view_mode === ActivitiesViewMode::CALENDAR
+            ? __( 'List view', 'talenttrack' )
+            : __( 'Calendar view', 'talenttrack' );
+        $page_actions[] = [
+            'label' => $toggle_label,
+            'href'  => add_query_arg( 'view_mode', $toggle_to, remove_query_arg( 'view_mode', $list_base_url ) ),
+        ];
         if ( AuthorizationService::userCanOrMatrix( $current_uid, 'tt_view_activities' ) ) {
             // #1047 — entry point to the dedicated match-executions
             // listing surface. Sits left of the primary "+ New
@@ -434,6 +447,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ];
         }
         self::renderHeader( __( 'Activities', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
+
+        if ( $view_mode === ActivitiesViewMode::CALENDAR ) {
+            // #2390 — read-only week-grid calendar of the same activities,
+            // reusing the Team Planner's condensed multi-team grid. Narrows
+            // to one team when the list's ?team_id filter is set, else shows
+            // every team the user can see (same scope as the list).
+            $cal_team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+            echo \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::renderReadOnlyCalendar( $user_id, $cal_team ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderReadOnlyCalendar returns escaped HTML.
+            return;
+        }
+
         self::renderList( $user_id, $is_admin );
     }
 

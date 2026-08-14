@@ -424,8 +424,11 @@ class FeatureRegistry {
         return $catalog;
     }
 
-    /** @var array<string, bool>|null per-request state cache */
+    /** @var array<string, bool>|null per-request enabled-state cache */
     private static $stateCache = null;
+
+    /** @var array<string, bool>|null per-request under-development cache (#2387) */
+    private static $devStateCache = null;
 
     /** Whether the key names a catalogued feature. */
     public static function exists( string $key ): bool {
@@ -457,27 +460,67 @@ class FeatureRegistry {
      */
     public static function setEnabled( string $key, bool $enabled, ?int $actor_user_id = null ): void {
         if ( ! self::exists( $key ) ) return;
+        self::upsertState( $key, [ 'enabled' => $enabled ? 1 : 0 ], $actor_user_id );
+    }
+
+    /**
+     * #2387 — is the feature marked "under development"? A cosmetic flag,
+     * separate from enabled: an under-development feature is still fully
+     * live; the flag only drives an informational pill on the feature's
+     * views. Unknown keys are never under development. Falls back to false
+     * (not-under-development) when no state row exists.
+     */
+    public static function isUnderDevelopment( string $key ): bool {
+        if ( ! isset( self::catalog()[ $key ] ) ) return false;
+        $dev = self::loadDevStateCache();
+        return $dev[ $key ] ?? false;
+    }
+
+    /**
+     * #2387 — persist the under-development flag. Independent of enabled;
+     * flipping it never changes whether the feature is on.
+     */
+    public static function setUnderDevelopment( string $key, bool $flag, ?int $actor_user_id = null ): void {
+        if ( ! self::exists( $key ) ) return;
+        self::upsertState( $key, [ 'under_development' => $flag ? 1 : 0 ], $actor_user_id );
+    }
+
+    /**
+     * Upsert a subset of state columns for a feature, preserving the
+     * columns not being written. On INSERT the untouched column is seeded
+     * from the feature's currently-resolved state (never the raw column
+     * default), so toggling one flag can't silently flip the other — e.g.
+     * marking a default-off feature "under development" must not enable it.
+     *
+     * @param array<string,int> $fields subset of { enabled, under_development }
+     */
+    private static function upsertState( string $key, array $fields, ?int $actor_user_id ): void {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_feature_state';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return;
+
+        $fields['updated_at'] = current_time( 'mysql' );
+        $fields['updated_by'] = $actor_user_id !== null ? $actor_user_id : get_current_user_id();
 
         $existing = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$table} WHERE feature_key = %s AND club_id = 1",
             $key
         ) );
-        $row = [
-            'enabled'    => $enabled ? 1 : 0,
-            'updated_at' => current_time( 'mysql' ),
-            'updated_by' => $actor_user_id !== null ? $actor_user_id : get_current_user_id(),
-        ];
         if ( $existing > 0 ) {
-            $wpdb->update( $table, $row, [ 'feature_key' => $key, 'club_id' => 1 ] );
+            $wpdb->update( $table, $fields, [ 'feature_key' => $key, 'club_id' => 1 ] );
         } else {
-            $row['feature_key'] = $key;
-            $row['club_id']     = 1;
-            $wpdb->insert( $table, $row );
+            if ( ! array_key_exists( 'enabled', $fields ) ) {
+                $fields['enabled'] = self::isEnabled( $key ) ? 1 : 0;
+            }
+            if ( ! array_key_exists( 'under_development', $fields ) ) {
+                $fields['under_development'] = self::isUnderDevelopment( $key ) ? 1 : 0;
+            }
+            $fields['feature_key'] = $key;
+            $fields['club_id']     = 1;
+            $wpdb->insert( $table, $fields );
         }
-        self::$stateCache = null;
+        self::$stateCache   = null;
+        self::$devStateCache = null;
     }
 
     /**
@@ -488,7 +531,8 @@ class FeatureRegistry {
      *
      * @return list<array{
      *   key: string, label: string, description: string,
-     *   module_class: string, enabled: bool, default_enabled: bool
+     *   module_class: string, enabled: bool, default_enabled: bool,
+     *   under_development: bool
      * }>
      */
     public static function allWithState(): array {
@@ -496,12 +540,13 @@ class FeatureRegistry {
         foreach ( self::catalog() as $key => $meta ) {
             if ( ! ModuleRegistry::isEnabled( $meta['module_class'] ) ) continue;
             $out[] = [
-                'key'             => $key,
-                'label'           => (string) $meta['label'],
-                'description'     => (string) $meta['description'],
-                'module_class'    => (string) $meta['module_class'],
-                'enabled'         => self::isEnabled( $key ),
-                'default_enabled' => (bool) $meta['default_enabled'],
+                'key'               => $key,
+                'label'             => (string) $meta['label'],
+                'description'       => (string) $meta['description'],
+                'module_class'      => (string) $meta['module_class'],
+                'enabled'           => self::isEnabled( $key ),
+                'default_enabled'   => (bool) $meta['default_enabled'],
+                'under_development' => self::isUnderDevelopment( $key ),
             ];
         }
         return $out;
@@ -511,7 +556,7 @@ class FeatureRegistry {
      * Features owned by the given module (enabled or not). Used by the
      * modules UI to nest feature toggles directly beneath their parent.
      *
-     * @return list<array{key:string, label:string, description:string, enabled:bool}>
+     * @return list<array{key:string, label:string, description:string, enabled:bool, under_development:bool}>
      */
     public static function forModule( string $module_class ): array {
         $module_class = ltrim( $module_class, '\\' );
@@ -519,10 +564,11 @@ class FeatureRegistry {
         foreach ( self::catalog() as $key => $meta ) {
             if ( ltrim( (string) $meta['module_class'], '\\' ) !== $module_class ) continue;
             $out[] = [
-                'key'         => $key,
-                'label'       => (string) $meta['label'],
-                'description' => (string) $meta['description'],
-                'enabled'     => self::isEnabled( $key ),
+                'key'               => $key,
+                'label'             => (string) $meta['label'],
+                'description'       => (string) $meta['description'],
+                'enabled'           => self::isEnabled( $key ),
+                'under_development' => self::isUnderDevelopment( $key ),
             ];
         }
         return $out;
@@ -567,17 +613,52 @@ class FeatureRegistry {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_feature_state';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            self::$stateCache = [];
+            self::$stateCache   = [];
+            self::$devStateCache = [];
             return self::$stateCache;
         }
-        $rows = $wpdb->get_results( "SELECT feature_key, enabled FROM {$table} WHERE club_id = 1" );
-        $out = [];
+        // #2387 — read enabled + under_development in one pass. The
+        // under_development column arrives with migration 0207; during the
+        // narrow upgrade window before it runs the wider SELECT errors, so
+        // fall back to the enabled-only shape and treat dev as all-false.
+        $rows = $wpdb->get_results( "SELECT feature_key, enabled, under_development FROM {$table} WHERE club_id = 1" );
+        if ( $rows === null ) {
+            $rows = $wpdb->get_results( "SELECT feature_key, enabled FROM {$table} WHERE club_id = 1" );
+        }
+        $enabled = [];
+        $dev     = [];
         if ( is_array( $rows ) ) {
             foreach ( $rows as $r ) {
-                $out[ (string) $r->feature_key ] = (bool) $r->enabled;
+                $enabled[ (string) $r->feature_key ] = (bool) $r->enabled;
+                $dev[ (string) $r->feature_key ]     = (bool) ( $r->under_development ?? 0 );
             }
         }
-        self::$stateCache = $out;
-        return $out;
+        self::$stateCache   = $enabled;
+        self::$devStateCache = $dev;
+        return $enabled;
+    }
+
+    /**
+     * @return array<string, bool> feature_key => under_development
+     */
+    private static function loadDevStateCache(): array {
+        if ( self::$devStateCache === null ) self::loadStateCache();
+        return self::$devStateCache ?? [];
+    }
+
+    /**
+     * #2387 — is the `tt_view=` slug owned by a feature currently marked
+     * under development? Consulted by the dashboard dispatcher to render
+     * the informational pill above the view. A slug owned by no feature,
+     * or by one not flagged, returns false.
+     */
+    public static function underDevelopmentForViewSlug( string $slug ): bool {
+        if ( $slug === '' ) return false;
+        foreach ( self::catalog() as $key => $meta ) {
+            if ( in_array( $slug, $meta['view_slugs'], true ) && self::isUnderDevelopment( $key ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 }

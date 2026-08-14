@@ -335,14 +335,22 @@ class DashboardShortcode {
             // which view class belongs to which class of users.
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
-        } elseif ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
-            // v3.110.172 — every bool-returning dispatcher passed on the
-            // slug. No surface owns it; render the branded 404 (#2035). The
-            // breadcrumb chain is the back affordance here (we are already
-            // inside the dashboard shell), so the inner content omits its own
-            // "Back to dashboard" button — §5 two-affordance contract.
-            FrontendBreadcrumbs::fromDashboard( __( 'Page not found', 'talenttrack' ) );
-            echo '<div class="tt-404">' . \TT\Shared\Frontend\Components\Tt404Page::innerHtml( false ) . '</div>';
+        } else {
+            // #2387 — an informational "Under development" pill above the
+            // view when its owning feature is flagged on the module page.
+            // Cosmetic decoration (§5: not a nav affordance); renders
+            // nothing for views no flagged feature owns.
+            \TT\Shared\Frontend\Components\DevelopmentPill::render( $view );
+
+            if ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
+                // v3.110.172 — every bool-returning dispatcher passed on the
+                // slug. No surface owns it; render the branded 404 (#2035). The
+                // breadcrumb chain is the back affordance here (we are already
+                // inside the dashboard shell), so the inner content omits its own
+                // "Back to dashboard" button — §5 two-affordance contract.
+                FrontendBreadcrumbs::fromDashboard( __( 'Page not found', 'talenttrack' ) );
+                echo '<div class="tt-404">' . \TT\Shared\Frontend\Components\Tt404Page::innerHtml( false ) . '</div>';
+            }
         }
 
         echo '</div>';
@@ -1048,6 +1056,14 @@ class DashboardShortcode {
                 // tt_edit_teams internally; the preview endpoint re-checks
                 // the same cap at the REST layer.
                 FrontendSpondMonitorView::render( $user_id, $is_admin );
+                return true;
+            case 'team-spond':
+                // #2388 — head-coach-facing per-team Spond connection panel,
+                // linked from the team detail page. Gates on TeamSpondAccess
+                // (spond_integration.change for this exact team) internally,
+                // and the per-team credential/test/sync endpoints re-check
+                // the same authority at the REST layer.
+                FrontendMyTeamSpondView::render( $user_id, $detail_id );
                 return true;
             case 'strava-admin':
                 // #2127 (epic #2002) — Strava operator console: app
