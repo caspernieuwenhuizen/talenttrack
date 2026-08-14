@@ -46,9 +46,11 @@ final class ReportFilters {
     }
 
     /**
-     * Resolve a period key to an inclusive [from, to] Y-m-d window,
-     * past-oriented. Returns null for the empty / unknown key (caller
-     * keeps the manual From/To range).
+     * Resolve a period key to an inclusive [from, to] Y-m-d window. Most
+     * keys are past-oriented; `this_season` spans the whole configured
+     * season (start through the season's own end date, which may be in the
+     * future). Returns null for the empty / unknown key (caller keeps the
+     * manual From/To range).
      *
      * @return array{from:string,to:string}|null
      */
@@ -76,10 +78,11 @@ final class ReportFilters {
                 if ( ! class_exists( '\\TT\\Modules\\Pdp\\Repositories\\SeasonsRepository' ) ) return null;
                 $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
                 if ( ! $season || empty( $season->start_date ) || empty( $season->end_date ) ) return null;
-                // Clamp the upper bound to today — the report is retrospective.
-                $to = (string) $season->end_date;
-                if ( strtotime( $to ) > $base ) $to = gmdate( 'Y-m-d', $base );
-                return [ 'from' => (string) $season->start_date, 'to' => $to ];
+                // Span the whole season — start through the season's own end
+                // date, not clamped to today. The silent default window
+                // (seasonDefaultWindow) stays today-bounded for the
+                // retrospective default; the explicit pill is full-season.
+                return [ 'from' => (string) $season->start_date, 'to' => (string) $season->end_date ];
         }
 
         return null;
