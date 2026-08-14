@@ -105,6 +105,9 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'POST /activities'              => [ 'POST',   '/talenttrack/v1/activities' ],
             'POST /activities/1/status'     => [ 'POST',   '/talenttrack/v1/activities/1/status' ],
             'POST /goals'                   => [ 'POST',   '/talenttrack/v1/goals' ],
+            // #2382 — attendance-grid read + bulk write (tt_edit_activities).
+            'GET /activities/attendance-grid' => [ 'GET',  '/talenttrack/v1/activities/attendance-grid' ],
+            'POST /attendance/bulk'         => [ 'POST',   '/talenttrack/v1/attendance/bulk' ],
 
             // Cross-cutting / admin surfaces.
             'POST /config'                  => [ 'POST',   '/talenttrack/v1/config' ],

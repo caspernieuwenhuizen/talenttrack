@@ -1,0 +1,203 @@
+/* ================================================================
+   Attendance grid (#2382 / epic #2381)
+   Desktop spreadsheet: players (rows) × activities (columns).
+   The Excel-familiar alternative to the mark-attendance wizard.
+   Depends on frontend-app-chrome.css for brand tokens.
+   Prefixed .tt-agrid-* per CLAUDE.md (assume hostile theme).
+   ================================================================ */
+
+.tt-agrid-lead {
+  color: #4b5563;
+  font-size: 14px;
+  margin: 0 0 16px;
+  max-width: 70ch;
+}
+
+/* ---- Card shell ---------------------------------------------- */
+.tt-agrid-card {
+  background: #fff;
+  border: 1px solid #e3e6e1;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.tt-agrid-card__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #123a2b;
+  color: #fff;
+}
+.tt-agrid-card__title { margin: 0; font-size: 15px; }
+.tt-agrid-card__hint { font-size: 12px; color: #bcd3c8; }
+
+/* ---- The grid ------------------------------------------------ */
+.tt-agrid-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table.tt-agrid {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+.tt-agrid th,
+.tt-agrid td {
+  border: 1px solid #b9c2b6;
+  padding: 0;
+  text-align: center;
+}
+.tt-agrid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #123a2b;
+  color: #fff;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 4px;
+}
+
+/* frozen first column = the player */
+.tt-agrid th.tt-agrid__player,
+.tt-agrid td.tt-agrid__player {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: #fff;
+  text-align: left;
+  min-width: 180px;
+  box-shadow: 1px 0 0 #e3e6e1;
+  padding: 6px 10px;
+  font-weight: 600;
+}
+.tt-agrid thead th.tt-agrid__player { z-index: 3; background: #123a2b; }
+.tt-agrid__who { display: flex; align-items: center; gap: 9px; }
+.tt-agrid__no {
+  color: #6a6d66;
+  font-weight: 800;
+  font-size: 12px;
+  min-width: 18px;
+  text-align: right;
+}
+.tt-agrid__nm { font-weight: 600; }
+
+/* activity column header: date + type glyph + per-column quick-fill */
+.tt-agrid__act { min-width: 58px; }
+.tt-agrid__act.is-match { background: #0d3325; }
+.tt-agrid__act-date { display: block; font-weight: 800; font-size: 12px; }
+.tt-agrid__act-type { display: block; font-size: 15px; line-height: 1; margin: 2px 0; }
+.tt-agrid__fill {
+  display: block;
+  margin: 2px auto 0;
+  min-height: 24px;
+  padding: 2px 6px;
+  border: 0;
+  background: transparent;
+  color: #e8b624;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.tt-agrid__fill:hover { color: #f5cf5a; }
+
+/* status cell — full 5-state via native <select>, abbreviation painted over */
+.tt-agrid-cell { position: relative; }
+.tt-agrid-sel {
+  width: 100%;
+  min-width: 52px;
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  color: transparent;              /* hide the closed-state text… */
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  padding: 2px;
+}
+.tt-agrid-sel option { color: #14231b; }   /* …but keep the open list readable */
+.tt-agrid-sel:focus-visible { outline: 2px solid #e8b624; outline-offset: -2px; }
+.tt-agrid-abbr {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+/* cell state colours (the data-quality signal — constant, legible) */
+.tt-agrid-cell--present { background: #e7f5ec; color: #1c6b3f; }
+.tt-agrid-cell--late    { background: #fff2db; color: #8a5a10; }
+.tt-agrid-cell--absent  { background: #fbe7e5; color: #9a2b23; }
+.tt-agrid-cell--excused { background: #ecefec; color: #565b54; }
+.tt-agrid-cell--injured { background: #efe7f6; color: #5b3a86; }
+.tt-agrid-cell--empty   { background: #fff;    color: #c8ccc6; }
+
+/* a cell edited but not yet saved */
+.tt-agrid-cell.is-dirty { box-shadow: inset 0 0 0 2px #e8b624; }
+
+/* rate tail column */
+.tt-agrid td.tt-agrid__rate,
+.tt-agrid th.tt-agrid__rate {
+  min-width: 62px;
+  background: #f0f3f2;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.tt-agrid thead th.tt-agrid__rate { background: #123a2b; }
+
+/* ---- Legend -------------------------------------------------- */
+.tt-agrid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #6a6d66;
+}
+.tt-agrid-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.tt-agrid-swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  border: 1px solid #e3e6e1;
+}
+
+/* ---- Save bar (§6 Save + Cancel) ----------------------------- */
+.tt-agrid-savebar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: #f3f6f3;
+  border-top: 1px solid #e3e6e1;
+}
+.tt-agrid-savebar__status { font-size: 13px; font-weight: 700; color: #6a6d66; }
+.tt-agrid-savebar__status.is-dirty { color: #8a3d10; }
+.tt-agrid-savebar__status.is-error { color: #9a2b23; }
+.tt-agrid-savebar__status.is-saved { color: #1c6b3f; }
+.tt-agrid-savebar__actions { margin-left: auto; display: flex; gap: 10px; }
+
+/* Small viewport: the grid is a desktop surface. It still scrolls
+   horizontally on a phone, but hint that the wizard is the better
+   mobile path. */
+@media (max-width: 767px) {
+  .tt-agrid-lead::after {
+    content: " " attr(data-mobile-hint);
+  }
+}

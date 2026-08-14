@@ -1694,6 +1694,69 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #2382 — upsert one player's ACTUAL attendance status for an activity
+     * (the bulk attendance-grid write path, epic #2381). Finds the existing
+     * non-guest `record_type='actual'` row for (activity, player) and updates
+     * its status; inserts a fresh row when none exists; DELETES the row when
+     * `$status` is blank (clearing a grid cell). Club-scoped. Returns true on
+     * success.
+     *
+     * Roster integrity (#1148) and status validation are the caller's
+     * responsibility — the controller guards both before calling this.
+     */
+    public function upsertActualAttendanceStatus( int $activity_id, int $player_id, string $status ): bool {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        // All existing recorded rows for this (activity, player), newest last.
+        // Legacy dirty data can leave more than one `actual` row (a wizard row
+        // and a match-execution row); heal it here so the grid stops being
+        // ambiguous — keep the latest, drop the rest.
+        $existing_ids = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                AND is_guest = 0 AND record_type = 'actual'
+              ORDER BY id ASC",
+            $activity_id, $player_id, $club_id
+        ) ) );
+        $keep_id = $existing_ids ? (int) end( $existing_ids ) : 0;
+        $stale   = array_filter( $existing_ids, static fn( int $id ): bool => $id !== $keep_id );
+
+        // Blank status clears the cell — remove every recorded row.
+        if ( $status === '' ) {
+            $ok = true;
+            foreach ( $existing_ids as $id ) {
+                if ( $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] ) === false ) $ok = false;
+            }
+            return $ok;
+        }
+
+        // Drop the stale duplicates, then update the one we keep (or insert).
+        foreach ( $stale as $id ) {
+            $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => $club_id ] );
+        }
+
+        if ( $keep_id > 0 ) {
+            return $wpdb->update(
+                "{$p}tt_attendance",
+                [ 'status' => $status ],
+                [ 'id' => $keep_id, 'club_id' => $club_id ]
+            ) !== false;
+        }
+
+        return $wpdb->insert( "{$p}tt_attendance", [
+            'club_id'     => $club_id,
+            'activity_id' => $activity_id,
+            'player_id'   => $player_id,
+            'status'      => $status,
+            'is_guest'    => 0,
+            'record_type' => 'actual',
+        ] ) !== false;
+    }
+
+    /**
      * #1712 — a linked guest's display name + home-team name (club-scoped),
      * for shaping a guest attendance row in the REST response. Null when
      * the player is missing.

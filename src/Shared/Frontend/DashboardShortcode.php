@@ -836,6 +836,12 @@ class DashboardShortcode {
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
                 return true;
+            // #2382 (epic #2381) — desktop attendance-entry grid (players ×
+            // activities). Self-gates on tt_edit_activities + the
+            // attendance_grid feature + team scope inside the view.
+            case 'attendance-grid':
+                \TT\Modules\Activities\Frontend\FrontendAttendanceGridView::render( $user_id, $is_admin );
+                return true;
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
                 return true;
