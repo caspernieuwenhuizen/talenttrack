@@ -140,6 +140,32 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #2382 (epic #2381) — the desktop attendance-entry grid. A read
+        // endpoint for the players × activities matrix and a bulk upsert for
+        // the whole period's edits. Both gate on `tt_edit_activities` AND the
+        // `attendance_grid` feature — the SAME gates the view enforces, so the
+        // affordance and the endpoint can't drift (§7). Team scope is enforced
+        // per-activity in the handlers.
+        register_rest_route( self::NS, '/activities/attendance-grid', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'attendance_grid_data' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
+                'args'                => [
+                    'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
+                    'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'type'    => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/attendance/bulk', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'bulk_attendance' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
+            ],
+        ] );
     }
 
     public static function can_view( ?\WP_REST_Request $r = null ): bool {
@@ -195,6 +221,101 @@ class ActivitiesRestController {
     /** #1712 — shared activities repository instance for the request. */
     private static function repo(): ActivitiesRepository {
         return new ActivitiesRepository();
+    }
+
+    /**
+     * #2382 — the attendance-grid gate: the `tt_edit_activities` write cap
+     * (matrix-aware) AND the `attendance_grid` feature toggle. Same gate the
+     * view enforces so they never drift (§7).
+     */
+    public static function can_edit_grid(): bool {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) return false;
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) return false;
+        return true;
+    }
+
+    /**
+     * #2382 — the caller's team scope for the grid. Null = academy-wide
+     * (sees every team). Otherwise the list of team ids the coach coaches.
+     *
+     * @return list<int>|null
+     */
+    private static function gridAllowedTeamIds(): ?array {
+        $uid = get_current_user_id();
+        if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $uid ) ) {
+            return null;
+        }
+        return array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $uid ), 'id' ) ) );
+    }
+
+    /**
+     * #2382 — GET /activities/attendance-grid — the players × activities
+     * attendance matrix for a team + window, for the desktop grid (and any
+     * SaaS consumer, §4). Team scope enforced on the requested team.
+     */
+    public static function attendance_grid_data( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['team_id'] );
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed !== null && ! in_array( $team_id, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        }
+
+        $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
+        $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : $defaults['to'];
+        $type = (string) ( $r['type'] ?? 'all' );
+        if ( ! in_array( $type, [ 'all', 'training', 'match' ], true ) ) $type = 'all';
+
+        $matrix = ( new \TT\Modules\Activities\Reports\AttendanceGridQuery() )->matrix( $team_id, $from, $to, $type );
+        return RestResponse::success( $matrix );
+    }
+
+    /**
+     * #2382 — POST /attendance/bulk — apply a batch of grid edits. Body:
+     * `{ changes: [ { activity_id, player_id, status } ] }`. A blank status
+     * clears the cell. Each change is validated (known status, activity in
+     * scope, player on the activity's roster) and upserted; the response
+     * reports how many saved / were skipped / failed.
+     */
+    public static function bulk_attendance( \WP_REST_Request $r ): \WP_REST_Response {
+        $changes = $r['changes'] ?? null;
+        if ( ! is_array( $changes ) ) {
+            return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
+        }
+
+        $allowed = self::gridAllowedTeamIds();
+        $repo    = self::repo();
+        $saved   = 0;
+        $skipped = 0;
+        $failed  = 0;
+
+        foreach ( $changes as $c ) {
+            if ( ! is_array( $c ) ) { $skipped++; continue; }
+            $aid    = absint( $c['activity_id'] ?? 0 );
+            $pid    = absint( $c['player_id'] ?? 0 );
+            $status = strtolower( trim( (string) ( $c['status'] ?? '' ) ) );
+            if ( $aid <= 0 || $pid <= 0 ) { $skipped++; continue; }
+            if ( $status !== '' && ! AttendanceStatus::isValid( $status ) ) { $skipped++; continue; }
+
+            // The grid only writes team activities; a team-less (club-wide)
+            // activity has no roster to scope against, so it is out of scope.
+            $team = $repo->activityTeamId( $aid );
+            if ( $team <= 0 ) { $skipped++; continue; }
+            if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) { $skipped++; continue; }
+
+            // Roster integrity (#1148): non-guest attendance must be on the
+            // activity's roster. The grid only offers the team's own players
+            // as rows, so this only rejects a tampered payload.
+            if ( $repo->playerTeamId( $pid ) !== $team ) { $skipped++; continue; }
+
+            if ( $repo->upsertActualAttendanceStatus( $aid, $pid, $status ) ) {
+                $saved++;
+            } else {
+                $failed++;
+            }
+        }
+
+        return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped, 'failed' => $failed ] );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */

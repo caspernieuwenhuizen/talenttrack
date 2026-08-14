@@ -183,6 +183,21 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'podium' ],
                 'entities'        => [],
             ],
+            // #2382 (epic #2381) — the desktop attendance-entry grid, the
+            // Excel-familiar alternative to the mark-attendance wizard.
+            // Default ON: it's the power-entry path an academy uses instead
+            // of (or alongside) the wizard. Off hides the grid affordance AND
+            // blocks the ?tt_view=attendance-grid route (viewSlugDisabled()).
+            // Gated by view-slug only — it reuses the activities entity + the
+            // tt_edit_activities cap the write endpoint enforces.
+            'attendance_grid' => [
+                'label'           => __( 'Attendance grid', 'talenttrack' ),
+                'description'     => __( 'The desktop attendance-entry grid (players × activities) — a spreadsheet alternative to the step-by-step attendance wizard. The wizard stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Activities\\ActivitiesModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'attendance-grid' ],
+                'entities'        => [],
+            ],
             // #1537 — the Custom widgets builder (#0078). Migrated from the
             // `tt_custom_widgets_enabled` option; migration 0166 carries the
             // existing on/off state forward. Default off, matching the

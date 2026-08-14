@@ -48126,3 +48126,94 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#. #2382 — attendance grid (epic #2381)
+msgid "Attendance grid"
+msgstr "Aanwezigheidsraster"
+
+msgid "Record attendance for a whole period at once. Rows are players, columns are activities; pick a status per cell and Save. This is the desktop alternative to the step-by-step wizard."
+msgstr "Leg de aanwezigheid van een hele periode in één keer vast. Rijen zijn spelers, kolommen zijn activiteiten; kies per cel een status en sla op. Dit is het desktopalternatief voor de stap-voor-stap wizard."
+
+msgid "You do not have permission to record attendance."
+msgstr "Je hebt geen rechten om aanwezigheid vast te leggen."
+
+msgid "The attendance grid has been switched off for your academy."
+msgstr "Het aanwezigheidsraster is voor jouw academie uitgeschakeld."
+
+msgid "You don't coach any teams yet, so there is no attendance to record. Ask an administrator to assign you to a team."
+msgstr "Je traint nog geen teams, dus er is geen aanwezigheid om vast te leggen. Vraag een beheerder om je aan een team te koppelen."
+
+msgid "No teams yet — add one to record attendance."
+msgstr "Nog geen teams — voeg er een toe om aanwezigheid vast te leggen."
+
+msgid "No active players on this team yet. Add players to the roster first."
+msgstr "Nog geen actieve spelers in dit team. Voeg eerst spelers aan de selectie toe."
+
+msgid "No activities for this team in the selected window. Widen the date range or change the type filter."
+msgstr "Geen activiteiten voor dit team in de gekozen periode. Verruim het datumbereik of pas het typefilter aan."
+
+msgid "pick a status per cell, then Save"
+msgstr "kies per cel een status en sla op"
+
+msgid "all present"
+msgstr "allen aanwezig"
+
+msgid "Attendance for %1$s on %2$s"
+msgstr "Aanwezigheid voor %1$s op %2$s"
+
+msgid "Training + matches"
+msgstr "Training + wedstrijden"
+
+msgid "Training only"
+msgstr "Alleen training"
+
+msgid "Matches only"
+msgstr "Alleen wedstrijden"
+
+msgid "The desktop attendance-entry grid (players × activities) — a spreadsheet alternative to the step-by-step attendance wizard. The wizard stays available when this is off."
+msgstr "Het aanwezigheidsraster op de desktop (spelers × activiteiten) — een spreadsheet-alternatief voor de stap-voor-stap aanwezigheidswizard. De wizard blijft beschikbaar als dit uit staat."
+
+msgid "No changes supplied."
+msgstr "Geen wijzigingen ontvangen."
+
+msgid "That team is not in your scope."
+msgstr "Dat team valt buiten je bereik."
+
+msgid "All changes saved"
+msgstr "Alle wijzigingen opgeslagen"
+
+msgid "Could not save — try again"
+msgstr "Opslaan mislukt — probeer opnieuw"
+
+msgid "No unsaved changes"
+msgstr "Geen niet-opgeslagen wijzigingen"
+
+msgid "%d unsaved change(s)"
+msgstr "%d niet-opgeslagen wijziging(en)"
+
+msgid "You have unsaved changes. Leave without saving?"
+msgstr "Je hebt niet-opgeslagen wijzigingen. Weggaan zonder opslaan?"
+
+msgctxt "attendance status abbreviation: not set"
+msgid "·"
+msgstr "·"
+
+msgctxt "attendance status abbreviation: present"
+msgid "P"
+msgstr "A"
+
+msgctxt "attendance status abbreviation: late"
+msgid "L"
+msgstr "L"
+
+msgctxt "attendance status abbreviation: absent"
+msgid "A"
+msgstr "Af"
+
+msgctxt "attendance status abbreviation: excused"
+msgid "E"
+msgstr "G"
+
+msgctxt "attendance status abbreviation: injured"
+msgid "I"
+msgstr "Bl"

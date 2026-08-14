@@ -378,6 +378,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ];
         }
         if ( AuthorizationService::userCanOrMatrix( $current_uid, 'tt_edit_activities' ) ) {
+            // #2382 (epic #2381) — entry point to the desktop attendance-entry
+            // grid, the Excel-familiar alternative to the mark-attendance
+            // wizard. Sits left of the primary CTA; hidden when the feature is
+            // switched off. tt_back carries the list so the grid's Cancel/back
+            // returns here (§5/§6).
+            if ( \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) {
+                $page_actions[] = [
+                    'label' => __( 'Attendance grid', 'talenttrack' ),
+                    'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo(
+                        add_query_arg( [ 'tt_view' => 'attendance-grid' ], $list_base_url )
+                    ),
+                ];
+            }
             $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $list_base_url );
             $page_actions[] = [
                 'label'   => __( 'New activity', 'talenttrack' ),
