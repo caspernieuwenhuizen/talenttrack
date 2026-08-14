@@ -43,8 +43,10 @@ final class SavedFiltersRestTest extends WP_UnitTestCase {
         $req = new WP_REST_Request( 'GET', self::BASE );
         $req->set_param( 'report_key', $report_key );
         $res  = rest_do_request( $req );
+        // RestResponse::success wraps the payload under `data`.
         $data = $res->get_data();
-        return isset( $data['presets'] ) && is_array( $data['presets'] ) ? $data['presets'] : [];
+        $inner = isset( $data['data'] ) && is_array( $data['data'] ) ? $data['data'] : [];
+        return isset( $inner['presets'] ) && is_array( $inner['presets'] ) ? $inner['presets'] : [];
     }
 
     public function test_routes_registered_with_permission_callback(): void {
@@ -63,7 +65,7 @@ final class SavedFiltersRestTest extends WP_UnitTestCase {
             'activity_type_key' => 'game',
         ] );
         $this->assertSame( 200, $res->get_status() );
-        $saved = $res->get_data();
+        $saved = $res->get_data()['data'] ?? [];
         $this->assertArrayHasKey( 'id', $saved );
 
         $presets = $this->listPresets( 'attendance_team' );

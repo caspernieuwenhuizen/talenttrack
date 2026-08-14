@@ -47853,10 +47853,6 @@ msgid "Give this view a name first."
 msgstr "Geef deze weergave eerst een naam."
 
 #: src/Modules/Analytics/Frontend/SavedFiltersBar.php
-msgid "Saved."
-msgstr "Opgeslagen."
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php
 msgid "Delete this saved view?"
 msgstr "Deze opgeslagen weergave verwijderen?"
 
