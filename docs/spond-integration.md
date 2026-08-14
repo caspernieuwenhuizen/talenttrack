@@ -52,6 +52,12 @@ Last-sync status appears in the **Configuration → Spond integration** table �
 - To **disconnect**: click **Disconnect** on the Spond view. Existing imported activities are kept; future syncs are paused. Per-team group selections are kept on file so reconnecting later resumes seamlessly.
 - Saving credentials, testing the connection, disconnecting, and the API-endpoint override all run over the REST API (`POST/DELETE /spond/credentials`, `POST /spond/test`, `POST /spond/base-url`) gated on the `tt_edit_spond_credentials` capability. Viewing the page and triggering a per-team **Refresh now** are gated on `tt_edit_teams`.
 
+## Head coaches connect their own team (v4.x+)
+
+A head coach no longer needs an academy admin to link Spond for the team they run. On their team's page there's a **Spond connection** action that opens a panel to save the team's own Spond email + password, test the login, and (once a group is linked) trigger a sync — the same per-team account override an admin can set on the club-wide Spond page, now reachable by the coach for their own team.
+
+Access is scoped to the exact team: the per-team credential, test and sync endpoints (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) require **change authority on `spond_integration` for that team** — an academy admin holds it globally, a head coach holds it for their own team. The **Spond connection** action is hidden for anyone without that authority. (This also closed an earlier gap where the per-team credential endpoints, gated only on the any-team `tt_edit_spond_credentials` cap, accepted a head coach's write against another team.) Linking the actual Spond *group* still happens on the team edit form.
+
 ## API endpoint override
 
 If Spond ever moves its API to a new address, an operator can redirect TalentTrack without a code release: open the collapsible **API endpoint** section on the Spond view, enter the new base URL, and save. Leave it blank and save to revert to the shipped default. A wrong URL makes every sync fail, so change it only when Spond announces a new endpoint or for testing against a private mock.

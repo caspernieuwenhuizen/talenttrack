@@ -284,6 +284,22 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             } );
             ?>
 
+            <?php
+            // #2388 — head coach (or admin) may connect this team's own
+            // Spond account. Hidden unless the user holds spond_integration
+            // change authority for THIS team — the same gate the connect
+            // view and its REST endpoints enforce (§7).
+            if ( \TT\Modules\Spond\TeamSpondAccess::currentUserCanManage( $team_id ) ) :
+                $spond_url = add_query_arg(
+                    [ 'tt_view' => 'team-spond', 'id' => $team_id ],
+                    RecordLink::dashboardUrl()
+                );
+                ?>
+                <a class="tt-player-action" href="<?php echo esc_url( $spond_url ); ?>">
+                    <?php esc_html_e( 'Spond connection', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+
             <?php if ( $can_edit ) :
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'teams', 'id' => $team_id, 'action' => 'edit' ],
