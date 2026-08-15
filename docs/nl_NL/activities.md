@@ -85,6 +85,8 @@ De activiteit gaat pas op **Voltooid** als de flow is afgerond (de laatste stap 
 
 Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit) en **Heropenen** (bij een voltooide of geannuleerde) — directe, bevestigde statuswijzigingen.
 
+**Staan de begeleide wizards uit**, dan heet de knop **Aanwezigheid registreren** en opent hij het [aanwezigheidsraster](attendance-grid.md) op de kolom van die activiteit — op dezelfde plek op de lijstkaart en het detailscherm, en ook de hero **Aanwezigheid registreren** op je dashboard gaat daarheen. Een wedstrijd die je wél live volgt, gaat nog steeds naar Hervatten / Afronden. Omdat één keer opslaan in het raster weken aan sessies kan omvatten, rondt aanwezigheid registreren daar bewust niets af: een geplande activiteit krijgt daarvoor de knop **Markeren als afgerond**, naast Annuleren. Vul eerst de aanwezigheid in en markeer de activiteit daarna als afgerond — met **Heropenen** draai je dat terug.
+
 ### Speelminuten (papieren wedstrijden)
 
 Wanneer je een **wedstrijd**-type activiteit voltooit die nooit live is gevolgd, krijgt de aanwezigheidsstap van de wizard kolommen **Basisspeler** en **Minuten** zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld. De minuten voeden het minutenrapport en het belastingsbeeld van de speler. Voor een wedstrijd die je *wel* live volgde, komen de minuten uit het afronden van de wedstrijduitvoering.

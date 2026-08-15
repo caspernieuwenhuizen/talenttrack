@@ -101,9 +101,11 @@ class ActivitiesRestController {
         // rating" button that flips it back to 0.
         // #2245 — direct, confirmed status transitions (Cancel / Reopen)
         // for the detail-view buttons. POST body: `{ status: 'cancelled'
-        // | 'planned' }`. Completion is NOT a valid target here — it
-        // runs through the evaluation flow, which flips the status at
-        // its final save. Cap-gated via can_edit (never __return_true).
+        // | 'planned' }`. Completion runs through the evaluation flow,
+        // which flips the status at its final save — so `completed` is
+        // rejected here UNLESS that flow is switched off, in which case
+        // it's the only way an activity can complete (#2407; see
+        // set_status). Cap-gated via can_edit (never __return_true).
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/status', [
             [
                 'methods'             => 'POST',
@@ -1482,10 +1484,25 @@ class ActivitiesRestController {
 
         $status = sanitize_key( (string) ( $r['status'] ?? '' ) );
         $allowed = [ ActivityStatusKey::CANCELLED, ActivityStatusKey::PLANNED ];
+
+        // #2407 — `completed` is accepted here ONLY when the guided
+        // evaluation wizard is switched off for this user. With the wizard
+        // on it stays rejected: completion is the wizard's final save, and
+        // a second path would let an activity complete with no attendance
+        // recorded. With the wizard off there is no such final save — the
+        // grids write attendance in bulk and never touch status — so
+        // without this an activity could never leave `planned` at all.
+        $wizard_on = \TT\Modules\Activities\Services\ActivityCompletionResolver::wizardAvailable( get_current_user_id() );
+        if ( ! $wizard_on ) {
+            $allowed[] = ActivityStatusKey::COMPLETED;
+        }
+
         if ( ! in_array( $status, $allowed, true ) ) {
             return RestResponse::error(
                 'bad_status',
-                __( 'Only Cancel and Reopen are allowed here. Completing an activity runs through the evaluation flow.', 'talenttrack' ),
+                $wizard_on
+                    ? __( 'Only Cancel and Reopen are allowed here. Completing an activity runs through the evaluation flow.', 'talenttrack' )
+                    : __( 'Only Complete, Cancel and Reopen are allowed here.', 'talenttrack' ),
                 400
             );
         }

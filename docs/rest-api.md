@@ -183,6 +183,14 @@ Partial update. Accepts any subset of `status`, `notes`, `guest_notes`, `guest_n
 
 Removes a single attendance row. Used by the guest UI's Remove affordance.
 
+### `POST /activities/{id}/status` (#2245, #2407)
+
+Direct, confirmed status transition for the detail view's buttons. Body `{ status: 'cancelled' | 'planned' | 'completed' }`; gated on `can_edit` (`tt_edit_activities`).
+
+`completed` is **conditionally** accepted (#2407). While the `new-evaluation` wizard is available to the caller (`tt_wizards_enabled`, plus the wizard's own cap), completion belongs to that flow — which records attendance and then flips the status at its final save — so `completed` is rejected with a 400 and a second, attendance-free path can't open. When the wizard is switched off there is no such final save (the grid bulk endpoints write attendance and minutes but never status), so this endpoint becomes the only route to `completed` and accepts it. `cancelled` / `planned` are always accepted.
+
+Writes `activity_status_key` **and** the derived `plan_state` (`planned` → `scheduled`, otherwise the same value), then fires `tt_activity_status_changed`.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

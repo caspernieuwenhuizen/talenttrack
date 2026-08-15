@@ -85,6 +85,8 @@ The activity flips to **Completed** only when the flow finishes (the wizard's fi
 
 The detail view also carries **Cancel activity** (on a planned activity) and **Reopen** (on a completed or cancelled one) — direct, confirmed status changes.
 
+**With the guided wizards switched off** the button reads **Mark attendance** instead and opens the [attendance grid](attendance-grid.md) on that activity's own column — same place on the list card and the detail view, and the dashboard's **Mark attendance** hero goes there too. A match that *is* live-tracked still routes to Resume / Finalize. Because a single grid save can cover weeks of sessions, recording attendance there deliberately doesn't complete anything: a planned activity gains a **Mark completed** button for that, next to Cancel. Record attendance first, then mark it completed — **Reopen** undoes it.
+
 ### Match minutes (paper matches)
 
 When you complete a **match**-type activity that was never live-tracked, the wizard's attendance step gains **Starter** and **Minutes** columns so you can log how long each player actually played. The minutes feed the minutes report and the player's load picture. For a match you *did* live-track, the minutes come from the match execution's finalize instead.

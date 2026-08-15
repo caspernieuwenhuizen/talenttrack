@@ -48063,6 +48063,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Mark completed"
+msgstr "Markeren als afgerond"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Mark activity completed"
+msgstr "Activiteit markeren als afgerond"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid ""
+"Mark this activity completed? Record attendance first if you have not — you "
+"can reopen it later."
+msgstr ""
+"Deze activiteit markeren als afgerond? Vul eerst de aanwezigheid in als je "
+"dat nog niet hebt gedaan — je kunt hem later heropenen."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Attendance is recorded in the attendance grid. Open it to review or correct it."
+msgstr ""
+"De aanwezigheid wordt vastgelegd in het aanwezigheidsraster. Open het raster "
+"om het te bekijken of te corrigeren."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Attendance is recorded in the attendance grid, not on this form."
+msgstr ""
+"De aanwezigheid wordt vastgelegd in het aanwezigheidsraster, niet op dit "
+"formulier."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Open attendance grid"
+msgstr "Aanwezigheidsraster openen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Open the attendance grid →"
+msgstr "Open het aanwezigheidsraster →"
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Only Complete, Cancel and Reopen are allowed here."
+msgstr "Alleen Afronden, Annuleren en Heropenen zijn hier toegestaan."
+
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

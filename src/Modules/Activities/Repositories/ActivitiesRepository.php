@@ -1515,6 +1515,30 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #2401 — the team + date a desktop-grid deep-link needs for one
+     * activity, in a single club-scoped read. `activityTeamId()` answers
+     * half of it; the grid link also needs the date so it can narrow the
+     * grid's window to this activity's own column.
+     *
+     * @return array{team:int,date:string} `team` is 0 for a club-wide
+     *         activity (no roster to grid) or a missing/out-of-club row.
+     */
+    public function gridAnchor( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [ 'team' => 0, 'date' => '' ];
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT team_id, session_date FROM {$p}tt_activities WHERE id = %d AND club_id = %d LIMIT 1",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( ! $row ) return [ 'team' => 0, 'date' => '' ];
+        return [
+            'team' => (int) ( $row->team_id ?? 0 ),
+            'date' => (string) ( $row->session_date ?? '' ),
+        ];
+    }
+
+    /**
      * #1712 — the player's current team id (club-scoped), or 0.
      */
     public function playerTeamId( int $player_id ): int {

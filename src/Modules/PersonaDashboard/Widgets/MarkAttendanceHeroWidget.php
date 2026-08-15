@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Activities\Services\ActivityCompletionResolver;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -130,26 +132,43 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
                 : ( $user_title !== '' ? $user_title : __( 'Activity', 'talenttrack' ) );
             $detail     = self::buildDetail( $next, $type_label !== '' ? $user_title : '' );
 
-            // #2249 — land directly in the unified evaluation wizard's
-            // activity branch (`mode=activity` + `activity_id`), skipping
-            // the mode step and picker.
-            $wizard_base   = WizardEntryPoint::urlFor(
-                'new-evaluation',
-                $ctx->viewUrl( 'activities' ),
-                [ 'mode' => 'activity' ]
-            );
-            // #1350 — resume instead of restart when an in-flight run
-            // for THIS activity exists: a coach who stepped away
-            // mid-attendance and taps the hero again expects to land
-            // where they were, not lose the run. A run for a different
-            // activity (or none) keeps the fresh-start nuke.
-            $in_flight   = WizardState::load( $ctx->user_id, 'new-evaluation' );
-            $resume_same = (int) ( $in_flight['activity_id'] ?? 0 ) === $aid;
-            $url_args    = [ 'activity_id' => $aid ];
-            if ( ! $resume_same ) {
-                $url_args['restart'] = 1;
+            // #2401 — with the evaluation wizard switched off there is no
+            // wizard to land in, and the old fallback appended the wizard's
+            // own args to the bare activities list
+            // (`?tt_view=activities&activity_id=N&restart=1`), which the
+            // list ignores — the coach's most-tapped button dropped them on
+            // an unfiltered list. Route to the desktop attendance grid for
+            // this activity instead: same intent, a surface that exists.
+            $wizard_on = ActivityCompletionResolver::wizardAvailable( $ctx->user_id );
+            $grid_url  = $wizard_on
+                ? ''
+                : ActivityGridLink::attendanceUrl( $aid );
+
+            $resume_same = false;
+            if ( $grid_url !== '' ) {
+                $primary_url = $grid_url;
+            } else {
+                // #2249 — land directly in the unified evaluation wizard's
+                // activity branch (`mode=activity` + `activity_id`), skipping
+                // the mode step and picker.
+                $wizard_base = WizardEntryPoint::urlFor(
+                    'new-evaluation',
+                    $ctx->viewUrl( 'activities' ),
+                    [ 'mode' => 'activity' ]
+                );
+                // #1350 — resume instead of restart when an in-flight run
+                // for THIS activity exists: a coach who stepped away
+                // mid-attendance and taps the hero again expects to land
+                // where they were, not lose the run. A run for a different
+                // activity (or none) keeps the fresh-start nuke.
+                $in_flight   = WizardState::load( $ctx->user_id, 'new-evaluation' );
+                $resume_same = (int) ( $in_flight['activity_id'] ?? 0 ) === $aid;
+                $url_args    = [ 'activity_id' => $aid ];
+                if ( ! $resume_same ) {
+                    $url_args['restart'] = 1;
+                }
+                $primary_url = add_query_arg( $url_args, $wizard_base );
             }
-            $primary_url = add_query_arg( $url_args, $wizard_base );
 
             // #1350 — name the action and the target: the coach's most-
             // tapped button should read "Mark attendance — Training ·
