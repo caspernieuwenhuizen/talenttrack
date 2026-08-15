@@ -425,6 +425,39 @@ Each action lists:
     `rate-confirm`) — verifies the routing-hint default is intact.
     Resize to 360px: hero is single-column, every CTA ≥ 48px,
     RateConfirmStep buttons ≥ 56px.
+  - **v4.85.1** — the wizard-off path is reachable again (closes #2401,
+    #2407). Switching the guided attendance/evaluation wizard off used to
+    hide **Complete activity** on the activity page, its list card and
+    the edit form — `ActivityCompletionResolver::canComplete()` gated on
+    the wizard alone, so with no wizard there was no affordance at all.
+    It now holds when *either* the wizard or the attendance grid is
+    reachable, and on the wizard-off path the button reads **Mark
+    attendance** and deep-links into the grid at that activity's own
+    column (new `ActivityGridLink` service; the activity page's existing
+    grid buttons now share it). The dashboard hero's wizard-off fallback
+    was building `?tt_view=activities&activity_id=N&restart=1` — args the
+    list ignores — and now goes to the same grid link. Separately, no
+    wizard meant no path to `completed` at all (the grid bulk endpoints
+    never write status), so a new **Mark completed** action on a planned
+    activity POSTs to the existing `/activities/{id}/status`, which now
+    accepts `completed` only while the wizard is off.
+    *How to test:* as an academy admin open `?tt_view=wizards-admin` and
+    switch wizards **off**. Open a planned training on a team with a
+    roster: the header shows **Mark attendance** (primary), **Mark
+    completed**, **Cancel activity** and **Attendance grid**. Tap **Mark
+    attendance** — the attendance grid opens on that team filtered to the
+    activity's date (a single column), with a back-pill to the activity.
+    Mark the roster, Save, return: the activity is still **planned**.
+    Tap **Mark completed**, confirm: status flips to completed and the
+    card leaves the attention/up-next groupings. **Reopen** puts it back.
+    Check the activities list — the card's quick action also reads **Mark
+    attendance** and lands on the same grid column. Now switch wizards
+    back **on** and reload: the button reads **Complete activity** and
+    opens the wizard exactly as before, and **Mark completed** is gone
+    (POSTing `{"status":"completed"}` to the status endpoint 400s). Also
+    verify a club-wide activity (no team) offers no grid affordance
+    rather than a dead link, and that a match with a live match-execution
+    still routes to Resume/Finalize under either setting.
 - **Polish notes:**
   - **Status:** primary friction tracked under
     [spec 0092](../specs/0092-feat-mark-attendance-widget.md) (new

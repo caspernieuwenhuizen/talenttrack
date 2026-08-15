@@ -240,6 +240,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $detail_back  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id );
                 $status_rest  = 'activities/' . (int) $session->id . '/status';
 
+                // #2401 — seed the grid deep-link's team + date from the row
+                // already loaded, so the completion resolver and the grid
+                // buttons below cost no extra reads.
+                \TT\Modules\Activities\Services\ActivityGridLink::primeAnchor(
+                    (int) $session->id,
+                    (int) ( $session->team_id ?? 0 ),
+                    (string) ( $session->session_date ?? '' )
+                );
+                $wizard_on = \TT\Modules\Activities\Services\ActivityCompletionResolver::wizardAvailable( get_current_user_id() );
+
                 if ( $status_now === ActivityStatusKey::PLANNED ) {
                     // §7 (#2325) — only surface "Complete activity" when the
                     // user can actually reach the completion flow; otherwise
@@ -256,9 +266,42 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             $detail_back
                         );
                         $detail_actions[] = [
-                            'label'   => __( 'Complete activity', 'talenttrack' ),
+                            // #2401 — reads "Mark attendance" on the wizard-off
+                            // path, where the button leads to the grid rather
+                            // than a flow that completes the activity.
+                            'label'   => \TT\Modules\Activities\Services\ActivityCompletionResolver::completionLabel(
+                                (int) $session->id,
+                                (string) ( $session->activity_type_key ?? '' ),
+                                get_current_user_id()
+                            ),
                             'href'    => $complete_url,
                             'primary' => true,
+                        ];
+                    }
+                    // #2407 — with the guided flow off, nothing else writes
+                    // `completed`: the grids record attendance and minutes in
+                    // bulk but never touch activity status, so a wizard-off
+                    // academy accumulated activities stuck at `planned`
+                    // forever. This is the explicit flip, mirroring the
+                    // Cancel / Reopen mechanism (POST /activities/{id}/status,
+                    // which accepts `completed` only while the wizard is off).
+                    // Not offered when the wizard is on — completion belongs to
+                    // the wizard's final save there, and a second path could
+                    // complete an activity with no attendance recorded.
+                    // `tt_edit_activities` comes from the enclosing block.
+                    if ( ! $wizard_on ) {
+                        $detail_actions[] = [
+                            'label'      => __( 'Mark completed', 'talenttrack' ),
+                            'variant'    => 'secondary',
+                            'data_attrs' => [
+                                'tt-archive-rest-path'     => $status_rest,
+                                'tt-archive-method'        => 'POST',
+                                'tt-archive-body'          => wp_json_encode( [ 'status' => ActivityStatusKey::COMPLETED ] ),
+                                'tt-archive-confirm'       => __( 'Mark this activity completed? Record attendance first if you have not — you can reopen it later.', 'talenttrack' ),
+                                'tt-archive-confirm-label' => __( 'Mark completed', 'talenttrack' ),
+                                'tt-archive-confirm-title' => __( 'Mark activity completed', 'talenttrack' ),
+                                'tt-archive-redirect'      => $detail_back,
+                            ],
                         ];
                     }
                     $detail_actions[] = [
@@ -318,27 +361,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // gated by the enclosing tt_edit_activities check (§7 — same
                 // gates the grid views + endpoints enforce). Minutes grid only
                 // on minutes-bearing (match) types.
-                $grid_team = (int) ( $session->team_id ?? 0 );
-                $grid_date = (string) ( $session->session_date ?? '' );
-                $grid_dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
-                if ( $grid_team > 0 ) {
-                    if ( \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) {
-                        $ag = [ 'tt_view' => 'attendance-grid', 'team_id' => $grid_team ]; /* tt-xview-ok — gated by attendance_grid + tt_edit_activities */
-                        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $grid_date ) ) { $ag['from'] = $grid_date; $ag['to'] = $grid_date; }
-                        $detail_actions[] = [
-                            'label' => __( 'Attendance grid', 'talenttrack' ),
-                            'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $ag, $grid_dash ) ),
-                        ];
-                    }
-                    if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true )
-                        && \TT\Core\FeatureRegistry::isEnabled( 'minutes_grid' ) ) {
-                        $mg = [ 'tt_view' => 'minutes-grid', 'team_id' => $grid_team ]; /* tt-xview-ok — gated by minutes_grid + tt_edit_activities */
-                        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $grid_date ) ) { $mg['from'] = $grid_date; $mg['to'] = $grid_date; }
-                        $detail_actions[] = [
-                            'label' => __( 'Minutes grid', 'talenttrack' ),
-                            'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $mg, $grid_dash ) ),
-                        ];
-                    }
+                // #2401 — URL building + the gate moved into ActivityGridLink
+                // so this page, the list card and the completion resolver
+                // can't drift apart on either (CLAUDE.md §4).
+                $grid_uid = get_current_user_id();
+                if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseAttendance( (int) $session->id, $grid_uid ) ) {
+                    $detail_actions[] = [
+                        'label' => __( 'Attendance grid', 'talenttrack' ),
+                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( (int) $session->id ),
+                    ];
+                }
+                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true )
+                    && \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( (int) $session->id, $grid_uid ) ) {
+                    $detail_actions[] = [
+                        'label' => __( 'Minutes grid', 'talenttrack' ),
+                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
+                    ];
                 }
                 } // end ! $is_archived && $can_edit_acts (active-only edit actions)
                 // #2183 — an already-archived activity offers Restore, not a
@@ -2002,6 +2040,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // detail page. Sits OUTSIDE the card's tap-to-open `<a>` so the
         // two affordances don't fight. Type-aware target via the
         // domain-layer resolver (same one the detail button uses).
+        // #2401 — seed the grid anchor from this row (the list query
+        // selects `s.*`) so the wizard-off branch of the resolver builds
+        // its deep-link without a per-card read, and reads "Mark
+        // attendance" when it points at the grid.
+        \TT\Modules\Activities\Services\ActivityGridLink::primeAnchor(
+            $id,
+            (int) ( $row->team_id ?? 0 ),
+            $session_date
+        );
         $status_lower = strtolower( $status_key );
         $is_planned   = ! $is_cancelled
             && ( $status_lower === '' || $status_lower === ActivityStatusKey::PLANNED )
@@ -2013,7 +2060,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 RecordLink::detailUrlFor( 'activities', $id )
             );
             $card .= '<a class="tt-btn tt-btn-secondary tt-act-card__complete" href="' . esc_url( $complete_url ) . '">'
-                . esc_html__( 'Complete activity', 'talenttrack' ) . '</a>';
+                . esc_html( \TT\Modules\Activities\Services\ActivityCompletionResolver::completionLabel(
+                    $id,
+                    $type_key,
+                    get_current_user_id()
+                ) ) . '</a>';
         }
 
         $card .= '</li>';
@@ -2763,11 +2814,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $show_edit_roster = $is_edit && $attendance_visible && ! $is_match_type && current_user_can( 'tt_edit_activities' );
 
             if ( $is_edit && ( current_user_can( 'tt_edit_evaluations' ) || $show_edit_roster ) ) :
+                \TT\Modules\Activities\Services\ActivityGridLink::primeAnchor(
+                    (int) $session->id,
+                    (int) ( $session->team_id ?? 0 ),
+                    (string) ( $session->session_date ?? '' )
+                );
                 $completion_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                     (int) $session->id,
                     (string) ( $session->activity_type_key ?? '' ),
                     add_query_arg( [ 'tt_view' => 'activities', 'id' => (int) $session->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
                 );
+                // #2401 — is there a guided flow at all? With the wizard off
+                // `$completion_url` points at the attendance grid instead, so
+                // every "…in the guided flow" label below has to branch.
+                $guided_on = \TT\Modules\Activities\Services\ActivityCompletionResolver::wizardAvailable( get_current_user_id() );
                 ?>
                 <h3 class="tt-act-form-attendance-head"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
 
@@ -2816,7 +2876,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <?php endif; ?>
                     <?php if ( current_user_can( 'tt_edit_evaluations' ) && $completion_url !== '' ) : ?>
                         <p class="tt-act-form-attendance-note">
-                            <a href="<?php echo esc_url( $completion_url ); ?>"><?php esc_html_e( 'Continue rating in the guided flow →', 'talenttrack' ); ?></a>
+                            <a href="<?php echo esc_url( $completion_url ); ?>"><?php
+                                // #2401 — names the real destination: the grid
+                                // when the guided flow is switched off.
+                                echo $guided_on
+                                    ? esc_html__( 'Continue rating in the guided flow →', 'talenttrack' )
+                                    : esc_html__( 'Open the attendance grid →', 'talenttrack' );
+                            ?></a>
                         </p>
                     <?php endif; ?>
 
@@ -2825,18 +2891,32 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // flow). Wording branches on whether the activity already
                     // happened so a completed match reads "review", never
                     // "will be captured".
+                    // #2401 — and on `$guided_on`: with the wizard off,
+                    // pointing the coach at "the guided completion flow"
+                    // describes a surface they cannot reach. There,
+                    // attendance lives in the desktop grid.
                     ?>
                     <p class="tt-act-form-attendance-note">
-                        <?php echo $attendance_visible
-                            ? esc_html__( 'Attendance and ratings were captured in the guided completion flow. Review or update them there.', 'talenttrack' )
-                            : esc_html__( 'Attendance and ratings are captured in the guided completion flow, not on this form.', 'talenttrack' ); ?>
+                        <?php if ( $guided_on ) {
+                            echo $attendance_visible
+                                ? esc_html__( 'Attendance and ratings were captured in the guided completion flow. Review or update them there.', 'talenttrack' )
+                                : esc_html__( 'Attendance and ratings are captured in the guided completion flow, not on this form.', 'talenttrack' );
+                        } else {
+                            echo $attendance_visible
+                                ? esc_html__( 'Attendance is recorded in the attendance grid. Open it to review or correct it.', 'talenttrack' )
+                                : esc_html__( 'Attendance is recorded in the attendance grid, not on this form.', 'talenttrack' );
+                        } ?>
                     </p>
                     <?php if ( $completion_url !== '' ) : ?>
                     <p>
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $completion_url ); ?>">
-                            <?php echo $attendance_visible
-                                ? esc_html__( 'Continue rating', 'talenttrack' )
-                                : esc_html__( 'Complete activity', 'talenttrack' ); ?>
+                            <?php if ( $guided_on ) {
+                                echo $attendance_visible
+                                    ? esc_html__( 'Continue rating', 'talenttrack' )
+                                    : esc_html__( 'Complete activity', 'talenttrack' );
+                            } else {
+                                esc_html_e( 'Open attendance grid', 'talenttrack' );
+                            } ?>
                         </a>
                     </p>
                     <?php endif; ?>

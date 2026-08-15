@@ -41,8 +41,33 @@ Het raster legt dezelfde aanwezigheid vast als de rapporten en de wizard,
 zodat de rapporten Aanwezigheid en Minuten blijven kloppen met wat je hier
 invoert.
 
+## Als de begeleide wizard uit staat
+
+Een academie die liever met overzichten werkt, kan de begeleide aanwezigheids-
+en beoordelingswizard uitzetten via **Instellingen → Wizards**. Het raster is
+dan de belangrijkste manier om aanwezigheid in te voeren, en de knoppen bij een
+activiteit volgen mee:
+
+- **Aanwezigheid registreren** bij een activiteit (en op de kaart in de
+  activiteitenlijst) opent dit raster op de kolom van die activiteit in plaats
+  van de wizard. Dat is dezelfde knop die **Activiteit voltooien** heet als de
+  wizard aan staat — hernoemd, zodat hij niet meer belooft dan hij doet.
+- **Aanwezigheid registreren** op je dashboard opent het raster voor de activiteit
+  die erbij staat.
+- **Markeren als afgerond** verschijnt bij een geplande activiteit. Aanwezigheid
+  invoeren in het raster rondt de activiteit namelijk niet vanzelf af — één keer
+  opslaan kan weken aan trainingen omvatten — dus afronden blijft een bewuste
+  klik. Vul eerst de aanwezigheid in en markeer de activiteit daarna als
+  afgerond. Je kunt hem later altijd heropenen.
+
+Staat de wizard aan, dan verandert er niets: afronden loopt via de begeleide
+flow, die de activiteit in de laatste stap op afgerond zet.
+
 ## Uitschakelen
 
 Een beheerder kan het raster verbergen via **Instellingen → Functies →
 Aanwezigheidsraster**. Als het uit staat, verdwijnt de rasterknop en kan de
 pagina niet worden geopend. De aanwezigheidswizard blijft gewoon werken.
+
+Staan het raster én de wizard uit, dan pas je de aanwezigheid van een activiteit
+aan op het bewerkformulier van die activiteit, zodra hij is afgerond.
