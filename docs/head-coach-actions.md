@@ -425,7 +425,7 @@ Each action lists:
     `rate-confirm`) — verifies the routing-hint default is intact.
     Resize to 360px: hero is single-column, every CTA ≥ 48px,
     RateConfirmStep buttons ≥ 56px.
-  - **v4.85.1** — the wizard-off path is reachable again (closes #2401,
+  - **v4.86.0** — the wizard-off path is reachable again (closes #2401,
     #2407). Switching the guided attendance/evaluation wizard off used to
     hide **Complete activity** on the activity page, its list card and
     the edit form — `ActivityCompletionResolver::canComplete()` gated on

@@ -1,3 +1,47 @@
+# TalentTrack v4.86.0 — Minutes entry grid — a desktop, spreadsheet-style companion to the attendance grid (#2386)
+
+A new desktop **Minutes grid** (`?tt_view=minutes-grid`, reachable from the
+Attendance/Minutes toggle on the grid surface) records match minutes for a
+whole period at once: players down the rows, matches across the columns, a
+minutes box per squad cell, one Save for the lot. It's the sibling of the
+attendance grid (epic #2381), restricted to match activities.
+
+Only players in a match's squad are editable; non-squad cells are hatched and
+informational, mirroring the Minutes-audit matrix. Each edit is routed through
+the same minutes-ownership arbiter the per-match editor uses — a match run
+through match-execution keeps your figure as an override that survives a
+recompute, while a paper match writes the minutes directly — so the grid, the
+Minutes-audit tool, and the Minutes-played report always reconcile.
+
+Gated on the `tt_edit_activities` capability and a new **Minutes grid** feature
+toggle (on by default; switch it off to hide the grid and block its route; the
+per-match minutes editor stays available). Also exposed over REST
+(`GET /activities/minutes-grid`, `POST /minutes/bulk`).
+
+Both grids are now also reachable straight **from an activity's detail page** —
+an "Attendance grid" action on every activity and a "Minutes grid" action on
+matches, each opening the grid for that team pre-filtered to the activity's
+date, with a back-link that returns to the activity.
+
+# TalentTrack v4.86.0 — Activities are completable again when the guided wizard is off (#2401, #2407)
+
+Switching the guided attendance/evaluation wizard off left an activity with no
+way forward: the **Complete activity** button vanished from the activity page,
+its card in the list and the edit form, and nothing on the remaining path ever
+marked an activity completed.
+
+Both halves are fixed. With the wizard off, the completion button stays and now
+reads **Mark attendance**, opening the desktop attendance grid on that
+activity's own column; the dashboard's **Mark attendance** hero goes there too
+instead of dropping the coach on an unfiltered activities list. A new **Mark
+completed** action on a planned activity flips its status, so a wizard-off
+academy no longer accumulates activities stuck at "planned" — which had been
+quietly distorting the attention and up-next groupings. Recording attendance in
+the grid deliberately does not auto-complete anything, because one grid save can
+span weeks of sessions.
+
+With the wizard switched on, nothing changes.
+
 # TalentTrack v4.85.0 — Attendance reports: "This season" pill now spans the whole season (#2384)
 
 The *This season* period pill on the attendance reports (team, player and
