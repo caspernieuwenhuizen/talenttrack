@@ -850,6 +850,12 @@ class DashboardShortcode {
             case 'attendance-grid':
                 \TT\Modules\Activities\Frontend\FrontendAttendanceGridView::render( $user_id, $is_admin );
                 return true;
+            // #2386 (epic #2381) — desktop minutes-entry grid (players ×
+            // matches). Self-gates on tt_edit_activities + the minutes_grid
+            // feature + team scope inside the view.
+            case 'minutes-grid':
+                \TT\Modules\Activities\Frontend\FrontendMinutesGridView::render( $user_id, $is_admin );
+                return true;
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
                 return true;

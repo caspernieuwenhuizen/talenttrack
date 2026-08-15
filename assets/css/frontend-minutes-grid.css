@@ -1,0 +1,37 @@
+/* ================================================================
+   Minutes grid (#2386 / epic #2381)
+   Sibling of the attendance grid — players × match activities, a
+   numbers box per squad cell. Layers on frontend-attendance-grid.css
+   (chrome, frozen column, save bar). Prefixed .tt-agrid-* / .tt-agrid-min*.
+   ================================================================ */
+
+/* numeric minutes box */
+.tt-agrid-cell.tt-agrid-min { padding: 3px; }
+.tt-agrid-min-in {
+  width: 56px;
+  min-height: 40px;
+  text-align: center;
+  border: 1px solid #e3e6e1;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.tt-agrid-min-in:focus-visible { outline: 2px solid #e8b624; outline-offset: -1px; }
+
+/* not-in-squad cell — informational, hatched, not editable */
+.tt-agrid-cell--na {
+  background: repeating-linear-gradient(45deg, #fafbfa, #fafbfa 5px, #f1f3f1 5px, #f1f3f1 10px);
+  color: #b3b8b2;
+}
+
+/* "live" badge on a column whose minutes are owned by a match-execution */
+.tt-agrid__act-owned {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e8b624;
+}

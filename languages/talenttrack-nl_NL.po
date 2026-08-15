@@ -48444,3 +48444,40 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#. #2386 — minutes grid (epic #2381)
+msgid "Minutes grid"
+msgstr "Minutenraster"
+
+msgid "You do not have permission to record minutes."
+msgstr "Je hebt geen rechten om minuten vast te leggen."
+
+msgid "The minutes grid has been switched off for your academy."
+msgstr "Het minutenraster is voor jouw academie uitgeschakeld."
+
+msgid "Record match minutes for a whole period at once. Rows are players, columns are matches; type the minutes per cell and Save. Only players in a match squad can be edited."
+msgstr "Leg wedstrijdminuten van een hele periode in één keer vast. Rijen zijn spelers, kolommen zijn wedstrijden; typ de minuten per cel en sla op. Alleen spelers in een wedstrijdselectie kunnen worden bewerkt."
+
+msgid "You don't coach any teams yet, so there are no minutes to record. Ask an administrator to assign you to a team."
+msgstr "Je traint nog geen teams, dus er zijn geen minuten om vast te leggen. Vraag een beheerder om je aan een team te koppelen."
+
+msgid "No teams yet — add one to record minutes."
+msgstr "Nog geen teams — voeg er een toe om minuten vast te leggen."
+
+msgid "No matches for this team in the selected window. Widen the date range or pick another team."
+msgstr "Geen wedstrijden voor dit team in de gekozen periode. Verruim het datumbereik of kies een ander team."
+
+msgid "type minutes per match, then Save"
+msgstr "typ de minuten per wedstrijd en sla op"
+
+msgid "live"
+msgstr "live"
+
+msgid "Minutes come from the match sheet; your entry is kept as a correction."
+msgstr "De minuten komen van het wedstrijdformulier; je invoer wordt bewaard als correctie."
+
+msgid "Minutes for %1$s on %2$s"
+msgstr "Minuten voor %1$s op %2$s"
+
+msgid "The desktop minutes-entry grid (players × matches) — a spreadsheet way to record and correct match minutes across a period. The per-match minutes editor stays available when this is off."
+msgstr "Het minutenraster op de desktop (spelers × wedstrijden) — een spreadsheetmanier om wedstrijdminuten over een periode vast te leggen en te corrigeren. De per-wedstrijd minuten-editor blijft beschikbaar als dit uit staat."

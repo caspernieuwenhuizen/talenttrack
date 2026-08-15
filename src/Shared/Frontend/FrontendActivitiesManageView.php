@@ -309,6 +309,37 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'href'  => $rate_url,
                     ];
                 }
+
+                // #2386 (epic #2381) — jump into the desktop grids for this
+                // team, pre-filtered to this activity's date (one column), so a
+                // coach can record/correct here in the bulk surface. tt_back is
+                // carried so the grid's Cancel/back returns to this activity
+                // (§5/§6). Each is hidden when its grid feature is off, and
+                // gated by the enclosing tt_edit_activities check (§7 — same
+                // gates the grid views + endpoints enforce). Minutes grid only
+                // on minutes-bearing (match) types.
+                $grid_team = (int) ( $session->team_id ?? 0 );
+                $grid_date = (string) ( $session->session_date ?? '' );
+                $grid_dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+                if ( $grid_team > 0 ) {
+                    if ( \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) {
+                        $ag = [ 'tt_view' => 'attendance-grid', 'team_id' => $grid_team ]; /* tt-xview-ok — gated by attendance_grid + tt_edit_activities */
+                        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $grid_date ) ) { $ag['from'] = $grid_date; $ag['to'] = $grid_date; }
+                        $detail_actions[] = [
+                            'label' => __( 'Attendance grid', 'talenttrack' ),
+                            'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $ag, $grid_dash ) ),
+                        ];
+                    }
+                    if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true )
+                        && \TT\Core\FeatureRegistry::isEnabled( 'minutes_grid' ) ) {
+                        $mg = [ 'tt_view' => 'minutes-grid', 'team_id' => $grid_team ]; /* tt-xview-ok — gated by minutes_grid + tt_edit_activities */
+                        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $grid_date ) ) { $mg['from'] = $grid_date; $mg['to'] = $grid_date; }
+                        $detail_actions[] = [
+                            'label' => __( 'Minutes grid', 'talenttrack' ),
+                            'href'  => \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $mg, $grid_dash ) ),
+                        ];
+                    }
+                }
                 } // end ! $is_archived && $can_edit_acts (active-only edit actions)
                 // #2183 — an already-archived activity offers Restore, not a
                 // second Archive. Branch on the archive stamp: active rows keep

@@ -1757,6 +1757,39 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #2386 — set (int) or clear (null) a player's recorded minutes on the
+     * existing non-guest attendance row for a match, for the minutes grid's
+     * NON-execution (paper-match, #2159) write path. Mirrors the
+     * `PATCH /attendance/{id}` minutes behaviour but keyed by
+     * (activity, player). Targets an EXISTING row only — the grid only
+     * offers minutes for squad players — so a missing row returns false
+     * (the controller skips it) rather than inventing an attendance row
+     * with no status. Clamped to 0..200. Club-scoped.
+     */
+    public function updateActualAttendanceMinutes( int $activity_id, int $player_id, ?int $minutes ): bool {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        $row_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                AND is_guest = 0 AND record_type = 'actual'
+              ORDER BY id DESC LIMIT 1",
+            $activity_id, $player_id, $club_id
+        ) );
+        if ( $row_id <= 0 ) return false;
+
+        $value = $minutes === null ? null : max( 0, min( 200, $minutes ) );
+        return $wpdb->update(
+            "{$p}tt_attendance",
+            [ 'minutes_played' => $value ],
+            [ 'id' => $row_id, 'club_id' => $club_id ]
+        ) !== false;
+    }
+
+    /**
      * #1712 — a linked guest's display name + home-team name (club-scoped),
      * for shaping a guest attendance row in the REST response. Null when
      * the player is missing.
