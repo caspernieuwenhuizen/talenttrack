@@ -34,6 +34,16 @@ on:
 permissions:
   contents: write
 
+# Serialize runs against the same branch. Two PHP-touching merges landing
+# close together (routine during a queue drain) otherwise race: run B checks
+# out main before run A has pushed its sync commit, so B's push is
+# non-fast-forward and gets rejected. Queue rather than cancel — a cancelled
+# run would drop its .pot/.po sync entirely, which is the gap this workflow
+# exists to close.
+concurrency:
+  group: i18n-sync-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   sync-pot:
     name: Regenerate .pot + msgmerge into .po
@@ -96,6 +106,11 @@ jobs:
               git config user.email "github-actions[bot]@users.noreply.github.com"
               git add languages/talenttrack.pot languages/*.po
               git commit -m "chore(i18n): sync .pot from PHP source + msgmerge into .po"
+              # Belt and braces alongside the concurrency group: any other
+              # writer to main (a release push, a squash-merge) can still move
+              # it between checkout and push. Rebase the sync commit on top
+              # rather than failing the push.
+              git pull --rebase origin "${GITHUB_REF_NAME}"
               git push
               echo "Committed i18n sync."
             else
