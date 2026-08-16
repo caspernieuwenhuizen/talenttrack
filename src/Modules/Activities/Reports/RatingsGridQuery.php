@@ -3,6 +3,7 @@ namespace TT\Modules\Activities\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -105,11 +106,19 @@ final class RatingsGridQuery {
             );
         }
 
+        // Labels are resolved for display here rather than in the view, so
+        // the rendered grid and the bulk endpoint — which reads this same
+        // projection — can never disagree about what a column is called.
+        // The stored label stays canonical: nothing translated is ever
+        // written back, and the bulk writer keys on `id` alone.
         $out = [];
         foreach ( $rows as $r ) {
             $id = (int) ( $r->id ?? 0 );
             if ( $id <= 0 ) continue;
-            $out[] = [ 'id' => $id, 'label' => (string) ( $r->label ?? '' ) ];
+            $out[] = [
+                'id'    => $id,
+                'label' => EvalCategoriesRepository::displayLabel( (string) ( $r->label ?? '' ), $id ),
+            ];
         }
         return $out;
     }
