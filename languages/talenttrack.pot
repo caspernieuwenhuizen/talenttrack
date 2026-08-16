@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-16T11:10:29+00:00\n"
+"POT-Creation-Date: 2026-08-16T11:15:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -192,8 +192,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:555
 #: src/Shared/Frontend/FrontendTeamDetailView.php:712
 #: src/Shared/Frontend/FrontendTeamsManageView.php:347
-#: src/Shared/Frontend/FrontendTileGrid.php:668
-#: src/Shared/Frontend/FrontendTileGrid.php:687
+#: src/Shared/Frontend/FrontendTileGrid.php:680
+#: src/Shared/Frontend/FrontendTileGrid.php:699
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
 #: src/Shared/Frontend/FrontendTrialsManageView.php:409
 #: src/Shared/Frontend/FrontendTrialsManageView.php:443
@@ -973,7 +973,7 @@ msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:35
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:324
-#: src/Shared/Frontend/FrontendModulesView.php:257
+#: src/Shared/Frontend/FrontendModulesView.php:292
 msgid "Module"
 msgstr ""
 
@@ -2254,7 +2254,7 @@ msgstr ""
 #. translators: %d is a record id used as a fallback identity in the recycle bin.
 #. translators: %d is a record id.
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:101
-#: src/Infrastructure/REST/RecycleBinRestController.php:153
+#: src/Infrastructure/REST/RecycleBinRestController.php:160
 #: src/Shared/Frontend/FrontendRecycleBinView.php:143
 #, php-format
 msgid "Record #%d"
@@ -3070,20 +3070,20 @@ msgstr ""
 msgid "Team id is required."
 msgstr ""
 
-#: src/Infrastructure/REST/RecycleBinRestController.php:184
-#: src/Infrastructure/REST/RecycleBinRestController.php:213
+#: src/Infrastructure/REST/RecycleBinRestController.php:191
+#: src/Infrastructure/REST/RecycleBinRestController.php:220
 msgid "Record not found in the recycle bin."
 msgstr ""
 
-#: src/Infrastructure/REST/RecycleBinRestController.php:206
+#: src/Infrastructure/REST/RecycleBinRestController.php:213
 msgid "This record cannot be permanently deleted yet — other records still depend on it."
 msgstr ""
 
-#: src/Infrastructure/REST/RecycleBinRestController.php:229
+#: src/Infrastructure/REST/RecycleBinRestController.php:236
 msgid "Unknown entity or id."
 msgstr ""
 
-#: src/Infrastructure/REST/RecycleBinRestController.php:234
+#: src/Infrastructure/REST/RecycleBinRestController.php:241
 msgid "Record not found."
 msgstr ""
 
@@ -4247,7 +4247,7 @@ msgstr ""
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:267
 #: src/Shared/Admin/BulkActionsHelper.php:222
 #: src/Shared/Admin/BulkActionsHelper.php:225
-#: src/Shared/Frontend/FrontendModulesView.php:365
+#: src/Shared/Frontend/FrontendModulesView.php:410
 #: src/Shared/Mobile/MobileActionHandlers.php:40
 msgid "Unauthorized"
 msgstr ""
@@ -5080,7 +5080,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendMailComposeView.php:33
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:45
-#: src/Shared/Frontend/FrontendModulesView.php:175
+#: src/Shared/Frontend/FrontendModulesView.php:208
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:29
 #: src/Shared/Frontend/FrontendPersonDetailView.php:23
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:196
@@ -7933,7 +7933,7 @@ msgid "scope"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:36
-#: src/Shared/Frontend/FrontendModulesView.php:176
+#: src/Shared/Frontend/FrontendModulesView.php:209
 msgid "You do not have permission to manage modules."
 msgstr ""
 
@@ -7941,9 +7941,9 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
 #: src/Modules/Documentation/HelpTopics.php:192
 #: src/Shared/CoreSurfaceRegistration.php:1836
-#: src/Shared/Frontend/FrontendModulesView.php:195
-#: src/Shared/Frontend/FrontendModulesView.php:196
-#: src/Shared/Frontend/FrontendModulesView.php:424
+#: src/Shared/Frontend/FrontendModulesView.php:228
+#: src/Shared/Frontend/FrontendModulesView.php:229
+#: src/Shared/Frontend/FrontendModulesView.php:483
 msgid "Modules"
 msgstr ""
 
@@ -8006,7 +8006,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:41
 #: src/Shared/Frontend/FrontendConfigurationView.php:138
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
-#: src/Shared/Frontend/FrontendModulesView.php:438
+#: src/Shared/Frontend/FrontendModulesView.php:497
 #: src/Shared/Frontend/FrontendSetupView.php:389
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:92
@@ -8040,7 +8040,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
 #: src/Shared/Frontend/FrontendFeaturesView.php:118
-#: src/Shared/Frontend/FrontendModulesView.php:261
+#: src/Shared/Frontend/FrontendModulesView.php:296
 msgid "On"
 msgstr ""
 
@@ -8049,7 +8049,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1162
 #: src/Shared/Frontend/FrontendFeaturesView.php:121
-#: src/Shared/Frontend/FrontendModulesView.php:263
+#: src/Shared/Frontend/FrontendModulesView.php:298
 msgid "Off"
 msgstr ""
 
@@ -10629,7 +10629,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:396
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:768
-#: src/Shared/Frontend/FrontendModulesView.php:314
+#: src/Shared/Frontend/FrontendModulesView.php:359
 #: src/Shared/Frontend/FrontendUsageStatsView.php:234
 msgid "Feature"
 msgstr ""
@@ -10653,7 +10653,7 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1407
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
-#: src/Shared/Frontend/FrontendTileGrid.php:743
+#: src/Shared/Frontend/FrontendTileGrid.php:757
 msgid "Welcome"
 msgstr ""
 
@@ -25118,7 +25118,7 @@ msgid "A click-target that opens a TalentTrack view (Players, Activities, etc.).
 msgstr ""
 
 #. translators: %d: number of pending items on this tile
-#: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php:118
+#: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php:121
 #, php-format
 msgid "%d pending"
 msgid_plural "%d pending"
@@ -34631,13 +34631,17 @@ msgstr ""
 msgid "Search players in this team…"
 msgstr ""
 
-#: src/Shared/Frontend/Components/DevelopmentPill.php:26
-#: src/Shared/Frontend/FrontendModulesView.php:316
-#: src/Shared/Frontend/FrontendModulesView.php:335
+#: src/Shared/Frontend/Components/DevelopmentPill.php:27
+#: src/Shared/Frontend/Components/DevelopmentPill.php:49
+#: src/Shared/Frontend/FrontendModulesView.php:301
+#: src/Shared/Frontend/FrontendModulesView.php:330
+#: src/Shared/Frontend/FrontendModulesView.php:361
+#: src/Shared/Frontend/FrontendModulesView.php:380
 msgid "Under development"
 msgstr ""
 
-#: src/Shared/Frontend/Components/DevelopmentPill.php:27
+#: src/Shared/Frontend/Components/DevelopmentPill.php:28
+#: src/Shared/Frontend/Components/DevelopmentPill.php:48
 msgid "This feature is still being built and may change."
 msgstr ""
 
@@ -37731,48 +37735,49 @@ msgstr ""
 msgid "Default on. Untick to let phone visitors see the cramped desktop view on every page. Tablets and laptops are unaffected either way."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:108
+#: src/Shared/Frontend/FrontendModulesView.php:110
 msgid "Unknown feature."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:115
+#: src/Shared/Frontend/FrontendModulesView.php:117
+#: src/Shared/Frontend/FrontendModulesView.php:171
 msgid "Supply enabled and/or under_development."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:154
+#: src/Shared/Frontend/FrontendModulesView.php:163
 msgid "Unknown module."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:157
+#: src/Shared/Frontend/FrontendModulesView.php:179
 msgid "Core modules cannot be disabled."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:200
+#: src/Shared/Frontend/FrontendModulesView.php:233
 msgid "Module state saved. Reload open tabs to see the effect."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:217
+#: src/Shared/Frontend/FrontendModulesView.php:250
 msgid "Turn TalentTrack modules on or off. A disabled module registers no hooks, REST routes, pages, or capabilities until re-enabled. Core modules cannot be disabled."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:221
+#: src/Shared/Frontend/FrontendModulesView.php:254
 msgid "Search modules and features"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:226
+#: src/Shared/Frontend/FrontendModulesView.php:259
 msgid "Search modules and features…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:229
+#: src/Shared/Frontend/FrontendModulesView.php:262
 msgid "Change active modules now? Disabling a module hides its surfaces immediately — reload other open tabs after saving."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:259
+#: src/Shared/Frontend/FrontendModulesView.php:294
 msgid "Core"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:269
-#: src/Shared/Frontend/FrontendModulesView.php:299
+#: src/Shared/Frontend/FrontendModulesView.php:307
+#: src/Shared/Frontend/FrontendModulesView.php:344
 #, php-format
 msgid "%d feature"
 msgid_plural "%d features"
@@ -37781,21 +37786,21 @@ msgstr[1] ""
 
 #. translators: %s: module name
 #. translators: %s: feature name
-#: src/Shared/Frontend/FrontendModulesView.php:281
-#: src/Shared/Frontend/FrontendModulesView.php:325
+#: src/Shared/Frontend/FrontendModulesView.php:320
+#: src/Shared/Frontend/FrontendModulesView.php:370
 #, php-format
 msgid "Enable %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:350
+#: src/Shared/Frontend/FrontendModulesView.php:395
 msgid "No modules or features match your search."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:355
+#: src/Shared/Frontend/FrontendModulesView.php:400
 msgid "Save module state"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendModulesView.php:425
+#: src/Shared/Frontend/FrontendModulesView.php:484
 msgid "Turn TalentTrack modules on or off."
 msgstr ""
 
@@ -40636,18 +40641,18 @@ msgstr ""
 msgid "My work"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:686
+#: src/Shared/Frontend/FrontendTileGrid.php:698
 msgid "My child"
 msgstr ""
 
 #. translators: 1: child's first name, 2: tile noun (e.g. development, card, evaluations).
-#: src/Shared/Frontend/FrontendTileGrid.php:712
+#: src/Shared/Frontend/FrontendTileGrid.php:724
 #, php-format
 msgid "%1$s's %2$s"
 msgstr ""
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:740
+#: src/Shared/Frontend/FrontendTileGrid.php:754
 #, php-format
 msgid "Welcome, %s"
 msgstr ""
