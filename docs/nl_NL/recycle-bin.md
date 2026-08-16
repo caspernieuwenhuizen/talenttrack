@@ -54,6 +54,15 @@ In de [autorisatiematrix](authorization-matrix.md) wordt het recht gekoppeld
 aan de entiteit `recycle_bin`, met `rcd` op globale scope alleen voor de
 persona Academiebeheerder.
 
+Sinds **#2413** geldt dit ook voor het cascade-voorbeeld — het overzicht van de
+gevolgen dat vóór een definitieve verwijdering verschijnt. Dat was afgeschermd
+met `tt_edit_settings`, een recht dat in beide richtingen los staat van toegang
+tot de prullenbak: een terechte prullenbakbeheerder zonder dat recht kreeg het
+overzicht niet te zien voor een opschoning die hij wél mocht uitvoeren, en wie
+het recht wel had kon het overzicht lezen zonder enige toegang tot de
+prullenbak. Alles rond de prullenbak is nu afgeschermd met
+`tt_manage_recycle_bin`.
+
 ## De bewaartermijn
 
 Een rij in de prullenbak wordt een **bewaartermijn** lang vastgehouden

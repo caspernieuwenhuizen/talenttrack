@@ -210,7 +210,18 @@
             headers: { 'Accept': 'application/json', 'X-WP-Nonce': restNonce }
         }).then(readBody).then(function (r) {
             btn.disabled = false;
-            var data = (r.body && r.body.data) || {};
+            // #2413 — a failed preview must NOT read as "nothing depends on
+            // this". An HTTP error is not a rejected promise, so it lands here
+            // with data: null, which cascadeHtml() would render as the
+            // no-dependencies branch — a confidently wrong impact statement in
+            // front of an irreversible delete. The preview exists for informed
+            // consent, so no preview means no delete: surface the error and
+            // never open the dialog. Same success check sendPurge() applies.
+            if (r.status < 200 || r.status >= 300 || !r.body || r.body.success === false) {
+                window.alert(errorMessage(r));
+                return;
+            }
+            var data = r.body.data || {};
             var intro = '<p>' + escapeHtml(label) + '</p><p>' + escapeHtml(t('purgeIntro', 'This permanently deletes the record and cannot be undone. The following will also be removed or cleared:')) + '</p>';
 
             showModal({
