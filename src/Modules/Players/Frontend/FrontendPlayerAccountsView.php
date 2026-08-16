@@ -72,7 +72,7 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
         global $wpdb;
         $teams = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name FROM {$wpdb->prefix}tt_teams
-              WHERE club_id = %d AND archived_at IS NULL
+              WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
               ORDER BY name ASC",
             CurrentClub::id()
         ) );

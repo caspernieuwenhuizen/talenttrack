@@ -259,12 +259,30 @@ class QueryHelpers {
 
     // Entity queries
 
-    /** @return object[] */
-    public static function get_teams(): array {
+    /**
+     * Teams for pickers, tabs and filters.
+     *
+     * #2410 — excludes archived AND trashed teams by default, the way
+     * get_players() always has. This helper feeds ~40 call sites (every team
+     * dropdown, the coach dashboard's team tabs), so an archived team used to
+     * remain pickable everywhere and a new activity could be filed against a
+     * team the academy had retired.
+     *
+     * Pass `$include_archived = true` for the rare surface that must list
+     * retired teams (an archive tab, a historical report). `get_team( $id )`
+     * is deliberately NOT filtered: detail views and BackLabelResolver must
+     * still resolve an archived team by id.
+     *
+     * @return object[]
+     */
+    public static function get_teams( bool $include_archived = false ): array {
         global $wpdb;
-        $scope = self::apply_demo_scope( 't', 'team' );
+        $scope     = self::apply_demo_scope( 't', 'team' );
+        $lifecycle = $include_archived
+            ? ''
+            : ' AND ' . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE 1=1 AND t.club_id = %d {$scope} ORDER BY t.name ASC",
+            "SELECT t.* FROM {$wpdb->prefix}tt_teams t WHERE 1=1 AND t.club_id = %d {$lifecycle} {$scope} ORDER BY t.name ASC",
             CurrentClub::id()
         ) );
     }
@@ -401,11 +419,16 @@ class QueryHelpers {
      *
      * @return object[]
      */
-    public static function get_teams_for_coach( int $user_id ): array {
+    public static function get_teams_for_coach( int $user_id, bool $include_archived = false ): array {
         global $wpdb;
         if ( $user_id <= 0 ) return [];
 
-        $scope = self::apply_demo_scope( 't', 'team' );
+        $scope     = self::apply_demo_scope( 't', 'team' );
+        // #2410 — same lifecycle contract as get_teams(): a retired team
+        // stops being pickable, and stops getting its own dashboard tab.
+        $lifecycle = $include_archived
+            ? ''
+            : ' AND ' . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
         $person_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
             $user_id, CurrentClub::id()
@@ -427,6 +450,7 @@ class QueryHelpers {
                 AND ( urs.start_date IS NULL OR urs.start_date <= %s )
                 AND ( urs.end_date   IS NULL OR urs.end_date   >= %s )
               WHERE t.club_id = %d
+                {$lifecycle}
                 {$scope}
               ORDER BY t.name ASC",
             $person_id, $today, $today, CurrentClub::id()

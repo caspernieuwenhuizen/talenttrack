@@ -311,7 +311,7 @@ class FrontendAnalyticsView extends FrontendViewBase {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name, age_group FROM {$p}tt_teams
-              WHERE club_id = %d AND archived_at IS NULL
+              WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
            ORDER BY name ASC
               LIMIT 25",
             \TT\Infrastructure\Tenancy\CurrentClub::id()

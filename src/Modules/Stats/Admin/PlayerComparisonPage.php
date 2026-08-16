@@ -93,7 +93,7 @@ class PlayerComparisonPage {
         // v3.91.6 — teams keyed by id for the slot pickers' team `<select>`.
         $teams_by_id = [];
         $team_rows   = $wpdb->get_results(
-            "SELECT id, name FROM {$p}tt_teams WHERE archived_at IS NULL ORDER BY name ASC"
+            "SELECT id, name FROM {$p}tt_teams WHERE " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . " ORDER BY name ASC"
         );
         foreach ( $team_rows as $tr ) {
             $teams_by_id[ (int) $tr->id ] = (string) $tr->name;

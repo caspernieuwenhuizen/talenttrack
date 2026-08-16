@@ -137,7 +137,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
         if ( $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id ) ) {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT id, name FROM {$p}tt_teams
-                  WHERE club_id = %d AND archived_at IS NULL
+                  WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                   ORDER BY name ASC",
                 $club_id
             ) );

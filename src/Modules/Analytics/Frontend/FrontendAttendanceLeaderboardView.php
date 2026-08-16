@@ -263,7 +263,7 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
                 $teams = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, name FROM {$wpdb->prefix}tt_teams
                       WHERE club_id = %d
-                        AND ( archived_at IS NULL OR archived_at = '' )
+                        AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                         AND id IN ($placeholders)
                       ORDER BY name ASC",
                     CurrentClub::id(), ...$allowed_team_ids
@@ -273,7 +273,7 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             /** @var object[] $teams */
             $teams = $wpdb->get_results( $wpdb->prepare(
                 "SELECT id, name FROM {$wpdb->prefix}tt_teams
-                  WHERE club_id = %d AND ( archived_at IS NULL OR archived_at = '' )
+                  WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                   ORDER BY name ASC",
                 CurrentClub::id()
             ) );

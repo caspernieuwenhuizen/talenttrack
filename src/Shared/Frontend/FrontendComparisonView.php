@@ -135,7 +135,7 @@ class FrontendComparisonView extends FrontendViewBase {
         $teams_by_id = [];
         $team_rows = $wpdb->get_results(
             "SELECT id, name FROM {$p}tt_teams
-             WHERE archived_at IS NULL
+             WHERE " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
              ORDER BY name ASC"
         );
         foreach ( $team_rows as $tr ) {
