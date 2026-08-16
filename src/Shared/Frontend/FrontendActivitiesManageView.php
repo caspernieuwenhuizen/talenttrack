@@ -378,6 +378,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'href'  => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
                     ];
                 }
+                // #2414 — the ratings grid for THIS activity (players ×
+                // categories). Gated on the same cap + its own feature flag,
+                // and deliberately not on `tt_wizards_enabled`: a wizard-off
+                // academy needs this route more, not less (the mistake #2401
+                // had to correct for the attendance path).
+                if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseRatings( (int) $session->id, $grid_uid ) ) {
+                    $detail_actions[] = [
+                        'label' => __( 'Ratings grid', 'talenttrack' ),
+                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::ratingsUrl( (int) $session->id ),
+                    ];
+                }
                 } // end ! $is_archived && $can_edit_acts (active-only edit actions)
                 // #2183 — an already-archived activity offers Restore, not a
                 // second Archive. Branch on the archive stamp: active rows keep

@@ -1,0 +1,39 @@
+# Ratings grid
+
+*Audience: coaches, heads of development, academy admins.*
+
+The **ratings grid** is the desktop, spreadsheet-style way to rate a squad after a session: the players run down the rows, the categories that activity is rated on run across the columns, and every cell is one score you type directly. One **Save** commits the lot.
+
+It is the third of the entry grids (after [attendance](attendance-grid.md) and minutes) and the counterpart to the step-by-step evaluation wizard, which stays exactly as it was — on a phone, at the pitch, the wizard is still the right tool.
+
+## Why this one is per-activity
+
+The attendance and minutes grids show a whole *period*: players against many activities. Ratings can't work that way without losing detail. A rating isn't one number — it's a score per evaluation category — so a players × activities grid would have to squeeze several scores into one cell and show you a computed average instead of what you typed.
+
+So the ratings grid fixes the activity and turns the *categories* into columns. Every cell stays a real score, nothing is derived, and there is no pop-up editor. The trade-off is deliberate: you rate one session at a time, which is when coaches rate anyway.
+
+## Getting there
+
+Open the activity and click **Ratings grid**. The button appears when you can edit activities, the activity has a team, and the grid is switched on for your academy — and it stays visible whether or not the wizards are enabled, so an academy running without wizards can still rate.
+
+## Using it
+
+- **Columns** are the categories the activity's evaluation type declares. If the type declares none, every active category is shown instead.
+- **Rows** are the team's active players.
+- **Scores** follow your academy's configured scale (by default 5 to 10 in half-point steps). Anything outside it is refused when you save.
+- **An empty cell means "not rated".** It writes nothing, and it never clears a score somebody already recorded — clearing a score is a job for the evaluation form.
+- **Edited cells are highlighted** until you press Save, so you can see what's pending.
+- **Keyboard**: arrows move between cells, Enter moves down a row (the way you'd rate one category down the squad), Tab reaches Cancel then Save.
+- **Save is explicit.** Nothing is written until you press it, and Cancel returns you to the activity without saving.
+
+Saving twice is safe: the grid updates the player's existing evaluation for that activity rather than creating a second one, so scores never pile up.
+
+## What it doesn't do
+
+- **It doesn't replace the evaluation form.** Notes, player feedback and anything beyond the category scores still live there.
+- **It doesn't compute overalls.** The weighted overall rating is derived when it's displayed, exactly as before — the grid never writes one.
+- **It's desktop-only.** Below 1024px it points you at the wizard rather than shipping an unusable table to a phone.
+
+## Turning it off
+
+*Modules → Activities → Ratings grid.* With it off, the button disappears, the URL is refused, and the wizard plus the evaluation form carry on unchanged.

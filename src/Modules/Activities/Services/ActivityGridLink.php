@@ -57,6 +57,11 @@ final class ActivityGridLink {
         return FeatureRegistry::isEnabled( 'minutes_grid' );
     }
 
+    /** #2414 — the ratings grid's own toggle. */
+    public static function ratingsEnabled(): bool {
+        return FeatureRegistry::isEnabled( 'ratings_grid' );
+    }
+
     /**
      * Can `$user_id` reach the attendance grid for this activity? Mirrors
      * `ActivitiesRestController::can_edit_grid()` and adds the
@@ -87,6 +92,28 @@ final class ActivityGridLink {
 
     public static function minutesUrl( int $activity_id, bool $with_back = true ): string {
         return self::gridUrl( 'minutes-grid', $activity_id, $with_back );
+    }
+
+    /**
+     * #2414 — same reachability question for the ratings grid.
+     */
+    public static function canUseRatings( int $activity_id, int $user_id ): bool {
+        if ( ! self::ratingsEnabled() ) return false;
+        return self::hasTeamAndCap( $activity_id, $user_id );
+    }
+
+    /**
+     * Ratings-grid URL. Unlike its siblings this grid is per-ACTIVITY (its
+     * columns are categories, not activities), so it takes `activity_id`
+     * rather than a team + date window.
+     */
+    public static function ratingsUrl( int $activity_id, bool $with_back = true ): string {
+        if ( $activity_id <= 0 || self::anchor( $activity_id )['team'] <= 0 ) return '';
+        $url = add_query_arg(
+            [ 'tt_view' => 'ratings-grid', 'activity_id' => $activity_id ],
+            RecordLink::dashboardUrl()
+        );
+        return $with_back ? BackLink::appendTo( $url ) : $url;
     }
 
     private static function hasTeamAndCap( int $activity_id, int $user_id ): bool {

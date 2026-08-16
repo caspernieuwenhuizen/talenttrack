@@ -1,0 +1,113 @@
+/*
+ * Ratings grid (#2414, epic #2381) — one activity, players × evaluation
+ * categories.
+ *
+ * Desktop-only surface: below 1024px the grid is hidden and the notice
+ * points at the evaluation wizard, which stays the mobile/pitch path. The
+ * base (mobile) state is therefore the notice, not a broken table — §2's
+ * mobile-first rule is satisfied by not shipping an unusable table to a
+ * phone, rather than by squeezing one onto it.
+ */
+
+.tt-dashboard .tt-rgrid-lead {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+/* Mobile / narrow: notice only. */
+.tt-dashboard .tt-rgrid-scroll,
+.tt-dashboard .tt-rgrid .tt-form-actions,
+.tt-dashboard .tt-rgrid-status {
+    display: none;
+}
+.tt-dashboard .tt-rgrid-desktop-only {
+    display: block;
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-rgrid-desktop-only {
+        display: none;
+    }
+    .tt-dashboard .tt-rgrid-scroll {
+        /* The grid scrolls inside its own container — the page body must
+           never scroll sideways (§2). */
+        display: block;
+        overflow-x: auto;
+        border: 1px solid var(--tt-line, #e3e6e1);
+        border-radius: var(--tt-r-md, 8px);
+        background: var(--tt-paper, #fff);
+    }
+    .tt-dashboard .tt-rgrid .tt-form-actions,
+    .tt-dashboard .tt-rgrid-status {
+        display: flex;
+    }
+    .tt-dashboard .tt-rgrid-status {
+        min-height: 1.5rem;
+        margin: var(--tt-sp-2, 8px) 0;
+        color: var(--tt-muted, #6a6d66);
+        font-size: var(--tt-fs-sm, 0.85rem);
+    }
+}
+
+.tt-dashboard .tt-rgrid-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tt-dashboard .tt-rgrid-table th,
+.tt-dashboard .tt-rgrid-table td {
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    padding: var(--tt-sp-2, 8px);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-rgrid-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--tt-bg-soft, #f4f6f3);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+/* The player column stays put while the categories scroll. */
+.tt-dashboard .tt-rgrid-player-col {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--tt-paper, #fff);
+    font-weight: 600;
+    min-width: 12rem;
+}
+.tt-dashboard .tt-rgrid-table thead .tt-rgrid-player-col {
+    z-index: 3;
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-rgrid-jersey {
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 400;
+    margin-left: var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-rgrid-input {
+    width: 4.5rem;
+    min-height: 44px;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-r-sm, 4px);
+    /* 16px minimum so a touch device never zooms on focus. */
+    font-size: 1rem;
+    text-align: center;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rgrid-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* An edited-but-unsaved cell is visibly pending until Save commits it. */
+.tt-dashboard .tt-rgrid-input.is-dirty {
+    border-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}

@@ -1,0 +1,39 @@
+# Beoordelingsraster
+
+*Doelgroep: trainers, hoofden ontwikkeling, academiebeheerders.*
+
+Het **beoordelingsraster** is de desktopmanier om na een sessie een hele selectie te beoordelen, zoals in een spreadsheet: de spelers staan onder elkaar, de categorieën waarop de activiteit wordt beoordeeld staan naast elkaar, en elke cel is één cijfer dat je zelf typt. Eén keer **Opslaan** legt alles vast.
+
+Het is het derde invoerraster (na [aanwezigheid](attendance-grid.md) en speelminuten) en de tegenhanger van de stapsgewijze beoordelingswizard, die precies blijft zoals hij was — op een telefoon, langs het veld, is de wizard nog steeds het juiste gereedschap.
+
+## Waarom dit raster per activiteit werkt
+
+De rasters voor aanwezigheid en minuten tonen een hele *periode*: spelers tegenover veel activiteiten. Voor beoordelingen kan dat niet zonder detail te verliezen. Een beoordeling is geen enkel cijfer maar een cijfer per categorie, dus een raster van spelers × activiteiten zou meerdere cijfers in één cel moeten persen en je een berekend gemiddelde tonen in plaats van wat je typte.
+
+Daarom zet het beoordelingsraster de activiteit vast en maakt het de *categorieën* tot kolommen. Elke cel blijft een echt cijfer, er wordt niets afgeleid en er is geen pop-upeditor. De afweging is bewust: je beoordeelt één sessie tegelijk — precies het moment waarop trainers toch beoordelen.
+
+## Zo kom je er
+
+Open de activiteit en klik op **Beoordelingsraster**. De knop verschijnt als je activiteiten mag bewerken, de activiteit een team heeft en het raster voor jouw academie aanstaat — en hij blijft zichtbaar of de wizards nu aan of uit staan, zodat een academie zonder wizards toch kan beoordelen.
+
+## Gebruik
+
+- **Kolommen** zijn de categorieën die het beoordelingstype van de activiteit voorschrijft. Schrijft dat type er geen voor, dan verschijnen alle actieve categorieën.
+- **Rijen** zijn de actieve spelers van het team.
+- **Cijfers** volgen de schaal van je academie (standaard 5 tot 10 in stappen van een half punt). Wat daarbuiten valt wordt bij het opslaan geweigerd.
+- **Een lege cel betekent "niet beoordeeld".** Er wordt niets weggeschreven en een al vastgelegd cijfer wordt nooit gewist — wissen doe je op het beoordelingsformulier.
+- **Gewijzigde cellen worden gemarkeerd** tot je op Opslaan drukt, zodat je ziet wat nog openstaat.
+- **Toetsenbord**: pijltjes gaan van cel naar cel, Enter gaat een rij omlaag (zoals je één categorie door de selectie heen beoordeelt), Tab bereikt eerst Annuleren en dan Opslaan.
+- **Opslaan is expliciet.** Er wordt niets weggeschreven tot je erop drukt, en Annuleren brengt je terug naar de activiteit zonder op te slaan.
+
+Twee keer opslaan is veilig: het raster werkt de bestaande beoordeling van de speler voor die activiteit bij in plaats van een tweede aan te maken, dus cijfers stapelen zich nooit op.
+
+## Wat het niet doet
+
+- **Het vervangt het beoordelingsformulier niet.** Notities, spelersfeedback en alles buiten de categoriecijfers blijven daar.
+- **Het berekent geen totaalcijfer.** Het gewogen totaal wordt zoals altijd bij het tonen berekend — het raster schrijft er nooit een weg.
+- **Het is alleen voor desktop.** Onder 1024px verwijst het naar de wizard in plaats van een onbruikbare tabel op een telefoon te tonen.
+
+## Uitschakelen
+
+*Modules → Activiteiten → Beoordelingsraster.* Staat het uit, dan verdwijnt de knop, wordt de URL geweigerd en werken de wizard en het beoordelingsformulier ongewijzigd door.
