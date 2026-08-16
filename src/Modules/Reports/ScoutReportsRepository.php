@@ -45,7 +45,13 @@ class ScoutReportsRepository {
             'access_token'    => $access_token,
             'recipient_email' => $recipient_email,
             'cover_message'   => $cover_message !== '' ? $cover_message : null,
+            // UTC, matching the expiry comparison in ScoutLinkRouter.
             'expires_at'      => $expires_at->format( 'Y-m-d H:i:s' ),
+            // #2437 — write created_at explicitly instead of leaning on the
+            // column's CURRENT_TIMESTAMP default, which fills in whatever
+            // timezone the DB server runs in. Site-local is the convention
+            // the display layer assumes.
+            'created_at'      => current_time( 'mysql' ),
         ] );
         if ( $ok === false ) return false;
         return (int) $wpdb->insert_id;
@@ -70,6 +76,9 @@ class ScoutReportsRepository {
             'config_json'   => (string) wp_json_encode( $config->toArray() ),
             'rendered_html' => $rendered_html,
             'scout_user_id' => $scout_user_id,
+            // #2437 — see createEmailedLink: explicit site-local stamp
+            // rather than the DB server's CURRENT_TIMESTAMP timezone.
+            'created_at'    => current_time( 'mysql' ),
         ] );
         if ( $ok === false ) return false;
         return (int) $wpdb->insert_id;
