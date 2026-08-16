@@ -61,7 +61,14 @@ final class RecycleBinRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'preview' ],
-                'permission_callback' => static function () { return current_user_can( 'tt_edit_settings' ); },
+                // #2413 — was `tt_edit_settings`, the one outlier on this
+                // controller. That cap is orthogonal to bin access: it could
+                // deny a legitimate bin manager the impact statement for a
+                // purge they ARE allowed to run, and admit someone who cannot
+                // otherwise use the bin. The read-only preview gates on the
+                // same cap as the destructive route it precedes; the handler
+                // keeps its own ownedByCurrentClub() + entity-allowlist checks.
+                'permission_callback' => static function () { return current_user_can( self::CAP ); },
             ],
         ] );
 

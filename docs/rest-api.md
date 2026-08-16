@@ -75,7 +75,7 @@ The recycle bin adds a second soft-delete tier on top of the existing archive: *
 
 - **Routes:**
   - `GET /recycle-bin` — cross-entity aggregation. Returns `{ groups: [ { entity, label, count, rows: [ { id, identity, trashed_at, trashed_by, trashed_by_name, days_until_purge } ] } ], total, retention_days }`. Club-scoped per entity. Cap: `tt_manage_recycle_bin`.
-  - `GET /recycle-bin/preview/{entity}/{id}` — itemized cascade preview a later purge would apply (removals / nullifications / zeroings / blockers). Cap: `tt_edit_settings`; ownership-checked.
+  - `GET /recycle-bin/preview/{entity}/{id}` — itemized cascade preview a later purge would apply (removals / nullifications / zeroings / blockers). Cap: `tt_manage_recycle_bin` (**#2413** — was `tt_edit_settings`, a cap orthogonal to bin access that could both deny a legitimate bin manager the impact statement and admit someone who cannot use the bin); ownership-checked.
   - `POST /recycle-bin/{entity}/{id}/restore` — bin → archived (not active). Cap: `tt_manage_recycle_bin` + ownership.
   - `DELETE /recycle-bin/{entity}/{id}` — purge — the single owner of permanent deletion. Cap: `tt_manage_recycle_bin` + ownership. A fail-closed `DeleteBlockedException` returns **409** with `errors[0].details.report` (per-table blocking counts); the row stays in the bin.
   Resource-oriented, no RPC verbs.

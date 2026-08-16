@@ -49,6 +49,13 @@ In the [authorization matrix](authorization-matrix.md) the capability maps to
 the `recycle_bin` entity, granted `rcd` at global scope to the Academy Admin
 persona only.
 
+Since **#2413** this holds for the cascade preview too — the impact statement
+shown before a permanent delete. It used to be gated on `tt_edit_settings`,
+which is orthogonal to bin access in both directions: a legitimate bin manager
+without that cap was refused the preview for a purge they were allowed to run,
+and someone holding it could read the preview without any bin access at all.
+Everything on the bin now gates on `tt_manage_recycle_bin`.
+
 ## The retention window
 
 A trashed row is kept for a **retention window** before it is purged
