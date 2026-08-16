@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T11:15:12+00:00\n"
+"POT-Creation-Date: 2026-08-16T11:16:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -93,7 +93,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:206
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:223
 #: src/Modules/Authorization/Admin/MatrixPage.php:586
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:157
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:160
 #: src/Modules/Authorization/Admin/RolesPage.php:357
 #: src/Modules/Authorization/Admin/RolesPage.php:440
 #: src/Modules/Configuration/Admin/FormSlugContract.php:109
@@ -2090,7 +2090,7 @@ msgstr ""
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: src/Infrastructure/Query/QueryHelpers.php:546
+#: src/Infrastructure/Query/QueryHelpers.php:570
 #: src/Modules/License/Admin/AccountPage.php:814
 msgid "Radar charts"
 msgstr ""
@@ -2113,7 +2113,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:431
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:417
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:156
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:159
 #: src/Modules/Authorization/Admin/RolesPage.php:232
 #: src/Modules/Authorization/Admin/RolesPage.php:350
 #: src/Modules/Authorization/Admin/RolesPage.php:490
@@ -2162,7 +2162,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1004
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1007
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:373
 #: src/Modules/Players/Admin/PlayersPage.php:441
@@ -2281,7 +2281,7 @@ msgstr "Ziel"
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:48
 #: src/Modules/Authorization/Admin/DebugPage.php:98
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:245
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:158
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:161
 #: src/Modules/Authorization/Admin/RolesPage.php:189
 #: src/Modules/Authorization/Admin/RolesPage.php:364
 #: src/Modules/People/Admin/TeamStaffPanel.php:130
@@ -6876,10 +6876,10 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:44
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:140
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:170
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:182
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:196
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:143
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:173
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:185
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:199
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1472
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:373
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
@@ -7065,7 +7065,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/DebugPage.php:154
 #: src/Modules/Authorization/Admin/MatrixPage.php:559
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:55
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:152
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:190
 msgid "Scope"
 msgstr ""
@@ -7163,7 +7163,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/DebugPage.php:153
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:54
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:137
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:140
 #: src/Modules/Authorization/Admin/RolesPage.php:80
 #: src/Modules/Methodology/Admin/MethodologyPage.php:356
 #: src/Modules/Methodology/Frontend/MethodologyView.php:651
@@ -8685,38 +8685,38 @@ msgstr ""
 msgid "Revoke"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:123
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:126
 msgid "Grant a new role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:126
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:129
 msgid "No grantable roles available."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:155
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:158
 msgid "Global (everywhere)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:161
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:253
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:164
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:256
 msgid ""
 "Pick a role first — the scope options will restrict to what makes sense for "
 "that role."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:167
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:170
 msgid "Select team"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:179
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:182
 msgid "Select player"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:193
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:196
 msgid "Select person"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:208
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:211
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:31
 #: src/Modules/Pdp/Admin/SeasonsPage.php:113
 #: src/Modules/Pdp/Admin/SeasonsPage.php:154
@@ -8731,7 +8731,7 @@ msgstr ""
 msgid "Start date"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:212
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:215
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:36
 #: src/Modules/Pdp/Admin/SeasonsPage.php:117
 #: src/Modules/Pdp/Admin/SeasonsPage.php:158
@@ -8745,11 +8745,11 @@ msgstr ""
 msgid "End date"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:220
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:223
 msgid "Grant role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/RoleGrantPanel.php:252
+#: src/Modules/Authorization/Admin/RoleGrantPanel.php:255
 msgid "Allowed scopes for this role:"
 msgstr ""
 
@@ -16337,7 +16337,7 @@ msgstr "Ergebnis"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:202
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1032
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1035
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
@@ -16348,7 +16348,7 @@ msgstr "Heim"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:608
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1033
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1036
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachDashboardView.php:220
 #: src/Shared/Frontend/CoachForms.php:236
@@ -16915,7 +16915,7 @@ msgstr ""
 #. translators: 1: first day of the week, 2: last day.
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:152
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:515
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:995
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:998
 #, php-format
 msgid "Week of %1$s — %2$s"
 msgstr ""
@@ -27133,37 +27133,37 @@ msgid_plural "%d activities"
 msgstr[0] "%d activiteit"
 msgstr[1] "%d activiteiten"
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:840
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:843
 msgid "Previous week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:843
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:846
 #, php-format
 msgid "Previous %d week"
 msgid_plural "Previous %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:849
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:852
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1488
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1764
 msgid "Next week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:852
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:855
 #, php-format
 msgid "Next %d week"
 msgid_plural "Next %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:978
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:981
 msgid "No activities for the selected teams in this period."
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1002
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:1005
 msgid "Cross-team week overview"
 msgstr ""
 
