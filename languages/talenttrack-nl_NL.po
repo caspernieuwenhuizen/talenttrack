@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T11:51:16+00:00\n"
+"POT-Creation-Date: 2026-08-16T12:01:40+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3360,11 +3360,14 @@ msgid "Player id is required."
 msgstr "Speler-ID is verplicht."
 
 #: src/Infrastructure/REST/PlayerStatusRestController.php:131
-#: src/Infrastructure/REST/SpondRestController.php:157
-#: src/Infrastructure/REST/SpondRestController.php:179
-#: src/Infrastructure/REST/SpondRestController.php:537
-#: src/Infrastructure/REST/SpondRestController.php:569
-#: src/Infrastructure/REST/SpondRestController.php:594
+#: src/Infrastructure/REST/SpondRestController.php:178
+#: src/Infrastructure/REST/SpondRestController.php:200
+#: src/Infrastructure/REST/SpondRestController.php:546
+#: src/Infrastructure/REST/SpondRestController.php:586
+#: src/Infrastructure/REST/SpondRestController.php:638
+#: src/Infrastructure/REST/SpondRestController.php:673
+#: src/Infrastructure/REST/SpondRestController.php:700
+#: src/Modules/Spond/TeamSpondGroups.php:37
 msgid "Team id is required."
 msgstr "Team-ID is verplicht."
 
@@ -3419,10 +3422,12 @@ msgid "The rollover could not be completed."
 msgstr "De overgang kon niet worden voltooid."
 
 # #0018 — team development sprint 1 (REST stubs)
-#: src/Infrastructure/REST/SpondRestController.php:193
-#: src/Infrastructure/REST/SpondRestController.php:540
-#: src/Infrastructure/REST/SpondRestController.php:572
-#: src/Infrastructure/REST/SpondRestController.php:597
+#: src/Infrastructure/REST/SpondRestController.php:214
+#: src/Infrastructure/REST/SpondRestController.php:549
+#: src/Infrastructure/REST/SpondRestController.php:589
+#: src/Infrastructure/REST/SpondRestController.php:641
+#: src/Infrastructure/REST/SpondRestController.php:676
+#: src/Infrastructure/REST/SpondRestController.php:703
 #: src/Infrastructure/REST/TeamsRestController.php:291
 #: src/Infrastructure/REST/TeamsRestController.php:366
 #: src/Infrastructure/REST/TeamsRestController.php:379
@@ -3443,7 +3448,7 @@ msgstr "De overgang kon niet worden voltooid."
 msgid "Team not found."
 msgstr "Team niet gevonden."
 
-#: src/Infrastructure/REST/SpondRestController.php:204
+#: src/Infrastructure/REST/SpondRestController.php:225
 msgid ""
 "This team has no Spond group linked. Pick a group on the team edit form "
 "first."
@@ -3451,29 +3456,39 @@ msgstr ""
 "Dit team heeft geen Spond-groep gekoppeld. Kies eerst een groep op het "
 "teambewerkformulier."
 
-#: src/Infrastructure/REST/SpondRestController.php:216
+#: src/Infrastructure/REST/SpondRestController.php:237
 msgid "Could not fetch events from Spond."
 msgstr "Kon geen gebeurtenissen ophalen uit Spond."
 
-#: src/Infrastructure/REST/SpondRestController.php:408
+#: src/Infrastructure/REST/SpondRestController.php:429
 msgid "A Spond email address is required."
 msgstr "Een Spond-e-mailadres is verplicht."
 
-#: src/Infrastructure/REST/SpondRestController.php:420
+#: src/Infrastructure/REST/SpondRestController.php:441
 msgid "A Spond password is required."
 msgstr "Een Spond-wachtwoord is verplicht."
 
-#: src/Infrastructure/REST/SpondRestController.php:467
-#: src/Infrastructure/REST/SpondRestController.php:631
+#: src/Infrastructure/REST/SpondRestController.php:488
+#: src/Infrastructure/REST/SpondRestController.php:737
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:414
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:138
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:191
 #: src/Shared/Frontend/FrontendSpondView.php:394
 msgid "Spond login failed."
 msgstr "Spond-login mislukt."
 
-#: src/Infrastructure/REST/SpondRestController.php:495
+#: src/Infrastructure/REST/SpondRestController.php:516
 msgid "That URL does not look like a valid http(s) endpoint."
 msgstr "Die URL lijkt geen geldig http(s)-endpoint te zijn."
+
+#: src/Infrastructure/REST/SpondRestController.php:556
+#: src/Modules/Spond/TeamSpondGroups.php:68
+#: src/Modules/Wizards/Team/SpondGroupStep.php:42
+msgid "Could not load Spond groups."
+msgstr "Kon Spond-groepen niet laden."
+
+#: src/Infrastructure/REST/SpondRestController.php:594
+msgid "Could not save the Spond group."
+msgstr "De Spond-groep kon niet worden opgeslagen."
 
 # === #1617 — player-centric PDP coverage list ===
 #: src/Infrastructure/REST/StravaRestController.php:221
@@ -29509,7 +29524,7 @@ msgstr "Deze ouder ontkoppelen van de speler?"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:130
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:454
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:144
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:197
 #: src/Shared/Frontend/FrontendRecycleBinView.php:296
 #: src/Shared/Frontend/FrontendSetupView.php:421
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:182
@@ -31161,6 +31176,7 @@ msgstr "Volgende automatische sync over ongeveer %s."
 #: src/Modules/Wizards/Team/ReviewStep.php:32
 #: src/Modules/Wizards/Team/SpondGroupStep.php:25
 #: src/Modules/Wizards/Team/SpondGroupStep.php:49
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:119
 #: src/Shared/Frontend/FrontendSpondView.php:215
 msgid "Spond group"
 msgstr "Spond-groep"
@@ -31202,7 +31218,8 @@ msgstr "Gedeeltelijk"
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:266
 #: src/Modules/Teams/Admin/TeamsPage.php:220
 #: src/Modules/Teams/Admin/TeamsPage.php:246
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:105
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:144
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:159
 #: src/Shared/Frontend/FrontendSpondView.php:322
 msgid "Refresh now"
 msgstr "Nu vernieuwen"
@@ -31221,7 +31238,7 @@ msgstr ""
 "groep te kiezen op het team-formulier."
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:398
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:142
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:195
 #: src/Shared/Frontend/FrontendSpondView.php:398
 msgid "Sync triggered. Reload to see the updated status."
 msgstr "Sync gestart. Herlaad om de bijgewerkte status te zien."
@@ -32299,7 +32316,7 @@ msgid "Last activity"
 msgstr "Laatste activiteit"
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:219
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:136
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:189
 #: src/Shared/Frontend/FrontendSpondView.php:392
 msgid "Credentials saved."
 msgstr "Credentials opgeslagen."
@@ -33897,6 +33914,7 @@ msgstr ""
 
 #: src/Modules/Teams/Admin/TeamsPage.php:191
 #: src/Modules/Wizards/Team/SpondGroupStep.php:50
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:123
 msgid "— Not connected —"
 msgstr "— Niet verbonden —"
 
@@ -37129,10 +37147,6 @@ msgstr ""
 "Kies de Spond-groep die bij deze ploeg hoort, of laat op \"Niet verbonden\" "
 "om Spond voorlopig over te slaan. Je kunt later altijd terug verbinden vanaf "
 "het team-formulier."
-
-#: src/Modules/Wizards/Team/SpondGroupStep.php:42
-msgid "Could not load Spond groups."
-msgstr "Kon Spond-groepen niet laden."
 
 #: src/Modules/Wizards/Team/StaffStep.php:43
 msgid ""
@@ -43760,51 +43774,56 @@ msgstr "Laat e-mail leeg om het clubaccount te gebruiken."
 msgid "Use club account"
 msgstr "Clubaccount gebruiken"
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:103
-msgid ""
-"A Spond group is linked to this team. Sync pulls its calendar into the "
-"team's activities."
-msgstr ""
-"Er is een Spond-groep aan dit team gekoppeld. Synchroniseren haalt de "
-"kalender ervan op in de activiteiten van het team."
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:136
+msgid "Pick the Spond group whose calendar belongs to this team."
+msgstr "Kies de Spond-groep waarvan de agenda bij dit team hoort."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:108
-msgid ""
-"No Spond group is linked to this team yet. Once a group is linked on the "
-"team edit form, syncing pulls its calendar in."
-msgstr ""
-"Er is nog geen Spond-groep aan dit team gekoppeld. Zodra er op het "
-"teambewerkingsformulier een groep is gekoppeld, haalt synchroniseren de "
-"kalender ervan op."
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+msgid "Save group"
+msgstr "Groep opslaan"
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:137
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:150
+msgid ""
+"Group selection unlocks once the Spond login succeeds — save the email and "
+"password above, then press Test."
+msgstr ""
+"Groepskeuze komt beschikbaar zodra de Spond-login lukt — sla hierboven het e-"
+"mailadres en wachtwoord op en klik daarna op Testen."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:157
+msgid "A Spond group is already linked to this team; syncing keeps using it."
+msgstr ""
+"Er is al een Spond-groep aan dit team gekoppeld; de synchronisatie blijft "
+"die gebruiken."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:190
 #: src/Shared/Frontend/FrontendSpondView.php:393
 msgid "Spond login successful."
 msgstr "Spond-login geslaagd."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:139
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:192
 #: src/Shared/Frontend/FrontendSpondView.php:395
 msgid "Spond disconnected."
 msgstr "Spond losgekoppeld."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:193
 #: src/Shared/Frontend/FrontendSpondView.php:396
 msgid "API endpoint saved."
 msgstr "API-endpoint opgeslagen."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:141
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:194
 #: src/Shared/Frontend/FrontendSpondView.php:397
 msgid "Refreshing…"
 msgstr "Vernieuwen…"
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:143
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:196
 #: src/Shared/Frontend/FrontendSetupView.php:420
 #: src/Shared/Frontend/FrontendSpondView.php:399
 #: src/Shared/Frontend/FrontendTranslationsView.php:298
 msgid "Could not save. Please try again."
 msgstr "Opslaan mislukt. Probeer het opnieuw."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:145
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:198
 #: src/Shared/Frontend/FrontendSpondView.php:401
 msgid ""
 "Disconnect Spond? Existing imported activities are kept; per-team group "
@@ -43813,17 +43832,17 @@ msgstr ""
 "Spond loskoppelen? Bestaande geïmporteerde activiteiten blijven staan; per-"
 "team groep-selecties blijven bewaard."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:146
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:199
 #: src/Shared/Frontend/FrontendSpondView.php:402
 msgid "Team account saved."
 msgstr "Teamaccount opgeslagen."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:147
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:200
 #: src/Shared/Frontend/FrontendSpondView.php:403
 msgid "Team now uses the club account."
 msgstr "Team gebruikt nu het clubaccount."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:148
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:201
 #: src/Shared/Frontend/FrontendSpondView.php:404
 msgid ""
 "Use the club account for this team? The team's own Spond login will be "
@@ -43831,6 +43850,20 @@ msgid ""
 msgstr ""
 "Het clubaccount voor dit team gebruiken? De eigen Spond-login van het team "
 "wordt verwijderd."
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:203
+msgid "Spond group saved."
+msgstr "Spond-groep opgeslagen."
+
+#. translators: %s: the other team already linked to this Spond group.
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:205
+#, php-format
+msgid ""
+"Heads up: %s is already linked to this Spond group. Saving is allowed — both "
+"teams will import the same calendar."
+msgstr ""
+"Let op: %s is al aan deze Spond-groep gekoppeld. Opslaan mag — beide teams "
+"importeren dan dezelfde agenda."
 
 #: src/Shared/Frontend/FrontendMyTeamView.php:43
 #: src/Shared/Frontend/PlayerDashboardView.php:228
@@ -48149,35 +48182,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-msgid "Pick the Spond group whose calendar belongs to this team."
-msgstr "Kies de Spond-groep waarvan de agenda bij dit team hoort."
+#~ msgid ""
+#~ "A Spond group is linked to this team. Sync pulls its calendar into the "
+#~ "team's activities."
+#~ msgstr ""
+#~ "Er is een Spond-groep aan dit team gekoppeld. Synchroniseren haalt de "
+#~ "kalender ervan op in de activiteiten van het team."
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-msgid "Save group"
-msgstr "Groep opslaan"
-
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-msgid "Group selection unlocks once the Spond login succeeds — save the email and password above, then press Test."
-msgstr "Groepskeuze komt beschikbaar zodra de Spond-login lukt — sla hierboven het e-mailadres en wachtwoord op en klik daarna op Testen."
-
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-msgid "A Spond group is already linked to this team; syncing keeps using it."
-msgstr "Er is al een Spond-groep aan dit team gekoppeld; de synchronisatie blijft die gebruiken."
-
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-msgid "Spond group saved."
-msgstr "Spond-groep opgeslagen."
-
-#. translators: %s: the other team already linked to this Spond group.
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php
-#, php-format
-msgid "Heads up: %s is already linked to this Spond group. Saving is allowed — both teams will import the same calendar."
-msgstr "Let op: %s is al aan deze Spond-groep gekoppeld. Opslaan mag — beide teams importeren dan dezelfde agenda."
-
-#: src/Infrastructure/REST/SpondRestController.php
-msgid "Could not save the Spond group."
-msgstr "De Spond-groep kon niet worden opgeslagen."
+#~ msgid ""
+#~ "No Spond group is linked to this team yet. Once a group is linked on the "
+#~ "team edit form, syncing pulls its calendar in."
+#~ msgstr ""
+#~ "Er is nog geen Spond-groep aan dit team gekoppeld. Zodra er op het "
+#~ "teambewerkingsformulier een groep is gekoppeld, haalt synchroniseren de "
+#~ "kalender ervan op."
 
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
