@@ -4,6 +4,7 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Activities\Reports\RatingsGridQuery;
 use TT\Modules\Wizards\Evaluation\EvaluationInserter;
@@ -28,6 +29,14 @@ final class RatingsGridTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->ensureCapabilities();
+
+        // Pin the rating scale. Every assertion here is defined relative to
+        // it, and ConfigService memoises on a static singleton that outlives
+        // the per-test transaction — so an ambient value, from the install
+        // seed or from another test, silently changes what these tests mean.
+        QueryHelpers::set_config( 'rating_min', '5' );
+        QueryHelpers::set_config( 'rating_max', '10' );
+        QueryHelpers::set_config( 'rating_step', '0.5' );
 
         global $wpdb, $wp_rest_server;
 
@@ -154,6 +163,12 @@ final class RatingsGridTest extends WP_UnitTestCase {
 
         $this->assertSame( 200, $res->get_status() );
         $this->assertSame( 1, $this->ratingsRowCount() );
+
+        // Assert the VALUE, not just that a row appeared. Counting rows is
+        // what let the endpoint round a typed score onto another one without
+        // any test noticing (#2431).
+        $data = RatingsGridQuery::forActivity( $this->activity_id );
+        $this->assertSame( 7.5, $data['values'][ $this->player_id ][ $this->cat_id ] );
     }
 
     public function test_endpoint_skips_out_of_scale_and_off_roster_values(): void {
@@ -170,6 +185,87 @@ final class RatingsGridTest extends WP_UnitTestCase {
 
         $this->assertSame( 200, $res->get_status() );
         $this->assertSame( 0, $this->ratingsRowCount(), 'nothing invalid may reach the database' );
-        $this->assertSame( 3, (int) $res->get_data()['data']['skipped'] );
+
+        // #2431 — an out-of-scale score is a REFUSAL, not a skip. Only the
+        // two unaddressable cells count as skipped; folding the refusal in
+        // with them is what let the client report a dropped score as saved.
+        $data = $res->get_data()['data'];
+        $this->assertSame( 2, (int) $data['skipped'] );
+        $this->assertSame( 1, (int) $data['rejected_count'] );
+        $this->assertSame( 'out_of_range', $data['rejected'][0]['reason'] );
+        $this->assertSame( $this->player_id, (int) $data['rejected'][0]['player_id'] );
+        $this->assertSame( $this->cat_id, (int) $data['rejected'][0]['category_id'] );
+    }
+
+    /**
+     * #2431 — a score that misses the scale's step used to be rounded onto
+     * the nearest one and stored, so 7.3 became 7.5 without anybody saying
+     * so. Silently changing a rating is the same class of bug as silently
+     * dropping one: the coach's own judgement is the data.
+     */
+    public function test_off_step_rating_is_refused_not_silently_rounded(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $res = $this->post( [
+            [ 'player_id' => $this->player_id, 'category_id' => $this->cat_id, 'rating' => 7.3 ],
+        ] );
+
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( 0, $this->ratingsRowCount(), '7.3 on a half-point scale must not become 7.5' );
+
+        $data = $res->get_data()['data'];
+        $this->assertSame( 0, (int) $data['saved'] );
+        $this->assertSame( 1, (int) $data['rejected_count'] );
+        $this->assertSame( 'off_step', $data['rejected'][0]['reason'] );
+    }
+
+    /**
+     * Float noise must stay forgiving — the snap exists so a value that is
+     * a hair off a step through binary representation still lands.
+     */
+    public function test_on_step_rating_still_saves(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $res = $this->post( [
+            [ 'player_id' => $this->player_id, 'category_id' => $this->cat_id, 'rating' => 7.5000001 ],
+        ] );
+
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( 0, (int) $res->get_data()['data']['rejected_count'] );
+
+        $data = RatingsGridQuery::forActivity( $this->activity_id );
+        $this->assertSame( 7.5, $data['values'][ $this->player_id ][ $this->cat_id ] );
+    }
+
+    /**
+     * One bad cell must not cost the coach the rest of the batch — the
+     * valid scores still commit and the refusal is reported alongside them.
+     */
+    public function test_valid_cells_still_save_when_another_is_refused(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'first_name' => 'Tess',
+            'last_name'  => 'Visser',
+            'team_id'    => $this->team_id,
+            'club_id'    => 1,
+            'status'     => 'active',
+        ] );
+        $other_player = (int) $wpdb->insert_id;
+
+        $res = $this->post( [
+            [ 'player_id' => $this->player_id, 'category_id' => $this->cat_id, 'rating' => 12 ],
+            [ 'player_id' => $other_player,    'category_id' => $this->cat_id, 'rating' => 8 ],
+        ] );
+
+        $this->assertSame( 200, $res->get_status() );
+        $data = $res->get_data()['data'];
+        $this->assertSame( 1, (int) $data['saved'] );
+        $this->assertSame( 1, (int) $data['rejected_count'] );
+
+        $grid = RatingsGridQuery::forActivity( $this->activity_id );
+        $this->assertSame( 8.0, $grid['values'][ $other_player ][ $this->cat_id ] );
+        $this->assertArrayNotHasKey( $this->player_id, $grid['values'] );
     }
 }

@@ -111,3 +111,29 @@
     border-color: var(--tt-warning, #e8902b);
     background: var(--tt-warning-subtle, #fdf3d8);
 }
+
+/* A score outside the configured scale. Wins over .is-dirty — an invalid
+   cell is the more urgent state, and it blocks Save.
+
+   Colour is never the only signal: the cell also carries aria-invalid, the
+   status line spells out the allowed range, and the thicker border gives a
+   non-chromatic cue for anyone who can't separate the amber dirty state
+   from the red invalid one. */
+.tt-dashboard .tt-rgrid-input.is-invalid,
+.tt-dashboard .tt-rgrid-input.is-dirty.is-invalid {
+    border-color: var(--tt-danger, #d8453b);
+    border-width: 2px;
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+.tt-dashboard .tt-rgrid-input.is-invalid:focus-visible {
+    outline-color: var(--tt-danger, #d8453b);
+}
+
+/* The status line carries the reason, so it has to read as an error rather
+   than as the muted "3 unsaved changes" hint it shares a slot with. */
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-rgrid:has(.tt-rgrid-input.is-invalid) .tt-rgrid-status {
+        color: var(--tt-danger, #d8453b);
+        font-weight: 600;
+    }
+}

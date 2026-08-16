@@ -22,7 +22,8 @@ Open de activiteit en klik op **Beoordelingsraster**. De knop verschijnt als je 
 
 - **Kolommen** zijn de categorieën die het beoordelingstype van de activiteit voorschrijft. Schrijft dat type er geen voor, dan verschijnen alle actieve categorieën. Categorienamen staan er in je eigen taal, net als op het beoordelingsformulier; een categorie die nog niemand heeft vertaald houdt zijn oorspronkelijke naam.
 - **Rijen** zijn de actieve spelers van het team.
-- **Cijfers** volgen de schaal van je academie (standaard 5 tot 10 in stappen van een half punt). Wat daarbuiten valt wordt bij het opslaan geweigerd.
+- **Cijfers** volgen de schaal van je academie (standaard 5 tot 10 in stappen van een half punt). Een cijfer buiten de schaal, of een cijfer dat niet op een stap uitkomt, wordt meteen tijdens het typen gemarkeerd: de cel kleurt rood en de regel onder het raster vertelt wat wel mag. Opslaan blijft uitgeschakeld tot je het hebt aangepast, zodat een cijfer nooit stilletjes niet wordt opgeslagen.
+- **Wat je typt wordt nooit stiekem aangepast.** Een 12 blijft een 12 op je scherm tot je hem zelf verandert — het raster maakt er geen 10 van en rondt een 7,3 niet ongemerkt af naar 7,5. Wordt er iets geweigerd, dan krijg je dat te zien en blijft de cel als niet-opgeslagen gemarkeerd.
 - **Een lege cel betekent "niet beoordeeld".** Er wordt niets weggeschreven en een al vastgelegd cijfer wordt nooit gewist — wissen doe je op het beoordelingsformulier.
 - **Gewijzigde cellen worden gemarkeerd** tot je op Opslaan drukt, zodat je ziet wat nog openstaat.
 - **Toetsenbord**: pijltjes gaan van cel naar cel, Enter gaat een rij omlaag (zoals je één categorie door de selectie heen beoordeelt), Tab bereikt eerst Annuleren en dan Opslaan.
