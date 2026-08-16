@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T19:07:14+00:00\n"
+"POT-Creation-Date: 2026-08-16T20:14:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -79,7 +79,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:356
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:222
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:182
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:147
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:155
 #: src/Modules/Analytics/AnalyticsModule.php:113
 #: src/Modules/Analytics/AnalyticsModule.php:156
 #: src/Modules/Analytics/AnalyticsModule.php:175
@@ -505,8 +505,8 @@ msgid ""
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:218
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:98
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:230
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:106
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:238
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:388
 msgid "Ratings grid"
 msgstr ""
@@ -2381,19 +2381,19 @@ msgstr ""
 msgid "Record #%d"
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:295
-#: src/Infrastructure/REST/ActivitiesRestController.php:397
-#: src/Infrastructure/REST/ActivitiesRestController.php:476
+#: src/Infrastructure/REST/ActivitiesRestController.php:304
+#: src/Infrastructure/REST/ActivitiesRestController.php:439
+#: src/Infrastructure/REST/ActivitiesRestController.php:518
 msgid "No changes supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:301
-#: src/Infrastructure/REST/ActivitiesRestController.php:1045
-#: src/Infrastructure/REST/ActivitiesRestController.php:1062
-#: src/Infrastructure/REST/ActivitiesRestController.php:1092
-#: src/Infrastructure/REST/ActivitiesRestController.php:1464
-#: src/Infrastructure/REST/ActivitiesRestController.php:1633
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:85
+#: src/Infrastructure/REST/ActivitiesRestController.php:310
+#: src/Infrastructure/REST/ActivitiesRestController.php:1087
+#: src/Infrastructure/REST/ActivitiesRestController.php:1104
+#: src/Infrastructure/REST/ActivitiesRestController.php:1134
+#: src/Infrastructure/REST/ActivitiesRestController.php:1506
+#: src/Infrastructure/REST/ActivitiesRestController.php:1675
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:93
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:57
@@ -2401,19 +2401,19 @@ msgstr ""
 msgid "Activity not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:307
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:93
+#: src/Infrastructure/REST/ActivitiesRestController.php:316
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:101
 msgid "You do not coach this activity's team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:374
-#: src/Infrastructure/REST/ActivitiesRestController.php:453
+#: src/Infrastructure/REST/ActivitiesRestController.php:416
+#: src/Infrastructure/REST/ActivitiesRestController.php:495
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:110
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:110
 msgid "That team is not in your scope."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:561
+#: src/Infrastructure/REST/ActivitiesRestController.php:603
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
 #: src/Infrastructure/REST/GoalsRestController.php:142
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -2422,26 +2422,26 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:855
+#: src/Infrastructure/REST/ActivitiesRestController.php:897
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:867
+#: src/Infrastructure/REST/ActivitiesRestController.php:909
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:895
+#: src/Infrastructure/REST/ActivitiesRestController.php:937
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:926
-#: src/Infrastructure/REST/ActivitiesRestController.php:1039
-#: src/Infrastructure/REST/ActivitiesRestController.php:1057
-#: src/Infrastructure/REST/ActivitiesRestController.php:1082
-#: src/Infrastructure/REST/ActivitiesRestController.php:1460
-#: src/Infrastructure/REST/ActivitiesRestController.php:1570
-#: src/Infrastructure/REST/ActivitiesRestController.php:1611
-#: src/Infrastructure/REST/ActivitiesRestController.php:1629
+#: src/Infrastructure/REST/ActivitiesRestController.php:968
+#: src/Infrastructure/REST/ActivitiesRestController.php:1081
+#: src/Infrastructure/REST/ActivitiesRestController.php:1099
+#: src/Infrastructure/REST/ActivitiesRestController.php:1124
+#: src/Infrastructure/REST/ActivitiesRestController.php:1502
+#: src/Infrastructure/REST/ActivitiesRestController.php:1612
+#: src/Infrastructure/REST/ActivitiesRestController.php:1653
+#: src/Infrastructure/REST/ActivitiesRestController.php:1671
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:162
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:179
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1010
@@ -2449,78 +2449,78 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:944
+#: src/Infrastructure/REST/ActivitiesRestController.php:986
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:966
+#: src/Infrastructure/REST/ActivitiesRestController.php:1008
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1221
+#: src/Infrastructure/REST/ActivitiesRestController.php:1263
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:1485
+#: src/Infrastructure/REST/ActivitiesRestController.php:1527
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1489
+#: src/Infrastructure/REST/ActivitiesRestController.php:1531
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1492
+#: src/Infrastructure/REST/ActivitiesRestController.php:1534
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1552
+#: src/Infrastructure/REST/ActivitiesRestController.php:1594
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1553
+#: src/Infrastructure/REST/ActivitiesRestController.php:1595
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1591
+#: src/Infrastructure/REST/ActivitiesRestController.php:1633
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1592
+#: src/Infrastructure/REST/ActivitiesRestController.php:1634
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1598
+#: src/Infrastructure/REST/ActivitiesRestController.php:1640
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1614
+#: src/Infrastructure/REST/ActivitiesRestController.php:1656
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1665
-#: src/Infrastructure/REST/ActivitiesRestController.php:1722
+#: src/Infrastructure/REST/ActivitiesRestController.php:1707
+#: src/Infrastructure/REST/ActivitiesRestController.php:1764
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1668
+#: src/Infrastructure/REST/ActivitiesRestController.php:1710
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1688
+#: src/Infrastructure/REST/ActivitiesRestController.php:1730
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1709
+#: src/Infrastructure/REST/ActivitiesRestController.php:1751
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1725
+#: src/Infrastructure/REST/ActivitiesRestController.php:1767
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -3598,7 +3598,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:165
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:144
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:226
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:234
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
@@ -4829,32 +4829,58 @@ msgstr ""
 msgid "Network error — try again"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:70
+#. translators: 1: lowest allowed score, 2: highest allowed score.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:60
+#, php-format
+msgid "Score must be between %1$s and %2$s"
+msgstr ""
+
+#. translators: %s is the step the rating scale moves in, e.g. 0.5.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:62
+#, php-format
+msgid "Score must be in steps of %s"
+msgstr ""
+
+#. translators: %d is the number of cells with an invalid score.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:64
+#, php-format
+msgid "%d score(s) out of range — fix the highlighted cells to save"
+msgstr ""
+
+#. translators: %d is the number of scores the server refused.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:66
+#, php-format
+msgid ""
+"%d score(s) were refused and NOT saved — the highlighted cells are still "
+"unsaved"
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:78
 msgid "You do not have permission to record ratings."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:76
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:84
 msgid "The ratings grid has been switched off for your academy."
 msgstr ""
 
 #. translators: 1: activity title, 2: activity date.
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:102
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:110
 #, php-format
 msgid ""
 "Rating %1$s (%2$s). Rows are players, columns are the categories this "
 "activity is rated on. Type a score per cell and Save."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:111
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:119
 msgid ""
 "No evaluation categories are configured, so there is nothing to rate on yet."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:115
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:123
 msgid "This activity has no team roster, so there are no players to rate."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:140
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:148
 msgid ""
 "The ratings grid needs a wider screen. On a phone, use the evaluation wizard "
 "instead."
@@ -4862,13 +4888,13 @@ msgstr ""
 
 #. translators: 1: player name, 2: evaluation category.
 #. translators: 1: activity type, 2: activity date
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:180
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:188
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:103
 #, php-format
 msgid "%1$s — %2$s"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:199
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:207
 msgid "Save ratings"
 msgstr ""
 
