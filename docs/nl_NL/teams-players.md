@@ -62,6 +62,16 @@ Als een speler een `wp_user_id` heeft, wordt die gebruiker na inloggen doorgestu
 
 Gearchiveerde spelers blijven in de database maar verdwijnen uit actieve lijsten (oude evaluaties blijven wel naar ze verwijzen). Permanent verwijderen werkt alleen als er geen evaluaties, doelen of sessies naar de speler verwijzen. Gebruik in de meeste gevallen **archiveren** — zie [Bulkacties](?page=tt-docs&topic=bulk-actions).
 
+### Een team archiveren neemt zijn activiteiten mee (v4.x+)
+
+Archiveer je een team dat nog actieve activiteiten heeft, dan biedt het bevestigingsvenster de optie **"Archiveer ook de N activiteiten van dit team"**, standaard aangevinkt. Laat je die aan staan, dan worden de trainingen en wedstrijden van het team in dezelfde actie gearchiveerd, zodat de sessies van een opgeheven leeftijdsgroep verdwijnen uit planners, dashboards en rapportages. Vink je hem uit, dan archiveer je alleen het team.
+
+**Spelers worden hierdoor nooit gearchiveerd.** Een speler overleeft zijn team — hij gaat een leeftijdsgroep omhoog of stapt dezelfde week over naar een ander team — dus zijn dossier blijft actief en heeft simpelweg even geen team tot je er een toewijst.
+
+**Het team terugzetten haalt die activiteiten terug**, maar alleen de activiteiten die deze cascade heeft gearchiveerd. Had je een activiteit vóór het archiveren van het team al handmatig gearchiveerd, dan blijft die gearchiveerd: een team terugzetten haalt nooit iets terug wat je bewust had opgeruimd.
+
+Eenmalig bij het bijwerken: teams die vóór deze wijziging waren gearchiveerd lieten hun activiteiten actief achter. Bij het bijwerken worden die eenmalig opgeruimd, zodat ze niet langer in actieve overzichten staan. Die opruimactie wordt niet ongedaan gemaakt door zo'n team terug te zetten — de activiteiten hoorden al opgeruimd te zijn; zet ze los terug als je ze toch nodig hebt.
+
 ## Spelerdossierpagina (v3.79.0)
 
 De spelerdetailpagina is een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop.

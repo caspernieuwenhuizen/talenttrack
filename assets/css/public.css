@@ -480,6 +480,27 @@ dialog.tt-modal::backdrop {
     color: #475569;
     line-height: 1.45;
 }
+/* #2411 — opt-in checkbox inside the archive confirm dialog (e.g. "also
+   archive this team's 24 activities"). Hidden unless the action declares
+   one, so every other archive dialog is unchanged. */
+.tt-modal-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin: 0 0 20px;
+    color: #475569;
+    line-height: 1.45;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-modal-option[hidden] { display: none; }
+.tt-modal-option input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+
 .tt-modal-actions {
     display: flex;
     gap: 8px;

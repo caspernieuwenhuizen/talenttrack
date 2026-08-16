@@ -341,11 +341,33 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
                     ⋯
                     <div class="tt-player-action__menu" role="menu">
+                        <?php
+                        // #2411 — offer to take the team's still-active
+                        // activities into the archive with it, defaulted on.
+                        // The count comes from the same activeDependentsFor()
+                        // the trash cascade preview uses, so the two agree.
+                        $active_deps    = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+                            ->activeDependentsFor( 'team', $team_id );
+                        $dep_activities = (int) ( $active_deps['activities'] ?? 0 );
+                        ?>
                         <button type="button"
                                 class="tt-player-action tt-player-action--danger"
                                 role="menuitem"
                                 data-tt-archive-rest-path="<?php echo esc_attr( 'teams/' . $team_id ); ?>"
                                 data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ); ?>"
+                                <?php if ( $dep_activities > 0 ) : ?>
+                                    data-tt-archive-option-key="cascade_activities"
+                                    data-tt-archive-option-label="<?php echo esc_attr( sprintf(
+                                        /* translators: %d: number of the team's still-active activities. */
+                                        _n(
+                                            'Also archive this team\'s %d activity',
+                                            'Also archive this team\'s %d activities',
+                                            $dep_activities,
+                                            'talenttrack'
+                                        ),
+                                        $dep_activities
+                                    ) ); ?>"
+                                <?php endif; ?>
                                 data-tt-archive-redirect="<?php echo esc_attr( $teams_url ); ?>">
                             <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
                         </button>

@@ -3571,6 +3571,14 @@ msgstr "Ongeldig team-id."
 msgid "The team could not be updated."
 msgstr "Het team kon niet worden bijgewerkt."
 
+#. translators: %d: number of the team's still-active activities.
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+#, php-format
+msgid "Also archive this team's %d activity"
+msgid_plural "Also archive this team's %d activities"
+msgstr[0] "Archiveer ook de %d activiteit van dit team"
+msgstr[1] "Archiveer ook de %d activiteiten van dit team"
+
 #: src/Infrastructure/REST/TeamsRestController.php:356
 msgid "The team could not be archived."
 msgstr "Het team kon niet worden gearchiveerd."

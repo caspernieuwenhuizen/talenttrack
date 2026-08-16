@@ -65,6 +65,12 @@
             '<form method="dialog" class="tt-modal-form">' +
                 '<h2 class="tt-modal-title">' + escapeHtml( i18n.title ) + '</h2>' +
                 '<p class="tt-modal-message" data-tt-archive-modal-msg></p>' +
+                // #2411 — optional opt-in checkbox (e.g. "also archive this
+                // team's activities"). Hidden unless the button declares one.
+                '<label class="tt-modal-option" data-tt-archive-modal-option hidden>' +
+                    '<input type="checkbox" data-tt-archive-modal-option-input />' +
+                    '<span data-tt-archive-modal-option-label></span>' +
+                '</label>' +
                 '<div class="tt-modal-actions">' +
                     '<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' + escapeHtml( i18n.cancel ) + '</button>' +
                     '<button type="submit" value="confirm" class="tt-btn tt-btn-danger" data-tt-archive-modal-confirm>' + escapeHtml( i18n.confirm ) + '</button>' +
@@ -110,9 +116,29 @@
             confirmBtn.textContent = opts.confirmLabel || i18n.confirm;
             confirmBtn.className = 'tt-btn ' + ( opts.variant === 'primary' ? 'tt-btn-primary' : 'tt-btn-danger' );
         }
+        // #2411 — optional opt-in checkbox. Shown only when the button
+        // declares one; its state travels back with the confirmation so the
+        // caller can fold it into the request body.
+        var optionWrap  = dialog.querySelector( '[data-tt-archive-modal-option]' );
+        var optionInput = dialog.querySelector( '[data-tt-archive-modal-option-input]' );
+        var optionLabel = dialog.querySelector( '[data-tt-archive-modal-option-label]' );
+        if ( optionWrap && optionInput && optionLabel ) {
+            if ( opts.optionLabel ) {
+                optionLabel.textContent = opts.optionLabel;
+                optionInput.checked = opts.optionDefault !== false;
+                optionWrap.hidden = false;
+            } else {
+                optionWrap.hidden = true;
+                optionInput.checked = false;
+            }
+        }
+
         var closeHandler = function () {
             dialog.removeEventListener( 'close', closeHandler );
-            onResult( dialog.returnValue === 'confirm' );
+            onResult(
+                dialog.returnValue === 'confirm',
+                !! ( optionInput && ! optionWrap.hidden && optionInput.checked )
+            );
         };
         dialog.addEventListener( 'close', closeHandler );
         dialog.showModal();
@@ -141,12 +167,18 @@
 
                 var confirm_text = btn.getAttribute('data-tt-archive-confirm') || modal_i18n.title;
                 var method   = ( btn.getAttribute('data-tt-archive-method') || 'DELETE' ).toUpperCase();
+                // #2411 — an action may offer one opt-in checkbox in the
+                // confirm dialog; `data-tt-archive-option-key` names the
+                // body field its state is sent as.
+                var optionKey = btn.getAttribute('data-tt-archive-option-key') || '';
                 var opts = {
                     title:        btn.getAttribute('data-tt-archive-confirm-title') || '',
                     confirmLabel: btn.getAttribute('data-tt-archive-confirm-label') || '',
-                    variant:      btn.getAttribute('data-tt-archive-variant') || 'danger'
+                    variant:      btn.getAttribute('data-tt-archive-variant') || 'danger',
+                    optionLabel:  optionKey ? ( btn.getAttribute('data-tt-archive-option-label') || '' ) : '',
+                    optionDefault: btn.getAttribute('data-tt-archive-option-default') !== '0'
                 };
-                promptArchive( confirm_text, modal_i18n, function ( ok ) {
+                promptArchive( confirm_text, modal_i18n, function ( ok, optionChecked ) {
                     if ( ! ok ) return;
 
                     var path     = btn.getAttribute('data-tt-archive-rest-path') || '';
@@ -171,6 +203,17 @@
                         credentials: 'same-origin',
                         headers: headers
                     };
+                    // #2411 — fold the dialog's opt-in checkbox into the body
+                    // under the key the button declared, merging with any
+                    // static body rather than replacing it.
+                    if (optionKey) {
+                        var payload = {};
+                        if (bodyRaw) {
+                            try { payload = JSON.parse(bodyRaw) || {}; } catch (e) { payload = {}; }
+                        }
+                        payload[optionKey] = !!optionChecked;
+                        bodyRaw = JSON.stringify(payload);
+                    }
                     if (bodyRaw) {
                         headers['Content-Type'] = 'application/json';
                         fetchOpts.body = bodyRaw;
