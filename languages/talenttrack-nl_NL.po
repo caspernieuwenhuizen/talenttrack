@@ -36445,6 +36445,10 @@ msgstr "Optionele toelichting"
 msgid "No player id supplied."
 msgstr "Geen speler-id meegegeven."
 
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php
+msgid "No activity id supplied."
+msgstr "Geen activiteit-id meegegeven."
+
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:71
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:75
 msgid "Could not write evaluation row."
@@ -48182,6 +48186,51 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "Ratings grid"
+msgstr "Beoordelingsraster"
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "You do not have permission to record ratings."
+msgstr "Je hebt geen rechten om beoordelingen vast te leggen."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "The ratings grid has been switched off for your academy."
+msgstr "Het beoordelingsraster is uitgeschakeld voor jouw academie."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "You do not coach this activity's team."
+msgstr "Je bent geen trainer van het team van deze activiteit."
+
+#. translators: 1: activity title, 2: activity date.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+#, php-format
+msgid "Rating %1$s (%2$s). Rows are players, columns are the categories this activity is rated on. Type a score per cell and Save."
+msgstr "Beoordeling van %1$s (%2$s). Rijen zijn spelers, kolommen zijn de categorieën waarop deze activiteit wordt beoordeeld. Typ per cel een cijfer en sla op."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "No evaluation categories are configured, so there is nothing to rate on yet."
+msgstr "Er zijn geen beoordelingscategorieën ingesteld, dus er valt nog niets te beoordelen."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "This activity has no team roster, so there are no players to rate."
+msgstr "Deze activiteit heeft geen teamselectie, dus er zijn geen spelers om te beoordelen."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "The ratings grid needs a wider screen. On a phone, use the evaluation wizard instead."
+msgstr "Het beoordelingsraster heeft een breder scherm nodig. Gebruik op een telefoon de beoordelingswizard."
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "Save ratings"
+msgstr "Beoordelingen opslaan"
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php
+msgid "Network error — try again"
+msgstr "Netwerkfout — probeer het opnieuw"
+
+#: src/Core/FeatureRegistry.php
+msgid "The desktop ratings-entry grid (players × evaluation categories, one activity) — a spreadsheet alternative to rating players one card at a time. The evaluation wizard and the flat evaluation form stay available when this is off."
+msgstr "Het desktop-invoerraster voor beoordelingen (spelers × beoordelingscategorieën, één activiteit) — een spreadsheetalternatief voor het één voor één beoordelen van spelers. De beoordelingswizard en het gewone beoordelingsformulier blijven beschikbaar als dit uitstaat."
 #~ msgid ""
 #~ "A Spond group is linked to this team. Sync pulls its calendar into the "
 #~ "team's activities."

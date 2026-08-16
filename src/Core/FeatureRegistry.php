@@ -210,6 +210,18 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'minutes-grid' ],
                 'entities'        => [],
             ],
+            // #2414 (epic #2381) — the ratings grid. Unlike its two siblings
+            // this one is per-activity: a rating is N category scores per
+            // player, so the columns are categories, not activities. Default
+            // ON; off hides the affordance + blocks ?tt_view=ratings-grid.
+            'ratings_grid' => [
+                'label'           => __( 'Ratings grid', 'talenttrack' ),
+                'description'     => __( 'The desktop ratings-entry grid (players × evaluation categories, one activity) — a spreadsheet alternative to rating players one card at a time. The evaluation wizard and the flat evaluation form stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Activities\\ActivitiesModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'ratings-grid' ],
+                'entities'        => [],
+            ],
             // #1537 — the Custom widgets builder (#0078). Migrated from the
             // `tt_custom_widgets_enabled` option; migration 0166 carries the
             // existing on/off state forward. Default off, matching the

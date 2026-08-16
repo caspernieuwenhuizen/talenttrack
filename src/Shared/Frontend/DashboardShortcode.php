@@ -856,6 +856,12 @@ class DashboardShortcode {
             case 'minutes-grid':
                 \TT\Modules\Activities\Frontend\FrontendMinutesGridView::render( $user_id, $is_admin );
                 return true;
+            // #2414 (epic #2381) — desktop ratings-entry grid (players ×
+            // evaluation categories, one activity). Self-gates on
+            // tt_edit_activities + the ratings_grid feature + team scope.
+            case 'ratings-grid':
+                \TT\Modules\Activities\Frontend\FrontendRatingsGridView::render( $user_id, $is_admin );
+                return true;
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
                 return true;

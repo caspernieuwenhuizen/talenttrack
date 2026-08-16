@@ -103,6 +103,92 @@ final class EvaluationInserter {
     }
 
     /**
+     * #2414 — write ratings for one player on one activity, creating the
+     * evaluation row only when there isn't one yet.
+     *
+     * The ratings grid re-saves the same activity repeatedly (that is what
+     * a grid is for), so a plain insert would pile up duplicate evaluations
+     * for one player on one session. This finds the existing evaluation for
+     * (player, activity) and upserts each category onto it; with none, it
+     * falls through to insert() so both paths share one writer and the grid
+     * can never drift from the wizard.
+     *
+     * `$ratings` is category_id => value. A value of null / '' / <= 0 means
+     * "not rated": the category is left untouched rather than written as a
+     * zero, so a blank cell never destroys an existing score.
+     *
+     * @param array<int|string, int|float|string|null> $ratings
+     * @return int|\WP_Error evaluation id
+     */
+    public static function upsertForActivity( int $player_id, int $activity_id, array $ratings, ?int $coach_id = null ) {
+        if ( $player_id <= 0 ) {
+            return new \WP_Error( 'no_player', __( 'No player id supplied.', 'talenttrack' ) );
+        }
+        if ( $activity_id <= 0 ) {
+            return new \WP_Error( 'no_activity', __( 'No activity id supplied.', 'talenttrack' ) );
+        }
+
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = CurrentClub::id();
+
+        $eval_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_evaluations
+              WHERE player_id = %d AND activity_id = %d AND club_id = %d
+              ORDER BY id ASC LIMIT 1",
+            $player_id, $activity_id, $club_id
+        ) );
+
+        if ( $eval_id <= 0 ) {
+            return self::insert( [
+                'player_id'   => $player_id,
+                'activity_id' => $activity_id,
+                'coach_id'    => $coach_id ?? get_current_user_id(),
+                'eval_date'   => self::activityDate( $activity_id ),
+                'ratings'     => $ratings,
+            ] );
+        }
+
+        foreach ( $ratings as $cat_id => $val ) {
+            $cat_id = (int) $cat_id;
+            if ( $cat_id <= 0 ) continue;
+            if ( $val === null || $val === '' ) continue;
+
+            $val = round( (float) $val * 2 ) / 2;
+            if ( $val <= 0 ) continue;
+
+            $existing = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_eval_ratings
+                  WHERE evaluation_id = %d AND category_id = %d LIMIT 1",
+                $eval_id, $cat_id
+            ) );
+
+            if ( $existing > 0 ) {
+                $wpdb->update( "{$p}tt_eval_ratings", [ 'rating' => $val ], [ 'id' => $existing ] );
+            } else {
+                $wpdb->insert( "{$p}tt_eval_ratings", [
+                    'club_id'       => $club_id,
+                    'evaluation_id' => $eval_id,
+                    'category_id'   => $cat_id,
+                    'rating'        => $val,
+                ] );
+            }
+        }
+
+        return $eval_id;
+    }
+
+    /** An activity-context evaluation is dated by its activity. */
+    private static function activityDate( int $activity_id ): string {
+        global $wpdb;
+        $date = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT session_date FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ? $date : current_time( 'Y-m-d' );
+    }
+
+    /**
      * v3.110.105 — resolve the `eval_type` lookup id that matches a
      * given activity's `activity_type_key`. The two lookup vocabularies
      * (activity_type vs eval_type) are seeded with overlapping names

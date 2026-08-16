@@ -168,6 +168,16 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
             ],
         ] );
+        // #2414 (epic #2381) — the ratings grid's bulk write: one activity,
+        // many players × categories. Gated on `tt_edit_activities` AND the
+        // `ratings_grid` feature; team scope enforced in the handler.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/ratings/bulk', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'bulk_ratings' ],
+                'permission_callback' => [ __CLASS__, 'can_edit_ratings_grid' ],
+            ],
+        ] );
         // #2386 (epic #2381) — the minutes grid (players × match activities).
         // A read endpoint for the matrix and a bulk write that routes each
         // edit through the minutes-ownership arbiter (#2367): a match owned by
@@ -259,6 +269,83 @@ class ActivitiesRestController {
         if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) return false;
         if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'attendance_grid' ) ) return false;
         return true;
+    }
+
+    /** #2414 — same cap, its own feature toggle. */
+    public static function can_edit_ratings_grid(): bool {
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) return false;
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'ratings_grid' ) ) return false;
+        return true;
+    }
+
+    /**
+     * #2414 — POST /activities/{id}/ratings/bulk. Body:
+     * `{ changes: [ { player_id, category_id, rating } ] }`.
+     *
+     * A blank / null rating means "not rated": the category is skipped, so
+     * an untouched cell never writes a zero and never clears an existing
+     * score. Writes go through `EvaluationInserter::upsertForActivity()` —
+     * the same writer the evaluation wizard uses — so the grid and the
+     * wizard can't produce different rows for the same input.
+     */
+    public static function bulk_ratings( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = (int) $r['id'];
+        $changes     = $r['changes'] ?? null;
+        if ( $activity_id <= 0 || ! is_array( $changes ) ) {
+            return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
+        }
+
+        $data     = \TT\Modules\Activities\Reports\RatingsGridQuery::forActivity( $activity_id );
+        $activity = $data['activity'];
+        if ( ! $activity ) {
+            return RestResponse::notFound( 'activity_not_found', __( 'Activity not found.', 'talenttrack' ) );
+        }
+
+        // Team scope — a coach may only rate on a team they coach.
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed !== null && ! in_array( (int) $activity->team_id, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not coach this activity\'s team.', 'talenttrack' ), 403 );
+        }
+
+        // Only players on the roster and categories this activity is rated
+        // on are writable; anything else is a client bug or a probe.
+        $valid_players    = [];
+        foreach ( $data['players'] as $pl ) $valid_players[ (int) $pl->id ] = true;
+        $valid_categories = [];
+        foreach ( $data['categories'] as $c ) $valid_categories[ (int) $c['id'] ] = true;
+
+        $scale = $data['scale'];
+        $byPlayer = [];
+        $skipped  = 0;
+
+        foreach ( $changes as $c ) {
+            $pid = (int) ( $c['player_id'] ?? 0 );
+            $cid = (int) ( $c['category_id'] ?? 0 );
+            $raw = $c['rating'] ?? null;
+
+            if ( ! isset( $valid_players[ $pid ], $valid_categories[ $cid ] ) ) { $skipped++; continue; }
+            if ( $raw === null || $raw === '' ) { $skipped++; continue; }
+
+            $val = round( (float) $raw / $scale['step'] ) * $scale['step'];
+            if ( $val < $scale['min'] || $val > $scale['max'] ) { $skipped++; continue; }
+
+            $byPlayer[ $pid ][ $cid ] = $val;
+        }
+
+        $saved  = 0;
+        $failed = 0;
+        foreach ( $byPlayer as $pid => $ratings ) {
+            $res = \TT\Modules\Wizards\Evaluation\EvaluationInserter::upsertForActivity( $pid, $activity_id, $ratings );
+            if ( is_wp_error( $res ) ) { $failed++; continue; }
+            $saved += count( $ratings );
+        }
+
+        return RestResponse::success( [
+            'activity_id' => $activity_id,
+            'saved'       => $saved,
+            'skipped'     => $skipped,
+            'failed'      => $failed,
+        ] );
     }
 
     /**
