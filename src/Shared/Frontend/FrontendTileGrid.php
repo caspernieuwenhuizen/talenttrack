@@ -560,10 +560,15 @@ class FrontendTileGrid {
                     );
                     $label = esc_html( (string) ( $tile['label'] ?? '' ) );
                     $url   = esc_url( (string) ( $tile['url'] ?? '' ) );
+                    // #2409 — same marker as the grid tiles, rail-sized.
+                    $dev   = \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug(
+                        (string) ( $tile['view_slug'] ?? '' )
+                    );
                     ?>
                     <a class="tt-ftile-mywork-row" href="<?php echo $url; ?>">
                         <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
                         <span class="tt-ftile-mywork-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></span>
+                        <?php echo $dev; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title. ?>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -601,18 +606,25 @@ class FrontendTileGrid {
                     $label = esc_html( (string) ( $tile['label'] ?? '' ) );
                     $desc  = esc_html( (string) ( $tile['desc'] ?? '' ) );
                     $url   = esc_url( (string) ( $tile['url'] ?? '' ) );
+                    // #2409 — "Under development" marker, from the tile's own
+                    // feature or its owning module. '' for the common case.
+                    $dev   = \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug(
+                        (string) ( $tile['view_slug'] ?? '' )
+                    );
                     ?>
-                    <a class="tt-ftile" href="<?php echo $url; ?>">
+                    <a class="tt-ftile<?php echo $dev !== '' ? ' is-under-development' : ''; ?>" href="<?php echo $url; ?>">
                         <?php if ( $stacked ) : ?>
                             <div class="tt-ftile-head">
                                 <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
                                 <div class="tt-ftile-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></div>
                             </div>
+                            <?php echo $dev; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title. ?>
                             <p class="tt-ftile-desc"><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></p>
                         <?php else : ?>
                             <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
                             <div class="tt-ftile-body">
                                 <div class="tt-ftile-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></div>
+                                <?php echo $dev; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title. ?>
                                 <p class="tt-ftile-desc"><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></p>
                             </div>
                         <?php endif; ?>
@@ -716,6 +728,8 @@ class FrontendTileGrid {
             echo '<a class="tt-parent-dash-tile" href="' . esc_url( $url ) . '">';
             echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs; IconRenderer returns trusted SVG.
             echo '<span class="tt-parent-dash-tile-label">' . $label . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above.
+            // #2409 — a parent sees the same marker as everyone else.
+            echo \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug( $slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — DevelopmentPill escapes its own label + title.
             echo '</a>';
         }
         echo '</div>';

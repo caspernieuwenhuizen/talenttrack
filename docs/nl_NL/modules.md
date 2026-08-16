@@ -20,7 +20,13 @@ Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 fun
 
 Een **zoekbalk** boven aan de frontendpagina (`?tt_view=modules`, v4.x+) filtert de lijst live tijdens het typen — op naam of omschrijving van een module of functie. Is de treffer een geneste functie, dan klapt de modulekaart automatisch open zodat de rij zichtbaar is; categorieën zonder overgebleven treffers vallen weg en er verschijnt een leeg-melding wanneer niets overeenkomt. Het is een filter aan de clientkant (geen herlaad), en met JavaScript uit verschijnt gewoon de volledige lijst. De wp-admin Modules-pagina heeft geen zoekfunctie — de frontendpagina is de surface die wordt voortgezet.
 
-## Een functie "in ontwikkeling" markeren (v4.x+)
+## Een module of functie "in ontwikkeling" markeren (v4.x+)
+
+**Een hele module** markeer je in de kop van de modulekaart, met het selectievakje **In ontwikkeling** onder de aan/uit-schakelaar van de module. Markeer je een module, dan geldt dat voor alles wat die module bezit: elke weergave toont het label, en elke dashboardtegel die ernaartoe leidt krijgt een klein **In ontwikkeling**-label — zo is de markering al zichtbaar *voordat* iemand doorklikt, niet pas daarna. Ook een kernmodule (altijd aan) kun je markeren: de markering schakelt niets uit, dus er is geen reden om die uit te zonderen.
+
+**Een losse functie** markeer je op dezelfde manier vanaf de functierij binnen de modulekaart.
+
+Het label verschijnt op een dashboardtegel zodra de functie van de tegel gemarkeerd is **of** de bijbehorende module, zodat beide niveaus voor de gebruiker hetzelfde werken. Tegels op het persona-dashboard, het klassieke tegeloverzicht, de "Mijn werk"-kolom en de kindtegels van een ouder tonen het label allemaal.
 
 Elke functierij heeft naast de aan/uit-schakelaar een tweede besturingselement: een **In ontwikkeling**-selectievakje. Vink je het aan, dan toont elke weergave die de functie bezit boven aan een klein amberkleurig **In ontwikkeling**-label, zodat iedereen die het scherm gebruikt — coaches, spelers én ouders — weet dat het nog wordt gebouwd en kan veranderen. Het label is puur informatief: het schakelt niets uit en verbergt niets, en de functie blijft precies zo werken als voorheen. Het staat los van de aan/uit-schakelaar, dus een functie kan live *en* gemarkeerd zijn, en je kunt de markering weer uitzetten zonder te raken aan of de functie aanstaat. Alleen beheerders die modules mogen beheren (`tt_manage_modules`) zien of wijzigen de markering; het label zelf is zichtbaar voor elke gebruiker van het gemarkeerde scherm. De markering is ook te lezen en te zetten via het REST-endpoint `/talenttrack/v1/features`.
 
