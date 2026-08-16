@@ -47,8 +47,10 @@ class FrontendModulesView extends FrontendViewBase {
                 'callback'            => [ self::class, 'restToggle' ],
                 'permission_callback' => [ self::class, 'restPermission' ],
                 'args'                => [
-                    'class'   => [ 'required' => true, 'type' => 'string' ],
-                    'enabled' => [ 'required' => true, 'type' => 'boolean' ],
+                    'class'             => [ 'required' => true, 'type' => 'string' ],
+                    'enabled'           => [ 'required' => false, 'type' => 'boolean' ],
+                    // #2409 — cosmetic under-development flag.
+                    'under_development' => [ 'required' => false, 'type' => 'boolean' ],
                 ],
             ],
         ] );
@@ -136,28 +138,59 @@ class FrontendModulesView extends FrontendViewBase {
                 'class'     => (string) $m['class'],
                 'enabled'   => ! empty( $m['enabled'] ),
                 'always_on' => ! empty( $m['always_on'] ),
+                // #2409 — cosmetic flag, independent of enabled.
+                'under_development' => ! empty( $m['under_development'] ),
             ],
             ModuleRegistry::allWithState()
         );
         return new \WP_REST_Response( array_values( $out ), 200 );
     }
 
-    /** @return \WP_REST_Response|\WP_Error */
+    /**
+     * Toggle a module's `enabled` and/or `under_development` flag. Both
+     * params are optional; supply at least one. #2409 added the
+     * under_development flag alongside the original enabled toggle.
+     *
+     * @return \WP_REST_Response|\WP_Error
+     */
     public static function restToggle( \WP_REST_Request $req ) {
-        $class   = (string) $req->get_param( 'class' );
-        $enabled = (bool) $req->get_param( 'enabled' );
-        $found   = null;
+        $class = (string) $req->get_param( 'class' );
+        $found = null;
         foreach ( ModuleRegistry::allWithState() as $m ) {
             if ( (string) $m['class'] === $class ) { $found = $m; break; }
         }
         if ( ! $found ) {
             return new \WP_Error( 'tt_unknown_module', __( 'Unknown module.', 'talenttrack' ), [ 'status' => 404 ] );
         }
-        if ( ! empty( $found['always_on'] ) ) {
-            return new \WP_Error( 'tt_core_module', __( 'Core modules cannot be disabled.', 'talenttrack' ), [ 'status' => 400 ] );
+
+        $has_enabled = $req->get_param( 'enabled' ) !== null;
+        $has_dev     = $req->get_param( 'under_development' ) !== null;
+        if ( ! $has_enabled && ! $has_dev ) {
+            return new \WP_Error(
+                'tt_missing_param',
+                __( 'Supply enabled and/or under_development.', 'talenttrack' ),
+                [ 'status' => 400 ]
+            );
         }
-        ModuleRegistry::setEnabled( $class, $enabled );
-        return new \WP_REST_Response( [ 'class' => $class, 'enabled' => $enabled ], 200 );
+
+        if ( $has_enabled ) {
+            $enabled = (bool) $req->get_param( 'enabled' );
+            if ( ! empty( $found['always_on'] ) && ! $enabled ) {
+                return new \WP_Error( 'tt_core_module', __( 'Core modules cannot be disabled.', 'talenttrack' ), [ 'status' => 400 ] );
+            }
+            ModuleRegistry::setEnabled( $class, $enabled );
+        }
+        // A core module can still be flagged under development — the flag
+        // gates nothing, so there is no core surface to protect.
+        if ( $has_dev ) {
+            ModuleRegistry::setUnderDevelopment( $class, (bool) $req->get_param( 'under_development' ) );
+        }
+
+        return new \WP_REST_Response( [
+            'class'             => $class,
+            'enabled'           => ModuleRegistry::isEnabled( $class ),
+            'under_development' => ModuleRegistry::isUnderDevelopment( $class ),
+        ], 200 );
     }
 
     /** Grant tt_manage_modules to administrator + tt_club_admin. Idempotent. */
@@ -242,6 +275,8 @@ class FrontendModulesView extends FrontendViewBase {
                             $class     = (string) $entry['state']['class'];
                             $enabled   = ! empty( $entry['state']['enabled'] );
                             $always_on = ! empty( $entry['state']['always_on'] );
+                            // #2409 — cosmetic module-level flag, independent of enabled.
+                            $m_dev     = ! empty( $entry['state']['under_development'] );
                             $meta      = $entry['meta'];
                             $features  = $enabled ? FeatureRegistry::forModule( $class ) : [];
                             $f_count   = count( $features );
@@ -262,6 +297,9 @@ class FrontendModulesView extends FrontendViewBase {
                                             <?php else : ?>
                                                 <span class="tt-tag tt-tag-off"><?php esc_html_e( 'Off', 'talenttrack' ); ?></span>
                                             <?php endif; ?>
+                                            <?php if ( $m_dev ) : ?>
+                                                <span class="tt-tag tt-tag-dev"><?php esc_html_e( 'Under development', 'talenttrack' ); ?></span>
+                                            <?php endif; ?>
                                             <?php if ( $f_count > 0 ) : ?>
                                                 <span class="tt-tag tt-tag-count">
                                                     <?php
@@ -274,17 +312,24 @@ class FrontendModulesView extends FrontendViewBase {
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    <label class="tt-module-toggle">
-                                        <span class="tt-screen-reader-text">
-                                            <?php
-                                            /* translators: %s: module name */
-                                            printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( (string) $meta['label'] ) );
-                                            ?>
-                                        </span>
-                                        <input type="checkbox" name="enabled[]" value="<?php echo esc_attr( $class ); ?>"
-                                            <?php checked( $enabled ); ?> <?php disabled( $always_on ); ?> />
-                                        <span class="tt-switch" aria-hidden="true"></span>
-                                    </label>
+                                    <div class="tt-module-controls">
+                                        <label class="tt-module-toggle">
+                                            <span class="tt-screen-reader-text">
+                                                <?php
+                                                /* translators: %s: module name */
+                                                printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( (string) $meta['label'] ) );
+                                                ?>
+                                            </span>
+                                            <input type="checkbox" name="enabled[]" value="<?php echo esc_attr( $class ); ?>"
+                                                <?php checked( $enabled ); ?> <?php disabled( $always_on ); ?> />
+                                            <span class="tt-switch" aria-hidden="true"></span>
+                                        </label>
+                                        <label class="tt-module-dev-toggle">
+                                            <input type="checkbox" name="module_dev[]" value="<?php echo esc_attr( $class ); ?>"
+                                                <?php checked( $m_dev ); ?> />
+                                            <?php esc_html_e( 'Under development', 'talenttrack' ); ?>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <?php if ( $meta['description'] !== '' ) : ?>
@@ -372,12 +417,26 @@ class FrontendModulesView extends FrontendViewBase {
             : [];
         $checked_set = array_flip( $checked );
 
+        // #2409 — module-level under-development flags, submitted as
+        // module_dev[]. Every module card is present in the form, so absence
+        // means "unchecked", not "untouched".
+        $module_dev_checked = isset( $_POST['module_dev'] ) && is_array( $_POST['module_dev'] )
+            ? array_flip( array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['module_dev'] ) ) )
+            : [];
+
         foreach ( ModuleRegistry::allWithState() as $m ) {
             $class = (string) $m['class'];
-            if ( ! empty( $m['always_on'] ) ) continue;
-            $now = isset( $checked_set[ $class ] );
-            if ( $now !== ! empty( $m['enabled'] ) ) {
-                ModuleRegistry::setEnabled( $class, $now );
+            // An always-on core module can't be switched off, but it CAN be
+            // flagged under development — the flag gates nothing.
+            if ( empty( $m['always_on'] ) ) {
+                $now = isset( $checked_set[ $class ] );
+                if ( $now !== ! empty( $m['enabled'] ) ) {
+                    ModuleRegistry::setEnabled( $class, $now );
+                }
+            }
+            $dev_now = isset( $module_dev_checked[ $class ] );
+            if ( $dev_now !== ! empty( $m['under_development'] ) ) {
+                ModuleRegistry::setUnderDevelopment( $class, $dev_now );
             }
         }
 

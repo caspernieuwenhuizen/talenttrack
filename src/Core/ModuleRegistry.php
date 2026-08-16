@@ -87,6 +87,9 @@ class ModuleRegistry {
     /** @var array<string, bool>|null per-request cache */
     private static $stateCache = null;
 
+    /** @var array<string, bool>|null #2409 per-request under-development cache */
+    private static $devStateCache = null;
+
     public static function isAlwaysOn( string $module_class ): bool {
         return in_array( ltrim( $module_class, '\\' ), self::ALWAYS_ON_MODULES, true );
     }
@@ -135,6 +138,52 @@ class ModuleRegistry {
     }
 
     /**
+     * #2409 — is the module marked "under development"? Cosmetic and
+     * independent of `enabled`: the module stays fully live, the flag only
+     * drives the informational pill on its views and the badge on its
+     * dashboard tiles. Unknown modules are never under development.
+     */
+    public static function isUnderDevelopment( string $module_class ): bool {
+        $dev = self::loadDevStateCache();
+        return $dev[ ltrim( $module_class, '\\' ) ] ?? ( $dev[ $module_class ] ?? false );
+    }
+
+    /**
+     * #2409 — persist the under-development flag.
+     *
+     * Two deliberate differences from setEnabled(): an always-on core module
+     * CAN be flagged (the flag gates nothing, so there is no core surface to
+     * protect), and `enabled` is preserved on INSERT from the module's
+     * currently-resolved state rather than the column default — otherwise
+     * flagging a module that is off would silently switch it on.
+     */
+    public static function setUnderDevelopment( string $module_class, bool $flag, ?int $actor_user_id = null ): void {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $table = "{$p}tt_module_state";
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return;
+
+        $existing = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table} WHERE module_class = %s",
+            $module_class
+        ) );
+        $row = [
+            'under_development' => $flag ? 1 : 0,
+            'updated_at'        => current_time( 'mysql' ),
+            'updated_by'        => $actor_user_id !== null ? $actor_user_id : get_current_user_id(),
+        ];
+        if ( $existing > 0 ) {
+            $wpdb->update( $table, $row, [ 'module_class' => $module_class ] );
+        } else {
+            $row['module_class'] = $module_class;
+            $row['enabled']      = self::isEnabled( $module_class ) ? 1 : 0;
+            $wpdb->insert( $table, $row );
+        }
+        self::$stateCache    = null;
+        self::$devStateCache = null;
+    }
+
+    /**
      * @return list<array{class:string, enabled:bool, always_on:bool}>
      *         Every class declared in `config/modules.php`, with its
      *         current state and whether it's always-on.
@@ -148,9 +197,11 @@ class ModuleRegistry {
         $out = [];
         foreach ( $declared as $class => $_default ) {
             $out[] = [
-                'class'     => $class,
-                'enabled'   => self::isEnabled( $class ),
-                'always_on' => self::isAlwaysOn( $class ),
+                'class'             => $class,
+                'enabled'           => self::isEnabled( $class ),
+                'always_on'         => self::isAlwaysOn( $class ),
+                // #2409 — cosmetic flag, independent of enabled.
+                'under_development' => self::isUnderDevelopment( $class ),
             ];
         }
         return $out;
@@ -165,17 +216,36 @@ class ModuleRegistry {
         $p = $wpdb->prefix;
         $table = "{$p}tt_module_state";
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            self::$stateCache = [];
+            self::$stateCache    = [];
+            self::$devStateCache = [];
             return self::$stateCache;
         }
-        $rows = $wpdb->get_results( "SELECT module_class, enabled FROM {$table}" );
+        // #2409 — read enabled + under_development in one pass. The
+        // under_development column arrives with migration 0209; during the
+        // narrow upgrade window before it runs the wider SELECT errors, so
+        // fall back to the enabled-only shape and treat dev as all-false.
+        $rows = $wpdb->get_results( "SELECT module_class, enabled, under_development FROM {$table}" );
+        if ( $rows === null ) {
+            $rows = $wpdb->get_results( "SELECT module_class, enabled FROM {$table}" );
+        }
         $out = [];
+        $dev = [];
         if ( is_array( $rows ) ) {
             foreach ( $rows as $r ) {
                 $out[ (string) $r->module_class ] = (bool) $r->enabled;
+                $dev[ (string) $r->module_class ] = (bool) ( $r->under_development ?? 0 );
             }
         }
-        self::$stateCache = $out;
+        self::$stateCache    = $out;
+        self::$devStateCache = $dev;
         return $out;
+    }
+
+    /**
+     * @return array<string, bool> module_class => under_development
+     */
+    private static function loadDevStateCache(): array {
+        if ( self::$devStateCache === null ) self::loadStateCache();
+        return self::$devStateCache ?? [];
     }
 }

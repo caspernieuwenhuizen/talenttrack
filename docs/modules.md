@@ -20,7 +20,13 @@ Where a module owns sub-features, the card carries a feature count (e.g. "2 feat
 
 A **search box** at the top of the frontend page (`?tt_view=modules`, v4.x+) filters the list live as you type — matching a module or feature by its name or description. When a match is a nested feature, its module card auto-expands so the row is visible; categories with no remaining matches drop out, and an empty-state line shows when nothing matches. It's a client-side filter (no reload), and with JavaScript off the full list simply renders unfiltered. The wp-admin Modules page has no search — the frontend page is the surface being carried forward.
 
-## Marking a feature "under development" (v4.x+)
+## Marking a module or feature "under development" (v4.x+)
+
+**A whole module** can be flagged from its card header, using the **Under development** checkbox under the module's on/off switch. Flagging a module marks everything it owns: every view it owns shows the pill, and every dashboard tile leading into it shows a small **Under development** badge — so the marker is visible *before* someone clicks in, not only once they're inside. A core (always-on) module can be flagged too: the flag gates nothing, so there's no reason to exempt it.
+
+**A single feature** can be flagged the same way from its row inside the module card.
+
+The badge appears on a dashboard tile whenever the tile's own feature is flagged **or** its module is, so both levels behave identically from the user's side. Tiles on the persona dashboard, the classic tile grid, the "My work" rail and a parent's child tiles all carry it.
 
 Each feature row carries a second control next to its on/off switch: an **Under development** checkbox. Tick it and every view that feature owns shows a small amber **Under development** pill at the top, so anyone using the surface — coaches, players and parents alike — knows it's still being built and may change. The pill is purely informational: it never disables or hides anything, and the feature keeps working exactly as before. It's independent of the on/off switch, so a feature can be live *and* flagged, or you can turn the flag off again without touching whether the feature is enabled. Only admins who can manage modules (`tt_manage_modules`) see or change the flag; the pill itself is visible to every user of the flagged surface. The flag is also readable and settable through the `/talenttrack/v1/features` REST endpoint.
 

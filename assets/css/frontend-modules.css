@@ -353,6 +353,30 @@
     height: 18px;
 }
 
+/* #2409 — module-level under-development toggle, stacked under the module's
+   on/off switch in the card header. Same treatment as the per-feature one. */
+.tt-dashboard .tt-module-controls {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-module-dev-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1, 4px);
+    min-height: 32px;
+    font-size: var(--tt-fs-xs, 0.75rem);
+    color: var(--tt-muted, #6a6d66);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-module-dev-toggle input {
+    width: 18px;
+    height: 18px;
+}
+
 /* ---- Breakpoints (scale up) ---- */
 @media (min-width: 768px) {
     .tt-dashboard .tt-modules-grid {

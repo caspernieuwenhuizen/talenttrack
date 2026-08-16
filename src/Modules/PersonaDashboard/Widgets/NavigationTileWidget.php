@@ -88,6 +88,9 @@ class NavigationTileWidget extends AbstractWidget {
 
         $inner = '<a class="tt-pd-tile-link" href="' . esc_url( $url ) . '">'
             . $this->badgeHtml( $tile, $ctx->user_id )
+            // #2409 — "Under development" marker when the tile's feature or
+            // its owning module is flagged. Escaped inside the component.
+            . \TT\Shared\Frontend\Components\DevelopmentPill::badgeForViewSlug( $slug )
             . '<span class="tt-pd-tile-label">' . esc_html( $label ) . '</span>'
             . ( $desc !== '' ? '<span class="tt-pd-tile-desc">' . esc_html( $desc ) . '</span>' : '' )
             . '<span class="tt-pd-tile-arrow" aria-hidden="true">&rarr;</span>'
