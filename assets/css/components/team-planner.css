@@ -659,3 +659,13 @@
         grid-template-columns: minmax(8rem, 0.8fr) repeat(7, 1fr);
     }
 }
+
+/* #2400 — the window the read-only calendar is actually showing. Stated
+   because the grid paints whole weeks and cannot render an unbounded
+   range, so a period of "all" is narrowed to the default forward window;
+   that narrowing must be visible rather than silent. */
+.tt-planner-window {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}

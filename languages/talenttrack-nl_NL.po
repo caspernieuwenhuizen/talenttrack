@@ -48143,6 +48143,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: 1: window start date, 2: window end date.
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+#, php-format
+msgid "Showing %1$s – %2$s"
+msgstr "%1$s – %2$s wordt getoond"
+
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

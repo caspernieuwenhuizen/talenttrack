@@ -492,7 +492,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // to one team when the list's ?team_id filter is set, else shows
             // every team the user can see (same scope as the list).
             $cal_team = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-            echo \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::renderReadOnlyCalendar( $user_id, $cal_team ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderReadOnlyCalendar returns escaped HTML.
+            // #2400 — carry the list's period / From-To window and type
+            // filter across, so switching to the calendar keeps the scope
+            // the coach was looking at instead of silently resetting it.
+            // Same resolver the list uses, so the two can't disagree.
+            $cal_window = self::resolveRequestWindow( current_time( 'Y-m-d', true ) );
+            $cal_type   = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
+            echo \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::renderReadOnlyCalendar( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderReadOnlyCalendar returns escaped HTML.
+                $user_id,
+                $cal_team,
+                '4weeks',
+                $cal_window['from'],
+                $cal_window['to'],
+                $cal_type
+            );
             return;
         }
 
@@ -2271,6 +2284,35 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      *
      * @return array{from:string,to:string}|null
      */
+    /**
+     * #2400 — resolve the request's date window the way the list does:
+     * the #1648 `period` key, with an explicit #2185 `date_from` /
+     * `date_to` drill-down overriding it. Returns empty strings when the
+     * request asks for the unbounded forward agenda ("all").
+     *
+     * Extracted so the list and the embedded calendar read one resolver;
+     * before this, the calendar ignored the window entirely.
+     *
+     * @return array{from:string,to:string}
+     */
+    private static function resolveRequestWindow( string $today ): array {
+        $period = isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '';
+        if ( ! in_array( $period, [ 'this_week', 'next_week', 'this_month', 'next_month', 'this_season' ], true ) ) {
+            $period = '';
+        }
+        $window = self::periodWindow( $period, $today );
+
+        $from = isset( $_GET['date_from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'] )
+            ? (string) $_GET['date_from'] : '';
+        $to   = isset( $_GET['date_to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'] )
+            ? (string) $_GET['date_to'] : '';
+
+        return [
+            'from' => $from !== '' ? $from : (string) ( $window['from'] ?? '' ),
+            'to'   => $to   !== '' ? $to   : (string) ( $window['to']   ?? '' ),
+        ];
+    }
+
     private static function periodWindow( string $period, string $today ): ?array {
         if ( $period === '' ) return null;
         $base = strtotime( $today );
