@@ -235,11 +235,13 @@ define( 'TT_GITHUB_PAT', 'ghp_…' );   // public repo → token needs ZERO scop
 
 The plugin shows an admin notice on the Plugins / Updates / Dashboard screens when this constant is missing (#2262). Since #2262 TalentTrack also **auto-installs** its own updates unattended (an `auto_update_plugin` filter scoped to this plugin only) — a detected release installs on WP's twice-daily cron with no click.
 
-When a new release exists, PUC caches on a 12-hour timer by default. To force an immediate check:
+**Since #2405 the check runs hourly.** PUC's own default is every 12 hours, which meant a pilot site could keep running the old version for half a day after a release published; the period is set to 1 hour where the checker is built in `talenttrack.php` (it is a constructor argument — PUC has no setter for it).
 
-  wp-admin → Dashboard → Updates → Check again
+To check right now without waiting for the hour:
 
-Or add `?puc_check_now=1&puc_slug=talenttrack` to any wp-admin URL.
+  wp-admin → Plugins → TalentTrack → **Check for updates**
+
+That row action (also #2405, `update_plugins` capability, nonce-verified) forces PUC to re-check and reports the outcome in a notice — the version now available, or that the site is already current. `wp-admin → Dashboard → Updates → Check again` also still works.
 
 Once the update appears in wp-admin → Plugins, click Update (or let auto-update install it). The TalentTrack v3.0.0+ SchemaStatus banner catches any migration needed — click "Run migrations now" if shown. Done.
 
