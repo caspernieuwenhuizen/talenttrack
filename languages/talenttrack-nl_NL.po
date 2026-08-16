@@ -36445,6 +36445,10 @@ msgstr "Optionele toelichting"
 msgid "No player id supplied."
 msgstr "Geen speler-id meegegeven."
 
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php
+msgid "No activity id supplied."
+msgstr "Geen activiteit-id meegegeven."
+
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:71
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:75
 msgid "Could not write evaluation row."
