@@ -20,6 +20,13 @@ use TT\Infrastructure\Config\ConfigService;
  * setting renders exactly as before. Surfaces are migrated onto this
  * helper incrementally (the broad `wp_date()` retrofit is a follow-up
  * slice of #1481); until a surface adopts it, nothing changes.
+ *
+ * Timezone convention (#2437): a bare `Y-m-d H:i:s` string handed to this
+ * class is read as **site-local** — the timezone `current_time( 'mysql' )`
+ * writes in, which is what almost every tt_ column stores. That matches
+ * core's own `mysql2date()`. Columns that deviate and store UTC (a
+ * `gmdate()` / `DateTimeImmutable` write, e.g. `tt_player_reports.expires_at`)
+ * render through `dateTimeFromGmt()` instead, which converts first.
  */
 class TTDate {
 
@@ -114,6 +121,19 @@ class TTDate {
         return wp_date( self::dateFormat() . ', H:i', $ts );
     }
 
+    /**
+     * Format a UTC-stored DATETIME for display (#2437). The plugin's
+     * convention is site-local DB strings; this is the escape hatch for
+     * the few columns written in UTC — `tt_player_reports.expires_at`,
+     * set from a `DateTimeImmutable` under WordPress' UTC default — so
+     * the conversion happens once here rather than at each caller.
+     */
+    public static function dateTimeFromGmt( string $utc_datetime ): string {
+        $utc_datetime = trim( $utc_datetime );
+        if ( $utc_datetime === '' || $utc_datetime === '0000-00-00 00:00:00' ) return '';
+        return self::dateTime( get_date_from_gmt( $utc_datetime ) );
+    }
+
     /** True when the academy week starts on Monday (the default). */
     public static function weekStartsMonday(): bool {
         if ( self::$week_monday_cache !== null ) return self::$week_monday_cache;
@@ -128,7 +148,10 @@ class TTDate {
      * @return array<string, string>
      */
     public static function presetSamples(): array {
-        $ts = self::ts( current_time( 'timestamp' ) ) ?? time();
+        // Plain time(): wp_date() applies the site offset itself, so the
+        // offset-shifted current_time( 'timestamp' ) used to double it and
+        // could preview tomorrow's date late in the evening (#2437).
+        $ts = time();
         $out = [];
         foreach ( self::presets() as $slug => $fmt ) {
             if ( $fmt === null ) {
@@ -148,8 +171,17 @@ class TTDate {
         if ( is_int( $when ) ) return $when;
         if ( is_numeric( $when ) ) return (int) $when;
         if ( is_string( $when ) && $when !== '' ) {
-            $t = strtotime( $when );
-            return $t !== false ? $t : null;
+            // A DATETIME out of the database carries no offset, and
+            // WordPress pins PHP's default timezone to UTC — so a plain
+            // strtotime() reads a site-local stamp as UTC and the wp_date()
+            // below then adds the offset a second time (a Spond sync at
+            // 20:20 CEST printing as 22:20, #2437). Parsing against
+            // wp_timezone() keeps the round-trip honest and mirrors core's
+            // mysql2date(). A string that carries its own offset or a
+            // trailing Z still wins — date_create() only falls back to the
+            // supplied zone when the input names none.
+            $dt = date_create( $when, wp_timezone() );
+            return $dt !== false ? $dt->getTimestamp() : null;
         }
         return null;
     }

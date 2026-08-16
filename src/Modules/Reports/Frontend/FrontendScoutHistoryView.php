@@ -105,7 +105,8 @@ class FrontendScoutHistoryView extends FrontendViewBase {
                         <td><?php echo esc_html( $recipient ); ?></td>
                         <td><?php echo esc_html( self::audienceLabel( (string) $row->audience ) ); ?></td>
                         <td class="tt-sh-num"><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ); ?></td>
-                        <td class="tt-sh-num"><?php echo esc_html( ( $row->expires_at ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::dateTime( (string) $row->expires_at ) : '—' ); ?></td>
+                        <?php // #2437 — expires_at is written in UTC (ScoutDelivery builds a DateTimeImmutable under WP's UTC default), unlike created_at, which follows the site-local convention. ?>
+                        <td class="tt-sh-num"><?php echo esc_html( ( $row->expires_at ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::dateTimeFromGmt( (string) $row->expires_at ) : '—' ); ?></td>
                         <td><span class="tt-sr-chip tt-sr-chip--<?php echo esc_attr( $chip_mod ); ?>"><?php echo esc_html( self::statusLabel( $row, $repo ) ); ?></span></td>
                         <td class="tt-sh-num"><?php echo (int) $row->access_count; ?></td>
                         <td class="tt-sh-actions">
