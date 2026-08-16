@@ -4,6 +4,7 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Activities\Reports\RatingsGridQuery;
 use TT\Modules\Wizards\Evaluation\EvaluationInserter;
@@ -28,6 +29,14 @@ final class RatingsGridTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->ensureCapabilities();
+
+        // Pin the rating scale. Every assertion here is defined relative to
+        // it, and ConfigService memoises on a static singleton that outlives
+        // the per-test transaction — so an ambient value, from the install
+        // seed or from another test, silently changes what these tests mean.
+        QueryHelpers::set_config( 'rating_min', '5' );
+        QueryHelpers::set_config( 'rating_max', '10' );
+        QueryHelpers::set_config( 'rating_step', '0.5' );
 
         global $wpdb, $wp_rest_server;
 
@@ -154,6 +163,12 @@ final class RatingsGridTest extends WP_UnitTestCase {
 
         $this->assertSame( 200, $res->get_status() );
         $this->assertSame( 1, $this->ratingsRowCount() );
+
+        // Assert the VALUE, not just that a row appeared. Counting rows is
+        // what let the endpoint round a typed score onto another one without
+        // any test noticing (#2431).
+        $data = RatingsGridQuery::forActivity( $this->activity_id );
+        $this->assertSame( 7.5, $data['values'][ $this->player_id ][ $this->cat_id ] );
     }
 
     public function test_endpoint_skips_out_of_scale_and_off_roster_values(): void {
