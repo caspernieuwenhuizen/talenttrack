@@ -57,7 +57,7 @@ Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de a
 - **Periodepillen** — *Vorige week*, *Deze maand* (tot vandaag), *Dit seizoen*. *Vorige week* en *Deze maand* kijken terug (tot vandaag). ***Dit seizoen* beslaat het hele seizoen** — van de startdatum van het seizoen tot en met de **einddatum** van het seizoen — dus het dekt de hele campagne, niet alleen het deel dat al voorbij is. Een pil kiezen zet het Van/Tot-bereik voor je. Het expliciete **Van / Tot**-bereik is altijd de handmatige override — typ daar een datum en die wint van de pil.
 - **Activiteittype** — beperk tot één type (training / wedstrijd / toernooi, afhankelijk van wat jullie academy heeft ingesteld). Het typefilter beperkt elk cijfer consistent: de KPI-tegels, de tabel, de ranglijst en het risicopaneel.
 
-**Standaardperiode.** Wanneer je een rapport opent zonder een pil te kiezen of een Van/Tot-bereik te typen, staat het standaard op **het huidige seizoen** — van de startdatum van het seizoen tot vandaag. Dit komt overeen met de pil *Dit seizoen* en met hoe de academie over het jaar denkt, in plaats van een willekeurig meelopend venster. Als er geen seizoen is ingesteld, valt het rapport terug op de laatste **90 dagen**, zodat er altijd iets te zien is. Het minutenrapport per team volgt dezelfde standaard. Een pil kiezen of een handmatig Van/Tot typen overschrijft dit nog steeds. Omdat deze standaard *het* seizoensvenster is, tonen beide aanwezigheidsrapporten nu de pil ***Dit seizoen* gemarkeerd** bij het openen — de filterbalk weerspiegelt het venster dat je echt bekijkt, in plaats van "Aangepast bereik".
+**Standaardperiode.** Wanneer je een rapport opent zonder een pil te kiezen of een Van/Tot-bereik te typen, staat het standaard op **het huidige seizoen** — van de startdatum van het seizoen tot vandaag. Dit komt overeen met de pil *Dit seizoen* en met hoe de academie over het jaar denkt, in plaats van een willekeurig meelopend venster. Als er geen seizoen is ingesteld, valt het rapport terug op de laatste **90 dagen**, zodat er altijd iets te zien is. Het minutenrapport per team in Analyse volgt dezelfde standaard; de twee standaard-minutenrapporten houden juist een voortschrijdende standaardperiode van 12 maanden aan — zie *De minutenrapporten filteren* hieronder. Een pil kiezen of een handmatig Van/Tot typen overschrijft dit nog steeds. Omdat deze standaard *het* seizoensvenster is, tonen beide aanwezigheidsrapporten nu de pil ***Dit seizoen* gemarkeerd** bij het openen — de filterbalk weerspiegelt het venster dat je echt bekijkt, in plaats van "Aangepast bereik".
 
 **Bereikmelding.** Als je maar enkele teams traint, tonen de aanwezigheidsrapporten alleen die teams. Levert je filter niets op, dan meldt de lege-status dat het rapport **beperkt is tot de teams die je traint**, zodat een leeg venster niet leest als "de academie heeft geen data".
 
@@ -94,6 +94,45 @@ met de handmatige invoer per speler op het aanwezigheidsscherm (hoeveel minuten
 elke speler die dag daadwerkelijk speelde). Hoe dan ook belanden de minuten op de
 aanwezigheidsregel en leest elk rapport ze. Een toernooi zonder vastgelegde
 minuten toont nog steeds niets — dezelfde eerlijke nul als een wedstrijd.
+
+### De minutenrapporten filteren
+
+**Speler · Gespeelde minuten** en **Team · Minutenverdeling** hebben dezelfde
+filterbalk als de aanwezigheidsrapporten — snelkeuzes voor de periode (*Vorige
+week*, *Deze maand*, *Dit seizoen*) plus een handmatig bereik **Van / Tot** dat
+de snelkeuze overschrijft. Alles op de pagina volgt de gekozen periode: de
+KPI-tegels, de tabel per wedstrijd of de spelerbalken, de drill-down van elke
+speler en de link **Verkenner →**.
+
+**Standaardperiode: de laatste 12 maanden.** Anders dan de
+aanwezigheidsrapporten gaan de twee minutenrapporten standaard uit van een
+voortschrijdende periode van **12 maanden** in plaats van het huidige seizoen —
+dat is de periode die ze altijd al gebruikten, en zo verandert er geen enkel
+getal alleen maar omdat de filterbalk erbij komt. De optie zonder snelkeuze
+heet daarom *Laatste 12 maanden*. Kies een snelkeuze of typ een bereik om te
+versmallen; **Wissen** brengt je terug naar de standaardperiode. De subregel van
+het rapport noemt altijd de datums die de getallen daadwerkelijk beslaan.
+
+### Wat "wedstrijden" betekent in het rapport Team · Minutenverdeling
+
+De tegel *Wedstrijden vastgelegd* telt de wedstrijden die **vastgelegde minuten
+hebben opgeleverd** — precies de wedstrijden waaruit de spelerbalken eronder
+zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Daaronder staat de
+eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**, oftewel
+wedstrijden met een datum van vandaag of eerder die niet zijn verwijderd of
+afgelast. Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
+wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
+vastlegging gaat en niet om een leeg seizoen.
+
+Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of in de toekomst
+gepland** zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen
+wedstrijdprogramma leest daarom als *"0 van 0 gespeelde wedstrijden vastgelegd"*
+tot de eerste wedstrijd is gespeeld, en als *"0 van 19"* zodra er negentien
+gespeeld zijn maar nog niets is vastgelegd — in plaats van de misleidende "19
+wedstrijden" naast een lege selectie die eerdere versies toonden.
+
+Gebruik het rapport **Minutencontrole** (hieronder) om te zien welke spelers bij
+welke wedstrijd minuten missen.
 
 **Basisplaatsen tellen alleen vastgelegde wedstrijden.** De *basisplaatsen* van
 een speler en het *% beschikbaar* tellen alleen wedstrijden die daadwerkelijk zijn

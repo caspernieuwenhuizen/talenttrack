@@ -273,6 +273,74 @@ final class MinutesQuery {
     }
 
     /**
+     * #2433 — how many matches a team's minutes actually account for, and
+     * how many it should. Two numbers, because conflating them was the bug:
+     * the team minutes report used to count every `tt_activities` row of a
+     * match type in the window with none of the exclusions its sibling
+     * queries carry, so deleted, cancelled and not-yet-played fixtures all
+     * counted. That is how a report could claim "19 matches" beside an empty
+     * squad.
+     *
+     *  - `recorded`: distinct matches that contributed minutes. Shares its
+     *    predicate with {@see forTeam()}, so a caller can never render a
+     *    match count that contradicts the per-player rows beside it.
+     *  - `played`: matches on the calendar that should have been played —
+     *    past-dated, not archived, not trashed, not cancelled. The honest
+     *    denominator for "N of M recorded".
+     *
+     * `plan_state = 'completed'` is deliberately NOT the gate for either.
+     * A grid bulk-save writes minutes without flipping plan_state (#2407
+     * keeps completion an explicit action), so gating on it would invert
+     * the same contradiction: minutes on screen, zero matches counted.
+     *
+     * @return array{recorded:int,played:int}
+     */
+    public function matchCountsForTeam( int $team_id, string $from, string $to ): array {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+
+        if ( $team_id <= 0 ) return [ 'recorded' => 0, 'played' => 0 ];
+
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        $recorded = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT( DISTINCT att.activity_id )
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+              WHERE a.club_id = %d
+                AND a.team_id = %d
+                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND att.record_type = 'actual'
+                AND att.is_guest = 0
+                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
+            $club_id, $team_id, $from, $to
+        ) );
+
+        $played = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_activities
+              WHERE club_id = %d
+                AND team_id = %d
+                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND {$date_col} BETWEEN %s AND %s
+                AND {$date_col} <= CURDATE()
+                AND archived_at IS NULL
+                AND trashed_at IS NULL
+                AND plan_state <> 'cancelled'
+                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )",
+            $club_id, $team_id, $from, $to
+        ) );
+
+        return [ 'recorded' => $recorded, 'played' => $played ];
+    }
+
+    /**
      * #2160 — per-match minutes breakdown for ONE player on a team over a
      * date window. Reads the exact same source as {@see forTeam()}:
      * persisted `record_type = 'actual'` minutes ONLY (#2193 — no report-

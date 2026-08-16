@@ -245,10 +245,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * the window seeds from `ReportFilters::seasonDefaultWindow()` (current
      * season start → today, 90-day fallback). No new vocabulary is introduced.
      *
+     * #2434 — `$defaults` overrides the seeded window for a report whose
+     * unfiltered default is not the season (the two minutes reports keep
+     * their rolling 12 months, so no number a coach sees today moves when
+     * the filter bar lands). Pass null for the season default.
+     *
+     * @param array{from:string,to:string}|null $defaults
      * @return array{from:string,to:string,period:string}
      */
-    private static function resolveReportWindow(): array {
-        $defaults = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+    private static function resolveReportWindow( ?array $defaults = null ): array {
+        $defaults = $defaults ?? \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         $period   = \TT\Modules\Analytics\Reports\ReportFilters::sanitizePeriod(
             isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : ''
         );
@@ -267,17 +273,51 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     }
 
     /**
+     * #2434 — the rolling 12-month window the two minutes reports have used
+     * since #2346. Kept as their unfiltered default so adding the filter bar
+     * is purely additive: nothing moves until the user picks a pill.
+     *
+     * @return array{from:string,to:string}
+     */
+    private static function rollingYearWindow(): array {
+        return [
+            'from' => gmdate( 'Y-m-d', strtotime( '-12 months' ) ),
+            'to'   => gmdate( 'Y-m-d' ),
+        ];
+    }
+
+    /**
+     * #2434 — a human label for the active window, used in report sub-lines
+     * so the header names the dates the numbers actually cover instead of a
+     * hardcoded phrase that a period pill can falsify.
+     */
+    private static function windowLabel( string $from, string $to ): string {
+        return sprintf(
+            /* translators: 1: window start date, 2: window end date */
+            __( '%1$s – %2$s', 'talenttrack' ),
+            \TT\Shared\Dates\TTDate::date( $from ),
+            \TT\Shared\Dates\TTDate::date( $to )
+        );
+    }
+
+    /**
      * #2345 — render the shared FilterBar for a standard report: retrospective
      * period pills (Last week / This month / This season) + a manual From/To
      * range, the SAME vocabulary the attendance reports offer. `$slug` is the
      * report key; `$extra_hidden` carries the entity selection (team_id /
      * scout_id) so the period pills and the auto-submitting range preserve it.
      *
+     * #2434 — `$default_label` renames the no-pill option for a report whose
+     * unfiltered default is a real window rather than a manual range (the
+     * minutes reports: "Last 12 months"). The shared period vocabulary is
+     * untouched, so no new pill appears on the other reports.
+     *
      * @param array<string,int|string> $extra_hidden
      */
-    private static function renderPeriodFilterBar( string $slug, string $from, string $to, string $period, array $extra_hidden = [] ): void {
+    private static function renderPeriodFilterBar( string $slug, string $from, string $to, string $period, array $extra_hidden = [], string $default_label = '' ): void {
         $dash_url      = RecordLink::dashboardUrl();
         $period_labels = \TT\Modules\Analytics\Reports\ReportFilters::periodLabels();
+        if ( $default_label !== '' ) $period_labels[''] = $default_label;
 
         // Base args every period pill preserves (view + slug + entity + back).
         $pill_base = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
@@ -379,8 +419,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // Explorer drill advertised a 12-month span; the two now agree. The
         // 50-row cap is also surfaced in the KPI strip below so a longer
         // history is never silently dropped.
-        $bd_from = gmdate( 'Y-m-d', strtotime( '-12 months' ) );
-        $bd_to   = gmdate( 'Y-m-d' );
+        // #2434 — that window is now the DEFAULT, not the only option: the
+        // shared FilterBar can narrow it, and every number on the page plus
+        // the Explorer drill read the resolved window.
+        $win     = self::resolveReportWindow( self::rollingYearWindow() );
+        $bd_from = $win['from'];
+        $bd_to   = $win['to'];
         $row_cap = 50;
         // #2158 — count only canonical recorded attendance: actual,
         // non-guest. SUM per (player, activity) so a duplicate attendance
@@ -413,21 +457,33 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         $avg = $apps > 0 ? (int) round( $minutes / $apps ) : 0;
 
+        // #2434 — the drill carries the window the report is actually
+        // showing, so narrowing with a pill narrows the Explorer too.
         $explore_url = ExplorerUrl::build(
             'attendance_vs_squad',
-            [ 'player_id' => (string) $player_id, 'date_after' => '-12 months' ],
+            [ 'player_id' => (string) $player_id, 'date_after' => $bd_from, 'date_before' => $bd_to ],
             'month'
         );
-        // #2346 — the sub line now names the window the numbers cover, so
-        // the "-12 months" scope is honest on the surface (not only in the
-        // Explorer drill).
+        // #2346 — the sub line names the window the numbers cover, so the
+        // scope is honest on the surface (not only in the Explorer drill).
+        // #2434 — it now names the resolved dates rather than a hardcoded
+        // "last 12 months" that a period pill would have falsified.
+        $window_label = self::windowLabel( $bd_from, $bd_to );
         $sub = $team_name !== ''
-            ? sprintf( /* translators: %s = team name */ __( '%s · last 12 months', 'talenttrack' ), $team_name )
-            : __( 'Last 12 months', 'talenttrack' );
+            ? sprintf( /* translators: 1: team name, 2: date window */ __( '%1$s · %2$s', 'talenttrack' ), $team_name, $window_label )
+            : $window_label;
         self::renderPageHead(
             sprintf( /* translators: %s = player name */ __( 'Minutes played — %s', 'talenttrack' ), $name ),
             $sub,
             $explore_url
+        );
+        self::renderPeriodFilterBar(
+            'player-minutes-played',
+            $bd_from,
+            $bd_to,
+            $win['period'],
+            [ 'player_id' => $player_id ],
+            __( 'Last 12 months', 'talenttrack' )
         );
         self::renderKpiStrip( [
             [ 'num' => (string) $apps,    'label' => __( 'Appearances', 'talenttrack' ) ],
@@ -490,6 +546,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $att_fk   = 'activity_id';
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities
         $club_id  = CurrentClub::id();
+        // #2434 — one window for the whole page: the squad query, both match
+        // counts, the per-player breakdown and the Explorer drill all read
+        // it. Defaults to the rolling 12 months this report has always used.
+        $win     = self::resolveReportWindow( self::rollingYearWindow() );
+        $bd_from = $win['from'];
+        $bd_to   = $win['to'];
         // #2339 — resolve the squad the SAME way the rest of analytics does:
         // players with recorded attendance on THIS TEAM's match/game/tournament
         // activities (`tt_activities.team_id`), NOT `tt_players.team_id`. The
@@ -524,31 +586,35 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                      WHERE att.record_type = 'actual'
                        AND att.is_guest = 0
                        AND a.activity_type_key IN ('match','game','tournament')
-                       AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                       AND a.{$date_col} BETWEEN %s AND %s
                      GROUP BY att.player_id, att.{$att_fk}
                   ) m
                JOIN {$wpdb->prefix}tt_players p ON p.id = m.player_id AND p.archived_at IS NULL
               GROUP BY p.id, p.name, p.jersey_number
               ORDER BY total_minutes DESC, p.name ASC
               LIMIT 60",
-            $team_id, $club_id
+            $team_id, $club_id, $bd_from, $bd_to
         ) );
         $rows = is_array( $rows ) ? $rows : [];
 
-        $match_count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities
-              WHERE team_id = %d AND club_id = %d
-                AND activity_type_key IN ('match','game','tournament')
-                AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
-            $team_id, $club_id
-        ) );
+        // #2433 — the counted match, resolved in the domain layer (§4) so the
+        // report and any future REST consumer answer identically. The old
+        // inline query carried NONE of the exclusions its sibling queries
+        // carry and had no upper date bound, which is how the report could
+        // claim "19 matches" beside an empty squad. See
+        // MinutesQuery::matchCountsForTeam() for why there are two numbers.
+        $minutes_query    = new \TT\Modules\Analytics\Reports\MinutesQuery();
+        $match_counts     = $minutes_query->matchCountsForTeam( $team_id, $bd_from, $bd_to );
+        $recorded_matches = $match_counts['recorded'];
+        $played_matches   = $match_counts['played'];
         $top = $rows ? (int) $rows[0]->total_minutes : 0;
         $bottom = $rows ? (int) $rows[ count( $rows ) - 1 ]->total_minutes : 0;
         $spread_pct = $top > 0 ? (int) round( ( ( $top - $bottom ) / $top ) * 100 ) : 0;
 
+        // #2434 — the drill carries the window the report is showing.
         $explore_url = ExplorerUrl::build(
             'attendance_vs_squad',
-            [ 'team_id' => (string) $team_id, 'date_after' => '-12 months' ],
+            [ 'team_id' => (string) $team_id, 'date_after' => $bd_from, 'date_before' => $bd_to ],
             'player_id'
         );
         // #2356 — drill-down targets (#2185 pattern): the squad KPI opens the
@@ -558,21 +624,52 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // own cap (§7 hide-don't-tease) so the tile stays static for a viewer
         // who can't reach it.
         $squad_url = RecordLink::detailUrlForWithBack( 'teams', $team_id );
-        // The activities list has no rolling-12-month pill; leaving `period`
+        // The activities list has no matching period pill; leaving `period`
         // off keeps the drill honest (a `this_season` pill would under-count
-        // vs. the report's 12-month window). The user narrows from there.
+        // vs. the report's window). The user narrows from there. The tile's
+        // denominator is the fixture count, which is what this list shows.
         $matches_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
             [ 'tt_view' => 'activities', 'team_id' => $team_id, 'activity_type_key' => 'match' ],
             RecordLink::dashboardUrl()
         ) );
+        $window_label = self::windowLabel( $bd_from, $bd_to );
         self::renderPageHead(
             sprintf( /* translators: %s = team name */ __( 'Minutes distribution — %s', 'talenttrack' ), (string) $team->name ),
-            sprintf( /* translators: %d = match count */ _n( '%d match in the window', '%d matches in the window', $match_count, 'talenttrack' ), $match_count ),
+            sprintf(
+                /* translators: 1: matches with recorded minutes, 2: matches played, 3: date window */
+                __( '%1$d of %2$d played matches recorded · %3$s', 'talenttrack' ),
+                $recorded_matches,
+                $played_matches,
+                $window_label
+            ),
             $explore_url
         );
+        self::renderPeriodFilterBar(
+            'team-minutes-distribution',
+            $bd_from,
+            $bd_to,
+            $win['period'],
+            [ 'team_id' => $team_id ],
+            __( 'Last 12 months', 'talenttrack' )
+        );
+        // #2433 — the Matches tile reports what the report can actually
+        // account for, with the fixture count as its denominator. A gap
+        // between the two is the signal that minutes are missing, and it
+        // is flagged rather than hidden behind a single ambiguous number.
+        $unrecorded = max( 0, $played_matches - $recorded_matches );
         self::renderKpiStrip( [
             [ 'num' => (string) count( $rows ), 'label' => __( 'Players in selection', 'talenttrack' ), 'href' => $squad_url, 'cap' => 'tt_view_teams' ],
-            [ 'num' => (string) $match_count,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'cap' => 'tt_view_activities' ],
+            [
+                'num'   => (string) $recorded_matches,
+                'label' => __( 'Matches recorded', 'talenttrack' ),
+                'sub'   => $unrecorded > 0
+                    /* translators: %d = number of played matches with no recorded minutes */
+                    ? sprintf( _n( '%d played match has no minutes', '%d played matches have no minutes', $unrecorded, 'talenttrack' ), $unrecorded )
+                    : __( 'All played matches recorded', 'talenttrack' ),
+                'warn'  => $unrecorded > 0,
+                'href'  => $matches_url,
+                'cap'   => 'tt_view_activities',
+            ],
             [ 'num' => (string) $top,           'label' => __( 'Max minutes / player', 'talenttrack' ) ],
             [
                 'num'   => $spread_pct . '%',
@@ -582,17 +679,21 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ],
         ] );
         if ( ! $rows ) {
-            self::renderEmpty( __( 'No players with recorded match minutes for this team in the last 12 months.', 'talenttrack' ) );
+            self::renderEmpty( $played_matches > 0
+                /* translators: %d = number of matches played in the window */
+                ? sprintf( _n( 'No minutes recorded for this team yet — %d match was played in this window. Record them from the activity, or widen the window.', 'No minutes recorded for this team yet — %d matches were played in this window. Record them from the activity, or widen the window.', $played_matches, 'talenttrack' ), $played_matches )
+                : __( 'No matches played for this team in this window. Widen the window or check the Activities log.', 'talenttrack' )
+            );
             return;
         }
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by minutes, high to low. Open a row to trace the per-match minutes that sum to it.', 'talenttrack' ) . '</span></div>';
-        // #2160 — the breakdown reuses the same 12-month rolling window as
-        // the aggregate query above so the per-match rows reconcile EXACTLY
-        // with each player's total. Same MinutesQuery, scoped to one player.
-        $bd_from = gmdate( 'Y-m-d', strtotime( '-12 months' ) );
-        $bd_to   = gmdate( 'Y-m-d' );
-        $minutes_query = new \TT\Modules\Analytics\Reports\MinutesQuery();
+        // #2160 — the breakdown reuses the same window as the aggregate query
+        // above so the per-match rows reconcile EXACTLY with each player's
+        // total. Same MinutesQuery, scoped to one player. #2434 — that window
+        // is now the resolved one ($bd_from / $bd_to), so narrowing with a
+        // period pill keeps the rows and the totals in step. $minutes_query
+        // is the same instance the match counts came from.
         $threshold = $top > 0 ? (int) round( $top * 0.5 ) : 0;
         foreach ( $rows as $r ) {
             $mins = (int) $r->total_minutes;
@@ -690,7 +791,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         self::renderPageHead(
             sprintf( /* translators: %s = team name */ __( 'Squad evaluation summary — %s', 'talenttrack' ), (string) $team->name ),
             /* translators: 1: from date, 2: to date */
-            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
+            self::windowLabel( $from, $to ),
             $explore_url
         );
         self::renderPeriodFilterBar( 'team-squad-evaluation-summary', $from, $to, $period, [ 'team_id' => $team_id ] );
@@ -896,7 +997,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         self::renderPageHead(
             __( 'Trial funnel — per scout, per period', 'talenttrack' ),
             /* translators: 1: from date, 2: to date */
-            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
+            self::windowLabel( $from, $to ),
             $explore_url
         );
         self::renderPeriodFilterBar( 'season-trial-funnel', $from, $to, $period );
@@ -1036,7 +1137,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         self::renderPageHead(
             sprintf( /* translators: %s = scout name */ __( 'Scout report card — %s', 'talenttrack' ), $name ),
             /* translators: 1: from date, 2: to date */
-            sprintf( __( '%1$s – %2$s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( $from ), \TT\Shared\Dates\TTDate::date( $to ) ),
+            self::windowLabel( $from, $to ),
             $explore_url
         );
         self::renderPeriodFilterBar( 'scout-report-card', $from, $to, $period, [ 'scout_id' => $scout_id ] );

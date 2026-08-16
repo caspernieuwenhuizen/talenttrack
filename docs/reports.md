@@ -57,7 +57,7 @@ Both the team report and the player report carry the same filtering vocabulary a
 - **Period quick-pills** — *Last week*, *This month* (month-to-date), *This season*. *Last week* and *This month* are retrospective (they look back to today). ***This season* spans the whole season** — from the season's start date through the season's own **end date** — so it covers the entire campaign, not just the part that has happened so far. Picking a pill sets the From/To window for you. The explicit **From / To** date range is always the manual override — type a date there and it wins over the pill.
 - **Activity type** — narrow to one type (training / game / tournament, whatever your academy has configured). The type filter narrows every figure consistently: the KPI tiles, the table, the leaderboard and the at-risk panel.
 
-**Default window.** When you open a report without picking a pill or typing a From/To range, it defaults to **the current season** — from the season's start date through today. This matches the *This season* pill and how the academy thinks about the year, rather than an arbitrary rolling window. If no season is configured, the report falls back to the last **90 days** so it always shows something. The team-minutes report follows the same default. Picking a pill or typing a manual From/To still overrides it. Because this default *is* the season window, both attendance reports now show the ***This season* pill highlighted** on first open — the filter bar reflects the window you're actually looking at, instead of reading "Custom range".
+**Default window.** When you open a report without picking a pill or typing a From/To range, it defaults to **the current season** — from the season's start date through today. This matches the *This season* pill and how the academy thinks about the year, rather than an arbitrary rolling window. If no season is configured, the report falls back to the last **90 days** so it always shows something. The Analytics team-minutes report follows the same default; the two standard minutes reports keep a rolling 12-month default instead — see *Filtering the minutes reports* below. Picking a pill or typing a manual From/To still overrides it. Because this default *is* the season window, both attendance reports now show the ***This season* pill highlighted** on first open — the filter bar reflects the window you're actually looking at, instead of reading "Custom range".
 
 **Scope note.** When you only coach some teams, the attendance reports show just those teams. If your filters return nothing, the empty-state message says the report is **limited to the teams you coach**, so an empty window doesn't read as "the academy has no data".
 
@@ -92,6 +92,42 @@ records minutes with the by-hand per-player entry on the attendance screen (how
 many minutes each player actually played across the day). Either way the minutes
 land on the attendance row and every report reads them. A tournament with no
 recorded minutes still shows nothing — the same honest zero as a match.
+
+### Filtering the minutes reports
+
+**Player · Minutes played** and **Team · Minutes distribution** carry the same
+filter bar as the attendance reports — period quick-pills (*Last week*, *This
+month*, *This season*) plus a manual **From / To** range that overrides the pill.
+Every figure on the page reads the window you pick: the KPI tiles, the per-match
+table or player bars, each player's drill-down, and the **Explorer →** link.
+
+**Default window: the last 12 months.** Unlike the attendance reports, the two
+minutes reports default to a rolling **12 months** rather than the current
+season — that is the window they have always used, and keeping it means no
+number changes just because the filter bar arrived. The no-pill option is
+labelled *Last 12 months* to say so. Pick a pill or type a range to narrow it;
+**Reset** returns to the 12-month default. The report's sub-line always names
+the dates the numbers actually cover.
+
+### What "matches" means on the Team · Minutes distribution report
+
+The *Matches recorded* tile counts the matches that **produced recorded
+minutes** — the same matches the player bars below it are built from, so the
+tile can never contradict them. Underneath it sits the honest denominator:
+how many matches were **played** in the window, meaning fixtures dated on or
+before today that were not deleted or cancelled. When the two differ the tile
+is flagged: *"3 played matches have no minutes"* tells you the gap is a
+recording gap, not an empty season.
+
+Fixtures that are **archived, moved to the recycle bin, cancelled, or dated in
+the future** count towards neither number. A season's fixture list imported in
+advance therefore reads as *"0 of 0 played matches recorded"* until the first
+match is played, and *"0 of 19"* once nineteen have been played but none
+recorded — instead of the misleading "19 matches" beside an empty squad that
+earlier versions showed.
+
+Use the **Minutes audit** report (below) to see exactly which players are
+missing minutes on which game.
 
 **Starts (basisplaatsen) count only recorded matches.** A player's *starts* and
 the *% available* figure count only matches that were actually recorded (that

@@ -45948,6 +45948,52 @@ msgid_plural "%d matches in the window"
 msgstr[0] "%d wedstrijd in de periode"
 msgstr[1] "%d wedstrijden in de periode"
 
+#. translators: 1: matches with recorded minutes, 2: matches played, 3: date window
+#: src/Shared/Frontend/FrontendStandardReportsView.php:677
+#, php-format
+msgid "%1$d of %2$d played matches recorded · %3$s"
+msgstr "%1$d van %2$d gespeelde wedstrijden vastgelegd · %3$s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:697
+msgid "Matches recorded"
+msgstr "Wedstrijden vastgelegd"
+
+#. translators: %d = number of played matches with no recorded minutes
+#: src/Shared/Frontend/FrontendStandardReportsView.php:700
+#, php-format
+msgid "%d played match has no minutes"
+msgid_plural "%d played matches have no minutes"
+msgstr[0] "%d gespeelde wedstrijd heeft geen minuten"
+msgstr[1] "%d gespeelde wedstrijden hebben geen minuten"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:701
+msgid "All played matches recorded"
+msgstr "Alle gespeelde wedstrijden vastgelegd"
+
+#. translators: %d = number of matches played in the window
+#: src/Shared/Frontend/FrontendStandardReportsView.php:717
+#, php-format
+msgid ""
+"No minutes recorded for this team yet — %d match was played in this window. "
+"Record them from the activity, or widen the window."
+msgid_plural ""
+"No minutes recorded for this team yet — %d matches were played in this "
+"window. Record them from the activity, or widen the window."
+msgstr[0] ""
+"Nog geen minuten vastgelegd voor dit team — er is %d wedstrijd gespeeld in "
+"deze periode. Leg ze vast vanuit de activiteit, of verruim de periode."
+msgstr[1] ""
+"Nog geen minuten vastgelegd voor dit team — er zijn %d wedstrijden gespeeld "
+"in deze periode. Leg ze vast vanuit de activiteit, of verruim de periode."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:718
+msgid ""
+"No matches played for this team in this window. Widen the window or check the "
+"Activities log."
+msgstr ""
+"Geen wedstrijden gespeeld voor dit team in deze periode. Verruim de periode "
+"of controleer het activiteitenlog."
+
 #: src/Shared/Frontend/FrontendStandardReportsView.php:574
 msgid "Players in selection"
 msgstr "Spelers in selectie"
