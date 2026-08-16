@@ -105,9 +105,17 @@ $liveHeader = (Git show HEAD:talenttrack.php) -join "`n"
 $liveVer = if ($liveHeader -match 'Version:\s*([0-9][0-9.]+)') { $Matches[1] } else { '?' }
 
 # Bootstrap WordPress so migrations run; surface TT_VERSION / any fatal.
+# The eval's OUTCOME decides what we claim: a failed bootstrap (DB down, fatal)
+# still exits this block, so gating on Test-Path alone reported "migrations ran"
+# when nothing had. Require exit 0 and a version-shaped payload before saying so.
 if ((Test-Path $Php) -and (Test-Path $WpCli)) {
-    $out = & $Php $WpCli --path=$WpPath eval "echo defined('TT_VERSION') ? TT_VERSION : 'no-const';"
-    Write-Host "go-live-local: local WordPress now on main - TT_VERSION=$out (migrations ran on bootstrap)."
+    $out = (& $Php $WpCli --path=$WpPath eval "echo defined('TT_VERSION') ? TT_VERSION : 'no-const';" 2>&1) -join ' '
+    if ($LASTEXITCODE -ne 0 -or $out -notmatch '^\s*[0-9]') {
+        Write-Host "go-live-local: repo root is on main (v$liveVer), but the WP bootstrap FAILED - migrations have NOT run."
+        Write-Host "  Is XAMPP MySQL started? wp-cli said: $out"
+    } else {
+        Write-Host "go-live-local: local WordPress now on main - TT_VERSION=$out (migrations ran on bootstrap)."
+    }
 } else {
     Write-Host "go-live-local: local WordPress now on main (v$liveVer). Skipped WP bootstrap - php/wp-cli not at expected paths."
 }
