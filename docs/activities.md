@@ -61,6 +61,8 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
   - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
 - **Audit footer** — who created and last changed the activity. For an activity imported from Spond it also shows **Team last synced from Spond: <time>** — the team's most recent Spond sync (the timestamp is team-level, not per activity, and the label says so), so you can judge how fresh the imported data is.
 
+If that sync looks stale — the event moved in Spond, or the roster changed — a **Sync team from Spond** button sits in the page header of any Spond-imported activity. It pulls the team's calendar again straight away, so you don't have to wait for the scheduled sync or ask an academy admin. It is a *team-wide* refresh (Spond has no way to re-fetch a single event), so the confirmation says so, and the change you were looking for may land on a different activity in the list. The button appears only for someone who may manage that team's Spond connection — an academy admin for any team, a head coach for their own — and only while the activity is active, not archived.
+
 The page reads cleanly on a phone: the cards stack in a single column and widen to two columns on a tablet or desktop.
 
 ## Creating an activity

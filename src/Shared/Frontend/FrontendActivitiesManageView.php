@@ -428,6 +428,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 }
                 } // end $can_delete_acts (Archive / Restore)
             }
+            // #2438 — force a Spond re-sync from the activity itself. A stale
+            // import is noticed here, not on the Spond settings page, and the
+            // head coach who spots it already holds change authority on their
+            // own team's connection — so this gates on TeamSpondAccess, the
+            // same check the endpoint runs (CLAUDE.md §7), rather than on the
+            // activity caps above.
+            if ( $session ) {
+                self::addSpondSyncAction( $detail_actions, $session );
+            }
             self::renderHeader(
                 $session ? (string) $session->title : __( 'Activity not found', 'talenttrack' ),
                 self::pageActionsHtml( $detail_actions )
@@ -624,6 +633,73 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '</div>'; // .tt-act-panel
 
         echo '</div>'; // .tt-act-detail
+    }
+
+    /**
+     * #2438 — "Sync team from Spond" header action on a Spond-sourced
+     * activity, for anyone who may manage that team's Spond connection
+     * (an academy admin globally, a head coach for their own team).
+     *
+     * The Spond API offers no per-event re-fetch — `SpondSync::syncTeam()`
+     * re-pulls the team's whole calendar — so the label and the confirm
+     * text say "team" rather than implying this one activity is refreshed.
+     *
+     * Rides the generic REST-action plumbing the status / archive buttons
+     * use (`data-tt-archive-*`, generalised in #1555): confirm modal,
+     * nonce'd POST, button disabled in flight, error surfaced, redirect
+     * back to this activity. No new script.
+     *
+     * @param array<int,array<string,mixed>> $actions
+     */
+    private static function addSpondSyncAction( array &$actions, object $session ): void {
+        if ( ! empty( $session->archived_at ) ) return;
+        if ( strtolower( (string) ( $session->activity_source_key ?? '' ) ) !== 'spond' ) return;
+
+        $team_id = (int) ( $session->team_id ?? 0 );
+        if ( $team_id <= 0 ) return;
+        if ( ! \TT\Modules\Spond\TeamSpondAccess::currentUserCanManage( $team_id ) ) return;
+
+        $action = [
+            'label'      => __( 'Sync team from Spond', 'talenttrack' ),
+            'variant'    => 'secondary',
+            'data_attrs' => [
+                'tt-archive-rest-path'     => 'teams/' . $team_id . '/spond/sync',
+                'tt-archive-method'        => 'POST',
+                'tt-archive-confirm'       => self::spondSyncConfirm( $session ),
+                'tt-archive-confirm-label' => __( 'Sync now', 'talenttrack' ),
+                'tt-archive-confirm-title' => __( 'Sync from Spond', 'talenttrack' ),
+                'tt-archive-variant'       => 'primary',
+                'tt-archive-redirect'      => \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id ),
+            ],
+        ];
+
+        // Ahead of Archive, so the destructive action keeps the last slot.
+        foreach ( $actions as $i => $existing ) {
+            if ( ( $existing['variant'] ?? '' ) === 'danger' ) {
+                array_splice( $actions, $i, 0, [ $action ] );
+                return;
+            }
+        }
+        $actions[] = $action;
+    }
+
+    /**
+     * Confirm copy for the Spond sync action. Always names the team-wide
+     * scope; when the team synced moments ago it says so, which is the
+     * cheapest guard against hammering Spond's API without disabling a
+     * control a coach may legitimately want to press twice.
+     */
+    private static function spondSyncConfirm( object $session ): string {
+        $synced_at = (string) ( $session->team_spond_last_sync_at ?? '' );
+        if ( $synced_at !== '' ) {
+            // The column is site-local (`current_time( 'mysql' )`), so
+            // convert before comparing against a UTC-based time().
+            $ts = strtotime( get_gmt_from_date( $synced_at ) . ' UTC' );
+            if ( $ts && ( time() - $ts ) < MINUTE_IN_SECONDS ) {
+                return __( 'This team synced with Spond less than a minute ago. Sync again? The whole team calendar is refreshed, not just this activity.', 'talenttrack' );
+            }
+        }
+        return __( 'Pull this team\'s calendar from Spond now? The whole team calendar is refreshed, not just this activity.', 'talenttrack' );
     }
 
     /**

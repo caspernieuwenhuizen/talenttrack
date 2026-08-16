@@ -48332,6 +48332,35 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:663
+msgid "Sync team from Spond"
+msgstr "Team synchroniseren vanuit Spond"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:669
+msgid "Sync now"
+msgstr "Nu synchroniseren"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:670
+msgid "Sync from Spond"
+msgstr "Synchroniseren vanuit Spond"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:699
+msgid ""
+"This team synced with Spond less than a minute ago. Sync again? The whole "
+"team calendar is refreshed, not just this activity."
+msgstr ""
+"Dit team is minder dan een minuut geleden gesynchroniseerd met Spond. "
+"Opnieuw synchroniseren? De volledige teamkalender wordt ververst, niet "
+"alleen deze activiteit."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:702
+msgid ""
+"Pull this team's calendar from Spond now? The whole team calendar is "
+"refreshed, not just this activity."
+msgstr ""
+"De kalender van dit team nu ophalen uit Spond? De volledige teamkalender "
+"wordt ververst, niet alleen deze activiteit."
+
 #, php-format
 #~ msgid "%s · last 12 months"
 #~ msgstr "%s · laatste 12 maanden"
