@@ -46,8 +46,10 @@ final class RatingsGridQuery {
         $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
 
+        // No eval_type_id on tt_activities — the evaluation type is derived
+        // from activity_type_key (see EvaluationInserter::evalTypeIdForActivity).
         $activity = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, team_id, title, session_date, activity_type_key, eval_type_id
+            "SELECT id, team_id, title, session_date, activity_type_key
                FROM {$p}tt_activities
               WHERE id = %d AND club_id = %d",
             $activity_id, $club_id
@@ -76,10 +78,10 @@ final class RatingsGridQuery {
         $p       = $wpdb->prefix;
         $club_id = CurrentClub::id();
 
-        $type_id = (int) ( $activity->eval_type_id ?? 0 );
-        if ( $type_id <= 0 ) {
-            $type_id = \TT\Modules\Wizards\Evaluation\EvaluationInserter::evalTypeIdForActivity( (int) $activity->id );
-        }
+        // The activity carries an activity_type_key; the matching eval_type
+        // lookup id is resolved by the same helper the wizard's writer uses,
+        // so grid columns and wizard cards agree on the type.
+        $type_id = \TT\Modules\Wizards\Evaluation\EvaluationInserter::evalTypeIdForActivity( (int) $activity->id );
 
         $rows = [];
         if ( $type_id > 0 ) {

@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Ratings grid
 
 *Audience: coaches, heads of development, academy admins.*

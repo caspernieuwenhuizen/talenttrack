@@ -48195,12 +48195,6 @@ msgstr "Netwerkfout — probeer het opnieuw"
 msgid "The desktop ratings-entry grid (players × evaluation categories, one activity) — a spreadsheet alternative to rating players one card at a time. The evaluation wizard and the flat evaluation form stay available when this is off."
 msgstr "Het desktop-invoerraster voor beoordelingen (spelers × beoordelingscategorieën, één activiteit) — een spreadsheetalternatief voor het één voor één beoordelen van spelers. De beoordelingswizard en het gewone beoordelingsformulier blijven beschikbaar als dit uitstaat."
 
-#. translators: 1: window start date, 2: window end date.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
-#, php-format
-msgid "Showing %1$s – %2$s"
-msgstr "%1$s – %2$s wordt getoond"
-
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
 

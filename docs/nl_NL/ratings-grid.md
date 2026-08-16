@@ -1,3 +1,5 @@
+<!-- audience: user -->
+
 # Beoordelingsraster
 
 *Doelgroep: trainers, hoofden ontwikkeling, academiebeheerders.*
