@@ -681,7 +681,11 @@ final class QrCodeRenderer {
      * and XOR with the spec mask 0x5412. Then write into the two format-info
      * strips around the finders.
      *
-     * Format bits layout: bits 0..4 = ECC|mask, bits 5..14 = BCH ECC.
+     * Format bits layout: bits 14..10 = ECC|mask, bits 9..0 = BCH ECC.
+     * They are placed most-significant-bit first — bit 14 at the first
+     * coordinate of each strip. Writing them the other way round produces
+     * a string that is not a valid BCH codeword, and every conforming
+     * decoder rejects the symbol before reading any data (#2425).
      *
      * @param array<int,array<int,int>> $matrix
      */
@@ -699,16 +703,18 @@ final class QrCodeRenderer {
         $bits = ( ( $data << 10 ) | $rem ) ^ 0x5412;
 
         $size = count( $matrix );
-        // Write bits 0..14 along the top-left finder (vertical then horizontal).
+        // Placement order is most-significant-bit first: the first
+        // coordinate carries bit 14, the last carries bit 0 (§7.9.1).
         $coords = [
-            // bit 0 .. bit 14 — clockwise around the top-left finder.
+            // bit 14 .. bit 0 — clockwise around the top-left finder.
             [ 8, 0 ], [ 8, 1 ], [ 8, 2 ], [ 8, 3 ], [ 8, 4 ], [ 8, 5 ],
             [ 8, 7 ], [ 8, 8 ],
             [ 7, 8 ], [ 5, 8 ], [ 4, 8 ], [ 3, 8 ], [ 2, 8 ], [ 1, 8 ], [ 0, 8 ],
         ];
-        // Mirror: bits 0..7 along the right edge of bottom-left finder
-        // (rows size-1 down to size-8, col 8); bits 8..14 along the
-        // bottom edge of top-right finder (row 8, cols size-7 to size-1).
+        // Mirror: the first 8 bits run up the right edge of the bottom-left
+        // finder (rows size-1 down to size-8, col 8); the remaining 7 run
+        // along the bottom edge of the top-right finder (row 8, cols
+        // size-7 to size-1).
         $coords_mirror = [
             [ $size - 1, 8 ], [ $size - 2, 8 ], [ $size - 3, 8 ], [ $size - 4, 8 ],
             [ $size - 5, 8 ], [ $size - 6, 8 ], [ $size - 7, 8 ], [ $size - 8, 8 ],
@@ -717,7 +723,7 @@ final class QrCodeRenderer {
         ];
 
         for ( $i = 0; $i < 15; $i++ ) {
-            $bit = ( $bits >> $i ) & 1;
+            $bit = ( $bits >> ( 14 - $i ) ) & 1;
             [ $r, $c ] = $coords[ $i ];
             $matrix[ $r ][ $c ] = $bit;
             [ $r, $c ] = $coords_mirror[ $i ];

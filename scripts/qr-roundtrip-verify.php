@@ -76,16 +76,70 @@ function reserved_map( int $version ): array {
 }
 
 /* ---- read the mask out of the format-info strip (canonical layout) ---- */
-function read_format_mask( array $matrix, int $size ): int {
-    // Canonical primary copy: bits 0..5 along row 8 (cols 0..5), bit 6 at
-    // [8,7], bit 7 at [8,8], bit 8 at [7,8], bits 9..14 up col 8 (rows 5..0).
-    $coords = [ [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
-                [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8] ];
+function format_coords( int $size ): array {
+    // Canonical primary copy, most-significant-bit first: bit 14 at [8,0]
+    // through bit 0 at [0,8].
+    return [ [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
+             [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8] ];
+}
+function format_coords_mirror( int $size ): array {
+    return [ [$size-1,8],[$size-2,8],[$size-3,8],[$size-4,8],
+             [$size-5,8],[$size-6,8],[$size-7,8],[$size-8,8],
+             [8,$size-7],[8,$size-6],[8,$size-5],
+             [8,$size-4],[8,$size-3],[8,$size-2],[8,$size-1] ];
+}
+function read_format_bits( array $matrix, array $coords ): int {
     $bits = 0;
-    foreach ( $coords as $i => $rc ) $bits |= ( $matrix[$rc[0]][$rc[1]] & 1 ) << $i;
+    foreach ( $coords as $i => $rc ) $bits |= ( $matrix[$rc[0]][$rc[1]] & 1 ) << ( 14 - $i );
+    return $bits;
+}
+function read_format_mask( array $matrix, int $size ): int {
+    $bits     = read_format_bits( $matrix, format_coords( $size ) );
     $unmasked = $bits ^ 0x5412;
     $data5    = ( $unmasked >> 10 ) & 0x1F;
     return $data5 & 0x7;
+}
+
+/* ---- #2425: the format strip must be a legal BCH(15,5) codeword ----
+ * The bug this guards against wrote the 15 bits in reverse order. The
+ * round-trip alone could not see it: this script's reader shared the
+ * encoder's convention, so it recovered the right mask from a string no
+ * real scanner would accept. Checking the bits against the 32 legal
+ * codewords is an independent oracle — it does not care how either side
+ * chose to order them.
+ */
+function format_codeword( int $ecc_bits, int $mask ): int {
+    $data = ( $ecc_bits << 3 ) | $mask;
+    $rem  = $data << 10;
+    for ( $i = 14; $i >= 10; $i-- ) {
+        if ( ( $rem >> $i ) & 1 ) $rem ^= 0x537 << ( $i - 10 );
+    }
+    return ( ( $data << 10 ) | $rem ) ^ 0x5412;
+}
+/** @return array{0:bool,1:string} [ ok, message ] */
+function check_format_info( array $matrix, int $size ): array {
+    $primary = read_format_bits( $matrix, format_coords( $size ) );
+    $mirror  = read_format_bits( $matrix, format_coords_mirror( $size ) );
+
+    // The mirror's bit 7 lands on the always-dark module at [size-8,8],
+    // which the encoder re-asserts after writing; ignore that one bit.
+    if ( ( $primary & ~0x80 ) !== ( $mirror & ~0x80 ) ) {
+        return [ false, sprintf( 'format copies disagree (primary %015b, mirror %015b)', $primary, $mirror ) ];
+    }
+
+    $legal = [];
+    for ( $ecc = 0; $ecc < 4; $ecc++ ) {
+        for ( $m = 0; $m < 8; $m++ ) $legal[ format_codeword( $ecc, $m ) ] = [ $ecc, $m ];
+    }
+    if ( ! isset( $legal[ $primary ] ) ) {
+        return [ false, sprintf( 'format bits %015b are not a valid BCH(15,5) codeword', $primary ) ];
+    }
+    // Table 12: L = 01. The encoder is level-L only.
+    [ $ecc, $m ] = $legal[ $primary ];
+    if ( $ecc !== 0b01 ) {
+        return [ false, sprintf( 'format bits encode ECC level %02b, expected 01 (L)', $ecc ) ];
+    }
+    return [ true, sprintf( 'ECC L, mask %d', $m ) ];
 }
 function mask_bit( int $mask, int $r, int $c ): int {
     switch ( $mask ) {
@@ -204,13 +258,15 @@ foreach ( $cases as $name => $input ) {
         printf( "FAIL  %-16s len=%d  decode error: %s\n", $name, strlen($input), $e->getMessage() );
         $fail++; continue;
     }
-    $ok = ( $decoded === $input );
+    [ $fmt_ok, $fmt_msg ] = check_format_info( svg_to_matrix( $svg ), 17 + 4 * $version );
+    $ok = ( $decoded === $input ) && $fmt_ok;
     printf( "%s  %-16s len=%-3d v%-2d mask=%d  %s\n",
         $ok ? 'PASS' : 'FAIL', $name, strlen($input), $version, $mask,
-        $ok ? '' : 'MISMATCH' );
+        $ok ? '' : ( $decoded === $input ? 'BAD FORMAT INFO' : 'MISMATCH' ) );
     if ( ! $ok ) {
         $fail++;
-        printf( "      in : %s\n      out: %s\n", $input, $decoded );
+        if ( $decoded !== $input ) printf( "      in : %s\n      out: %s\n", $input, $decoded );
+        if ( ! $fmt_ok )           printf( "      format-info: %s\n", $fmt_msg );
     }
 }
 echo $fail === 0 ? "\nALL ROUND-TRIPS PASS\n" : "\n$fail FAILURE(S)\n";
