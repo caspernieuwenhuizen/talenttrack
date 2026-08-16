@@ -19,33 +19,52 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          tools: composer:v2
+      # No host PHP toolchain here: every PHP process in this job runs
+      # inside wp-env's containers, and nothing on the runner shells out to
+      # php or composer once the install step below is gone.
 
-      - name: Install PHP dependencies
-        # Plugin's bootstrap (`talenttrack.php`) loads `vendor/autoload.php`
-        # when present — and several modules (Excel demo data, future
-        # Spond JWT) need their composer deps. Install before wp-env
-        # starts so the plugin activates cleanly.
-        run: composer install --no-interaction --no-progress --prefer-dist
+      # No `composer install` here: the plugin's whole runtime tree
+      # (phpspreadsheet, dompdf and their dependencies) plus
+      # `vendor/autoload.php` are committed, so the checkout already
+      # carries everything `talenttrack.php` loads. Installing on top only
+      # added the dev tree this job never uses — and, with no
+      # `composer.lock` in the repo, re-resolved runtime versions on every
+      # run. Using the committed tree is both faster and deterministic.
+      # (php-tests.yml still installs: PHPUnit is NOT committed.)
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '20'
-          # cache: 'npm' would speed up subsequent runs but requires a
-          # package-lock.json that isn't in the v1 foundation. The first
-          # install generates one — once it's committed (a follow-up
-          # PR), uncomment this line for ~30s saved per CI run.
+          cache: 'npm'
 
       - name: Install JS dependencies
         run: npm ci || npm install
 
+      # Restore the browser binaries (~30s of download per run otherwise).
+      # Keyed on the resolved Playwright version so a version bump misses
+      # the cache and re-downloads, which is exactly what should happen.
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.pw.outputs.version }}
+
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        # On a cache hit the binaries are already in place, but the system
+        # libraries `--with-deps` installs are not cached (they live in
+        # /usr/lib), so still run install-deps.
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       - name: Start wp-env
         run: npm run wp-env:start
