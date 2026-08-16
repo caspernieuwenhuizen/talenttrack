@@ -20,7 +20,7 @@ Open the activity and click **Ratings grid**. The button appears when you can ed
 
 ## Using it
 
-- **Columns** are the categories the activity's evaluation type declares. If the type declares none, every active category is shown instead.
+- **Columns** are the categories the activity's evaluation type declares. If the type declares none, every active category is shown instead. Category names appear in your own language, the same as they do on the evaluation form; a category nobody has translated yet keeps its original name.
 - **Rows** are the team's active players.
 - **Scores** follow your academy's configured scale (by default 5 to 10 in half-point steps). Anything outside it is refused when you save.
 - **An empty cell means "not rated".** It writes nothing, and it never clears a score somebody already recorded — clearing a score is a job for the evaluation form.

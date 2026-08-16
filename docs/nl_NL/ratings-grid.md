@@ -20,7 +20,7 @@ Open de activiteit en klik op **Beoordelingsraster**. De knop verschijnt als je 
 
 ## Gebruik
 
-- **Kolommen** zijn de categorieën die het beoordelingstype van de activiteit voorschrijft. Schrijft dat type er geen voor, dan verschijnen alle actieve categorieën.
+- **Kolommen** zijn de categorieën die het beoordelingstype van de activiteit voorschrijft. Schrijft dat type er geen voor, dan verschijnen alle actieve categorieën. Categorienamen staan er in je eigen taal, net als op het beoordelingsformulier; een categorie die nog niemand heeft vertaald houdt zijn oorspronkelijke naam.
 - **Rijen** zijn de actieve spelers van het team.
 - **Cijfers** volgen de schaal van je academie (standaard 5 tot 10 in stappen van een half punt). Wat daarbuiten valt wordt bij het opslaan geweigerd.
 - **Een lege cel betekent "niet beoordeeld".** Er wordt niets weggeschreven en een al vastgelegd cijfer wordt nooit gewist — wissen doe je op het beoordelingsformulier.
