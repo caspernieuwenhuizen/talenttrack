@@ -57,7 +57,7 @@ class FrontendSpondMonitorView extends FrontendViewBase {
             "SELECT id, name, age_group, spond_group_id
                FROM {$wpdb->prefix}tt_teams
               WHERE club_id = %d
-                AND ( archived_at IS NULL OR archived_at = '' )
+                AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                 AND spond_group_id IS NOT NULL AND spond_group_id <> ''
               ORDER BY name ASC",
             CurrentClub::id()

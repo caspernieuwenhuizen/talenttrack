@@ -63,7 +63,7 @@ class FrontendSpondView extends FrontendViewBase {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name, age_group, spond_group_id, spond_last_sync_at, spond_last_sync_status, spond_last_sync_message
                FROM {$wpdb->prefix}tt_teams
-              WHERE club_id = %d AND ( archived_at IS NULL OR archived_at = '' )
+              WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
               ORDER BY name ASC",
             CurrentClub::id()
         ) );

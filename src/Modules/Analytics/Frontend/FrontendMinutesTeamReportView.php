@@ -309,7 +309,7 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT id, name FROM {$wpdb->prefix}tt_teams
                   WHERE club_id = %d
-                    AND archived_at IS NULL
+                    AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                     AND id IN ($placeholders)
                   ORDER BY name ASC",
                 CurrentClub::id(), ...$allowed_team_ids
@@ -317,7 +317,7 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         } else {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT id, name FROM {$wpdb->prefix}tt_teams
-                  WHERE club_id = %d AND archived_at IS NULL
+                  WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                   ORDER BY name ASC",
                 CurrentClub::id()
             ) );

@@ -763,9 +763,12 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         if ( $is_admin ) {
             global $wpdb;
             $rows = $wpdb->get_results( $wpdb->prepare(
+                // #2410 — filtered team_kind only, so an archived (or
+                // trashed) team still appeared in the planner picker.
                 "SELECT id, name FROM {$wpdb->prefix}tt_teams
                   WHERE club_id = %d
                     AND ( team_kind IS NULL OR team_kind = '' )
+                    AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
                   ORDER BY name ASC",
                 CurrentClub::id()
             ) );

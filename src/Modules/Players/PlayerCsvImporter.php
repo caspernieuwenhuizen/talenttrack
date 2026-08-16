@@ -385,7 +385,7 @@ class PlayerCsvImporter {
         global $wpdb;
         if ( $name === '' ) return null;
         $id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE name = %s AND archived_at IS NULL AND club_id = %d LIMIT 1",
+            "SELECT id FROM {$wpdb->prefix}tt_teams WHERE name = %s AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . " AND club_id = %d LIMIT 1",
             $name, CurrentClub::id()
         ) );
         return $id ? (int) $id : null;
