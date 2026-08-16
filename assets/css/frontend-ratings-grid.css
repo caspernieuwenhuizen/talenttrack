@@ -62,12 +62,120 @@
     white-space: nowrap;
 }
 
+/* Two header rows (#2432): mains span their own column plus their subs,
+   subs sit underneath. Row 1 is pinned to the top and row 2 directly under
+   it, which needs row 1's height to be a known quantity rather than
+   whatever the content makes it — hence the fixed --tt-rgrid-head-h. */
+.tt-dashboard .tt-rgrid {
+    --tt-rgrid-head-h: 2.5rem;
+}
+
 .tt-dashboard .tt-rgrid-table thead th {
     position: sticky;
-    top: 0;
     z-index: 2;
     background: var(--tt-bg-soft, #f4f6f3);
     font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-rgrid-table thead .tt-rgrid-head-main th {
+    top: 0;
+    height: var(--tt-rgrid-head-h);
+}
+.tt-dashboard .tt-rgrid-table thead .tt-rgrid-head-sub th {
+    top: var(--tt-rgrid-head-h);
+}
+/* A cell spanning both rows is anchored by the first, so it must not take
+   the second row's offset. */
+.tt-dashboard .tt-rgrid-table thead th[rowspan="2"] {
+    top: 0;
+}
+
+/* Main-category header: the tier is announced by scope="colgroup", and
+   shown here by weight and a centred label over the block it owns. */
+.tt-dashboard .tt-rgrid-group {
+    text-align: center;
+    font-weight: 700;
+    padding: 0;
+}
+.tt-dashboard .tt-rgrid-group--flat {
+    padding: var(--tt-sp-2, 8px);
+    text-align: left;
+}
+
+/* Sub-category header: subordinate, and marked with a leading glyph so the
+   tier survives without colour. */
+.tt-dashboard .tt-rgrid-table thead .tt-rgrid-sub {
+    font-weight: 400;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-rgrid-table thead .tt-rgrid-sub::before {
+    content: "└ ";
+    opacity: 0.6;
+}
+
+/* The main's own score column — a real score on the main category, not an
+   average of its children, so it reads as a column and not as a total. */
+.tt-dashboard .tt-rgrid-own {
+    font-weight: 600;
+    font-style: italic;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Where one main's block of columns begins. Gives the eye something to
+   track while the grid scrolls sideways. */
+.tt-dashboard .tt-rgrid-table .tt-rgrid-group-start {
+    border-left: 2px solid var(--tt-line, #e3e6e1);
+}
+
+/* Collapsed sub-columns. Kept in the DOM, so a dirty value inside one is
+   still submitted on Save — hiding a cell must never drop its edit. */
+.tt-dashboard .tt-rgrid-table .is-hidden {
+    display: none;
+}
+
+.tt-dashboard .tt-rgrid-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--tt-sp-1, 4px);
+    width: 100%;
+    min-height: var(--tt-rgrid-head-h);
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rgrid-toggle:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+.tt-dashboard .tt-rgrid-toggle-caret {
+    border-left: 0.3em solid currentColor;
+    border-top: 0.3em solid transparent;
+    border-bottom: 0.3em solid transparent;
+    transition: transform 120ms ease;
+}
+.tt-dashboard .tt-rgrid-toggle[aria-expanded="true"] .tt-rgrid-toggle-caret {
+    transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-rgrid-toggle-caret {
+        transition: none;
+    }
+}
+
+/* Count of unsaved scores sitting inside a collapsed group — collapsing
+   must not make pending work invisible. */
+.tt-dashboard .tt-rgrid-pending {
+    min-width: 1.25rem;
+    padding: 0 0.35em;
+    border-radius: 999px;
+    background: var(--tt-warning, #e8902b);
+    color: #fff;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 700;
 }
 
 /* The player column stays put while the categories scroll. */

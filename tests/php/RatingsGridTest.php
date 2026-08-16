@@ -119,6 +119,97 @@ final class RatingsGridTest extends WP_UnitTestCase {
         $this->assertSame( [], $data['values'], 'nothing rated yet means no values at all' );
     }
 
+    // ---- category tiers (#2432) ------------------------------------------
+
+    /** Insert an active category, optionally under a parent. */
+    private function makeCategory( string $label, int $order, ?int $parent_id = null ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_eval_categories', [
+            'category_key'  => str_replace( ' ', '_', strtolower( $label ) ) . '_' . $this->activity_id . '_' . $order,
+            'label'         => $label,
+            'display_order' => $order,
+            'is_active'     => 1,
+            'parent_id'     => $parent_id,
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    /**
+     * A main keeps its own rateable column AND heads the group holding its
+     * subs — the same Basic/Detailed split the evaluation form offers.
+     */
+    public function test_main_category_keeps_its_own_column_and_heads_its_subs(): void {
+        $main = $this->makeCategory( 'Technical', 10 );
+        $sub  = $this->makeCategory( 'Short pass', 11, $main );
+
+        $groups = RatingsGridQuery::forActivity( $this->activity_id )['groups'];
+        $byId   = [];
+        foreach ( $groups as $g ) $byId[ $g['id'] ] = $g;
+
+        $this->assertArrayHasKey( $main, $byId );
+        $this->assertSame( $main, $byId[ $main ]['own']['id'], 'the main is rateable in its own right' );
+        $this->assertSame( [ $sub ], array_column( $byId[ $main ]['subs'], 'id' ) );
+    }
+
+    /**
+     * The flat display_order sort does not keep a sub next to its parent —
+     * interleaved columns are exactly what made the header unreadable.
+     */
+    public function test_subs_are_ordered_adjacent_to_their_own_parent(): void {
+        $tech = $this->makeCategory( 'Technical', 10 );
+        $ment = $this->makeCategory( 'Mentality', 11 );
+        // Deliberately ordered so a flat sort would interleave them.
+        $pass = $this->makeCategory( 'Short pass', 12, $tech );
+        $focus = $this->makeCategory( 'Focus', 13, $ment );
+
+        $order = array_column( RatingsGridQuery::forActivity( $this->activity_id )['categories'], 'id' );
+        $this->assertSame(
+            [ $tech, $pass, $ment, $focus ],
+            array_values( array_filter( $order, static fn( $id ) => in_array( $id, [ $tech, $ment, $pass, $focus ], true ) ) ),
+            'each main must be followed by its own children, not by another main'
+        );
+    }
+
+    /** A main with no subs is one plain column — no tier, nothing to expand. */
+    public function test_main_without_subs_has_no_sub_tier(): void {
+        $main   = $this->makeCategory( 'Physical', 10 );
+        $groups = RatingsGridQuery::forActivity( $this->activity_id )['groups'];
+
+        foreach ( $groups as $g ) {
+            if ( $g['id'] !== $main ) continue;
+            $this->assertSame( [], $g['subs'] );
+            $this->assertFalse( $g['expanded'] );
+            return;
+        }
+        $this->fail( 'the main category should still have produced a group' );
+    }
+
+    /**
+     * Subs collapse by default, but a coach reopening a rating they already
+     * entered in detail must see it — not a collapsed grid hiding their own
+     * scores.
+     */
+    public function test_group_auto_expands_when_a_sub_already_holds_a_score(): void {
+        $main = $this->makeCategory( 'Technical', 10 );
+        $sub  = $this->makeCategory( 'Short pass', 11, $main );
+
+        $collapsed = RatingsGridQuery::forActivity( $this->activity_id )['groups'];
+        foreach ( $collapsed as $g ) {
+            if ( $g['id'] === $main ) $this->assertFalse( $g['expanded'], 'nothing rated yet means collapsed' );
+        }
+
+        EvaluationInserter::upsertForActivity( $this->player_id, $this->activity_id, [ $sub => 8.0 ] );
+
+        $expanded = RatingsGridQuery::forActivity( $this->activity_id )['groups'];
+        foreach ( $expanded as $g ) {
+            if ( $g['id'] === $main ) {
+                $this->assertTrue( $g['expanded'], 'a rated sub must not stay hidden' );
+                return;
+            }
+        }
+        $this->fail( 'the main category should still have produced a group' );
+    }
+
     // ---- writer ----------------------------------------------------------
 
     public function test_upsert_creates_one_evaluation_then_reuses_it(): void {

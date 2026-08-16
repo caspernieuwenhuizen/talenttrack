@@ -64,6 +64,12 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                 'blocked'   => __( '%d score(s) out of range — fix the highlighted cells to save', 'talenttrack' ),
                 /* translators: %d is the number of scores the server refused. */
                 'rejected'  => __( '%d score(s) were refused and NOT saved — the highlighted cells are still unsaved', 'talenttrack' ),
+                /* translators: %s is a main evaluation category, e.g. Technical. */
+                'showSubs'  => __( 'Show sub-categories of %s', 'talenttrack' ),
+                /* translators: %s is a main evaluation category, e.g. Technical. */
+                'hideSubs'  => __( 'Hide sub-categories of %s', 'talenttrack' ),
+                /* translators: 1: number of unsaved scores, 2: the main category they are hidden under. */
+                'hidden'    => __( '%1$d unsaved score(s) are hidden under %2$s', 'talenttrack' ),
             ],
         ] );
     }
@@ -124,20 +130,51 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             return;
         }
 
-        self::renderGrid( $activity_id, $categories, $players, $data['values'], $data['scale'] );
+        self::renderGrid( $activity_id, $data['groups'], $categories, $players, $data['values'], $data['scale'] );
     }
 
     /**
-     * @param list<array{id:int,label:string}> $categories
+     * @param list<array{id:int,label:string,own:array{id:int,label:string}|null,subs:list<array{id:int,label:string}>,expanded:bool}> $groups
+     * @param list<array{id:int,label:string,parent_id:int|null}> $categories
      * @param list<object>                     $players
      * @param array<int, array<int, float>>    $values
      * @param array{min:float,max:float,step:float} $scale
      */
-    private static function renderGrid( int $activity_id, array $categories, array $players, array $values, array $scale ): void {
+    private static function renderGrid( int $activity_id, array $groups, array $categories, array $players, array $values, array $scale ): void {
         // §6 — Cancel returns to the activity, unless the entry URL captured
         // a tt_back hint, which overrides it.
         $back       = BackLink::resolve();
         $cancel_url = $back['url'] ?? RecordLink::detailUrlFor( 'activities', $activity_id );
+
+        // Column id → which group it sits in, so a body cell can mark itself
+        // as a sub, start collapsed with its group, and name its parent in
+        // the accessible label. Built once rather than searched per cell:
+        // this runs players × categories times.
+        $column_ctx = [];
+        foreach ( $groups as $g ) {
+            $first = true;
+            if ( $g['own'] !== null ) {
+                $column_ctx[ $g['own']['id'] ] = [
+                    'sub_of'      => 0,
+                    'group_label' => $g['label'],
+                    'expanded'    => true,
+                    'first'       => true,
+                ];
+                $first = false;
+            }
+            foreach ( $g['subs'] as $sub ) {
+                $column_ctx[ $sub['id'] ] = [
+                    'sub_of'      => $g['id'],
+                    'group_label' => $g['label'],
+                    'expanded'    => $g['expanded'],
+                    // Marks where one main's block of columns starts, so the
+                    // separator rule has something to hang off while the eye
+                    // tracks a block across a wide horizontal scroll.
+                    'first'       => $first,
+                ];
+                $first = false;
+            }
+        }
         ?>
         <div class="tt-rgrid" data-tt-rgrid
             data-activity-id="<?php echo (int) $activity_id; ?>"
@@ -151,10 +188,57 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             <div class="tt-rgrid-scroll">
                 <table class="tt-rgrid-table">
                     <thead>
-                        <tr>
-                            <th scope="col" class="tt-rgrid-player-col"><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <?php foreach ( $categories as $c ) : ?>
-                                <th scope="col"><?php echo esc_html( $c['label'] ); ?></th>
+                        <?php
+                        // Two header rows: main categories span their own
+                        // column plus their subs, subs sit underneath. The
+                        // tier is carried by scope="colgroup" / scope="col"
+                        // rather than by styling, so it survives a screen
+                        // reader (§2) — colour alone would not.
+                        ?>
+                        <tr class="tt-rgrid-head-main">
+                            <th scope="col" rowspan="2" class="tt-rgrid-player-col"><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                            <?php foreach ( $groups as $g ) :
+                                $span     = ( $g['own'] !== null ? 1 : 0 ) + count( $g['subs'] );
+                                $has_subs = (bool) $g['subs'];
+                                if ( $span < 1 ) continue;
+                                ?>
+                                <?php if ( ! $has_subs ) : ?>
+                                    <?php // A main with no subs is one column; spanning both rows keeps the header from going ragged. ?>
+                                    <th scope="col" rowspan="2" class="tt-rgrid-group tt-rgrid-group--flat"><?php echo esc_html( $g['label'] ); ?></th>
+                                <?php else : ?>
+                                    <th scope="colgroup" colspan="<?php echo (int) $span; ?>"
+                                        class="tt-rgrid-group"
+                                        data-tt-rgrid-group="<?php echo (int) $g['id']; ?>">
+                                        <button type="button" class="tt-rgrid-toggle"
+                                            data-tt-rgrid-toggle="<?php echo (int) $g['id']; ?>"
+                                            data-label="<?php echo esc_attr( $g['label'] ); ?>"
+                                            aria-expanded="<?php echo $g['expanded'] ? 'true' : 'false'; ?>">
+                                            <span class="tt-rgrid-toggle-caret" aria-hidden="true"></span>
+                                            <span class="tt-rgrid-toggle-label"><?php echo esc_html( $g['label'] ); ?></span>
+                                            <span class="tt-rgrid-pending" data-tt-rgrid-pending hidden></span>
+                                        </button>
+                                    </th>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </tr>
+                        <tr class="tt-rgrid-head-sub">
+                            <?php foreach ( $groups as $g ) :
+                                if ( ! $g['subs'] ) continue;
+                                $hidden = $g['expanded'] ? '' : ' is-hidden';
+                                ?>
+                                <?php if ( $g['own'] !== null ) : ?>
+                                    <?php // The main's own score column, distinct from its subs — not a computed average of them. ?>
+                                    <th scope="col" class="tt-rgrid-own tt-rgrid-group-start"
+                                        title="<?php echo esc_attr( $g['label'] ); ?>">
+                                        <?php esc_html_e( 'Main score', 'talenttrack' ); ?>
+                                    </th>
+                                <?php endif; ?>
+                                <?php foreach ( $g['subs'] as $i => $sub ) : ?>
+                                    <th scope="col" class="tt-rgrid-sub<?php echo esc_attr( $hidden ); ?><?php echo $g['own'] === null && $i === 0 ? ' tt-rgrid-group-start' : ''; ?>"
+                                        data-tt-rgrid-sub-of="<?php echo (int) $g['id']; ?>">
+                                        <?php echo esc_html( $sub['label'] ); ?>
+                                    </th>
+                                <?php endforeach; ?>
                             <?php endforeach; ?>
                         </tr>
                     </thead>
@@ -171,10 +255,31 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                     <?php endif; ?>
                                 </th>
                                 <?php foreach ( $categories as $c ) :
-                                    $cid = (int) $c['id'];
-                                    $val = $values[ $pid ][ $cid ] ?? null;
+                                    $cid  = (int) $c['id'];
+                                    $val  = $values[ $pid ][ $cid ] ?? null;
+                                    $ctx  = $column_ctx[ $cid ] ?? null;
+                                    $sub_of = $ctx['sub_of'] ?? 0;
+
+                                    // A sub cell names its parent too, so a
+                                    // screen reader hears "Technical /
+                                    // Passing" rather than a bare "Passing"
+                                    // that could belong to any main.
+                                    $label = $sub_of > 0
+                                        ? sprintf(
+                                            /* translators: 1: main evaluation category, 2: sub-category. */
+                                            __( '%1$s / %2$s', 'talenttrack' ),
+                                            (string) ( $ctx['group_label'] ?? '' ),
+                                            $c['label']
+                                        )
+                                        : (string) $c['label'];
                                     ?>
-                                    <td>
+                                    <?php
+                                    $td_class  = $sub_of > 0 ? 'tt-rgrid-sub' : '';
+                                    $td_class .= $sub_of > 0 && empty( $ctx['expanded'] ) ? ' is-hidden' : '';
+                                    $td_class .= ! empty( $ctx['first'] ) ? ' tt-rgrid-group-start' : '';
+                                    ?>
+                                    <td class="<?php echo esc_attr( trim( $td_class ) ); ?>"
+                                        <?php if ( $sub_of > 0 ) : ?>data-tt-rgrid-sub-of="<?php echo (int) $sub_of; ?>"<?php endif; ?>>
                                         <input type="number" inputmode="decimal"
                                             class="tt-rgrid-input"
                                             data-player-id="<?php echo (int) $pid; ?>"
@@ -187,7 +292,7 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                                 /* translators: 1: player name, 2: evaluation category. */
                                                 __( '%1$s — %2$s', 'talenttrack' ),
                                                 $name,
-                                                $c['label']
+                                                $label
                                             ) ); ?>" />
                                     </td>
                                 <?php endforeach; ?>

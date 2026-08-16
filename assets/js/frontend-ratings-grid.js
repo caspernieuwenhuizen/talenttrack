@@ -125,7 +125,113 @@
         return inputs.filter(function (i) { return i.classList.contains('is-invalid'); });
     }
 
+    // ---- navigation ------------------------------------------------------
+
+    /**
+     * The visible cells, row by row. Derived from the body rather than from
+     * the header: with a two-tier header the header cell count is no longer
+     * the number of columns, and collapsing a group changes how many cells
+     * a row actually offers. Recomputed per keystroke so an expand or
+     * collapse can never leave the model stale.
+     */
+    function visibleRows() {
+        return Array.prototype.slice.call(grid.querySelectorAll('tbody tr')).map(function (tr) {
+            return Array.prototype.slice.call(tr.querySelectorAll('.tt-rgrid-input'))
+                .filter(function (i) { return i.offsetParent !== null; });
+        }).filter(function (r) { return r.length; });
+    }
+
+    function moveFocus(from, dx, dy) {
+        var rows = visibleRows();
+        var r = -1;
+        var c = -1;
+        for (var i = 0; i < rows.length; i++) {
+            var j = rows[i].indexOf(from);
+            if (j !== -1) { r = i; c = j; break; }
+        }
+        if (r === -1) return;
+
+        var row = rows[Math.min(Math.max(r + dy, 0), rows.length - 1)];
+        var col = Math.min(Math.max(c + dx, 0), row.length - 1);
+        if (row[col]) row[col].focus();
+    }
+
+    // ---- collapsible category groups -------------------------------------
+
+    function groupCells(id) {
+        return Array.prototype.slice.call(
+            grid.querySelectorAll('[data-tt-rgrid-sub-of="' + id + '"]')
+        );
+    }
+
+    function setExpanded(btn, open) {
+        var id = btn.getAttribute('data-tt-rgrid-toggle');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label',
+            fmt(t(open ? 'hideSubs' : 'showSubs', open ? 'Hide sub-categories of %s' : 'Show sub-categories of %s'),
+                [btn.getAttribute('data-label') || '']));
+        groupCells(id).forEach(function (cell) { cell.classList.toggle('is-hidden', !open); });
+        markPending(btn);
+    }
+
+    /**
+     * A collapsed group must never hide unsaved work without saying so —
+     * the whole point of the dirty highlight is that nothing pending is
+     * invisible.
+     */
+    function markPending(btn) {
+        var id = btn.getAttribute('data-tt-rgrid-toggle');
+        var open = btn.getAttribute('aria-expanded') === 'true';
+        var badge = btn.querySelector('[data-tt-rgrid-pending]');
+        var n = open ? 0 : groupCells(id).filter(function (cell) {
+            var i = cell.querySelector('.tt-rgrid-input');
+            return i && i.classList.contains('is-dirty');
+        }).length;
+
+        if (badge) {
+            badge.textContent = n ? String(n) : '';
+            badge.hidden = n === 0;
+        }
+        return n;
+    }
+
+    var toggles = Array.prototype.slice.call(grid.querySelectorAll('[data-tt-rgrid-toggle]'));
+    toggles.forEach(function (btn) {
+        setExpanded(btn, btn.getAttribute('aria-expanded') === 'true');
+        btn.addEventListener('click', function () {
+            var open = btn.getAttribute('aria-expanded') === 'true';
+            setExpanded(btn, !open);
+            if (open) {
+                var n = markPending(btn);
+                if (n) {
+                    setStatus(fmt(t('hidden', '%1$d unsaved score(s) are hidden under %2$s'),
+                        [n, btn.getAttribute('data-label') || '']));
+                    return;
+                }
+            }
+            refresh();
+        });
+    });
+
+    /** Reveal any group holding an invalid cell — Save is blocked on it. */
+    function revealInvalid() {
+        toggles.forEach(function (btn) {
+            if (btn.getAttribute('aria-expanded') === 'true') return;
+            var id = btn.getAttribute('data-tt-rgrid-toggle');
+            var bad = groupCells(id).some(function (cell) {
+                var i = cell.querySelector('.tt-rgrid-input');
+                return i && i.classList.contains('is-invalid');
+            });
+            if (bad) setExpanded(btn, true);
+        });
+    }
+
     function refresh() {
+        // An invalid cell blocks Save, so it must not be sitting behind a
+        // collapsed group where the coach can't reach it.
+        revealInvalid();
+        toggles.forEach(markPending);
+
         var bad = invalidInputs();
         var n = dirtyCount();
 
@@ -167,22 +273,19 @@
         // (the direction a coach rates in: one category at a time down the
         // squad), arrows move as drawn.
         input.addEventListener('keydown', function (e) {
-            var move = 0;
-            var byRow = 0;
-            if (e.key === 'ArrowRight') move = 1;
-            else if (e.key === 'ArrowLeft') move = -1;
-            else if (e.key === 'ArrowDown' || e.key === 'Enter') byRow = 1;
-            else if (e.key === 'ArrowUp') byRow = -1;
+            var dx = 0;
+            var dy = 0;
+            if (e.key === 'ArrowRight') dx = 1;
+            else if (e.key === 'ArrowLeft') dx = -1;
+            else if (e.key === 'ArrowDown' || e.key === 'Enter') dy = 1;
+            else if (e.key === 'ArrowUp') dy = -1;
             else return;
 
             // Let the arrows adjust the number when the user means to.
             if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.altKey) return;
 
             e.preventDefault();
-            var idx = inputs.indexOf(input);
-            var perRow = grid.querySelectorAll('thead th').length - 1;
-            var next = idx + (byRow ? byRow * perRow : move);
-            if (next >= 0 && next < inputs.length) inputs[next].focus();
+            moveFocus(input, dx, dy);
         });
     });
 

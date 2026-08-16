@@ -4710,6 +4710,62 @@ msgstr "Geen niet-opgeslagen wijzigingen"
 msgid "%d unsaved change(s)"
 msgstr "%d niet-opgeslagen wijziging(en)"
 
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:196
+msgid "Main score"
+msgstr "Hoofdcijfer"
+
+#. translators: %s is a main evaluation category, e.g. Technical.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:68
+#, php-format
+msgid "Show sub-categories of %s"
+msgstr "Subcategorieën van %s tonen"
+
+#. translators: %s is a main evaluation category, e.g. Technical.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:70
+#, php-format
+msgid "Hide sub-categories of %s"
+msgstr "Subcategorieën van %s verbergen"
+
+#. translators: 1: number of unsaved scores, 2: the main category they are hidden under.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:72
+#, php-format
+msgid "%1$d unsaved score(s) are hidden under %2$s"
+msgstr "%1$d niet-opgeslagen cijfer(s) staan verborgen onder %2$s"
+
+#. translators: 1: main evaluation category, 2: sub-category.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:246
+#, php-format
+msgid "%1$s / %2$s"
+msgstr "%1$s / %2$s"
+
+#. translators: 1: lowest allowed score, 2: highest allowed score.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:60
+#, php-format
+msgid "Score must be between %1$s and %2$s"
+msgstr "Cijfer moet tussen %1$s en %2$s liggen"
+
+#. translators: %s is the step the rating scale moves in, e.g. 0.5.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:62
+#, php-format
+msgid "Score must be in steps of %s"
+msgstr "Cijfer moet in stappen van %s"
+
+#. translators: %d is the number of cells with an invalid score.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:64
+#, php-format
+msgid "%d score(s) out of range — fix the highlighted cells to save"
+msgstr "%d cijfer(s) buiten de schaal — pas de gemarkeerde cellen aan om op te slaan"
+
+#. translators: %d is the number of scores the server refused.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:66
+#, php-format
+msgid ""
+"%d score(s) were refused and NOT saved — the highlighted cells are still "
+"unsaved"
+msgstr ""
+"%d cijfer(s) zijn geweigerd en NIET opgeslagen — de gemarkeerde cellen staan "
+"nog open"
+
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:60
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:63
 msgid "You have unsaved changes. Leave without saving?"
