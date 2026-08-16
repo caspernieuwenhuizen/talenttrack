@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T20:31:22+00:00\n"
+"POT-Creation-Date: 2026-08-16T20:46:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -79,7 +79,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:356
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:222
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:182
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:155
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:199
 #: src/Modules/Analytics/AnalyticsModule.php:113
 #: src/Modules/Analytics/AnalyticsModule.php:156
 #: src/Modules/Analytics/AnalyticsModule.php:175
@@ -505,8 +505,8 @@ msgid ""
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:218
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:106
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:238
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:112
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:343
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:388
 msgid "Ratings grid"
 msgstr ""
@@ -2393,7 +2393,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:1134
 #: src/Infrastructure/REST/ActivitiesRestController.php:1506
 #: src/Infrastructure/REST/ActivitiesRestController.php:1675
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:93
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:99
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:57
@@ -2402,7 +2402,7 @@ msgid "Activity not found."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:316
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:101
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:107
 msgid "You do not coach this activity's team."
 msgstr ""
 
@@ -3598,7 +3598,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:165
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:144
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:234
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:339
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
@@ -4855,46 +4855,74 @@ msgid ""
 "unsaved"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:78
-msgid "You do not have permission to record ratings."
+#. translators: %s is a main evaluation category, e.g. Technical.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:68
+#, php-format
+msgid "Show sub-categories of %s"
+msgstr ""
+
+#. translators: %s is a main evaluation category, e.g. Technical.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:70
+#, php-format
+msgid "Hide sub-categories of %s"
+msgstr ""
+
+#. translators: 1: number of unsaved scores, 2: the main category they are hidden under.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:72
+#, php-format
+msgid "%1$d unsaved score(s) are hidden under %2$s"
 msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:84
+msgid "You do not have permission to record ratings."
+msgstr ""
+
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:90
 msgid "The ratings grid has been switched off for your academy."
 msgstr ""
 
 #. translators: 1: activity title, 2: activity date.
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:110
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #, php-format
 msgid ""
 "Rating %1$s (%2$s). Rows are players, columns are the categories this "
 "activity is rated on. Type a score per cell and Save."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:119
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:125
 msgid ""
 "No evaluation categories are configured, so there is nothing to rate on yet."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:123
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:129
 msgid "This activity has no team roster, so there are no players to rate."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:148
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:185
 msgid ""
 "The ratings grid needs a wider screen. On a phone, use the evaluation wizard "
 "instead."
 msgstr ""
 
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:233
+msgid "Main score"
+msgstr ""
+
+#. translators: 1: main evaluation category, 2: sub-category.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:270
+#, php-format
+msgid "%1$s / %2$s"
+msgstr ""
+
 #. translators: 1: player name, 2: evaluation category.
 #. translators: 1: activity type, 2: activity date
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:188
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:293
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:103
 #, php-format
 msgid "%1$s — %2$s"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:207
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:312
 msgid "Save ratings"
 msgstr ""
 
