@@ -75,12 +75,18 @@ final class RecycleBinPreviewPermissionTest extends WP_UnitTestCase {
      */
     public function test_edit_settings_alone_does_not_open_the_preview(): void {
         $user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $u    = new \WP_User( $user );
-        $u->add_cap( 'tt_edit_settings' );
         wp_set_current_user( $user );
 
+        $grant = static function ( $allcaps ) {
+            $allcaps['tt_edit_settings'] = true;
+            return $allcaps;
+        };
+        add_filter( 'user_has_cap', $grant, 99 );
+        $status = $this->preview();
+        remove_filter( 'user_has_cap', $grant, 99 );
+
         $this->assertContains(
-            $this->preview(),
+            $status,
             [ 401, 403 ],
             'tt_edit_settings is not a substitute for tt_manage_recycle_bin'
         );
@@ -92,14 +98,23 @@ final class RecycleBinPreviewPermissionTest extends WP_UnitTestCase {
      * they are allowed to run. They now get past the permission gate — the
      * status is no longer an auth failure (the id below need not exist, so a
      * 400/404 from the handler is a pass here).
+     *
+     * The cap is granted through a `user_has_cap` filter rather than
+     * `WP_User::add_cap()`: the tt_* caps resolve through the authorization
+     * matrix, so a raw add_cap on a role-less user is overruled and would
+     * test the matrix rather than this route's gate.
      */
     public function test_bin_cap_alone_passes_the_permission_gate(): void {
         $user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $u    = new \WP_User( $user );
-        $u->add_cap( 'tt_manage_recycle_bin' );
         wp_set_current_user( $user );
 
+        $grant = static function ( $allcaps ) {
+            $allcaps['tt_manage_recycle_bin'] = true;
+            return $allcaps;
+        };
+        add_filter( 'user_has_cap', $grant, 99 );
         $status = $this->preview();
+        remove_filter( 'user_has_cap', $grant, 99 );
 
         $this->assertNotContains(
             $status,
