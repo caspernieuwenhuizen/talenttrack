@@ -54,6 +54,18 @@ jobs:
           php-version: '8.2'
           tools: composer:v2
 
+      # Unlike e2e.yml, this job DOES need composer: the runtime tree is
+      # committed but PHPUnit and the Yoast polyfills are not, and the
+      # suite runs `vendor/bin/phpunit`.
+      - name: Cache Composer downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          # No composer.lock in the repo, so composer.json is the best
+          # available key; a dependency bump there invalidates the cache.
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
@@ -61,6 +73,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install JS dependencies
         run: npm ci || npm install

@@ -38,6 +38,10 @@ jobs:
         with:
           php-version: '8.1'
           tools: composer:v2
+      # Kept, deliberately: this builds the SHIPPED ZIP. `--no-dev` prunes
+      # the dev tree out of the artifact and `--optimize-autoloader`
+      # rebuilds the classmap for it, so the committed vendor/ is not a
+      # substitute here.
       - name: Install production dependencies
         run: |
           if [ -f composer.json ] && grep -q '"require"' composer.json && ! grep -q '"require": *{ *}' composer.json; then
