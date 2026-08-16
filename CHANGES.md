@@ -1,3 +1,60 @@
+# TalentTrack v4.86.1 — Updates: hourly release check + a "Check for updates" action (#2405)
+
+TalentTrack now checks for a new release **every hour** instead of every 12
+hours, so a fix reaches a pilot site the same morning it ships rather than up
+to half a day later. A **Check for updates** action was also added to the
+plugin's row on wp-admin → Plugins: it forces a check on the spot and reports
+what it found — the version now available, or that the site is already up to
+date. The action is limited to users who may update plugins.
+
+# TalentTrack v4.86.1 — Modules can be marked "under development", and the dashboard tile says so (#2409)
+
+The **Under development** marker now works at module level, not just per
+feature: tick the checkbox on a module's card at *Modules* and every view that
+module owns shows the informational pill. A core (always-on) module can be
+flagged too — the marker gates nothing, so there is no reason to exempt it.
+
+The marker also reaches the **dashboard tile** now. A tile shows a small amber
+**Under development** badge when its own feature is flagged *or* when its
+module is, so people see that a surface is still being built before they click
+into it rather than after. The badge appears on the persona dashboard, the
+classic tile grid, the "My work" rail and a parent's child tiles.
+
+As before the flag is purely cosmetic — it never disables or hides anything,
+and it is independent of the on/off switch, so a module can be live and flagged
+at once. Only admins who can manage modules can set it; everyone sees the
+result. It is stored per club on `tt_module_state` and is readable and settable
+through the `/talenttrack/v1/modules` REST endpoint.
+
+# TalentTrack v4.86.1 — Archived teams no longer appear in team pickers and dashboard tabs (#2410)
+
+Archiving a team is supposed to take it out of day-to-day use, but until now it
+only greyed the team out on the Teams list: the team kept appearing in every
+team dropdown in the app — creating an activity, the coach dashboard's team
+tabs, the planner picker, measurement and test-result pickers, PDP, match
+execution, the role-grant scope picker and every analytics team filter. A team
+sitting in the **recycle bin** showed up in all of them too.
+
+Both shared team helpers now exclude archived and trashed teams by default, and
+the hand-rolled team dropdowns were moved onto the same lifecycle vocabulary, so
+a retired team disappears from all of these at once. Restoring the team brings
+it back everywhere. Unchanged on purpose: the Teams list's own Archived tab, and
+the team's own detail page, which must still open for a retired team.
+
+# TalentTrack v4.86.1 — Recycle bin: the delete-impact preview no longer wrongly reports "nothing depends on this" (#2413)
+
+Before a permanent delete the recycle bin shows what else the delete would
+remove or clear. Two problems made that statement untrustworthy. The preview
+was gated on the settings capability rather than the recycle-bin one, so an
+admin who manages the bin could be refused it — and when the request was
+refused, the dialog opened anyway and reported **"No other records depend on
+this one."** even though the delete could cascade across eleven tables.
+
+The preview is now gated on the same capability as the delete it precedes, and
+a preview that fails for any reason no longer opens the dialog at all: the
+error is shown and the delete cannot proceed without a successful preview.
+Deleting a record whose impact really is nil looks exactly as it did before.
+
 # TalentTrack v4.86.0 — Minutes entry grid — a desktop, spreadsheet-style companion to the attendance grid (#2386)
 
 A new desktop **Minutes grid** (`?tt_view=minutes-grid`, reachable from the
