@@ -25,9 +25,17 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class RatingsGridQuery {
 
     /**
+     * `categories` is the flat, left-to-right column order — the bulk
+     * endpoint validates against it and the view walks it for cells.
+     * `groups` is the same set arranged as the two-level tree the header
+     * renders (#2432): one entry per main category, carrying its own
+     * rateable column when the eval type declares the main itself, plus
+     * whichever of its sub-categories are declared.
+     *
      * @return array{
      *   activity: object|null,
-     *   categories: list<array{id:int,label:string}>,
+     *   categories: list<array{id:int,label:string,parent_id:int|null}>,
+     *   groups: list<array{id:int,label:string,own:array{id:int,label:string}|null,subs:list<array{id:int,label:string}>,expanded:bool}>,
      *   players: list<object>,
      *   values: array<int, array<int, float>>,
      *   scale: array{min:float,max:float,step:float}
@@ -37,6 +45,7 @@ final class RatingsGridQuery {
         $empty = [
             'activity'   => null,
             'categories' => [],
+            'groups'     => [],
             'players'    => [],
             'values'     => [],
             'scale'      => self::scale(),
@@ -57,13 +66,155 @@ final class RatingsGridQuery {
         ) );
         if ( ! $activity ) return $empty;
 
+        $values = self::existingRatings( $activity_id );
+        $groups = self::groupsFor( self::categoriesFor( $activity ), $values );
+
         return [
             'activity'   => $activity,
-            'categories' => self::categoriesFor( $activity ),
+            // Flattened in group order, so column order and header order are
+            // the same walk — the view and the JS index into one sequence.
+            'categories' => self::flatten( $groups ),
+            'groups'     => $groups,
             'players'    => self::players( (int) $activity->team_id ),
-            'values'     => self::existingRatings( $activity_id ),
+            'values'     => $values,
             'scale'      => self::scale(),
         ];
+    }
+
+    /**
+     * Arrange the declared categories into their two-level tree.
+     *
+     * `tt_eval_categories` is main (`parent_id IS NULL`) plus sub; the flat
+     * `display_order` sort does not keep a sub next to its own parent, so
+     * grouping here is also what stops the columns interleaving.
+     *
+     * Three shapes fall out of what the eval type declares, and all three
+     * are real:
+     *   - main + subs → the main keeps its own column AND heads the group,
+     *     which is the same Basic/Detailed split the evaluation form offers.
+     *   - main alone  → one column, no sub tier, no expand affordance.
+     *   - subs alone  → a group header for context, with no rateable column
+     *     of its own. The parent label is fetched even though the parent is
+     *     not a column, otherwise the subs would have nothing to sit under.
+     *
+     * @param list<array{id:int,label:string,parent_id:int|null,order:int}> $flat
+     * @param array<int, array<int, float>>                                 $values
+     * @return list<array{id:int,label:string,own:array{id:int,label:string}|null,subs:list<array{id:int,label:string}>,expanded:bool}>
+     */
+    private static function groupsFor( array $flat, array $values ): array {
+        if ( ! $flat ) return [];
+
+        $declared = [];
+        foreach ( $flat as $row ) $declared[ $row['id'] ] = $row;
+
+        // Every main that has to appear, whether it is itself rateable or
+        // only exists to head a group of declared subs.
+        $missing_parents = [];
+        foreach ( $flat as $row ) {
+            $pid = $row['parent_id'];
+            if ( $pid !== null && ! isset( $declared[ $pid ] ) ) $missing_parents[ $pid ] = true;
+        }
+        $parent_meta = self::parentMeta( array_keys( $missing_parents ) );
+
+        $groups = [];
+        foreach ( $flat as $row ) {
+            $pid = $row['parent_id'];
+
+            if ( $pid === null ) {
+                $groups[ $row['id'] ] ??= self::emptyGroup( $row['id'], $row['label'], $row['order'] );
+                $groups[ $row['id'] ]['label'] = $row['label'];
+                $groups[ $row['id'] ]['order'] = $row['order'];
+                $groups[ $row['id'] ]['own']   = [ 'id' => $row['id'], 'label' => $row['label'] ];
+                continue;
+            }
+
+            $meta = $parent_meta[ $pid ] ?? null;
+            $groups[ $pid ] ??= self::emptyGroup(
+                $pid,
+                $meta['label'] ?? '',
+                $meta['order'] ?? $row['order']
+            );
+            $groups[ $pid ]['subs'][] = [ 'id' => $row['id'], 'label' => $row['label'] ];
+        }
+
+        // Groups follow the main's own display_order; subs keep the order
+        // they were selected in, which is already display_order.
+        uasort( $groups, static fn( $a, $b ) => $a['order'] <=> $b['order'] );
+
+        $out = [];
+        foreach ( $groups as $g ) {
+            // Auto-expand when a sub already holds a score for anyone in
+            // this activity: a coach reopening a detailed rating must see
+            // what they entered, not a collapsed grid hiding it (#2432 D2).
+            $g['expanded'] = $g['subs'] ? self::anySubRated( $g['subs'], $values ) : false;
+            unset( $g['order'] );
+            $out[] = $g;
+        }
+        return $out;
+    }
+
+    /** @return array{id:int,label:string,own:array{id:int,label:string}|null,subs:list<array{id:int,label:string}>,expanded:bool,order:int} */
+    private static function emptyGroup( int $id, string $label, int $order ): array {
+        return [ 'id' => $id, 'label' => $label, 'own' => null, 'subs' => [], 'expanded' => false, 'order' => $order ];
+    }
+
+    /**
+     * Label + display_order for mains that head a group without being a
+     * rateable column themselves.
+     *
+     * @param list<int> $ids
+     * @return array<int, array{label:string,order:int}>
+     */
+    private static function parentMeta( array $ids ): array {
+        if ( ! $ids ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows         = (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, label, display_order FROM {$p}tt_eval_categories WHERE id IN ({$placeholders})",
+            ...$ids
+        ) );
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $id = (int) ( $r->id ?? 0 );
+            if ( $id <= 0 ) continue;
+            $out[ $id ] = [
+                'label' => EvalCategoriesRepository::displayLabel( (string) ( $r->label ?? '' ), $id ),
+                'order' => (int) ( $r->display_order ?? 0 ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * @param list<array{id:int,label:string}> $subs
+     * @param array<int, array<int, float>>    $values
+     */
+    private static function anySubRated( array $subs, array $values ): bool {
+        foreach ( $values as $by_category ) {
+            foreach ( $subs as $sub ) {
+                if ( isset( $by_category[ $sub['id'] ] ) ) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param list<array{id:int,label:string,own:array{id:int,label:string}|null,subs:list<array{id:int,label:string}>,expanded:bool}> $groups
+     * @return list<array{id:int,label:string,parent_id:int|null}>
+     */
+    private static function flatten( array $groups ): array {
+        $out = [];
+        foreach ( $groups as $g ) {
+            if ( $g['own'] !== null ) {
+                $out[] = [ 'id' => $g['own']['id'], 'label' => $g['own']['label'], 'parent_id' => null ];
+            }
+            foreach ( $g['subs'] as $sub ) {
+                $out[] = [ 'id' => $sub['id'], 'label' => $sub['label'], 'parent_id' => $g['id'] ];
+            }
+        }
+        return $out;
     }
 
     /**
@@ -72,7 +223,10 @@ final class RatingsGridQuery {
      * every active category — better a full grid than an empty one; the
      * view says which case applies.
      *
-     * @return list<array{id:int,label:string}>
+     * Returns the declared set with its tier intact but still unordered as
+     * a tree; `groupsFor()` does the arranging.
+     *
+     * @return list<array{id:int,label:string,parent_id:int|null,order:int}>
      */
     private static function categoriesFor( object $activity ): array {
         global $wpdb;
@@ -87,7 +241,7 @@ final class RatingsGridQuery {
         $rows = [];
         if ( $type_id > 0 ) {
             $rows = (array) $wpdb->get_results( $wpdb->prepare(
-                "SELECT c.id, c.label
+                "SELECT c.id, c.label, c.parent_id, c.display_order
                    FROM {$p}tt_eval_type_categories tc
                    INNER JOIN {$p}tt_eval_categories c ON c.id = tc.eval_category_id
                   WHERE tc.eval_type_id = %d
@@ -100,7 +254,7 @@ final class RatingsGridQuery {
 
         if ( ! $rows ) {
             $rows = (array) $wpdb->get_results(
-                "SELECT id, label FROM {$p}tt_eval_categories
+                "SELECT id, label, parent_id, display_order FROM {$p}tt_eval_categories
                   WHERE is_active = 1
                   ORDER BY display_order ASC, label ASC"
             );
@@ -115,9 +269,12 @@ final class RatingsGridQuery {
         foreach ( $rows as $r ) {
             $id = (int) ( $r->id ?? 0 );
             if ( $id <= 0 ) continue;
+            $parent = isset( $r->parent_id ) && $r->parent_id !== null ? (int) $r->parent_id : null;
             $out[] = [
-                'id'    => $id,
-                'label' => EvalCategoriesRepository::displayLabel( (string) ( $r->label ?? '' ), $id ),
+                'id'        => $id,
+                'label'     => EvalCategoriesRepository::displayLabel( (string) ( $r->label ?? '' ), $id ),
+                'parent_id' => $parent,
+                'order'     => (int) ( $r->display_order ?? 0 ),
             ];
         }
         return $out;
