@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T20:14:07+00:00\n"
+"POT-Creation-Date: 2026-08-16T20:31:22+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -1539,7 +1539,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:255
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:177
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:68
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:150
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:226
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:239
@@ -8791,7 +8791,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:222
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
 #: src/Modules/Invitations/Frontend/InviteButton.php:140
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:116
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:117
 #: src/Shared/Frontend/FrontendMySessionsView.php:148
 msgid "Revoke"
 msgstr ""
@@ -17978,14 +17978,14 @@ msgstr ""
 #: src/Modules/Invitations/InvitationStatus.php:63
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:77
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:70
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:149
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:150
 msgid "Expired"
 msgstr ""
 
 #: src/Modules/Invitations/InvitationStatus.php:64
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:73
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:69
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:148
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:149
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
 #: src/Shared/Frontend/FrontendTrialCaseView.php:730
 msgid "Revoked"
@@ -28680,15 +28680,15 @@ msgstr "Gesendet"
 msgid "Views"
 msgstr ""
 
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:116
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:117
 msgid "Revoke this report? The link will stop working immediately."
 msgstr ""
 
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:141
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:142
 msgid "Emailed link"
 msgstr ""
 
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:142
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:143
 msgid "Assigned account"
 msgstr ""
 
@@ -36371,31 +36371,31 @@ msgstr ""
 msgid "How to use TalentTrack."
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:57
+#: src/Shared/Dates/TTDate.php:64
 msgid "System default (WordPress setting)"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:58
+#: src/Shared/Dates/TTDate.php:65
 msgid "Day-Month-Year — 31-12-2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:59
+#: src/Shared/Dates/TTDate.php:66
 msgid "Day/Month/Year — 31/12/2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:60
+#: src/Shared/Dates/TTDate.php:67
 msgid "Day.Month.Year — 31.12.2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:61
+#: src/Shared/Dates/TTDate.php:68
 msgid "Month/Day/Year — 12/31/2026"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:62
+#: src/Shared/Dates/TTDate.php:69
 msgid "ISO — 2026-12-31"
 msgstr ""
 
-#: src/Shared/Dates/TTDate.php:63
+#: src/Shared/Dates/TTDate.php:70
 msgid "Long — 31 December 2026"
 msgstr ""
 
