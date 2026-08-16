@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-15T07:03:24+00:00\n"
+"POT-Creation-Date: 2026-08-16T11:10:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -788,9 +788,37 @@ msgstr ""
 msgid "Report: %s"
 msgstr ""
 
-#: src/Core/UpdateHardening.php:60
+#: src/Core/UpdateHardening.php:83
 #, php-format
 msgid "<strong>TalentTrack updates:</strong> no GitHub token is configured, so update checks run unauthenticated and GitHub rate-limits them (HTTP 403) after a few tries — new releases may not be detected or installed. Add %s to <code>wp-config.php</code> (a public-repo token needs no scopes)."
+msgstr ""
+
+#: src/Core/UpdateHardening.php:109
+msgid "Check for updates"
+msgstr ""
+
+#: src/Core/UpdateHardening.php:123
+msgid "You are not allowed to check for plugin updates."
+msgstr ""
+
+#. translators: %s = the newly available plugin version.
+#: src/Core/UpdateHardening.php:170
+#, php-format
+msgid "TalentTrack %s is available. Update it from the row below."
+msgstr ""
+
+#. translators: %s = the currently installed plugin version.
+#: src/Core/UpdateHardening.php:183
+#, php-format
+msgid "TalentTrack is up to date (version %s)."
+msgstr ""
+
+#: src/Core/UpdateHardening.php:186
+msgid "TalentTrack is up to date."
+msgstr ""
+
+#: src/Core/UpdateHardening.php:194
+msgid "The TalentTrack update check could not be completed. Check the GitHub token and the site's outbound connection, then try again."
 msgstr ""
 
 #. translators: %s is a comma-separated list like "3 evaluation ratings, 2 attendance".

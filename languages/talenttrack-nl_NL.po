@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-15T07:01:50+00:00\n"
+"POT-Creation-Date: 2026-08-16T11:10:29+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -942,7 +942,7 @@ msgstr ""
 msgid "Report: %s"
 msgstr "Rapport: %s"
 
-#: src/Core/UpdateHardening.php:60
+#: src/Core/UpdateHardening.php:83
 #, php-format
 msgid ""
 "<strong>TalentTrack updates:</strong> no GitHub token is configured, so "
@@ -955,6 +955,38 @@ msgstr ""
 "403) na een paar pogingen — nieuwe releases worden mogelijk niet "
 "gedetecteerd of geïnstalleerd. Voeg %s toe aan <code>wp-config.php</code> "
 "(een token voor een publieke repo heeft geen scopes nodig)."
+
+#: src/Core/UpdateHardening.php:109
+msgid "Check for updates"
+msgstr "Controleren op updates"
+
+#: src/Core/UpdateHardening.php:123
+msgid "You are not allowed to check for plugin updates."
+msgstr "Je mag niet controleren op plugin-updates."
+
+#. translators: %s = the newly available plugin version.
+#: src/Core/UpdateHardening.php:170
+#, php-format
+msgid "TalentTrack %s is available. Update it from the row below."
+msgstr "TalentTrack %s is beschikbaar. Werk bij via de regel hieronder."
+
+#. translators: %s = the currently installed plugin version.
+#: src/Core/UpdateHardening.php:183
+#, php-format
+msgid "TalentTrack is up to date (version %s)."
+msgstr "TalentTrack is up-to-date (versie %s)."
+
+#: src/Core/UpdateHardening.php:186
+msgid "TalentTrack is up to date."
+msgstr "TalentTrack is up-to-date."
+
+#: src/Core/UpdateHardening.php:194
+msgid ""
+"The TalentTrack update check could not be completed. Check the GitHub token "
+"and the site's outbound connection, then try again."
+msgstr ""
+"De TalentTrack-updatecontrole kon niet worden voltooid. Controleer het "
+"GitHub-token en de uitgaande verbinding van de site en probeer het opnieuw."
 
 #. translators: %s is a comma-separated list like "3 evaluation ratings, 2 attendance".
 #: src/Infrastructure/Archive/DeleteBlockedException.php:41
@@ -48105,34 +48137,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Core/UpdateHardening.php
-msgid "Check for updates"
-msgstr "Controleren op updates"
-
-#: src/Core/UpdateHardening.php
-msgid "You are not allowed to check for plugin updates."
-msgstr "Je mag niet controleren op plugin-updates."
-
-#. translators: %s = the newly available plugin version.
-#: src/Core/UpdateHardening.php
-#, php-format
-msgid "TalentTrack %s is available. Update it from the row below."
-msgstr "TalentTrack %s is beschikbaar. Werk bij via de regel hieronder."
-
-#. translators: %s = the currently installed plugin version.
-#: src/Core/UpdateHardening.php
-#, php-format
-msgid "TalentTrack is up to date (version %s)."
-msgstr "TalentTrack is up-to-date (versie %s)."
-
-#: src/Core/UpdateHardening.php
-msgid "TalentTrack is up to date."
-msgstr "TalentTrack is up-to-date."
-
-#: src/Core/UpdateHardening.php
-msgid "The TalentTrack update check could not be completed. Check the GitHub token and the site's outbound connection, then try again."
-msgstr "De TalentTrack-updatecontrole kon niet worden voltooid. Controleer het GitHub-token en de uitgaande verbinding van de site en probeer het opnieuw."
 
 #~ msgid "Aanvallen · opbouwen"
 #~ msgstr "Aanvallen · opbouwen"
