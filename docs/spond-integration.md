@@ -56,7 +56,17 @@ Last-sync status appears in the **Configuration → Spond integration** table �
 
 A head coach no longer needs an academy admin to link Spond for the team they run. On their team's page there's a **Spond connection** action that opens a panel to save the team's own Spond email + password, test the login, and (once a group is linked) trigger a sync — the same per-team account override an admin can set on the club-wide Spond page, now reachable by the coach for their own team.
 
-Access is scoped to the exact team: the per-team credential, test and sync endpoints (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) require **change authority on `spond_integration` for that team** — an academy admin holds it globally, a head coach holds it for their own team. The **Spond connection** action is hidden for anyone without that authority. (This also closed an earlier gap where the per-team credential endpoints, gated only on the any-team `tt_edit_spond_credentials` cap, accepted a head coach's write against another team.) Linking the actual Spond *group* still happens on the team edit form.
+Access is scoped to the exact team: the per-team credential, test and sync endpoints (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) require **change authority on `spond_integration` for that team** — an academy admin holds it globally, a head coach holds it for their own team. The **Spond connection** action is hidden for anyone without that authority. (This also closed an earlier gap where the per-team credential endpoints, gated only on the any-team `tt_edit_spond_credentials` cap, accepted a head coach's write against another team.)
+
+### Picking the group (v4.x+)
+
+The coach also picks the team's **Spond group** from the same panel, so the setup finishes in one place instead of stopping at the team edit form (which is gated on `tt_edit_teams`, a capability most head coaches don't hold).
+
+The picker appears **once the login works**. Listing groups requires an authenticated call to Spond, so before a successful login there is nothing to populate it with — the panel says so and points back at Save + Test rather than showing an empty dropdown. The listing is cached for five minutes per team, so opening the panel repeatedly doesn't re-hit Spond; saving or clearing the team's credentials drops that cache immediately.
+
+If the group you pick is **already linked to another team**, the panel warns and names that team — but still lets you save. Two teams sharing one Spond group is legitimate (a combined age-group calendar), so this is a heads-up, not a block. Both teams will import the same events.
+
+The endpoints are `GET /teams/{id}/spond/group` (the list, each entry flagged with the other team using it) and `POST /teams/{id}/spond/group` (save; an empty `group_id` unlinks). Both gate on the same per-team authority as the credential routes — **not** `tt_edit_teams`. The admin path on the team edit form is unchanged.
 
 ## API endpoint override
 
