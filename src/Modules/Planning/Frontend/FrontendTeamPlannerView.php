@@ -439,8 +439,27 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * filter). Narrows to one team when `$team_id_filter` is a team the
      * user can see; otherwise shows every such team condensed. Enqueues
      * the planner grid CSS and returns the HTML.
+     *
+     * #2400 — `$from` / `$to` (inclusive Y-m-d) and `$type_key` let the
+     * caller pin the calendar to the window and activity type the user
+     * already scoped the LIST to, so switching to the calendar no longer
+     * silently drops the filters. Omit them (the planner's own callers do)
+     * and the `$range` default window applies exactly as before. The grid
+     * is week-aligned, so the rendered window is the whole weeks covering
+     * [from, to] — never narrower than what the user asked for.
+     *
+     * @param string $from     inclusive Y-m-d, '' for the $range default
+     * @param string $to       inclusive Y-m-d, '' for the $range default
+     * @param string $type_key activity_type_key, '' for every type
      */
-    public static function renderReadOnlyCalendar( int $user_id, int $team_id_filter = 0, string $range = '4weeks' ): string {
+    public static function renderReadOnlyCalendar(
+        int $user_id,
+        int $team_id_filter = 0,
+        string $range = '4weeks',
+        string $from = '',
+        string $to = '',
+        string $type_key = ''
+    ): string {
         $teams = self::teamsForUser( $user_id );
         if ( empty( $teams ) ) {
             return '<p class="tt-notice">'
@@ -467,11 +486,41 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             ? [ $team_id_filter ]
             : $all_ids;
 
-        $range = self::resolveRange( $range );
-        [ $range_start, $range_end, $weeks_count ] = self::resolveRangeWindow( $range, self::resolveWeekStart( '' ) );
+        // #2400 — an explicit [from, to] wins over the $range default. The
+        // grid paints whole weeks, so snap the start back to the week start
+        // and round the span up: the user's window is always fully covered.
+        $iso = static fn( string $d ): bool => (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
+        if ( $iso( $from ) && $iso( $to ) && $from <= $to ) {
+            $range_start = self::resolveWeekStart( $from );
+            $range_end   = $to;
+            $span_days   = (int) round( ( strtotime( $to ) - strtotime( $range_start ) ) / DAY_IN_SECONDS ) + 1;
+            $weeks_count = max( 1, (int) ceil( $span_days / 7 ) );
+        } else {
+            $range = self::resolveRange( $range );
+            [ $range_start, $range_end, $weeks_count ] = self::resolveRangeWindow( $range, self::resolveWeekStart( '' ) );
+        }
 
-        $activities = self::activitiesForRangeMulti( $selected_ids, $range_start, $range_end );
-        return self::renderMultiTeamGrid( $activities, $range_start, $weeks_count, $selected_ids, $names );
+        $activities = self::activitiesForRangeMulti( $selected_ids, $range_start, $range_end, $type_key );
+        return self::windowNoticeHtml( $range_start, $range_end )
+            . self::renderMultiTeamGrid( $activities, $range_start, $weeks_count, $selected_ids, $names );
+    }
+
+    /**
+     * #2400 — state the window the grid is actually showing. Matters most
+     * when the list's period is "all": the calendar cannot render an
+     * unbounded range, so it falls back to the default forward window, and
+     * that narrowing must be visible rather than silent.
+     */
+    private static function windowNoticeHtml( string $from, string $to ): string {
+        if ( $from === '' || $to === '' ) return '';
+        return '<p class="tt-planner-window">'
+            . esc_html( sprintf(
+                /* translators: 1: window start date, 2: window end date. */
+                __( 'Showing %1$s – %2$s', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::date( $from ),
+                \TT\Shared\Dates\TTDate::date( $to )
+            ) )
+            . '</p>';
     }
 
     /**
@@ -929,11 +978,14 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * @param int[] $team_ids
      * @return object[]
      */
-    private static function activitiesForRangeMulti( array $team_ids, string $from, string $to ): array {
+    private static function activitiesForRangeMulti( array $team_ids, string $from, string $to, string $type_key = '' ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn ( $v ): bool => $v > 0 ) ) );
         if ( ! $ids ) return [];
         global $wpdb;
-        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // #2400 — optional activity-type narrowing, so the embedded calendar
+        // can show the same filtered set as the activities list.
+        $type_sql = $type_key !== '' ? ' AND a.activity_type_key = %s' : '';
         $sql = "SELECT a.id, a.team_id, a.title, a.session_date, a.start_time,
                        a.activity_status_key, a.activity_type_key, a.game_subtype_key,
                        a.opponent, a.home_away, t.name AS team_name
@@ -944,8 +996,10 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                    AND a.session_date BETWEEN %s AND %s
                    AND a.activity_status_key <> 'cancelled'
                    AND ( a.archived_at IS NULL OR a.archived_at = '' )
+                   {$type_sql}
                  ORDER BY a.session_date ASC, a.start_time ASC, t.name ASC, a.id ASC";
         $params = array_merge( $ids, [ CurrentClub::id(), $from, $to ] );
+        if ( $type_key !== '' ) $params[] = $type_key;
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
         return is_array( $rows ) ? $rows : [];
