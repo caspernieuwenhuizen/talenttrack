@@ -68,10 +68,18 @@ if ( file_exists( TT_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 
 if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php' ) ) {
     require_once TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.php';
+    // #2405 — 4th argument is the check period in HOURS. PUC's default is 12,
+    // which left pilot sites running the old version for up to half a day
+    // after a release published. One hour is PUC's practical floor (the value
+    // maps onto a WP-Cron schedule; 0 would disable automatic checks entirely).
+    // Cost is ~3 GitHub API calls/hour — negligible against the authenticated
+    // 5,000/hr budget, and still comfortable on the 60/hr unauthenticated one.
+    // There is no setter for this: the period is constructor-only.
     $tt_update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
         'https://github.com/caspernieuwenhuizen/talenttrack/',
         __FILE__,
-        TT_PLUGIN_SLUG
+        TT_PLUGIN_SLUG,
+        1
     );
     // Repo default branch is `main`; without this PUC falls back to `master` and 404s.
     $tt_update_checker->setBranch( 'main' );
@@ -90,7 +98,9 @@ if ( file_exists( TT_PLUGIN_DIR . 'plugin-update-checker/plugin-update-checker.p
 // #2262 — force unattended auto-install of TalentTrack releases + warn the
 // operator when TT_GITHUB_PAT is missing (unauthenticated GitHub API =
 // 60/hr per IP → 403 rate-limit → updates stop being detected).
-\TT\Core\UpdateHardening::register();
+// #2405 — the checker is handed over so the "Check for updates" row action can
+// force a check on demand; null when the PUC library isn't present.
+\TT\Core\UpdateHardening::register( isset( $tt_update_checker ) ? $tt_update_checker : null );
 
 register_activation_hook( __FILE__, [ 'TT\\Core\\Activator', 'activate' ] );
 register_deactivation_hook( __FILE__, [ 'TT\\Core\\Activator', 'deactivate' ] );
