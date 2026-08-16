@@ -111,7 +111,10 @@ class ArchiveRepository {
      * @param int    $by_user_id  wp user id of the person archiving
      * @return int  Number of rows affected.
      */
-    public function archive( string $entity, array $ids, int $by_user_id ): int {
+    /**
+     * @param array{cascade_activities?: bool} $opts #2411 — opt-in cascades.
+     */
+    public function archive( string $entity, array $ids, int $by_user_id, array $opts = [] ): int {
         $table = $this->resolveTable( $entity );
         if ( $table === null ) return 0;
         $ids = $this->cleanIds( $ids );
@@ -149,7 +152,96 @@ class ArchiveRepository {
             }
         }
 
+        // #2411 — archiving a team optionally takes its ACTIVITIES with it.
+        // Players deliberately stay active: a player outlives their team, and
+        // archiving them would cascade again to their PDP files and catch
+        // anyone who moved to another team the same day.
+        //
+        // The cascaded ids are recorded in the audit payload so restore()
+        // can reverse exactly what this cascade archived — an activity that
+        // was archived independently BEFORE the team must stay archived.
+        if ( $entity === 'team' && ! empty( $opts['cascade_activities'] ) ) {
+            $wpdb->query( 'START TRANSACTION' );
+            try {
+                $count    = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+                $cascaded = $this->cascadeArchiveTeamActivities( $ids, $by_user_id );
+                $wpdb->query( 'COMMIT' );
+
+                if ( $cascaded ) {
+                    $this->audit->record(
+                        'team.archive_cascaded',
+                        'team',
+                        (int) $ids[0],
+                        [ 'team_ids' => array_values( $ids ), 'activity_ids' => $cascaded ]
+                    );
+                }
+                return $count;
+            } catch ( \Throwable $e ) {
+                $wpdb->query( 'ROLLBACK' );
+                throw $e;
+            }
+        }
+
         return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+    }
+
+    /**
+     * #2411 — archive the still-active activities of these teams and return
+     * the ids actually stamped. Only rows that were active are touched, so
+     * the returned list is exactly what a later restore should reverse.
+     *
+     * @param int[] $team_ids
+     * @return list<int>
+     */
+    private function cascadeArchiveTeamActivities( array $team_ids, int $by_user_id ): array {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_activities';
+        $ph    = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+
+        $args = array_merge( $team_ids, [ CurrentClub::id() ] );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$table}
+              WHERE team_id IN ({$ph}) AND club_id = %d AND archived_at IS NULL",
+            ...$args
+        ) );
+        $ids = array_values( array_map( 'intval', (array) $ids ) );
+        if ( ! $ids ) return [];
+
+        $ph2 = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $wpdb->query( $wpdb->prepare(
+            "UPDATE {$table}
+                SET archived_at = %s, archived_by = %d
+              WHERE id IN ({$ph2}) AND club_id = %d AND archived_at IS NULL",
+            ...array_merge( [ current_time( 'mysql' ), $by_user_id ], $ids, [ CurrentClub::id() ] )
+        ) );
+
+        return $ids;
+    }
+
+    /**
+     * #2411 — the activity ids a previous archive-cascade stamped for these
+     * teams, newest event first. Used by restore() so un-archiving a team
+     * reverses only what the cascade did.
+     *
+     * @param int[] $team_ids
+     * @return list<int>
+     */
+    private function cascadedActivityIdsFor( array $team_ids ): array {
+        $events = $this->audit->recent( 20, [ 'action' => 'team.archive_cascaded', 'entity_type' => 'team' ] );
+        $out    = [];
+        foreach ( (array) $events as $e ) {
+            $payload = json_decode( (string) ( $e->payload ?? '' ), true );
+            if ( ! is_array( $payload ) ) continue;
+            $teams = array_map( 'intval', (array) ( $payload['team_ids'] ?? [] ) );
+            if ( ! array_intersect( $teams, $team_ids ) ) continue;
+            foreach ( (array) ( $payload['activity_ids'] ?? [] ) as $aid ) {
+                $aid = (int) $aid;
+                if ( $aid > 0 ) $out[ $aid ] = true;
+            }
+        }
+        return array_keys( $out );
     }
 
     /**
@@ -170,8 +262,29 @@ class ArchiveRepository {
         $sql = "UPDATE {$table}
                 SET archived_at = NULL, archived_by = NULL
                 WHERE id IN ({$ph}) AND club_id = %d AND archived_at IS NOT NULL";
-        $args = array_merge( $ids, [ CurrentClub::id() ] );
-        return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+        $args  = array_merge( $ids, [ CurrentClub::id() ] );
+        $count = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+
+        // #2411 — un-cascade, precisely. Restoring a team reverses only the
+        // activities THIS team's archive-cascade stamped, read back from the
+        // audit payload. An activity archived independently before the team
+        // was is deliberately left alone: undo must not revive something
+        // nobody asked to revive.
+        if ( $entity === 'team' && $count > 0 ) {
+            $cascaded = $this->cascadedActivityIdsFor( $ids );
+            if ( $cascaded ) {
+                $ph2 = implode( ',', array_fill( 0, count( $cascaded ), '%d' ) );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query( $wpdb->prepare(
+                    "UPDATE {$wpdb->prefix}tt_activities
+                        SET archived_at = NULL, archived_by = NULL
+                      WHERE id IN ({$ph2}) AND club_id = %d AND archived_at IS NOT NULL",
+                    ...array_merge( $cascaded, [ CurrentClub::id() ] )
+                ) );
+            }
+        }
+
+        return $count;
     }
 
     /**

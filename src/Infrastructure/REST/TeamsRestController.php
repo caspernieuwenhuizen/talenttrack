@@ -342,20 +342,33 @@ class TeamsRestController {
      * / staff assignments don't dangle.
      */
     public static function delete_team( \WP_REST_Request $r ) {
-        global $wpdb;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
-        $ok = $wpdb->update(
-            $wpdb->prefix . 'tt_teams',
-            [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
-            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
-        );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
-            Logger::error( 'team.archive.failed', [ 'db_error' => $err, 'team_id' => $id ] );
-            return RestResponse::error( 'db_error', __( 'The team could not be archived.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
+
+        // #2411 — the archive now routes through ArchiveRepository rather
+        // than stamping the row here, so the team-activities cascade (and
+        // its audit trail, which restore reads back) lives in one place.
+        // `cascade_activities` is opt-in from the confirm dialog's checkbox.
+        $cascade = $r->get_param( 'cascade_activities' );
+        $opts    = [ 'cascade_activities' => $cascade === null ? false : (bool) $cascade ];
+
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+                ->archive( 'team', [ $id ], get_current_user_id(), $opts );
+        } catch ( \Throwable $e ) {
+            Logger::error( 'team.archive.failed', [ 'error' => $e->getMessage(), 'team_id' => $id ] );
+            return RestResponse::error( 'db_error', __( 'The team could not be archived.', 'talenttrack' ), 500 );
         }
-        return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_archived', __( 'The team could not be archived.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [
+            'archived'           => true,
+            'id'                 => $id,
+            'cascade_activities' => ! empty( $opts['cascade_activities'] ),
+        ] );
     }
 
     /** #1470 — restore an archived team. */

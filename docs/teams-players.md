@@ -62,6 +62,16 @@ When a player has a `wp_user_id` set, logging in as that user routes to their ow
 
 Archived players stay in the database but disappear from active lists (old evaluations still reference them). Permanent delete only works when no evaluations, goals, or sessions reference the player. Use **archive** in most cases — see [Bulk actions](?page=tt-docs&topic=bulk-actions).
 
+### Archiving a team takes its activities with it (v4.x+)
+
+When you archive a team that still has active activities, the confirmation dialog offers **"Also archive this team's N activities"**, ticked by default. Leave it ticked and the team's trainings and matches are archived in the same action, so a retired age group's sessions stop appearing on planners, dashboards and reports. Untick it to archive the team alone.
+
+**Players are never archived by this.** A player outlives their team — they move up an age group, or transfer to another team the same week — so their record stays active and simply has no team until you assign one.
+
+**Restoring the team brings those activities back**, but only the ones this cascade archived. If you had already archived an activity by hand before archiving the team, it stays archived: restoring a team never revives something you deliberately put away.
+
+One-off on upgrade: teams that were archived *before* this shipped left their activities active. Upgrading sweeps those up once, so they stop cluttering live views. That sweep isn't reversed by restoring such a team — its activities were meant to be out of the way already; restore them individually if you need them back.
+
 ## Player case page (v3.79.0)
 
 Player detail is a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link.
