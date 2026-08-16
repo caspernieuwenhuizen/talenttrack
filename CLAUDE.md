@@ -574,6 +574,54 @@ release-plumbing files:
   if that rule is absent, stop after listing the ready PRs and ask the user
   to merge them or add the rule.
 
+### Never stage text with a shell heredoc — it stalls an unattended agent
+
+Long text destined for GitHub (issue bodies, root-cause write-ups, PR
+descriptions, review comments) is written with the **Write tool**, then
+handed to `gh` by path:
+
+```
+Write  -> <scratchpad>/c<issue>-<slug>.md
+gh issue comment <issue> --body-file <path>
+gh pr create --body-file <path>
+```
+
+Do **not** stage it with `cat > file <<'EOF'`, `echo … >> file`, or any
+other shell redirect. Any Bash command containing a `>` is classified as
+a file write and routed to a permission prompt regardless of the
+`Bash(cat:*)` / `Bash(echo:*)` allow rules in `.claude/settings.json` —
+the rules never get consulted. In an interactive session that costs one
+keypress; in an unattended drain it parks the agent forever, mid-issue,
+with nothing shipped. The Write tool covers the same ground and prompts
+for nothing.
+
+The same applies to `>>` appends and to piping a heredoc into `gh`
+(`gh issue comment -F - <<'EOF'`). One rule, no exceptions: **shell
+commands don't create files; the Write tool does.**
+
+### `2>&1` costs an approval too — the classifier sees the `>`, not the intent
+
+The rule above is not only about creating files. The classifier matches on
+the character, so **`2>&1` parks an unattended agent exactly like `cat >`
+does**, even though it writes nothing. Don't append it. The Bash tool
+already captures stderr and shows it, so the redirect buys nothing and
+costs a keypress the drain doesn't have.
+
+Two corollaries worth knowing before reaching for an allow rule:
+
+- **A compound chain is only as allowed as its least-allowed command.**
+  `cd … && git checkout -- … && perl …` prompts because `perl` is not in
+  the allowlist, no matter how many of the other commands are.
+- **An allow rule can't rescue a command that also contains `>`.** Adding
+  `Bash(perl:*)` to `.claude/settings.json` would not silence the chain
+  above, because the `2>&1` short-circuits the rule lookup entirely. Fix
+  the command shape first; only then ask whether a rule is missing.
+
+For in-place edits across many files, prefer the Edit tool per file, or
+`sed`, which is already allowlisted. Don't add `Bash(perl:*)` — `perl -e`
+is arbitrary code execution, which is a far wider grant than every other
+entry on that list.
+
 ### The label
 
 `ready-for-dev` is a pre-existing repo label (description: *"Shaped
