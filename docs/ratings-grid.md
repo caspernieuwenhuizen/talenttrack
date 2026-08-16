@@ -22,7 +22,8 @@ Open the activity and click **Ratings grid**. The button appears when you can ed
 
 - **Columns** are the categories the activity's evaluation type declares. If the type declares none, every active category is shown instead.
 - **Rows** are the team's active players.
-- **Scores** follow your academy's configured scale (by default 5 to 10 in half-point steps). Anything outside it is refused when you save.
+- **Scores** follow your academy's configured scale (by default 5 to 10 in half-point steps). A score outside the scale, or one that doesn't land on a step, is flagged the moment you type it: the cell turns red and the line under the grid tells you what's allowed. Save stays disabled until you've fixed it, so a score can't quietly fail to save.
+- **Your typing is never silently corrected.** A 12 stays a 12 on screen until you change it — the grid won't clamp it to 10 or round a 7.3 to 7.5 behind your back. If something is refused, you're told, and the cell stays marked as unsaved.
 - **An empty cell means "not rated".** It writes nothing, and it never clears a score somebody already recorded — clearing a score is a job for the evaluation form.
 - **Edited cells are highlighted** until you press Save, so you can see what's pending.
 - **Keyboard**: arrows move between cells, Enter moves down a row (the way you'd rate one category down the squad), Tab reaches Cancel then Save.

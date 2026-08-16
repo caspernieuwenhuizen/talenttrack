@@ -287,6 +287,15 @@ class ActivitiesRestController {
      * score. Writes go through `EvaluationInserter::upsertForActivity()` —
      * the same writer the evaluation wizard uses — so the grid and the
      * wizard can't produce different rows for the same input.
+     *
+     * A value outside the configured scale, or off its step, is refused and
+     * reported in `data.rejected` as `{ player_id, category_id, reason }`
+     * (#2431). Refusals are NOT folded into `skipped`, which stays reserved
+     * for blank cells: a caller that cannot distinguish "nothing to write"
+     * from "would not write" ends up telling the user their score saved
+     * when it did not. Partial batches still commit — the valid cells are
+     * written and the refused ones reported — so one bad cell can't cost a
+     * coach a whole squad's worth of typing.
      */
     public static function bulk_ratings( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = (int) $r['id'];
@@ -317,7 +326,14 @@ class ActivitiesRestController {
         $scale = $data['scale'];
         $byPlayer = [];
         $skipped  = 0;
+        $rejected = [];
 
+        // "Skipped" and "rejected" are deliberately separate outcomes. A
+        // blank cell is a legitimate no-op — not rated, write nothing. A
+        // value outside the scale is a REFUSAL, and the caller has to be
+        // able to tell the two apart: reporting a refusal as a clean save
+        // is how a coach ends up believing a score was recorded when it
+        // never was (#2431).
         foreach ( $changes as $c ) {
             $pid = (int) ( $c['player_id'] ?? 0 );
             $cid = (int) ( $c['category_id'] ?? 0 );
@@ -326,8 +342,29 @@ class ActivitiesRestController {
             if ( ! isset( $valid_players[ $pid ], $valid_categories[ $cid ] ) ) { $skipped++; continue; }
             if ( $raw === null || $raw === '' ) { $skipped++; continue; }
 
-            $val = round( (float) $raw / $scale['step'] ) * $scale['step'];
-            if ( $val < $scale['min'] || $val > $scale['max'] ) { $skipped++; continue; }
+            // The step is measured from the scale's floor, not from zero —
+            // the same base an HTML `step` attribute uses. On the default
+            // 5–10 half-point scale the two are identical, but on a scale
+            // whose floor isn't a multiple of the step they diverge, and
+            // the grid's client-side check has to agree with this one or a
+            // cell the browser accepted gets refused here.
+            $num = (float) $raw;
+            $val = $scale['min'] + round( ( $num - $scale['min'] ) / $scale['step'] ) * $scale['step'];
+
+            if ( $val < $scale['min'] || $val > $scale['max'] ) {
+                $rejected[] = [ 'player_id' => $pid, 'category_id' => $cid, 'reason' => 'out_of_range' ];
+                continue;
+            }
+
+            // Snapping to the step is a float-noise tolerance, not licence
+            // to rewrite what the user typed: 7.4999999 becomes 7.5, but a
+            // deliberate 7.3 on a half-point scale is refused rather than
+            // silently stored as 7.5. Silent mutation of a rating is the
+            // same class of bug as silent loss of one.
+            if ( abs( $num - $val ) > ( $scale['step'] / 100 ) ) {
+                $rejected[] = [ 'player_id' => $pid, 'category_id' => $cid, 'reason' => 'off_step' ];
+                continue;
+            }
 
             $byPlayer[ $pid ][ $cid ] = $val;
         }
@@ -345,6 +382,11 @@ class ActivitiesRestController {
             'saved'       => $saved,
             'skipped'     => $skipped,
             'failed'      => $failed,
+            // The cells that were refused, so a client can leave them
+            // flagged instead of promoting them to a saved baseline.
+            'rejected'       => $rejected,
+            'rejected_count' => count( $rejected ),
+            'scale'          => $scale,
         ] );
     }
 

@@ -56,6 +56,14 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                 'network'   => __( 'Network error — try again', 'talenttrack' ),
                 /* translators: %d is the number of unsaved cell changes. */
                 'unsaved'   => __( '%d unsaved change(s)', 'talenttrack' ),
+                /* translators: 1: lowest allowed score, 2: highest allowed score. */
+                'range'     => __( 'Score must be between %1$s and %2$s', 'talenttrack' ),
+                /* translators: %s is the step the rating scale moves in, e.g. 0.5. */
+                'step'      => __( 'Score must be in steps of %s', 'talenttrack' ),
+                /* translators: %d is the number of cells with an invalid score. */
+                'blocked'   => __( '%d score(s) out of range — fix the highlighted cells to save', 'talenttrack' ),
+                /* translators: %d is the number of scores the server refused. */
+                'rejected'  => __( '%d score(s) were refused and NOT saved — the highlighted cells are still unsaved', 'talenttrack' ),
             ],
         ] );
     }
