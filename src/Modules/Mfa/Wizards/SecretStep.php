@@ -151,11 +151,21 @@ final class SecretStep implements WizardStepInterface {
      * and pushing it a version denser than needed. Plain ASCII space
      * now. The render path additionally caps the composed URI at the
      * v8 budget (see render()).
+     *
+     * #2426 — a site name that already opens with the brand is used as-is.
+     * Matching only the exact string "TalentTrack" meant "TalentTrack Local"
+     * became "TalentTrack TalentTrack Local", which is what the user then
+     * sees in their authenticator app for good. The duplication also cost
+     * the URI budget twice over, since the issuer appears in both the label
+     * prefix and the issuer= param.
      */
     private static function issuerLabel(): string {
         $site_name = trim( (string) get_bloginfo( 'name' ) );
         if ( $site_name === '' || strcasecmp( $site_name, 'TalentTrack' ) === 0 ) {
             return 'TalentTrack';
+        }
+        if ( stripos( $site_name, 'TalentTrack' ) === 0 ) {
+            return $site_name;
         }
         return 'TalentTrack ' . $site_name;
     }
