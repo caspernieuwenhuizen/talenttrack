@@ -125,6 +125,22 @@
     color: var(--tt-muted);
 }
 
+/* #2399 — shared-group notice under the team's group picker. A warning,
+   not a blocker: two teams pointing at one Spond group is legitimate for a
+   combined age-group calendar, so this informs and lets the save proceed. */
+.tt-dashboard .tt-spond__warning {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-left: 3px solid var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-ink, #0e1a14);
+    font-size: 0.875rem;
+    line-height: 1.45;
+}
+.tt-dashboard .tt-spond__warning[hidden] {
+    display: none;
+}
+
 .tt-dashboard .tt-spond__group {
     color: var(--tt-success);
 }

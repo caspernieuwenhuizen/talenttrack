@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-16T11:51:16+00:00\n"
+"POT-Creation-Date: 2026-08-16T12:01:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -3187,11 +3187,14 @@ msgid "Player id is required."
 msgstr ""
 
 #: src/Infrastructure/REST/PlayerStatusRestController.php:131
-#: src/Infrastructure/REST/SpondRestController.php:157
-#: src/Infrastructure/REST/SpondRestController.php:179
-#: src/Infrastructure/REST/SpondRestController.php:537
-#: src/Infrastructure/REST/SpondRestController.php:569
-#: src/Infrastructure/REST/SpondRestController.php:594
+#: src/Infrastructure/REST/SpondRestController.php:178
+#: src/Infrastructure/REST/SpondRestController.php:200
+#: src/Infrastructure/REST/SpondRestController.php:546
+#: src/Infrastructure/REST/SpondRestController.php:586
+#: src/Infrastructure/REST/SpondRestController.php:638
+#: src/Infrastructure/REST/SpondRestController.php:673
+#: src/Infrastructure/REST/SpondRestController.php:700
+#: src/Modules/Spond/TeamSpondGroups.php:37
 msgid "Team id is required."
 msgstr ""
 
@@ -3244,10 +3247,12 @@ msgid "The rollover could not be completed."
 msgstr ""
 
 # #0018 — team development sprint 1 (REST stubs)
-#: src/Infrastructure/REST/SpondRestController.php:193
-#: src/Infrastructure/REST/SpondRestController.php:540
-#: src/Infrastructure/REST/SpondRestController.php:572
-#: src/Infrastructure/REST/SpondRestController.php:597
+#: src/Infrastructure/REST/SpondRestController.php:214
+#: src/Infrastructure/REST/SpondRestController.php:549
+#: src/Infrastructure/REST/SpondRestController.php:589
+#: src/Infrastructure/REST/SpondRestController.php:641
+#: src/Infrastructure/REST/SpondRestController.php:676
+#: src/Infrastructure/REST/SpondRestController.php:703
 #: src/Infrastructure/REST/TeamsRestController.php:291
 #: src/Infrastructure/REST/TeamsRestController.php:366
 #: src/Infrastructure/REST/TeamsRestController.php:379
@@ -3268,34 +3273,44 @@ msgstr ""
 msgid "Team not found."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:204
+#: src/Infrastructure/REST/SpondRestController.php:225
 msgid ""
 "This team has no Spond group linked. Pick a group on the team edit form "
 "first."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:216
+#: src/Infrastructure/REST/SpondRestController.php:237
 msgid "Could not fetch events from Spond."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:408
+#: src/Infrastructure/REST/SpondRestController.php:429
 msgid "A Spond email address is required."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:420
+#: src/Infrastructure/REST/SpondRestController.php:441
 msgid "A Spond password is required."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:467
-#: src/Infrastructure/REST/SpondRestController.php:631
+#: src/Infrastructure/REST/SpondRestController.php:488
+#: src/Infrastructure/REST/SpondRestController.php:737
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:414
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:138
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:191
 #: src/Shared/Frontend/FrontendSpondView.php:394
 msgid "Spond login failed."
 msgstr ""
 
-#: src/Infrastructure/REST/SpondRestController.php:495
+#: src/Infrastructure/REST/SpondRestController.php:516
 msgid "That URL does not look like a valid http(s) endpoint."
+msgstr ""
+
+#: src/Infrastructure/REST/SpondRestController.php:556
+#: src/Modules/Spond/TeamSpondGroups.php:68
+#: src/Modules/Wizards/Team/SpondGroupStep.php:42
+msgid "Could not load Spond groups."
+msgstr ""
+
+#: src/Infrastructure/REST/SpondRestController.php:594
+msgid "Could not save the Spond group."
 msgstr ""
 
 #: src/Infrastructure/REST/StravaRestController.php:221
@@ -27454,7 +27469,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:130
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:454
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:144
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:197
 #: src/Shared/Frontend/FrontendRecycleBinView.php:296
 #: src/Shared/Frontend/FrontendSetupView.php:421
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:182
@@ -29015,6 +29030,7 @@ msgstr ""
 #: src/Modules/Wizards/Team/ReviewStep.php:32
 #: src/Modules/Wizards/Team/SpondGroupStep.php:25
 #: src/Modules/Wizards/Team/SpondGroupStep.php:49
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:119
 #: src/Shared/Frontend/FrontendSpondView.php:215
 msgid "Spond group"
 msgstr ""
@@ -29056,7 +29072,8 @@ msgstr ""
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:266
 #: src/Modules/Teams/Admin/TeamsPage.php:220
 #: src/Modules/Teams/Admin/TeamsPage.php:246
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:105
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:144
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:159
 #: src/Shared/Frontend/FrontendSpondView.php:322
 msgid "Refresh now"
 msgstr ""
@@ -29073,7 +29090,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:398
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:142
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:195
 #: src/Shared/Frontend/FrontendSpondView.php:398
 msgid "Sync triggered. Reload to see the updated status."
 msgstr ""
@@ -30105,7 +30122,7 @@ msgid "Last activity"
 msgstr ""
 
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:219
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:136
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:189
 #: src/Shared/Frontend/FrontendSpondView.php:392
 msgid "Credentials saved."
 msgstr ""
@@ -31601,6 +31618,7 @@ msgstr ""
 
 #: src/Modules/Teams/Admin/TeamsPage.php:191
 #: src/Modules/Wizards/Team/SpondGroupStep.php:50
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:123
 msgid "— Not connected —"
 msgstr ""
 
@@ -34556,10 +34574,6 @@ msgid ""
 "Pick the Spond group that matches this team, or leave on \"Not connected\" "
 "to skip Spond for now. You can always reconnect later from the team edit "
 "form."
-msgstr ""
-
-#: src/Modules/Wizards/Team/SpondGroupStep.php:42
-msgid "Could not load Spond groups."
 msgstr ""
 
 #: src/Modules/Wizards/Team/StaffStep.php:43
@@ -40698,67 +40712,85 @@ msgstr ""
 msgid "Use club account"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:103
-msgid ""
-"A Spond group is linked to this team. Sync pulls its calendar into the "
-"team's activities."
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:136
+msgid "Pick the Spond group whose calendar belongs to this team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:108
-msgid ""
-"No Spond group is linked to this team yet. Once a group is linked on the "
-"team edit form, syncing pulls its calendar in."
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+msgid "Save group"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:137
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:150
+msgid ""
+"Group selection unlocks once the Spond login succeeds — save the email and "
+"password above, then press Test."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:157
+msgid "A Spond group is already linked to this team; syncing keeps using it."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:190
 #: src/Shared/Frontend/FrontendSpondView.php:393
 msgid "Spond login successful."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:139
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:192
 #: src/Shared/Frontend/FrontendSpondView.php:395
 msgid "Spond disconnected."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:193
 #: src/Shared/Frontend/FrontendSpondView.php:396
 msgid "API endpoint saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:141
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:194
 #: src/Shared/Frontend/FrontendSpondView.php:397
 msgid "Refreshing…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:143
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:196
 #: src/Shared/Frontend/FrontendSetupView.php:420
 #: src/Shared/Frontend/FrontendSpondView.php:399
 #: src/Shared/Frontend/FrontendTranslationsView.php:298
 msgid "Could not save. Please try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:145
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:198
 #: src/Shared/Frontend/FrontendSpondView.php:401
 msgid ""
 "Disconnect Spond? Existing imported activities are kept; per-team group "
 "selections stay on file."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:146
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:199
 #: src/Shared/Frontend/FrontendSpondView.php:402
 msgid "Team account saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:147
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:200
 #: src/Shared/Frontend/FrontendSpondView.php:403
 msgid "Team now uses the club account."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:148
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:201
 #: src/Shared/Frontend/FrontendSpondView.php:404
 msgid ""
 "Use the club account for this team? The team's own Spond login will be "
 "removed."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:203
+msgid "Spond group saved."
+msgstr ""
+
+#. translators: %s: the other team already linked to this Spond group.
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:205
+#, php-format
+msgid ""
+"Heads up: %s is already linked to this Spond group. Saving is allowed — both "
+"teams will import the same calendar."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyTeamView.php:43

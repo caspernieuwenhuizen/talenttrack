@@ -56,7 +56,17 @@ Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond-integrati
 
 Een hoofdtrainer heeft geen academie-beheerder meer nodig om Spond te koppelen voor het team dat hij leidt. Op de teampagina staat een actie **Spond-koppeling** die een paneel opent om het eigen Spond-e-mailadres + wachtwoord van het team op te slaan, de login te testen en (zodra een groep is gekoppeld) een synchronisatie te starten — dezelfde per-team-accountoverride die een beheerder op de clubbrede Spond-pagina kan instellen, nu bereikbaar voor de trainer voor zijn eigen team.
 
-De toegang is beperkt tot het exacte team: de per-team-endpoints voor credentials, test en synchronisatie (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) vereisen **wijzigingsrechten op `spond_integration` voor dat team** — een academie-beheerder heeft ze globaal, een hoofdtrainer voor zijn eigen team. De actie **Spond-koppeling** is verborgen voor wie die rechten niet heeft. (Dit sloot ook een eerder gat waarbij de per-team-credential-endpoints, die alleen op de any-team-capability `tt_edit_spond_credentials` waren afgeschermd, een schrijfactie van een hoofdtrainer op een ander team accepteerden.) De feitelijke Spond-*groep* koppelen gebeurt nog steeds op het teambewerkingsformulier.
+De toegang is beperkt tot het exacte team: de per-team-endpoints voor credentials, test en synchronisatie (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) vereisen **wijzigingsrechten op `spond_integration` voor dat team** — een academie-beheerder heeft ze globaal, een hoofdtrainer voor zijn eigen team. De actie **Spond-koppeling** is verborgen voor wie die rechten niet heeft. (Dit sloot ook een eerder gat waarbij de per-team-credential-endpoints, die alleen op de any-team-capability `tt_edit_spond_credentials` waren afgeschermd, een schrijfactie van een hoofdtrainer op een ander team accepteerden.)
+
+### De groep kiezen (v4.x+)
+
+De trainer kiest de **Spond-groep** van het team nu in hetzelfde paneel, zodat de installatie op één plek klaar is in plaats van te stranden bij het teambewerkingsformulier (dat is afgeschermd met `tt_edit_teams`, een recht dat de meeste hoofdtrainers niet hebben).
+
+De keuzelijst verschijnt **zodra de login werkt**. Groepen ophalen vereist een geauthenticeerde aanroep naar Spond, dus vóór een geslaagde login valt er niets te tonen — het paneel zegt dat en verwijst terug naar Opslaan + Testen in plaats van een lege keuzelijst te tonen. De lijst wordt vijf minuten per team gecached, zodat het paneel herhaaldelijk openen Spond niet opnieuw belast; het opslaan of wissen van de teamcredentials laat die cache meteen vervallen.
+
+Is de gekozen groep **al aan een ander team gekoppeld**, dan waarschuwt het paneel en noemt het dat team — maar opslaan mag. Twee teams die één Spond-groep delen is legitiem (een gecombineerde agenda per leeftijdsgroep), dus dit is een signaal, geen blokkade. Beide teams importeren dan dezelfde events.
+
+De endpoints zijn `GET /teams/{id}/spond/group` (de lijst, elk item gemarkeerd met het andere team dat hem gebruikt) en `POST /teams/{id}/spond/group` (opslaan; een lege `group_id` ontkoppelt). Beide zijn afgeschermd met dezelfde per-team-autoriteit als de credential-endpoints — **niet** met `tt_edit_teams`. Het beheerderspad op het teambewerkingsformulier blijft ongewijzigd.
 
 ## API-endpoint-override
 

@@ -264,4 +264,58 @@
             });
         }
     });
+
+    // ---- Per-team Spond group selection (#2399) ------------------------
+    // The select is only rendered when the group listing succeeded, i.e.
+    // after the login works — so there is no "no groups" state to handle
+    // here. Sharing a group with another team is warned about, never
+    // blocked: a combined age-group calendar legitimately does it.
+    root.querySelectorAll('[data-tt-spond-team-group]').forEach(function (select) {
+        var teamId = parseInt(select.getAttribute('data-team-id') || '0', 10);
+        if (!teamId) return;
+
+        var wrap = select.closest('.tt-spond__team-group') || root;
+        var warning = wrap.querySelector('[data-tt-spond-group-warning]');
+        var saveBtn = wrap.querySelector('[data-tt-spond-team-group-save]');
+
+        function usedBy() {
+            var opt = select.options[select.selectedIndex];
+            return (opt && opt.getAttribute('data-tt-used-by')) || '';
+        }
+
+        function renderWarning() {
+            if (!warning) return;
+            var team = usedBy();
+            if (!team) {
+                warning.hidden = true;
+                warning.textContent = '';
+                return;
+            }
+            var tpl = i18n.group_shared || '%s is already linked to this Spond group.';
+            warning.textContent = tpl.replace('%s', team);
+            warning.hidden = false;
+        }
+
+        select.addEventListener('change', renderWarning);
+        renderWarning();
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function () {
+                saveBtn.disabled = true;
+                setMsg('', '');
+                post('teams/' + teamId + '/spond/group', { group_id: select.value }).then(function (r) {
+                    saveBtn.disabled = false;
+                    if (r.ok && r.json && r.json.success) {
+                        setMsg(i18n.group_saved || 'Spond group saved.', 'success');
+                        reloadSoon();
+                    } else {
+                        setMsg(firstError(r.json) || i18n.error || 'Error.', 'error');
+                    }
+                }).catch(function () {
+                    saveBtn.disabled = false;
+                    setMsg(i18n.network_error || 'Network error.', 'error');
+                });
+            });
+        }
+    });
 })();

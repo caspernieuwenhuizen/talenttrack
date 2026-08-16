@@ -13,6 +13,7 @@ use TT\Modules\Spond\SpondSync;
 use TT\Modules\Spond\SpondTypeResolver;
 use TT\Modules\Spond\TeamSpondAccount;
 use TT\Modules\Spond\TeamSpondAccess;
+use TT\Modules\Spond\TeamSpondGroups;
 
 /**
  * SpondRestController (#0031, extended #1936) — REST surface for the
@@ -95,6 +96,26 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_test_team_credentials' ],
             'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
+        ] );
+
+        // #2399 — the team's own group selection, so a head coach can finish
+        // the Spond setup without an academy admin. Same authority as the
+        // credential routes above (change on spond_integration for THIS
+        // team), NOT the any-team tt_edit_teams the team-edit form uses.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/spond/group', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'route_list_team_groups' ],
+                'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'route_save_team_group' ],
+                'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
+                'args'                => [
+                    'group_id' => [ 'required' => true, 'type' => 'string' ],
+                ],
+            ],
         ] );
 
         register_rest_route( self::NS, '/spond/credentials', [
@@ -514,6 +535,86 @@ final class SpondRestController {
      * emit a 404) when it doesn't exist for the current club. Mirrors the
      * lookup route_preview does before touching the team.
      */
+    /**
+     * #2399 — groups the team's effective Spond account can see, each
+     * annotated with the other team already using it (a warning, never a
+     * block: a combined age-group calendar legitimately shares a group).
+     */
+    public static function route_list_team_groups( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+        if ( ! self::teamExists( $team_id ) ) {
+            return RestResponse::notFound( 'team_not_found', __( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $result = TeamSpondGroups::forTeam( $team_id, ! $r->get_param( 'refresh' ) );
+        if ( empty( $result['ok'] ) ) {
+            return RestResponse::error(
+                (string) ( $result['error_code'] ?? 'fetch_failed' ),
+                (string) ( $result['error_message'] ?? __( 'Could not load Spond groups.', 'talenttrack' ) ),
+                502
+            );
+        }
+
+        $ids   = array_map( static fn( $g ) => (string) $g['id'], $result['groups'] );
+        $links = TeamSpondGroups::otherTeamsUsing( $ids, $team_id );
+
+        $groups = [];
+        foreach ( $result['groups'] as $g ) {
+            $gid      = (string) $g['id'];
+            $groups[] = [
+                'id'         => $gid,
+                'name'       => (string) $g['name'],
+                // Present only when ANOTHER team already points here.
+                'used_by'    => $links[ $gid ] ?? '',
+            ];
+        }
+
+        return RestResponse::success( [
+            'team_id'  => $team_id,
+            'selected' => self::currentGroupId( $team_id ),
+            'groups'   => $groups,
+        ] );
+    }
+
+    /** #2399 — persist the team's group choice ('' clears it). */
+    public static function route_save_team_group( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r['id'];
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
+        }
+        if ( ! self::teamExists( $team_id ) ) {
+            return RestResponse::notFound( 'team_not_found', __( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $group_id = sanitize_text_field( (string) ( $r->get_param( 'group_id' ) ?? '' ) );
+        if ( ! TeamSpondGroups::setGroup( $team_id, $group_id ) ) {
+            return RestResponse::error( 'save_failed', __( 'Could not save the Spond group.', 'talenttrack' ), 500 );
+        }
+
+        Logger::info( 'spond.team_group_saved', [ 'team_id' => $team_id, 'linked' => $group_id !== '' ] );
+
+        $used_by = $group_id !== ''
+            ? ( TeamSpondGroups::otherTeamsUsing( [ $group_id ], $team_id )[ $group_id ] ?? '' )
+            : '';
+
+        return RestResponse::success( [
+            'team_id'  => $team_id,
+            'group_id' => $group_id,
+            'used_by'  => $used_by,
+        ] );
+    }
+
+    private static function currentGroupId( int $team_id ): string {
+        global $wpdb;
+        return (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT spond_group_id FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id, CurrentClub::id()
+        ) );
+    }
+
     private static function teamExists( int $team_id ): bool {
         global $wpdb;
         $found = $wpdb->get_var( $wpdb->prepare(
@@ -546,6 +647,9 @@ final class SpondRestController {
         $account = new TeamSpondAccount( $team_id );
         $account->save( $email, $password );
 
+        // #2399 — the cached group listing belongs to the OLD account.
+        TeamSpondGroups::forgetCache( $team_id );
+
         Logger::info( 'rest.spond.team_credentials_saved', [
             'user' => get_current_user_id(),
             'team' => $team_id,
@@ -573,6 +677,8 @@ final class SpondRestController {
         }
 
         ( new TeamSpondAccount( $team_id ) )->clear();
+        // #2399 — back on the club account, so re-list on next render.
+        TeamSpondGroups::forgetCache( $team_id );
         Logger::info( 'rest.spond.team_credentials_cleared', [
             'user' => get_current_user_id(),
             'team' => $team_id,

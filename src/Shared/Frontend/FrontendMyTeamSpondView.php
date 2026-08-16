@@ -99,13 +99,66 @@ class FrontendMyTeamSpondView extends FrontendViewBase {
                 </form>
 
                 <div class="tt-spond__team-group">
-                    <?php if ( $has_group ) : ?>
-                        <p class="tt-spond__muted"><?php esc_html_e( 'A Spond group is linked to this team. Sync pulls its calendar into the team\'s activities.', 'talenttrack' ); ?></p>
-                        <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-refresh data-team-id="<?php echo (int) $team_id; ?>">
-                            <?php esc_html_e( 'Refresh now', 'talenttrack' ); ?>
-                        </button>
+                    <?php
+                    // #2399 — the group picker. Listing groups needs an
+                    // authenticated call, so a successful listing IS the
+                    // passing login test: when it fails there is nothing to
+                    // populate the select with, and we say why rather than
+                    // rendering an empty or erroring control.
+                    $groups_result = \TT\Modules\Spond\TeamSpondGroups::forTeam( $team_id );
+                    $groups        = (array) ( $groups_result['groups'] ?? [] );
+                    $links         = \TT\Modules\Spond\TeamSpondGroups::otherTeamsUsing(
+                        array_map( static fn( $g ) => (string) $g['id'], $groups ),
+                        $team_id
+                    );
+                    ?>
+
+                    <?php if ( ! empty( $groups_result['ok'] ) ) : ?>
+                        <div class="tt-spond__field">
+                            <label class="tt-spond__legend" for="tt-spond-team-group-<?php echo (int) $team_id; ?>">
+                                <?php esc_html_e( 'Spond group', 'talenttrack' ); ?>
+                            </label>
+                            <select id="tt-spond-team-group-<?php echo (int) $team_id; ?>" class="tt-spond__input"
+                                data-tt-spond-team-group data-team-id="<?php echo (int) $team_id; ?>">
+                                <option value=""><?php esc_html_e( '— Not connected —', 'talenttrack' ); ?></option>
+                                <?php foreach ( $groups as $g ) :
+                                    $gid  = (string) $g['id'];
+                                    $used = (string) ( $links[ $gid ] ?? '' );
+                                    ?>
+                                    <option value="<?php echo esc_attr( $gid ); ?>"
+                                        <?php selected( $group_id, $gid ); ?>
+                                        data-tt-used-by="<?php echo esc_attr( $used ); ?>">
+                                        <?php echo esc_html( (string) $g['name'] ); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <p class="tt-spond__hint"><?php esc_html_e( 'Pick the Spond group whose calendar belongs to this team.', 'talenttrack' ); ?></p>
+                        <p class="tt-spond__warning" data-tt-spond-group-warning hidden></p>
+                        <div class="tt-spond__team-account-actions">
+                            <button type="button" class="tt-btn tt-btn-primary" data-tt-spond-team-group-save data-team-id="<?php echo (int) $team_id; ?>">
+                                <?php esc_html_e( 'Save group', 'talenttrack' ); ?>
+                            </button>
+                            <?php if ( $has_group ) : ?>
+                                <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-refresh data-team-id="<?php echo (int) $team_id; ?>">
+                                    <?php esc_html_e( 'Refresh now', 'talenttrack' ); ?>
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     <?php else : ?>
-                        <p class="tt-spond__muted"><?php esc_html_e( 'No Spond group is linked to this team yet. Once a group is linked on the team edit form, syncing pulls its calendar in.', 'talenttrack' ); ?></p>
+                        <p class="tt-spond__muted">
+                            <?php esc_html_e( 'Group selection unlocks once the Spond login succeeds — save the email and password above, then press Test.', 'talenttrack' ); ?>
+                        </p>
+                        <?php $group_error = (string) ( $groups_result['error_message'] ?? '' ); ?>
+                        <?php if ( $group_error !== '' ) : ?>
+                            <p class="tt-spond__muted"><?php echo esc_html( $group_error ); ?></p>
+                        <?php endif; ?>
+                        <?php if ( $has_group ) : ?>
+                            <p class="tt-spond__muted"><?php esc_html_e( 'A Spond group is already linked to this team; syncing keeps using it.', 'talenttrack' ); ?></p>
+                            <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-refresh data-team-id="<?php echo (int) $team_id; ?>">
+                                <?php esc_html_e( 'Refresh now', 'talenttrack' ); ?>
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -146,6 +199,10 @@ class FrontendMyTeamSpondView extends FrontendViewBase {
                     'team_saved'            => __( 'Team account saved.', 'talenttrack' ),
                     'team_cleared'          => __( 'Team now uses the club account.', 'talenttrack' ),
                     'team_use_club_confirm' => __( 'Use the club account for this team? The team\'s own Spond login will be removed.', 'talenttrack' ),
+                    // #2399 — group picker.
+                    'group_saved'           => __( 'Spond group saved.', 'talenttrack' ),
+                    /* translators: %s: the other team already linked to this Spond group. */
+                    'group_shared'          => __( 'Heads up: %s is already linked to this Spond group. Saving is allowed — both teams will import the same calendar.', 'talenttrack' ),
                 ],
             ]
         );
