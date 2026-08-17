@@ -3810,6 +3810,15 @@ msgstr "Deze opgeslagen weergave verwijderen? Dit kan niet ongedaan worden gemaa
 msgid "You already have a saved view with that name."
 msgstr "Je hebt al een opgeslagen weergave met die naam."
 
+msgid "Open this view by default on this screen"
+msgstr "Deze weergave standaard openen op dit scherm"
+
+msgid "Applied when you open the screen without filters of your own. Use Clear to see everything."
+msgstr "Wordt toegepast als je het scherm opent zonder eigen filters. Gebruik Wissen om alles te zien."
+
+msgid "Default view:"
+msgstr "Standaardweergave:"
+
 #: src/Infrastructure/REST/SavedViewsRestController.php:115
 #: src/Shared/Frontend/Components/SavedViews.php:119
 msgid "Give this view a name first."

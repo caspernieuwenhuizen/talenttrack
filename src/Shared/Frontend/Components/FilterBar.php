@@ -253,6 +253,17 @@ final class FilterBar {
 		$title    = (string) ( $args['title'] ?? __( 'Filters', 'talenttrack' ) );
 		$ftrigger = (string) ( $args['filters_label'] ?? __( 'Filters', 'talenttrack' ) );
 		$reset    = (string) ( $args['reset_url'] ?? '' );
+		// #2450 — the reset URL is the surface's param-free URL, which is
+		// exactly the condition that re-applies a default saved view. Without
+		// this marker, "Clear" would bounce the user straight back into their
+		// default and they could never reach an unfiltered list.
+		if ( $reset !== '' && isset( $args['saved_views']['key'] ) ) {
+			$reset = add_query_arg(
+				\TT\Infrastructure\Filters\SavedViewsDefaults::OFF_PARAM,
+				\TT\Infrastructure\Filters\SavedViewsDefaults::OFF_VALUE,
+				$reset
+			);
+		}
 		$ns_label = (string) ( $args['noscript_label'] ?? __( 'Apply', 'talenttrack' ) );
 		// #2082 — extra form attributes (e.g. data-tt-list-form so the
 		// FrontendListTable hydrator binds to the bar's own form) and an

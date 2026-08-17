@@ -77,8 +77,10 @@ final class SavedViewsRestController extends BaseController {
                     'callback'            => [ self::class, 'updateView' ],
                     'permission_callback' => [ self::class, 'permitById' ],
                     'args'                => [
-                        'id'   => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
-                        'name' => [ 'sanitize_callback' => 'sanitize_text_field' ],
+                        'id'         => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
+                        'name'       => [ 'sanitize_callback' => 'sanitize_text_field' ],
+                        // #2450 — mark/unmark as the surface's default.
+                        'is_default' => [ 'type' => 'boolean' ],
                     ],
                 ],
             ] );
@@ -198,6 +200,19 @@ final class SavedViewsRestController extends BaseController {
         if ( $row === null ) {
             return RestResponse::error( 'save_failed', __( 'Could not save this view.', 'talenttrack' ), 422 );
         }
+
+        // #2450 — the default flag rides the same PATCH. Applied after the
+        // name/filters update so one call can rename a view and make it the
+        // default; setDefault() clears any previous default for the surface.
+        if ( $req->get_param( 'is_default' ) !== null ) {
+            $on   = rest_sanitize_boolean( $req->get_param( 'is_default' ) );
+            $rowd = $repo->setDefault( $id, $uid, $on );
+            if ( $rowd === null ) {
+                return RestResponse::error( 'save_failed', __( 'Could not save this view.', 'talenttrack' ), 422 );
+            }
+            $row = $rowd;
+        }
+
         return RestResponse::success( self::shapeView( $row ) );
     }
 

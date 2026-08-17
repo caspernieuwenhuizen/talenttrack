@@ -144,6 +144,11 @@
 					'<input type="checkbox" data-tt-sv-overwrite />' +
 					'<span>' + escapeHtml( i18n.overwrite_label || '' ) + '</span>' +
 				'</label>' +
+				'<label class="tt-modal-option">' +
+					'<input type="checkbox" data-tt-sv-default />' +
+					'<span>' + escapeHtml( i18n.default_label || '' ) + '</span>' +
+				'</label>' +
+				'<p class="tt-saved-views__hint">' + escapeHtml( i18n.default_hint || '' ) + '</p>' +
 				'<div class="tt-modal-actions tt-saved-views__modal-actions">' +
 					'<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' +
 						escapeHtml( i18n.cancel || 'Cancel' ) + '</button>' +
@@ -157,26 +162,28 @@
 		return dialog;
 	}
 
-	/** onResult( action, name, overwrite ) — action: 'save' | 'delete' | '' */
-	function openManage( currentName, onResult ) {
+	/** onResult( action, name, overwrite, isDefault ) — action: 'save' | 'delete' | '' */
+	function openManage( currentName, currentDefault, onResult ) {
 		var dialog = ensureManage();
 		if ( ! dialog ) {
 			var typed = window.prompt( i18n.name_label || '', currentName );
-			if ( typed === null ) { onResult( '', '', false ); return; }
-			onResult( 'save', String( typed ).trim(), false );
+			if ( typed === null ) { onResult( '', '', false, currentDefault ); return; }
+			onResult( 'save', String( typed ).trim(), false, currentDefault );
 			return;
 		}
 
 		var nameEl = dialog.querySelector( '[data-tt-sv-name]' );
 		var owEl   = dialog.querySelector( '[data-tt-sv-overwrite]' );
+		var defEl  = dialog.querySelector( '[data-tt-sv-default]' );
 		nameEl.value = currentName;
 		owEl.checked = false;
+		defEl.checked = !! currentDefault;
 
 		var closeHandler = function () {
 			dialog.removeEventListener( 'close', closeHandler );
 			var action = dialog.returnValue;
 			if ( action !== 'save' && action !== 'delete' ) { action = ''; }
-			onResult( action, String( nameEl.value || '' ).trim(), !! owEl.checked );
+			onResult( action, String( nameEl.value || '' ).trim(), !! owEl.checked, !! defEl.checked );
 		};
 		dialog.addEventListener( 'close', closeHandler );
 		dialog.showModal();
@@ -257,9 +264,10 @@
 				var id = btn.getAttribute( 'data-tt-view-manage' );
 				var li = btn.closest( '.tt-saved-views__item' );
 				var current = li ? ( li.getAttribute( 'data-tt-view-name' ) || '' ) : '';
+				var wasDefault = li ? li.getAttribute( 'data-tt-view-default' ) === '1' : false;
 				if ( ! id ) { return; }
 
-				openManage( current, function ( action, name, overwrite ) {
+				openManage( current, wasDefault, function ( action, name, overwrite, isDefault ) {
 					if ( action === 'delete' ) {
 						// Second confirm: Delete sits beside Save in the same
 						// modal, so a mis-tap must not be destructive.
@@ -284,11 +292,12 @@
 					if ( action !== 'save' ) { return; }
 					if ( ! name ) { notify( i18n.name_required || 'Name required.' ); return; }
 					// Nothing asked for — don't spend a request on it.
-					if ( name === current && ! overwrite ) { return; }
+					if ( name === current && ! overwrite && isDefault === wasDefault ) { return; }
 
 					var body = {};
 					if ( name !== current ) { body.name = name; }
 					if ( overwrite ) { body.filters = currentFilters( keys ); }
+					if ( isDefault !== wasDefault ) { body.is_default = isDefault; }
 
 					btn.disabled = true;
 					fetch( rest + 'filter-presets/' + encodeURIComponent( id ), {
