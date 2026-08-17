@@ -69,6 +69,8 @@ Tabs that move **within** one record — a player's Overview / Journey / Evaluat
 
 They may only be rendered by the shared spine component (`\TT\Shared\Frontend\Components\RecordSpine`), which also hosts the breadcrumb chain and the back-pill. A view that hand-rolls its own tab strip **is** a violation — that's how tab styling, keyboard order and active-state logic drift apart across surfaces.
 
+**Grandfathered:** tab strips that predate this rule aren't violations until migrated. `FrontendPlayerDetailView` is the one such surface — its capability-gated, counted strip predates the spine and works well, and rewriting it to reach the same markup would be churn on the most trafficked view in the plugin. The rule binds **new** surfaces; existing strips migrate when there's a reason to touch them, not on principle.
+
 ## Why
 
 Breadcrumbs show where a record sits in the canonical hierarchy

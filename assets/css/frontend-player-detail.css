@@ -398,6 +398,134 @@
     .tt-player-kpi__num { font-size: 24px; }
 }
 
+/* ---------- Sticky identity + tabs (#2457, app shell only) ----------
+ *
+ * The full hero above still anchors the screen on arrival (CLAUDE.md §1 —
+ * name and photo anchor any screen where the player is the subject). It
+ * scrolls away; this slim strip is what survives, so a coach reading a
+ * long Evaluations or Measurements pane never loses track of whose record
+ * they are in.
+ *
+ * Everything here is scoped under `.tt-shell-app`. The wrapper element is
+ * not even emitted under `classic`, so that shell renders byte-for-byte as
+ * before — #2456's rollback contract.
+ *
+ * Height budget at 360×640: identity row ~40px + tab strip ~52px = ~92px,
+ * comfortably inside the 30vh (192px) cap. The tab strip keeps its single
+ * scrolling row rather than wrapping, which is what makes the stuck height
+ * predictable instead of a function of how many tabs the viewer's caps
+ * happen to allow.
+ */
+.tt-shell-app .tt-player-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--tt-paper);
+    border-radius: var(--tt-radius);
+    margin: var(--tt-gap) 0 0;
+    /* A shadow only once it overlaps content — without it the strip and
+       the pane beneath merge into one flat surface while scrolling. */
+    box-shadow: 0 1px 0 var(--tt-line-soft), 0 6px 12px -8px rgba(0, 0, 0, 0.18);
+}
+
+.tt-shell-app .tt-player-sticky__id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px var(--tt-gap-lg) 0;
+    min-width: 0;
+}
+
+.tt-shell-app .tt-player-sticky__avatar {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: var(--tt-mute-soft);
+    color: var(--tt-ink-soft);
+    font-size: 11px;
+    font-weight: 700;
+    /* Same status ring vocabulary as the hero avatar, at a smaller scale. */
+    box-shadow: 0 0 0 2px var(--tt-line-soft);
+}
+
+.tt-shell-app .tt-player-sticky__avatar[data-status="active"] {
+    box-shadow: 0 0 0 2px var(--tt-success, #2f9e5e);
+}
+
+.tt-shell-app .tt-player-sticky__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.tt-shell-app .tt-player-sticky__name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--tt-ink-strong);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tt-shell-app .tt-player-sticky__team {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* The name wins the space when both cannot fit. */
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.tt-shell-app .tt-player-sticky__team::before {
+    content: "·";
+    margin-right: 6px;
+}
+
+/* The strip owns the sticky behaviour now, so the nested tab bar must not
+   also stick — two nested sticky elements resolve against different
+   containing blocks and the tabs would drift out of the strip. */
+.tt-shell-app .tt-player-sticky .tt-player-tabs {
+    position: static;
+    margin-top: 0;
+    border-radius: 0 0 var(--tt-radius) var(--tt-radius);
+    box-shadow: none;
+}
+
+@media (min-width: 768px) {
+    /* Above 768px the base rules turn the tab bar transparent and static;
+       inside the sticky strip it needs its paper background back so the
+       pane doesn't show through while scrolled under it. */
+    .tt-shell-app .tt-player-sticky .tt-player-tabs {
+        background: var(--tt-paper);
+        padding: var(--tt-gap) var(--tt-gap-lg);
+        /* Keep one scrolling row rather than wrapping, so the stuck height
+           stays predictable regardless of how many tabs the viewer sees. */
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+}
+
+/* Focus rings must not be clipped by the strip's overflow, and a tab
+   reached by keyboard must scroll itself into view. */
+.tt-shell-app .tt-player-sticky .tt-player-tab:focus-visible {
+    outline: 2px solid var(--tt-accent);
+    outline-offset: -2px;
+    scroll-margin-inline: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-shell-app .tt-player-sticky {
+        transition: none;
+    }
+}
+
 /* ---------- Tab bar (pill chips with count badges) ---------- */
 
 .tt-player-tabs {

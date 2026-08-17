@@ -376,6 +376,13 @@ They may only be rendered by the shared spine component
 is a violation** — that is how tab styling, keyboard order and active
 state drift apart across surfaces.
 
+**Grandfathered**: tab strips that predate this rule are not violations
+until migrated. `FrontendPlayerDetailView` is the one such surface — its
+capability-gated, counted strip predates the spine and works well, and
+rewriting it to reach the same markup would be churn on the most
+trafficked view in the plugin. The rule binds **new** surfaces; existing
+strips migrate when there is a reason to touch them, not on principle.
+
 Full mechanism + label resolver + `tt_back` validation rules in
 `docs/back-navigation.md`. Read it when adding a new view, when
 modifying an existing view's nav, or when reviewing a PR that
