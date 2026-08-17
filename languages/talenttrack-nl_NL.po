@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T18:26:45+00:00\n"
+"POT-Creation-Date: 2026-08-17T19:18:33+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -295,6 +295,7 @@ msgstr "Staf"
 #: src/Shared/Frontend/CoachDashboardView.php:328
 #: src/Shared/Frontend/CoachForms.php:620
 #: src/Shared/Frontend/Components/FrontendThreadView.php:172
+#: src/Shared/Frontend/Components/SavedViews.php:154
 #: src/Shared/Frontend/DashboardShortcode.php:201
 #: src/Shared/Frontend/FrontendBackupsView.php:303
 #: src/Shared/Frontend/FrontendConfigurationView.php:624
@@ -3791,44 +3792,29 @@ msgstr "Wedstrijd niet gevonden."
 msgid "You do not coach this match’s team."
 msgstr "Je coacht het team van deze wedstrijd niet."
 
-#: src/Infrastructure/REST/SavedViewsRestController.php:110
+#: src/Infrastructure/REST/SavedViewsRestController.php:125
 msgid "No view key supplied."
 msgstr "Geen weergavesleutel opgegeven."
 
-msgid "Edit saved view"
-msgstr "Opgeslagen weergave bewerken"
-
-msgid "Edit or delete saved view %s"
-msgstr "Opgeslagen weergave %s bewerken of verwijderen"
-
-msgid "Also replace its filters with the ones set now"
-msgstr "Vervang ook de filters door de nu ingestelde filters"
-
-msgid "Delete this saved view? This cannot be undone."
-msgstr "Deze opgeslagen weergave verwijderen? Dit kan niet ongedaan worden gemaakt."
-
-msgid "You already have a saved view with that name."
-msgstr "Je hebt al een opgeslagen weergave met die naam."
-
-msgid "Open this view by default on this screen"
-msgstr "Deze weergave standaard openen op dit scherm"
-
-msgid "Applied when you open the screen without filters of your own. Use Clear to see everything."
-msgstr "Wordt toegepast als je het scherm opent zonder eigen filters. Gebruik Wissen om alles te zien."
-
-msgid "Default view:"
-msgstr "Standaardweergave:"
-
-#: src/Infrastructure/REST/SavedViewsRestController.php:115
-#: src/Shared/Frontend/Components/SavedViews.php:119
+#: src/Infrastructure/REST/SavedViewsRestController.php:130
+#: src/Infrastructure/REST/SavedViewsRestController.php:180
+#: src/Shared/Frontend/Components/SavedViews.php:139
 msgid "Give this view a name first."
 msgstr "Geef deze weergave eerst een naam."
 
-#: src/Infrastructure/REST/SavedViewsRestController.php:126
+#: src/Infrastructure/REST/SavedViewsRestController.php:146
+#: src/Infrastructure/REST/SavedViewsRestController.php:188
+msgid "You already have a saved view with that name."
+msgstr "Je hebt al een opgeslagen weergave met die naam."
+
+#: src/Infrastructure/REST/SavedViewsRestController.php:153
+#: src/Infrastructure/REST/SavedViewsRestController.php:201
+#: src/Infrastructure/REST/SavedViewsRestController.php:211
 msgid "Could not save this view."
 msgstr "Kon deze weergave niet opslaan."
 
-#: src/Infrastructure/REST/SavedViewsRestController.php:135
+#: src/Infrastructure/REST/SavedViewsRestController.php:173
+#: src/Infrastructure/REST/SavedViewsRestController.php:223
 msgid "View not found."
 msgstr "Weergave niet gevonden."
 
@@ -4256,7 +4242,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1308
 #: src/Modules/Teams/Admin/TeamsPage.php:40
-#: src/Shared/Frontend/Components/SavedViews.php:120
+#: src/Shared/Frontend/Components/SavedViews.php:140
 #: src/Shared/Frontend/DashboardShortcode.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:419
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:50
@@ -4669,7 +4655,8 @@ msgstr "Bijwerken"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
-#: src/Shared/Frontend/Components/SavedViews.php:90
+#: src/Shared/Frontend/Components/SavedViews.php:110
+#: src/Shared/Frontend/Components/SavedViews.php:156
 #: src/Shared/Frontend/DashboardShortcode.php:167
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
@@ -5004,6 +4991,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/Components/FormSaveButton.php:63
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
+#: src/Shared/Frontend/Components/SavedViews.php:155
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3243
 #: src/Shared/Frontend/FrontendBackupsView.php:252
@@ -5084,7 +5072,7 @@ msgstr "Datumbereik"
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
-#: src/Shared/Frontend/Components/FilterBar.php:525
+#: src/Shared/Frontend/Components/FilterBar.php:536
 #: src/Shared/Frontend/Components/FrontendListTable.php:417
 #: src/Shared/Frontend/FrontendAuditLogView.php:372
 #: src/Shared/Frontend/FrontendConfigurationView.php:2519
@@ -5109,7 +5097,7 @@ msgstr "Vanaf"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
-#: src/Shared/Frontend/Components/FilterBar.php:526
+#: src/Shared/Frontend/Components/FilterBar.php:537
 #: src/Shared/Frontend/Components/FrontendListTable.php:418
 #: src/Shared/Frontend/FrontendAuditLogView.php:373
 #: src/Shared/Frontend/FrontendConfigurationView.php:2520
@@ -6400,6 +6388,7 @@ msgstr ""
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
+#: src/Shared/Frontend/Components/SavedViews.php:147
 #: src/Shared/Frontend/FrontendConfigurationView.php:986
 #: src/Shared/Frontend/FrontendHolidaysView.php:81
 #: src/Shared/Frontend/FrontendHolidaysView.php:182
@@ -6608,9 +6597,9 @@ msgstr "— Geen —"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:176
-#: src/Shared/Frontend/Components/FilterBar.php:256
-#: src/Shared/Frontend/Components/FilterBar.php:353
-#: src/Shared/Frontend/Components/FilterBar.php:547
+#: src/Shared/Frontend/Components/FilterBar.php:267
+#: src/Shared/Frontend/Components/FilterBar.php:364
+#: src/Shared/Frontend/Components/FilterBar.php:558
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1240
 msgid "Apply"
 msgstr "Toepassen"
@@ -12396,7 +12385,7 @@ msgstr "Gebruikers-ID"
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:945
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
-#: src/Shared/Frontend/Components/FilterBar.php:350
+#: src/Shared/Frontend/Components/FilterBar.php:361
 msgid "Clear"
 msgstr "Wissen"
 
@@ -18633,7 +18622,7 @@ msgstr "Printen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:755
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:251
 #: src/Shared/Frontend/Components/FilterBar.php:111
-#: src/Shared/Frontend/Components/FilterBar.php:337
+#: src/Shared/Frontend/Components/FilterBar.php:348
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:158
 #: src/Shared/Frontend/DashboardShortcode.php:1799
@@ -29669,7 +29658,7 @@ msgstr "Deze ouder ontkoppelen van de speler?"
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:124
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:230
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:125
-#: src/Shared/Frontend/Components/SavedViews.php:122
+#: src/Shared/Frontend/Components/SavedViews.php:141
 #: src/Shared/Frontend/FrontendBackupsView.php:453
 #: src/Shared/Frontend/FrontendHolidaysView.php:341
 #: src/Shared/Frontend/FrontendSeasonsView.php:187
@@ -31361,6 +31350,7 @@ msgstr "geleden"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:249
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:160
+#: src/Shared/Frontend/Components/SavedViews.php:157
 #: src/Shared/Frontend/DashboardShortcode.php:182
 #: src/Shared/Frontend/DashboardShortcode.php:198
 #: src/Shared/Frontend/FrontendSpondView.php:272
@@ -39840,30 +39830,56 @@ msgid "Record sections"
 msgstr "Recordsecties"
 
 #: src/Shared/Frontend/Components/SavedViews.php:52
+#: src/Shared/Frontend/Components/SavedViews.php:153
 msgid "Saved views"
 msgstr "Opgeslagen weergaven"
 
-#. translators: %s: saved view name
-#: src/Shared/Frontend/Components/SavedViews.php:67
-#, php-format
-msgid "Delete saved view %s"
-msgstr "Opgeslagen weergave %s verwijderen"
+#: src/Shared/Frontend/Components/SavedViews.php:74
+msgid "Default view:"
+msgstr "Standaardweergave:"
 
-#: src/Shared/Frontend/Components/SavedViews.php:81
+#. translators: %s: saved view name
+#: src/Shared/Frontend/Components/SavedViews.php:87
+#, php-format
+msgid "Edit or delete saved view %s"
+msgstr "Opgeslagen weergave %s bewerken of verwijderen"
+
+#: src/Shared/Frontend/Components/SavedViews.php:101
 msgid "Save current filters…"
 msgstr "Huidige filters opslaan…"
 
-#: src/Shared/Frontend/Components/SavedViews.php:84
+#: src/Shared/Frontend/Components/SavedViews.php:104
 msgid "Name for this saved view"
 msgstr "Naam voor deze opgeslagen weergave"
 
-#: src/Shared/Frontend/Components/SavedViews.php:88
+#: src/Shared/Frontend/Components/SavedViews.php:108
 msgid "e.g. U17 league games"
 msgstr "bijv. JO17 competitiewedstrijden"
 
-#: src/Shared/Frontend/Components/SavedViews.php:121
-msgid "Delete this saved view?"
-msgstr "Deze opgeslagen weergave verwijderen?"
+#: src/Shared/Frontend/Components/SavedViews.php:146
+msgid "Edit saved view"
+msgstr "Opgeslagen weergave bewerken"
+
+#: src/Shared/Frontend/Components/SavedViews.php:148
+msgid "Also replace its filters with the ones set now"
+msgstr "Vervang ook de filters door de nu ingestelde filters"
+
+#: src/Shared/Frontend/Components/SavedViews.php:150
+msgid "Open this view by default on this screen"
+msgstr "Deze weergave standaard openen op dit scherm"
+
+#: src/Shared/Frontend/Components/SavedViews.php:151
+msgid ""
+"Applied when you open the screen without filters of your own. Use Clear to "
+"see everything."
+msgstr ""
+"Wordt toegepast als je het scherm opent zonder eigen filters. Gebruik Wissen "
+"om alles te zien."
+
+#: src/Shared/Frontend/Components/SavedViews.php:152
+msgid "Delete this saved view? This cannot be undone."
+msgstr ""
+"Deze opgeslagen weergave verwijderen? Dit kan niet ongedaan worden gemaakt."
 
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
 #: src/Shared/Frontend/FrontendTrialCaseView.php:436
@@ -48530,6 +48546,13 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#, php-format
+#~ msgid "Delete saved view %s"
+#~ msgstr "Opgeslagen weergave %s verwijderen"
+
+#~ msgid "Delete this saved view?"
+#~ msgstr "Deze opgeslagen weergave verwijderen?"
 
 #~ msgid "No saved views yet."
 #~ msgstr "Nog geen opgeslagen weergaven."
