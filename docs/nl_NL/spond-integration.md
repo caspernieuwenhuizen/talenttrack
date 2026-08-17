@@ -58,6 +58,12 @@ Een hoofdtrainer heeft geen academie-beheerder meer nodig om Spond te koppelen v
 
 De toegang is beperkt tot het exacte team: de per-team-endpoints voor credentials, test en synchronisatie (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) vereisen **wijzigingsrechten op `spond_integration` voor dat team** — een academie-beheerder heeft ze globaal, een hoofdtrainer voor zijn eigen team. De actie **Spond-koppeling** is verborgen voor wie die rechten niet heeft. (Dit sloot ook een eerder gat waarbij de per-team-credential-endpoints, die alleen op de any-team-capability `tt_edit_spond_credentials` waren afgeschermd, een schrijfactie van een hoofdtrainer op een ander team accepteerden.)
 
+### Synchroniseren vanaf de activiteit zelf (v4.x+)
+
+Een verouderde import valt op bij de activiteit, niet op deze instellingenpagina — daarom staat er bij elke vanuit Spond geïmporteerde activiteit een knop **Team synchroniseren vanuit Spond** in de paginakop, naast Bewerken en de rasters. Die roept hetzelfde endpoint `POST /teams/{id}/spond/sync` aan en is met dezelfde per-team-autoriteit afgeschermd: een academie-beheerder ziet hem bij de activiteit van elk team, een hoofdtrainer alleen bij die van zijn eigen team. Bij gearchiveerde activiteiten verschijnt hij niet.
+
+Omdat Spond geen los event opnieuw kan ophalen, haalt de knop de **volledige** teamkalender opnieuw op; het label en de bevestiging zeggen daarom "team" in plaats van te suggereren dat alleen de activiteit voor je neus wordt ververst. Is het team minder dan een minuut geleden gesynchroniseerd, dan meldt de bevestiging dat, zodat wie twee keer klikt weet dat er niets mis is. Na een geslaagde synchronisatie herlaadt de pagina en toont de regel "Team laatst gesynchroniseerd vanuit Spond" het nieuwe tijdstip.
+
 ### De groep kiezen (v4.x+)
 
 De trainer kiest de **Spond-groep** van het team nu in hetzelfde paneel, zodat de installatie op één plek klaar is in plaats van te stranden bij het teambewerkingsformulier (dat is afgeschermd met `tt_edit_teams`, een recht dat de meeste hoofdtrainers niet hebben).

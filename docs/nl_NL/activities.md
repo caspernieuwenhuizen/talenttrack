@@ -61,6 +61,8 @@ Door op een kaart te tikken open je de detailpagina van de activiteit. De hele d
   - **Toernooi** — voor toernooi-activiteiten het gekoppelde toernooi met data en aantal wedstrijden.
 - **Auditvoettekst** — wie de activiteit heeft aangemaakt en als laatste gewijzigd. Bij een activiteit die vanuit Spond is geïmporteerd staat er ook **Team laatst gesynchroniseerd vanuit Spond: <tijd>** — de meest recente Spond-synchronisatie van het team (het tijdstip is op teamniveau, niet per activiteit, en het label zegt dat ook), zodat je kunt inschatten hoe vers de geïmporteerde gegevens zijn.
 
+Ziet die synchronisatie er verouderd uit — het event is in Spond verplaatst, of de selectie is gewijzigd — dan staat er bij elke vanuit Spond geïmporteerde activiteit een knop **Team synchroniseren vanuit Spond** in de paginakop. Die haalt de teamkalender meteen opnieuw op, zodat je niet hoeft te wachten op de geplande synchronisatie of een academie-beheerder hoeft te vragen. Het is een verversing van het **hele team** (Spond kan geen los event opnieuw ophalen), dus de bevestiging zegt dat er ook bij, en de wijziging die je zocht kan op een andere activiteit in de lijst terechtkomen. De knop verschijnt alleen voor wie de Spond-koppeling van dat team mag beheren — een academie-beheerder voor elk team, een hoofdtrainer voor zijn eigen team — en alleen zolang de activiteit actief is, niet gearchiveerd.
+
 De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en verbreden naar twee kolommen op een tablet of desktop.
 
 ## Een activiteit aanmaken

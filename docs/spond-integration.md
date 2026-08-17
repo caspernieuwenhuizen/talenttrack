@@ -58,6 +58,12 @@ A head coach no longer needs an academy admin to link Spond for the team they ru
 
 Access is scoped to the exact team: the per-team credential, test and sync endpoints (`POST/DELETE /teams/{id}/spond/credentials`, `POST /teams/{id}/spond/test`, `POST /teams/{id}/spond/sync`) require **change authority on `spond_integration` for that team** — an academy admin holds it globally, a head coach holds it for their own team. The **Spond connection** action is hidden for anyone without that authority. (This also closed an earlier gap where the per-team credential endpoints, gated only on the any-team `tt_edit_spond_credentials` cap, accepted a head coach's write against another team.)
 
+### Syncing from the activity itself (v4.x+)
+
+A stale import is noticed on the activity, not on this settings page — so a **Sync team from Spond** button sits in the page header of every Spond-imported activity, next to Edit and the grids. It POSTs the same `POST /teams/{id}/spond/sync` endpoint and is gated by the same per-team authority, so an academy admin sees it on any team's activity and a head coach only on their own team's. Archived activities don't show it.
+
+Because Spond offers no per-event re-fetch, the button re-pulls the team's **whole** calendar; the label and confirmation both say "team" rather than implying only the activity in front of you is refreshed. When the team synced less than a minute ago the confirmation says so, so a coach who clicks twice knows nothing is wrong. After a successful sync the page reloads and the "Team last synced from Spond" line shows the new time.
+
 ### Picking the group (v4.x+)
 
 The coach also picks the team's **Spond group** from the same panel, so the setup finishes in one place instead of stopping at the team edit form (which is gated on `tt_edit_teams`, a capability most head coaches don't hold).
