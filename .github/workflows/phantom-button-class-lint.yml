@@ -1,0 +1,70 @@
+name: Phantom button class
+
+# #2445 — `.tt-button` / `.tt-button-primary` / `.tt-button-secondary` /
+# `.tt-button-small` are phantom classes: no stylesheet has ever defined a
+# base ruleset for them, so every element carrying one rendered as a raw
+# native button. The canonical system is `.tt-btn` + `.tt-btn-primary` /
+# `.tt-btn-secondary` / `.tt-btn-danger` / `.tt-btn-sm`.
+#
+# The name kept coming back because nothing failed when you typed it. #2445
+# removed all 32 occurrences, so unlike the inline-style gate there is no
+# grandfathered backlog here — this check is absolute rather than diff-only,
+# and scans the whole of src/**/*.php and assets/css/**. That means it also
+# catches the class arriving on a branch that never touched a flagged file.
+#
+# `.local-mockups/` is deliberately out of scope: the wizard-chrome mockup
+# renders the legacy buttons on purpose, side by side with the new chrome.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.php'
+      - 'assets/css/**'
+      - '.github/workflows/phantom-button-class-lint.yml'
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No phantom tt-button classes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Fail on any tt-button class in src PHP or assets CSS
+        shell: bash
+        run: |
+          set -e
+
+          # Word-boundary on the left so `.tt-buttonish` or a longer custom
+          # name can't trip it; the phantom family is exactly tt-button plus
+          # an optional -primary / -secondary / -small suffix.
+          HITS=$(grep -rnE '(^|[^a-zA-Z0-9_-])tt-button([^a-zA-Z0-9_-]|-primary|-secondary|-small)' \
+                   --include='*.php' --include='*.css' \
+                   src assets/css || true)
+
+          if [ -n "$HITS" ]; then
+            echo "$HITS" | while IFS= read -r line; do
+              f="${line%%:*}"
+              echo "::error file=$f::Uses the phantom class tt-button (no stylesheet defines it — the element renders as an unstyled native button)."
+            done
+            echo ""
+            echo "--- occurrences ---"
+            echo "$HITS"
+            echo ""
+            echo "Use the canonical button system instead:"
+            echo "  tt-button tt-button-primary    ->  tt-btn tt-btn-primary"
+            echo "  tt-button tt-button-secondary  ->  tt-btn tt-btn-secondary"
+            echo "  tt-button tt-button-small      ->  tt-btn tt-btn-sm"
+            echo "  bare tt-button                 ->  tt-btn tt-btn-secondary"
+            echo "                                     (tt-btn-primary if it is the page's commit action)"
+            echo ""
+            echo "Exception: the wizard chrome (.tt-wizard-btn-cancel / -text /"
+            echo "-primary) is fully self-styled and takes NO base class at all."
+            echo "See #2445 for the background."
+            exit 1
+          fi
+          echo "OK — no phantom tt-button classes."

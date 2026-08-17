@@ -1084,7 +1084,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #1319 — matrix-aware cap so FR-only operators can re-open.
         if ( AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) {
             $aid = (int) $session->id;
-            echo '<button type="button" class="tt-button tt-button-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
+            echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
             echo esc_html__( 'Re-open for rating', 'talenttrack' );
             echo '</button>';
         }

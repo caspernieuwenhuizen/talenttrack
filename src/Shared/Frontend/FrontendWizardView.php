@@ -317,16 +317,16 @@ class FrontendWizardView extends FrontendViewBase {
         // formnovalidate; Cancel was the outlier and was tripping
         // browser-side required-field validation when the user wanted
         // to bail out of the wizard.
-        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-wizard-btn-cancel" formnovalidate data-role="cancel">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-wizard-btn-cancel" formnovalidate data-role="cancel">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
         echo '<div class="tt-wizard-actions-middle">';
         if ( $wizard instanceof SupportsCancelAsDraft ) {
-            echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button tt-wizard-btn-text" formnovalidate data-role="save">' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-wizard-btn-text" formnovalidate data-role="save">' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
         }
         // #0063 — Back button on every step where there's prior history.
         // formnovalidate so a half-filled required field doesn't trap
         // the user; Back discards uncommitted edits by design.
         if ( WizardState::hasHistory( $user_id, $slug ) ) {
-            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button tt-wizard-btn-text" formnovalidate data-role="back">' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-wizard-btn-text" formnovalidate data-role="back">' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
         echo '</div>';
         // v3.85.2 — "Skip step" removed per operator feedback. Steps that
@@ -335,7 +335,7 @@ class FrontendWizardView extends FrontendViewBase {
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
         $loading_label = $is_last ? __( 'Creating…', 'talenttrack' ) : __( 'Loading…', 'talenttrack' );
-        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-wizard-btn-primary" data-role="next" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . ' <span class="tt-wizard-btn-chev" aria-hidden="true">›</span></button>';
+        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-wizard-btn-primary" data-role="next" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . ' <span class="tt-wizard-btn-chev" aria-hidden="true">›</span></button>';
         echo '</div>';
 
         echo '<input type="hidden" name="_cancel_url" value="' . esc_attr( $cancel_url ) . '">';
@@ -605,9 +605,9 @@ class FrontendWizardView extends FrontendViewBase {
             __( 'You started this %s ago. Continue where you left off, or start over?', 'talenttrack' ),
             $age_human
         ) ) . '</span>';
-        echo ' <a class="tt-button tt-button-primary" href="' . esc_url( $continue_url ) . '">'
+        echo ' <a class="tt-btn tt-btn-primary" href="' . esc_url( $continue_url ) . '">'
             . esc_html__( 'Continue', 'talenttrack' ) . '</a>';
-        echo ' <a class="tt-button tt-button-secondary" href="' . esc_url( $restart_url ) . '">'
+        echo ' <a class="tt-btn tt-btn-secondary" href="' . esc_url( $restart_url ) . '">'
             . esc_html__( 'Start over', 'talenttrack' ) . '</a>';
         echo '</div>';
     }
@@ -1424,7 +1424,6 @@ class FrontendWizardView extends FrontendViewBase {
                 .tt-wizard-form .tt-wizard-actions {
                     margin-top: 16px;
                 }
-                .tt-wizard-form .tt-wizard-actions .tt-button[type="submit"],
                 .tt-wizard-form .tt-wizard-actions button[type="submit"] {
                     min-height: 48px;
                 }

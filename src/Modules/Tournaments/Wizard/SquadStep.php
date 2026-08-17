@@ -94,7 +94,7 @@ final class SquadStep implements WizardStepInterface {
         echo '<input type="text" id="ttw-squad-search" data-ttw-squad-search placeholder="' . esc_attr__( 'Filter by name…', 'talenttrack' ) . '" inputmode="search">';
         echo '</div>';
         echo '<span class="ttw-count" data-ttw-squad-count><strong>0</strong> ' . esc_html__( 'in squad', 'talenttrack' ) . '</span>';
-        echo '<button type="button" class="tt-button tt-button-secondary" data-ttw-mark-all>' . esc_html__( 'Mark all present', 'talenttrack' ) . '</button>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-ttw-mark-all>' . esc_html__( 'Mark all present', 'talenttrack' ) . '</button>';
         echo '</div>';
 
         echo '<ul class="ttw-squad-list">';

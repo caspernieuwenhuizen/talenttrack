@@ -102,7 +102,7 @@
     justify-content: center;
     gap: var(--tt-sp-3);
 }
-.tt-dashboard .tt-meeting-actions .tt-button {
+.tt-dashboard .tt-meeting-actions .tt-btn {
     min-height: 48px;
     display: inline-flex;
     align-items: center;

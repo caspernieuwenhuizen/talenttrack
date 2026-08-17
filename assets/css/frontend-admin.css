@@ -269,6 +269,21 @@
     width: 100%;
 }
 
+/* #2445 — full-width CTA for the standalone prompt pages (desktop-only
+   prompt, MFA challenge). Those buttons are the single action on an
+   otherwise empty page, so they run at a larger tap size than the inline
+   button default. Replaces the inline `style="width:100%; padding:14px;
+   font-size:16px"` those views used to carry; the explicit min-height
+   holds the 48px floor under a fine pointer too, which the coarse-pointer
+   rule in public.css does not cover. */
+.tt-dashboard .tt-btn-cta {
+    display: flex;
+    width: 100%;
+    min-height: 48px;
+    padding: 14px 18px;
+    font-size: var(--tt-fs-body);
+}
+
 /* FormSaveButton state variants — idle/saving/saved/error.
    The button's data-state drives the visible treatment. */
 .tt-dashboard .tt-save-btn[data-state="saving"] { opacity: 0.75; cursor: progress; }

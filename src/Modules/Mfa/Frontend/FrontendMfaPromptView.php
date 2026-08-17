@@ -199,7 +199,7 @@ class FrontendMfaPromptView extends FrontendViewBase {
         echo '</label>';
 
         echo '<div style="margin-top:24px;">';
-        echo '<button type="submit" class="tt-button tt-button-primary" style="width:100%; padding:12px;">'
+        echo '<button type="submit" class="tt-btn tt-btn-primary tt-btn-cta">'
             . esc_html__( 'Verify', 'talenttrack' )
             . '</button>';
         echo '</div>';

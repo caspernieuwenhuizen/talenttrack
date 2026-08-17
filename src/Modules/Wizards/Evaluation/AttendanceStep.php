@@ -113,14 +113,14 @@ final class AttendanceStep implements WizardStepInterface {
         // stay for marking the exceptions.
         ?>
         <div class="tt-att-allhere">
-            <button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary tt-att-allhere-btn" data-tt-att-all-here>
+            <button type="submit" name="tt_wizard_action" value="next" class="tt-btn tt-btn-primary tt-att-allhere-btn" data-tt-att-all-here>
                 <?php esc_html_e( 'Everyone was here - continue', 'talenttrack' ); ?>
             </button>
             <p class="tt-att-allhere-hint"><?php esc_html_e( 'Or mark any absences below first, then continue.', 'talenttrack' ); ?></p>
         </div>
 
         <div class="tt-att-toolbar">
-            <button type="button" class="tt-button tt-button-secondary" data-tt-mark-all-present>
+            <button type="button" class="tt-btn tt-btn-secondary" data-tt-mark-all-present>
                 <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
             </button>
         </div>
@@ -332,7 +332,7 @@ final class AttendanceStep implements WizardStepInterface {
             <?php esc_html_e( 'Mark each player\'s attendance. Only present + late players will appear in the rating step.', 'talenttrack' ); ?>
         </p>
         <p style="margin: 0 0 var(--tt-sp-2);">
-            <button type="button" class="tt-button tt-button-secondary" data-tt-mark-all-present>
+            <button type="button" class="tt-btn tt-btn-secondary" data-tt-mark-all-present>
                 <?php esc_html_e( 'Mark all present', 'talenttrack' ); ?>
             </button>
         </p>
