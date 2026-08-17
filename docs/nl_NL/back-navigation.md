@@ -129,6 +129,15 @@ eigen tabstrip schrijft **is** een overtreding — zo lopen
 tab-styling, toetsenbordvolgorde en actief-status uit de pas tussen
 oppervlakken.
 
+**Overgangsregeling:** tabstrips die ouder zijn dan deze regel zijn
+geen overtreding zolang ze niet zijn gemigreerd.
+`FrontendPlayerDetailView` is het enige zo'n oppervlak — zijn op
+capabilities gefilterde, getelde strip dateert van vóór de spine en
+werkt goed, en hem herschrijven om bij dezelfde markup uit te komen
+zou onnodig gesleutel zijn aan de drukst bezochte view van de plugin.
+De regel bindt **nieuwe** oppervlakken; bestaande strips migreren
+wanneer er een aanleiding is om ze aan te raken, niet uit principe.
+
 ## Waarom
 
 Broodkruimels tonen waar een record in de canonieke hiërarchie staat

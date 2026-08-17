@@ -296,6 +296,40 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             </div>
 
             <div class="tt-player-detail__main">
+                <?php
+                // #2457 — under the app shell the tab strip is wrapped in a
+                // sticky container that also carries a slim identity row, so
+                // scrolling a long pane never loses track of whose record this
+                // is (CLAUDE.md §1). The full hero above still anchors the
+                // screen on arrival; this is what survives the scroll.
+                //
+                // Under `classic` the wrapper is not emitted at all, so that
+                // shell renders exactly as before (#2456's rollback contract).
+                $sticky_on = \TT\Shared\Frontend\ShellPreference::isApp( $user_id );
+                if ( $sticky_on ) :
+                    ?>
+                    <div class="tt-player-sticky">
+                        <?php
+                        // aria-hidden: the accessible name for this record is
+                        // the <h1> in the hero. Repeating it here would make a
+                        // screen reader announce the player twice on the same
+                        // page; this copy exists to orient the eye while
+                        // scrolled, nothing more.
+                        ?>
+                        <div class="tt-player-sticky__id" aria-hidden="true">
+                            <span class="tt-player-sticky__avatar" data-status="<?php echo esc_attr( (string) ( $player->status ?? 'inactive' ) ); ?>">
+                                <?php if ( (string) ( $player->photo_url ?? '' ) !== '' ) : ?>
+                                    <img class="tt-player-sticky__photo" src="<?php echo esc_url( (string) $player->photo_url ); ?>" alt="" />
+                                <?php else : ?>
+                                    <?php echo esc_html( self::initialsFor( $name ) ); ?>
+                                <?php endif; ?>
+                            </span>
+                            <span class="tt-player-sticky__name"><?php echo esc_html( $name ); ?></span>
+                            <?php if ( $team ) : ?>
+                                <span class="tt-player-sticky__team"><?php echo esc_html( (string) $team->name ); ?></span>
+                            <?php endif; ?>
+                        </div>
+                <?php endif; ?>
                 <nav class="tt-player-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Player sections', 'talenttrack' ); ?>">
                     <?php foreach ( $tab_set as $key => $label ) :
                         $url       = add_query_arg( [ 'tab' => $key ], $base_url );
@@ -316,6 +350,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         </a>
                     <?php endforeach; ?>
                 </nav>
+                <?php if ( $sticky_on ) : ?>
+                    </div><!-- .tt-player-sticky -->
+                <?php endif; ?>
 
                 <section class="tt-player-tab-panel">
                     <?php
