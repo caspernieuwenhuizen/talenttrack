@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T16:42:57+00:00\n"
+"POT-Creation-Date: 2026-08-17T17:04:12+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -145,8 +145,8 @@ msgstr "Team Manager"
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:83
 #: src/Modules/Stats/Admin/PlayerCardView.php:284
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:269
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:502
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:274
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:507
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:183
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:355
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:805
@@ -198,8 +198,8 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
 #: src/Shared/Frontend/FrontendTrialsManageView.php:409
 #: src/Shared/Frontend/FrontendTrialsManageView.php:443
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:295
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:646
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:301
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:652
 #: src/Shared/Frontend/FrontendUsageStatsView.php:373
 msgid "Player"
 msgstr "Speler"
@@ -214,8 +214,8 @@ msgstr "Speler"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:385
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/Reports/Admin/ReportsPage.php:295
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:271
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:501
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:276
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:506
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:175
@@ -225,8 +225,8 @@ msgstr "Speler"
 #: src/Shared/Frontend/FrontendReportDetailView.php:197
 #: src/Shared/Frontend/FrontendRolesView.php:75
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1258
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:297
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:645
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:303
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:651
 #: src/Shared/Frontend/FrontendUsageStatsView.php:372
 #: src/Shared/Frontend/PlayerDashboardView.php:108
 msgid "Coach"
@@ -1847,14 +1847,14 @@ msgstr "Scout"
 #: src/Modules/Authorization/Admin/MatrixPage.php:743
 #: src/Modules/Authorization/Admin/ModulesPage.php:95
 #: src/Modules/People/Admin/PeoplePage.php:506
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:312
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:503
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:317
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:508
 #: src/Modules/Stats/Admin/UsageStatsPage.php:146
 #: src/Shared/Frontend/FrontendConfigurationView.php:261
 #: src/Shared/Frontend/FrontendExportsView.php:200
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:335
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:647
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:341
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:653
 #: src/Shared/Frontend/FrontendUsageStatsView.php:374
 msgid "Other"
 msgstr "Overig"
@@ -3819,7 +3819,7 @@ msgstr "Alle types"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:353
 #: src/Modules/Reports/AudienceDefaults.php:108
 #: src/Modules/Reports/PlayerReportRenderer.php:434
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:532
 #: src/Modules/Stats/Admin/UsageStatsPage.php:352
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:185
 #: src/Shared/Admin/BackNavigator.php:122 src/Shared/Admin/Menu.php:226
@@ -3833,7 +3833,7 @@ msgstr "Alle types"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:507
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:164
 #: src/Shared/Frontend/FrontendTrialCaseView.php:488
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:671
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:677
 #: src/Shared/Modules/ModuleMetadata.php:241
 msgid "Activities"
 msgstr "Activiteiten"
@@ -4027,7 +4027,7 @@ msgstr "Titel"
 #: src/Modules/Mfa/Wizards/SecretStep.php:116
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:270
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:275
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
@@ -4052,7 +4052,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:507
 #: src/Shared/Frontend/FrontendTeamDetailView.php:787
 #: src/Shared/Frontend/FrontendTrialCaseView.php:493
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:296
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:302
 #: src/Shared/Frontend/PlayerDashboardView.php:107
 msgid "Type"
 msgstr "Type"
@@ -4226,8 +4226,8 @@ msgstr "Bron"
 #: src/Modules/Players/Admin/PlayersPage.php:129
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:90
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:124
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:272
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:342
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:277
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:347
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:65
 #: src/Modules/Teams/Admin/TeamsPage.php:55
 #: src/Shared/Frontend/Components/FrontendListTable.php:228
@@ -4238,8 +4238,8 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:258
 #: src/Shared/Frontend/FrontendTrialCaseView.php:278
 #: src/Shared/Frontend/FrontendTrialsManageView.php:415
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:150
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:365
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:151
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:371
 msgid "Actions"
 msgstr "Acties"
 
@@ -5241,7 +5241,7 @@ msgstr "Totaal minuten"
 #: src/Modules/Reports/Admin/ReportsPage.php:296
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:334
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:526
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:531
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118 src/Shared/Admin/Menu.php:217
 #: src/Shared/CoreSurfaceRegistration.php:577
@@ -5268,7 +5268,7 @@ msgstr "Totaal minuten"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1239
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1259
 #: src/Shared/Frontend/FrontendTrialCaseView.php:510
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:670
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:676
 #: src/Shared/Frontend/PlayerDashboardView.php:47
 #: src/Shared/Modules/ModuleMetadata.php:185
 msgid "Evaluations"
@@ -5295,7 +5295,7 @@ msgstr "Beoordelaar"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:259
 #: src/Modules/Reports/AudienceDefaults.php:107
 #: src/Modules/Reports/PlayerReportRenderer.php:387
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:528
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:533
 #: src/Modules/Stats/Admin/UsageStatsPage.php:353
 #: src/Shared/Admin/BackNavigator.php:125 src/Shared/Admin/Menu.php:235
 #: src/Shared/CoreSurfaceRegistration.php:669
@@ -5313,7 +5313,7 @@ msgstr "Beoordelaar"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:155
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:655
 #: src/Shared/Frontend/FrontendTrialCaseView.php:538
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:672
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:678
 #: src/Shared/Frontend/PlayerDashboardView.php:48
 #: src/Shared/Modules/ModuleMetadata.php:191
 msgid "Goals"
@@ -5642,7 +5642,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendTrialCaseView.php:88
 #: src/Shared/Frontend/FrontendTrialsManageView.php:39
 #: src/Shared/Frontend/FrontendTrialsManageView.php:72
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:47
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:48
 #: src/Shared/Frontend/FrontendUsageStatsView.php:65
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:38
 msgid "Not authorized"
@@ -5719,8 +5719,8 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
 #: src/Modules/Players/Admin/PlayersPage.php:77
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:311
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:524
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:316
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
 #: src/Modules/Stats/Admin/UsageStatsPage.php:145
 #: src/Modules/Stats/Admin/UsageStatsPage.php:349
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:37
@@ -5742,8 +5742,8 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Shared/Frontend/FrontendStandardReportsView.php:924
 #: src/Shared/Frontend/FrontendTeamDetailView.php:461
 #: src/Shared/Frontend/FrontendTeamsManageView.php:163
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:334
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:668
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:340
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:674
 #: src/Shared/Modules/ModuleMetadata.php:141
 msgid "Players"
 msgstr "Spelers"
@@ -5765,7 +5765,7 @@ msgstr "Spelers"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:247
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:370
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:175
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:523
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:528
 #: src/Modules/Stats/Admin/UsageStatsPage.php:348
 #: src/Modules/Teams/Admin/TeamsPage.php:39
 #: src/Shared/Admin/BackNavigator.php:108 src/Shared/Admin/Menu.php:208
@@ -5778,7 +5778,7 @@ msgstr "Spelers"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:73
 #: src/Shared/Frontend/FrontendTeamDetailView.php:222
 #: src/Shared/Frontend/FrontendTeamsManageView.php:71
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:667
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:673
 #: src/Shared/Modules/ModuleMetadata.php:159
 msgid "Teams"
 msgstr "Teams"
@@ -5840,7 +5840,7 @@ msgstr "Seizoen"
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:25
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:22
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:67
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:534
 #: src/Modules/Stats/Admin/UsageStatsPage.php:354
 #: src/Shared/Admin/BackNavigator.php:128
 #: src/Shared/CoreSurfaceRegistration.php:892
@@ -5853,7 +5853,7 @@ msgstr "Seizoen"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:112
 #: src/Shared/Frontend/FrontendStandardReportsView.php:124
 #: src/Shared/Frontend/FrontendStandardReportsView.php:133
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:673
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:679
 #: src/Shared/Modules/ModuleMetadata.php:299
 msgid "Reports"
 msgstr "Rapporten"
@@ -6629,8 +6629,8 @@ msgstr "Pagina %1$d van %2$d (%3$d rijen)"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:827
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:563
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:567
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:569
 msgid "Next →"
 msgstr "Volgende →"
 
@@ -7656,7 +7656,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:172
 #: src/Modules/People/Admin/PeoplePage.php:388
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:120
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:476
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:481
 #: src/Modules/Wizards/Person/ReviewStep.php:35
 #: src/Modules/Wizards/Person/RoleStep.php:21
 #: src/Modules/Wizards/Person/RoleStep.php:36
@@ -7667,8 +7667,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:119
 #: src/Shared/Frontend/FrontendTeamDetailView.php:643
 #: src/Shared/Frontend/FrontendTeamsManageView.php:457
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:146
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:574
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:147
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:580
 #: src/Shared/Frontend/FrontendUsageStatsView.php:166
 #: src/Shared/Frontend/FrontendUsageStatsView.php:198
 #: src/Shared/Frontend/FrontendUsageStatsView.php:210
@@ -8022,7 +8022,7 @@ msgstr "Imitatie starten"
 #: src/Modules/DemoData/Admin/DemoDataPage.php:692
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:525
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
 #: src/Modules/Stats/Admin/UsageStatsPage.php:350
 #: src/Shared/Admin/BackNavigator.php:115
 #: src/Shared/CoreSurfaceRegistration.php:468
@@ -8034,7 +8034,7 @@ msgstr "Imitatie starten"
 #: src/Shared/Frontend/FrontendMailComposeView.php:49
 #: src/Shared/Frontend/FrontendPeopleManageView.php:50
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:669
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
 #: src/Shared/Modules/ModuleMetadata.php:153
 #: src/Shared/Tiles/TileRegistry.php:55
 msgid "People"
@@ -8879,7 +8879,7 @@ msgstr "Prestaties"
 #: src/Modules/Documentation/HelpTopics.php:332
 #: src/Modules/Measurements/MeasurementsModule.php:130
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:531
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
 #: src/Modules/Stats/Admin/UsageStatsPage.php:356
 #: src/Modules/TeamDevelopment/TeamDevelopmentModule.php:53
 #: src/Shared/Admin/BackNavigator.php:133
@@ -8894,7 +8894,7 @@ msgstr "Prestaties"
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
 #: src/Shared/Frontend/FrontendModulesView.php:497
 #: src/Shared/Frontend/FrontendSetupView.php:389
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:681
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:92
 #: src/Shared/Modules/ModuleMetadata.php:73
 msgid "Configuration"
@@ -9214,17 +9214,17 @@ msgstr "Geen gebruikers met TT-rol gevonden."
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:513
 #: src/Modules/Documentation/AudienceResolver.php:44
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:119
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:214
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:339
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:393
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:475
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:219
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:344
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:398
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:480
 #: src/Modules/Stats/Admin/UsageStatsPage.php:219
 #: src/Shared/Frontend/FrontendAuditLogView.php:409
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:145
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:237
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:362
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:422
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:573
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:146
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:243
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:368
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:428
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:579
 #: src/Shared/Frontend/FrontendUsageStatsView.php:277
 msgid "User"
 msgstr "Gebruiker"
@@ -10157,11 +10157,11 @@ msgstr "Bestandsnaam"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:49
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:268
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
 #: src/Shared/Frontend/FrontendBackupsView.php:271
 #: src/Shared/Frontend/FrontendBackupsView.php:289
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:294
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:300
 msgid "Created"
 msgstr "Aangemaakt"
 
@@ -12044,12 +12044,12 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:269
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:62
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:533
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:538
 #: src/Modules/Stats/Admin/UsageStatsPage.php:358
 #: src/Shared/Admin/BackNavigator.php:137
 #: src/Shared/CoreSurfaceRegistration.php:1700
 #: src/Shared/CoreSurfaceRegistration.php:1994
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:677
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:683
 msgid "Evaluation Categories"
 msgstr "Evaluatie-categorieën"
 
@@ -12060,12 +12060,12 @@ msgstr "Hiërarchie van evaluatiecategorieën (Technisch, Tactisch, …)."
 # ===== v2.13.0 — Weighted overall rating + per-age-group weights =====
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:272
 #: src/Modules/Evaluations/Admin/CategoryWeightsPage.php:46
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:534
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:539
 #: src/Modules/Stats/Admin/UsageStatsPage.php:359
 #: src/Shared/Admin/BackNavigator.php:140
 #: src/Shared/CoreSurfaceRegistration.php:1709
 #: src/Shared/CoreSurfaceRegistration.php:2003
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:678
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:684
 msgid "Category Weights"
 msgstr "Categorie gewichten"
 
@@ -12162,12 +12162,12 @@ msgstr "Aangepaste gegevens"
 # ===== v2.11.0 — Sprint 1H: Custom fields framework =====
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:339
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:71
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:532
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:537
 #: src/Modules/Stats/Admin/UsageStatsPage.php:357
 #: src/Shared/Admin/BackNavigator.php:134
 #: src/Shared/CoreSurfaceRegistration.php:1691
 #: src/Shared/CoreSurfaceRegistration.php:1985
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:676
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:682
 msgid "Custom Fields"
 msgstr "Aangepaste velden"
 
@@ -16968,14 +16968,14 @@ msgstr ""
 "Klaar zodra het is uitgeleverd."
 
 #: src/Modules/Documentation/Admin/DocumentationPage.php:58
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:541
 #: src/Modules/Stats/Admin/UsageStatsPage.php:361
 #: src/Shared/Admin/BackNavigator.php:145
 #: src/Shared/CoreSurfaceRegistration.php:1858
 #: src/Shared/CoreSurfaceRegistration.php:2043
 #: src/Shared/Frontend/FrontendDocsView.php:45
 #: src/Shared/Frontend/FrontendDocsView.php:46
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:680
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:686
 msgid "Help & Docs"
 msgstr "Hulp & documentatie"
 
@@ -17010,8 +17010,8 @@ msgid "This topic is empty."
 msgstr "Dit onderwerp is leeg."
 
 #: src/Modules/Documentation/AudienceResolver.php:45
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:500
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:644
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:505
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:650
 #: src/Shared/Frontend/FrontendUsageStatsView.php:371
 msgid "Admin"
 msgstr "Beheerder"
@@ -17796,7 +17796,7 @@ msgstr ""
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:241
 #: src/Modules/Methodology/Admin/MethodologyPage.php:187
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:281
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:286
 msgid "View"
 msgstr "Bekijken"
 
@@ -18002,10 +18002,10 @@ msgstr "Audit-ID"
 
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:36
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:107
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:450
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:477
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:490
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:575
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:455
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:482
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:496
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:581
 msgid "Timestamp"
 msgstr "Tijdstempel"
 
@@ -19239,8 +19239,8 @@ msgid "No invitations match the filter."
 msgstr "Geen uitnodigingen voldoen aan het filter."
 
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:92
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:452
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:492
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:457
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:498
 msgid "Target"
 msgstr "Doel"
 
@@ -19506,9 +19506,9 @@ msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:115
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:140
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:354
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:170
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:381
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:359
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:171
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:387
 msgid "Timeline"
 msgstr "Tijdlijn"
 
@@ -20153,7 +20153,7 @@ msgstr "Spelerkaarten"
 #: src/Modules/License/Admin/AccountPage.php:809
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:273
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:294
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:522
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
 #: src/Shared/CoreSurfaceRegistration.php:1434
@@ -20163,7 +20163,7 @@ msgstr "Spelerkaarten"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:254
 #: src/Shared/Frontend/FrontendReportDetailView.php:61
 #: src/Shared/Frontend/FrontendTrialCaseView.php:109
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:666
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:672
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -30326,8 +30326,8 @@ msgstr[0] "%d prospect"
 msgstr[1] "%d prospects"
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:283
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:394
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:423
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:399
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:429
 msgid "Visits"
 msgstr "Bezoeken"
 
@@ -30404,8 +30404,8 @@ msgid "Could not archive the visit. Please try again."
 msgstr "Kon het bezoek niet archiveren. Probeer het opnieuw."
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:184
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:451
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:491
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:456
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:497
 msgid "Event"
 msgstr "Gebeurtenis"
 
@@ -31907,12 +31907,12 @@ msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
 
 # ===== v2.14.0 — Player rate card =====
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:49
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:535
 #: src/Modules/Stats/Admin/UsageStatsPage.php:355
 #: src/Shared/Admin/BackNavigator.php:129
 #: src/Shared/CoreSurfaceRegistration.php:1642
 #: src/Shared/CoreSurfaceRegistration.php:1947
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:674
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:680
 msgid "Player Rate Cards"
 msgstr "Speler rapporten"
 
@@ -31978,20 +31978,20 @@ msgid "Usage Detail"
 msgstr "Gebruiksdetail"
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:56
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:72
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:73
 msgid "Unknown metric."
 msgstr "Onbekende maatstaf."
 
 #. translators: %d is number of days in the window
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:80
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:105
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:106
 #, php-format
 msgid "Logins — last %d days"
 msgstr "Logins — laatste %d dagen"
 
 #. translators: %d is number of rows shown
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:87
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:111
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:112
 #, php-format
 msgid "%d login event."
 msgid_plural "%d login events."
@@ -31999,184 +31999,184 @@ msgstr[0] "%d login-gebeurtenis."
 msgstr[1] "%d login-gebeurtenissen."
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:112
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:137
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:138
 #, php-format
 msgid "Active users — last %d days"
 msgstr "Actieve gebruikers — laatste %d dagen"
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:121
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:147
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:148
 msgid "Logins"
 msgstr "Logins"
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:122
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:215
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:340
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:148
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:238
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:363
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:220
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:345
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:149
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:244
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:369
 msgid "Events"
 msgstr "Gebeurtenissen"
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:123
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:341
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:149
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:364
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:346
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:150
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:370
 #: src/Shared/Frontend/FrontendUsageStatsView.php:199
 #: src/Shared/Frontend/FrontendUsageStatsView.php:211
 msgid "Last seen"
 msgstr "Laatst actief"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:180
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:199
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:185
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:205
 msgid "Previous day"
 msgstr "Vorige dag"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:182
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:201
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:187
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:207
 msgid "Pick a day:"
 msgstr "Kies een dag:"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:185
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:204
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:190
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:210
 msgid "Go"
 msgstr "Ga"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:186
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:205
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:191
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:211
 msgid "Next day"
 msgstr "Volgende dag"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:193
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:198
 #: src/Modules/Stats/Admin/UsageStatsPage.php:250
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:212
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:218
 msgid "Daily active users"
 msgstr "Dagelijks actieve gebruikers"
 
 #. translators: %s is a date string
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:208
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:227
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:213
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:233
 #, php-format
 msgid "Active users on %s"
 msgstr "Actieve gebruikers op %s"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:216
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:239
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:221
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:245
 msgid "First"
 msgstr "Eerste"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:217
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:240
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:222
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:246
 msgid "Last"
 msgstr "Laatste"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:238
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:263
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:243
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:269
 msgid "Evaluations created per day"
 msgstr "Evaluaties aangemaakt per dag"
 
 #. translators: %s is a date
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:259
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:284
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:264
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:290
 #, php-format
 msgid "Evaluations created on %s"
 msgstr "Evaluaties aangemaakt op %s"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:264
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:289
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:269
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:295
 msgid "None that day."
 msgstr "Geen op die dag."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:293
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:318
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:298
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:324
 msgid "Invalid role."
 msgstr "Ongeldige rol."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:309
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:314
 #: src/Modules/Stats/Admin/UsageStatsPage.php:143
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:332
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:338
 msgid "Admins"
 msgstr "Beheerders"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:310
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:315
 #: src/Modules/Stats/Admin/UsageStatsPage.php:144
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:333
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:339
 msgid "Coaches"
 msgstr "Coaches"
 
 #. translators: 1: role label, 2: days
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:318
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:341
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:323
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:347
 #, php-format
 msgid "Active %1$s — last %2$d days"
 msgstr "Actieve %1$s — laatste %2$d dagen"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:324
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:347
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:329
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:353
 msgid "No active users in this role."
 msgstr "Geen actieve gebruikers in deze rol."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:366
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:394
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:371
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:400
 msgid "Missing page slug."
 msgstr "Paginaslug ontbreekt."
 
 #. translators: 1: page label, 2: days
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:383
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:411
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:388
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:417
 #, php-format
 msgid "Visits to %1$s — last %2$d days"
 msgstr "Bezoeken aan %1$s — laatste %2$d dagen"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:389
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:417
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:394
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:423
 msgid "No visits in this window."
 msgstr "Geen bezoeken in dit venster."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:395
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:424
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:400
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:430
 msgid "Last visit"
 msgstr "Laatste bezoek"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:417
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:447
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:422
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:453
 msgid "Missing user id."
 msgstr "Gebruikers-ID ontbreekt."
 
 #. translators: %s is user display name
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:435
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:474
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:440
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:480
 #, php-format
 msgid "Timeline — %s"
 msgstr "Tijdlijn — %s"
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:441
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:480
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:446
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:486
 #, php-format
 msgid "%d event in the retention window (last 90 days)."
 msgid_plural "%d events in the retention window (last 90 days)."
 msgstr[0] "%d gebeurtenis in het bewaarvenster (laatste 90 dagen)."
 msgstr[1] "%d gebeurtenissen in het bewaarvenster (laatste 90 dagen)."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:446
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:485
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:451
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:491
 msgid "No events recorded for this user in the retention window."
 msgstr ""
 "Geen gebeurtenissen geregistreerd voor deze gebruiker in het bewaarvenster."
 
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:481
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:579
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:486
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:585
 msgid "No events."
 msgstr "Geen gebeurtenissen."
 
 # ===== v2.18.0 — Usage Statistics + Dashboard overhaul =====
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:535
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:540
 #: src/Modules/Stats/Admin/UsageStatsPage.php:57
 #: src/Modules/Stats/Admin/UsageStatsPage.php:360
 #: src/Shared/Admin/BackNavigator.php:131
 #: src/Shared/CoreSurfaceRegistration.php:1660
 #: src/Shared/CoreSurfaceRegistration.php:1965
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:679
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:685
 msgid "Usage Statistics"
 msgstr "Gebruiksstatistieken"
 
@@ -32328,7 +32328,7 @@ msgstr "Strava"
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:41
 #: src/Shared/Frontend/FrontendSpondView.php:51
 #: src/Shared/Frontend/FrontendTranslationsView.php:43
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:48
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:49
 #: src/Shared/Frontend/FrontendUsageStatsView.php:66
 msgid "You do not have permission to view this section."
 msgstr "Je hebt geen rechten om deze sectie te bekijken."
@@ -38869,7 +38869,7 @@ msgstr "Bulkexports: spelers, aanwezigheid, doelen, meer."
 # v3.28.0 — deferred follow-up
 # 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
 #: src/Shared/CoreSurfaceRegistration.php:1008
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:59
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:60
 #: src/Shared/Frontend/FrontendUsageStatsView.php:71
 #: src/Shared/Frontend/FrontendUsageStatsView.php:72
 msgid "Application KPIs"
@@ -39577,7 +39577,7 @@ msgstr "Laden mislukt — opnieuw proberen?"
 #. translators: 1: current page number, 2: total page count
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
 #: src/Shared/Frontend/FrontendAuditLogView.php:481
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:555
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
 #, php-format
 msgid "Page %1$d of %2$d"
 msgstr "Pagina %1$d van %2$d"
@@ -47557,21 +47557,21 @@ msgstr ""
 "Dit traject definitief verwijderen? Dit kan niet ongedaan worden gemaakt en "
 "wordt geblokkeerd zolang een proefdossier het nog gebruikt."
 
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:58
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:71
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:59
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:72
 msgid "Usage detail"
 msgstr "Gebruiksdetail"
 
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:232
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:238
 msgid "No activity on this day."
 msgstr "Geen activiteit op deze dag."
 
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:546
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:552
 msgid "Pagination"
 msgstr "Paginering"
 
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:548
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:550
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:554
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:556
 msgid "← Previous"
 msgstr "← Vorige"
 
