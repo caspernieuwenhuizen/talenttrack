@@ -30,6 +30,9 @@ records nooit raakt.
 | Spelersrapporten | Gegenereerde rapporten voor de doelgroepen die een academie gebruikt |
 | Metingen | Een testbatterij, streefwaarden per leeftijdsgroep, testsessies per team en één resultaat per speler |
 | POP-cyclus | Het seizoen, een ontwikkeldossier per speler, de gesprekscyclus, agendakoppelingen en eindoordelen |
+| Trainingsinhoud | Oefeningen en principes per training, oefeningsuitzonderingen per team, vakantieperiodes |
+| Wedstrijddag | Wedstrijdvoorbereiding voor elke wedstrijd, plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden |
+| Testtrainingen | Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep |
 | Proefdossiers | Geïmporteerd uit een Excel-werkboek wanneer dat wordt geüpload |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,

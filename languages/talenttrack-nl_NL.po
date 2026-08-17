@@ -48667,6 +48667,38 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "%d demo rows"
 #~ msgstr "%d demo-rijen"
 
+#: src/Modules/DemoData/DemoCoverage.php:596
+msgid "The testing battery, its per-age-group target bands, team testing sessions and one result per player."
+msgstr "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team en één resultaat per speler."
+
+#: src/Modules/DemoData/DemoCoverage.php:597
+msgid "The season, one development dossier per player, its conversation cycle, calendar links and verdicts."
+msgstr "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, agendakoppelingen en eindoordelen."
+
+#: src/Modules/DemoData/DemoCoverage.php:640
+msgid "Training content"
+msgstr "Trainingsinhoud"
+
+#: src/Modules/DemoData/DemoCoverage.php:641
+msgid "Match day"
+msgstr "Wedstrijddag"
+
+#: src/Modules/DemoData/DemoCoverage.php:642
+msgid "Test trainings"
+msgstr "Testtrainingen"
+
+#: src/Modules/DemoData/DemoCoverage.php:665
+msgid "Exercises and methodology principles on each training, per-team exercise overrides, and the season's holiday windows."
+msgstr "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per team, en de vakantieperiodes van het seizoen."
+
+#: src/Modules/DemoData/DemoCoverage.php:666
+msgid "Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played."
+msgstr "Wedstrijdvoorbereiding voor elke wedstrijd — beschikbaarheid, opstelling, rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden."
+
+#: src/Modules/DemoData/DemoCoverage.php:667
+msgid "Open sessions for invited players, one past and one upcoming per age group."
+msgstr "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep."
+
 #, php-format
 #~ msgid "Delete saved view %s"
 #~ msgstr "Opgeslagen weergave %s verwijderen"

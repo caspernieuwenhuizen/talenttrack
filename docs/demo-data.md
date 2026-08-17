@@ -29,11 +29,21 @@ removes exactly what was generated and never touches real records.
 | Player reports | Generated reports across the audiences an academy produces |
 | Measurements | A testing battery, per-age-group target bands, team testing sessions and one result per player |
 | PDP cycle | The season, a development dossier per player, its conversation cycle, calendar links and verdicts |
+| Training content | Exercises and principles on each training, per-team exercise overrides, holiday windows |
+| Match day | Prep for every fixture, and results, goals and substitutions for the ones already played |
+| Test trainings | Open sessions for invited players, one past and one upcoming per age group |
 | Trial cases | Imported from an Excel workbook when one is uploaded |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
+
+Generated match data is internally consistent, because reports read it as if
+it were real: availability never marks a player present on a date their injury
+record says they were out, goal scorers come from that match's lineup, and
+substitutions take a starter off for a bench player so derived minutes-played
+never exceed the match length and a team's outfield total lands exactly on
+eleven times it.
 
 A guardian link needs a WP account, and the demo user set ships one parent
 persona, so each parent account is given a small family (one to three
