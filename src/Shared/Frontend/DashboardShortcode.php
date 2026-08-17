@@ -59,6 +59,15 @@ class DashboardShortcode {
                 TT_VERSION,
                 true
             );
+            // #2459 — thumb-zone bar below 768px. Its own sheet rather
+            // than an addition to the shell's, so the two can be worked
+            // on independently.
+            wp_enqueue_style(
+                'tt-frontend-app-bottom-bar',
+                TT_PLUGIN_URL . 'assets/css/frontend-app-bottom-bar.css',
+                [ 'tt-frontend-app-shell' ],
+                TT_VERSION
+            );
         }
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
@@ -420,12 +429,26 @@ class DashboardShortcode {
         echo '<div class="tt-shell-main">';
     }
 
-    /** Counterpart to {@see openShell()}. No-op under `classic`. */
+    /**
+     * Counterpart to {@see openShell()}. No-op under `classic`.
+     *
+     * #2459 — the thumb-zone bar closes the main column rather than
+     * sitting inside it, so its fixed positioning is not affected by the
+     * column's own stacking context.
+     */
     private static function closeShell(): void {
         if ( ! ShellPreference::isApp() ) {
             return;
         }
         echo '</div>'; // .tt-shell-main
+
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+        \TT\Shared\Frontend\Components\FrontendAppBottomBar::render(
+            get_current_user_id(),
+            $view,
+            self::shortcodeBaseUrl()
+        );
+
         echo '</div>'; // .tt-shell
     }
 

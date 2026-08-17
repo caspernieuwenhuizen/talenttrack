@@ -20,9 +20,23 @@ indefinitely.
 | 1280px and up | A grouped sidebar down the left |
 | 1024px and up | The same sidebar, collapsible to a strip of icons |
 | Below 1024px | A slide-out menu behind the ☰ button in the header |
+| Below 768px | The slide-out menu, **plus** a bar along the bottom |
 
 Those are one navigation in different clothes, not four different menus — same
 entries, same order, same permissions.
+
+### The bottom bar on phones
+
+Four destinations plus **More**, which opens the full tile overview. It sits in
+the thumb zone and clears the iOS home indicator, so what you reach for at the
+side of a pitch is one tap away.
+
+Which four you get is derived from your role: the first four *everyday* sections
+you can access, in the standard group order. Setup and configuration sections
+are never placed there — they are not what anyone reaches for one-handed.
+
+The slide-out menu is still there and still carries everything, so the bar never
+hides anything. It is a shortcut, not a filter.
 
 ## Choosing a layout
 
@@ -118,6 +132,37 @@ registry.** Adding a tile adds a nav entry.
 
 `FrontendAppNav::groups()` is public and separate from `render()` so a second
 presentation can consume the same resolved list unchanged.
+`FrontendAppBottomBar` is that second presentation.
+
+### The bottom bar's slots
+
+`\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four
+destinations, config first and derived default second:
+
+1. **Configured** — club-scoped `tt_config` key `tt_shell_mobile_slots`, a JSON
+   object of `persona key => [ slug, … ]`. A `*` key applies to any persona with
+   no entry of its own. Absent or empty means "derive", which is the ship state.
+2. **Derived** — the first four `kind: 'work'` tiles from
+   `FrontendAppNav::groups()`, i.e. already capability-filtered, persona-labelled
+   and in `groupOrder()` sequence. Setup tiles are excluded.
+
+A configured slug that no longer exists, is hidden for the persona, or fails the
+capability check is **skipped**, and the derived default backfills the gap — so a
+stale config degrades to a sensible bar rather than a broken or empty one. There
+is deliberately no operator picker yet; the key is readable and writable through
+the config layer, and the default is good enough to ship without one.
+
+**Deciding the slots from real usage.** `tt_usage_events` (migration 0011)
+already records `event_type = 'frontend_view'` with the view slug in
+`event_target`, per `user_id`, `club_id`-scoped, 90-day retention — nothing new
+needs instrumenting. After the shell has been live on mobile for a few weeks,
+read top slugs per persona and write `tt_shell_mobile_slots`. Viewport is not
+recorded; if the persona split proves too coarse, adding a viewport bucket to the
+event is a separate small change.
+
+Active state matches the slot's own view **and** its record views — `players`
+lights up for `player` — because a bar that goes blank the moment you open a
+record stops orienting you.
 
 Per CLAUDE.md §5b this is the *one* primary navigation and the shell renders it
 once. A view must never emit module-level navigation of its own — see

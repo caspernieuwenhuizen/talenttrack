@@ -1,0 +1,112 @@
+/*
+ * frontend-app-bottom-bar.css — thumb-zone navigation (#2459).
+ *
+ * A sibling of frontend-app-shell.css rather than an addition to it, so
+ * the bar and the sidebar can be worked on independently. Loaded only
+ * when ShellPreference resolves to `app`.
+ *
+ * Visible below 768px only. Above that the sidebar (>=1024px) or the
+ * drawer (768-1023px) is the presentation and a bottom bar would be a
+ * second, redundant affordance.
+ *
+ * Mobile-first per CLAUDE.md §2 — this IS the mobile case, so the base
+ * rules are the real ones and the media query hides rather than builds.
+ */
+
+.tt-dashboard.tt-shell-app {
+    /* Reserved so page content can clear the fixed bar. Includes the
+       home-indicator inset, which is why it is a calc and not a
+       constant. */
+    --tt-shell-bar-h: calc(56px + env(safe-area-inset-bottom));
+}
+
+.tt-shell-app .tt-shell-bar {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: 1000;
+    background: var(--tt-paper, #fff);
+    border-block-start: 1px solid var(--tt-line, #e3e6e1);
+    /* Clear the iOS home indicator. Without this the bottom row of
+       targets sits under the system gesture area and mis-taps. */
+    padding-block-end: env(safe-area-inset-bottom);
+    padding-inline: max(0.25rem, env(safe-area-inset-left)) max(0.25rem, env(safe-area-inset-right));
+}
+
+.tt-shell-app .tt-shell-bar__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+}
+
+.tt-shell-app .tt-shell-bar__item {
+    min-width: 0;
+}
+
+.tt-shell-app .tt-shell-bar__link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    /* 48px minimum tappable height (CLAUDE.md §2). The grid gives each
+       slot an equal share of the width, which at 360px is 72px — well
+       clear of the 48px minimum and its 8px spacing. */
+    min-height: 56px;
+    padding: 0.35rem 0.2rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    text-decoration: none;
+    text-align: center;
+    touch-action: manipulation;
+}
+
+.tt-shell-app .tt-shell-bar__link:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-shell-app .tt-shell-bar__link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
+.tt-shell-app .tt-shell-bar__link.is-active {
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-shell-app .tt-shell-bar__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+}
+
+.tt-shell-app .tt-shell-bar__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.68rem;
+    line-height: 1.2;
+}
+
+/*
+ * Reserve the bar's height at the bottom of the page so a fixed bar
+ * never covers the last row of content — the failure mode being a Save
+ * button you cannot reach.
+ */
+.tt-shell-app .tt-shell-main {
+    padding-block-end: var(--tt-shell-bar-h);
+}
+
+@media (min-width: 768px) {
+    .tt-shell-app .tt-shell-bar {
+        display: none;
+    }
+
+    .tt-shell-app .tt-shell-main {
+        padding-block-end: 0;
+    }
+}
