@@ -343,7 +343,8 @@ The optional `activity_type_key` on every attendance endpoint narrows to one act
 
 ## Dimension explorer — row cap and filter validation
 
-The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric's underlying fact rows and drill into them. Two safeguards keep the drill-down honest:
+The dimension explorer (any KPI's *Explore* affordance) lets you filter a metric's underlying fact rows and drill into them. Three safeguards keep the drill-down honest:
 
 - **5000-row cap, now visible.** The explorer reads at most **5000** fact rows for a drill-down. When a filtered set hits that ceiling the table shows a **"Capped at 5000 rows — use grouping to aggregate larger sets."** notice under the pager, so the visible page count is never mistaken for the whole dataset. Group by a dimension to aggregate larger sets instead of paging through raw rows.
 - **Filters validated against the KPI's dimensions.** Only the dimensions a KPI actually offers for exploration are accepted as filters. A `filter_<key>` for a dimension the KPI doesn't declare is silently ignored — it never reaches the query or the CSV/PDF export, so the filters you see on screen always match the filters applied to the exported file.
+- **Date bounds accept an absolute or a relative form.** *Date after* and *Date before* take either an exact date (`2026-01-15`) or a relative offset (`-30 days`, `-12 months`, `+7 days`; the unit may be `day`, `week`, `month` or `year`, singular or plural). A relative bound is resolved against today each time the report is opened, so a saved link keeps meaning "the last 30 days" rather than freezing to the day you saved it. A bound that is neither — a typo like `30 dayz ago`, or an impossible date like `2026-02-30` — is **dropped**, and the report is shown without that bound. It is never guessed at: a filter that silently narrows to the wrong window is harder to spot than one that plainly isn't applied.

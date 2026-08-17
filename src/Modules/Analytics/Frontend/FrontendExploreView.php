@@ -557,7 +557,8 @@ class FrontendExploreView extends FrontendViewBase {
         $filters = $kpi->defaultFilters;
 
         // Special date filters — accept Y-m-d strings or relative
-        // ("-30 days") forms.
+        // ("-30 days") forms. Both are resolved to an absolute date by
+        // FactQuery::normaliseDateBound() at bind time (#2440).
         if ( isset( $_GET['filter_date_after'] ) ) {
             $val = sanitize_text_field( wp_unslash( (string) $_GET['filter_date_after'] ) );
             if ( $val !== '' ) $filters['date_after'] = $val;
