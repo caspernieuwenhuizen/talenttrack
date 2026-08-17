@@ -33,7 +33,9 @@ removes exactly what was generated and never touches real records.
 | Match day | Prep for every fixture, and results, goals and substitutions for the ones already played |
 | Test trainings | Open sessions for invited players, one past and one upcoming per age group |
 | Team development | A formation and playing-style mix per team, a match-day blueprint, coach-marked pairings, and a chemistry series |
-| Trial cases | Imported from an Excel workbook when one is uploaded |
+| Scouting pipeline | Scouting visits across the window and the prospects found on them |
+| Trial cases | Historical trials on existing players plus open ones, each with a staff panel, assessments and extensions |
+| Tournaments | A tournament per team with its squad, target minutes, fixtures and per-period assignments |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
@@ -50,6 +52,11 @@ small-sided.
 
 Chemistry snapshots are computed by the chemistry engine from the team's
 blueprint lineup, not invented, so a recompute agrees with what is stored.
+
+Most generated players carry a historical trial case, closed with an admit
+decision and dated before they joined the roster. Without it a demo academy's
+players appear fully signed from nowhere, and the journey the product is built
+around has no beginning.
 
 A guardian link needs a WP account, and the demo user set ships one parent
 persona, so each parent account is given a small family (one to three

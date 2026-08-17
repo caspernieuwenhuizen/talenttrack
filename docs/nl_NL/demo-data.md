@@ -34,7 +34,9 @@ records nooit raakt.
 | Wedstrijddag | Wedstrijdvoorbereiding voor elke wedstrijd, plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden |
 | Testtrainingen | Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep |
 | Teamontwikkeling | Een formatie en speelstijlverdeling per team, een wedstrijdblauwdruk, door de trainer gemarkeerde koppels en een chemiereeks |
-| Proefdossiers | Geïmporteerd uit een Excel-werkboek wanneer dat wordt geüpload |
+| Scoutingpijplijn | Scoutingbezoeken over de periode en de prospects die daar zijn gevonden |
+| Proefdossiers | Historische proefperiodes van bestaande spelers plus lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen |
+| Toernooien | Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
 8 weken), **medium** (6 teams, 16 weken), **large** (12 teams, 36 weken).

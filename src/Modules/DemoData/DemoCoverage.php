@@ -9,12 +9,14 @@ use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\MatchDayGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
+use TT\Modules\DemoData\Generators\TournamentGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
 use TT\Modules\DemoData\Generators\MeasurementGenerator;
 use TT\Modules\DemoData\Generators\PdpGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
+use TT\Modules\DemoData\Generators\PipelineGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
 use TT\Modules\DemoData\Generators\PlayerReportGenerator;
@@ -149,19 +151,32 @@ class DemoCoverage {
 
         // ===== Trials =====
 
-        // The Excel importer writes trial cases today; the procedural
-        // generator does not (#2467). Listed as generated because rows
-        // exist after an Excel run and must be wipeable.
+        // Written by PipelineGenerator procedurally, and by the Excel
+        // importer when a workbook carries a trial_cases sheet.
         'tt_trial_cases' => [
             'entity_type' => 'trial_case',
             'category'    => 'trials',
-            'written_by'  => self::WRITTEN_BY_EXCEL,
+            'written_by'  => PipelineGenerator::class,
             'depends_on'  => [ 'player' ],
         ],
-        'tt_trial_tracks'            => [ 'planned' => '#2467' ],
-        'tt_trial_case_staff'        => [ 'planned' => '#2467' ],
-        'tt_trial_case_staff_inputs' => [ 'planned' => '#2467' ],
-        'tt_trial_extensions'        => [ 'planned' => '#2467' ],
+        'tt_trial_case_staff' => [
+            'entity_type' => 'trial_case_staff',
+            'category'    => 'trials',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'trial_case' ],
+        ],
+        'tt_trial_case_staff_inputs' => [
+            'entity_type' => 'trial_case_staff_input',
+            'category'    => 'trials',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'trial_case' ],
+        ],
+        'tt_trial_extensions' => [
+            'entity_type' => 'trial_extension',
+            'category'    => 'trials',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'trial_case' ],
+        ],
 
         // ===== Player spine =====
 
@@ -414,14 +429,47 @@ class DemoCoverage {
             'depends_on'  => [ 'team' ],
         ],
 
-        // ===== Pipeline (#2467) =====
+        // ===== Scouting pipeline =====
 
-        'tt_prospects'             => [ 'planned' => '#2467' ],
-        'tt_scouting_plan_visits'  => [ 'planned' => '#2467' ],
-        'tt_tournaments'           => [ 'planned' => '#2467' ],
-        'tt_tournament_matches'    => [ 'planned' => '#2467' ],
-        'tt_tournament_squad'      => [ 'planned' => '#2467' ],
-        'tt_tournament_assignments' => [ 'planned' => '#2467' ],
+        'tt_scouting_plan_visits' => [
+            'entity_type' => 'scouting_visit',
+            'category'    => 'pipeline',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_prospects' => [
+            'entity_type' => 'prospect',
+            'category'    => 'pipeline',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'scouting_visit' ],
+        ],
+
+        // ===== Tournaments =====
+
+        'tt_tournaments' => [
+            'entity_type' => 'tournament',
+            'category'    => 'tournaments',
+            'written_by'  => TournamentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
+        'tt_tournament_squad' => [
+            'entity_type' => 'tournament_squad',
+            'category'    => 'tournaments',
+            'written_by'  => TournamentGenerator::class,
+            'depends_on'  => [ 'tournament', 'player' ],
+        ],
+        'tt_tournament_matches' => [
+            'entity_type' => 'tournament_match',
+            'category'    => 'tournaments',
+            'written_by'  => TournamentGenerator::class,
+            'depends_on'  => [ 'tournament' ],
+        ],
+        'tt_tournament_assignments' => [
+            'entity_type' => 'tournament_assignment',
+            'category'    => 'tournaments',
+            'written_by'  => TournamentGenerator::class,
+            'depends_on'  => [ 'tournament_match', 'player' ],
+        ],
 
         // ===== Staff, comms, operator records (#2468) =====
 
@@ -502,6 +550,7 @@ class DemoCoverage {
         'tt_set_pieces'           => [ 'exempt' => 'Shipped set-piece routines, seeded by migrations and admin-extensible.' ],
         'tt_chemistry_position_matrix' => [ 'exempt' => 'Position-affinity reference matrix, seeded by migrations.' ],
         'tt_trial_letter_templates'    => [ 'exempt' => 'Trial letter templates, seeded by migrations and admin-editable.' ],
+        'tt_trial_tracks'              => [ 'exempt' => 'Trial tracks are seeded by migrations (is_seeded); #2467 opens cases against them rather than inventing tracks.' ],
 
         // ===== Exempt — external integrations and side effects =====
 
@@ -654,8 +703,19 @@ class DemoCoverage {
             'cascade' => [ 'player_event' ],
         ],
         'trials' => [
-            'tier'    => 'dependent',
-            'cascade' => [ 'trial_case' ],
+            'tier'      => 'dependent',
+            'run_order' => 140,
+            'cascade'   => [ 'trial_extension', 'trial_case_staff_input', 'trial_case_staff', 'trial_case' ],
+        ],
+        'pipeline' => [
+            'tier'      => 'dependent',
+            'run_order' => 150,
+            'cascade'   => [ 'prospect', 'scouting_visit' ],
+        ],
+        'tournaments' => [
+            'tier'      => 'dependent',
+            'run_order' => 160,
+            'cascade'   => [ 'tournament_assignment', 'tournament_match', 'tournament_squad', 'tournament' ],
         ],
     ];
 
@@ -673,6 +733,11 @@ class DemoCoverage {
         // the wipe deletes every guardian link for the wiped players.
         'tt_player_parents' => [
             'delete_by' => [ 'column' => 'player_id', 'entity_type' => 'player_parent' ],
+        ],
+        // PK is (tournament_id, player_id) — no surrogate id. Tagged once per
+        // tournament, so the wipe clears that tournament's whole squad.
+        'tt_tournament_squad' => [
+            'delete_by' => [ 'column' => 'tournament_id', 'entity_type' => 'tournament_squad' ],
         ],
     ];
 
@@ -866,6 +931,8 @@ class DemoCoverage {
             'match_day'   => __( 'Match day', 'talenttrack' ),
             'test_trainings' => __( 'Test trainings', 'talenttrack' ),
             'team_development' => __( 'Team development', 'talenttrack' ),
+            'pipeline'    => __( 'Scouting pipeline', 'talenttrack' ),
+            'tournaments' => __( 'Tournaments', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -880,7 +947,9 @@ class DemoCoverage {
             'evaluations' => __( 'Also wipes per-category eval_ratings.', 'talenttrack' ),
             'goals'       => __( 'Per-player development goals.', 'talenttrack' ),
             'journey'     => __( 'Timeline events written by the journey subscriber during generation.', 'talenttrack' ),
-            'trials'      => __( 'Trial cases imported from an Excel workbook.', 'talenttrack' ),
+            'trials'      => __( 'Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions.', 'talenttrack' ),
+            'pipeline'    => __( 'Scouting visits across the window and the prospects found on them.', 'talenttrack' ),
+            'tournaments' => __( 'A tournament per team with its squad, target minutes, fixtures and per-period assignments.', 'talenttrack' ),
             'guardians'   => __( 'Guardian links to the demo parent accounts, plus each player\'s parent-visibility grants.', 'talenttrack' ),
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
