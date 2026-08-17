@@ -1,3 +1,214 @@
+# TalentTrack v4.88.0 — Usage statistics: "last N days" windows now use the site's timezone (#2444)
+
+Every "last N days" figure on the usage-statistics surfaces was off by the
+site's UTC offset. Events are stamped in site-local time, but each window
+boundary was built in UTC, so on a Dutch install the window started two hours
+late: activity between 00:00 and 02:00 on the oldest day of the window was
+left out, and the same two hours from the day before were counted in. The
+daily-active-users chart and the "events on this day" drill-down could also
+disagree at those edges, filing a 00:30 event under the neighbouring day. The
+90-day retention prune deleted two hours early for the same reason.
+
+All of these boundaries are now built in the site's timezone, so the numbers
+line up with the calendar days people actually worked. Counts on an offset
+install will shift slightly — that shift is the correction. No data changed:
+the stored events were always site-local, this fixes how they are read.
+
+# TalentTrack v4.88.0 — Buttons that rendered as grey native controls are now properly styled (#2445)
+
+A group of buttons across the app rendered as raw browser-default controls —
+grey, square, system font — instead of TalentTrack buttons. The most visible
+were on the evaluation wizard's Attendance step ("Everyone was here —
+continue" and "Mark all present"), but the same fault affected the rate-confirm
+Yes / Skip fork, the trials list and its tracks and letter-template editors,
+the trial parent-meeting actions, the tournaments squad step, the wizards admin
+page, the activities reopen-rating button, and the MFA and desktop-only
+prompts.
+
+The cause was a class name that never existed: `tt-button` and its
+`-primary` / `-secondary` / `-small` variants have no styling defined
+anywhere, so every element carrying one fell back to the browser default. All
+32 occurrences now use the real button system, and a CI check fails any future
+pull request that reintroduces the phantom name — it kept coming back because
+nothing ever complained about it.
+
+The wizard's own Cancel / Back / Next / Save-as-draft bar is unchanged: it was
+already fully styled by its own rules, so it simply drops the dead class
+rather than gaining a new one.
+
+# TalentTrack v4.88.0 — Saved views are now part of the standard filter bar (#2448)
+
+Saved views — the named filter combinations you re-apply with one click —
+shipped for the five attendance and minutes reports. They were built as a
+separate strip bolted on above the filter bar, wired report by report, which
+meant no other screen could offer them.
+
+They are now part of the shared filter bar itself. Nothing changes on the five
+reports: the same views, saved under the same names, keep working exactly as
+before. What changes is underneath — any screen built on the standard filter
+bar can now switch them on, which is what lets the players, teams, evaluations
+and goals lists get them next.
+
+Two details worth knowing. Which filters a saved view captures is now worked
+out from the filter bar's own configuration rather than a fixed list, so a
+screen can't be wired up to save an empty view by accident. And each screen's
+saved views are gated on that screen's own permission instead of the reports
+permission, so a saved view can never expose a screen the user isn't allowed
+to open.
+
+# TalentTrack v4.88.0 — Saved views arrive on the lists and the standard reports (#2449)
+
+Saved views — name a filter combination, re-apply it with one click — were
+only on the five attendance and minutes reports. They now appear on the
+surfaces coaches actually work in: the players, teams, people, evaluations,
+goals, tournaments and holidays lists, the activities list, the audit log, and
+all six standard reports.
+
+On a list, a saved view remembers more than the filters: the search term and
+the sort order go with it. Restoring a view that put the filters back but
+quietly reset the sort would not be the view you saved.
+
+Views stay personal — only you see yours — and each belongs to the one screen
+you saved it on, so a players view never turns up on the teams list. Each
+screen's views are gated on that screen's own permission, so a saved view can
+never reveal a screen you would not otherwise be allowed to open.
+
+Not included, deliberately: the attendance and minutes entry grids (data-entry
+screens rather than browsing ones, where the strip would compete with the
+grid's own controls), the custom-fields settings screen, and the trials list,
+player comparison and My activities — those three decide access with composite
+rules rather than a single permission, so they need their own pass rather than
+a guess.
+
+# TalentTrack v4.88.0 — Saved views: pick one to open by default (#2450)
+
+A saved view is one click. Now it can be zero. In a saved view's **…** dialog,
+tick **Open this view by default on this screen** and that view is applied
+whenever you open the screen without filters of your own — arriving at the team
+attendance report already scoped to your team and this season, rather than to
+everything.
+
+One default per screen, per person. Marking a new one releases the old one.
+The default view is marked with a star in the strip so it is always clear which
+lens you are looking through, and the address bar shows the filters that were
+applied, so the page can still be bookmarked or shared.
+
+Your default never overrides a deliberate choice. Following a link that already
+carries filters, returning through a **← Back to** pill, or opening a URL
+someone shared all show exactly what those addresses ask for. To see everything
+unfiltered, use **Clear** in the filter bar — that escapes the default for the
+visit rather than bouncing you back into it.
+
+Available on the team, player and leaderboard attendance reports and the two
+minutes reports. The lists gain it in a later release.
+
+# TalentTrack v4.88.0 — Saved views: rename them, update them, and clearer confirmations (#2451)
+
+Changing a saved view used to mean deleting it and saving a new one, which lost
+its place in the list. Each saved view now carries a **…** button that opens a
+small dialog where you can rename it, tick a box to replace its filters with
+the ones you have set right now, or delete it — without losing anything else
+about the view.
+
+Saving a name you have already used on the same screen is now refused with a
+message saying so, instead of quietly creating a second chip with the same
+label that you cannot tell apart. The same name on a different screen, or the
+same name used by a different person, is still fine.
+
+The confirmation and error messages have moved from the browser's plain grey
+pop-ups to the app's own dialog, so they are translated, readable to a screen
+reader, and harder to miss. Deleting asks twice, because Delete sits next to
+Save in the same dialog.
+
+The single manage button replaces what would otherwise have been three small
+icons per chip — at the size needed for comfortable tapping they did not fit
+side by side on a phone, and a screen with five saved views would have carried
+fifteen of them.
+
+# TalentTrack v4.88.0 — Navigation layout is now a setting (#2456)
+
+TalentTrack can now render its frontend in a persistent **app shell**: a grouped
+navigation sidebar at laptop widths, collapsible to a strip of icons, and a
+slide-out menu behind a ☰ button on smaller screens. The entries come from the
+same registry that builds the tile overview, so everyone sees exactly the
+sections their role already had — same names, same order, same permissions, now
+always on screen instead of a trip back to the tile overview.
+
+The layout is a choice at two levels. Academy admins set the default under
+*Configuration → General → Navigation layout*; anyone can pick their own under
+*My settings → Layout*, either following the academy or pinning a layout for
+themselves. **Classic remains the default**, so nothing changes until someone
+opts in, and switching back restores the previous chrome exactly.
+
+# TalentTrack v4.88.0 — The player stays on screen while you scroll (#2457)
+
+Under the app shell, a player's photo, name and team now stay pinned to the top
+of their profile along with the section tabs, so scrolling a long Evaluations or
+Measurements pane no longer leaves you wondering whose record you are in — and
+you can switch section without scrolling back up.
+
+The full player header still greets you on arrival; it is the slim strip
+underneath that follows you down the page. Classic layout is unchanged.
+
+# TalentTrack v4.88.0 — Jump to anything, and look without leaving (#2458)
+
+Two additions to the app shell.
+
+**Search.** A search box in the top bar — or ⌘K / Ctrl+K — opens a jump-to
+overlay that finds sections, players, teams and activities from a few
+characters. It opens showing the sections you can reach, so it works as a
+launcher before you type anything. You only ever see records you already have
+access to.
+
+**Preview.** On a laptop, following a link to a player, team or activity from
+somewhere else now opens a preview panel beside what you were reading instead of
+navigating away. Check the detail, then either open it properly or close the
+panel and carry on exactly where you were — no more losing your place and your
+scroll position to answer a small question. On phones and tablets the link
+navigates as before.
+
+Both are app-shell only; classic layout is unchanged.
+
+# TalentTrack v4.88.0 — Thumb-zone navigation bar on phones (#2459)
+
+Under the app shell, phones now get a fixed navigation bar along the bottom of
+the screen — four destinations plus **More**, which opens the full tile
+overview. It sits in the thumb zone and clears the iOS home indicator, so the
+things you reach for at the side of a pitch are one tap away instead of a trip
+through the slide-out menu.
+
+Which four you get is derived from your role: the first four everyday sections
+you have access to, in the standard group order. Setup and configuration
+sections are never placed there. The slide-out menu still carries everything, so
+nothing is hidden — the bar is a shortcut, not a filter.
+
+# TalentTrack v4.88.0 — Ratings grid: collapsed categories no longer pull the header off its columns (#2474)
+
+Opening the ratings grid on an activity whose categories have sub-categories
+showed a header detached from the data: the first main category stretched
+across every score column and the ones after it sat over empty space. It hit
+every not-yet-rated activity, because groups start collapsed until a
+sub-category holds a score.
+
+The main category headers were spanning their sub-columns even while those
+were folded away. A folded column is removed from the table altogether, so the
+extra width was columns no row ever filled, and each following group drifted
+one block to the right. The header now spans what is actually on screen, and
+follows along when a group is folded open or shut. A main category with no
+score of its own keeps an empty placeholder column while collapsed, so its
+label and expand toggle still have a column to sit over.
+
+# TalentTrack v4.88.0 — Teams, activities and staff stay pinned while you scroll (#2479)
+
+Under the app shell, team, activity and staff pages now keep a slim strip at the
+top carrying the record's name and a line of context — the age group, the date,
+the role. The full header still greets you on arrival and scrolls away; the strip
+is what follows you down the page, so working through a long roster or an
+attendance list no longer leaves you checking which record you are in.
+
+Same treatment players got in the previous release, now shared rather than
+rebuilt per page. Classic layout is unchanged.
+
 # TalentTrack v4.87.3 — Explorer: relative date bounds now actually narrow the results (#2440)
 
 The dimension explorer offered a relative date bound — its *Date after* box
