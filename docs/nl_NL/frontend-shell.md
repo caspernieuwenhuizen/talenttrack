@@ -140,6 +140,37 @@ navigatieregister.** Een tegel toevoegen voegt een navigatie-ingang toe.
 zodat een tweede presentatie dezelfde opgeloste lijst ongewijzigd kan gebruiken.
 `FrontendAppBottomBar` ís die tweede presentatie.
 
+### `RecordSpine` — vastgezette record-identiteit
+
+`\TT\Shared\Frontend\Components\RecordSpine` rendert de smalle strook die
+bovenaan een recordpagina blijft staan terwijl de volledige header wegscrollt.
+Overgenomen door team-, activiteit- en stafdetail; spelerdetail heeft zijn eigen
+equivalent uit #2457.
+
+```php
+RecordSpine::render( [
+    'name'      => 'Ajax JO15-1',   // verplicht; leeg rendert niets
+    'meta'      => 'JO15',          // één regel context
+    'status'    => 'active',        // bepaalt de ring om de avatar
+    'photo_url' => '',              // valt terug op initialen
+    'tabs'      => [],              // optioneel; zie hieronder
+] );
+```
+
+**De component stelt samen, hij beslist niet** (§4). Welke chips een kijker mag
+zien, afgeleide status, filteren op rechten — dat blijft in de aanroepende view
+en de domeinlaag. Heeft deze klasse ooit een repository nodig, dan klopt het
+ontwerp niet.
+
+Onder `classic` rendert hij niets, dus hem overnemen kan die shell niet wijzigen.
+
+**Over tabs.** De sleutel `tabs` wordt ondersteund en is bewust ongebruikt bij de
+eerste overnemers. De secties van teamdetail zijn per gebruiker aan en uit te
+zetten (`TeamDetailSections::forUser()`); ze naar tabs omzetten zou een functie
+overrulen waar mensen al op vertrouwen. Tabs passen bij oppervlakken waar de
+secties echt alternatieve blikken op één record zijn — een keuze per oppervlak,
+niet iets om vanuit een gedeelde component op te leggen.
+
 ### De slots van de onderbalk
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier

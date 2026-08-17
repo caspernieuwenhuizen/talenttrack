@@ -1,0 +1,164 @@
+/*
+ * frontend-record-spine.css — pinned record identity (#2479).
+ *
+ * The shared implementation of what #2457 hand-rolled for player detail:
+ * a slim strip that stays at the top of the content column while the
+ * record's full hero scrolls away.
+ *
+ * Own sheet rather than an addition to frontend-app-shell.css so this can
+ * land alongside other phase-3 work without two branches editing one file.
+ *
+ * Scoped under `.tt-shell-app` throughout — the component emits nothing
+ * under `classic`, and these rules would have nothing to match anyway, but
+ * the scoping keeps the intent legible.
+ *
+ * Height budget at 360×640: ~40px with no tabs, ~92px with them. Both sit
+ * comfortably inside the 30vh (192px) cap.
+ */
+
+.tt-shell-app .tt-spine {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--tt-paper, #fff);
+    border-radius: var(--tt-radius, 8px);
+    margin: var(--tt-sp-3, 12px) 0 0;
+    /* Reads as a separate plane only once it overlaps content; without
+       the shadow the strip and the section beneath merge into one flat
+       surface while scrolling. */
+    box-shadow: 0 1px 0 var(--tt-line-soft, #eef0ec),
+                0 6px 12px -8px rgba(0, 0, 0, 0.18);
+}
+
+.tt-shell-app .tt-spine__id {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    min-width: 0;
+}
+
+.tt-shell-app .tt-spine__avatar {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-spine__avatar[data-status="active"] {
+    box-shadow: 0 0 0 2px var(--tt-success, #2f9e5e);
+}
+
+.tt-shell-app .tt-spine__avatar[data-status="inactive"],
+.tt-shell-app .tt-spine__avatar[data-status="archived"] {
+    box-shadow: 0 0 0 2px var(--tt-line, #e3e6e1);
+}
+
+.tt-shell-app .tt-spine__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.tt-shell-app .tt-spine__name {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--tt-ink, #0e1a14);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tt-shell-app .tt-spine__meta {
+    font-size: 12px;
+    color: var(--tt-ink-soft, #6a6d66);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* The name wins the space when both cannot fit. */
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+.tt-shell-app .tt-spine__meta::before {
+    content: "·";
+    margin-right: 6px;
+}
+
+/* ---- Optional tabs ------------------------------------------------- */
+/* Unused by the initial adopters — see the class docblock for why. The
+   rules exist so a surface that genuinely has alternative views of one
+   record does not have to invent its own strip. */
+
+.tt-shell-app .tt-spine__tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 14px 10px;
+    /* One scrolling row rather than wrapping, so the stuck height stays
+       predictable instead of a function of how many tabs a viewer's caps
+       allow. */
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.tt-shell-app .tt-spine__tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.tt-shell-app .tt-spine__tab {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    /* 48px minimum touch target (CLAUDE.md §2). */
+    min-height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: 999px;
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: 13px;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-shell-app .tt-spine__tab:hover {
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-shell-app .tt-spine__tab:active {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-shell-app .tt-spine__tab.is-active {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Focus rings must not be clipped by the strip's horizontal overflow, and
+   a tab reached by keyboard must scroll itself into view. */
+.tt-shell-app .tt-spine__tab:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+    scroll-margin-inline: 12px;
+}
+
+@media (min-width: 768px) {
+    .tt-shell-app .tt-spine__id {
+        padding-inline: 16px;
+    }
+    .tt-shell-app .tt-spine__name {
+        font-size: 14px;
+    }
+}
