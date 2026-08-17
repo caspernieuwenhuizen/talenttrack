@@ -288,6 +288,49 @@ final class FactQuery {
     }
 
     /**
+     * Resolve a `date_after` / `date_before` bound to an absolute `Y-m-d`.
+     *
+     * The explorer form, the preset URLs in ExplorerUrl and the KPI
+     * `defaultFilters` in AnalyticsModule all advertise a relative form
+     * (`-30 days`, `-12 months`) alongside absolute dates. This is the one
+     * chokepoint they share, so the expansion happens here.
+     *
+     * Returns null when the bound is empty or unparseable — the caller drops
+     * the clause. Binding the raw string instead would let MySQL coerce it to
+     * `0000-00-00`, which matches every row and reads as "no filter" while
+     * looking like one is applied.
+     */
+    public static function normaliseDateBound( string $value ): ?string {
+        $value = trim( $value );
+        if ( $value === '' ) return null;
+        // An absolute date must be a real calendar date. `0000-00-00` has the
+        // right shape but is exactly the value this fix exists to keep out of
+        // the query, so shape alone is not enough.
+        if ( preg_match( '/^(\d{4})-(\d{2})-(\d{2})$/', $value, $d ) === 1 ) {
+            return checkdate( (int) $d[2], (int) $d[3], (int) $d[1] ) ? $value : null;
+        }
+
+        // Match the relative form explicitly rather than handing the string
+        // to strtotime(), which is lenient enough to turn "30 dayz ago" into
+        // a plausible-but-wrong date. A typo must read as "no filter", not as
+        // a silently different window.
+        if ( preg_match( '/^([+-]?\d{1,4})\s*(day|week|month|year)s?$/i', $value, $m ) !== 1 ) {
+            return null;
+        }
+
+        // Anchor to midnight today so "-30 days" is a whole number of days
+        // back rather than an arbitrary time-of-day cut.
+        $base = strtotime( gmdate( 'Y-m-d' ) );
+        if ( $base === false ) return null;
+
+        $offset = (int) $m[1];
+        $unit   = strtolower( $m[2] );
+        $ts     = strtotime( sprintf( '%+d %s', $offset, $unit ), $base );
+
+        return $ts === false ? null : gmdate( 'Y-m-d', $ts );
+    }
+
+    /**
      * Build the WHERE-fragment for the filter array. Appends to
      * `$params` in place. Returns the fragment (may be empty).
      *
@@ -297,15 +340,22 @@ final class FactQuery {
     private static function applyFilters( Fact $fact, array $filters, array &$params ): string {
         $clauses = [];
         foreach ( $filters as $key => $value ) {
-            // Special-case the time-column filters first.
+            // Special-case the time-column filters first. Both accept an
+            // absolute `Y-m-d` or a relative form (`-30 days`); an
+            // unparseable bound drops the clause rather than binding a
+            // value MySQL would coerce to 0000-00-00 (#2440).
             if ( $key === 'date_after' ) {
+                $bound = self::normaliseDateBound( (string) $value );
+                if ( $bound === null ) continue;
                 $clauses[] = $fact->timeColumn->expression . ' >= %s';
-                $params[]  = (string) $value;
+                $params[]  = $bound;
                 continue;
             }
             if ( $key === 'date_before' ) {
+                $bound = self::normaliseDateBound( (string) $value );
+                if ( $bound === null ) continue;
                 $clauses[] = $fact->timeColumn->expression . ' <= %s';
-                $params[]  = (string) $value;
+                $params[]  = $bound;
                 continue;
             }
 
