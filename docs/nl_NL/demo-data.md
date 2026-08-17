@@ -24,6 +24,10 @@ records nooit raakt.
 | Evaluaties | Evaluatierondes met beoordelingen per categorie volgens het archetype van de speler |
 | Doelen | Eén of twee ontwikkeldoelen per speler |
 | Tijdlijngebeurtenissen | Tijdlijnregels die ontstaan bij het aanmaken van spelers, evaluaties en doelen |
+| Verzorgers | Koppelingen naar de demo-ouderaccounts, plus de zichtbaarheidsinstellingen per speler |
+| Blessures | Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit volgen |
+| Spelersprofiel | Historie per leeftijdsgroep, attribuutwaarden, eigen velden van de club met waarden, en koppelingen tussen doelen en evaluaties |
+| Spelersrapporten | Gegenereerde rapporten voor de doelgroepen die een academie gebruikt |
 | Proefdossiers | Geïmporteerd uit een Excel-werkboek wanneer dat wordt geüpload |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,

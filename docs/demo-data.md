@@ -23,11 +23,21 @@ removes exactly what was generated and never touches real records.
 | Evaluations | Evaluation rounds with per-category ratings following each player's archetype |
 | Goals | One or two development goals per player |
 | Journey events | Timeline entries written as each player, evaluation and goal is created |
+| Guardians | Guardian links to the demo parent accounts, plus per-player parent-visibility grants |
+| Injuries | Injury records with return-to-play dates, and the timeline events they raise |
+| Player profile | Age-group history, attribute values, the club's custom fields and values, goal-to-evaluation links |
+| Player reports | Generated reports across the audiences an academy produces |
 | Trial cases | Imported from an Excel workbook when one is uploaded |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
 8 weeks), **medium** (6 teams, 16 weeks), **large** (12 teams, 36 weeks).
 Each preset generates 12 players per team.
+
+A guardian link needs a WP account, and the demo user set ships one parent
+persona, so each parent account is given a small family (one to three
+children) rather than every player getting a guardian. That is enough for the
+parent persona to sign in and see a populated dashboard; the rest of the
+roster has no linked guardian, which is also what a real academy looks like.
 
 Generation is reproducible: the same seed, preset and content language
 produce the same academy every time.

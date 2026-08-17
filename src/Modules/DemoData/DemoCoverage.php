@@ -6,8 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
+use TT\Modules\DemoData\Generators\GuardianGenerator;
+use TT\Modules\DemoData\Generators\InjuryGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
+use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
+use TT\Modules\DemoData\Generators\PlayerReportGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 
 /**
@@ -154,18 +158,64 @@ class DemoCoverage {
         'tt_trial_extensions'        => [ 'planned' => '#2467' ],
         'tt_test_trainings'          => [ 'planned' => '#2465' ],
 
-        // ===== Player spine (#2463) =====
+        // ===== Player spine =====
 
-        'tt_player_parents'           => [ 'planned' => '#2463' ],
-        'tt_player_parent_visibility' => [ 'planned' => '#2463' ],
-        'tt_player_injuries'          => [ 'planned' => '#2463' ],
-        'tt_player_team_history'      => [ 'planned' => '#2463' ],
-        'tt_player_attribute_defs'    => [ 'planned' => '#2463' ],
-        'tt_player_attribute_values'  => [ 'planned' => '#2463' ],
-        'tt_player_reports'           => [ 'planned' => '#2463' ],
-        'tt_custom_fields'            => [ 'planned' => '#2463' ],
-        'tt_custom_values'            => [ 'planned' => '#2463' ],
-        'tt_goal_links'               => [ 'planned' => '#2463' ],
+        // No surrogate id — PK is (player_id, parent_user_id). See
+        // TABLE_QUIRKS for how the wipe reaches it.
+        'tt_player_parents' => [
+            'entity_type' => 'player_parent',
+            'category'    => 'guardians',
+            'written_by'  => GuardianGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_player_parent_visibility' => [
+            'entity_type' => 'player_parent_visibility',
+            'category'    => 'guardians',
+            'written_by'  => GuardianGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_player_injuries' => [
+            'entity_type' => 'player_injury',
+            'category'    => 'injuries',
+            'written_by'  => InjuryGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_player_team_history' => [
+            'entity_type' => 'player_team_history',
+            'category'    => 'player_profile',
+            'written_by'  => PlayerProfileGenerator::class,
+            'depends_on'  => [ 'player', 'team' ],
+        ],
+        'tt_player_attribute_values' => [
+            'entity_type' => 'player_attribute_value',
+            'category'    => 'player_profile',
+            'written_by'  => PlayerProfileGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_custom_fields' => [
+            'entity_type' => 'custom_field',
+            'category'    => 'player_profile',
+            'written_by'  => PlayerProfileGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_custom_values' => [
+            'entity_type' => 'custom_value',
+            'category'    => 'player_profile',
+            'written_by'  => PlayerProfileGenerator::class,
+            'depends_on'  => [ 'custom_field', 'player' ],
+        ],
+        'tt_goal_links' => [
+            'entity_type' => 'goal_link',
+            'category'    => 'player_profile',
+            'written_by'  => PlayerProfileGenerator::class,
+            'depends_on'  => [ 'goal', 'evaluation' ],
+        ],
+        'tt_player_reports' => [
+            'entity_type' => 'player_report',
+            'category'    => 'reports',
+            'written_by'  => PlayerReportGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
 
         // ===== Measurements + PDP (#2464) =====
 
@@ -270,6 +320,7 @@ class DemoCoverage {
 
         // ===== Exempt — reference data seeded by migrations =====
 
+        'tt_player_attribute_defs' => [ 'exempt' => 'The 23 chemistry attribute definitions are seeded by migration 0178; #2463 fills values against them rather than inventing more.' ],
         'tt_eval_categories'      => [ 'exempt' => 'Evaluation category tree, seeded by migrations and admin-editable. The Excel path documents it as a reference sheet.' ],
         'tt_eval_type_categories' => [ 'exempt' => 'Evaluation-type to category mapping, seeded by migrations.' ],
         'tt_category_weights'     => [ 'exempt' => 'Per-age-group category weights, seeded by migrations and admin-editable.' ],
@@ -328,7 +379,14 @@ class DemoCoverage {
         ],
         'players' => [
             'tier'    => 'master',
-            'cascade' => [ 'eval_rating', 'evaluation', 'attendance', 'goal', 'player_event', 'trial_case', 'player' ],
+            // goal_link references both a goal and an evaluation, so it has
+            // to go before either of them.
+            'cascade' => [
+                'goal_link', 'eval_rating', 'evaluation', 'attendance', 'goal',
+                'player_event', 'trial_case', 'player_report', 'player_attribute_value',
+                'player_team_history', 'player_injury', 'player_parent_visibility',
+                'custom_value', 'player_parent', 'player',
+            ],
         ],
         // `run_order` fixes the sequence dependent generators run in. All of
         // them draw from one seeded MT stream, so reordering them changes
@@ -354,6 +412,26 @@ class DemoCoverage {
             'cascade'     => [ 'goal' ],
             'excel_sheet' => 'goals',
         ],
+        'guardians' => [
+            'tier'      => 'dependent',
+            'run_order' => 40,
+            'cascade'   => [ 'player_parent_visibility', 'player_parent' ],
+        ],
+        'injuries' => [
+            'tier'      => 'dependent',
+            'run_order' => 50,
+            'cascade'   => [ 'player_injury' ],
+        ],
+        'player_profile' => [
+            'tier'      => 'dependent',
+            'run_order' => 60,
+            'cascade'   => [ 'goal_link', 'custom_value', 'custom_field', 'player_attribute_value', 'player_team_history' ],
+        ],
+        'reports' => [
+            'tier'      => 'dependent',
+            'run_order' => 70,
+            'cascade'   => [ 'player_report' ],
+        ],
         'journey' => [
             'tier'    => 'dependent',
             'cascade' => [ 'player_event' ],
@@ -374,8 +452,10 @@ class DemoCoverage {
      */
     public const TABLE_QUIRKS = [
         // PRIMARY KEY (player_id, parent_user_id) — migration 0025, no id.
+        // The generator tags one row per player (entity_id = player_id), so
+        // the wipe deletes every guardian link for the wiped players.
         'tt_player_parents' => [
-            'delete_by' => [ 'column' => 'player_id', 'entity_type' => 'player' ],
+            'delete_by' => [ 'column' => 'player_id', 'entity_type' => 'player_parent' ],
         ],
     ];
 
@@ -559,6 +639,10 @@ class DemoCoverage {
             'goals'       => __( 'Goals', 'talenttrack' ),
             'journey'     => __( 'Journey events', 'talenttrack' ),
             'trials'      => __( 'Trial cases', 'talenttrack' ),
+            'guardians'   => __( 'Guardians', 'talenttrack' ),
+            'injuries'    => __( 'Injuries', 'talenttrack' ),
+            'player_profile' => __( 'Player profile', 'talenttrack' ),
+            'reports'     => __( 'Player reports', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -574,6 +658,10 @@ class DemoCoverage {
             'goals'       => __( 'Per-player development goals.', 'talenttrack' ),
             'journey'     => __( 'Timeline events written by the journey subscriber during generation.', 'talenttrack' ),
             'trials'      => __( 'Trial cases imported from an Excel workbook.', 'talenttrack' ),
+            'guardians'   => __( 'Guardian links to the demo parent accounts, plus each player\'s parent-visibility grants.', 'talenttrack' ),
+            'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
+            'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
+            'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }

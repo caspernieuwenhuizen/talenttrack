@@ -48601,6 +48601,30 @@ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 msgid "Fill a club with a plausible academy for exploring or demonstrating TalentTrack, and wipe it again cleanly."
 msgstr "Vul een club met een geloofwaardige academie om TalentTrack te verkennen of te demonstreren, en wis hem daarna weer netjes."
 
+#: src/Modules/DemoData/DemoCoverage.php:520
+msgid "Guardians"
+msgstr "Verzorgers"
+
+#: src/Modules/DemoData/DemoCoverage.php:523
+msgid "Player reports"
+msgstr "Spelersrapporten"
+
+#: src/Modules/DemoData/DemoCoverage.php:545
+msgid "Guardian links to the demo parent accounts, plus each player's parent-visibility grants."
+msgstr "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de zichtbaarheidsinstellingen per speler."
+
+#: src/Modules/DemoData/DemoCoverage.php:546
+msgid "Injury records with their return-to-play dates and the journey events they raise."
+msgstr "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit volgen."
+
+#: src/Modules/DemoData/DemoCoverage.php:547
+msgid "Age-group history, attribute values, the club's custom fields and their values, and goal-to-evaluation links."
+msgstr "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club met hun waarden, en koppelingen tussen doelen en evaluaties."
+
+#: src/Modules/DemoData/DemoCoverage.php:548
+msgid "Generated player reports. No share links or recipients are created."
+msgstr "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers aangemaakt."
+
 #, php-format
 #~ msgid "Delete saved view %s"
 #~ msgstr "Opgeslagen weergave %s verwijderen"
