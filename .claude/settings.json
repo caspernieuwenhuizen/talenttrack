@@ -22,7 +22,21 @@
       "Bash(tail:*)",
       "Bash(wc:*)",
       "Bash(diff:*)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(cd:*)",
+      "Bash(pwd)",
+      "Bash(rg:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(cut:*)",
+      "Bash(tr:*)",
+      "Bash(printf:*)",
+      "Bash(jq:*)",
+      "Bash(xargs:*)",
+      "Bash(stat:*)",
+      "Bash(basename:*)",
+      "Bash(dirname:*)",
+      "Bash(sleep:*)"
     ]
   },
   "hooks": {
@@ -32,9 +46,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "h=\"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/no-shell-redirect.py\"; if [ -f \"$h\" ]; then python \"$h\"; fi",
+            "command": "h=\"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/bash-policy.py\"; if [ -f \"$h\" ]; then python \"$h\"; fi",
             "timeout": 10,
-            "statusMessage": "Checking for shell redirects"
+            "statusMessage": "Applying bash policy"
           }
         ]
       }
