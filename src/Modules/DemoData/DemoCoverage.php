@@ -8,6 +8,8 @@ use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
+use TT\Modules\DemoData\Generators\MeasurementGenerator;
+use TT\Modules\DemoData\Generators\PdpGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
@@ -217,17 +219,65 @@ class DemoCoverage {
             'depends_on'  => [ 'player' ],
         ],
 
-        // ===== Measurements + PDP (#2464) =====
+        // ===== Measurements =====
 
-        'tt_seasons'                  => [ 'planned' => '#2464' ],
-        'tt_measurement_definitions'  => [ 'planned' => '#2464' ],
-        'tt_measurement_targets'      => [ 'planned' => '#2464' ],
-        'tt_measurement_sessions'     => [ 'planned' => '#2464' ],
-        'tt_measurement_results'      => [ 'planned' => '#2464' ],
-        'tt_pdp_files'                => [ 'planned' => '#2464' ],
-        'tt_pdp_conversations'        => [ 'planned' => '#2464' ],
-        'tt_pdp_verdicts'             => [ 'planned' => '#2464' ],
-        'tt_pdp_calendar_links'       => [ 'planned' => '#2464' ],
+        'tt_measurement_definitions' => [
+            'entity_type' => 'measurement_definition',
+            'category'    => 'measurements',
+            'written_by'  => MeasurementGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_measurement_targets' => [
+            'entity_type' => 'measurement_target',
+            'category'    => 'measurements',
+            'written_by'  => MeasurementGenerator::class,
+            'depends_on'  => [ 'measurement_definition' ],
+        ],
+        'tt_measurement_sessions' => [
+            'entity_type' => 'measurement_session',
+            'category'    => 'measurements',
+            'written_by'  => MeasurementGenerator::class,
+            'depends_on'  => [ 'measurement_definition', 'team' ],
+        ],
+        'tt_measurement_results' => [
+            'entity_type' => 'measurement_result',
+            'category'    => 'measurements',
+            'written_by'  => MeasurementGenerator::class,
+            'depends_on'  => [ 'measurement_session', 'measurement_definition', 'player' ],
+        ],
+
+        // ===== Seasons + PDP =====
+
+        'tt_seasons' => [
+            'entity_type' => 'season',
+            'category'    => 'pdp',
+            'written_by'  => PdpGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_pdp_files' => [
+            'entity_type' => 'pdp_file',
+            'category'    => 'pdp',
+            'written_by'  => PdpGenerator::class,
+            'depends_on'  => [ 'player', 'season' ],
+        ],
+        'tt_pdp_conversations' => [
+            'entity_type' => 'pdp_conversation',
+            'category'    => 'pdp',
+            'written_by'  => PdpGenerator::class,
+            'depends_on'  => [ 'pdp_file' ],
+        ],
+        'tt_pdp_verdicts' => [
+            'entity_type' => 'pdp_verdict',
+            'category'    => 'pdp',
+            'written_by'  => PdpGenerator::class,
+            'depends_on'  => [ 'pdp_file' ],
+        ],
+        'tt_pdp_calendar_links' => [
+            'entity_type' => 'pdp_calendar_link',
+            'category'    => 'pdp',
+            'written_by'  => PdpGenerator::class,
+            'depends_on'  => [ 'pdp_conversation' ],
+        ],
 
         // ===== Activity content + match day (#2465) =====
 
@@ -371,7 +421,11 @@ class DemoCoverage {
     public const CATEGORIES = [
         'teams' => [
             'tier'    => 'master',
-            'cascade' => [ 'eval_rating', 'evaluation', 'attendance', 'activity', 'team_person', 'team' ],
+            'cascade' => [
+                'eval_rating', 'evaluation', 'attendance', 'activity',
+                'measurement_result', 'measurement_session',
+                'team_person', 'team',
+            ],
         ],
         'people' => [
             'tier'    => 'master',
@@ -385,7 +439,10 @@ class DemoCoverage {
                 'goal_link', 'eval_rating', 'evaluation', 'attendance', 'goal',
                 'player_event', 'trial_case', 'player_report', 'player_attribute_value',
                 'player_team_history', 'player_injury', 'player_parent_visibility',
-                'custom_value', 'player_parent', 'player',
+                'custom_value', 'player_parent',
+                'measurement_result', 'pdp_calendar_link', 'pdp_verdict',
+                'pdp_conversation', 'pdp_file',
+                'player',
             ],
         ],
         // `run_order` fixes the sequence dependent generators run in. All of
@@ -431,6 +488,16 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 70,
             'cascade'   => [ 'player_report' ],
+        ],
+        'measurements' => [
+            'tier'      => 'dependent',
+            'run_order' => 80,
+            'cascade'   => [ 'measurement_result', 'measurement_session', 'measurement_target', 'measurement_definition' ],
+        ],
+        'pdp' => [
+            'tier'      => 'dependent',
+            'run_order' => 90,
+            'cascade'   => [ 'pdp_calendar_link', 'pdp_verdict', 'pdp_conversation', 'pdp_file', 'season' ],
         ],
         'journey' => [
             'tier'    => 'dependent',
@@ -643,6 +710,8 @@ class DemoCoverage {
             'injuries'    => __( 'Injuries', 'talenttrack' ),
             'player_profile' => __( 'Player profile', 'talenttrack' ),
             'reports'     => __( 'Player reports', 'talenttrack' ),
+            'measurements' => __( 'Measurements', 'talenttrack' ),
+            'pdp'         => __( 'PDP cycle', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -662,6 +731,8 @@ class DemoCoverage {
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
             'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
+            'measurements' => __( 'The testing battery, its per-age-group target bands, team testing sessions and one result per player.', 'talenttrack' ),
+            'pdp'         => __( 'The season, one development dossier per player, its conversation cycle, calendar links and verdicts.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }

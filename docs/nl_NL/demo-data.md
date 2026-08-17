@@ -28,6 +28,8 @@ records nooit raakt.
 | Blessures | Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit volgen |
 | Spelersprofiel | Historie per leeftijdsgroep, attribuutwaarden, eigen velden van de club met waarden, en koppelingen tussen doelen en evaluaties |
 | Spelersrapporten | Gegenereerde rapporten voor de doelgroepen die een academie gebruikt |
+| Metingen | Een testbatterij, streefwaarden per leeftijdsgroep, testsessies per team en één resultaat per speler |
+| POP-cyclus | Het seizoen, een ontwikkeldossier per speler, de gesprekscyclus, agendakoppelingen en eindoordelen |
 | Proefdossiers | Geïmporteerd uit een Excel-werkboek wanneer dat wordt geüpload |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
