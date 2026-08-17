@@ -151,8 +151,16 @@ final class FrontendRatingsGridView extends FrontendViewBase {
         // the accessible label. Built once rather than searched per cell:
         // this runs players × categories times.
         $column_ctx = [];
+        // Groups that own no rateable column of their own collapse to zero
+        // visible columns, and a header can't span zero. Those get a
+        // placeholder column, shown only while the group is collapsed, so
+        // the main's label and its expand toggle keep a column to sit over.
+        $slot_groups = [];
         foreach ( $groups as $g ) {
             $first = true;
+            if ( $g['own'] === null && $g['subs'] ) {
+                $slot_groups[ $g['id'] ] = (bool) $g['expanded'];
+            }
             if ( $g['own'] !== null ) {
                 $column_ctx[ $g['own']['id'] ] = [
                     'sub_of'      => 0,
@@ -198,17 +206,29 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                         <tr class="tt-rgrid-head-main">
                             <th scope="col" rowspan="2" class="tt-rgrid-player-col"><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                             <?php foreach ( $groups as $g ) :
-                                $span     = ( $g['own'] !== null ? 1 : 0 ) + count( $g['subs'] );
                                 $has_subs = (bool) $g['subs'];
-                                if ( $span < 1 ) continue;
+                                $own_cols = $g['own'] !== null ? 1 : 0;
+                                if ( $own_cols + count( $g['subs'] ) < 1 ) continue;
+
+                                // The span has to count the columns actually
+                                // on screen, not every column the group owns:
+                                // a collapsed sub is display:none, which drops
+                                // it out of the table entirely. A span left at
+                                // the full width invents columns no row fills,
+                                // and every later group's header slides off its
+                                // own block (#2474).
+                                $span = max( 1, $own_cols + ( $g['expanded'] ? count( $g['subs'] ) : 0 ) );
                                 ?>
                                 <?php if ( ! $has_subs ) : ?>
                                     <?php // A main with no subs is one column; spanning both rows keeps the header from going ragged. ?>
                                     <th scope="col" rowspan="2" class="tt-rgrid-group tt-rgrid-group--flat"><?php echo esc_html( $g['label'] ); ?></th>
                                 <?php else : ?>
+                                    <?php // The two counts travel with the header so the JS can recompute the span on toggle without re-deriving the tree. ?>
                                     <th scope="colgroup" colspan="<?php echo (int) $span; ?>"
                                         class="tt-rgrid-group"
-                                        data-tt-rgrid-group="<?php echo (int) $g['id']; ?>">
+                                        data-tt-rgrid-group="<?php echo (int) $g['id']; ?>"
+                                        data-tt-rgrid-own="<?php echo (int) $own_cols; ?>"
+                                        data-tt-rgrid-subs="<?php echo count( $g['subs'] ); ?>">
                                         <button type="button" class="tt-rgrid-toggle"
                                             data-tt-rgrid-toggle="<?php echo (int) $g['id']; ?>"
                                             data-label="<?php echo esc_attr( $g['label'] ); ?>"
@@ -232,6 +252,10 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                         title="<?php echo esc_attr( $g['label'] ); ?>">
                                         <?php esc_html_e( 'Main score', 'talenttrack' ); ?>
                                     </th>
+                                <?php elseif ( isset( $slot_groups[ $g['id'] ] ) ) : ?>
+                                    <?php // Placeholder column for a collapsed group with nothing rateable of its own. ?>
+                                    <th scope="col" class="tt-rgrid-slot tt-rgrid-group-start<?php echo $g['expanded'] ? ' is-hidden' : ''; ?>"
+                                        data-tt-rgrid-slot-of="<?php echo (int) $g['id']; ?>"></th>
                                 <?php endif; ?>
                                 <?php foreach ( $g['subs'] as $i => $sub ) : ?>
                                     <th scope="col" class="tt-rgrid-sub<?php echo esc_attr( $hidden ); ?><?php echo $g['own'] === null && $i === 0 ? ' tt-rgrid-group-start' : ''; ?>"
@@ -273,6 +297,11 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                                         )
                                         : (string) $c['label'];
                                     ?>
+                                    <?php if ( ! empty( $ctx['first'] ) && isset( $slot_groups[ $sub_of ] ) ) : ?>
+                                        <?php // Body half of the collapsed group's placeholder column. Holds no input — there is no main score to type here. ?>
+                                        <td class="tt-rgrid-slot tt-rgrid-group-start<?php echo $slot_groups[ $sub_of ] ? ' is-hidden' : ''; ?>"
+                                            data-tt-rgrid-slot-of="<?php echo (int) $sub_of; ?>"></td>
+                                    <?php endif; ?>
                                     <?php
                                     $td_class  = $sub_of > 0 ? 'tt-rgrid-sub' : '';
                                     $td_class .= $sub_of > 0 && empty( $ctx['expanded'] ) ? ' is-hidden' : '';
