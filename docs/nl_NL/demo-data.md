@@ -37,6 +37,8 @@ records nooit raakt.
 | Scoutingpijplijn | Scoutingbezoeken over de periode en de prospects die daar zijn gevonden |
 | Proefdossiers | Historische proefperiodes van bestaande spelers plus lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen |
 | Toernooien | Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode |
+| Stafontwikkeling | Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, mentorkoppels |
+| Berichten en beheerdersgegevens | Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, workflowtaken, uitnodigingen |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,
 8 weken), **medium** (6 teams, 16 weken), **large** (12 teams, 36 weken).

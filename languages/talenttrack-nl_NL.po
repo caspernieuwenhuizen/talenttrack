@@ -48742,6 +48742,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No saved views yet."
 #~ msgstr "Nog geen opgeslagen weergaven."
 
+#: src/Modules/DemoData/DemoCoverage.php:790
+msgid "Staff development"
+msgstr "Stafontwikkeling"
+
+#: src/Modules/DemoData/DemoCoverage.php:791
+msgid "Messages and operator records"
+msgstr "Berichten en beheerdersgegevens"
+
+#: src/Modules/DemoData/DemoCoverage.php:815
+msgid "Coaching badges, development plans and goals, evaluations with ratings, and mentor pairings for the club's staff."
+msgstr "Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, en mentorkoppels voor de staf van de club."
+
+#: src/Modules/DemoData/DemoCoverage.php:816
+msgid "Conversations with their read state, saved filters, report presets, workflow tasks and invitations. No email is ever sent."
+msgstr "Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, workflowtaken en uitnodigingen. Er wordt nooit e-mail verstuurd."
+
 #, php-format
 #~ msgid "%s · last 12 months"
 #~ msgstr "%s · laatste 12 maanden"
