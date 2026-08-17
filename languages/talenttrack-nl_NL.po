@@ -48437,10 +48437,6 @@ msgstr ""
 "telefoon een uitschuifmenu. Klassiek brengt je terug naar het tegeloverzicht "
 "om van sectie te wisselen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:204
-msgid "Save layout"
-msgstr "Indeling opslaan"
-
 #: src/Shared/Frontend/FrontendMySettingsView.php:294
 msgid "Layout updated. Reload to see the change everywhere."
 msgstr "Indeling bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
