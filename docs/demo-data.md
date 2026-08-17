@@ -27,6 +27,8 @@ removes exactly what was generated and never touches real records.
 | Injuries | Injury records with return-to-play dates, and the timeline events they raise |
 | Player profile | Age-group history, attribute values, the club's custom fields and values, goal-to-evaluation links |
 | Player reports | Generated reports across the audiences an academy produces |
+| Measurements | A testing battery, per-age-group target bands, team testing sessions and one result per player |
+| PDP cycle | The season, a development dossier per player, its conversation cycle, calendar links and verdicts |
 | Trial cases | Imported from an Excel workbook when one is uploaded |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
