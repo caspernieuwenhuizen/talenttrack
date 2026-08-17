@@ -403,13 +403,18 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) );
 
         // #2385 — personal saved views for this report, above the filter bar.
-        SavedFiltersBar::render( 'minutes_team', $dash_url, [ 'tt_view' => 'minutes-report-team' ] );
 
         FilterBar::render( [
             'hidden'       => $hidden,
             'active_count' => $active_count,
             'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            // #2448 — personal saved views, rendered by FilterBar above the bar.
+            'saved_views'  => [
+                'key'         => 'minutes_team',
+                'base_url'    => $dash_url,
+                'base_params' => [ 'tt_view' => 'minutes-report-team' ],
+            ],
             'groups'       => [
                 [
                     'type'     => 'select',

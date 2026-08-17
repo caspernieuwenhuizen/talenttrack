@@ -90,6 +90,20 @@ The recycle bin adds a second soft-delete tier on top of the existing archive: *
 - **Visibility gate for detail loads:** detail views call `ArchiveRepository::findIncludingArchived($entity, $id)`, which returns `null` for a trashed row unless the caller holds `tt_manage_recycle_bin`. A `null` result renders a 404 — never a permission-denied page that would confirm a trashed minor's record exists.
 - **`?tt_view` / view vocabulary:** the 3-state filter is `active | archived | trashed | all`, where `all` = active + archived and **never** trashed. Per-entity list views never surface `trashed`; only the bin view does, gated on `tt_manage_recycle_bin`.
 
+## Saved views — personal filter presets (#2385 / #2448)
+
+Named filter combinations a user re-applies with one click, for any surface that renders the shared `FilterBar`. The domain lives in `SavedViewsRepository` (`src/Infrastructure/Filters/SavedViewsRepository.php`); the REST surface is `SavedViewsRestController` (`src/Infrastructure/REST/SavedViewsRestController.php`), registered from `Kernel` rather than a module, since the surfaces span more than analytics.
+
+- **Routes:**
+  - `GET /filter-presets?view_key=<key>` — the caller's own views for one surface. Returns `{ views: [ { id, name, filters, is_default } ] }`.
+  - `POST /filter-presets` — `{ view_key, name, filters }`. Returns the stored view.
+  - `DELETE /filter-presets/{id}` — deletes one of the caller's own views.
+  - `/reports/filter-presets` (+ `/{id}`) remain registered as **aliases** of all three for one release, and still accept the retired `report_key` param, so a page loaded just before a deploy keeps working. Remove once shipped.
+- **Capability — per surface, from the registry.** `permission_callback` resolves the capability via `\TT\Infrastructure\Filters\SavedViewsRegistry::currentUserCan( $view_key )`, so a players-list view is gated on the players capability rather than a single fixed one. An unregistered `view_key` is **refused**, never allowed through a permissive default. `DELETE` carries no `view_key`, so it resolves the row first (proving ownership) and then gates on that row's surface.
+- **Ownership** is enforced in the repository, not only the permission callback: every query is scoped to `user_id` + `club_id`, so a user cannot read or mutate another user's views even within the same club. Views are personal — there is no sharing tier.
+- **The `filters` payload is opaque.** #2385 whitelisted six report params here; that cannot scale to every FilterBar surface, and on a surface the list doesn't know about it silently stores nothing. The controller now applies structural limits only — key matches `^[a-z0-9_]+(\[[a-z0-9_]+\])?$` (flat params plus `FrontendListTable`'s `filter[<key>]` shape), values are scalar and `sanitize_text_field`'d, max 20 keys, max 200 chars each. The consuming view sanitises its own `$_GET` when the preset is re-applied, which is the layer that knows what each param means.
+- **Storage:** `tt_saved_filters`, club- and user-scoped with a `uuid`. Migration 0211 renamed `report_key` → `view_key` and added `is_default` (column only; the auto-apply behaviour is #2450).
+
 ## Common conventions
 
 ### Response envelope

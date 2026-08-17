@@ -130,6 +130,11 @@ class Kernel {
         // #2160 — minutes audit / trace-back: per-player per-match
         // breakdown over REST (same hardened MinutesQuery the reports use).
         \TT\Infrastructure\REST\MinutesRestController::init();
+        // #2448 — personal saved filter views for any FilterBar surface.
+        // Registered here rather than from AnalyticsModule (where #2385 put
+        // it): the surfaces now span list views too, so the endpoint must
+        // exist even on an install with the analytics module switched off.
+        \TT\Infrastructure\REST\SavedViewsRestController::init();
         // #2025 — 30-day recycle-bin auto-purge. Subscribes to the workflow
         // engine heartbeat (tt_workflow_cron_tick) rather than registering an
         // ad-hoc wp_cron (CLAUDE.md §4); self-throttles to once per day.
