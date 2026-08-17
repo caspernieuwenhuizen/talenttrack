@@ -48721,10 +48721,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Scouting pipeline"
 msgstr "Scoutingpijplijn"
 
-#: src/Modules/DemoData/DemoCoverage.php:731
-msgid "Tournaments"
-msgstr "Toernooien"
-
 #: src/Modules/DemoData/DemoCoverage.php:752
 msgid "Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions."
 msgstr "Historische proefdossiers van bestaande spelers plus enkele lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
