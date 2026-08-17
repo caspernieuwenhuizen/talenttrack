@@ -4,14 +4,23 @@
 
 URL-borne "← Back to where you came from" navigation, shipped in v3.110.0.
 
-## The contract — two nav affordances, no more, no less
+## The contract — two budgets, counted separately
+
+Navigation is counted in **two separate budgets**:
+
+- **Per view** — exactly two affordances, described in this section. Unchanged since v3.110.0.
+- **Global chrome** — exactly one primary navigation, rendered by the application shell, described in [Global navigation is not a view affordance](#global-navigation-is-not-a-view-affordance) below.
+
+A view owns the first budget. Moving between modules is not a view's job at all.
+
+## Per view — two nav affordances, no more, no less
 
 **Every routable frontend view (anything reachable via `?tt_view=<slug>`) emits exactly TWO navigation affordances and nothing else:**
 
 1. **Breadcrumb chain** — the canonical hierarchy ending at `Dashboard`. Rendered via `\TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard()` (or `::render([...])` for ad-hoc chains). The first crumb is always `Dashboard` and links back to the persona-dashboard root.
 2. **Contextual "← Back to …" pill** — `tt_back`-borne, rendered automatically by `FrontendBreadcrumbs::render()` ABOVE the chain when the visit captured a back-target. Label is contextual via `BackLabelResolver::labelFor()` (e.g. `← Back to Ajax U17`, `← Back to John Doe`, `← Back to Trial: Lucas Smith`). When no back-target is in the URL, the pill simply doesn't render — that's intentional, the breadcrumb chain is the user's only path home and that's enough.
 
-**No third affordance is ever allowed.** Specifically:
+**No third view-level affordance is ever allowed.** Specifically:
 
 - ❌ No "← Back to dashboard" button.
 - ❌ No "← Back to <list>" button (e.g. "Back to Players", "Back to Goals"). The breadcrumb chain has the parent crumb; click it.
@@ -34,6 +43,31 @@ These are the only views allowed without breadcrumbs:
 - Component renderers, sub-views composed into other views, internal containers (`FrontendThreadView`, `FrontendTeammateView`, `FrontendMyProfileView`, `CoachDashboardView`, `PlayerDashboardView`).
 
 If you're adding a new view and it isn't one of these, it MUST emit the chain + pill.
+
+## Global navigation is not a view affordance
+
+The rule above counts what a **view** emits. It does not count the application shell.
+
+The shell renders **one** primary navigation carrying the destinations the user can reach, resolved from `TileRegistry` — slug, group, order, icon, per-persona labels, capability. Its presentation varies by viewport:
+
+| Viewport | Presentation |
+| --- | --- |
+| ≥1280px | Grouped sidebar, expanded |
+| ≥1024px | Same sidebar, collapsible to an icon rail |
+| <1024px | Off-canvas drawer behind a hamburger |
+| <768px | Drawer plus a thumb-zone bottom bar |
+
+These are presentations of **one** affordance with one data source, rendered **once**, by the shell — not four affordances, and never four data sources.
+
+**A view never emits module-level navigation.** A view that renders its own list of links to other modules is the violation this rule reaches for: it duplicates the shell, drifts from it, and can't be capability-filtered consistently. That is a different failure from the per-view back-link problem below, but it has the same cause — navigation authored per view instead of once.
+
+The shell is selectable via `tt_frontend_shell` (see [`frontend-shell.md`](frontend-shell.md)). Under the `classic` value there is no global nav and only the per-view budget applies.
+
+### Record-scoped tabs are content, not navigation
+
+Tabs that move **within** one record — a player's Overview / Journey / Evaluations / Goals & PDP / Minutes — do not leave the view's subject, so they are not navigation away from it and don't count against the per-view budget.
+
+They may only be rendered by the shared spine component (`\TT\Shared\Frontend\Components\RecordSpine`), which also hosts the breadcrumb chain and the back-pill. A view that hand-rolls its own tab strip **is** a violation — that's how tab styling, keyboard order and active-state logic drift apart across surfaces.
 
 ## Why
 

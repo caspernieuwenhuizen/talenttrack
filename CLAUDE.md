@@ -316,7 +316,13 @@ A reviewer should be able to answer yes to all of:
 
 ---
 
-## 5. Always-on principle — Two nav affordances per view, no more, no less
+## 5. Always-on principle — Two nav affordances per view; navigation away from a view belongs to the shell
+
+Navigation is counted in **two separate budgets**. A view owns exactly
+two affordances. Moving between modules is not a view's job at all —
+it belongs to the application shell, which renders it once.
+
+### 5a. Per view — exactly two, no more, no less
 
 Every routable frontend view (anything reachable via
 `?tt_view=<slug>`) emits exactly **two** navigation affordances and
@@ -330,16 +336,45 @@ nothing else:
    contextual ("Back to Ajax U17", "Back to John Doe"). Renders nothing
    when no back-target is in the URL — that's intentional.
 
-**No third affordance is ever allowed.** No "Back to dashboard" button.
-No "Back to <list>" button. No `FrontendBackButton` (deleted in
-v3.110.41) or any analogue. If a custom-label back link feels
-necessary, fix the breadcrumb chain to have the right intermediate
-crumb — that crumb IS the back-to-list affordance.
+**No third view-level affordance is ever allowed.** No "Back to
+dashboard" button. No "Back to <list>" button. No `FrontendBackButton`
+(deleted in v3.110.41) or any analogue. If a custom-label back link
+feels necessary, fix the breadcrumb chain to have the right
+intermediate crumb — that crumb IS the back-to-list affordance.
 
 The only exempt views are the dashboard root itself
 (`PersonaLandingRenderer`), pre-login flows (`AcceptanceView`,
 login form), and component renderers / sub-views composed into
 other views (`FrontendThreadView`, `FrontendTeammateView`, etc.).
+
+### 5b. Global chrome — exactly one primary navigation, shell-rendered
+
+The application shell renders **one** primary navigation carrying the
+destinations the user can reach, resolved from `TileRegistry` (slug,
+group, order, icon, per-persona labels, capability). Its presentation
+varies by viewport — grouped sidebar, collapsed icon rail, off-canvas
+drawer, thumb-zone bottom bar — but it is **one** affordance with one
+data source, rendered **once**, by the shell.
+
+**A view never emits module-level navigation.** A view that renders its
+own list of links to other modules is the violation this rule reaches
+for — it duplicates the shell, drifts from it, and cannot be
+capability-filtered consistently.
+
+The shell is selectable (`tt_frontend_shell`); under the `classic`
+value there is no global nav and 5a alone applies.
+
+### 5c. Record-scoped tabs are content, not navigation
+
+Tabs that move **within** one record — a player's Overview / Journey /
+Evaluations / Goals & PDP / Minutes — do not leave the view's subject,
+so they are not navigation away from it and do not count against 5a.
+
+They may only be rendered by the shared spine component
+(`\TT\Shared\Frontend\Components\RecordSpine`), which also hosts the
+5a breadcrumb chain and back-pill. **A view that hand-rolls a tab strip
+is a violation** — that is how tab styling, keyboard order and active
+state drift apart across surfaces.
 
 Full mechanism + label resolver + `tt_back` validation rules in
 `docs/back-navigation.md`. Read it when adding a new view, when
@@ -724,6 +759,10 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] Cross-entity links use `RecordLink::detailUrlForWithBack()` (or
       `BackLink::appendTo()` for raw URL builders) so the destination
       view can render a contextual back-pill.
+- [ ] No module-level navigation emitted by the view (§ 5b) — the global
+      nav is shell-rendered from `TileRegistry`, once.
+- [ ] Record-scoped tabs come from `RecordSpine` (§ 5c), not a
+      hand-rolled tab strip.
 
 **Wizard-first (`CLAUDE.md` § 3 — record creation):**
 - [ ] If this PR creates a new record-creation flow: a wizard exists for

@@ -5,7 +5,20 @@
 URL-gedragen "← Terug naar waar je vandaan kwam" navigatie, geleverd
 in v3.110.0.
 
-## Het contract — twee navigatie-affordances, niet meer en niet minder
+## Het contract — twee budgetten, apart geteld
+
+Navigatie wordt in **twee aparte budgetten** geteld:
+
+- **Per view** — exact twee affordances, beschreven in deze sectie.
+  Ongewijzigd sinds v3.110.0.
+- **Globale chrome** — exact één primaire navigatie, gerenderd door
+  de applicatie-shell, beschreven onder
+  [Globale navigatie is geen view-affordance](#globale-navigatie-is-geen-view-affordance).
+
+Een view bezit het eerste budget. Wisselen tussen modules is geen
+taak van een view.
+
+## Per view — twee navigatie-affordances, niet meer en niet minder
 
 **Elke routeerbare frontend-view (alles bereikbaar via
 `?tt_view=<slug>`) emitteert exact TWEE navigatie-affordances en
@@ -26,7 +39,7 @@ niets anders:**
    de broodkruimketen is dan het enige pad naar huis en dat is
    genoeg.
 
-**Een derde affordance is nooit toegestaan.** Specifiek:
+**Een derde affordance op view-niveau is nooit toegestaan.** Specifiek:
 
 - ❌ Geen "← Terug naar dashboard"-knop.
 - ❌ Geen "← Terug naar <lijst>"-knop (bijv. "Terug naar Spelers",
@@ -68,6 +81,53 @@ Dit zijn de enige views die zonder broodkruimketen mogen:
 
 Voeg je een nieuwe view toe en is het er geen van deze, dan MOET
 hij de keten + pill emitteren.
+
+## Globale navigatie is geen view-affordance
+
+De regel hierboven telt wat een **view** emitteert. Ze telt de
+applicatie-shell niet mee.
+
+De shell rendert **één** primaire navigatie met de bestemmingen die
+de gebruiker mag bereiken, afgeleid uit `TileRegistry` — slug, groep,
+volgorde, icoon, per-persona-labels, capability. De presentatie
+verschilt per viewport:
+
+| Viewport | Presentatie |
+| --- | --- |
+| ≥1280px | Gegroepeerde zijbalk, uitgeklapt |
+| ≥1024px | Dezelfde zijbalk, inklapbaar tot een icoonrail |
+| <1024px | Uitschuiflade achter een hamburger |
+| <768px | Lade plus een duimzone-balk onderaan |
+
+Dit zijn presentaties van **één** affordance met één databron, één
+keer gerenderd, door de shell — geen vier affordances, en zeker geen
+vier databronnen.
+
+**Een view emitteert nooit navigatie op moduleniveau.** Een view die
+zijn eigen lijst met links naar andere modules rendert, is precies de
+overtreding waar deze regel op doelt: hij dupliceert de shell, loopt
+er vervolgens uit de pas mee, en kan niet consistent op capabilities
+worden gefilterd. Dat is een ander probleem dan de per-view
+terug-link hieronder, maar het heeft dezelfde oorzaak — navigatie die
+per view wordt geschreven in plaats van één keer.
+
+De shell is instelbaar via `tt_frontend_shell` (zie
+[`frontend-shell.md`](frontend-shell.md)). Bij de waarde `classic` is
+er geen globale navigatie en geldt alleen het per-view-budget.
+
+### Record-gebonden tabs zijn inhoud, geen navigatie
+
+Tabs die **binnen** één record bewegen — Overzicht / Reis /
+Evaluaties / Doelen & POP / Speelminuten van een speler — verlaten
+het onderwerp van de view niet. Ze zijn dus geen navigatie wég van de
+view en tellen niet mee voor het per-view-budget.
+
+Ze mogen uitsluitend worden gerenderd door de gedeelde
+spine-component (`\TT\Shared\Frontend\Components\RecordSpine`), die
+ook de broodkruimketen en de terug-pill huisvest. Een view die zijn
+eigen tabstrip schrijft **is** een overtreding — zo lopen
+tab-styling, toetsenbordvolgorde en actief-status uit de pas tussen
+oppervlakken.
 
 ## Waarom
 
