@@ -29,61 +29,38 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class DemoDataCleaner {
 
-    /** Data-level entity types, in dependency-safe delete order. */
-    private const DATA_ORDER = [
-        'eval_rating',
-        'evaluation',
-        'attendance',
-        'activity',
-        'goal',
-        'player',
-        'team_person',
-        'team',
-        'person',
-    ];
+    /**
+     * Entity types in dependency-safe delete order, and the table each one
+     * lives in — both derived from `DemoCoverage`, so a generator declares
+     * its wipe reach in the same place it declares itself. Before #2462
+     * these were three hand-maintained constants that had to agree; the
+     * Excel importer's `trial_case` and `player_event` tags were missing
+     * from them, which left those rows permanently unwipeable.
+     *
+     * @return string[]
+     */
+    private static function dataOrder(): array {
+        return DemoCoverage::deleteOrder();
+    }
 
-    /** Map entity_type => (table, id_column). */
-    private const TABLE_MAP = [
-        'eval_rating' => [ 'tt_eval_ratings', 'id' ],
-        'evaluation'  => [ 'tt_evaluations',  'id' ],
-        'attendance'  => [ 'tt_attendance',   'id' ],
-        'activity'     => [ 'tt_activities',     'id' ],
-        'goal'        => [ 'tt_goals',        'id' ],
-        'player'      => [ 'tt_players',      'id' ],
-        'team_person' => [ 'tt_team_people',  'id' ],
-        'team'        => [ 'tt_teams',        'id' ],
-        'person'      => [ 'tt_people',       'id' ],
-    ];
+    /** @return array<string, array{0:string, 1:string}> entity_type => [table, id_column] */
+    private static function tableMap(): array {
+        return DemoCoverage::tableMap();
+    }
 
     /**
-     * Operator-facing categories the wipe form exposes. Each key maps to
-     * a list of entity types `tt_demo_tags` rows use; checking the
-     * category in the wipe form expands to the full list (cascade).
-     *
-     * Cascades reflect FK-driven dependency: if you wipe `evaluation`,
-     * you must also wipe `eval_rating` (rows that reference it). The
-     * operator-preference cascades (e.g. wiping a team also wipes
-     * `team_person` associations and `activity` rows tied to that team)
-     * are also captured here so the operator picks one box and gets
-     * the consistent fan-out.
-     *
-     * Order within each cascade list is dependency-safe (children first).
+     * Operator-facing categories the wipe form exposes. Kept as a constant
+     * for back-compat with callers doing `array_keys( self::CATEGORIES )`;
+     * the cascade semantics now live in `DemoCoverage::CATEGORIES`.
      */
-    public const CATEGORIES = [
-        'goals'       => [ 'goal' ],
-        'evaluations' => [ 'eval_rating', 'evaluation' ],
-        'activities'  => [ 'attendance', 'activity' ],
-        'players'     => [ 'eval_rating', 'evaluation', 'attendance', 'goal', 'player' ],
-        'teams'       => [ 'eval_rating', 'evaluation', 'attendance', 'activity', 'team_person', 'team' ],
-        'people'      => [ 'team_person', 'person' ],
-    ];
+    public const CATEGORIES = DemoCoverage::CATEGORIES;
 
     /**
      * @param string[]|null $categories Operator-picked categories from
      *   `CATEGORIES` keys (`['teams','activities',…]`). `null` falls back
      *   to all categories — the v3.85.0 "wipe everything" behaviour, kept
      *   for back-compat callers. Each category expands to its dependency
-     *   cascade; the union is then deleted in `DATA_ORDER`.
+     *   cascade; the union is then deleted in dependency-safe order.
      * @param string|null $batch_id #0080 Wave B2 — optional batch
      *   filter. When set, the wipe is scoped to entities tagged with
      *   that `batch_id` only; the matching `tt_demo_tags` rows for
@@ -114,62 +91,91 @@ class DemoDataCleaner {
             }
         }
 
-        foreach ( self::DATA_ORDER as $type ) {
+        $table_map = self::tableMap();
+
+        foreach ( self::dataOrder() as $type ) {
             if ( ! in_array( $type, $types_to_wipe, true ) ) continue;
+            if ( ! isset( $table_map[ $type ] ) ) continue;
             $ids = DemoBatchRegistry::allEntityIds( $type, $batch_id );
             if ( ! $ids ) {
                 $deleted[ $type ] = 0;
                 continue;
             }
-            [ $table, $id_col ] = self::TABLE_MAP[ $type ];
+            [ $table, $id_col ] = $table_map[ $type ];
+            $club_clause = DemoCoverage::isClubScoped( $table ) ? ' AND club_id = %d' : '';
+            $club_args   = DemoCoverage::isClubScoped( $table ) ? [ CurrentClub::id() ] : [];
+
+            // A pivot table with no surrogate id (tt_player_parents) can't be
+            // addressed by its own tagged ids — delete by the parent entity's
+            // wiped id set instead.
+            $delete_by = DemoCoverage::deleteBy( $table );
+            if ( $delete_by !== null ) {
+                $parent_ids = DemoBatchRegistry::allEntityIds( (string) $delete_by['entity_type'], $batch_id );
+                if ( ! $parent_ids ) {
+                    $deleted[ $type ] = 0;
+                    continue;
+                }
+                $column       = (string) $delete_by['column'];
+                $placeholders = implode( ',', array_fill( 0, count( $parent_ids ), '%d' ) );
+                $n = $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}{$table} WHERE {$column} IN ({$placeholders}){$club_clause}",
+                    ...array_merge( $parent_ids, $club_args )
+                ) );
+                $deleted[ $type ] = (int) $n;
+                self::dropTags( $type, $batch_id );
+                continue;
+            }
+
             $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
             $n = $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$id_col} IN ({$placeholders}) AND club_id = %d",
-                ...array_merge( $ids, [ CurrentClub::id() ] )
+                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$id_col} IN ({$placeholders}){$club_clause}",
+                ...array_merge( $ids, $club_args )
             ) );
             $deleted[ $type ] = (int) $n;
 
-            // Drop the tags for the same type. Scoped to the batch
-            // when one was passed, so other batches' tags survive.
-            if ( $batch_id !== null ) {
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d AND batch_id = %s",
-                    $type, CurrentClub::id(), $batch_id
-                ) );
-            } else {
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
-                    $type, CurrentClub::id()
-                ) );
-            }
+            self::dropTags( $type, $batch_id );
         }
         return $deleted;
     }
 
     /**
+     * Drop `tt_demo_tags` rows for one entity type. Scoped to the batch when
+     * one was passed, so other batches' tags survive.
+     */
+    private static function dropTags( string $type, ?string $batch_id ): void {
+        global $wpdb;
+        if ( $batch_id !== null ) {
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d AND batch_id = %s",
+                $type, CurrentClub::id(), $batch_id
+            ) );
+            return;
+        }
+        $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = %s AND club_id = %d",
+            $type, CurrentClub::id()
+        ) );
+    }
+
+    /**
      * Expand the operator-picked categories to the underlying entity-type
-     * set, deduplicated. Null falls back to every entity type the
-     * v3.85.0 cleaner used to walk (preserving the "wipe everything
-     * except people" default).
+     * set, deduplicated. Null falls back to every entity type except
+     * `person`, which `wipeUsers()` owns.
      *
      * @param string[]|null $categories
      * @return string[] entity types
      */
     private static function resolveTypes( ?array $categories ): array {
         if ( $categories === null ) {
-            // v3.85.0 default: walk the legacy DATA_ORDER except `person`,
-            // because `person` rows were left for the separate
-            // `wipeUsers()` flow.
             return array_values( array_filter(
-                self::DATA_ORDER,
+                self::dataOrder(),
                 static function ( string $t ): bool { return $t !== 'person'; }
             ) );
         }
         $types = [];
         foreach ( $categories as $cat ) {
-            if ( ! isset( self::CATEGORIES[ $cat ] ) ) continue;
-            foreach ( self::CATEGORIES[ $cat ] as $t ) {
+            foreach ( DemoCoverage::cascade( (string) $cat ) as $t ) {
                 if ( ! in_array( $t, $types, true ) ) $types[] = $t;
             }
         }
@@ -187,13 +193,15 @@ class DemoDataCleaner {
      */
     public static function categoryCounts( ?string $batch_id = null ): array {
         $per_type = [];
-        foreach ( array_keys( self::TABLE_MAP ) as $type ) {
+        foreach ( array_keys( self::tableMap() ) as $type ) {
             $per_type[ $type ] = count( DemoBatchRegistry::allEntityIds( $type, $batch_id ) );
         }
         $out = [];
-        foreach ( self::CATEGORIES as $cat => $types ) {
+        foreach ( DemoCoverage::categoryKeys() as $cat ) {
             $total = 0;
-            foreach ( $types as $t ) $total += (int) ( $per_type[ $t ] ?? 0 );
+            foreach ( DemoCoverage::cascade( $cat ) as $t ) {
+                $total += (int) ( $per_type[ $t ] ?? 0 );
+            }
             $out[ $cat ] = $total;
         }
         return $out;

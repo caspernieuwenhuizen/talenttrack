@@ -12,6 +12,7 @@ use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
+use TT\Modules\DemoData\Generators\GeneratorContext;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 
 /**
@@ -62,9 +63,12 @@ class DemoGenerator {
         $gen_people      = ! isset( $opts['gen_people'] )      || (bool) $opts['gen_people'];
         $gen_teams       = ! isset( $opts['gen_teams'] )       || (bool) $opts['gen_teams'];
         $gen_players     = ! isset( $opts['gen_players'] )     || (bool) $opts['gen_players'];
-        $gen_activities  = ! isset( $opts['gen_activities'] )  || (bool) $opts['gen_activities'];
-        $gen_evaluations = ! isset( $opts['gen_evaluations'] ) || (bool) $opts['gen_evaluations'];
-        $gen_goals       = ! isset( $opts['gen_goals'] )       || (bool) $opts['gen_goals'];
+
+        $gen_flags = [];
+        foreach ( array_keys( DemoCoverage::dependentGenerators() ) as $category ) {
+            $key = 'gen_' . $category;
+            $gen_flags[ $category ] = ! isset( $opts[ $key ] ) || (bool) $opts[ $key ];
+        }
 
         $batch_id = self::makeBatchId( $preset, $seed );
         $registry = new DemoBatchRegistry( $batch_id );
@@ -153,31 +157,47 @@ class DemoGenerator {
             ? (string) $opts['content_language']
             : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
 
-        $eval_count    = 0;
-        $session_count = 0;
-        $goal_count    = 0;
+        // Dependent generators are resolved from `DemoCoverage` rather than
+        // hardcoded here, so a new wave's generator only has to declare
+        // itself in the manifest. Master data (users, people, teams,
+        // players) stays explicit above: each one produces the entity set
+        // the next needs, and only those three carry the "use the club's
+        // existing rows instead" opt-out.
+        $ctx = new GeneratorContext(
+            $registry,
+            $users,
+            $persons,
+            $teams,
+            $players,
+            $config,
+            $content_language
+        );
 
-        // Hybrid mode: run procedural generators only for sheets the
-        // Excel didn't cover. Pure Excel skips them entirely. v3.90.1 —
-        // operator opt-out flags compose with these: the generator
-        // skips when EITHER the source rules out procedural fill OR the
-        // operator unchecked the category.
-        $skip_eval     = $source === 'excel' || in_array( 'evaluations', $excel_present_sheets, true ) || ! $gen_evaluations;
-        $skip_activity = $source === 'excel' || in_array( 'sessions',    $excel_present_sheets, true ) || ! $gen_activities;
-        $skip_goal     = $source === 'excel' || in_array( 'goals',       $excel_present_sheets, true ) || ! $gen_goals;
+        // Per-category opt-out (`$gen_flags`, built above). Excel-sourced runs
+        // also skip procedural fill for any sheet the workbook covered; a
+        // pure-Excel run skips all of it.
+        $dependent_counts = [];
+        foreach ( DemoCoverage::dependentGenerators() as $category => $generator_class ) {
+            $dependent_counts[ $category ] = 0;
 
-        if ( ! $skip_eval && ! empty( $players ) && ! empty( $teams ) ) {
-            $evalGen    = new EvaluationGenerator( $registry, $players, $teams, (int) $config['weeks'] );
-            $eval_count = $evalGen->generate();
+            if ( $source === 'excel' ) continue;
+            if ( ! ( $gen_flags[ $category ] ?? true ) ) continue;
+
+            $sheet = DemoCoverage::excelSheetFor( $category );
+            if ( $sheet !== null && in_array( $sheet, $excel_present_sheets, true ) ) continue;
+
+            if ( ! self::contextSatisfies( $generator_class, $ctx ) ) continue;
+
+            /** @var \TT\Modules\DemoData\Generators\DependentGeneratorInterface $gen */
+            $gen = $generator_class::fromContext( $ctx );
+            $dependent_counts[ $category ] = (int) $gen->generate();
         }
-        if ( ! $skip_activity && ! empty( $teams ) && ! empty( $players ) ) {
-            $sessionGen    = new ActivityGenerator( $registry, $teams, $players, (int) $config['weeks'], $content_language );
-            $session_count = $sessionGen->generate();
-        }
-        if ( ! $skip_goal && ! empty( $players ) ) {
-            $goalGen    = new GoalGenerator( $registry, $players, $users, $content_language );
-            $goal_count = $goalGen->generate();
-        }
+
+        // Journey events are written by JourneyEventSubscriber off the hooks
+        // the generators fire, so nothing tags them at insert time. Sweep
+        // them up here — an untagged demo row is one the wipe can never
+        // reach.
+        $journey_count = self::tagUntaggedJourneyEvents( $registry, $players );
 
         return [
             'batch_id' => $batch_id,
@@ -186,17 +206,64 @@ class DemoGenerator {
             'teams'    => $teams,
             'players'  => $players,
             'counts'   => array_merge( [
-                'users'       => count( $users ),
-                'persons'     => count( $persons ),
-                'teams'       => count( $teams ),
-                'players'     => count( $players ),
-                'evaluations' => $eval_count,
-                'activities'  => $session_count,
-                'goals'       => $goal_count,
-            ], $excel_imported ),
+                'users'   => count( $users ),
+                'persons' => count( $persons ),
+                'teams'   => count( $teams ),
+                'players' => count( $players ),
+                'journey' => $journey_count,
+            ], $dependent_counts, $excel_imported ),
             'user_stats' => $user_stats,
             'excel_present_sheets' => $excel_present_sheets,
         ];
+    }
+
+    /**
+     * Master data a dependent generator needs before it can write anything.
+     * Running one against an empty roster is a no-op at best and a division
+     * by zero at worst, so skip rather than call.
+     */
+    private static function contextSatisfies( string $generator_class, GeneratorContext $ctx ): bool {
+        if ( empty( $ctx->players ) ) return false;
+        if ( $generator_class === GoalGenerator::class ) return true;
+        return ! empty( $ctx->teams );
+    }
+
+    /**
+     * Tag `tt_player_events` rows for this batch's players that carry no
+     * demo tag yet, so the journey cascade can wipe them.
+     *
+     * @param object[] $players
+     * @return int rows tagged
+     */
+    private static function tagUntaggedJourneyEvents( DemoBatchRegistry $registry, array $players ): int {
+        global $wpdb;
+        if ( ! $players ) return 0;
+
+        $player_ids = [];
+        foreach ( $players as $p ) {
+            $id = (int) ( $p->id ?? 0 );
+            if ( $id > 0 ) $player_ids[] = $id;
+        }
+        if ( ! $player_ids ) return 0;
+
+        $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+        $rows = $wpdb->get_col( $wpdb->prepare(
+            "SELECT e.id
+               FROM {$wpdb->prefix}tt_player_events e
+          LEFT JOIN {$wpdb->prefix}tt_demo_tags d
+                 ON d.entity_type = 'player_event' AND d.entity_id = e.id AND d.club_id = %d
+              WHERE e.player_id IN ({$placeholders})
+                AND e.club_id = %d
+                AND d.id IS NULL",
+            ...array_merge( [ CurrentClub::id() ], $player_ids, [ CurrentClub::id() ] )
+        ) );
+
+        $tagged = 0;
+        foreach ( (array) $rows as $event_id ) {
+            $registry->tag( 'player_event', (int) $event_id );
+            $tagged++;
+        }
+        return $tagged;
     }
 
     /** Load the teams that this batch's Excel importer just inserted. */

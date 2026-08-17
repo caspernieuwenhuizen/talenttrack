@@ -290,6 +290,11 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'Visual editor and hand-rolled CSS for academy-specific theming, with sanitisation and history.', 'talenttrack' ),
             ],
+            'demo-data' => [
+                'title'   => __( 'Demo data', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Fill a club with a plausible academy for exploring or demonstrating TalentTrack, and wipe it again cleanly.', 'talenttrack' ),
+            ],
             'demo-data-excel' => [
                 'title'   => __( 'Demo data (Excel)', 'talenttrack' ),
                 'group'   => 'configuration',

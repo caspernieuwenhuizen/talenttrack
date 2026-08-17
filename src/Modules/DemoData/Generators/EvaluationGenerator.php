@@ -30,7 +30,7 @@ use TT\Modules\DemoData\SeedLoader;
  * Per-category bias adds ±0.3 so the radar shows a plausible shape
  * rather than a flat polygon. Per-eval noise adds ±0.3 on top.
  */
-class EvaluationGenerator {
+class EvaluationGenerator implements DependentGeneratorInterface {
 
     private const TYPE_TRAINING_PROB = 75; // out of 100
 
@@ -51,6 +51,14 @@ class EvaluationGenerator {
     private array $teams;
 
     private int $weeks;
+
+    public static function category(): string {
+        return 'evaluations';
+    }
+
+    public static function fromContext( GeneratorContext $ctx ): self {
+        return new self( $ctx->registry, $ctx->players, $ctx->teams, $ctx->weeks() );
+    }
 
     /**
      * @param object[] $players generated players (with .id, .team_id, .archetype, .wp_user_id)

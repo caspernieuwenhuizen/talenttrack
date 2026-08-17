@@ -48547,6 +48547,60 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is a demo-data category, e.g. "Activities".
+#: src/Modules/DemoData/Admin/DemoDataPage.php:395
+#, php-format
+msgid "Generate %s"
+msgstr "%s genereren"
+
+#. translators: 1: demo persona slot, 2: the underlying WordPress error.
+#: src/Modules/DemoData/Generators/UserGenerator.php:124
+#, php-format
+msgid "Failed to create demo user %1$s: %2$s"
+msgstr "Aanmaken van demogebruiker %1$s mislukt: %2$s"
+
+#. translators: 1: row count, 2: what else the cascade reaches.
+#: src/Modules/DemoData/Admin/DemoDataPage.php:706
+#, php-format
+msgid "%1$d demo rows. %2$s"
+msgstr "%1$d demorijen. %2$s"
+
+#: src/Modules/DemoData/DemoCoverage.php:432
+msgid "Also wipes team_person, activities, attendance, evaluations and eval_ratings on those teams."
+msgstr "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en beoordelingen van die teams."
+
+#: src/Modules/DemoData/DemoCoverage.php:433
+msgid "Also wipes team_person assignments. The matching WP users stay — use \"Wipe demo users\" below for those."
+msgstr "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
+
+#: src/Modules/DemoData/DemoCoverage.php:434
+msgid "Also wipes attendance, evaluations, eval_ratings, goals, journey events and trial cases tied to those players."
+msgstr "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, tijdlijngebeurtenissen en proefdossiers van die spelers."
+
+#: src/Modules/DemoData/DemoCoverage.php:435
+msgid "Also wipes attendance for those activities."
+msgstr "Wist ook de aanwezigheid bij die activiteiten."
+
+#: src/Modules/DemoData/DemoCoverage.php:436
+msgid "Also wipes per-category eval_ratings."
+msgstr "Wist ook de beoordelingen per categorie."
+
+#: src/Modules/DemoData/DemoCoverage.php:437
+msgid "Per-player development goals."
+msgstr "Ontwikkeldoelen per speler."
+
+#: src/Modules/DemoData/DemoCoverage.php:438
+msgid "Timeline events written by the journey subscriber during generation."
+msgstr "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber zijn geschreven."
+
+#: src/Modules/DemoData/DemoCoverage.php:439
+msgid "Trial cases imported from an Excel workbook."
+msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
+
+#: src/Modules/Documentation/HelpTopics.php:295
+msgid "Fill a club with a plausible academy for exploring or demonstrating TalentTrack, and wipe it again cleanly."
+msgstr "Vul een club met een geloofwaardige academie om TalentTrack te verkennen of te demonstreren, en wis hem daarna weer netjes."
+
 #, php-format
 #~ msgid "Delete saved view %s"
 #~ msgstr "Opgeslagen weergave %s verwijderen"

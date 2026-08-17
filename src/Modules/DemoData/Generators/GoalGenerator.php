@@ -30,7 +30,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * falls back from the full locale (`nl_NL`) → language prefix match
  * (`nl_*` → `nl_NL`) → English canonical.
  */
-class GoalGenerator {
+class GoalGenerator implements DependentGeneratorInterface {
 
     /**
      * @var array<string, string[]>
@@ -93,6 +93,14 @@ class GoalGenerator {
     private array $users;
 
     private string $language;
+
+    public static function category(): string {
+        return 'goals';
+    }
+
+    public static function fromContext( GeneratorContext $ctx ): self {
+        return new self( $ctx->registry, $ctx->players, $ctx->users, $ctx->contentLanguage );
+    }
 
     /**
      * @param object[] $players

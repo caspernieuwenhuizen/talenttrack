@@ -25,7 +25,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * On re-run: looked up by slot tag first, falling back to email so an
  * older install without tags still gets reused cleanly.
  */
-class UserGenerator {
+class UserGenerator implements GeneratorInterface {
 
     private const FIXED_SLOTS = [
         'admin'    => 'administrator',
@@ -48,6 +48,10 @@ class UserGenerator {
 
     private int $created_count = 0;
     private int $reused_count  = 0;
+
+    public static function category(): string {
+        return 'people';
+    }
 
     public function __construct( DemoBatchRegistry $registry, string $domain, string $password ) {
         $this->registry = $registry;
@@ -117,7 +121,12 @@ class UserGenerator {
 
         if ( is_wp_error( $user_id ) ) {
             throw new \RuntimeException(
-                sprintf( 'Failed to create demo user %s: %s', $slot, $user_id->get_error_message() )
+                sprintf(
+                    /* translators: 1: demo persona slot, 2: the underlying WordPress error. */
+                    __( 'Failed to create demo user %1$s: %2$s', 'talenttrack' ),
+                    $slot,
+                    $user_id->get_error_message()
+                )
             );
         }
 
