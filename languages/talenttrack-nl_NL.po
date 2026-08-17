@@ -3441,6 +3441,21 @@ msgstr "Niet gevonden."
 msgid "No view key supplied."
 msgstr "Geen weergavesleutel opgegeven."
 
+msgid "Edit saved view"
+msgstr "Opgeslagen weergave bewerken"
+
+msgid "Edit or delete saved view %s"
+msgstr "Opgeslagen weergave %s bewerken of verwijderen"
+
+msgid "Also replace its filters with the ones set now"
+msgstr "Vervang ook de filters door de nu ingestelde filters"
+
+msgid "Delete this saved view? This cannot be undone."
+msgstr "Deze opgeslagen weergave verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "You already have a saved view with that name."
+msgstr "Je hebt al een opgeslagen weergave met die naam."
+
 #: src/Infrastructure/REST/SavedViewsRestController.php:115
 #: src/Shared/Frontend/Components/SavedViews.php:119
 msgid "Give this view a name first."
