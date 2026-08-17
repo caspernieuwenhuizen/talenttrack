@@ -48679,14 +48679,6 @@ msgstr "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, agend
 msgid "Training content"
 msgstr "Trainingsinhoud"
 
-#: src/Modules/DemoData/DemoCoverage.php:641
-msgid "Match day"
-msgstr "Wedstrijddag"
-
-#: src/Modules/DemoData/DemoCoverage.php:642
-msgid "Test trainings"
-msgstr "Testtrainingen"
-
 #: src/Modules/DemoData/DemoCoverage.php:665
 msgid "Exercises and methodology principles on each training, per-team exercise overrides, and the season's holiday windows."
 msgstr "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per team, en de vakantieperiodes van het seizoen."
