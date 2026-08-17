@@ -200,6 +200,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
         echo '<div class="tt-players-manage">';
         echo FrontendListTable::render( [
             'rest_path' => 'players',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'players-list' ],
             'columns' => [
                 // #0070 — name / team rendered as clickable cells via
                 // pre-built RecordLink HTML from the REST controller.

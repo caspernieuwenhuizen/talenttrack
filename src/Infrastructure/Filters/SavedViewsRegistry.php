@@ -28,57 +28,109 @@ final class SavedViewsRegistry {
     /**
      * Surfaces registered at runtime (via `register()`), merged over MAP.
      *
-     * @var array<string,string>
+     * @var array<string,string|array<int,string>>
      */
     private static array $runtime = [];
 
     /**
-     * view_key => capability.
+     * view_key => capability, or a list of capabilities of which ANY grants
+     * access. Several lists gate their own REST endpoint on
+     * "view-cap OR edit-cap" (teams, goals), and a user holding only the edit
+     * cap can see the list — so a single-capability gate here would refuse
+     * saved views to someone who can use the surface.
      *
      * The five report keys below are the surfaces #2385 shipped; their keys
-     * are unchanged so presets saved before this refactor keep working.
+     * are unchanged so presets saved before this refactor keep working. The
+     * list surfaces (#2449) each carry the capability their own REST list
+     * endpoint is gated on, which is what actually decides whether the user
+     * can see the rows a saved view would filter.
      *
-     * @var array<string,string>
+     * @var array<string,string|array<int,string>>
      */
     private const MAP = [
+        // Reports (#2385).
         'attendance_team'        => 'tt_view_analytics',
         'attendance_player'      => 'tt_view_analytics',
         'attendance_leaderboard' => 'tt_view_analytics',
         'minutes_team'           => 'tt_view_analytics',
         'minutes_audit'          => 'tt_view_analytics',
+
+        // List views (#2449).
+        'players-list'      => 'tt_view_players',
+        'teams-list'        => [ 'tt_view_teams', 'tt_edit_teams' ],
+        'people-list'       => 'tt_view_people',
+        'evaluations-list'  => 'tt_view_evaluations',
+        'goals-list'        => [ 'tt_view_goals', 'tt_edit_goals' ],
+        'tournaments-list'  => 'tt_view_tournaments',
+        'holidays-list'     => 'tt_view_holidays',
+        'activities-list'   => 'tt_view_activities',
+        'audit-log'         => 'tt_view_settings',
+
+        // Standard reports (#2449). All six render through
+        // FrontendStandardReportsView::renderPeriodFilterBar() and share the
+        // reports capability; the slug keeps each report's views its own.
+        'report-player-minutes-played'         => 'tt_view_analytics',
+        'report-team-minutes-distribution'     => 'tt_view_analytics',
+        'report-team-squad-evaluation-summary' => 'tt_view_analytics',
+        'report-season-summary'                => 'tt_view_analytics',
+        'report-season-trial-funnel'           => 'tt_view_analytics',
+        'report-scout-report-card'             => 'tt_view_analytics',
     ];
 
-    /** Register a surface. Later calls win, so a module can override a default. */
-    public static function register( string $view_key, string $capability ): void {
-        if ( $view_key === '' || $capability === '' ) return;
+    /**
+     * Register a surface. Later calls win, so a module can override a default.
+     *
+     * @param string|array<int,string> $capability one cap, or a list of which any grants access.
+     */
+    public static function register( string $view_key, $capability ): void {
+        if ( $view_key === '' || $capability === '' || $capability === [] ) return;
         self::$runtime[ $view_key ] = $capability;
     }
 
     /**
      * The full map, filterable.
      *
-     * @return array<string,string>
+     * @return array<string,string|array<int,string>>
      */
     public static function all(): array {
-        /** @var array<string,string> $map */
+        /** @var array<string,string|array<int,string>> $map */
         $map = apply_filters( 'tt_saved_views_registry', array_merge( self::MAP, self::$runtime ) );
         return is_array( $map ) ? $map : self::MAP;
     }
 
-    /** The capability gating a surface, or null when the key is unknown. */
+    /**
+     * The capabilities gating a surface. Empty when the key is unknown.
+     *
+     * @return array<int,string>
+     */
+    public static function capabilitiesFor( string $view_key ): array {
+        if ( $view_key === '' ) return [];
+        $caps = self::all()[ $view_key ] ?? null;
+        if ( is_string( $caps ) ) $caps = [ $caps ];
+        if ( ! is_array( $caps ) ) return [];
+
+        return array_values( array_filter(
+            array_map( static fn( $c ) => is_string( $c ) ? $c : '', $caps ),
+            static fn( string $c ): bool => $c !== ''
+        ) );
+    }
+
+    /** The first capability gating a surface, or null when the key is unknown. */
     public static function capabilityFor( string $view_key ): ?string {
-        if ( $view_key === '' ) return null;
-        $map = self::all();
-        $cap = $map[ $view_key ] ?? null;
-        return is_string( $cap ) && $cap !== '' ? $cap : null;
+        return self::capabilitiesFor( $view_key )[0] ?? null;
     }
 
     /** True when the current user may use saved views on this surface. */
     public static function currentUserCan( string $view_key ): bool {
-        $cap = self::capabilityFor( $view_key );
+        $caps = self::capabilitiesFor( $view_key );
         // Unknown surface → refuse. Never fall back to a permissive default:
         // an unregistered key must not become a way to bypass the gate.
-        return $cap !== null && current_user_can( $cap );
+        if ( $caps === [] ) return false;
+
+        foreach ( $caps as $cap ) {
+            if ( current_user_can( $cap ) ) return true;
+        }
+        return false;
     }
 
     /** Reset runtime registrations. Test-support only. */

@@ -154,6 +154,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
         // rendered as a table head in card mode.
         echo FrontendListTable::render( [
             'rest_path' => 'teams',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'teams-list' ],
             'layout'    => 'cards',
             // Card fragment field assembled by TeamsRestController::fmtRow().
             'card_value_key' => 'card_html',

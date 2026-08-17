@@ -71,6 +71,8 @@ final class FrontendHolidaysView extends FrontendViewBase {
 
         echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
             'rest_path' => 'holidays',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'holidays-list' ],
             // #1602 — click-to-open rows. The REST `detail_url` field
             // carries the per-row edit URL (only populated for users
             // with the manage cap), so read-only viewers get inert rows.

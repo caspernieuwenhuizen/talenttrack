@@ -1688,6 +1688,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'active_count' => $active_count,
             'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            // #2449 — personal saved views for the activities list.
+            'saved_views'  => [ 'key' => 'activities-list' ],
             'groups'       => [
                 [
                     'type'        => 'select',

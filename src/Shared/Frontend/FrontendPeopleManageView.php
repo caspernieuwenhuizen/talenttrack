@@ -101,6 +101,8 @@ class FrontendPeopleManageView extends FrontendViewBase {
 
         echo FrontendListTable::render( [
             'rest_path' => 'people',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'people-list' ],
             'columns' => [
                 // #0070 — name links to the person detail; email links to
                 // the in-product mail composer so the send is audited.
