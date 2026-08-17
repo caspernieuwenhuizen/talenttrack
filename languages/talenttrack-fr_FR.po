@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T17:30:01+00:00\n"
+"POT-Creation-Date: 2026-08-17T17:41:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2121,13 +2121,13 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:158
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:231
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:208
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:338
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:343
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:202
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:419
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:424
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:159
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:312
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:431
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:417
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:436
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:422
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:159
 #: src/Modules/Authorization/Admin/RolesPage.php:232
@@ -3241,19 +3241,11 @@ msgstr ""
 msgid "Record not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:193
-msgid "Could not save this view."
-msgstr ""
-
-#: src/Infrastructure/REST/ReportsRestController.php:203
-msgid "View not found."
-msgstr ""
-
-#: src/Infrastructure/REST/ReportsRestController.php:259
+#: src/Infrastructure/REST/ReportsRestController.php:156
 msgid "Match not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:266
+#: src/Infrastructure/REST/ReportsRestController.php:163
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:124
 msgid "You do not coach this match’s team."
 msgstr ""
@@ -3264,6 +3256,23 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:710
 #: src/Modules/Players/Admin/PlayersPage.php:428
 msgid "Not found."
+msgstr ""
+
+#: src/Infrastructure/REST/SavedViewsRestController.php:110
+msgid "No view key supplied."
+msgstr ""
+
+#: src/Infrastructure/REST/SavedViewsRestController.php:115
+#: src/Shared/Frontend/Components/SavedViews.php:119
+msgid "Give this view a name first."
+msgstr ""
+
+#: src/Infrastructure/REST/SavedViewsRestController.php:126
+msgid "Could not save this view."
+msgstr ""
+
+#: src/Infrastructure/REST/SavedViewsRestController.php:135
+msgid "View not found."
 msgstr ""
 
 #: src/Infrastructure/REST/SeasonRolloverRestController.php:69
@@ -3587,8 +3596,8 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:366
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:449
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:435
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:454
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:440
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:204
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
 #: src/Shared/Frontend/FrontendComparisonView.php:286
@@ -3656,7 +3665,6 @@ msgid "Add New"
 msgstr "Ajouter"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:67
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:101
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:354
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
@@ -3674,6 +3682,7 @@ msgstr "Ajouter"
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1308
 #: src/Modules/Teams/Admin/TeamsPage.php:40
+#: src/Shared/Frontend/Components/SavedViews.php:120
 #: src/Shared/Frontend/DashboardShortcode.php:114
 #: src/Shared/Frontend/FrontendSetupView.php:419
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:50
@@ -3809,9 +3818,9 @@ msgstr "Titre"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:93
 #: src/Modules/Activities/Admin/ActivitiesPage.php:266
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:395
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:353
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:434
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:376
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:439
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:381
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
@@ -4306,7 +4315,6 @@ msgstr "Mettre à jour"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:299
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:245
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:76
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:864
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1005
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
@@ -4320,6 +4328,7 @@ msgstr "Mettre à jour"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
+#: src/Shared/Frontend/Components/SavedViews.php:90
 #: src/Shared/Frontend/DashboardShortcode.php:121
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
@@ -4684,11 +4693,11 @@ msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:388
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:307
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:346
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:427
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:369
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:439
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:425
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:351
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:432
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:374
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:444
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:430
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1713
 #: src/Shared/Frontend/FrontendHolidaysView.php:290
 #: src/Shared/Frontend/FrontendStandardReportsView.php:361
@@ -4697,22 +4706,22 @@ msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:404
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:314
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:362
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:443
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:385
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:455
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:441
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:367
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:448
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:390
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:460
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:446
 #: src/Shared/Frontend/FrontendStandardReportsView.php:368
 msgid "Date range"
 msgstr ""
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:405
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:315
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:363
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:444
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:386
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:456
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:442
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:368
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:449
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:391
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:461
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:447
 #: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:56
@@ -4726,7 +4735,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
-#: src/Shared/Frontend/Components/FilterBar.php:418
+#: src/Shared/Frontend/Components/FilterBar.php:525
 #: src/Shared/Frontend/Components/FrontendListTable.php:414
 #: src/Shared/Frontend/FrontendAuditLogView.php:370
 #: src/Shared/Frontend/FrontendConfigurationView.php:2519
@@ -4740,18 +4749,18 @@ msgstr "De"
 
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:406
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:316
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:364
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:445
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:387
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:457
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:443
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:369
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:450
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:392
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:462
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:448
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
-#: src/Shared/Frontend/Components/FilterBar.php:419
+#: src/Shared/Frontend/Components/FilterBar.php:526
 #: src/Shared/Frontend/Components/FrontendListTable.php:415
 #: src/Shared/Frontend/FrontendAuditLogView.php:371
 #: src/Shared/Frontend/FrontendConfigurationView.php:2520
@@ -5710,18 +5719,18 @@ msgstr ""
 msgid "Top %d"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:356
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:437
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:379
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:361
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:442
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:384
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1707
 msgid "— all types —"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:375
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:380
 msgid "How many"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:378
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:383
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
@@ -6255,9 +6264,9 @@ msgstr "— Aucun —"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:405
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:176
-#: src/Shared/Frontend/Components/FilterBar.php:154
-#: src/Shared/Frontend/Components/FilterBar.php:246
-#: src/Shared/Frontend/Components/FilterBar.php:440
+#: src/Shared/Frontend/Components/FilterBar.php:256
+#: src/Shared/Frontend/Components/FilterBar.php:353
+#: src/Shared/Frontend/Components/FilterBar.php:547
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1229
 msgid "Apply"
 msgstr "Appliquer"
@@ -6296,8 +6305,8 @@ msgid "Generated %s"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:466
-#: src/Shared/Frontend/Components/FilterBar.php:151
-#: src/Shared/Frontend/Components/FilterBar.php:152
+#: src/Shared/Frontend/Components/FilterBar.php:253
+#: src/Shared/Frontend/Components/FilterBar.php:254
 msgid "Filters"
 msgstr ""
 
@@ -6587,8 +6596,8 @@ msgstr "Coupe"
 msgid "Friendly"
 msgstr "Amical"
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:446
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:432
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:451
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:437
 msgid "Match type"
 msgstr ""
 
@@ -6802,51 +6811,6 @@ msgstr "Archiver"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:233
 msgid "Archive this schedule? It will stop running."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:37
-msgid "Saved views"
-msgstr ""
-
-#. translators: %s: saved view name
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:53
-#, php-format
-msgid "Delete saved view %s"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:59
-msgid "No saved views yet."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:65
-msgid "Save current filters…"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:69
-msgid "Name for this saved view"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:74
-msgid "e.g. U17 league games"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:100
-msgid "Give this view a name first."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:102
-msgid "Delete this saved view?"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/SavedFiltersBar.php:103
-#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:164
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:124
-#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:230
-#: src/Modules/Strava/Frontend/FrontendStravaView.php:125
-#: src/Shared/Frontend/FrontendBackupsView.php:453
-#: src/Shared/Frontend/FrontendHolidaysView.php:339
-#: src/Shared/Frontend/FrontendSeasonsView.php:187
-msgid "Something went wrong. Please try again."
 msgstr ""
 
 #: src/Modules/Analytics/Reports/ReportFilters.php:34
@@ -11443,7 +11407,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:945
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
-#: src/Shared/Frontend/Components/FilterBar.php:243
+#: src/Shared/Frontend/Components/FilterBar.php:350
 msgid "Clear"
 msgstr "Effacer"
 
@@ -17254,7 +17218,7 @@ msgstr "Imprimer"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:755
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:251
 #: src/Shared/Frontend/Components/FilterBar.php:111
-#: src/Shared/Frontend/Components/FilterBar.php:230
+#: src/Shared/Frontend/Components/FilterBar.php:337
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:1726
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
@@ -27589,6 +27553,17 @@ msgstr ""
 msgid "Unlink this parent from the player?"
 msgstr ""
 
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:164
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:124
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:230
+#: src/Modules/Strava/Frontend/FrontendStravaView.php:125
+#: src/Shared/Frontend/Components/SavedViews.php:122
+#: src/Shared/Frontend/FrontendBackupsView.php:453
+#: src/Shared/Frontend/FrontendHolidaysView.php:339
+#: src/Shared/Frontend/FrontendSeasonsView.php:187
+msgid "Something went wrong. Please try again."
+msgstr ""
+
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:165
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:125
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:130
@@ -37095,6 +37070,32 @@ msgstr ""
 #: src/Shared/Frontend/Components/RatingPillComponent.php:136
 #, php-format
 msgid "Overall rating: %1$s out of %2$s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SavedViews.php:52
+msgid "Saved views"
+msgstr ""
+
+#. translators: %s: saved view name
+#: src/Shared/Frontend/Components/SavedViews.php:67
+#, php-format
+msgid "Delete saved view %s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SavedViews.php:81
+msgid "Save current filters…"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SavedViews.php:84
+msgid "Name for this saved view"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SavedViews.php:88
+msgid "e.g. U17 league games"
+msgstr ""
+
+#: src/Shared/Frontend/Components/SavedViews.php:121
+msgid "Delete this saved view?"
 msgstr ""
 
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
