@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T16:42:03+00:00\n"
+"POT-Creation-Date: 2026-08-17T16:42:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5479,7 +5479,7 @@ msgstr ""
 "Ga naar het dashboard voor de live-weergave."
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:796
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:797
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
@@ -6591,43 +6591,43 @@ msgid "PDF rendering failed. Run `composer install` and try again."
 msgstr ""
 "PDF-weergave mislukt. Voer `composer install` uit en probeer het opnieuw."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:636
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:637
 msgid "Date after"
 msgstr "Datum na"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:642
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:643
 msgid "Date before"
 msgstr "Datum vóór"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:659
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:660
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:287
 msgid "Apply filters"
 msgstr "Filters toepassen"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:681
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:682
 msgid "No data for the current filters."
 msgstr "Geen data voor de huidige filters."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:749
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:750
 msgid "Capped at 5000 rows — use grouping to aggregate larger sets."
 msgstr ""
 "Beperkt tot 5000 rijen — gebruik groeperen om grotere sets samen te vatten."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:753
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:754
 msgid "No fact rows match the current filters."
 msgstr "Geen feitrijen die aan de huidige filters voldoen."
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:818
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:819
 msgid "← Prev"
 msgstr "← Vorige"
 
 #. translators: 1: current page, 2: total pages, 3: total rows
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:822
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:823
 #, php-format
 msgid "Page %1$d of %2$d (%3$d rows)"
 msgstr "Pagina %1$d van %2$d (%3$d rijen)"
 
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:826
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:827
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:561
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:563
@@ -6635,7 +6635,7 @@ msgid "Next →"
 msgstr "Volgende →"
 
 #. translators: %d: total row count
-#: src/Modules/Analytics/Frontend/FrontendExploreView.php:833
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:834
 #, php-format
 msgid "Showing %d row(s)."
 msgstr "%d rij(en) weergegeven."
