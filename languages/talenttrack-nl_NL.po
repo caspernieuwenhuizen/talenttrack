@@ -7121,6 +7121,9 @@ msgstr "Nog geen opgeslagen weergaven."
 msgid "Save current filters…"
 msgstr "Huidige filters opslaan…"
 
+msgid "No view key supplied."
+msgstr "Geen weergavesleutel opgegeven."
+
 #: src/Modules/Analytics/Frontend/SavedFiltersBar.php:69
 msgid "Name for this saved view"
 msgstr "Naam voor deze opgeslagen weergave"

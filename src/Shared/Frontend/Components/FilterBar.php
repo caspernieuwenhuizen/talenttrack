@@ -116,6 +116,108 @@ final class FilterBar {
 	}
 
 	/**
+	 * The query parameters this set of groups emits (#2448).
+	 *
+	 * Saved views need to know which params make up "the current filters" for
+	 * a surface. The bar already declares that: every form-backed group names
+	 * its input, so the list can be derived instead of maintained by hand — a
+	 * hardcoded whitelist would have to know all ~26 surfaces' vocabularies,
+	 * and silently saves nothing when it doesn't.
+	 *
+	 * `period` and `status` are the exception: they are link-based, so the
+	 * param name lives inside each option's `url` and appears nowhere in the
+	 * group config. Those declare `param` explicitly; `key` is the fallback,
+	 * which is already correct wherever the group's key IS the param name.
+	 *
+	 * @param array<int,array<string,mixed>> $groups
+	 * @return array<int,string> unique, in group order
+	 */
+	public static function paramNames( array $groups ): array {
+		$names = [];
+
+		$add = static function ( $name ) use ( &$names ): void {
+			$name = is_string( $name ) ? trim( $name ) : '';
+			if ( $name !== '' && ! in_array( $name, $names, true ) ) {
+				$names[] = $name;
+			}
+		};
+
+		foreach ( $groups as $group ) {
+			if ( ! is_array( $group ) ) continue;
+			$type = (string) ( $group['type'] ?? '' );
+
+			switch ( $type ) {
+				case 'select':
+				case 'text':
+				case 'toggle':
+					$add( $group['name'] ?? '' );
+					break;
+
+				case 'date_range':
+					$from = isset( $group['from'] ) && is_array( $group['from'] ) ? $group['from'] : [];
+					$to   = isset( $group['to'] )   && is_array( $group['to'] )   ? $group['to']   : [];
+					$add( $from['name'] ?? '' );
+					$add( $to['name'] ?? '' );
+					break;
+
+				case 'period':
+				case 'status':
+					$add( $group['param'] ?? ( $group['key'] ?? $type ) );
+					break;
+			}
+		}
+
+		return $names;
+	}
+
+	/**
+	 * Build the saved-views strip for a bar that opted in (#2448).
+	 *
+	 * `saved_views` accepts:
+	 *   - `key`        (required) the surface's registered SavedViewsRegistry key.
+	 *   - `base_url`   (optional) the surface URL without filter params;
+	 *                  defaults to the bar's own `form_action`.
+	 *   - `base_params` (optional) params every apply link keeps; defaults to
+	 *                  the bar's `hidden` fields, which is already exactly the
+	 *                  routing state (`tt_view`, `tt_back`, …) a link must carry.
+	 *   - `extra_keys` (optional) params the bar does not own but the surface
+	 *                  wants captured (FrontendListTable's search / sort).
+	 *
+	 * The capability is NOT taken from the caller — it is resolved from the
+	 * registry, so this gate and the REST gate cannot drift.
+	 *
+	 * @param array<string,mixed>            $args
+	 * @param array<int,array<string,mixed>> $groups
+	 * @param array<string,string>           $hidden
+	 */
+	private static function savedViewsHtml( array $args, array $groups, array $hidden ): string {
+		$cfg = isset( $args['saved_views'] ) && is_array( $args['saved_views'] ) ? $args['saved_views'] : [];
+		$key = (string) ( $cfg['key'] ?? '' );
+		if ( $key === '' ) return '';
+
+		$keys = self::paramNames( $groups );
+		if ( isset( $cfg['extra_keys'] ) && is_array( $cfg['extra_keys'] ) ) {
+			foreach ( $cfg['extra_keys'] as $extra_key ) {
+				$extra_key = is_string( $extra_key ) ? trim( $extra_key ) : '';
+				if ( $extra_key !== '' && ! in_array( $extra_key, $keys, true ) ) {
+					$keys[] = $extra_key;
+				}
+			}
+		}
+
+		$base_url = (string) ( $cfg['base_url'] ?? ( $args['form_action'] ?? '' ) );
+		if ( $base_url === '' ) {
+			$base_url = remove_query_arg( array_merge( $keys, [ 'paged', 'page' ] ) );
+		}
+
+		$base_params = isset( $cfg['base_params'] ) && is_array( $cfg['base_params'] )
+			? $cfg['base_params']
+			: $hidden;
+
+		return SavedViews::html( $key, $keys, $base_url, array_map( 'strval', $base_params ) );
+	}
+
+	/**
 	 * Render the filter bar and echo it.
 	 *
 	 * @param array{
@@ -165,7 +267,12 @@ final class FilterBar {
 			$form_attr_html .= ' ' . esc_attr( (string) $name ) . '="' . esc_attr( (string) $value ) . '"';
 		}
 
-		$out  = '<div class="tt-filterbar" data-tt-filterbar>';
+		// #2448 — optional personal saved-views strip above the bar. Opt-in:
+		// a surface passes `saved_views` with its registered key. Absent, no
+		// markup is emitted and neither asset is enqueued.
+		$out = self::savedViewsHtml( $args, $groups, $hidden );
+
+		$out .= '<div class="tt-filterbar" data-tt-filterbar>';
 		$out .= '<form method="get" class="tt-filterbar__form" data-tt-filterbar-form'
 			. ( $action !== '' ? ' action="' . esc_url( $action ) . '"' : '' )
 			. $form_attr_html . '>';

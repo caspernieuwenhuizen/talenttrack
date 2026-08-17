@@ -78,6 +78,46 @@ control are kept in sync by the hydrator so FormData never sees a conflicting
 value. Chrome is styled in `assets/css/frontend-filter-bar.css` — no per-view
 filter CSS.
 
+### Saved views (`saved_views`)
+
+A surface can offer **personal saved views** — named filter combinations the
+user re-applies with one click — by passing `saved_views` to the same
+`FilterBar::render()` / `::html()` call (#2448). FilterBar renders the strip
+above the bar; omit the key and no markup is emitted and neither asset is
+enqueued.
+
+```php
+FilterBar::render( [
+    'groups'      => [ … ],
+    'saved_views' => [
+        'key'         => 'players-list',   // registered in SavedViewsRegistry
+        'base_url'    => $dash_url,        // optional, defaults to form_action
+        'base_params' => [ 'tt_view' => 'players' ],  // optional, defaults to `hidden`
+        'extra_keys'  => [ 'search', 'orderby', 'order' ],  // optional
+    ],
+] );
+```
+
+Two rules make this safe to spread across surfaces:
+
+- **The captured params are derived, not declared.** `FilterBar::paramNames()`
+  reads the `groups` config: `select` / `text` / `toggle` contribute their
+  `name`, `date_range` contributes both ends. `period` and `status` are
+  link-based — their param lives inside each option's `url` — so they read an
+  explicit `param`, falling back to `key`. A hardcoded list would have to know
+  every surface's vocabulary and silently saves nothing where it doesn't;
+  `extra_keys` covers params the bar itself doesn't own.
+- **The capability comes from the registry, never from the caller.**
+  `\TT\Infrastructure\Filters\SavedViewsRegistry` maps `view_key` →
+  capability, and both the renderer and the REST endpoints consult it, so the
+  two gates cannot drift. An unregistered key renders nothing and is refused
+  by REST (fail-closed). Register a new surface in the registry's map, or via
+  the `tt_saved_views_registry` filter from another module.
+
+Storage is `tt_saved_filters` (club- and user-scoped, with a `uuid`); the
+payload is opaque at the REST layer — the consuming view already sanitises its
+own `$_GET` on re-apply, which is the layer that knows what each param means.
+
 ## Layout & responsive
 
 - Mobile-first: base CSS at 360px; scale up with `min-width` at **480 / 768 / 1024** only (no 720/640/560 — see #1379).
