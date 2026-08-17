@@ -132,6 +132,69 @@ class SavedViewsRepository {
         return $this->find( $id, $user_id );
     }
 
+    /**
+     * The user's default view for a surface, or null when none is set (#2450).
+     */
+    public function findDefault( int $user_id, string $view_key ): ?object {
+        if ( $user_id <= 0 || $view_key === '' ) return null;
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT id, uuid, view_key, name, filters_json, is_default, created_at
+               FROM {$this->table}
+              WHERE club_id = %d AND user_id = %d AND view_key = %s AND is_default = 1
+              ORDER BY id ASC
+              LIMIT 1",
+            CurrentClub::id(), $user_id, $view_key
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * Mark one view as the user's default for its surface, clearing any
+     * previous default (#2450).
+     *
+     * MySQL cannot express "at most one default per (club, user, surface)" as
+     * a partial unique index, so the invariant is enforced here: clear the
+     * group, then set the one row. Both statements run inside a transaction so
+     * a failure between them can't leave the user with zero defaults where
+     * they had one, or two where they had one.
+     *
+     * Pass `$on = false` to just clear it.
+     */
+    public function setDefault( int $id, int $user_id, bool $on = true ): ?object {
+        if ( $id <= 0 || $user_id <= 0 ) return null;
+
+        $row = $this->find( $id, $user_id );
+        if ( $row === null ) return null;
+
+        $club = CurrentClub::id();
+        $this->wpdb->query( 'START TRANSACTION' );
+
+        // Clear the whole group first — including this row, so the update
+        // below is the only write that sets the flag.
+        $cleared = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->table} SET is_default = 0
+              WHERE club_id = %d AND user_id = %d AND view_key = %s AND is_default = 1",
+            $club, $user_id, (string) $row->view_key
+        ) );
+
+        $set = true;
+        if ( $on ) {
+            $set = $this->wpdb->query( $this->wpdb->prepare(
+                "UPDATE {$this->table} SET is_default = 1
+                  WHERE id = %d AND club_id = %d AND user_id = %d",
+                $id, $club, $user_id
+            ) ) !== false;
+        }
+
+        if ( $cleared === false || $set === false ) {
+            $this->wpdb->query( 'ROLLBACK' );
+            return null;
+        }
+        $this->wpdb->query( 'COMMIT' );
+
+        return $this->find( $id, $user_id );
+    }
+
     /** Delete a saved view the user owns. Returns true when a row was removed. */
     public function delete( int $id, int $user_id ): bool {
         if ( $id <= 0 || $user_id <= 0 ) return false;

@@ -57,10 +57,23 @@ final class SavedViews {
                 $apply   = add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url );
                 $name    = (string) $view->name;
 
-                $out .= '<li class="tt-saved-views__item" data-tt-view-id="' . (int) $view->id . '"'
-                    . ' data-tt-view-name="' . esc_attr( $name ) . '">';
-                $out .= '<a class="tt-saved-views__apply" href="' . esc_url( $apply ) . '">'
-                    . esc_html( $name ) . '</a>';
+                $is_default = ! empty( $view->is_default );
+
+                $out .= '<li class="tt-saved-views__item'
+                    . ( $is_default ? ' tt-saved-views__item--default' : '' ) . '"'
+                    . ' data-tt-view-id="' . (int) $view->id . '"'
+                    . ' data-tt-view-name="' . esc_attr( $name ) . '"'
+                    . ' data-tt-view-default="' . ( $is_default ? '1' : '0' ) . '">';
+                $out .= '<a class="tt-saved-views__apply" href="' . esc_url( $apply ) . '">';
+                if ( $is_default ) {
+                    // #2450 — a marker, not colour alone: the default is
+                    // applied automatically, so the user has to be able to see
+                    // which view they are looking at.
+                    $out .= '<span class="tt-saved-views__star" aria-hidden="true">&#9733;</span> ';
+                    $out .= '<span class="tt-screen-reader-text">'
+                        . esc_html__( 'Default view:', 'talenttrack' ) . ' </span>';
+                }
+                $out .= esc_html( $name ) . '</a>';
                 // #2451 — one manage control per chip rather than separate
                 // rename / overwrite / delete buttons. Three icon buttons per
                 // chip could not meet the 48px touch floor side by side at
@@ -133,6 +146,9 @@ final class SavedViews {
                 'manage_title'      => __( 'Edit saved view', 'talenttrack' ),
                 'name_label'        => __( 'Name', 'talenttrack' ),
                 'overwrite_label'   => __( 'Also replace its filters with the ones set now', 'talenttrack' ),
+                // #2450 — default view.
+                'default_label'     => __( 'Open this view by default on this screen', 'talenttrack' ),
+                'default_hint'      => __( 'Applied when you open the screen without filters of your own. Use Clear to see everything.', 'talenttrack' ),
                 'delete_confirm'    => __( 'Delete this saved view? This cannot be undone.', 'talenttrack' ),
                 'notice_title'      => __( 'Saved views', 'talenttrack' ),
                 'delete'            => __( 'Delete', 'talenttrack' ),

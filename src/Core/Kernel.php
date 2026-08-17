@@ -141,6 +141,10 @@ class Kernel {
         // it): the surfaces now span list views too, so the endpoint must
         // exist even on an install with the analytics module switched off.
         \TT\Infrastructure\REST\SavedViewsRestController::init();
+        // #2450 — apply a user's default saved view on a param-free entry.
+        // Hooks template_redirect (before output) so it can redirect rather
+        // than mutate the view's state, keeping the URL shareable.
+        \TT\Infrastructure\Filters\SavedViewsDefaults::init();
         // #2025 — 30-day recycle-bin auto-purge. Subscribes to the workflow
         // engine heartbeat (tt_workflow_cron_tick) rather than registering an
         // ad-hoc wp_cron (CLAUDE.md §4); self-throttles to once per day.
