@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T18:11:26+00:00\n"
+"POT-Creation-Date: 2026-08-17T18:26:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1712
+#: src/Shared/Frontend/DashboardShortcode.php:1754
 #: src/Shared/Frontend/FrontendConfigurationView.php:2559
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1717
+#: src/Shared/Frontend/DashboardShortcode.php:1759
 msgid "Team Manager"
 msgstr ""
 
@@ -164,8 +164,9 @@ msgstr ""
 #: src/Shared/Frontend/Components/ParentChildSwitcher.php:107
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
-#: src/Shared/Frontend/DashboardShortcode.php:156
-#: src/Shared/Frontend/DashboardShortcode.php:1711
+#: src/Shared/Frontend/DashboardShortcode.php:152
+#: src/Shared/Frontend/DashboardShortcode.php:185
+#: src/Shared/Frontend/DashboardShortcode.php:1753
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2903
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2915
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2992
@@ -242,7 +243,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1715
+#: src/Shared/Frontend/DashboardShortcode.php:1757
 #: src/Shared/Frontend/FrontendConfigurationView.php:2553
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -292,7 +293,7 @@ msgstr "Mitarbeiter"
 #: src/Shared/Frontend/CoachDashboardView.php:328
 #: src/Shared/Frontend/CoachForms.php:620
 #: src/Shared/Frontend/Components/FrontendThreadView.php:172
-#: src/Shared/Frontend/DashboardShortcode.php:172
+#: src/Shared/Frontend/DashboardShortcode.php:201
 #: src/Shared/Frontend/FrontendBackupsView.php:303
 #: src/Shared/Frontend/FrontendConfigurationView.php:624
 #: src/Shared/Frontend/FrontendConfigurationView.php:625
@@ -1282,7 +1283,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:561
-#: src/Shared/Frontend/DashboardShortcode.php:1042
+#: src/Shared/Frontend/DashboardShortcode.php:1071
 msgid "Player not found."
 msgstr ""
 
@@ -1692,7 +1693,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1716
+#: src/Shared/Frontend/DashboardShortcode.php:1758
 #: src/Shared/Frontend/FrontendConfigurationView.php:2557
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1772,7 +1773,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1714
+#: src/Shared/Frontend/DashboardShortcode.php:1756
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1783,7 +1784,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1713
+#: src/Shared/Frontend/DashboardShortcode.php:1755
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -2200,7 +2201,8 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:257
 #: src/Shared/Frontend/CoachForms.php:525
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:158
+#: src/Shared/Frontend/DashboardShortcode.php:153
+#: src/Shared/Frontend/DashboardShortcode.php:187
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1708
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2639
 #: src/Shared/Frontend/FrontendComparisonView.php:368
@@ -2273,6 +2275,7 @@ msgstr "Bewertung"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:677
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:271
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:37
+#: src/Shared/Frontend/DashboardShortcode.php:154
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:839
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:162
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:199
@@ -3055,6 +3058,365 @@ msgstr ""
 msgid "A first and last name are required."
 msgstr ""
 
+#: src/Infrastructure/REST/PeekRestController.php:89
+#: src/Infrastructure/REST/PeekRestController.php:121
+#: src/Infrastructure/REST/PeekRestController.php:151
+#: src/Infrastructure/REST/RestResponse.php:83
+#: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
+#: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:710
+#: src/Modules/Players/Admin/PlayersPage.php:428
+msgid "Not found."
+msgstr ""
+
+#: src/Infrastructure/REST/PeekRestController.php:102
+#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:276
+#: src/Modules/Activities/Admin/ActivitiesPage.php:356
+#: src/Modules/Activities/Admin/ActivitiesPage.php:375
+#: src/Modules/Analytics/AnalyticsModule.php:137
+#: src/Modules/Analytics/AnalyticsModule.php:176
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:307
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:246
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:100
+#: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
+#: src/Modules/Configuration/Admin/FormSlugContract.php:67
+#: src/Modules/Configuration/Admin/FormSlugContract.php:79
+#: src/Modules/Configuration/Admin/FormSlugContract.php:112
+#: src/Modules/Configuration/Admin/MigrationsPage.php:88
+#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:25
+#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:33
+#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:23
+#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:32
+#: src/Modules/CustomWidgets/DataSources/PlayersActive.php:38
+#: src/Modules/DataBrowser/SemanticRegistry.php:50
+#: src/Modules/DataBrowser/SemanticRegistry.php:107
+#: src/Modules/Development/Frontend/IdeasRefineView.php:117
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:109
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
+#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:46
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:123
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
+#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:297
+#: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:144
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:49
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:108
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:44
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:88
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
+#: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Goals/Admin/GoalsPage.php:145
+#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
+#: src/Modules/License/Admin/AccountPage.php:742
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:520
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:856
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:196
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:299
+#: src/Modules/People/Admin/PeoplePage.php:176
+#: src/Modules/People/Admin/PeoplePage.php:350
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
+#: src/Modules/Players/Admin/PlayersPage.php:412
+#: src/Modules/Players/Admin/PlayersPage.php:446
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:218
+#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:233
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:59
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:82
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:373
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:195
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:235
+#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:88
+#: src/Modules/Spond/Admin/SpondOverviewPage.php:202
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:133
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:617
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:175
+#: src/Modules/Wizards/Activity/ReviewStep.php:61
+#: src/Modules/Wizards/Activity/TypeStatusStep.php:41
+#: src/Modules/Wizards/Prospect/IdentityStep.php:100
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:276
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
+#: src/Shared/Frontend/CoachDashboardView.php:263
+#: src/Shared/Frontend/CoachDashboardView.php:317
+#: src/Shared/Frontend/CoachForms.php:536
+#: src/Shared/Frontend/CoachForms.php:606
+#: src/Shared/Frontend/DashboardShortcode.php:184
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:924
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1733
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2904
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2921
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2993
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3004
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3156
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3185
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3234
+#: src/Shared/Frontend/FrontendExportsView.php:92
+#: src/Shared/Frontend/FrontendExportsView.php:120
+#: src/Shared/Frontend/FrontendExportsView.php:236
+#: src/Shared/Frontend/FrontendGoalsManageView.php:268
+#: src/Shared/Frontend/FrontendGoalsManageView.php:355
+#: src/Shared/Frontend/FrontendGoalsManageView.php:387
+#: src/Shared/Frontend/FrontendGoalsManageView.php:516
+#: src/Shared/Frontend/FrontendHolidaysView.php:92
+#: src/Shared/Frontend/FrontendMigrationsView.php:73
+#: src/Shared/Frontend/FrontendPeopleManageView.php:128
+#: src/Shared/Frontend/FrontendPersonDetailView.php:153
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:414
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1097
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2065
+#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
+#: src/Shared/Frontend/FrontendPlayersManageView.php:243
+#: src/Shared/Frontend/FrontendSpondView.php:217
+#: src/Shared/Frontend/FrontendTeamDetailView.php:591
+#: src/Shared/Frontend/FrontendTeamDetailView.php:747
+#: src/Shared/Frontend/FrontendTeamDetailView.php:800
+#: src/Shared/Frontend/FrontendTeamsManageView.php:184
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:214
+#: src/Shared/Frontend/FrontendTrialCaseView.php:350
+#: src/Shared/Frontend/FrontendTrialCaseView.php:543
+#: src/Shared/Frontend/FrontendTrialCaseView.php:728
+#: src/Shared/Frontend/FrontendTrialsManageView.php:316
+#: src/Shared/Frontend/FrontendTrialsManageView.php:412
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
+#: src/Shared/Frontend/PlayerDashboardView.php:178
+msgid "Status"
+msgstr "Status"
+
+#: src/Infrastructure/REST/PeekRestController.php:106
+#: src/Modules/Configuration/Admin/FormSlugContract.php:59
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:42
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:101
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
+#: src/Modules/Methodology/Admin/PositionEditPage.php:84
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:330
+#: src/Modules/Wizards/Player/ReviewStep.php:36
+#: src/Modules/Wizards/Player/RosterDetailsStep.php:43
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1086
+#: src/Shared/Frontend/FrontendPlayersManageView.php:374
+msgid "Jersey number"
+msgstr ""
+
+#: src/Infrastructure/REST/PeekRestController.php:110
+#: src/Modules/Configuration/Admin/FormSlugContract.php:53
+#: src/Modules/DataBrowser/SemanticRegistry.php:48
+#: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:140
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:41
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:150
+#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
+#: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
+#: src/Modules/Wizards/Player/ReviewStep.php:32
+#: src/Modules/Wizards/Player/RosterDetailsStep.php:32
+#: src/Modules/Wizards/Player/TrialDetailsStep.php:47
+#: src/Modules/Wizards/Prospect/IdentityStep.php:38
+#: src/Modules/Wizards/Prospect/ReviewStep.php:46
+#: src/Modules/Workflow/Forms/LogProspectForm.php:66
+#: src/Shared/Frontend/FrontendMyProfileView.php:122
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:405
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1075
+#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
+#: src/Shared/Frontend/FrontendPlayersManageView.php:350
+#: src/Shared/Frontend/FrontendTrialsManageView.php:457
+msgid "Date of birth"
+msgstr ""
+
+#: src/Infrastructure/REST/PeekRestController.php:136
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:186
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
+#: src/Modules/Authorization/Admin/MatrixPage.php:697
+#: src/Modules/Authorization/Admin/MatrixPage.php:698
+#: src/Modules/Authorization/Admin/RolesPage.php:488
+#: src/Modules/Backup/MigrationExporter.php:34
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
+#: src/Modules/DataBrowser/SemanticRegistry.php:43
+#: src/Modules/DemoData/Admin/DemoDataPage.php:699
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
+#: src/Modules/License/Admin/AccountPage.php:631
+#: src/Modules/License/Admin/AccountPage.php:754
+#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
+#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
+#: src/Modules/Players/Admin/PlayersPage.php:77
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:316
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
+#: src/Modules/Stats/Admin/UsageStatsPage.php:145
+#: src/Modules/Stats/Admin/UsageStatsPage.php:349
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:37
+#: src/Modules/Teams/Admin/TeamsPage.php:54
+#: src/Modules/Tournaments/Wizard/ReviewStep.php:65
+#: src/Shared/Admin/BackNavigator.php:111 src/Shared/Admin/Menu.php:199
+#: src/Shared/CoreSurfaceRegistration.php:498
+#: src/Shared/CoreSurfaceRegistration.php:1522
+#: src/Shared/CoreSurfaceRegistration.php:1889
+#: src/Shared/Frontend/Components/TeamCard.php:103
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:230
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:255
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:395
+#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
+#: src/Shared/Frontend/FrontendPlayersManageView.php:74
+#: src/Shared/Frontend/FrontendPlayersManageView.php:580
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:51
+#: src/Shared/Frontend/FrontendStandardReportsView.php:814
+#: src/Shared/Frontend/FrontendStandardReportsView.php:935
+#: src/Shared/Frontend/FrontendTeamDetailView.php:473
+#: src/Shared/Frontend/FrontendTeamsManageView.php:165
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:340
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:674
+#: src/Shared/Modules/ModuleMetadata.php:141
+msgid "Players"
+msgstr "Spieler"
+
+#: src/Infrastructure/REST/PeekRestController.php:140
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:234
+#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
+#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:150
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:373
+#: src/Shared/Frontend/FrontendConfigurationView.php:2455
+#: src/Shared/Frontend/FrontendSeasonsView.php:77
+msgid "Season"
+msgstr ""
+
+#: src/Infrastructure/REST/PeekRestController.php:164
+#: src/Modules/Activities/Admin/ActivitiesPage.php:91
+#: src/Modules/Activities/Admin/ActivitiesPage.php:317
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
+#: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
+#: src/Modules/Configuration/Admin/ErrorLogPage.php:102
+#: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:25
+#: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:24
+#: src/Modules/DataBrowser/SemanticRegistry.php:69
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:145
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:380
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:750
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:115
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:40
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:117
+#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
+#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:238
+#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:240
+#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:380
+#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:47
+#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:149
+#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:39
+#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:113
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:397
+#: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:276
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:274
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:169
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:110
+#: src/Modules/Vct/Wizard/ReviewStep.php:51
+#: src/Modules/Vct/Wizard/WhenStep.php:62
+#: src/Modules/Wizards/Activity/DetailsStep.php:37
+#: src/Modules/Wizards/Activity/ReviewStep.php:70
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:151
+#: src/Shared/Frontend/CoachDashboardView.php:207
+#: src/Shared/Frontend/CoachDashboardView.php:256
+#: src/Shared/Frontend/CoachForms.php:223
+#: src/Shared/Frontend/CoachForms.php:524
+#: src/Shared/Frontend/Components/DateInputComponent.php:30
+#: src/Shared/Frontend/Components/MinutesBreakdown.php:58
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:919
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2622
+#: src/Shared/Frontend/FrontendAuditLogView.php:371
+#: src/Shared/Frontend/FrontendComparisonView.php:274
+#: src/Shared/Frontend/FrontendEvaluationsView.php:186
+#: src/Shared/Frontend/FrontendEvaluationsView.php:299
+#: src/Shared/Frontend/FrontendEvaluationsView.php:427
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:96
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
+#: src/Shared/Frontend/FrontendStandardReportsView.php:518
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1166
+#: src/Shared/Frontend/FrontendTeamDetailView.php:797
+#: src/Shared/Frontend/FrontendTestTrainingsView.php:72
+#: src/Shared/Frontend/FrontendTrialCaseView.php:493
+#: src/Shared/Frontend/FrontendTrialCaseView.php:515
+#: src/Shared/Frontend/PlayerDashboardView.php:106
+#: src/Shared/Frontend/PlayerDashboardView.php:176
+msgid "Date"
+msgstr "Datum"
+
+#: src/Infrastructure/REST/PeekRestController.php:168
+#: src/Modules/Activities/Admin/ActivitiesPage.php:93
+#: src/Modules/Activities/Admin/ActivitiesPage.php:266
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:395
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:439
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:381
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
+#: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
+#: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
+#: src/Modules/Configuration/Admin/CustomFieldsTab.php:192
+#: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:23
+#: src/Modules/DataBrowser/SemanticRegistry.php:66
+#: src/Modules/DataBrowser/SemanticRegistry.php:77
+#: src/Modules/Development/Frontend/IdeasRefineView.php:93
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:72
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:108
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:116
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:148
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
+#: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:400
+#: src/Modules/Mfa/Wizards/SecretStep.php:116
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
+#: src/Modules/Stats/Admin/PlayerRateCardView.php:277
+#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:275
+#: src/Modules/Wizards/Activity/ReviewStep.php:60
+#: src/Modules/Wizards/Activity/TypeStatusStep.php:24
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
+#: src/Modules/Wizards/Player/ReviewStep.php:30
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
+#: src/Shared/Frontend/CoachDashboardView.php:201
+#: src/Shared/Frontend/CoachForms.php:217
+#: src/Shared/Frontend/Components/MinutesBreakdown.php:60
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:922
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1717
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2569
+#: src/Shared/Frontend/FrontendCustomFieldsView.php:95
+#: src/Shared/Frontend/FrontendCustomFieldsView.php:147
+#: src/Shared/Frontend/FrontendEvaluationsView.php:206
+#: src/Shared/Frontend/FrontendEvaluationsView.php:447
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:98
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
+#: src/Shared/Frontend/FrontendPeopleManageView.php:111
+#: src/Shared/Frontend/FrontendPeopleManageView.php:117
+#: src/Shared/Frontend/FrontendPeopleManageView.php:186
+#: src/Shared/Frontend/FrontendSpondMonitorView.php:189
+#: src/Shared/Frontend/FrontendStandardReportsView.php:518
+#: src/Shared/Frontend/FrontendTeamDetailView.php:799
+#: src/Shared/Frontend/FrontendTrialCaseView.php:493
+#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:302
+#: src/Shared/Frontend/PlayerDashboardView.php:107
+msgid "Type"
+msgstr "Typ"
+
 #: src/Infrastructure/REST/PeopleRestController.php:180
 #: src/Modules/People/Admin/PeoplePage.php:96
 msgid "Person not found."
@@ -3248,14 +3610,6 @@ msgstr ""
 #: src/Infrastructure/REST/ReportsRestController.php:163
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:124
 msgid "You do not coach this match’s team."
-msgstr ""
-
-#: src/Infrastructure/REST/RestResponse.php:83
-#: src/Modules/Development/Frontend/IdeaPromoteHandler.php:41
-#: src/Modules/Development/Frontend/IdeaRefineHandler.php:29
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:710
-#: src/Modules/Players/Admin/PlayersPage.php:428
-msgid "Not found."
 msgstr ""
 
 #: src/Infrastructure/REST/SavedViewsRestController.php:110
@@ -3683,7 +4037,7 @@ msgstr "Hinzufügen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1308
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/Components/SavedViews.php:120
-#: src/Shared/Frontend/DashboardShortcode.php:131
+#: src/Shared/Frontend/DashboardShortcode.php:160
 #: src/Shared/Frontend/FrontendSetupView.php:419
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:50
 msgid "Saved."
@@ -3703,71 +4057,6 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:154
 msgid "Filter"
 msgstr "Filter"
-
-#: src/Modules/Activities/Admin/ActivitiesPage.php:91
-#: src/Modules/Activities/Admin/ActivitiesPage.php:317
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
-#: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
-#: src/Modules/Configuration/Admin/ErrorLogPage.php:102
-#: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:25
-#: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:24
-#: src/Modules/DataBrowser/SemanticRegistry.php:69
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:145
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:380
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:750
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:115
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:40
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:117
-#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
-#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:238
-#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:240
-#: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:380
-#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:47
-#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:149
-#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:39
-#: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:113
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:397
-#: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:276
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:274
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:297
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:169
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:110
-#: src/Modules/Vct/Wizard/ReviewStep.php:51
-#: src/Modules/Vct/Wizard/WhenStep.php:62
-#: src/Modules/Wizards/Activity/DetailsStep.php:37
-#: src/Modules/Wizards/Activity/ReviewStep.php:70
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:151
-#: src/Shared/Frontend/CoachDashboardView.php:207
-#: src/Shared/Frontend/CoachDashboardView.php:256
-#: src/Shared/Frontend/CoachForms.php:223
-#: src/Shared/Frontend/CoachForms.php:524
-#: src/Shared/Frontend/Components/DateInputComponent.php:30
-#: src/Shared/Frontend/Components/MinutesBreakdown.php:58
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:919
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2622
-#: src/Shared/Frontend/FrontendAuditLogView.php:371
-#: src/Shared/Frontend/FrontendComparisonView.php:274
-#: src/Shared/Frontend/FrontendEvaluationsView.php:186
-#: src/Shared/Frontend/FrontendEvaluationsView.php:299
-#: src/Shared/Frontend/FrontendEvaluationsView.php:427
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:96
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
-#: src/Shared/Frontend/FrontendStandardReportsView.php:518
-#: src/Shared/Frontend/FrontendStandardReportsView.php:1166
-#: src/Shared/Frontend/FrontendTeamDetailView.php:797
-#: src/Shared/Frontend/FrontendTestTrainingsView.php:72
-#: src/Shared/Frontend/FrontendTrialCaseView.php:493
-#: src/Shared/Frontend/FrontendTrialCaseView.php:515
-#: src/Shared/Frontend/PlayerDashboardView.php:106
-#: src/Shared/Frontend/PlayerDashboardView.php:176
-msgid "Date"
-msgstr "Datum"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:92
 #: src/Modules/Activities/Admin/ActivitiesPage.php:315
@@ -3814,185 +4103,6 @@ msgstr "Datum"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
 msgid "Title"
 msgstr "Titel"
-
-#: src/Modules/Activities/Admin/ActivitiesPage.php:93
-#: src/Modules/Activities/Admin/ActivitiesPage.php:266
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:395
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:358
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:439
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:381
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
-#: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
-#: src/Modules/Configuration/Admin/CustomFieldsTab.php:192
-#: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:23
-#: src/Modules/DataBrowser/SemanticRegistry.php:66
-#: src/Modules/DataBrowser/SemanticRegistry.php:77
-#: src/Modules/Development/Frontend/IdeasRefineView.php:93
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:72
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:108
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:116
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:148
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
-#: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:400
-#: src/Modules/Mfa/Wizards/SecretStep.php:116
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
-#: src/Modules/Stats/Admin/PlayerRateCardView.php:277
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:275
-#: src/Modules/Wizards/Activity/ReviewStep.php:60
-#: src/Modules/Wizards/Activity/TypeStatusStep.php:24
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
-#: src/Modules/Wizards/Player/ReviewStep.php:30
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
-#: src/Shared/Frontend/CoachDashboardView.php:201
-#: src/Shared/Frontend/CoachForms.php:217
-#: src/Shared/Frontend/Components/MinutesBreakdown.php:60
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:922
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1717
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2569
-#: src/Shared/Frontend/FrontendCustomFieldsView.php:95
-#: src/Shared/Frontend/FrontendCustomFieldsView.php:147
-#: src/Shared/Frontend/FrontendEvaluationsView.php:206
-#: src/Shared/Frontend/FrontendEvaluationsView.php:447
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:98
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
-#: src/Shared/Frontend/FrontendPeopleManageView.php:111
-#: src/Shared/Frontend/FrontendPeopleManageView.php:117
-#: src/Shared/Frontend/FrontendPeopleManageView.php:186
-#: src/Shared/Frontend/FrontendSpondMonitorView.php:189
-#: src/Shared/Frontend/FrontendStandardReportsView.php:518
-#: src/Shared/Frontend/FrontendTeamDetailView.php:799
-#: src/Shared/Frontend/FrontendTrialCaseView.php:493
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:302
-#: src/Shared/Frontend/PlayerDashboardView.php:107
-msgid "Type"
-msgstr "Typ"
-
-#: src/Modules/Activities/Admin/ActivitiesPage.php:94
-#: src/Modules/Activities/Admin/ActivitiesPage.php:276
-#: src/Modules/Activities/Admin/ActivitiesPage.php:356
-#: src/Modules/Activities/Admin/ActivitiesPage.php:375
-#: src/Modules/Analytics/AnalyticsModule.php:137
-#: src/Modules/Analytics/AnalyticsModule.php:176
-#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
-#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:307
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:246
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:100
-#: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
-#: src/Modules/Configuration/Admin/FormSlugContract.php:67
-#: src/Modules/Configuration/Admin/FormSlugContract.php:79
-#: src/Modules/Configuration/Admin/FormSlugContract.php:112
-#: src/Modules/Configuration/Admin/MigrationsPage.php:88
-#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:25
-#: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:33
-#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:23
-#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:32
-#: src/Modules/CustomWidgets/DataSources/PlayersActive.php:38
-#: src/Modules/DataBrowser/SemanticRegistry.php:50
-#: src/Modules/DataBrowser/SemanticRegistry.php:107
-#: src/Modules/Development/Frontend/IdeasRefineView.php:117
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:109
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
-#: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:46
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:123
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
-#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:297
-#: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:144
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:49
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:108
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:44
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:88
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
-#: src/Modules/Goals/Admin/GoalsPage.php:56
-#: src/Modules/Goals/Admin/GoalsPage.php:145
-#: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
-#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
-#: src/Modules/License/Admin/AccountPage.php:742
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:520
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:856
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:196
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:299
-#: src/Modules/People/Admin/PeoplePage.php:176
-#: src/Modules/People/Admin/PeoplePage.php:350
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
-#: src/Modules/Players/Admin/PlayersPage.php:412
-#: src/Modules/Players/Admin/PlayersPage.php:446
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:218
-#: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:233
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:59
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:82
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:373
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:195
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:235
-#: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:88
-#: src/Modules/Spond/Admin/SpondOverviewPage.php:202
-#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:133
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:617
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
-#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:175
-#: src/Modules/Wizards/Activity/ReviewStep.php:61
-#: src/Modules/Wizards/Activity/TypeStatusStep.php:41
-#: src/Modules/Wizards/Prospect/IdentityStep.php:100
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:276
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
-#: src/Shared/Frontend/CoachDashboardView.php:263
-#: src/Shared/Frontend/CoachDashboardView.php:317
-#: src/Shared/Frontend/CoachForms.php:536
-#: src/Shared/Frontend/CoachForms.php:606
-#: src/Shared/Frontend/DashboardShortcode.php:155
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:924
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1733
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2904
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2921
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2993
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3004
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3156
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3185
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3234
-#: src/Shared/Frontend/FrontendExportsView.php:92
-#: src/Shared/Frontend/FrontendExportsView.php:120
-#: src/Shared/Frontend/FrontendExportsView.php:236
-#: src/Shared/Frontend/FrontendGoalsManageView.php:268
-#: src/Shared/Frontend/FrontendGoalsManageView.php:355
-#: src/Shared/Frontend/FrontendGoalsManageView.php:387
-#: src/Shared/Frontend/FrontendGoalsManageView.php:516
-#: src/Shared/Frontend/FrontendHolidaysView.php:92
-#: src/Shared/Frontend/FrontendMigrationsView.php:73
-#: src/Shared/Frontend/FrontendPeopleManageView.php:128
-#: src/Shared/Frontend/FrontendPersonDetailView.php:153
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:414
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1097
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2065
-#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
-#: src/Shared/Frontend/FrontendPlayersManageView.php:243
-#: src/Shared/Frontend/FrontendSpondView.php:217
-#: src/Shared/Frontend/FrontendTeamDetailView.php:591
-#: src/Shared/Frontend/FrontendTeamDetailView.php:747
-#: src/Shared/Frontend/FrontendTeamDetailView.php:800
-#: src/Shared/Frontend/FrontendTeamsManageView.php:184
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:214
-#: src/Shared/Frontend/FrontendTrialCaseView.php:350
-#: src/Shared/Frontend/FrontendTrialCaseView.php:543
-#: src/Shared/Frontend/FrontendTrialCaseView.php:728
-#: src/Shared/Frontend/FrontendTrialsManageView.php:316
-#: src/Shared/Frontend/FrontendTrialsManageView.php:412
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
-#: src/Shared/Frontend/PlayerDashboardView.php:178
-msgid "Status"
-msgstr "Status"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Authorization/Admin/DebugPage.php:155
@@ -4079,7 +4189,7 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:173
 #: src/Modules/Backup/Admin/BulkUndoNotice.php:97
-#: src/Shared/Frontend/DashboardShortcode.php:165
+#: src/Shared/Frontend/DashboardShortcode.php:194
 #: src/Shared/Frontend/FlashMessages.php:138
 msgid "Dismiss"
 msgstr ""
@@ -4204,7 +4314,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/CoachDashboardView.php:263
 #: src/Shared/Frontend/CoachForms.php:531
 #: src/Shared/Frontend/CoachForms.php:536
-#: src/Shared/Frontend/DashboardShortcode.php:159
+#: src/Shared/Frontend/DashboardShortcode.php:188
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:598
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2674
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3157
@@ -4329,7 +4439,7 @@ msgstr "Aktualisieren"
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
 #: src/Shared/Frontend/Components/SavedViews.php:90
-#: src/Shared/Frontend/DashboardShortcode.php:138
+#: src/Shared/Frontend/DashboardShortcode.php:167
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
 #: src/Shared/Frontend/FrontendSpondView.php:309
@@ -4655,7 +4765,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FormSaveButton.php:63
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
-#: src/Shared/Frontend/DashboardShortcode.php:170
+#: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3243
 #: src/Shared/Frontend/FrontendBackupsView.php:252
 #: src/Shared/Frontend/FrontendBackupsView.php:426
@@ -5019,7 +5129,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:577
 #: src/Shared/CoreSurfaceRegistration.php:1545
 #: src/Shared/CoreSurfaceRegistration.php:1909
-#: src/Shared/Frontend/DashboardShortcode.php:667
+#: src/Shared/Frontend/DashboardShortcode.php:696
 #: src/Shared/Frontend/FrontendComparisonView.php:390
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
@@ -5073,7 +5183,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:669
 #: src/Shared/CoreSurfaceRegistration.php:1563
 #: src/Shared/CoreSurfaceRegistration.php:1927
-#: src/Shared/Frontend/DashboardShortcode.php:668
+#: src/Shared/Frontend/DashboardShortcode.php:697
 #: src/Shared/Frontend/FrontendConfigurationView.php:250
 #: src/Shared/Frontend/FrontendExportsView.php:367
 #: src/Shared/Frontend/FrontendGoalsManageView.php:44
@@ -5259,6 +5369,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:245
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:279
 #: src/Modules/Workflow/TaskStatus.php:64
+#: src/Shared/Frontend/DashboardShortcode.php:157
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:180
 #: src/Shared/Frontend/FrontendTrialsManageView.php:389
 #: src/Shared/Frontend/FrontendTrialsManageView.php:425
@@ -5371,14 +5482,14 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:65
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
-#: src/Shared/Frontend/DashboardShortcode.php:387
-#: src/Shared/Frontend/DashboardShortcode.php:727
-#: src/Shared/Frontend/DashboardShortcode.php:783
-#: src/Shared/Frontend/DashboardShortcode.php:992
-#: src/Shared/Frontend/DashboardShortcode.php:1001
-#: src/Shared/Frontend/DashboardShortcode.php:1289
-#: src/Shared/Frontend/DashboardShortcode.php:1297
-#: src/Shared/Frontend/DashboardShortcode.php:1305
+#: src/Shared/Frontend/DashboardShortcode.php:416
+#: src/Shared/Frontend/DashboardShortcode.php:756
+#: src/Shared/Frontend/DashboardShortcode.php:812
+#: src/Shared/Frontend/DashboardShortcode.php:1021
+#: src/Shared/Frontend/DashboardShortcode.php:1030
+#: src/Shared/Frontend/DashboardShortcode.php:1318
+#: src/Shared/Frontend/DashboardShortcode.php:1326
+#: src/Shared/Frontend/DashboardShortcode.php:1334
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -5433,7 +5544,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:853
 #: src/Shared/CoreSurfaceRegistration.php:1627
 #: src/Shared/CoreSurfaceRegistration.php:1934
-#: src/Shared/Frontend/DashboardShortcode.php:1439
+#: src/Shared/Frontend/DashboardShortcode.php:1468
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr ""
@@ -5462,54 +5573,6 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:162
 msgid "No analytics registered for this entity type yet."
 msgstr ""
-
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:186
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
-#: src/Modules/Authorization/Admin/MatrixPage.php:697
-#: src/Modules/Authorization/Admin/MatrixPage.php:698
-#: src/Modules/Authorization/Admin/RolesPage.php:488
-#: src/Modules/Backup/MigrationExporter.php:34
-#: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
-#: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/Admin/DemoDataPage.php:699
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
-#: src/Modules/License/Admin/AccountPage.php:631
-#: src/Modules/License/Admin/AccountPage.php:754
-#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
-#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
-#: src/Modules/Players/Admin/PlayersPage.php:77
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:316
-#: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:529
-#: src/Modules/Stats/Admin/UsageStatsPage.php:145
-#: src/Modules/Stats/Admin/UsageStatsPage.php:349
-#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:37
-#: src/Modules/Teams/Admin/TeamsPage.php:54
-#: src/Modules/Tournaments/Wizard/ReviewStep.php:65
-#: src/Shared/Admin/BackNavigator.php:111 src/Shared/Admin/Menu.php:199
-#: src/Shared/CoreSurfaceRegistration.php:498
-#: src/Shared/CoreSurfaceRegistration.php:1522
-#: src/Shared/CoreSurfaceRegistration.php:1889
-#: src/Shared/Frontend/Components/TeamCard.php:103
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:230
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:255
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:395
-#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
-#: src/Shared/Frontend/FrontendPlayersManageView.php:74
-#: src/Shared/Frontend/FrontendPlayersManageView.php:580
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:51
-#: src/Shared/Frontend/FrontendStandardReportsView.php:814
-#: src/Shared/Frontend/FrontendStandardReportsView.php:935
-#: src/Shared/Frontend/FrontendTeamDetailView.php:473
-#: src/Shared/Frontend/FrontendTeamsManageView.php:165
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:340
-#: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:674
-#: src/Shared/Modules/ModuleMetadata.php:141
-msgid "Players"
-msgstr "Spieler"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:150
@@ -5563,16 +5626,6 @@ msgstr "Saisons"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:205
 msgid "No entries."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:234
-#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
-#: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:150
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:373
-#: src/Shared/Frontend/FrontendConfigurationView.php:2455
-#: src/Shared/Frontend/FrontendSeasonsView.php:77
-msgid "Season"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:71
@@ -8184,7 +8237,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1718
+#: src/Shared/Frontend/DashboardShortcode.php:1760
 msgid "Academy Admin"
 msgstr ""
 
@@ -8312,7 +8365,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:846
 #: src/Modules/DemoData/Admin/DemoDataPage.php:1216
-#: src/Shared/Frontend/DashboardShortcode.php:162
+#: src/Shared/Frontend/DashboardShortcode.php:191
 msgid "Import failed."
 msgstr ""
 
@@ -9617,7 +9670,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:155
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:157
 #: src/Shared/Frontend/Components/ArchiveRowActions.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:140
+#: src/Shared/Frontend/DashboardShortcode.php:169
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:406
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:412
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1966
@@ -12193,7 +12246,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:122
 #: src/Modules/License/Admin/AccountPage.php:919
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:251
-#: src/Shared/Frontend/DashboardShortcode.php:151
+#: src/Shared/Frontend/DashboardShortcode.php:180
 #: src/Shared/Frontend/FrontendConfigurationView.php:493
 #: src/Shared/Frontend/FrontendConfigurationView.php:1087
 #: src/Shared/Frontend/FrontendSpondView.php:274
@@ -12280,31 +12333,6 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:53
-#: src/Modules/DataBrowser/SemanticRegistry.php:48
-#: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:140
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:41
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:150
-#: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
-#: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
-#: src/Modules/Wizards/Player/ReviewStep.php:32
-#: src/Modules/Wizards/Player/RosterDetailsStep.php:32
-#: src/Modules/Wizards/Player/TrialDetailsStep.php:47
-#: src/Modules/Wizards/Prospect/IdentityStep.php:38
-#: src/Modules/Wizards/Prospect/ReviewStep.php:46
-#: src/Modules/Workflow/Forms/LogProspectForm.php:66
-#: src/Shared/Frontend/FrontendMyProfileView.php:122
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:405
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1075
-#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
-#: src/Shared/Frontend/FrontendPlayersManageView.php:350
-#: src/Shared/Frontend/FrontendTrialsManageView.php:457
-msgid "Date of birth"
-msgstr ""
-
 #: src/Modules/Configuration/Admin/FormSlugContract.php:54
 #: src/Modules/Players/Admin/PlayersPage.php:358
 #: src/Modules/Players/Admin/PlayersPage.php:445
@@ -12349,20 +12377,6 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
 #: src/Shared/Frontend/FrontendPlayersManageView.php:397
 msgid "Preferred positions"
-msgstr ""
-
-#: src/Modules/Configuration/Admin/FormSlugContract.php:59
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:42
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:101
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
-#: src/Modules/Methodology/Admin/PositionEditPage.php:84
-#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:330
-#: src/Modules/Wizards/Player/ReviewStep.php:36
-#: src/Modules/Wizards/Player/RosterDetailsStep.php:43
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1086
-#: src/Shared/Frontend/FrontendPlayersManageView.php:374
-msgid "Jersey number"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:61
@@ -13587,6 +13601,7 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
 #: src/Modules/Vct/Wizard/PreviewStep.php:44
+#: src/Shared/Frontend/DashboardShortcode.php:155
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
 #: src/Shared/Frontend/FrontendReportWizardView.php:342
 msgid "Preview"
@@ -15696,7 +15711,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1852
 #: src/Shared/CoreSurfaceRegistration.php:2039
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1752
+#: src/Shared/Frontend/DashboardShortcode.php:1794
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -16361,6 +16376,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:158
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:151
 #: src/Shared/Frontend/Components/FrontendListTable.php:366
+#: src/Shared/Frontend/DashboardShortcode.php:1666
 msgid "Search"
 msgstr ""
 
@@ -17145,7 +17161,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:309
 #: src/Shared/Frontend/CoachForms.php:581
 #: src/Shared/Frontend/CoachForms.php:597
-#: src/Shared/Frontend/DashboardShortcode.php:137
+#: src/Shared/Frontend/DashboardShortcode.php:166
 msgid "Add Goal"
 msgstr "Ziel hinzufügen"
 
@@ -17220,7 +17236,8 @@ msgstr "Drucken"
 #: src/Shared/Frontend/Components/FilterBar.php:111
 #: src/Shared/Frontend/Components/FilterBar.php:337
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1757
+#: src/Shared/Frontend/DashboardShortcode.php:158
+#: src/Shared/Frontend/DashboardShortcode.php:1799
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Schließen"
@@ -19106,7 +19123,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:468
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1140
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:59
-#: src/Shared/Frontend/DashboardShortcode.php:175
+#: src/Shared/Frontend/DashboardShortcode.php:204
 msgid "Undo"
 msgstr ""
 
@@ -20279,7 +20296,7 @@ msgstr ""
 #. translators: %s: player name
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
-#: src/Shared/Frontend/DashboardShortcode.php:671
+#: src/Shared/Frontend/DashboardShortcode.php:700
 #: src/Shared/Frontend/FrontendMySettingsView.php:259
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:162
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:707
@@ -25530,7 +25547,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
-#: src/Shared/Frontend/DashboardShortcode.php:164
+#: src/Shared/Frontend/DashboardShortcode.php:193
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3202
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3236
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3242
@@ -25823,8 +25840,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1667
-#: src/Shared/Frontend/DashboardShortcode.php:1668
+#: src/Shared/Frontend/DashboardShortcode.php:1709
+#: src/Shared/Frontend/DashboardShortcode.php:1710
 msgid "Help & docs"
 msgstr ""
 
@@ -27351,7 +27368,7 @@ msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:129
 #: src/Modules/Players/Admin/PlayersPage.php:444
-#: src/Shared/Frontend/DashboardShortcode.php:157
+#: src/Shared/Frontend/DashboardShortcode.php:186
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:623
 msgid "DOB"
 msgstr ""
@@ -28590,8 +28607,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1290
-#: src/Shared/Frontend/DashboardShortcode.php:1298
+#: src/Shared/Frontend/DashboardShortcode.php:1319
+#: src/Shared/Frontend/DashboardShortcode.php:1327
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -29158,8 +29175,8 @@ msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:249
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:160
-#: src/Shared/Frontend/DashboardShortcode.php:153
-#: src/Shared/Frontend/DashboardShortcode.php:169
+#: src/Shared/Frontend/DashboardShortcode.php:182
+#: src/Shared/Frontend/DashboardShortcode.php:198
 #: src/Shared/Frontend/FrontendSpondView.php:272
 msgid "OK"
 msgstr "OK"
@@ -30210,8 +30227,9 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:191
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
-#: src/Shared/Frontend/DashboardShortcode.php:111
-#: src/Shared/Frontend/DashboardShortcode.php:1762
+#: src/Shared/Frontend/DashboardShortcode.php:127
+#: src/Shared/Frontend/DashboardShortcode.php:156
+#: src/Shared/Frontend/DashboardShortcode.php:1804
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:459
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -30518,7 +30536,7 @@ msgid "You do not have permission to edit this player's attributes."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1041
+#: src/Shared/Frontend/DashboardShortcode.php:1070
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:232
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -35212,7 +35230,7 @@ msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
-#: src/Shared/Frontend/DashboardShortcode.php:793
+#: src/Shared/Frontend/DashboardShortcode.php:822
 msgid "Task completed."
 msgstr ""
 
@@ -35750,7 +35768,7 @@ msgid "Save failed."
 msgstr ""
 
 #: src/Shared/Admin/DragReorder.php:149
-#: src/Shared/Frontend/DashboardShortcode.php:133
+#: src/Shared/Frontend/DashboardShortcode.php:162
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3248
 #: src/Shared/Frontend/FrontendConfigurationView.php:494
 #: src/Shared/Frontend/FrontendConfigurationView.php:1088
@@ -36483,7 +36501,7 @@ msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:230
 #: src/Shared/Frontend/CoachForms.php:127
-#: src/Shared/Frontend/DashboardShortcode.php:135
+#: src/Shared/Frontend/DashboardShortcode.php:164
 msgid "Save Evaluation"
 msgstr ""
 
@@ -36494,7 +36512,7 @@ msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:272
 #: src/Shared/Frontend/CoachForms.php:548
-#: src/Shared/Frontend/DashboardShortcode.php:136
+#: src/Shared/Frontend/DashboardShortcode.php:165
 msgid "Save Activity"
 msgstr ""
 
@@ -36825,7 +36843,7 @@ msgid "Open filters"
 msgstr ""
 
 #: src/Shared/Frontend/Components/FormSaveButton.php:47
-#: src/Shared/Frontend/DashboardShortcode.php:130
+#: src/Shared/Frontend/DashboardShortcode.php:159
 msgid "Saving..."
 msgstr ""
 
@@ -36847,7 +36865,7 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendAppNav.php:91
 #: src/Shared/Frontend/Components/FrontendAppNav.php:92
-#: src/Shared/Frontend/DashboardShortcode.php:128
+#: src/Shared/Frontend/DashboardShortcode.php:144
 msgid "Collapse navigation"
 msgstr ""
 
@@ -37150,267 +37168,281 @@ msgstr ""
 msgid "Back to dashboard"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:112
+#: src/Shared/Frontend/DashboardShortcode.php:128
 msgid "Could not load this topic. Try the full Help & Docs page."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:113
+#: src/Shared/Frontend/DashboardShortcode.php:129
 msgid "No matching topic for this section. Showing the default."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:129
+#: src/Shared/Frontend/DashboardShortcode.php:145
 msgid "Expand navigation"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:132
+#: src/Shared/Frontend/DashboardShortcode.php:148
+msgid "Jump to"
+msgstr ""
+
+#: src/Shared/Frontend/DashboardShortcode.php:149
+#: src/Shared/Frontend/DashboardShortcode.php:1665
+msgid "Search players, teams, activities…"
+msgstr ""
+
+#: src/Shared/Frontend/DashboardShortcode.php:150
+msgid "Nothing matched."
+msgstr ""
+
+#: src/Shared/Frontend/DashboardShortcode.php:151
+#: src/Shared/Frontend/DashboardShortcode.php:701
+msgid "Section"
+msgstr ""
+
+#: src/Shared/Frontend/DashboardShortcode.php:161
 msgid "Error."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:134
+#: src/Shared/Frontend/DashboardShortcode.php:163
 msgid "Delete this goal?"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:139
+#: src/Shared/Frontend/DashboardShortcode.php:168
 msgid "You have unsaved changes from an earlier session — restore?"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:141
+#: src/Shared/Frontend/DashboardShortcode.php:170
 msgid "Discard"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:142
+#: src/Shared/Frontend/DashboardShortcode.php:171
 #, php-format
 msgid "Show all (%d)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:143
+#: src/Shared/Frontend/DashboardShortcode.php:172
 #, php-format
 msgid "%1$d of %2$d marked Present"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:144
+#: src/Shared/Frontend/DashboardShortcode.php:173
 #, php-format
 msgid "Showing %1$d of %2$d rows."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:145
+#: src/Shared/Frontend/DashboardShortcode.php:174
 #, php-format
 msgid "Matches existing player #%d"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:146
+#: src/Shared/Frontend/DashboardShortcode.php:175
 #, php-format
 msgid "Created: %d"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:147
+#: src/Shared/Frontend/DashboardShortcode.php:176
 #, php-format
 msgid "Updated: %d"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:148
+#: src/Shared/Frontend/DashboardShortcode.php:177
 #, php-format
 msgid "Skipped (dupes): %d"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:149
+#: src/Shared/Frontend/DashboardShortcode.php:178
 #, php-format
 msgid "Errors: %d"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:152
+#: src/Shared/Frontend/DashboardShortcode.php:181
 msgid "Dupe"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:154
+#: src/Shared/Frontend/DashboardShortcode.php:183
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:114
 msgid "Row"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:160
+#: src/Shared/Frontend/DashboardShortcode.php:189
 msgid "Pick a CSV file first."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:161
+#: src/Shared/Frontend/DashboardShortcode.php:190
 msgid "Could not preview the file."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:166
+#: src/Shared/Frontend/DashboardShortcode.php:195
 msgid "Delete this role type?"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:167
+#: src/Shared/Frontend/DashboardShortcode.php:196
 msgid "Delete this category?"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:171
+#: src/Shared/Frontend/DashboardShortcode.php:200
 msgid "Delete goal?"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:173
+#: src/Shared/Frontend/DashboardShortcode.php:202
 msgid "Goal deleted."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:176
+#: src/Shared/Frontend/DashboardShortcode.php:205
 msgid "No linked records."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:177
+#: src/Shared/Frontend/DashboardShortcode.php:206
 msgid "Linked records that will be removed on purge:"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:178
+#: src/Shared/Frontend/DashboardShortcode.php:207
 msgid "References that will be cleared:"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:179
+#: src/Shared/Frontend/DashboardShortcode.php:208
 msgid "References that will be reset:"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:180
+#: src/Shared/Frontend/DashboardShortcode.php:209
 msgid "Records that currently block a permanent delete:"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:210
+#: src/Shared/Frontend/DashboardShortcode.php:239
 msgid "The two passwords did not match. Please try again."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:212
+#: src/Shared/Frontend/DashboardShortcode.php:241
 msgid "Please choose a password of at least 8 characters."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:214
+#: src/Shared/Frontend/DashboardShortcode.php:243
 msgid "Please fill in both password fields."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:228
+#: src/Shared/Frontend/DashboardShortcode.php:257
 msgid "If that account exists, we've sent a password reset link to its email."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:233
+#: src/Shared/Frontend/DashboardShortcode.php:262
 msgid "Your password has been updated. You can sign in now."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:388
+#: src/Shared/Frontend/DashboardShortcode.php:417
 msgid "You do not have access to this surface."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:402
+#: src/Shared/Frontend/DashboardShortcode.php:431
 msgid "Page not found"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:669
+#: src/Shared/Frontend/DashboardShortcode.php:698
 #: src/Shared/Frontend/FrontendMySettingsView.php:258
 #: src/Shared/Frontend/FrontendPlayersManageView.php:588
 msgid "Journey"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:670
+#: src/Shared/Frontend/DashboardShortcode.php:699
 msgid "Development plan"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:672
-msgid "Section"
-msgstr ""
-
-#: src/Shared/Frontend/DashboardShortcode.php:728
+#: src/Shared/Frontend/DashboardShortcode.php:757
 msgid "This section is only available for users linked to a player record."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:769
+#: src/Shared/Frontend/DashboardShortcode.php:798
 msgid "Sign in required"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:770
+#: src/Shared/Frontend/DashboardShortcode.php:799
 #: src/Shared/Frontend/FrontendMySettingsView.php:57
 msgid "You need to be logged in to manage your settings."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:784
+#: src/Shared/Frontend/DashboardShortcode.php:813
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:993
+#: src/Shared/Frontend/DashboardShortcode.php:1022
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1002
+#: src/Shared/Frontend/DashboardShortcode.php:1031
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1306
+#: src/Shared/Frontend/DashboardShortcode.php:1335
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1441
+#: src/Shared/Frontend/DashboardShortcode.php:1470
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1577
+#: src/Shared/Frontend/DashboardShortcode.php:1606
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1580
+#: src/Shared/Frontend/DashboardShortcode.php:1609
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1583
+#: src/Shared/Frontend/DashboardShortcode.php:1612
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1606
+#: src/Shared/Frontend/DashboardShortcode.php:1635
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1646
+#: src/Shared/Frontend/DashboardShortcode.php:1688
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1686
+#: src/Shared/Frontend/DashboardShortcode.php:1728
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1693
+#: src/Shared/Frontend/DashboardShortcode.php:1735
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1705
+#: src/Shared/Frontend/DashboardShortcode.php:1747
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1708
+#: src/Shared/Frontend/DashboardShortcode.php:1750
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1732
+#: src/Shared/Frontend/DashboardShortcode.php:1774
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1736
+#: src/Shared/Frontend/DashboardShortcode.php:1778
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1754
+#: src/Shared/Frontend/DashboardShortcode.php:1796
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1826
+#: src/Shared/Frontend/DashboardShortcode.php:1868
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1827
+#: src/Shared/Frontend/DashboardShortcode.php:1869
 msgid "Switch back to all personas"
 msgstr ""
 
