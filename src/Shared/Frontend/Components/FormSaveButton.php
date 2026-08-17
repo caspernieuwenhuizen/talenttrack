@@ -47,8 +47,16 @@ class FormSaveButton {
         $label_saving = (string) ( $args['label_saving'] ?? __( 'Saving...', 'talenttrack' ) );
         $label_saved  = (string) ( $args['label_saved']  ?? __( 'Saved', 'talenttrack' ) );
         $label_error  = (string) ( $args['label_error']  ?? __( 'Retry', 'talenttrack' ) );
-        $variant      = in_array( ( $args['variant'] ?? 'primary' ), [ 'primary', 'secondary', 'danger' ], true )
-            ? $args['variant'] : 'primary';
+        // Resolve first, then validate. Coalescing inside the in_array()
+        // test only defaulted the *test*: the true-branch re-read the key
+        // unguarded, so an omitted variant warned and left $variant null —
+        // which dropped `tt-btn-primary` from the class list and with it the
+        // Buttons design tokens (#0075). The fallback only ever fired for an
+        // invalid variant, never a missing one.
+        $variant = (string) ( $args['variant'] ?? 'primary' );
+        if ( ! in_array( $variant, [ 'primary', 'secondary', 'danger' ], true ) ) {
+            $variant = 'primary';
+        }
         $block        = ! empty( $args['block'] );
         $id           = isset( $args['id'] ) ? (string) $args['id'] : '';
         $cancel_url   = isset( $args['cancel_url'] ) ? (string) $args['cancel_url'] : '';
