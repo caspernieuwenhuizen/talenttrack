@@ -24,14 +24,26 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  *    between two screens.
  *  - **Minutes reconcile.** Substitutions are drawn against the starting XI
  *    and the bench, so derived minutes-played never exceeds the match length
- *    and the team's outfield total lands on 11 x match length. Minutes
- *    reporting reads these rows; incoherent ones make every minutes report
- *    look broken.
+ *    and the team's outfield total lands on squad size x match length.
+ *    Minutes reporting reads these rows; incoherent ones make every minutes
+ *    report look broken.
  */
 class MatchDayGenerator implements DependentGeneratorInterface {
 
     private const HALF_LENGTH = 35;      // youth football, per half
-    private const SQUAD_SIZE  = 11;
+
+    /**
+     * Players on the pitch by age. Youth football is small-sided until the
+     * early teens — an under-8 team fields six or seven, not eleven, and a
+     * twelve-player squad can never put out an eleven anyway.
+     *
+     * Keyed by the oldest age the size applies to.
+     */
+    private const SQUAD_SIZE_BY_AGE = [
+        9  => 6,
+        12 => 8,
+        99 => 11,
+    ];
 
     /** Roles the prep screen assigns. */
     private const ROLES = [ 'captain', 'penalties', 'corners', 'free_kicks' ];
@@ -118,13 +130,19 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             $players_by_team[ (int) ( $p->team_id ?? 0 ) ][] = (int) $p->id;
         }
 
+        $age_by_team = [];
+        foreach ( $this->teams as $t ) {
+            $age_by_team[ (int) $t->id ] = isset( $t->age_group ) ? (string) $t->age_group : '';
+        }
+
         $total = 0;
         foreach ( $fixtures as $fixture ) {
             $activity_id = (int) $fixture->id;
             $team_id     = (int) $fixture->team_id;
             $match_date  = (string) $fixture->session_date;
             $roster      = $players_by_team[ $team_id ] ?? [];
-            if ( count( $roster ) < self::SQUAD_SIZE ) continue;
+            $squad_size  = self::squadSizeFor( $age_by_team[ $team_id ] ?? '' );
+            if ( count( $roster ) < $squad_size ) continue;
 
             $prep_id = $prep_repo->ensureForActivity( $activity_id, self::HALF_LENGTH );
             if ( $prep_id <= 0 ) continue;
@@ -141,29 +159,42 @@ class MatchDayGenerator implements DependentGeneratorInterface {
             // Availability first — the injured list decides who can be picked.
             $available = [];
             $avail_rows = [];
+            $optional_absences = [];
             foreach ( $roster as $player_id ) {
-                $injured = $this->isUnavailableOn( $unavailable, $player_id, $match_date );
-                if ( $injured ) {
+                if ( $this->isUnavailableOn( $unavailable, $player_id, $match_date ) ) {
                     $avail_rows[ $player_id ] = [ 'status' => 'Injured', 'reason' => null ];
                     continue;
                 }
                 // A couple of absences that aren't injuries.
                 if ( mt_rand( 1, 100 ) <= 6 ) {
                     $avail_rows[ $player_id ] = [ 'status' => 'Absent', 'reason' => null ];
+                    $optional_absences[] = $player_id;
                     continue;
                 }
                 $avail_rows[ $player_id ] = [ 'status' => 'Present', 'reason' => null ];
                 $available[] = $player_id;
             }
+
+            // A twelve-player squad can't afford invented absences: a couple
+            // of them and there is no side to pick, so the fixture would
+            // silently produce no lineup at all. Injuries are real data and
+            // stay; the invented absences give way until a team can be
+            // fielded.
+            while ( count( $available ) < $squad_size && $optional_absences ) {
+                $restored = array_shift( $optional_absences );
+                $avail_rows[ $restored ] = [ 'status' => 'Present', 'reason' => null ];
+                $available[] = $restored;
+            }
+
             $prep_repo->replaceAvailability( $prep_id, $avail_rows );
             $total += count( $avail_rows );
             $this->tagRowsFor( 'match_prep_availability', 'tt_match_prep_availability', 'match_prep_id', $prep_id );
 
-            if ( count( $available ) < self::SQUAD_SIZE ) continue;
+            if ( count( $available ) < $squad_size ) continue;
 
             // Starting XI + bench, drawn only from available players.
-            $starting = array_slice( $available, 0, self::SQUAD_SIZE );
-            $bench    = array_slice( $available, self::SQUAD_SIZE );
+            $starting = array_slice( $available, 0, $squad_size );
+            $bench    = array_slice( $available, $squad_size );
 
             $slots = [];
             foreach ( $starting as $i => $player_id ) {
@@ -310,6 +341,18 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         }
 
         return $total;
+    }
+
+    /** Players on the pitch for this age group. */
+    private static function squadSizeFor( string $age_group ): int {
+        $age = 12;
+        if ( preg_match( '/(\d+)/', $age_group, $m ) ) {
+            $age = (int) $m[1];
+        }
+        foreach ( self::SQUAD_SIZE_BY_AGE as $max_age => $size ) {
+            if ( $age <= $max_age ) return $size;
+        }
+        return 11;
     }
 
     /** Youth scorelines skew low; blowouts are rare but not impossible. */
