@@ -27,11 +27,40 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Privacy: no IPs captured, no user agents, no fingerprints. Only
  * user_id + event_type + optional event_target. Visible only to users
  * with tt_manage_settings.
+ *
+ * Timezone convention (#2444): `created_at` is written in **site-local**
+ * time via `current_time( 'mysql' )`, so every boundary compared against it
+ * must be rendered in the site timezone too. Build them with `cutoff()` /
+ * `dayStart()` / `day()` below — never with `gmdate()`, which WordPress
+ * pins to UTC and which shifts the window by the site's offset.
  */
 class UsageTracker {
 
     private const RETENTION_DAYS = 90;
     private const CRON_HOOK = 'tt_usage_prune_daily';
+
+    // Timezone-correct boundary builders (#2444)
+
+    /**
+     * A `Y-m-d H:i:s` boundary N seconds ago, in the site timezone.
+     *
+     * Matches the convention `record()` writes `created_at` in. Public so
+     * the usage-stats views build their cutoffs the same way rather than
+     * each re-deriving one and reintroducing the offset bug.
+     */
+    public static function cutoff( int $seconds_ago ): string {
+        return wp_date( 'Y-m-d H:i:s', time() - $seconds_ago );
+    }
+
+    /** Midnight, site-local, N days back — the first day of an N-day window. */
+    public static function dayStart( int $days_ago ): string {
+        return wp_date( 'Y-m-d 00:00:00', time() - $days_ago * DAY_IN_SECONDS );
+    }
+
+    /** A site-local `Y-m-d` calendar day, offset by N days from today. */
+    public static function day( int $days_offset = 0 ): string {
+        return wp_date( 'Y-m-d', time() + $days_offset * DAY_IN_SECONDS );
+    }
 
     // Registration
 
@@ -104,7 +133,7 @@ class UsageTracker {
 
     public static function pruneOldEvents(): int {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - self::RETENTION_DAYS * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( self::RETENTION_DAYS * DAY_IN_SECONDS );
         return (int) $wpdb->query( $wpdb->prepare(
             "DELETE FROM {$wpdb->prefix}tt_usage_events WHERE created_at < %s",
             $cutoff
@@ -120,7 +149,7 @@ class UsageTracker {
      */
     public static function countEvents( string $type, int $days ): int {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_usage_events
              WHERE event_type = %s AND created_at >= %s AND club_id = %d",
@@ -136,7 +165,7 @@ class UsageTracker {
      */
     public static function uniqueActiveUsers( int $days ): int {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT user_id) FROM {$wpdb->prefix}tt_usage_events
              WHERE created_at >= %s AND club_id = %d",
@@ -153,7 +182,7 @@ class UsageTracker {
      */
     public static function dailyActiveUsers( int $days ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d 00:00:00', time() - ( $days - 1 ) * DAY_IN_SECONDS );
+        $cutoff = self::dayStart( $days - 1 );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT DATE(created_at) AS d, COUNT(DISTINCT user_id) AS c
              FROM {$wpdb->prefix}tt_usage_events
@@ -163,12 +192,12 @@ class UsageTracker {
             $cutoff, CurrentClub::id()
         ) );
 
-        // Fill zero days.
+        // Fill zero days. Built from site-local day offsets so the keys match
+        // the site-local `DATE(created_at)` buckets the query groups by — the
+        // two must agree or the chart's edge days silently miss their rows.
         $series = [];
-        $start  = strtotime( $cutoff );
         for ( $i = 0; $i < $days; $i++ ) {
-            $d = gmdate( 'Y-m-d', $start + $i * DAY_IN_SECONDS );
-            $series[ $d ] = 0;
+            $series[ self::day( $i - ( $days - 1 ) ) ] = 0;
         }
         foreach ( (array) $rows as $r ) {
             $series[ (string) $r->d ] = (int) $r->c;
@@ -185,7 +214,7 @@ class UsageTracker {
      */
     public static function topFeatures( int $days, int $limit = 10 ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT event_target AS target, COUNT(*) AS c
                FROM {$wpdb->prefix}tt_usage_events
@@ -211,7 +240,7 @@ class UsageTracker {
      */
     public static function totalEvents( int $days ): int {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_usage_events
               WHERE created_at >= %s AND club_id = %d",
@@ -233,9 +262,15 @@ class UsageTracker {
      */
     public static function sessionStats( int $days ): array {
         global $wpdb;
-        $cutoff   = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff   = self::cutoff( $days * DAY_IN_SECONDS );
         $idle_gap = 30 * MINUTE_IN_SECONDS;
 
+        // UNIX_TIMESTAMP() resolves `created_at` using the MySQL connection's
+        // time_zone, which is a third timezone in this path. Only *differences*
+        // between two stamps are used below (session gaps and durations), and a
+        // constant offset cancels out of a subtraction — so the arithmetic is
+        // correct whatever the connection is set to. Do not reuse `ts` as an
+        // absolute instant without converting it first.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, UNIX_TIMESTAMP(created_at) AS ts
                FROM {$wpdb->prefix}tt_usage_events
@@ -292,7 +327,7 @@ class UsageTracker {
      */
     public static function topAdminPages( int $days, int $limit = 10 ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT event_target AS page, COUNT(*) AS c
              FROM {$wpdb->prefix}tt_usage_events
@@ -319,7 +354,7 @@ class UsageTracker {
      */
     public static function activeByRole( int $days ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         $user_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT user_id FROM {$wpdb->prefix}tt_usage_events
              WHERE created_at >= %s AND club_id = %d",
@@ -357,7 +392,7 @@ class UsageTracker {
      */
     public static function activeUsers( int $days, int $limit = 200 ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         $rows   = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, MAX(created_at) AS last_active
              FROM {$wpdb->prefix}tt_usage_events
@@ -404,7 +439,7 @@ class UsageTracker {
      */
     public static function inactiveUsers( int $days, int $limit = 20 ): array {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = self::cutoff( $days * DAY_IN_SECONDS );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, MAX(created_at) AS last_login
              FROM {$wpdb->prefix}tt_usage_events
@@ -431,6 +466,18 @@ class UsageTracker {
      * Evaluations created per day for the last $days — reads directly
      * from tt_evaluations since that's the more accurate source than
      * `evaluation_saved` events (which only exist post-instrumentation).
+     *
+     * Deliberately NOT converted to the site-local `cutoff()` helpers the
+     * rest of this class uses (#2444). Those exist because
+     * `tt_usage_events.created_at` is written by PHP via
+     * `current_time( 'mysql' )`. This query reads a different table, whose
+     * `created_at` is `DATETIME DEFAULT CURRENT_TIMESTAMP` — written by
+     * MySQL in the *connection's* time_zone, which is neither guaranteed
+     * site-local nor guaranteed UTC. The cutoff and the zero-fill below both
+     * use gmdate(), so they stay consistent with each other; switching only
+     * one of them would introduce the very edge-shift this issue fixes
+     * elsewhere. Establishing the convention for MySQL-defaulted columns is
+     * its own piece of work.
      *
      * @return array<string, int>  YYYY-MM-DD => count
      */

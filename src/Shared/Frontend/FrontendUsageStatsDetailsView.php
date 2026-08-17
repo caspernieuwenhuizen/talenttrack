@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Usage\UsageTracker;
 
 /**
  * FrontendUsageStatsDetailsView — frontend mirror of the wp-admin
@@ -77,7 +78,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
 
     private static function renderLogins( int $days ): void {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = UsageTracker::cutoff( $days * DAY_IN_SECONDS );
 
         // #1963 — bound the per-load fetch. Count first, then window the
         // rows with LIMIT/OFFSET instead of dumping up to 500 rows into PHP
@@ -119,7 +120,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
 
     private static function renderActiveUsers( int $days ): void {
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = UsageTracker::cutoff( $days * DAY_IN_SECONDS );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id,
                     SUM(CASE WHEN event_type='login' THEN 1 ELSE 0 END) AS login_count,
@@ -185,6 +186,11 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
     }
 
     private static function renderDayPicker( string $metric, string $date, string $heading ): void {
+        // Pure calendar arithmetic on a Y-m-d string, not a comparison against
+        // a stored timestamp — so this correctly stays on gmdate/strtotime,
+        // which both read UTC and cancel out (#2444). Swapping in wp_date()
+        // here would re-project an already-UTC epoch into the site timezone
+        // and step to the wrong day on any negative-offset install.
         $prev = (string) gmdate( 'Y-m-d', (int) strtotime( $date . ' -1 day' ) );
         $next = (string) gmdate( 'Y-m-d', (int) strtotime( $date . ' +1 day' ) );
         $prev_url = self::detailsUrl( [ 'metric' => $metric, 'date' => $prev ] );
@@ -319,7 +325,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             return;
         }
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = UsageTracker::cutoff( $days * DAY_IN_SECONDS );
         $user_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT DISTINCT user_id FROM {$wpdb->prefix}tt_usage_events WHERE created_at >= %s AND club_id = %d",
             $cutoff, CurrentClub::id()
@@ -395,7 +401,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             return;
         }
         global $wpdb;
-        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $cutoff = UsageTracker::cutoff( $days * DAY_IN_SECONDS );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT user_id, COUNT(*) AS visit_count, MAX(created_at) AS last_visit
              FROM {$wpdb->prefix}tt_usage_events
