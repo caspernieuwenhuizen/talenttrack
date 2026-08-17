@@ -39570,6 +39570,14 @@ msgstr "Waarnemer"
 msgid "Main navigation"
 msgstr "Hoofdnavigatie"
 
+#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:152
+msgid "Quick navigation"
+msgstr "Snelnavigatie"
+
+#: src/Shared/Frontend/Components/FrontendAppBottomBar.php:186
+msgid "More"
+msgstr "Meer"
+
 #: src/Shared/Frontend/Components/FrontendAppNav.php:91
 #: src/Shared/Frontend/Components/FrontendAppNav.php:92
 #: src/Shared/Frontend/DashboardShortcode.php:111

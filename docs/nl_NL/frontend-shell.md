@@ -20,9 +20,24 @@ onbeperkt beschikbaar.
 | 1280px en breder | Een gegroepeerde zijbalk aan de linkerkant |
 | 1024px en breder | Dezelfde zijbalk, inklapbaar tot een strook iconen |
 | Smaller dan 1024px | Een uitschuifmenu achter de ☰-knop in de balk |
+| Smaller dan 768px | Het uitschuifmenu, **plus** een balk onderaan |
 
 Dat is één navigatie in verschillende jassen, geen vier verschillende menu's —
 dezelfde ingangen, dezelfde volgorde, dezelfde rechten.
+
+### De onderbalk op telefoons
+
+Vier bestemmingen plus **Meer**, dat het volledige tegeloverzicht opent. De balk
+staat in de duimzone en houdt de home-indicator van iOS vrij, zodat wat je langs
+de lijn nodig hebt één tik ver is.
+
+Welke vier je krijgt, wordt afgeleid uit je rol: de eerste vier *dagelijkse*
+secties waar je bij mag, in de vaste groepsvolgorde. Instellings- en
+configuratiesecties komen er nooit in — dat is niet wat iemand met één hand
+opzoekt.
+
+Het uitschuifmenu blijft bestaan en bevat nog steeds alles, dus de balk verbergt
+niets. Het is een snelkoppeling, geen filter.
 
 ## Een indeling kiezen
 
@@ -123,6 +138,39 @@ navigatieregister.** Een tegel toevoegen voegt een navigatie-ingang toe.
 
 `FrontendAppNav::groups()` is bewust publiek en losgetrokken van `render()`,
 zodat een tweede presentatie dezelfde opgeloste lijst ongewijzigd kan gebruiken.
+`FrontendAppBottomBar` ís die tweede presentatie.
+
+### De slots van de onderbalk
+
+`\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` levert de vier
+bestemmingen, eerst uit configuratie en daarna uit de afgeleide standaard:
+
+1. **Geconfigureerd** — club-scoped `tt_config`-sleutel `tt_shell_mobile_slots`,
+   een JSON-object van `persona-sleutel => [ slug, … ]`. Een `*`-sleutel geldt
+   voor elke persona zonder eigen ingang. Afwezig of leeg betekent "afleiden", en
+   dat is de opleverstand.
+2. **Afgeleid** — de eerste vier `kind: 'work'`-tegels uit
+   `FrontendAppNav::groups()`, dus al gefilterd op capability, voorzien van
+   persona-labels en in `groupOrder()`-volgorde. Setup-tegels vallen af.
+
+Een geconfigureerde slug die niet meer bestaat, voor de persona verborgen is of
+de capability-controle niet haalt, wordt **overgeslagen**; de afgeleide standaard
+vult het gat. Een verouderde configuratie degradeert dus naar een verstandige
+balk in plaats van een kapotte of lege. Er is bewust nog geen beheerderskeuze-UI:
+de sleutel is via de config-laag te lezen en te schrijven, en de standaard is
+goed genoeg om zonder te leveren.
+
+**De slots bepalen uit echt gebruik.** `tt_usage_events` (migratie 0011) legt al
+`event_type = 'frontend_view'` vast met de view-slug in `event_target`, per
+`user_id` en `club_id`-scoped, met 90 dagen bewaartermijn — er hoeft niets extra
+gemeten te worden. Lees na een paar weken de meest bezochte slugs per persona en
+schrijf `tt_shell_mobile_slots`. De viewport wordt niet vastgelegd; blijkt de
+persona-splitsing te grof, dan is een viewport-bucket toevoegen aan het event een
+aparte kleine wijziging.
+
+De actieve status matcht de eigen view van het slot **én** de bijbehorende
+record-views — `players` licht op bij `player` — omdat een balk die leeg wordt
+zodra je een record opent, je niet meer oriënteert.
 
 Volgens CLAUDE.md §5b is dit dé ene primaire navigatie en rendert de shell haar
 één keer. Een view mag nooit zelf navigatie op moduleniveau emitteren — zie
