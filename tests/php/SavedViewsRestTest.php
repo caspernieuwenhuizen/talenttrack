@@ -148,8 +148,11 @@ final class SavedViewsRestTest extends WP_UnitTestCase {
     }
 
     public function test_logged_out_is_refused(): void {
+        // WordPress distinguishes the two: 401 for an anonymous caller, 403
+        // once authenticated but unauthorised (the assertions above). Pinning
+        // 401 here keeps that distinction rather than accepting either.
         wp_set_current_user( 0 );
-        $this->assertSame( 403, $this->save( 'attendance_team', 'Nope', [] )->get_status() );
+        $this->assertSame( 401, $this->save( 'attendance_team', 'Nope', [] )->get_status() );
     }
 
     public function test_cannot_delete_another_users_view(): void {
