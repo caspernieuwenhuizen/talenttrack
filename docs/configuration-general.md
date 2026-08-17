@@ -58,7 +58,20 @@ install keeps each academy's sender separate.
 > DKIM / a real SMTP relay) a standard WordPress SMTP plugin remains a valid
 > companion — it handles transport, this handles the sender name and address.
 
+## Navigation layout
+
+Picks the academy-wide default application shell — **Classic** (tile overview,
+no navigation bar) or **App shell** (a navigation sidebar on a laptop, a
+slide-out menu on a phone). Classic is the default.
+
+This is the default people inherit, not a lock: everyone can pick their own
+under *My settings → Layout*, including "use the academy default", which keeps
+following this setting when you change it.
+
+Full detail in [Navigation layout (the frontend shell)](frontend-shell.md).
+
 ## See also
 
 - [Configuration and branding](configuration-branding.md)
+- [Navigation layout (the frontend shell)](frontend-shell.md)
 - [Modules](modules.md)

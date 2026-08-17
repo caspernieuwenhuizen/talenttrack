@@ -30,6 +30,7 @@ Pick a topic. Use the search box to find anything quickly.
 - [Custom fields](custom-fields.md)
 - [Configuration and branding](configuration-branding.md)
 - [Configuration — General](configuration-general.md)
+- [Navigation layout (the frontend shell)](frontend-shell.md)
 - [Configuration — Seasons](configuration-seasons.md)
 - [Access control](access-control.md)
 - [Usage statistics](usage-statistics.md)

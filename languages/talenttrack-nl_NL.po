@@ -48389,6 +48389,78 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/Components/FrontendAppNav.php:85
+msgid "Main navigation"
+msgstr "Hoofdnavigatie"
+
+#: src/Shared/Frontend/Components/FrontendAppNav.php:93
+msgid "Collapse navigation"
+msgstr "Navigatie inklappen"
+
+#: assets/js/components/app-shell.js:118
+msgid "Expand navigation"
+msgstr "Navigatie uitklappen"
+
+#: src/Shared/Frontend/Components/FrontendAppNav.php:148
+msgid "Open navigation"
+msgstr "Navigatie openen"
+
+#: src/Shared/Frontend/ShellPreference.php:151
+msgid "Classic — tile hub, no sidebar"
+msgstr "Klassiek — tegeloverzicht, geen zijbalk"
+
+#: src/Shared/Frontend/ShellPreference.php:152
+msgid "App shell — sidebar navigation"
+msgstr "App-shell — navigatie in de zijbalk"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:181
+msgid "Layout"
+msgstr "Indeling"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:184
+msgid "Navigation layout"
+msgstr "Navigatie-indeling"
+
+#. translators: %s: the club-wide default layout name.
+#: src/Shared/Frontend/FrontendMySettingsView.php:189
+#, php-format
+msgid "Use the academy default (%s)"
+msgstr "Gebruik de standaard van de academie (%s)"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:199
+msgid ""
+"The app shell keeps a navigation sidebar on screen on a laptop, and a slide-"
+"out menu on a phone. Classic returns you to the tile overview to switch "
+"between sections."
+msgstr ""
+"De app-shell houdt op een laptop een navigatiezijbalk in beeld en op een "
+"telefoon een uitschuifmenu. Klassiek brengt je terug naar het tegeloverzicht "
+"om van sectie te wisselen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:204
+msgid "Save layout"
+msgstr "Indeling opslaan"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:294
+msgid "Layout updated. Reload to see the change everywhere."
+msgstr "Indeling bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2034
+msgid "Academy default"
+msgstr "Standaard van de academie"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2041
+msgid ""
+"The app shell keeps a navigation sidebar on screen on a laptop and a slide-"
+"out menu on a phone. Classic returns to the tile overview to switch "
+"sections. Everyone can pick their own layout in My settings; this is what "
+"they get until they do."
+msgstr ""
+"De app-shell houdt op een laptop een navigatiezijbalk in beeld en op een "
+"telefoon een uitschuifmenu. Klassiek gaat terug naar het tegeloverzicht om "
+"van sectie te wisselen. Iedereen kan onder Mijn instellingen zijn eigen "
+"indeling kiezen; dit is wat ze krijgen tot ze dat doen."
+
 #, php-format
 #~ msgid "%s · last 12 months"
 #~ msgstr "%s · laatste 12 maanden"

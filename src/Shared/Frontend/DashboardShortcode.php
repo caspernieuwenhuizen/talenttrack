@@ -42,6 +42,24 @@ class DashboardShortcode {
         // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
         // fallback (and shared with the standalone WP-404 takeover).
         wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
+        // #2456 — the `app` shell's sidebar / rail / drawer. Enqueued only
+        // when the resolved shell asks for it, so a `classic` install
+        // ships neither the stylesheet nor the behaviour script.
+        if ( ShellPreference::isApp() ) {
+            wp_enqueue_style(
+                'tt-frontend-app-shell',
+                TT_PLUGIN_URL . 'assets/css/frontend-app-shell.css',
+                [ 'tt-public', 'tt-frontend-app-chrome' ],
+                TT_VERSION
+            );
+            wp_enqueue_script(
+                'tt-app-shell',
+                TT_PLUGIN_URL . 'assets/js/components/app-shell.js',
+                [],
+                TT_VERSION,
+                true
+            );
+        }
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
@@ -85,7 +103,13 @@ class DashboardShortcode {
         wp_localize_script( 'tt-public', 'TT', [
             'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
             'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            // #2456 — the resolved shell, so JS can branch without
+            // re-deriving it. CLAUDE.md §4: the front end reads config
+            // from window.TT.*, never from PHP-rendered HTML.
+            'shell'      => ShellPreference::resolve(),
             'i18n'       => [
+                'shell_nav_collapse'   => __( 'Collapse navigation', 'talenttrack' ),
+                'shell_nav_expand'     => __( 'Expand navigation', 'talenttrack' ),
                 'saving'               => __( 'Saving...', 'talenttrack' ),
                 'saved'                => __( 'Saved.', 'talenttrack' ),
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
@@ -201,8 +225,17 @@ class DashboardShortcode {
 
         // Authenticated dashboard.
         ob_start();
-        echo '<div class="tt-dashboard">';
+        // #2456 — the resolved shell stamps a root class so per-view CSS
+        // can adapt without JS and without reading the config a second
+        // time. Under `classic` the class is the only difference and
+        // nothing else on this path changes.
+        echo '<div class="tt-dashboard ' . esc_attr( ShellPreference::rootClass() ) . '">';
         self::renderHeader();
+
+        // #2456 — open the shell frame. Under `classic` this emits
+        // nothing at all, which is what keeps that value a complete
+        // rollback: no wrapper, no nav, no DOM for a view to depend on.
+        self::openShell();
 
         // #0019 Sprint 1 — flush any queued flash messages ahead of the
         // body so post-save redirects surface their result.
@@ -251,6 +284,7 @@ class DashboardShortcode {
              && ( new \TT\Shared\Mobile\MobileSettings() )->isMobileGateEnabled()
         ) {
             FrontendMobilePromptView::render( $user_id, $view );
+            self::closeShell();
             echo '</div>';
             $output = ob_get_clean() ?: '';
             return apply_filters( 'tt_dashboard_data', $output, $user_id );
@@ -353,6 +387,7 @@ class DashboardShortcode {
             }
         }
 
+        self::closeShell();
         echo '</div>';
 
         /** @var string $output */
@@ -360,6 +395,38 @@ class DashboardShortcode {
         /** @var string $filtered */
         $filtered = apply_filters( 'tt_dashboard_data', $output, $user_id );
         return $filtered;
+    }
+
+    /**
+     * #2456 — open the app-shell frame: the grid wrapper, the one
+     * primary navigation (CLAUDE.md §5b), the drawer scrim, and the
+     * main column every dispatched view renders into.
+     *
+     * Emits nothing under the `classic` shell. That is deliberate: with
+     * no wrapper in the DOM there is nothing a view could come to depend
+     * on, so flipping the setting back is a complete rollback rather
+     * than a visual approximation of one.
+     */
+    private static function openShell(): void {
+        if ( ! ShellPreference::isApp() ) {
+            return;
+        }
+
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
+
+        echo '<div class="tt-shell" data-tt-shell>';
+        \TT\Shared\Frontend\Components\FrontendAppNav::render( get_current_user_id(), $view );
+        \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerScrim();
+        echo '<div class="tt-shell-main">';
+    }
+
+    /** Counterpart to {@see openShell()}. No-op under `classic`. */
+    private static function closeShell(): void {
+        if ( ! ShellPreference::isApp() ) {
+            return;
+        }
+        echo '</div>'; // .tt-shell-main
+        echo '</div>'; // .tt-shell
     }
 
     /**
@@ -1509,6 +1576,12 @@ class DashboardShortcode {
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
+        // #2456 — the drawer trigger sits before the brand mark, where a
+        // hamburger is expected. CSS hides it at >=1024px, where the nav
+        // is a persistent sidebar and needs no trigger.
+        if ( ShellPreference::isApp( (int) $user->ID ) ) {
+            \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerToggle();
+        }
         if ( $show_logo && $logo ) {
             echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
         } else {

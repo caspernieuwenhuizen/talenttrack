@@ -1,0 +1,320 @@
+/*
+ * frontend-app-shell.css — the `app` shell (#2456).
+ *
+ * Loaded ONLY when ShellPreference resolves to `app`. Under `classic`
+ * this file is never enqueued and the plugin renders exactly as before,
+ * which is what keeps `classic` a complete rollback.
+ *
+ * One navigation element (`.tt-shell-nav`), three presentations, switched
+ * by breakpoint alone — CLAUDE.md §5b treats them as one affordance with
+ * one data source:
+ *
+ *   <768px    off-canvas drawer, opened by the header hamburger
+ *   768px+    same drawer (wider viewport, still overlay)
+ *   1024px+   persistent sidebar in a grid column
+ *   1024px+   collapsed to an icon rail when the user toggles it
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px and min-width
+ * queries scale up. Everything is scoped under `.tt-dashboard` — no
+ * global resets, the active theme is treated as hostile. Colours come
+ * from tokens.css / BrandStyles; no raw hex.
+ */
+
+.tt-dashboard.tt-shell-app {
+    /* Sidebar width lives here so the rail toggle is a one-value change
+       and the content column's grid track follows automatically. */
+    --tt-shell-nav-w: 210px;
+    --tt-shell-rail-w: 60px;
+}
+
+/* ---- Shell frame --------------------------------------------------- */
+/*
+ * Base (mobile): plain flow. The nav is an overlay, so it takes no space
+ * in the layout and the content column keeps the full viewport width.
+ */
+.tt-shell-app .tt-shell {
+    position: relative;
+}
+
+.tt-shell-app .tt-shell-main {
+    /* min-width:0 keeps wide grids (ratings, minutes, attendance) from
+       forcing the grid track wider than its share at desktop widths —
+       without it a 14-column table blows the column out and the page
+       scrolls sideways. */
+    min-width: 0;
+}
+
+/* ---- Nav: drawer presentation (base) ------------------------------- */
+.tt-shell-app .tt-shell-nav {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1200;
+    width: min(78vw, 300px);
+    display: flex;
+    flex-direction: column;
+    background: var(--tt-paper, #fff);
+    border-inline-end: 1px solid var(--tt-line, #e3e6e1);
+    box-shadow: var(--tt-shadow-lg, 0 10px 30px rgba(0, 0, 0, .18));
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .22s ease, visibility .22s ease;
+    /* Clear the iOS notch and home indicator when the drawer hugs the
+       screen edges. */
+    padding-block: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-bottom));
+    padding-inline-start: max(0.35rem, env(safe-area-inset-left));
+    padding-inline-end: 0.35rem;
+    /* Keep drawer scrolling from bleeding into the page behind it. */
+    overscroll-behavior: contain;
+}
+
+.tt-shell-app .tt-shell-nav.is-open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.tt-shell-app .tt-shell-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgba(0, 0, 0, .38);
+}
+
+.tt-shell-app .tt-shell-scrim[hidden] {
+    display: none;
+}
+
+.tt-shell-app .tt-shell-nav__scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-inline: 0.35rem;
+}
+
+/* The collapse toggle is a desktop affordance; below 1024px the drawer
+   is the presentation and the header hamburger is its control. */
+.tt-shell-app .tt-shell-nav__collapse {
+    display: none;
+}
+
+/* ---- Nav contents -------------------------------------------------- */
+.tt-shell-app .tt-shell-nav__group {
+    margin: 1rem 0 0.25rem;
+    padding-inline: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-shell-app .tt-shell-nav__group:first-child {
+    margin-top: 0.25rem;
+}
+
+.tt-shell-app .tt-shell-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* 8px minimum between adjacent touch targets (CLAUDE.md §2). */
+    gap: 0.5rem;
+}
+
+.tt-shell-app .tt-shell-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    /* 48px minimum tappable height. */
+    min-height: 48px;
+    padding: 0.5rem 0.6rem;
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    /* Kill the 300ms tap delay on Android. */
+    touch-action: manipulation;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+/* Tap feedback within 100ms without waiting for JS. */
+.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-bg-soft, #f4f6f3);
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--tt-primary, #0b3d2e);
+}
+
+.tt-shell-app .tt-shell-nav__icon {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-shell-app .tt-shell-nav__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---- Drawer toggle (header) ---------------------------------------- */
+.tt-dashboard .tt-shell-drawer-toggle {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    margin-inline-end: 0.15rem;
+    border: 0;
+    border-radius: var(--tt-radius, 8px);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-shell-drawer-toggle:hover,
+.tt-dashboard .tt-shell-drawer-toggle:focus-visible {
+    background: rgba(255, 255, 255, .14);
+}
+
+.tt-dashboard .tt-shell-drawer-toggle:focus-visible {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: 2px;
+}
+
+/* ---- 1024px+: persistent sidebar ----------------------------------- */
+@media (min-width: 1024px) {
+    .tt-shell-app .tt-shell {
+        display: grid;
+        grid-template-columns: var(--tt-shell-nav-w) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .tt-shell-app .tt-shell-nav {
+        position: sticky;
+        /* The WP admin bar occupies the top 32px when present; the
+           dashboard header scrolls with the page, so the rail pins to
+           the viewport top and scrolls internally. */
+        top: 0;
+        inset-inline-start: auto;
+        z-index: 1;
+        width: auto;
+        max-height: 100vh;
+        max-height: 100dvh;
+        transform: none;
+        visibility: visible;
+        box-shadow: none;
+        background: transparent;
+        border-inline-end: 1px solid var(--tt-line, #e3e6e1);
+        padding: 0.75rem 0.35rem;
+    }
+
+    /* The drawer chrome has no job once the nav is persistent. */
+    .tt-shell-app .tt-shell-scrim,
+    .tt-dashboard.tt-shell-app .tt-shell-drawer-toggle {
+        display: none;
+    }
+
+    .tt-shell-app .tt-shell-nav__collapse {
+        display: inline-grid;
+        place-items: center;
+        align-self: flex-end;
+        width: 32px;
+        height: 32px;
+        margin: 0 0.25rem 0.35rem auto;
+        border: 1px solid var(--tt-line, #e3e6e1);
+        border-radius: var(--tt-radius, 8px);
+        background: var(--tt-paper, #fff);
+        color: var(--tt-ink-soft, #6a6d66);
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: transform .18s ease;
+    }
+
+    .tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-ink, #0e1a14);
+    }
+
+    .tt-shell-app .tt-shell-nav__collapse:focus-visible {
+        outline: 2px solid var(--tt-primary, #0b3d2e);
+        outline-offset: 2px;
+    }
+
+    .tt-shell-app .tt-shell-main {
+        padding-inline-start: 1rem;
+    }
+
+    /* ---- Collapsed icon rail --------------------------------------- */
+    .tt-shell-app .tt-shell.is-rail {
+        grid-template-columns: var(--tt-shell-rail-w) minmax(0, 1fr);
+    }
+
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__label,
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__group {
+        /* clip-path over display:none so the link keeps its accessible
+           name — a rail of unlabelled icons is unusable with a screen
+           reader, and aria-label on every link would duplicate the tile
+           label in a second place that can drift. */
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__link {
+        justify-content: center;
+        gap: 0;
+        padding-inline: 0;
+    }
+
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__collapse {
+        margin-inline: auto;
+        transform: rotate(180deg);
+    }
+}
+
+@media (min-width: 1280px) {
+    .tt-dashboard.tt-shell-app {
+        --tt-shell-nav-w: 230px;
+    }
+
+    .tt-shell-app .tt-shell-main {
+        padding-inline-start: 1.25rem;
+    }
+}
+
+/* ---- Motion preference --------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    .tt-shell-app .tt-shell-nav,
+    .tt-shell-app .tt-shell-nav__collapse,
+    .tt-shell-app .tt-shell-nav__link {
+        transition: none;
+    }
+}

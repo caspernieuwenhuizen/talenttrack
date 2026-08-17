@@ -71,6 +71,12 @@ class ConfigRestController {
         'rating_step',
         // #0019 Sprint 6 — wp-admin legacy-menu toggle
         'show_legacy_menus',
+        // #2456 — club-wide frontend shell: 'classic' (tile hub, today's
+        // chrome) or 'app' (persistent sidebar / drawer navigation).
+        // Individual users may override it in My settings; this is the
+        // default they inherit. Read through ShellPreference, never
+        // directly.
+        'tt_frontend_shell',
         // #0060 — default-dashboard toggle (persona vs classic tile grid)
         'persona_dashboard.enabled',
         // #0069 — per-persona overrides for the default-dashboard
