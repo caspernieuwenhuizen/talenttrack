@@ -23,6 +23,9 @@ class SearchRestControllerTest extends WP_UnitTestCase {
         $this->outsider_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 
         TileRegistry::clear();
+        // A declared `cap` is what makes these tiles capability-filtered.
+        // `manage_options` is held by the administrator and not by the
+        // subscriber, which is exactly the split the privacy test needs.
         TileRegistry::register( [
             'slug'      => 'players',
             'view_slug' => 'players',
@@ -30,6 +33,7 @@ class SearchRestControllerTest extends WP_UnitTestCase {
             'label'     => 'Players',
             'group'     => 'Performance',
             'order'     => 10,
+            'cap'       => 'manage_options',
             'url'       => home_url( '/?tt_view=players' ),
         ] );
         TileRegistry::register( [
@@ -39,6 +43,7 @@ class SearchRestControllerTest extends WP_UnitTestCase {
             'label'     => 'Measurements',
             'group'     => 'Performance',
             'order'     => 20,
+            'cap'       => 'manage_options',
             'url'       => home_url( '/?tt_view=measurements' ),
         ] );
     }
@@ -86,9 +91,9 @@ class SearchRestControllerTest extends WP_UnitTestCase {
     }
 
     public function test_view_results_are_capability_filtered_by_the_registry(): void {
-        // The subscriber has no tile caps, so the registry resolves an
-        // empty set — the endpoint inherits that filtering rather than
-        // reimplementing it.
+        // The subscriber fails both tiles' declared cap, so the registry
+        // resolves an empty set — the endpoint inherits that filtering
+        // rather than reimplementing it, which is the point.
         wp_set_current_user( $this->outsider_id );
 
         $this->assertSame( [], $this->get( '', 'view' )['results'] );
@@ -117,6 +122,7 @@ class SearchRestControllerTest extends WP_UnitTestCase {
                 'label'     => 'Filler ' . $i,
                 'group'     => 'Reference',
                 'order'     => 100 + $i,
+                'cap'       => 'manage_options',
                 'url'       => home_url( '/?tt_view=filler-' . $i ),
             ] );
         }
