@@ -233,4 +233,127 @@ final class SavedViewsRestTest extends WP_UnitTestCase {
         wp_set_current_user( $this->admin() );
         $this->assertSame( 400, $this->save( 'attendance_team', '   ', [ 'period' => 'x' ] )->get_status() );
     }
+
+    // --- rename / overwrite (#2451) ------------------------------------
+
+    private function patch( int $id, array $body ): \WP_REST_Response {
+        $req = new WP_REST_Request( 'PATCH', self::BASE . '/' . $id );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( wp_json_encode( $body ) );
+        return rest_do_request( $req );
+    }
+
+    public function test_rename_keeps_the_filters(): void {
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Old name', [ 'period' => 'this_season' ] )->get_data()['data'];
+
+        $this->assertSame( 200, $this->patch( (int) $saved['id'], [ 'name' => 'New name' ] )->get_status() );
+
+        $views = $this->listViews( 'attendance_team' );
+        $this->assertCount( 1, $views, 'rename must not create a second row' );
+        $this->assertSame( 'New name', $views[0]['name'] );
+        $this->assertSame( 'this_season', $views[0]['filters']['period'], 'filters must survive a rename' );
+    }
+
+    public function test_overwrite_keeps_the_name(): void {
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Keep me', [ 'period' => 'this_season' ] )->get_data()['data'];
+
+        $this->assertSame( 200, $this->patch( (int) $saved['id'], [
+            'filters' => [ 'period' => 'last_month', 'activity_type_key' => 'game' ],
+        ] )->get_status() );
+
+        $views = $this->listViews( 'attendance_team' );
+        $this->assertSame( 'Keep me', $views[0]['name'], 'name must survive an overwrite' );
+        $this->assertSame( 'last_month', $views[0]['filters']['period'] );
+        $this->assertSame( 'game', $views[0]['filters']['activity_type_key'] );
+    }
+
+    public function test_rename_and_overwrite_together(): void {
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Before', [ 'period' => 'this_season' ] )->get_data()['data'];
+
+        $this->patch( (int) $saved['id'], [ 'name' => 'After', 'filters' => [ 'period' => 'this_week' ] ] );
+
+        $views = $this->listViews( 'attendance_team' );
+        $this->assertSame( 'After', $views[0]['name'] );
+        $this->assertSame( 'this_week', $views[0]['filters']['period'] );
+    }
+
+    public function test_patch_with_no_fields_is_a_noop_not_an_error(): void {
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Untouched', [ 'period' => 'this_season' ] )->get_data()['data'];
+
+        $this->assertSame( 200, $this->patch( (int) $saved['id'], [] )->get_status() );
+        $views = $this->listViews( 'attendance_team' );
+        $this->assertSame( 'Untouched', $views[0]['name'] );
+        $this->assertSame( 'this_season', $views[0]['filters']['period'] );
+    }
+
+    public function test_rename_to_blank_is_rejected(): void {
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Named', [ 'period' => 'x' ] )->get_data()['data'];
+
+        $this->assertSame( 400, $this->patch( (int) $saved['id'], [ 'name' => '   ' ] )->get_status() );
+        $this->assertSame( 'Named', $this->listViews( 'attendance_team' )[0]['name'] );
+    }
+
+    public function test_cannot_patch_another_users_view(): void {
+        $owner = $this->admin();
+        wp_set_current_user( $owner );
+        $saved = $this->save( 'attendance_team', 'Mine', [ 'period' => 'x' ] )->get_data()['data'];
+
+        wp_set_current_user( $this->admin() );
+        $this->assertSame( 403, $this->patch( (int) $saved['id'], [ 'name' => 'Hijacked' ] )->get_status() );
+
+        wp_set_current_user( $owner );
+        $this->assertSame( 'Mine', $this->listViews( 'attendance_team' )[0]['name'] );
+    }
+
+    // --- duplicate names (#2451) ----------------------------------------
+
+    public function test_duplicate_name_on_save_is_rejected(): void {
+        // Two identically-named chips are indistinguishable once rendered.
+        wp_set_current_user( $this->admin() );
+        $this->save( 'attendance_team', 'Same', [ 'period' => 'this_season' ] );
+
+        $this->assertSame( 409, $this->save( 'attendance_team', 'Same', [ 'period' => 'this_week' ] )->get_status() );
+        $this->assertCount( 1, $this->listViews( 'attendance_team' ) );
+    }
+
+    public function test_duplicate_name_on_rename_is_rejected(): void {
+        wp_set_current_user( $this->admin() );
+        $this->save( 'attendance_team', 'First', [ 'period' => 'a' ] );
+        $second = $this->save( 'attendance_team', 'Second', [ 'period' => 'b' ] )->get_data()['data'];
+
+        $this->assertSame( 409, $this->patch( (int) $second['id'], [ 'name' => 'First' ] )->get_status() );
+    }
+
+    public function test_saving_a_views_own_name_back_is_not_a_clash(): void {
+        // The rename dialog pre-fills the current name; submitting it
+        // unchanged (with an overwrite ticked) must not 409 on itself.
+        wp_set_current_user( $this->admin() );
+        $saved = $this->save( 'attendance_team', 'Stable', [ 'period' => 'a' ] )->get_data()['data'];
+
+        $this->assertSame( 200, $this->patch( (int) $saved['id'], [
+            'name'    => 'Stable',
+            'filters' => [ 'period' => 'b' ],
+        ] )->get_status() );
+        $this->assertSame( 'b', $this->listViews( 'attendance_team' )[0]['filters']['period'] );
+    }
+
+    public function test_the_same_name_on_a_different_surface_is_allowed(): void {
+        // Views are scoped per surface, so "This season" can exist on both.
+        wp_set_current_user( $this->admin() );
+        $this->assertSame( 200, $this->save( 'attendance_team', 'This season', [ 'period' => 'a' ] )->get_status() );
+        $this->assertSame( 200, $this->save( 'minutes_team', 'This season', [ 'period' => 'a' ] )->get_status() );
+    }
+
+    public function test_two_users_may_use_the_same_name(): void {
+        wp_set_current_user( $this->admin() );
+        $this->assertSame( 200, $this->save( 'attendance_team', 'Shared name', [ 'period' => 'a' ] )->get_status() );
+
+        wp_set_current_user( $this->admin() );
+        $this->assertSame( 200, $this->save( 'attendance_team', 'Shared name', [ 'period' => 'a' ] )->get_status() );
+    }
 }

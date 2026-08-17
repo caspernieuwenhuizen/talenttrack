@@ -64,9 +64,21 @@ final class SavedViewsRestController extends BaseController {
                 [
                     'methods'             => 'DELETE',
                     'callback'            => [ self::class, 'deleteView' ],
-                    'permission_callback' => [ self::class, 'permitDelete' ],
+                    'permission_callback' => [ self::class, 'permitById' ],
                     'args'                => [
                         'id' => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
+                    ],
+                ],
+                [
+                    // #2451 — rename and/or overwrite. Previously the only way
+                    // to change a view was delete + re-save, which lost its
+                    // place in the list and (from #2450) its default flag.
+                    'methods'             => 'PATCH',
+                    'callback'            => [ self::class, 'updateView' ],
+                    'permission_callback' => [ self::class, 'permitById' ],
+                    'args'                => [
+                        'id'   => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
+                        'name' => [ 'sanitize_callback' => 'sanitize_text_field' ],
                     ],
                 ],
             ] );
@@ -84,10 +96,11 @@ final class SavedViewsRestController extends BaseController {
     }
 
     /**
-     * DELETE carries no view_key — the row does. Resolve the row first (which
-     * also proves ownership), then gate on its surface's capability.
+     * The by-id routes (DELETE, PATCH) carry no view_key — the row does.
+     * Resolve the row first (which also proves ownership), then gate on its
+     * surface's capability.
      */
-    public static function permitDelete( WP_REST_Request $req ): bool {
+    public static function permitById( WP_REST_Request $req ): bool {
         if ( ! is_user_logged_in() ) return false;
         $row = ( new SavedViewsRepository() )->find( (int) $req->get_param( 'id' ), get_current_user_id() );
         if ( $row === null ) return false;
@@ -121,7 +134,67 @@ final class SavedViewsRestController extends BaseController {
         $raw     = $req->get_param( 'filters' );
         $filters = self::sanitizeFilterPayload( is_array( $raw ) ? $raw : [] );
 
-        $row = ( new SavedViewsRepository() )->create( get_current_user_id(), $view_key, $name, $filters );
+        $repo = new SavedViewsRepository();
+
+        // #2451 — reject a duplicate name rather than silently creating a
+        // second identical chip the user then can't tell apart.
+        if ( $repo->nameExists( get_current_user_id(), $view_key, $name ) ) {
+            return RestResponse::error(
+                'duplicate_name',
+                __( 'You already have a saved view with that name.', 'talenttrack' ),
+                409
+            );
+        }
+
+        $row = $repo->create( get_current_user_id(), $view_key, $name, $filters );
+        if ( $row === null ) {
+            return RestResponse::error( 'save_failed', __( 'Could not save this view.', 'talenttrack' ), 422 );
+        }
+        return RestResponse::success( self::shapeView( $row ) );
+    }
+
+    /**
+     * #2451 — rename a saved view and/or overwrite its filters.
+     *
+     * Both are optional and independent: `{ "name": "…" }` renames,
+     * `{ "filters": {…} }` overwrites, both together does both. Omitting a
+     * field leaves it untouched — which is what makes "Update this view with
+     * my current filters" a single call that keeps the name.
+     */
+    public static function updateView( WP_REST_Request $req ): \WP_REST_Response {
+        $id   = (int) $req->get_param( 'id' );
+        $uid  = get_current_user_id();
+        $repo = new SavedViewsRepository();
+
+        $existing = $repo->find( $id, $uid );
+        if ( $existing === null ) {
+            return RestResponse::error( 'not_found', __( 'View not found.', 'talenttrack' ), 404 );
+        }
+
+        $name = null;
+        if ( $req->get_param( 'name' ) !== null ) {
+            $name = trim( (string) $req->get_param( 'name' ) );
+            if ( $name === '' ) {
+                return RestResponse::error( 'missing_name', __( 'Give this view a name first.', 'talenttrack' ), 400 );
+            }
+            if ( mb_strlen( $name ) > self::MAX_NAME_LEN ) {
+                $name = mb_substr( $name, 0, self::MAX_NAME_LEN );
+            }
+            if ( $repo->nameExists( $uid, (string) $existing->view_key, $name, $id ) ) {
+                return RestResponse::error(
+                    'duplicate_name',
+                    __( 'You already have a saved view with that name.', 'talenttrack' ),
+                    409
+                );
+            }
+        }
+
+        $filters = null;
+        if ( is_array( $req->get_param( 'filters' ) ) ) {
+            $filters = self::sanitizeFilterPayload( (array) $req->get_param( 'filters' ) );
+        }
+
+        $row = $repo->update( $id, $uid, $name, $filters );
         if ( $row === null ) {
             return RestResponse::error( 'save_failed', __( 'Could not save this view.', 'talenttrack' ), 422 );
         }

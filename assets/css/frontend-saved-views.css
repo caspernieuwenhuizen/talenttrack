@@ -44,12 +44,15 @@
     line-height: 1.2;
 }
 
-.tt-saved-views__del {
+/* #2451 — one manage control per chip, replacing the 32px delete button.
+   48x48 meets the touch floor; three separate icon buttons at that size
+   could not sit side by side in a chip at 360px. */
+.tt-saved-views__manage {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 48px;
+    height: 48px;
     border: none;
     border-radius: 50%;
     background: transparent;
@@ -60,17 +63,45 @@
     touch-action: manipulation;
 }
 
-.tt-saved-views__del:hover,
-.tt-saved-views__del:focus-visible {
+.tt-saved-views__manage:hover,
+.tt-saved-views__manage:focus-visible {
     background: var(--tt-warning-subtle, #fdf3d8);
     color: var(--tt-ink, #0e1a14);
 }
 
-.tt-saved-views__empty {
+/* Name field inside the manage modal. 16px font stops iOS zooming on focus. */
+.tt-saved-views__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin-bottom: var(--tt-sp-3, 12px);
     font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-muted, #6a6d66);
-    list-style: none;
 }
+
+.tt-saved-views__field input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 12px;
+    font-size: 16px;
+    border: 1px solid var(--tt-line, #d8dcde);
+    border-radius: var(--tt-r-md, 6px);
+}
+
+/* Cancel / Delete / Save. Wraps rather than crushing below 48px at 360px;
+   Delete is pushed away from Save so a mis-tap is less likely. */
+.tt-saved-views__modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-saved-views__modal-actions .tt-btn-danger {
+    margin-right: auto;
+}
+
+/* `.tt-saved-views__empty` removed with #2448: the strip now collapses to
+   just the save action when there are no views, so there is no empty-state
+   row left to style. */
 
 .tt-saved-views__save {
     display: flex;

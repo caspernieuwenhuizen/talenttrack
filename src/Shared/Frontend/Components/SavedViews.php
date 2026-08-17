@@ -57,16 +57,23 @@ final class SavedViews {
                 $apply   = add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url );
                 $name    = (string) $view->name;
 
-                $out .= '<li class="tt-saved-views__item">';
+                $out .= '<li class="tt-saved-views__item" data-tt-view-id="' . (int) $view->id . '"'
+                    . ' data-tt-view-name="' . esc_attr( $name ) . '">';
                 $out .= '<a class="tt-saved-views__apply" href="' . esc_url( $apply ) . '">'
                     . esc_html( $name ) . '</a>';
-                $out .= '<button type="button" class="tt-saved-views__del"'
-                    . ' data-tt-view-delete="' . (int) $view->id . '"'
+                // #2451 — one manage control per chip rather than separate
+                // rename / overwrite / delete buttons. Three icon buttons per
+                // chip could not meet the 48px touch floor side by side at
+                // 360px, and a strip of five views would carry fifteen of
+                // them. The dialog behind this covers all three actions.
+                $out .= '<button type="button" class="tt-saved-views__manage"'
+                    . ' data-tt-view-manage="' . (int) $view->id . '"'
+                    . ' aria-haspopup="dialog"'
                     . ' aria-label="' . esc_attr( sprintf(
                         /* translators: %s: saved view name */
-                        __( 'Delete saved view %s', 'talenttrack' ),
+                        __( 'Edit or delete saved view %s', 'talenttrack' ),
                         $name
-                    ) ) . '">&times;</button>';
+                    ) ) . '">&hellip;</button>';
                 $out .= '</li>';
             }
             $out .= '</ul>';
@@ -116,10 +123,22 @@ final class SavedViews {
 
         wp_localize_script( 'tt-saved-views', 'TT_SavedViews', [
             'i18n' => [
-                'name_required'  => __( 'Give this view a name first.', 'talenttrack' ),
-                'saved'          => __( 'Saved.', 'talenttrack' ),
-                'delete_confirm' => __( 'Delete this saved view?', 'talenttrack' ),
-                'error'          => __( 'Something went wrong. Please try again.', 'talenttrack' ),
+                'name_required'     => __( 'Give this view a name first.', 'talenttrack' ),
+                'saved'             => __( 'Saved.', 'talenttrack' ),
+                'error'             => __( 'Something went wrong. Please try again.', 'talenttrack' ),
+                // #2451 — <dialog>-backed confirms, replacing window.confirm /
+                // window.alert (the pattern frontend-archive-button.js moved
+                // to in v3.110.104 so the prompt is localised and readable to
+                // a screen reader).
+                'manage_title'      => __( 'Edit saved view', 'talenttrack' ),
+                'name_label'        => __( 'Name', 'talenttrack' ),
+                'overwrite_label'   => __( 'Also replace its filters with the ones set now', 'talenttrack' ),
+                'delete_confirm'    => __( 'Delete this saved view? This cannot be undone.', 'talenttrack' ),
+                'notice_title'      => __( 'Saved views', 'talenttrack' ),
+                'delete'            => __( 'Delete', 'talenttrack' ),
+                'cancel'            => __( 'Cancel', 'talenttrack' ),
+                'save'              => __( 'Save', 'talenttrack' ),
+                'ok'                => __( 'OK', 'talenttrack' ),
             ],
         ] );
     }
