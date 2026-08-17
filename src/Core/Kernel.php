@@ -130,6 +130,12 @@ class Kernel {
         // #2160 — minutes audit / trace-back: per-player per-match
         // breakdown over REST (same hardened MinutesQuery the reports use).
         \TT\Infrastructure\REST\MinutesRestController::init();
+        // #2458 — cross-entity search behind the command palette, and
+        // read-only record summaries behind the peek panel. Registered here
+        // rather than from a module: both span players, teams and
+        // activities, so neither belongs to one module's boot.
+        \TT\Infrastructure\REST\SearchRestController::init();
+        \TT\Infrastructure\REST\PeekRestController::init();
         // #2448 — personal saved filter views for any FilterBar surface.
         // Registered here rather than from AnalyticsModule (where #2385 put
         // it): the surfaces now span list views too, so the endpoint must

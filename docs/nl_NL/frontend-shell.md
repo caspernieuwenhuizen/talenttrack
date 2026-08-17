@@ -76,6 +76,31 @@ tegeloverzicht bouwt, dus:
 Er is niets via de navigatie bereikbaar dat dat eerder niet was, en er is niets
 verborgen dat eerder wel bereikbaar was.
 
+## Zoeken — spring naar alles
+
+Het zoekveld in de bovenbalk, of **⌘K** / **Ctrl+K**, opent een spring-naar-
+venster. Het vindt secties, spelers, teams en activiteiten, en opent met de
+secties die je kunt bereiken — het werkt dus al als startpunt vóórdat je iets
+typt.
+
+Pijltjestoetsen verplaatsen, Enter opent, Escape sluit. De sneltoets is alleen
+een versnelling: het zoekveld doet hetzelfde, dus niets hangt ervan af of je hem
+kent.
+
+Je ziet alleen records waar je al toegang toe hebt. Zoeken verbreedt niet wat je
+mag bereiken; het maakt bereiken alleen sneller.
+
+## Voorbeeld — kijken zonder weg te gaan
+
+Op een laptop opent een link naar een speler, team of activiteit vanuit een
+andere pagina nu een **voorbeeldpaneel** naast wat je aan het lezen was, in
+plaats van weg te navigeren. Bekijk het detail en kies dan **Openen** of
+**Sluiten** — je gaat verder waar je was, met je scrollpositie intact.
+
+Voorbeelden zijn alleen-lezen. Op telefoons en tablets navigeert de link gewoon,
+zoals altijd: een paneel dat het grootste deel van een telefoonscherm vult, is
+niet meer dan een pagina met extra stappen.
+
 ## Aandachtspunten
 
 - Of de zijbalk in- of uitgeklapt staat, onthoudt je browser per apparaat.

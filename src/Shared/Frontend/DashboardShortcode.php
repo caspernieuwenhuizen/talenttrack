@@ -76,6 +76,22 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
+            // #2458 — command palette + peek panel. The sidebar solves the
+            // ~30 grouped destinations; the palette is what reaches a named
+            // record and the long setup / report tail.
+            wp_enqueue_style(
+                'tt-frontend-spotlight',
+                TT_PLUGIN_URL . 'assets/css/frontend-spotlight.css',
+                [ 'tt-frontend-app-shell' ],
+                TT_VERSION
+            );
+            wp_enqueue_script(
+                'tt-spotlight',
+                TT_PLUGIN_URL . 'assets/js/components/spotlight.js',
+                [ 'tt-public' ],
+                TT_VERSION,
+                true
+            );
         }
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
@@ -127,6 +143,19 @@ class DashboardShortcode {
             'i18n'       => [
                 'shell_nav_collapse'   => __( 'Collapse navigation', 'talenttrack' ),
                 'shell_nav_expand'     => __( 'Expand navigation', 'talenttrack' ),
+                // #2458 — palette + peek. Strings go through TT.i18n rather
+                // than being hardcoded in JS (CLAUDE.md §4).
+                'spotlight_title'         => __( 'Jump to', 'talenttrack' ),
+                'spotlight_placeholder'   => __( 'Search players, teams, activities…', 'talenttrack' ),
+                'spotlight_empty'         => __( 'Nothing matched.', 'talenttrack' ),
+                'spotlight_type_view'     => __( 'Section', 'talenttrack' ),
+                'spotlight_type_player'   => __( 'Player', 'talenttrack' ),
+                'spotlight_type_team'     => __( 'Team', 'talenttrack' ),
+                'spotlight_type_activity' => __( 'Activity', 'talenttrack' ),
+                'peek_title'              => __( 'Preview', 'talenttrack' ),
+                'peek_loading'            => __( 'Loading…', 'talenttrack' ),
+                'peek_open'               => __( 'Open', 'talenttrack' ),
+                'peek_close'              => __( 'Close', 'talenttrack' ),
                 'saving'               => __( 'Saving...', 'talenttrack' ),
                 'saved'                => __( 'Saved.', 'talenttrack' ),
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
@@ -1625,6 +1654,19 @@ class DashboardShortcode {
         echo '</div>';
 
         echo '<div class="tt-dash-actions">';
+
+        // #2458 — the palette's non-keyboard entry point. ⌘K opens the same
+        // overlay, so the shortcut only ever accelerates (CLAUDE.md §2: a
+        // shortcut needs a non-shortcut fallback). Falls back to the tile
+        // hub without JS, so it is never a dead control.
+        if ( ShellPreference::isApp( (int) $user->ID ) ) {
+            echo '<a href="' . esc_url( self::shortcodeBaseUrl() ) . '" '
+                . 'class="tt-spotlight-trigger" data-tt-spotlight-open '
+                . 'aria-label="' . esc_attr__( 'Search players, teams, activities…', 'talenttrack' ) . '">'
+                . '<span aria-hidden="true">' . esc_html__( 'Search', 'talenttrack' ) . '</span>'
+                . '<span class="tt-spotlight-trigger__hint" aria-hidden="true">⌘K</span>'
+                . '</a>';
+        }
 
         // Filter point — other modules can inject pill-style affordances
         // (open-task bell, etc.) into the actions row so they sit on the

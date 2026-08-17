@@ -207,6 +207,59 @@ Direct, confirmed status transition for the detail view's buttons. Body `{ statu
 
 Writes `activity_status_key` **and** the derived `plan_state` (`planned` → `scheduled`, otherwise the same value), then fires `tt_activity_status_changed`.
 
+## Search + peek (#2458)
+
+Backs the command palette and the peek panel in the app shell. Both exist as REST
+endpoints per CLAUDE.md §4 — the feature is reachable by a non-WordPress front
+end, not only via rendered HTML.
+
+### `GET /search`
+
+`?q=<string>&types=view,player,team,activity`
+
+Permission: any logged-in user. **The gate is per row, not per route.**
+
+```json
+{ "results": [
+  { "type": "player", "id": 42, "label": "Sem de Vries", "sublabel": "JO15-1",
+    "url": "https://…/?tt_view=players&id=42" }
+] }
+```
+
+| Type | Source | Filtering |
+| --- | --- | --- |
+| `view` | `TileRegistry::tilesForUserGrouped()` | Inherited — capability, per-persona labels, `__hidden__`, module/feature gating |
+| `player` | `tt_players` prefilter | Every row through `AuthorizationService::canViewPlayer()` |
+| `team` | `tt_teams` | `tt_view_teams` |
+| `activity` | `tt_activities` | `tt_view_activities` |
+
+Two constraints that are load-bearing rather than cosmetic:
+
+- **Player rows are filtered per record**, using the same authorization the
+  detail view uses. A capability check on the route would let someone with
+  `tt_view_players` enumerate players outside their scope. These are minors
+  (§1); the search box is the easiest place in a product to leak one.
+- **Results are hard-capped at 8** and record types need ≥2 characters. An
+  uncapped search is both a performance problem and an enumeration surface.
+
+### `GET /players/{id}/summary`, `/teams/{id}/summary`, `/activities/{id}/summary`
+
+Read-only summaries behind the peek panel. Permission is the same per-record
+check the detail view uses — `canViewPlayer()` for players, the view capability
+for teams and activities — so a record you cannot open is a record you cannot
+peek.
+
+```json
+{ "type": "player", "id": 42, "title": "Sem de Vries", "subtitle": "JO15-1",
+  "url": "https://…/?tt_view=players&id=42",
+  "facts": [ { "label": "Status", "value": "Signed" } ] }
+```
+
+One envelope for all three so the panel renders one way. Facts with an empty
+value are dropped server-side rather than rendered blank. **Read-only in v1** —
+editing inside a panel means a second save path and a stale-parent problem, on a
+surface whose job is orientation rather than data entry.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

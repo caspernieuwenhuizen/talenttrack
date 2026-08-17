@@ -39,11 +39,44 @@ final class RecordLink {
         if ( $label === '' || $detail_url === '' ) return esc_html( $label );
         $cls = self::CLASS_BASE . ( $css_class !== '' ? ' ' . $css_class : '' );
         return sprintf(
-            '<a class="%s" href="%s">%s</a>',
+            '<a class="%s" href="%s"%s>%s</a>',
             esc_attr( $cls ),
             esc_url( $detail_url ),
+            self::peekAttr( $detail_url ),
             esc_html( $label )
         );
+    }
+
+    /**
+     * #2458 — mark a cross-entity link as peekable.
+     *
+     * Derived from the URL the caller already built rather than added at
+     * each of the dozens of call sites: every link that goes through
+     * `RecordLink` becomes peekable at once, and none of them has to know
+     * the peek feature exists. A link to anything without a summary
+     * endpoint gets no attribute and keeps behaving exactly as before.
+     *
+     * The href stays real and correct regardless — peek is layered on top
+     * of a working link, never a substitute for one, which is what keeps
+     * the no-JS path and "open in a new tab" intact.
+     */
+    private static function peekAttr( string $detail_url ): string {
+        $query = (string) wp_parse_url( $detail_url, PHP_URL_QUERY );
+        if ( $query === '' ) return '';
+
+        $args = [];
+        wp_parse_str( $query, $args );
+
+        $view = isset( $args['tt_view'] ) ? sanitize_key( (string) $args['tt_view'] ) : '';
+        $id   = isset( $args['id'] ) ? (int) $args['id'] : 0;
+        if ( $id <= 0 ) return '';
+
+        // Only the record types with a summary endpoint (PeekRestController).
+        if ( ! in_array( $view, [ 'players', 'teams', 'activities' ], true ) ) {
+            return '';
+        }
+
+        return ' data-tt-peek="' . esc_attr( $view . ':' . $id ) . '"';
     }
 
     /**
@@ -54,7 +87,9 @@ final class RecordLink {
      */
     public static function wrap( string $detail_url, string $css_class = '' ): void {
         $cls = self::CLASS_BASE . ( $css_class !== '' ? ' ' . $css_class : '' );
-        echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $detail_url ) . '">';
+        echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $detail_url ) . '"'
+            . self::peekAttr( $detail_url ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            . '>';
     }
 
     /**

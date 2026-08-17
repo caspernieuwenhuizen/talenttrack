@@ -1,0 +1,272 @@
+/*
+ * frontend-spotlight.css — command palette + peek panel (#2458).
+ *
+ * Loaded only under the `app` shell, alongside frontend-app-shell.css.
+ *
+ * Mobile-first per CLAUDE.md §2. The palette is genuinely useful on a
+ * phone — typing a name beats scrolling a list — so its base rules are
+ * the real ones. The peek panel is the opposite: below 1024px the script
+ * falls through to normal navigation, because a panel covering 90% of a
+ * 360px viewport is just a page with extra steps. Its rules therefore
+ * start at the sidebar breakpoint.
+ */
+
+/* ================================================================
+ * Command palette
+ * ============================================================== */
+
+.tt-spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
+}
+
+.tt-spotlight[hidden] {
+    display: none;
+}
+
+.tt-spotlight__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .42);
+}
+
+.tt-spotlight__panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 560px;
+    max-height: min(70vh, 520px);
+    display: flex;
+    flex-direction: column;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-lg, 0 18px 48px rgba(0, 0, 0, .28));
+    overflow: hidden;
+}
+
+.tt-spotlight__input {
+    flex: 0 0 auto;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    padding: 0.9rem 1rem;
+    /* ≥16px so iOS does not zoom the page on focus (CLAUDE.md §2). */
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--tt-ink, #0e1a14);
+    background: transparent;
+}
+
+.tt-spotlight__input:focus {
+    outline: none;
+    border-bottom-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-spotlight__list {
+    flex: 1 1 auto;
+    list-style: none;
+    margin: 0;
+    padding: 0.35rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.tt-spotlight__list li.is-active .tt-spotlight__result {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-spotlight__result {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    /* 48px minimum target. */
+    min-height: 48px;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-spotlight__result:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-spotlight__result:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
+.tt-spotlight__kind {
+    flex: 0 0 auto;
+    min-width: 62px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-spotlight__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-spotlight__sub {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-spotlight__empty {
+    padding: 1rem 0.65rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: 0.9rem;
+}
+
+/* Utility-bar trigger — the non-keyboard way in, so ⌘K only ever
+   accelerates (CLAUDE.md §2: a shortcut must have a non-shortcut
+   fallback). */
+.tt-dashboard .tt-spotlight-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 0.7rem;
+    border: 1px solid rgba(255, 255, 255, .18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-spotlight-trigger:hover,
+.tt-dashboard .tt-spotlight-trigger:focus-visible {
+    background: rgba(255, 255, 255, .16);
+}
+
+.tt-dashboard .tt-spotlight-trigger:focus-visible {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: 2px;
+}
+
+.tt-spotlight-trigger__hint {
+    display: none;
+    font-size: 0.72rem;
+    opacity: .7;
+}
+
+@media (min-width: 1024px) {
+    .tt-spotlight-trigger__hint {
+        display: inline;
+    }
+}
+
+/* ================================================================
+ * Peek panel — sidebar breakpoint and up only
+ * ============================================================== */
+
+.tt-peek {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .tt-peek {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1300;
+    }
+
+    .tt-peek[hidden] {
+        display: none;
+    }
+
+    .tt-peek__scrim {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, .22);
+    }
+
+    .tt-peek__panel {
+        position: absolute;
+        inset-block: 0;
+        inset-inline-end: 0;
+        width: min(420px, 42vw);
+        display: flex;
+        flex-direction: column;
+        background: var(--tt-paper, #fff);
+        border-inline-start: 1px solid var(--tt-line, #e3e6e1);
+        box-shadow: -8px 0 28px rgba(0, 0, 0, .16);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .tt-peek__body {
+        padding: 1.1rem;
+        display: grid;
+        gap: 1rem;
+        align-content: start;
+    }
+
+    .tt-peek__title {
+        margin: 0;
+        font-size: 1.1rem;
+        line-height: 1.25;
+        color: var(--tt-ink, #0e1a14);
+    }
+
+    .tt-peek__sub {
+        margin: 0.2rem 0 0;
+        color: var(--tt-ink-soft, #6a6d66);
+        font-size: 0.9rem;
+    }
+
+    .tt-peek__facts {
+        margin: 0;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.4rem 0.9rem;
+        font-size: 0.9rem;
+    }
+
+    .tt-peek__facts dt {
+        color: var(--tt-ink-soft, #6a6d66);
+    }
+
+    .tt-peek__facts dd {
+        margin: 0;
+        color: var(--tt-ink, #0e1a14);
+    }
+
+    .tt-peek__actions {
+        display: flex;
+        gap: 0.5rem;
+        /* Commit action on the right, least-committal first in tab order —
+           same convention as FormSaveButton (CLAUDE.md §6). */
+        justify-content: flex-end;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-spotlight,
+    .tt-peek {
+        transition: none;
+    }
+}
