@@ -39537,6 +39537,18 @@ msgstr "Filters openen"
 msgid "Saving..."
 msgstr "Opslaan…"
 
+#: src/Shared/Frontend/DashboardShortcode.php:126
+msgid "Jump to"
+msgstr "Spring naar"
+
+#: src/Shared/Frontend/DashboardShortcode.php:127
+msgid "Search players, teams, activities…"
+msgstr "Zoek spelers, teams, activiteiten…"
+
+#: src/Shared/Frontend/DashboardShortcode.php:128
+msgid "Nothing matched."
+msgstr "Geen resultaten."
+
 #: src/Shared/Frontend/Components/FrontendAppBottomBar.php:158
 msgid "Quick navigation"
 msgstr "Snelnavigatie"

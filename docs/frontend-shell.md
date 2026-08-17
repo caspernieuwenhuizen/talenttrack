@@ -73,6 +73,29 @@ builds the tile overview, so:
 Nothing is reachable through the navigation that was not reachable before, and
 nothing that was reachable has been hidden.
 
+## Search — jump to anything
+
+The search box in the top bar, or **⌘K** / **Ctrl+K**, opens a jump-to overlay.
+It finds sections, players, teams and activities, and opens showing the sections
+you can reach — so it works as a launcher before you type anything.
+
+Arrow keys move, Enter opens, Escape closes. The shortcut is only ever a
+shortcut: the search box does the same thing, so nothing depends on knowing it.
+
+You only see records you already have access to. Search does not widen what you
+can reach; it just makes reaching it faster.
+
+## Preview — look without leaving
+
+On a laptop, following a link to a player, team or activity from somewhere else
+opens a **preview panel** beside what you were reading instead of navigating
+away. Check the detail, then either **Open** it properly or **Close** the panel
+and carry on exactly where you were, scroll position intact.
+
+Previews are read-only. On phones and tablets the link simply navigates, as it
+always did — a panel covering most of a phone screen is just a page with extra
+steps.
+
 ## Notes
 
 - The sidebar's collapsed/expanded state is remembered in your browser, per
