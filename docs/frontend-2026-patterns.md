@@ -118,6 +118,26 @@ Storage is `tt_saved_filters` (club- and user-scoped, with a `uuid`); the
 payload is opaque at the REST layer — the consuming view already sanitises its
 own `$_GET` on re-apply, which is the layer that knows what each param means.
 
+**On a `FrontendListTable` list**, pass `saved_views` in the list config and the
+component handles the rest (#2449) — it appends `search`, `orderby` and `order`
+to `extra_keys` itself, because a view that restored the filters but reset the
+sort would not be the view the user saved. Its `status` groups declare
+`param => filter[<key>]`, since the pills are link-based and `key` alone would
+give the bare filter key rather than the `filter[…]` form the URL carries.
+
+**Choosing the capability for a new surface:** use the capability that gates the
+list's own REST endpoint — that is what decides whether the user can see the
+rows a saved view filters. Where the endpoint gates on "view-cap OR edit-cap"
+(teams, goals), register both; the registry treats a list as any-of. A surface
+whose access is decided by composite logic rather than a single capability
+(trials' `canRead()`, the comparison view's scope rules) should NOT be wired up
+by guessing a close-enough cap — give it a considered pass instead.
+
+**Registered keys must survive `sanitize_key()`.** The REST layer runs
+`view_key` through it, so `[a-z0-9_-]` only — a `:` separator is silently
+stripped and the key becomes unresolvable. `SavedViewsRegistryTest` asserts this
+for every registered key.
+
 ## Layout & responsive
 
 - Mobile-first: base CSS at 360px; scale up with `min-width` at **480 / 768 / 1024** only (no 720/640/560 — see #1379).

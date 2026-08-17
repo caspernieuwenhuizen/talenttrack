@@ -335,6 +335,8 @@ class FrontendAuditLogView extends FrontendViewBase {
             'active_count' => $active_count,
             'chips'        => $chips,
             'reset_url'    => self::clearUrl(),
+            // #2449 — personal saved views for the audit log.
+            'saved_views'  => [ 'key' => 'audit-log' ],
             'groups'       => [
                 [
                     'type'        => 'select',

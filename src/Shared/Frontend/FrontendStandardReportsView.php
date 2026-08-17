@@ -354,6 +354,17 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             'active_count' => $active_count,
             'chips'        => $chips,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            // #2449 — personal saved views, keyed per report slug so a view
+            // saved on one standard report never surfaces on another. Every
+            // caller of this wrapper gets them; `extra_hidden` carries the
+            // report's own scope param (team_id / scout_id), which belongs in
+            // the saved view rather than in the always-applied base params.
+            'saved_views'  => [
+                'key'         => 'report-' . $slug,
+                'base_url'    => $dash_url,
+                'base_params' => [ 'tt_view' => 'standard-report', 'slug' => $slug ],
+                'extra_keys'  => array_keys( $extra_hidden ),
+            ],
             'groups'       => [
                 [
                     'type'         => 'period',

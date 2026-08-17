@@ -180,6 +180,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
         echo FrontendListTable::render( [
             'rest_path' => 'evaluations',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'evaluations-list' ],
             'columns'   => [
                 'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html' ],
                 'player_name'=> [ 'label' => __( 'Player',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],

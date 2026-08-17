@@ -119,6 +119,9 @@ class FrontendListTable {
         // grid rather than clickable column headers. Each entry:
         // [ 'label' => string, 'orderby' => string, 'order' => 'asc'|'desc' ].
         $sort_options = is_array( $config['sort_options'] ?? null ) ? $config['sort_options'] : [];
+        // #2449 — opt-in personal saved views: [ 'key' => '<registered key>' ].
+        // Omitted → no strip, no assets, exactly as before.
+        $saved_views  = is_array( $config['saved_views'] ?? null ) ? $config['saved_views'] : [];
 
         if ( $rest_path === '' || ! $columns ) return '';
 
@@ -198,7 +201,7 @@ class FrontendListTable {
             // unchanged — the bar's own <form> carries the `data-tt-list-form`
             // hook the hydrator binds to, so live-filtering and the no-JS
             // full-submit fallback both keep working.
-            $filterbar_args = self::buildFilterBarArgs( $filters, $search_cfg, $state, $layout, $sort_options );
+            $filterbar_args = self::buildFilterBarArgs( $filters, $search_cfg, $state, $layout, $sort_options, $saved_views );
             // No groups (no filters, no search, no card-sort) → nothing to
             // filter, so skip the bar entirely rather than render an empty
             // "Filters" button + sheet. Sort / pager / per-page bind on
@@ -350,7 +353,7 @@ class FrontendListTable {
      * @param array<int,mixed>     $sort_options
      * @return array<string,mixed>
      */
-    private static function buildFilterBarArgs( array $filters, array $search_cfg, array $state, string $layout, array $sort_options ): array {
+    private static function buildFilterBarArgs( array $filters, array $search_cfg, array $state, string $layout, array $sort_options, array $saved_views = [] ): array {
         $current = is_array( $state['filter'] ?? null ) ? $state['filter'] : [];
         $groups  = [];
 
@@ -442,7 +445,7 @@ class FrontendListTable {
         // --- Active-count + summary chips for the mobile collapsed bar.
         [ $active_count, $chips ] = self::activeSummary( $filters, $search_cfg, $state );
 
-        return [
+        $args = [
             'hidden'         => $hidden,
             'active_count'   => $active_count,
             'chips'          => $chips,
@@ -451,6 +454,21 @@ class FrontendListTable {
             'extra_controls' => $extra,
             'groups'         => $groups,
         ];
+
+        // #2449 — opt this list into personal saved views. `extra_keys` adds
+        // the three params the bar does not own but that are unmistakably
+        // part of "the view I set up": the search term and the sort. Without
+        // them a saved view would restore the filters but silently reset the
+        // sort order, which reads as the view not having worked.
+        if ( $saved_views !== [] && ( $saved_views['key'] ?? '' ) !== '' ) {
+            $saved_views['extra_keys'] = array_values( array_unique( array_merge(
+                [ 'search', 'orderby', 'order' ],
+                is_array( $saved_views['extra_keys'] ?? null ) ? $saved_views['extra_keys'] : []
+            ) ) );
+            $args['saved_views'] = $saved_views;
+        }
+
+        return $args;
     }
 
     /**
@@ -498,6 +516,12 @@ class FrontendListTable {
             'key'     => $key,
             'label'   => $label,
             'options' => $options,
+            // #2449 — status pills are link-based, so the param name exists
+            // only inside each option's URL. Declare it so
+            // FilterBar::paramNames() can pick it up for saved views; `key`
+            // alone would give the bare filter key, not the `filter[…]` form
+            // the pills actually set.
+            'param'   => 'filter[' . $key . ']',
         ];
     }
 

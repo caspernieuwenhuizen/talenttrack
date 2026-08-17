@@ -342,6 +342,8 @@ class FrontendGoalsManageView extends FrontendViewBase {
 
         echo FrontendListTable::render( [
             'rest_path' => 'goals',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'goals-list' ],
             'columns' => [
                 // #0063 — player + goal title clickable; status as a
                 // colour pill (display-only) instead of an inline-select.

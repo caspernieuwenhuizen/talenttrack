@@ -193,6 +193,8 @@ class FrontendTournamentsManageView extends FrontendViewBase {
 
         echo FrontendListTable::render( [
             'rest_path' => 'tournaments',
+            // #2449 — personal saved views for this list.
+            'saved_views' => [ 'key' => 'tournaments-list' ],
             'columns' => [
                 'name'       => [ 'label' => __( 'Name', 'talenttrack' ),       'sortable' => true ],
                 'team_name'  => [ 'label' => __( 'Team', 'talenttrack' ) ],
