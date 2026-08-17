@@ -164,6 +164,28 @@
         );
     }
 
+    function slotCells(id) {
+        return Array.prototype.slice.call(
+            grid.querySelectorAll('[data-tt-rgrid-slot-of="' + id + '"]')
+        );
+    }
+
+    /**
+     * Keep the main category's header spanning exactly the columns that are
+     * on screen. A collapsed sub is display:none, so it leaves the table
+     * altogether; a span still counting it invents columns no row fills, and
+     * every later group's header drifts off its own block (#2474).
+     */
+    function setSpan(id, open) {
+        var th = grid.querySelector('[data-tt-rgrid-group="' + id + '"]');
+        if (!th) return;
+        var own = parseInt(th.getAttribute('data-tt-rgrid-own'), 10) || 0;
+        var subs = parseInt(th.getAttribute('data-tt-rgrid-subs'), 10) || 0;
+        // Floor of 1: a group with nothing rateable of its own still needs a
+        // column to sit over while collapsed — that is the placeholder's job.
+        th.colSpan = Math.max(1, own + (open ? subs : 0));
+    }
+
     function setExpanded(btn, open) {
         var id = btn.getAttribute('data-tt-rgrid-toggle');
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -171,6 +193,9 @@
             fmt(t(open ? 'hideSubs' : 'showSubs', open ? 'Hide sub-categories of %s' : 'Show sub-categories of %s'),
                 [btn.getAttribute('data-label') || '']));
         groupCells(id).forEach(function (cell) { cell.classList.toggle('is-hidden', !open); });
+        // The placeholder is the inverse: it stands in only while collapsed.
+        slotCells(id).forEach(function (cell) { cell.classList.toggle('is-hidden', open); });
+        setSpan(id, open);
         markPending(btn);
     }
 

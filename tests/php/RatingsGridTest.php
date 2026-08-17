@@ -6,6 +6,7 @@ use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
+use TT\Modules\Activities\Frontend\FrontendRatingsGridView;
 use TT\Modules\Activities\Reports\RatingsGridQuery;
 use TT\Modules\Wizards\Evaluation\EvaluationInserter;
 
@@ -121,14 +122,14 @@ final class RatingsGridTest extends WP_UnitTestCase {
 
     // ---- category tiers (#2432) ------------------------------------------
 
-    /** Insert an active category, optionally under a parent. */
-    private function makeCategory( string $label, int $order, ?int $parent_id = null ): int {
+    /** Insert a category, optionally under a parent, optionally deactivated. */
+    private function makeCategory( string $label, int $order, ?int $parent_id = null, bool $active = true ): int {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_eval_categories', [
             'category_key'  => str_replace( ' ', '_', strtolower( $label ) ) . '_' . $this->activity_id . '_' . $order,
             'label'         => $label,
             'display_order' => $order,
-            'is_active'     => 1,
+            'is_active'     => $active ? 1 : 0,
             'parent_id'     => $parent_id,
         ] );
         return (int) $wpdb->insert_id;
@@ -208,6 +209,124 @@ final class RatingsGridTest extends WP_UnitTestCase {
             }
         }
         $this->fail( 'the main category should still have produced a group' );
+    }
+
+    // ---- rendered header geometry (#2474) --------------------------------
+
+    /** The grid as the coach receives it. */
+    private function renderGrid(): string {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $_GET['activity_id'] = $this->activity_id;
+
+        ob_start();
+        FrontendRatingsGridView::render( get_current_user_id(), true );
+        $html = (string) ob_get_clean();
+
+        unset( $_GET['activity_id'] );
+        return $html;
+    }
+
+    /**
+     * Columns claimed by the main header row, and columns supplied by each
+     * body row. A collapsed cell carries `is-hidden`, which is `display:none`
+     * — it leaves the table, so it counts for neither.
+     *
+     * @return array{head:int, body:list<int>}
+     */
+    private function columnGeometry( string $html ): array {
+        $doc = new \DOMDocument();
+        libxml_use_internal_errors( true );
+        $doc->loadHTML( '<?xml encoding="utf-8" ?><body>' . $html . '</body>' );
+        libxml_clear_errors();
+        $xp = new \DOMXPath( $doc );
+
+        $visible = static fn( \DOMElement $el ): bool =>
+            ! str_contains( ' ' . $el->getAttribute( 'class' ) . ' ', ' is-hidden ' );
+
+        $head = 0;
+        foreach ( $xp->query( "//tr[contains(@class,'tt-rgrid-head-main')]/th" ) as $th ) {
+            if ( ! $visible( $th ) ) continue;
+            $head += max( 1, (int) $th->getAttribute( 'colspan' ) );
+        }
+
+        $body = [];
+        foreach ( $xp->query( '//tbody/tr' ) as $tr ) {
+            $n = 0;
+            foreach ( $xp->query( 'th|td', $tr ) as $cell ) {
+                if ( $visible( $cell ) ) $n++;
+            }
+            $body[] = $n;
+        }
+
+        return [ 'head' => $head, 'body' => $body ];
+    }
+
+    /**
+     * The bug: a main header spanned its own column PLUS every sub, while a
+     * collapsed sub is `display:none` and supplies no column at all. The
+     * surplus columns are phantoms — the real cells pack to the left and
+     * every later main's header is painted over emptiness (#2474).
+     */
+    public function test_collapsed_group_header_spans_only_the_visible_columns(): void {
+        $tech = $this->makeCategory( 'Technical', 10 );
+        $this->makeCategory( 'Short pass', 11, $tech );
+        $this->makeCategory( 'First touch', 12, $tech );
+        $ment = $this->makeCategory( 'Mentality', 20 );
+        $this->makeCategory( 'Focus', 21, $ment );
+
+        $geo = $this->columnGeometry( $this->renderGrid() );
+
+        $this->assertNotSame( [], $geo['body'], 'the roster should have produced body rows' );
+        foreach ( $geo['body'] as $n ) {
+            $this->assertSame(
+                $geo['head'],
+                $n,
+                'the header must claim exactly the columns a row supplies, or the groups slide off their own block'
+            );
+        }
+    }
+
+    /** The same has to hold once a group auto-expands around a stored score. */
+    public function test_expanded_group_header_spans_only_the_visible_columns(): void {
+        $tech = $this->makeCategory( 'Technical', 10 );
+        $pass = $this->makeCategory( 'Short pass', 11, $tech );
+        $this->makeCategory( 'First touch', 12, $tech );
+        $ment = $this->makeCategory( 'Mentality', 20 );
+        $this->makeCategory( 'Focus', 21, $ment );
+
+        // Auto-expands Technical only; Mentality stays collapsed, so the two
+        // states have to line up in one and the same header row.
+        EvaluationInserter::upsertForActivity( $this->player_id, $this->activity_id, [ $pass => 8.0 ] );
+
+        $geo = $this->columnGeometry( $this->renderGrid() );
+
+        foreach ( $geo['body'] as $n ) {
+            $this->assertSame( $geo['head'], $n, 'expanding one group must not unbalance the row' );
+        }
+    }
+
+    /**
+     * A main that is not rateable in its own right collapses to zero columns,
+     * and a header cannot span zero. It gets a placeholder column instead, so
+     * the label and the expand toggle still have somewhere to live.
+     */
+    public function test_collapsed_group_without_its_own_column_keeps_a_placeholder(): void {
+        // Deactivating the main leaves its subs declared without it — the
+        // same shape as an eval type that declares only sub-categories.
+        $tech = $this->makeCategory( 'Technical', 10, null, false );
+        $this->makeCategory( 'Short pass', 11, $tech );
+
+        $html = $this->renderGrid();
+        $geo  = $this->columnGeometry( $html );
+
+        $this->assertStringContainsString(
+            'data-tt-rgrid-slot-of="' . $tech . '"',
+            $html,
+            'the collapsed group needs a column to sit over'
+        );
+        foreach ( $geo['body'] as $n ) {
+            $this->assertSame( $geo['head'], $n, 'the placeholder is what keeps the row balanced' );
+        }
     }
 
     // ---- writer ----------------------------------------------------------

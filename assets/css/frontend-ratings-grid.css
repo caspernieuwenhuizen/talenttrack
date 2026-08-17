@@ -132,6 +132,14 @@
     display: none;
 }
 
+/* Placeholder column for a collapsed main that has no rateable score of its
+   own: with its subs hidden the group would occupy no column at all, and a
+   header cannot span zero. Empty on purpose — there is nothing to type here;
+   the group's label and its expand toggle are what the column carries. */
+.tt-dashboard .tt-rgrid-slot {
+    min-width: 3rem;
+}
+
 .tt-dashboard .tt-rgrid-toggle {
     display: flex;
     align-items: center;
