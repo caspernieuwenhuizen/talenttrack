@@ -28,7 +28,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * the WP user id directly off the team row's `head_coach_user_id`
  * field, populated here from the `coach<N>` slot.
  */
-class TeamGenerator {
+class TeamGenerator implements GeneratorInterface {
 
     private DemoBatchRegistry $registry;
 
@@ -41,6 +41,10 @@ class TeamGenerator {
     private int $count;
 
     private ?string $club_name_override;
+
+    public static function category(): string {
+        return 'teams';
+    }
 
     /**
      * @param array<string,int> $users

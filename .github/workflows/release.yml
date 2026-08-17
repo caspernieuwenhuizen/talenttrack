@@ -33,6 +33,15 @@ jobs:
       # instead of silently truncated.
       - name: MFA QR self-check
         run: php bin/qr-selfcheck.php
+      # #2462 — demo-data coverage gate. A migration that adds a tt_ table
+      # must classify it in DemoCoverage::MANIFEST as generated, planned or
+      # exempt; the selfcheck then proves the delete order is dependency-safe
+      # and that no generated entity type sits outside a wipe cascade
+      # (untagged demo rows are permanent orphans on an operator's install).
+      - name: Demo-data coverage gate
+        run: php tools/check-demo-coverage.php
+      - name: Demo-coverage manifest self-check
+        run: php bin/demo-coverage-selfcheck.php
 
   phpstan:
     name: PHPStan Static Analysis (level 8)

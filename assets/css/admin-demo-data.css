@@ -1,0 +1,32 @@
+/*
+ * Demo-data admin page (#2462).
+ *
+ * The category checkboxes on the generate + wipe forms are rendered from
+ * the coverage manifest, so their markup is emitted in a loop and cannot
+ * carry the page's legacy inline styles. New markup on this page uses
+ * these classes; the surrounding hand-written blocks keep their
+ * grandfathered inline styles until that page is restyled wholesale.
+ */
+
+.tt-demo-cat {
+    display: block;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.tt-demo-cat-hint {
+    color: #5b6e75;
+}
+
+.tt-demo-tier {
+    display: block;
+    margin: 14px 0 4px;
+    font-size: 12px;
+    color: #5b6e75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tt-demo-tier--first {
+    margin-top: 6px;
+}

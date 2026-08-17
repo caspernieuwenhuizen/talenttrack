@@ -21,7 +21,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * GoalGenerator — not reliant on .po/.mo tooling. Extend by adding a
  * key to SESSION_STRINGS_BY_LANGUAGE.
  */
-class ActivityGenerator {
+class ActivityGenerator implements DependentGeneratorInterface {
 
     /** Attendance distribution as cumulative weights. */
     private const ATTENDANCE = [
@@ -53,6 +53,14 @@ class ActivityGenerator {
     private int $weeks;
 
     private string $language;
+
+    public static function category(): string {
+        return 'activities';
+    }
+
+    public static function fromContext( GeneratorContext $ctx ): self {
+        return new self( $ctx->registry, $ctx->teams, $ctx->players, $ctx->weeks(), $ctx->contentLanguage );
+    }
 
     /**
      * @param object[] $teams

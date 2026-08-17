@@ -37,7 +37,7 @@ use TT\Modules\DemoData\SeedLoader;
  *      profile. Bindings are reset on re-run (users survive wipes;
  *      only the binding is transient).
  */
-class PlayerGenerator {
+class PlayerGenerator implements GeneratorInterface {
 
     /** Archetype distribution as cumulative weights out of 100. */
     private const ARCHETYPES = [
@@ -64,6 +64,10 @@ class PlayerGenerator {
     private array $users;
 
     private int $perTeam;
+
+    public static function category(): string {
+        return 'players';
+    }
 
     /**
      * @param object[] $teams {id, name, age_group, head_coach_user_id}

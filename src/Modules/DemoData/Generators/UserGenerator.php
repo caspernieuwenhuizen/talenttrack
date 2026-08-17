@@ -25,7 +25,7 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * On re-run: looked up by slot tag first, falling back to email so an
  * older install without tags still gets reused cleanly.
  */
-class UserGenerator {
+class UserGenerator implements GeneratorInterface {
 
     private const FIXED_SLOTS = [
         'admin'    => 'administrator',
@@ -48,6 +48,10 @@ class UserGenerator {
 
     private int $created_count = 0;
     private int $reused_count  = 0;
+
+    public static function category(): string {
+        return 'people';
+    }
 
     public function __construct( DemoBatchRegistry $registry, string $domain, string $password ) {
         $this->registry = $registry;

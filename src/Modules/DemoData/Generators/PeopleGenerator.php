@@ -31,7 +31,7 @@ use TT\Modules\DemoData\SeedLoader;
  *     ('Demo Head of Development', etc.) — they're easier to recognize
  *     on stage that way.
  */
-class PeopleGenerator {
+class PeopleGenerator implements GeneratorInterface {
 
     private const STAFF_SLOTS = [
         'hjo'      => [ 'role_type' => 'other',   'dutch' => false, 'label' => 'Demo Head of Development' ],
@@ -47,6 +47,10 @@ class PeopleGenerator {
 
     /** @var array<string,int> slot => tt_people.id for this run */
     private array $persons = [];
+
+    public static function category(): string {
+        return 'people';
+    }
 
     /**
      * @param array<string,int> $users slot => user id from UserGenerator

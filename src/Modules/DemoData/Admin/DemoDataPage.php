@@ -7,6 +7,7 @@ use TT\Modules\DemoData\DemoGenerator;
 use TT\Modules\DemoData\DemoMode;
 use TT\Modules\DemoData\DemoDataCleaner;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCoverage;
 
 /**
  * DemoDataPage — wp-admin entry point for the demo data generator.
@@ -53,6 +54,12 @@ class DemoDataPage {
         }
         // The demo admin page always sees everything, regardless of toggle.
         DemoMode::overrideForRequest( DemoMode::NEUTRAL );
+        wp_enqueue_style(
+            'tt-admin-demo-data',
+            TT_PLUGIN_URL . 'assets/css/admin-demo-data.css',
+            [],
+            TT_VERSION
+        );
         wp_enqueue_script(
             'tt-demo-page',
             TT_PLUGIN_URL . 'assets/js/demo-page.js',
@@ -120,7 +127,8 @@ class DemoDataPage {
 
             // Split into data counts (created this run) vs user counts (created + reused)
             $data_parts = [];
-            foreach ( [ 'teams', 'persons', 'players', 'evaluations', 'activities', 'goals' ] as $k ) {
+            $count_keys = array_merge( [ 'teams', 'persons', 'players' ], DemoCoverage::categoryKeys( 'dependent' ), [ 'journey' ] );
+            foreach ( $count_keys as $k ) {
                 if ( isset( $counts[ $k ] ) ) {
                     $data_parts[] = (int) $counts[ $k ] . ' ' . $k;
                 }
@@ -383,21 +391,24 @@ class DemoDataPage {
                 <p style="margin:14px 0 10px;color:#5b6e75;">
                     <?php esc_html_e( 'Dependent entities — uncheck any to skip generating that category on top of whatever master data ends up present. Applies to every source (procedural, Excel, hybrid).', 'talenttrack' ); ?>
                 </p>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_activities" value="1" checked />
-                    <?php esc_html_e( 'Generate activities', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip session/match generation. Attendance is generated alongside; turning this off skips both.', 'talenttrack' ); ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_evaluations" value="1" checked />
-                    <?php esc_html_e( 'Generate evaluations', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip evaluation rounds + per-category ratings.', 'talenttrack' ); ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="gen_goals" value="1" checked />
-                    <?php esc_html_e( 'Generate goals', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php esc_html_e( 'uncheck to skip per-player development goals.', 'talenttrack' ); ?></span>
-                </label>
+                <?php
+                // One checkbox per dependent category that has a generator.
+                // Adding a wave's generator to DemoCoverage puts its toggle
+                // here without touching this form.
+                foreach ( array_keys( DemoCoverage::dependentGenerators() ) as $category ) :
+                    ?>
+                    <label class="tt-demo-cat">
+                        <input type="checkbox" name="gen_<?php echo esc_attr( $category ); ?>" value="1" checked />
+                        <?php
+                        echo esc_html( sprintf(
+                            /* translators: %s is a demo-data category, e.g. "Activities". */
+                            __( 'Generate %s', 'talenttrack' ),
+                            strtolower( DemoCoverage::categoryLabel( $category ) )
+                        ) );
+                        ?>
+                        <span class="tt-demo-cat-hint"> — <?php echo esc_html( DemoCoverage::categoryHint( $category ) ); ?></span>
+                    </label>
+                <?php endforeach; ?>
             </fieldset>
 
             <script>
@@ -676,56 +687,37 @@ class DemoDataPage {
                     <?php esc_html_e( 'Categories to wipe', 'talenttrack' ); ?>
                 </legend>
 
-                <strong style="display:block;margin:6px 0 4px;font-size:12px;color:#5b6e75;text-transform:uppercase;letter-spacing:0.04em;">
-                    <?php esc_html_e( 'Master data', 'talenttrack' ); ?>
-                </strong>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="teams" />
-                    <?php esc_html_e( 'Teams', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    /* translators: %d is the row count */
-                    echo esc_html( sprintf( __( '%d demo rows incl. team_person, activities, attendance, evaluations, eval_ratings on those teams', 'talenttrack' ), (int) $cat_counts['teams'] ) );
-                    ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="people" />
-                    <?php esc_html_e( 'People', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    echo esc_html( sprintf( __( '%d demo rows incl. team_person assignments. The matching WP users stay (separate "Wipe demo users" form below).', 'talenttrack' ), (int) $cat_counts['people'] ) );
-                    ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="players" />
-                    <?php esc_html_e( 'Players', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    echo esc_html( sprintf( __( '%d demo rows incl. attendance, evaluations, eval_ratings, goals tied to those players', 'talenttrack' ), (int) $cat_counts['players'] ) );
-                    ?></span>
-                </label>
-
-                <strong style="display:block;margin:14px 0 4px;font-size:12px;color:#5b6e75;text-transform:uppercase;letter-spacing:0.04em;">
-                    <?php esc_html_e( 'Dependent entities', 'talenttrack' ); ?>
-                </strong>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="activities" />
-                    <?php esc_html_e( 'Activities', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    echo esc_html( sprintf( __( '%d demo rows incl. attendance for those activities', 'talenttrack' ), (int) $cat_counts['activities'] ) );
-                    ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="evaluations" />
-                    <?php esc_html_e( 'Evaluations', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    echo esc_html( sprintf( __( '%d demo rows incl. per-category eval_ratings', 'talenttrack' ), (int) $cat_counts['evaluations'] ) );
-                    ?></span>
-                </label>
-                <label style="display:block;padding:4px 0;cursor:pointer;">
-                    <input type="checkbox" name="wipe_cat[]" value="goals" />
-                    <?php esc_html_e( 'Goals', 'talenttrack' ); ?>
-                    <span style="color:#5b6e75;"> — <?php
-                    echo esc_html( sprintf( __( '%d demo rows', 'talenttrack' ), (int) $cat_counts['goals'] ) );
-                    ?></span>
-                </label>
+                <?php
+                $tier_labels = [
+                    'master'    => __( 'Master data', 'talenttrack' ),
+                    'dependent' => __( 'Dependent entities', 'talenttrack' ),
+                ];
+                $first_tier = true;
+                foreach ( $tier_labels as $tier => $tier_label ) :
+                    $keys = DemoCoverage::categoryKeys( $tier );
+                    if ( ! $keys ) continue;
+                    ?>
+                    <strong class="tt-demo-tier<?php echo $first_tier ? ' tt-demo-tier--first' : ''; ?>">
+                        <?php echo esc_html( $tier_label ); ?>
+                    </strong>
+                    <?php
+                    $first_tier = false;
+                    foreach ( $keys as $category ) :
+                        ?>
+                        <label class="tt-demo-cat">
+                            <input type="checkbox" name="wipe_cat[]" value="<?php echo esc_attr( $category ); ?>" />
+                            <?php echo esc_html( DemoCoverage::categoryLabel( $category ) ); ?>
+                            <span class="tt-demo-cat-hint"> — <?php
+                            echo esc_html( sprintf(
+                                /* translators: 1: row count, 2: what else the cascade reaches. */
+                                __( '%1$d demo rows. %2$s', 'talenttrack' ),
+                                (int) ( $cat_counts[ $category ] ?? 0 ),
+                                DemoCoverage::categoryHint( $category )
+                            ) );
+                            ?></span>
+                        </label>
+                    <?php endforeach;
+                endforeach; ?>
             </fieldset>
 
             <label>
@@ -878,14 +870,17 @@ class DemoDataPage {
 
         // v3.85.0 / v3.90.1 — selective generation toggles. Master-data
         // toggles (teams/people/players) only apply to procedural; the
-        // three dependent-entity toggles (activities/evaluations/goals)
-        // apply to every source.
-        $gen_teams       = ! empty( $_POST['gen_teams'] );
-        $gen_people      = ! empty( $_POST['gen_people'] );
-        $gen_players     = ! empty( $_POST['gen_players'] );
-        $gen_activities  = ! empty( $_POST['gen_activities'] );
-        $gen_evaluations = ! empty( $_POST['gen_evaluations'] );
-        $gen_goals       = ! empty( $_POST['gen_goals'] );
+        // dependent-entity toggles apply to every source. The dependent set
+        // is read from the coverage manifest, so a new wave's category
+        // arrives here without another `$_POST` line.
+        $gen_teams   = ! empty( $_POST['gen_teams'] );
+        $gen_people  = ! empty( $_POST['gen_people'] );
+        $gen_players = ! empty( $_POST['gen_players'] );
+
+        $gen_dependent = [];
+        foreach ( array_keys( DemoCoverage::dependentGenerators() ) as $category ) {
+            $gen_dependent[ 'gen_' . $category ] = ! empty( $_POST[ 'gen_' . $category ] );
+        }
 
         $users_exist = DemoGenerator::persistentUsersExist();
 
@@ -944,7 +939,7 @@ class DemoDataPage {
         try {
             // Generation paths should read tagged data across all batches.
             \TT\Modules\DemoData\DemoMode::overrideForRequest( \TT\Modules\DemoData\DemoMode::NEUTRAL );
-            $result = DemoGenerator::run( [
+            $result = DemoGenerator::run( array_merge( [
                 'preset'           => $preset,
                 'domain'           => $domain,
                 'password'         => $password,
@@ -956,10 +951,7 @@ class DemoDataPage {
                 'gen_teams'        => $gen_teams,
                 'gen_people'       => $gen_people,
                 'gen_players'      => $gen_players,
-                'gen_activities'   => $gen_activities,
-                'gen_evaluations'  => $gen_evaluations,
-                'gen_goals'        => $gen_goals,
-            ] );
+            ], $gen_dependent ) );
             \TT\Modules\DemoData\DemoMode::clearOverride();
         } catch ( \Throwable $e ) {
             \TT\Modules\DemoData\DemoMode::clearOverride();
