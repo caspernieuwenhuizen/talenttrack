@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T19:58:26+00:00\n"
+"POT-Creation-Date: 2026-08-17T20:16:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -3249,7 +3249,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:636
+#: src/Modules/DemoData/DemoCoverage.php:703
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -3983,7 +3983,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:637
+#: src/Modules/DemoData/DemoCoverage.php:704
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -5122,7 +5122,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:638
+#: src/Modules/DemoData/DemoCoverage.php:705
 #: src/Modules/Documentation/HelpTopics.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
@@ -5181,7 +5181,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:639
+#: src/Modules/DemoData/DemoCoverage.php:706
 #: src/Modules/Documentation/HelpTopics.php:67
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
@@ -5292,7 +5292,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:640
+#: src/Modules/DemoData/DemoCoverage.php:707
 msgid "Journey events"
 msgstr ""
 
@@ -5595,7 +5595,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:634
+#: src/Modules/DemoData/DemoCoverage.php:701
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -7674,7 +7674,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:635
+#: src/Modules/DemoData/DemoCoverage.php:702
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
@@ -7872,7 +7872,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:641
+#: src/Modules/DemoData/DemoCoverage.php:708
 #: src/Modules/Documentation/HelpTopics.php:102
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:759
@@ -14121,7 +14121,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:643
+#: src/Modules/DemoData/DemoCoverage.php:710
 msgid "Injuries"
 msgstr ""
 
@@ -14956,77 +14956,105 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:642
+#: src/Modules/DemoData/DemoCoverage.php:709
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:644
+#: src/Modules/DemoData/DemoCoverage.php:711
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:645
+#: src/Modules/DemoData/DemoCoverage.php:712
 msgid "Player reports"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:653
+#. translators: %s: player name
+#: src/Modules/DemoData/DemoCoverage.php:713
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
+#: src/Shared/Frontend/DashboardShortcode.php:700
+#: src/Shared/Frontend/FrontendMySettingsView.php:259
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:162
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:707
+msgid "Measurements"
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:714
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
+msgid "PDP cycle"
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:722
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:654
+#: src/Modules/DemoData/DemoCoverage.php:723
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:655
+#: src/Modules/DemoData/DemoCoverage.php:724
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:656
+#: src/Modules/DemoData/DemoCoverage.php:725
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:657
+#: src/Modules/DemoData/DemoCoverage.php:726
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:658
+#: src/Modules/DemoData/DemoCoverage.php:727
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:659
+#: src/Modules/DemoData/DemoCoverage.php:728
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:660
+#: src/Modules/DemoData/DemoCoverage.php:729
 msgid "Trial cases imported from an Excel workbook."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:661
+#: src/Modules/DemoData/DemoCoverage.php:730
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:662
+#: src/Modules/DemoData/DemoCoverage.php:731
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:663
+#: src/Modules/DemoData/DemoCoverage.php:732
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:664
+#: src/Modules/DemoData/DemoCoverage.php:733
 msgid "Generated player reports. No share links or recipients are created."
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:734
+msgid ""
+"The testing battery, its per-age-group target bands, team testing sessions "
+"and one result per player."
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:735
+msgid ""
+"The season, one development dossier per player, its conversation cycle, "
+"calendar links and verdicts."
 msgstr ""
 
 # v3.52.0 — Excel-driven demo data (#0059)
@@ -20347,16 +20375,6 @@ msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:424
 msgid "Choose status"
-msgstr ""
-
-#. translators: %s: player name
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
-#: src/Shared/Frontend/DashboardShortcode.php:700
-#: src/Shared/Frontend/FrontendMySettingsView.php:259
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:162
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:707
-msgid "Measurements"
 msgstr ""
 
 #. translators: %s: player name
@@ -41402,10 +41420,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:135
 msgid "Network error. Try again."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
-msgid "PDP cycle"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:180
