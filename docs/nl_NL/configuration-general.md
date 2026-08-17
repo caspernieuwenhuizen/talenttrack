@@ -62,7 +62,20 @@ van elke academie apart houdt.
 > WordPress-SMTP-plugin een goede aanvulling — die regelt het transport, dit
 > regelt de afzendernaam en het adres.
 
+## Navigatie-indeling
+
+Kiest de standaard applicatie-shell voor de hele academie — **Klassiek**
+(tegeloverzicht, geen navigatiebalk) of **App-shell** (een navigatiezijbalk op
+een laptop, een uitschuifmenu op een telefoon). Klassiek is de standaard.
+
+Dit is de standaard die mensen overerven, geen slot: iedereen kan onder *Mijn
+instellingen → Indeling* zijn eigen keuze maken, inclusief "gebruik de standaard
+van de academie", die deze instelling blijft volgen wanneer je haar wijzigt.
+
+Volledige uitleg in [Navigatie-indeling (de frontend-shell)](frontend-shell.md).
+
 ## Zie ook
 
 - [Configuratie en branding](configuration-branding.md)
+- [Navigatie-indeling (de frontend-shell)](frontend-shell.md)
 - [Modules](modules.md)

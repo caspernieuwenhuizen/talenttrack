@@ -147,8 +147,60 @@ class FrontendMySettingsView extends FrontendViewBase {
                 </div>
             </form>
 
+            <?php self::renderAppearanceCard( $user_id ); ?>
+
             <?php self::renderParentVisibilityCard( $user_id ); ?>
         </div>
+        <?php
+    }
+
+    /**
+     * #2456 — per-user layout override.
+     *
+     * The operator picks a club-wide default; this lets an individual
+     * follow it or pin the other shell. That matters during a layout
+     * migration: a coach mid-season shouldn't be moved onto new chrome
+     * because the club flipped a default, and an early adopter shouldn't
+     * have to wait for the club to flip it.
+     *
+     * `inherit` is the default and deletes the meta, so a user who never
+     * touches this keeps following the club — including when the operator
+     * changes it later.
+     */
+    private static function renderAppearanceCard( int $user_id ): void {
+        $current    = \TT\Shared\Frontend\ShellPreference::userOverride( $user_id );
+        $club       = \TT\Shared\Frontend\ShellPreference::clubDefault();
+        $labels     = \TT\Shared\Frontend\ShellPreference::labels();
+        $club_label = $labels[ $club ] ?? $club;
+        ?>
+        <form method="post" class="tt-form tt-msettings-card">
+            <?php wp_nonce_field( 'tt_my_settings_shell', 'tt_my_settings_shell_nonce' ); ?>
+            <input type="hidden" name="tt_my_settings_action" value="update_shell" />
+
+            <h3><?php esc_html_e( 'Layout', 'talenttrack' ); ?></h3>
+
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-ms-shell"><?php esc_html_e( 'Navigation layout', 'talenttrack' ); ?></label>
+                <select id="tt-ms-shell" name="tt_shell" class="tt-input">
+                    <option value="<?php echo esc_attr( \TT\Shared\Frontend\ShellPreference::INHERIT ); ?>"<?php selected( $current, \TT\Shared\Frontend\ShellPreference::INHERIT ); ?>>
+                        <?php
+                        /* translators: %s: the club-wide default layout name. */
+                        printf( esc_html__( 'Use the academy default (%s)', 'talenttrack' ), esc_html( $club_label ) );
+                        ?>
+                    </option>
+                    <?php foreach ( $labels as $value => $label ) : ?>
+                        <option value="<?php echo esc_attr( $value ); ?>"<?php selected( $current, $value ); ?>><?php echo esc_html( $label ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'The app shell keeps a navigation sidebar on screen on a laptop, and a slide-out menu on a phone. Classic returns you to the tile overview to switch between sections.', 'talenttrack' ); ?>
+                </p>
+            </div>
+
+            <div class="tt-form-actions">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save layout', 'talenttrack' ); ?></button>
+            </div>
+        </form>
         <?php
     }
 
@@ -222,6 +274,23 @@ class FrontendMySettingsView extends FrontendViewBase {
         if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return $out;
         $action = isset( $_POST['tt_my_settings_action'] ) ? sanitize_key( (string) $_POST['tt_my_settings_action'] ) : '';
         if ( $action === '' ) return $out;
+
+        // #2456 — per-user layout override. No capability beyond being
+        // logged in: this only changes how the current user's own chrome
+        // renders, and ShellPreference rejects any value that is not a
+        // known shell or `inherit`.
+        if ( $action === 'update_shell' ) {
+            if ( ! isset( $_POST['tt_my_settings_shell_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_shell_nonce'] ) ), 'tt_my_settings_shell' ) ) {
+                $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            \TT\Shared\Frontend\ShellPreference::setUserOverride(
+                $user_id,
+                sanitize_key( wp_unslash( (string) ( $_POST['tt_shell'] ?? '' ) ) )
+            );
+            $out['success'] = __( 'Layout updated. Reload to see the change everywhere.', 'talenttrack' );
+            return $out;
+        }
 
         if ( $action === 'update_profile' ) {
             if ( ! isset( $_POST['tt_my_settings_profile_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_profile_nonce'] ) ), 'tt_my_settings_profile' ) ) {

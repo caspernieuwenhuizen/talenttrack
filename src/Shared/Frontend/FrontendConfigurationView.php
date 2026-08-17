@@ -2022,6 +2022,26 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
 
+                <?php
+                // #2456 — club-wide navigation layout. `classic` is the
+                // default and stays a complete rollback; individuals can
+                // pin either shell for themselves in My settings, so this
+                // is the default they inherit rather than a hard setting.
+                $shell_current = \TT\Shared\Frontend\ShellPreference::clubDefault();
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Navigation layout', 'talenttrack' ); ?></h4>
+                    <label class="tt-field-label" for="tt-cfg-frontend-shell"><?php esc_html_e( 'Academy default', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-frontend-shell" class="tt-input" name="config[tt_frontend_shell]">
+                        <?php foreach ( \TT\Shared\Frontend\ShellPreference::labels() as $shell_value => $shell_label ) : ?>
+                            <option value="<?php echo esc_attr( $shell_value ); ?>" <?php selected( $shell_current, $shell_value ); ?>><?php echo esc_html( $shell_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'The app shell keeps a navigation sidebar on screen on a laptop and a slide-out menu on a phone. Classic returns to the tile overview to switch sections. Everyone can pick their own layout in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
                 <?php // #1488 — attendance at-risk flag threshold. ?>
                 <div class="tt-field" style="margin-top:var(--tt-sp-3);">
                     <label class="tt-field-label" for="tt-cfg-attendance-threshold"><?php esc_html_e( 'Attendance at-risk threshold', 'talenttrack' ); ?></label>
