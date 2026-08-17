@@ -321,9 +321,9 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                         'notes'         => null,
                         'created_by'    => $author,
                     ] );
-                    $session_id = (int) $wpdb->insert_id;
-                    if ( ! $session_id ) continue;
-                    $this->registry->tag( 'measurement_session', $session_id, [ 'team_id' => $team_id, 'status' => $status ] );
+                    $measurement_session_id = (int) $wpdb->insert_id;
+                    if ( ! $measurement_session_id ) continue;
+                    $this->registry->tag( 'measurement_session', $measurement_session_id, [ 'team_id' => $team_id, 'status' => $status ] );
                     $total++;
 
                     if ( $status !== 'completed' ) continue;
@@ -354,7 +354,7 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                             'uuid'                   => self::uuid(),
                             'player_id'              => $player_id,
                             'definition_id'          => (int) $def['id'],
-                            'measurement_session_id' => $session_id,
+                            'measurement_session_id' => $measurement_session_id,
                             'recorded_date'          => gmdate( 'Y-m-d', $when ),
                             'value_numeric'          => $value,
                             'value_text'             => null,
