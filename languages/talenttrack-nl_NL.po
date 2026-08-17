@@ -48395,6 +48395,12 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Generate %s"
 msgstr "%s genereren"
 
+#. translators: 1: demo persona slot, 2: the underlying WordPress error.
+#: src/Modules/DemoData/Generators/UserGenerator.php:124
+#, php-format
+msgid "Failed to create demo user %1$s: %2$s"
+msgstr "Aanmaken van demogebruiker %1$s mislukt: %2$s"
+
 #. translators: 1: row count, 2: what else the cascade reaches.
 #: src/Modules/DemoData/Admin/DemoDataPage.php:706
 #, php-format

@@ -121,7 +121,12 @@ class UserGenerator implements GeneratorInterface {
 
         if ( is_wp_error( $user_id ) ) {
             throw new \RuntimeException(
-                sprintf( 'Failed to create demo user %s: %s', $slot, $user_id->get_error_message() )
+                sprintf(
+                    /* translators: 1: demo persona slot, 2: the underlying WordPress error. */
+                    __( 'Failed to create demo user %1$s: %2$s', 'talenttrack' ),
+                    $slot,
+                    $user_id->get_error_message()
+                )
             );
         }
 

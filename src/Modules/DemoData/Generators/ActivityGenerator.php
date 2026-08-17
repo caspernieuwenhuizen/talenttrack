@@ -30,15 +30,17 @@ class ActivityGenerator implements DependentGeneratorInterface {
         [ 100, 'Late'   ],
     ];
 
-    /** @var array<string, array{title_template:string, default_location:string}> */
+    /** @var array<string, array{title_template:string, game_title_template:string, default_location:string}> */
     private const SESSION_STRINGS_BY_LANGUAGE = [
         'en_US' => [
-            'title_template'   => 'Training %d.%d',
-            'default_location' => 'Home pitch',
+            'title_template'      => 'Training %d.%d',
+            'game_title_template' => 'Match %d.%d',
+            'default_location'    => 'Home pitch',
         ],
         'nl_NL' => [
-            'title_template'   => 'Training %d.%d',
-            'default_location' => 'Thuisveld',
+            'title_template'      => 'Training %d.%d',
+            'game_title_template' => 'Wedstrijd %d.%d',
+            'default_location'    => 'Thuisveld',
         ],
     ];
 
@@ -127,9 +129,11 @@ class ActivityGenerator implements DependentGeneratorInterface {
                         $sub_pool = [ 'League', 'League', 'Cup', 'Friendly' ];
                         $subtype  = $sub_pool[ $w % count( $sub_pool ) ];
                     }
-                    $title = $is_game
-                        ? sprintf( 'Game %d.%d', $w + 1, $s + 1 )
-                        : sprintf( $strings['title_template'], $w + 1, $s + 1 );
+                    $title = sprintf(
+                        $is_game ? $strings['game_title_template'] : $strings['title_template'],
+                        $w + 1,
+                        $s + 1
+                    );
 
                     $wpdb->insert( "{$wpdb->prefix}tt_activities", [
                         'club_id'             => CurrentClub::id(),
