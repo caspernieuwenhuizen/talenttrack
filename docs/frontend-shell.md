@@ -134,6 +134,36 @@ registry.** Adding a tile adds a nav entry.
 presentation can consume the same resolved list unchanged.
 `FrontendAppBottomBar` is that second presentation.
 
+### `RecordSpine` — pinned record identity
+
+`\TT\Shared\Frontend\Components\RecordSpine` renders the slim strip that stays at
+the top of a record page while its full hero scrolls away. Adopted by team,
+activity and staff detail; player detail has its own equivalent from #2457.
+
+```php
+RecordSpine::render( [
+    'name'      => 'Ajax JO15-1',   // required; blank renders nothing
+    'meta'      => 'JO15',          // one line of context
+    'status'    => 'active',        // drives the avatar ring
+    'photo_url' => '',              // falls back to initials
+    'tabs'      => [],              // optional; see below
+] );
+```
+
+**It composes; it does not decide** (§4). Which chips a viewer may see, derived
+status, permission filtering — all of that stays in the calling view and the
+domain layer. If the component ever needs a repository, the design has gone
+wrong.
+
+It emits nothing under `classic`, so adopting it cannot change that shell.
+
+**On tabs.** The `tabs` key is supported and deliberately unused by the initial
+adopters. Team detail's sections are individually toggleable per user
+(`TeamDetailSections::forUser()`), so converting them to tabs would quietly
+override a feature people already rely on. Tabs suit surfaces whose sections are
+genuinely alternative views of one record — a per-surface product call, not
+something to impose from a shared component.
+
 ### The bottom bar's slots
 
 `\TT\Shared\Frontend\Components\FrontendAppBottomBar::slots()` returns the four

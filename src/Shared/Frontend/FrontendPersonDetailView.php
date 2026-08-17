@@ -100,6 +100,17 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         $status_label = $status_raw !== '' ? LabelTranslator::personStatus( $status_raw ) : '';
         ?>
         <article class="tt-person-detail tt-pdv">
+            <?php
+            // #2479 — pinned identity. The page header above scrolls away;
+            // this strip keeps whose record you are in on screen while you
+            // read down the contact / teams / development sections. Emits
+            // nothing under the `classic` shell.
+            \TT\Shared\Frontend\Components\RecordSpine::render( [
+                'name'   => $name,
+                'status' => strtolower( $status_raw ),
+                'meta'   => $role_label,
+            ] );
+            ?>
             <?php if ( $role_label !== '' || $status_label !== '' ) : ?>
                 <div class="tt-pdv__chips">
                     <?php if ( $role_label !== '' ) : ?>

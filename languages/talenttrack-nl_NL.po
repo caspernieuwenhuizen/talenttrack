@@ -39537,6 +39537,10 @@ msgstr "Filters openen"
 msgid "Saving..."
 msgstr "Opslaan…"
 
+#: src/Shared/Frontend/Components/RecordSpine.php:93
+msgid "Record sections"
+msgstr "Recordsecties"
+
 #: src/Shared/Frontend/Components/FrontendAppBottomBar.php:158
 msgid "Quick navigation"
 msgstr "Snelnavigatie"

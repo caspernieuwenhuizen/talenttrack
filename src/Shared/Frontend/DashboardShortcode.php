@@ -68,6 +68,14 @@ class DashboardShortcode {
                 [ 'tt-frontend-app-shell' ],
                 TT_VERSION
             );
+            // #2479 — pinned record identity (RecordSpine). Own sheet for
+            // the same reason.
+            wp_enqueue_style(
+                'tt-frontend-record-spine',
+                TT_PLUGIN_URL . 'assets/css/frontend-record-spine.css',
+                [ 'tt-frontend-app-shell' ],
+                TT_VERSION
+            );
         }
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );

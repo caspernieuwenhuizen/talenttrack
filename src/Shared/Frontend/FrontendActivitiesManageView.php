@@ -445,6 +445,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 echo '<p class="tt-notice">' . esc_html__( 'That activity no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
+            // #2479 — pinned identity. The page header scrolls away; this
+            // keeps which activity you are in on screen while you work down
+            // attendance and the session plan. Emits nothing under `classic`.
+            \TT\Shared\Frontend\Components\RecordSpine::render( [
+                'name'     => (string) $session->title,
+                'initials' => \TT\Shared\Frontend\Components\RecordSpine::initials( (string) $session->title ),
+                'status'   => (string) ( $session->status ?? '' ),
+                'meta'     => ! empty( $session->session_date )
+                    ? \TT\Shared\Dates\TTDate::date( (string) $session->session_date )
+                    : '',
+            ] );
             self::renderDetail( $session, $is_admin );
             return;
         }

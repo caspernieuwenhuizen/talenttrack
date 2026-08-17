@@ -130,6 +130,18 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
             <div class="tt-player-detail__main">
                 <?php
+                // #2479 — pinned identity. The hero above anchors the screen
+                // on arrival and then scrolls away; this strip is what stays,
+                // so working down a long roster never loses which team you are
+                // in. Emits nothing under the `classic` shell.
+                \TT\Shared\Frontend\Components\RecordSpine::render( [
+                    'name'   => (string) $team->name,
+                    'status' => $team->archived_at ? 'archived' : 'active',
+                    'meta'   => ! empty( $team->age_group )
+                        ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group )
+                        : '',
+                ] );
+
                 if ( $sections['roster'] ) {
                     self::renderRoster( $roster, $team_id );
                 }
