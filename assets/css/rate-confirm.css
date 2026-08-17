@@ -21,7 +21,7 @@
     min-height: 56px;
 }
 
-.tt-rate-confirm-btn.tt-button-primary {
+.tt-rate-confirm-btn.tt-btn-primary {
     font-size: var(--tt-fs-lg);
 }
 

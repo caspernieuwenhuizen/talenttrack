@@ -61,13 +61,13 @@ final class RateConfirmStep implements WizardStepInterface {
         <?php endif; ?>
 
         <div class="tt-rate-confirm-actions">
-            <button type="submit" name="_rate_choice" value="yes" class="tt-button tt-button-primary tt-rate-confirm-btn">
+            <button type="submit" name="_rate_choice" value="yes" class="tt-btn tt-btn-primary tt-rate-confirm-btn">
                 <?php esc_html_e( 'Rate the present players', 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_open" class="tt-button tt-button-secondary tt-rate-confirm-btn" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_open" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate>
                 <?php esc_html_e( "Skip rating — I'll rate later", 'talenttrack' ); ?>
             </button>
-            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-button tt-button-secondary tt-rate-confirm-btn" formnovalidate>
+            <button type="submit" name="_rate_choice" value="skip_closed" class="tt-btn tt-btn-secondary tt-rate-confirm-btn" formnovalidate>
                 <?php esc_html_e( 'Skip rating — no rating needed', 'talenttrack' ); ?>
             </button>
             <p class="tt-rate-confirm-hint">

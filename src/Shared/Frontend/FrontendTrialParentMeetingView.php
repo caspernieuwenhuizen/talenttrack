@@ -125,11 +125,11 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
 
         echo '<div class="tt-meeting-actions">';
         if ( $letter_url ) {
-            echo '<a class="tt-button tt-button-primary" target="_blank" rel="noopener" href="' . esc_url( $letter_url ) . '">' . esc_html__( 'Open letter', 'talenttrack' ) . '</a> ';
+            echo '<a class="tt-btn tt-btn-primary" target="_blank" rel="noopener" href="' . esc_url( $letter_url ) . '">' . esc_html__( 'Open letter', 'talenttrack' ) . '</a> ';
             $email_subject = rawurlencode( sprintf( __( 'Letter regarding %s', 'talenttrack' ), $name ) );
-            echo '<a class="tt-button" href="mailto:?subject=' . $email_subject . '">' . esc_html__( 'Email letter', 'talenttrack' ) . '</a>';
+            echo '<a class="tt-btn tt-btn-secondary" href="mailto:?subject=' . $email_subject . '">' . esc_html__( 'Email letter', 'talenttrack' ) . '</a>';
         }
-        echo '<button class="tt-button tt-meeting-fullscreen-launcher" onclick="(function(){var e=document.getElementById(\'tt-meeting-root\');if(e.requestFullscreen)e.requestFullscreen();})();">' . esc_html__( 'Enter fullscreen', 'talenttrack' ) . '</button>';
+        echo '<button class="tt-btn tt-btn-secondary tt-meeting-fullscreen-launcher" onclick="(function(){var e=document.getElementById(\'tt-meeting-root\');if(e.requestFullscreen)e.requestFullscreen();})();">' . esc_html__( 'Enter fullscreen', 'talenttrack' ) . '</button>';
         echo '</div>';
 
         echo '</div>';

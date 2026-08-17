@@ -116,7 +116,7 @@ class FrontendWizardsAdminView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </ul>
 
-                <button type="submit" class="tt-button tt-button-primary tt-wzadmin-save">
+                <button type="submit" class="tt-btn tt-btn-primary tt-wzadmin-save">
                     <?php esc_html_e( 'Save changes', 'talenttrack' ); ?>
                 </button>
             </form>

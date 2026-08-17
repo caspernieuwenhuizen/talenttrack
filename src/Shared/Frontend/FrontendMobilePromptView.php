@@ -78,13 +78,13 @@ class FrontendMobilePromptView extends FrontendViewBase {
         wp_nonce_field( 'tt_mobile_email_link', 'tt_mobile_nonce' );
         echo '<input type="hidden" name="action" value="tt_mobile_email_link">';
         echo '<input type="hidden" name="target_url" value="' . esc_attr( $current_url ) . '">';
-        echo '<button type="submit" class="tt-button tt-button-primary" style="width:100%; padding:14px; font-size:16px;">'
+        echo '<button type="submit" class="tt-btn tt-btn-primary tt-btn-cta">'
             . esc_html__( 'Email me the link', 'talenttrack' )
             . '</button>';
         echo '</form>';
 
         echo '<p style="margin:0 0 8px; color:#5b6e75;">' . esc_html__( 'Or use the dashboard:', 'talenttrack' ) . '</p>';
-        echo '<a href="' . esc_url( $dashboard_url ) . '" class="tt-button" style="display:block; padding:14px; font-size:16px; text-decoration:none;">'
+        echo '<a href="' . esc_url( $dashboard_url ) . '" class="tt-btn tt-btn-secondary tt-btn-cta">'
             . esc_html__( 'Go to dashboard', 'talenttrack' )
             . '</a>';
 

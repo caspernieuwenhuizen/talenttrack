@@ -78,7 +78,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
             echo '<option value="' . esc_attr( $loc ) . '" ' . $sel . '>' . esc_html( $loc ) . '</option>';
         }
         echo '</select></label>';
-        echo '<button type="submit" class="tt-button">' . esc_html__( 'Switch locale', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Switch locale', 'talenttrack' ) . '</button>';
         echo '</form>';
 
         $repo = new TrialLetterTemplatesRepository();
@@ -90,7 +90,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
             echo '<tr>';
             echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::friendlyKeyLabel( (string) $k ) ) . '</a></td>';
             echo '<td>' . esc_html( $custom ? __( 'Customised', 'talenttrack' ) : __( 'Club default', 'talenttrack' ) ) . '</td>';
-            echo '<td><a class="tt-button tt-button-small" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
+            echo '<td><a class="tt-btn tt-btn-sm" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
@@ -126,7 +126,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '<label><input type="checkbox" name="acceptance_slip_enabled" ' . checked( $enabled, true, false ) . '> ' . esc_html__( 'Include the acceptance slip on admittance letters', 'talenttrack' ) . '</label>';
         echo '<label>' . esc_html__( 'Response deadline (days from letter date)', 'talenttrack' ) . ' <input type="number" inputmode="numeric" min="1" max="60" name="acceptance_response_days" value="' . esc_attr( (string) $deadline ) . '"></label>';
         echo '<label>' . esc_html__( 'Club return address', 'talenttrack' ) . ' <textarea name="acceptance_club_address" rows="2">' . esc_textarea( $address ) . '</textarea></label>';
-        echo '<button type="submit" class="tt-button">' . esc_html__( 'Save settings', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save settings', 'talenttrack' ) . '</button>';
         echo '</form></section>';
     }
 

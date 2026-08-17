@@ -253,7 +253,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         // #2005 — the "New trial case" CTA is create-gated. A read-only
         // head coach sees the list but not the create button.
         if ( $can_manage ) {
-            echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
+            echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
         }
 
         // #2174 — filters render via the shared FilterBar component:
@@ -386,7 +386,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         foreach ( $view_rows as $vr ) {
             echo '<li class="tt-trials-card">';
             echo '<div class="tt-trials-card__player"><a href="' . esc_url( $vr['detail'] ) . '">' . esc_html( $vr['name'] ) . '</a></div>';
-            echo '<a class="tt-button tt-button-small tt-trials-card__open" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            echo '<a class="tt-btn tt-btn-sm tt-trials-card__open" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a>';
             echo '<div class="tt-trials-card__meta">';
             echo '<span><b>' . esc_html__( 'Track', 'talenttrack' ) . ':</b> ' . esc_html( $vr['track'] ) . '</span>';
             echo '<span><b>' . esc_html__( 'Window', 'talenttrack' ) . ':</b> ' . esc_html( $vr['window'] ) . '</span>';
@@ -422,7 +422,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
             echo '<td><span class="tt-trial-chip tt-trial-chip--status-' . esc_attr( $vr['status'] ) . '">' . esc_html( $vr['status_label'] ) . '</span></td>';
             echo '<td>' . ( $vr['decision'] !== '' ? '<span class="tt-trial-chip tt-trial-chip--decision">' . esc_html( $vr['decision'] ) . '</span>' : '—' ) . '</td>';
             echo '<td>' . esc_html( (string) $vr['staff_count'] ) . '</td>';
-            echo '<td><a class="tt-button tt-button-small" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+            echo '<td><a class="tt-btn tt-btn-sm" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
