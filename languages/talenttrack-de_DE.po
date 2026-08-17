@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T17:44:50+00:00\n"
+"POT-Creation-Date: 2026-08-17T17:56:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -79,7 +79,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:356
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:222
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:182
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:199
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:207
 #: src/Modules/Analytics/AnalyticsModule.php:113
 #: src/Modules/Analytics/AnalyticsModule.php:156
 #: src/Modules/Analytics/AnalyticsModule.php:175
@@ -506,7 +506,7 @@ msgstr ""
 
 #: src/Core/FeatureRegistry.php:218
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:112
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:343
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:372
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:388
 msgid "Ratings grid"
 msgstr ""
@@ -3607,7 +3607,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:165
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:144
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:339
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:368
 #: src/Modules/Analytics/AnalyticsModule.php:132
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
@@ -4907,31 +4907,31 @@ msgstr ""
 msgid "This activity has no team roster, so there are no players to rate."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:185
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:193
 msgid ""
 "The ratings grid needs a wider screen. On a phone, use the evaluation wizard "
 "instead."
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:233
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:253
 msgid "Main score"
 msgstr ""
 
 #. translators: 1: main evaluation category, 2: sub-category.
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:270
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:294
 #, php-format
 msgid "%1$s / %2$s"
 msgstr ""
 
 #. translators: 1: player name, 2: evaluation category.
 #. translators: 1: activity type, 2: activity date
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:293
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:322
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:103
 #, php-format
 msgid "%1$s — %2$s"
 msgstr ""
 
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:312
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:341
 msgid "Save ratings"
 msgstr ""
 
