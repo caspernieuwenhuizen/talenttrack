@@ -48742,10 +48742,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No saved views yet."
 #~ msgstr "Nog geen opgeslagen weergaven."
 
-#: src/Modules/DemoData/DemoCoverage.php:790
-msgid "Staff development"
-msgstr "Stafontwikkeling"
-
 #: src/Modules/DemoData/DemoCoverage.php:791
 msgid "Messages and operator records"
 msgstr "Berichten en beheerdersgegevens"
