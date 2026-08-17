@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.87.2
+Stable tag: 4.87.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.87.3 — Explorer: relative date bounds now actually narrow the results (#2440) The dimension explorer offered a relative date bound — its *Date after* box even suggests `-30 days` — but nothing ever expanded it. The raw text went straight into the query, where MySQL read it as `0000-00-00` and matched every row, so the filter looked applied while quietly doing nothing. Four KPIs that ship a 30-day default window were unbounded for the same reason.  Relative bounds are now resolved to a real date before the query runs. `-30 days`, `-12 months` and `+7 days` all work, in `day` / `week` / `month` / `year`, singular or plural. They stay relative: a saved explorer link keeps meaning "the last 30 days" instead of freezing to the day it was saved.  A bound that is neither an exact date nor a recognised relative form — a typo like `30 dayz ago`, or an impossible date like `2026-02-30` — is now dropped, and the report renders without that bound rather than guessing at one. A filter that silently narrows to the wrong window is harder to catch than one that plainly isn't there. =
+
+= 4.87.3 — Save buttons follow your button colours again (#2446) The shared Save button helper mishandled its own default. When a form didn't name a button style explicitly — which is nearly all of them, 50 of the 55 call sites — the helper emitted a PHP warning and then rendered the button without its `tt-btn-primary` class.  The visible consequence was that those Save buttons ignored the Buttons colour settings under Design: instead of your configured button background, text and hover colours, they fell back to the brand primary colour. On an install that hasn't customised those tokens nothing looked wrong, which is why it went unnoticed.  Save buttons now get the primary style whenever no style is named, so they follow the Design settings like every other button. Forms that explicitly ask for a secondary or danger button are unaffected. =
 
 = 4.87.2 — Ratings grid: category column headers now follow your language (#2430) The ratings grid showed its evaluation-category column headers in English even on a Dutch install, while the rest of the screen was translated. The grid's read model was reading the stored category label straight out of the database instead of resolving it the way every other evaluation surface does, so the translation layer never got a look in.  Headers now resolve through the same display-time translator the evaluation form, the evaluation detail view and the radar-chart legends use, which means operator-maintained translations show up here too. A category nobody has translated keeps its stored name, so nothing goes blank. Stored data is untouched — scores still write against the category, never against its label. =
 
