@@ -1,0 +1,1286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Five Shells for TalentTrack</title>
+<style>
+/* ------------------------------------------------------------------
+   layout-patterns — 5 canonical SaaS screen layouts, wireframe only.
+
+   Deliberately monochrome: this mockup is about WHERE the regions sit,
+   not what colour they are. Every pattern is drawn with the same seven
+   labelled zones (A-G) so they can be compared region by region.
+
+   Prefix: .tt-lp-* (mockup-local; nothing here ports to production CSS
+   as-is — the winning pattern gets its own surface mockup after).
+------------------------------------------------------------------- */
+/* Neutrals carry a slight green bias — the product's own world — so the
+   greys read as chosen rather than inherited. No brand colour enters the
+   wireframes themselves: those stay pure neutral so the layouts read as
+   unstyled. */
+:root{
+  --ink:#151a18; --ink-soft:#59635e; --ink-faint:#8a938e;
+  --paper:#ffffff; --bg:#f2f5f3; --line:#dce2de; --line-soft:#e8ece9;
+  --z-nav:#dee4e0; --z-nav-2:#e7ebe8; --z-util:#edf1ee; --z-content:#f8faf9;
+  --z-solid:#ccd4cf; --chip:#e5eae6;
+  --radius:10px; --radius-sm:6px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e7ebe8; --ink-soft:#a1aaa5; --ink-faint:#747d78;
+    --paper:#1a1e1c; --bg:#111413; --line:#2d3431; --line-soft:#242927;
+    --z-nav:#222826; --z-nav-2:#1d2220; --z-util:#1f2523; --z-content:#151917;
+    --z-solid:#303733; --chip:#262c29;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e7ebe8; --ink-soft:#a1aaa5; --ink-faint:#747d78;
+  --paper:#1a1e1c; --bg:#111413; --line:#2d3431; --line-soft:#242927;
+  --z-nav:#222826; --z-nav-2:#1d2220; --z-util:#1f2523; --z-content:#151917;
+  --z-solid:#303733; --chip:#262c29;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.tt-lp-wrap{max-width:1180px;margin:0 auto;padding:1.5rem 1rem 4rem}
+@media(min-width:768px){.tt-lp-wrap{padding:2.5rem 1.5rem 5rem}}
+
+h1{font-size:1.5rem;line-height:1.2;margin:0 0 .4rem;letter-spacing:-.01em}
+@media(min-width:768px){h1{font-size:2rem}}
+h2{font-size:1.15rem;margin:0;letter-spacing:-.01em}
+h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-soft);margin:0 0 .6rem}
+p{margin:0 0 .8rem;color:var(--ink-soft)}
+p.lead{color:var(--ink);max-width:62ch}
+code{font-family:var(--mono);font-size:.86em;background:var(--chip);padding:.1em .35em;border-radius:4px}
+a{color:inherit}
+
+/* ---- zone legend ------------------------------------------------- */
+.tt-lp-legend{
+  display:grid;gap:.45rem;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius);padding:1rem;margin:1.5rem 0 2rem;
+}
+@media(min-width:640px){.tt-lp-legend{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.tt-lp-legend{grid-template-columns:repeat(4,1fr)}}
+.tt-lp-legend div{display:flex;gap:.5rem;align-items:baseline;font-size:.85rem;color:var(--ink-soft)}
+.tt-lp-legend b{color:var(--ink)}
+
+.zl{
+  flex:0 0 auto;display:inline-grid;place-items:center;width:20px;height:20px;
+  border-radius:5px;background:var(--z-solid);color:var(--ink);
+  font:700 11px/1 var(--mono);
+}
+
+/* ---- pattern picker --------------------------------------------- */
+.tt-lp-picker{
+  display:flex;flex-wrap:wrap;gap:.4rem;position:sticky;top:0;z-index:5;
+  background:var(--bg);padding:.7rem 0;margin-bottom:1.25rem;
+  border-bottom:1px solid var(--line);
+}
+.tt-lp-picker button{
+  font:600 .82rem/1 inherit;color:var(--ink-soft);background:var(--paper);
+  border:1px solid var(--line);border-radius:999px;
+  min-height:40px;padding:0 .95rem;cursor:pointer;touch-action:manipulation;
+}
+.tt-lp-picker button:hover{border-color:var(--z-solid);color:var(--ink)}
+.tt-lp-picker button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tt-lp-picker button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+/* ---- pattern panel ---------------------------------------------- */
+.pat{display:none}
+.pat.is-on{display:block}
+.pat-head{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline;margin-bottom:.3rem}
+.pat-num{font:700 .8rem/1 var(--mono);color:var(--ink-faint)}
+.pat-seen{font-size:.82rem;color:var(--ink-faint)}
+.pat-seen b{color:var(--ink-soft);font-weight:600}
+
+.frames{display:grid;gap:1rem;margin:1.25rem 0}
+@media(min-width:900px){.frames{grid-template-columns:minmax(0,1fr) 240px;align-items:start}}
+.frame-cap{font:600 .72rem/1 var(--mono);letter-spacing:.06em;color:var(--ink-faint);
+  text-transform:uppercase;margin:0 0 .4rem}
+
+/* ---- wireframe primitives --------------------------------------- */
+.wf{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;display:grid;
+}
+.wf-desk{min-height:400px}
+@media(min-width:600px){.wf-desk{min-height:460px}}
+.wf-mob{max-width:240px;min-height:420px;margin:0}
+
+.z{position:relative;padding:.55rem;min-width:0;overflow:hidden}
+.z + .z{border-left:1px solid var(--line-soft)}
+.z-row{border-top:1px solid var(--line-soft)}
+.z-nav{background:var(--z-nav)}
+.z-nav2{background:var(--z-nav-2)}
+.z-util{background:var(--z-util)}
+.z-content{background:var(--z-content)}
+.z-tag{
+  position:absolute;top:4px;right:4px;z-index:2;
+  font:700 10px/1 var(--mono);color:var(--ink-faint);
+  background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:2px 4px;
+  opacity:.9;
+}
+.z-nolabel .z-tag{display:none}
+
+/* fake widgets */
+.w-brand{display:flex;align-items:center;gap:.4rem;font:700 .68rem/1 inherit;color:var(--ink);letter-spacing:.06em}
+.w-mark{width:20px;height:20px;border-radius:5px;background:var(--z-solid);flex:0 0 auto}
+.w-lbl{font:600 .66rem/1.3 inherit;color:var(--ink-soft);letter-spacing:.02em}
+.w-grp{font:700 .58rem/1 var(--mono);letter-spacing:.08em;color:var(--ink-faint);
+  text-transform:uppercase;margin:.55rem 0 .3rem}
+.w-item{
+  display:flex;align-items:center;gap:.35rem;padding:.28rem .35rem;border-radius:5px;
+  font-size:.66rem;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.w-item .dot{width:11px;height:11px;border-radius:3px;background:var(--z-solid);flex:0 0 auto}
+.w-item.on{background:var(--paper);color:var(--ink);font-weight:600;box-shadow:inset 2px 0 0 var(--ink)}
+.w-tabs{display:flex;gap:.15rem;flex-wrap:nowrap;overflow:hidden}
+.w-tab{font-size:.64rem;color:var(--ink-soft);padding:.3rem .5rem;border-radius:5px 5px 0 0;white-space:nowrap}
+.w-tab.on{background:var(--paper);color:var(--ink);font-weight:700;box-shadow:0 -2px 0 var(--ink) inset}
+.w-search{
+  flex:1 1 auto;min-width:40px;height:22px;border-radius:5px;background:var(--paper);
+  border:1px solid var(--line);display:flex;align-items:center;padding:0 .4rem;
+  font-size:.6rem;color:var(--ink-faint)
+}
+.w-icons{display:flex;gap:.25rem;flex:0 0 auto}
+.w-ic{width:20px;height:20px;border-radius:5px;background:var(--z-solid)}
+.w-av{width:20px;height:20px;border-radius:50%;background:var(--z-solid);flex:0 0 auto}
+.w-crumb{font-size:.6rem;color:var(--ink-faint);margin-bottom:.25rem}
+.w-h{font:700 .8rem/1.2 inherit;color:var(--ink)}
+.w-btn{font:600 .6rem/1 inherit;color:var(--ink-soft);background:var(--paper);
+  border:1px solid var(--line);border-radius:5px;padding:.35rem .5rem;white-space:nowrap}
+.w-btn.pri{background:var(--z-solid);border-color:var(--z-solid);color:var(--ink)}
+.w-bar{display:flex;align-items:center;gap:.4rem}
+.w-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-bottom:.5rem}
+.w-kpi{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:.4rem}
+.w-kpi i{display:block;height:5px;width:60%;background:var(--chip);border-radius:2px;margin-bottom:.3rem}
+.w-kpi b{display:block;height:9px;width:40%;background:var(--z-solid);border-radius:2px}
+.w-card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:.5rem;margin-bottom:.4rem}
+.w-lines{display:grid;gap:.28rem}
+.w-line{height:5px;border-radius:2px;background:var(--chip)}
+.w-line.s{width:45%}.w-line.m{width:70%}.w-line.l{width:92%}
+.w-rows{display:grid;gap:.25rem}
+.w-row{display:flex;align-items:center;gap:.35rem;background:var(--paper);
+  border:1px solid var(--line);border-radius:5px;padding:.32rem .4rem}
+.w-row.on{border-color:var(--ink);box-shadow:inset 2px 0 0 var(--ink)}
+.w-row .w-line{flex:1 1 auto}
+.w-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}
+@media(min-width:600px){.w-tiles{grid-template-columns:repeat(4,1fr)}}
+.w-tile{background:var(--paper);border:1px solid var(--line);border-radius:6px;
+  padding:.5rem;display:grid;gap:.3rem;place-items:start;min-height:52px}
+.w-tile .w-mark{width:16px;height:16px}
+.w-rail{display:grid;gap:.4rem;justify-items:center;padding-top:.2rem}
+.w-rail .w-ic{width:26px;height:26px}
+.w-rail .w-ic.on{background:var(--ink)}
+.w-fab{position:absolute;right:.5rem;bottom:.5rem;width:34px;height:34px;border-radius:50%;
+  background:var(--ink);z-index:2}
+.w-tabbar{display:grid;grid-template-columns:repeat(5,1fr);gap:.2rem;align-items:end}
+.w-tabbar div{display:grid;gap:.2rem;justify-items:center;font-size:.5rem;color:var(--ink-faint)}
+.w-tabbar .w-ic{width:18px;height:18px}
+.w-tabbar div.on{color:var(--ink)}
+.w-tabbar div.on .w-ic{background:var(--ink)}
+.w-scroll{display:flex;gap:.25rem;overflow:hidden}
+.w-scroll .w-tab{background:var(--paper);border:1px solid var(--line);border-radius:999px}
+.w-scroll .w-tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);box-shadow:none}
+.w-hamb{display:grid;gap:3px;width:16px}
+.w-hamb i{height:2px;background:var(--ink-soft);border-radius:2px}
+.w-sheet{position:absolute;inset:auto 0 0 0;background:var(--paper);border-top:1px solid var(--line);
+  border-radius:10px 10px 0 0;padding:.5rem;z-index:3}
+
+/* ---- notes column ----------------------------------------------- */
+.notes{display:grid;gap:.9rem}
+.note{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:.85rem}
+.note h3{margin-bottom:.45rem}
+.note ul{margin:0;padding-left:1.1rem;font-size:.84rem;color:var(--ink-soft)}
+.note ul li + li{margin-top:.3rem}
+.note ul li b{color:var(--ink)}
+.effort{display:flex;align-items:center;gap:.5rem;font-size:.84rem;color:var(--ink-soft)}
+.effort b{
+  font:700 .72rem/1 var(--mono);letter-spacing:.04em;color:var(--ink);
+  border:1px solid var(--z-solid);background:var(--chip);border-radius:5px;padding:.35rem .5rem;
+}
+.zmap{width:100%;border-collapse:collapse;font-size:.8rem}
+.zmap td,.zmap th{border-bottom:1px solid var(--line-soft);padding:.3rem .2rem;text-align:left;vertical-align:top}
+.zmap th{font:700 .68rem/1 var(--mono);color:var(--ink-faint);letter-spacing:.05em;text-transform:uppercase}
+.zmap td:first-child{width:26px}
+.zmap td span{color:var(--ink-soft)}
+
+/* ---- compare view ------------------------------------------------ */
+.cmp-grid{display:grid;gap:1rem;margin:1.25rem 0}
+@media(min-width:700px){.cmp-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1024px){.cmp-grid{grid-template-columns:repeat(3,1fr)}}
+.cmp-cell .wf-desk{min-height:220px}
+.cmp-cell h2{font-size:.9rem;margin-bottom:.4rem}
+.cmp-cell .z{padding:.3rem}
+.cmp-cell .z-tag{font-size:9px}
+.tbl-scroll{overflow-x:auto;background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--radius);padding:.4rem .8rem;margin:1rem 0 2rem}
+table.big{width:100%;border-collapse:collapse;font-size:.85rem;min-width:640px}
+table.big th,table.big td{padding:.6rem .5rem;border-bottom:1px solid var(--line-soft);
+  text-align:left;vertical-align:top}
+table.big th{font:700 .68rem/1.2 var(--mono);letter-spacing:.05em;color:var(--ink-faint);
+  text-transform:uppercase;white-space:nowrap}
+table.big td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+table.big td span{color:var(--ink-soft)}
+
+.callout{background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--ink);
+  border-radius:var(--radius);padding:.9rem 1rem;margin:1.5rem 0}
+.callout h3{margin-bottom:.4rem}
+.callout p:last-child{margin-bottom:0}
+.hr{height:1px;background:var(--line);margin:2rem 0;border:0}
+.toggle-lbl{display:inline-flex;gap:.4rem;align-items:center;font-size:.78rem;color:var(--ink-soft);margin-left:auto}
+</style>
+</head>
+<body>
+<div class="tt-lp-wrap">
+
+<h1>Five ways a SaaS app is laid out</h1>
+<p class="lead">Layout only — no colour, no typography, no brand. Each pattern below places the
+same seven regions in a different arrangement, drawn at desktop and at 360px. The notes column
+prices each one against TalentTrack&rsquo;s current frontend (132 stylesheets, 67 shared views,
+92 module views, one central chrome renderer in <code>DashboardShortcode</code>).</p>
+
+<div class="tt-lp-legend">
+  <div><span class="zl">A</span><span><b>Brand / tenant</b> — club identity, logo</span></div>
+  <div><span class="zl">B</span><span><b>Primary nav</b> — every module the user can reach</span></div>
+  <div><span class="zl">C</span><span><b>Secondary nav</b> — section or record tabs</span></div>
+  <div><span class="zl">D</span><span><b>Context header</b> — breadcrumb, record identity, page actions</span></div>
+  <div><span class="zl">E</span><span><b>Content</b> — the work surface</span></div>
+  <div><span class="zl">F</span><span><b>Utility</b> — search, alerts, help, persona/user menu</span></div>
+  <div><span class="zl">G</span><span><b>Detail / inspector</b> — the selected record, in-place</span></div>
+  <div><span class="zl">▪</span><span><b>Today</b> — TalentTrack has A, D, E, F. No B, no C.</span></div>
+</div>
+
+<nav class="tt-lp-picker" id="picker" aria-label="Layout pattern">
+  <button data-p="p1" aria-pressed="true">1 · Sidebar shell</button>
+  <button data-p="p2" aria-pressed="false">2 · Top nav</button>
+  <button data-p="p3" aria-pressed="false">3 · Rail + panel</button>
+  <button data-p="p4" aria-pressed="false">4 · Three-pane console</button>
+  <button data-p="p5" aria-pressed="false">5 · App shell + hub</button>
+  <button data-p="rec" aria-pressed="false">★ Recommended</button>
+  <button data-p="cmp" aria-pressed="false">Compare all</button>
+</nav>
+
+<!-- ============================ PATTERN 1 ============================ -->
+<section class="pat is-on" id="p1">
+  <div class="pat-head">
+    <span class="pat-num">01</span>
+    <h2>Sidebar shell</h2>
+    <span class="pat-seen"><b>Seen in</b> Stripe, Linear, Notion, Jira, Vercel, HubSpot</span>
+  </div>
+  <p>A full-height left rail carries every module, grouped. The content column owns its own
+  context header. This is the default shape of the modern B2B web app, and the only one of the
+  five that scales past ~30 destinations without hiding things.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1024px</p>
+      <div class="wf wf-desk" style="grid-template-columns:210px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)">
+        <!-- sidebar spans both rows -->
+        <div class="z z-nav" style="grid-row:1 / span 2">
+          <span class="z-tag">A + B</span>
+          <div class="w-brand"><span class="w-mark"></span>AJAX ACADEMY</div>
+          <div class="w-grp">Performance</div>
+          <div class="w-item on"><span class="dot"></span>Players</div>
+          <div class="w-item"><span class="dot"></span>Evaluations</div>
+          <div class="w-item"><span class="dot"></span>Measurements</div>
+          <div class="w-grp">People</div>
+          <div class="w-item"><span class="dot"></span>Teams</div>
+          <div class="w-item"><span class="dot"></span>Staff</div>
+          <div class="w-grp">Planning &amp; tactics</div>
+          <div class="w-item"><span class="dot"></span>Activities</div>
+          <div class="w-item"><span class="dot"></span>Matches</div>
+          <div class="w-grp">Development</div>
+          <div class="w-item"><span class="dot"></span>Goals &amp; PDP</div>
+          <div class="w-item"><span class="dot"></span>Reports</div>
+        </div>
+        <!-- top utility bar -->
+        <div class="z z-util" style="padding:.4rem .55rem">
+          <span class="z-tag">F</span>
+          <div class="w-bar">
+            <span class="w-search">Search players, teams, activities…</span>
+            <span class="w-icons"><i class="w-ic"></i><i class="w-ic"></i></span>
+            <span class="w-av"></span>
+          </div>
+        </div>
+        <!-- content column -->
+        <div class="z z-content" style="padding:0">
+          <div style="padding:.55rem;border-bottom:1px solid var(--line-soft);position:relative">
+            <span class="z-tag">D</span>
+            <div class="w-crumb">Dashboard › Players</div>
+            <div class="w-bar"><span class="w-h">Players</span>
+              <span style="flex:1"></span>
+              <span class="w-btn">Filters</span><span class="w-btn pri">+ New player</span></div>
+          </div>
+          <div style="padding:.55rem;position:relative">
+            <span class="z-tag">E</span>
+            <div class="w-kpis">
+              <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+              <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+            </div>
+            <div class="w-rows">
+              <div class="w-row"><span class="w-av"></span><span class="w-line l"></span><span class="w-line s" style="max-width:50px"></span></div>
+              <div class="w-row"><span class="w-av"></span><span class="w-line m"></span><span class="w-line s" style="max-width:50px"></span></div>
+              <div class="w-row"><span class="w-av"></span><span class="w-line l"></span><span class="w-line s" style="max-width:50px"></span></div>
+              <div class="w-row"><span class="w-av"></span><span class="w-line m"></span><span class="w-line s" style="max-width:50px"></span></div>
+              <div class="w-row"><span class="w-av"></span><span class="w-line l"></span><span class="w-line s" style="max-width:50px"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto auto minmax(0,1fr);position:relative">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">A F</span>
+          <div class="w-bar"><span class="w-hamb"><i></i><i></i><i></i></span>
+            <span class="w-brand" style="font-size:.6rem"><span class="w-mark" style="width:16px;height:16px"></span>AJAX</span>
+            <span style="flex:1"></span><span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-content z-row" style="padding:.45rem">
+          <span class="z-tag">D</span>
+          <div class="w-crumb">Dashboard › Players</div>
+          <div class="w-h" style="font-size:.72rem">Players</div>
+        </div>
+        <div class="z z-content z-row" style="padding:.45rem">
+          <span class="z-tag">E</span>
+          <div class="w-rows">
+            <div class="w-row"><span class="w-av"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av"></span><span class="w-line m"></span></div>
+            <div class="w-row"><span class="w-av"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av"></span><span class="w-line m"></span></div>
+            <div class="w-row"><span class="w-av"></span><span class="w-line l"></span></div>
+          </div>
+        </div>
+        <!-- off-canvas drawer, half-open to show the mechanism -->
+        <div class="z z-nav" style="position:absolute;inset:0 34% 0 0;z-index:4;box-shadow:2px 0 12px rgba(0,0,0,.18);padding:.45rem">
+          <span class="z-tag">B</span>
+          <div class="w-grp">Performance</div>
+          <div class="w-item on"><span class="dot"></span>Players</div>
+          <div class="w-item"><span class="dot"></span>Evaluations</div>
+          <div class="w-grp">People</div>
+          <div class="w-item"><span class="dot"></span>Teams</div>
+          <div class="w-item"><span class="dot"></span>Staff</div>
+          <div class="w-grp">Planning</div>
+          <div class="w-item"><span class="dot"></span>Activities</div>
+          <div class="w-item"><span class="dot"></span>Matches</div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">B becomes an off-canvas
+      drawer behind the hamburger (drawn half-open).</p>
+    </div>
+  </div>
+
+  <div class="notes" style="display:grid;gap:1rem;grid-template-columns:1fr">
+    <div class="note">
+      <h3>Fit for TalentTrack</h3>
+      <ul>
+        <li><b>Nav model already exists.</b> <code>TileRegistry</code> holds slug, group, order,
+        icon, per-persona label and cap for every destination, and
+        <code>groupOrder()</code> already fixes the group sequence
+        (Performance / People / Planning &amp; tactics / Development / Reference). A sidebar is a
+        second renderer over that data — not a new information architecture.</li>
+        <li><b>One chrome chokepoint.</b> The header is emitted in one place
+        (<code>DashboardShortcode</code>, ~line 1510) inside a document TalentTrack already
+        controls (<code>CanvasShell</code> + <code>templates/canvas.php</code>). The shell wrapper
+        lands there, once.</li>
+        <li><b>Cost is the width contract.</b> Content loses ~210px. Views using
+        <code>max-width</code> / grid / <code>minmax()</code> reflow for free; the ~20 sheets using
+        <code>position:fixed</code>, <code>sticky</code> or <code>100vw</code> need review —
+        the wide grids (ratings, minutes, attendance) and the match-execution sideline view are the
+        real ones.</li>
+        <li><b>Collides with CLAUDE.md §5.</b> Two nav affordances per view, no third. A persistent
+        global rail is a third one unless §5 is amended to exempt app chrome. That is a
+        <em>decision</em>, not a bug — but it must be made before code.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort</h3>
+      <div class="effort"><b>MEDIUM</b><span>New nav component + one stylesheet + shell wrapper +
+      drawer JS, then a width audit across ~20 stylesheets. No routing change, no view rewrites.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PATTERN 2 ============================ -->
+<section class="pat" id="p2">
+  <div class="pat-head">
+    <span class="pat-num">02</span>
+    <h2>Top nav (horizontal)</h2>
+    <span class="pat-seen"><b>Seen in</b> GitHub, Basecamp, Xero, Mailchimp, Google Analytics</span>
+  </div>
+  <p>A global bar carries brand + utility; a second band underneath carries the primary
+  destinations as tabs. Content keeps the full viewport width. Cheap, familiar, and it stops
+  scaling once the tab row overflows — which is its main limit, not a fatal one.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1024px</p>
+      <div class="wf wf-desk" style="grid-template-rows:auto auto auto minmax(0,1fr)">
+        <div class="z z-util" style="padding:.4rem .55rem">
+          <span class="z-tag">A + F</span>
+          <div class="w-bar">
+            <span class="w-brand"><span class="w-mark"></span>AJAX ACADEMY</span>
+            <span style="flex:1"></span>
+            <span class="w-search" style="max-width:220px">Search…</span>
+            <span class="w-icons"><i class="w-ic"></i><i class="w-ic"></i></span><span class="w-av"></span>
+          </div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.35rem .55rem 0">
+          <span class="z-tag">B</span>
+          <div class="w-tabs">
+            <span class="w-tab on">Players</span><span class="w-tab">Teams</span>
+            <span class="w-tab">Activities</span><span class="w-tab">Matches</span>
+            <span class="w-tab">Evaluations</span><span class="w-tab">Development</span>
+            <span class="w-tab">Reports</span><span class="w-tab">Setup</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.55rem">
+          <span class="z-tag">C + D</span>
+          <div class="w-crumb">Dashboard › Players › Sem de Vries</div>
+          <div class="w-bar"><span class="w-av" style="width:26px;height:26px"></span>
+            <span class="w-h">Sem de Vries · JO15-1</span>
+            <span style="flex:1"></span><span class="w-btn">Edit</span><span class="w-btn pri">+ Evaluation</span></div>
+          <div class="w-tabs" style="margin-top:.45rem">
+            <span class="w-tab on">Overview</span><span class="w-tab">Journey</span>
+            <span class="w-tab">Evaluations</span><span class="w-tab">Goals</span>
+            <span class="w-tab">Minutes</span><span class="w-tab">Measurements</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.55rem">
+          <span class="z-tag">E</span>
+          <div class="w-kpis">
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem">
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span><span class="w-line l"></span></div></div>
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto auto auto minmax(0,1fr)">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">A F</span>
+          <div class="w-bar"><span class="w-brand" style="font-size:.6rem"><span class="w-mark" style="width:16px;height:16px"></span>AJAX</span>
+            <span style="flex:1"></span><span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.4rem">
+          <span class="z-tag">B</span>
+          <div class="w-scroll">
+            <span class="w-tab on">Players</span><span class="w-tab">Teams</span><span class="w-tab">Activ…</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.4rem">
+          <span class="z-tag">C D</span>
+          <div class="w-crumb">Players › Sem de Vries</div>
+          <div class="w-h" style="font-size:.7rem">Sem de Vries</div>
+          <div class="w-scroll" style="margin-top:.35rem">
+            <span class="w-tab on">Overview</span><span class="w-tab">Journey</span><span class="w-tab">Eval…</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.4rem">
+          <span class="z-tag">E</span>
+          <div class="w-kpis" style="grid-template-columns:1fr 1fr">
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+          </div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          <div class="w-card"><div class="w-lines"><span class="w-line m"></span><span class="w-line l"></span></div></div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">B and C become
+      horizontally scrolling pill strips. Two scroll strips stacked is the known weak spot.</p>
+    </div>
+  </div>
+
+  <div class="notes" style="grid-template-columns:1fr">
+    <div class="note">
+      <h3>Fit for TalentTrack</h3>
+      <ul>
+        <li><b>Purely additive.</b> Content width does not change, so no view and no stylesheet
+        needs to be re-measured. That is the single biggest cost difference against pattern 1.</li>
+        <li><b>Same registry feed.</b> Also reads <code>TileRegistry</code>, but the top row only
+        fits ~8 destinations. TalentTrack has far more than 8 — so B becomes the five
+        <code>groupOrder()</code> groups with a dropdown each, or an &ldquo;More&rdquo; overflow.
+        That is a real IA decision: which five things are top-level.</li>
+        <li><b>C is where the win is.</b> Record-level tabs (player: Overview / Journey /
+        Evaluations / Goals / Minutes) directly answer the recurring &ldquo;I can&rsquo;t find
+        X&rdquo; feedback, and the player-profile surface is already flagged as the highest-leverage
+        unmocked surface.</li>
+        <li><b>Mobile is the weak side.</b> Two stacked scroll strips eat ~90px of a 640px
+        viewport before any content. Pitch-side use argues for pairing this with pattern 5&rsquo;s
+        bottom bar on small screens.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort</h3>
+      <div class="effort"><b>SMALL</b><span>One nav band component + one stylesheet + an overflow
+      rule. Everything below it stays as-is. The expensive part is the product decision about which
+      destinations are top-level, not the code.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PATTERN 3 ============================ -->
+<section class="pat" id="p3">
+  <div class="pat-head">
+    <span class="pat-num">03</span>
+    <h2>Icon rail + contextual panel</h2>
+    <span class="pat-seen"><b>Seen in</b> Slack, Discord, Teams, Figma, VS Code, Height</span>
+  </div>
+  <p>A narrow icon rail switches <em>mode</em>; a second panel lists the objects in that mode;
+  the canvas shows the selected one. Optimised for staying inside one mode all day and moving
+  between records fast. Costs the most horizontal room of the five.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1024px</p>
+      <div class="wf wf-desk" style="grid-template-columns:52px 210px minmax(0,1fr)">
+        <div class="z z-nav" style="padding:.4rem .3rem">
+          <span class="z-tag" style="right:2px">B</span>
+          <div class="w-rail">
+            <span class="w-mark" style="width:26px;height:26px"></span>
+            <i class="w-ic on"></i><i class="w-ic"></i><i class="w-ic"></i>
+            <i class="w-ic"></i><i class="w-ic"></i><i class="w-ic"></i>
+            <span style="height:8px"></span><i class="w-ic"></i>
+          </div>
+        </div>
+        <div class="z z-nav2" style="padding:.45rem">
+          <span class="z-tag">C</span>
+          <div class="w-bar" style="margin-bottom:.4rem">
+            <span class="w-lbl" style="font-size:.72rem;font-weight:700;color:var(--ink)">Players</span>
+            <span style="flex:1"></span><span class="w-btn">+</span></div>
+          <span class="w-search" style="margin-bottom:.45rem">Filter…</span>
+          <div class="w-grp">JO15-1</div>
+          <div class="w-rows">
+            <div class="w-row on"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line m"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line m"></span></div>
+          </div>
+          <div class="w-grp">JO17-2</div>
+          <div class="w-rows">
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line m"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line l"></span></div>
+          </div>
+        </div>
+        <div class="z z-content" style="padding:0">
+          <div style="padding:.5rem;border-bottom:1px solid var(--line-soft);position:relative">
+            <span class="z-tag">D + F</span>
+            <div class="w-bar"><span class="w-av" style="width:26px;height:26px"></span>
+              <span class="w-h">Sem de Vries</span><span style="flex:1"></span>
+              <span class="w-btn">Edit</span><span class="w-ic"></span><span class="w-av"></span></div>
+            <div class="w-tabs" style="margin-top:.4rem">
+              <span class="w-tab on">Overview</span><span class="w-tab">Journey</span>
+              <span class="w-tab">Evaluations</span><span class="w-tab">Goals</span></div>
+          </div>
+          <div style="padding:.5rem;position:relative">
+            <span class="z-tag">E</span>
+            <div class="w-kpis" style="grid-template-columns:repeat(3,1fr)">
+              <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+            </div>
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span><span class="w-line l"></span></div></div>
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span><span class="w-line l"></span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto minmax(0,1fr) auto">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">D</span>
+          <div class="w-bar"><span class="w-hamb"><i></i><i></i><i></i></span>
+            <span class="w-h" style="font-size:.68rem">Players</span>
+            <span style="flex:1"></span><span class="w-ic"></span></div>
+        </div>
+        <div class="z z-nav2 z-row" style="padding:.4rem">
+          <span class="z-tag">C</span>
+          <span class="w-search" style="margin-bottom:.4rem">Filter…</span>
+          <div class="w-grp">JO15-1</div>
+          <div class="w-rows">
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line m"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line l"></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-line m"></span></div>
+          </div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.35rem">
+          <span class="z-tag">B</span>
+          <div class="w-tabbar">
+            <div class="on"><i class="w-ic"></i>Players</div><div><i class="w-ic"></i>Teams</div>
+            <div><i class="w-ic"></i>Plan</div><div><i class="w-ic"></i>Eval</div><div><i class="w-ic"></i>More</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Three desktop panes
+      collapse to a two-level stack: rail → bottom bar, panel → list screen, canvas → push
+      navigation. C and E can never be on screen together.</p>
+    </div>
+  </div>
+
+  <div class="notes" style="grid-template-columns:1fr">
+    <div class="note">
+      <h3>Fit for TalentTrack</h3>
+      <ul>
+        <li><b>Needs a region split that does not exist.</b> Today a list and its detail are two
+        separate views at two separate URLs (<code>?tt_view=players</code> →
+        <code>?tt_view=player&amp;id=N</code>), each rendering a whole page. Panel + canvas means
+        one URL addressing two independently-rendered regions.</li>
+        <li><b>Routing and REST work.</b> The panel has to load and re-filter without a full page
+        render, so every list that becomes a panel needs its rows over REST. Per CLAUDE.md §4 those
+        endpoints should exist anyway — but &ldquo;should exist&rdquo; and &ldquo;exists&rdquo; is
+        exactly the gap <code>docs/dev-tier-rest-port-backlog.md</code> tracks.</li>
+        <li><b>Real payoff for one workflow.</b> Evaluating a squad — 18 players, same form each
+        time — is genuinely faster with a persistent roster panel. That is a narrow win for a
+        whole-app restructure; a panel scoped to the evaluation surface alone would capture most
+        of it.</li>
+        <li><b>Fights mobile-first.</b> The pattern is inherently ≥1024px. CLAUDE.md §2 makes the
+        360px case the base case, and half the pilot use is pitch-side.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort</h3>
+      <div class="effort"><b>LARGE</b><span>Shell + routing model + REST panel loading + a
+      pane-stack mobile fallback, then a per-surface port. Not one epic — a programme.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PATTERN 4 ============================ -->
+<section class="pat" id="p4">
+  <div class="pat-head">
+    <span class="pat-num">04</span>
+    <h2>Three-pane console (list + detail + inspector)</h2>
+    <span class="pat-seen"><b>Seen in</b> Outlook, Superhuman, Salesforce Console, Zendesk, Intercom</span>
+  </div>
+  <p>Nav, a queue of records, and the open record — all visible at once, with an inspector rail
+  for properties. Built for triage: work a queue top to bottom without losing your place. The most
+  information-dense of the five and the most desktop-bound.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1280px</p>
+      <div class="wf wf-desk" style="grid-template-columns:150px 200px minmax(0,1fr) 130px;grid-template-rows:auto minmax(0,1fr)">
+        <div class="z z-util" style="grid-column:1 / -1;padding:.4rem .55rem">
+          <span class="z-tag">A + F</span>
+          <div class="w-bar"><span class="w-brand"><span class="w-mark"></span>AJAX ACADEMY</span>
+            <span style="flex:1"></span><span class="w-search" style="max-width:200px">Search…</span>
+            <span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.45rem">
+          <span class="z-tag">B</span>
+          <div class="w-grp">Queues</div>
+          <div class="w-item on"><span class="dot"></span>Needs review</div>
+          <div class="w-item"><span class="dot"></span>Trials</div>
+          <div class="w-item"><span class="dot"></span>Injuries</div>
+          <div class="w-item"><span class="dot"></span>Missing minutes</div>
+          <div class="w-grp">Modules</div>
+          <div class="w-item"><span class="dot"></span>Players</div>
+          <div class="w-item"><span class="dot"></span>Teams</div>
+          <div class="w-item"><span class="dot"></span>Reports</div>
+        </div>
+        <div class="z z-nav2 z-row" style="padding:.45rem">
+          <span class="z-tag">C</span>
+          <div class="w-bar" style="margin-bottom:.4rem"><span class="w-lbl" style="font-weight:700;color:var(--ink)">Needs review · 14</span></div>
+          <div class="w-rows">
+            <div class="w-row on"><span class="w-av" style="width:16px;height:16px"></span><span class="w-lines" style="flex:1"><span class="w-line l"></span><span class="w-line s"></span></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-lines" style="flex:1"><span class="w-line m"></span><span class="w-line s"></span></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-lines" style="flex:1"><span class="w-line l"></span><span class="w-line s"></span></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-lines" style="flex:1"><span class="w-line m"></span><span class="w-line s"></span></span></div>
+            <div class="w-row"><span class="w-av" style="width:16px;height:16px"></span><span class="w-lines" style="flex:1"><span class="w-line l"></span><span class="w-line s"></span></span></div>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:0">
+          <div style="padding:.5rem;border-bottom:1px solid var(--line-soft);position:relative">
+            <span class="z-tag">D</span>
+            <div class="w-bar"><span class="w-av" style="width:24px;height:24px"></span>
+              <span class="w-h">JO15-1 vs Feyenoord</span><span style="flex:1"></span>
+              <span class="w-btn">Skip</span><span class="w-btn pri">Approve</span></div>
+          </div>
+          <div style="padding:.5rem;position:relative">
+            <span class="z-tag">E</span>
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+            <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span><span class="w-line l"></span></div></div>
+          </div>
+        </div>
+        <div class="z z-nav2 z-row" style="padding:.45rem">
+          <span class="z-tag">G</span>
+          <div class="w-grp">Properties</div>
+          <div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span>
+            <span class="w-line s"></span><span class="w-line l"></span>
+            <span class="w-line s"></span><span class="w-line m"></span></div>
+          <div class="w-grp">Activity</div>
+          <div class="w-lines"><span class="w-line l"></span><span class="w-line m"></span><span class="w-line l"></span></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto minmax(0,1fr);position:relative">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">D</span>
+          <div class="w-bar"><span class="w-btn">‹ Back</span>
+            <span class="w-h" style="font-size:.64rem">JO15-1 vs Feyenoord</span></div>
+        </div>
+        <div class="z z-content z-row" style="padding:.4rem">
+          <span class="z-tag">E</span>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span></div></div>
+        </div>
+        <div class="w-sheet">
+          <span class="z-tag" style="top:4px">G</span>
+          <div class="w-grp" style="margin-top:0">Properties (sheet)</div>
+          <div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span><span class="w-line l"></span></div>
+          <div class="w-bar" style="margin-top:.45rem"><span class="w-btn">Skip</span><span class="w-btn pri">Approve</span></div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Four panes cannot
+      coexist at 360px. B and C become separate screens; G becomes a bottom sheet. Effectively a
+      different app on mobile.</p>
+    </div>
+  </div>
+
+  <div class="notes" style="grid-template-columns:1fr">
+    <div class="note">
+      <h3>Fit for TalentTrack</h3>
+      <ul>
+        <li><b>Everything pattern 3 needs, plus an inspector.</b> Same list/detail region split,
+        same REST dependency, plus a fourth region with its own state.</li>
+        <li><b>Wrong primary shape for this product.</b> A console optimises repetitive triage of
+        interchangeable records. TalentTrack&rsquo;s centre is one player&rsquo;s longitudinal
+        story (CLAUDE.md §1) — a surface that wants width and vertical room, not a 40%-width
+        middle pane.</li>
+        <li><b>But right for specific surfaces.</b> Matches-needing-review, the trial funnel, and
+        evaluation coverage are genuinely queue-shaped. This pattern is worth adopting per-surface,
+        not app-wide.</li>
+        <li><b>Two layouts to maintain.</b> The mobile fallback is not a reflow of the desktop
+        layout, it is a second design. That doubles the cost of every future change to those
+        surfaces.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort</h3>
+      <div class="effort"><b>X-LARGE app-wide · MEDIUM per surface</b><span>As a global shell it is
+      the most expensive option and pulls against §2. As a per-surface treatment for the 3–4
+      queue-shaped views it is a normal epic.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PATTERN 5 ============================ -->
+<section class="pat" id="p5">
+  <div class="pat-head">
+    <span class="pat-num">05</span>
+    <h2>App shell + hub (bottom bar, tile launcher)</h2>
+    <span class="pat-seen"><b>Seen in</b> Strava, Duolingo, Monzo, Teamer, Spond, Google mobile apps</span>
+  </div>
+  <p>A slim top bar for identity, a centred content column, and a fixed bottom bar carrying the
+  four or five things people actually do. Everything else lives behind a hub of tiles and a search
+  field. Touch-native, thumb-reachable, and it hides the long tail by design — which is either the
+  feature or the problem, depending on the user.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1024px — bottom bar promotes to a centred nav row</p>
+      <div class="wf wf-desk" style="grid-template-rows:auto auto minmax(0,1fr)">
+        <div class="z z-util" style="padding:.4rem .55rem">
+          <span class="z-tag">A + F</span>
+          <div class="w-bar"><span class="w-brand"><span class="w-mark"></span>AJAX ACADEMY</span>
+            <span style="flex:1"></span><span class="w-search" style="max-width:260px">⌘K — jump to anything</span>
+            <span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.4rem .55rem">
+          <span class="z-tag">B</span>
+          <div class="w-scroll" style="justify-content:center">
+            <span class="w-tab on">Today</span><span class="w-tab">My teams</span>
+            <span class="w-tab">Players</span><span class="w-tab">Activities</span><span class="w-tab">All modules</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.55rem">
+          <span class="z-tag">D + E</span>
+          <div style="max-width:640px;margin:0 auto">
+            <div class="w-h" style="margin-bottom:.45rem">Today</div>
+            <div class="w-kpis" style="grid-template-columns:repeat(3,1fr)">
+              <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+            </div>
+            <div class="w-grp">Jump to</div>
+            <div class="w-tiles">
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line m"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line l"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line m"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line l"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line m"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line l"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line m"></span></div>
+              <div class="w-tile"><span class="w-mark"></span><span class="w-line l"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Note the centred
+      <code>max-width</code> column: on a 27&Prime; monitor two-thirds of the screen is empty.
+      That is the trade this pattern makes.</p>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px — the native case</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto minmax(0,1fr) auto;position:relative">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">A F</span>
+          <div class="w-bar"><span class="w-brand" style="font-size:.6rem"><span class="w-mark" style="width:16px;height:16px"></span>AJAX</span>
+            <span style="flex:1"></span><span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-content z-row" style="padding:.4rem">
+          <span class="z-tag">D E</span>
+          <div class="w-h" style="font-size:.7rem;margin-bottom:.4rem">Today</div>
+          <div class="w-kpis" style="grid-template-columns:1fr 1fr">
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+          </div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          <div class="w-grp">Jump to</div>
+          <div class="w-tiles" style="grid-template-columns:1fr 1fr">
+            <div class="w-tile" style="min-height:40px"><span class="w-mark"></span><span class="w-line m"></span></div>
+            <div class="w-tile" style="min-height:40px"><span class="w-mark"></span><span class="w-line l"></span></div>
+            <div class="w-tile" style="min-height:40px"><span class="w-mark"></span><span class="w-line m"></span></div>
+            <div class="w-tile" style="min-height:40px"><span class="w-mark"></span><span class="w-line l"></span></div>
+          </div>
+          <span class="w-fab"></span>
+        </div>
+        <div class="z z-nav z-row" style="padding:.35rem .35rem .5rem">
+          <span class="z-tag">B</span>
+          <div class="w-tabbar">
+            <div class="on"><i class="w-ic"></i>Today</div><div><i class="w-ic"></i>Teams</div>
+            <div><i class="w-ic"></i>Players</div><div><i class="w-ic"></i>Plan</div><div><i class="w-ic"></i>More</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Bottom bar sits in the
+      thumb zone, with <code>env(safe-area-inset-bottom)</code> padding. &ldquo;More&rdquo; opens
+      the full tile hub.</p>
+    </div>
+  </div>
+
+  <div class="notes" style="grid-template-columns:1fr">
+    <div class="note">
+      <h3>Fit for TalentTrack</h3>
+      <ul>
+        <li><b>Closest to today.</b> The persona landing page is already a grouped tile hub; this
+        pattern keeps it and adds a persistent bottom bar plus a command palette. Nothing about the
+        current structure has to be undone.</li>
+        <li><b>Best fit with §2.</b> The only one of the five that is mobile-first by construction
+        rather than by fallback — and the pitch-side flows (attendance, minutes, live match) are
+        exactly what a thumb-zone bar serves.</li>
+        <li><b>Does not fix the desktop tail.</b> Roughly 50 admin / setup / report surfaces stay
+        two taps deep behind &ldquo;More&rdquo;. If the complaint is &ldquo;I can&rsquo;t find
+        X&rdquo; on a laptop, this pattern alone does not answer it — the command palette does most
+        of the lifting, and that is a genuinely new component to build and index.</li>
+        <li><b>Per-persona bar contents.</b> Five slots, six-plus personas.
+        <code>TileRegistry</code>&rsquo;s per-persona label map already supports this, so it is a
+        config decision, not new plumbing.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort</h3>
+      <div class="effort"><b>SMALL</b><span>Bottom-bar component + one stylesheet + safe-area
+      padding + per-persona slot config. Add <b>MEDIUM</b> if the command palette is in scope —
+      that needs a searchable index across players, teams, activities and views.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================== RECOMMENDED =========================== -->
+<section class="pat" id="rec">
+  <div class="pat-head">
+    <span class="pat-num">★</span>
+    <h2>Sidebar + player spine + peek</h2>
+    <span class="pat-seen"><b>Desktop</b> 1 + record tabs from 2 + peek from 4 · <b>Mobile</b> 5</span>
+  </div>
+  <p class="lead">Richest and best-suited are not the same answer. The three- and four-pane
+  workspaces (3, 4) <em>feel</em> the richest — but what makes them feel that way is not the pane
+  count, it is that <b>you never lose your place</b>. That property is separable from the layout
+  that usually carries it, and it can be bought without the pane cost.</p>
+  <p>So the recommendation takes the property and leaves the panes: a sidebar for global nav, a
+  <b>player context spine</b> that pins the player's identity and their tabs across every surface
+  inside that player, and a <b>peek panel</b> that opens a related record without navigating away
+  from the one you are on. The spine is the part that is specific to this product rather than
+  borrowed from a general-purpose SaaS shell — it is CLAUDE.md §1 made structural: the player is
+  the root entity, so the player stays on screen.</p>
+
+  <div class="frames">
+    <div>
+      <p class="frame-cap">Desktop ≥1280px — peek panel drawn open</p>
+      <div class="wf wf-desk" style="grid-template-columns:200px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)">
+        <!-- A + B -->
+        <div class="z z-nav" style="grid-row:1 / span 3">
+          <span class="z-tag">A + B</span>
+          <div class="w-bar" style="margin-bottom:.2rem">
+            <span class="w-brand"><span class="w-mark"></span>AJAX ACADEMY</span>
+            <span style="flex:1"></span><span class="w-hamb" style="width:12px"><i></i><i></i></span>
+          </div>
+          <div class="w-grp">Performance</div>
+          <div class="w-item on"><span class="dot"></span>Players</div>
+          <div class="w-item"><span class="dot"></span>Evaluations</div>
+          <div class="w-item"><span class="dot"></span>Measurements</div>
+          <div class="w-grp">People</div>
+          <div class="w-item"><span class="dot"></span>Teams</div>
+          <div class="w-item"><span class="dot"></span>Staff</div>
+          <div class="w-grp">Planning &amp; tactics</div>
+          <div class="w-item"><span class="dot"></span>Activities</div>
+          <div class="w-item"><span class="dot"></span>Matches</div>
+          <div class="w-grp">Development</div>
+          <div class="w-item"><span class="dot"></span>Goals &amp; PDP</div>
+          <div class="w-item"><span class="dot"></span>Reports</div>
+        </div>
+        <!-- F -->
+        <div class="z z-util" style="padding:.4rem .55rem">
+          <span class="z-tag">F</span>
+          <div class="w-bar">
+            <span class="w-search">⌘K — jump to a player, team, activity or view</span>
+            <span class="w-icons"><i class="w-ic"></i><i class="w-ic"></i></span><span class="w-av"></span>
+          </div>
+        </div>
+        <!-- the spine: D + C, pinned -->
+        <div class="z z-content z-row" style="padding:.5rem .55rem;background:var(--paper)">
+          <span class="z-tag">D + C — spine</span>
+          <div class="w-crumb">Dashboard › Players › Sem de Vries</div>
+          <div class="w-bar">
+            <span class="w-av" style="width:30px;height:30px"></span>
+            <span>
+              <span class="w-h">Sem de Vries</span>
+              <span class="w-bar" style="margin-top:.15rem">
+                <span class="w-btn" style="padding:.15rem .35rem;font-size:.55rem">JO15-1</span>
+                <span class="w-btn" style="padding:.15rem .35rem;font-size:.55rem">CM · 14y</span>
+                <span class="w-btn" style="padding:.15rem .35rem;font-size:.55rem">Signed</span>
+              </span>
+            </span>
+            <span style="flex:1"></span>
+            <span class="w-btn">Edit</span><span class="w-btn pri">+ Evaluation</span>
+          </div>
+          <div class="w-tabs" style="margin-top:.5rem">
+            <span class="w-tab on">Overview</span><span class="w-tab">Journey</span>
+            <span class="w-tab">Evaluations</span><span class="w-tab">Goals &amp; PDP</span>
+            <span class="w-tab">Minutes</span><span class="w-tab">Measurements</span>
+            <span class="w-tab">Notes</span>
+          </div>
+        </div>
+        <!-- E with G peeking over it -->
+        <div class="z z-content z-row" style="padding:.55rem;position:relative">
+          <span class="z-tag">E</span>
+          <div class="w-kpis">
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+          </div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line m"></span><span class="w-line l"></span></div></div>
+          <!-- peek -->
+          <div class="z z-nav2" style="position:absolute;inset:0 0 0 44%;border-left:1px solid var(--line);box-shadow:-6px 0 18px rgba(0,0,0,.14);padding:.5rem">
+            <span class="z-tag">G — peek</span>
+            <div class="w-bar" style="margin-bottom:.45rem">
+              <span class="w-lbl" style="font-size:.68rem;font-weight:700;color:var(--ink)">Training · Tue 19:00</span>
+              <span style="flex:1"></span><span class="w-btn">Open ↗</span><span class="w-btn">✕</span>
+            </div>
+            <div class="w-grp" style="margin-top:0">Attendance</div>
+            <div class="w-rows">
+              <div class="w-row"><span class="w-av" style="width:15px;height:15px"></span><span class="w-line l"></span></div>
+              <div class="w-row"><span class="w-av" style="width:15px;height:15px"></span><span class="w-line m"></span></div>
+              <div class="w-row"><span class="w-av" style="width:15px;height:15px"></span><span class="w-line l"></span></div>
+            </div>
+            <div class="w-grp">Session plan</div>
+            <div class="w-lines"><span class="w-line l"></span><span class="w-line m"></span><span class="w-line l"></span></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Below 1280px the sidebar
+      collapses to a 52px icon rail (the toggle sits beside the brand mark); below 1024px it becomes
+      the off-canvas drawer from pattern 1. The spine and the peek panel are unaffected by either
+      step.</p>
+    </div>
+
+    <div>
+      <p class="frame-cap">Mobile 360px</p>
+      <div class="wf wf-mob" style="grid-template-rows:auto auto minmax(0,1fr) auto">
+        <div class="z z-util" style="padding:.4rem">
+          <span class="z-tag">A F</span>
+          <div class="w-bar"><span class="w-brand" style="font-size:.6rem"><span class="w-mark" style="width:16px;height:16px"></span>AJAX</span>
+            <span style="flex:1"></span><span class="w-ic"></span><span class="w-av"></span></div>
+        </div>
+        <div class="z z-row" style="padding:.4rem;background:var(--paper)">
+          <span class="z-tag">spine</span>
+          <div class="w-bar">
+            <span class="w-av" style="width:22px;height:22px"></span>
+            <span class="w-h" style="font-size:.66rem">Sem de Vries</span>
+          </div>
+          <div class="w-scroll" style="margin-top:.35rem">
+            <span class="w-tab on">Overview</span><span class="w-tab">Journey</span><span class="w-tab">Eval…</span>
+          </div>
+        </div>
+        <div class="z z-content z-row" style="padding:.4rem">
+          <span class="z-tag">E</span>
+          <div class="w-kpis" style="grid-template-columns:1fr 1fr">
+            <div class="w-kpi"><i></i><b></b></div><div class="w-kpi"><i></i><b></b></div>
+          </div>
+          <div class="w-card"><div class="w-lines"><span class="w-line s"></span><span class="w-line l"></span><span class="w-line m"></span></div></div>
+          <div class="w-card"><div class="w-lines"><span class="w-line m"></span><span class="w-line l"></span></div></div>
+        </div>
+        <div class="z z-nav z-row" style="padding:.35rem .35rem .5rem">
+          <span class="z-tag">B</span>
+          <div class="w-tabbar">
+            <div class="on"><i class="w-ic"></i>Today</div><div><i class="w-ic"></i>Teams</div>
+            <div><i class="w-ic"></i>Players</div><div><i class="w-ic"></i>Plan</div><div><i class="w-ic"></i>More</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.5rem;color:var(--ink-faint)">Same spine, compacted to
+      one row and made sticky, so the player's identity survives scrolling. Peek becomes a bottom
+      sheet. Nav moves to the thumb zone.</p>
+    </div>
+  </div>
+
+  <div class="notes" style="grid-template-columns:1fr">
+    <div class="note">
+      <h3>Why this is the richest — and why the pane-heavy options are not</h3>
+      <ul>
+        <li><b>Richness is continuity, not density.</b> What reads as premium in Linear or
+        Superhuman is that context persists: you always know where you are and what you are looking
+        at. Panes are one way to buy that. A pinned spine plus a peek panel buys the same thing at a
+        fraction of the width cost.</li>
+        <li><b>The spine is this product's own idea.</b> Every general SaaS shell has a sidebar. A
+        header that pins <em>the player</em> — photo, name, team, position, age, status — across
+        Overview / Journey / Evaluations / Goals / Minutes is specific to a talent system, and it is
+        §1 expressed as layout rather than as a rule people have to remember.</li>
+        <li><b>Peek is what kills the dead ends.</b> Today, following a link from a player to an
+        activity means leaving the player. Peek keeps cross-entity moves reversible, which is the
+        actual complaint behind most "I lost my place" feedback — and it composes with the existing
+        <code>RecordLink::detailUrlForWithBack()</code> vocabulary rather than replacing it.</li>
+        <li><b>What the console would have bought, kept where it belongs.</b> The queue treatment
+        from pattern 4 still earns its place on the 3–4 genuinely queue-shaped surfaces
+        (matches needing review, trial funnel, evaluation coverage). Adopt it there, not globally.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Why it is best suited</h3>
+      <ul>
+        <li><b>The primary surface wants width.</b> A player's longitudinal story — timelines,
+        rating trends, minutes over a season — needs horizontal and vertical room. A 40%-wide
+        middle pane (4) or a 55% canvas (3) fights that; a sidebar plus full-width canvas does not.</li>
+        <li><b>Scales to the real destination count.</b> There are far more than eight
+        destinations, and the setup/report tail keeps growing. Only the grouped sidebar (1) absorbs
+        that without hiding things behind "More".</li>
+        <li><b>Honours mobile-first properly.</b> Mobile gets pattern 5 — bottom bar in the thumb
+        zone, tile hub for the tail, compact sticky spine — which is what pitch-side use needs. Not
+        a fallback of the desktop layout; the right layout for that viewport, fed by the same data.</li>
+        <li><b>Nothing here needs a rewrite.</b> Sidebar and bottom bar both read
+        <code>TileRegistry</code>. The spine is a component the record views call instead of their
+        own hand-rolled headers. Peek is the one genuinely new mechanism.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>Effort — phaseable, and the richness is the last phase</h3>
+      <ul>
+        <li><b>Phase 1 · S–M — persistent nav, both viewports.</b> Sidebar ≥1024px + off-canvas
+        drawer below + bottom bar on mobile, all from <code>TileRegistry</code>. Plus the width
+        audit of ~20 stylesheets. This alone is most of the perceived change.</li>
+        <li><b>Phase 2 · S per surface — the spine.</b> One component; adopted first by player
+        detail, then team, activity, staff. Replaces per-view hand-rolled headers, so it removes
+        code as it lands.</li>
+        <li><b>Phase 3 · M — peek + ⌘K.</b> The one part needing new plumbing: REST reads for
+        peeked records and a searchable index across players, teams, activities and views. Both are
+        things §4 says should exist anyway.</li>
+        <li><b>Total ≈ Medium, spread over three releases</b>, and each phase is shippable and
+        useful on its own. Nothing in phases 1–2 is wasted if phase 3 is deferred.</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>The §5 amendment this needs</h3>
+      <p style="font-size:.85rem">§5 currently counts <em>all</em> nav affordances. The fix is to
+      distinguish global chrome from per-view affordances, and keep the ban where it was aimed —
+      at hand-rolled per-view back links:</p>
+      <ul>
+        <li><b>Global chrome — exactly one primary nav</b> (sidebar ≥1024px / drawer + bottom bar
+        below), rendered once by the shell from <code>TileRegistry</code>. Never emitted by a view.</li>
+        <li><b>Per view — still exactly two</b>: the breadcrumb chain ending at Dashboard, and the
+        contextual <code>tt_back</code> pill. Unchanged.</li>
+        <li><b>Record-scoped tabs are C, not a third affordance</b> — they move <em>within</em> one
+        record, they do not leave it. Rendered only by the spine component, never hand-rolled.</li>
+        <li><b>The original ban stands verbatim:</b> no <code>FrontendBackButton</code>, no
+        hardcoded "Back to dashboard" / "Back to &lt;list&gt;", no custom back affordance that
+        sidesteps the chain + pill.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ COMPARE ============================ -->
+<section class="pat" id="cmp">
+  <div class="pat-head"><h2>All five, side by side</h2></div>
+  <p>Desktop shape only, same scale.</p>
+
+  <div class="cmp-grid">
+    <div class="cmp-cell">
+      <h2>1 · Sidebar shell</h2>
+      <div class="wf wf-desk" style="grid-template-columns:70px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)">
+        <div class="z z-nav" style="grid-row:1 / span 2"><span class="z-tag">B</span></div>
+        <div class="z z-util" style="min-height:26px"><span class="z-tag">F</span></div>
+        <div class="z z-content"><span class="z-tag">D E</span></div>
+      </div>
+    </div>
+    <div class="cmp-cell">
+      <h2>2 · Top nav</h2>
+      <div class="wf wf-desk" style="grid-template-rows:auto auto auto minmax(0,1fr)">
+        <div class="z z-util" style="min-height:24px"><span class="z-tag">A F</span></div>
+        <div class="z z-nav z-row" style="min-height:24px"><span class="z-tag">B</span></div>
+        <div class="z z-content z-row" style="min-height:32px"><span class="z-tag">C D</span></div>
+        <div class="z z-content z-row"><span class="z-tag">E</span></div>
+      </div>
+    </div>
+    <div class="cmp-cell">
+      <h2>3 · Rail + panel</h2>
+      <div class="wf wf-desk" style="grid-template-columns:26px 78px minmax(0,1fr)">
+        <div class="z z-nav"><span class="z-tag" style="right:1px">B</span></div>
+        <div class="z z-nav2"><span class="z-tag">C</span></div>
+        <div class="z z-content"><span class="z-tag">D E</span></div>
+      </div>
+    </div>
+    <div class="cmp-cell">
+      <h2>4 · Three-pane console</h2>
+      <div class="wf wf-desk" style="grid-template-columns:62px 84px minmax(0,1fr) 56px;grid-template-rows:auto minmax(0,1fr)">
+        <div class="z z-util" style="grid-column:1 / -1;min-height:24px"><span class="z-tag">A F</span></div>
+        <div class="z z-nav z-row"><span class="z-tag" style="right:1px">B</span></div>
+        <div class="z z-nav2 z-row"><span class="z-tag">C</span></div>
+        <div class="z z-content z-row"><span class="z-tag">D E</span></div>
+        <div class="z z-nav2 z-row"><span class="z-tag" style="right:1px">G</span></div>
+      </div>
+    </div>
+    <div class="cmp-cell">
+      <h2>5 · App shell + hub</h2>
+      <div class="wf wf-desk" style="grid-template-rows:auto auto minmax(0,1fr)">
+        <div class="z z-util" style="min-height:24px"><span class="z-tag">A F</span></div>
+        <div class="z z-nav z-row" style="min-height:24px"><span class="z-tag">B</span></div>
+        <div class="z z-content z-row" style="display:grid;place-items:stretch">
+          <span class="z-tag">D E</span>
+          <div style="max-width:62%;margin:0 auto;width:100%;background:var(--paper);border:1px dashed var(--line);border-radius:6px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cmp-cell">
+      <h2>★ Recommended</h2>
+      <div class="wf wf-desk" style="grid-template-columns:70px minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)">
+        <div class="z z-nav" style="grid-row:1 / span 3"><span class="z-tag">B</span></div>
+        <div class="z z-util" style="min-height:22px"><span class="z-tag">F</span></div>
+        <div class="z z-row" style="min-height:34px;background:var(--paper)"><span class="z-tag">D C</span></div>
+        <div class="z z-content z-row" style="position:relative">
+          <span class="z-tag">E</span>
+          <div class="z z-nav2" style="position:absolute;inset:0 0 0 46%;border-left:1px solid var(--line)"><span class="z-tag" style="right:1px">G</span></div>
+        </div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.4rem;color:var(--ink-faint)">Sidebar + pinned player
+      spine + peek. Mobile takes pattern 5 instead.</p>
+    </div>
+    <div class="cmp-cell">
+      <h2>Today (TalentTrack)</h2>
+      <div class="wf wf-desk" style="grid-template-rows:auto auto minmax(0,1fr)">
+        <div class="z z-util" style="min-height:24px"><span class="z-tag">A F</span></div>
+        <div class="z z-content z-row" style="min-height:24px"><span class="z-tag">D</span></div>
+        <div class="z z-content z-row"><span class="z-tag">E</span></div>
+      </div>
+      <p style="font-size:.75rem;margin-top:.4rem;color:var(--ink-faint)">No B, no C. Navigation
+      happens by returning to the tile hub, or by breadcrumb.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:2rem">Where each zone lives</h3>
+  <div class="tbl-scroll">
+    <table class="big">
+      <thead><tr><th>Zone</th><th>1 Sidebar</th><th>2 Top nav</th><th>3 Rail + panel</th><th>4 Console</th><th>5 App shell</th></tr></thead>
+      <tbody>
+        <tr><td>A Brand</td><td><span>sidebar top</span></td><td><span>bar left</span></td><td><span>rail top</span></td><td><span>bar left</span></td><td><span>bar left</span></td></tr>
+        <tr><td>B Primary nav</td><td><span>left rail, grouped, ~30 items</span></td><td><span>tab row, ~8 items + overflow</span></td><td><span>icon rail, ~7 modes</span></td><td><span>left rail, queues + modules</span></td><td><span>bottom bar, 5 slots + hub</span></td></tr>
+        <tr><td>C Secondary nav</td><td><span>in content header</span></td><td><span>own band under B</span></td><td><span>object list panel</span></td><td><span>queue pane</span></td><td><span>in-page tabs</span></td></tr>
+        <tr><td>D Context header</td><td><span>content column top</span></td><td><span>third band</span></td><td><span>canvas top</span></td><td><span>detail pane top</span></td><td><span>page top</span></td></tr>
+        <tr><td>E Content</td><td><span>full remaining width</span></td><td><span>full viewport width</span></td><td><span>canvas, ~55%</span></td><td><span>middle pane, ~40%</span></td><td><span>centred column, ~640px</span></td></tr>
+        <tr><td>F Utility</td><td><span>top-right bar</span></td><td><span>top-right bar</span></td><td><span>canvas header</span></td><td><span>top-right bar</span></td><td><span>top-right + ⌘K</span></td></tr>
+        <tr><td>G Inspector</td><td><span>—</span></td><td><span>—</span></td><td><span>—</span></td><td><span>right rail</span></td><td><span>bottom sheet</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Effort, against this codebase</h3>
+  <div class="tbl-scroll">
+    <table class="big">
+      <thead><tr><th>Pattern</th><th>Effort</th><th>What actually costs</th><th>Scales to 30+ destinations</th><th>Mobile story</th></tr></thead>
+      <tbody>
+        <tr><td>★ Recommended</td><td>Medium<span>, over 3 releases</span></td><td><span>Phase 1 nav (S–M) → phase 2 spine (S per surface) → phase 3 peek + ⌘K (M). Each phase ships alone.</span></td><td><span>Yes</span></td><td><span>Pattern 5 — native, same registry feed</span></td></tr>
+        <tr><td>2 Top nav</td><td>Small</td><td><span>Nav band + overflow rule. Content width unchanged, so no stylesheet audit.</span></td><td><span>Only via grouping / overflow</span></td><td><span>Weak — stacked scroll strips</span></td></tr>
+        <tr><td>5 App shell + hub</td><td>Small<span> (+M with ⌘K)</span></td><td><span>Bottom bar + safe-area padding + per-persona slots.</span></td><td><span>No — tail stays behind &ldquo;More&rdquo;</span></td><td><span>Native</span></td></tr>
+        <tr><td>1 Sidebar shell</td><td>Medium</td><td><span>Shell wrapper + drawer + width audit of ~20 stylesheets. Needs a CLAUDE.md §5 amendment.</span></td><td><span>Yes</span></td><td><span>Off-canvas drawer</span></td></tr>
+        <tr><td>4 Console <em>per surface</em></td><td>Medium</td><td><span>Only for the 3–4 queue-shaped views.</span></td><td><span>n/a</span></td><td><span>Separate design</span></td></tr>
+        <tr><td>3 Rail + panel</td><td>Large</td><td><span>List/detail region split → routing + REST panel loading + pane-stack mobile.</span></td><td><span>Yes</span></td><td><span>Poor</span></td></tr>
+        <tr><td>4 Console <em>app-wide</em></td><td>X-Large</td><td><span>All of the above plus a fourth region and a second mobile design.</span></td><td><span>Yes</span></td><td><span>Poor</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <h3>Three things that set the price, whichever pattern wins</h3>
+    <p><b>1. The nav data already exists.</b> <code>TileRegistry</code> carries slug, group, order,
+    icon, per-persona label and capability for every destination, and <code>groupOrder()</code>
+    fixes the group sequence. Any of these patterns is a new <em>renderer</em> over existing data —
+    the information architecture is not the work.</p>
+    <p><b>2. The chrome has one chokepoint.</b> <code>DashboardShortcode</code> emits the header in
+    one place, and <code>CanvasShell</code> + <code>templates/canvas.php</code> already own the
+    whole document and dequeue theme CSS. A shell wrapper goes in at one seam, not 159.</p>
+    <p><b>3. Content width is the only real risk.</b> Patterns 1, 3 and 4 take horizontal room away
+    from views. Most of the 132 stylesheets reflow, but ~20 use <code>position:fixed</code>,
+    <code>sticky</code> or <code>100vw</code> — the wide data grids and the match-execution sideline
+    view are the ones to check first. Patterns 2 and 5 avoid this entirely.</p>
+  </div>
+
+  <div class="callout">
+    <h3>Open decisions before any of this becomes an issue</h3>
+    <p><b>CLAUDE.md §5 is being amended</b> to separate global chrome (one primary nav, rendered
+    once by the shell) from per-view affordances (still exactly two: breadcrumb chain +
+    <code>tt_back</code> pill), with the original ban on hand-rolled back links kept verbatim.
+    Proposed wording is on the <b>★ Recommended</b> tab.</p>
+    <p><b>What is top-level?</b> Patterns 2 and 5 force a choice of 5–8 primary destinations per
+    persona — for the recommendation, that choice only constrains the five mobile bottom-bar slots,
+    since the desktop sidebar carries the full grouped set.</p>
+    <p><b>Desktop and mobile are not the same pattern</b> — settled. They share one registry feed
+    and one set of destinations, and render as a grouped sidebar on a laptop and a thumb bar on a
+    phone.</p>
+  </div>
+</section>
+
+<script>
+(function(){
+  var picker = document.getElementById('picker');
+  var buttons = picker.querySelectorAll('button');
+  function show(id){
+    document.querySelectorAll('.pat').forEach(function(s){ s.classList.toggle('is-on', s.id === id); });
+    buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.p === id)); });
+    if (location.hash.slice(1) !== id) history.replaceState(null, '', '#' + id);
+  }
+  picker.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (b) show(b.dataset.p);
+  });
+  var initial = location.hash.slice(1);
+  if (document.getElementById(initial) && initial.match(/^(p[1-5]|rec|cmp)$/)) show(initial);
+})();
+</script>
+</div>
+</body>
+</html>
