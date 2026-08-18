@@ -444,6 +444,8 @@ class ActivitiesRestController {
         $saved   = 0;
         $skipped = 0;
         $failed  = 0;
+        /** @var array<int,bool> $touched activity ids that took a write */
+        $touched = [];
 
         foreach ( $changes as $c ) {
             if ( ! is_array( $c ) ) { $skipped++; continue; }
@@ -466,12 +468,28 @@ class ActivitiesRestController {
 
             if ( $repo->upsertActualAttendanceStatus( $aid, $pid, $status ) ) {
                 $saved++;
+                if ( $status !== '' ) $touched[ $aid ] = true;
             } else {
                 $failed++;
             }
         }
 
-        return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped, 'failed' => $failed ] );
+        // #2521 — the grid can write attendance for an activity the coach
+        // never marked completed, and reports count completed activities
+        // only. Recording a register is that assertion, so complete the
+        // past-dated, non-terminal activities this batch wrote to; without
+        // it the coach's entry would silently never reach the reports.
+        $completed = 0;
+        foreach ( array_keys( $touched ) as $aid ) {
+            if ( $repo->completeIfNotTerminal( (int) $aid ) ) $completed++;
+        }
+
+        return RestResponse::success( [
+            'saved'     => $saved,
+            'skipped'   => $skipped,
+            'failed'    => $failed,
+            'completed' => $completed,
+        ] );
     }
 
     /**

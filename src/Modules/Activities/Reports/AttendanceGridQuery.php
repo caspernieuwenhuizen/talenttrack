@@ -30,9 +30,14 @@ final class AttendanceGridQuery {
     /**
      * Build the grid for a team over a window.
      *
+     * `completes` (#2521) marks a column whose activity would change status
+     * when the grid is saved: past-dated and not yet completed or cancelled.
+     * The view uses it to flag the column and to name the affected sessions
+     * in the confirmation before anything is written.
+     *
      * @param string $type_filter 'all' | 'training' | 'match'
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, is_match:bool }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, is_match:bool, status_key:string, completes:bool }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, string>>,
      *   summary: array{ total_activities:int, total_players:int }
@@ -69,7 +74,9 @@ final class AttendanceGridQuery {
         //    the register reads left-to-right in time like an Excel sheet.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, activity_type_key, {$date_col} AS session_date, title
+            "SELECT id, activity_type_key, {$date_col} AS session_date, title,
+                    activity_status_key,
+                    ({$date_col} <= CURDATE()) AS is_past
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -86,12 +93,18 @@ final class AttendanceGridQuery {
         $activities = [];
         foreach ( (array) $activity_rows as $a ) {
             $type = strtolower( (string) ( $a->activity_type_key ?? '' ) );
+            // #2521 — the grid shows planned sessions too, and saving a
+            // register completes the past-dated ones. The view needs both
+            // facts to warn the coach before that happens.
+            $status = strtolower( trim( (string) ( $a->activity_status_key ?? '' ) ) );
             $activities[] = [
                 'activity_id'  => (int) $a->id,
                 'session_date' => (string) $a->session_date,
                 'title'        => (string) ( $a->title ?? '' ),
                 'type_key'     => $type,
                 'is_match'     => in_array( $type, [ 'match', 'game', 'tournament' ], true ),
+                'status_key'   => $status,
+                'completes'    => $status !== 'completed' && $status !== 'cancelled' && (int) ( $a->is_past ?? 0 ) === 1,
             ];
         }
 

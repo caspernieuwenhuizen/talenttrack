@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
@@ -22,7 +23,9 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  * Window + scope:
  *   - `from` / `to` are `Y-m-d`; rows count completed, actual,
  *     non-guest attendance on non-archived activities / players —
- *     the same filters the report has always applied.
+ *     the same filters the report has always applied. "Completed"
+ *     means `activity_status_key` — the status on screen — via
+ *     {@see ActivityLifecycle} (#2521).
  *   - `allowed_team_ids` mirrors the analytics team-scope: `null` =
  *     unrestricted (global-scope read on `activities` — #1942); a
  *     non-empty list narrows to those teams; an empty list returns
@@ -71,6 +74,11 @@ final class AttendanceRankingQuery {
             ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
             : '';
 
+        // #2521 — "has this happened?" is the status the coach set, not the
+        // planner's `plan_state` (which defaults to 'completed' on every row
+        // the planner did not create). See ActivityLifecycle.
+        $completed = ActivityLifecycle::completedClause( 'a' );
+
         $where_scope = '';
         if ( $allowed_team_ids !== null ) {
             $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
@@ -99,8 +107,7 @@ final class AttendanceRankingQuery {
                AND att.is_guest = 0
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
-               AND a.plan_state = 'completed'
-               AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+               AND {$completed}
                AND a.session_date <= CURDATE()
                {$where_team}
                {$where_type}
@@ -197,6 +204,7 @@ final class AttendanceRankingQuery {
      */
     private function isDeclining( int $player_id, string $as_of ): bool {
         global $wpdb;
+        $completed = ActivityLifecycle::completedClause( 'a' );
         /** @var object[] $recent */
         $recent = $wpdb->get_results( $wpdb->prepare(
             "SELECT LOWER(att.status) AS status
@@ -205,8 +213,7 @@ final class AttendanceRankingQuery {
               WHERE att.player_id = %d
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'
-                AND a.plan_state = 'completed'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND {$completed}
                 AND a.session_date <= %s
                 AND a.session_date <= CURDATE()
               ORDER BY a.session_date DESC, a.id DESC

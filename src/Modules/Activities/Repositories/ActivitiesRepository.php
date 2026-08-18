@@ -324,6 +324,9 @@ final class ActivitiesRepository {
         // `is_guest = 0` filter so the profile KPI reflects everything
         // the player actually did. Team-level attendance (TeamKpisRepository,
         // AttendanceRankingQuery) keeps its guest-exclusive filter.
+        //
+        // #2521 — gated on the coach-set status, not `plan_state`.
+        $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
@@ -334,7 +337,7 @@ final class ActivitiesRepository {
                 AND att.club_id = %d
                 AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
+                AND {$completed}
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
             $player_id, $player_id, CurrentClub::id(), $days
         ) );
@@ -885,11 +888,18 @@ final class ActivitiesRepository {
         ) );
         if ( $roster_size === 0 ) return $empty;
 
+        // #2522 — recorded attendance only. The planned roster lives in the
+        // same table under `record_type='expected'` and carries a real
+        // status (Expected → present, Not coming → absent, Maybe → excused;
+        // see ActivitiesRestController::plannedStatusMap), so without this
+        // predicate an activity with both a plan and a register reported
+        // every planned player a second time — "28 / 15 present".
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT LOWER(a.status) AS status, COUNT(*) AS cnt
                FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
               WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
+                AND a.record_type = 'actual'
                 AND pl.team_id = %d AND pl.status = 'active'
               GROUP BY LOWER(a.status)",
             $activity_id, $club_id, $team_id
@@ -1000,12 +1010,21 @@ final class ActivitiesRepository {
      * Each value degrades to null when unavailable so the strip can skip
      * an empty cell rather than show a placeholder.
      *
+     * #2523 — the present cell is only meaningful once the coach has marked
+     * the activity completed. Attendance can legitimately be entered ahead
+     * of that (the entry grid writes a whole column at once), but reporting
+     * "15 / 15 present" on a session still showing STATUS: Planned states
+     * something that has not happened. The Attendance card below the strip
+     * has always been gated this way; the strip now matches it. Pass the
+     * activity's `activity_status_key`; an empty string keeps the cell (the
+     * caller does not know the status).
+     *
      * @return object {
      *   present:?int, roster_size:?int, substitutes:?int,
      *   match_length_minutes:?int, duration_minutes:?int
      * }
      */
-    public function statStripForActivity( int $activity_id, int $team_id, bool $is_match, string $start_time, string $end_time, int $explicit_match_length = 0 ): object {
+    public function statStripForActivity( int $activity_id, int $team_id, bool $is_match, string $start_time, string $end_time, int $explicit_match_length = 0, string $status_key = '' ): object {
         $out = (object) [
             'present'              => null,
             'roster_size'         => null,
@@ -1015,8 +1034,11 @@ final class ActivitiesRepository {
         ];
         if ( $activity_id <= 0 ) return $out;
 
-        // Present / roster — reuse the same breakdown the Attendance card reads.
-        if ( $team_id > 0 ) {
+        // Present / roster — reuse the same breakdown the Attendance card
+        // reads, under the same "has it happened?" gate (#2523).
+        $status_key   = strtolower( trim( $status_key ) );
+        $has_happened = $status_key === '' || $status_key === ActivityStatusKey::COMPLETED;
+        if ( $team_id > 0 && $has_happened ) {
             $bd = $this->attendanceBreakdownForActivity( $activity_id, $team_id );
             if ( (int) $bd->roster_size > 0 ) {
                 $out->present     = (int) $bd->present;
@@ -1636,6 +1658,54 @@ final class ActivitiesRepository {
             [
                 'activity_status_key' => $status_key,
                 'plan_state'          => $plan_state,
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
+     * #2521 — recording attendance asserts the session took place, so flip
+     * a non-terminal activity to completed. Both lifecycle columns move
+     * together, which is what keeps the reports (which read
+     * `activity_status_key`) and the planner (which reads `plan_state`)
+     * telling the same story.
+     *
+     * Never overrides an explicit completed / cancelled — the coach has
+     * been clear. Never completes a future-dated session either: a coach
+     * can legitimately pre-record known absences for next week, and that
+     * is not an assertion the session has happened.
+     *
+     * The guided flow reaches the same end state from its own final save
+     * (`Wizards\Evaluation\AttendanceStep::completeActivityIfNotTerminal`),
+     * which has no date guard because its activity picker only ever offers
+     * sessions that have already happened.
+     *
+     * Returns true when the activity was transitioned.
+     */
+    public function completeIfNotTerminal( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT activity_status_key, session_date
+               FROM {$p}tt_activities
+              WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( ! $row ) return false;
+
+        $status = strtolower( trim( (string) ( $row->activity_status_key ?? '' ) ) );
+        if ( $status === ActivityStatusKey::COMPLETED || $status === ActivityStatusKey::CANCELLED ) {
+            return false;
+        }
+        $date = (string) ( $row->session_date ?? '' );
+        if ( $date === '' || $date > current_time( 'Y-m-d' ) ) return false;
+
+        return $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'activity_status_key' => ActivityStatusKey::COMPLETED,
+                'plan_state'          => 'completed',
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
