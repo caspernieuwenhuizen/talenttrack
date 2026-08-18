@@ -42,10 +42,12 @@ final class FrontendAppNav {
 
         $out = [];
         foreach ( $grouped as $group ) {
-            $tiles = array_values( array_filter(
-                $group['tiles'] ?? [],
-                static fn( $t ) => ! empty( $t['label'] ) && ! empty( $t['url'] )
-            ) );
+            $tiles = [];
+            foreach ( $group['tiles'] ?? [] as $tile ) {
+                $tile['url'] = self::urlFor( $tile );
+                if ( empty( $tile['label'] ) || $tile['url'] === '' ) continue;
+                $tiles[] = $tile;
+            }
             if ( $tiles === [] ) continue;
             $out[] = [
                 'label' => (string) ( $group['label'] ?? '' ),
@@ -53,6 +55,38 @@ final class FrontendAppNav {
             ];
         }
         return $out;
+    }
+
+    /**
+     * The URL a tile routes to.
+     *
+     * `TileRegistry` materialises `url` only for the handful of tiles that
+     * register a `url_callback`; every other tile carries `view_slug` and
+     * the consumer resolves it. Filtering on a bare `url` therefore dropped
+     * 56 of 59 destinations from the sidebar (#2505) — the registry was not
+     * incomplete, the nav was asking for a field it resolves lazily.
+     *
+     * The base is the current page minus the drill-down params, matching
+     * `FrontendTileGrid`: both surfaces read the same registry, so a tile
+     * must lead to the same place whether it was clicked in the hub or in
+     * the sidebar.
+     */
+    private static function urlFor( array $tile ): string {
+        $url = (string) ( $tile['url'] ?? '' );
+        if ( $url !== '' ) return $url;
+
+        $slug = self::slugFor( $tile );
+        if ( $slug === '' ) return '';
+
+        $current = '';
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
+        }
+        $base = remove_query_arg(
+            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
+            $current ?: home_url( '/' )
+        );
+        return (string) add_query_arg( 'tt_view', $slug, $base );
     }
 
     /**
