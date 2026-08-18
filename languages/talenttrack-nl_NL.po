@@ -48667,14 +48667,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "%d demo rows"
 #~ msgstr "%d demo-rijen"
 
-#: src/Modules/DemoData/DemoCoverage.php:596
-msgid "The testing battery, its per-age-group target bands, team testing sessions and one result per player."
-msgstr "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team en één resultaat per speler."
-
-#: src/Modules/DemoData/DemoCoverage.php:597
-msgid "The season, one development dossier per player, its conversation cycle, calendar links and verdicts."
-msgstr "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, agendakoppelingen en eindoordelen."
-
 #: src/Modules/DemoData/DemoCoverage.php:640
 msgid "Training content"
 msgstr "Trainingsinhoud"
