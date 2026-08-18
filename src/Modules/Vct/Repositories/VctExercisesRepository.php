@@ -8,10 +8,31 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 /**
  * VctExercisesRepository — the deterministic exercise catalogue.
  *
+ * Reads `tt_exercises` since migration 0212 (#2494) merged the VCT
+ * catalogue into the one club-wide library. The class name and its
+ * public contract are unchanged: the rules engine, the wizard steps and
+ * the REST controller all still ask this repository for VCT-shaped rows
+ * and get them, so the merge is invisible above this seam.
+ *
+ * Two column names differ between the tables and are bridged here rather
+ * than at every call site:
+ *
+ *   tt_vct_exercises.name_canonical -> tt_exercises.name
+ *   tt_vct_exercises.category       -> tt_exercises.category_key
+ *
+ * `category_key` is the denormalised copy carried for the hot path;
+ * `tt_exercises.category_id` is the authoring-side reference and is not
+ * read here — joining it per candidate would defeat the covering index.
+ *
  * Hot path: `findCandidates()`. The composite index
- * `(club_id, archived_at, category, intensity_band, age_min, age_max)`
- * on `tt_vct_exercises` (migration 0122) covers the query so the engine
- * stays under O(log n) even at 1000+ exercises per club.
+ * `(club_id, archived_at, category_key, intensity_band, age_min, age_max)`
+ * on `tt_exercises` (migration 0212, mirroring 0122's) covers the query so
+ * the engine stays under O(log n) even at 1000+ exercises per club.
+ *
+ * Exercises that predate the merge, and any authored through the general
+ * library without VCT attributes, carry NULL `age_min` / `category_key`.
+ * They therefore fail the candidate predicates and never enter selection —
+ * the engine's result set is unchanged until someone fills those fields in.
  *
  * Every query filters `archived_at IS NULL` explicitly per spec —
  * archiving an exercise removes it from candidate selection without
@@ -25,7 +46,7 @@ class VctExercisesRepository {
     public function __construct() {
         global $wpdb;
         $this->wpdb  = $wpdb;
-        $this->table = $wpdb->prefix . 'tt_vct_exercises';
+        $this->table = $wpdb->prefix . 'tt_exercises';
     }
 
     /**
@@ -54,10 +75,11 @@ class VctExercisesRepository {
         $md_column = $this->mdContextColumn( $md_context );
         if ( $md_column === null ) return [];
 
-        $sql = "SELECT * FROM {$this->table}
+        $sql = "SELECT *, name AS name_canonical, category_key AS category
+                  FROM {$this->table}
                  WHERE club_id = %d
                    AND archived_at IS NULL
-                   AND category = %s
+                   AND category_key = %s
                    AND intensity_band BETWEEN %d AND %d
                    AND age_min <= %d
                    AND age_max >= %d
@@ -89,14 +111,20 @@ class VctExercisesRepository {
      * @return list<array<string,mixed>>
      */
     public function listAll( ?string $category = null, bool $include_archived = false ): array {
-        $sql = "SELECT * FROM {$this->table} WHERE club_id = %d";
+        // Scoped to rows carrying VCT attributes. After the merge the table
+        // also holds general library exercises; surfacing those in the VCT
+        // library editor would show a coach rows it cannot meaningfully
+        // edit there (no intensity band, no age window).
+        $sql = "SELECT *, name AS name_canonical, category_key AS category
+                  FROM {$this->table}
+                 WHERE club_id = %d AND category_key IS NOT NULL";
         $params = [ CurrentClub::id() ];
         if ( ! $include_archived ) $sql .= " AND archived_at IS NULL";
         if ( $category !== null && $category !== '' ) {
-            $sql .= " AND category = %s";
+            $sql .= " AND category_key = %s";
             $params[] = $category;
         }
-        $sql .= " ORDER BY category ASC, intensity_band ASC, name_canonical ASC";
+        $sql .= " ORDER BY category_key ASC, intensity_band ASC, name ASC";
         $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, $params ) );
         if ( ! is_array( $rows ) ) return [];
         return array_map( [ $this, 'hydrate' ], $rows );
@@ -108,10 +136,16 @@ class VctExercisesRepository {
      * @param array<string,mixed> $data
      */
     public function create( array $data ): int {
-        $row = $this->normalisePayload( $data );
+        $row = $this->toStorage( $this->normalisePayload( $data ) );
         $row['club_id']       = CurrentClub::id();
         $row['uuid']          = wp_generate_uuid4();
         $row['seed_revision'] = 0;
+        // `duration_minutes` is the general library's scalar; VCT authors a
+        // min/max range, so seed the scalar from the minimum to keep the
+        // shared column meaningful on the library surfaces.
+        if ( isset( $row['duration_minutes_min'] ) ) {
+            $row['duration_minutes'] = (int) $row['duration_minutes_min'];
+        }
         $ok = $this->wpdb->insert( $this->table, $row );
         return $ok === false ? 0 : (int) $this->wpdb->insert_id;
     }
@@ -123,7 +157,7 @@ class VctExercisesRepository {
      */
     public function update( int $id, array $patch ): bool {
         if ( $id <= 0 ) return false;
-        $clean = $this->normalisePayload( $patch, true );
+        $clean = $this->toStorage( $this->normalisePayload( $patch, true ) );
         if ( ! $clean ) return true;
         $ok = $this->wpdb->update(
             $this->table,
@@ -198,11 +232,32 @@ class VctExercisesRepository {
         return $out;
     }
 
+    /**
+     * Rename the VCT-shaped payload keys onto the merged table's columns.
+     * Kept as one chokepoint so `normalisePayload()` stays the single place
+     * that validates, and the rename stays the single place that maps.
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    private function toStorage( array $row ): array {
+        if ( array_key_exists( 'name_canonical', $row ) ) {
+            $row['name'] = $row['name_canonical'];
+            unset( $row['name_canonical'] );
+        }
+        if ( array_key_exists( 'category', $row ) ) {
+            $row['category_key'] = $row['category'];
+            unset( $row['category'] );
+        }
+        return $row;
+    }
+
     /** @return array<string,mixed>|null */
     public function find( int $id ): ?array {
         if ( $id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE club_id = %d AND id = %d LIMIT 1",
+            "SELECT *, name AS name_canonical, category_key AS category
+               FROM {$this->table} WHERE club_id = %d AND id = %d LIMIT 1",
             CurrentClub::id(), $id
         ) );
         if ( ! $row ) return null;
