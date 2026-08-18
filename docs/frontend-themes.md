@@ -19,16 +19,28 @@ Squarer corners (4px instead of 8px), a condensed heading face, and a
 navy-tinted depth so shadows read as part of the palette rather than as grey
 haze over it.
 
-## Your academy colours still apply
+## A theme replaces your colour settings
 
-Your club colours are not a theme's business. The two colours you set in
-**Appearance** are yours, and both themes keep using them for the brand
-header, links and buttons. A theme owns the greys, the surfaces, the status
-colours and the type around them.
+While a theme is active it supplies the **whole** colour scheme — the brand
+header, buttons, links, status colours and the heading font. The colour and
+font fields under Configuration → Appearance have no effect until the theme is
+set back to Default. The Colours panel says so when a theme is on.
 
-Federation claims exactly one colour of its own: the gold that marks which
-section you are in. That is deliberate — it has to stay legible whatever your
-club colours are, including when they are close to navy.
+This is deliberate. Letting a club colour through produced the problem it was
+meant to avoid: a green brand header sitting above a navy sidebar, with two
+palettes fighting over the same screen.
+
+**Your identity still shows.** Your logo and academy name are markup, not
+colours, and they render in every theme. Setting the theme back to Default
+restores your colours exactly as you left them — nothing is overwritten, so
+there is nothing to re-enter.
+
+### Custom CSS is not affected
+
+If you have written rules under Configuration → Custom CSS, they still apply
+on top of a theme. That is an escape hatch you opted into by hand, so a theme
+does not silently discard it — but it is also where a theme's look can be
+broken, so check that page if a theme is not rendering the way you expect.
 
 ## Choosing one
 
@@ -81,8 +93,18 @@ A theme is a **token layer**, not a second set of surfaces:
    come from re-pointing `--tt-paper` without darkening every card — is a small
    set of explicit rules against the shell's existing class vocabulary.
 
-A theme must **not** declare `--tt-primary` / `--tt-secondary`. Those are
-emitted by `BrandStyles` and re-themed by the operator's colour editor.
+A theme **must** declare the brand tokens (`--tt-primary`,
+`--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb`, and the derived
+`--tt-primary-deep` / `-ink` / `-hover`). `BrandStyles::injectVars()` returns
+early while a theme is active, so nothing else supplies them — and roughly
+forty surfaces read `var(--tt-primary, #0b3d2e)` with the shipped green as a
+hardcoded fallback, which is what those rules would paint if the theme stayed
+silent.
+
+Suppression lives in `BrandStyles` rather than in the theme sheet because that
+method emits a dozen tokens, and which of them appear depends on which
+Branding fields the operator filled in. One conditional at the single place
+they are written beats out-specifying a moving target.
 
 ### Adding a theme
 

@@ -20,16 +20,30 @@ sectie waar je bent. Strakkere hoeken (4px in plaats van 8px), een smalle
 kopletter en een marineblauw getinte diepte, zodat schaduwen bij het palet
 horen in plaats van er als grijze waas overheen te liggen.
 
-## Je academiekleuren blijven gelden
+## Een thema vervangt je kleurinstellingen
 
-Je clubkleuren zijn niet de zaak van een thema. De twee kleuren die je onder
-**Uiterlijk** instelt zijn van jou, en beide thema's blijven ze gebruiken voor
-de merkbalk, links en knoppen. Een thema bezit de grijstinten, de vlakken, de
-statuskleuren en de typografie eromheen.
+Zolang een thema actief is levert het het **complete** kleurenschema — de
+merkbalk, knoppen, links, statuskleuren en de kopletter. De kleur- en
+lettervelden onder Configuratie → Uiterlijk hebben geen effect totdat het
+thema weer op Standaard staat. Het paneel Kleuren meldt dat wanneer er een
+thema aanstaat.
 
-Federation claimt precies één eigen kleur: het goud dat aangeeft in welke
-sectie je bent. Dat is bewust — die moet leesbaar blijven wat je clubkleuren
-ook zijn, ook als ze dicht bij marineblauw liggen.
+Dat is bewust. Eén clubkleur doorlaten leverde precies het probleem op dat het
+moest voorkomen: een groene merkbalk boven een marineblauwe zijbalk, met twee
+paletten die om hetzelfde scherm vechten.
+
+**Je identiteit blijft zichtbaar.** Je logo en academienaam zijn opmaak, geen
+kleuren, en verschijnen in elk thema. Zet je het thema terug op Standaard, dan
+staan je kleuren er weer precies zoals je ze had — er wordt niets
+overschreven, dus je hoeft niets opnieuw in te vullen.
+
+### Eigen CSS blijft wel gelden
+
+Heb je regels geschreven onder Configuratie → Eigen CSS, dan gelden die nog
+steeds bovenop een thema. Dat is een uitweg die je zelf met de hand hebt
+gekozen, dus een thema gooit hem niet stilzwijgend weg — maar het is ook de
+plek waar de vormgeving van een thema kan breken, dus kijk daar als een thema
+er niet uitziet zoals je verwacht.
 
 ## Een thema kiezen
 
@@ -83,8 +97,17 @@ Een thema is een **tokenlaag**, geen tweede set schermen:
    maken — is een klein aantal expliciete regels op de bestaande klassen van
    de shell.
 
-Een thema mag `--tt-primary` / `--tt-secondary` **niet** declareren. Die komen
-uit `BrandStyles` en worden door de kleuren-editor van de beheerder bepaald.
+Een thema **moet** de merktokens declareren (`--tt-primary`,
+`--tt-primary-rgb`, `--tt-secondary`, `--tt-secondary-rgb` en de afgeleide
+`--tt-primary-deep` / `-ink` / `-hover`). `BrandStyles::injectVars()` stopt
+meteen zolang er een thema actief is, dus niets anders levert ze — en zo'n
+veertig vlakken lezen `var(--tt-primary, #0b3d2e)` met het meegeleverde groen
+als harde terugvalwaarde, en dát zouden die regels tekenen als het thema zweeg.
+
+Het onderdrukken zit in `BrandStyles` en niet in het themablad, omdat die
+methode een stuk of twaalf tokens uitstuurt en het van de ingevulde
+Huisstijl-velden afhangt welke daarvan verschijnen. Eén voorwaarde op de enige
+plek waar ze geschreven worden is beter dan een bewegend doel overtroeven.
 
 ### Een thema toevoegen
 

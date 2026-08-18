@@ -24,6 +24,20 @@ class BrandStyles {
     }
 
     public static function injectVars(): void {
+        // #2515 — a theme owns the complete visual design. The club keeps its
+        // identity (logo, name), but not the palette: emitting club colours
+        // under a theme put a club-coloured brand header above a themed rail,
+        // which is the exact clash the theme exists to prevent.
+        //
+        // Suppressed here rather than out-specified in the theme sheet: this
+        // method emits a dozen tokens, and which of them appear depends on
+        // which Branding fields the operator happens to have filled in. One
+        // conditional at the single place they are written beats a
+        // specificity war against a moving target.
+        if ( ThemePreference::hasThemeSheet() ) {
+            return;
+        }
+
         /** @var \TT\Infrastructure\Config\ConfigService $cfg */
         $cfg = \TT\Core\Kernel::instance()->container()->get( 'config' );
 
@@ -70,6 +84,13 @@ class BrandStyles {
      * or Inherit-from-theme.
      */
     public static function enqueueFonts(): void {
+        // #2515 — a theme owns the type as well as the colour, so the club's
+        // font choice does not apply. Skipping the request outright also
+        // spares the page a third-party fetch whose result nothing would use.
+        if ( ThemePreference::hasThemeSheet() ) {
+            return;
+        }
+
         /** @var \TT\Infrastructure\Config\ConfigService $cfg */
         $cfg = \TT\Core\Kernel::instance()->container()->get( 'config' );
         $url = BrandFonts::googleFontsUrl(

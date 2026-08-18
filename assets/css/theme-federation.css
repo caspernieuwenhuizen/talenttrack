@@ -32,6 +32,42 @@
  */
 
 .tt-dashboard.tt-theme-federation {
+    /* ---- Brand tokens (#2515) -------------------------------------- */
+    /*
+     * A theme owns the complete visual design, so it declares the brand
+     * tokens rather than leaving them to the club. `BrandStyles` stops
+     * emitting its `:root` block entirely while a theme is active.
+     *
+     * These are NOT optional. Around forty surfaces read
+     * `var(--tt-primary, #0b3d2e)` with the shipped green as a hardcoded
+     * fallback, so suppressing the club's emission without declaring
+     * replacements here would paint that green straight back in.
+     *
+     * The club keeps its identity through the logo and the academy name,
+     * which are markup rather than tokens and are untouched by this.
+     */
+    --tt-primary:       #1b3660;
+    --tt-primary-rgb:   27, 54, 96;
+    --tt-secondary:     #e0a92a;
+    --tt-secondary-rgb: 224, 169, 42;
+    --tt-accent:        #1b3660;
+    --tt-focus-ring:    #e0a92a;
+
+    /* The derived brand shades. `frontend-admin.css` and the app chrome read
+       these with green hardcoded as the fallback, so they have to be stated
+       here too or they reintroduce the shipped palette one button at a time. */
+    --tt-primary-deep:  #0d1a2b;
+    --tt-primary-ink:   #16304f;
+
+    /*
+     * Hover MUST be light. `public.css` pairs this background with
+     * `color: var(--tt-ink)`, so a dark value here puts near-black text on a
+     * near-black button — which is what a first pass at this token did.
+     * Gold keeps the shipped green-to-gold interaction (navy rests, gold
+     * responds) and clears contrast against the dark ink it is paired with.
+     */
+    --tt-primary-hover: #e0a92a;
+
     /* ---- Neutral token overrides ---------------------------------- */
     /* Ink */
     --tt-ink:        #0d1a2b;
@@ -96,6 +132,47 @@
        condensed faces already present on the OS, then to the body face
        so nothing renders in a default serif. */
     --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ---- Chrome: the top bar ------------------------------------------- */
+/*
+ * The header and the rail are one surface, so they take one colour. Left to
+ * the brand tokens the header renders in `--tt-primary` (#1b3660, the accent
+ * that buttons and links use) while the rail renders in `--tt-fd-chrome`
+ * (#10233f) — two navies meeting along an edge, which reads as a mistake
+ * rather than as a palette.
+ *
+ * The shipped rule also ends the bar with `3px solid var(--tt-secondary)`.
+ * With gold as the secondary that becomes a gold stripe under the header,
+ * competing with the gold that marks the active section. Gold earns its
+ * meaning by being scarce: it marks where you are, and nothing else. The bar
+ * closes on a chrome hairline instead.
+ */
+.tt-dashboard.tt-theme-federation .tt-dash-header {
+    background: var(--tt-fd-chrome);
+    border-bottom: 1px solid var(--tt-fd-chrome-line);
+}
+
+/*
+ * `public.css` also hangs a 60px decorative tick off the header's bottom-left
+ * in the secondary colour. With gold as the secondary it reads as a stray
+ * fragment rather than an accent — and it spends the one colour that is
+ * supposed to mean "this is where you are". Removed for this theme; the
+ * chrome hairline above closes the bar instead.
+ */
+.tt-dashboard.tt-theme-federation .tt-dash-header::after {
+    display: none;
+}
+
+/*
+ * "My work" rows carry a 3px secondary-coloured left edge. Repeated down a
+ * twelve-row list that is a dozen gold bars, which is the same scarcity
+ * problem as the header tick at larger scale — after it, gold no longer
+ * reads as "here". The rows take the brand navy; gold stays with the active
+ * nav marker.
+ */
+.tt-dashboard.tt-theme-federation .tt-ftile-mywork-row {
+    border-left-color: var(--tt-primary);
 }
 
 /* ---- Chrome: the navy rail ----------------------------------------- */

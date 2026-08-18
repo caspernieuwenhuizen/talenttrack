@@ -243,7 +243,7 @@ class FrontendMySettingsView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </select>
                 <p class="tt-field-hint">
-                    <?php esc_html_e( 'Changes colours, corners and heading type only — never what you can see or do. Your academy colours keep working in either theme.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Changes colours, corners and heading type only — never what you can see or do. A theme supplies the whole colour scheme for the application; your academy logo and name are unaffected.', 'talenttrack' ); ?>
                 </p>
             </div>
 
