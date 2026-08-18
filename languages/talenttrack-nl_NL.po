@@ -1376,6 +1376,9 @@ msgstr "Leeftijd: %1$s → %2$s"
 msgid "staff"
 msgstr "staf"
 
+msgid "%1$s (%2$s)"
+msgstr "%1$s (%2$s)"
+
 #: src/Infrastructure/People/PersonDeletionCascade.php:81
 msgid "(unknown team)"
 msgstr "(onbekend team)"
