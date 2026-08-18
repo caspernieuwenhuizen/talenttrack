@@ -45,12 +45,18 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    /** A user who may plan. The cap is matrix-only, so grant it directly. */
+    /**
+     * A user who may plan.
+     *
+     * `tt_training_plan` is matrix-only, so adding the raw capability to an
+     * arbitrary user is not enough — MatrixGate resolves the cap through
+     * the authorization matrix, and a user with no persona row is denied
+     * regardless of what `add_cap()` says. WP administrators bypass every
+     * tt_* cap unconditionally (LegacyCapMapper), which is the idiom the
+     * other REST tests in this suite use for their happy paths.
+     */
     private function planner(): int {
-        $user_id = self::factory()->user->create( [ 'role' => 'editor' ] );
-        $user    = get_user_by( 'id', $user_id );
-        $user->add_cap( 'tt_training_plan' );
-        $user->add_cap( 'tt_view_activities' );
+        $user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
         wp_set_current_user( $user_id );
         return $user_id;
     }
