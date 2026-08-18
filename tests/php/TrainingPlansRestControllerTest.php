@@ -171,7 +171,83 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
 
         // Archived plans drop out of the default listing.
         [ , $data ] = $this->call( 'GET', self::PLANS );
-        $this->assertNotContains( $id, array_column( $data['items'], 'id' ) );
+        $this->assertNotContains( $id, array_column( $data['rows'], 'id' ) );
+    }
+
+    public function test_list_speaks_the_list_table_contract(): void {
+        $this->planner();
+
+        [ , $created ] = $this->call( 'POST', self::PLANS, [ 'title' => 'Zoekbaar plan', 'team_id' => 3 ] );
+        $id = (int) $created['plan']['id'];
+
+        [ $status, $data ] = $this->call( 'GET', self::PLANS, [ 'page' => 1, 'per_page' => 10 ] );
+        $this->assertSame( 200, $status );
+
+        // FrontendListTable's hydrator reads exactly these keys.
+        foreach ( [ 'rows', 'total', 'page', 'per_page' ] as $key ) {
+            $this->assertArrayHasKey( $key, $data, "the list table reads data.{$key}" );
+        }
+        $this->assertSame( 1, $data['page'] );
+        $this->assertSame( 10, $data['per_page'] );
+
+        $row = null;
+        foreach ( $data['rows'] as $candidate ) {
+            if ( (int) $candidate['id'] === $id ) { $row = $candidate; break; }
+        }
+        $this->assertNotNull( $row, 'the created plan must appear in the list' );
+        $this->assertNotEmpty( $row['detail_url'], 'row_url_key => detail_url makes the row clickable' );
+        $this->assertSame( 'Plan', $row['kind_label'] );
+        $this->assertNull( $row['archived_at'], 'only archived rows carry archived_at, which gates the restore actions' );
+    }
+
+    public function test_search_filters_the_rows_and_the_total_together(): void {
+        $this->planner();
+
+        $this->call( 'POST', self::PLANS, [ 'title' => 'Opbouwen van achteruit' ] );
+        $this->call( 'POST', self::PLANS, [ 'title' => 'Druk zetten op de helft' ] );
+
+        [ , $data ] = $this->call( 'GET', self::PLANS, [ 'search' => 'Opbouwen' ] );
+
+        $this->assertCount( 1, $data['rows'] );
+        $this->assertSame(
+            1,
+            $data['total'],
+            'a total that ignores the search would promise the pager rows the list will not show'
+        );
+        $this->assertSame( 'Opbouwen van achteruit', $data['rows'][0]['title'] );
+    }
+
+    public function test_archived_filter_returns_only_archived_plans(): void {
+        $this->planner();
+
+        [ , $keep ]     = $this->call( 'POST', self::PLANS, [ 'title' => 'Actief plan' ] );
+        [ , $binned ]   = $this->call( 'POST', self::PLANS, [ 'title' => 'Gearchiveerd plan' ] );
+        $archived_id    = (int) $binned['plan']['id'];
+        $this->call( 'DELETE', self::PLANS . '/' . $archived_id );
+
+        [ , $data ] = $this->call( 'GET', self::PLANS, [ 'filter' => [ 'status' => 'archived' ] ] );
+
+        $ids = array_column( $data['rows'], 'id' );
+        $this->assertContains( $archived_id, $ids );
+        $this->assertNotContains( (int) $keep['plan']['id'], $ids );
+        $this->assertNotNull( $data['rows'][0]['archived_at'] );
+    }
+
+    public function test_sort_is_restricted_to_an_allowlist(): void {
+        $this->planner();
+
+        $this->call( 'POST', self::PLANS, [ 'title' => 'Alfa' ] );
+        $this->call( 'POST', self::PLANS, [ 'title' => 'Zulu' ] );
+
+        [ , $asc ] = $this->call( 'GET', self::PLANS, [ 'orderby' => 'title', 'order' => 'asc' ] );
+        $titles    = array_column( $asc['rows'], 'title' );
+        $this->assertSame( 'Alfa', $titles[0] );
+
+        // An unknown column must fall back to the default order rather than
+        // reaching SQL.
+        [ $status, $data ] = $this->call( 'GET', self::PLANS, [ 'orderby' => 'title; DROP TABLE wp_users' ] );
+        $this->assertSame( 200, $status );
+        $this->assertNotEmpty( $data['rows'] );
     }
 
     public function test_create_without_a_title_is_a_400_not_a_500(): void {

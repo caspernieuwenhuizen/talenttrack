@@ -1160,6 +1160,14 @@ class DashboardShortcode {
                 // #1480 — academy-wide holiday management.
                 \TT\Shared\Frontend\FrontendHolidaysView::render( $user_id, $is_admin );
                 return true;
+            // #2496 (epic #2493) — training plans. Both slugs land on one
+            // view: the list, and the read-only detail when ?id= is set.
+            // `training-plan` (singular) is the record URL the list rows
+            // and later surfaces link to.
+            case 'training-plans':
+            case 'training-plan':
+                \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $user_id, $is_admin );
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;

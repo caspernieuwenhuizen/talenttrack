@@ -60,20 +60,45 @@ final class TrainingPlansRepository {
     }
 
     /**
-     * List plans, newest first.
+     * List plans, newest first unless sorted otherwise.
      *
-     * @param array{team_id?:int|null, is_template?:bool|null, include_archived?:bool, theme_key?:string, author_user_id?:int, limit?:int, offset?:int} $args
+     * @param array{team_id?:int|null, is_template?:bool|null, include_archived?:bool, archived_only?:bool, theme_key?:string, author_user_id?:int, search?:string, orderby?:string, order?:string, limit?:int, offset?:int} $args
      * @return list<object>
      */
     public function listPlans( array $args = [] ): array {
         global $wpdb;
 
-        $sql    = "SELECT * FROM {$this->table()} WHERE club_id = %d";
+        [ $where, $params ] = $this->whereFor( $args );
+
+        $sql = "SELECT * FROM {$this->table()} {$where} " . $this->orderFor( $args );
+
+        $limit    = isset( $args['limit'] ) ? max( 1, min( 500, (int) $args['limit'] ) ) : 100;
+        $sql     .= ' LIMIT %d OFFSET %d';
+        $params[] = $limit;
+        $params[] = isset( $args['offset'] ) ? max( 0, (int) $args['offset'] ) : 0;
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * Shared WHERE builder for listPlans() + countPlans(), so a filter can
+     * never apply to the page but not the count (or the reverse — a pager
+     * that promises rows the list will not show).
+     *
+     * @param array<string,mixed> $args
+     * @return array{0:string, 1:list<mixed>}
+     */
+    private function whereFor( array $args ): array {
+        $sql    = ' WHERE club_id = %d';
         $params = [ CurrentClub::id() ];
 
-        if ( empty( $args['include_archived'] ) ) {
+        if ( ! empty( $args['archived_only'] ) ) {
+            $sql .= ' AND archived_at IS NOT NULL';
+        } elseif ( empty( $args['include_archived'] ) ) {
             $sql .= ' AND archived_at IS NULL';
         }
+
         if ( array_key_exists( 'team_id', $args ) && $args['team_id'] !== null ) {
             // A team's plans, plus the club-wide ones it can draw on.
             $sql     .= ' AND (team_id = %d OR team_id IS NULL)';
@@ -91,16 +116,44 @@ final class TrainingPlansRepository {
             $sql     .= ' AND author_user_id = %d';
             $params[] = (int) $args['author_user_id'];
         }
+        if ( ! empty( $args['search'] ) ) {
+            $like     = '%' . self::escLike( (string) $args['search'] ) . '%';
+            $sql     .= ' AND (title LIKE %s OR notes LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+        }
 
-        $sql .= ' ORDER BY created_at DESC, id DESC';
+        return [ $sql, $params ];
+    }
 
-        $limit = isset( $args['limit'] ) ? max( 1, min( 500, (int) $args['limit'] ) ) : 100;
-        $sql     .= ' LIMIT %d OFFSET %d';
-        $params[] = $limit;
-        $params[] = isset( $args['offset'] ) ? max( 0, (int) $args['offset'] ) : 0;
+    /**
+     * ORDER BY from an allowlist. The column never reaches SQL unless it
+     * is one of these, so a caller cannot sort by an arbitrary string.
+     *
+     * @param array<string,mixed> $args
+     */
+    private function orderFor( array $args ): string {
+        $allowed = [
+            'title'                  => 'title',
+            'total_duration_minutes' => 'total_duration_minutes',
+            'created_at'             => 'created_at',
+            'updated_at'             => 'updated_at',
+            'theme_key'              => 'theme_key',
+        ];
 
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
-        return is_array( $rows ) ? $rows : [];
+        $column = $allowed[ (string) ( $args['orderby'] ?? '' ) ] ?? null;
+        if ( $column === null ) {
+            return 'ORDER BY created_at DESC, id DESC';
+        }
+
+        $direction = strtolower( (string) ( $args['order'] ?? 'desc' ) ) === 'asc' ? 'ASC' : 'DESC';
+
+        return "ORDER BY {$column} {$direction}, id DESC";
+    }
+
+    private static function escLike( string $value ): string {
+        global $wpdb;
+        return $wpdb->esc_like( $value );
     }
 
     /**
@@ -112,30 +165,12 @@ final class TrainingPlansRepository {
     public function countPlans( array $args = [] ): int {
         global $wpdb;
 
-        $sql    = "SELECT COUNT(*) FROM {$this->table()} WHERE club_id = %d";
-        $params = [ CurrentClub::id() ];
+        [ $where, $params ] = $this->whereFor( $args );
 
-        if ( empty( $args['include_archived'] ) ) {
-            $sql .= ' AND archived_at IS NULL';
-        }
-        if ( array_key_exists( 'team_id', $args ) && $args['team_id'] !== null ) {
-            $sql     .= ' AND (team_id = %d OR team_id IS NULL)';
-            $params[] = (int) $args['team_id'];
-        }
-        if ( array_key_exists( 'is_template', $args ) && $args['is_template'] !== null ) {
-            $sql     .= ' AND is_template = %d';
-            $params[] = $args['is_template'] ? 1 : 0;
-        }
-        if ( ! empty( $args['theme_key'] ) ) {
-            $sql     .= ' AND theme_key = %s';
-            $params[] = (string) $args['theme_key'];
-        }
-        if ( ! empty( $args['author_user_id'] ) ) {
-            $sql     .= ' AND author_user_id = %d';
-            $params[] = (int) $args['author_user_id'];
-        }
-
-        return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table()} {$where}",
+            $params
+        ) );
     }
 
     /**

@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
+use TT\Shared\Tiles\TileRegistry;
 
 /**
  * TrainingModule (#2496, epic #2493) — owns the training plan.
@@ -49,6 +50,34 @@ class TrainingModule implements ModuleInterface {
 
         TrainingPlansRestController::init();
         TrainingRunsRestController::init();
+
+        add_action( 'init', [ self::class, 'registerTiles' ], 20 );
+    }
+
+    /**
+     * One tile, not two (epic decision D10).
+     *
+     * The exercise library, the generator and — later — the coverage
+     * report are all reached from inside the plans list as header actions.
+     * Registering them as sibling tiles would put four Training entries on
+     * a dashboard that already carries plenty, and CLAUDE.md §5b is
+     * explicit that module-level navigation is the shell's job, rendered
+     * once, not a view's.
+     */
+    public static function registerTiles(): void {
+        TileRegistry::register( [
+            'module_class' => self::class,
+            'view_slug'    => 'training-plans',
+            'entity'       => 'training_plan',
+            'group'        => __( 'Planning & tactics', 'talenttrack' ),
+            'kind'         => 'work',
+            'order'        => 24,
+            'label'        => __( 'Training', 'talenttrack' ),
+            'description'  => __( 'Build your trainings: pick a theme, work from the exercise library, and keep what you trained on the player record.', 'talenttrack' ),
+            'icon'         => 'activities',
+            'color'        => '#2f9e5e',
+            'cap'          => 'tt_training_plan',
+        ] );
     }
 
     /**

@@ -1,0 +1,220 @@
+/**
+ * Training module — plan list + read-only plan detail (#2496).
+ *
+ * Mobile-first per CLAUDE.md §2: base rules target ~360px and min-width
+ * queries scale up. Colours come from the design tokens in tokens.css;
+ * the block-type palette below is the one exception, and it is declared
+ * once here because the same six colours have to mean the same thing on
+ * the timeline strip, the block list, and every later Training surface.
+ */
+
+.tt-root {
+    --tt-blk-warmup:    #7fb3d5;
+    --tt-blk-rondo:     #9b8ec4;
+    --tt-blk-main:      #2f9e5e;
+    --tt-blk-game:      #e8b624;
+    --tt-blk-finishing: #e07a5f;
+    --tt-blk-cooldown:  #8fa3ad;
+    --tt-blk-talk:      #b9bdb6;
+}
+
+.tt-training-intro {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+/* ---- detail: key facts ---- */
+
+.tt-training-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 768px) {
+    .tt-training-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.tt-training-fact {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+}
+
+.tt-training-fact__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-training-fact__value {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-training-notes {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.tt-training-section-title {
+    margin: var(--tt-sp-5, 20px) 0 var(--tt-sp-3, 12px);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- detail: proportional time strip ---- */
+
+.tt-training-timeline {
+    display: flex;
+    height: 34px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    overflow: hidden;
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-training-timeline__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.625rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.tt-training-timeline__seg--warmup    { background: var(--tt-blk-warmup); }
+.tt-training-timeline__seg--rondo     { background: var(--tt-blk-rondo); }
+.tt-training-timeline__seg--main      { background: var(--tt-blk-main); }
+.tt-training-timeline__seg--finishing { background: var(--tt-blk-finishing); }
+.tt-training-timeline__seg--cooldown  { background: var(--tt-blk-cooldown); }
+
+/* Gold and light grey need dark ink to clear the contrast floor. */
+.tt-training-timeline__seg--game,
+.tt-training-timeline__seg--talk {
+    color: #241f00;
+    text-shadow: none;
+}
+.tt-training-timeline__seg--game { background: var(--tt-blk-game); }
+.tt-training-timeline__seg--talk { background: var(--tt-blk-talk); }
+
+/* ---- detail: block list ---- */
+
+.tt-training-blocks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-training-block {
+    position: relative;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left-width: 6px;
+    border-left-style: solid;
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-training-block--warmup    { border-left-color: var(--tt-blk-warmup); }
+.tt-training-block--rondo     { border-left-color: var(--tt-blk-rondo); }
+.tt-training-block--main      { border-left-color: var(--tt-blk-main); }
+.tt-training-block--game      { border-left-color: var(--tt-blk-game); }
+.tt-training-block--finishing { border-left-color: var(--tt-blk-finishing); }
+.tt-training-block--cooldown  { border-left-color: var(--tt-blk-cooldown); }
+.tt-training-block--talk      { border-left-color: var(--tt-blk-talk); }
+
+.tt-training-block__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-training-block__type {
+    font-size: 0.625rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-training-block__duration {
+    font-size: 0.8125rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tt-training-block__title {
+    margin: 4px 0 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.tt-training-block__body,
+.tt-training-block__points {
+    margin: 4px 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-training-block__points {
+    white-space: pre-line;
+}
+
+/* ---- detail: run history ---- */
+
+.tt-training-runs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-training-run {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 44px;
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: 0.875rem;
+}
+
+.tt-training-run:last-child { border-bottom: 0; }
+
+.tt-training-run__date {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.tt-training-run__status {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-training-hint {
+    margin-top: var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}

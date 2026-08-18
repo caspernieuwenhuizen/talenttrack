@@ -48791,6 +48791,127 @@ msgstr "Dat is geen status voor een trainingsuitvoering."
 msgid "That block does not belong to this training run."
 msgstr "Dat blok hoort niet bij deze trainingsuitvoering."
 
+
+#: src/Modules/Training/TrainingModule.php:78
+msgid "Build your trainings: pick a theme, work from the exercise library, and keep what you trained on the player record."
+msgstr "Bouw je trainingen op: kies een thema, werk vanuit de oefeningenbibliotheek en houd bij wat je traint op het spelersdossier."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:41
+msgid "You do not have permission to view training plans."
+msgstr "Je hebt geen rechten om trainingsplannen te bekijken."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:78
+msgid "Training plans"
+msgstr "Trainingsplannen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:81
+msgid "Your training plans and the club templates you can build from. A plan you attach to a training records what was actually trained, so it lands on the player record."
+msgstr "Je eigen trainingsplannen en de clubsjablonen waarop je kunt voortbouwen. Koppel je een plan aan een training, dan wordt vastgelegd wat er echt getraind is en komt dat op het spelersdossier terecht."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:89
+msgid "Plan"
+msgstr "Plan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:110
+msgid "Plans and templates"
+msgstr "Plannen en sjablonen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:111
+msgid "Plans only"
+msgstr "Alleen plannen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:112
+msgid "Templates only"
+msgstr "Alleen sjablonen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:121
+msgid "Archive this training plan? Trainings already run with it keep their record."
+msgstr "Dit trainingsplan archiveren? Trainingen die er al mee zijn uitgevoerd behouden hun gegevens."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:126
+msgid "Search plans…"
+msgstr "Zoek plannen…"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:128
+msgid "No training plans match your search."
+msgstr "Geen trainingsplannen gevonden."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:131
+msgid "No training plans yet"
+msgstr "Nog geen trainingsplannen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
+msgid "A training plan holds the blocks of one training. Attach it to a training in the calendar and what you trained lands on each player who was there."
+msgstr "Een trainingsplan bevat de blokken van één training. Koppel het aan een training en wat je traint komt bij elke aanwezige speler op het dossier."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:144
+msgid "Not found"
+msgstr "Niet gevonden"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:147
+msgid "That training plan no longer exists."
+msgstr "Dat trainingsplan bestaat niet meer."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:180
+msgid "Club template"
+msgstr "Clubsjabloon"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:181
+msgid "Team plan"
+msgstr "Teamplan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:212
+msgid "How the training time is split across its blocks"
+msgstr "Hoe de trainingstijd over de blokken is verdeeld"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:235
+msgid "Blocks"
+msgstr "Blokken"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:238
+msgid "This plan has no blocks yet."
+msgstr "Dit plan heeft nog geen blokken."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:247
+msgid "Untitled block"
+msgstr "Blok zonder titel"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:281
+msgid "Times this plan was run"
+msgstr "Uitvoeringen van dit plan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:285
+msgid "This plan has not been run yet. Attaching it to a training records what was actually trained."
+msgstr "Dit plan is nog niet uitgevoerd. Koppel het aan een training om vast te leggen wat er echt getraind is."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:299
+msgid "Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a training that already happened."
+msgstr "Elke uitvoering bewaart een eigen kopie van de blokken zoals ze die dag waren, dus het aanpassen van dit plan verandert nooit een training die al geweest is."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:310
+msgid "Rondo"
+msgstr "Rondo"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:314
+msgid "Team talk"
+msgstr "Nabespreking"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:316
+msgid "Main"
+msgstr "Hoofdvorm"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:324
+msgid "Abandoned"
+msgstr "Afgebroken"
+
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
+#, php-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d minuut"
+msgstr[1] "%d minuten"
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 
