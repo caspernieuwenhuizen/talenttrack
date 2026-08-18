@@ -273,9 +273,55 @@ final class TileRegistry {
                 if ( $o !== 0 ) return $o;
                 return strcmp( (string) $a['label'], (string) $b['label'] );
             } );
-            $out[] = [ 'label' => $g, 'tiles' => $tiles ];
+            $out[] = [ 'label' => $g, 'tiles' => self::disambiguate( $tiles ) ];
         }
         return $out;
+    }
+
+    /**
+     * Qualify labels that collide within one group (#2506).
+     *
+     * #1540 deliberately unified the staff tiles' labels with the player
+     * ones ("My staff PDP" -> "My PDP") and accepted that a user holding
+     * both sets would see two identical entries, with a stated remedy:
+     * *"if it proves confusing in practice, add a small qualifier on the
+     * staff variant rather than reverting the grouping."*
+     *
+     * It does happen. An academy admin holds every capability, so they
+     * always see both, and the app shell made it plain by listing the pair
+     * in the sidebar as well as the tile hub.
+     *
+     * Qualifying only on an actual collision keeps #1540's decision intact:
+     * a staff-only or player-only user still sees the clean unified label,
+     * because for them nothing collides. A tile opts in by declaring
+     * `label_qualifier`; without one it is left alone, so a collision
+     * between two unqualified tiles stays visible rather than being
+     * silently papered over.
+     *
+     * @param list<array<string,mixed>> $tiles
+     * @return list<array<string,mixed>>
+     */
+    private static function disambiguate( array $tiles ): array {
+        $counts = [];
+        foreach ( $tiles as $t ) {
+            $label            = (string) ( $t['label'] ?? '' );
+            $counts[ $label ] = ( $counts[ $label ] ?? 0 ) + 1;
+        }
+
+        foreach ( $tiles as $i => $t ) {
+            $label     = (string) ( $t['label'] ?? '' );
+            $qualifier = (string) ( $t['label_qualifier'] ?? '' );
+            if ( $qualifier === '' || ( $counts[ $label ] ?? 0 ) < 2 ) continue;
+
+            $tiles[ $i ]['label'] = sprintf(
+                /* translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff" */
+                __( '%1$s (%2$s)', 'talenttrack' ),
+                $label,
+                $qualifier
+            );
+        }
+
+        return $tiles;
     }
 
     /**
