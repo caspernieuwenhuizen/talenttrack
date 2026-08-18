@@ -162,25 +162,59 @@ class SearchRestControllerTest extends WP_UnitTestCase {
         ) );
     }
 
-    public function test_a_matching_record_survives_a_flood_of_matching_sections(): void {
-        wp_set_current_user( $this->admin_id );
-
+    /** @param int $count how many players matching `crowd` to seed */
+    private function seedCrowdingPlayers( int $count ): void {
         global $wpdb;
-        $wpdb->insert( $wpdb->prefix . 'tt_players', [
-            'first_name' => 'Zeno',
-            'last_name'  => 'Crowdtest',
-            'club_id'    => 1,
-        ] );
+        for ( $i = 0; $i < $count; $i++ ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_players', [
+                'first_name' => 'Zeno' . $i,
+                'last_name'  => 'Crowdtest',
+                'club_id'    => 1,
+            ] );
+        }
+    }
 
+    public function test_a_matching_record_survives_a_flood_of_matching_sections(): void {
+        // The regression: one player against twelve matching sections. Before
+        // #2508 the sections filled the list and the player was discarded.
+        wp_set_current_user( $this->admin_id );
+        $this->seedCrowdingPlayers( 1 );
+        $this->registerCrowdingViews( 'crowd' );
+
+        $types = $this->typesIn( $this->get( 'crowd' )['results'] );
+
+        $this->assertGreaterThan( 0, $types['player'] ?? 0,
+            'a matching player must appear even when many sections also match' );
+    }
+
+    public function test_sections_are_capped_when_records_can_use_the_slots(): void {
+        // The quota only bites when records are actually competing. With
+        // plenty of matching players, sections must fall back to their share
+        // rather than taking the list.
+        wp_set_current_user( $this->admin_id );
+        $this->seedCrowdingPlayers( 8 );
+        $this->registerCrowdingViews( 'crowd' );
+
+        $types = $this->typesIn( $this->get( 'crowd' )['results'] );
+
+        $this->assertLessThanOrEqual( 3, $types['view'] ?? 0,
+            'sections are capped while records are competing for slots' );
+        $this->assertGreaterThanOrEqual( 7, $types['player'] ?? 0 );
+    }
+
+    public function test_spare_record_slots_go_back_to_sections(): void {
+        // The other half of the contract: a single record must not leave the
+        // rest of the list empty just because the quota reserved space.
+        wp_set_current_user( $this->admin_id );
+        $this->seedCrowdingPlayers( 1 );
         $this->registerCrowdingViews( 'crowd' );
 
         $results = $this->get( 'crowd' )['results'];
         $types   = $this->typesIn( $results );
 
-        $this->assertGreaterThan( 0, $types['player'] ?? 0,
-            'a matching player must appear even when many sections also match' );
-        $this->assertLessThanOrEqual( 3, $types['view'] ?? 0,
-            'sections are capped while records are competing for slots' );
+        $this->assertSame( 1, $types['player'] ?? 0 );
+        $this->assertGreaterThan( 3, $types['view'] ?? 0,
+            'unused record slots are handed back to sections' );
     }
 
     public function test_sections_still_fill_the_list_when_no_record_matches(): void {
