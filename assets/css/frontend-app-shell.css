@@ -25,6 +25,76 @@
        and the content column's grid track follows automatically. */
     --tt-shell-nav-w: 210px;
     --tt-shell-rail-w: 60px;
+
+    /*
+     * #2504 — how far down the sticky chrome starts. The WP admin bar is
+     * fixed at 32px on wide viewports for logged-in staff; below 783px WP
+     * switches it to position:absolute so it scrolls away and nothing needs
+     * offsetting. Set once here, consumed by the header and the nav.
+     */
+    --tt-shell-top: 0px;
+    /*
+     * Header height, so the sticky sidebar can start below the sticky
+     * header instead of underneath it. This default matches the header's
+     * rendered height; app-shell.js measures the real element and overwrites
+     * it, so a longer academy name or a zoomed browser stays correct.
+     */
+    --tt-shell-header-h: 56px;
+
+    /*
+     * #2504 — the app shell owns the page frame.
+     *
+     * `.tt-dashboard` carries `max-width: min(94vw, 1600px)` + `margin: 2rem
+     * auto` + `padding` from public.css, written for the classic
+     * centred-article layout. `tt-shell-app` lands on that same element, so
+     * without this the whole shell — sidebar included — sat in a centred
+     * 1600px column: on a 2560px monitor that is ~550px of dead page each
+     * side and a sidebar floating in from the edge.
+     *
+     * The frame goes full-bleed; the readable-measure cap moves to the
+     * content column (`.tt-shell-main`) where it belongs. `classic` never
+     * sees any of this and keeps the cap.
+     */
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* WP admin bar offset — only where WP actually pins the bar. */
+body.admin-bar .tt-dashboard.tt-shell-app {
+    --tt-shell-top: 32px;
+}
+@media screen and (max-width: 782px) {
+    /* WP drops #wpadminbar to position:absolute here; it scrolls off with
+       the page, so the shell chrome pins to the true viewport top. */
+    body.admin-bar .tt-dashboard.tt-shell-app {
+        --tt-shell-top: 0px;
+    }
+}
+
+/* ---- Sticky header ------------------------------------------------- */
+/*
+ * #2504 — the header carries search, notifications and the user menu; in a
+ * persistent shell it has to stay reachable. It was previously in normal
+ * flow and scrolled away, and the sidebar's sticky rule was written around
+ * that ("the dashboard header scrolls with the page").
+ *
+ * Below the drawer (1200) and the command palette (1400) so neither ends up
+ * underneath it.
+ */
+.tt-dashboard.tt-shell-app .tt-dash-header {
+    position: sticky;
+    top: var(--tt-shell-top, 0px);
+    z-index: 1100;
+}
+
+/* ---- Content column ------------------------------------------------ */
+/*
+ * The gutter released from `.tt-dashboard` above is re-applied here, so
+ * content keeps breathing room while the frame stays full-bleed.
+ */
+.tt-shell-app .tt-shell-main {
+    padding: var(--tt-sp-4, 1rem) var(--tt-sp-4, 1rem) 3rem;
 }
 
 /* ---- Shell frame --------------------------------------------------- */
@@ -215,15 +285,18 @@
 
     .tt-shell-app .tt-shell-nav {
         position: sticky;
-        /* The WP admin bar occupies the top 32px when present; the
-           dashboard header scrolls with the page, so the rail pins to
-           the viewport top and scrolls internally. */
-        top: 0;
+        /* #2504 — the header is sticky now, so the rail pins BELOW it
+           rather than to the viewport top (where it would slide under the
+           header). Both offsets come from the vars on .tt-shell-app: the
+           admin-bar allowance plus the measured header height. */
+        top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 56px));
         inset-inline-start: auto;
         z-index: 1;
         width: auto;
-        max-height: 100vh;
-        max-height: 100dvh;
+        /* Remaining viewport below that chrome — the nav scrolls internally
+           when the destination list is longer than the space left. */
+        max-height: calc(100vh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
+        max-height: calc(100dvh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
         transform: none;
         visibility: visible;
         box-shadow: none;

@@ -25,6 +25,12 @@ onbeperkt beschikbaar.
 Dat is één navigatie in verschillende jassen, geen vier verschillende menu's —
 dezelfde ingangen, dezelfde volgorde, dezelfde rechten.
 
+De app-shell gebruikt de **volle breedte van het venster**, met de zijbalk tegen
+de linkerrand — het is een werkomgeving, geen gecentreerd document. De header
+blijft staan terwijl je scrolt, zodat zoeken, meldingen en je account overal op
+een lange pagina bereikbaar blijven. Klassiek houdt de gecentreerde lay-out met
+beperkte leesbreedte die het altijd had.
+
 ### De onderbalk op telefoons
 
 Vier bestemmingen plus **Meer**, dat het volledige tegeloverzicht opent. De balk

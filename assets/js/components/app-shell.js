@@ -8,6 +8,9 @@
  *      it is open, close on Escape, scrim click, or following a link.
  *   2. Rail    (>=1024px) — collapse the sidebar to icons, remembered per
  *      user in localStorage.
+ *   3. Header height (#2504) — publish the sticky header's real height as
+ *      a CSS variable so the sticky sidebar starts below it. The stylesheet
+ *      carries a sensible default, so this only refines it.
  *
  * With JS disabled the nav is still in the DOM and every entry is a real
  * link; only the drawer toggle is inert, which is why the tile hub stays
@@ -138,5 +141,31 @@
 			applyRail(next);
 			try { window.localStorage.setItem(RAIL_KEY, next ? '1' : '0'); } catch (err) { /* private mode */ }
 		});
+	}
+
+	/* ---- Header height (#2504) ------------------------------------- */
+	/*
+	 * The sidebar pins below the sticky header, so it needs the header's
+	 * height. CSS cannot measure it, and the default in the stylesheet is
+	 * only right for the common case — a long academy name wraps the brand
+	 * row, and browser zoom or a larger base font changes it too. Publish
+	 * the measured value; if this never runs, the CSS default still holds.
+	 */
+	var root = document.querySelector('.tt-dashboard.tt-shell-app');
+	var header = document.querySelector('.tt-dash-header');
+
+	if (root && header) {
+		var syncHeaderHeight = function () {
+			var h = Math.round(header.getBoundingClientRect().height);
+			if (h > 0) root.style.setProperty('--tt-shell-header-h', h + 'px');
+		};
+
+		syncHeaderHeight();
+
+		if (typeof ResizeObserver !== 'undefined') {
+			new ResizeObserver(syncHeaderHeight).observe(header);
+		} else {
+			window.addEventListener('resize', syncHeaderHeight);
+		}
 	}
 })();
