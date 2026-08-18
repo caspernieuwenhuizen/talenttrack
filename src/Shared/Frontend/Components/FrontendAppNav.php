@@ -42,10 +42,16 @@ final class FrontendAppNav {
 
         $out = [];
         foreach ( $grouped as $group ) {
-            $tiles = array_values( array_filter(
-                $group['tiles'] ?? [],
-                static fn( $t ) => ! empty( $t['label'] ) && ! empty( $t['url'] )
-            ) );
+            $tiles = [];
+            foreach ( $group['tiles'] ?? [] as $tile ) {
+                if ( empty( $tile['label'] ) ) continue;
+
+                // #2505 — resolve the URL, don't require a materialised one.
+                $tile['url'] = self::urlFor( $tile );
+                if ( $tile['url'] === '' ) continue;
+
+                $tiles[] = $tile;
+            }
             if ( $tiles === [] ) continue;
             $out[] = [
                 'label' => (string) ( $group['label'] ?? '' ),
@@ -53,6 +59,50 @@ final class FrontendAppNav {
             ];
         }
         return $out;
+    }
+
+    /**
+     * The URL a tile points at (#2505).
+     *
+     * The registry resolves URLs lazily: most tiles carry only `view_slug`,
+     * and just a handful a literal `url`. The nav previously filtered on
+     * `! empty( $t['url'] )`, which dropped **56 of 59** destinations — the
+     * sidebar showed three links while the tile hub showed thirty. This is
+     * the same resolution `FrontendTileGrid` does, so the two agree about
+     * where a tile goes.
+     *
+     * Returns '' when a tile is genuinely unroutable, which the caller
+     * treats as "drop it" rather than rendering a dead link.
+     *
+     * @param array<string,mixed> $tile
+     */
+    private static function urlFor( array $tile ): string {
+        $url = (string) ( $tile['url'] ?? '' );
+        if ( $url !== '' ) return $url;
+
+        if ( ! empty( $tile['url_callback'] ) && is_callable( $tile['url_callback'] ) ) {
+            $url = (string) call_user_func( $tile['url_callback'], $tile );
+            if ( $url !== '' ) return $url;
+        }
+
+        $slug = self::slugFor( $tile );
+        return $slug !== '' ? add_query_arg( 'tt_view', $slug, self::baseUrl() ) : '';
+    }
+
+    /**
+     * The dashboard URL with record/view params stripped — the base every
+     * `tt_view` link is built on. Mirrors FrontendTileGrid's own helper so
+     * nav links and tile links resolve identically.
+     */
+    private static function baseUrl(): string {
+        $current = isset( $_SERVER['REQUEST_URI'] )
+            ? esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) )
+            : '';
+
+        return remove_query_arg(
+            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
+            $current !== '' ? $current : home_url( '/' )
+        );
     }
 
     /**
@@ -93,10 +143,41 @@ final class FrontendAppNav {
             . IconRenderer::render( 'chevron-left', [ 'width' => 16, 'height' => 16 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
             . '</button>';
 
+        // #2504 — which group starts open. Normally the one holding the
+        // current view. On the dashboard root nothing is active, and leaving
+        // every group shut would present a wall of headings with no
+        // destinations, so the first group opens instead.
+        $active_group = -1;
+        foreach ( $groups as $i => $group ) {
+            if ( self::groupHasActive( $group, $active_view ) ) {
+                $active_group = $i;
+                break;
+            }
+        }
+        if ( $active_group === -1 ) {
+            $active_group = 0;
+        }
+
         echo '<div class="tt-shell-nav__scroll">';
-        foreach ( $groups as $group ) {
-            if ( $group['label'] !== '' ) {
-                echo '<h2 class="tt-shell-nav__group">' . esc_html( $group['label'] ) . '</h2>';
+        foreach ( $groups as $i => $group ) {
+            // #2504 — groups collapse so a full destination list fits without
+            // the sidebar becoming a scrolling column. Native <details>: it
+            // works with JS off, is keyboard-operable and announces its own
+            // expanded state, so no ARIA of ours to keep in sync.
+            //
+            // Open the group holding the current view, closed otherwise —
+            // that keeps the rail short while never hiding where you are. A
+            // group with no label has nothing to collapse behind, so it stays
+            // a plain list.
+            $has_label = $group['label'] !== '';
+            $is_open   = ( $i === $active_group );
+
+            if ( $has_label ) {
+                echo '<details class="tt-shell-nav__group-wrap"' . ( $is_open ? ' open' : '' ) . '>';
+                echo '<summary class="tt-shell-nav__group">'
+                    . '<span class="tt-shell-nav__group-label">' . esc_html( $group['label'] ) . '</span>'
+                    . '<span class="tt-shell-nav__group-chev" aria-hidden="true"></span>'
+                    . '</summary>';
             }
             echo '<ul class="tt-shell-nav__list">';
             foreach ( $group['tiles'] as $tile ) {
@@ -124,9 +205,27 @@ final class FrontendAppNav {
                 echo '</li>';
             }
             echo '</ul>';
+            if ( $has_label ) {
+                echo '</details>';
+            }
         }
         echo '</div>';
         echo '</nav>';
+    }
+
+    /**
+     * True when the active view sits inside this group — the one group that
+     * opens on load, so the rail shows where you are without expanding
+     * everything (#2504).
+     *
+     * @param array{label:string,tiles:list<array<string,mixed>>} $group
+     */
+    private static function groupHasActive( array $group, string $active_view ): bool {
+        if ( $active_view === '' ) return false;
+        foreach ( $group['tiles'] as $tile ) {
+            if ( self::slugFor( $tile ) === $active_view ) return true;
+        }
+        return false;
     }
 
     /**

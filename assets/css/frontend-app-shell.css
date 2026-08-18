@@ -22,8 +22,12 @@
 
 .tt-dashboard.tt-shell-app {
     /* Sidebar width lives here so the rail toggle is a one-value change
-       and the content column's grid track follows automatically. */
-    --tt-shell-nav-w: 210px;
+       and the content column's grid track follows automatically.
+       #2504 — 210px was too tight: real destination labels ("VCT-trainings-
+       ontwerper", "Seizoensovergang") wrapped or truncated. 260px holds the
+       longest shipped label on one line at the nav's font size, and costs
+       nothing now the frame is full-bleed rather than inside a 1600px cap. */
+    --tt-shell-nav-w: 260px;
     --tt-shell-rail-w: 60px;
 
     /*
@@ -169,18 +173,73 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 }
 
 /* ---- Nav contents -------------------------------------------------- */
+/*
+ * #2504 — groups are collapsible (<details>/<summary>), so a full
+ * destination list fits without turning the sidebar into a scrolling
+ * column. The summary keeps the old heading's look and gains a chevron and
+ * a 48px hit area, since it is now a control rather than a label.
+ */
 .tt-shell-app .tt-shell-nav__group {
-    margin: 1rem 0 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 48px;
+    margin: 0.5rem 0 0.15rem;
     padding-inline: 0.6rem;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--tt-ink-soft, #6a6d66);
+    cursor: pointer;
+    border-radius: var(--tt-radius, 8px);
+    touch-action: manipulation;
+    /* Replace the default disclosure marker with our own chevron. */
+    list-style: none;
 }
 
-.tt-shell-app .tt-shell-nav__group:first-child {
-    margin-top: 0.25rem;
+/* Safari still paints the marker without this. */
+.tt-shell-app .tt-shell-nav__group::-webkit-details-marker {
+    display: none;
+}
+
+.tt-shell-app .tt-shell-nav__group:hover,
+.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-surface-2, #f4f5f2);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-shell-app .tt-shell-nav__group-chev {
+    flex: 0 0 auto;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform .12s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-shell-app .tt-shell-nav__group-chev { transition: none; }
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap[open] .tt-shell-nav__group-chev {
+    transform: rotate(-135deg);
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap:first-child .tt-shell-nav__group {
+    margin-top: 0.15rem;
+}
+
+/*
+ * In the collapsed icon rail there is no room for group headings, and a
+ * closed group would hide its icons with no way back. Headings go, every
+ * list shows.
+ */
+.tt-shell-app.is-rail .tt-shell-nav__group,
+.is-rail .tt-shell-app .tt-shell-nav__group {
+    display: none;
 }
 
 .tt-shell-app .tt-shell-nav__list {

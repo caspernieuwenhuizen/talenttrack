@@ -118,8 +118,35 @@
 
 	/* ---- Rail ------------------------------------------------------ */
 
+	/*
+	 * #2504 — group collapse vs the icon rail.
+	 *
+	 * Groups are <details>, and a closed one hides its links. In the
+	 * collapsed rail the headings are gone, so a closed group would hide its
+	 * icons with no control left to reopen it — the entries would simply be
+	 * missing. A closed <details> cannot be reliably forced visible from CSS
+	 * (engines hide the content slot in ways author styles don't override),
+	 * so the rail opens them all and restores the previous state on the way
+	 * out.
+	 */
+	function setGroupsForRail(on) {
+		var groups = nav.querySelectorAll('.tt-shell-nav__group-wrap');
+		Array.prototype.forEach.call(groups, function (d) {
+			if (on) {
+				if (!d.hasAttribute('data-tt-was-open')) {
+					d.setAttribute('data-tt-was-open', d.open ? '1' : '0');
+				}
+				d.open = true;
+			} else if (d.hasAttribute('data-tt-was-open')) {
+				d.open = d.getAttribute('data-tt-was-open') === '1';
+				d.removeAttribute('data-tt-was-open');
+			}
+		});
+	}
+
 	function applyRail(on) {
 		shell.classList.toggle('is-rail', on);
+		setGroupsForRail(on);
 		if (collapser) {
 			collapser.setAttribute('aria-expanded', on ? 'false' : 'true');
 			var label = on
