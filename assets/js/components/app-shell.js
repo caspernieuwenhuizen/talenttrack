@@ -155,6 +155,8 @@
 		window.setTimeout(done, 260);
 	}
 
+	var userToggledGroups = false;
+
 	nav.addEventListener('click', function (e) {
 		var summary = e.target.closest && e.target.closest('.tt-shell-nav__group');
 		if (!summary) return;
@@ -162,11 +164,53 @@
 		var details = summary.parentElement;
 		var panel = details && details.querySelector('.tt-shell-nav__panel');
 		if (!details || !panel) return;
+
+		// Once you have folded something yourself, auto-fit stops second-
+		// guessing you for the rest of the visit.
+		userToggledGroups = true;
+
 		if (reduceMotion) return;            // let the native toggle happen
 		if (shell.classList.contains('is-rail')) return;  // rail keeps all open
 
 		e.preventDefault();                  // we drive `open` ourselves
 		slideGroup(details, panel, !details.open);
+	});
+
+	/* ---- Only collapse when there is actually no room --------------- */
+	/*
+	 * Collapsing is a response to overflow, not a house style: if every
+	 * destination fits in the rail, nothing should be folded and the
+	 * sidebar reads exactly like the design.
+	 *
+	 * The server renders only the active group open, which is the safe
+	 * starting point — on a full academy the list overflows, so that render
+	 * is already correct and nothing moves. This opens the rest back up
+	 * when they do fit. Measuring is one synchronous pass, so the browser
+	 * paints the settled state rather than flashing through it.
+	 */
+	function fitGroups() {
+		if (userToggledGroups) return;
+		if (shell.classList.contains('is-rail')) return;
+
+		var scroll = nav.querySelector('.tt-shell-nav__scroll');
+		var groups = nav.querySelectorAll('.tt-shell-nav__group-wrap');
+		if (!scroll || !groups.length) return;
+
+		var was = [];
+		Array.prototype.forEach.call(groups, function (d) { was.push(d.open); d.open = true; });
+
+		// scrollHeight > clientHeight means the fully-open list overflows.
+		if (scroll.scrollHeight > scroll.clientHeight) {
+			Array.prototype.forEach.call(groups, function (d, i) { d.open = was[i]; });
+		}
+	}
+
+	fitGroups();
+
+	var fitTimer = null;
+	window.addEventListener('resize', function () {
+		window.clearTimeout(fitTimer);
+		fitTimer = window.setTimeout(fitGroups, 150);
 	});
 
 	/*
