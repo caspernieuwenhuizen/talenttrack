@@ -919,6 +919,7 @@ class ConfigurationPage {
                     'soft-fill'   => __( 'Soft green fill', 'talenttrack' ),
                     'solid'       => __( 'Solid green', 'talenttrack' ),
                     'left-accent' => __( 'Left accent', 'talenttrack' ),
+                    'federation'  => __( 'Federation — top edge, one chip colour', 'talenttrack' ),
                 ];
                 ?>
                 <tr><th><?php esc_html_e( 'Tile colour scheme', 'talenttrack' ); ?></th><td>

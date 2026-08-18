@@ -286,6 +286,32 @@ class FrontendTileGrid {
             background: var(--tt-primary-deep, #07261c);
         }
 
+        /* F · Federation (#2512) — institutional: white card, a 3px brand top
+           edge echoing the header band, and ONE chip colour instead of the
+           per-module hues, so the glyph carries the meaning rather than an
+           arbitrary palette. Gold is held back for hover, which keeps it
+           meaning "this one" rather than decorating every tile at rest.
+           Reads --tt-primary like the other schemes, so it stands on its own
+           under the default theme too. */
+        [data-tt-tile-scheme="federation"] .tt-ftile {
+            background: #fff;
+            border: 1px solid var(--tt-line, #e3e6e1);
+            border-top: 3px solid var(--tt-primary, #0b3d2e);
+            border-left-width: 1px;
+        }
+        [data-tt-tile-scheme="federation"] .tt-ftile .tt-tile-chip {
+            /* Overrides the inline per-tile --tt-chip-accent by setting the
+               painted properties directly — the custom property is inline,
+               so only this wins without reaching for !important. */
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 10%, #fff);
+            color: var(--tt-primary, #0b3d2e);
+        }
+        [data-tt-tile-scheme="federation"] .tt-ftile:hover,
+        [data-tt-tile-scheme="federation"] .tt-ftile:focus {
+            border-top-color: var(--tt-secondary, #e8b624);
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 4%, #fff);
+        }
+
         /* E · Left accent — white fill, thick 4px green left edge that turns
            gold on hover. Closest to today, still clearly branded. */
         [data-tt-tile-scheme="left-accent"] .tt-ftile {

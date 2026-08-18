@@ -94,6 +94,26 @@ class DashboardShortcode {
             );
         }
 
+        // #2512 — the resolved theme's token layer. Enqueued last of the
+        // stylesheets so it overrides both tokens.css and the shell's own
+        // sheet; skipped entirely under the `default` theme, which is what
+        // keeps that value a complete rollback. The dependency list picks
+        // up the shell sheet only when the shell actually enqueued it, so
+        // a `classic` install never registers a handle it does not load.
+        $theme_style = ThemePreference::styleFile();
+        if ( $theme_style !== '' ) {
+            $theme_deps = [ 'tt-public', 'tt-frontend-app-chrome' ];
+            if ( ShellPreference::isApp() ) {
+                $theme_deps[] = 'tt-frontend-app-shell';
+            }
+            wp_enqueue_style(
+                'tt-theme',
+                TT_PLUGIN_URL . 'assets/css/' . $theme_style,
+                $theme_deps,
+                TT_VERSION
+            );
+        }
+
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
         wp_enqueue_script( 'tt-drafts',  TT_PLUGIN_URL . 'assets/js/drafts.js',               [ 'tt-public' ], TT_VERSION, true );
@@ -140,6 +160,8 @@ class DashboardShortcode {
             // re-deriving it. CLAUDE.md §4: the front end reads config
             // from window.TT.*, never from PHP-rendered HTML.
             'shell'      => ShellPreference::resolve(),
+            // #2512 — the resolved theme, for the same reason.
+            'theme'      => ThemePreference::resolve(),
             'i18n'       => [
                 'shell_nav_collapse'   => __( 'Collapse navigation', 'talenttrack' ),
                 'shell_nav_expand'     => __( 'Expand navigation', 'talenttrack' ),
@@ -275,7 +297,11 @@ class DashboardShortcode {
         // can adapt without JS and without reading the config a second
         // time. Under `classic` the class is the only difference and
         // nothing else on this path changes.
-        echo '<div class="tt-dashboard ' . esc_attr( ShellPreference::rootClass() ) . '">';
+        // #2512 — the resolved theme stamps a second root class on the same
+        // wrapper. `default` returns an empty string, so that path's markup
+        // is byte-identical to before the theme layer existed.
+        $root_classes = trim( 'tt-dashboard ' . ShellPreference::rootClass() . ' ' . ThemePreference::rootClass() );
+        echo '<div class="' . esc_attr( $root_classes ) . '">';
         self::renderHeader();
 
         // #2456 — open the shell frame. Under `classic` this emits
