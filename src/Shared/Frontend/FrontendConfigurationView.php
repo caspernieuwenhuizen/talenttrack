@@ -1808,6 +1808,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             'soft-fill'   => __( 'Soft green fill', 'talenttrack' ),
             'solid'       => __( 'Solid green', 'talenttrack' ),
             'left-accent' => __( 'Left accent', 'talenttrack' ),
+            'federation'  => __( 'Federation — top edge, one chip colour', 'talenttrack' ),
         ];
         $cancel_url      = remove_query_arg( [ 'config_sub' ] );
         $css_url         = add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
@@ -1842,6 +1843,25 @@ class FrontendConfigurationView extends FrontendViewBase {
 
             <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Colours', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
+                <?php
+                // #2515 — a theme owns the complete visual design, so these
+                // fields do nothing while one is active. Saying so up front
+                // beats letting an operator pick a colour and watch the page
+                // not change.
+                if ( \TT\Shared\Frontend\ThemePreference::hasThemeSheet() ) :
+                    $active_theme_labels = \TT\Shared\Frontend\ThemePreference::labels();
+                    $active_theme        = \TT\Shared\Frontend\ThemePreference::resolve();
+                    ?>
+                    <div class="tt-notice tt-notice-info" style="margin:0 0 var(--tt-sp-3);">
+                        <?php
+                        printf(
+                            /* translators: %s: the name of the active visual theme. */
+                            esc_html__( 'These colours are not in use. The %s theme supplies the whole colour scheme, so the fields below have no effect until the visual theme is set back to Default. Your logo and academy name are unaffected.', 'talenttrack' ),
+                            esc_html( $active_theme_labels[ $active_theme ] ?? $active_theme )
+                        );
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);"><?php esc_html_e( 'Every brand colour in one place — the two primary brand colours plus the accent/status palette.', 'talenttrack' ); ?></p>
                 <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
@@ -2057,7 +2077,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </select>
                     <p class="tt-field-hint">
-                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. Your club colours keep working in both themes. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
                     </p>
                 </div>
 
