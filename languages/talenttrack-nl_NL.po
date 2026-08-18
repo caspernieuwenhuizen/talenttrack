@@ -4847,6 +4847,26 @@ msgstr "%d niet-opgeslagen wijziging(en)"
 msgid "All changes saved · %d activity/activities marked completed"
 msgstr "Alle wijzigingen opgeslagen · %d activiteit(en) op voltooid gezet"
 
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:65
+msgid "These activities will be marked completed"
+msgstr "Deze activiteiten worden op voltooid gezet"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:66
+msgid "You recorded attendance on activities that are still planned. Saving marks them completed, because the attendance reports only count activities that have been held — left as planned, this attendance would never reach the reports."
+msgstr "Je hebt aanwezigheid ingevuld bij activiteiten die nog gepland staan. Bij opslaan worden ze op voltooid gezet, omdat de aanwezigheidsrapporten alleen activiteiten tellen die zijn gehouden — blijven ze gepland, dan bereikt deze aanwezigheid de rapporten nooit."
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:67
+msgid "You can reopen an activity afterwards if you marked it by mistake. Activities dated in the future and cancelled activities are never changed."
+msgstr "Je kunt een activiteit daarna altijd heropenen als je die per ongeluk hebt gemarkeerd. Activiteiten met een datum in de toekomst en geannuleerde activiteiten worden nooit gewijzigd."
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:68
+msgid "Save and mark completed"
+msgstr "Opslaan en op voltooid zetten"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:69
+msgid "Back to the grid"
+msgstr "Terug naar het raster"
+
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:62
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:63
 msgid "You have unsaved changes. Leave without saving?"

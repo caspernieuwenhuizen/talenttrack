@@ -169,6 +169,32 @@ final class AttendancePlannedActivityExclusionTest extends WP_UnitTestCase {
         ) ) );
     }
 
+    /**
+     * #2521 — the grid flags the columns whose status its save would change,
+     * so the confirmation can name them. Only past-dated, non-terminal
+     * activities qualify.
+     */
+    public function test_grid_matrix_flags_the_columns_a_save_would_complete(): void {
+        $team_id = $this->insertTeam( 'U14 grid flags' );
+        $this->insertPlayer( $team_id, 'Gr', 'Id' );
+
+        $past_planned = $this->insertActivity( $team_id, '2020-09-01', 'planned', null );
+        $past_done    = $this->insertActivity( $team_id, '2020-09-08', 'completed' );
+        $future       = $this->insertActivity( $team_id, gmdate( 'Y-m-d', strtotime( '+30 days' ) ), 'planned', null );
+
+        $matrix = ( new \TT\Modules\Activities\Reports\AttendanceGridQuery() )
+            ->matrix( $team_id, '2020-01-01', gmdate( 'Y-m-d', strtotime( '+60 days' ) ) );
+
+        $completes = [];
+        foreach ( $matrix['activities'] as $a ) {
+            $completes[ (int) $a['activity_id'] ] = ! empty( $a['completes'] );
+        }
+
+        $this->assertTrue(  $completes[ $past_planned ] ?? false, 'a past planned column would be completed' );
+        $this->assertFalse( $completes[ $past_done ]    ?? true,  'an already-completed column changes nothing' );
+        $this->assertFalse( $completes[ $future ]       ?? true,  'a future column is never completed' );
+    }
+
     /* ---- helpers -------------------------------------------------------- */
 
     /** @return array<string,mixed>|null */

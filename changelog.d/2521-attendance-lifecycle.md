@@ -15,11 +15,15 @@ figures can be checked against what is on screen.
 
 Because recording who was there is itself the statement that a session took
 place, **saving the attendance grid now marks the past-dated planned activities
-it wrote to as completed**, and the save bar reports how many. Future-dated
-sessions and activities marked Cancelled are never completed this way. This
-replaces the previous behaviour, where grid entry deliberately left completion
-to a separate click — under the new gate that would have meant a coach's entry
-never reaching the reports.
+it wrote to as completed** — after asking. A column for a past-dated session
+still marked planned carries an amber underline, and pressing Save opens a
+dialog naming every activity whose status is about to change, with **Save and
+mark completed** or **Back to the grid**; nothing is written until you choose,
+and a save that changes no statuses shows no dialog. The save bar then reports
+how many were marked. Future-dated sessions and activities marked Cancelled are
+never completed this way. This replaces the previous behaviour, where grid entry
+deliberately left completion to a separate click — under the new gate that would
+have meant a coach's entry never reaching the reports.
 
 An activity's **Attendance** card and the **Present** figure in its stat strip
 counted the planned roster on top of the recorded register, so an activity with

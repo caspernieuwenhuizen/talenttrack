@@ -59,6 +59,14 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                 'unsaved'   => __( '%d unsaved change(s)', 'talenttrack' ),
                 /* translators: %d is the number of activities marked completed. */
                 'completed' => __( 'All changes saved · %d activity/activities marked completed', 'talenttrack' ),
+                // #2521 — the confirmation shown before a save that will
+                // change an activity's status. Nothing is written until the
+                // coach has read which sessions are affected and why.
+                'completeTitle'   => __( 'These activities will be marked completed', 'talenttrack' ),
+                'completeIntro'   => __( 'You recorded attendance on activities that are still planned. Saving marks them completed, because the attendance reports only count activities that have been held — left as planned, this attendance would never reach the reports.', 'talenttrack' ),
+                'completeOutro'   => __( 'You can reopen an activity afterwards if you marked it by mistake. Activities dated in the future and cancelled activities are never changed.', 'talenttrack' ),
+                'completeConfirm' => __( 'Save and mark completed', 'talenttrack' ),
+                'completeCancel'  => __( 'Back to the grid', 'talenttrack' ),
                 'confirm'   => __( 'You have unsaved changes. Leave without saving?', 'talenttrack' ),
             ],
         ] );
@@ -228,7 +236,16 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             $glyph = $a['is_match'] ? '⚽' : '🏃';
             $label = (string) $a['title'] !== '' ? (string) $a['title'] : ( $a['is_match'] ? __( 'Match', 'talenttrack' ) : __( 'Training', 'talenttrack' ) );
             $cls   = 'tt-agrid__act' . ( $a['is_match'] ? ' is-match' : '' );
-            echo '<th class="' . esc_attr( $cls ) . '" scope="col" title="' . esc_attr( $label ) . '">';
+            // #2521 — a past-dated session that is still planned will be
+            // marked completed when this grid is saved. Carry that fact and
+            // the column's label into the DOM so the save step can name
+            // exactly which activities are about to change status.
+            $completes = ! empty( $a['completes'] );
+            if ( $completes ) $cls .= ' is-incomplete';
+            echo '<th class="' . esc_attr( $cls ) . '" scope="col" title="' . esc_attr( $label ) . '"'
+                . ' data-activity="' . esc_attr( (string) $aid ) . '"'
+                . ' data-completes="' . ( $completes ? '1' : '0' ) . '"'
+                . ' data-label="' . esc_attr( trim( $date . ' · ' . $label, ' ·' ) ) . '">';
             echo '<span class="tt-agrid__act-date">' . esc_html( $date ) . '</span>';
             echo '<span class="tt-agrid__act-type" aria-hidden="true">' . esc_html( $glyph ) . '</span>';
             echo '<button type="button" class="tt-agrid__fill" data-activity="' . esc_attr( (string) $aid ) . '">' . esc_html__( 'all present', 'talenttrack' ) . '</button>';

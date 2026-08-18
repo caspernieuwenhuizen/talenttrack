@@ -132,8 +132,92 @@
 		return changes;
 	}
 
+	/**
+	 * #2521 — which of the edited columns are past-dated activities that
+	 * are still planned. Saving those marks them completed, so the coach
+	 * is told first. Returns their column labels, newest column last.
+	 */
+	function activitiesToComplete() {
+		var ids = {};
+		dirty.forEach( function ( td ) {
+			ids[ td.getAttribute( 'data-activity' ) ] = true;
+		} );
+		var labels = [];
+		grid.querySelectorAll( 'th[data-completes="1"]' ).forEach( function ( th ) {
+			if ( ids[ th.getAttribute( 'data-activity' ) ] ) {
+				labels.push( th.getAttribute( 'data-label' ) || '' );
+			}
+		} );
+		return labels;
+	}
+
+	function escapeHtml( s ) {
+		return String( s ).replace( /[&<>"']/g, function ( c ) {
+			return ( { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' } )[ c ];
+		} );
+	}
+
+	/**
+	 * Confirmation before a save that changes an activity's status. Uses
+	 * the same `<dialog>`-based app modal as the archive/reopen buttons
+	 * (never window.confirm — pilot feedback: a browser notification does
+	 * not read as part of the application). Falls back to window.confirm
+	 * only where <dialog> is unsupported.
+	 */
+	function confirmCompletion( labels, onResult ) {
+		var plain = ( I18N.completeIntro || '' ) + '\n\n' + labels.join( '\n' );
+		if ( typeof HTMLDialogElement === 'undefined' ) {
+			onResult( window.confirm( plain ) );
+			return;
+		}
+		var dialog = document.getElementById( 'tt-agrid-complete-dialog' );
+		if ( ! dialog ) {
+			dialog = document.createElement( 'dialog' );
+			dialog.id = 'tt-agrid-complete-dialog';
+			dialog.className = 'tt-modal tt-modal--agrid-complete';
+			dialog.innerHTML =
+				'<form method="dialog" class="tt-modal-form">' +
+					'<h2 class="tt-modal-title">' + escapeHtml( I18N.completeTitle || '' ) + '</h2>' +
+					'<p class="tt-modal-message">' + escapeHtml( I18N.completeIntro || '' ) + '</p>' +
+					'<ul class="tt-modal-list" data-agrid-complete-list></ul>' +
+					'<p class="tt-modal-message">' + escapeHtml( I18N.completeOutro || '' ) + '</p>' +
+					'<div class="tt-modal-actions">' +
+						'<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' + escapeHtml( I18N.completeCancel || '' ) + '</button>' +
+						'<button type="submit" value="confirm" class="tt-btn tt-btn-primary">' + escapeHtml( I18N.completeConfirm || '' ) + '</button>' +
+					'</div>' +
+				'</form>';
+			document.body.appendChild( dialog );
+		}
+		var list = dialog.querySelector( '[data-agrid-complete-list]' );
+		list.innerHTML = '';
+		labels.forEach( function ( label ) {
+			var li = document.createElement( 'li' );
+			li.textContent = label;
+			list.appendChild( li );
+		} );
+
+		var closeHandler = function () {
+			dialog.removeEventListener( 'close', closeHandler );
+			onResult( dialog.returnValue === 'confirm' );
+		};
+		dialog.addEventListener( 'close', closeHandler );
+		dialog.returnValue = '';
+		dialog.showModal();
+	}
+
 	function save() {
 		if ( dirty.size === 0 || ! CFG.restBulk ) {
+			return;
+		}
+		// #2521 — a save that changes an activity's status is never silent.
+		var completing = activitiesToComplete();
+		if ( completing.length && ! save.confirmed ) {
+			confirmCompletion( completing, function ( ok ) {
+				if ( ! ok ) return;
+				save.confirmed = true;
+				save();
+				save.confirmed = false;
+			} );
 			return;
 		}
 		if ( saveBtn ) {

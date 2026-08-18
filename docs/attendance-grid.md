@@ -51,11 +51,17 @@ main way attendance is entered, and the activity buttons follow:
   names.
 - **Mark completed** appears on a planned activity's page — but for sessions
   that have already taken place you rarely need it. Saving the grid **marks
-  every past-dated planned activity it wrote to as completed**, and the save
-  bar tells you how many. Recording who was there is the statement that the
-  session happened, and the attendance reports only count completed
-  activities, so an entry that left the activity *Planned* would never reach
-  the numbers.
+  every past-dated planned activity it wrote to as completed**. Recording who
+  was there is the statement that the session happened, and the attendance
+  reports only count completed activities, so an entry that left the activity
+  *Planned* would never reach the numbers.
+
+  **You are always asked first.** A column for a past-dated session that is
+  still planned carries an amber underline in the header, and pressing
+  **Save** opens a dialog that names every activity about to change status,
+  explains why, and waits: **Save and mark completed** goes ahead, **Back to
+  the grid** writes nothing at all. A save that changes no statuses shows no
+  dialog. Afterwards the save bar reports how many were marked.
 
   Two things are never completed this way: an activity dated in the **future**
   (pre-recording next week's known absence is not a claim that next week has

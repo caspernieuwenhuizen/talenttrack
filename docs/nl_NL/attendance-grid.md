@@ -57,10 +57,18 @@ activiteit volgen mee:
 - **Markeren als afgerond** verschijnt bij een geplande activiteit, maar voor
   sessies die al geweest zijn heb je die knop zelden nodig. Opslaan in het
   raster **markeert elke geplande activiteit uit het verleden waarin je iets
-  invulde als voltooid**, en de opslagbalk meldt hoeveel dat er waren.
-  Vastleggen wie er was, is de uitspraak dat de sessie heeft plaatsgevonden, en
-  de aanwezigheidsrapporten tellen alleen voltooide activiteiten — een invoer
-  die de activiteit op *Gepland* laat staan, zou de cijfers dus nooit bereiken.
+  invulde als voltooid**. Vastleggen wie er was, is de uitspraak dat de sessie
+  heeft plaatsgevonden, en de aanwezigheidsrapporten tellen alleen voltooide
+  activiteiten — een invoer die de activiteit op *Gepland* laat staan, zou de
+  cijfers dus nooit bereiken.
+
+  **Je krijgt het altijd eerst te zien.** Een kolom van een sessie uit het
+  verleden die nog gepland staat, heeft een oranje streep in de kop, en bij
+  **Opslaan** opent een venster dat elke activiteit noemt waarvan de status
+  verandert, uitlegt waarom en wacht op je keuze: **Opslaan en op voltooid
+  zetten** gaat door, **Terug naar het raster** schrijft helemaal niets weg.
+  Verandert een opslag geen enkele status, dan verschijnt er geen venster.
+  Daarna meldt de opslagbalk hoeveel activiteiten zijn omgezet.
 
   Twee gevallen worden zo nooit voltooid: een activiteit met een datum in de
   **toekomst** (een bekende afmelding voor volgende week vooraf vastleggen is
