@@ -1,3 +1,163 @@
+# TalentTrack v4.89.0 — Demo data: coverage manifest, and journey events are wipeable again (#2462)
+
+The demo-data module now declares its coverage in one place. Every table the
+schema creates is classified in `DemoCoverage` as generated, planned, or
+exempt with a stated reason, and the wipe, the generate form and the wipe
+form all derive from that declaration instead of four hand-maintained lists
+that had to agree.
+
+The immediate fix an operator will notice: journey events generated during a
+demo run were never tagged, so no wipe could ever reach them — an install
+seeded with the `small` preset was carrying 606 orphaned timeline rows that
+survived every "wipe demo data". They are tagged now and wipe with their
+players. Excel-imported trial cases had the same gap and are also reachable.
+
+Generated output is otherwise unchanged: the same seed and preset produce the
+same academy, byte for byte, as before.
+
+Two CI gates keep it that way. A migration that adds a `tt_` table now fails
+the build until it is classified, and a self-check proves the delete order is
+dependency-safe and that no generator can write rows the wipe cannot reach.
+
+# TalentTrack v4.89.0 — Demo data: guardians, injuries, player profile and reports (#2463)
+
+A generated player is now a dossier rather than a roster entry. Demo runs
+fill in the guardian link and its parent-visibility grants, injury records
+with return-to-play dates, age-group history, the full attribute matrix the
+chemistry surfaces read, the club's own custom fields with values, links from
+goals back to the evaluation that prompted them, and a spread of player
+reports.
+
+Injuries go through the same repository the Injuries screen uses, so they
+raise the same timeline events and the same recovery-due workflow task a real
+injury would — a demo timeline reads exactly like a production one.
+
+Two deliberate limits. Guardians attach to the demo parent accounts rather
+than minting an account per player, so each parent account gets a family of
+one to three children and the rest of the roster has no linked guardian —
+enough for the parent persona to sign in to something real, without a dozen
+welcome emails per run. And generated reports carry no share token and no
+recipient address, so nothing hands out a working public link.
+
+# TalentTrack v4.89.0 — Demo data: measurements and the PDP cycle (#2464)
+
+Two of the screens that best show what TalentTrack is for rendered empty on a
+demo install. Both are filled now.
+
+Demo runs create a testing battery an academy would actually use — height and
+weight, 10 m and 30 m sprints, countermovement jump, shuttle run, juggling,
+passing accuracy, a dribble circuit and a focus self-assessment — with target
+bands per age group, team testing sessions across the window, and a result per
+player per session. Each test declares which direction is better, so a sprint
+time and a jump height are graded the right way round.
+
+Results follow a per-player trend rather than noise: a player sits
+consistently above or below their age group and improves across the season, so
+the progression charts show something real. A few players miss a round, so the
+coverage indicator isn't a flat 100%.
+
+The PDP side gets the season, a development dossier per player, its
+conversation cycle, calendar links on what's still scheduled, and verdicts on
+the dossiers that have closed. Conversations that have already passed are
+conducted and signed off while the next one stays open, so both halves of the
+screen have something in them.
+
+All of it goes through the PDP repositories, so the conversation cycle is
+spaced by the same planning-window rules as the real flow and a signed-off
+verdict raises its timeline event.
+
+# TalentTrack v4.89.0 — Demo data: training content and match day (#2465)
+
+A generated training used to be a calendar entry with an attendance list, and
+a generated match had no result. Both have content now.
+
+Trainings get four to six exercises from the club's library in order, with
+durations that add up to roughly the session, plus the methodology principles
+they work on. Per-team exercise overrides and the season's holiday windows are
+filled in too.
+
+Every fixture gets match prep — availability, a starting eleven, roles and
+per-player intent — and every fixture already played gets a result, goal
+events, substitutions and a light tracked-event stream. Fixtures still ahead
+get prep and no result, which is what a coach's screen looks like mid-week.
+
+Squad size follows the age group, because youth football is small-sided: an
+under-9 team fields six, an under-12 eight, and eleven only from the early
+teens. A twelve-player under-8 squad was never going to produce an eleven, so
+without this the youngest teams generated no match data at all.
+
+The generated match data is internally consistent, which matters because
+reports read it as though it were real: availability never marks a player
+present on a date their injury record says they were out, goal scorers come
+from that match's lineup, and substitutions take a starter off for a bench
+player, so derived minutes-played never exceed the match length and a team's
+total lands exactly on squad size times it. That last point is what makes the
+minutes reports usable on a demo install for the first time.
+
+# TalentTrack v4.89.0 — Demo data: team development (#2466)
+
+Each generated team now has a shape and a way of playing: an age-appropriate
+formation from the shipped templates, a playing-style mix across possession,
+counter and press, a match-day blueprint with its slot assignments, and a few
+coach-marked pairings.
+
+Chemistry snapshots are computed by the chemistry engine from the team's own
+blueprint lineup rather than invented, so the stored score agrees with what a
+recompute produces. The series runs across the generated window so the trend
+view has a line rather than a single point.
+
+Formations, position profiles and set pieces are shipped methodology content
+that migrations already seed, so the generator assigns and uses them instead
+of building a parallel set — a demo club with two formation libraries would be
+worse than one with none.
+
+# TalentTrack v4.89.0 — Demo data: scouting, trials and tournaments (#2467)
+
+The intake pipeline was invisible on a demo install: no prospects, no scouting
+visits, and trial cases only if you happened to upload a workbook containing
+them. All three are generated now, along with tournaments.
+
+Most generated players carry a historical trial case, closed with an admit
+decision and dated before they joined the roster. That matters more than it
+sounds: without it a demo academy's players appear fully signed from nowhere,
+and the player journey the product is built around has no beginning. A couple
+of players keep an open case so the surface a scout works on every week has
+something on it. Each case has a staff panel of two or three, assessments from
+most of them, and extensions on some of the open ones.
+
+Trial cases fire the same hooks the Trials module fires, so the timeline gets
+its trial-started and decision events in exactly the shape production writes
+them.
+
+Scouting visits run across the window in all three states — completed, planned
+and cancelled — with prospects attached to the completed ones, named from the
+same Dutch pools the roster uses so the pipeline reads like the same club.
+
+Tournaments get a squad with target minutes, four short fixtures, and
+per-period assignments that rotate through the squad so nobody sits out —
+which is the point of a youth tournament planner.
+
+# TalentTrack v4.89.0 — Demo data: staff development, messages and operator records (#2468)
+
+The last uncovered corner. Demo runs now fill in staff development —
+development plans, goals, evaluations with per-category ratings, and mentor
+pairings — plus the conversations and operator records that make an install
+look used rather than newly installed: threads with uneven read state so
+unread badges are actually non-zero, saved filters, report presets, workflow
+tasks, and invitations in all four states.
+
+Nothing here sends. Invitations and workflow tasks are written directly rather
+than through the services that dispatch them, so the invitations screen shows
+pending, accepted, expired and revoked rows without anyone receiving anything
+and without the workflow engine firing.
+
+Staff certifications are the one thing that stays empty: they require the
+club's certificate-type vocabulary, which has no default seed (#2490). The
+generator skips them rather than inventing lookup entries.
+
+With this, every table the schema creates is either generated by a demo run or
+recorded as exempt with a reason — no table is unaccounted for.
+
 # TalentTrack v4.88.0 — Usage statistics: "last N days" windows now use the site's timezone (#2444)
 
 Every "last N days" figure on the usage-statistics surfaces was off by the
