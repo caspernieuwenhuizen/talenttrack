@@ -25,6 +25,11 @@ onbeperkt beschikbaar.
 Dat is één navigatie in verschillende jassen, geen vier verschillende menu's —
 dezelfde ingangen, dezelfde volgorde, dezelfde rechten.
 
+De zijbalk is **donker**, zoals in het ontwerp, tegen het lichte werkgebied — het
+geselecteerde item krijgt een streep in de merkkleur van je academie. De naam van
+de academie blijft in de bovenbalk en je accountmenu blijft in zijn hoek, dus
+afmelden verandert niet van plek.
+
 De app-shell gebruikt de **volle breedte van het venster**, met de zijbalk tegen
 de linkerrand — het is een werkomgeving, geen gecentreerd document. De header
 blijft staan terwijl je scrolt, zodat zoeken, meldingen en je account overal op

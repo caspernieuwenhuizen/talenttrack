@@ -17,7 +17,14 @@
  * Mobile-first per CLAUDE.md §2: base styles target ~360px and min-width
  * queries scale up. Everything is scoped under `.tt-dashboard` — no
  * global resets, the active theme is treated as hostile. Colours come
- * from tokens.css / BrandStyles; no raw hex.
+ * from tokens.css / BrandStyles; no raw hex in the rules.
+ *
+ * One deliberate exception (#2518): the nav is a dark surface in an
+ * otherwise light app, so tokens.css has nothing for it. Its palette is
+ * defined once as `--tt-nav-*` on `.tt-dashboard.tt-shell-app` and every
+ * rule reads those — the literals appear only in that definition block,
+ * scoped to the shell so they cannot leak into the light UI. The accent
+ * still defers to BrandStyles.
  */
 
 .tt-dashboard.tt-shell-app {
@@ -37,6 +44,35 @@
      * offsetting. Set once here, consumed by the header and the nav.
      */
     --tt-shell-top: 0px;
+
+    /*
+     * #2518 — the navigation is a dark surface, per the approved design.
+     *
+     * Its colours live here as sidebar-scoped tokens rather than being
+     * written into each rule: the nav is the one dark region in an
+     * otherwise light app, so it needs its own small palette, and keeping
+     * it in one block means a future dark mode or a per-brand variant is a
+     * token swap rather than a hunt through selectors.
+     *
+     * Measured against --tt-nav-bg (WCAG 2.1 contrast ratio):
+     *   ink        12.5:1  body text          (needs 4.5)
+     *   ink-dim     5.8:1  group headings     (small text, needs 4.5)
+     *   accent      8.3:1  active bar + focus (UI component, needs 3.0)
+     *
+     * `--tt-nav-accent` reads the operator's brand secondary, so a club
+     * that has set its palette gets its own accent rather than a
+     * hard-coded gold. A club choosing a very dark secondary would weaken
+     * that 8.3:1 — worth revisiting if brand theming ever ships a dark
+     * palette.
+     */
+    --tt-nav-bg:      #16243c;
+    --tt-nav-ink:     #dfe7f2;
+    --tt-nav-ink-dim: #8da0b8;
+    --tt-nav-hover:   #1e3050;
+    --tt-nav-active:  #24395c;
+    --tt-nav-line:    #223554;
+    --tt-nav-accent:  var(--tt-secondary, #e8b624);
+
     /*
      * Header height, so the sticky sidebar can start below the sticky
      * header instead of underneath it. This default matches the header's
@@ -127,8 +163,9 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     width: min(78vw, 300px);
     display: flex;
     flex-direction: column;
-    background: var(--tt-paper, #fff);
-    border-inline-end: 1px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-nav-bg);
+    color: var(--tt-nav-ink);
+    border-inline-end: 1px solid var(--tt-nav-line);
     box-shadow: var(--tt-shadow-lg, 0 10px 30px rgba(0, 0, 0, .18));
     transform: translateX(-100%);
     visibility: hidden;
@@ -188,7 +225,7 @@ body.admin-bar .tt-dashboard.tt-shell-app {
  * reveal anything.
  */
 .tt-shell-app .tt-shell-nav__group-wrap {
-    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    border-top: 1px solid var(--tt-nav-line);
 }
 
 .tt-shell-app .tt-shell-nav__group-wrap:first-child {
@@ -207,7 +244,7 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--tt-ink-soft, #6a6d66);
+    color: var(--tt-nav-ink-dim);
     cursor: pointer;
     border-radius: var(--tt-radius, 8px);
     touch-action: manipulation;
@@ -222,8 +259,8 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 
 .tt-shell-app .tt-shell-nav__group:hover,
 .tt-shell-app .tt-shell-nav__group:focus-visible {
-    background: var(--tt-surface-2, #f4f5f2);
-    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-nav-hover);
+    color: var(--tt-nav-ink);
 }
 
 .tt-shell-app .tt-shell-nav__group-chev {
@@ -300,7 +337,7 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     min-height: 48px;
     padding: 0.5rem 0.6rem;
     border-radius: var(--tt-radius, 8px);
-    color: var(--tt-ink, #0e1a14);
+    color: var(--tt-nav-ink);
     text-decoration: none;
     font-size: 0.95rem;
     line-height: 1.3;
@@ -310,23 +347,23 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 }
 
 .tt-shell-app .tt-shell-nav__link:hover {
-    background: var(--tt-bg-soft, #f4f6f3);
+    background: var(--tt-nav-hover);
 }
 
 /* Tap feedback within 100ms without waiting for JS. */
 .tt-shell-app .tt-shell-nav__link:active {
-    background: var(--tt-line-soft, #eef0ec);
+    background: var(--tt-nav-active);
 }
 
 .tt-shell-app .tt-shell-nav__link:focus-visible {
-    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline: 2px solid var(--tt-nav-accent);
     outline-offset: 2px;
 }
 
 .tt-shell-app .tt-shell-nav__link.is-active {
-    background: var(--tt-bg-soft, #f4f6f3);
+    background: var(--tt-nav-active);
     font-weight: 600;
-    box-shadow: inset 3px 0 0 var(--tt-primary, #0b3d2e);
+    box-shadow: inset 3px 0 0 var(--tt-nav-accent);
 }
 
 .tt-shell-app .tt-shell-nav__icon {
@@ -335,11 +372,11 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     place-items: center;
     width: 20px;
     height: 20px;
-    color: var(--tt-ink-soft, #6a6d66);
+    color: var(--tt-nav-ink-dim);
 }
 
 .tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
-    color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-nav-accent);
 }
 
 .tt-shell-app .tt-shell-nav__label {
@@ -400,8 +437,10 @@ body.admin-bar .tt-dashboard.tt-shell-app {
         transform: none;
         visibility: visible;
         box-shadow: none;
-        background: transparent;
-        border-inline-end: 1px solid var(--tt-line, #e3e6e1);
+        /* #2518 — the nav owns its dark surface; it can no longer sit
+           transparent over the page background. */
+        background: var(--tt-nav-bg);
+        border-inline-end: 1px solid var(--tt-nav-line);
         padding: 0.75rem 0.35rem;
     }
 
@@ -418,21 +457,24 @@ body.admin-bar .tt-dashboard.tt-shell-app {
         width: 32px;
         height: 32px;
         margin: 0 0.25rem 0.35rem auto;
-        border: 1px solid var(--tt-line, #e3e6e1);
+        border: 1px solid var(--tt-nav-line);
         border-radius: var(--tt-radius, 8px);
-        background: var(--tt-paper, #fff);
-        color: var(--tt-ink-soft, #6a6d66);
+        background: var(--tt-nav-hover);
+        color: var(--tt-nav-ink-dim);
         cursor: pointer;
         touch-action: manipulation;
         transition: transform .18s ease;
     }
 
     .tt-shell-app .tt-shell-nav__collapse:hover {
-        color: var(--tt-ink, #0e1a14);
+        /* #2518 — was --tt-ink (near-black), invisible on the dark nav. */
+        color: var(--tt-nav-ink);
     }
 
     .tt-shell-app .tt-shell-nav__collapse:focus-visible {
-        outline: 2px solid var(--tt-primary, #0b3d2e);
+        /* #2518 — was --tt-primary (dark green), which all but vanished
+           against navy. The accent is the only ring that reads here. */
+        outline: 2px solid var(--tt-nav-accent);
         outline-offset: 2px;
     }
 

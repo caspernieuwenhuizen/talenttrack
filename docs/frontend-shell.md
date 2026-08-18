@@ -25,6 +25,11 @@ indefinitely.
 Those are one navigation in different clothes, not four different menus — same
 entries, same order, same permissions.
 
+The sidebar is **dark**, as in the design, against the light content area — the
+selected entry carries a stripe in your academy's brand colour. The academy name
+stays in the top bar and your account menu stays in its corner, so nothing moves
+about signing out.
+
 The app shell uses the **full width of the window**, with the sidebar against
 the left edge — it is a workspace, not a centred document. The header stays put
 while you scroll, so search, notifications and your account stay reachable from
