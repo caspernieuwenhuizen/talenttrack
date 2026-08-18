@@ -12,195 +12,88 @@
  */
 
 /* ================================================================
- * Command palette
+ * Inline search (#2531)
  * ============================================================== */
-
-.tt-spotlight {
-    position: fixed;
-    inset: 0;
-    z-index: 1400;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: max(1rem, env(safe-area-inset-top)) 1rem 1rem;
-}
-
-.tt-spotlight[hidden] {
-    display: none;
-}
-
-.tt-spotlight__scrim {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, .42);
-}
-
-.tt-spotlight__panel {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    /* #2504 — 560px read as a narrow slot on a 27" screen. The palette
-       lists player, team and activity names, which are long; give it room
-       and keep it bounded so it never stretches across an ultrawide. */
-    max-width: min(720px, 92vw);
-    max-height: min(70vh, 520px);
-    display: flex;
-    flex-direction: column;
-    background: var(--tt-paper, #fff);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    box-shadow: var(--tt-shadow-lg, 0 18px 48px rgba(0, 0, 0, .28));
-    overflow: hidden;
-}
-
-.tt-spotlight__input {
-    flex: 0 0 auto;
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
-    padding: 0.9rem 1rem;
-    /* ≥16px so iOS does not zoom the page on focus (CLAUDE.md §2). */
-    font-size: 16px;
-    line-height: 1.4;
-    color: var(--tt-ink, #0e1a14);
-    background: transparent;
-}
-
-.tt-spotlight__input:focus {
-    outline: none;
-    border-bottom-color: var(--tt-primary, #0b3d2e);
-}
-
-.tt-spotlight__list {
-    flex: 1 1 auto;
-    list-style: none;
-    margin: 0;
-    padding: 0.35rem;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-}
-
-.tt-spotlight__list li.is-active .tt-spotlight__result {
-    background: var(--tt-bg-soft, #f4f6f3);
-}
-
-.tt-spotlight__result {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    /* 48px minimum target. */
-    min-height: 48px;
-    padding: 0.5rem 0.65rem;
-    border-radius: var(--tt-radius, 8px);
-    color: var(--tt-ink, #0e1a14);
-    text-decoration: none;
-    touch-action: manipulation;
-}
-
-.tt-spotlight__result:hover {
-    background: var(--tt-bg-soft, #f4f6f3);
-}
-
-.tt-spotlight__result:focus-visible {
-    outline: 2px solid var(--tt-primary, #0b3d2e);
-    outline-offset: -2px;
-}
-
-.tt-spotlight__kind {
-    flex: 0 0 auto;
-    min-width: 62px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--tt-ink-soft, #6a6d66);
-}
-
-.tt-spotlight__label {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.tt-spotlight__sub {
-    flex: 0 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.8rem;
-    color: var(--tt-ink-soft, #6a6d66);
-}
-
-.tt-spotlight__empty {
-    padding: 1rem 0.65rem;
-    color: var(--tt-ink-soft, #6a6d66);
-    font-size: 0.9rem;
-}
-
-/* Utility-bar trigger — the non-keyboard way in, so ⌘K only ever
-   accelerates (CLAUDE.md §2: a shortcut must have a non-shortcut
-   fallback). */
 /*
- * #2504 — the trigger reads as a search FIELD, not a pill.
+ * The header field is the search. #2458's modal palette is gone — its
+ * scrim, panel and focus trap with it — and the results now hang off the
+ * field itself.
  *
- * The target design puts a real search box in the header — placeholder text
- * on the left, the shortcut hint on the right, filling the space between
- * the breadcrumb and the account menu. A small "Zoeken" pill neither looks
- * like search nor invites a click. It is still a link (the no-JS fallback
- * is the tile hub), so this is styling only.
- *
- * `flex: 1 1 auto` with a max-width lets it grow into the header's free
- * space on a wide monitor without stretching across an ultrawide; below
- * 768px the header is tight, so it shrinks back to its content.
+ * Mobile-first: at 360px the field is the full width of the row and the
+ * results panel spans the viewport under it. From 768px it grows into the
+ * header's free space, centred between the breadcrumb and the account menu.
  */
-.tt-dashboard .tt-spotlight-trigger {
-    display: inline-flex;
+
+.tt-dashboard .tt-spotlight-form {
+    position: relative;
+    display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
     min-height: 44px;
     padding: 0 0.75rem;
     border: 1px solid rgba(255, 255, 255, .18);
     border-radius: var(--tt-radius, 8px);
     background: rgba(255, 255, 255, .08);
     color: #fff;
-    font: inherit;
-    font-size: 0.85rem;
-    text-decoration: none;
-    cursor: pointer;
-    touch-action: manipulation;
 }
 
-@media (min-width: 768px) {
-    .tt-dashboard .tt-spotlight-trigger {
-        flex: 1 1 auto;
-        max-width: 420px;
-        /* Sit between the breadcrumb and the account menu rather than
-           hugging one end, as in the design. */
-        margin-inline: auto;
-    }
-}
-
-.tt-dashboard .tt-spotlight-trigger:hover,
-.tt-dashboard .tt-spotlight-trigger:focus-visible {
+.tt-dashboard .tt-spotlight-form:focus-within {
     background: rgba(255, 255, 255, .16);
+    border-color: rgba(255, 255, 255, .38);
 }
 
-.tt-dashboard .tt-spotlight-trigger:focus-visible {
+/* Magnifier drawn in CSS — one less request, and it inherits the colour. */
+.tt-spotlight-form__icon {
+    flex: 0 0 auto;
+    width: 13px;
+    height: 13px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    opacity: .7;
+    position: relative;
+}
+.tt-spotlight-form__icon::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 10px;
+    inset-block-start: 10px;
+    width: 6px;
+    height: 2px;
+    background: currentColor;
+    transform: rotate(45deg);
+    transform-origin: left center;
+}
+
+.tt-dashboard .tt-spotlight-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    /* 16px stops iOS zooming the page on focus (CLAUDE.md §2). */
+    font: inherit;
+    font-size: 16px;
+    padding: 0;
+    outline: none;
+}
+
+.tt-dashboard .tt-spotlight-input::placeholder {
+    color: currentColor;
+    opacity: .65;
+}
+
+/* The browser's own clear affordance duplicates Escape and crowds the row. */
+.tt-dashboard .tt-spotlight-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* The form owns the focus ring, since the input's own outline is removed. */
+.tt-dashboard .tt-spotlight-form:focus-within {
     outline: 2px solid var(--tt-secondary, #e8b624);
     outline-offset: 2px;
-}
-
-/* The prompt behaves like placeholder text: quieter than real content, and
-   it truncates rather than wrapping the header when the viewport is tight. */
-.tt-spotlight-trigger__text {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    opacity: .75;
 }
 
 .tt-spotlight-trigger__hint {
@@ -211,6 +104,89 @@
     border-radius: 5px;
     font-size: 0.72rem;
     opacity: .7;
+}
+
+/* ---- Results, anchored under the field ---------------------------- */
+.tt-dashboard .tt-spotlight-results {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 6px);
+    z-index: 1400;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    max-height: min(60vh, 460px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-lg, 0 18px 48px rgba(0, 0, 0, .28));
+}
+
+.tt-dashboard .tt-spotlight-results[hidden] {
+    display: none;
+}
+
+.tt-dashboard .tt-spotlight__item {
+    list-style: none;
+}
+
+.tt-dashboard .tt-spotlight__result {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    border-radius: var(--tt-radius, 8px);
+    color: inherit;
+    text-decoration: none;
+}
+
+/* Highlight follows the keyboard, so it must not depend on :hover. */
+.tt-dashboard .tt-spotlight__item.is-active .tt-spotlight__result,
+.tt-dashboard .tt-spotlight__result:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-spotlight__kind {
+    flex: 0 0 auto;
+    min-width: 62px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-dashboard .tt-spotlight__label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-spotlight__sub {
+    flex: 0 0 auto;
+    font-size: 0.8rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-dashboard .tt-spotlight__empty {
+    padding: 0.9rem 0.7rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    list-style: none;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-spotlight-form {
+        /* #2531 — roughly double the 420px the trigger used to cap at. The
+           results list carries player and team names, which are long. */
+        max-width: 840px;
+        margin-inline: auto;
+    }
 }
 
 @media (min-width: 1024px) {

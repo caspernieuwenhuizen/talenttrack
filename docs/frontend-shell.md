@@ -81,12 +81,15 @@ nothing that was reachable has been hidden.
 
 ## Search — jump to anything
 
-The search box in the top bar, or **⌘K** / **Ctrl+K**, opens a jump-to overlay.
-It finds sections, players, teams and activities, and opens showing the sections
-you can reach — so it works as a launcher before you type anything.
+Type straight into the search box in the top bar — no window opens first.
+Matching sections, players, teams and activities appear underneath as you type.
+Clicking into the box shows the sections you can reach before you type anything,
+so it works as a launcher too.
 
-Arrow keys move, Enter opens, Escape closes. The shortcut is only ever a
-shortcut: the search box does the same thing, so nothing depends on knowing it.
+Arrow keys move through the results, Enter opens the highlighted one, and Escape
+closes the list while leaving your cursor in the box. **⌘K** / **Ctrl+K** jumps
+to the box; the shortcut is only ever a shortcut, since the box is on screen and
+clickable without it.
 
 You only see records you already have access to. Search does not widen what you
 can reach; it just makes reaching it faster.

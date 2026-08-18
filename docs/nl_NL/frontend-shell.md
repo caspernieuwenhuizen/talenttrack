@@ -84,14 +84,15 @@ verborgen dat eerder wel bereikbaar was.
 
 ## Zoeken — spring naar alles
 
-Het zoekveld in de bovenbalk, of **⌘K** / **Ctrl+K**, opent een spring-naar-
-venster. Het vindt secties, spelers, teams en activiteiten, en opent met de
-secties die je kunt bereiken — het werkt dus al als startpunt vóórdat je iets
-typt.
+Typ direct in het zoekveld in de bovenbalk — er opent geen venster eerst.
+Passende secties, spelers, teams en activiteiten verschijnen eronder terwijl je
+typt. Klik je in het veld, dan zie je eerst de secties die je kunt bereiken, dus
+het werkt ook als startpunt.
 
-Pijltjestoetsen verplaatsen, Enter opent, Escape sluit. De sneltoets is alleen
-een versnelling: het zoekveld doet hetzelfde, dus niets hangt ervan af of je hem
-kent.
+Pijltjestoetsen lopen door de resultaten, Enter opent het gemarkeerde resultaat
+en Escape sluit de lijst terwijl je cursor in het veld blijft. **⌘K** /
+**Ctrl+K** springt naar het veld; de sneltoets is alleen een versnelling, want
+het veld staat in beeld en is aanklikbaar.
 
 Je ziet alleen records waar je al toegang toe hebt. Zoeken verbreedt niet wat je
 mag bereiken; het maakt bereiken alleen sneller.

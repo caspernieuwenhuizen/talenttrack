@@ -1,13 +1,17 @@
 /*
- * spotlight.js (#2458) — command palette + peek panel for the app shell.
+ * spotlight.js (#2458, #2531) — inline search + peek panel for the app shell.
  *
- * Two features, one file, because they share a fetch helper, a focus-trap
- * and an escape handler; three copies of those is how they drift.
+ * Two features, one file, because they share a fetch helper and an escape
+ * handler; two copies of those is how they drift.
  *
  * Both are progressive enhancements over markup that already works:
  *
- *   - Palette:  the utility-bar search field opens it. Without JS the field
- *               is a plain link to the tile overview.
+ *   - Search:   the header field is a real <input> in a GET form. This turns
+ *               it into a combobox that queries as you type and drops results
+ *               beneath it. #2531 replaced the modal palette #2458 shipped —
+ *               opening an overlay to reach a second input was a context
+ *               switch to start something already on screen. Without JS the
+ *               form submits to the tile overview.
  *   - Peek:     every peekable link keeps a real href and navigates normally
  *               when JS is off or the fetch fails. Peek is never the only
  *               path to a record.
@@ -64,96 +68,84 @@
 	}
 
 	/* ================================================================
-	 * Command palette
+	 * Inline search (#2531)
 	 * ============================================================== */
+	/*
+	 * The header field IS the search. #2458 shipped a trigger that opened a
+	 * modal with its own input — two steps and a context switch to start
+	 * something the user was already looking at. Typing here queries
+	 * directly and results drop down beneath the field.
+	 *
+	 * Built as a combobox rather than a styled input: focus never leaves
+	 * the field, so movement through the options has to be announced with
+	 * `aria-activedescendant` and a polite status line. The old modal got
+	 * this for free by trapping focus; inline has to do it deliberately.
+	 */
 
-	var palette = null;
-	var paletteInput = null;
-	var paletteList = null;
-	var paletteReturn = null;
-	var activeIndex = -1;
-	var debounce = null;
+	var sInput = document.querySelector('[data-tt-spotlight-input]');
+	var sList = document.getElementById('tt-spotlight-results');
+	var sStatus = document.querySelector('[data-tt-spotlight-status]');
+	var sForm = sInput && sInput.closest('form');
 
-	function buildPalette() {
-		palette = document.createElement('div');
-		palette.className = 'tt-spotlight';
-		palette.setAttribute('role', 'dialog');
-		palette.setAttribute('aria-modal', 'true');
-		palette.setAttribute('aria-label', t('spotlight_title', 'Jump to'));
-		palette.hidden = true;
+	var sActive = -1;
+	var sDebounce = null;
+	var sSeq = 0;
 
-		var scrim = document.createElement('div');
-		scrim.className = 'tt-spotlight__scrim';
-		scrim.addEventListener('click', closePalette);
-
-		var panel = document.createElement('div');
-		panel.className = 'tt-spotlight__panel';
-
-		paletteInput = document.createElement('input');
-		paletteInput.type = 'search';
-		paletteInput.className = 'tt-spotlight__input';
-		paletteInput.setAttribute('autocomplete', 'off');
-		paletteInput.setAttribute('aria-controls', 'tt-spotlight-list');
-		paletteInput.placeholder = t('spotlight_placeholder', 'Search players, teams, activities…');
-
-		paletteList = document.createElement('ul');
-		paletteList.className = 'tt-spotlight__list';
-		paletteList.id = 'tt-spotlight-list';
-		paletteList.setAttribute('role', 'listbox');
-
-		panel.appendChild(paletteInput);
-		panel.appendChild(paletteList);
-		palette.appendChild(scrim);
-		palette.appendChild(panel);
-		document.body.appendChild(palette);
-
-		paletteInput.addEventListener('input', function () {
-			window.clearTimeout(debounce);
-			debounce = window.setTimeout(function () { query(paletteInput.value); }, 180);
-		});
-
-		palette.addEventListener('keydown', function (e) {
-			if (e.key === 'Escape') { e.preventDefault(); closePalette(); return; }
-			if (e.key === 'ArrowDown') { e.preventDefault(); move(1); return; }
-			if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); return; }
-			if (e.key === 'Enter') {
-				var current = paletteList.querySelector('.is-active a');
-				if (current) { e.preventDefault(); current.click(); }
-				return;
-			}
-			trap(palette, e);
-		});
+	function sOptions() {
+		return sList ? sList.querySelectorAll('[role="option"]') : [];
 	}
 
-	function move(delta) {
-		var items = paletteList.querySelectorAll('li');
+	function sOpen(open) {
+		if (!sList || !sInput) return;
+		sList.hidden = !open;
+		sInput.setAttribute('aria-expanded', open ? 'true' : 'false');
+		if (!open) {
+			sActive = -1;
+			sInput.removeAttribute('aria-activedescendant');
+		}
+	}
+
+	function sHighlight(index) {
+		var items = sOptions();
 		if (!items.length) return;
-		if (activeIndex >= 0 && items[activeIndex]) items[activeIndex].classList.remove('is-active');
-		activeIndex = (activeIndex + delta + items.length) % items.length;
-		items[activeIndex].classList.add('is-active');
-		items[activeIndex].scrollIntoView({ block: 'nearest' });
+
+		if (sActive >= 0 && items[sActive]) items[sActive].classList.remove('is-active');
+		sActive = (index + items.length) % items.length;
+
+		var el = items[sActive];
+		el.classList.add('is-active');
+		el.scrollIntoView({ block: 'nearest' });
+		// Focus stays in the input; this is what a screen reader follows.
+		sInput.setAttribute('aria-activedescendant', el.id);
 	}
 
-	function renderResults(results) {
-		paletteList.textContent = '';
-		activeIndex = -1;
+	function sRender(results) {
+		if (!sList) return;
+		sList.textContent = '';
+		sActive = -1;
+		sInput.removeAttribute('aria-activedescendant');
 
 		if (!results.length) {
 			var empty = document.createElement('li');
 			empty.className = 'tt-spotlight__empty';
 			empty.textContent = t('spotlight_empty', 'Nothing matched.');
-			paletteList.appendChild(empty);
+			sList.appendChild(empty);
+			if (sStatus) sStatus.textContent = t('spotlight_empty', 'Nothing matched.');
+			sOpen(true);
 			return;
 		}
 
 		results.forEach(function (r, i) {
 			var li = document.createElement('li');
+			li.id = 'tt-spotlight-opt-' + i;
 			li.setAttribute('role', 'option');
-			if (i === 0) { li.classList.add('is-active'); activeIndex = 0; }
+			li.setAttribute('aria-selected', 'false');
+			li.className = 'tt-spotlight__item';
 
 			var a = document.createElement('a');
 			a.href = r.url;
 			a.className = 'tt-spotlight__result';
+			a.tabIndex = -1;   // the input keeps focus; arrows do the moving
 
 			var kind = document.createElement('span');
 			kind.className = 'tt-spotlight__kind';
@@ -174,49 +166,87 @@
 			}
 
 			li.appendChild(a);
-			paletteList.appendChild(li);
+			sList.appendChild(li);
+		});
+
+		if (sStatus) {
+			sStatus.textContent = results.length + ' ' + t('spotlight_results', 'results');
+		}
+		sOpen(true);
+		sHighlight(0);
+	}
+
+	function sQuery(q) {
+		// Out-of-order responses would otherwise let a slow early query
+		// overwrite a fast later one.
+		var seq = ++sSeq;
+		api('search?q=' + encodeURIComponent(q || ''))
+			.then(function (data) {
+				if (seq !== sSeq) return;
+				sRender((data && data.results) || []);
+			})
+			.catch(function () {
+				if (seq === sSeq) sRender([]);
+			});
+	}
+
+	if (sInput && sList) {
+		sInput.addEventListener('input', function () {
+			window.clearTimeout(sDebounce);
+			sDebounce = window.setTimeout(function () { sQuery(sInput.value); }, 180);
+		});
+
+		// Focusing shows the reachable sections before a character is typed —
+		// it is a launcher first and a search box second.
+		sInput.addEventListener('focus', function () {
+			if (!sOptions().length) sQuery(sInput.value);
+			else sOpen(true);
+		});
+
+		sInput.addEventListener('keydown', function (e) {
+			if (e.key === 'ArrowDown') { e.preventDefault(); sHighlight(sActive + 1); return; }
+			if (e.key === 'ArrowUp') { e.preventDefault(); sHighlight(sActive - 1); return; }
+
+			if (e.key === 'Escape') {
+				// Close the list but keep focus in the field — Escape should
+				// not cost the user their place.
+				e.preventDefault();
+				sOpen(false);
+				return;
+			}
+
+			if (e.key === 'Enter') {
+				var items = sOptions();
+				if (sActive >= 0 && items[sActive]) {
+					var link = items[sActive].querySelector('a');
+					if (link) { e.preventDefault(); link.click(); }
+				}
+				// With nothing highlighted, let the form submit (no-JS path).
+			}
+		});
+
+		// Pointer users get the same highlight the keyboard does.
+		sList.addEventListener('mousemove', function (e) {
+			var li = e.target.closest('[role="option"]');
+			if (!li) return;
+			var items = Array.prototype.indexOf.call(sOptions(), li);
+			if (items !== -1 && items !== sActive) sHighlight(items);
+		});
+
+		document.addEventListener('click', function (e) {
+			if (sForm && !sForm.contains(e.target)) sOpen(false);
+		});
+
+		// ⌘K / Ctrl-K focuses the field. Still an accelerator — the field is
+		// on screen and clickable without it (CLAUDE.md §2).
+		document.addEventListener('keydown', function (e) {
+			if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+				e.preventDefault();
+				sInput.focus();
+				sInput.select();
+			}
 		});
 	}
-
-	function query(q) {
-		api('search?q=' + encodeURIComponent(q || ''))
-			.then(function (data) { renderResults((data && data.results) || []); })
-			.catch(function () { renderResults([]); });
-	}
-
-	function openPalette() {
-		if (!palette) buildPalette();
-		paletteReturn = document.activeElement;
-		palette.hidden = false;
-		document.body.style.overflow = 'hidden';
-		paletteInput.value = '';
-		paletteInput.focus();
-		// Show reachable views before a single character is typed — the
-		// palette is a launcher first and a search box second.
-		query('');
-	}
-
-	function closePalette() {
-		if (!palette || palette.hidden) return;
-		palette.hidden = true;
-		document.body.style.overflow = '';
-		if (paletteReturn && typeof paletteReturn.focus === 'function') paletteReturn.focus();
-		paletteReturn = null;
-	}
-
-	// Keyboard shortcut is an accelerator, never the only way in — the
-	// utility-bar trigger below opens the same overlay (CLAUDE.md §2).
-	document.addEventListener('keydown', function (e) {
-		if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
-			e.preventDefault();
-			if (palette && !palette.hidden) { closePalette(); } else { openPalette(); }
-		}
-	});
-
-	document.addEventListener('click', function (e) {
-		var trigger = e.target.closest('[data-tt-spotlight-open]');
-		if (trigger) { e.preventDefault(); openPalette(); }
-	});
 
 	/* ================================================================
 	 * Peek panel
