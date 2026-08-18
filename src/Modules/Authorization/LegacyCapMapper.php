@@ -356,6 +356,14 @@ final class LegacyCapMapper {
         'tt_vct_admin_library'           => [ 'vct_library',          'read' ],
         'tt_vct_view_load'               => [ 'vct_workload',         'read' ],
 
+        // #2496 — Training plans (epic #2493). Matrix-only cap, no role
+        // baseline. Bridged at `read` for the same reason as `tt_vct_plan`:
+        // the REST permission_callback is the coarse gate, and the matrix
+        // resolves the team scope behind it. A plan carries no player data,
+        // so read and write share the cap — the boundary that matters is
+        // which teams' plans a coach can reach, not whether they may edit.
+        'tt_training_plan'               => [ 'training_plan',        'read' ],
+
         // #1943 — Tournaments fair-share planner. Admin-only in v1 (#0093).
         // `tt_view_tournaments` → read; `tt_edit_tournaments` → change. The
         // single `tt_edit_tournaments` cap historically gated edit AND

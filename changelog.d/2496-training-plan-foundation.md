@@ -2,9 +2,11 @@
 
 Bump: minor
 
-Adds the database foundation for the Training module: a training plan, its
-ordered blocks, the methodology principles it covers, and a record of each
-time the plan is actually run against a training in the calendar.
+Adds the foundation for the Training module: a training plan, its ordered
+blocks, the methodology principles it covers, and a record of each time the
+plan is actually run against a training in the calendar. Coaches, heads of
+development and academy admins get a new "training plan" permission, and the
+whole thing is reachable through the API before any screen exists.
 
 Nothing appears on screen yet. The design that matters for later: a plan is a
 reusable template you can keep editing, while each execution takes a permanent

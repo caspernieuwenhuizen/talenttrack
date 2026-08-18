@@ -101,6 +101,13 @@ return [
     // session linkage, photo capture UI, and AI extraction logic
     // land in Sprints 2-6.
     TT\Modules\Exercises\ExercisesModule::class                  => true,
+    // #2493 — Training module. Owns the training plan (a reusable
+    // template), its blocks, and the run that records one execution of
+    // it against an activity. Draws its blocks from the merged exercise
+    // library above. Foundation ship is schema + repositories + REST;
+    // the tile, the generator, the builder and the per-player exposure
+    // land in #2496-#2500.
+    TT\Modules\Training\TrainingModule::class                    => true,
     // #0093 — Tournament planner. v1 ships admin-only (caps mapped
     // to administrator + tt_club_admin only). Foundation ship lands
     // schema (migration 0097) + lookup seeds (migration 0098) +
