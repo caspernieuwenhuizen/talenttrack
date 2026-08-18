@@ -44,12 +44,8 @@ final class FrontendAppNav {
         foreach ( $grouped as $group ) {
             $tiles = [];
             foreach ( $group['tiles'] ?? [] as $tile ) {
-                if ( empty( $tile['label'] ) ) continue;
-
-                // #2505 — resolve the URL, don't require a materialised one.
                 $tile['url'] = self::urlFor( $tile );
-                if ( $tile['url'] === '' ) continue;
-
+                if ( empty( $tile['label'] ) || $tile['url'] === '' ) continue;
                 $tiles[] = $tile;
             }
             if ( $tiles === [] ) continue;
@@ -62,47 +58,35 @@ final class FrontendAppNav {
     }
 
     /**
-     * The URL a tile points at (#2505).
+     * The URL a tile routes to.
      *
-     * The registry resolves URLs lazily: most tiles carry only `view_slug`,
-     * and just a handful a literal `url`. The nav previously filtered on
-     * `! empty( $t['url'] )`, which dropped **56 of 59** destinations — the
-     * sidebar showed three links while the tile hub showed thirty. This is
-     * the same resolution `FrontendTileGrid` does, so the two agree about
-     * where a tile goes.
+     * `TileRegistry` materialises `url` only for the handful of tiles that
+     * register a `url_callback`; every other tile carries `view_slug` and
+     * the consumer resolves it. Filtering on a bare `url` therefore dropped
+     * 56 of 59 destinations from the sidebar (#2505) — the registry was not
+     * incomplete, the nav was asking for a field it resolves lazily.
      *
-     * Returns '' when a tile is genuinely unroutable, which the caller
-     * treats as "drop it" rather than rendering a dead link.
-     *
-     * @param array<string,mixed> $tile
+     * The base is the current page minus the drill-down params, matching
+     * `FrontendTileGrid`: both surfaces read the same registry, so a tile
+     * must lead to the same place whether it was clicked in the hub or in
+     * the sidebar.
      */
     private static function urlFor( array $tile ): string {
         $url = (string) ( $tile['url'] ?? '' );
         if ( $url !== '' ) return $url;
 
-        if ( ! empty( $tile['url_callback'] ) && is_callable( $tile['url_callback'] ) ) {
-            $url = (string) call_user_func( $tile['url_callback'], $tile );
-            if ( $url !== '' ) return $url;
-        }
-
         $slug = self::slugFor( $tile );
-        return $slug !== '' ? add_query_arg( 'tt_view', $slug, self::baseUrl() ) : '';
-    }
+        if ( $slug === '' ) return '';
 
-    /**
-     * The dashboard URL with record/view params stripped — the base every
-     * `tt_view` link is built on. Mirrors FrontendTileGrid's own helper so
-     * nav links and tile links resolve identically.
-     */
-    private static function baseUrl(): string {
-        $current = isset( $_SERVER['REQUEST_URI'] )
-            ? esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) )
-            : '';
-
-        return remove_query_arg(
+        $current = '';
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
+        }
+        $base = remove_query_arg(
             [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
-            $current !== '' ? $current : home_url( '/' )
+            $current ?: home_url( '/' )
         );
+        return (string) add_query_arg( 'tt_view', $slug, $base );
     }
 
     /**

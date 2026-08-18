@@ -77,6 +77,12 @@ class ConfigRestController {
         // default they inherit. Read through ShellPreference, never
         // directly.
         'tt_frontend_shell',
+        // #2512 — club-wide visual theme: 'default' (today's green/gold)
+        // or 'federation' (navy chrome, gold marker). Appearance only —
+        // no view branches on it. Individual users may override it in My
+        // settings; this is the default they inherit. Read through
+        // ThemePreference, never directly.
+        'tt_frontend_theme',
         // #0060 — default-dashboard toggle (persona vs classic tile grid)
         'persona_dashboard.enabled',
         // #0069 — per-persona overrides for the default-dashboard

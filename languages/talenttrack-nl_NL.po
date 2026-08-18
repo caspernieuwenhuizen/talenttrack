@@ -48702,6 +48702,95 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Visual theme"
+msgstr "Visueel thema"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Save theme"
+msgstr "Thema opslaan"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Default — green and gold"
+msgstr "Standaard — groen en goud"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Federation — navy and gold"
+msgstr "Federation — marineblauw en goud"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Theme updated. Reload to see the change everywhere."
+msgstr "Thema bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do."
+msgstr "Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of doen. Federation is een marineblauwe chroom met een gouden markering op de sectie waar je bent. Een thema levert het complete kleurenschema, dus de instellingen onder Kleuren gelden niet zolang er een thema actief is; je logo en academienaam wel. Iedereen kan onder Mijn instellingen een eigen thema kiezen; dit is wat ze krijgen zolang ze dat niet doen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Changes colours, corners and heading type only — never what you can see or do. A theme supplies the whole colour scheme for the application; your academy logo and name are unaffected."
+msgstr "Verandert alleen kleuren, hoeken en kopletter — nooit wat jij kunt zien of doen. Een thema levert het complete kleurenschema van de applicatie; je academielogo en -naam blijven ongewijzigd."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Federation — top edge, one chip colour"
+msgstr "Federation — bovenrand, één kleur voor het icoonvlak"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#, php-format
+msgid "These colours are not in use. The %s theme supplies the whole colour scheme, so the fields below have no effect until the visual theme is set back to Default. Your logo and academy name are unaffected."
+msgstr "Deze kleuren zijn niet in gebruik. Het thema %s levert het complete kleurenschema, dus de velden hieronder hebben geen effect totdat het visuele thema weer op Standaard staat. Je logo en academienaam blijven ongewijzigd."
+#. translators: %s is the title of the plan being copied.
+#: src/Modules/Training/Repositories/TrainingPlansRepository.php:402
+#, php-format
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:49
+msgid "Training plan not found."
+msgstr "Trainingsplan niet gevonden."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:130
+msgid "A training plan needs a title."
+msgstr "Een trainingsplan heeft een titel nodig."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:137
+msgid "The training plan could not be created."
+msgstr "Het trainingsplan kon niet worden aangemaakt."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:216
+msgid "Send a blocks array, even an empty one."
+msgstr "Stuur een blocks-array mee, ook als die leeg is."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:221
+msgid "The blocks could not be saved."
+msgstr "De blokken konden niet worden opgeslagen."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:43
+msgid "Training run not found."
+msgstr "Trainingsuitvoering niet gevonden."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:94
+msgid "Both a plan and an activity are required."
+msgstr "Zowel een plan als een activiteit zijn verplicht."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:116
+msgid "The plan could not be attached to this activity."
+msgstr "Het plan kon niet aan deze activiteit worden gekoppeld."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:145
+msgid "A status is required."
+msgstr "Een status is verplicht."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:150
+msgid "That is not a training-run status."
+msgstr "Dat is geen status voor een trainingsuitvoering."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:172
+msgid "That block does not belong to this training run."
+msgstr "Dat blok hoort niet bij deze trainingsuitvoering."
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 

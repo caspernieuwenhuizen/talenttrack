@@ -77,8 +77,15 @@ final class TileGridStandard {
     /** Default colour scheme — green border + gold top edge (#1809). */
     public const DEFAULT_STYLE = 'gold-topped';
 
-    /** Valid colour-scheme keys, in settings-dropdown order. */
-    private const STYLES = [ 'default', 'border', 'gold-topped', 'soft-fill', 'solid', 'left-accent' ];
+    /**
+     * Valid colour-scheme keys, in settings-dropdown order.
+     *
+     * #2512 — `federation` is the scheme drawn for the Federation theme:
+     * white card, navy top edge, one uniform navy chip instead of the
+     * per-module hues. It reads `--tt-primary` like every other scheme, so
+     * it also works on its own under the default theme.
+     */
+    private const STYLES = [ 'default', 'border', 'gold-topped', 'soft-fill', 'solid', 'left-accent', 'federation' ];
 
     /**
      * Preset → custom-property values. `comfortable` reproduces the

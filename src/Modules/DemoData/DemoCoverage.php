@@ -587,6 +587,21 @@ class DemoCoverage {
         'tt_translations_usage'      => [ 'exempt' => 'Translation-usage telemetry.' ],
         'tt_translation_source_meta' => [ 'exempt' => 'Translation source bookkeeping.' ],
 
+        // ===== Planned — Training module (#2493) =====
+        //
+        // A demo academy will want plausible training plans: the module's
+        // whole point is that what was trained shows up on a player's file,
+        // and a demo install with an empty training history tells that story
+        // badly. Generating them before the surfaces exist would mean
+        // inventing a shape the builder has not settled yet, so these wait
+        // for the wave that gives them one.
+
+        'tt_training_plans'           => [ 'planned' => '#2498' ],
+        'tt_training_plan_blocks'     => [ 'planned' => '#2498' ],
+        'tt_training_plan_principles' => [ 'planned' => '#2498' ],
+        'tt_training_plan_runs'       => [ 'planned' => '#2499' ],
+        'tt_training_plan_run_blocks' => [ 'planned' => '#2499' ],
+
         // ===== Exempt — reference data seeded by migrations =====
 
         'tt_player_attribute_defs' => [ 'exempt' => 'The 23 chemistry attribute definitions are seeded by migration 0178; #2463 fills values against them rather than inventing more.' ],
