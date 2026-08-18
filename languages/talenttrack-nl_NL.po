@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-17T20:16:56+00:00\n"
+"POT-Creation-Date: 2026-08-18T04:35:02+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2203,6 +2203,7 @@ msgid "Mixed"
 msgstr "Gemengd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
+#: src/Modules/DemoData/DemoCoverage.php:823
 msgid "Match day"
 msgstr "Wedstrijddag"
 
@@ -3424,7 +3425,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:703
+#: src/Modules/DemoData/DemoCoverage.php:810
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -4179,7 +4180,7 @@ msgstr "Alle types"
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:704
+#: src/Modules/DemoData/DemoCoverage.php:811
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -5359,7 +5360,7 @@ msgstr "Totaal minuten"
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:705
+#: src/Modules/DemoData/DemoCoverage.php:812
 #: src/Modules/Documentation/HelpTopics.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
@@ -5418,7 +5419,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:706
+#: src/Modules/DemoData/DemoCoverage.php:813
 #: src/Modules/Documentation/HelpTopics.php:67
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
@@ -5529,7 +5530,7 @@ msgid "Promoted"
 msgstr "Gepromoveerd"
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:707
+#: src/Modules/DemoData/DemoCoverage.php:814
 msgid "Journey events"
 msgstr "Reisgebeurtenissen"
 
@@ -5841,7 +5842,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:701
+#: src/Modules/DemoData/DemoCoverage.php:808
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -8050,7 +8051,7 @@ msgstr "Imitatie starten"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:702
+#: src/Modules/DemoData/DemoCoverage.php:809
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
@@ -8248,7 +8249,7 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:708
+#: src/Modules/DemoData/DemoCoverage.php:815
 #: src/Modules/Documentation/HelpTopics.php:102
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:759
@@ -8390,6 +8391,7 @@ msgid "Impersonation"
 msgstr "Impersonatie"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
+#: src/Modules/DemoData/DemoCoverage.php:824
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr "Proeftrainingen"
@@ -15185,7 +15187,7 @@ msgid "The kind of transition."
 msgstr "Het soort overgang."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:710
+#: src/Modules/DemoData/DemoCoverage.php:817
 msgid "Injuries"
 msgstr "Blessures"
 
@@ -16142,21 +16144,21 @@ msgstr "Geen batches geselecteerd."
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:709
+#: src/Modules/DemoData/DemoCoverage.php:816
 msgid "Guardians"
 msgstr "Verzorgers"
 
-#: src/Modules/DemoData/DemoCoverage.php:711
+#: src/Modules/DemoData/DemoCoverage.php:818
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr "Spelersprofiel"
 
-#: src/Modules/DemoData/DemoCoverage.php:712
+#: src/Modules/DemoData/DemoCoverage.php:819
 msgid "Player reports"
 msgstr "Spelersrapporten"
 
 #. translators: %s: player name
-#: src/Modules/DemoData/DemoCoverage.php:713
+#: src/Modules/DemoData/DemoCoverage.php:820
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:700
@@ -16166,12 +16168,16 @@ msgstr "Spelersrapporten"
 msgid "Measurements"
 msgstr "Metingen"
 
-#: src/Modules/DemoData/DemoCoverage.php:714
+#: src/Modules/DemoData/DemoCoverage.php:821
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:169
 msgid "PDP cycle"
 msgstr "PDP-cyclus"
 
-#: src/Modules/DemoData/DemoCoverage.php:722
+#: src/Modules/DemoData/DemoCoverage.php:822
+msgid "Training content"
+msgstr "Trainingsinhoud"
+
+#: src/Modules/DemoData/DemoCoverage.php:832
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
@@ -16179,7 +16185,7 @@ msgstr ""
 "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en "
 "beoordelingen van die teams."
 
-#: src/Modules/DemoData/DemoCoverage.php:723
+#: src/Modules/DemoData/DemoCoverage.php:833
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
@@ -16187,7 +16193,7 @@ msgstr ""
 "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven "
 "staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
 
-#: src/Modules/DemoData/DemoCoverage.php:724
+#: src/Modules/DemoData/DemoCoverage.php:834
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
@@ -16195,29 +16201,29 @@ msgstr ""
 "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, "
 "tijdlijngebeurtenissen en proefdossiers van die spelers."
 
-#: src/Modules/DemoData/DemoCoverage.php:725
+#: src/Modules/DemoData/DemoCoverage.php:835
 msgid "Also wipes attendance for those activities."
 msgstr "Wist ook de aanwezigheid bij die activiteiten."
 
-#: src/Modules/DemoData/DemoCoverage.php:726
+#: src/Modules/DemoData/DemoCoverage.php:836
 msgid "Also wipes per-category eval_ratings."
 msgstr "Wist ook de beoordelingen per categorie."
 
-#: src/Modules/DemoData/DemoCoverage.php:727
+#: src/Modules/DemoData/DemoCoverage.php:837
 msgid "Per-player development goals."
 msgstr "Ontwikkeldoelen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:728
+#: src/Modules/DemoData/DemoCoverage.php:838
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber "
 "zijn geschreven."
 
-#: src/Modules/DemoData/DemoCoverage.php:729
+#: src/Modules/DemoData/DemoCoverage.php:839
 msgid "Trial cases imported from an Excel workbook."
 msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 
-#: src/Modules/DemoData/DemoCoverage.php:730
+#: src/Modules/DemoData/DemoCoverage.php:840
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
@@ -16225,7 +16231,7 @@ msgstr ""
 "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de "
 "zichtbaarheidsinstellingen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:731
+#: src/Modules/DemoData/DemoCoverage.php:841
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
@@ -16233,7 +16239,7 @@ msgstr ""
 "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit "
 "volgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:732
+#: src/Modules/DemoData/DemoCoverage.php:842
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
@@ -16241,13 +16247,13 @@ msgstr ""
 "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club "
 "met hun waarden, en koppelingen tussen doelen en evaluaties."
 
-#: src/Modules/DemoData/DemoCoverage.php:733
+#: src/Modules/DemoData/DemoCoverage.php:843
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers "
 "aangemaakt."
 
-#: src/Modules/DemoData/DemoCoverage.php:734
+#: src/Modules/DemoData/DemoCoverage.php:844
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
@@ -16255,13 +16261,37 @@ msgstr ""
 "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team "
 "en één resultaat per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:735
+#: src/Modules/DemoData/DemoCoverage.php:845
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
 msgstr ""
 "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, "
 "agendakoppelingen en eindoordelen."
+
+#: src/Modules/DemoData/DemoCoverage.php:846
+msgid ""
+"Exercises and methodology principles on each training, per-team exercise "
+"overrides, and the season's holiday windows."
+msgstr ""
+"Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per "
+"team, en de vakantieperiodes van het seizoen."
+
+#: src/Modules/DemoData/DemoCoverage.php:847
+msgid ""
+"Match prep for every fixture — availability, lineup, roles, per-player "
+"intent — plus results, goals and substitutions for the ones already played."
+msgstr ""
+"Wedstrijdvoorbereiding voor elke wedstrijd — beschikbaarheid, opstelling, "
+"rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels "
+"voor de gespeelde wedstrijden."
+
+#: src/Modules/DemoData/DemoCoverage.php:848
+msgid ""
+"Open sessions for invited players, one past and one upcoming per age group."
+msgstr ""
+"Open trainingen voor uitgenodigde spelers, één in het verleden en één komend "
+"per leeftijdsgroep."
 
 # v3.52.0 — Excel-driven demo data (#0059)
 #: src/Modules/DemoData/Excel/ExcelImporter.php:42
@@ -48666,22 +48696,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 #~ msgid "%d demo rows"
 #~ msgstr "%d demo-rijen"
-
-#: src/Modules/DemoData/DemoCoverage.php:640
-msgid "Training content"
-msgstr "Trainingsinhoud"
-
-#: src/Modules/DemoData/DemoCoverage.php:665
-msgid "Exercises and methodology principles on each training, per-team exercise overrides, and the season's holiday windows."
-msgstr "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per team, en de vakantieperiodes van het seizoen."
-
-#: src/Modules/DemoData/DemoCoverage.php:666
-msgid "Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played."
-msgstr "Wedstrijdvoorbereiding voor elke wedstrijd — beschikbaarheid, opstelling, rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden."
-
-#: src/Modules/DemoData/DemoCoverage.php:667
-msgid "Open sessions for invited players, one past and one upcoming per age group."
-msgstr "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep."
 
 #, php-format
 #~ msgid "Delete saved view %s"
