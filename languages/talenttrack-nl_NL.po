@@ -48717,6 +48717,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No saved views yet."
 #~ msgstr "Nog geen opgeslagen weergaven."
 
+#: src/Modules/DemoData/DemoCoverage.php:730
+msgid "Scouting pipeline"
+msgstr "Scoutingpijplijn"
+
+#: src/Modules/DemoData/DemoCoverage.php:752
+msgid "Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions."
+msgstr "Historische proefdossiers van bestaande spelers plus enkele lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
+
+#: src/Modules/DemoData/DemoCoverage.php:753
+msgid "Scouting visits across the window and the prospects found on them."
+msgstr "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
+
+#: src/Modules/DemoData/DemoCoverage.php:754
+msgid "A tournament per team with its squad, target minutes, fixtures and per-period assignments."
+msgstr "Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode."
+
 #, php-format
 #~ msgid "%s · last 12 months"
 #~ msgstr "%s · laatste 12 maanden"
