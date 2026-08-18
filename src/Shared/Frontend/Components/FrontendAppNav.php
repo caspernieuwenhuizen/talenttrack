@@ -178,6 +178,10 @@ final class FrontendAppNav {
                     . '<span class="tt-shell-nav__group-label">' . esc_html( $group['label'] ) . '</span>'
                     . '<span class="tt-shell-nav__group-chev" aria-hidden="true"></span>'
                     . '</summary>';
+                // The panel is what the open/close animation measures and
+                // clips; the <ul> inside keeps its natural height so the
+                // measurement is honest.
+                echo '<div class="tt-shell-nav__panel">';
             }
             echo '<ul class="tt-shell-nav__list">';
             foreach ( $group['tiles'] as $tile ) {
@@ -206,6 +210,7 @@ final class FrontendAppNav {
             }
             echo '</ul>';
             if ( $has_label ) {
+                echo '</div>';
                 echo '</details>';
             }
         }

@@ -179,13 +179,29 @@ body.admin-bar .tt-dashboard.tt-shell-app {
  * column. The summary keeps the old heading's look and gains a chevron and
  * a 48px hit area, since it is now a control rather than a label.
  */
+/*
+ * Option D — the heading is a full-width button row: a hairline divider
+ * separates groups, the chevron is always present (low contrast until
+ * hovered), and the hover fill runs the width of the rail. Chosen over the
+ * lighter variants because it is unambiguously clickable and gives the
+ * largest hit target, which matters on touch where there is no hover to
+ * reveal anything.
+ */
+.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap:first-child {
+    border-top: 0;
+}
+
 .tt-shell-app .tt-shell-nav__group {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
     min-height: 48px;
-    margin: 0.5rem 0 0.15rem;
+    margin: 0.15rem 0;
     padding-inline: 0.6rem;
     font-size: 0.7rem;
     font-weight: 700;
@@ -212,16 +228,41 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 
 .tt-shell-app .tt-shell-nav__group-chev {
     flex: 0 0 auto;
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-inline-end: 2px;
     border-right: 2px solid currentColor;
     border-bottom: 2px solid currentColor;
     transform: rotate(45deg);
-    transition: transform .12s ease;
+    /* Present but quiet until the row is hovered or focused. */
+    opacity: 0.45;
+    transition: transform .18s ease, opacity .12s ease;
+}
+
+.tt-shell-app .tt-shell-nav__group:hover .tt-shell-nav__group-chev,
+.tt-shell-app .tt-shell-nav__group:focus-visible .tt-shell-nav__group-chev {
+    opacity: 0.9;
+}
+
+/* ---- Slide-down panel ---------------------------------------------- */
+/*
+ * Native <details> snaps open. The panel below is what app-shell.js
+ * animates: it clips to a measured height on toggle, then releases back to
+ * `auto` so a later viewport change cannot leave the group clipped. With JS
+ * off (or reduced motion) the group still opens and closes instantly — the
+ * animation is decoration, never the mechanism.
+ */
+.tt-shell-app .tt-shell-nav__panel {
+    overflow: hidden;
+}
+
+.tt-shell-app .tt-shell-nav__panel.is-animating {
+    transition: height .2s ease;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .tt-shell-app .tt-shell-nav__group-chev { transition: none; }
+    .tt-shell-app .tt-shell-nav__panel.is-animating { transition: none; }
 }
 
 .tt-shell-app .tt-shell-nav__group-wrap[open] .tt-shell-nav__group-chev {

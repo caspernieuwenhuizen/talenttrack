@@ -118,6 +118,57 @@
 
 	/* ---- Rail ------------------------------------------------------ */
 
+	/* ---- Group slide (#2504) --------------------------------------- */
+	/*
+	 * <details> snaps open; this animates the height instead. The element
+	 * stays the source of truth — we only intercept the click long enough
+	 * to run the transition, and every path ends with `open` correct and
+	 * the inline height cleared, so a group can never be left clipped.
+	 *
+	 * With JS off, or under prefers-reduced-motion, the native instant
+	 * toggle is what happens. The animation is decoration, not mechanism.
+	 */
+	var reduceMotion = window.matchMedia
+		&& window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	function slideGroup(details, panel, opening) {
+		var end = opening ? panel.scrollHeight : 0;
+
+		if (opening) details.open = true;   // must be open to measure/paint
+
+		panel.style.height = (opening ? 0 : panel.scrollHeight) + 'px';
+		panel.classList.add('is-animating');
+
+		// Force a reflow so the start height is committed before we change it.
+		void panel.offsetHeight;
+		panel.style.height = end + 'px';
+
+		var done = function () {
+			panel.removeEventListener('transitionend', done);
+			panel.classList.remove('is-animating');
+			panel.style.height = '';
+			if (!opening) details.open = false;
+		};
+		panel.addEventListener('transitionend', done);
+		// Belt and braces: if the transition never fires (display:none in a
+		// closed rail, a zero-height group), settle anyway.
+		window.setTimeout(done, 260);
+	}
+
+	nav.addEventListener('click', function (e) {
+		var summary = e.target.closest && e.target.closest('.tt-shell-nav__group');
+		if (!summary) return;
+
+		var details = summary.parentElement;
+		var panel = details && details.querySelector('.tt-shell-nav__panel');
+		if (!details || !panel) return;
+		if (reduceMotion) return;            // let the native toggle happen
+		if (shell.classList.contains('is-rail')) return;  // rail keeps all open
+
+		e.preventDefault();                  // we drive `open` ourselves
+		slideGroup(details, panel, !details.open);
+	});
+
 	/*
 	 * #2504 — group collapse vs the icon rail.
 	 *
