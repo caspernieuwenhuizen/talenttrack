@@ -31,6 +31,7 @@ final class ExerciseLibraryRestTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        $this->clearAuthorFilter();
         global $wp_rest_server;
         $wp_rest_server = null;
         wp_set_current_user( 0 );
@@ -44,17 +45,41 @@ final class ExerciseLibraryRestTest extends WP_UnitTestCase {
         return $id;
     }
 
+    /** @var callable|null */
+    private $author_cap_filter = null;
+
     /**
      * A user who may author exercises but not curate the methodology —
      * the coach case the promotion gate has to refuse.
+     *
+     * `add_cap()` is not enough: `current_user_can()` runs through the
+     * `user_has_cap` filter that the matrix bridge hooks, so a raw grant
+     * on a persona-less user is overridden and the caller silently 403s.
+     * This filter runs at priority 999, after the bridge, so it decides —
+     * granting the two caps a coach holds and explicitly withholding
+     * `tt_edit_methodology`, which is what separates authoring from
+     * curating.
      */
     private function author(): int {
-        $id   = self::factory()->user->create( [ 'role' => 'editor' ] );
-        $user = get_user_by( 'id', $id );
-        $user->add_cap( 'tt_manage_exercises' );
-        $user->add_cap( 'tt_view_activities' );
+        $id = self::factory()->user->create( [ 'role' => 'editor' ] );
+
+        $this->author_cap_filter = static function ( $allcaps ) {
+            $allcaps['tt_manage_exercises'] = true;
+            $allcaps['tt_view_activities']  = true;
+            unset( $allcaps['tt_edit_methodology'] );
+            return $allcaps;
+        };
+        add_filter( 'user_has_cap', $this->author_cap_filter, 999 );
+
         wp_set_current_user( $id );
         return $id;
+    }
+
+    private function clearAuthorFilter(): void {
+        if ( $this->author_cap_filter !== null ) {
+            remove_filter( 'user_has_cap', $this->author_cap_filter, 999 );
+            $this->author_cap_filter = null;
+        }
     }
 
     /** @return array{0:int,1:mixed,2:string|null} */
