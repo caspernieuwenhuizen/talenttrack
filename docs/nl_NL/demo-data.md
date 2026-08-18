@@ -33,6 +33,7 @@ records nooit raakt.
 | Trainingsinhoud | Oefeningen en principes per training, oefeningsuitzonderingen per team, vakantieperiodes |
 | Wedstrijddag | Wedstrijdvoorbereiding voor elke wedstrijd, plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden |
 | Testtrainingen | Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep |
+| Teamontwikkeling | Een formatie en speelstijlverdeling per team, een wedstrijdblauwdruk, door de trainer gemarkeerde koppels en een chemiereeks |
 | Proefdossiers | Geïmporteerd uit een Excel-werkboek wanneer dat wordt geüpload |
 
 Presets bepalen de omvang: **tiny** (1 team, 4 weken), **small** (3 teams,

@@ -48707,6 +48707,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No saved views yet."
 #~ msgstr "Nog geen opgeslagen weergaven."
 
+#: src/Modules/DemoData/DemoCoverage.php:712
+msgid "A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window."
+msgstr "Een formatie en speelstijlverdeling per team, een wedstrijdblauwdruk met opstelling, door de trainer gemarkeerde koppels, en een chemiereeks over de periode."
+
 #, php-format
 #~ msgid "%s · last 12 months"
 #~ msgstr "%s · laatste 12 maanden"

@@ -32,6 +32,7 @@ removes exactly what was generated and never touches real records.
 | Training content | Exercises and principles on each training, per-team exercise overrides, holiday windows |
 | Match day | Prep for every fixture, and results, goals and substitutions for the ones already played |
 | Test trainings | Open sessions for invited players, one past and one upcoming per age group |
+| Team development | A formation and playing-style mix per team, a match-day blueprint, coach-marked pairings, and a chemistry series |
 | Trial cases | Imported from an Excel workbook when one is uploaded |
 
 Presets scale the volume: **tiny** (1 team, 4 weeks), **small** (3 teams,
@@ -42,8 +43,13 @@ Generated match data is internally consistent, because reports read it as if
 it were real: availability never marks a player present on a date their injury
 record says they were out, goal scorers come from that match's lineup, and
 substitutions take a starter off for a bench player so derived minutes-played
-never exceed the match length and a team's outfield total lands exactly on
-eleven times it.
+never exceed the match length and a team's total lands exactly on squad size
+times it. Squad size follows the age group — six for the youngest, eight in
+the middle, eleven from the early teens — because youth football is
+small-sided.
+
+Chemistry snapshots are computed by the chemistry engine from the team's
+blueprint lineup, not invented, so a recompute agrees with what is stored.
 
 A guardian link needs a WP account, and the demo user set ships one parent
 persona, so each parent account is given a small family (one to three

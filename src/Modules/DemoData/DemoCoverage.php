@@ -7,6 +7,7 @@ use TT\Modules\DemoData\Generators\ActivityContentGenerator;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\MatchDayGenerator;
+use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
@@ -374,17 +375,44 @@ class DemoCoverage {
             'depends_on'  => [],
         ],
 
-        // ===== Team development (#2466) =====
+        // ===== Team development =====
 
-        'tt_formations'                 => [ 'planned' => '#2466' ],
-        'tt_formation_positions'        => [ 'planned' => '#2466' ],
-        'tt_team_formations'            => [ 'planned' => '#2466' ],
-        'tt_team_playing_styles'        => [ 'planned' => '#2466' ],
-        'tt_set_pieces'                 => [ 'planned' => '#2466' ],
-        'tt_team_blueprints'            => [ 'planned' => '#2466' ],
-        'tt_team_blueprint_assignments' => [ 'planned' => '#2466' ],
-        'tt_team_chemistry_snapshots'   => [ 'planned' => '#2466' ],
-        'tt_team_chemistry_pairings'    => [ 'planned' => '#2466' ],
+        'tt_team_formations' => [
+            'entity_type' => 'team_formation',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
+        'tt_team_playing_styles' => [
+            'entity_type' => 'team_playing_style',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
+        'tt_team_blueprints' => [
+            'entity_type' => 'team_blueprint',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
+        'tt_team_blueprint_assignments' => [
+            'entity_type' => 'team_blueprint_assignment',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team_blueprint', 'player' ],
+        ],
+        'tt_team_chemistry_pairings' => [
+            'entity_type' => 'team_chemistry_pairing',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team', 'player' ],
+        ],
+        'tt_team_chemistry_snapshots' => [
+            'entity_type' => 'team_chemistry_snapshot',
+            'category'    => 'team_development',
+            'written_by'  => TeamDevelopmentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
 
         // ===== Pipeline (#2467) =====
 
@@ -468,7 +496,10 @@ class DemoCoverage {
         'tt_methodology_sub_principles'       => [ 'exempt' => 'Methodology reference content, seeded by migrations.' ],
         'tt_methodology_tactical_scenes'      => [ 'exempt' => 'Methodology reference content, seeded by migrations.' ],
         'tt_methodology_visions'              => [ 'exempt' => 'Methodology reference content, seeded by migrations.' ],
-        'tt_formation_templates'  => [ 'exempt' => 'Four 4-3-3 templates seeded by migration 0032; #2466 assigns them to teams rather than duplicating shapes.' ],
+        'tt_formation_templates'  => [ 'exempt' => 'Eight formation templates seeded by migration 0032; #2466 assigns them to teams rather than duplicating shapes.' ],
+        'tt_formations'           => [ 'exempt' => 'Shipped methodology formations (is_shipped), seeded by migrations.' ],
+        'tt_formation_positions'  => [ 'exempt' => 'Shipped position profiles for the seeded formations.' ],
+        'tt_set_pieces'           => [ 'exempt' => 'Shipped set-piece routines, seeded by migrations and admin-extensible.' ],
         'tt_chemistry_position_matrix' => [ 'exempt' => 'Position-affinity reference matrix, seeded by migrations.' ],
         'tt_trial_letter_templates'    => [ 'exempt' => 'Trial letter templates, seeded by migrations and admin-editable.' ],
 
@@ -507,6 +538,9 @@ class DemoCoverage {
                 'match_prep_availability', 'match_prep',
                 'activity_exercise', 'activity_principle', 'activity',
                 'measurement_result', 'measurement_session',
+                'team_blueprint_assignment', 'team_blueprint',
+                'team_chemistry_snapshot', 'team_chemistry_pairing',
+                'team_playing_style', 'team_formation',
                 'exercise_team_override', 'team_person', 'team',
             ],
         ],
@@ -605,6 +639,15 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 120,
             'cascade'   => [ 'test_training' ],
+        ],
+        'team_development' => [
+            'tier'      => 'dependent',
+            'run_order' => 130,
+            'cascade'   => [
+                'team_blueprint_assignment', 'team_blueprint',
+                'team_chemistry_snapshot', 'team_chemistry_pairing',
+                'team_playing_style', 'team_formation',
+            ],
         ],
         'journey' => [
             'tier'    => 'dependent',
@@ -822,6 +865,7 @@ class DemoCoverage {
             'activity_content' => __( 'Training content', 'talenttrack' ),
             'match_day'   => __( 'Match day', 'talenttrack' ),
             'test_trainings' => __( 'Test trainings', 'talenttrack' ),
+            'team_development' => __( 'Team development', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -846,6 +890,7 @@ class DemoCoverage {
             'activity_content' => __( 'Exercises and methodology principles on each training, per-team exercise overrides, and the season\'s holiday windows.', 'talenttrack' ),
             'match_day'   => __( 'Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played.', 'talenttrack' ),
             'test_trainings' => __( 'Open sessions for invited players, one past and one upcoming per age group.', 'talenttrack' ),
+            'team_development' => __( 'A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }
