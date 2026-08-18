@@ -124,6 +124,7 @@ class DemoGenerator {
 
         $teams   = [];
         $players = [];
+        $teams_missing_coach = [];
         if ( $source === 'procedural' ) {
             if ( $gen_teams ) {
                 $club_name = isset( $opts['club_name'] ) ? (string) $opts['club_name'] : null;
@@ -131,12 +132,14 @@ class DemoGenerator {
                 $teams     = $teamGen->generate();
             } else {
                 // Selective mode: use whatever teams already exist in the
-                // current club. Activities + evaluations + goals attach
-                // to these directly, so head_coach_id has to be set on
-                // each row for the downstream generators to assign a
-                // coach. Existing rows that lack head_coach_id silently
-                // produce zero downstream rows for that team.
-                $teams = self::loadAllTeams();
+                // current club. Activities + evaluations + goals attach to
+                // these directly and read `head_coach_user_id` off the team,
+                // so loadAllTeams() resolves it from the roster and falls
+                // back to the run's author for a team with no head coach.
+                $teams = self::loadAllTeams(
+                    (int) ( $users['hjo'] ?? $users['admin'] ?? self::firstAdministratorId() )
+                );
+                $teams_missing_coach = self::teamsMissingCoach( $teams );
             }
 
             if ( $gen_players ) {
@@ -214,6 +217,7 @@ class DemoGenerator {
             ], $dependent_counts, $excel_imported ),
             'user_stats' => $user_stats,
             'excel_present_sheets' => $excel_present_sheets,
+            'teams_missing_coach'  => $teams_missing_coach,
         ];
     }
 
@@ -285,14 +289,62 @@ class DemoGenerator {
      * operator has set up teams themselves and wants the dependent
      * entities generated on top).
      */
-    private static function loadAllTeams(): array {
+    private static function loadAllTeams( int $fallback_coach_id = 0 ): array {
         global $wpdb;
+
+        // `head_coach_user_id` is not a column on tt_teams — TeamGenerator
+        // synthesises it on the objects it returns, and every dependent
+        // generator reads it off the team. Resolve it from the roster so the
+        // selective path hands back the same shape. Without this the property
+        // is simply absent: activities land on coach 0 and the evaluation
+        // generator skips every team in silence (#2503).
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT t.* FROM {$wpdb->prefix}tt_teams t
+            "SELECT t.*,
+                    COALESCE( (
+                        SELECT p.wp_user_id
+                          FROM {$wpdb->prefix}tt_team_people tp
+                          JOIN {$wpdb->prefix}tt_people p ON p.id = tp.person_id
+                         WHERE tp.team_id = t.id
+                           AND tp.club_id = t.club_id
+                           AND tp.is_head_coach = 1
+                           AND tp.end_date IS NULL
+                         ORDER BY tp.id
+                         LIMIT 1
+                    ), 0 ) AS head_coach_user_id
+               FROM {$wpdb->prefix}tt_teams t
               WHERE t.club_id = %d AND t.archived_at IS NULL",
             CurrentClub::id()
         ) );
-        return is_array( $rows ) ? $rows : [];
+        if ( ! is_array( $rows ) ) return [];
+
+        // A club can legitimately have a team with nobody marked head coach.
+        // Attribute that team's generated work to the operator running the
+        // job rather than to user 0, which no screen can resolve.
+        foreach ( $rows as $row ) {
+            $row->head_coach_user_id = (int) ( $row->head_coach_user_id ?? 0 );
+            if ( $row->head_coach_user_id <= 0 ) {
+                $row->head_coach_user_id = $fallback_coach_id;
+                $row->coach_was_missing  = true;
+            }
+        }
+        return $rows;
+    }
+
+    /**
+     * Teams from the last selective load that had no head coach on the
+     * roster, so the caller can tell the operator which ones were guessed at.
+     *
+     * @param object[] $teams
+     * @return string[] team names
+     */
+    private static function teamsMissingCoach( array $teams ): array {
+        $out = [];
+        foreach ( $teams as $team ) {
+            if ( ! empty( $team->coach_was_missing ) ) {
+                $out[] = (string) ( $team->name ?? ( '#' . (int) ( $team->id ?? 0 ) ) );
+            }
+        }
+        return $out;
     }
 
     /**
@@ -306,7 +358,32 @@ class DemoGenerator {
               WHERE p.club_id = %d AND p.status = 'active'",
             CurrentClub::id()
         ) );
-        return is_array( $rows ) ? $rows : [];
+        if ( ! is_array( $rows ) ) return [];
+
+        // Same shape problem as loadAllTeams(): `archetype` is not a column,
+        // it is written to tt_demo_tags.extra_json by PlayerGenerator and read
+        // back off the player object by EvaluationGenerator. Recover it for
+        // players a previous batch generated; anything else keeps the neutral
+        // default rather than a flat line for the whole squad (#2503).
+        $archetypes = [];
+        $tagged = $wpdb->get_results( $wpdb->prepare(
+            "SELECT entity_id, extra_json FROM {$wpdb->prefix}tt_demo_tags
+              WHERE entity_type = 'player' AND club_id = %d",
+            CurrentClub::id()
+        ) );
+        foreach ( (array) $tagged as $tag ) {
+            $extra = $tag->extra_json ? json_decode( (string) $tag->extra_json, true ) : [];
+            if ( is_array( $extra ) && ! empty( $extra['archetype'] ) ) {
+                $archetypes[ (int) $tag->entity_id ] = (string) $extra['archetype'];
+            }
+        }
+
+        $pool = [ 'rising_star', 'steady_solid', 'late_bloomer', 'inconsistent', 'in_a_slump' ];
+        foreach ( $rows as $row ) {
+            $id = (int) ( $row->id ?? 0 );
+            $row->archetype = $archetypes[ $id ] ?? $pool[ $id % count( $pool ) ];
+        }
+        return $rows;
     }
 
     /**
