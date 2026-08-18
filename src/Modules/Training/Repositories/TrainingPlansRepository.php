@@ -104,6 +104,41 @@ final class TrainingPlansRepository {
     }
 
     /**
+     * Total matching plans, ignoring limit/offset. The list surfaces page
+     * through the same filters, so the pager needs the unpaged count.
+     *
+     * @param array{team_id?:int|null, is_template?:bool|null, include_archived?:bool, theme_key?:string, author_user_id?:int} $args
+     */
+    public function countPlans( array $args = [] ): int {
+        global $wpdb;
+
+        $sql    = "SELECT COUNT(*) FROM {$this->table()} WHERE club_id = %d";
+        $params = [ CurrentClub::id() ];
+
+        if ( empty( $args['include_archived'] ) ) {
+            $sql .= ' AND archived_at IS NULL';
+        }
+        if ( array_key_exists( 'team_id', $args ) && $args['team_id'] !== null ) {
+            $sql     .= ' AND (team_id = %d OR team_id IS NULL)';
+            $params[] = (int) $args['team_id'];
+        }
+        if ( array_key_exists( 'is_template', $args ) && $args['is_template'] !== null ) {
+            $sql     .= ' AND is_template = %d';
+            $params[] = $args['is_template'] ? 1 : 0;
+        }
+        if ( ! empty( $args['theme_key'] ) ) {
+            $sql     .= ' AND theme_key = %s';
+            $params[] = (string) $args['theme_key'];
+        }
+        if ( ! empty( $args['author_user_id'] ) ) {
+            $sql     .= ' AND author_user_id = %d';
+            $params[] = (int) $args['author_user_id'];
+        }
+
+        return (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
+    }
+
+    /**
      * Create a plan. Returns the new id, or 0 on failure.
      *
      * @param array<string,mixed> $data

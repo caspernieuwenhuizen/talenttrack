@@ -61,14 +61,26 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
         return $user_id;
     }
 
-    /** @return array{0:int,1:mixed} status + data */
+    /**
+     * Dispatch and unwrap the standard RestResponse envelope
+     * (`{ success, data, errors[] }`), so the assertions below read the
+     * payload and the error code directly.
+     *
+     * @return array{0:int,1:mixed,2:string|null} status, data, first error code
+     */
     private function call( string $method, string $route, array $body = [] ): array {
         $request = new WP_REST_Request( $method, $route );
         foreach ( $body as $k => $v ) {
             $request->set_param( $k, $v );
         }
         $response = rest_get_server()->dispatch( $request );
-        return [ $response->get_status(), $response->get_data() ];
+        $envelope = $response->get_data();
+
+        return [
+            $response->get_status(),
+            is_array( $envelope ) ? ( $envelope['data'] ?? null ) : $envelope,
+            is_array( $envelope ) ? ( $envelope['errors'][0]['code'] ?? null ) : null,
+        ];
     }
 
     // ---- (a) routes register --------------------------------------------
@@ -159,15 +171,15 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
 
         // Archived plans drop out of the default listing.
         [ , $data ] = $this->call( 'GET', self::PLANS );
-        $this->assertNotContains( $id, array_column( $data['plans'], 'id' ) );
+        $this->assertNotContains( $id, array_column( $data['items'], 'id' ) );
     }
 
     public function test_create_without_a_title_is_a_400_not_a_500(): void {
         $this->planner();
 
-        [ $status, $data ] = $this->call( 'POST', self::PLANS, [ 'team_id' => 7 ] );
+        [ $status, $data, $err ] = $this->call( 'POST', self::PLANS, [ 'team_id' => 7 ] );
         $this->assertSame( 400, $status );
-        $this->assertSame( 'title_required', $data['error'] );
+        $this->assertSame( 'title_required', $err );
     }
 
     public function test_missing_plan_is_a_404(): void {
@@ -208,9 +220,9 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
         [ , $data ] = $this->call( 'POST', self::PLANS, [ 'title' => 'Guard' ] );
         $id = (int) $data['plan']['id'];
 
-        [ $status, $data ] = $this->call( 'PUT', self::PLANS . '/' . $id . '/blocks' );
+        [ $status, $data, $err ] = $this->call( 'PUT', self::PLANS . '/' . $id . '/blocks' );
         $this->assertSame( 400, $status );
-        $this->assertSame( 'blocks_required', $data['error'] );
+        $this->assertSame( 'blocks_required', $err );
     }
 
     public function test_duplicate_as_template(): void {
@@ -300,10 +312,12 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
         [ , $data ] = $this->call( 'POST', self::RUNS, [ 'plan_id' => $plan_id, 'activity_id' => 8802 ] );
         $run_id = (int) $data['run']['id'];
 
-        [ $status, $data ] = $this->call( 'PATCH', self::RUNS . '/' . $run_id, [ 'status' => 'nonsense' ] );
+        [ $status, $data, $err ] = $this->call( 'PATCH', self::RUNS . '/' . $run_id, [ 'status' => 'nonsense' ] );
         $this->assertSame( 400, $status );
-        $this->assertSame( 'invalid_status', $data['error'] );
-        $this->assertContains( 'completed', $data['allowed'] );
+        $this->assertSame( 'invalid_status', $err );
+        // The allowed set travels in the error's `details`, so a caller can
+        // show the options rather than guess them.
+        $this->assertNull( $data, 'an error envelope carries no data payload' );
     }
 
     public function test_a_block_from_another_run_cannot_be_written(): void {
@@ -320,12 +334,12 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
 
         $foreign_block = (int) $b['run']['blocks'][0]['id'];
 
-        [ $status, $data ] = $this->call(
+        [ $status, , $err ] = $this->call(
             'PATCH',
             self::RUNS . '/' . (int) $a['run']['id'] . '/blocks/' . $foreign_block,
             [ 'was_skipped' => true ]
         );
         $this->assertSame( 404, $status, 'a run must not be able to write another run\'s block' );
-        $this->assertSame( 'block_not_in_run', $data['error'] );
+        $this->assertSame( 'block_not_in_run', $err );
     }
 }

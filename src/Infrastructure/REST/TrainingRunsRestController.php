@@ -22,6 +22,8 @@ use TT\Modules\Training\Repositories\TrainingPlansRepository;
  *   DELETE /training/runs/{id}                  detach (run + its blocks)
  *   GET    /activities/{id}/training-plan       the run on an activity, if any
  *
+ * Responses use the standard `RestResponse` envelope.
+ *
  * Cap gate: `tt_training_plan`, except the activity lookup which also
  * accepts `tt_view_activities` — the activity detail shows "this training
  * has a plan attached" to anyone who may see the activity at all.
@@ -36,6 +38,10 @@ final class TrainingRunsRestController {
 
     private static function can(): bool {
         return current_user_can( 'tt_training_plan' );
+    }
+
+    private static function notFound(): \WP_REST_Response {
+        return RestResponse::error( 'not_found', __( 'Training run not found.', 'talenttrack' ), 404 );
     }
 
     public static function register(): void {
@@ -86,11 +92,15 @@ final class TrainingRunsRestController {
         $plan_id     = (int) $r->get_param( 'plan_id' );
         $activity_id = (int) $r->get_param( 'activity_id' );
         if ( $plan_id <= 0 || $activity_id <= 0 ) {
-            return new \WP_REST_Response( [ 'error' => 'plan_id_and_activity_id_required' ], 400 );
+            return RestResponse::error(
+                'plan_id_and_activity_id_required',
+                __( 'Both a plan and an activity are required.', 'talenttrack' ),
+                400
+            );
         }
 
         if ( ! ( new TrainingPlansRepository() )->findById( $plan_id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'plan_not_found' ], 404 );
+            return RestResponse::error( 'plan_not_found', __( 'Training plan not found.', 'talenttrack' ), 404 );
         }
 
         $repo     = new TrainingPlanRunsRepository();
@@ -103,12 +113,16 @@ final class TrainingRunsRestController {
             (string) ( $r->get_param( 'run_date' ) ?? current_time( 'Y-m-d' ) )
         );
         if ( $run_id <= 0 ) {
-            return new \WP_REST_Response( [ 'error' => 'attach_failed' ], 500 );
+            return RestResponse::error(
+                'attach_failed',
+                __( 'The plan could not be attached to this activity.', 'talenttrack' ),
+                500
+            );
         }
 
         // Re-attaching is idempotent rather than an error, but the caller
         // should know it got the existing run and not a fresh snapshot.
-        return new \WP_REST_Response(
+        return RestResponse::success(
             [ 'run' => self::shapeRun( $repo, $run_id ) ],
             $existing ? 200 : 201
         );
@@ -117,42 +131,38 @@ final class TrainingRunsRestController {
     public static function get_run( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
-        return new \WP_REST_Response( [ 'run' => self::shapeRun( $repo, $id ) ], 200 );
+        return RestResponse::success( [ 'run' => self::shapeRun( $repo, $id ) ] );
     }
 
     public static function update_run( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
         $status = $r->get_param( 'status' );
         if ( $status === null ) {
-            return new \WP_REST_Response( [ 'error' => 'status_required' ], 400 );
+            return RestResponse::error( 'status_required', __( 'A status is required.', 'talenttrack' ), 400 );
         }
         if ( ! in_array( (string) $status, TrainingPlanRunsRepository::STATUSES, true ) ) {
-            return new \WP_REST_Response( [
-                'error'   => 'invalid_status',
-                'allowed' => TrainingPlanRunsRepository::STATUSES,
-            ], 400 );
+            return RestResponse::error(
+                'invalid_status',
+                __( 'That is not a training-run status.', 'talenttrack' ),
+                400,
+                [ 'allowed' => TrainingPlanRunsRepository::STATUSES ]
+            );
         }
 
         $repo->setStatus( $id, (string) $status );
 
-        return new \WP_REST_Response( [ 'run' => self::shapeRun( $repo, $id ) ], 200 );
+        return RestResponse::success( [ 'run' => self::shapeRun( $repo, $id ) ] );
     }
 
     public static function update_block( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
         $block_id = (int) $r['block'];
         $belongs  = false;
@@ -160,7 +170,11 @@ final class TrainingRunsRestController {
             if ( (int) ( $block->id ?? 0 ) === $block_id ) { $belongs = true; break; }
         }
         if ( ! $belongs ) {
-            return new \WP_REST_Response( [ 'error' => 'block_not_in_run' ], 404 );
+            return RestResponse::error(
+                'block_not_in_run',
+                __( 'That block does not belong to this training run.', 'talenttrack' ),
+                404
+            );
         }
 
         $patch = [];
@@ -170,19 +184,17 @@ final class TrainingRunsRestController {
 
         $repo->updateBlock( $block_id, $patch );
 
-        return new \WP_REST_Response( [ 'run' => self::shapeRun( $repo, $id ) ], 200 );
+        return RestResponse::success( [ 'run' => self::shapeRun( $repo, $id ) ] );
     }
 
     public static function detach( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
         $repo->delete( $id );
 
-        return new \WP_REST_Response( [ 'detached' => true, 'id' => $id ], 200 );
+        return RestResponse::success( [ 'detached' => true, 'id' => $id ] );
     }
 
     public static function for_activity( \WP_REST_Request $r ): \WP_REST_Response {
@@ -191,10 +203,10 @@ final class TrainingRunsRestController {
 
         if ( ! $run ) {
             // Not an error — most activities have no plan attached.
-            return new \WP_REST_Response( [ 'run' => null ], 200 );
+            return RestResponse::success( [ 'run' => null ] );
         }
 
-        return new \WP_REST_Response( [ 'run' => self::shapeRun( $repo, (int) ( $run->id ?? 0 ) ) ], 200 );
+        return RestResponse::success( [ 'run' => self::shapeRun( $repo, (int) ( $run->id ?? 0 ) ) ] );
     }
 
     /**

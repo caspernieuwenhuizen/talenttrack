@@ -24,6 +24,10 @@ use TT\Modules\Training\Repositories\TrainingPlansRepository;
  *   PUT    /training/plans/{id}/blocks     bulk replace — the builder's and
  *                                          the generator's commit target
  *
+ * Responses use the standard `RestResponse` envelope. The list returns
+ * `items` + `total` specifically so `FrontendListTable` can consume it
+ * without an adapter — its hydrator reads `data.items` and `data.total`.
+ *
  * Cap gate: `tt_training_plan` throughout. Reads and writes share it
  * because a plan carries no player data — a user who may see a team's
  * plans may edit them; the interesting boundary is the team scope, which
@@ -39,6 +43,10 @@ final class TrainingPlansRestController {
 
     private static function can(): bool {
         return current_user_can( 'tt_training_plan' );
+    }
+
+    private static function notFound(): \WP_REST_Response {
+        return RestResponse::error( 'not_found', __( 'Training plan not found.', 'talenttrack' ), 404 );
     }
 
     public static function register(): void {
@@ -101,39 +109,40 @@ final class TrainingPlansRestController {
         if ( $r->get_param( 'is_template' ) !== null ) $args['is_template']      = (bool) $r->get_param( 'is_template' );
         if ( $r->get_param( 'theme_key' ) !== null )   $args['theme_key']        = (string) $r->get_param( 'theme_key' );
         if ( $r->get_param( 'include_archived' ) )     $args['include_archived'] = true;
-        if ( $r->get_param( 'limit' ) !== null )       $args['limit']            = (int) $r->get_param( 'limit' );
-        if ( $r->get_param( 'offset' ) !== null )      $args['offset']           = (int) $r->get_param( 'offset' );
 
-        $plans = ( new TrainingPlansRepository() )->listPlans( $args );
+        $repo  = new TrainingPlansRepository();
+        $total = $repo->countPlans( $args );
 
-        return new \WP_REST_Response( [
-            'plans' => array_map( [ __CLASS__, 'shapePlan' ], $plans ),
-        ], 200 );
+        if ( $r->get_param( 'limit' ) !== null )  $args['limit']  = (int) $r->get_param( 'limit' );
+        if ( $r->get_param( 'offset' ) !== null ) $args['offset'] = (int) $r->get_param( 'offset' );
+
+        return RestResponse::success( [
+            'items' => array_map( [ __CLASS__, 'shapePlan' ], $repo->listPlans( $args ) ),
+            'total' => $total,
+        ] );
     }
 
     public static function create_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
 
         $payload = self::planPayload( $r );
-        if ( ( $payload['title'] ?? '' ) === '' ) {
-            return new \WP_REST_Response( [ 'error' => 'title_required' ], 400 );
+        if ( trim( (string) ( $payload['title'] ?? '' ) ) === '' ) {
+            return RestResponse::error( 'title_required', __( 'A training plan needs a title.', 'talenttrack' ), 400 );
         }
         $payload['author_user_id'] = get_current_user_id() ?: null;
 
         $id = $repo->create( $payload );
         if ( $id <= 0 ) {
-            return new \WP_REST_Response( [ 'error' => 'create_failed' ], 500 );
+            return RestResponse::error( 'create_failed', __( 'The training plan could not be created.', 'talenttrack' ), 500 );
         }
 
-        return new \WP_REST_Response( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ], 201 );
+        return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ], 201 );
     }
 
     public static function get_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $plan = $repo->findById( (int) $r['id'] );
-        if ( ! $plan ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $plan ) return self::notFound();
 
         $plan_id           = (int) ( $plan->id ?? 0 );
         $out               = self::shapePlan( $plan );
@@ -143,64 +152,55 @@ final class TrainingPlansRestController {
         );
         $out['principles'] = $repo->listPrincipleIds( $plan_id );
 
-        return new \WP_REST_Response( [ 'plan' => $out ], 200 );
+        return RestResponse::success( [ 'plan' => $out ] );
     }
 
     public static function update_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
         $repo->update( $id, self::planPayload( $r, true ) );
 
-        return new \WP_REST_Response( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ], 200 );
+        return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ] );
     }
 
     public static function archive_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $repo->findById( $id ) ) return self::notFound();
 
         // Soft-delete only. The plan's runs are deliberately untouched —
         // a plan going away must not take a session that happened with it.
         $repo->archive( $id );
 
-        return new \WP_REST_Response( [ 'archived' => true, 'id' => $id ], 200 );
+        return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
     public static function duplicate_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
-        $id   = (int) $r['id'];
 
         $new_id = $repo->duplicate(
-            $id,
+            (int) $r['id'],
             $r->get_param( 'title' ) !== null ? (string) $r->get_param( 'title' ) : null,
             $r->get_param( 'team_id' ) !== null ? (int) $r->get_param( 'team_id' ) : null,
             (bool) $r->get_param( 'as_template' )
         );
-        if ( $new_id <= 0 ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( $new_id <= 0 ) return self::notFound();
 
-        return new \WP_REST_Response( [ 'plan' => self::shapePlan( $repo->findById( $new_id ) ) ], 201 );
+        return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $new_id ) ) ], 201 );
     }
 
     public static function list_blocks( \WP_REST_Request $r ): \WP_REST_Response {
         $id = (int) $r['id'];
-        if ( ! ( new TrainingPlansRepository() )->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! ( new TrainingPlansRepository() )->findById( $id ) ) return self::notFound();
 
-        return new \WP_REST_Response( [
+        return RestResponse::success( [
             'blocks' => array_map(
                 [ __CLASS__, 'shapeBlock' ],
                 ( new TrainingPlanBlocksRepository() )->listForPlan( $id )
             ),
-        ], 200 );
+        ] );
     }
 
     /**
@@ -211,24 +211,22 @@ final class TrainingPlansRestController {
     public static function replace_blocks( \WP_REST_Request $r ): \WP_REST_Response {
         $plans = new TrainingPlansRepository();
         $id    = (int) $r['id'];
-        if ( ! $plans->findById( $id ) ) {
-            return new \WP_REST_Response( [ 'error' => 'not_found' ], 404 );
-        }
+        if ( ! $plans->findById( $id ) ) return self::notFound();
 
         $blocks = $r->get_param( 'blocks' );
         if ( ! is_array( $blocks ) ) {
-            return new \WP_REST_Response( [ 'error' => 'blocks_required' ], 400 );
+            return RestResponse::error( 'blocks_required', __( 'Send a blocks array, even an empty one.', 'talenttrack' ), 400 );
         }
 
         $repo = new TrainingPlanBlocksRepository();
         if ( ! $repo->replaceAll( $id, $blocks ) ) {
-            return new \WP_REST_Response( [ 'error' => 'replace_failed' ], 500 );
+            return RestResponse::error( 'replace_failed', __( 'The blocks could not be saved.', 'talenttrack' ), 500 );
         }
 
-        return new \WP_REST_Response( [
+        return RestResponse::success( [
             'blocks' => array_map( [ __CLASS__, 'shapeBlock' ], $repo->listForPlan( $id ) ),
             'plan'   => self::shapePlan( $plans->findById( $id ) ),
-        ], 200 );
+        ] );
     }
 
     /**
