@@ -241,6 +241,15 @@ final class CascadeRegistry {
                 [ 'tt_invitations', 'target_team_id' ],
                 [ 'tt_workflow_tasks', 'team_id' ],
                 [ 'tt_dev_ideas', 'team_id' ],
+                // A training plan is reusable content, not execution data —
+                // that is the whole premise of it being a standalone record
+                // (#2493 D3). Deleting a team at season rollover must not
+                // destroy the plans its coach wrote, so the link clears and
+                // `team_id IS NULL` reads as club-wide. The run's team_id is
+                // a denormalised convenience; the authoritative team lives on
+                // the activity, which is set_zero'd just above.
+                [ 'tt_training_plans', 'team_id' ],
+                [ 'tt_training_plan_runs', 'team_id' ],
             ],
             'set_zero'     => [
                 [ 'tt_players', 'team_id' ],
@@ -273,6 +282,7 @@ final class CascadeRegistry {
                 [ 'tt_match_prep_lineup', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_match_prep_player_goals', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_match_prep_roles', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
+                [ 'tt_training_plan_run_blocks', 'run_id', 'tt_training_plan_runs', 'id', 'activity_id' ],
             ],
             'cascade'      => [
                 [ 'tt_attendance', 'activity_id' ],
@@ -280,6 +290,13 @@ final class CascadeRegistry {
                 [ 'tt_activity_principles', 'activity_id' ],
                 [ 'tt_match_prep', 'activity_id' ],
                 [ 'tt_match_execution', 'activity_id' ],
+                // A run means "this plan was executed at this activity" and
+                // is one-per-activity, so it cannot outlive it. Attendance
+                // cascades here too, which is what the training-exposure
+                // figures are computed from — leaving the run behind would
+                // keep a session on the books with nobody recorded at it.
+                // The plan itself is untouched; only this execution goes.
+                [ 'tt_training_plan_runs', 'activity_id' ],
             ],
             'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'activity' ] ],
             'threads'      => null,

@@ -48740,6 +48740,56 @@ msgstr "Federation — bovenrand, één kleur voor het icoonvlak"
 #, php-format
 msgid "These colours are not in use. The %s theme supplies the whole colour scheme, so the fields below have no effect until the visual theme is set back to Default. Your logo and academy name are unaffected."
 msgstr "Deze kleuren zijn niet in gebruik. Het thema %s levert het complete kleurenschema, dus de velden hieronder hebben geen effect totdat het visuele thema weer op Standaard staat. Je logo en academienaam blijven ongewijzigd."
+#. translators: %s is the title of the plan being copied.
+#: src/Modules/Training/Repositories/TrainingPlansRepository.php:402
+#, php-format
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:49
+msgid "Training plan not found."
+msgstr "Trainingsplan niet gevonden."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:130
+msgid "A training plan needs a title."
+msgstr "Een trainingsplan heeft een titel nodig."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:137
+msgid "The training plan could not be created."
+msgstr "Het trainingsplan kon niet worden aangemaakt."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:216
+msgid "Send a blocks array, even an empty one."
+msgstr "Stuur een blocks-array mee, ook als die leeg is."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:221
+msgid "The blocks could not be saved."
+msgstr "De blokken konden niet worden opgeslagen."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:43
+msgid "Training run not found."
+msgstr "Trainingsuitvoering niet gevonden."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:94
+msgid "Both a plan and an activity are required."
+msgstr "Zowel een plan als een activiteit zijn verplicht."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:116
+msgid "The plan could not be attached to this activity."
+msgstr "Het plan kon niet aan deze activiteit worden gekoppeld."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:145
+msgid "A status is required."
+msgstr "Een status is verplicht."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:150
+msgid "That is not a training-run status."
+msgstr "Dat is geen status voor een trainingsuitvoering."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:172
+msgid "That block does not belong to this training run."
+msgstr "Dat blok hoort niet bij deze trainingsuitvoering."
 
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."

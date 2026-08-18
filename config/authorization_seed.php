@@ -93,6 +93,8 @@ $mod_tournaments      = class_exists( '\TT\Modules\Tournaments\TournamentsModule
 // $mod_authorization if the module class hasn't autoloaded yet, mirroring
 // the trials/journey/vct/measurements/tournaments fallback pattern above.
 $mod_exercises        = class_exists( '\TT\Modules\Exercises\ExercisesModule' )           ? \TT\Modules\Exercises\ExercisesModule::class           : $mod_authorization;
+// #2496 — Training plans (epic #2493). Same autoload fallback as above.
+$mod_training         = class_exists( '\TT\Modules\Training\TrainingModule' )             ? \TT\Modules\Training\TrainingModule::class             : $mod_authorization;
 // #1945 — Email compose (in-product mailer, #0063). Action-entity for
 // the `tt_send_email` act-cap — sending is an act with no record entity,
 // like impersonation. Falls back to $mod_authorization if the Comms
@@ -308,6 +310,9 @@ return array_merge(
         // VCT sessions on their team scope (same as head coach — both
         // share the team scope). Matrix-only cap.
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #2496 — Training plans (epic #2493). Plans on their own team
+        // scope, same as VCT sessions above. Matrix-only cap.
+        'training_plan'              => [ 'rcd', 'team',   $mod_training ],
         // #1944 — Exercises (club-global drill library). The raw
         // `tt_manage_exercises` cap is held by the tt_coach WP role, which
         // backs BOTH the assistant_coach AND head_coach personas — so AC
@@ -415,6 +420,9 @@ return array_merge(
         // for publish + create_delete for c+d). Matrix-only cap;
         // bridged via LegacyCapMapper as tt_vct_plan → (vct, read).
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #2496 — Training plans (epic #2493). Plans on their own team
+        // scope, same as VCT sessions above. Matrix-only cap.
+        'training_plan'              => [ 'rcd', 'team',   $mod_training ],
         // #1944 — Exercises (club-global drill library). Raw
         // `tt_manage_exercises` is held by the tt_coach role behind this
         // persona; seed `rcd` at `global` (the library is club-wide, no
@@ -709,6 +717,8 @@ return array_merge(
         'vct'                           => [ 'rcd', 'global', $mod_vct ],
         'vct_library'                   => [ 'rcd', 'global', $mod_vct ],
         'vct_workload'                  => [ 'r',   'global', $mod_vct ],
+        // #2496 — Training plans (epic #2493), academy-wide.
+        'training_plan'                 => [ 'rcd', 'global', $mod_training ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -882,5 +892,7 @@ return array_merge(
         'vct'                           => [ 'rcd', 'global', $mod_vct ],
         'vct_library'                   => [ 'rcd', 'global', $mod_vct ],
         'vct_workload'                  => [ 'r',   'global', $mod_vct ],
+        // #2496 — Training plans (epic #2493), academy-wide.
+        'training_plan'                 => [ 'rcd', 'global', $mod_training ],
     ] )
 );
