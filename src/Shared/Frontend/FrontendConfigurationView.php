@@ -2042,6 +2042,25 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
 
+                <?php
+                // #2512 — club-wide visual theme. A theme is a token layer
+                // over the shipped look, so `default` is a complete
+                // rollback in the same way `classic` is for the shell.
+                $theme_current = \TT\Shared\Frontend\ThemePreference::clubDefault();
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Visual theme', 'talenttrack' ); ?></h4>
+                    <label class="tt-field-label" for="tt-cfg-frontend-theme"><?php esc_html_e( 'Academy default', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-frontend-theme" class="tt-input" name="config[tt_frontend_theme]">
+                        <?php foreach ( \TT\Shared\Frontend\ThemePreference::labels() as $theme_value => $theme_label ) : ?>
+                            <option value="<?php echo esc_attr( $theme_value ); ?>" <?php selected( $theme_current, $theme_value ); ?>><?php echo esc_html( $theme_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. Your club colours keep working in both themes. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
                 <?php // #1488 — attendance at-risk flag threshold. ?>
                 <div class="tt-field" style="margin-top:var(--tt-sp-3);">
                     <label class="tt-field-label" for="tt-cfg-attendance-threshold"><?php esc_html_e( 'Attendance at-risk threshold', 'talenttrack' ); ?></label>

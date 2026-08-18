@@ -48702,6 +48702,35 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Visual theme"
+msgstr "Visueel thema"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Save theme"
+msgstr "Thema opslaan"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Default — green and gold"
+msgstr "Standaard — groen en goud"
+
+#: src/Shared/Frontend/ThemePreference.php
+msgid "Federation — navy and gold"
+msgstr "Federation — marineblauw en goud"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Theme updated. Reload to see the change everywhere."
+msgstr "Thema bijgewerkt. Herlaad de pagina om de wijziging overal te zien."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. Your club colours keep working in both themes. Everyone can pick their own theme in My settings; this is what they get until they do."
+msgstr "Verandert alleen kleuren, hoeken en kopletter — nooit wat iemand kan zien of doen. Federation is een marineblauwe chroom met een gouden markering op de sectie waar je bent. Je clubkleuren blijven in beide thema's werken. Iedereen kan onder Mijn instellingen een eigen thema kiezen; dit is wat ze krijgen zolang ze dat niet doen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Changes colours, corners and heading type only — never what you can see or do. Your academy colours keep working in either theme."
+msgstr "Verandert alleen kleuren, hoeken en kopletter — nooit wat jij kunt zien of doen. Je academiekleuren blijven in beide thema's werken."
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 

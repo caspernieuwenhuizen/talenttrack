@@ -148,6 +148,7 @@ class FrontendMySettingsView extends FrontendViewBase {
             </form>
 
             <?php self::renderAppearanceCard( $user_id ); ?>
+            <?php self::renderThemeCard( $user_id ); ?>
 
             <?php self::renderParentVisibilityCard( $user_id ); ?>
         </div>
@@ -199,6 +200,55 @@ class FrontendMySettingsView extends FrontendViewBase {
 
             <div class="tt-form-actions">
                 <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save layout', 'talenttrack' ); ?></button>
+            </div>
+        </form>
+        <?php
+    }
+
+    /**
+     * Per-user theme override (#2512).
+     *
+     * Its own form rather than a second field on the layout card: the two
+     * settings are independent (a theme applies under either shell), and
+     * CLAUDE.md §6(a) exempts settings sub-forms from Cancel + Save
+     * precisely so several of them can sit on one page.
+     *
+     * `inherit` is the default and deletes the meta, so a user who never
+     * touches this keeps following the club — including when the operator
+     * changes it later.
+     */
+    private static function renderThemeCard( int $user_id ): void {
+        $current    = \TT\Shared\Frontend\ThemePreference::userOverride( $user_id );
+        $club       = \TT\Shared\Frontend\ThemePreference::clubDefault();
+        $labels     = \TT\Shared\Frontend\ThemePreference::labels();
+        $club_label = $labels[ $club ] ?? $club;
+        ?>
+        <form method="post" class="tt-form tt-msettings-card">
+            <?php wp_nonce_field( 'tt_my_settings_theme', 'tt_my_settings_theme_nonce' ); ?>
+            <input type="hidden" name="tt_my_settings_action" value="update_theme" />
+
+            <h3><?php esc_html_e( 'Theme', 'talenttrack' ); ?></h3>
+
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-ms-theme"><?php esc_html_e( 'Visual theme', 'talenttrack' ); ?></label>
+                <select id="tt-ms-theme" name="tt_theme" class="tt-input">
+                    <option value="<?php echo esc_attr( \TT\Shared\Frontend\ThemePreference::INHERIT ); ?>"<?php selected( $current, \TT\Shared\Frontend\ThemePreference::INHERIT ); ?>>
+                        <?php
+                        /* translators: %s: the club-wide default theme name. */
+                        printf( esc_html__( 'Use the academy default (%s)', 'talenttrack' ), esc_html( $club_label ) );
+                        ?>
+                    </option>
+                    <?php foreach ( $labels as $value => $label ) : ?>
+                        <option value="<?php echo esc_attr( $value ); ?>"<?php selected( $current, $value ); ?>><?php echo esc_html( $label ); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'Changes colours, corners and heading type only — never what you can see or do. Your academy colours keep working in either theme.', 'talenttrack' ); ?>
+                </p>
+            </div>
+
+            <div class="tt-form-actions">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save theme', 'talenttrack' ); ?></button>
             </div>
         </form>
         <?php
@@ -289,6 +339,22 @@ class FrontendMySettingsView extends FrontendViewBase {
                 sanitize_key( wp_unslash( (string) ( $_POST['tt_shell'] ?? '' ) ) )
             );
             $out['success'] = __( 'Layout updated. Reload to see the change everywhere.', 'talenttrack' );
+            return $out;
+        }
+
+        // #2512 — per-user theme override. Same reasoning as the layout
+        // above: appearance only, and ThemePreference rejects any value
+        // that is not a known theme or `inherit`.
+        if ( $action === 'update_theme' ) {
+            if ( ! isset( $_POST['tt_my_settings_theme_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_theme_nonce'] ) ), 'tt_my_settings_theme' ) ) {
+                $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            \TT\Shared\Frontend\ThemePreference::setUserOverride(
+                $user_id,
+                sanitize_key( wp_unslash( (string) ( $_POST['tt_theme'] ?? '' ) ) )
+            );
+            $out['success'] = __( 'Theme updated. Reload to see the change everywhere.', 'talenttrack' );
             return $out;
         }
 

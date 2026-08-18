@@ -1,0 +1,208 @@
+/*
+ * theme-federation.css — the `federation` theme (#2512).
+ *
+ * Loaded ONLY when ThemePreference resolves to `federation`. Under the
+ * `default` theme this file is never enqueued and no theme class is
+ * stamped, which is what keeps `default` a complete rollback.
+ *
+ * Two layers, in this order:
+ *
+ *   1. Token overrides. `tokens.css` declares the neutral design tokens
+ *      on `.tt-root` (the body class). This sheet redeclares a subset on
+ *      `.tt-dashboard`, a closer ancestor, so every surface inside the
+ *      dashboard inherits the themed value without a single per-view
+ *      rule — the same cascade argument tokens.css makes about
+ *      BrandStyles.
+ *   2. Chrome. The app shell's nav reads `--tt-paper` for its background,
+ *      which is correct for a light shell but cannot express a dark rail:
+ *      re-pointing `--tt-paper` would darken every card in the app. So the
+ *      navy chrome is a small set of explicit rules against the shell's
+ *      own class vocabulary, below.
+ *
+ * NOT declared here, deliberately: `--tt-primary` / `--tt-secondary`.
+ * Those are the operator's club colours, emitted by BrandStyles and
+ * re-themed by the colour editor. A theme owns the neutrals, the chrome,
+ * depth, status and type — never the club's identity. Gold is the one
+ * colour this theme claims, and it is a theme-local variable rather than
+ * an override of the club's secondary.
+ *
+ * Mobile-first per CLAUDE.md §2: the drawer presentation is the base and
+ * min-width queries scale up to the sidebar. Scoped under `.tt-dashboard`
+ * — no global resets, the active theme is treated as hostile.
+ */
+
+.tt-dashboard.tt-theme-federation {
+    /* ---- Neutral token overrides ---------------------------------- */
+    /* Ink */
+    --tt-ink:        #0d1a2b;
+    --tt-ink-soft:   #46566b;
+    --tt-muted:      #6a7a8d;
+
+    /* Surfaces */
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #eef1f5;
+    --tt-line:       #ccd4de;
+    --tt-line-soft:  #e2e8ef;
+
+    /* Status — validated for contrast and CVD separation against #ffffff.
+       Good and warning sit in the 6-8 protan band, which is legal here
+       because TalentTrack status always ships with an icon and a label,
+       never colour alone. */
+    --tt-success:        #1e7a4c;
+    --tt-warning:        #b3730a;
+    --tt-danger:         #c62828;
+    --tt-info:           #1b5fa8;
+    --tt-success-subtle: #e5f2ec;
+    --tt-warning-subtle: #f8efdc;
+    --tt-danger-subtle:  #fbeaea;
+    --tt-info-subtle:    #e8f0f9;
+
+    /* Federation is squarer than the default: 4px, not 8px. */
+    --tt-radius:     4px;
+    --tt-radius-lg:  5px;
+
+    /* Depth is navy-tinted rather than neutral black, so shadows read as
+       part of the palette instead of as grey haze over it. */
+    --tt-shadow-sm:  0 1px 2px rgba(13, 26, 43, .06);
+    --tt-shadow-md:  0 2px 8px rgba(13, 26, 43, .10);
+    --tt-shadow-lg:  0 8px 24px rgba(13, 26, 43, .16);
+
+    /* ---- Theme-local variables ------------------------------------ */
+    /* Chrome — the navy rail and its states. Theme-local (`--tt-fd-`)
+       rather than token overrides, because nothing outside the shell's
+       chrome should pick these up. */
+    --tt-fd-chrome:          #10233f;
+    --tt-fd-chrome-2:        #16304f;
+    --tt-fd-chrome-active:   #1f4470;
+    --tt-fd-chrome-ink:      #eef3f9;
+    --tt-fd-chrome-ink-soft: #9db0c7;
+    --tt-fd-chrome-line:     #23405f;
+
+    /* The one colour the theme claims. Carries the active marker and
+       survives a club recolour. */
+    --tt-fd-gold:            #e0a92a;
+
+    /* Rating ramp — one hue, light to dark, for the 5-9 scale. Declared
+       with the palette so the values live in one place; the ratings grid
+       adopts them when it is restyled (not in this change). */
+    --tt-fd-ramp-1: #d9e3ef;
+    --tt-fd-ramp-2: #b0c4de;
+    --tt-fd-ramp-3: #7f9ecb;
+    --tt-fd-ramp-4: #4a72ab;
+    --tt-fd-ramp-5: #1b3660;
+
+    /* Condensed display face. Barlow Condensed is the intended letter;
+       until it is bundled as a webfont the stack falls back to the
+       condensed faces already present on the OS, then to the body face
+       so nothing renders in a default serif. */
+    --tt-font-display: "Barlow Condensed", "Arial Narrow", "Segoe UI Condensed", "Segoe UI", system-ui, sans-serif;
+}
+
+/* ---- Chrome: the navy rail ----------------------------------------- */
+/*
+ * Scoped to the app shell. Under `classic` the theme is the token layer
+ * only — there is no rail to paint, and the classic header must keep
+ * rendering exactly as it does for every other theme.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav {
+    background: var(--tt-fd-chrome);
+    border-inline-end-color: var(--tt-fd-chrome-line);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-fd-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link {
+    color: var(--tt-fd-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__icon {
+    color: var(--tt-fd-chrome-ink-soft);
+}
+
+/*
+ * Hover and active-press are separate steps up the same navy ladder, so
+ * the pressed state is distinguishable from the hovered one on a device
+ * that has both. Touch devices never see hover — per CLAUDE.md §2 it only
+ * enhances; the active state below is what a tap confirms against.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link:hover {
+    background: var(--tt-fd-chrome-2);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link:active {
+    background: var(--tt-fd-chrome-active);
+}
+
+/*
+ * Active destination. The gold inset bar replaces the club-coloured one
+ * the default theme draws: on navy, most club primaries fall below the
+ * 3:1 the marker needs to read as a marker, and the gold is the theme's
+ * own so it holds whatever the club's colours are.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link.is-active {
+    background: var(--tt-fd-chrome-active);
+    color: #ffffff;
+    box-shadow: inset 3px 0 0 var(--tt-fd-gold);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link.is-active .tt-shell-nav__icon {
+    color: var(--tt-fd-gold);
+}
+
+/*
+ * Focus ring. The default theme rings in club primary, which disappears
+ * against navy — gold clears 3:1 on the rail and keeps keyboard focus
+ * visible, which §2 requires.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__link:focus-visible {
+    outline: 2px solid var(--tt-fd-gold);
+    outline-offset: 2px;
+}
+
+/* The collapse control sits on the rail, so it inherits the rail's ink. */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse {
+    color: var(--tt-fd-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse:hover,
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    color: var(--tt-fd-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse:focus-visible {
+    outline: 2px solid var(--tt-fd-gold);
+    outline-offset: 2px;
+}
+
+/* ---- Collapsed icon rail (>=1024px) -------------------------------- */
+/*
+ * In the rail the label is hidden and the icon carries the whole target,
+ * so the active marker has to be readable at icon size. The inset bar is
+ * kept (it is the same 3px edge) and the icon takes the gold.
+ */
+@media (min-width: 1024px) {
+    .tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse {
+        border-color: var(--tt-fd-chrome-line);
+        background: var(--tt-fd-chrome-2);
+        color: var(--tt-fd-chrome-ink-soft);
+    }
+
+    .tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse:hover {
+        color: var(--tt-fd-chrome-ink);
+    }
+}
+
+/* ---- Display type -------------------------------------------------- */
+/*
+ * Federation's voice is the condensed heading against the neutral body.
+ * Applied to the record spine's name and the view headings only — not to
+ * body copy, which stays in the body face for legibility at 14-16px.
+ */
+.tt-dashboard.tt-theme-federation .tt-spine__name,
+.tt-dashboard.tt-theme-federation .tt-player-hero__name,
+.tt-dashboard.tt-theme-federation .tt-fview-title {
+    font-family: var(--tt-font-display);
+    letter-spacing: 0.01em;
+}
