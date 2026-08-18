@@ -48667,6 +48667,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "%d demo rows"
 #~ msgstr "%d demo-rijen"
 
+#: src/Modules/DemoData/DemoCoverage.php:640
+msgid "Training content"
+msgstr "Trainingsinhoud"
+
+#: src/Modules/DemoData/DemoCoverage.php:665
+msgid "Exercises and methodology principles on each training, per-team exercise overrides, and the season's holiday windows."
+msgstr "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per team, en de vakantieperiodes van het seizoen."
+
+#: src/Modules/DemoData/DemoCoverage.php:666
+msgid "Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played."
+msgstr "Wedstrijdvoorbereiding voor elke wedstrijd — beschikbaarheid, opstelling, rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels voor de gespeelde wedstrijden."
+
+#: src/Modules/DemoData/DemoCoverage.php:667
+msgid "Open sessions for invited players, one past and one upcoming per age group."
+msgstr "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend per leeftijdsgroep."
+
 #, php-format
 #~ msgid "Delete saved view %s"
 #~ msgstr "Opgeslagen weergave %s verwijderen"

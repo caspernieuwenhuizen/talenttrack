@@ -3,8 +3,11 @@ namespace TT\Modules\DemoData;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\DemoData\Generators\ActivityContentGenerator;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
+use TT\Modules\DemoData\Generators\MatchDayGenerator;
+use TT\Modules\DemoData\Generators\TestTrainingGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
@@ -158,7 +161,6 @@ class DemoCoverage {
         'tt_trial_case_staff'        => [ 'planned' => '#2467' ],
         'tt_trial_case_staff_inputs' => [ 'planned' => '#2467' ],
         'tt_trial_extensions'        => [ 'planned' => '#2467' ],
-        'tt_test_trainings'          => [ 'planned' => '#2465' ],
 
         // ===== Player spine =====
 
@@ -279,22 +281,98 @@ class DemoCoverage {
             'depends_on'  => [ 'pdp_conversation' ],
         ],
 
-        // ===== Activity content + match day (#2465) =====
+        // ===== Activity content =====
 
-        'tt_exercises'                        => [ 'planned' => '#2465' ],
-        'tt_exercise_team_overrides'          => [ 'planned' => '#2465' ],
-        'tt_activity_exercises'               => [ 'planned' => '#2465' ],
-        'tt_activity_principles'              => [ 'planned' => '#2465' ],
-        'tt_match_prep'                       => [ 'planned' => '#2465' ],
-        'tt_match_prep_availability'          => [ 'planned' => '#2465' ],
-        'tt_match_prep_lineup'                => [ 'planned' => '#2465' ],
-        'tt_match_prep_player_goals'          => [ 'planned' => '#2465' ],
-        'tt_match_prep_roles'                 => [ 'planned' => '#2465' ],
-        'tt_match_execution'                  => [ 'planned' => '#2465' ],
-        'tt_match_execution_goal_events'      => [ 'planned' => '#2465' ],
-        'tt_match_execution_substitutions'    => [ 'planned' => '#2465' ],
-        'tt_match_execution_tracked_events'   => [ 'planned' => '#2465' ],
-        'tt_holidays'                         => [ 'planned' => '#2465' ],
+        'tt_exercise_team_overrides' => [
+            'entity_type' => 'exercise_team_override',
+            'category'    => 'activity_content',
+            'written_by'  => ActivityContentGenerator::class,
+            'depends_on'  => [ 'team' ],
+        ],
+        'tt_activity_exercises' => [
+            'entity_type' => 'activity_exercise',
+            'category'    => 'activity_content',
+            'written_by'  => ActivityContentGenerator::class,
+            'depends_on'  => [ 'activity' ],
+        ],
+        'tt_activity_principles' => [
+            'entity_type' => 'activity_principle',
+            'category'    => 'activity_content',
+            'written_by'  => ActivityContentGenerator::class,
+            'depends_on'  => [ 'activity' ],
+        ],
+        'tt_holidays' => [
+            'entity_type' => 'holiday',
+            'category'    => 'activity_content',
+            'written_by'  => ActivityContentGenerator::class,
+            'depends_on'  => [],
+        ],
+
+        // ===== Match day =====
+
+        'tt_match_prep' => [
+            'entity_type' => 'match_prep',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'activity' ],
+        ],
+        'tt_match_prep_availability' => [
+            'entity_type' => 'match_prep_availability',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_prep', 'player' ],
+        ],
+        'tt_match_prep_lineup' => [
+            'entity_type' => 'match_prep_lineup',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_prep', 'player' ],
+        ],
+        'tt_match_prep_player_goals' => [
+            'entity_type' => 'match_prep_player_goal',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_prep', 'player' ],
+        ],
+        'tt_match_prep_roles' => [
+            'entity_type' => 'match_prep_role',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_prep', 'player' ],
+        ],
+        'tt_match_execution' => [
+            'entity_type' => 'match_execution',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'activity', 'match_prep' ],
+        ],
+        'tt_match_execution_goal_events' => [
+            'entity_type' => 'match_goal_event',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_execution' ],
+        ],
+        'tt_match_execution_substitutions' => [
+            'entity_type' => 'match_substitution',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_execution' ],
+        ],
+        'tt_match_execution_tracked_events' => [
+            'entity_type' => 'match_tracked_event',
+            'category'    => 'match_day',
+            'written_by'  => MatchDayGenerator::class,
+            'depends_on'  => [ 'match_execution' ],
+        ],
+
+        // ===== Test trainings =====
+
+        'tt_test_trainings' => [
+            'entity_type' => 'test_training',
+            'category'    => 'test_trainings',
+            'written_by'  => TestTrainingGenerator::class,
+            'depends_on'  => [],
+        ],
 
         // ===== Team development (#2466) =====
 
@@ -375,6 +453,7 @@ class DemoCoverage {
         'tt_eval_type_categories' => [ 'exempt' => 'Evaluation-type to category mapping, seeded by migrations.' ],
         'tt_category_weights'     => [ 'exempt' => 'Per-age-group category weights, seeded by migrations and admin-editable.' ],
         'tt_measurement_levels'   => [ 'exempt' => 'Measurement status levels, seeded by migration 0192.' ],
+        'tt_exercises'            => [ 'exempt' => 'The exercise library is seeded by migration 0090; #2465 attaches those exercises to trainings rather than building a second library.' ],
         'tt_exercise_categories'  => [ 'exempt' => 'Exercise category vocabulary, seeded by migrations.' ],
         'tt_exercise_principles'  => [ 'exempt' => 'Exercise/principle reference mapping, seeded by migrations.' ],
         'tt_football_actions'     => [ 'exempt' => 'Football-action vocabulary, seeded by migrations.' ],
@@ -422,9 +501,13 @@ class DemoCoverage {
         'teams' => [
             'tier'    => 'master',
             'cascade' => [
-                'eval_rating', 'evaluation', 'attendance', 'activity',
+                'eval_rating', 'evaluation', 'attendance',
+                'match_tracked_event', 'match_substitution', 'match_goal_event', 'match_execution',
+                'match_prep_role', 'match_prep_player_goal', 'match_prep_lineup',
+                'match_prep_availability', 'match_prep',
+                'activity_exercise', 'activity_principle', 'activity',
                 'measurement_result', 'measurement_session',
-                'team_person', 'team',
+                'exercise_team_override', 'team_person', 'team',
             ],
         ],
         'people' => [
@@ -460,7 +543,12 @@ class DemoCoverage {
         'activities' => [
             'tier'        => 'dependent',
             'run_order'   => 20,
-            'cascade'     => [ 'attendance', 'activity' ],
+            'cascade'     => [
+                'match_tracked_event', 'match_substitution', 'match_goal_event', 'match_execution',
+                'match_prep_role', 'match_prep_player_goal', 'match_prep_lineup',
+                'match_prep_availability', 'match_prep',
+                'activity_exercise', 'activity_principle', 'attendance', 'activity',
+            ],
             'excel_sheet' => 'sessions',
         ],
         'goals' => [
@@ -498,6 +586,25 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 90,
             'cascade'   => [ 'pdp_calendar_link', 'pdp_verdict', 'pdp_conversation', 'pdp_file', 'season' ],
+        ],
+        'activity_content' => [
+            'tier'      => 'dependent',
+            'run_order' => 100,
+            'cascade'   => [ 'activity_exercise', 'activity_principle', 'exercise_team_override', 'holiday' ],
+        ],
+        'match_day' => [
+            'tier'      => 'dependent',
+            'run_order' => 110,
+            'cascade'   => [
+                'match_tracked_event', 'match_substitution', 'match_goal_event', 'match_execution',
+                'match_prep_role', 'match_prep_player_goal', 'match_prep_lineup',
+                'match_prep_availability', 'match_prep',
+            ],
+        ],
+        'test_trainings' => [
+            'tier'      => 'dependent',
+            'run_order' => 120,
+            'cascade'   => [ 'test_training' ],
         ],
         'journey' => [
             'tier'    => 'dependent',
@@ -712,6 +819,9 @@ class DemoCoverage {
             'reports'     => __( 'Player reports', 'talenttrack' ),
             'measurements' => __( 'Measurements', 'talenttrack' ),
             'pdp'         => __( 'PDP cycle', 'talenttrack' ),
+            'activity_content' => __( 'Training content', 'talenttrack' ),
+            'match_day'   => __( 'Match day', 'talenttrack' ),
+            'test_trainings' => __( 'Test trainings', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -733,6 +843,9 @@ class DemoCoverage {
             'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
             'measurements' => __( 'The testing battery, its per-age-group target bands, team testing sessions and one result per player.', 'talenttrack' ),
             'pdp'         => __( 'The season, one development dossier per player, its conversation cycle, calendar links and verdicts.', 'talenttrack' ),
+            'activity_content' => __( 'Exercises and methodology principles on each training, per-team exercise overrides, and the season\'s holiday windows.', 'talenttrack' ),
+            'match_day'   => __( 'Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played.', 'talenttrack' ),
+            'test_trainings' => __( 'Open sessions for invited players, one past and one upcoming per age group.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }
