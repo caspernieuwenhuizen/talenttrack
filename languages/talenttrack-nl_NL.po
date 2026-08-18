@@ -4841,7 +4841,13 @@ msgstr "Geen niet-opgeslagen wijzigingen"
 msgid "%d unsaved change(s)"
 msgstr "%d niet-opgeslagen wijziging(en)"
 
-#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:60
+#. translators: %d is the number of activities marked completed.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:61
+#, php-format
+msgid "All changes saved · %d activity/activities marked completed"
+msgstr "Alle wijzigingen opgeslagen · %d activiteit(en) op voltooid gezet"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:62
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:63
 msgid "You have unsaved changes. Leave without saving?"
 msgstr "Je hebt niet-opgeslagen wijzigingen. Weggaan zonder opslaan?"

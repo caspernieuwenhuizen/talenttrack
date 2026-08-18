@@ -50,6 +50,10 @@ Coaches zien alleen spelers en teams van hun eigen teams; academiebrede rollen z
 
 Beide aanwezigheidsrapporten — en de ranglijst en het risicopaneel die dezelfde query gebruiken — tellen alleen activiteiten mee die **echt zijn gehouden**: afgerond en in het verleden (sessiedatum vandaag of eerder). Een activiteit met een datum in de toekomst telt nooit mee voor een aanwezigheidsstatistiek, zelfs als de aanwezigheid vooraf is ingevuld. Een activiteit met de datum van **vandaag** telt wel mee. Zo blijft het aanwezigheidscijfer van elke speler kloppen — een coach ziet alleen sessies die de speler echt had kunnen bijwonen.
 
+**"Afgerond" is de status op de activiteitpagina.** Een activiteit telt mee zodra de **Status** op *Voltooid* staat — hetzelfde woord dat de coach op het scherm ziet en met **Markeer als voltooid** zet. Een sessie die nog *Gepland* is, telt niet mee, ook niet als de datum in het verleden ligt en er al aanwezigheid is geregistreerd. Daardoor zijn de getallen controleerbaar: lijkt een cijfer te hoog, open dan de activiteit en lees de status. Het team- en spelersaanwezigheidsrapport, de ranglijst, het risicopaneel, de dagelijkse aanwezigheidsmelding, de team-KPI's en de badge **Activiteiten** op het spelersdossier lezen allemaal deze ene poort en kunnen dus niet uit elkaar lopen.
+
+Aanwezigheid registreren is zelf de uitspraak dat een sessie heeft plaatsgevonden. Daarom **markeert het opslaan van aanwezigheid in het raster een geplande activiteit uit het verleden als voltooid**; de opslagbalk meldt hoeveel er zijn omgezet. Een sessie in de toekomst wordt zo nooit voltooid — een bekende afmelding voor volgende week vooraf vastleggen is geen uitspraak dat volgende week al geweest is. Een activiteit die op **Geannuleerd** staat, blijft altijd geannuleerd.
+
 ## De aanwezigheidsrapporten filteren — periodepillen + activiteittype
 
 Zowel het teamrapport als het spelersrapport gebruiken dezelfde filters als de activiteitenlijst:

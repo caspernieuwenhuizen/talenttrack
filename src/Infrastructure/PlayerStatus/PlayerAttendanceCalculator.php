@@ -4,6 +4,7 @@ namespace TT\Infrastructure\PlayerStatus;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -25,6 +26,9 @@ final class PlayerAttendanceCalculator {
      */
     public function scoreFor( int $player_id, string $from, string $to ): array {
         global $wpdb;
+        // #2521 — "completed" is the coach-set status, not `plan_state`
+        // (which defaults to 'completed' on every non-planner row).
+        $completed = ActivityLifecycle::completedClause( 'act' );
         // #788 ship 1 — player status derives from real history, never
         // from planned-attendance entries. Filter to actuals on
         // completed activities so ship 2's expected rows can't shift
@@ -55,7 +59,7 @@ final class PlayerAttendanceCalculator {
              WHERE ( att.player_id = %d OR att.guest_player_id = %d )
                AND att.club_id = %d
                AND att.record_type = 'actual'
-               AND act.plan_state = 'completed'
+               AND {$completed}
                AND act.session_date >= %s
                AND act.session_date <= %s",
             AttendanceStatus::PRESENT,

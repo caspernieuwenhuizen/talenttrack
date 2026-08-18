@@ -57,6 +57,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                 'noChanges' => __( 'No unsaved changes', 'talenttrack' ),
                 /* translators: %d is the number of unsaved cell changes. */
                 'unsaved'   => __( '%d unsaved change(s)', 'talenttrack' ),
+                /* translators: %d is the number of activities marked completed. */
+                'completed' => __( 'All changes saved · %d activity/activities marked completed', 'talenttrack' ),
                 'confirm'   => __( 'You have unsaved changes. Leave without saving?', 'talenttrack' ),
             ],
         ] );

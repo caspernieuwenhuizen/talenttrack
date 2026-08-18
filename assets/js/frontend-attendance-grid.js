@@ -167,7 +167,15 @@
 				dirty.clear();
 				if ( statusEl ) {
 					statusEl.classList.add( 'is-saved' );
-					statusEl.textContent = I18N.saved || '';
+					// #2521 — recording a register completes a past-dated
+					// activity that was still planned. Say so: the coach
+					// is entitled to know their entry changed a status.
+					var done = res.body.data && res.body.data.completed
+						? parseInt( res.body.data.completed, 10 )
+						: 0;
+					statusEl.textContent = done > 0 && I18N.completed
+						? I18N.completed.replace( '%d', String( done ) )
+						: ( I18N.saved || '' );
 				}
 				if ( saveBtn ) {
 					saveBtn.disabled = true;

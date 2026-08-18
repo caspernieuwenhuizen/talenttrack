@@ -108,15 +108,21 @@ final class AttendanceRankingArchivedTrashedTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
+    /**
+     * #2521 — a countable activity is one the coach marked completed.
+     * `activity_status_key` defaults to 'planned', so the fixture has to
+     * set it explicitly; `plan_state` rides along for the planner.
+     */
     private function insertActivity( int $team_id, string $date ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
-            'club_id'           => $this->club,
-            'team_id'           => $team_id,
-            'title'             => 'Training ' . $date,
-            'session_date'      => $date,
-            'activity_type_key' => 'training',
-            'plan_state'        => 'completed',
+            'club_id'             => $this->club,
+            'team_id'             => $team_id,
+            'title'               => 'Training ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => 'training',
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
         ] );
         return (int) $wpdb->insert_id;
     }

@@ -50,6 +50,10 @@ Coaches see only their own teams' players and teams; academy-wide roles see ever
 
 Both attendance reports — and the leaderboard and at-risk panel that share their query — only count activities that have **actually been held**: completed, in the past (session date today or earlier). An activity dated in the future never contributes to an attendance statistic, even if attendance was pre-filled on it. An activity dated **today** does count. This keeps each player's attendance figure truthful — a coach reviewing a profile sees only sessions the player could really have attended.
 
+**"Completed" means the status on the activity's page.** An activity counts once its **Status** reads *Completed* — the same word the coach sees on screen and sets with **Mark completed**. A session still showing *Planned* contributes nothing, even when it is in the past and even when attendance has already been recorded on it. This is what makes the numbers checkable: if a figure looks too high, open the activity and read its status. The team and player attendance reports, the leaderboard, the at-risk panel, the daily attendance-flag notification, the team KPI tiles and the **Activities** badge on a player's file all read this one gate, so they cannot disagree.
+
+Recording attendance is itself the statement that a session took place, so **saving attendance in the grid marks a past-dated planned activity completed** and the save bar says how many were flipped. A future-dated session is never completed this way — pre-recording a known absence for next week is not a claim that next week has happened. Marking an activity **Cancelled** is always respected and never overridden.
+
 ## Filtering the attendance reports — period pills + activity type
 
 Both the team report and the player report carry the same filtering vocabulary as the activities list:
