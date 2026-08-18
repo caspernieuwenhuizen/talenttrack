@@ -42,7 +42,7 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 
 **Phase 1 — schema + engine + REST** (closed under #905 child issues):
 
-- Schema migration 0122 — 10 new tables (`tt_vct_exercises`, `tt_vct_coaching_points`, `tt_vct_age_profiles`, `tt_vct_session_templates`, `tt_vct_sessions`, `tt_vct_session_blocks`, `tt_vct_microcycles`, `tt_vct_workload_snapshots`, `tt_vct_team_schedules`, `tt_vct_macro_blocks`).
+- Schema migration 0122 — 10 new tables (`tt_vct_exercises`, `tt_vct_coaching_points`, `tt_vct_age_profiles`, `tt_vct_session_templates`, `tt_vct_sessions`, `tt_vct_session_blocks`, `tt_vct_microcycles`, `tt_vct_workload_snapshots`, `tt_vct_team_schedules`, `tt_vct_macro_blocks`). **`tt_vct_exercises` no longer holds the catalogue** — see [One exercise library](#one-exercise-library) below.
 - Schema migration 0123 — `tt_player_phv_flags` for the Peak Height Velocity flag.
 - Schema migration 0140 — extends PHV flags with `reason_key` + `intensity_ceiling`.
 - Seed migrations 0124 (lookups + translations across nl_NL/fr/de/es) + 0125 (age profiles + session templates + phase profiles).
@@ -62,6 +62,33 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 | VCT-14: PHV flag UI | #1089 | Per-player Profile-tab panel + orange hero pill |
 
 **VCT-8 — Exercise catalogue seed (full 80)**. The full 80-exercise catalogue now ships. Migration 0177 seeded the starter scaffold (12 exercises, two per category) and migration 0181 adds the remaining 68 to reach the target spread: warmup 10, technical 20, sided_game 20, conditioning 10, finishing 10, cool_down 10. Every exercise carries three to four coaching points authored in canonical English **plus native Dutch (nl_NL)**. Both migrations are idempotent and forward-only: they existence-check `(club_id, code)` before each insert, so re-running on an already-seeded club is a no-op, and a later catalogue correction can bump `seed_revision` without trampling operator edits. Intensity bands respect the per-age workload ceilings (U10=3, U11=4, U12=5, U13/U14=7) so no exercise exceeds the envelope for the youngest age it's offered to.
+
+## One exercise library
+
+TalentTrack used to hold **two** exercise catalogues that could not see each
+other: the general exercise library and VCT's own. Migration 0212 (#2494)
+merged them. Every VCT exercise now lives in `tt_exercises` alongside the rest
+of the library, keeping its code, category, tactical theme, intensity band,
+duration and player ranges, age window and match-day suitability flags.
+
+**Nothing changes for a coach in this release.** The VCT session wizard, the
+rules engine, the coach view and the print all behave exactly as before — the
+same inputs still produce the same session. The merge is groundwork for the
+Training module (#2493), where coaches browse and build from a single library
+instead of meeting two catalogues with different fields.
+
+Points worth knowing if you administer an install:
+
+- `tt_vct_exercises` is left in place and **empty**. It is no longer read or
+  written. A later release drops it in its own migration.
+- Moved rows are marked `source = 'vct'` and keep their original `uuid`, so
+  the migration is safe to re-run.
+- `tt_vct_coaching_points` keeps its name and its translations; only its
+  exercise reference was repointed.
+- Exercises that were already in the general library gain the new columns as
+  empty. They stay **out** of VCT session generation until someone fills in an
+  age window and an intensity band — an exercise with no age range cannot be
+  judged age-safe, so the engine will not pick it.
 
 ## What's not shipped (parked)
 

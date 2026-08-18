@@ -42,7 +42,7 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 
 **Fase 1 — schema + engine + REST** (gesloten via #905 child-issues):
 
-- Schema-migratie 0122 — 10 nieuwe tabellen.
+- Schema-migratie 0122 — 10 nieuwe tabellen. **`tt_vct_exercises` bevat de catalogus niet meer** — zie [Eén oefeningenbibliotheek](#een-oefeningenbibliotheek) hieronder.
 - Schema-migratie 0123 — `tt_player_phv_flags` voor de Peak Height Velocity vlag.
 - Schema-migratie 0140 — breidt PHV-vlaggen uit met `reason_key` + `intensity_ceiling`.
 - Seed-migraties 0124 (lookups + vertalingen voor nl_NL/fr/de/es) + 0125 (leeftijdsprofielen + sessie-templates + fase-profielen).
@@ -62,6 +62,36 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 | VCT-14: PHV-vlag-UI | #1089 | Per-speler Profiel-tabblad-paneel + oranje hero-pill |
 
 **VCT-8 — Oefeningencatalogus seed (volledige 80)**. De volledige catalogus van 80 oefeningen is nu gelanceerd. Migratie 0177 zette de starter-scaffold neer (12 oefeningen, twee per categorie) en migratie 0181 voegt de resterende 68 toe tot de beoogde verdeling: warmup 10, technical 20, sided_game 20, conditioning 10, finishing 10, cool_down 10. Elke oefening draagt drie tot vier coaching points, geschreven in canoniek Engels **plus natief Nederlands (nl_NL)**. Beide migraties zijn idempotent en forward-only: ze controleren `(club_id, code)` vóór elke insert, dus opnieuw draaien op een al-geseede club is een no-op, en een latere catalogus-correctie kan `seed_revision` ophogen zonder operator-bewerkingen te overschrijven. De intensiteitsbanden respecteren de leeftijdsplafonds per leeftijd (U10=3, U11=4, U12=5, U13/U14=7), zodat geen oefening de werklast-envelop overschrijdt van de jongste leeftijd waaraan hij wordt aangeboden.
+
+## Eén oefeningenbibliotheek
+
+TalentTrack had **twee** oefeningencatalogi die elkaar niet konden zien: de
+algemene oefeningenbibliotheek en die van VCT. Migratie 0212 (#2494) heeft ze
+samengevoegd. Elke VCT-oefening staat nu in `tt_exercises`, naast de rest van
+de bibliotheek, met behoud van code, categorie, speelwijzethema,
+intensiteitsband, duur- en spelersbereik, leeftijdsvenster en
+wedstrijddag-geschiktheid.
+
+**Voor de trainer verandert er in deze release niets.** De VCT-sessiewizard,
+de regelengine, de trainersweergave en de afdruk werken precies zoals eerst —
+dezelfde invoer levert dezelfde sessie op. De samenvoeging is voorbereiding op
+de Training-module (#2493), waarin trainers uit één bibliotheek kiezen in
+plaats van twee catalogi met verschillende velden tegen te komen.
+
+Goed om te weten als je een installatie beheert:
+
+- `tt_vct_exercises` blijft bestaan maar is **leeg**. De tabel wordt niet meer
+  gelezen of geschreven; een latere release verwijdert hem in een eigen
+  migratie.
+- Verplaatste rijen krijgen `source = 'vct'` en behouden hun oorspronkelijke
+  `uuid`, zodat de migratie veilig opnieuw kan draaien.
+- `tt_vct_coaching_points` houdt zijn naam en zijn vertalingen; alleen de
+  verwijzing naar de oefening is bijgewerkt.
+- Oefeningen die al in de algemene bibliotheek stonden krijgen de nieuwe
+  kolommen leeg. Ze blijven **buiten** de VCT-sessiegeneratie tot iemand een
+  leeftijdsvenster en een intensiteitsband invult — zonder leeftijdsbereik kan
+  niet worden bepaald of een oefening leeftijdsveilig is, dus de engine kiest
+  hem niet.
 
 ## Wat (nog) niet is gelanceerd
 
