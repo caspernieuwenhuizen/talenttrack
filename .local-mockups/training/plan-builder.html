@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainingsplan bewerken — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.builder { display:grid; gap:var(--sp-lg); }
+@media (min-width:1024px) { .builder { grid-template-columns:1fr 320px; align-items:start; } .builder__side { position:sticky; top:78px; display:grid; gap:var(--sp-lg); } }
+.blk { background:var(--tt-paper); border:1px solid var(--tt-line); border-radius:var(--tt-r-lg); margin-bottom:10px; display:grid; grid-template-columns:6px 1fr; overflow:hidden; }
+.blk[data-drag="true"] { box-shadow:var(--tt-shadow-lg); border-color:var(--tt-primary); }
+.blk__inner { padding:12px; }
+.blk__top { display:flex; justify-content:space-between; gap:8px; align-items:center; }
+.blk__type { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--tt-ink-soft); }
+.blk__name { margin:4px 0 0; font-size:15px; font-weight:700; }
+.blk__desc { margin:4px 0 0; font-size:13px; color:var(--tt-ink-soft); }
+.blk__tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.blk__bar { display:flex; gap:6px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+.dur { display:flex; align-items:center; border:1.5px solid var(--tt-line); border-radius:var(--tt-r); overflow:hidden; }
+.dur button { width:44px; height:44px; border:0; background:var(--tt-paper); font-size:20px; font-weight:700; color:var(--tt-primary); cursor:pointer; }
+.dur output { min-width:64px; text-align:center; font-weight:800; font-variant-numeric:tabular-nums; font-size:14px; }
+.move { display:flex; gap:4px; }
+/* Drag handle is desktop-only enhancement; the up/down buttons are the required
+   non-gesture fallback per CLAUDE.md §2. */
+.handle { display:none; }
+@media (min-width:1024px) { .handle { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border:1px solid var(--tt-line); border-radius:6px; color:var(--tt-ink-soft); cursor:grab; background:var(--tt-paper); } }
+.total { display:flex; justify-content:space-between; align-items:baseline; font-size:13px; margin-top:8px; }
+.total b { font-size:20px; font-variant-numeric:tabular-nums; }
+.total.over b { color:var(--tt-danger); }
+.picker { position:fixed; inset:auto 0 0 0; background:var(--tt-paper); border-top:2px solid var(--tt-primary); border-radius:16px 16px 0 0; box-shadow:var(--tt-shadow-lg); max-height:86vh; overflow:auto; overscroll-behavior:contain; z-index:150; padding:var(--sp-lg); padding-bottom:calc(var(--sp-lg) + env(safe-area-inset-bottom)); transform:translateY(101%); transition:transform .2s ease; }
+body[data-picker="open"] .picker { transform:translateY(0); }
+body[data-picker="open"] .scrim { position:fixed; inset:0; background:rgba(10,20,15,.42); z-index:140; }
+.picker__grab { width:44px; height:5px; background:var(--tt-line); border-radius:3px; margin:0 auto 12px; }
+@media (min-width:1024px) { .picker { inset:auto; position:fixed; right:24px; bottom:24px; width:420px; border-radius:var(--tt-r-lg); border:1px solid var(--tt-line); border-top:2px solid var(--tt-primary); } }
+.goalhit { display:flex; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid var(--tt-line-soft); font-size:13px; }
+.goalhit:last-child { border-bottom:0; }
+.av { width:28px; height:28px; border-radius:50%; background:var(--tt-primary-soft); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+</style>
+</head>
+<body data-picker="closed">
+
+<div class="mockup-bar">
+    <strong>#0096 · W5 — Plan-builder:</strong>
+    <code>?tt_view=training-plan&amp;id=48&amp;mode=build</code> ·
+    drag op desktop, ↑↓-knoppen op touch (§2 non-gesture fallback) ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+<div class="state-picker">
+    <button aria-pressed="true" onclick="document.body.dataset.picker='closed';this.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===this))">Bewerken</button>
+    <button aria-pressed="false" onclick="document.body.dataset.picker='open';this.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===this))">Bibliotheek-picker open</button>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <a class="back-pill" href="#">&larr; Terug naar Ajax JO13-1</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; <a href="#">JO13-1 · Opbouwen van achteruit</a> &rsaquo; Bewerken</p>
+        <h1>Opbouwen van achteruit</h1>
+        <p class="page-head__sub">JO13-1 · di 19 aug 18:30 · gekoppeld aan de training van dinsdag</p>
+        <div class="page-head__actions">
+            <button class="btn btn-secondary btn-sm">Dupliceer</button>
+            <button class="btn btn-secondary btn-sm">Bewaar als sjabloon</button>
+            <button class="btn btn-secondary btn-sm">Afdrukken</button>
+        </div>
+    </header>
+
+    <div class="spine">
+        <ul class="spine__tabs">
+            <li><a href="#" aria-current="page">Plan</a></li>
+            <li><a href="#">Uitvoeringen <span class="count">3</span></a></li>
+            <li><a href="#">Dekking</a></li>
+        </ul>
+    </div>
+
+    <div class="wrap">
+    <div class="builder">
+      <div>
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Blokken</h2><span class="card__hint">sleep of gebruik ↑↓</span></div>
+
+            <div class="timeline" aria-label="Verdeling van de trainingstijd">
+                <span class="t-warmup" style="flex:12">12′</span>
+                <span class="t-rondo" style="flex:10">10′</span>
+                <span class="t-main" style="flex:22">22′</span>
+                <span class="t-game" style="flex:20">20′</span>
+                <span class="t-cooldown" style="flex:6">6′</span>
+                <span class="t-talk" style="flex:5">5′</span>
+            </div>
+            <div class="total"><span class="muted">Totaal gepland</span><b>75 / 75 min</b></div>
+            <div class="legend">
+                <span><i style="background:var(--blk-warmup)"></i>Warming-up</span>
+                <span><i style="background:var(--blk-rondo)"></i>Rondo</span>
+                <span><i style="background:var(--blk-main)"></i>Hoofdvorm</span>
+                <span><i style="background:var(--blk-game)"></i>Partij</span>
+                <span><i style="background:var(--blk-cooldown)"></i>Cooling-down</span>
+                <span><i style="background:var(--blk-talk)"></i>Nabespreking</span>
+            </div>
+
+            <div style="margin-top:16px">
+
+                <div class="blk"><i style="background:var(--blk-warmup)"></i><div class="blk__inner">
+                    <div class="blk__top">
+                        <span class="blk__type">1 · Warming-up</span>
+                        <span class="handle" title="Sleep om te verplaatsen">⠿</span>
+                    </div>
+                    <p class="blk__name">Passvormen in vierkant, 4 groepen</p>
+                    <p class="blk__desc">20×20 m · balbezit met twee raakmomenten, opbouwend tempo.</p>
+                    <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill pill--ghost">8–16 spelers</span></div>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>12 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog" disabled style="opacity:.4">↑</button><button class="btn-icon" aria-label="Omlaag">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <div class="blk"><i style="background:var(--blk-rondo)"></i><div class="blk__inner">
+                    <div class="blk__top"><span class="blk__type">2 · Rondo</span><span class="handle">⠿</span></div>
+                    <p class="blk__name">Rondo 5v2 met uitbreekmoment</p>
+                    <p class="blk__desc">Bij 8 passes mag de bal naar de vrije speler buiten de cirkel.</p>
+                    <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span></div>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>10 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog">↑</button><button class="btn-icon" aria-label="Omlaag">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <div class="blk" data-drag="true"><i style="background:var(--blk-main)"></i><div class="blk__inner">
+                    <div class="blk__top"><span class="blk__type">3 · Hoofdvorm</span><span class="handle" style="cursor:grabbing">⠿</span></div>
+                    <p class="blk__name">Opbouw 7v5 naar twee kleine doelen</p>
+                    <p class="blk__desc">Halve veldhelft · keeper start, verdediging bouwt op tegen 5 aanvallers, punt bij passeren van de middenlijn met balbezit.</p>
+                    <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span><span class="pill pill--gold">dekt 6 spelerdoelen</span></div>
+                    <label class="field" style="margin-top:10px"><span>Coachpunten voor dit blok</span>
+                        <textarea>Eerste balcontact uit de druk. Backs breed en hoog. Keeper altijd aanspeelbaar — hardop coachen op het moment, niet achteraf.</textarea>
+                    </label>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>22 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog">↑</button><button class="btn-icon" aria-label="Omlaag">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <div class="blk"><i style="background:var(--blk-game)"></i><div class="blk__inner">
+                    <div class="blk__top"><span class="blk__type">4 · Partij</span><span class="handle">⠿</span></div>
+                    <p class="blk__name">Partij 6v6 met opbouwzone</p>
+                    <p class="blk__desc">Doelpunt telt dubbel als de opbouw via de keeper begon.</p>
+                    <div class="blk__tags"><span class="pill pill--principle">AO-01</span></div>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>20 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog">↑</button><button class="btn-icon" aria-label="Omlaag">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <div class="blk"><i style="background:var(--blk-cooldown)"></i><div class="blk__inner">
+                    <div class="blk__top"><span class="blk__type">5 · Cooling-down</span><span class="handle">⠿</span></div>
+                    <p class="blk__name">Uitlopen met dynamisch rekken</p>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>6 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog">↑</button><button class="btn-icon" aria-label="Omlaag">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <div class="blk"><i style="background:var(--blk-talk)"></i><div class="blk__inner">
+                    <div class="blk__top"><span class="blk__type">6 · Nabespreking</span><span class="handle">⠿</span></div>
+                    <p class="blk__name">Twee vragen over de opbouwzone</p>
+                    <div class="blk__bar">
+                        <div class="dur"><button aria-label="Korter">−</button><output>5 min</output><button aria-label="Langer">+</button></div>
+                        <div class="move"><button class="btn-icon" aria-label="Omhoog">↑</button><button class="btn-icon" aria-label="Omlaag" disabled style="opacity:.4">↓</button></div>
+                        <button class="btn btn-secondary btn-sm" onclick="document.body.dataset.picker='open'">Vervang</button>
+                        <button class="btn-icon" aria-label="Verwijder blok">🗑</button>
+                    </div>
+                </div></div>
+
+                <button class="btn btn-secondary" style="width:100%" onclick="document.body.dataset.picker='open'">+ Blok toevoegen uit de bibliotheek</button>
+            </div>
+
+            <!-- §6 — Cancel + Save via FormSaveButton, Cancel first in DOM -->
+            <div class="tt-form-actions">
+                <a class="btn btn-secondary" href="#">Annuleren</a>
+                <button class="btn btn-primary">Plan opslaan</button>
+            </div>
+        </div>
+      </div>
+
+      <aside class="builder__side">
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Dekking van spelerdoelen</h2></div>
+            <p class="small muted" style="margin:0 0 8px">Spelers met een open doel of PDP-actie op een principe dat dit plan raakt.</p>
+            <div class="goalhit"><span class="av">SB</span><div><b>Sem B.</b><br><span class="small muted">AO-01 · doel loopt tot 30 sep</span></div></div>
+            <div class="goalhit"><span class="av">NV</span><div><b>Noah V.</b><br><span class="small muted">AO-01 · PDP-actie</span></div></div>
+            <div class="goalhit"><span class="av">LM</span><div><b>Liam M.</b><br><span class="small muted">AO-02 · doel</span></div></div>
+            <div class="goalhit"><span class="av">DK</span><div><b>Daan K.</b><br><span class="small muted">AO-02 · doel</span></div></div>
+            <div class="goalhit"><span class="av">MJ</span><div><b>Mees J.</b><br><span class="small muted">AO-01 · PDP-actie</span></div></div>
+            <div class="goalhit"><span class="av">FH</span><div><b>Finn H.</b><br><span class="small muted">AO-01 · doel</span></div></div>
+            <p class="small muted" style="margin:10px 0 0">5 spelers met een open doel worden <b>niet</b> geraakt — allen op VS-02 en VS-03.</p>
+        </div>
+
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Waarschuwingen</h2></div>
+            <div class="stack">
+                <div class="notice notice--warn"><span>!</span><div><b>Tycho</b> heeft een PHV-vlag met plafond 3; blok 3 en 4 staan op 4.</div></div>
+                <div class="notice notice--info"><span>ℹ</span><div>Rondo 5v2 stond ook in het plan van 5 augustus. Twee keer in vier weken is prima; drie keer geeft een variatie-waarschuwing.</div></div>
+            </div>
+        </div>
+      </aside>
+    </div>
+    </div>
+</div>
+
+<div class="scrim" onclick="document.body.dataset.picker='closed'"></div>
+
+<!-- Bibliotheek-picker: bottom sheet op mobiel, paneel rechtsonder op desktop -->
+<section class="picker" aria-label="Oefening kiezen">
+    <div class="picker__grab"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px">
+        <h2 style="margin:0;font-size:17px;font-weight:800">Oefening kiezen</h2>
+        <button class="btn-icon" aria-label="Sluiten" onclick="document.body.dataset.picker='closed'">✕</button>
+    </div>
+    <label class="field" style="margin-bottom:8px"><span class="sr-only">Zoeken</span>
+        <input type="search" placeholder="Zoek op naam, code of principe…" value="opbouw">
+    </label>
+    <div class="filterbar__chips" style="margin-bottom:10px">
+        <span class="pill pill--green">Thema: opbouwen ✕</span>
+        <span class="pill pill--green">13 spelers ✕</span>
+        <span class="pill pill--ghost">+ Categorie</span>
+        <span class="pill pill--ghost">+ Intensiteit</span>
+    </div>
+    <p class="small muted" style="margin:0 0 8px">17 oefeningen · gesorteerd op dekking van open spelerdoelen</p>
+    <ul class="rows">
+        <li class="row" style="border-color:var(--tt-primary)">
+            <i class="band" data-band="4"></i>
+            <div class="row__body">
+                <p class="row__title">Opbouw 7v5 naar twee kleine doelen</p>
+                <p class="row__meta"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span><span class="pill pill--gold">6 doelen</span><span>18–25 min · 10–14 spelers</span></p>
+            </div>
+            <div class="row__actions"><button class="btn btn-sm">Kies</button></div>
+        </li>
+        <li class="row">
+            <i class="band" data-band="3"></i>
+            <div class="row__body">
+                <p class="row__title">Opbouw 4v2 + 2 uitspelers</p>
+                <p class="row__meta"><span class="pill pill--principle">AO-01</span><span class="pill pill--gold">4 doelen</span><span>12–18 min · 8–12 spelers</span></p>
+            </div>
+            <div class="row__actions"><button class="btn btn-secondary btn-sm">Kies</button></div>
+        </li>
+        <li class="row">
+            <i class="band" data-band="4"></i>
+            <div class="row__body">
+                <p class="row__title">Positiespel 8v4 in drie zones</p>
+                <p class="row__meta"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-03</span><span>20–30 min · 12–16 spelers</span></p>
+            </div>
+            <div class="row__actions"><button class="btn btn-secondary btn-sm">Kies</button></div>
+        </li>
+        <li class="row">
+            <i class="band" data-band="2"></i>
+            <div class="row__body">
+                <p class="row__title">Keeper-opbouw met twee steunpunten</p>
+                <p class="row__meta"><span class="pill pill--principle">AO-02</span><span class="pill pill--ghost">VCT</span><span>10–15 min · 6–10 spelers</span></p>
+            </div>
+            <div class="row__actions"><button class="btn btn-secondary btn-sm">Kies</button></div>
+        </li>
+    </ul>
+    <div class="tt-form-actions">
+        <button class="btn btn-secondary" onclick="document.body.dataset.picker='closed'">Annuleren</button>
+        <button class="btn btn-primary" onclick="document.body.dataset.picker='closed'">Voeg toe aan plan</button>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">Staat de oefening er niet bij? <a href="./library.html">Maak hem aan in de bibliotheek</a> — hij blijft dan beschikbaar voor het hele team.</p>
+</section>
+
+</body>
+</html>

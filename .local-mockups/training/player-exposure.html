@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainingsblootstelling speler — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.hero { display:flex; gap:14px; align-items:center; }
+.hero__av { width:56px; height:56px; border-radius:50%; background:var(--tt-primary-soft); color:#fff; font-weight:800; font-size:20px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+.two { display:grid; gap:var(--sp-lg); }
+@media (min-width:1024px) { .two { grid-template-columns:1.3fr 1fr; align-items:start; } }
+.pr { display:grid; grid-template-columns:64px 1fr 76px; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--tt-line-soft); }
+.pr:last-child { border-bottom:0; }
+.pr__code { font-size:12px; font-weight:800; }
+.pr__name { font-size:13px; }
+.pr__track { background:var(--tt-mute); border-radius:999px; height:16px; overflow:hidden; margin-top:4px; }
+.pr__fill { height:100%; border-radius:999px; background:var(--tt-primary-soft); }
+.pr__fill[data-level="zero"] { background:var(--tt-danger); width:3px !important; }
+.pr__fill[data-level="low"]  { background:var(--tt-warning); }
+.pr__num { text-align:right; font-variant-numeric:tabular-nums; }
+.pr__num b { display:block; font-size:15px; }
+.pr__num span { font-size:11px; color:var(--tt-ink-soft); }
+.tlitem { display:grid; grid-template-columns:62px 1fr; gap:10px; padding:10px 0; border-bottom:1px solid var(--tt-line-soft); font-size:13px; }
+.tlitem:last-child { border-bottom:0; }
+.tlitem time { color:var(--tt-ink-soft); font-size:12px; font-variant-numeric:tabular-nums; }
+.spark { display:flex; gap:2px; align-items:flex-end; height:34px; }
+.spark i { flex:1; background:var(--tt-primary-soft); border-radius:2px 2px 0 0; min-height:2px; }
+.spark i.zero { background:var(--tt-line); }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · W7 — Trainingsblootstelling op het spelersdossier:</strong>
+    <code>?tt_view=players&amp;id=204&amp;tab=training</code> ·
+    dit is waarom de module in TalentTrack hoort ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <a class="back-pill" href="#">&larr; Terug naar Ajax JO13-1</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="#">Spelers</a> &rsaquo; Noah Vermeer</p>
+        <div class="hero">
+            <span class="hero__av">NV</span>
+            <div>
+                <h1>Noah Vermeer</h1>
+                <p class="page-head__sub">JO13-1 · linksback · 12 jaar · in de academie sinds aug 2024</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="spine">
+        <ul class="spine__tabs">
+            <li><a href="#">Overzicht</a></li>
+            <li><a href="#">Reis</a></li>
+            <li><a href="#">Beoordelingen</a></li>
+            <li><a href="#">Doelen &amp; PDP</a></li>
+            <li><a href="#" aria-current="page">Training <span class="count">31</span></a></li>
+            <li><a href="#">Speeltijd</a></li>
+        </ul>
+    </div>
+
+    <div class="wrap">
+
+        <div class="kpis">
+            <div class="kpi"><div class="kpi__num">31</div><div class="kpi__label">Trainingen</div><div class="kpi__sub">dit seizoen, aanwezig</div></div>
+            <div class="kpi"><div class="kpi__num">37,2</div><div class="kpi__label">Uur getraind</div><div class="kpi__sub">2 232 minuten</div></div>
+            <div class="kpi"><div class="kpi__num">9</div><div class="kpi__label">Principes geraakt</div><div class="kpi__sub">van 18 in de methodiek</div></div>
+            <div class="kpi"><div class="kpi__num">14</div><div class="kpi__label">Observaties</div><div class="kpi__sub">door 3 trainers</div></div>
+        </div>
+
+        <div class="notice notice--good">
+            <span>✓</span>
+            <div><b>Zijn training past bij zijn doelen.</b> Noah heeft een open doel op AO-01; daar staat dit seizoen 412 minuten over 19 sessies tegenover. Zijn tweede doel (VS-02) heeft nog maar 45 minuten gekregen.</div>
+        </div>
+
+        <div class="two">
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Waarop is hij getraind — dit seizoen</h2><span class="card__hint">minuten · sessies</span></div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">AO-01</span></div>
+                    <div>
+                        <span class="pr__name"><b>Breed en diep spelen bij opbouw</b> <span class="pill pill--gold">open doel</span></span>
+                        <div class="pr__track"><div class="pr__fill" style="width:100%"></div></div>
+                    </div>
+                    <div class="pr__num"><b>412</b><span>19 sessies</span></div>
+                </div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">AO-02</span></div>
+                    <div>
+                        <span class="pr__name"><b>De keeper als eerste opbouwer</b></span>
+                        <div class="pr__track"><div class="pr__fill" style="width:71%"></div></div>
+                    </div>
+                    <div class="pr__num"><b>294</b><span>12 sessies</span></div>
+                </div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">AO-04</span></div>
+                    <div>
+                        <span class="pr__name"><b>Diepte zoeken en afronden</b></span>
+                        <div class="pr__track"><div class="pr__fill" style="width:52%"></div></div>
+                    </div>
+                    <div class="pr__num"><b>216</b><span>9 sessies</span></div>
+                </div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">OM-01</span></div>
+                    <div>
+                        <span class="pr__name"><b>Omschakeling na balverlies</b></span>
+                        <div class="pr__track"><div class="pr__fill" style="width:31%"></div></div>
+                    </div>
+                    <div class="pr__num"><b>128</b><span>6 sessies</span></div>
+                </div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">VS-02</span></div>
+                    <div>
+                        <span class="pr__name"><b>Passlijnen dichthouden</b> <span class="pill pill--gold">open doel</span></span>
+                        <div class="pr__track"><div class="pr__fill" data-level="low" style="width:11%"></div></div>
+                    </div>
+                    <div class="pr__num"><b>45</b><span>2 sessies</span></div>
+                </div>
+
+                <div class="pr">
+                    <div><span class="pill pill--principle">VS-03</span></div>
+                    <div>
+                        <span class="pr__name"><b>Druk zetten als team</b></span>
+                        <div class="pr__track"><div class="pr__fill" data-level="zero"></div></div>
+                    </div>
+                    <div class="pr__num"><b>0</b><span>nooit</span></div>
+                </div>
+
+                <div class="notice notice--warn" style="margin-top:12px">
+                    <span>!</span>
+                    <div>Noah is dit seizoen op <b>9 van 18 principes nog nooit getraind</b>, waaronder VS-03. Bij zijn volgende beoordeling is dat context: een lage score op een principe dat hij nooit geoefend heeft zegt iets anders dan een lage score op AO-01.</div>
+                </div>
+            </div>
+
+            <div class="stack">
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Trainingstijd per maand</h2></div>
+                    <div class="spark" aria-label="Minuten per maand">
+                        <i style="height:56%"></i><i style="height:74%"></i><i style="height:90%"></i>
+                        <i style="height:40%"></i><i style="height:82%"></i><i style="height:100%"></i>
+                        <i style="height:18%"></i><i class="zero" style="height:4%"></i>
+                    </div>
+                    <p class="small muted" style="margin:6px 0 0">sep · okt · nov · dec · jan · feb · mrt · apr — de dip in december en april valt samen met de vakanties.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Observaties tijdens de training</h2><span class="card__hint">laatste 4</span></div>
+                    <div class="tlitem"><time>19 aug</time><div><span class="pill pill--principle">AO-01</span> <span class="pill pill--green">boven verwachting</span><br>“Draaide twee keer weg uit de druk en koos daarna de vrije back. Precies waar zijn doel op zit.” <span class="muted">— Marijn</span></div></div>
+                    <div class="tlitem"><time>12 aug</time><div><span class="pill pill--principle">AO-02</span> <span class="pill">naar verwachting</span><br><span class="muted">— Marijn</span></div></div>
+                    <div class="tlitem"><time>5 aug</time><div><span class="pill pill--principle">AO-01</span> <span class="pill">naar verwachting</span><br>“Positie klopt, timing van het meegaan nog te vroeg.” <span class="muted">— Joost</span></div></div>
+                    <div class="tlitem"><time>29 jul</time><div><span class="pill pill--principle">VS-02</span> <span class="pill pill--red">onder verwachting</span><br>“Stapte er drie keer uit terwijl de lijn dicht moest blijven.” <span class="muted">— Marijn</span></div></div>
+                    <p class="small muted" style="margin:10px 0 0">Observaties staan ook op zijn <a href="#">tijdlijn</a> en verschijnen naast het betreffende principe in de beoordelingsflow.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Laatste trainingen</h2></div>
+                    <div class="tlitem"><time>19 aug</time><div><a href="./plan-builder.html">Opbouwen van achteruit</a> · 78 min · <span class="muted">AO-01, AO-02</span></div></div>
+                    <div class="tlitem"><time>14 aug</time><div><a href="#">Druk zetten op de helft</a> · 72 min · <span class="muted">VS-02</span></div></div>
+                    <div class="tlitem"><time>12 aug</time><div><a href="#">Opbouw onder druk</a> · 75 min · <span class="muted">AO-01, AO-02</span></div></div>
+                    <div class="tlitem"><time>7 aug</time><div><span class="muted">Afwezig — geblesseerd</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

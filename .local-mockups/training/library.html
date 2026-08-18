@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oefeningenbibliotheek — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.row { grid-template-columns:6px 1fr auto; }
+.row--shipped { background:linear-gradient(0deg, var(--tt-mute), var(--tt-mute)); }
+.thumb { width:64px; height:44px; border-radius:6px; background:#2f7d4f; flex:0 0 auto; }
+@media (min-width:768px) { .row { grid-template-columns:6px 64px 1fr auto; } }
+@media (max-width:767px) { .thumb { display:none; } }
+.inline-form { background:var(--tt-mute); border:1px solid var(--tt-line); border-left:3px solid var(--tt-primary); border-radius:var(--tt-r-lg); padding:var(--sp-lg); margin-bottom:10px; }
+.grid2 { display:grid; gap:10px; grid-template-columns:1fr; }
+@media (min-width:768px) { .grid2 { grid-template-columns:1fr 1fr; } .grid2 .full { grid-column:1/-1; } }
+.sheetish { display:none; }
+body[data-filters="open"] .sheetish { display:block; }
+/* The promotion queue is HoD-only chrome — a coach never sees it at all. */
+#queue { display:none; }
+body[data-hod="true"] #queue { display:block; }
+</style>
+</head>
+<body data-filters="closed" data-new="closed" data-hod="false">
+
+<div class="mockup-bar">
+    <strong>#0096 · W1+W2 — Oefeningenbibliotheek (D1: één bibliotheek):</strong>
+    <code>?tt_view=exercises</code> · VCT-oefeningen zijn ingevoegd, herkenbaar aan het VCT-label ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+<div class="state-picker">
+    <button aria-pressed="true"  onclick="st('closed','closed',this)">Lijst</button>
+    <button aria-pressed="false" onclick="st('open','closed',this)">Filters (mobiel sheet)</button>
+    <button aria-pressed="false" onclick="st('closed','open',this)">Nieuwe oefening (inline)</button>
+    <button aria-pressed="false" onclick="hod(this)">HoD · promotiewachtrij</button>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; Oefeningen</p>
+        <h1>Oefeningen</h1>
+        <p class="page-head__sub">De oefeningen waaruit de generator put en waaruit je zelf blokken kiest. 214 oefeningen · 38 door de club toegevoegd.</p>
+        <div class="page-head__actions">
+            <button class="btn btn-sm" onclick="st('closed','open')">+ Nieuwe oefening</button>
+            <a class="btn btn-secondary btn-sm" href="./coverage-report.html">Dekking bekijken</a>
+        </div>
+    </header>
+
+    <!-- FilterBar: inline vanaf 1024px, knop + chips daaronder -->
+    <div class="filterbar">
+        <div class="filterbar__row filterbar__toggle">
+            <label class="field filterbar__search"><span class="sr-only">Zoeken</span>
+                <input type="search" placeholder="Zoek op naam, code of principe…">
+            </label>
+            <button class="btn btn-secondary" onclick="st(document.body.dataset.filters==='open'?'closed':'open','closed')">Filters <span class="pill pill--green">2</span></button>
+        </div>
+        <div class="filterbar__chips filterbar__toggle">
+            <span class="pill pill--green">Thema: opbouwen ✕</span>
+            <span class="pill pill--green">Intensiteit 3–4 ✕</span>
+        </div>
+
+        <div class="filterbar__inline">
+            <label class="field"><span>Zoeken</span><input type="search" placeholder="naam, code of principe…"></label>
+            <label class="field"><span>Categorie</span><select><option>— alle —</option><option>Warming-up</option><option>Rondo</option><option>Positiespel</option><option>Partijvorm</option><option>Afwerken</option><option>Standaardsituatie</option><option>Cooling-down</option><option>Individueel</option></select></label>
+            <label class="field"><span>Principe</span><select><option>— alle —</option><option>AO-01 Breed en diep</option><option>AO-02 Keeper als opbouwer</option><option>VS-02 Passlijnen dicht</option><option>OM-01 Omschakeling</option></select></label>
+            <label class="field"><span>Thema</span><select><option>— alle —</option><option selected>Opbouwen</option><option>Druk zetten</option><option>Omschakelen</option><option>Afronden</option></select></label>
+            <label class="field"><span>Aantal spelers</span><input type="number" inputmode="numeric" placeholder="bijv. 13"></label>
+            <button class="btn">Toepassen</button>
+        </div>
+
+        <!-- mobiel bottom-sheet equivalent -->
+        <div class="sheetish card" style="margin-top:6px">
+            <div class="card__head"><h2 class="card__title">Filters</h2><button class="btn-icon" onclick="st('closed','closed')" aria-label="Sluiten">✕</button></div>
+            <div class="stack">
+                <label class="field"><span>Categorie</span><select><option>— alle —</option><option>Warming-up</option><option>Rondo</option><option>Positiespel</option><option>Partijvorm</option></select></label>
+                <label class="field"><span>Principe</span><select><option>— alle —</option><option>AO-01</option><option>AO-02</option></select></label>
+                <label class="field"><span>Thema</span><select><option>— alle —</option><option selected>Opbouwen</option></select></label>
+                <label class="field"><span>Intensiteit</span><select><option>— alle —</option><option selected>3 tot 4</option></select></label>
+                <label class="field"><span>Aantal spelers</span><input type="number" inputmode="numeric" placeholder="bijv. 13"></label>
+                <div class="tt-form-actions"><button class="btn btn-secondary" onclick="st('closed','closed')">Wissen</button><button class="btn btn-primary" onclick="st('closed','closed')">Toepassen</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <!-- inline create form — §3 exemptie (a): vocabulaire-rij, geen wizard -->
+        <div class="inline-form" id="newform" style="display:none">
+            <h2 style="margin:0 0 12px;font-size:17px;font-weight:800">Nieuwe oefening</h2>
+            <div class="grid2">
+                <label class="field"><span>Naam</span><input type="text" placeholder="bijv. Opbouw 7v5 naar twee kleine doelen"></label>
+                <label class="field"><span>Code (optioneel)</span><input type="text" placeholder="bijv. OP-014"></label>
+                <label class="field"><span>Categorie</span><select><option>Warming-up</option><option>Rondo</option><option selected>Positiespel</option><option>Partijvorm</option><option>Afwerken</option><option>Standaardsituatie</option><option>Cooling-down</option><option>Individueel</option></select></label>
+                <label class="field"><span>Thema</span><select><option selected>Opbouwen</option><option>Druk zetten</option><option>Omschakelen</option><option>Afronden</option></select></label>
+                <label class="field"><span>Duur (min–max)</span>
+                    <span style="display:flex;gap:8px"><input type="number" inputmode="numeric" value="18"><input type="number" inputmode="numeric" value="25"></span>
+                </label>
+                <label class="field"><span>Spelers (min–max)</span>
+                    <span style="display:flex;gap:8px"><input type="number" inputmode="numeric" value="10"><input type="number" inputmode="numeric" value="14"></span>
+                </label>
+                <label class="field"><span>Intensiteit</span><select><option>1 · herstel</option><option>2 · laag</option><option>3 · gemiddeld</option><option selected>4 · hoog</option><option>5 · maximaal</option></select></label>
+                <label class="field"><span>Veldvorm</span><select><option>Heel veld</option><option selected>Halve veldhelft</option><option>Kwart veld</option><option>Vierkant</option></select></label>
+                <label class="field full"><span>Omschrijving en organisatie</span><textarea placeholder="Waar staan de doelen, wie start, wat is de score-regel."></textarea></label>
+                <label class="field full"><span>Principes waar deze oefening op traint</span>
+                    <select multiple size="4"><option selected>AO-01 · Breed en diep spelen bij opbouw</option><option selected>AO-02 · De keeper als eerste opbouwer</option><option>AO-03 · Derde man</option><option>VS-02 · Passlijnen dichthouden</option></select>
+                </label>
+                <label class="field full"><span>Coachpunten (één per regel)</span><textarea placeholder="Eerste balcontact uit de druk&#10;Backs breed en hoog&#10;Keeper altijd aanspeelbaar"></textarea></label>
+                <div class="field full">
+                    <label class="field"><span>Zichtbaarheid</span><select><option selected>Alleen mijn team (JO13-1)</option><option>Alleen ikzelf</option></select></label>
+                    <p class="small muted" style="margin:6px 0 0">Nieuwe oefeningen komen standaard bij je eigen team te staan en zijn meteen bruikbaar in je plannen. Het hoofd opleidingen ziet ze in de wachtrij en kan ze clubbreed maken.</p>
+                </div>
+                <div class="field full">
+                    <span class="field__label">Diagram</span>
+                    <div class="notice notice--info"><span>ℹ</span><div>Upload nu een afbeelding. Vanaf golf 8 kun je hier ook een <a href="./diagram-editor.html">geanimeerde scène</a> tekenen.</div></div>
+                    <button class="btn btn-secondary btn-sm" style="margin-top:8px;align-self:flex-start">Afbeelding kiezen</button>
+                </div>
+            </div>
+            <div class="tt-form-actions">
+                <button class="btn btn-secondary" onclick="st('closed','closed')">Annuleren</button>
+                <button class="btn btn-primary" onclick="st('closed','closed')">Oefening opslaan</button>
+            </div>
+        </div>
+
+        <!-- D9 — HoD-only promotion queue. Coaches author team-scoped; the head
+             of development decides what becomes club-wide. Hidden entirely for
+             a coach without global tt_manage_exercises scope. -->
+        <div class="card" id="queue" style="border-left:3px solid var(--tt-secondary)">
+            <div class="card__head">
+                <h2 class="card__title">Wachtrij · door teams toegevoegd</h2>
+                <span class="card__hint">alleen zichtbaar voor het hoofd opleidingen</span>
+            </div>
+            <p class="small muted" style="margin:0 0 10px">Deze oefeningen zijn door trainers aangemaakt en staan nu alleen bij hun eigen team. Maak ze clubbreed als ze passen bij de methodiek.</p>
+            <ul class="rows" style="margin:0">
+                <li class="row">
+                    <i class="band" data-band="3"></i>
+                    <div class="thumb"></div>
+                    <div class="row__body">
+                        <p class="row__title">Opbouw 4v2 + 2 uitspelers</p>
+                        <p class="row__meta"><span class="pill pill--principle">AO-01</span><span class="pill pill--gold">JO13-1</span><span>Marijn de Vries · 12 aug · 4× gebruikt</span></p>
+                    </div>
+                    <div class="row__actions">
+                        <button class="btn btn-sm">Clubbreed</button>
+                        <button class="btn btn-secondary btn-sm">Laat bij team</button>
+                    </div>
+                </li>
+                <li class="row">
+                    <i class="band" data-band="4"></i>
+                    <div class="thumb"></div>
+                    <div class="row__body">
+                        <p class="row__title">Kopduel in de zestien, 3v3</p>
+                        <p class="row__meta"><span class="pill pill--principle">VS-04</span><span class="pill pill--gold">JO14-1</span><span>Joost Bakker · 9 aug · 1× gebruikt</span></p>
+                    </div>
+                    <div class="row__actions">
+                        <button class="btn btn-sm">Clubbreed</button>
+                        <button class="btn btn-secondary btn-sm">Laat bij team</button>
+                    </div>
+                </li>
+            </ul>
+            <p class="small muted" style="margin:10px 0 0">Nog 10 andere · <a href="#">bekijk de hele wachtrij</a>. Clubbreed maken wordt vastgelegd in het auditlogboek.</p>
+        </div>
+
+        <p class="small muted" style="margin:0">17 van 214 oefeningen · gesorteerd op naam</p>
+
+        <ul class="rows">
+            <li class="row">
+                <i class="band" data-band="4"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Opbouw 7v5 naar twee kleine doelen</p>
+                    <p class="row__meta">
+                        <span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span>
+                        <span>Positiespel · 18–25 min · 10–14 spelers</span>
+                        <span class="pill pill--ghost">gebruikt in 7 plannen</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+
+            <li class="row">
+                <i class="band" data-band="3"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Rondo 5v2 met uitbreekmoment</p>
+                    <p class="row__meta">
+                        <span class="pill pill--principle">AO-01</span>
+                        <span>Rondo · 8–12 min · 7–9 spelers</span>
+                        <span class="pill pill--ghost">gebruikt in 22 plannen</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+
+            <li class="row row--shipped">
+                <i class="band" data-band="2"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Keeper-opbouw met twee steunpunten <span class="pill">meegeleverd</span></p>
+                    <p class="row__meta">
+                        <span class="pill pill--principle">AO-02</span>
+                        <span class="pill pill--blue">uit VCT</span>
+                        <span>Positiespel · 10–15 min · 6–10 spelers</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+
+            <li class="row">
+                <i class="band" data-band="4"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Positiespel 8v4 in drie zones</p>
+                    <p class="row__meta">
+                        <span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-03</span>
+                        <span>Positiespel · 20–30 min · 12–16 spelers</span>
+                        <span class="pill pill--ghost">gebruikt in 4 plannen</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+
+            <li class="row row--shipped">
+                <i class="band" data-band="5"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Intervalloop met bal, 4×45 s <span class="pill">meegeleverd</span></p>
+                    <p class="row__meta">
+                        <span class="pill pill--blue">uit VCT</span>
+                        <span class="pill pill--red">niet voor MD-1</span>
+                        <span>Individueel · 8–10 min · 6–20 spelers</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+
+            <li class="row">
+                <i class="band" data-band="3"></i>
+                <div class="thumb"></div>
+                <div class="row__body">
+                    <p class="row__title">Partij 6v6 met opbouwzone</p>
+                    <p class="row__meta">
+                        <span class="pill pill--principle">AO-01</span>
+                        <span>Partijvorm · 15–25 min · 12–14 spelers</span>
+                        <span class="pill pill--ghost">gebruikt in 11 plannen</span>
+                    </p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./exercise-detail.html">Open</a></div>
+            </li>
+        </ul>
+
+        <div class="notice notice--info">
+            <span>ℹ</span>
+            <div><b>Bibliotheek vullen kost geen avond werk.</b> Elke oefening die je in een plan gebruikt maar nog niet in de bibliotheek staat, kun je met één knop bewaren. De 96 VCT-oefeningen en de meegeleverde methodiek-sets staan er al in.</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function st(filters, neu, btn){
+    document.body.dataset.filters = filters;
+    document.body.dataset.new = neu;
+    document.body.dataset.hod = 'false';
+    document.getElementById('newform').style.display = (neu === 'open') ? 'block' : 'none';
+    if (btn) document.querySelectorAll('.state-picker button').forEach(b => b.setAttribute('aria-pressed', b === btn));
+}
+function hod(btn){
+    st('closed','closed');
+    document.body.dataset.hod = 'true';
+    document.querySelectorAll('.state-picker button').forEach(b => b.setAttribute('aria-pressed', b === btn));
+}
+</script>
+</body>
+</html>

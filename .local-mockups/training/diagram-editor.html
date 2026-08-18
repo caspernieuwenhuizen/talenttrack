@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scène-editor — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.editor { display:grid; gap:var(--sp-lg); }
+@media (min-width:1024px) { .editor { grid-template-columns:210px 1fr 260px; align-items:start; } }
+.palette { display:grid; gap:8px; }
+.tool { display:flex; align-items:center; gap:10px; min-height:var(--tap); padding:0 12px; border:1.5px solid var(--tt-line); border-radius:var(--tt-r); background:var(--tt-paper); font:inherit; font-size:14px; font-weight:600; cursor:pointer; text-align:left; }
+.tool[aria-pressed="true"] { border-color:var(--tt-primary); background:var(--tt-success-subtle); }
+.tool .glyph { width:26px; height:26px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex:0 0 auto; }
+.g-own { background:#fff; border:1.5px solid var(--tt-primary); color:var(--tt-primary); }
+.g-opp { background:transparent; border:2px solid var(--tt-ink-soft); color:var(--tt-ink-soft); }
+.g-gk  { background:var(--tt-secondary); border:1.5px solid var(--tt-primary); color:#241f00; }
+.g-ball{ background:var(--tt-secondary); border:1px solid #241f00; width:16px; height:16px; }
+.g-cone{ background:#e07a5f; border-radius:2px; }
+.g-line{ background:linear-gradient(90deg,var(--tt-secondary) 60%,transparent 60%); border-radius:0; height:3px; width:26px; }
+
+.pitchwrap { background:#2f7d4f; border-radius:var(--tt-r-lg); padding:8px; position:relative; }
+svg.stage { width:100%; height:auto; display:block; touch-action:none; }
+.line { stroke:#fff; fill:none; stroke-width:.55; opacity:.9; }
+.grid { stroke:#fff; opacity:.13; stroke-width:.25; }
+.actor circle { stroke-width:.7; cursor:grab; }
+.own circle { fill:#fff; stroke:#0b3d2e; } .opp circle { fill:none; stroke:#fff; stroke-width:1.1; }
+.gk circle { fill:#e8b624; stroke:#0b3d2e; } .ball circle { fill:#e8b624; stroke:#241f00; stroke-width:.5; }
+.actor text { font:700 3.1px var(--font); fill:#0b3d2e; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+.opp text { fill:#fff; }
+.actor.sel circle { stroke:#e8b624; stroke-width:1.4; }
+.ghost { fill:none; stroke:#e8b624; stroke-width:.4; stroke-dasharray:1.6 1.4; opacity:.85; }
+.ghostdot { fill:#e8b624; opacity:.9; }
+
+/* timeline */
+.tl { background:var(--tt-paper); border:1px solid var(--tt-line); border-radius:var(--tt-r-lg); padding:12px; margin-top:12px; }
+.tl__head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+.tl__row { display:grid; grid-template-columns:74px 1fr; gap:10px; align-items:center; padding:5px 0; border-bottom:1px solid var(--tt-line-soft); }
+.tl__row:last-child { border-bottom:0; }
+.tl__name { font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px; }
+.tl__track { position:relative; height:26px; background:var(--tt-mute); border-radius:6px; }
+.kf { position:absolute; top:5px; width:16px; height:16px; margin-left:-8px; border-radius:4px; background:var(--tt-paper); border:2px solid var(--tt-primary); transform:rotate(45deg); cursor:pointer; }
+.kf.sel { background:var(--tt-secondary); border-color:#8a6a06; }
+.playhead { position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--tt-danger); margin-left:-1px; pointer-events:none; }
+.tl__ruler { display:grid; grid-template-columns:74px 1fr; gap:10px; font-size:10px; color:var(--tt-ink-soft); }
+.tl__ruler div:last-child { display:flex; justify-content:space-between; }
+.transport { display:flex; gap:8px; align-items:center; margin-top:10px; }
+.transport input[type=range] { flex:1; height:var(--tap); }
+
+.inspector .field { margin-bottom:10px; }
+.mobile-note { display:block; }
+@media (min-width:1024px) { .mobile-note { display:none; } }
+.json { background:#10201a; color:#bfe0cf; border-radius:var(--tt-r); padding:12px; font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; overflow-x:auto; white-space:pre; }
+.json b { color:var(--tt-secondary); font-weight:400; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · W8 — Scène-editor (D2):</strong>
+    <code>?tt_view=exercise&amp;id=112&amp;mode=scene</code> ·
+    desktop-primair · sleep de speler, zet een keyframe, scrub de tijdlijn ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <a class="back-pill" href="./exercise-detail.html">&larr; Terug naar Opbouw 7v5</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; <a href="./library.html">Oefeningen</a> &rsaquo; <a href="./exercise-detail.html">Opbouw 7v5</a> &rsaquo; Scène bewerken</p>
+        <h1>Scène 1 · Opbouw via de vrije back</h1>
+        <p class="page-head__sub">Coördinaten zijn 0–100 in veldruimte, zodat dezelfde scène op een telefoon, in de plan-weergave en op de A4-afdruk klopt.</p>
+    </header>
+
+    <div class="wrap">
+
+        <div class="notice notice--warn mobile-note">
+            <span>!</span>
+            <div><b>Tekenen kan het beste op een groter scherm.</b> Op een telefoon kun je de scène bekijken en spelers verslepen, maar keyframes en looplijnen bewerk je op tablet of desktop.</div>
+        </div>
+
+        <div class="editor">
+
+            <!-- gereedschap -->
+            <aside class="palette">
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Toevoegen</h2></div>
+                    <div class="palette">
+                        <button class="tool" aria-pressed="true"><span class="glyph g-own">6</span> Eigen speler</button>
+                        <button class="tool" aria-pressed="false"><span class="glyph g-opp">9</span> Tegenstander</button>
+                        <button class="tool" aria-pressed="false"><span class="glyph g-gk">1</span> Keeper</button>
+                        <button class="tool" aria-pressed="false"><span class="glyph g-ball"></span> Bal</button>
+                        <button class="tool" aria-pressed="false"><span class="glyph g-cone"></span> Pion</button>
+                        <button class="tool" aria-pressed="false"><span class="glyph g-line"></span> Pass / looplijn</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Veld</h2></div>
+                    <label class="field"><span>Weergave</span>
+                        <select><option>Heel veld</option><option selected>Halve veldhelft</option><option>Kwart veld</option><option>Vierkant zonder doelen</option></select>
+                    </label>
+                    <label class="field" style="margin-top:10px"><span>Duur van de scène</span>
+                        <select><option>4 seconden</option><option selected>6 seconden</option><option>8 seconden</option><option>12 seconden</option></select>
+                    </label>
+                </div>
+            </aside>
+
+            <!-- canvas -->
+            <div>
+                <div class="pitchwrap">
+                    <svg class="stage" id="stage" viewBox="0 0 100 66">
+                        <g class="grid">
+                            <line x1="25" y1="1" x2="25" y2="65"/><line x1="50" y1="1" x2="50" y2="65"/><line x1="75" y1="1" x2="75" y2="65"/>
+                            <line x1="1" y1="22" x2="99" y2="22"/><line x1="1" y1="44" x2="99" y2="44"/>
+                        </g>
+                        <rect x="1" y="1" width="98" height="64" class="line"/>
+                        <rect x="1" y="13" width="17" height="40" class="line"/>
+                        <rect x="1" y="23" width="6" height="20" class="line"/>
+                        <path d="M99 21 A12 12 0 0 0 99 45" class="line"/>
+
+                        <!-- looppad van de geselecteerde speler -->
+                        <path id="ghost" class="ghost" d=""/>
+                        <g id="ghostdots"></g>
+
+                        <g id="actors"></g>
+                    </svg>
+                </div>
+
+                <!-- tijdlijn -->
+                <div class="tl">
+                    <div class="tl__head">
+                        <h2 class="card__title" style="margin:0">Tijdlijn</h2>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn btn-secondary btn-sm" onclick="addKf()">+ Keyframe op t</button>
+                            <button class="btn btn-secondary btn-sm">Ongedaan maken</button>
+                        </div>
+                    </div>
+                    <div class="tl__ruler"><span></span><div><span>0s</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6s</span></div></div>
+                    <div id="tracks"></div>
+                    <div class="transport">
+                        <button class="btn btn-sm" id="playbtn" onclick="togglePlay()">▶ Afspelen</button>
+                        <input id="scrub" type="range" min="0" max="6000" step="50" value="0" aria-label="Tijd">
+                        <output id="tout" style="font-variant-numeric:tabular-nums;font-weight:800;min-width:56px;text-align:right">0,00s</output>
+                    </div>
+                </div>
+            </div>
+
+            <!-- inspector -->
+            <aside class="inspector stack">
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Geselecteerd</h2></div>
+                    <div id="insp">
+                        <label class="field"><span>Label</span><input id="i-label" type="text" value="5"></label>
+                        <label class="field"><span>Rol</span><select><option selected>Eigen speler</option><option>Tegenstander</option><option>Keeper</option></select></label>
+                        <div class="field"><span class="field__label">Positie op t</span>
+                            <div style="display:flex;gap:8px">
+                                <input id="i-x" type="number" inputmode="decimal" value="30"><input id="i-y" type="number" inputmode="decimal" value="7">
+                            </div>
+                        </div>
+                        <p class="small muted" style="margin:0">Sleep de speler op het veld of typ de waarden. Bij het verslepen wordt een keyframe gezet op de huidige tijd.</p>
+                    </div>
+                    <div class="tt-form-actions" style="margin-top:12px">
+                        <button class="btn btn-secondary btn-sm" style="flex:1">Verwijder speler</button>
+                        <button class="btn btn-secondary btn-sm" style="flex:1">Dupliceer</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card__head"><h2 class="card__title">Wat wordt opgeslagen</h2></div>
+                    <div class="json" id="json"></div>
+                    <p class="small muted" style="margin:8px 0 0">Eén <code>scene_json</code> per scène in <code>tt_exercise_scenes</code>. Dezelfde renderer als de Speelwijze-scènes in de methodiek.</p>
+                </div>
+
+                <div class="tt-form-actions">
+                    <a class="btn btn-secondary" href="./exercise-detail.html">Annuleren</a>
+                    <button class="btn btn-primary">Scène opslaan</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+<script>
+/* Minimal working model of the scene_json contract:
+   actors carry keyframes {t,x,y}; playback linearly interpolates between them. */
+const DUR = 6000;
+const scene = {
+    pitch: "half", duration_ms: DUR,
+    actors: [
+        { id:"gk",  kind:"gk",     label:"1",  keyframes:[{t:0,x:9,y:33}] },
+        { id:"cb1", kind:"player", label:"4",  keyframes:[{t:0,x:24,y:18}] },
+        { id:"cb2", kind:"player", label:"3",  keyframes:[{t:0,x:24,y:48}] },
+        { id:"lb",  kind:"player", label:"5",  keyframes:[{t:0,x:30,y:7},{t:1200,x:30,y:7},{t:2700,x:48,y:6}] },
+        { id:"rb",  kind:"player", label:"2",  keyframes:[{t:0,x:30,y:59},{t:2100,x:30,y:59},{t:3600,x:50,y:58}] },
+        { id:"cm",  kind:"player", label:"6",  keyframes:[{t:0,x:45,y:33},{t:600,x:45,y:33},{t:2400,x:57,y:24}] },
+        { id:"o1",  kind:"opponent", label:"9",  keyframes:[{t:0,x:55,y:33}] },
+        { id:"o2",  kind:"opponent", label:"11", keyframes:[{t:0,x:40,y:45}] },
+        { id:"o3",  kind:"opponent", label:"7",  keyframes:[{t:0,x:40,y:20},{t:900,x:40,y:20},{t:2700,x:31,y:12}] },
+        { id:"ball",kind:"ball",   label:"",   keyframes:[{t:0,x:13,y:33},{t:500,x:13,y:33},{t:1500,x:24,y:48},{t:1900,x:24,y:48},{t:3100,x:31,y:8},{t:3500,x:31,y:8},{t:4700,x:49,y:6}] }
+    ]
+};
+let sel = "lb", t = 0, playing = false, raf = null, last = 0;
+
+const KIND_CLASS = { player:"own", opponent:"opp", gk:"gk", ball:"ball" };
+const NS = "http://www.w3.org/2000/svg";
+
+function posAt(a, time){
+    const k = a.keyframes;
+    if (time <= k[0].t) return k[0];
+    if (time >= k[k.length-1].t) return k[k.length-1];
+    for (let i=0;i<k.length-1;i++){
+        if (time >= k[i].t && time <= k[i+1].t){
+            const f = (time - k[i].t) / Math.max(1, k[i+1].t - k[i].t);
+            return { x: k[i].x + (k[i+1].x-k[i].x)*f, y: k[i].y + (k[i+1].y-k[i].y)*f };
+        }
+    }
+    return k[0];
+}
+
+function buildActors(){
+    const g = document.getElementById('actors');
+    g.textContent = '';
+    scene.actors.forEach(a => {
+        const el = document.createElementNS(NS,'g');
+        el.setAttribute('class', 'actor ' + KIND_CLASS[a.kind] + (a.id===sel ? ' sel':''));
+        el.dataset.id = a.id;
+        const c = document.createElementNS(NS,'circle');
+        c.setAttribute('r', a.kind==='ball' ? 1.8 : 3.2);
+        el.appendChild(c);
+        if (a.label){ const tx = document.createElementNS(NS,'text'); tx.textContent = a.label; el.appendChild(tx); }
+        el.addEventListener('pointerdown', e => { sel = a.id; render(); e.preventDefault(); });
+        g.appendChild(el);
+    });
+}
+
+function buildTracks(){
+    const wrap = document.getElementById('tracks');
+    wrap.textContent = '';
+    scene.actors.filter(a => a.keyframes.length > 1).forEach(a => {
+        const row = document.createElement('div'); row.className = 'tl__row';
+        const name = document.createElement('div'); name.className = 'tl__name';
+        name.innerHTML = '<span class="pill">'+(a.label || 'bal')+'</span>';
+        const track = document.createElement('div'); track.className = 'tl__track'; track.dataset.id = a.id;
+        a.keyframes.forEach((k, i) => {
+            const kf = document.createElement('button');
+            kf.className = 'kf' + (a.id===sel && Math.abs(k.t - t) < 120 ? ' sel' : '');
+            kf.style.left = (k.t / DUR * 100) + '%';
+            kf.title = a.label + ' @ ' + (k.t/1000).toFixed(1) + 's';
+            kf.setAttribute('aria-label', 'Keyframe ' + (i+1));
+            kf.onclick = () => { sel = a.id; setT(k.t); };
+            track.appendChild(kf);
+        });
+        const ph = document.createElement('div'); ph.className = 'playhead'; ph.style.left = (t/DUR*100)+'%';
+        track.appendChild(ph);
+        row.appendChild(name); row.appendChild(track); wrap.appendChild(row);
+    });
+}
+
+function render(){
+    document.querySelectorAll('#actors .actor').forEach(el => {
+        const a = scene.actors.find(x => x.id === el.dataset.id);
+        const p = posAt(a, t);
+        el.setAttribute('transform', 'translate(' + p.x.toFixed(2) + ',' + p.y.toFixed(2) + ')');
+        el.classList.toggle('sel', a.id === sel);
+    });
+    const a = scene.actors.find(x => x.id === sel);
+    const path = a.keyframes.map((k,i) => (i?'L':'M') + k.x + ' ' + k.y).join(' ');
+    document.getElementById('ghost').setAttribute('d', a.keyframes.length > 1 ? path : '');
+    const gd = document.getElementById('ghostdots'); gd.textContent = '';
+    if (a.keyframes.length > 1) a.keyframes.forEach(k => {
+        const c = document.createElementNS(NS,'circle');
+        c.setAttribute('class','ghostdot'); c.setAttribute('cx',k.x); c.setAttribute('cy',k.y); c.setAttribute('r','.8');
+        gd.appendChild(c);
+    });
+    const p = posAt(a, t);
+    document.getElementById('i-label').value = a.label;
+    document.getElementById('i-x').value = p.x.toFixed(1);
+    document.getElementById('i-y').value = p.y.toFixed(1);
+    document.getElementById('tout').value = (t/1000).toFixed(2).replace('.',',') + 's';
+    document.getElementById('scrub').value = t;
+    buildTracks();
+    renderJson();
+}
+
+function renderJson(){
+    const a = scene.actors.find(x => x.id === sel);
+    const kf = a.keyframes.map(k => '      { "t": '+k.t+', "x": '+k.x+', "y": '+k.y+' }').join(',\n');
+    document.getElementById('json').innerHTML =
+        '{\n  "pitch": <b>"half"</b>,\n  "duration_ms": <b>6000</b>,\n  "actors": [\n' +
+        '    { "id": <b>"'+a.id+'"</b>, "kind": <b>"'+a.kind+'"</b>, "label": <b>"'+a.label+'"</b>,\n' +
+        '      "keyframes": [\n' + kf.replace(/</g,'&lt;') + '\n      ] }\n    …\n  ]\n}';
+}
+
+function setT(ms){ t = Math.max(0, Math.min(DUR, ms)); render(); }
+function togglePlay(){
+    playing = !playing;
+    document.getElementById('playbtn').textContent = playing ? '⏸ Pauze' : '▶ Afspelen';
+    if (playing){ if (t >= DUR) t = 0; last = performance.now(); raf = requestAnimationFrame(tick); }
+    else cancelAnimationFrame(raf);
+}
+function tick(now){
+    const dt = now - last; last = now;
+    t += dt;
+    if (t >= DUR){ t = DUR; playing = false; document.getElementById('playbtn').textContent = '▶ Afspelen'; render(); return; }
+    render(); raf = requestAnimationFrame(tick);
+}
+function addKf(){
+    const a = scene.actors.find(x => x.id === sel);
+    const p = posAt(a, t);
+    a.keyframes = a.keyframes.filter(k => Math.abs(k.t - t) > 60).concat([{t:Math.round(t), x:+p.x.toFixed(1), y:+p.y.toFixed(1)}]).sort((m,n)=>m.t-n.t);
+    render();
+}
+
+/* drag on the pitch writes a keyframe at the current time — the core gesture */
+const stage = document.getElementById('stage');
+let dragging = false;
+stage.addEventListener('pointerdown', e => { if (e.target.closest('.actor')) dragging = true; });
+window.addEventListener('pointerup', () => dragging = false);
+stage.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const r = stage.getBoundingClientRect();
+    const x = Math.max(2, Math.min(98, (e.clientX - r.left) / r.width * 100));
+    const y = Math.max(2, Math.min(64, (e.clientY - r.top) / r.height * 66));
+    const a = scene.actors.find(z => z.id === sel);
+    a.keyframes = a.keyframes.filter(k => Math.abs(k.t - t) > 60).concat([{t:Math.round(t), x:+x.toFixed(1), y:+y.toFixed(1)}]).sort((m,n)=>m.t-n.t);
+    render();
+});
+document.getElementById('scrub').addEventListener('input', e => setT(+e.target.value));
+document.querySelectorAll('.tool').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tool').forEach(x => x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+}));
+
+buildActors(); render();
+</script>
+</body>
+</html>

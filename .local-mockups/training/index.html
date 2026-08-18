@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Training-module — mockup-overzicht #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.grid { display:grid; gap:12px; grid-template-columns:1fr; }
+@media (min-width:768px) { .grid { grid-template-columns:1fr 1fr; } }
+@media (min-width:1024px) { .grid { grid-template-columns:1fr 1fr 1fr; } }
+.tile { display:block; background:var(--tt-paper); border:1px solid var(--tt-line); border-radius:var(--tt-r-lg); padding:14px; text-decoration:none; color:inherit; }
+.tile:hover { border-color:var(--tt-primary); box-shadow:var(--tt-shadow); }
+.tile h3 { margin:6px 0 4px; font-size:16px; font-weight:800; }
+.tile p { margin:0; font-size:13px; color:var(--tt-ink-soft); }
+.tile code { font-size:11px; color:var(--tt-primary-soft); background:var(--tt-mute); padding:1px 5px; border-radius:4px; }
+.wave { display:inline-block; font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--tt-secondary); background:var(--tt-primary); border-radius:999px; padding:2px 9px; }
+.flow { display:flex; gap:6px; flex-wrap:wrap; align-items:center; font-size:13px; }
+.flow b { background:var(--tt-mute); border-radius:999px; padding:5px 12px; font-weight:700; }
+.flow i { color:var(--tt-ink-soft); font-style:normal; }
+.dec { display:grid; gap:8px; }
+.dec div { display:grid; grid-template-columns:34px 1fr; gap:10px; font-size:14px; }
+.dec b { color:var(--tt-primary); }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · Training-module — end-to-end ontwerp.</strong>
+    Spec: <code>specs/0096-epic-training-module.md</code> · alle surfaces mobile-first, Nederlandse copy, productie-<code>.tt-*</code>-vocabulaire.
+</div>
+
+<div class="frame">
+    <header class="page-head">
+        <h1>Training-module — ontwerp</h1>
+        <p class="page-head__sub">Trainers bouwen hun training in de applicatie, de generator doet het voorwerk, en wat er getraind is komt terecht op het spelersdossier.</p>
+    </header>
+
+    <div class="wrap">
+
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">De keten</h2></div>
+            <div class="flow">
+                <b>Methodiek</b><i>→</i><b>Oefeningenbibliotheek</b><i>→</i><b>Generator</b><i>→</i><b>Trainingsplan</b><i>→</i><b>Uitvoering + aanwezigheid</b><i>→</i><b>Trainingstijd per speler per principe</b>
+            </div>
+            <p class="small muted" style="margin:10px 0 0">De laatste schakel is het punt van de hele module. Zonder die schakel is dit een oefeningen-app; met die schakel is het de ontbrekende invoerkant van het spelersdossier.</p>
+        </div>
+
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Vastgelegde keuzes</h2></div>
+            <div class="dec">
+                <div><span class="pill">D1</span><span>Eén bibliotheek — de VCT-kolommen worden ingevouwen in <b>tt_exercises</b>.</span></div>
+                <div><span class="pill">D2</span><span>Volledige <b>geanimeerde scène-editor</b>, als laatste golf zodat hij niets ophoudt.</span></div>
+                <div><span class="pill">D3</span><span>Het plan is <b>zelfstandig en herbruikbaar</b>; de <b>uitvoering</b> draagt de spelerdata.</span></div>
+                <div><span class="pill">D4</span><span><b>Generator eerst</b> — nooit een leeg scherm.</span></div>
+                <div><span class="pill">D5</span><span>Een plan is <b>muteerbaar</b>, zonder versieketen; de uitvoering bewaart de momentopname.</span></div>
+                <div><span class="pill">D6</span><span>Een scène is een <b>veld van de oefening</b>, geen sub-entiteit — §3 is niet van toepassing.</span></div>
+                <div><span class="pill">D7</span><span>Observaties gebruiken de <b>beoordelingsschaal van de installatie</b> (hier 5–9).</span></div>
+                <div><span class="pill">D8</span><span>Gastspelers <b>tellen mee</b>, op hun eigen spelersdossier.</span></div>
+                <div><span class="pill">D9</span><span>Trainers maken oefeningen <b>op teamniveau</b>; het hoofd opleidingen promoveert naar clubbreed.</span></div>
+                <div><span class="pill">D10</span><span><b>Eén tegel</b> “Training”; de bibliotheek zit erin, niet ernaast.</span></div>
+            </div>
+        </div>
+
+        <h2 style="margin:6px 0 0;font-size:15px">Surfaces</h2>
+        <div class="grid">
+
+            <a class="tile" href="./generator.html">
+                <span class="wave">Golf 4</span>
+                <h3>Generator-wizard</h3>
+                <p>Vijf stappen: wanneer · thema · vorm · voorstel · controle. Thema komt uit de periodisering, ranking uit open spelerdoelen.</p>
+                <p style="margin-top:8px"><code>?tt_view=wizard&amp;slug=new-training-plan</code></p>
+            </a>
+
+            <a class="tile" href="./plan-builder.html">
+                <span class="wave">Golf 5</span>
+                <h3>Plan-builder</h3>
+                <p>Blokken herschikken, oefening vervangen uit de bibliotheek-picker, duur bijstellen. Zijpaneel toont welke spelerdoelen geraakt worden.</p>
+                <p style="margin-top:8px"><code>?tt_view=training-plan&amp;id=N&amp;mode=build</code></p>
+            </a>
+
+            <a class="tile" href="./coach-view.html">
+                <span class="wave">Golf 6 + 7</span>
+                <h3>Uitvoering langs de lijn</h3>
+                <p>Eén blok tegelijk, grote cijfers, timer, offline. Observatie per speler per blok gaat rechtstreeks naar de tijdlijn.</p>
+                <p style="margin-top:8px"><code>?tt_view=training-run&amp;id=N</code></p>
+            </a>
+
+            <a class="tile" href="./library.html">
+                <span class="wave">Golf 1 + 2</span>
+                <h3>Oefeningenbibliotheek</h3>
+                <p>De samengevoegde catalogus. VCT-oefeningen zijn ingevoegd en herkenbaar. Inline aanmaken per §3-exemptie (a).</p>
+                <p style="margin-top:8px"><code>?tt_view=exercises</code></p>
+            </a>
+
+            <a class="tile" href="./exercise-detail.html">
+                <span class="wave">Golf 2 + 8</span>
+                <h3>Oefening-detail</h3>
+                <p>Geanimeerde scène (niets beweegt tot je afspeelt), organisatie, coachpunten, gekoppelde principes en gebruiksgeschiedenis.</p>
+                <p style="margin-top:8px"><code>?tt_view=exercise&amp;id=N</code></p>
+            </a>
+
+            <a class="tile" href="./diagram-editor.html">
+                <span class="wave">Golf 8</span>
+                <h3>Scène-editor</h3>
+                <p>Werkend model van het <code>scene_json</code>-contract: sleep een speler, zet een keyframe, scrub de tijdlijn.</p>
+                <p style="margin-top:8px"><code>?tt_view=exercise&amp;id=N&amp;mode=scene</code></p>
+            </a>
+
+            <a class="tile" href="./player-exposure.html">
+                <span class="wave">Golf 7</span>
+                <h3>Trainingsblootstelling speler</h3>
+                <p>Minuten en sessies per principe, gaten in rood, observaties, en de link naar zijn doelen. Dit is de opbrengst.</p>
+                <p style="margin-top:8px"><code>?tt_view=players&amp;id=N&amp;tab=training</code></p>
+            </a>
+
+            <a class="tile" href="./coverage-report.html">
+                <span class="wave">Golf 7</span>
+                <h3>Methodiekdekking (HoD)</h3>
+                <p>Matrix principe × team in minuten. Laat zien welke delen van de speelwijze alleen op papier bestaan.</p>
+                <p style="margin-top:8px"><code>?tt_view=training-coverage</code></p>
+            </a>
+
+            <a class="tile" href="./plans-list.html">
+                <span class="wave">Golf 3</span>
+                <h3>Plannenlijst</h3>
+                <p>Gepland, uitgevoerd en clubsjablonen. Met “herhaal vorige week” als tweede route naar een gevuld plan.</p>
+                <p style="margin-top:8px"><code>?tt_view=training-plans</code></p>
+            </a>
+
+            <a class="tile" href="./print.html">
+                <span class="wave">Golf 6</span>
+                <h3>A4-afdruk</h3>
+                <p>75 minuten op één pagina, met minidiagrammen en een afvinklijst voor de aanwezigheid.</p>
+                <p style="margin-top:8px"><code>?tt_view=training-plan&amp;id=N&amp;print=1</code></p>
+            </a>
+        </div>
+
+        <div class="notice notice--info">
+            <span>ℹ</span>
+            <div>Golf 9 (foto-naar-plan) heeft geen eigen mockup: de backend uit #0016 is al gebouwd en de review-wizard hergebruikt de blokkenweergave uit de generator-stap 4. Zie <code>notes.md</code>.</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

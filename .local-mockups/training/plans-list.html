@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainingsplannen — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.plan { background:var(--tt-paper); border:1px solid var(--tt-line); border-radius:var(--tt-r-lg); padding:14px; margin-bottom:10px; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; }
+.datebadge { width:52px; text-align:center; border-radius:var(--tt-r); background:var(--tt-mute); padding:6px 0; flex:0 0 auto; }
+.datebadge b { display:block; font-size:19px; font-weight:800; line-height:1; font-variant-numeric:tabular-nums; }
+.datebadge span { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--tt-ink-soft); font-weight:700; }
+.datebadge.today { background:var(--tt-primary); color:#fff; } .datebadge.today span { color:#cfe6da; }
+.datebadge.tmpl { background:#fdf3d8; }
+.plan__t { margin:0; font-size:16px; font-weight:700; }
+.plan__m { margin:3px 0 0; font-size:12px; color:var(--tt-ink-soft); display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.mini { display:flex; height:8px; border-radius:4px; overflow:hidden; margin-top:8px; max-width:280px; }
+.mini span { display:block; }
+.bucket { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--tt-ink-soft); padding:14px 0 6px; }
+@media (max-width:767px) { .plan { grid-template-columns:auto 1fr; } .plan .row__actions { grid-column:1/-1; flex-direction:row; } }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · W3 — Plannenlijst:</strong>
+    <code>?tt_view=training-plans</code> · gepland eerst, sjablonen apart ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="frame">
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; Training</p>
+        <h1>Trainingsplannen</h1>
+        <p class="page-head__sub">Je plannen, de plannen van je teams en de sjablonen van de club.</p>
+        <div class="page-head__actions">
+            <a class="btn btn-sm" href="./generator.html">+ Nieuw plan</a>
+            <button class="btn btn-secondary btn-sm">↻ Herhaal vorige week</button>
+            <a class="btn btn-secondary btn-sm" href="./library.html">Oefeningen</a>
+        </div>
+    </header>
+
+    <div class="filterbar">
+        <div class="filterbar__row">
+            <label class="field filterbar__search"><span class="sr-only">Zoeken</span><input type="search" placeholder="Zoek op naam of thema…"></label>
+            <button class="btn btn-secondary">Filters <span class="pill pill--green">1</span></button>
+        </div>
+        <div class="filterbar__chips">
+            <span class="pill pill--green">Team: JO13-1 ✕</span>
+            <span class="pill pill--ghost">+ Thema</span>
+            <span class="pill pill--ghost">+ Periode</span>
+            <span class="pill pill--ghost">+ Status</span>
+        </div>
+    </div>
+
+    <div class="wrap">
+        <div>
+            <p class="bucket">Gepland</p>
+
+            <div class="plan">
+                <span class="datebadge today"><b>19</b><span>aug</span></span>
+                <div>
+                    <p class="plan__t">Opbouwen van achteruit</p>
+                    <p class="plan__m"><span class="pill pill--green">gekoppeld aan training</span><span>JO13-1 · 75 min · 6 blokken</span><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span></p>
+                    <div class="mini"><span class="t-warmup" style="flex:12"></span><span class="t-rondo" style="flex:10"></span><span class="t-main" style="flex:22"></span><span class="t-game" style="flex:20"></span><span class="t-cooldown" style="flex:6"></span><span class="t-talk" style="flex:5"></span></div>
+                </div>
+                <div class="row__actions">
+                    <a class="btn btn-sm" href="./coach-view.html">Langs de lijn</a>
+                    <a class="btn btn-secondary btn-sm" href="./plan-builder.html">Bewerken</a>
+                </div>
+            </div>
+
+            <div class="plan">
+                <span class="datebadge"><b>21</b><span>aug</span></span>
+                <div>
+                    <p class="plan__t">Druk zetten op de helft</p>
+                    <p class="plan__m"><span class="pill pill--gold">concept</span><span>JO13-1 · 75 min · 5 blokken</span><span class="pill pill--principle">VS-02</span></p>
+                    <div class="mini"><span class="t-warmup" style="flex:10"></span><span class="t-main" style="flex:25"></span><span class="t-game" style="flex:25"></span><span class="t-cooldown" style="flex:8"></span></div>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="./plan-builder.html">Afmaken</a></div>
+            </div>
+
+            <p class="bucket">Uitgevoerd</p>
+
+            <div class="plan">
+                <span class="datebadge"><b>14</b><span>aug</span></span>
+                <div>
+                    <p class="plan__t">Omschakelen na balverlies</p>
+                    <p class="plan__m"><span class="pill">72 van 75 min</span><span>JO13-1 · 13 aanwezig · 4 observaties</span></p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="#">Bekijk</a></div>
+            </div>
+
+            <div class="plan">
+                <span class="datebadge"><b>12</b><span>aug</span></span>
+                <div>
+                    <p class="plan__t">Opbouw onder druk</p>
+                    <p class="plan__m"><span class="pill">75 van 75 min</span><span>JO13-1 · 14 aanwezig · 6 observaties</span></p>
+                </div>
+                <div class="row__actions"><a class="btn btn-secondary btn-sm" href="#">Bekijk</a></div>
+            </div>
+
+            <p class="bucket">Sjablonen van de club</p>
+
+            <div class="plan">
+                <span class="datebadge tmpl"><b>◈</b><span>sjabl.</span></span>
+                <div>
+                    <p class="plan__t">Standaard MD-3 · thema-training 75 min</p>
+                    <p class="plan__m"><span class="pill pill--ghost">alle teams</span><span>6 blokken · 18× gebruikt</span></p>
+                </div>
+                <div class="row__actions"><button class="btn btn-secondary btn-sm">Gebruik</button></div>
+            </div>
+
+            <div class="plan">
+                <span class="datebadge tmpl"><b>◈</b><span>sjabl.</span></span>
+                <div>
+                    <p class="plan__t">Standaard MD-1 · activatie 55 min</p>
+                    <p class="plan__m"><span class="pill pill--ghost">alle teams</span><span>4 blokken · 11× gebruikt</span></p>
+                </div>
+                <div class="row__actions"><button class="btn btn-secondary btn-sm">Gebruik</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

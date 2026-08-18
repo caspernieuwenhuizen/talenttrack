@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainingsplan-generator — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.ctx { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+.slider-row { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
+.slider-row output { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--tt-primary); min-width:74px; text-align:right; }
+input[type=range] { width:100%; height:var(--tap); }
+.blk { background:var(--tt-paper); border:1px solid var(--tt-line); border-radius:var(--tt-r-lg); padding:12px; display:grid; grid-template-columns:6px 1fr; gap:12px; margin-bottom:10px; }
+.blk__spine { border-radius:3px; }
+.blk__top { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+.blk__type { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; color:var(--tt-ink-soft); }
+.blk__dur { font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
+.blk__name { margin:2px 0 0; font-size:15px; font-weight:700; }
+.blk__desc { margin:4px 0 0; font-size:13px; color:var(--tt-ink-soft); }
+.blk__tags { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.blk__acts { display:flex; gap:6px; margin-top:10px; }
+.curve { display:flex; align-items:flex-end; gap:3px; height:70px; padding:8px; background:var(--tt-mute); border-radius:var(--tt-r); }
+.curve i { flex:1; border-radius:3px 3px 0 0; background:var(--tt-primary-soft); display:block; }
+.curve i[data-band="5"] { background:var(--band-5); }
+.curve i[data-band="4"] { background:var(--band-4); }
+.curve i[data-band="3"] { background:var(--band-3); }
+.curve i[data-band="2"] { background:var(--band-2); }
+.curve i[data-band="1"] { background:var(--band-1); }
+.step { display:none; }
+.step[data-active="true"] { display:block; }
+</style>
+</head>
+<body data-step="1">
+
+<div class="mockup-bar">
+    <strong>#0096 · W4 — Generator (D4, entry point):</strong>
+    <code>?tt_view=wizard&amp;slug=new-training-plan</code> · 5 stappen ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+<div class="state-picker" role="tablist" aria-label="Wizard-stap">
+    <button aria-pressed="true"  onclick="go(1,this)">1 · Wanneer</button>
+    <button aria-pressed="false" onclick="go(2,this)">2 · Thema</button>
+    <button aria-pressed="false" onclick="go(3,this)">3 · Vorm</button>
+    <button aria-pressed="false" onclick="go(4,this)">4 · Voorstel</button>
+    <button aria-pressed="false" onclick="go(5,this)">5 · Controle</button>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <a class="back-pill" href="#">&larr; Terug naar Ajax JO13-1</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; Nieuw plan</p>
+        <h1>Nieuw trainingsplan</h1>
+        <p class="page-head__sub">De generator stelt een plan voor op basis van je speelwijze, de periodisering en de doelen van je spelers. Je past het daarna aan.</p>
+    </header>
+
+    <ol class="wiz-steps" id="steps">
+        <li data-state="now">Wanneer</li><li>Thema</li><li>Vorm</li><li>Voorstel</li><li>Controle</li>
+    </ol>
+
+    <!-- ══ STAP 1 ══ -->
+    <section class="step" data-step="1" data-active="true">
+        <div class="wrap">
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Team en moment</h2></div>
+                <div class="stack">
+                    <label class="field"><span>Team</span>
+                        <select><option>Ajax JO13-1</option><option>Ajax JO13-2</option><option>Ajax JO14-1</option></select>
+                    </label>
+                    <label class="field"><span>Trainingsdag</span>
+                        <select>
+                            <option selected>di 19 aug · 18:30 – 19:45 · Veld 2</option>
+                            <option>do 21 aug · 18:30 – 19:45 · Veld 2</option>
+                            <option>— andere datum —</option>
+                        </select>
+                    </label>
+                    <p class="small muted" style="margin:0">Gekozen uit de activiteiten die al in de agenda staan, zodat het plan meteen aan de juiste training gekoppeld kan worden.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Context — automatisch bepaald</h2><span class="card__hint">aanpasbaar</span></div>
+                <div class="ctx">
+                    <span class="pill pill--blue">MD-3 · wedstrijd zaterdag 23 aug</span>
+                    <span class="pill pill--green">Leeftijdsprofiel JO13 · plafond intensiteit 4</span>
+                    <span class="pill pill--gold">Blok “Opbouw” · week 3 van 6 · ×1.00</span>
+                    <span class="pill">Verwachte opkomst 13 van 15</span>
+                    <span class="pill pill--red">1 speler met PHV-vlag</span>
+                </div>
+                <div class="notice notice--info" style="margin-top:12px">
+                    <span>ℹ</span><div>De wedstrijd van zaterdag staat 3 dagen na deze training. De generator kiest daarom een opbouwende belasting en houdt de piek op dinsdag, niet op donderdag.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STAP 2 ══ -->
+    <section class="step" data-step="2">
+        <div class="wrap">
+            <div class="notice notice--good">
+                <span>◆</span><div><b>Voorgesteld thema: Opbouwen van achteruit.</b> Dit is het thema van week 3 in het huidige macroblok, en 6 van je 15 spelers hebben een open doel op een principe uit dit thema.</div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Thema van de training</h2></div>
+                <div class="choices" role="radiogroup">
+                    <label class="choice" aria-checked="true" onclick="pick(this)">
+                        <span class="choice__title">Opbouwen van achteruit <span class="pill pill--gold">periodisering</span></span>
+                        <span class="choice__why">AO-01, AO-02 · dekt 6 open spelerdoelen · 4 weken geleden voor het laatst getraind</span>
+                    </label>
+                    <label class="choice" aria-checked="false" onclick="pick(this)">
+                        <span class="choice__title">Druk zetten en heroveren</span>
+                        <span class="choice__why">VS-02, VS-03 · dekt 3 open spelerdoelen · vorige week getraind</span>
+                    </label>
+                    <label class="choice" aria-checked="false" onclick="pick(this)">
+                        <span class="choice__title">Omschakeling na balverlies</span>
+                        <span class="choice__why">OM-01 · dekt 2 open spelerdoelen · 9 weken geleden voor het laatst getraind</span>
+                    </label>
+                    <label class="choice" aria-checked="false" onclick="pick(this)">
+                        <span class="choice__title">Afronden en diepte zoeken</span>
+                        <span class="choice__why">AO-04 · dekt 5 open spelerdoelen · 2 weken geleden getraind</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Extra accent <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:600">(optioneel)</span></h2></div>
+                <label class="field"><span>Principe waarop je wilt sturen</span>
+                    <select>
+                        <option>— geen extra accent —</option>
+                        <option>AO-01 · Breed en diep spelen bij opbouw</option>
+                        <option>AO-02 · De keeper als eerste opbouwer</option>
+                        <option>VS-02 · Passlijnen dichthouden</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STAP 3 ══ -->
+    <section class="step" data-step="3">
+        <div class="wrap">
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Duur en groep</h2></div>
+                <div class="stack">
+                    <div>
+                        <label class="field__label" for="dur">Netto trainingstijd</label>
+                        <div class="slider-row">
+                            <input id="dur" type="range" min="45" max="105" step="5" value="75" oninput="document.getElementById('durout').value=this.value+' min'">
+                            <output id="durout">75 min</output>
+                        </div>
+                        <p class="small muted" style="margin:2px 0 0">Leeftijdsprofiel JO13 adviseert 60–80 minuten. Boven 90 minuten volgt een waarschuwing bij de controle.</p>
+                    </div>
+                    <label class="field"><span>Aantal spelers dat je verwacht</span>
+                        <input type="number" inputmode="numeric" value="13" min="4" max="30">
+                    </label>
+                    <label class="field"><span>Keeper aanwezig</span>
+                        <select><option selected>Ja — 1 keeper</option><option>Nee</option><option>2 keepers</option></select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Opbouw van de training</h2><span class="card__hint">sjabloon</span></div>
+                <div class="choices" role="radiogroup">
+                    <label class="choice" aria-checked="true" onclick="pick(this)">
+                        <span class="choice__title">Standaard · warming-up → rondo → hoofdvorm → partij</span>
+                        <span class="choice__why">Past bij MD-3 en een thema-training. Aanbevolen.</span>
+                    </label>
+                    <label class="choice" aria-checked="false" onclick="pick(this)">
+                        <span class="choice__title">Wedstrijdgericht · korte activatie → veel partij</span>
+                        <span class="choice__why">Voor MD-1 en MD-2. Lagere totale belasting.</span>
+                    </label>
+                    <label class="choice" aria-checked="false" onclick="pick(this)">
+                        <span class="choice__title">Techniekblok · twee kleine vormen naast elkaar</span>
+                        <span class="choice__why">Vraagt een tweede trainer of een zelfstandige groep.</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STAP 4 ══ -->
+    <section class="step" data-step="4">
+        <div class="wrap">
+            <div class="notice notice--good">
+                <span>✓</span><div>Voorstel samengesteld uit <b>je eigen bibliotheek</b> — 6 blokken, 75 minuten, binnen het intensiteitsplafond van JO13. Geen enkele oefening is verzonnen; alles komt uit de oefeningenbibliotheek.</div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Voorgestelde blokken</h2><span class="card__hint">75 / 75 min</span></div>
+
+                <div class="timeline" aria-label="Verdeling van de trainingstijd">
+                    <span class="t-warmup" style="flex:12">12′</span>
+                    <span class="t-rondo"  style="flex:10">10′</span>
+                    <span class="t-main"   style="flex:22">22′</span>
+                    <span class="t-game"   style="flex:20">20′</span>
+                    <span class="t-cooldown" style="flex:6">6′</span>
+                    <span class="t-talk"   style="flex:5">5′</span>
+                </div>
+
+                <div style="margin-top:14px">
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-warmup)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Warming-up</span><span class="blk__dur">12 min</span></div>
+                        <p class="blk__name">Passvormen in vierkant, 4 groepen</p>
+                        <p class="blk__desc">20×20 m · balbezit met twee raakmomenten, opbouwend tempo.</p>
+                        <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill">Intensiteit <span class="band-dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></span><span class="pill pill--ghost">8–16 spelers</span></div>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-rondo)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Rondo</span><span class="blk__dur">10 min</span></div>
+                        <p class="blk__name">Rondo 5v2 met uitbreekmoment</p>
+                        <p class="blk__desc">Bij 8 passes mag de bal naar de vrije speler buiten de cirkel.</p>
+                        <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span><span class="pill">Intensiteit <span class="band-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span></div>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-main)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Hoofdvorm</span><span class="blk__dur">22 min</span></div>
+                        <p class="blk__name">Opbouw 7v5 naar twee kleine doelen</p>
+                        <p class="blk__desc">Halve veldhelft · keeper start, verdediging bouwt op tegen 5 aanvallers, punt bij passeren van de middenlijn met balbezit.</p>
+                        <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill pill--principle">AO-02</span><span class="pill pill--gold">dekt 6 spelerdoelen</span><span class="pill">Intensiteit <span class="band-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span></div>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-game)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Partij</span><span class="blk__dur">20 min</span></div>
+                        <p class="blk__name">Partij 6v6 met opbouwzone</p>
+                        <p class="blk__desc">Doelpunt telt dubbel als de opbouw via de keeper begon.</p>
+                        <div class="blk__tags"><span class="pill pill--principle">AO-01</span><span class="pill">Intensiteit <span class="band-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span></div>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-cooldown)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Cooling-down</span><span class="blk__dur">6 min</span></div>
+                        <p class="blk__name">Uitlopen met dynamisch rekken</p>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+
+                    <div class="blk"><i class="blk__spine" style="background:var(--blk-talk)"></i><div>
+                        <div class="blk__top"><span class="blk__type">Nabespreking</span><span class="blk__dur">5 min</span></div>
+                        <p class="blk__name">Twee vragen over de opbouwzone</p>
+                        <div class="blk__acts"><button class="btn btn-secondary btn-sm">Vervang</button><button class="btn btn-secondary btn-sm">Duur ±</button></div>
+                    </div></div>
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+                    <button class="btn btn-secondary">↻ Stel opnieuw samen</button>
+                    <button class="btn btn-secondary">+ Blok toevoegen</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ STAP 5 ══ -->
+    <section class="step" data-step="5">
+        <div class="wrap">
+            <div class="kpis">
+                <div class="kpi"><div class="kpi__num">75</div><div class="kpi__label">Minuten</div><div class="kpi__sub">binnen JO13-advies</div></div>
+                <div class="kpi"><div class="kpi__num">3,4</div><div class="kpi__label">Gem. intensiteit</div><div class="kpi__sub">plafond 4</div></div>
+                <div class="kpi"><div class="kpi__num">4</div><div class="kpi__label">Principes</div><div class="kpi__sub">AO-01, AO-02, AO-04, OM-01</div></div>
+                <div class="kpi"><div class="kpi__num">6</div><div class="kpi__label">Spelerdoelen geraakt</div><div class="kpi__sub">van 11 open doelen</div></div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Belastingverloop</h2><span class="card__hint">per blok</span></div>
+                <div class="curve" aria-label="Intensiteit per blok">
+                    <i data-band="2" style="height:40%"></i><i data-band="3" style="height:60%"></i>
+                    <i data-band="4" style="height:80%"></i><i data-band="4" style="height:80%"></i>
+                    <i data-band="1" style="height:20%"></i><i data-band="1" style="height:14%"></i>
+                </div>
+                <p class="small muted" style="margin:8px 0 0">Opbouwend naar de hoofdvorm, aflopend naar het einde. Past bij MD-3.</p>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Wat dit voor je spelers doet</h2></div>
+                <div class="stack">
+                    <div class="notice notice--good"><span>✓</span><div><b>6 spelers</b> werken met deze training aan een open doel: Sem, Noah, Liam, Daan, Mees en Finn (allen AO-01 of AO-02).</div></div>
+                    <div class="notice notice--warn"><span>!</span><div><b>Tycho</b> heeft een PHV-vlag met plafond 3. De partij en hoofdvorm staan op 4 — geef hem een aangepaste rol of laat hem één van beide overslaan. De uitvoering toont dit ook langs de lijn.</div></div>
+                    <div class="notice notice--warn"><span>!</span><div>Geen enkel blok raakt <b>VS-02</b> of <b>VS-03</b>. Je team heeft deze periode nog 0 minuten op verdedigende principes. Overweeg donderdag een verdedigend thema.</div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Opslaan</h2></div>
+                <div class="stack">
+                    <label class="field"><span>Naam van het plan</span><input type="text" value="JO13-1 · Opbouwen van achteruit · 19 aug"></label>
+                    <label style="display:flex;gap:10px;align-items:center;min-height:var(--tap)"><input type="checkbox" checked style="width:22px;height:22px"> <span>Koppel aan de training van dinsdag 19 augustus</span></label>
+                    <label style="display:flex;gap:10px;align-items:center;min-height:var(--tap)"><input type="checkbox" style="width:22px;height:22px"> <span>Bewaar ook als sjabloon voor het hele team</span></label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="wiz-actions">
+        <button class="btn btn-secondary" onclick="go(Math.max(1,+document.body.dataset.step-1))">Vorige</button>
+        <button class="btn btn-secondary btn-sm" style="flex:0 0 auto">Annuleren</button>
+        <button class="btn" onclick="go(Math.min(5,+document.body.dataset.step+1))">Volgende</button>
+    </div>
+
+</div>
+
+<script>
+function go(n, btn){
+    document.body.dataset.step = n;
+    document.querySelectorAll('.step').forEach(s => s.dataset.active = (s.dataset.step == n));
+    document.querySelectorAll('#steps li').forEach((li,i) => {
+        li.dataset.state = (i+1 < n) ? 'done' : (i+1 == n ? 'now' : '');
+    });
+    document.querySelectorAll('.state-picker button').forEach((b,i) => b.setAttribute('aria-pressed', i+1 == n));
+    window.scrollTo(0,0);
+}
+function pick(el){
+    el.parentElement.querySelectorAll('.choice').forEach(c => c.setAttribute('aria-checked','false'));
+    el.setAttribute('aria-checked','true');
+}
+</script>
+</body>
+</html>
