@@ -353,6 +353,23 @@ final class LegacyCapMapper {
         // permission_callback enforces the granular activity required
         // by each route as the second layer (cap + scope).
         'tt_vct_plan'                    => [ 'vct',                  'read' ],
+        // #2495 — the cap split. `tt_vct_admin_library` used to gate three
+        // things: the exercise library, the VCT age profiles, and the
+        // macro-blocks. After migration 0212 merged the catalogues there
+        // is one exercise library, administered by `tt_manage_exercises`
+        // — but folding the whole cap into it would have handed every
+        // coach write access to the age profiles, which set the age-safe
+        // intensity ceilings for U10–U14 players. That is a privilege
+        // widening on child-safety configuration, not a tidy-up.
+        //
+        // So the library moved to `tt_manage_exercises` and the rest kept
+        // a head-of-development-only cap under a name that no longer
+        // claims to own a library: `tt_vct_admin_config`. Both resolve to
+        // the same `vct_library` matrix entity, whose rows are unchanged,
+        // so no persona gains or loses anything.
+        'tt_vct_admin_config'            => [ 'vct_library',          'read' ],
+        // Deprecated alias, kept for one release per the repo's
+        // deprecation pattern. Remove in the next minor.
         'tt_vct_admin_library'           => [ 'vct_library',          'read' ],
         'tt_vct_view_load'               => [ 'vct_workload',         'read' ],
 

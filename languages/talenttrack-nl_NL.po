@@ -48912,6 +48912,190 @@ msgid_plural "%d minutes"
 msgstr[0] "%d minuut"
 msgstr[1] "%d minuten"
 
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:56
+msgid "You do not have permission to add exercises."
+msgstr "Je hebt geen rechten om oefeningen toe te voegen."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:102
+msgid "You do not have permission to view the exercise library."
+msgstr "Je hebt geen rechten om de oefeningenbibliotheek te bekijken."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:135
+msgid "Exercise library"
+msgstr "Oefeningenbibliotheek"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:138
+msgid "Every drill the club can build a training from — your own and the conditioning exercises that ship with VCT. Add one and it is yours to use straight away."
+msgstr "Alle oefeningen waaruit de club een training kan opbouwen — die van jezelf én de conditionele oefeningen die met VCT meekomen. Wat je toevoegt kun je meteen gebruiken."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:157
+msgid "Origin"
+msgstr "Herkomst"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:158
+msgid "Visible to"
+msgstr "Zichtbaar voor"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:160
+msgid "Group size"
+msgstr "Groepsgrootte"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:180
+msgid "Whole club"
+msgstr "Hele club"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:181
+msgid "One team"
+msgstr "Eén team"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:182
+msgid "Only me"
+msgstr "Alleen ikzelf"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:187
+msgid "Intensity"
+msgstr "Intensiteit"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:189
+msgid "Any intensity"
+msgstr "Elke intensiteit"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:190
+msgid "1 — recovery"
+msgstr "1 — herstel"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:192
+msgid "3 — moderate"
+msgstr "3 — gemiddeld"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:194
+msgid "5 — maximum"
+msgstr "5 — maximaal"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:198
+msgid "Search by name, code or description…"
+msgstr "Zoek op naam, code of omschrijving…"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:200
+msgid "No exercises match your search."
+msgstr "Geen oefeningen gevonden."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:203
+msgid "Nothing in the library yet"
+msgstr "Nog niets in de bibliotheek"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:204
+msgid "Add the drills you already run. Each one you add can be dropped into a training plan and counts towards what your players have been taught."
+msgstr "Voeg de oefeningen toe die je toch al draait. Elke oefening kun je in een trainingsplan zetten en telt mee in wat je spelers geleerd hebben."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:221
+msgid "Added by teams"
+msgstr "Toegevoegd door teams"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:224
+msgid "Coaches wrote these for their own team. Make one club-wide when it fits the academy methodology — the team is already using it either way."
+msgstr "Trainers hebben deze voor hun eigen team gemaakt. Maak er een clubbreed als hij bij de methodiek past — het team gebruikt hem sowieso al."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:243
+msgid "Make club-wide"
+msgstr "Clubbreed maken"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:279
+msgid "That did not work. Try again in a moment."
+msgstr "Dat lukte niet. Probeer het zo nog eens."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:280
+msgid "Working…"
+msgstr "Bezig…"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:292
+msgid "+ New exercise"
+msgstr "+ Nieuwe oefening"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:300
+msgid "Code (optional)"
+msgstr "Code (optioneel)"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:310
+msgid "Typical duration (minutes)"
+msgstr "Gebruikelijke duur (minuten)"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:311
+msgid "Smallest group"
+msgstr "Kleinste groep"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:312
+msgid "Largest group"
+msgstr "Grootste groep"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:316
+msgid "— not set —"
+msgstr "— niet ingesteld —"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:329
+msgid "Description and organisation"
+msgstr "Omschrijving en organisatie"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:332
+msgid "Diagram image URL (optional)"
+msgstr "URL van diagramafbeelding (optioneel)"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:344
+msgid "A new exercise stays with your team and is usable in your plans right away. The head of development decides what becomes club-wide."
+msgstr "Een nieuwe oefening blijft bij je eigen team en is meteen bruikbaar in je plannen. Het hoofd opleidingen bepaalt wat clubbreed wordt."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:381
+msgid "Any category"
+msgstr "Elke categorie"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:398
+msgid "That exercise no longer exists."
+msgstr "Die oefening bestaat niet meer."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:419
+#, php-format
+msgid "%1$d–%2$d players"
+msgstr "%1$d–%2$d spelers"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:446
+msgid "Diagram for this exercise"
+msgstr "Diagram bij deze oefening"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:456
+msgid "This exercise ships with TalentTrack, so it cannot be edited here. Duplicate it to make a version of your own."
+msgstr "Deze oefening wordt met TalentTrack meegeleverd en kan hier niet worden bewerkt. Maak een kopie om er een eigen versie van te maken."
+
+#: src/Infrastructure/REST/ExercisesRestController.php:172
+msgid "Only a team exercise can be made club-wide."
+msgstr "Alleen een teamoefening kan clubbreed worden gemaakt."
+
+#: src/Infrastructure/REST/ExercisesRestController.php:178
+msgid "The exercise could not be made club-wide."
+msgstr "De oefening kon niet clubbreed worden gemaakt."
+
+#: src/Infrastructure/REST/ExercisesRestController.php:296
+msgid "From VCT"
+msgstr "Uit VCT"
+
+#: src/Infrastructure/REST/ExercisesRestController.php:297
+msgid "Built in"
+msgstr "Meegeleverd"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:236
+#, php-format
+msgid "Used in %d plan"
+msgid_plural "Used in %d plans"
+msgstr[0] "Gebruikt in %d plan"
+msgstr[1] "Gebruikt in %d plannen"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:258
+#, php-format
+msgid "%d more waiting."
+msgid_plural "%d more waiting."
+msgstr[0] "Nog %d wachtend."
+msgstr[1] "Nog %d wachtend."
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 

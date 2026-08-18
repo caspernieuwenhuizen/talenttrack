@@ -25,13 +25,15 @@ use TT\Shared\Frontend\FrontendViewBase;
  * pattern; the list itself is the cancel target.
  *
  * Read: tt_vct_plan (coaches can browse the library).
- * Write: tt_vct_admin_library (HoD/admin only).
+ * Write: tt_manage_exercises. Since #2495 there is one exercise library
+ * and one cap administering it; coaches author at team visibility and the
+ * head of development promotes club-wide (epic #2493 D9).
  */
 class FrontendVctLibraryView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         $can_read  = AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_plan' );
-        $can_write = AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' );
+        $can_write = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_exercises' );
 
         if ( ! $can_read && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -260,7 +262,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
                     echo '</form>';
                 } else {
                     // #1784 — archived rows get the irreversible delete
-                    // ($can_write already gated on tt_vct_admin_library).
+                    // ($can_write already gated on tt_manage_exercises).
                     // `tt-vct-lib-btn-sm` lives in frontend-vct-library.css —
                     // no inline style attribute (#1389).
                     echo '<button type="button" class="tt-btn tt-btn-danger tt-vct-lib-btn-sm"'

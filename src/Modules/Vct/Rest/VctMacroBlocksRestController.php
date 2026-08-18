@@ -13,7 +13,7 @@ use TT\Modules\Vct\Validation\VctMacroBlockValidator;
  *
  *   GET /vct/macro-blocks?season_id=N&team_id=M
  *
- * Caps: `tt_vct_admin_library` (HoD/admin only). Coaches consume the
+ * Caps: `tt_vct_admin_config` (HoD/admin only). Coaches consume the
  * macro-block read indirectly via ProgressionRule; they don't need
  * direct REST access in MVP.
  *
@@ -43,7 +43,7 @@ class VctMacroBlocksRestController {
     }
 
     public static function can_admin(): bool {
-        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_library' );
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_config' );
     }
 
     public static function listForSeason( \WP_REST_Request $r ): \WP_REST_Response {

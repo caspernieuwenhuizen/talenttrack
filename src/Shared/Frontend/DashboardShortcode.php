@@ -1168,6 +1168,12 @@ class DashboardShortcode {
             case 'training-plan':
                 \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $user_id, $is_admin );
                 return true;
+            // #2495 — the one exercise library (club drills + the VCT
+            // catalogue merged in by migration 0212). `?id=` opens a
+            // single exercise.
+            case 'exercises':
+                \TT\Modules\Exercises\Frontend\FrontendExerciseLibraryView::render( $user_id, $is_admin );
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;
