@@ -1852,7 +1852,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                     $active_theme_labels = \TT\Shared\Frontend\ThemePreference::labels();
                     $active_theme        = \TT\Shared\Frontend\ThemePreference::resolve();
                     ?>
-                    <div class="tt-notice tt-notice-info" style="margin:0 0 var(--tt-sp-3);">
+                    <div class="tt-notice tt-notice-info">
                         <?php
                         printf(
                             /* translators: %s: the name of the active visual theme. */
