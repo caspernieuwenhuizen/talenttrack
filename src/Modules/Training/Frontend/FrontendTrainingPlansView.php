@@ -9,7 +9,6 @@ use TT\Modules\Training\Repositories\TrainingPlansRepository;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
-use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendTrainingPlansView (#2496) — the training plan list at
@@ -22,10 +21,14 @@ use TT\Shared\Frontend\Components\RecordLink;
  * the archive action the list table owns.
  *
  * Navigation (CLAUDE.md §5): breadcrumb chain plus the `tt_back` pill the
- * breadcrumb component renders, and nothing else. The library, the
- * generator and the coverage report are header actions on this surface
- * rather than a module-level nav block, which §5b forbids a view from
- * emitting.
+ * breadcrumb component renders, and nothing else.
+ *
+ * As the module's later surfaces land — the library (#2495), the generator
+ * (#2497), the coverage report (#2500) — they arrive as header actions on
+ * this one page, each registered through `CrossViewLink` so the affordance
+ * hides when the user cannot reach its target. They do NOT become sibling
+ * tiles: §5b makes module-level navigation the shell's job, rendered once,
+ * and D10 settled on a single `Training` entry point.
  */
 final class FrontendTrainingPlansView extends FrontendViewBase {
 
@@ -60,21 +63,16 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         self::renderList();
     }
 
-    private static function listUrl(): string {
-        return add_query_arg( [ 'tt_view' => 'training-plans' ], RecordLink::dashboardUrl() );
-    }
-
     private static function renderList(): void {
         FrontendBreadcrumbs::fromDashboard( __( 'Training', 'talenttrack' ) );
 
-        $actions_html = self::pageActionsHtml( [
-            [
-                'label' => __( 'Exercises', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ),
-                'cap'   => 'tt_view_activities',
-            ],
-        ] );
-        self::renderHeader( __( 'Training plans', 'talenttrack' ), $actions_html );
+        // The Exercises header action lands with the library surface itself
+        // (#2495). Linking to `?tt_view=exercises` from here today would
+        // point at a view that does not exist yet, and the cross-view lint
+        // rightly wants such an affordance registered through
+        // `CrossViewLink` with a gate mirroring the target's own guard —
+        // which needs the target to exist first.
+        self::renderHeader( __( 'Training plans', 'talenttrack' ) );
 
         echo '<p class="tt-muted tt-training-intro">'
             . esc_html__( 'Your training plans and the club templates you can build from. A plan you attach to a training records what was actually trained, so it lands on the player record.', 'talenttrack' )

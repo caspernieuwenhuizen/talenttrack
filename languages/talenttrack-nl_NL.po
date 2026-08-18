@@ -48866,6 +48866,14 @@ msgstr "Hoofdvorm"
 msgid "Abandoned"
 msgstr "Afgebroken"
 
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
+#, php-format
+msgid "%d minute"
+msgid_plural "%d minutes"
+msgstr[0] "%d minuut"
+msgstr[1] "%d minuten"
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 
