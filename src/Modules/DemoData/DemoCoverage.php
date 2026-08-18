@@ -5,14 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\DemoData\Generators\ActivityContentGenerator;
 use TT\Modules\DemoData\Generators\ActivityGenerator;
+use TT\Modules\DemoData\Generators\CommsOpsGenerator;
 use TT\Modules\DemoData\Generators\EvaluationGenerator;
-use TT\Modules\DemoData\Generators\MatchDayGenerator;
-use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
-use TT\Modules\DemoData\Generators\TestTrainingGenerator;
-use TT\Modules\DemoData\Generators\TournamentGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
+use TT\Modules\DemoData\Generators\MatchDayGenerator;
 use TT\Modules\DemoData\Generators\MeasurementGenerator;
 use TT\Modules\DemoData\Generators\PdpGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
@@ -20,7 +18,11 @@ use TT\Modules\DemoData\Generators\PipelineGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
 use TT\Modules\DemoData\Generators\PlayerProfileGenerator;
 use TT\Modules\DemoData\Generators\PlayerReportGenerator;
+use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
+use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
+use TT\Modules\DemoData\Generators\TestTrainingGenerator;
+use TT\Modules\DemoData\Generators\TournamentGenerator;
 
 /**
  * DemoCoverage — the single source of truth for what demo generation covers.
@@ -471,20 +473,83 @@ class DemoCoverage {
             'depends_on'  => [ 'tournament_match', 'player' ],
         ],
 
-        // ===== Staff, comms, operator records (#2468) =====
+        // ===== Staff development =====
 
-        'tt_staff_evaluations'    => [ 'planned' => '#2468' ],
-        'tt_staff_eval_ratings'   => [ 'planned' => '#2468' ],
-        'tt_staff_goals'          => [ 'planned' => '#2468' ],
-        'tt_staff_pdp'            => [ 'planned' => '#2468' ],
-        'tt_staff_certifications' => [ 'planned' => '#2468' ],
-        'tt_staff_mentorships'    => [ 'planned' => '#2468' ],
-        'tt_thread_messages'      => [ 'planned' => '#2468' ],
-        'tt_thread_reads'         => [ 'planned' => '#2468' ],
-        'tt_saved_filters'        => [ 'planned' => '#2468' ],
-        'tt_report_presets'       => [ 'planned' => '#2468' ],
-        'tt_workflow_tasks'       => [ 'planned' => '#2468' ],
-        'tt_invitations'          => [ 'planned' => '#2468' ],
+        'tt_staff_certifications' => [
+            'entity_type' => 'staff_certification',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+        'tt_staff_pdp' => [
+            'entity_type' => 'staff_pdp',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+        'tt_staff_goals' => [
+            'entity_type' => 'staff_goal',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+        'tt_staff_evaluations' => [
+            'entity_type' => 'staff_evaluation',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+        'tt_staff_eval_ratings' => [
+            'entity_type' => 'staff_eval_rating',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'staff_evaluation' ],
+        ],
+        'tt_staff_mentorships' => [
+            'entity_type' => 'staff_mentorship',
+            'category'    => 'staff_development',
+            'written_by'  => StaffDevelopmentGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+
+        // ===== Threads + operator records =====
+
+        'tt_thread_messages' => [
+            'entity_type' => 'thread_message',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_thread_reads' => [
+            'entity_type' => 'thread_read',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [ 'thread_message' ],
+        ],
+        'tt_saved_filters' => [
+            'entity_type' => 'saved_filter',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_report_presets' => [
+            'entity_type' => 'report_preset',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [],
+        ],
+        'tt_workflow_tasks' => [
+            'entity_type' => 'workflow_task',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
+        'tt_invitations' => [
+            'entity_type' => 'invitation',
+            'category'    => 'comms_ops',
+            'written_by'  => CommsOpsGenerator::class,
+            'depends_on'  => [ 'player' ],
+        ],
 
         // ===== Exempt — plugin infrastructure =====
 
@@ -717,6 +782,22 @@ class DemoCoverage {
             'run_order' => 160,
             'cascade'   => [ 'tournament_assignment', 'tournament_match', 'tournament_squad', 'tournament' ],
         ],
+        'staff_development' => [
+            'tier'      => 'dependent',
+            'run_order' => 170,
+            'cascade'   => [
+                'staff_eval_rating', 'staff_evaluation', 'staff_goal',
+                'staff_pdp', 'staff_certification', 'staff_mentorship',
+            ],
+        ],
+        'comms_ops' => [
+            'tier'      => 'dependent',
+            'run_order' => 180,
+            'cascade'   => [
+                'thread_read', 'thread_message', 'saved_filter',
+                'report_preset', 'workflow_task', 'invitation',
+            ],
+        ],
     ];
 
     /**
@@ -738,6 +819,12 @@ class DemoCoverage {
         // tournament, so the wipe clears that tournament's whole squad.
         'tt_tournament_squad' => [
             'delete_by' => [ 'column' => 'tournament_id', 'entity_type' => 'tournament_squad' ],
+        ],
+        // PK is (user_id, thread_type, thread_id) — no surrogate id. Tagged
+        // per thread, so the wipe clears read state for the demo threads only
+        // and leaves a real user's read state on real threads alone.
+        'tt_thread_reads' => [
+            'delete_by' => [ 'column' => 'thread_id', 'entity_type' => 'thread_read' ],
         ],
     ];
 
@@ -933,6 +1020,8 @@ class DemoCoverage {
             'team_development' => __( 'Team development', 'talenttrack' ),
             'pipeline'    => __( 'Scouting pipeline', 'talenttrack' ),
             'tournaments' => __( 'Tournaments', 'talenttrack' ),
+            'staff_development' => __( 'Staff development', 'talenttrack' ),
+            'comms_ops'   => __( 'Messages and operator records', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -950,6 +1039,8 @@ class DemoCoverage {
             'trials'      => __( 'Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions.', 'talenttrack' ),
             'pipeline'    => __( 'Scouting visits across the window and the prospects found on them.', 'talenttrack' ),
             'tournaments' => __( 'A tournament per team with its squad, target minutes, fixtures and per-period assignments.', 'talenttrack' ),
+            'staff_development' => __( 'Coaching badges, development plans and goals, evaluations with ratings, and mentor pairings for the club\'s staff.', 'talenttrack' ),
+            'comms_ops'   => __( 'Conversations with their read state, saved filters, report presets, workflow tasks and invitations. No email is ever sent.', 'talenttrack' ),
             'guardians'   => __( 'Guardian links to the demo parent accounts, plus each player\'s parent-visibility grants.', 'talenttrack' ),
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
