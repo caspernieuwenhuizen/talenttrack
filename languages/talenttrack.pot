@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-18T04:54:18+00:00\n"
+"POT-Creation-Date: 2026-08-18T05:01:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1952,7 +1952,7 @@ msgid "Mixed"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:931
+#: src/Modules/DemoData/DemoCoverage.php:1018
 msgid "Match day"
 msgstr ""
 
@@ -3121,7 +3121,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:918
+#: src/Modules/DemoData/DemoCoverage.php:1005
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -3842,7 +3842,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:919
+#: src/Modules/DemoData/DemoCoverage.php:1006
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -4951,7 +4951,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:920
+#: src/Modules/DemoData/DemoCoverage.php:1007
 #: src/Modules/Documentation/HelpTopics.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
@@ -5011,7 +5011,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:921
+#: src/Modules/DemoData/DemoCoverage.php:1008
 #: src/Modules/Documentation/HelpTopics.php:67
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
@@ -5122,7 +5122,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:922
+#: src/Modules/DemoData/DemoCoverage.php:1009
 msgid "Journey events"
 msgstr ""
 
@@ -5418,7 +5418,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:916
+#: src/Modules/DemoData/DemoCoverage.php:1003
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -7387,7 +7387,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:917
+#: src/Modules/DemoData/DemoCoverage.php:1004
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
@@ -7580,7 +7580,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:923
+#: src/Modules/DemoData/DemoCoverage.php:1010
 #: src/Modules/Documentation/HelpTopics.php:102
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:759
@@ -7602,6 +7602,7 @@ msgid "Trial synthesis"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
+#: src/Modules/DemoData/DemoCoverage.php:1023
 #: src/Modules/Documentation/HelpTopics.php:319
 #: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Staff development"
@@ -7718,7 +7719,7 @@ msgid "Impersonation"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:932
+#: src/Modules/DemoData/DemoCoverage.php:1019
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
@@ -13415,7 +13416,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:925
+#: src/Modules/DemoData/DemoCoverage.php:1012
 msgid "Injuries"
 msgstr ""
 
@@ -14146,21 +14147,21 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:924
+#: src/Modules/DemoData/DemoCoverage.php:1011
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:926
+#: src/Modules/DemoData/DemoCoverage.php:1013
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:927
+#: src/Modules/DemoData/DemoCoverage.php:1014
 msgid "Player reports"
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/DemoData/DemoCoverage.php:928
+#: src/Modules/DemoData/DemoCoverage.php:1015
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:700
@@ -14170,26 +14171,26 @@ msgstr ""
 msgid "Measurements"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:929
+#: src/Modules/DemoData/DemoCoverage.php:1016
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:169
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:930
+#: src/Modules/DemoData/DemoCoverage.php:1017
 msgid "Training content"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:933
+#: src/Modules/DemoData/DemoCoverage.php:1020
 #: src/Shared/Frontend/FrontendTeamsManageView.php:516
 #: src/Shared/Modules/ModuleMetadata.php:215
 msgid "Team development"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:934
+#: src/Modules/DemoData/DemoCoverage.php:1021
 msgid "Scouting pipeline"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:935
+#: src/Modules/DemoData/DemoCoverage.php:1022
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
@@ -14197,83 +14198,95 @@ msgstr ""
 msgid "Tournaments"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:943
+#: src/Modules/DemoData/DemoCoverage.php:1024
+msgid "Messages and operator records"
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:1032
 msgid "Also wipes team_person, activities, attendance, evaluations and eval_ratings on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:944
+#: src/Modules/DemoData/DemoCoverage.php:1033
 msgid "Also wipes team_person assignments. The matching WP users stay — use \"Wipe demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:945
+#: src/Modules/DemoData/DemoCoverage.php:1034
 msgid "Also wipes attendance, evaluations, eval_ratings, goals, journey events and trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:946
+#: src/Modules/DemoData/DemoCoverage.php:1035
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:947
+#: src/Modules/DemoData/DemoCoverage.php:1036
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:948
+#: src/Modules/DemoData/DemoCoverage.php:1037
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:949
+#: src/Modules/DemoData/DemoCoverage.php:1038
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:950
+#: src/Modules/DemoData/DemoCoverage.php:1039
 msgid "Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:951
+#: src/Modules/DemoData/DemoCoverage.php:1040
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:952
+#: src/Modules/DemoData/DemoCoverage.php:1041
 msgid "A tournament per team with its squad, target minutes, fixtures and per-period assignments."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:953
+#: src/Modules/DemoData/DemoCoverage.php:1042
+msgid "Coaching badges, development plans and goals, evaluations with ratings, and mentor pairings for the club's staff."
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:1043
+msgid "Conversations with their read state, saved filters, report presets, workflow tasks and invitations. No email is ever sent."
+msgstr ""
+
+#: src/Modules/DemoData/DemoCoverage.php:1044
 msgid "Guardian links to the demo parent accounts, plus each player's parent-visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:954
+#: src/Modules/DemoData/DemoCoverage.php:1045
 msgid "Injury records with their return-to-play dates and the journey events they raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:955
+#: src/Modules/DemoData/DemoCoverage.php:1046
 msgid "Age-group history, attribute values, the club's custom fields and their values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:956
+#: src/Modules/DemoData/DemoCoverage.php:1047
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:957
+#: src/Modules/DemoData/DemoCoverage.php:1048
 msgid "The testing battery, its per-age-group target bands, team testing sessions and one result per player."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:958
+#: src/Modules/DemoData/DemoCoverage.php:1049
 msgid "The season, one development dossier per player, its conversation cycle, calendar links and verdicts."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:959
+#: src/Modules/DemoData/DemoCoverage.php:1050
 msgid "Exercises and methodology principles on each training, per-team exercise overrides, and the season's holiday windows."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:960
+#: src/Modules/DemoData/DemoCoverage.php:1051
 msgid "Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:961
+#: src/Modules/DemoData/DemoCoverage.php:1052
 msgid "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:962
+#: src/Modules/DemoData/DemoCoverage.php:1053
 msgid "A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window."
 msgstr ""
 
