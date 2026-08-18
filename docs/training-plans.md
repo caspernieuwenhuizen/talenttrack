@@ -2,7 +2,7 @@
 
 # Training plans
 
-A **training plan** is the content of one session: the blocks you run, in
+A **training plan** is the content of one training: the blocks you run, in
 order, with a duration each. It lives on its own rather than inside a single
 date, so you can reuse it, adapt it for another team, or keep it as a club
 template.
@@ -13,7 +13,7 @@ Open the **Training** tile in the **Planning & tactics** group.
 
 Two kinds of record share the list:
 
-- A **team plan** belongs to one team. It is the normal case: the session
+- A **team plan** belongs to one team. It is the normal case: the training
   you are building for Tuesday.
 - A **club template** belongs to no team. It is a starting shape — "standard
   MD-3, 75 minutes" — that any coach can copy and adapt.
@@ -28,9 +28,9 @@ Open a plan to see:
 
 - **The key numbers** — total duration, how many blocks, whether it is a team
   plan or a club template, and the theme it works on.
-- **The time strip** — a proportional bar showing how the session splits
+- **The time strip** — a proportional bar showing how the training splits
   across its blocks, colour-coded by block type. The same six colours are
-  used everywhere training appears, so the shape of a session is
+  used everywhere training appears, so the shape of a training is
   recognisable at a glance.
 - **The blocks** — each one in order with its type, duration, the exercise it
   draws on, the organisation, and the coaching points.
@@ -45,7 +45,7 @@ record trustworthy.
 When you attach a plan to a training, that **run** takes its own permanent
 copy of the blocks exactly as they were that day. Afterwards you can rename
 the plan, change a block's duration, delete a block, add a new one, or
-archive the plan entirely — and the session that already happened still shows
+archive the plan entirely — and the training that already happened still shows
 what it actually contained.
 
 The same applies one level down: a block points at a specific version of an
@@ -58,7 +58,7 @@ own history.
 ## Archiving
 
 Archiving a plan takes it out of the active list. It does **not** touch the
-sessions already run with it — a plan going away must never take a training
+trainings already run with it — a plan going away must never take a training
 that happened with it. Switch the status filter to **Archived** to find it
 again.
 

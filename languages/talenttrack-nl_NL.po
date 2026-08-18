@@ -48755,7 +48755,7 @@ msgstr "Dat blok hoort niet bij deze trainingsuitvoering."
 
 
 #: src/Modules/Training/TrainingModule.php:78
-msgid "Build your training sessions: pick a theme, work from the exercise library, and keep what you trained on the player record."
+msgid "Build your trainings: pick a theme, work from the exercise library, and keep what you trained on the player record."
 msgstr "Bouw je trainingen op: kies een thema, werk vanuit de oefeningenbibliotheek en houd bij wat je traint op het spelersdossier."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:41
@@ -48787,7 +48787,7 @@ msgid "Templates only"
 msgstr "Alleen sjablonen"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:121
-msgid "Archive this training plan? Sessions already run with it keep their record."
+msgid "Archive this training plan? Trainings already run with it keep their record."
 msgstr "Dit trainingsplan archiveren? Trainingen die er al mee zijn uitgevoerd behouden hun gegevens."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:126
@@ -48803,7 +48803,7 @@ msgid "No training plans yet"
 msgstr "Nog geen trainingsplannen"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
-msgid "A training plan holds the blocks of one session. Attach it to a training and what you trained lands on each player who was there."
+msgid "A training plan holds the blocks of one training. Attach it to a training in the calendar and what you trained lands on each player who was there."
 msgstr "Een trainingsplan bevat de blokken van één training. Koppel het aan een training en wat je traint komt bij elke aanwezige speler op het dossier."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:144
@@ -48823,7 +48823,7 @@ msgid "Team plan"
 msgstr "Teamplan"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:212
-msgid "How the session time is split across its blocks"
+msgid "How the training time is split across its blocks"
 msgstr "Hoe de trainingstijd over de blokken is verdeeld"
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:235
@@ -48847,7 +48847,7 @@ msgid "This plan has not been run yet. Attaching it to a training records what w
 msgstr "Dit plan is nog niet uitgevoerd. Koppel het aan een training om vast te leggen wat er echt getraind is."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:299
-msgid "Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a session that already happened."
+msgid "Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a training that already happened."
 msgstr "Elke uitvoering bewaart een eigen kopie van de blokken zoals ze die dag waren, dus het aanpassen van dit plan verandert nooit een training die al geweest is."
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:310

@@ -73,7 +73,7 @@ class TrainingModule implements ModuleInterface {
             'kind'         => 'work',
             'order'        => 24,
             'label'        => __( 'Training', 'talenttrack' ),
-            'description'  => __( 'Build your training sessions: pick a theme, work from the exercise library, and keep what you trained on the player record.', 'talenttrack' ),
+            'description'  => __( 'Build your trainings: pick a theme, work from the exercise library, and keep what you trained on the player record.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#2f9e5e',
             'cap'          => 'tt_training_plan',

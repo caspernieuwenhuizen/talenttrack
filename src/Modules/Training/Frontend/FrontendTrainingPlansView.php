@@ -115,7 +115,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                     'label'       => __( 'Archive', 'talenttrack' ),
                     'rest_method' => 'DELETE',
                     'rest_path'   => 'training/plans/{id}',
-                    'confirm'     => __( 'Archive this training plan? Sessions already run with it keep their record.', 'talenttrack' ),
+                    'confirm'     => __( 'Archive this training plan? Trainings already run with it keep their record.', 'talenttrack' ),
                     'cap'         => 'tt_training_plan',
                     'variant'     => 'danger',
                 ],
@@ -126,7 +126,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             'empty_state_card' => [
                 'icon'      => 'activities',
                 'headline'  => __( 'No training plans yet', 'talenttrack' ),
-                'explainer' => __( 'A training plan holds the blocks of one session. Attach it to a training and what you trained lands on each player who was there.', 'talenttrack' ),
+                'explainer' => __( 'A training plan holds the blocks of one training. Attach it to a training in the calendar and what you trained lands on each player who was there.', 'talenttrack' ),
             ],
         ] );
     }
@@ -204,7 +204,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         if ( ! $blocks || $total <= 0 ) return;
 
         echo '<div class="tt-training-timeline" role="img" aria-label="'
-            . esc_attr__( 'How the session time is split across its blocks', 'talenttrack' )
+            . esc_attr__( 'How the training time is split across its blocks', 'talenttrack' )
             . '">';
         foreach ( $blocks as $block ) {
             $minutes = max( 0, (int) $block->duration_minutes );
@@ -289,7 +289,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         echo '</ul>';
 
         echo '<p class="tt-muted tt-training-hint">'
-            . esc_html__( 'Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a session that already happened.', 'talenttrack' )
+            . esc_html__( 'Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a training that already happened.', 'talenttrack' )
             . '</p>';
     }
 
