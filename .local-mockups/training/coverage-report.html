@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Methodiekdekking — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.matrix { min-width:640px; }
+.matrix th:first-child, .matrix td:first-child { position:sticky; left:0; background:var(--tt-paper); z-index:1; }
+.matrix td { text-align:center; padding:0; }
+.cell { display:block; width:100%; height:38px; line-height:38px; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+.c0 { background:var(--tt-danger-subtle); color:#a3312a; }
+.c1 { background:#fdf3d8; color:#8a6a06; }
+.c2 { background:#e4f2e9; color:#2c6f4b; }
+.c3 { background:#c3e5d1; color:#1d5c3b; }
+.c4 { background:#8fd0ad; color:#0e3f28; }
+.keyrow { display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:var(--tt-ink-soft); margin-top:8px; align-items:center; }
+.keyrow i { display:inline-block; width:16px; height:12px; border-radius:3px; margin-right:4px; vertical-align:-1px; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · W7 — Methodiekdekking (HoD):</strong>
+    <code>?tt_view=training-coverage</code> ·
+    “wordt onze speelwijze ook echt getraind?” ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="frame">
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; Methodiekdekking</p>
+        <h1>Methodiekdekking</h1>
+        <p class="page-head__sub">Hoeveel trainingstijd elk principe van de speelwijze dit seizoen daadwerkelijk gekregen heeft, per team.</p>
+        <div class="page-head__actions">
+            <button class="btn btn-secondary btn-sm">Exporteer</button>
+            <button class="btn btn-secondary btn-sm">Afdrukken</button>
+        </div>
+    </header>
+
+    <div class="filterbar">
+        <div class="filterbar__inline">
+            <label class="field"><span>Seizoen</span><select><option>2025/2026</option><option>2024/2025</option></select></label>
+            <label class="field"><span>Leeftijdscategorie</span><select><option>— alle —</option><option>Onder 13</option><option>Onder 14</option></select></label>
+            <label class="field"><span>Methodiek</span><select><option>JO13-1 Hedel (1-4-3-3)</option><option>JO14-1 Hedel (1-4-2-3-1)</option></select></label>
+            <label class="field"><span>Periode</span><select><option selected>Heel seizoen</option><option>Huidig macroblok</option><option>Laatste 8 weken</option></select></label>
+            <label class="field"><span>Eenheid</span><select><option selected>Minuten</option><option>Sessies</option><option>% van trainingstijd</option></select></label>
+            <button class="btn">Toepassen</button>
+        </div>
+        <div class="filterbar__row filterbar__toggle">
+            <label class="field filterbar__search"><span class="sr-only">Zoeken</span><input type="search" placeholder="Zoek principe…"></label>
+            <button class="btn btn-secondary">Filters <span class="pill pill--green">2</span></button>
+        </div>
+    </div>
+
+    <div class="wrap">
+
+        <div class="kpis">
+            <div class="kpi"><div class="kpi__num">14/18</div><div class="kpi__label">Principes geraakt</div><div class="kpi__sub">clubbreed</div></div>
+            <div class="kpi"><div class="kpi__num">4</div><div class="kpi__label">Nooit getraind</div><div class="kpi__sub">VS-03, VS-04, SS-02, OM-03</div></div>
+            <div class="kpi"><div class="kpi__num">61%</div><div class="kpi__label">Tijd op aanvallen</div><div class="kpi__sub">22% verdedigen, 17% omschakelen</div></div>
+            <div class="kpi"><div class="kpi__num">168</div><div class="kpi__label">Uitvoeringen</div><div class="kpi__sub">dit seizoen</div></div>
+        </div>
+
+        <div class="notice notice--warn">
+            <span>!</span>
+            <div><b>De verdedigende principes krijgen structureel te weinig tijd.</b> VS-03 en VS-04 hebben clubbreed nul minuten, terwijl ze wel in de speelwijze en in 23 spelerdoelen staan. Dit is een gesprek met de trainers waard, geen instelling die je aanpast.</div>
+        </div>
+
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Minuten per principe per team</h2><span class="card__hint">seizoen 2025/2026</span></div>
+            <div class="scroll-x">
+                <table class="tbl matrix">
+                    <thead>
+                        <tr>
+                            <th>Principe</th>
+                            <th>JO13-1</th><th>JO13-2</th><th>JO14-1</th><th>JO14-2</th><th>JO15-1</th><th class="num">Totaal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="pill pill--principle">AO-01</span> Breed en diep</td>
+                            <td><span class="cell c4">412</span></td><td><span class="cell c3">288</span></td><td><span class="cell c4">395</span></td><td><span class="cell c2">176</span></td><td><span class="cell c3">254</span></td><td class="num">1 525</td></tr>
+                        <tr><td><span class="pill pill--principle">AO-02</span> Keeper als opbouwer</td>
+                            <td><span class="cell c3">294</span></td><td><span class="cell c2">142</span></td><td><span class="cell c3">265</span></td><td><span class="cell c1">62</span></td><td><span class="cell c2">158</span></td><td class="num">921</td></tr>
+                        <tr><td><span class="pill pill--principle">AO-03</span> Derde man</td>
+                            <td><span class="cell c2">168</span></td><td><span class="cell c1">74</span></td><td><span class="cell c2">190</span></td><td><span class="cell c0">0</span></td><td><span class="cell c1">88</span></td><td class="num">520</td></tr>
+                        <tr><td><span class="pill pill--principle">AO-04</span> Diepte en afronden</td>
+                            <td><span class="cell c2">216</span></td><td><span class="cell c3">248</span></td><td><span class="cell c2">204</span></td><td><span class="cell c2">182</span></td><td><span class="cell c3">276</span></td><td class="num">1 126</td></tr>
+                        <tr><td><span class="pill pill--principle">OM-01</span> Na balverlies</td>
+                            <td><span class="cell c1">128</span></td><td><span class="cell c1">96</span></td><td><span class="cell c2">164</span></td><td><span class="cell c1">70</span></td><td><span class="cell c2">150</span></td><td class="num">608</td></tr>
+                        <tr><td><span class="pill pill--principle">OM-03</span> Na balverovering</td>
+                            <td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td class="num">0</td></tr>
+                        <tr><td><span class="pill pill--principle">VS-02</span> Passlijnen dicht</td>
+                            <td><span class="cell c1">45</span></td><td><span class="cell c1">88</span></td><td><span class="cell c2">152</span></td><td><span class="cell c1">54</span></td><td><span class="cell c1">96</span></td><td class="num">435</td></tr>
+                        <tr><td><span class="pill pill--principle">VS-03</span> Druk zetten als team</td>
+                            <td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c1">42</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td class="num">42</td></tr>
+                        <tr><td><span class="pill pill--principle">VS-04</span> Restverdediging</td>
+                            <td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td class="num">0</td></tr>
+                        <tr><td><span class="pill pill--principle">SS-02</span> Corner verdedigend</td>
+                            <td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c0">0</span></td><td><span class="cell c1">36</span></td><td><span class="cell c0">0</span></td><td class="num">36</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="keyrow">
+                <span><i class="c0" style="background:var(--tt-danger-subtle)"></i>nooit</span>
+                <span><i style="background:#fdf3d8"></i>&lt; 100 min</span>
+                <span><i style="background:#e4f2e9"></i>100–200</span>
+                <span><i style="background:#c3e5d1"></i>200–300</span>
+                <span><i style="background:#8fd0ad"></i>&gt; 300</span>
+                <span class="muted">Cel aanklikken opent de trainingen die eraan bijdroegen.</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__head"><h2 class="card__title">Spelers zonder dekking op een eigen doel</h2><span class="card__hint">actie nodig</span></div>
+            <div class="scroll-x">
+                <table class="tbl">
+                    <thead><tr><th>Speler</th><th>Team</th><th>Doel op</th><th class="num">Minuten</th><th>Laatst</th></tr></thead>
+                    <tbody>
+                        <tr><td>Noah Vermeer</td><td>JO13-1</td><td><span class="pill pill--principle">VS-02</span></td><td class="num">45</td><td>29 jul</td></tr>
+                        <tr><td>Julian Bos</td><td>JO13-1</td><td><span class="pill pill--principle">VS-03</span></td><td class="num">0</td><td>—</td></tr>
+                        <tr><td>Ravi Sharma</td><td>JO13-2</td><td><span class="pill pill--principle">VS-03</span></td><td class="num">0</td><td>—</td></tr>
+                        <tr><td>Bram Willems</td><td>JO14-2</td><td><span class="pill pill--principle">AO-03</span></td><td class="num">0</td><td>—</td></tr>
+                        <tr><td>Sil de Groot</td><td>JO14-2</td><td><span class="pill pill--principle">OM-03</span></td><td class="num">0</td><td>—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small muted" style="margin:10px 0 0">23 spelers hebben een open doel op een principe met minder dan 60 minuten trainingstijd dit seizoen.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

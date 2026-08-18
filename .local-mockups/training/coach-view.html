@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uitvoering langs de lijn — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+/* Sideline view: one block at a time, oversized type, thumb-zone controls.
+   Read at arm's length, in sunlight, with gloves on. */
+body { background:var(--tt-primary-deep); }
+.frame { max-width:480px; background:var(--tt-primary-deep); }
+.side-head { padding:var(--sp-lg); color:#dfeee6; }
+.side-head .crumb { color:#8fb8a5; } .side-head .crumb a { color:#bfe0cf; }
+.side-head h1 { color:#fff; font-size:20px; }
+.offline { display:flex; gap:8px; align-items:center; background:#123f2f; border:1px solid #1d6b4f; color:#bfe6d1; border-radius:var(--tt-r); padding:9px 12px; font-size:12px; margin-top:10px; }
+.progress { display:flex; gap:3px; padding:0 var(--sp-lg) 12px; }
+.progress i { flex:1; height:6px; border-radius:3px; background:#1d4d3c; }
+.progress i.done { background:var(--tt-secondary); }
+.progress i.now { background:#fff; }
+.now-card { background:var(--tt-paper); border-radius:18px; margin:0 var(--sp-lg) var(--sp-lg); padding:var(--sp-lg); }
+.now-card__type { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--tt-ink-soft); }
+.now-card__name { margin:6px 0 0; font-size:26px; font-weight:800; line-height:1.15; letter-spacing:-.02em; }
+.timer { display:flex; align-items:baseline; gap:10px; margin:14px 0; }
+.timer__big { font-size:52px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-.03em; }
+.timer__of { font-size:16px; color:var(--tt-ink-soft); font-weight:700; }
+.timer.over .timer__big { color:var(--tt-danger); }
+.tbar { height:10px; border-radius:999px; background:var(--tt-mute); overflow:hidden; }
+.tbar i { display:block; height:100%; background:var(--tt-primary); border-radius:999px; }
+.tbar.over i { background:var(--tt-danger); }
+.org { font-size:16px; line-height:1.5; margin:14px 0 0; }
+.cp { margin:14px 0 0; padding:14px; background:var(--tt-mute); border-radius:var(--tt-r); }
+.cp h3 { margin:0 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--tt-ink-soft); }
+.cp ul { margin:0; padding-left:20px; font-size:16px; line-height:1.6; }
+.controls { position:sticky; bottom:0; display:grid; grid-template-columns:auto 1fr auto; gap:10px; padding:12px var(--sp-lg); padding-bottom:calc(12px + env(safe-area-inset-bottom)); background:var(--tt-primary-deep); }
+.controls .btn { min-height:56px; font-size:16px; }
+.btn-nav { min-width:56px; background:#1d4d3c; color:#dfeee6; }
+.next-up { margin:0 var(--sp-lg) var(--sp-lg); color:#a9cfbc; font-size:13px; display:flex; justify-content:space-between; gap:8px; }
+.sheet { position:fixed; inset:auto 0 0 0; background:var(--tt-paper); border-radius:18px 18px 0 0; max-height:88vh; overflow:auto; overscroll-behavior:contain; padding:var(--sp-lg); padding-bottom:calc(var(--sp-lg)+env(safe-area-inset-bottom)); z-index:150; transform:translateY(101%); transition:transform .2s ease; box-shadow:var(--tt-shadow-lg); }
+body[data-sheet="open"] .sheet { transform:translateY(0); }
+body[data-sheet="open"] .scrim { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:140; }
+.grab { width:44px; height:5px; background:var(--tt-line); border-radius:3px; margin:0 auto 12px; }
+/* D7 — the install's configured evaluation scale, not a bespoke three-state.
+   Five targets do not fit beside a name at 360px, so each player is two
+   stacked rows: identity above, a full-width segmented scale below.
+   Segments are generated from the configured scale; 5-9 step 1 here. */
+.plist { list-style:none; margin:0; padding:0; }
+.plist li { display:block; padding:11px 0; border-bottom:1px solid var(--tt-line-soft); }
+.prow { display:grid; grid-template-columns:34px 1fr auto; gap:10px; align-items:center; }
+.av { width:34px; height:34px; border-radius:50%; background:var(--tt-primary-soft); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+.scale { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:9px; }
+.scale button { min-height:var(--tap); border:1.5px solid var(--tt-line); background:var(--tt-paper); border-radius:8px; font:inherit; font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--tt-ink); cursor:pointer; touch-action:manipulation; }
+.scale button[aria-pressed="true"] { border-color:var(--tt-primary); background:var(--tt-success-subtle); color:var(--tt-primary); box-shadow:inset 0 0 0 1px var(--tt-primary); }
+.scored { font-size:12px; font-weight:800; color:var(--tt-primary); font-variant-numeric:tabular-nums; }
+.state { display:none; } .state[data-active="true"] { display:block; }
+</style>
+</head>
+<body data-sheet="closed" data-view="running">
+
+<div class="mockup-bar">
+    <strong>#0096 · W6/W7 — Uitvoering langs de lijn:</strong>
+    <code>?tt_view=training-run&amp;id=91</code> · offline-capable · één blok tegelijk ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+<div class="state-picker">
+    <button aria-pressed="false" onclick="sv('ready',this)">Voor de start</button>
+    <button aria-pressed="true"  onclick="sv('running',this)">Blok 3 loopt</button>
+    <button aria-pressed="false" onclick="sv('over',this)">Blok loopt uit</button>
+    <button aria-pressed="false" onclick="obs(this)">Observatie vastleggen</button>
+    <button aria-pressed="false" onclick="sv('done',this)">Afgerond</button>
+</div>
+
+<div class="frame">
+
+    <header class="side-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="#">Activiteiten</a> &rsaquo; di 19 aug</p>
+        <h1>Opbouwen van achteruit</h1>
+        <p style="margin:2px 0 0;font-size:13px;color:#a9cfbc">JO13-1 · 12 van 15 aanwezig · Veld 2</p>
+        <div class="offline"><span>◉</span><div><b>Offline</b> — 2 wijzigingen wachten. Ze worden verstuurd zodra je weer bereik hebt.</div></div>
+    </header>
+
+    <!-- ── voor de start ── -->
+    <div class="state" data-state="ready">
+        <div class="now-card">
+            <p class="now-card__type">Klaar om te beginnen</p>
+            <h2 class="now-card__name">6 blokken · 75 minuten</h2>
+            <div class="stack" style="margin-top:14px">
+                <div class="notice notice--warn"><span>!</span><div><b>Tycho</b> heeft een PHV-vlag (plafond 3). Blok 3 en 4 staan op intensiteit 4 — geef hem een aangepaste rol.</div></div>
+                <div class="notice notice--good"><span>✓</span><div>6 aanwezige spelers werken vandaag aan een open doel.</div></div>
+            </div>
+            <div class="timeline" style="margin-top:14px">
+                <span class="t-warmup" style="flex:12">12′</span><span class="t-rondo" style="flex:10">10′</span>
+                <span class="t-main" style="flex:22">22′</span><span class="t-game" style="flex:20">20′</span>
+                <span class="t-cooldown" style="flex:6">6′</span><span class="t-talk" style="flex:5">5′</span>
+            </div>
+        </div>
+        <div class="controls" style="grid-template-columns:1fr">
+            <button class="btn btn-gold" onclick="sv('running')">Start de training</button>
+        </div>
+    </div>
+
+    <!-- ── blok loopt ── -->
+    <div class="state" data-state="running" data-active="true">
+        <div class="progress" aria-label="Voortgang">
+            <i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i><i></i>
+        </div>
+        <div class="now-card">
+            <p class="now-card__type">Blok 3 van 6 · Hoofdvorm</p>
+            <h2 class="now-card__name">Opbouw 7v5 naar twee kleine doelen</h2>
+
+            <div class="timer">
+                <span class="timer__big">14:22</span><span class="timer__of">van 22:00</span>
+            </div>
+            <div class="tbar"><i style="width:65%"></i></div>
+
+            <p class="org"><b>Organisatie</b> — halve veldhelft, twee kleine doelen op de middenlijn. Keeper start elke aanval. Punt bij passeren van de middenlijn met balbezit.</p>
+
+            <div class="cp">
+                <h3>Coachpunten</h3>
+                <ul>
+                    <li>Eerste balcontact uit de druk</li>
+                    <li>Backs breed en hoog</li>
+                    <li>Keeper altijd aanspeelbaar</li>
+                </ul>
+            </div>
+
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+                <span class="pill pill--principle">AO-01</span>
+                <span class="pill pill--principle">AO-02</span>
+                <span class="pill pill--gold">6 spelerdoelen</span>
+            </div>
+
+            <button class="btn btn-secondary" style="width:100%;margin-top:14px" onclick="document.body.dataset.sheet='open'">
+                ✎ Observatie vastleggen
+            </button>
+        </div>
+        <p class="next-up"><span>Hierna: Partij 6v6 met opbouwzone</span><span>20 min</span></p>
+        <div class="controls">
+            <button class="btn btn-nav" aria-label="Vorig blok">‹</button>
+            <button class="btn btn-gold">Blok afronden</button>
+            <button class="btn btn-nav" aria-label="Volgend blok">›</button>
+        </div>
+    </div>
+
+    <!-- ── blok loopt uit ── -->
+    <div class="state" data-state="over">
+        <div class="progress"><i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i><i></i></div>
+        <div class="now-card">
+            <p class="now-card__type">Blok 3 van 6 · Hoofdvorm</p>
+            <h2 class="now-card__name">Opbouw 7v5 naar twee kleine doelen</h2>
+            <div class="timer over"><span class="timer__big">26:41</span><span class="timer__of">van 22:00</span></div>
+            <div class="tbar over"><i style="width:100%"></i></div>
+            <div class="notice notice--warn" style="margin-top:12px"><span>!</span><div>Je loopt <b>4:41 uit</b>. Als je nu afrondt wordt de werkelijke duur van dit blok als 27 minuten bewaard, en schuift de rest van de training mee. De partij past nog binnen de eindtijd; cooling-down en nabespreking niet.</div></div>
+            <div class="cp"><h3>Coachpunten</h3><ul><li>Eerste balcontact uit de druk</li><li>Backs breed en hoog</li><li>Keeper altijd aanspeelbaar</li></ul></div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-nav" aria-label="Vorig blok">‹</button>
+            <button class="btn btn-gold">Blok afronden</button>
+            <button class="btn btn-nav" aria-label="Volgend blok">›</button>
+        </div>
+    </div>
+
+    <!-- ── afgerond ── -->
+    <div class="state" data-state="done">
+        <div class="now-card">
+            <p class="now-card__type">Afgerond · 19 aug, 19:47</p>
+            <h2 class="now-card__name">78 minuten getraind</h2>
+            <div class="kpis" style="margin-top:14px">
+                <div class="kpi"><div class="kpi__num">78</div><div class="kpi__label">Minuten</div><div class="kpi__sub">gepland 75</div></div>
+                <div class="kpi"><div class="kpi__num">12</div><div class="kpi__label">Aanwezig</div><div class="kpi__sub">van 15</div></div>
+                <div class="kpi"><div class="kpi__num">5</div><div class="kpi__label">Observaties</div><div class="kpi__sub">op 4 spelers</div></div>
+                <div class="kpi"><div class="kpi__num">2</div><div class="kpi__label">Principes</div><div class="kpi__sub">AO-01, AO-02</div></div>
+            </div>
+            <div class="notice notice--good" style="margin-top:14px"><span>✓</span><div>De trainingstijd is bijgeschreven op de 12 aanwezige spelers. Op hun spelersdossier staat nu <b>AO-01 +42 min</b> en <b>AO-02 +32 min</b>.</div></div>
+            <div class="notice notice--info" style="margin-top:10px"><span>ℹ</span><div>Cooling-down en nabespreking zijn overgeslagen. Dat is vastgelegd bij deze uitvoering, het plan zelf blijft ongewijzigd.</div></div>
+            <div class="tt-form-actions">
+                <a class="btn btn-secondary" href="#">Naar de activiteit</a>
+                <a class="btn btn-primary" href="#">Naar het plan</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="scrim" onclick="document.body.dataset.sheet='closed'"></div>
+
+<!-- Observatie-sheet: per blok, per speler, direct naar het spelersdossier -->
+<section class="sheet" aria-label="Observatie vastleggen">
+    <div class="grab"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <h2 style="margin:0;font-size:18px;font-weight:800">Observatie · blok 3</h2>
+        <button class="btn-icon" aria-label="Sluiten" onclick="document.body.dataset.sheet='closed'">✕</button>
+    </div>
+    <p class="small muted" style="margin:0 0 12px">Wordt vastgelegd op <b>AO-01 · Breed en diep spelen bij opbouw</b> en verschijnt op de tijdlijn van de speler. Dezelfde schaal als bij de beoordelingen (5–9).</p>
+
+    <ul class="plist">
+        <li>
+            <div class="prow"><span class="av">SB</span><div><b>Sem B.</b><br><span class="small muted">open doel op AO-01</span></div><span class="scored">7</span></div>
+            <div class="scale" role="radiogroup" aria-label="Score Sem B.">
+                <button aria-pressed="false">5</button><button aria-pressed="false">6</button><button aria-pressed="true">7</button><button aria-pressed="false">8</button><button aria-pressed="false">9</button>
+            </div>
+        </li>
+        <li>
+            <div class="prow"><span class="av">NV</span><div><b>Noah V.</b><br><span class="small muted">PDP-actie op AO-01</span></div><span class="scored">8</span></div>
+            <div class="scale" role="radiogroup" aria-label="Score Noah V.">
+                <button aria-pressed="false">5</button><button aria-pressed="false">6</button><button aria-pressed="false">7</button><button aria-pressed="true">8</button><button aria-pressed="false">9</button>
+            </div>
+        </li>
+        <li>
+            <div class="prow"><span class="av">LM</span><div><b>Liam M.</b></div><span class="scored muted">—</span></div>
+            <div class="scale" role="radiogroup" aria-label="Score Liam M.">
+                <button aria-pressed="false">5</button><button aria-pressed="false">6</button><button aria-pressed="false">7</button><button aria-pressed="false">8</button><button aria-pressed="false">9</button>
+            </div>
+        </li>
+        <li>
+            <div class="prow"><span class="av">TK</span><div><b>Tycho K.</b><br><span class="small pill pill--red">PHV · plafond 3</span></div><span class="scored muted">—</span></div>
+            <div class="scale" role="radiogroup" aria-label="Score Tycho K.">
+                <button aria-pressed="false">5</button><button aria-pressed="false">6</button><button aria-pressed="false">7</button><button aria-pressed="false">8</button><button aria-pressed="false">9</button>
+            </div>
+        </li>
+        <li>
+            <div class="prow"><span class="av">DK</span><div><b>Daan K.</b></div><span class="scored muted">—</span></div>
+            <div class="scale" role="radiogroup" aria-label="Score Daan K.">
+                <button aria-pressed="false">5</button><button aria-pressed="false">6</button><button aria-pressed="false">7</button><button aria-pressed="false">8</button><button aria-pressed="false">9</button>
+            </div>
+        </li>
+    </ul>
+    <p class="small muted" style="margin:10px 0 0">Tik nogmaals op een cijfer om de score te wissen — een observatie met alleen een notitie is prima.</p>
+
+    <label class="field" style="margin-top:12px"><span>Notitie bij Noah V. (optioneel)</span>
+        <textarea placeholder="Eén zin. Verschijnt op zijn tijdlijn.">Draaide twee keer weg uit de druk en koos daarna de vrije back. Precies waar zijn doel op zit.</textarea>
+    </label>
+
+    <div class="tt-form-actions">
+        <button class="btn btn-secondary" onclick="document.body.dataset.sheet='closed'">Annuleren</button>
+        <button class="btn btn-primary" onclick="document.body.dataset.sheet='closed'">Opslaan</button>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">Offline? De observatie wordt lokaal bewaard en later verstuurd.</p>
+</section>
+
+<script>
+function sv(name, btn){
+    document.body.dataset.view = name;
+    document.querySelectorAll('.state').forEach(s => s.dataset.active = (s.dataset.state === name));
+    if (btn) document.querySelectorAll('.state-picker button').forEach(b => b.setAttribute('aria-pressed', b === btn));
+    document.body.dataset.sheet = 'closed';
+    window.scrollTo(0,0);
+}
+function obs(btn){
+    sv('running');
+    document.body.dataset.sheet = 'open';
+    document.querySelectorAll('.state-picker button').forEach(b => b.setAttribute('aria-pressed', b === btn));
+}
+document.querySelectorAll('.scale button').forEach(b => b.addEventListener('click', () => {
+    const was = b.getAttribute('aria-pressed') === 'true';
+    b.parentElement.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed','false'));
+    if (!was) b.setAttribute('aria-pressed','true');           // tap again clears — rating is nullable
+    const out = b.closest('li').querySelector('.scored');
+    out.textContent = was ? '—' : b.textContent;
+    out.classList.toggle('muted', was);
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oefening — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+.two { display:grid; gap:var(--sp-lg); }
+@media (min-width:1024px) { .two { grid-template-columns:1.25fr 1fr; align-items:start; } }
+.pitchwrap { background:#2f7d4f; border-radius:var(--tt-r-lg); padding:8px; }
+svg.scene-svg { width:100%; height:auto; display:block; }
+.actor circle { stroke-width:.7; }
+.own    circle { fill:#ffffff; stroke:#0b3d2e; }
+.opp    circle { fill:none;    stroke:#ffffff; stroke-width:1.1; }
+.gk     circle { fill:#e8b624; stroke:#0b3d2e; }
+.actor text { font:700 3.1px var(--font); fill:#0b3d2e; text-anchor:middle; dominant-baseline:central; }
+.opp text { fill:#ffffff; }
+.ball circle { fill:#e8b624; stroke:#241f00; stroke-width:.5; }
+.line { stroke:#ffffff; fill:none; stroke-width:.55; opacity:.9; }
+.passline { stroke:#e8b624; stroke-width:.8; stroke-dasharray:2.5 1.8; fill:none; opacity:0; }
+
+/* Playback: every actor is parked at t=0 and only moves once .playing is set.
+   Nothing autoplays — CLAUDE.md §2 + prefers-reduced-motion. */
+.mv { animation-duration:6s; animation-timing-function:ease-in-out; animation-fill-mode:forwards; animation-play-state:paused; }
+.scene.playing .mv { animation-play-state:running; }
+#lb  { animation-name:lb }   #rb { animation-name:rb }
+#cm  { animation-name:cm }   #ball { animation-name:ball }
+#o3  { animation-name:o3 }
+.scene.playing .passline { opacity:1; animation:draw 6s linear forwards; }
+@keyframes lb   { 0%,20%{transform:translate(30px,7px)}  45%,100%{transform:translate(48px,6px)} }
+@keyframes rb   { 0%,35%{transform:translate(30px,59px)} 60%,100%{transform:translate(50px,58px)} }
+@keyframes cm   { 0%,10%{transform:translate(45px,33px)} 40%,100%{transform:translate(57px,24px)} }
+@keyframes o3   { 0%,15%{transform:translate(40px,20px)} 45%,100%{transform:translate(31px,12px)} }
+@keyframes ball { 0%,8%{transform:translate(13px,33px)} 25%,32%{transform:translate(24px,48px)}
+                  52%,58%{transform:translate(31px,8px)} 78%,100%{transform:translate(49px,6px)} }
+@keyframes draw { from { stroke-dashoffset:120 } to { stroke-dashoffset:0 } }
+/* Reduced motion: the scene still plays on demand, but instantly — the coach
+   gets the end state without six seconds of movement. The start positions are
+   also on the elements as presentation attributes, so nothing collapses to the
+   origin if animations are unavailable entirely. */
+@media (prefers-reduced-motion: reduce) { .mv { animation-duration:.001s; } }
+
+.cp-list { margin:0; padding-left:20px; font-size:15px; line-height:1.6; }
+.usage { display:grid; grid-template-columns:1fr auto; gap:8px; padding:8px 0; border-bottom:1px solid var(--tt-line-soft); font-size:13px; }
+.usage:last-child { border-bottom:0; }
+.specs { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+@media (min-width:768px) { .specs { grid-template-columns:repeat(4,1fr); } }
+.spec { background:var(--tt-mute); border-radius:var(--tt-r); padding:10px 12px; }
+.spec b { display:block; font-size:16px; font-variant-numeric:tabular-nums; }
+.spec span { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--tt-ink-soft); font-weight:700; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · W2/W8 — Oefening-detail met scène-speler:</strong>
+    <code>?tt_view=exercise&amp;id=112</code> · niets beweegt tot je op Afspelen drukt ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <a class="back-pill" href="./plan-builder.html">&larr; Terug naar Opbouwen van achteruit</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; <a href="./library.html">Oefeningen</a> &rsaquo; Opbouw 7v5</p>
+        <h1>Opbouw 7v5 naar twee kleine doelen</h1>
+        <p class="page-head__sub">Positiespel · toegevoegd door Marijn de Vries · versie 3 · laatst gewijzigd 2 aug</p>
+        <div class="page-head__actions">
+            <button class="btn btn-secondary btn-sm">Bewerken</button>
+            <a class="btn btn-secondary btn-sm" href="./diagram-editor.html">Scène bewerken</a>
+            <button class="btn btn-secondary btn-sm">Dupliceer</button>
+        </div>
+    </header>
+
+    <div class="spine">
+        <ul class="spine__tabs">
+            <li><a href="#" aria-current="page">Oefening</a></li>
+            <li><a href="#">Scènes <span class="count">2</span></a></li>
+            <li><a href="#">Gebruik <span class="count">7</span></a></li>
+            <li><a href="#">Versies <span class="count">3</span></a></li>
+        </ul>
+    </div>
+
+    <div class="wrap">
+      <div class="two">
+        <div class="stack">
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Scène 1 · Opbouw via de vrije back</h2><span class="card__hint">6 sec</span></div>
+                <div class="scene" id="scene">
+                    <div class="pitchwrap">
+                        <svg class="scene-svg" viewBox="0 0 100 66" role="img" aria-label="Halve veldhelft: keeper speelt naar de linker centrale verdediger, die de vrijgelopen linksback bereikt.">
+                            <!-- veldlijnen -->
+                            <rect x="1" y="1" width="98" height="64" class="line"/>
+                            <rect x="1" y="13" width="17" height="40" class="line"/>
+                            <rect x="1" y="23" width="6"  height="20" class="line"/>
+                            <circle cx="13" cy="33" r=".7" fill="#fff"/>
+                            <path d="M99 21 A12 12 0 0 0 99 45" class="line"/>
+                            <line x1="99" y1="1" x2="99" y2="65" class="line"/>
+
+                            <!-- passlijnen die zich tekenen tijdens het afspelen -->
+                            <path class="passline" d="M13 33 L24 48 L31 8 L49 6" stroke-dasharray="120"/>
+
+                            <!-- tegenstanders -->
+                            <g class="actor opp" transform="translate(55,33)"><circle r="3.2"/><text>9</text></g>
+                            <g class="actor opp" transform="translate(40,45)"><circle r="3.2"/><text>11</text></g>
+                            <g class="actor opp mv" id="o3" transform="translate(40,20)"><circle r="3.2"/><text>7</text></g>
+
+                            <!-- eigen spelers -->
+                            <g class="actor gk"  transform="translate(9,33)"><circle r="3.2"/><text>1</text></g>
+                            <g class="actor own" transform="translate(24,18)"><circle r="3.2"/><text>4</text></g>
+                            <g class="actor own" transform="translate(24,48)"><circle r="3.2"/><text>3</text></g>
+                            <g class="actor own mv" id="lb" transform="translate(30,7)"><circle r="3.2"/><text>5</text></g>
+                            <g class="actor own mv" id="rb" transform="translate(30,59)"><circle r="3.2"/><text>2</text></g>
+                            <g class="actor own mv" id="cm" transform="translate(45,33)"><circle r="3.2"/><text>6</text></g>
+
+                            <!-- bal -->
+                            <g class="ball mv" id="ball" transform="translate(13,33)"><circle r="1.8"/></g>
+                        </svg>
+                    </div>
+                    <div class="scene__controls">
+                        <button class="btn btn-sm" onclick="play()">▶ Afspelen</button>
+                        <button class="btn btn-secondary btn-sm" onclick="reset()">↺ Opnieuw</button>
+                        <div class="scene__scrub"><input type="range" min="0" max="6000" value="0" aria-label="Tijd in de scène"></div>
+                    </div>
+                    <p class="small muted" style="margin:8px 0 0">Zelfde weergave als in het plan, langs de lijn en op de afdruk. Bij <i>prefers-reduced-motion</i> staat het eindbeeld stil en blijft Afspelen beschikbaar.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Organisatie</h2></div>
+                <p style="margin:0 0 12px;font-size:15px;line-height:1.55">Halve veldhelft, twee kleine doelen op de middenlijn. De keeper start elke aanval. Zeven spelers bouwen op tegen vijf. Een punt bij het passeren van de middenlijn met balbezit; de tegenpartij scoort in de grote goal.</p>
+                <div class="specs">
+                    <div class="spec"><b>18–25</b><span>Minuten</span></div>
+                    <div class="spec"><b>10–14</b><span>Spelers</span></div>
+                    <div class="spec"><b>4</b><span>Intensiteit</span></div>
+                    <div class="spec"><b>½ veld</b><span>Ruimte</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Coachpunten</h2></div>
+                <ul class="cp-list">
+                    <li>Eerste balcontact uit de druk</li>
+                    <li>Backs breed en hoog, niet gelijk met de centrale verdedigers</li>
+                    <li>Keeper altijd aanspeelbaar — hardop coachen op het moment</li>
+                    <li>Na de derde pass zoeken naar diepte, niet blijven rondtikken</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="stack">
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Traint op</h2></div>
+                <div class="stack">
+                    <a href="#" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--tt-line);border-radius:var(--tt-r);padding:10px">
+                        <span class="pill pill--principle">AO-01</span>
+                        <b style="display:block;margin-top:4px">Breed en diep spelen bij opbouw</b>
+                        <span class="small muted">Aanvallen 1 · teamtaak opbouwen</span>
+                    </a>
+                    <a href="#" style="display:block;text-decoration:none;color:inherit;border:1px solid var(--tt-line);border-radius:var(--tt-r);padding:10px">
+                        <span class="pill pill--principle">AO-02</span>
+                        <b style="display:block;margin-top:4px">De keeper als eerste opbouwer</b>
+                        <span class="small muted">Aanvallen 1 · keeper</span>
+                    </a>
+                </div>
+                <p class="small muted" style="margin:10px 0 0">Deze koppeling bepaalt welke spelers trainingstijd op dit principe bijgeschreven krijgen.</p>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Gebruikt in</h2><span class="card__hint">7 plannen</span></div>
+                <div class="usage"><a href="./plan-builder.html">JO13-1 · Opbouwen van achteruit</a><span class="muted">19 aug</span></div>
+                <div class="usage"><a href="#">JO13-2 · Rustig opbouwen</a><span class="muted">12 aug</span></div>
+                <div class="usage"><a href="#">JO14-1 · Opbouw onder druk</a><span class="muted">7 aug</span></div>
+                <div class="usage"><a href="#">JO13-1 · Thema opbouw</a><span class="muted">29 jul</span></div>
+                <p class="small muted" style="margin:10px 0 0">Bewerken maakt een nieuwe versie. Bestaande plannen en uitvoeringen blijven de versie tonen die ze gebruikten.</p>
+            </div>
+
+            <div class="card">
+                <div class="card__head"><h2 class="card__title">Zichtbaarheid</h2></div>
+                <p style="margin:0;font-size:14px"><span class="pill pill--green">Hele club</span> — elk team ziet deze oefening in de picker en de generator kan hem kiezen.</p>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+function play(){ const s=document.getElementById('scene'); s.classList.remove('playing'); void s.offsetWidth; s.classList.add('playing'); }
+function reset(){ document.getElementById('scene').classList.remove('playing'); }
+</script>
+</body>
+</html>
