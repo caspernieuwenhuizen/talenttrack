@@ -127,10 +127,45 @@ final class FrontendAppNav {
             . IconRenderer::render( 'chevron-left', [ 'width' => 16, 'height' => 16 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
             . '</button>';
 
+        // #2504 — which group starts open. Normally the one holding the
+        // current view. On the dashboard root nothing is active, and leaving
+        // every group shut would present a wall of headings with no
+        // destinations, so the first group opens instead.
+        $active_group = -1;
+        foreach ( $groups as $i => $group ) {
+            if ( self::groupHasActive( $group, $active_view ) ) {
+                $active_group = $i;
+                break;
+            }
+        }
+        if ( $active_group === -1 ) {
+            $active_group = 0;
+        }
+
         echo '<div class="tt-shell-nav__scroll">';
-        foreach ( $groups as $group ) {
-            if ( $group['label'] !== '' ) {
-                echo '<h2 class="tt-shell-nav__group">' . esc_html( $group['label'] ) . '</h2>';
+        foreach ( $groups as $i => $group ) {
+            // #2504 — groups collapse so a full destination list fits without
+            // the sidebar becoming a scrolling column. Native <details>: it
+            // works with JS off, is keyboard-operable and announces its own
+            // expanded state, so no ARIA of ours to keep in sync.
+            //
+            // Open the group holding the current view, closed otherwise —
+            // that keeps the rail short while never hiding where you are. A
+            // group with no label has nothing to collapse behind, so it stays
+            // a plain list.
+            $has_label = $group['label'] !== '';
+            $is_open   = ( $i === $active_group );
+
+            if ( $has_label ) {
+                echo '<details class="tt-shell-nav__group-wrap"' . ( $is_open ? ' open' : '' ) . '>';
+                echo '<summary class="tt-shell-nav__group">'
+                    . '<span class="tt-shell-nav__group-label">' . esc_html( $group['label'] ) . '</span>'
+                    . '<span class="tt-shell-nav__group-chev" aria-hidden="true"></span>'
+                    . '</summary>';
+                // The panel is what the open/close animation measures and
+                // clips; the <ul> inside keeps its natural height so the
+                // measurement is honest.
+                echo '<div class="tt-shell-nav__panel">';
             }
             echo '<ul class="tt-shell-nav__list">';
             foreach ( $group['tiles'] as $tile ) {
@@ -158,9 +193,28 @@ final class FrontendAppNav {
                 echo '</li>';
             }
             echo '</ul>';
+            if ( $has_label ) {
+                echo '</div>';
+                echo '</details>';
+            }
         }
         echo '</div>';
         echo '</nav>';
+    }
+
+    /**
+     * True when the active view sits inside this group — the one group that
+     * opens on load, so the rail shows where you are without expanding
+     * everything (#2504).
+     *
+     * @param array{label:string,tiles:list<array<string,mixed>>} $group
+     */
+    private static function groupHasActive( array $group, string $active_view ): bool {
+        if ( $active_view === '' ) return false;
+        foreach ( $group['tiles'] as $tile ) {
+            if ( self::slugFor( $tile ) === $active_view ) return true;
+        }
+        return false;
     }
 
     /**

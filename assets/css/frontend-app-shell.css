@@ -22,9 +22,83 @@
 
 .tt-dashboard.tt-shell-app {
     /* Sidebar width lives here so the rail toggle is a one-value change
-       and the content column's grid track follows automatically. */
-    --tt-shell-nav-w: 210px;
+       and the content column's grid track follows automatically.
+       #2504 — 210px was too tight: real destination labels ("VCT-trainings-
+       ontwerper", "Seizoensovergang") wrapped or truncated. 260px holds the
+       longest shipped label on one line at the nav's font size, and costs
+       nothing now the frame is full-bleed rather than inside a 1600px cap. */
+    --tt-shell-nav-w: 260px;
     --tt-shell-rail-w: 60px;
+
+    /*
+     * #2504 — how far down the sticky chrome starts. The WP admin bar is
+     * fixed at 32px on wide viewports for logged-in staff; below 783px WP
+     * switches it to position:absolute so it scrolls away and nothing needs
+     * offsetting. Set once here, consumed by the header and the nav.
+     */
+    --tt-shell-top: 0px;
+    /*
+     * Header height, so the sticky sidebar can start below the sticky
+     * header instead of underneath it. This default matches the header's
+     * rendered height; app-shell.js measures the real element and overwrites
+     * it, so a longer academy name or a zoomed browser stays correct.
+     */
+    --tt-shell-header-h: 56px;
+
+    /*
+     * #2504 — the app shell owns the page frame.
+     *
+     * `.tt-dashboard` carries `max-width: min(94vw, 1600px)` + `margin: 2rem
+     * auto` + `padding` from public.css, written for the classic
+     * centred-article layout. `tt-shell-app` lands on that same element, so
+     * without this the whole shell — sidebar included — sat in a centred
+     * 1600px column: on a 2560px monitor that is ~550px of dead page each
+     * side and a sidebar floating in from the edge.
+     *
+     * The frame goes full-bleed; the readable-measure cap moves to the
+     * content column (`.tt-shell-main`) where it belongs. `classic` never
+     * sees any of this and keeps the cap.
+     */
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* WP admin bar offset — only where WP actually pins the bar. */
+body.admin-bar .tt-dashboard.tt-shell-app {
+    --tt-shell-top: 32px;
+}
+@media screen and (max-width: 782px) {
+    /* WP drops #wpadminbar to position:absolute here; it scrolls off with
+       the page, so the shell chrome pins to the true viewport top. */
+    body.admin-bar .tt-dashboard.tt-shell-app {
+        --tt-shell-top: 0px;
+    }
+}
+
+/* ---- Sticky header ------------------------------------------------- */
+/*
+ * #2504 — the header carries search, notifications and the user menu; in a
+ * persistent shell it has to stay reachable. It was previously in normal
+ * flow and scrolled away, and the sidebar's sticky rule was written around
+ * that ("the dashboard header scrolls with the page").
+ *
+ * Below the drawer (1200) and the command palette (1400) so neither ends up
+ * underneath it.
+ */
+.tt-dashboard.tt-shell-app .tt-dash-header {
+    position: sticky;
+    top: var(--tt-shell-top, 0px);
+    z-index: 1100;
+}
+
+/* ---- Content column ------------------------------------------------ */
+/*
+ * The gutter released from `.tt-dashboard` above is re-applied here, so
+ * content keeps breathing room while the frame stays full-bleed.
+ */
+.tt-shell-app .tt-shell-main {
+    padding: var(--tt-sp-4, 1rem) var(--tt-sp-4, 1rem) 3rem;
 }
 
 /* ---- Shell frame --------------------------------------------------- */
@@ -99,18 +173,114 @@
 }
 
 /* ---- Nav contents -------------------------------------------------- */
+/*
+ * #2504 — groups are collapsible (<details>/<summary>), so a full
+ * destination list fits without turning the sidebar into a scrolling
+ * column. The summary keeps the old heading's look and gains a chevron and
+ * a 48px hit area, since it is now a control rather than a label.
+ */
+/*
+ * Option D — the heading is a full-width button row: a hairline divider
+ * separates groups, the chevron is always present (low contrast until
+ * hovered), and the hover fill runs the width of the rail. Chosen over the
+ * lighter variants because it is unambiguously clickable and gives the
+ * largest hit target, which matters on touch where there is no hover to
+ * reveal anything.
+ */
+.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap:first-child {
+    border-top: 0;
+}
+
 .tt-shell-app .tt-shell-nav__group {
-    margin: 1rem 0 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 48px;
+    margin: 0.15rem 0;
     padding-inline: 0.6rem;
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--tt-ink-soft, #6a6d66);
+    cursor: pointer;
+    border-radius: var(--tt-radius, 8px);
+    touch-action: manipulation;
+    /* Replace the default disclosure marker with our own chevron. */
+    list-style: none;
 }
 
-.tt-shell-app .tt-shell-nav__group:first-child {
-    margin-top: 0.25rem;
+/* Safari still paints the marker without this. */
+.tt-shell-app .tt-shell-nav__group::-webkit-details-marker {
+    display: none;
+}
+
+.tt-shell-app .tt-shell-nav__group:hover,
+.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-surface-2, #f4f5f2);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-shell-app .tt-shell-nav__group-chev {
+    flex: 0 0 auto;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-inline-end: 2px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    /* Present but quiet until the row is hovered or focused. */
+    opacity: 0.45;
+    transition: transform .18s ease, opacity .12s ease;
+}
+
+.tt-shell-app .tt-shell-nav__group:hover .tt-shell-nav__group-chev,
+.tt-shell-app .tt-shell-nav__group:focus-visible .tt-shell-nav__group-chev {
+    opacity: 0.9;
+}
+
+/* ---- Slide-down panel ---------------------------------------------- */
+/*
+ * Native <details> snaps open. The panel below is what app-shell.js
+ * animates: it clips to a measured height on toggle, then releases back to
+ * `auto` so a later viewport change cannot leave the group clipped. With JS
+ * off (or reduced motion) the group still opens and closes instantly — the
+ * animation is decoration, never the mechanism.
+ */
+.tt-shell-app .tt-shell-nav__panel {
+    overflow: hidden;
+}
+
+.tt-shell-app .tt-shell-nav__panel.is-animating {
+    transition: height .2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-shell-app .tt-shell-nav__group-chev { transition: none; }
+    .tt-shell-app .tt-shell-nav__panel.is-animating { transition: none; }
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap[open] .tt-shell-nav__group-chev {
+    transform: rotate(-135deg);
+}
+
+.tt-shell-app .tt-shell-nav__group-wrap:first-child .tt-shell-nav__group {
+    margin-top: 0.15rem;
+}
+
+/*
+ * In the collapsed icon rail there is no room for group headings, and a
+ * closed group would hide its icons with no way back. Headings go, every
+ * list shows.
+ */
+.tt-shell-app.is-rail .tt-shell-nav__group,
+.is-rail .tt-shell-app .tt-shell-nav__group {
+    display: none;
 }
 
 .tt-shell-app .tt-shell-nav__list {
@@ -215,15 +385,18 @@
 
     .tt-shell-app .tt-shell-nav {
         position: sticky;
-        /* The WP admin bar occupies the top 32px when present; the
-           dashboard header scrolls with the page, so the rail pins to
-           the viewport top and scrolls internally. */
-        top: 0;
+        /* #2504 — the header is sticky now, so the rail pins BELOW it
+           rather than to the viewport top (where it would slide under the
+           header). Both offsets come from the vars on .tt-shell-app: the
+           admin-bar allowance plus the measured header height. */
+        top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 56px));
         inset-inline-start: auto;
         z-index: 1;
         width: auto;
-        max-height: 100vh;
-        max-height: 100dvh;
+        /* Remaining viewport below that chrome — the nav scrolls internally
+           when the destination list is longer than the space left. */
+        max-height: calc(100vh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
+        max-height: calc(100dvh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
         transform: none;
         visibility: visible;
         box-shadow: none;
