@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Training\Repositories\TrainingPlanBlocksRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * TrainingPlansRestController — /wp-json/talenttrack/v1/training/plans (#2496).
@@ -103,22 +104,72 @@ final class TrainingPlansRestController {
         ] );
     }
 
+    /**
+     * List plans.
+     *
+     * Speaks two vocabularies on purpose. A direct API caller passes
+     * `team_id` / `is_template` / `limit` / `offset`; `FrontendListTable`
+     * passes `page` / `per_page` / `search` / `orderby` / `order` and its
+     * filters nested under `filter[...]`. Both land on the same repository
+     * args, and the response uses the `rows` + `total` + `page` +
+     * `per_page` shape the list-table hydrator reads.
+     */
     public static function list_plans( \WP_REST_Request $r ): \WP_REST_Response {
-        $args = [];
-        if ( $r->get_param( 'team_id' ) !== null )     $args['team_id']          = (int) $r->get_param( 'team_id' );
-        if ( $r->get_param( 'is_template' ) !== null ) $args['is_template']      = (bool) $r->get_param( 'is_template' );
-        if ( $r->get_param( 'theme_key' ) !== null )   $args['theme_key']        = (string) $r->get_param( 'theme_key' );
-        if ( $r->get_param( 'include_archived' ) )     $args['include_archived'] = true;
+        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $args   = [];
+
+        $team_id = $r->get_param( 'team_id' ) ?? ( $filter['team_id'] ?? null );
+        if ( $team_id !== null && $team_id !== '' ) {
+            $args['team_id'] = (int) $team_id;
+        }
+
+        $is_template = $r->get_param( 'is_template' ) ?? ( $filter['is_template'] ?? null );
+        if ( $is_template !== null && $is_template !== '' ) {
+            $args['is_template'] = (bool) $is_template;
+        }
+
+        $theme_key = $r->get_param( 'theme_key' ) ?? ( $filter['theme_key'] ?? null );
+        if ( $theme_key !== null && $theme_key !== '' ) {
+            $args['theme_key'] = (string) $theme_key;
+        }
+
+        // The list-table's record-state pill: active (default) / archived / all.
+        $status = (string) ( $filter['status'] ?? 'active' );
+        if ( $status === 'archived' ) {
+            $args['archived_only'] = true;
+        } elseif ( $status === 'all' ) {
+            $args['include_archived'] = true;
+        }
+        if ( $r->get_param( 'include_archived' ) ) {
+            $args['include_archived'] = true;
+        }
+
+        $search = (string) ( $r->get_param( 'search' ) ?? '' );
+        if ( $search !== '' ) $args['search'] = $search;
+
+        $orderby = (string) ( $r->get_param( 'orderby' ) ?? '' );
+        if ( $orderby !== '' ) {
+            $args['orderby'] = $orderby;
+            $args['order']   = strtolower( (string) $r->get_param( 'order' ) ) === 'asc' ? 'asc' : 'desc';
+        }
 
         $repo  = new TrainingPlansRepository();
         $total = $repo->countPlans( $args );
 
-        if ( $r->get_param( 'limit' ) !== null )  $args['limit']  = (int) $r->get_param( 'limit' );
-        if ( $r->get_param( 'offset' ) !== null ) $args['offset'] = (int) $r->get_param( 'offset' );
+        $per_page = (int) ( $r->get_param( 'per_page' ) ?? $r->get_param( 'limit' ) ?? 25 );
+        $per_page = max( 1, min( 200, $per_page ) );
+        $page     = max( 1, (int) ( $r->get_param( 'page' ) ?? 1 ) );
+
+        $args['limit']  = $per_page;
+        $args['offset'] = $r->get_param( 'offset' ) !== null
+            ? max( 0, (int) $r->get_param( 'offset' ) )
+            : ( $page - 1 ) * $per_page;
 
         return RestResponse::success( [
-            'items' => array_map( [ __CLASS__, 'shapePlan' ], $repo->listPlans( $args ) ),
-            'total' => $total,
+            'rows'     => array_map( [ __CLASS__, 'shapeRow' ], $repo->listPlans( $args ) ),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
         ] );
     }
 
@@ -245,6 +296,39 @@ final class TrainingPlansRestController {
             }
         }
         return $out;
+    }
+
+    /**
+     * A list row. The plan shape plus the display-ready fields the list
+     * table renders straight into cells, and the `detail_url` that makes
+     * the whole row clickable.
+     *
+     * @return array<string,mixed>
+     */
+    private static function shapeRow( ?object $p ): array {
+        $row = self::shapePlan( $p );
+        if ( ! $row ) return [];
+
+        $row['detail_url'] = add_query_arg(
+            [ 'tt_view' => 'training-plan', 'id' => $row['id'] ],
+            RecordLink::dashboardUrl()
+        );
+
+        /* translators: %d is a number of minutes. */
+        $row['duration_label'] = sprintf(
+            _n( '%d minute', '%d minutes', $row['total_duration_minutes'], 'talenttrack' ),
+            $row['total_duration_minutes']
+        );
+
+        $row['kind_label'] = $row['is_template']
+            ? __( 'Template', 'talenttrack' )
+            : __( 'Plan', 'talenttrack' );
+
+        // Only archived rows carry it, so the list table's `show_if` gate
+        // can put Restore / Delete-permanently on exactly those rows.
+        $row['archived_at'] = $row['archived'] ? ( $p->archived_at ?? null ) : null;
+
+        return $row;
     }
 
     /**
