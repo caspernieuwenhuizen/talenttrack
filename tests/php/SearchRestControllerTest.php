@@ -127,7 +127,93 @@ class SearchRestControllerTest extends WP_UnitTestCase {
             ] );
         }
 
-        $this->assertLessThanOrEqual( 8, count( $this->get( 'filler', 'view' )['results'] ) );
+        // #2508 raised the cap from 8 to 10 so sections and records can share
+        // one list without starving each other.
+        $this->assertLessThanOrEqual( 10, count( $this->get( 'filler', 'view' )['results'] ) );
+    }
+
+    // --- sections must not crowd out records (#2508) --------------------
+
+    /**
+     * Register enough matching sections to fill the response on their own.
+     * Before #2508 these were merged first and the combined list truncated,
+     * so every record was discarded — typing two letters that matched a lot
+     * of sections hid every player.
+     */
+    private function registerCrowdingViews( string $needle, int $count = 12 ): void {
+        for ( $i = 0; $i < $count; $i++ ) {
+            TileRegistry::register( [
+                'slug'      => 'crowd-' . $i,
+                'view_slug' => 'crowd-' . $i,
+                'kind'      => 'work',
+                'label'     => ucfirst( $needle ) . 'section ' . $i,
+                'group'     => 'Reference',
+                'order'     => 200 + $i,
+                'cap'       => 'manage_options',
+                'url'       => home_url( '/?tt_view=crowd-' . $i ),
+            ] );
+        }
+    }
+
+    private function typesIn( array $results ): array {
+        return array_count_values( array_map(
+            static fn( $r ) => (string) ( $r['type'] ?? '?' ),
+            $results
+        ) );
+    }
+
+    public function test_a_matching_record_survives_a_flood_of_matching_sections(): void {
+        wp_set_current_user( $this->admin_id );
+
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'first_name' => 'Zeno',
+            'last_name'  => 'Crowdtest',
+            'club_id'    => 1,
+        ] );
+
+        $this->registerCrowdingViews( 'crowd' );
+
+        $results = $this->get( 'crowd' )['results'];
+        $types   = $this->typesIn( $results );
+
+        $this->assertGreaterThan( 0, $types['player'] ?? 0,
+            'a matching player must appear even when many sections also match' );
+        $this->assertLessThanOrEqual( 3, $types['view'] ?? 0,
+            'sections are capped while records are competing for slots' );
+    }
+
+    public function test_sections_still_fill_the_list_when_no_record_matches(): void {
+        // The quota is a floor for records, not a ceiling on sections: with
+        // nothing else competing, sections should use the whole list.
+        wp_set_current_user( $this->admin_id );
+        $this->registerCrowdingViews( 'crowd' );
+
+        $results = $this->get( 'crowd' )['results'];
+        $types   = $this->typesIn( $results );
+
+        $this->assertSame( count( $results ), $types['view'] ?? 0 );
+        $this->assertGreaterThan( 3, count( $results ),
+            'unused record slots go back to sections' );
+    }
+
+    public function test_a_record_only_query_uses_the_whole_list(): void {
+        wp_set_current_user( $this->admin_id );
+
+        global $wpdb;
+        for ( $i = 0; $i < 6; $i++ ) {
+            $wpdb->insert( $wpdb->prefix . 'tt_players', [
+                'first_name' => 'Quirinus' . $i,
+                'last_name'  => 'Zzzunique',
+                'club_id'    => 1,
+            ] );
+        }
+
+        $results = $this->get( 'Zzzunique' )['results'];
+        $types   = $this->typesIn( $results );
+
+        $this->assertSame( 0, $types['view'] ?? 0, 'no section matches this query' );
+        $this->assertGreaterThanOrEqual( 6, count( $results ) );
     }
 
     public function test_every_result_carries_a_usable_url(): void {
