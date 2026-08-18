@@ -1844,6 +1844,28 @@ class FrontendConfigurationView extends FrontendViewBase {
             <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Colours', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
                 <?php
+                // #2524 — the theme picker belongs on Appearance, at the top
+                // of the panel whose settings it overrides. It shipped in
+                // #2512 anchored to the Navigation layout selector, which
+                // turned out to live in renderGeneralForm() — so the control
+                // sat on General while the "these colours are not in use"
+                // notice it causes rendered here, on Appearance.
+                $theme_current = \TT\Shared\Frontend\ThemePreference::clubDefault();
+                ?>
+                <div class="tt-field tt-field--section-top">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Visual theme', 'talenttrack' ); ?></h4>
+                    <label class="tt-field-label" for="tt-cfg-frontend-theme"><?php esc_html_e( 'Academy default', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-frontend-theme" class="tt-input" name="config[tt_frontend_theme]">
+                        <?php foreach ( \TT\Shared\Frontend\ThemePreference::labels() as $theme_value => $theme_label ) : ?>
+                            <option value="<?php echo esc_attr( $theme_value ); ?>" <?php selected( $theme_current, $theme_value ); ?>><?php echo esc_html( $theme_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
+                <?php
                 // #2515 — a theme owns the complete visual design, so these
                 // fields do nothing while one is active. Saying so up front
                 // beats letting an operator pick a colour and watch the page
@@ -2059,25 +2081,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </select>
                     <p class="tt-field-hint">
                         <?php esc_html_e( 'The app shell keeps a navigation sidebar on screen on a laptop and a slide-out menu on a phone. Classic returns to the tile overview to switch sections. Everyone can pick their own layout in My settings; this is what they get until they do.', 'talenttrack' ); ?>
-                    </p>
-                </div>
-
-                <?php
-                // #2512 — club-wide visual theme. A theme is a token layer
-                // over the shipped look, so `default` is a complete
-                // rollback in the same way `classic` is for the shell.
-                $theme_current = \TT\Shared\Frontend\ThemePreference::clubDefault();
-                ?>
-                <div class="tt-field tt-field--section-top">
-                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Visual theme', 'talenttrack' ); ?></h4>
-                    <label class="tt-field-label" for="tt-cfg-frontend-theme"><?php esc_html_e( 'Academy default', 'talenttrack' ); ?></label>
-                    <select id="tt-cfg-frontend-theme" class="tt-input" name="config[tt_frontend_theme]">
-                        <?php foreach ( \TT\Shared\Frontend\ThemePreference::labels() as $theme_value => $theme_label ) : ?>
-                            <option value="<?php echo esc_attr( $theme_value ); ?>" <?php selected( $theme_current, $theme_value ); ?>><?php echo esc_html( $theme_label ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <p class="tt-field-hint">
-                        <?php esc_html_e( 'Changes colours, corners and heading type only — never what anyone can see or do. Federation is a navy chrome with a gold marker on the active section. A theme supplies the whole colour scheme, so the Colours settings do not apply while one is active; your logo and academy name still do. Everyone can pick their own theme in My settings; this is what they get until they do.', 'talenttrack' ); ?>
                     </p>
                 </div>
 
