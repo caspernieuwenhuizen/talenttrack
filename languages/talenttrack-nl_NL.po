@@ -48702,6 +48702,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is the title of the plan being copied.
+#: src/Modules/Training/Repositories/TrainingPlansRepository.php:402
+#, php-format
+msgid "%s (copy)"
+msgstr "%s (kopie)"
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 
