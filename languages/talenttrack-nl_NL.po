@@ -48691,6 +48691,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s is a comma-separated list of team names.
+#: src/Modules/DemoData/Admin/DemoDataPage.php:161
+#, php-format
+msgid "No head coach is recorded for: %s. Their generated work is attributed to you instead — assign a head coach on the team and re-run for a truer picture."
+msgstr "Voor de volgende teams is geen hoofdtrainer vastgelegd: %s. Hun gegenereerde werk staat nu op jouw naam — wijs een hoofdtrainer toe aan het team en genereer opnieuw voor een kloppender beeld."
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 

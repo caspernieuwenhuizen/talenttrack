@@ -30,6 +30,7 @@ class DemoDataPage {
     private const TRANSIENT_ACCOUNTS   = 'tt_demo_last_accounts';
     private const TRANSIENT_COUNTS     = 'tt_demo_last_counts';
     private const TRANSIENT_USER_STATS = 'tt_demo_last_user_stats';
+    private const TRANSIENT_MISSING_COACH = 'tt_demo_last_missing_coach';
 
     public static function init(): void {
         // v3.70.1 hotfix — menu registration moved to
@@ -80,13 +81,16 @@ class DemoDataPage {
         $raw_accounts    = get_transient( self::TRANSIENT_ACCOUNTS );
         $raw_counts      = get_transient( self::TRANSIENT_COUNTS );
         $raw_user_stats  = get_transient( self::TRANSIENT_USER_STATS );
+        $raw_missing     = get_transient( self::TRANSIENT_MISSING_COACH );
         $last_accounts   = is_array( $raw_accounts )   ? $raw_accounts   : [];
         $last_counts     = is_array( $raw_counts )     ? $raw_counts     : [];
         $last_user_stats = is_array( $raw_user_stats ) ? $raw_user_stats : [];
+        $last_missing    = is_array( $raw_missing )    ? $raw_missing    : [];
         if ( $notice === 'generated' ) {
             delete_transient( self::TRANSIENT_ACCOUNTS );
             delete_transient( self::TRANSIENT_COUNTS );
             delete_transient( self::TRANSIENT_USER_STATS );
+            delete_transient( self::TRANSIENT_MISSING_COACH );
         }
 
         ?>
@@ -100,7 +104,7 @@ class DemoDataPage {
                 ); ?>
             </p>
 
-            <?php self::renderNotices( $notice, $batch, $error, $last_counts, $last_user_stats ); ?>
+            <?php self::renderNotices( $notice, $batch, $error, $last_counts, $last_user_stats, $last_missing ); ?>
             <?php self::renderModeSection( $mode ); ?>
             <?php self::renderFootprint( $counts ); ?>
             <?php self::renderCredentials( $last_accounts ); ?>
@@ -120,7 +124,7 @@ class DemoDataPage {
      * @param array<string,int> $counts
      * @param array<string,int> $user_stats
      */
-    private static function renderNotices( string $notice, string $batch, string $error, array $counts, array $user_stats ): void {
+    private static function renderNotices( string $notice, string $batch, string $error, array $counts, array $user_stats, array $missing_coach = [] ): void {
         if ( $notice === 'generated' && $batch ) {
             $created_users = (int) ( $user_stats['created'] ?? 0 );
             $reused_users  = (int) ( $user_stats['reused'] ?? 0 );
@@ -154,6 +158,17 @@ class DemoDataPage {
                     ); ?>
                 </p>
             </div>
+            <?php if ( $missing_coach ) : ?>
+                <div class="notice notice-warning">
+                    <p>
+                        <?php printf(
+                            /* translators: %s is a comma-separated list of team names. */
+                            esc_html__( 'No head coach is recorded for: %s. Their generated work is attributed to you instead — assign a head coach on the team and re-run for a truer picture.', 'talenttrack' ),
+                            esc_html( implode( ', ', array_map( 'strval', $missing_coach ) ) )
+                        ); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
             <?php
         } elseif ( $notice === 'wiped' ) {
             $cats_str = isset( $_GET['tt_demo_wiped_cats'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_wiped_cats'] ) ) : '';
@@ -965,6 +980,7 @@ class DemoDataPage {
         set_transient( self::TRANSIENT_ACCOUNTS,   $result['accounts'],   10 * MINUTE_IN_SECONDS );
         set_transient( self::TRANSIENT_COUNTS,     $result['counts'],     10 * MINUTE_IN_SECONDS );
         set_transient( self::TRANSIENT_USER_STATS, $result['user_stats'], 10 * MINUTE_IN_SECONDS );
+        set_transient( self::TRANSIENT_MISSING_COACH, $result['teams_missing_coach'] ?? [], 10 * MINUTE_IN_SECONDS );
 
         $redirect = add_query_arg(
             [ 'tt_demo_msg' => 'generated', 'tt_demo_batch' => rawurlencode( $result['batch_id'] ) ],
