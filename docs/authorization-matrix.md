@@ -210,6 +210,16 @@ Two blueprint code paths still resolved authority with the raw `tt_view_team_che
 
 These are enforcement-only re-points — they land on exactly the `team_chemistry` access #1922 established (the same persona table above).
 
+### The wizard entry gate joins them (#2557)
+
+One blueprint surface stayed behind: the wizard's *entry* gate. `WizardRegistry::isAvailable()` asks `AuthorizationService::userCanOrMatrix()` for the wizard's `requiredCap()`, and `tt_manage_team_chemistry` is granted only to administrator / head_dev / club_admin and has no `LegacyCapMapper` bridge — so a head coach was denied. The list view had already moved to `TeamChemistryAccess::canManage()` under #1922, so it rendered the "+ New blueprint" button; the entry point behind it then resolved to the empty fallback URL and the button did nothing.
+
+`NewTeamBlueprintWizard` now answers the question itself, through an optional `isAvailableFor( int $user_id ): bool` hook that `WizardRegistry` calls in place of the cap gate when a wizard declares one. It returns `TeamChemistryAccess::canManage()` — the same decision the list view, the editor, `ReviewStep` and the REST writes make. No other wizard declares the hook; the other seven keep the `requiredCap()` path unchanged.
+
+Bridging `tt_manage_team_chemistry` in `LegacyCapMapper` was rejected as the fix: `LegacyCapMapper::evaluate()` resolves through `MatrixGate::canAnyScope()`, which applies the sub-feature toggle. The `team_chemistry` feature is off by default while the blueprint surfaces deliberately survive it being off, so the bridge would have left the button dead on exactly the installs reporting the bug. Granting the raw cap to `tt_coach` was rejected too — assistant coaches share that WP role and the matrix denies them `team_chemistry` (#1060).
+
+Effective access change: **head coaches can now create blueprints**, which is what their `team_chemistry [rc, team]` row always said. No other persona's answer moves.
+
 ## Act-cap bridges to existing player-status entities (#1939)
 
 The PlayerStatus "set the potential band" act-cap was matrix-blind while its data-cap sibling was matrix-aware, so the frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) and REST (`PlayerStatusRestController`) could drift. #1939 bridges the act-cap so both surfaces resolve from the same matrix entity:

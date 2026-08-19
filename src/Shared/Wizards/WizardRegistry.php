@@ -7,7 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Central registry of available wizards. Modules register at boot.
  *
  * Two layers of gating:
- *   - capability: the wizard's own `requiredCap()`.
+ *   - capability: the wizard's own `requiredCap()`, or its
+ *                 `isAvailableFor()` override when it declares one.
  *   - config: `tt_wizards_enabled` lookup decides which wizard slugs
  *             surface entry-points. `'all'` = every registered wizard;
  *             `'off'` = none; comma-separated list = explicit allowlist.
@@ -35,13 +36,29 @@ final class WizardRegistry {
 
     /**
      * Is wizard `$slug` reachable for the current user? Checks both
-     * the capability gate and the `tt_wizards_enabled` config.
+     * the authorization gate and the `tt_wizards_enabled` config.
+     *
+     * #2557 — a wizard may answer the authorization question itself by
+     * declaring `isAvailableFor( int $user_id ): bool`. That is the
+     * escape hatch for a flow whose entity is not reachable through the
+     * `tt_*` cap vocabulary: `new-team-blueprint` resolves
+     * `team_chemistry` authority directly through the matrix, ignoring
+     * the sub-feature toggle, which no `requiredCap()` string can
+     * express. Detected via `method_exists` (the same optional-hook
+     * pattern `CustomWidgetRenderer` uses for its data sources) so the
+     * interface stays a three-method contract and the other wizards
+     * need no change.
      */
     public static function isAvailable( string $slug, int $user_id = 0 ): bool {
         $w = self::find( $slug );
         if ( ! $w ) return false;
         if ( ! self::isEnabled( $slug ) ) return false;
         if ( $user_id <= 0 ) $user_id = get_current_user_id();
+
+        if ( method_exists( $w, 'isAvailableFor' ) ) {
+            return (bool) $w->isAvailableFor( $user_id );
+        }
+
         // Matrix-aware: the cap may be granted via the authorization matrix /
         // functional roles rather than a plain WP cap. Mirror how the button
         // render-guards and the rest of the app resolve caps, otherwise a

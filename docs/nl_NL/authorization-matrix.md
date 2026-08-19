@@ -200,6 +200,16 @@ Twee blauwdruk-codepaden bepaalden na #1922 hun autoriteit nog met de ruwe capab
 
 Dit zijn handhaving-alleen herverwijzingen — ze landen exact op de `team_chemistry`-toegang die #1922 vestigde (dezelfde personatabel hierboven).
 
+### De toegangspoort van de wizard sluit aan (#2557)
+
+Eén blauwdruk-oppervlak bleef achter: de *toegangspoort* van de wizard. `WizardRegistry::isAvailable()` vraagt `AuthorizationService::userCanOrMatrix()` naar de `requiredCap()` van de wizard, en `tt_manage_team_chemistry` is alleen toegekend aan administrator / head_dev / club_admin en heeft geen brug in `LegacyCapMapper` — dus werd een hoofdtrainer geweigerd. De lijstweergave was onder #1922 al overgestapt op `TeamChemistryAccess::canManage()` en toonde dus wél de knop "+ Nieuwe blauwdruk"; het onderliggende toegangspunt loste vervolgens op naar de lege terugval-URL en de knop deed niets.
+
+`NewTeamBlueprintWizard` beantwoordt die vraag nu zelf, via een optionele hook `isAvailableFor( int $user_id ): bool` die `WizardRegistry` aanroept in plaats van de capability-poort zodra een wizard hem declareert. Hij geeft `TeamChemistryAccess::canManage()` terug — dezelfde beslissing die de lijstweergave, de editor, `ReviewStep` en de REST-schrijfacties nemen. Geen enkele andere wizard declareert de hook; de overige zeven houden het ongewijzigde `requiredCap()`-pad.
+
+`tt_manage_team_chemistry` bruggen in `LegacyCapMapper` viel af als oplossing: `LegacyCapMapper::evaluate()` bepaalt via `MatrixGate::canAnyScope()`, die de subfunctie-schakelaar toepast. De functie `team_chemistry` staat standaard uit terwijl de blauwdruk-oppervlakken bewust blijven werken als hij uit staat, dus de brug zou de knop juist dood laten op precies de installaties die de fout melden. De ruwe capability toekennen aan `tt_coach` viel eveneens af — assistent-trainers delen die WP-rol en de matrix weigert hun `team_chemistry` (#1060).
+
+Effectieve toegangswijziging: **hoofdtrainers kunnen nu blauwdrukken aanmaken**, wat hun rij `team_chemistry [rc, team]` altijd al zei. Voor geen enkele andere persona verandert het antwoord.
+
 ## Handelings-capability-bruggen naar bestaande speler-status-entiteiten (#1939)
 
 De PlayerStatus-handelings-capability "potentieel-band instellen" was matrix-blind terwijl zijn data-capability-broer matrix-bewust was, waardoor de frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) en REST (`PlayerStatusRestController`) konden afwijken. #1939 brugt de handelings-capability zodat beide oppervlakken vanuit dezelfde matrixentiteit antwoorden:
