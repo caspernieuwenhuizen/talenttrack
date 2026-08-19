@@ -139,6 +139,6 @@ class FrontendDocsView extends FrontendViewBase {
         if ( $path === null ) return '<p><em>' . esc_html__( 'This topic has no content yet.', 'talenttrack' ) . '</em></p>';
         $source = (string) file_get_contents( $path );
         if ( $source === '' ) return '<p><em>' . esc_html__( 'This topic is empty.', 'talenttrack' ) . '</em></p>';
-        return Markdown::render( $source );
+        return Markdown::render( $source, $slug );
     }
 }

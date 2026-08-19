@@ -25,7 +25,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class Markdown {
 
-    public static function render( string $source ): string {
+    /**
+     * Slug of the topic being rendered, for the `tt_back` hint on links
+     * that leave for the app. Static because the class is all-static and
+     * one render runs at a time; `render()` owns setting and clearing it.
+     */
+    private static $topic_slug = '';
+
+    /**
+     * @param string $topic_slug Topic being rendered. Links into the app
+     *                           carry a back hint to it, so the reader can
+     *                           return to what they were reading.
+     */
+    public static function render( string $source, string $topic_slug = '' ): string {
+        self::$topic_slug = $topic_slug;
+        try {
+            return self::renderBody( $source );
+        } finally {
+            self::$topic_slug = '';
+        }
+    }
+
+    private static function renderBody( string $source ): string {
         $source = str_replace( [ "\r\n", "\r" ], "\n", $source );
         // Metadata never reaches the renderer: the front-matter block would
         // come out as a horizontal rule followed by visible `key: value`
@@ -152,44 +173,80 @@ class Markdown {
         // Italic *foo* (after bold so ** doesn't match)
         $text = preg_replace( '/(?<!\*)\*(?!\*)([^*]+)(?<!\*)\*(?!\*)/', '<em>$1</em>', $text );
 
-        // Links [text](url) — URL must be a relative admin URL, http(s),
-        // or a `<slug>.md` cross-reference to another doc topic. The
-        // .md branch (#0069) rewrites `[X](other.md)` to the in-product
-        // docs URL `?tt_view=docs&topic=other` so internal cross-
-        // references stay inside the docs viewer instead of silently
-        // rendering as plain text (the previous behaviour).
+        // Links [text](url). Five shapes, in order of specificity; the
+        // fall-through renders the label as plain text, which is also
+        // what an unreachable destination gets — a link that lands on
+        // "permission denied" is worse than no link.
         $text = preg_replace_callback(
             '/\[([^\]]+)\]\(([^)]+)\)/',
-            function ( $m ) {
-                $url = $m[2];
-                if ( preg_match( '#^(https?://|admin\.php|/wp-admin)#', $url ) ) {
-                    return '<a href="' . esc_url( $url ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
+            static function ( $m ) {
+                $label = $m[1];
+                $url   = $m[2];
+
+                // 1. Off-site. Nothing to resolve.
+                if ( preg_match( '#^https?://#', $url ) ) {
+                    return self::anchor( $url, $label );
                 }
-                // Cross-reference to another doc: <slug>.md or <locale>/<slug>.md
-                // The anchor's `#` must be escaped — it is also the pattern
-                // delimiter, so unescaped it truncated the expression and
-                // preg_match failed on every link it was tried against.
+
+                // 2. Cross-reference to another topic: <slug>.md, or
+                //    <locale>/<slug>.md. Stays inside whichever docs
+                //    viewer the reader is already in, and resolves as a
+                //    real file when the doc is read on GitHub.
+                //
+                //    The anchor's `#` is escaped because it is also the
+                //    pattern delimiter — unescaped it truncated the
+                //    expression, and preg_match then failed on every link
+                //    shape this branch was tried against, not just
+                //    anchored ones.
                 if ( preg_match( '#^(?:[a-z]{2}_[A-Z]{2}/)?([a-z0-9][a-z0-9\-]*)\.md(?:\#.*)?$#', $url, $sm ) ) {
-                    $slug = $sm[1];
-                    // Stay inside the in-product docs viewer. The frontend
-                    // and wp-admin viewers both honour `?tt_view=docs&topic=`;
-                    // only difference is the surrounding shell.
-                    if ( is_admin() ) {
-                        $href = admin_url( 'admin.php?page=tt-docs&topic=' . rawurlencode( $slug ) );
-                    } else {
-                        $href = add_query_arg( [ 'tt_view' => 'docs', 'topic' => $slug ], home_url( '/' ) );
-                    }
-                    return '<a href="' . esc_url( $href ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
+                    return self::anchor( DocLinkResolver::topic( $sm[1] ), $label );
                 }
-                // Treat as relative admin link
-                if ( preg_match( '/^\?page=/', $url ) ) {
-                    return '<a href="' . esc_url( admin_url( 'admin.php' . $url ) ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
+
+                // 3. Into the application. Carries a back hint to this
+                //    topic, and renders as an action chip rather than a
+                //    run-of-text link.
+                if ( strpos( $url, '?tt_view=' ) === 0 ) {
+                    $href = DocLinkResolver::frontend( $url, self::$topic_slug );
+                    return $href === null ? $label : self::anchor( $href, $label, 'tt-doc-action' );
                 }
-                return $m[1];
+
+                // 4. Into wp-admin. Admin-only, and always marked as
+                //    leaving TalentTrack.
+                if ( preg_match( '#^(\?page=|admin\.php|/wp-admin)#', $url ) ) {
+                    $href = DocLinkResolver::admin( $url );
+                    return $href === null ? $label : self::externalAnchor( $href, $label );
+                }
+
+                return $label;
             },
             $text
         );
 
         return $text;
+    }
+
+    /**
+     * The label is already escaped by the time a link callback sees it —
+     * inline() escapes the whole string before any substitution.
+     */
+    private static function anchor( string $href, string $label, string $class = 'tt-doc-link' ): string {
+        return '<a class="' . esc_attr( $class ) . '" href="' . esc_url( $href ) . '">' . $label . '</a>';
+    }
+
+    /**
+     * A destination outside TalentTrack. Marked visually and named in the
+     * accessible label, so the context switch is never a surprise.
+     */
+    private static function externalAnchor( string $href, string $label ): string {
+        $aria = sprintf(
+            /* translators: %s: link text */
+            __( '%s (opens the WordPress admin)', 'talenttrack' ),
+            wp_strip_all_tags( html_entity_decode( $label, ENT_QUOTES ) )
+        );
+        return '<a class="tt-doc-link tt-doc-extlink" href="' . esc_url( $href ) . '"'
+            . ' aria-label="' . esc_attr( $aria ) . '">'
+            . $label
+            . '<span class="tt-doc-extlink__mark" aria-hidden="true">&#8599;</span>'
+            . '</a>';
     }
 }

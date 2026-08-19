@@ -186,8 +186,8 @@ The expand/collapse state is per-user, per-card, persisted in `localStorage` (`t
 
 ## Where to next
 
-- Switching roles in the user menu: [Access control](?page=tt-docs&topic=access-control)
-- The full tile catalog: [Coach dashboard](?page=tt-docs&topic=coach-dashboard)
+- Switching roles in the user menu: [Access control](access-control.md)
+- The full tile catalog: [Coach dashboard](coach-dashboard.md)
 
 ## Data source dropdowns (v3.79.0)
 

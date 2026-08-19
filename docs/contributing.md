@@ -86,15 +86,45 @@ Dutch literals (`'Annuleren'`, `'Opslaan'`, `'Doelen…'`) as `msgid`s in PHP so
 - Code samples in fenced blocks with a language tag (`php`, `json`, `bash`, …).
 - Inline `<code>` for slugs, capability names, table names, function names.
 
-## Cross-references
+## Links
 
-Link to other docs with a relative path:
+Four link shapes are recognised. Anything else renders as plain text.
+
+### Another doc — a relative path
 
 ```markdown
 See [REST API reference](rest-api.md) for the contract.
 ```
 
-Don't hard-code `/wp-admin/admin.php?page=tt-docs&topic=…` URLs unless you specifically need the in-product link — the relative-file form works in both the product viewer and on GitHub.
+Resolves to whichever docs viewer the reader is already in, and works as a real file link when the doc is read on GitHub. Anchors are fine: `rest-api.md#authentication`.
+
+Never hard-code `?page=tt-docs&topic=…`. It used to be rewritten to wp-admin unconditionally, so following one ejected a coach or a parent out of the app and into a page most of them cannot even load.
+
+### A screen in the app — `?tt_view=`
+
+```markdown
+[Open the minutes grid](?tt_view=minutes-grid)
+```
+
+Renders as an action chip and carries a `tt_back` hint, so the reader lands on the screen with a back-pill to the topic they were reading. Extra query args are preserved (`?tt_view=players&status=trial`).
+
+The link is **capability-aware**: for a reader whose install has that module or feature switched off, or who lacks the capability, the label renders as plain text instead. A doc can therefore link freely to a screen not everyone can open — nobody is sent to a permission-denied page.
+
+Use these liberally. A support doc that names a screen and then makes the reader go find it is doing half its job.
+
+### wp-admin — `?page=`, `admin.php?…`, `/wp-admin/…`
+
+```markdown
+[Error Log](?page=tt-error-log)
+```
+
+Renders **only for readers with `tt_edit_settings`**, with a visible marker and an accessible label saying it leaves TalentTrack. For everyone else the label renders as plain text.
+
+So a topic that documents a wp-admin surface belongs on `audience: [admin]` — otherwise a coach reads a page describing something they cannot reach.
+
+### Off-site — `https://`
+
+Rendered as-is.
 
 ## Slugs
 

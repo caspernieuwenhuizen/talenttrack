@@ -240,7 +240,7 @@ Het persona-dashboard (`persona_dashboard.enabled`) levert een parallelle, rijke
 
 Twee cap-en-matrix-aanpalende operator-handleidingen zijn in v3.97.2 (#0086 Workstream A) gepubliceerd:
 
-- [Beveiliging — handleiding voor de academy admin](?page=tt-docs&topic=security-operator-guide) — de dag-één- + jaarlijkse-checklist voor de Academy Admin: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
-- [Privacy — handleiding voor de academy admin](?page=tt-docs&topic=privacy-operator-guide) — de AVG-georiënteerde how-to: inzage-verzoeken, recht-op-vergetelheid-verzoeken (handmatig tot de formele wis-pijplijn er is), retentie-vensters per datacategorie, de privacy-levenscyclus van een speler die toetreedt en vertrekt.
+- [Beveiliging — handleiding voor de academy admin](security-operator-guide.md) — de dag-één- + jaarlijkse-checklist voor de Academy Admin: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
+- [Privacy — handleiding voor de academy admin](privacy-operator-guide.md) — de AVG-georiënteerde how-to: inzage-verzoeken, recht-op-vergetelheid-verzoeken (handmatig tot de formele wis-pijplijn er is), retentie-vensters per datacategorie, de privacy-levenscyclus van een speler die toetreedt en vertrekt.
 
 De publieke trust-artefacten (security-pagina, privacybeleid, DPA-template) staan op `talenttrack.app/security` en `talenttrack.app/privacy`; de bron staat ter bewerking in `marketing/security/`.

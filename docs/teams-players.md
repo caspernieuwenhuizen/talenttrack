@@ -16,7 +16,7 @@ A **team** is a squad at a specific age group (e.g. "U13 Blue", "U15 Red"). Each
 - A head coach (from your **People** roster)
 - Assigned players
 
-Create teams in the **Teams** admin page. The age group field matters because [category weights](?page=tt-docs&topic=eval-categories-weights) are defined per age group.
+Create teams in the **Teams** admin page. The age group field matters because [category weights](eval-categories-weights.md) are defined per age group.
 
 ### The Teams list (v4.40.0 — #1614)
 
@@ -66,7 +66,7 @@ When a player has a `wp_user_id` set, logging in as that user routes to their ow
 
 ## Archiving vs deleting
 
-Archived players stay in the database but disappear from active lists (old evaluations still reference them). Permanent delete only works when no evaluations, goals, or sessions reference the player. Use **archive** in most cases — see [Bulk actions](?page=tt-docs&topic=bulk-actions).
+Archived players stay in the database but disappear from active lists (old evaluations still reference them). Permanent delete only works when no evaluations, goals, or sessions reference the player. Use **archive** in most cases — see [Bulk actions](bulk-actions.md).
 
 ### Archiving a team takes its activities with it (v4.x+)
 
@@ -113,7 +113,7 @@ The team detail page now shows current trial players under their own **Trial pla
 
 ## Team detail — player-profile-style redesign (v4.40.0 — #1613)
 
-The team page is rebuilt to mirror the [player profile](?page=tt-docs&topic=teams-players#player-file-ux-redesign-v480--977): same shapes, same card system, same responsive rail/main grid. Backend unchanged — same `tt_teams` row, same `tt_view_teams` gate, same `?tt_view=teams&id=N` URL.
+The team page is rebuilt to mirror the [player profile](teams-players.md#player-file-ux-redesign-v480--977): same shapes, same card system, same responsive rail/main grid. Backend unchanged — same `tt_teams` row, same `tt_view_teams` gate, same `?tt_view=teams&id=N` URL.
 
 - **Hero.** Paper background with the team crest (initials in an accent chip, status-coloured ring), name, a "Teams · age group" sub-line, and identity pills (status, age group, player count). The hero is **always shown** and cannot be hidden.
 - **Action row.** New activity (primary) · Planner · Edit · Print seizoens-intakes · Customize · `⋯` overflow (Archive). Cap-gated: New activity → `tt_edit_activities`, Edit + Archive → `tt_edit_teams`, batch print → `tt_edit_goals`, Customize → coach-of-this-team.

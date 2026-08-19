@@ -80,7 +80,7 @@ class DocsRestController {
         $body = '';
         if ( $path !== null ) {
             $source = (string) file_get_contents( $path );
-            if ( $source !== '' ) $body = Markdown::render( $source );
+            if ( $source !== '' ) $body = Markdown::render( $source, $slug );
         }
 
         return new \WP_REST_Response( [

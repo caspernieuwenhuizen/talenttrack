@@ -42,6 +42,10 @@ class DashboardShortcode {
         // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
         // fallback (and shared with the standalone WP-404 takeover).
         wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
+        // #2545 — links inside a rendered help topic. Loaded on every view,
+        // not just the docs page: the help drawer renders topic bodies over
+        // whatever the reader happens to be looking at.
+        wp_enqueue_style( 'tt-frontend-docs', TT_PLUGIN_URL . 'assets/css/frontend-docs.css', [ 'tt-public' ], TT_VERSION );
         // #2456 — the `app` shell's sidebar / rail / drawer. Enqueued only
         // when the resolved shell asks for it, so a `classic` install
         // ships neither the stylesheet nor the behaviour script.

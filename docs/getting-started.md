@@ -33,6 +33,6 @@ Admins see everything plus configuration tiles for academy-wide settings.
 
 ## Where to next
 
-- Recording evaluations: [Evaluations](?page=tt-docs&topic=evaluations)
-- Logging a training or game: [Activities and attendance](?page=tt-docs&topic=activities)
-- Setting development goals: [Player goals](?page=tt-docs&topic=goals)
+- Recording evaluations: [Evaluations](evaluations.md)
+- Logging a training or game: [Activities and attendance](activities.md)
+- Setting development goals: [Player goals](goals.md)

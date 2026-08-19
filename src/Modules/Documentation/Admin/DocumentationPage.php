@@ -28,6 +28,12 @@ class DocumentationPage {
     public static function init(): void {}
 
     public static function render_page(): void {
+        // #2545 — link styling for rendered topic bodies. Same sheet the
+        // frontend viewer and the drawer use, so a topic reads the same
+        // whichever surface opens it.
+        wp_enqueue_style( 'tt-tokens', TT_PLUGIN_URL . 'assets/css/tokens.css', [], TT_VERSION );
+        wp_enqueue_style( 'tt-frontend-docs', TT_PLUGIN_URL . 'assets/css/frontend-docs.css', [ 'tt-tokens' ], TT_VERSION );
+
         $topics = HelpTopics::all();
         $groups = HelpTopics::groups();
 
@@ -254,6 +260,6 @@ class DocumentationPage {
         if ( $source === '' ) {
             return '<p><em>' . esc_html__( 'This topic is empty.', 'talenttrack' ) . '</em></p>';
         }
-        return Markdown::render( $source );
+        return Markdown::render( $source, $slug );
     }
 }

@@ -168,8 +168,8 @@ De uitklap-status is per gebruiker, per kaart, opgeslagen in `localStorage` (`tt
 
 ## Verder lezen
 
-- Wisselen van rol in het gebruikersmenu: [Toegangsbeheer](?page=tt-docs&topic=access-control)
-- Volledige tegelcatalogus: [Coachdashboard](?page=tt-docs&topic=coach-dashboard)
+- Wisselen van rol in het gebruikersmenu: [Toegangsbeheer](access-control.md)
+- Volledige tegelcatalogus: [Coachdashboard](coach-dashboard.md)
 
 ## Databron-dropdowns (v3.79.0)
 
