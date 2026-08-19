@@ -1161,6 +1161,12 @@ class DashboardShortcode {
      * pattern is consistent.
      */
     private static function dispatchAdminView( string $view, int $user_id, bool $is_admin ): bool {
+        // #2559 — `team-spond` is the one per-record slug in this group: it
+        // needs the `?id=N` team id. Read it here, mirroring
+        // dispatchCoachingView, so the case doesn't reach for a variable
+        // that only exists in that other method's scope.
+        $detail_id = isset( $_GET['id'] ) ? absint( wp_unslash( $_GET['id'] ) ) : 0;
+
         switch ( $view ) {
             case 'configuration':
                 FrontendConfigurationView::render( $user_id, $is_admin );
