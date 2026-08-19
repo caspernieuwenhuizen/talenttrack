@@ -275,6 +275,47 @@ rows are available over REST at
 `team_id`, `age_group`, `from`, `to`), gated on the same `measurements`
 *read* permission, for integrations and the SaaS front end.
 
+## Test trends — one test, every player, over the season
+
+*Test results* answers "how is each player doing on this test **right
+now**". **Test trends** (Analysis group) answers the other half: **who is
+developing and who is stalling**. It is the Excel export's *Trends* sheet
+brought on screen.
+
+Pick a test, optionally narrow by team and a date window, and press
+**Show**. What you get depends on the test — the same rule the player
+timeline follows, because a trend only means something in the terms of its
+own test:
+
+- **A test with a direction** (sprint time, jump height) gets a **chart**
+  with one line per player over the shared date axis, plus a heavier dashed
+  **squad-average** line so the aggregate never reads as another player.
+  Under it: **Most improved** and **Fallen back**, then a table with each
+  player's first value, latest value, **change** and a verdict.
+- **A test with no direction** (height, weight) gets the readings per date
+  and nothing else — no chart, no ranking, no verdict, because there is no
+  better or worse to rank.
+- **A status test** gets a player × date matrix of levels in their own
+  colours. No lines: levels are named states, not distances.
+- **Pass / fail** gets a tick or cross per date, each player's tally, and
+  the **pass rate per round** — the only figure that says something over
+  time without treating two outcomes as a scale.
+
+**The change is read in the direction of the test.** On a test where lower
+is better, −0,08 s is an improvement: it shows green, it reads *improved*,
+and it ranks under *Most improved*. A player whose change is smaller than
+**2%** counts as *about the same* and appears in neither ranking — a
+one-percent move on a hand-timed sprint is inside the noise, and calling it
+progress would overstate what was measured.
+
+Every player name links to their profile with a back-pill. A team-scoped
+coach sees only their own teams, and a link to another team's data is
+refused rather than quietly widened. Integrations read the same numbers
+from `GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
+
+An administrator can hide the report under **Settings → Features → Test
+trends**; with it off, the tile disappears and a direct link is rejected.
+
 ## Moving between the surfaces
 
 **Tests & measurements** has four staff surfaces — *Manage tests* (set up

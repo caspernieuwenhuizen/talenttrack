@@ -22517,6 +22517,84 @@ msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
 msgid "Show history"
 msgstr "Toon verloop"
 
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Test trends"
+msgstr "Testverloop"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "One test, every player, over the season: who is developing and who is stalling."
+msgstr "Eén test, elke speler, over het seizoen: wie ontwikkelt zich en wie stagneert."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Choose a test to see how every player has developed."
+msgstr "Kies een test om te zien hoe elke speler zich heeft ontwikkeld."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "This test has no direction: a higher value is not better than a lower one. There is no target, no verdict and no ranking — only the readings per date."
+msgstr "Deze test heeft geen richting: een hogere waarde is niet beter dan een lagere. Er is geen streefwaarde, geen oordeel en geen ranglijst — alleen de metingen per datum."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Levels have no numeric axis, so there is no line. Each cell shows the recorded level in its own colour."
+msgstr "Niveaus hebben geen numerieke as, dus is er geen lijn. Elk vakje toont het vastgelegde niveau in de eigen kleur."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "The change is read in the direction of the test: on a test where lower is better, a negative change is progress and is ranked as such."
+msgstr "Het verschil wordt gelezen in de richting van de test: bij een test waar lager beter is, is een negatief verschil vooruitgang en telt het ook zo mee in de ranglijst."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "↓ A lower value is better on this test — a falling line is progress."
+msgstr "↓ Bij deze test is een lagere waarde beter — een dalende lijn is vooruitgang."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Squad average"
+msgstr "Teamgemiddelde"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "squad average"
+msgstr "teamgemiddelde"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Most improved"
+msgstr "Meest verbeterd"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Fallen back"
+msgstr "Teruggelopen"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Nobody in this window."
+msgstr "Niemand in deze periode."
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "improved"
+msgstr "verbeterd"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "fallen back"
+msgstr "teruggelopen"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "about the same"
+msgstr "nagenoeg gelijk"
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+msgid "Pass rate"
+msgstr "Slagingspercentage"
+
+#. translators: 1: number of players, 2: number of measuring moments
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php
+#, php-format
+msgid "%1$d player · %2$d measuring moment"
+msgid_plural "%1$d players · %2$d measuring moments"
+msgstr[0] "%1$d speler · %2$d meetmoment"
+msgstr[1] "%1$d spelers · %2$d meetmomenten"
+
+#. translators: 1: test name, 2: number of players plotted, 3: first date, 4: last date
+#: src/Shared/Frontend/Components/TrendChart.php
+#, php-format
+msgid "%1$s: %2$d players plotted from %3$s to %4$s. The table below lists every value."
+msgstr "%1$s: %2$d spelers getekend van %3$s tot %4$s. De tabel eronder bevat elke waarde."
+
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:327
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:356
 msgid "On target for this age group"

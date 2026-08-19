@@ -967,6 +967,27 @@ final class CoreSurfaceRegistration {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },
         ]);
+        // #2537 — Test trends: the longitudinal companion to Test results.
+        // Same `measurements` read gate and the same hidden personas; the
+        // per-report feature toggle (`report_test_trends`) can hide it
+        // without touching the rest of the module.
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'test-trends',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 30,
+            'label'             => __( 'Test trends', 'talenttrack' ),
+            'description'       => __( 'One test, every player, over the season: who is developing and who is stalling.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'feature'           => 'report_test_trends',
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([
