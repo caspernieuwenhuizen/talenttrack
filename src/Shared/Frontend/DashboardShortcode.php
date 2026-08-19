@@ -272,6 +272,17 @@ class DashboardShortcode {
             return \TT\Modules\Auth\PasswordResetView::renderReset( $rp_key, $rp_login, $rp_msg );
         }
 
+        // #2554 — the two MFA challenge screens render *before* the shell
+        // opens, alongside the other pre-authentication flows above. The
+        // session holds a cookie but has not cleared its second factor, so
+        // painting the nav rail, global search, notification bell and
+        // persona menu around a code field is both confusing and more
+        // chrome than a half-authenticated request has earned.
+        $mfa_screen = self::preAuthMfaScreen( $tt_view_param );
+        if ( $mfa_screen !== '' ) {
+            return $mfa_screen;
+        }
+
         // Route guard — no partial render for logged-out users.
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
@@ -1469,15 +1480,107 @@ class DashboardShortcode {
 
     /**
      * #0086 Workstream B Child 1 sprint 3 — MFA login challenge.
+     * #2554 — rendered pre-shell, like every other pre-authentication
+     * flow, rather than through the authenticated view dispatcher.
+     *
+     * Returns the finished markup, or an empty string when `$view` isn't
+     * an MFA challenge screen (or the visitor isn't in a position to see
+     * one) so the caller falls through to its normal routing.
      */
-    private static function dispatchMfaView( string $view, int $user_id, bool $is_admin ): bool {
-        switch ( $view ) {
-            case 'mfa-prompt':
-                \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
-                return true;
-            default:
-                return false;
+    private static function preAuthMfaScreen( string $view ): string {
+        if ( $view !== \TT\Modules\Mfa\Auth\MfaLoginGuard::PROMPT_VIEW && $view !== 'wizard' ) {
+            return '';
         }
+        if ( ! is_user_logged_in() ) {
+            // Falls through to the login form — the visitor has to
+            // authenticate with a first factor before a second one means
+            // anything.
+            return '';
+        }
+
+        $user_id = get_current_user_id();
+
+        if ( $view === \TT\Modules\Mfa\Auth\MfaLoginGuard::PROMPT_VIEW ) {
+            if ( ! \TT\Modules\Mfa\Auth\MfaLoginGuard::isPending( $user_id ) ) {
+                // No challenge outstanding — someone hand-typed the URL.
+                // Send them where they meant to go rather than rendering a
+                // code field with nothing behind it.
+                wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                exit;
+            }
+            self::enqueuePreAuthMfaStyle();
+            ob_start();
+            \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, current_user_can( 'tt_edit_settings' ) );
+            return (string) ob_get_clean();
+        }
+
+        // Forced enrollment. `tt_mfa_required=1` is what `MfaLoginGuard::enforce()`
+        // appends when it holds an un-enrolled user at the wizard, so it cleanly
+        // separates this from a voluntary enrollment launched off the Account
+        // page — that one keeps its normal in-shell wizard chrome.
+        if ( ! isset( $_GET['tt_mfa_required'] ) ) return '';
+        if ( ! \TT\Modules\Mfa\Auth\MfaLoginGuard::mustEnroll( $user_id ) ) return '';
+
+        // #901 — primary query var is `tt_wizard`; `slug=` is the legacy form.
+        $slug = isset( $_GET['tt_wizard'] ) ? sanitize_key( (string) $_GET['tt_wizard'] ) : '';
+        if ( $slug === '' && isset( $_GET['slug'] ) ) {
+            $slug = sanitize_key( (string) $_GET['slug'] );
+        }
+        if ( $slug !== \TT\Modules\Mfa\Wizards\MfaEnrollmentWizard::SLUG ) return '';
+
+        self::enqueuePreAuthMfaStyle();
+        // The shared wizard view emits a breadcrumb chain on every code
+        // path. Off, here — nowhere to navigate to before the second
+        // factor lands, and § 5 exempts pre-login flows from the
+        // two-affordance contract.
+        FrontendBreadcrumbs::suppress();
+        ob_start();
+        echo '<div class="tt-dashboard">';
+        echo '<div class="tt-preauth tt-preauth-wide">';
+        self::renderPreAuthBrand();
+        FlashMessages::render();
+        FrontendWizardView::render( $user_id, current_user_can( 'tt_edit_settings' ) );
+        self::renderPreAuthSignOut();
+        echo '</div></div>';
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * The academy crest + name that heads a pre-authentication screen.
+     * Same two elements the login card leads with, so the challenge reads
+     * as part of signing in rather than as a page inside the app.
+     */
+    public static function renderPreAuthBrand(): void {
+        $logo    = QueryHelpers::get_config( 'logo_url', '' );
+        $academy = QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
+        if ( $logo ) {
+            echo '<img src="' . esc_url( $logo ) . '" alt="" class="tt-login-logo" />';
+        }
+        echo '<h2 class="tt-login-title">' . esc_html( $academy ) . '</h2>';
+    }
+
+    /**
+     * The way out of a challenge the user can't complete — phone left at
+     * home, backup codes lost. Without the shell there is no other exit,
+     * and `MfaLoginGuard::enforce()` lets `wp-login.php` through precisely
+     * so this works.
+     */
+    public static function renderPreAuthSignOut(): void {
+        // Reuses the user-menu's string rather than minting a "Sign out" —
+        // same action, same word, one translation.
+        echo '<p class="tt-login-links tt-preauth-signout">'
+            . '<a href="' . esc_url( wp_logout_url() ) . '">'
+            . esc_html__( 'Log out', 'talenttrack' )
+            . '</a></p>';
+    }
+
+    private static function enqueuePreAuthMfaStyle(): void {
+        wp_enqueue_style(
+            'tt-frontend-mfa-prompt',
+            TT_PLUGIN_URL . 'assets/css/frontend-mfa-prompt.css',
+            [ 'tt-public' ],
+            TT_VERSION
+        );
     }
 
     /**
@@ -1638,7 +1741,6 @@ class DashboardShortcode {
             || self::dispatchTrialView( $view, $user_id, $is_admin )
             || self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin )
             || self::dispatchWizardView( $view, $user_id, $is_admin )
-            || self::dispatchMfaView( $view, $user_id, $is_admin )
             || self::dispatchMobileView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )
             || self::dispatchCohortBoardView( $view, $user_id, $is_admin )

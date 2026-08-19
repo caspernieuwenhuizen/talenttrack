@@ -43,6 +43,7 @@ The TalentTrack-native MFA path is independent of any WordPress MFA plugins you 
 - See the MFA prompt at every login (skipped only when they have a valid 30-day "remember this device" cookie on the current browser).
 - If un-enrolled, are redirected to the enrollment wizard at login until they finish — they cannot navigate away to other dashboard pages until enrollment is complete.
 - Land on whatever page they were originally headed for once they verify, or on the dashboard when there was no such destination. The challenge itself is never a destination: verifying always moves you off it.
+- See the challenge on a centred, branded card with no navigation around it — same chrome as the sign-in and password-reset screens. That is deliberate: until the second factor lands the session isn't fully authenticated, so it gets no nav rail, no search, no notifications and no persona menu. A *Log out* link on the card is the way out for a user who can't complete the challenge (phone left at home, backup codes lost).
 
 Add personas progressively: enable for *Academy admin* + *Head of development* on day one; expand to *Head coach* / *Assistant coach* once your coaching staff is comfortable with the wizard; consider *Scout* and *Team manager* later if your academy stores particularly sensitive prospect data.
 

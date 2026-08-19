@@ -160,6 +160,28 @@ final class MfaLoginGuard {
         return $slug === MfaEnrollmentWizard::SLUG;
     }
 
+    /** Whether `$user_id` has an unverified challenge outstanding. */
+    public static function isPending( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        return (bool) get_transient( self::PENDING_TRANSIENT_PREFIX . $user_id );
+    }
+
+    /** Whether `$user_id` is being held at the enrollment wizard. */
+    public static function mustEnroll( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        return (bool) get_transient( self::ENROLL_TRANSIENT_PREFIX . $user_id );
+    }
+
+    /**
+     * Whether either challenge is open. The frontend uses this to decide
+     * that a request is still *pre-authentication* and must therefore
+     * render without the app shell (#2554) — a half-authenticated session
+     * has no business painting the navigation.
+     */
+    public static function hasOpenChallenge( int $user_id ): bool {
+        return self::isPending( $user_id ) || self::mustEnroll( $user_id );
+    }
+
     /**
      * Per-request middleware. Redirects a logged-in user with an open
      * MFA challenge to the prompt / wizard until they clear it.
@@ -173,8 +195,8 @@ final class MfaLoginGuard {
         if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) return;
 
         $user_id = get_current_user_id();
-        $pending = (bool) get_transient( self::PENDING_TRANSIENT_PREFIX . $user_id );
-        $enroll  = (bool) get_transient( self::ENROLL_TRANSIENT_PREFIX . $user_id );
+        $pending = self::isPending( $user_id );
+        $enroll  = self::mustEnroll( $user_id );
         if ( ! $pending && ! $enroll ) return;
 
         // Allow the prompt page, the enrollment wizard, admin-post, and

@@ -1,0 +1,98 @@
+/* frontend-mfa-prompt.css — the pre-authentication MFA screens (#2554).
+ *
+ * The two-factor challenge and the forced enrollment wizard render before
+ * the app shell opens, on the same centred chrome as the login card. This
+ * sheet adds only what the login card doesn't already carry: the wide
+ * variant the enrollment wizard needs for its QR code, and the code input.
+ *
+ * Mobile-first — base rules target ~360px, the 480px query scales up.
+ * Colours come from tokens.css so the theme layer applies.
+ */
+
+.tt-preauth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+/* The enrollment wizard carries a QR code, a secret to transcribe and ten
+ * backup codes — it needs room the 420px login card doesn't have. Still
+ * chromeless: wider card, no shell. */
+.tt-preauth-wide {
+    display: block;
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+.tt-preauth-wide .tt-wizard,
+.tt-preauth-wide .tt-wizard-chrome {
+    text-align: left;
+}
+
+.tt-preauth-signout {
+    margin-top: 2rem;
+}
+
+/* Code entry. Wide tracking so a six-digit code reads as digits rather
+ * than a word, and ≥16px so iOS doesn't zoom the viewport on focus. */
+.tt-mfa-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+.tt-mfa-code {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 8px 12px;
+    font-size: 1.25rem;
+    letter-spacing: 0.25em;
+    text-align: center;
+}
+.tt-mfa-code-backup {
+    font-size: 1.125rem;
+    letter-spacing: 0.125em;
+}
+
+.tt-mfa-remember {
+    margin-top: 1rem;
+    margin-bottom: 1.25rem;
+    align-items: flex-start;
+    text-align: left;
+    cursor: pointer;
+}
+
+.tt-mfa-hint {
+    color: var(--tt-muted);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    margin: 0.5rem 0 0;
+}
+.tt-mfa-hint-inline {
+    color: var(--tt-muted);
+}
+.tt-mfa-hint-footer {
+    margin-top: 2rem;
+}
+
+.tt-mfa-lockout p {
+    margin: 0 0 8px;
+}
+.tt-mfa-lockout p:last-child {
+    margin-bottom: 0;
+}
+
+@media (min-width: 480px) {
+    .tt-mfa-code {
+        font-size: 1.375rem;
+        letter-spacing: 0.3em;
+    }
+    .tt-mfa-code-backup {
+        font-size: 1.125rem;
+        letter-spacing: 0.15em;
+    }
+}
