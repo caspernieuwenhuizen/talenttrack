@@ -26,8 +26,10 @@
        #2504 — 210px was too tight: real destination labels ("VCT-trainings-
        ontwerper", "Seizoensovergang") wrapped or truncated. 260px holds the
        longest shipped label on one line at the nav's font size, and costs
-       nothing now the frame is full-bleed rather than inside a 1600px cap. */
-    --tt-shell-nav-w: 260px;
+       nothing now the frame is full-bleed rather than inside a 1600px cap.
+       #2533 — 300px on top of that, so the longest labels sit comfortably
+       rather than only just fitting. */
+    --tt-shell-nav-w: 300px;
     --tt-shell-rail-w: 60px;
 
     /*
@@ -476,10 +478,27 @@ body.admin-bar .tt-dashboard.tt-shell-app {
         inset-inline-start: auto;
         z-index: 1;
         width: auto;
-        /* Remaining viewport below that chrome — the nav scrolls internally
-           when the destination list is longer than the space left. */
-        max-height: calc(100vh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
-        max-height: calc(100dvh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
+        /*
+         * #2533 — a fixed height, not a max-height.
+         *
+         * With `max-height` the rail was only as tall as its contents, so the
+         * dark column stopped after the last group and the page showed
+         * through beneath it. Once the panel ends there is nothing left to
+         * look pinned, which is why a sticky rail still read as scrolling
+         * away with the content.
+         *
+         * An explicit height fills from under the sticky header to the
+         * bottom of the viewport on every page, short or long, and
+         * `.tt-shell-nav__scroll` keeps scrolling internally when the
+         * destination list is taller than the space.
+         *
+         * It does not add a scrollbar to a short page: the nav is exactly
+         * `viewport − header − admin bar`, so header + nav sums back to the
+         * viewport. On a long page the grid row is the content's height, so
+         * sticky has the room it needs to travel.
+         */
+        height: calc(100vh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
+        height: calc(100dvh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
         transform: none;
         visibility: visible;
         box-shadow: none;
