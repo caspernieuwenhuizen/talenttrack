@@ -62,7 +62,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
         // #1088 VCT-13 — handle inline VCT defaults panel POST before
         // rendering so the rendered panel reflects the saved state.
-        // Cap-gated on tt_vct_admin_library inside the handler.
+        // Cap-gated on tt_vct_admin_config inside the handler.
         $vct_panel_notice = '';
         if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['_tt_vct_team_panel'] ) ) {
             $vct_panel_notice = self::handleVctDefaultsPost( $team_id, $user_id );
@@ -903,7 +903,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      * CLAUDE.md §3 exemption (a).
      */
     private static function renderVctDefaultsPanel( int $team_id, string $notice_html ): void {
-        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_library' ) ) {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_config' ) ) {
             return;
         }
         $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
@@ -1012,7 +1012,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      * caller injects above the form.
      */
     private static function handleVctDefaultsPost( int $team_id, int $user_id ): string {
-        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' ) ) {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_config' ) ) {
             return '<div class="tt-notice tt-notice--error">' . esc_html__( 'You do not have permission to edit VCT defaults.', 'talenttrack' ) . '</div>';
         }
         $season_id = isset( $_POST['season_id'] ) ? absint( $_POST['season_id'] ) : 0;

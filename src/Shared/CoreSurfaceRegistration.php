@@ -98,6 +98,15 @@ final class CoreSurfaceRegistration {
         // methodology view guard: tt_view_methodology.
         $reg::register( 'methodology', 'tt_view_methodology' );
 
+        // #2495 — the exercise library. Mirrors the view's own early
+        // return, so the Exercises action on the Training page hides for
+        // anyone who would only be shown a "not authorized" notice.
+        $reg::register( 'exercises', 'tt_view_activities' );
+
+        // #2496 — training plans. Same shape: the plan list guards on
+        // tt_training_plan, so any affordance pointing at it does too.
+        $reg::register( 'training-plans', 'tt_training_plan' );
+
         // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
         $chem_gate = static function ( int $uid ): bool {
             if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )
@@ -954,6 +963,27 @@ final class CoreSurfaceRegistration {
             'icon'              => 'trend-up',
             'color'             => '#0e7c66',
             'hide_for_personas' => [ 'player', 'parent' ],
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+            },
+        ]);
+        // #2537 — Test trends: the longitudinal companion to Test results.
+        // Same `measurements` read gate and the same hidden personas; the
+        // per-report feature toggle (`report_test_trends`) can hide it
+        // without touching the rest of the module.
+        TileRegistry::register([
+            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
+            'view_slug'         => 'test-trends',
+            'entity'            => 'measurements',
+            'group'             => $analytics_group,
+            'kind'              => 'work',
+            'order'             => 30,
+            'label'             => __( 'Test trends', 'talenttrack' ),
+            'description'       => __( 'One test, every player, over the season: who is developing and who is stalling.', 'talenttrack' ),
+            'icon'              => 'trend-up',
+            'color'             => '#0e7c66',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'feature'           => 'report_test_trends',
             'cap_callback'      => static function ( int $uid ): bool {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },

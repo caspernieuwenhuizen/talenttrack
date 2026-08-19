@@ -50,6 +50,10 @@ class ExercisesModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
+        // #2495 — the library surface's inline create form. Hooked early
+        // so its redirect lands before any output.
+        add_action( 'init', [ \TT\Modules\Exercises\Frontend\FrontendExerciseLibraryView::class, 'maybeHandlePost' ], 5 );
+
         // #0016 Sprint 2b — REST surfaces. ExercisesRestController
         // wraps the library + categories; ActivityExercisesRestController
         // wraps the per-activity linkage table. Both register their

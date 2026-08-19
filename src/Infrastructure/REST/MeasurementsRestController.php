@@ -135,6 +135,60 @@ class MeasurementsRestController {
                 'permission_callback' => [ __CLASS__, 'can_browse_results' ],
             ],
         ]);
+
+        // #2537 — the Test trends read model: the shared date axis, a series
+        // per player, the squad average and the direction-aware change. The
+        // contract behind FrontendTestTrendsView; both call TestTrendsQuery,
+        // so the page and an API consumer report the same movement.
+        register_rest_route( self::NS, '/reports/test-trends', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'test_trends' ],
+                'permission_callback' => [ __CLASS__, 'can_browse_results' ],
+            ],
+        ]);
+    }
+
+    /**
+     * GET /reports/test-trends — one test over a window, player-centric
+     * (`player_id` is the identity; no WordPress ids leak into the payload).
+     * Team scope mirrors the view: a global reader sees every team, everyone
+     * else only the teams they coach.
+     */
+    public static function test_trends( \WP_REST_Request $r ) {
+        $definition_id = absint( $r['definition_id'] ?? 0 );
+        if ( $definition_id <= 0 ) {
+            return new \WP_Error( 'tt_missing_definition', __( 'A test must be chosen.', 'talenttrack' ), [ 'status' => 400 ] );
+        }
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' ) && ! \TT\Core\FeatureRegistry::isEnabled( 'report_test_trends' ) ) {
+            return new \WP_Error( 'tt_report_disabled', __( 'This report has been switched off for your academy.', 'talenttrack' ), [ 'status' => 404 ] );
+        }
+
+        $uid     = get_current_user_id();
+        $see_all = MatrixGate::can( $uid, 'measurements', 'read', 'global' );
+        $allowed = null;
+        if ( ! $see_all ) {
+            $teams   = \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $uid );
+            $allowed = array_map( static fn ( $t ) => (int) $t->id, is_array( $teams ) ? $teams : [] );
+        }
+
+        $team_id = absint( $r['team_id'] ?? 0 );
+        if ( $allowed !== null && $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
+            return new \WP_Error( 'tt_forbidden_team', __( 'You do not have access to this team.', 'talenttrack' ), [ 'status' => 403 ] );
+        }
+
+        $data = ( new \TT\Modules\Measurements\Reports\TestTrendsQuery() )->forDefinition(
+            $definition_id,
+            [
+                'team_id'   => $team_id,
+                'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
+                'date_from' => self::safe_date( (string) ( $r['from'] ?? '' ) ),
+                'date_to'   => self::safe_date( (string) ( $r['to'] ?? '' ) ),
+            ],
+            $allowed
+        );
+
+        return new \WP_REST_Response( $data, 200 );
     }
 
     public static function can_browse_results(): bool {

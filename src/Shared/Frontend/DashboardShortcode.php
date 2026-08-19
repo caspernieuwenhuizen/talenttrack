@@ -997,6 +997,12 @@ class DashboardShortcode {
             case 'test-results':
                 \TT\Modules\Measurements\Frontend\FrontendTestResultsView::render( $user_id, $is_admin );
                 return true;
+            // #2537 — the longitudinal companion: one test, every player,
+            // over the window. Same `measurements` read gate as above, plus
+            // its own report toggle enforced inside the view.
+            case 'test-trends':
+                \TT\Modules\Measurements\Frontend\FrontendTestTrendsView::render( $user_id, $is_admin );
+                return true;
             // #2121 — the test-catalogue config surface. Matrix-gated on
             // `measurement_definitions` change inside the view.
             case 'measurement-tests':
@@ -1175,6 +1181,12 @@ class DashboardShortcode {
             case 'training-plans':
             case 'training-plan':
                 \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $user_id, $is_admin );
+                return true;
+            // #2495 — the one exercise library (club drills + the VCT
+            // catalogue merged in by migration 0212). `?id=` opens a
+            // single exercise.
+            case 'exercises':
+                \TT\Modules\Exercises\Frontend\FrontendExerciseLibraryView::render( $user_id, $is_admin );
                 return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );

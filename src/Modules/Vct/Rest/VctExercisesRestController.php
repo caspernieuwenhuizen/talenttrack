@@ -11,7 +11,8 @@ use TT\Modules\Vct\Repositories\VctExercisesRepository;
  * VctExercisesRestController — exercise catalogue CRUD.
  *
  * Two-layer permission:
- *   layer 1 — cap: `tt_vct_plan` (read), `tt_vct_admin_library` (write)
+ *   layer 1 — cap: `tt_vct_plan` (read), `tt_manage_exercises` (write —
+ *              one library since #2495, so one cap administers it)
  *   layer 2 — scope: club-implicit via CurrentClub::id() inside the repo
  *
  * Search by age + category + intensity range + theme; consumed by the
@@ -94,7 +95,7 @@ class VctExercisesRestController {
     }
 
     public static function can_admin(): bool {
-        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_library' );
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_exercises' );
     }
 
     public static function search( \WP_REST_Request $r ): \WP_REST_Response {

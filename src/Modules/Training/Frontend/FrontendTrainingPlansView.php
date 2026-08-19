@@ -7,8 +7,10 @@ use TT\Modules\Training\Repositories\TrainingPlanBlocksRepository;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendTrainingPlansView (#2496) — the training plan list at
@@ -66,13 +68,18 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
     private static function renderList(): void {
         FrontendBreadcrumbs::fromDashboard( __( 'Training', 'talenttrack' ) );
 
-        // The Exercises header action lands with the library surface itself
-        // (#2495). Linking to `?tt_view=exercises` from here today would
-        // point at a view that does not exist yet, and the cross-view lint
-        // rightly wants such an affordance registered through
-        // `CrossViewLink` with a gate mirroring the target's own guard —
-        // which needs the target to exist first.
-        self::renderHeader( __( 'Training plans', 'talenttrack' ) );
+        // The library is reached from inside this page, not from a second
+        // tile (D10). `CrossViewLink::allows()` mirrors the library view's
+        // own guard, so the action hides rather than leading someone to a
+        // "not authorized" notice.
+        $actions = [];
+        if ( CrossViewLink::allows( 'exercises' ) ) {
+            $actions[] = [
+                'label' => __( 'Exercises', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
+            ];
+        }
+        self::renderHeader( __( 'Training plans', 'talenttrack' ), self::pageActionsHtml( $actions ) );
 
         echo '<p class="tt-muted tt-training-intro">'
             . esc_html__( 'Your training plans and the club templates you can build from. A plan you attach to a training records what was actually trained, so it lands on the player record.', 'talenttrack' )

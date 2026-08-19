@@ -1,0 +1,278 @@
+/* ================================================================
+   TrendChart (#2536) — the shared dated-series chart.
+   Server-rendered inline SVG; this sheet only colours and sizes it.
+   Mobile-first: the base rules are the 360px layout.
+   Prefixed .tt-trend-* per CLAUDE.md (assume a hostile theme).
+   ================================================================ */
+
+/* The chart scrolls inside its own box on a narrow screen — the page
+   body must never scroll sideways. */
+.tt-trend {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    margin: 0 0 0.5rem;
+}
+.tt-trend__svg {
+    display: block;
+    width: 100%;
+    min-width: 300px;
+    height: auto;
+}
+
+.tt-trend__axis { stroke: var(--tt-line, #e3e6e1); stroke-width: 1; }
+.tt-trend__grid { stroke: var(--tt-line-soft, #eef0ec); stroke-width: 1; }
+
+.tt-trend__tick,
+.tt-trend__date {
+    font-size: 11px;
+    fill: var(--tt-ink-soft, #6a6d66);
+}
+.tt-trend__unit {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    fill: var(--tt-ink-soft, #6a6d66);
+}
+.tt-trend__value {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--tt-ink, #0e1a14);
+}
+
+.tt-trend__line {
+    fill: none;
+    stroke: var(--tt-primary, #0b3d2e);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+.tt-trend__dot { fill: var(--tt-primary, #0b3d2e); }
+.tt-trend__dot.is-latest { fill: var(--tt-primary, #0b3d2e); stroke: #fff; stroke-width: 2; }
+
+/* The "on target" band. Kept low-contrast: it is context for the line,
+   never the thing being read. Its meaning is carried by the caption, not
+   by the colour alone. */
+.tt-trend__band { fill: var(--tt-success, #2f9e5e); opacity: 0.13; }
+.tt-trend__band-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    fill: var(--tt-success, #2f9e5e);
+}
+
+/* --- the expandable trend row on the Measurements surface ------------- */
+
+.tt-meas-trend { margin-top: 0.5rem; }
+.tt-meas-trend > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 48px;
+    padding: 0 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+}
+.tt-meas-trend > summary::-webkit-details-marker { display: none; }
+.tt-meas-trend > summary::before {
+    content: "▸";
+    font-size: 0.75rem;
+    transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
+}
+.tt-meas-trend[open] > summary::before { transform: rotate(90deg); }
+.tt-meas-trend > summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-meas-trend > summary::before { transition: none; }
+}
+
+.tt-meas-trend__body {
+    padding: 0.5rem 0 0.25rem;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+/* Direction note — states which way is improvement, in words, so the
+   chart never depends on the reader inferring it from the slope. */
+.tt-trend-direction {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tt-info, #2d6fb3);
+}
+.tt-trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-trend-legend > span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.tt-trend-legend i {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--tt-primary, #0b3d2e);
+}
+.tt-trend-legend i.is-band {
+    height: 12px;
+    border-radius: 3px;
+    background: var(--tt-success, #2f9e5e);
+    opacity: 0.3;
+}
+
+.tt-trend-empty {
+    margin: 0.4rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-style: italic;
+}
+
+/* --- columns table: neutral tests, status history, pass/fail --------- */
+
+.tt-meas-cols { overflow-x: auto; overscroll-behavior-x: contain; }
+.tt-meas-cols table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+.tt-meas-cols th,
+.tt-meas-cols td {
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    text-align: right;
+    white-space: nowrap;
+}
+.tt-meas-cols th {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-weight: 700;
+}
+/* The test name stays put while the reader scans dates sideways. */
+.tt-meas-cols th[scope="row"],
+.tt-meas-cols thead th:first-child {
+    position: sticky;
+    left: 0;
+    text-align: left;
+    background: var(--tt-paper, #fff);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-meas-cols__change { font-weight: 700; }
+.tt-meas-cols__none { color: var(--tt-ink-soft, #6a6d66); }
+
+.tt-meas-cols__caption {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* Status history — one block per recorded date, coloured by its level.
+   The level's own token supplies the colour via .tt-meas-level-*; this
+   only lays the blocks out. */
+.tt-meas-steps {
+    display: flex;
+    gap: 3px;
+    min-width: 280px;
+}
+.tt-meas-steps__step {
+    flex: 1 1 0;
+    min-width: 56px;
+    padding: 0.4rem 0.3rem;
+    border-radius: 6px;
+    text-align: center;
+}
+.tt-meas-steps__date {
+    display: block;
+    font-size: 0.625rem;
+    opacity: 0.85;
+}
+.tt-meas-steps__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+/* --- multi-series chart + report chrome (#2537) ---------------------- */
+
+/* A player's line is thinner than the single-series chart's, because a
+   squad's worth of them has to stay readable stacked together. */
+.tt-trend__line.is-player { stroke-width: 2; opacity: 0.85; }
+/* The squad average is deliberately NOT another player: heavier and dashed,
+   so it reads as an aggregate at a glance. */
+.tt-trend__line.is-average {
+    stroke: var(--tt-ink-soft, #6a6d66);
+    stroke-width: 3;
+    stroke-dasharray: 7 5;
+}
+.tt-trend-legend i.is-average {
+    height: 0;
+    border-top: 3px dashed var(--tt-ink-soft, #6a6d66);
+    background: none;
+}
+
+.tt-tr-meta {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-tr-ranks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+}
+@media (min-width: 640px) {
+    .tt-tr-ranks { grid-template-columns: 1fr 1fr; }
+}
+.tt-tr-rank {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.6rem 0.75rem;
+    min-width: 0;
+}
+.tt-tr-rank__title {
+    margin: 0 0 0.4rem;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-tr-rank__list { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; }
+.tt-tr-rank__list li { margin-bottom: 0.2rem; }
+
+/* Direction-aware colouring: "up" means improvement in the terms of the
+   test, which on a lower-is-better test is a NEGATIVE number. The class is
+   named for the meaning, never for the sign. */
+.tt-tr-up { color: var(--tt-success, #2f9e5e); font-weight: 700; }
+.tt-tr-down { color: var(--tt-danger, #d8453b); font-weight: 700; }
+
+.tt-tr-verdict {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tt-meas-flag-flat {
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* Pass / fail — a glyph, never colour alone. */
+.tt-meas-mark { font-weight: 700; }
+.tt-meas-mark--pass { color: var(--tt-success, #2f9e5e); }
+.tt-meas-mark--fail { color: var(--tt-danger, #d8453b); }
+.tt-meas-mark--none { color: var(--tt-line, #e3e6e1); }

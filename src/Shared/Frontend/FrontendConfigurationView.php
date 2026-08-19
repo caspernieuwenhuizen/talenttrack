@@ -53,6 +53,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'match-minutes' => __( 'Match minutes', 'talenttrack' ),
                 // #2207 — which player-profile cards are shown club-wide.
                 'profile-cards' => __( 'Profile cards', 'talenttrack' ),
+                // #2540 — download the configuration as a JSON file.
+                'export'        => __( 'Export configuration', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -112,6 +114,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'Default dashboard', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderDashboardForm();
+                return;
+            case 'export':
+                // #2540 — download the current configuration as JSON.
+                self::renderHeader( __( 'Export configuration', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderExportForm();
                 return;
             case 'lookups':
                 // v3.74.3 — #5: per-category frontend editor. When
@@ -1596,6 +1604,15 @@ class FrontendConfigurationView extends FrontendViewBase {
             $sections['system']['tiles'][] = [ 'title' => __( 'Setup', 'talenttrack' ), 'desc' => __( 'Run or re-run first-time setup: academy basics, your first team, your admin profile, and the dashboard page.', 'talenttrack' ), 'url' => $view( 'setup' ), 'icon' => 'lightbulb' ];
         }
         $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
+        // #2540 — configuration snapshot as JSON. Cap-gated to
+        // tt_edit_settings, matching the exporter's own gate, so the tile
+        // never offers a download the export pipeline would refuse. Also
+        // gated on the Export module: it owns the `admin_post_tt_export`
+        // handler this posts to, so with the module off the tile would
+        // dead-end on a 400.
+        if ( current_user_can( 'tt_edit_settings' ) && self::exportModuleEnabled() ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Export configuration', 'talenttrack' ), 'desc' => __( 'Download every setting plus which modules and features are on or off, as a JSON file. Credentials are redacted; no player data.', 'talenttrack' ), 'url' => $sub( 'export' ), 'icon' => 'share' ];
+        }
         // #2024 — centralized recycle bin. Settings-area entry point (no
         // dashboard tile). Cap-gated to tt_manage_recycle_bin so the tile
         // only appears for the academy admins who can actually manage the
@@ -1712,13 +1729,13 @@ class FrontendConfigurationView extends FrontendViewBase {
      * reachable from one entry point. The count line summarises the
      * macro-block templates + age bands configured.
      *
-     * Gated on `tt_vct_admin_library` because the destination view
+     * Gated on `tt_vct_admin_config` because the destination view
      * re-checks the same capability and silent denials are worse than
      * hiding the tile.
      */
     private static function vctConfigTiles(): array {
         $user_id = get_current_user_id();
-        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' ) ) {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_config' ) ) {
             return [];
         }
 
@@ -2364,6 +2381,81 @@ class FrontendConfigurationView extends FrontendViewBase {
         </form>
         <?php
         self::renderConfigJs( false );
+    }
+
+    /**
+     * #2540 — download the academy's current configuration as a JSON file:
+     * every setting, plus which modules and features are on or off.
+     *
+     * Posts to `admin-post.php?action=tt_export` with the `config_json`
+     * exporter key — the same pipeline the Exports page uses, so the cap
+     * gate, nonce check, audit entry and streaming are shared rather than
+     * re-implemented here. admin-post.php also bypasses the theme, which
+     * matters: rendering chrome before the download would corrupt it.
+     *
+     * Compose-only. What goes in the file (and what gets redacted) is
+     * decided by ConfigSnapshotService, per CLAUDE.md §4.
+     */
+    private static function exportModuleEnabled(): bool {
+        return \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Export\\ExportModule' );
+    }
+
+    private static function renderExportForm(): void {
+        // Deep links survive the tile being hidden, so re-check here
+        // rather than rendering a button that posts into a 400.
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to export the configuration.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        if ( ! self::exportModuleEnabled() ) {
+            echo '<p class="tt-notice">' . esc_html__( 'The Export module is switched off for this academy. Turn it on under Modules to export the configuration.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $modules  = \TT\Core\ModuleRegistry::allWithState();
+        $features = \TT\Core\FeatureRegistry::allWithState();
+
+        $modules_on  = count( array_filter( $modules, static fn( $m ) => ! empty( $m['enabled'] ) ) );
+        $features_on = count( array_filter( $features, static fn( $f ) => ! empty( $f['enabled'] ) ) );
+
+        $return_url = add_query_arg(
+            [ 'tt_view' => 'configuration', 'config_sub' => 'export' ],
+            \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
+        );
+        ?>
+        <div class="tt-panel">
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Download this academy\'s configuration as a JSON file: every setting, plus which modules and features are switched on or off. Useful for checking what is actually available here before writing training material, and for setting up a second academy the same way.', 'talenttrack' ); ?>
+            </p>
+            <p class="tt-field-hint">
+                <?php
+                printf(
+                    /* translators: 1: enabled module count, 2: total module count, 3: enabled feature count, 4: total feature count. */
+                    esc_html__( 'Right now %1$d of %2$d modules and %3$d of %4$d features are enabled.', 'talenttrack' ),
+                    (int) $modules_on,
+                    count( $modules ),
+                    (int) $features_on,
+                    count( $features )
+                );
+                ?>
+            </p>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Integration credentials (Strava, Spond, translation engines) are replaced with "[redacted]" — the setting name is listed so you can see it is configured, but the value never leaves the server. The file contains no player data.', 'talenttrack' ); ?>
+            </p>
+            <form class="tt-export-form" method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
+                <input type="hidden" name="action" value="tt_export" />
+                <input type="hidden" name="tt_export_key" value="config_json" />
+                <input type="hidden" name="format" value="json" />
+                <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $return_url ); ?>" />
+                <div class="tt-form-actions">
+                    <button type="submit" class="tt-btn tt-btn-primary">
+                        <?php esc_html_e( 'Download configuration (JSON)', 'talenttrack' ); ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <?php
     }
 
     /**

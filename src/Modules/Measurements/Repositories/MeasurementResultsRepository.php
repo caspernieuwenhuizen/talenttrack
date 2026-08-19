@@ -97,7 +97,8 @@ class MeasurementResultsRepository {
      * the player's team (name + age group) and the recording user's display
      * name — the read model the XLSX export shapes into rows (#2139).
      *
-     * Optional filters: a single `team_id`, and an inclusive `date_from` /
+     * Optional filters: a single `team_id`, a `team_ids` list (the reader's
+     * team scope — #2537), an `age_group`, and an inclusive `date_from` /
      * `date_to` recorded-date window. Ordered by player then date so the
      * sheet groups a player's longitudinal series together (CLAUDE.md §1).
      *
@@ -118,6 +119,22 @@ class MeasurementResultsRepository {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        // #2537 — team scope for a reader who may only see their own teams.
+        // Applied alongside an explicit team_id, never instead of it, so a
+        // chosen team outside the reader's scope returns nothing rather than
+        // silently widening to everything they can see.
+        if ( isset( $filters['team_ids'] ) && is_array( $filters['team_ids'] ) ) {
+            $ids = array_values( array_filter( array_map( 'intval', $filters['team_ids'] ) ) );
+            if ( $ids === [] ) return [];
+            $where[] = 'pl.team_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+            $params  = array_merge( $params, $ids );
+        }
+        // #2537 — age-group narrowing, matching the Test results browser's
+        // filter vocabulary so the two surfaces agree on what a filter means.
+        if ( ! empty( $filters['age_group'] ) ) {
+            $where[]  = 't.age_group = %s';
+            $params[] = (string) $filters['age_group'];
         }
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'r.recorded_date >= %s';

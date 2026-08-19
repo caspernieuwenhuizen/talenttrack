@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test trends report — #2537</title>
+<link rel="stylesheet" href="_shared.css">
+</head>
+<body>
+
+<div class="mockup-bar">
+  <strong>#2537</strong> Rapport · Testverloop (één test, hele selectie) ·
+  <a href="index.html">← terug naar de hub</a> · <a href="player-timeline.html">spelermockup →</a>
+</div>
+
+<div class="picker" role="group" aria-label="Meettype">
+  <button aria-pressed="true"  data-state="lower">Numeriek · lager = beter</button>
+  <button aria-pressed="false" data-state="neutral">Numeriek · neutraal</button>
+  <button aria-pressed="false" data-state="status">Status (niveaus)</button>
+  <button aria-pressed="false" data-state="passfail">Gehaald / niet gehaald</button>
+</div>
+
+<div class="note-strip" id="note"></div>
+
+<div class="frame">
+
+  <p class="crumb"><a href="#">Dashboard</a> › <a href="#">Rapporten</a> › Testverloop</p>
+
+  <div class="page-head">
+    <h1>Testverloop</h1>
+    <p class="page-head__sub">Eén test, elke speler, over de periode — wie ontwikkelt zich en wie stagneert.</p>
+    <div class="page-head__actions">
+      <a class="btn btn-secondary" href="#">Exporteren naar Excel</a>
+      <a class="btn btn-secondary" href="#">Opgeslagen weergaven</a>
+    </div>
+  </div>
+
+  <div class="tt-rep-filters">
+    <div class="tt-rep-filter">
+      <label class="tt-rep-filter__label" for="f-test">Test</label>
+      <select id="f-test"><option>Sprint 10 m · Conditie</option></select>
+    </div>
+    <div class="tt-rep-filter">
+      <label class="tt-rep-filter__label" for="f-team">Team</label>
+      <select id="f-team"><option>Hedel O14-1</option></select>
+    </div>
+    <div class="tt-rep-filter">
+      <label class="tt-rep-filter__label" for="f-age">Leeftijdsgroep</label>
+      <select id="f-age"><option>— alle —</option></select>
+    </div>
+    <div class="tt-rep-filter">
+      <span class="tt-rep-filter__label">Periode</span>
+      <div class="pills">
+        <button class="pill" type="button">Laatste 3 mnd</button>
+        <button class="pill" type="button" aria-pressed="true">Dit seizoen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ NUMERIEK · LAGER IS BETER ============ -->
+  <section class="state is-on" data-state="lower">
+
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Sprint 10 m · Hedel O14-1</h2>
+        <span class="card__hint">15 spelers · 4 testrondes · dit seizoen</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">seconden</span>
+        <span class="tag tag--dir">lager is beter</span>
+      </div>
+
+      <div class="chart-wrap">
+        <svg class="chart" viewBox="0 0 640 210" role="img"
+             aria-label="Sprint 10 meter per speler over vier testrondes. Milan verbetert van 1,98 naar 1,90. Daan loopt terug van 2,08 naar 2,11. Het teamgemiddelde gaat van 2,04 naar 1,99.">
+          <line class="chart-axis" x1="60" y1="35" x2="60" y2="170"></line>
+          <line class="chart-axis" x1="60" y1="170" x2="600" y2="170"></line>
+          <line class="chart-grid" x1="60" y1="50" x2="600" y2="50"></line>
+          <line class="chart-grid" x1="60" y1="110" x2="600" y2="110"></line>
+
+          <text class="chart-label" x="54" y="54" text-anchor="end">2,10</text>
+          <text class="chart-label" x="54" y="114" text-anchor="end">2,00</text>
+          <text class="chart-label" x="54" y="174" text-anchor="end">1,90</text>
+
+          <!-- spelerslijnen — de as loopt tot 2,15 zodat de zwakste reeks
+               (Daan, 2,11) binnen het vlak valt: een lijn die boven de as
+               uitsteekt leest als een tekenfout, niet als data. -->
+          <polyline class="chart-line" style="stroke:#7aa7c7; stroke-width:2" points="100,50 260,74 420,98 580,116"></polyline>
+          <polyline class="chart-line" style="stroke:#c79a7a; stroke-width:2" points="100,98 260,110 420,116 580,116"></polyline>
+          <polyline class="chart-line" style="stroke:#2f9e5e; stroke-width:2" points="100,122 260,134 420,152 580,170"></polyline>
+          <polyline class="chart-line" style="stroke:#d8453b; stroke-width:2" points="100,62 260,56 420,50 580,44"></polyline>
+          <polyline class="chart-line" style="stroke:#9a7ac7; stroke-width:2" points="100,86 260,104 420,122 580,134"></polyline>
+
+          <!-- teamgemiddelde -->
+          <polyline class="chart-line" style="stroke:#6a6d66; stroke-width:3; stroke-dasharray:7 5" points="100,84 260,96 420,108 580,116"></polyline>
+
+          <text class="chart-value" x="596" y="174" style="fill:#2f9e5e">Milan</text>
+          <text class="chart-value" x="596" y="48" style="fill:#d8453b">Daan</text>
+          <text class="chart-value" x="596" y="130" style="fill:#6a6d66">gem.</text>
+
+          <text class="chart-label" x="100" y="188" text-anchor="middle">15 sep</text>
+          <text class="chart-label" x="260" y="188" text-anchor="middle">10 nov</text>
+          <text class="chart-label" x="420" y="188" text-anchor="middle">19 jan</text>
+          <text class="chart-label" x="580" y="188" text-anchor="middle">16 mrt</text>
+        </svg>
+      </div>
+
+      <p class="direction-note">↓ Lager is beter — een dalende lijn is vooruitgang.</p>
+      <div class="legend">
+        <span><i class="swatch" style="background:#2f9e5e"></i> speler</span>
+        <span><i class="swatch swatch--avg"></i> teamgemiddelde</span>
+        <span>5 van 15 spelers getekend · <a href="#">kies wie je ziet</a></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__head"><h2 class="card__title">Sterkste en zwakste ontwikkeling</h2></div>
+      <div class="ranks">
+        <div class="rank">
+          <h3>Meest verbeterd</h3>
+          <ol>
+            <li>Milan Wannet <span class="delta-up">−0,08 s</span></li>
+            <li>Luuk Nieuwenhuizen <span class="delta-up">−0,11 s</span></li>
+            <li>Senna Broekhuijsen <span class="delta-up">−0,08 s</span></li>
+          </ol>
+        </div>
+        <div class="rank">
+          <h3>Teruggelopen</h3>
+          <ol>
+            <li>Daan Portzgen <span class="delta-down">+0,03 s</span></li>
+          </ol>
+          <p class="card__hint" style="margin:8px 0 0">
+            Eén speler is trager geworden. Jesse Boot (<span class="delta-up">−0,03 s</span>) staat
+            hier bewust <em>niet</em>: bij deze test is een negatief verschil vooruitgang, ook als
+            het klein is — die hoort bij <span class="chip chip--grey">nagenoeg gelijk</span>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Per speler</h2>
+        <span class="card__hint">sorteerbaar · klik een naam voor het profiel</span>
+      </div>
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Speler</th>
+              <th class="num">Eerste</th>
+              <th class="num">Laatste</th>
+              <th class="num">Verschil</th>
+              <th class="num">%</th>
+              <th class="num">Metingen</th>
+              <th>Oordeel</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="who"><a href="#">Milan Wannet</a></td><td class="num">1,98</td><td class="num">1,90</td><td class="num delta-up">−0,08</td><td class="num delta-up">−4,0%</td><td class="num">4</td><td><span class="chip chip--green">verbeterd</span></td></tr>
+            <tr><td class="who"><a href="#">Luuk Nieuwenhuizen</a></td><td class="num">2,10</td><td class="num">1,99</td><td class="num delta-up">−0,11</td><td class="num delta-up">−5,2%</td><td class="num">4</td><td><span class="chip chip--green">verbeterd</span></td></tr>
+            <tr><td class="who"><a href="#">Senna Broekhuijsen</a></td><td class="num">2,04</td><td class="num">1,96</td><td class="num delta-up">−0,08</td><td class="num delta-up">−3,9%</td><td class="num">4</td><td><span class="chip chip--green">verbeterd</span></td></tr>
+            <tr><td class="who"><a href="#">Jesse Boot</a></td><td class="num">2,02</td><td class="num">1,99</td><td class="num delta-up">−0,03</td><td class="num delta-up">−1,5%</td><td class="num">4</td><td><span class="chip chip--grey">nagenoeg gelijk</span></td></tr>
+            <tr><td class="who"><a href="#">Daan Portzgen</a></td><td class="num">2,08</td><td class="num">2,11</td><td class="num delta-down">+0,03</td><td class="num delta-down">+1,4%</td><td class="num">4</td><td><span class="chip chip--red">teruggelopen</span></td></tr>
+            <tr><td class="who"><a href="#">Nine Den Besten</a></td><td class="num">2,06</td><td class="num">2,06</td><td class="num delta-flat">0,00</td><td class="num delta-flat">0,0%</td><td class="num">2</td><td><span class="chip chip--grey">nagenoeg gelijk</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="card__hint" style="margin-top:10px">
+        <strong>−0,03 s is groen.</strong> Bij een test waar lager beter is, is een negatief verschil
+        vooruitgang — de kleur, het oordeel én de volgorde van de ranglijst volgen de richting van de
+        test, niet het teken van het getal.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ NUMERIEK · NEUTRAAL ============ -->
+  <section class="state" data-state="neutral">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Lengte · Hedel O14-1</h2>
+        <span class="card__hint">15 spelers · 4 meetmomenten · dit seizoen</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">cm</span>
+        <span class="tag tag--neutral">geen goed of fout — alleen volgen</span>
+      </div>
+
+      <p class="empty" style="margin-bottom:10px">
+        Deze test kent geen richting: groter is niet beter dan kleiner. Er is dus geen streefzone,
+        geen oordeel en geen ranglijst — <strong>alleen de waarden per meetmoment, in kolommen.</strong>
+        Het verloop staat er als feit bij, in zwart.
+      </p>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Speler</th>
+              <th class="num">15 sep</th>
+              <th class="num">10 nov</th>
+              <th class="num">19 jan</th>
+              <th class="num">16 mrt</th>
+              <th class="num">Verloop</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td class="who"><a href="#">Morris Adriaanse</a></td><td class="num">158</td><td class="num">159</td><td class="num">161</td><td class="num">162</td><td class="num delta-plain">+4</td></tr>
+            <tr><td class="who"><a href="#">Jesse Boot</a></td><td class="num">165</td><td class="num">167</td><td class="num">170</td><td class="num">173</td><td class="num delta-plain">+8</td></tr>
+            <tr><td class="who"><a href="#">Senna Broekhuijsen</a></td><td class="num">161</td><td class="num">162</td><td class="num">163</td><td class="num">164</td><td class="num delta-plain">+3</td></tr>
+            <tr><td class="who"><a href="#">Nine Den Besten</a></td><td class="num">154</td><td class="num">156</td><td class="num">—</td><td class="num">160</td><td class="num delta-plain">+6</td></tr>
+            <tr><td class="who"><a href="#">Duco Gunnink</a></td><td class="num">169</td><td class="num">170</td><td class="num">171</td><td class="num">172</td><td class="num delta-plain">+3</td></tr>
+            <tr><td class="who"><a href="#">Luuk Nieuwenhuizen</a></td><td class="num">162</td><td class="num">164</td><td class="num">166</td><td class="num">168</td><td class="num delta-plain">+6</td></tr>
+            <tr><td class="who"><a href="#">Daan Portzgen</a></td><td class="num">157</td><td class="num">157</td><td class="num">158</td><td class="num">158</td><td class="num delta-plain">+1</td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="who">Gemiddelde</td>
+              <td class="num">160,9</td><td class="num">162,1</td><td class="num">164,8</td><td class="num">165,3</td>
+              <td class="num delta-plain">+4,4</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <p class="card__hint" style="margin-top:10px">
+        Een leeg vakje is een gemiste meting, geen nul — <code>—</code> in plaats van een waarde, en
+        het verloop rekent over de meetmomenten die er wél zijn.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ STATUS ============ -->
+  <section class="state" data-state="status">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Belastbaarheid · Hedel O14-1</h2>
+        <span class="card__hint">15 spelers · 4 meetmomenten</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">status</span>
+        <span class="tag tag--neutral">niveaus, geen getal</span>
+      </div>
+
+      <p class="empty" style="margin-bottom:10px">
+        Niveaus hebben geen numerieke as, dus geen lijnen. De kolommen zijn de meetmomenten en elk
+        vakje toont het vastgelegde niveau in zijn eigen kleur — het patroon van de kolom laat in één
+        oogopslag zien of de selectie als geheel opschuift.
+      </p>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr><th>Speler</th><th>15 sep</th><th>10 nov</th><th>19 jan</th><th>16 mrt</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="who"><a href="#">Morris Adriaanse</a></td><td><span class="chip chip--amber">Aandacht</span></td><td><span class="chip chip--green">Op koers</span></td><td><span class="chip chip--green">Op koers</span></td><td><span class="chip chip--green">Op koers</span></td></tr>
+            <tr><td class="who"><a href="#">Jesse Boot</a></td><td><span class="chip chip--green">Op koers</span></td><td><span class="chip chip--green">Op koers</span></td><td><span class="chip chip--amber">Aandacht</span></td><td><span class="chip chip--amber">Aandacht</span></td></tr>
+            <tr><td class="who"><a href="#">Luuk Nieuwenhuizen</a></td><td><span class="chip chip--red">Risico</span></td><td><span class="chip chip--amber">Aandacht</span></td><td><span class="chip chip--amber">Aandacht</span></td><td><span class="chip chip--green">Op koers</span></td></tr>
+            <tr><td class="who"><a href="#">Daan Portzgen</a></td><td><span class="chip chip--green">Op koers</span></td><td><span class="chip chip--amber">Aandacht</span></td><td><span class="chip chip--red">Risico</span></td><td><span class="chip chip--red">Risico</span></td></tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td class="who">Verdeling</td>
+              <td><span class="chip chip--grey">2 groen · 1 oranje · 1 rood</span></td>
+              <td><span class="chip chip--grey">2 groen · 2 oranje</span></td>
+              <td><span class="chip chip--grey">1 groen · 2 oranje · 1 rood</span></td>
+              <td><span class="chip chip--grey">2 groen · 1 oranje · 1 rood</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PASS / FAIL ============ -->
+  <section class="state" data-state="passfail">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Coopertest gehaald · Hedel O14-1</h2>
+        <span class="card__hint">15 spelers · 4 testrondes</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">gehaald / niet gehaald</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr><th>Speler</th><th class="num">15 sep</th><th class="num">10 nov</th><th class="num">19 jan</th><th class="num">16 mrt</th><th class="num">Gehaald</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="who"><a href="#">Morris Adriaanse</a></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num delta-plain">4 / 4</td></tr>
+            <tr><td class="who"><a href="#">Jesse Boot</a></td><td class="num"><span class="mark mark--fail">✗</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num"><span class="mark mark--pass">✓</span></td><td class="num delta-plain">3 / 4</td></tr>
+            <tr><td class="who"><a href="#">Daan Portzgen</a></td><td class="num"><span class="mark mark--fail">✗</span></td><td class="num"><span class="mark mark--fail">✗</span></td><td class="num"><span class="mark mark--none">—</span></td><td class="num"><span class="mark mark--fail">✗</span></td><td class="num delta-plain">0 / 3</td></tr>
+          </tbody>
+          <tfoot>
+            <tr><td class="who">Slagingspercentage</td><td class="num">33%</td><td class="num">67%</td><td class="num">100%</td><td class="num">67%</td><td class="num delta-plain">64%</td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="card__hint" style="margin-top:10px">
+        Het slagingspercentage per ronde is hier het verloop: dat is het enige getal dat over de tijd
+        iets zegt zonder twee uitkomsten als een schaal te behandelen.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+var NOTES = {
+  lower:    'Numeriek met richting — grafiek per speler + teamgemiddelde, plus ranglijst en verschiltabel. Let op de laatste alinea: het teken van het verschil volgt de richting van de test.',
+  neutral:  '<strong>Geen richting: kolommen, geen grafiek.</strong> Geen streefzone, geen oordeel, geen ranglijst — precies wat je vroeg. Het verloop staat er als feit bij.',
+  status:   'Niveaus: een matrix speler × meetmoment met de kleur van het niveau, plus de verdeling per kolom.',
+  passfail: 'Twee uitkomsten: vinkjes per ronde, slagingspercentage als verloop.'
+};
+var buttons = document.querySelectorAll('.picker button');
+var note = document.getElementById('note');
+function show(state) {
+  if (!NOTES[state]) { state = 'lower'; }
+  document.querySelectorAll('.state').forEach(function (s) {
+    s.classList.toggle('is-on', s.getAttribute('data-state') === state);
+  });
+  buttons.forEach(function (b) {
+    b.setAttribute('aria-pressed', String(b.getAttribute('data-state') === state));
+  });
+  note.innerHTML = NOTES[state] || '';
+}
+buttons.forEach(function (b) {
+  b.addEventListener('click', function () {
+    var s = b.getAttribute('data-state');
+    // Hash-addressable so a single state can be linked in an issue comment.
+    if (history.replaceState) { history.replaceState(null, '', '#' + s); }
+    show(s);
+  });
+});
+window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1) || 'lower');
+</script>
+</body>
+</html>

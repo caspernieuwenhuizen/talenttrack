@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test trends — mockup hub (#2536 / #2537)</title>
+<link rel="stylesheet" href="_shared.css">
+</head>
+<body>
+
+<div class="mockup-bar"><strong>Testverloop</strong> mockups voor #2536 (speler) en #2537 (rapport)</div>
+
+<div class="frame">
+
+  <div class="page-head">
+    <h1>Testverloop — mockups</h1>
+    <p class="page-head__sub">
+      Twee oppervlakken, vijf meettypen. De vorm van het verloop volgt het type meting:
+      een grafiek waar een richting bestaat, kolommen waar die niet bestaat.
+    </p>
+    <div class="page-head__actions">
+      <a class="btn btn-primary" href="player-timeline.html">Speler · testverloop (#2536)</a>
+      <a class="btn btn-secondary" href="test-trends.html">Rapport · testverloop (#2537)</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__head">
+      <h2 class="card__title">De regel</h2>
+    </div>
+    <p style="margin-top:0">
+      <code>tt_measurement_definitions</code> beschrijft elke test met twee kolommen die samen
+      bepalen wat een verloop überhaupt <em>betekent</em>:
+      <code>value_type</code> (<code>numeric</code> · <code>scale</code> · <code>passfail</code> ·
+      <code>status</code>) en <code>direction</code>
+      (<code>higher</code> · <code>lower</code> · <code>neutral</code>).
+    </p>
+    <p>
+      Beide bestaan al in het schema sinds migratie <code>0175</code> en <code>0192</code> — er is
+      dus geen migratie nodig om dit te doen. Wat ontbreekt is dat de weergave ernaar luistert.
+      Eén verloopvorm voor alles zou betekenen dat we een lijn trekken door niveaus die geen afstand
+      hebben, en een streefzone tekenen bij een lengtemeting waar geen streefwaarde bestaat.
+    </p>
+
+    <div class="table-wrap">
+      <table class="tt-table">
+        <thead>
+          <tr>
+            <th>value_type</th>
+            <th>direction</th>
+            <th>Verloopvorm</th>
+            <th>Oordeel / ranglijst</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="who">numeric</td>
+            <td>higher / lower</td>
+            <td>Lijngrafiek met streefzone en niveaubanden</td>
+            <td><span class="chip chip--green">ja</span> richtinggevoelig</td>
+          </tr>
+          <tr>
+            <td class="who">numeric</td>
+            <td><strong>neutral</strong></td>
+            <td><strong>Kolommen per meetmoment — geen grafiek</strong></td>
+            <td><span class="chip chip--grey">nee</span> alleen het feitelijke verloop</td>
+          </tr>
+          <tr>
+            <td class="who">scale</td>
+            <td>higher / lower</td>
+            <td>Lijngrafiek begrensd op <code>scale_min</code>–<code>scale_max</code></td>
+            <td><span class="chip chip--green">ja</span> richtinggevoelig</td>
+          </tr>
+          <tr>
+            <td class="who">scale</td>
+            <td>neutral</td>
+            <td>Kolommen per meetmoment</td>
+            <td><span class="chip chip--grey">nee</span></td>
+          </tr>
+          <tr>
+            <td class="who">status</td>
+            <td>n.v.t.</td>
+            <td>Blokkenreeks / matrix in de kleur van het niveau</td>
+            <td><span class="chip chip--amber">deels</span> alleen verdeling, geen ranglijst</td>
+          </tr>
+          <tr>
+            <td class="who">passfail</td>
+            <td>n.v.t.</td>
+            <td>Vinkjes per meetmoment + slagingspercentage</td>
+            <td><span class="chip chip--amber">deels</span> telling, geen ranglijst</td>
+          </tr>
+          <tr>
+            <td class="who">— elk type —</td>
+            <td>— </td>
+            <td>Minder dan 2 metingen: uitleg, nooit een lege grafiek</td>
+            <td><span class="chip chip--grey">nee</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__head"><h2 class="card__title">Waarom neutraal geen grafiek krijgt</h2></div>
+    <p style="margin-top:0">
+      Bij lengte, gewicht of schoenmaat is er geen goed of fout. Een grafiek met een stijgende lijn
+      suggereert vooruitgang, een streefzone suggereert een norm, en een ranglijst
+      &ldquo;meest verbeterd&rdquo; suggereert dat de langste speler het beste presteert. Alle drie
+      zijn onwaar. Wat een coach bij deze metingen wil, is de reeks zelf: welke waarde stond er op
+      welk moment — en dat leest het snelst als kolommen.
+    </p>
+    <p style="margin-bottom:0">
+      Het verloop staat er wel bij (<span class="delta-plain">+6</span> cm), maar in zwart en zonder
+      chip: een constatering, geen beoordeling. Zie
+      <a href="player-timeline.html">de spelermockup</a> → knop <em>Numeriek · neutraal</em>.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card__head"><h2 class="card__title">Bestanden</h2></div>
+    <table class="tt-table">
+      <tbody>
+        <tr><td class="who"><a href="player-timeline.html">player-timeline.html</a></td><td>#2536 · 6 states</td></tr>
+        <tr><td class="who"><a href="test-trends.html">test-trends.html</a></td><td>#2537 · 4 states</td></tr>
+        <tr><td class="who">notes.md</td><td>open ontwerpvragen + portafspraken</td></tr>
+        <tr><td class="who">_shared.css</td><td>tokens uit <code>assets/css/tokens.css</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

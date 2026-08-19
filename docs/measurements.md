@@ -101,6 +101,40 @@ Staff see the same thing **in context** on the player's profile: open a
 player and switch to the **Measurements** tab (beside Evaluations). The
 tab badge counts how many tests the player has results for.
 
+### The full history behind a test
+
+The small trend line answers "which way is this going?" at a glance. For
+the rest, every test with more than one result carries a **Show history**
+link that opens the readable version underneath it. What appears there
+depends on the kind of test, because a trend only means something in the
+terms of the test it belongs to:
+
+| Kind of test | What the history shows |
+| --- | --- |
+| A number where **higher or lower is better** (sprint time, jump height) | A dated chart with the value axis, every reading labelled, and the **age-group target shaded** so you can see when the player crossed into it. |
+| A number with **no better or worse** (height, weight, shoe size) | The **readings per date, in columns** — no chart, no target, no verdict. See below. |
+| A **status** test (levels such as *On track* / *Watch*) | One block per recorded date in that level's own colour. No line: levels are named states, not distances, so joining them with a slope would invent precision the data does not have. |
+| **Passed / not passed** | A tick or cross per date plus the tally (*3 of 4*). |
+| Any test with **one result** | A sentence saying so. A chart drawn around a single point reads as missing data rather than as a starting position. |
+
+On a chart where **lower is better**, an improving line goes *down*. That
+is stated in words under every such chart — the slope alone is not allowed
+to carry it, because a falling line reads as decline to anyone who has not
+been told which way is good.
+
+### Tests with no better or worse
+
+Height, weight and shoe size are measured and tracked, but a higher value
+is not a better one. These tests are grouped together per category and
+shown as **values per date in columns**, with a plain **Change** column at
+the end (`+6`).
+
+They get no chart, no target band and no ranking on purpose. A rising line
+would imply progress, a shaded band would imply a norm, and a
+"most improved" list would imply the tallest player is performing best —
+all three are untrue. A missed measuring moment shows as `—`, never as a
+zero, and the change is worked out over the dates that do have a reading.
+
 The player's **At a glance** panel also carries a **Measurements** signal
 beside Avg rating, Attendance and Goals: the number of tests the player
 currently has a value for, with a hint of how many sit *below target*
@@ -240,6 +274,47 @@ rows are available over REST at
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), gated on the same `measurements`
 *read* permission, for integrations and the SaaS front end.
+
+## Test trends — one test, every player, over the season
+
+*Test results* answers "how is each player doing on this test **right
+now**". **Test trends** (Analysis group) answers the other half: **who is
+developing and who is stalling**. It is the Excel export's *Trends* sheet
+brought on screen.
+
+Pick a test, optionally narrow by team and a date window, and press
+**Show**. What you get depends on the test — the same rule the player
+timeline follows, because a trend only means something in the terms of its
+own test:
+
+- **A test with a direction** (sprint time, jump height) gets a **chart**
+  with one line per player over the shared date axis, plus a heavier dashed
+  **squad-average** line so the aggregate never reads as another player.
+  Under it: **Most improved** and **Fallen back**, then a table with each
+  player's first value, latest value, **change** and a verdict.
+- **A test with no direction** (height, weight) gets the readings per date
+  and nothing else — no chart, no ranking, no verdict, because there is no
+  better or worse to rank.
+- **A status test** gets a player × date matrix of levels in their own
+  colours. No lines: levels are named states, not distances.
+- **Pass / fail** gets a tick or cross per date, each player's tally, and
+  the **pass rate per round** — the only figure that says something over
+  time without treating two outcomes as a scale.
+
+**The change is read in the direction of the test.** On a test where lower
+is better, −0,08 s is an improvement: it shows green, it reads *improved*,
+and it ranks under *Most improved*. A player whose change is smaller than
+**2%** counts as *about the same* and appears in neither ranking — a
+one-percent move on a hand-timed sprint is inside the noise, and calling it
+progress would overstate what was measured.
+
+Every player name links to their profile with a back-pill. A team-scoped
+coach sees only their own teams, and a link to another team's data is
+refused rather than quietly widened. Integrations read the same numbers
+from `GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
+
+An administrator can hide the report under **Settings → Features → Test
+trends**; with it off, the tile disappears and a direct link is rejected.
 
 ## Moving between the surfaces
 

@@ -1,0 +1,231 @@
+/**
+ * Exercise library (#2495) — list, promotion queue, inline create form,
+ * and the single-exercise detail.
+ *
+ * Mobile-first per CLAUDE.md §2: base rules target ~360px, min-width
+ * queries scale up. Colours come from the tokens in tokens.css.
+ */
+
+.tt-ex-intro {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+/* ---- promotion queue (head of development only) ---- */
+
+.tt-ex-queue {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 3px solid var(--tt-secondary, #e8b624);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-ex-queue__title {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-ex-queue__lede {
+    margin: 6px 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-ex-queue__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-ex-queue__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-ex-queue__item:last-child { border-bottom: 0; }
+
+.tt-ex-queue__body { min-width: 0; }
+
+.tt-ex-queue__name {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+}
+
+.tt-ex-queue__meta {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* 48px minimum tap target, per §2. */
+.tt-ex-queue__promote {
+    min-height: 48px;
+    padding: 0 16px;
+    touch-action: manipulation;
+}
+
+.tt-ex-queue__more {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- inline create form ---- */
+
+.tt-ex-create {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-ex-create__summary {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-4, 16px);
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+}
+
+.tt-ex-create__summary::-webkit-details-marker { display: none; }
+
+.tt-ex-create__summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
+.tt-ex-create__form {
+    padding: 0 var(--tt-sp-4, 16px) var(--tt-sp-4, 16px);
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-ex-create__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 12px);
+    margin-top: var(--tt-sp-3, 12px);
+}
+
+@media (min-width: 768px) {
+    .tt-ex-create__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.tt-ex-create__grid .tt-field--full { grid-column: 1 / -1; }
+
+.tt-ex-create .tt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tt-ex-create .tt-field > span,
+.tt-ex-create .tt-field__label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* 16px minimum so iOS does not zoom the page on focus (§2). */
+.tt-ex-create input,
+.tt-ex-create select,
+.tt-ex-create textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    font: inherit;
+    font-size: 16px;
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-ex-create textarea {
+    padding: 10px 12px;
+    min-height: 96px;
+    line-height: 1.45;
+}
+
+.tt-field__hint {
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- detail ---- */
+
+.tt-ex-facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 768px) {
+    .tt-ex-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.tt-ex-fact {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+}
+
+.tt-ex-fact__label {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-ex-fact__value {
+    display: block;
+    margin-top: 2px;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Reserve the aspect ratio so the page does not jump when it loads (§2). */
+.tt-ex-diagram {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 3 / 2;
+    object-fit: contain;
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-ex-description {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    white-space: pre-line;
+}
+
+.tt-ex-shipped {
+    font-size: var(--tt-fs-sm, 0.85rem);
+}

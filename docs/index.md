@@ -32,6 +32,7 @@ Pick a topic. Use the search box to find anything quickly.
 - [Configuration — General](configuration-general.md)
 - [Navigation layout (the frontend shell)](frontend-shell.md)
 - [Configuration — Seasons](configuration-seasons.md)
+- [Configuration — Export configuration](configuration-export.md)
 - [Access control](access-control.md)
 - [Usage statistics](usage-statistics.md)
 - [Account and licensing](license-and-account.md)

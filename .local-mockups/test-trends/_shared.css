@@ -1,0 +1,156 @@
+/* Test trends (#2536 / #2537) — shared CSS for both mockups.
+   2026 green/gold language; token values lifted from assets/css/tokens.css so
+   the port is a class rename, not a redesign. Mobile-first: base rules are the
+   360px layout, min-width queries scale up. */
+:root {
+    --tt-ink: #0e1a14;
+    --tt-ink-soft: #6a6d66;
+    --tt-paper: #fff;
+    --tt-bg-soft: #f4f6f3;
+    --tt-line: #e3e6e1;
+    --tt-line-soft: #eef0ec;
+    --tt-primary: #0b3d2e;
+    --tt-gold: #e8b624;
+    --tt-success: #2f9e5e;
+    --tt-danger: #d8453b;
+    --tt-warning: #e8902b;
+    --tt-info: #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle: #fde2e2;
+    --tt-radius: 8px;
+    --tt-radius-lg: 14px;
+    --tap-min: 48px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg-soft);
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+/* --- mockup chrome (never ported) ------------------------------------- */
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #14231c; color: #e8ece9; font-size: 12px; padding: 8px 12px; }
+.mockup-bar strong { color: var(--tt-gold); margin-right: 4px; }
+.mockup-bar a { color: var(--tt-gold); }
+.picker { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px; background: #1d2f26; }
+.picker button {
+    min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid #34493e;
+    background: transparent; color: #cfd8d3; font: inherit; font-size: 12px; cursor: pointer;
+    touch-action: manipulation;
+}
+.picker button[aria-pressed="true"] { background: var(--tt-gold); border-color: var(--tt-gold); color: #14231c; font-weight: 700; }
+.note-strip { background: #fffbe9; border-bottom: 1px solid #eadfae; padding: 10px 12px; font-size: 13px; color: #5c4a12; }
+.note-strip code { background: #f3e7bd; padding: 1px 4px; border-radius: 3px; }
+
+/* --- page frame -------------------------------------------------------- */
+.frame { max-width: 1100px; margin: 0 auto; padding: 12px; min-width: 0; }
+/* Wide content scrolls inside its own container (.table-wrap / .chart-wrap);
+   the page body itself must never scroll sideways at 360px. */
+.card, .page-head, .tt-rep-filters { min-width: 0; max-width: 100%; }
+@media (min-width: 768px) { .frame { padding: 20px; } }
+.crumb { font-size: 12px; color: var(--tt-ink-soft); margin: 0 0 8px; }
+.crumb a { color: var(--tt-primary); text-decoration: none; }
+.page-head { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: 14px; margin-bottom: 12px; }
+.page-head h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+@media (min-width: 768px) { .page-head h1 { font-size: 24px; } }
+.page-head__sub { margin: 4px 0 0; font-size: 13px; color: var(--tt-ink-soft); }
+.page-head__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.btn { min-height: var(--tap-min); padding: 0 16px; border-radius: var(--tt-radius); font: inherit; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; text-decoration: none; touch-action: manipulation; }
+.btn-secondary { background: var(--tt-paper); border: 1.5px solid var(--tt-line); color: var(--tt-ink); }
+.btn-primary { background: var(--tt-primary); border: 1.5px solid var(--tt-primary); color: #fff; font-weight: 600; }
+
+/* --- filter bar -------------------------------------------------------- */
+.tt-rep-filters { display: grid; grid-template-columns: 1fr; gap: 10px; background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: 12px; margin-bottom: 12px; }
+@media (min-width: 720px) { .tt-rep-filters { grid-template-columns: 2fr 1fr 1fr auto; align-items: end; } }
+/* min-width:0 defeats the grid/flex `min-width:auto` default: without it a
+   <select> claims the width of its longest option and pushes the whole page
+   wider than 360px. This is the single most common cause of the sideways
+   scroll the mobile-first rule forbids. */
+.tt-rep-filter { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.tt-rep-filter__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tt-ink-soft); }
+.tt-rep-filter select, .tt-rep-filter input { width: 100%; min-width: 0; max-width: 100%; min-height: var(--tap-min); padding: 0 12px; border: 1px solid var(--tt-line); border-radius: var(--tt-radius); font: inherit; font-size: 16px; background: var(--tt-paper); }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--tt-line); background: var(--tt-paper); font-size: 13px; display: inline-flex; align-items: center; cursor: pointer; }
+.pill[aria-pressed="true"] { border-color: var(--tt-gold); background: #fdf6e0; font-weight: 700; }
+
+/* --- cards ------------------------------------------------------------- */
+.card { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: 14px; margin-bottom: 12px; }
+.card__head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.card__title { margin: 0; font-size: 15px; font-weight: 700; }
+.card__hint { font-size: 12px; color: var(--tt-ink-soft); }
+
+/* --- test meta line ---------------------------------------------------- */
+.testmeta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; padding: 4px 8px; border-radius: 999px; background: var(--tt-line-soft); color: var(--tt-ink-soft); }
+.tag--dir { background: #e6f0fa; color: #1d4f80; }
+.tag--neutral { background: var(--tt-line-soft); color: #55605a; }
+
+/* --- chart ------------------------------------------------------------- */
+.chart-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
+.chart { display: block; min-width: 320px; width: 100%; height: auto; }
+.chart-axis { stroke: var(--tt-line); stroke-width: 1; }
+.chart-grid { stroke: var(--tt-line-soft); stroke-width: 1; }
+.chart-label { font: 11px var(--font); fill: var(--tt-ink-soft); }
+.chart-value { font: 11px var(--font); font-weight: 700; fill: var(--tt-ink); }
+.chart-line { fill: none; stroke: var(--tt-primary); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.chart-dot { fill: var(--tt-primary); }
+.band-good { fill: var(--tt-success); opacity: 0.13; }
+.band-label { font: 10px var(--font); font-weight: 700; fill: var(--tt-success); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-size: 12px; color: var(--tt-ink-soft); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 14px; height: 3px; border-radius: 2px; background: var(--tt-primary); display: inline-block; }
+.swatch--band { height: 12px; width: 14px; border-radius: 3px; background: var(--tt-success); opacity: 0.25; }
+.swatch--avg { background: var(--tt-ink-soft); height: 0; border-top: 3px dashed var(--tt-ink-soft); }
+.direction-note { font-size: 12px; font-weight: 700; color: var(--tt-info); margin: 8px 0 0; }
+
+/* --- tables ------------------------------------------------------------ */
+.table-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
+.tt-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tt-table th, .tt-table td { padding: 9px 10px; border-bottom: 1px solid var(--tt-line-soft); text-align: left; white-space: nowrap; }
+.tt-table th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); font-weight: 700; }
+.tt-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.tt-table .who { font-weight: 600; position: sticky; left: 0; background: var(--tt-paper); }
+.tt-table tbody tr:hover td { background: var(--tt-bg-soft); }
+.tt-table tbody tr:hover .who { background: var(--tt-bg-soft); }
+.delta-up { color: var(--tt-success); font-weight: 700; }
+.delta-down { color: var(--tt-danger); font-weight: 700; }
+.delta-flat { color: var(--tt-ink-soft); font-weight: 700; }
+.delta-plain { color: var(--tt-ink); font-weight: 600; }
+
+/* --- rank strip -------------------------------------------------------- */
+.ranks { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) { .ranks { grid-template-columns: 1fr 1fr; } }
+.rank { border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 10px; }
+.rank h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); }
+.rank ol { margin: 0; padding-left: 18px; font-size: 14px; }
+.rank li { margin-bottom: 4px; }
+
+/* --- level chips / pass-fail ------------------------------------------ */
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.chip--green { background: var(--tt-success-subtle); color: #1c6b3c; }
+.chip--amber { background: var(--tt-warning-subtle); color: #8a5a10; }
+.chip--red { background: var(--tt-danger-subtle); color: #9c2e26; }
+.chip--grey { background: var(--tt-line-soft); color: #55605a; }
+.mark { font-size: 15px; font-weight: 700; }
+.mark--pass { color: var(--tt-success); }
+.mark--fail { color: var(--tt-danger); }
+.mark--none { color: #c4cac6; }
+
+/* Status step strip — one coloured block per recorded date. */
+.steps { display: flex; gap: 3px; align-items: stretch; min-width: 300px; }
+.step { flex: 1; min-width: 56px; border-radius: 6px; padding: 8px 6px; text-align: center; }
+.step__date { display: block; font-size: 10px; opacity: 0.8; margin-bottom: 2px; }
+.step__label { display: block; font-size: 11px; font-weight: 700; }
+.step--green { background: var(--tt-success-subtle); color: #1c6b3c; }
+.step--amber { background: var(--tt-warning-subtle); color: #8a5a10; }
+.step--red { background: var(--tt-danger-subtle); color: #9c2e26; }
+
+.empty { font-size: 13px; color: var(--tt-ink-soft); font-style: italic; margin: 0; }
+.state { display: none; }
+.state.is-on { display: block; }

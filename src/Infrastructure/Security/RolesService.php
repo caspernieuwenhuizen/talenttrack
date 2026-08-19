@@ -222,8 +222,14 @@ class RolesService {
      * `tt_vct_plan` — plan/generate/edit/publish sessions; manage own
      *   team schedule + PHV flags. Granted to coaches at team scope,
      *   HoD/admin at global scope via the matrix.
-     * `tt_vct_admin_library` — CRUD on shared exercise catalogue + age
-     *   profiles + macro-blocks. HoD/admin only, global scope.
+     * `tt_vct_admin_config` — CRUD on the VCT age profiles + macro-blocks.
+     *   HoD/admin only, global scope. Was `tt_vct_admin_library` until
+     *   #2495: the exercise catalogue it also covered moved to
+     *   `tt_manage_exercises` when migration 0212 merged the two
+     *   libraries, and the remainder was renamed so the name stops
+     *   claiming a library it no longer owns. The age profiles set
+     *   age-safe intensity ceilings for U10–U14 players, which is why
+     *   they did NOT move to the coach-held exercises cap.
      * `tt_vct_view_load` — read workload aggregates. HoD/admin only,
      *   global scope.
      *
@@ -233,6 +239,9 @@ class RolesService {
      */
     public const VCT_CAPS = [
         'tt_vct_plan',
+        'tt_vct_admin_config',
+        // Deprecated alias, granted alongside for one release so a site
+        // mid-upgrade keeps working. Remove in the next minor.
         'tt_vct_admin_library',
         'tt_vct_view_load',
     ];

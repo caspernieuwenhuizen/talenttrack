@@ -419,6 +419,8 @@ class FeatureRegistry {
             'minutes_report_team'           => __( 'Minutes played per team', 'talenttrack' ),
             'minutes_audit'                 => __( 'Minutes audit', 'talenttrack' ),
             'rate_cards'                    => __( 'Rate cards', 'talenttrack' ),
+            // #2537 — one test, every player, over the season.
+            'test_trends'                   => __( 'Test trends', 'talenttrack' ),
         ];
         $report_toggle_desc = __( 'Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link.', 'talenttrack' );
         foreach ( $report_tiles as $tile_key => $tile_label ) {
@@ -544,7 +546,7 @@ class FeatureRegistry {
      * @return list<array{
      *   key: string, label: string, description: string,
      *   module_class: string, enabled: bool, default_enabled: bool,
-     *   under_development: bool
+     *   under_development: bool, view_slugs: list<string>
      * }>
      */
     public static function allWithState(): array {
@@ -559,6 +561,10 @@ class FeatureRegistry {
                 'enabled'           => self::isEnabled( $key ),
                 'default_enabled'   => (bool) $meta['default_enabled'],
                 'under_development' => self::isUnderDevelopment( $key ),
+                // #2540 — the surfaces this feature gates. Consumers of
+                // the configuration export need to know what turning a
+                // feature off actually removes, not just that it is off.
+                'view_slugs'        => array_values( $meta['view_slugs'] ),
             ];
         }
         return $out;

@@ -57,6 +57,13 @@ final class MfaLoginGuard {
     private const POST_VERIFY_TRANSIENT_PREFIX = 'tt_mfa_post_verify_url_';
     private const PENDING_TTL                  = 15 * MINUTE_IN_SECONDS;
 
+    /**
+     * Slug of the challenge view. Kept as a literal here rather than
+     * importing `FrontendMfaPromptView::SLUG` — the Auth layer doesn't
+     * depend on the Frontend layer.
+     */
+    public const PROMPT_VIEW = 'mfa-prompt';
+
     public static function init(): void {
         // Post-cookie hook: WordPress has issued the auth cookie by the
         // time wp_login fires. We set the gating transient here.
@@ -101,12 +108,56 @@ final class MfaLoginGuard {
         }
 
         // Stash the original post-login destination if WP carried one.
+        //
+        // #2553 — never stash a challenge URL. The frontend login form
+        // defaults its `redirect_to` to the current REQUEST_URI, so a
+        // visitor who signs in while sitting on `?tt_view=mfa-prompt`
+        // (any refresh, back-button or re-login after a bounce) would
+        // otherwise be sent straight back to the challenge the moment
+        // they cleared it. Skipping the stash is the right repair: the
+        // fallback is the dashboard, which is where they belong.
         $redirect_to = isset( $_REQUEST['redirect_to'] )
             ? esc_url_raw( wp_unslash( (string) $_REQUEST['redirect_to'] ) )
             : '';
-        if ( $redirect_to !== '' ) {
+        if ( $redirect_to !== '' && ! self::isChallengeUrl( $redirect_to ) ) {
             set_transient( self::POST_VERIFY_TRANSIENT_PREFIX . $user_id, $redirect_to, self::PENDING_TTL );
         }
+    }
+
+    /**
+     * Whether `$url` points at one of the two MFA challenge screens —
+     * the prompt itself or the enrollment wizard.
+     *
+     * Such a URL must never become a post-verify destination: landing
+     * back on the prompt with the challenge already cleared renders a
+     * code field the guard no longer intercepts, so the user is stuck
+     * there with no way forward but hand-editing the address bar
+     * (#2553).
+     *
+     * Accepts absolute and root-relative URLs alike — the stashed value
+     * comes from `REQUEST_URI` in the common case.
+     */
+    public static function isChallengeUrl( string $url ): bool {
+        if ( $url === '' ) return false;
+
+        $query = (string) wp_parse_url( $url, PHP_URL_QUERY );
+        if ( $query === '' ) return false;
+
+        $args = [];
+        wp_parse_str( $query, $args );
+
+        $view = isset( $args['tt_view'] ) ? sanitize_key( (string) $args['tt_view'] ) : '';
+        if ( $view === self::PROMPT_VIEW ) return true;
+        if ( $view !== 'wizard' ) return false;
+
+        // #901 — primary query var is `tt_wizard`; `slug=` is the legacy
+        // form `enforce()` still accepts, so match both here too.
+        $slug = isset( $args['tt_wizard'] ) ? sanitize_key( (string) $args['tt_wizard'] ) : '';
+        if ( $slug === '' && isset( $args['slug'] ) ) {
+            $slug = sanitize_key( (string) $args['slug'] );
+        }
+
+        return $slug === MfaEnrollmentWizard::SLUG;
     }
 
     /**
@@ -146,12 +197,12 @@ final class MfaLoginGuard {
             $slug = sanitize_key( (string) $_GET['slug'] );
         }
 
-        if ( $pending && $tt_view === 'mfa-prompt' ) return;
+        if ( $pending && $tt_view === self::PROMPT_VIEW ) return;
         if ( $enroll  && $tt_view === 'wizard' && $slug === MfaEnrollmentWizard::SLUG ) return;
 
         $base = WizardEntryPoint::dashboardBaseUrl();
         if ( $pending ) {
-            $target = add_query_arg( [ 'tt_view' => 'mfa-prompt' ], $base );
+            $target = add_query_arg( [ 'tt_view' => self::PROMPT_VIEW ], $base );
         } else {
             $target = add_query_arg(
                 [ 'tt_view' => 'wizard', 'tt_wizard' => MfaEnrollmentWizard::SLUG, 'tt_mfa_required' => '1' ],
@@ -167,11 +218,19 @@ final class MfaLoginGuard {
      * after a successful verify — the next request stops being
      * intercepted by `enforce()`. Also drops the must-enroll flag (the
      * enrollment wizard's submit clears it; this is belt-and-braces).
+     *
+     * #2553 — the post-verify destination goes with them. The challenge
+     * is over, so the stashed target is spent; leaving it behind meant
+     * an abandoned challenge kept a live target for the rest of its
+     * 15-minute TTL, and a *later* login inside that window inherited
+     * it. Callers that still need the target must read it before
+     * clearing.
      */
     public static function clearPending( int $user_id ): void {
         if ( $user_id <= 0 ) return;
         delete_transient( self::PENDING_TRANSIENT_PREFIX . $user_id );
         delete_transient( self::ENROLL_TRANSIENT_PREFIX . $user_id );
+        delete_transient( self::POST_VERIFY_TRANSIENT_PREFIX . $user_id );
     }
 
     /**

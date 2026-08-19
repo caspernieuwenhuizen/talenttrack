@@ -107,6 +107,40 @@ Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
 en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
 het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
+### Het volledige verloop achter een test
+
+De kleine trendlijn beantwoordt in één oogopslag "welke kant gaat dit
+op?". Voor de rest heeft elke test met meer dan één meting een link
+**Toon verloop** die eronder de leesbare versie opent. Wat je daar ziet,
+hangt af van het soort test — een verloop betekent alleen iets in de
+termen van de test zelf:
+
+| Soort test | Wat het verloop toont |
+| --- | --- |
+| Een getal waarbij **hoger of lager beter is** (sprinttijd, sprongkracht) | Een grafiek met datums, de waarde-as, elke meting gelabeld en de **streefzone van de leeftijdsgroep gearceerd**, zodat je ziet wanneer de speler die binnenkwam. |
+| Een getal **zonder goed of fout** (lengte, gewicht, schoenmaat) | De **metingen per datum, in kolommen** — geen grafiek, geen streefzone, geen oordeel. Zie hieronder. |
+| Een **statustest** (niveaus als *Op koers* / *Aandacht*) | Eén blok per meetmoment in de kleur van dat niveau. Geen lijn: niveaus zijn benoemde standen, geen afstanden, dus een lijn ertussen zou een precisie suggereren die de data niet heeft. |
+| **Gehaald / niet gehaald** | Een vinkje of kruisje per datum plus de telling (*3 van 4*). |
+| Elke test met **één meting** | Een zin die dat zegt. Een grafiek om één punt leest als ontbrekende data in plaats van als een beginpunt. |
+
+Bij een grafiek waar **lager beter is**, gaat een verbeterende lijn omláág.
+Dat staat er onder elke zo'n grafiek in woorden bij — de helling alleen mag
+het niet dragen, want een dalende lijn leest als achteruitgang voor wie
+niet weet welke kant goed is.
+
+### Tests zonder goed of fout
+
+Lengte, gewicht en schoenmaat worden gemeten en gevolgd, maar een hogere
+waarde is geen betere waarde. Deze tests staan per categorie bij elkaar als
+**waarden per datum in kolommen**, met achteraan een kolom **Verloop**
+(`+6`) in gewone tekst.
+
+Ze krijgen bewust geen grafiek, geen streefzone en geen ranglijst. Een
+stijgende lijn zou vooruitgang suggereren, een gearceerde band een norm, en
+een lijstje "meest verbeterd" dat de langste speler het beste presteert —
+alle drie zijn onwaar. Een gemist meetmoment toont als `—`, nooit als een
+nul, en het verloop rekent over de datums waarop wél een meting staat.
+
 Het **In één oogopslag**-paneel van de speler bevat ook een signaal
 **Metingen** naast Gem. beoordeling, Aanwezigheid en Doelen: het aantal
 tests waarvoor de speler nu een waarde heeft, met een hint hoeveel daarvan
@@ -256,6 +290,52 @@ zien iedereen. Dezelfde rijen zijn beschikbaar via REST op
 `/wp-json/talenttrack/v1/measurement-results?definition_id=…` (filters:
 `team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
 `measurements`-*lees*-rechten, voor integraties en de SaaS-frontend.
+
+## Testverloop — één test, elke speler, over het seizoen
+
+*Testresultaten* beantwoordt "hoe staat elke speler er **nu** voor op deze
+test". **Testverloop** (groep Analyse) beantwoordt de andere helft: **wie
+ontwikkelt zich en wie stagneert**. Het is het tabblad *Trends* uit de
+Excel-export, nu op het scherm.
+
+Kies een test, beperk desgewenst op team en een datumbereik, en klik
+**Toon**. Wat je krijgt hangt af van de test — dezelfde regel die het
+spelersverloop volgt, want een verloop betekent alleen iets in de termen
+van de test zelf:
+
+- **Een test met een richting** (sprinttijd, sprongkracht) krijgt een
+  **grafiek** met één lijn per speler over de gedeelde datum-as, plus een
+  zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
+  gemiddelde nooit als nóg een speler leest. Daaronder: **Meest verbeterd**
+  en **Teruggelopen**, en een tabel met de eerste waarde, de laatste
+  waarde, het **verschil** en een oordeel per speler.
+- **Een test zonder richting** (lengte, gewicht) krijgt alleen de metingen
+  per datum — geen grafiek, geen ranglijst, geen oordeel, want er is geen
+  beter of slechter om op te ranken.
+- **Een statustest** krijgt een matrix speler × datum met de niveaus in hun
+  eigen kleur. Geen lijnen: niveaus zijn benoemde standen, geen afstanden.
+- **Gehaald / niet gehaald** krijgt een vinkje of kruisje per datum, de
+  telling per speler en het **slagingspercentage per ronde** — het enige
+  getal dat over tijd iets zegt zonder twee uitkomsten als schaal te
+  behandelen.
+
+**Het verschil wordt gelezen in de richting van de test.** Bij een test
+waar lager beter is, is −0,08 s vooruitgang: het staat groen, het leest als
+*verbeterd* en het staat bij *Meest verbeterd*. Een speler met een
+verandering kleiner dan **2%** geldt als *nagenoeg gelijk* en staat in geen
+van beide ranglijsten — één procent op een handmatig geklokte sprint valt
+binnen de ruis, en dat vooruitgang noemen zou meer beweren dan er gemeten
+is.
+
+Elke spelersnaam linkt naar het profiel met een terug-pil. Een coach met
+teamscope ziet alleen de eigen teams; een link naar de data van een ander
+team wordt geweigerd in plaats van stilzwijgend verbreed. Integraties lezen
+dezelfde getallen via
+`GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
+
+Een beheerder kan het rapport verbergen via **Instellingen → Functies →
+Testverloop**; staat het uit, dan verdwijnt de tegel en wordt een directe
+link geweigerd.
 
 ## Wisselen tussen de schermen
 
