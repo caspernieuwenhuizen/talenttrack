@@ -118,6 +118,11 @@ class UsageTracker {
     public static function record( int $user_id, string $type, ?string $target = null ): void {
         if ( $user_id <= 0 ) return;
         if ( $type === '' ) return;
+        // #2517 — a speculative render is not a visit. Prefetch renders the
+        // page server-side, so without this a hover would count as a page
+        // view: active-user counts, the daily chart and the per-view tallies
+        // would all inflate with pages nobody opened.
+        if ( self::isSpeculativeRequest() ) return;
 
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_usage_events', [
@@ -127,6 +132,30 @@ class UsageTracker {
             'event_target' => $target !== null ? substr( $target, 0, 100 ) : null,
             'created_at'   => current_time( 'mysql' ),
         ], [ '%d', '%d', '%s', '%s', '%s' ] );
+    }
+
+    /**
+     * True when the browser is fetching this page speculatively rather than
+     * because someone navigated to it (#2517).
+     *
+     * `Sec-Purpose: prefetch` is sent by prefetch and prerender requests
+     * (Fetch spec / Speculation Rules). `Purpose: prefetch` is the older
+     * header some engines still send, and `X-Moz: prefetch` is Firefox's
+     * legacy one — all three are checked so a speculative hit is never
+     * counted whichever browser makes it.
+     *
+     * Deliberately conservative: a false positive loses one usage row, a
+     * false negative silently inflates every usage figure.
+     */
+    public static function isSpeculativeRequest(): bool {
+        foreach ( [ 'HTTP_SEC_PURPOSE', 'HTTP_PURPOSE', 'HTTP_X_MOZ' ] as $key ) {
+            if ( ! isset( $_SERVER[ $key ] ) ) continue;
+            $value = strtolower( (string) wp_unslash( $_SERVER[ $key ] ) );
+            if ( strpos( $value, 'prefetch' ) !== false || strpos( $value, 'prerender' ) !== false ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Prune

@@ -115,6 +115,11 @@ class DashboardShortcode {
         }
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
+        // #2517 — warm the next page on hover. Navigation stays a real page
+        // load; this only removes the wait. Pairs with the `Sec-Purpose`
+        // guard in UsageTracker, without which a hover would be recorded as
+        // a visit.
+        wp_enqueue_script( 'tt-prefetch', TT_PLUGIN_URL . 'assets/js/components/prefetch.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
         wp_enqueue_script( 'tt-drafts',  TT_PLUGIN_URL . 'assets/js/drafts.js',               [ 'tt-public' ], TT_VERSION, true );
         wp_enqueue_script( 'tt-rating',  TT_PLUGIN_URL . 'assets/js/components/rating.js',    [], TT_VERSION, true );

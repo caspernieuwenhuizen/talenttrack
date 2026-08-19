@@ -107,6 +107,20 @@ Voorbeelden zijn alleen-lezen. Op telefoons en tablets navigeert de link gewoon,
 zoals altijd: een paneel dat het grootste deel van een telefoonscherm vult, is
 niet meer dan een pagina met extra stappen.
 
+## Wisselen tussen schermen
+
+Elke klik is een gewone paginalading — de terugknop, bladwijzers, verversen en
+openen-in-nieuw-tabblad werken precies zoals je verwacht. Twee dingen laten dat
+sneller aanvoelen dan voorheen. Als je met de muis boven een link hangt, wordt
+die pagina alvast op de achtergrond geladen, zodat de klik meestal op iets
+terechtkomt dat er al is; en waar de browser het ondersteunt, vloeien schermen
+in elkaar over in plaats van wit te worden, terwijl de zijbalk en de bovenbalk
+blijven staan.
+
+Vooraf laden gebeurt niet als je apparaat om minder dataverbruik vraagt of op
+een trage verbinding zit, en nooit vooruit op een link die iets wijzigt. Een
+vooraf geladen pagina telt **niet** mee als bezoek in de gebruiksstatistieken.
+
 ## Aandachtspunten
 
 - Of de zijbalk in- of uitgeklapt staat, onthoudt je browser per apparaat.

@@ -102,6 +102,19 @@ Previews are read-only. On phones and tablets the link simply navigates, as it
 always did — a panel covering most of a phone screen is just a page with extra
 steps.
 
+## Moving between screens
+
+Every click is a normal page load — the back button, bookmarks, refresh and
+open-in-new-tab all behave exactly as you expect. Two things make that feel
+quicker than it used to. Hovering a link starts loading that page in the
+background, so the click usually lands on something already fetched; and where
+the browser supports it, screens cross-fade instead of blanking, with the
+sidebar and header holding still.
+
+Prefetching stands down when your device asks for reduced data or is on a slow
+connection, and it never runs ahead of a link that changes something. A page
+fetched in advance is **not** counted as a visit in the usage statistics.
+
 ## Notes
 
 - The sidebar's collapsed/expanded state is remembered in your browser, per

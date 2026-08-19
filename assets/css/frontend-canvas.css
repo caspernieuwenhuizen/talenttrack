@@ -59,3 +59,51 @@ body.tt-canvas .tt-canvas {
         padding-right: 0;
     }
 }
+
+/* ==================================================================
+ * Cross-document view transitions (#2517)
+ * ================================================================== */
+/*
+ * Navigation is a real page load and stays one. This stops it *looking*
+ * like one: the browser cross-fades between documents instead of blanking
+ * the screen, which — together with hover prefetch — is most of what makes
+ * a reload feel heavy.
+ *
+ * Progressive enhancement in the truest sense: unsupported browsers ignore
+ * the at-rule entirely and navigate exactly as they do today. Nothing in
+ * the app depends on it.
+ */
+@view-transition {
+    navigation: auto;
+}
+
+/*
+ * The header and the sidebar render identically on every page, so fading
+ * them out and back in is the one thing that makes a same-app navigation
+ * read as a full reload. Naming them lets the browser carry each across as
+ * the same element — the chrome holds still and only the content changes,
+ * which is the illusion the whole feature is after.
+ *
+ * A name must be unique per document, and only one element may carry it at
+ * a time; both are single, shell-rendered elements, so that holds.
+ */
+.tt-dashboard.tt-shell-app .tt-dash-header {
+    view-transition-name: tt-chrome-header;
+}
+
+.tt-shell-app .tt-shell-nav {
+    view-transition-name: tt-chrome-nav;
+}
+
+/*
+ * Cut the animation for anyone who asked for less motion — the transition
+ * still happens, it just resolves instantly, so there is no flash either
+ * way. CLAUDE.md §2 requires non-essential animation to honour this.
+ */
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: 0s !important;
+    }
+}
