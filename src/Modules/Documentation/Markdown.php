@@ -166,7 +166,10 @@ class Markdown {
                     return '<a href="' . esc_url( $url ) . '" style="color:#2271b1;">' . $m[1] . '</a>';
                 }
                 // Cross-reference to another doc: <slug>.md or <locale>/<slug>.md
-                if ( preg_match( '#^(?:[a-z]{2}_[A-Z]{2}/)?([a-z0-9][a-z0-9\-]*)\.md(?:#.*)?$#', $url, $sm ) ) {
+                // The anchor's `#` must be escaped — it is also the pattern
+                // delimiter, so unescaped it truncated the expression and
+                // preg_match failed on every link it was tried against.
+                if ( preg_match( '#^(?:[a-z]{2}_[A-Z]{2}/)?([a-z0-9][a-z0-9\-]*)\.md(?:\#.*)?$#', $url, $sm ) ) {
                     $slug = $sm[1];
                     // Stay inside the in-product docs viewer. The frontend
                     // and wp-admin viewers both honour `?tt_view=docs&topic=`;
