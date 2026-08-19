@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-19T17:36:35+00:00\n"
+"POT-Creation-Date: 2026-08-19T17:45:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -17718,10 +17718,10 @@ msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:152
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:58
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:156
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:157
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:245
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:246
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:161
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:162
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:250
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:251
 msgid "Two-factor authentication"
 msgstr ""
 
@@ -22636,64 +22636,64 @@ msgstr ""
 msgid "That code didn't match. Make sure your phone's clock is correct, then try the current code from your authenticator."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:161
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:166
 msgid "For your security, sign-in needs a second factor on your account."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:176
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:181
 msgid "Backup code"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:183
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:188
 msgid "Each backup code works once. Dashes optional."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:187
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:192
 msgid "Code from your authenticator app"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:198
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:203
 msgid "Remember this device for 30 days. Skip the code on this browser next time."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:203
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:208
 #: src/Modules/Mfa/Wizards/VerifyStep.php:29
 msgid "Verify"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:214
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:219
 msgid "Use a backup code instead"
 msgstr ""
 
 #. translators: %d unused backup codes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:221
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:226
 #, php-format
 msgid "%d code remaining"
 msgid_plural "%d codes remaining"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:232
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:237
 msgid "Use the authenticator app code instead"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:238
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:243
 msgid "Lost both your phone and your backup codes? Ask your academy admin to reset MFA on your account."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:250
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:255
 msgid "Too many failed attempts."
 msgstr ""
 
 #. translators: %d minutes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:255
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:260
 #, php-format
 msgid "Try again in %d minute."
 msgid_plural "Try again in %d minutes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:261
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:266
 msgid "If you never see a working code, ask your academy admin to reset MFA on your account."
 msgstr ""
 
