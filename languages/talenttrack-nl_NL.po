@@ -33683,6 +33683,10 @@ msgstr ""
 "Nog geen blauwdrukken voor dit team. Klik op \"+ Nieuwe blauwdruk\" om er "
 "een te starten."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:137
+msgid "No blueprints yet for this team."
+msgstr "Nog geen blauwdrukken voor dit team."
+
 #. translators: %s = blueprint name
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:157
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:588

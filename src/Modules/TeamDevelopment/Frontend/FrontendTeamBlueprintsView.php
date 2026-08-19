@@ -112,8 +112,16 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $can_manage = TeamChemistryAccess::canManage( get_current_user_id() );
         $base_url   = remove_query_arg( [ 'team_id', 'id', 'action' ] );
 
-        if ( $can_manage ) {
-            $new_url = WizardEntryPoint::buildUrl( 'new-team-blueprint', [ 'team_id' => (int) $team->id ] );
+        // #2557 — `buildUrl()` falls back to an empty string when the
+        // wizard is unavailable (no flat-form path exists for blueprints).
+        // Rendering the button anyway produced `href=""`, a link that
+        // silently reloaded the page. Hide the affordance instead, so a
+        // gate mismatch degrades to "no button" rather than "dead button".
+        $new_url = $can_manage
+            ? WizardEntryPoint::buildUrl( 'new-team-blueprint', [ 'team_id' => (int) $team->id ] )
+            : '';
+
+        if ( $new_url !== '' ) {
             echo '<p class="tt-bp-list-actions">';
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
                 . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
@@ -121,7 +129,12 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         }
 
         if ( empty( $rows ) ) {
-            echo '<p><em>' . esc_html__( 'No blueprints yet for this team. Click "+ New blueprint" to start one.', 'talenttrack' ) . '</em></p>';
+            // Don't point a read-only viewer at a button they can't see.
+            echo '<p><em>' . esc_html(
+                $new_url !== ''
+                    ? __( 'No blueprints yet for this team. Click "+ New blueprint" to start one.', 'talenttrack' )
+                    : __( 'No blueprints yet for this team.', 'talenttrack' )
+            ) . '</em></p>';
             return;
         }
 

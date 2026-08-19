@@ -7,6 +7,7 @@ The "+ New" buttons on Players, Teams, Evaluations, and Goals can either open th
 ## Who sees what
 
 - **Anyone with permission to create the record** sees the wizard when it's enabled. The capability gate is the same as the flat form.
+- **New blueprint** follows the team-chemistry permissions instead, so a head coach can start it for their own teams — the same people who see the "+ New blueprint" button on a team's blueprint list.
 - **Site admins** can toggle which wizards are enabled under **Administration → Wizards**, and see completion analytics for each.
 
 ## How the wizards behave

@@ -7,6 +7,7 @@ De "+ Nieuw"-knoppen op Spelers, Teams, Evaluaties en Doelen kunnen óf het beke
 ## Wie ziet wat
 
 - **Iedereen met rechten om het record aan te maken** ziet de wizard zodra die aan staat. De capability-controle is dezelfde als bij het platte formulier.
+- **Nieuwe blauwdruk** volgt in plaats daarvan de rechten van teamchemie, zodat een hoofdtrainer hem voor zijn eigen teams kan starten — dezelfde mensen die de knop "+ Nieuwe blauwdruk" op de blauwdrukkenlijst van een team zien.
 - **Beheerders** kunnen onder **Beheer → Wizards** kiezen welke wizards aan staan en zien per wizard de completion-statistieken.
 
 ## Hoe de wizards werken
