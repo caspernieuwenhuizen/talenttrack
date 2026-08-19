@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player test timeline — #2536</title>
+<link rel="stylesheet" href="_shared.css">
+</head>
+<body>
+
+<div class="mockup-bar">
+  <strong>#2536</strong> Speler · testverloop — profieltab <em>Metingen</em> ·
+  <a href="index.html">← terug naar de hub</a> · <a href="test-trends.html">rapportmockup →</a>
+</div>
+
+<div class="picker" role="group" aria-label="Meettype">
+  <button aria-pressed="true"  data-state="lower">Numeriek · lager = beter</button>
+  <button aria-pressed="false" data-state="higher">Numeriek · hoger = beter</button>
+  <button aria-pressed="false" data-state="neutral">Numeriek · neutraal</button>
+  <button aria-pressed="false" data-state="status">Status (niveaus)</button>
+  <button aria-pressed="false" data-state="passfail">Gehaald / niet gehaald</button>
+  <button aria-pressed="false" data-state="single">Eén meting</button>
+</div>
+
+<div class="note-strip" id="note"></div>
+
+<div class="frame">
+
+  <p class="crumb"><a href="#">Dashboard</a> › <a href="#">Spelers</a> › <a href="#">Luuk Nieuwenhuizen</a> › Metingen</p>
+
+  <div class="page-head">
+    <h1>Luuk Nieuwenhuizen</h1>
+    <p class="page-head__sub">Hedel O14-1 · 13 jaar · Metingen</p>
+  </div>
+
+  <!-- ============ NUMERIEK · LAGER IS BETER ============ -->
+  <section class="state is-on" data-state="lower">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Sprint 10 m</h2>
+        <span class="card__hint">4 metingen · laatste 16 mrt 2026</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Conditie</span>
+        <span class="tag">seconden</span>
+        <span class="tag tag--dir">lager is beter</span>
+      </div>
+
+      <div class="chart-wrap">
+        <svg class="chart" viewBox="0 0 640 210" role="img"
+             aria-label="Sprint 10 meter: 2,05 s op 15 sep, 2,01 s op 10 nov, 1,97 s op 19 jan, 1,94 s op 16 mrt. Vanaf 16 maart binnen de streefzone.">
+          <!-- streefband: 1,90–1,95 s = op niveau -->
+          <rect class="band-good" x="60" y="135" width="540" height="35"></rect>
+          <text class="band-label" x="66" y="132">STREEFZONE O14 · ≤ 1,95 s</text>
+
+          <!-- assen -->
+          <line class="chart-axis" x1="60" y1="30" x2="60" y2="170"></line>
+          <line class="chart-axis" x1="60" y1="170" x2="600" y2="170"></line>
+          <line class="chart-grid" x1="60" y1="30" x2="600" y2="30"></line>
+          <line class="chart-grid" x1="60" y1="100" x2="600" y2="100"></line>
+
+          <text class="chart-label" x="54" y="34" text-anchor="end">2,10</text>
+          <text class="chart-label" x="54" y="104" text-anchor="end">2,00</text>
+          <text class="chart-label" x="54" y="174" text-anchor="end">1,90</text>
+
+          <polyline class="chart-line" points="100,65 260,93 420,121 580,142"></polyline>
+          <circle class="chart-dot" cx="100" cy="65" r="4"></circle>
+          <circle class="chart-dot" cx="260" cy="93" r="4"></circle>
+          <circle class="chart-dot" cx="420" cy="121" r="4"></circle>
+          <circle class="chart-dot" cx="580" cy="142" r="5"></circle>
+
+          <text class="chart-value" x="100" y="56" text-anchor="middle">2,05</text>
+          <text class="chart-value" x="260" y="84" text-anchor="middle">2,01</text>
+          <text class="chart-value" x="420" y="112" text-anchor="middle">1,97</text>
+          <text class="chart-value" x="580" y="133" text-anchor="middle">1,94</text>
+
+          <text class="chart-label" x="100" y="188" text-anchor="middle">15 sep</text>
+          <text class="chart-label" x="260" y="188" text-anchor="middle">10 nov</text>
+          <text class="chart-label" x="420" y="188" text-anchor="middle">19 jan</text>
+          <text class="chart-label" x="580" y="188" text-anchor="middle">16 mrt</text>
+        </svg>
+      </div>
+
+      <p class="direction-note">↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang.</p>
+
+      <div class="legend">
+        <span><i class="swatch"></i> gemeten waarde</span>
+        <span><i class="swatch swatch--band"></i> streefzone leeftijdsgroep</span>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table class="tt-table">
+          <thead><tr><th>Datum</th><th class="num">Waarde</th><th class="num">Verschil</th><th>Beoordeling</th></tr></thead>
+          <tbody>
+            <tr><td>16 mrt 2026</td><td class="num">1,94 s</td><td class="num delta-up">−0,03</td><td><span class="chip chip--green">op niveau</span></td></tr>
+            <tr><td>19 jan 2026</td><td class="num">1,97 s</td><td class="num delta-up">−0,04</td><td><span class="chip chip--amber">onder niveau</span></td></tr>
+            <tr><td>10 nov 2025</td><td class="num">2,01 s</td><td class="num delta-up">−0,04</td><td><span class="chip chip--amber">onder niveau</span></td></tr>
+            <tr><td>15 sep 2025</td><td class="num">2,05 s</td><td class="num delta-flat">—</td><td><span class="chip chip--red">ruim onder niveau</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NUMERIEK · HOGER IS BETER ============ -->
+  <section class="state" data-state="higher">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Verticale sprong (CMJ)</h2>
+        <span class="card__hint">4 metingen · laatste 16 mrt 2026</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Kracht</span>
+        <span class="tag">cm</span>
+        <span class="tag tag--dir">hoger is beter</span>
+      </div>
+
+      <div class="chart-wrap">
+        <svg class="chart" viewBox="0 0 640 210" role="img"
+             aria-label="Verticale sprong: 28 cm op 15 sep, 30 cm op 10 nov, 31 cm op 19 jan, 33 cm op 16 mrt. Vanaf 16 maart binnen de streefzone.">
+          <rect class="band-good" x="60" y="30" width="540" height="47"></rect>
+          <text class="band-label" x="66" y="90">STREEFZONE O14 · ≥ 32 cm</text>
+
+          <line class="chart-axis" x1="60" y1="30" x2="60" y2="170"></line>
+          <line class="chart-axis" x1="60" y1="170" x2="600" y2="170"></line>
+          <line class="chart-grid" x1="60" y1="100" x2="600" y2="100"></line>
+
+          <text class="chart-label" x="54" y="34" text-anchor="end">36</text>
+          <text class="chart-label" x="54" y="104" text-anchor="end">30</text>
+          <text class="chart-label" x="54" y="174" text-anchor="end">24</text>
+
+          <polyline class="chart-line" points="100,123 260,100 420,88 580,65"></polyline>
+          <circle class="chart-dot" cx="100" cy="123" r="4"></circle>
+          <circle class="chart-dot" cx="260" cy="100" r="4"></circle>
+          <circle class="chart-dot" cx="420" cy="88" r="4"></circle>
+          <circle class="chart-dot" cx="580" cy="65" r="5"></circle>
+
+          <text class="chart-value" x="100" y="114" text-anchor="middle">28</text>
+          <text class="chart-value" x="260" y="91" text-anchor="middle">30</text>
+          <text class="chart-value" x="420" y="79" text-anchor="middle">31</text>
+          <text class="chart-value" x="580" y="56" text-anchor="middle">33</text>
+
+          <text class="chart-label" x="100" y="188" text-anchor="middle">15 sep</text>
+          <text class="chart-label" x="260" y="188" text-anchor="middle">10 nov</text>
+          <text class="chart-label" x="420" y="188" text-anchor="middle">19 jan</text>
+          <text class="chart-label" x="580" y="188" text-anchor="middle">16 mrt</text>
+        </svg>
+      </div>
+
+      <p class="direction-note">↑ Bij deze test is een hogere waarde beter.</p>
+      <div class="legend">
+        <span><i class="swatch"></i> gemeten waarde</span>
+        <span><i class="swatch swatch--band"></i> streefzone leeftijdsgroep</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NUMERIEK · NEUTRAAL — KOLOMMEN ============ -->
+  <section class="state" data-state="neutral">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Lengte</h2>
+        <span class="card__hint">4 metingen · laatste 16 mrt 2026</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Antropometrie</span>
+        <span class="tag">cm</span>
+        <span class="tag tag--neutral">geen goed of fout — alleen volgen</span>
+      </div>
+
+      <p class="empty" style="margin-bottom:10px">
+        Deze test heeft geen streefwaarde en geen richting: een hogere of lagere waarde is niet beter.
+        De metingen staan daarom als waarden per datum, zonder oordeel, zonder kleur en zonder ranglijst.
+      </p>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr>
+              <th>Meting</th>
+              <th class="num">15 sep 2025</th>
+              <th class="num">10 nov 2025</th>
+              <th class="num">19 jan 2026</th>
+              <th class="num">16 mrt 2026</th>
+              <th class="num">Verloop</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="who">Lengte (cm)</td>
+              <td class="num">162</td>
+              <td class="num">164</td>
+              <td class="num">166</td>
+              <td class="num">168</td>
+              <td class="num delta-plain">+6</td>
+            </tr>
+            <tr>
+              <td class="who">Gewicht (kg)</td>
+              <td class="num">49,5</td>
+              <td class="num">51,0</td>
+              <td class="num">52,4</td>
+              <td class="num">53,8</td>
+              <td class="num delta-plain">+4,3</td>
+            </tr>
+            <tr>
+              <td class="who">Schoenmaat</td>
+              <td class="num">40</td>
+              <td class="num">41</td>
+              <td class="num">41</td>
+              <td class="num">42</td>
+              <td class="num delta-plain">+2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="card__hint" style="margin-top:10px">
+        Alle neutrale metingen van deze speler staan in één tabel — ze delen de meetmomenten,
+        dus ze delen de kolommen. <strong>Verloop</strong> is het feitelijke verschil over de periode,
+        in zwart: het is een constatering, geen beoordeling.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ STATUS (NIVEAUS) ============ -->
+  <section class="state" data-state="status">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Belastbaarheid</h2>
+        <span class="card__hint">4 metingen · laatste 16 mrt 2026</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Medisch</span>
+        <span class="tag">status</span>
+        <span class="tag tag--neutral">niveaus, geen getal</span>
+      </div>
+
+      <p class="empty" style="margin-bottom:10px">
+        Een statustest legt een niveau vast, geen meetwaarde. Er is geen numerieke as om op te
+        plotten, dus geen lijn — het verloop leest als een reeks blokken in de kleur van het niveau.
+      </p>
+
+      <div class="chart-wrap">
+        <div class="steps">
+          <div class="step step--red"><span class="step__date">15 sep</span><span class="step__label">Risico</span></div>
+          <div class="step step--amber"><span class="step__date">10 nov</span><span class="step__label">Aandacht</span></div>
+          <div class="step step--amber"><span class="step__date">19 jan</span><span class="step__label">Aandacht</span></div>
+          <div class="step step--green"><span class="step__date">16 mrt</span><span class="step__label">Op koers</span></div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><span class="chip chip--green">Op koers</span></span>
+        <span><span class="chip chip--amber">Aandacht</span></span>
+        <span><span class="chip chip--red">Risico</span></span>
+      </div>
+      <p class="card__hint" style="margin-top:8px">
+        Kleuren komen uit <code>MeasurementLevelPalette</code>, dezelfde tokens als de chip op het
+        profiel — het verloop en de huidige stand kunnen dus nooit van kleur verschillen.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ GEHAALD / NIET GEHAALD ============ -->
+  <section class="state" data-state="passfail">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Coopertest gehaald</h2>
+        <span class="card__hint">4 metingen · 3 van 4 gehaald</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Conditie</span>
+        <span class="tag">gehaald / niet gehaald</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead>
+            <tr><th>Meting</th><th class="num">15 sep</th><th class="num">10 nov</th><th class="num">19 jan</th><th class="num">16 mrt</th><th class="num">Gehaald</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="who">Coopertest</td>
+              <td class="num"><span class="mark mark--fail">✗</span></td>
+              <td class="num"><span class="mark mark--pass">✓</span></td>
+              <td class="num"><span class="mark mark--pass">✓</span></td>
+              <td class="num"><span class="mark mark--pass">✓</span></td>
+              <td class="num delta-plain">3 / 4</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="card__hint" style="margin-top:10px">
+        Twee uitkomsten, dus geen as en geen lijn: een rij vinkjes per datum leest sneller dan een
+        grafiek met twee niveaus. De telling rechts is het enige samenvattende getal dat klopt.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ ÉÉN METING ============ -->
+  <section class="state" data-state="single">
+    <div class="card">
+      <div class="card__head">
+        <h2 class="card__title">Sprint 30 m</h2>
+        <span class="card__hint">1 meting · 16 mrt 2026</span>
+      </div>
+      <div class="testmeta">
+        <span class="tag">Conditie</span>
+        <span class="tag">seconden</span>
+        <span class="tag tag--dir">lager is beter</span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="tt-table">
+          <thead><tr><th>Datum</th><th class="num">Waarde</th><th>Beoordeling</th></tr></thead>
+          <tbody>
+            <tr><td>16 mrt 2026</td><td class="num">4,52 s</td><td><span class="chip chip--amber">onder niveau</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="empty" style="margin-top:10px">
+        Eén meting tot nu toe — een verloop heeft er minstens twee nodig. Na de volgende testronde
+        verschijnt hier de grafiek.
+      </p>
+      <p class="card__hint">Nooit een lege grafiek met assen en geen lijn: dat leest als ontbrekende data in plaats van als een beginpunt.</p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+var NOTES = {
+  lower:    'Numeriek, <code>direction = lower</code> — grafiek met streefband. De lijn daalt bij vooruitgang, dus de richting staat er in woorden bij; zie <code>notes.md</code> voor de open vraag of we de as moeten omdraaien.',
+  higher:   'Numeriek, <code>direction = higher</code> — zelfde grafiek, band aan de bovenkant.',
+  neutral:  'Numeriek, <code>direction = neutral</code> — <strong>kolommen per datum, geen grafiek, geen oordeel.</strong> Dit is het geval dat je noemde: er is geen goed of fout, dus alleen de waarden over tijd.',
+  status:   '<code>value_type = status</code> — niveaus met eigen kleur, geen numerieke as. Blokkenreeks in plaats van een lijn.',
+  passfail: '<code>value_type = passfail</code> — twee uitkomsten. Vinkjes per datum plus een telling.',
+  single:   'Elk type met minder dan twee metingen: uitleg in plaats van een lege grafiek.'
+};
+var buttons = document.querySelectorAll('.picker button');
+var note = document.getElementById('note');
+function show(state) {
+  if (!NOTES[state]) { state = 'lower'; }
+  document.querySelectorAll('.state').forEach(function (s) {
+    s.classList.toggle('is-on', s.getAttribute('data-state') === state);
+  });
+  buttons.forEach(function (b) {
+    b.setAttribute('aria-pressed', String(b.getAttribute('data-state') === state));
+  });
+  note.innerHTML = NOTES[state] || '';
+}
+buttons.forEach(function (b) {
+  b.addEventListener('click', function () {
+    var s = b.getAttribute('data-state');
+    // Hash-addressable so a single state can be linked in an issue comment.
+    if (history.replaceState) { history.replaceState(null, '', '#' + s); }
+    show(s);
+  });
+});
+window.addEventListener('hashchange', function () { show(location.hash.slice(1)); });
+show(location.hash.slice(1) || 'lower');
+</script>
+</body>
+</html>

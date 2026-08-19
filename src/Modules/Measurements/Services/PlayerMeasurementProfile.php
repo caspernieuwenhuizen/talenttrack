@@ -46,7 +46,13 @@ class PlayerMeasurementProfile {
      *   [ 'category' => string, 'tests' => array<int, array<string,mixed>> ]
      *   where a test is:
      *   [ 'definition_id', 'name', 'unit', 'value_type', 'frequency',
-     *     'direction', 'latest_value', 'latest_date', 'flag', 'series' ]
+     *     'direction', 'latest_value', 'latest_date', 'flag', 'band',
+     *     'series' ]
+     *
+     * `band` (#2536) is the age-group "on target" range as
+     * `[ 'min' => ?float, 'max' => ?float ]`, or null when the test has no
+     * target for this player's age group. The trend chart shades it; the
+     * flag is the same target expressed as a verdict on the latest value.
      */
     public function forPlayer( int $player_id ): array {
         if ( $player_id <= 0 ) return [];
@@ -66,6 +72,7 @@ class PlayerMeasurementProfile {
             $value       = $this->displayValue( $def, $latest_row );
             $flag        = '';
             $level_token = '';
+            $band        = null;
 
             if ( $is_status ) {
                 // Status colour comes from the matched level's token, not the
@@ -78,13 +85,21 @@ class PlayerMeasurementProfile {
                         ? MeasurementLevelPalette::safe( (string) $level->color_token )
                         : MeasurementLevelPalette::DEFAULT_TOKEN;
                 }
-            } elseif ( $latest_row && $latest_row->value_numeric !== null && $age_group !== '' ) {
+            } elseif ( $age_group !== '' ) {
+                // #2536 — the target is resolved whenever the player has an
+                // age group, not only when a value exists: the trend chart
+                // shades the band even on a test whose latest result is
+                // missing, and the band is a property of the age group, not
+                // of the reading.
                 $target = $this->targets->forDefinitionAndAge( $def_id, $age_group );
-                $flag   = $this->targets->flagFor(
-                    (float) $latest_row->value_numeric,
-                    $target,
-                    (string) $def->direction
-                );
+                if ( $latest_row && $latest_row->value_numeric !== null ) {
+                    $flag = $this->targets->flagFor(
+                        (float) $latest_row->value_numeric,
+                        $target,
+                        (string) $def->direction
+                    );
+                }
+                $band = self::bandFrom( $target );
             }
 
             $series = array_map(
@@ -113,6 +128,7 @@ class PlayerMeasurementProfile {
                 'latest_date'   => $latest_row ? (string) $latest_row->recorded_date : '',
                 'flag'          => $flag,
                 'level_token'   => $level_token,
+                'band'          => $band,
                 'series'        => $series,
             ];
         }
@@ -152,6 +168,22 @@ class PlayerMeasurementProfile {
         }
         $out['flagged'] = $out['warn'] + $out['bad'];
         return $out;
+    }
+
+    /**
+     * #2536 — the "on target" range from a target row, as the chart's band.
+     * Returns null when the row carries no green range at all; an open-ended
+     * target (only a floor, or only a ceiling) keeps its open end as null,
+     * which the chart shades to the edge of the plot.
+     *
+     * @return array{min: ?float, max: ?float}|null
+     */
+    private static function bandFrom( ?object $target ): ?array {
+        if ( $target === null ) return null;
+        $min = isset( $target->green_min ) && $target->green_min !== null ? (float) $target->green_min : null;
+        $max = isset( $target->green_max ) && $target->green_max !== null ? (float) $target->green_max : null;
+        if ( $min === null && $max === null ) return null;
+        return [ 'min' => $min, 'max' => $max ];
     }
 
     /**

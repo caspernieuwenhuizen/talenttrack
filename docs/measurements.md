@@ -101,6 +101,40 @@ Staff see the same thing **in context** on the player's profile: open a
 player and switch to the **Measurements** tab (beside Evaluations). The
 tab badge counts how many tests the player has results for.
 
+### The full history behind a test
+
+The small trend line answers "which way is this going?" at a glance. For
+the rest, every test with more than one result carries a **Show history**
+link that opens the readable version underneath it. What appears there
+depends on the kind of test, because a trend only means something in the
+terms of the test it belongs to:
+
+| Kind of test | What the history shows |
+| --- | --- |
+| A number where **higher or lower is better** (sprint time, jump height) | A dated chart with the value axis, every reading labelled, and the **age-group target shaded** so you can see when the player crossed into it. |
+| A number with **no better or worse** (height, weight, shoe size) | The **readings per date, in columns** — no chart, no target, no verdict. See below. |
+| A **status** test (levels such as *On track* / *Watch*) | One block per recorded date in that level's own colour. No line: levels are named states, not distances, so joining them with a slope would invent precision the data does not have. |
+| **Passed / not passed** | A tick or cross per date plus the tally (*3 of 4*). |
+| Any test with **one result** | A sentence saying so. A chart drawn around a single point reads as missing data rather than as a starting position. |
+
+On a chart where **lower is better**, an improving line goes *down*. That
+is stated in words under every such chart — the slope alone is not allowed
+to carry it, because a falling line reads as decline to anyone who has not
+been told which way is good.
+
+### Tests with no better or worse
+
+Height, weight and shoe size are measured and tracked, but a higher value
+is not a better one. These tests are grouped together per category and
+shown as **values per date in columns**, with a plain **Change** column at
+the end (`+6`).
+
+They get no chart, no target band and no ranking on purpose. A rising line
+would imply progress, a shaded band would imply a norm, and a
+"most improved" list would imply the tallest player is performing best —
+all three are untrue. A missed measuring moment shows as `—`, never as a
+zero, and the change is worked out over the dates that do have a reading.
+
 The player's **At a glance** panel also carries a **Measurements** signal
 beside Avg rating, Attendance and Goals: the number of tests the player
 currently has a value for, with a hint of how many sit *below target*

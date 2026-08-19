@@ -13404,6 +13404,50 @@ msgstr "Waarschuwing"
 msgid "Show details"
 msgstr "Toon details"
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "Show history"
+msgstr "Toon verloop"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "One result so far — a trend needs at least two."
+msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "These tests have no target and no direction — a higher or lower value is not better. The readings are shown per date, without a verdict."
+msgstr "Deze testen hebben geen streefwaarde en geen richting — een hogere of lagere waarde is niet beter. De metingen staan per datum, zonder oordeel."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "On target for this age group"
+msgstr "Op niveau voor deze leeftijdsgroep"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "↓ A lower value is better on this test — the falling line is progress."
+msgstr "↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "↑ A higher value is better on this test."
+msgstr "↑ Bij deze test is een hogere waarde beter."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "recorded value"
+msgstr "gemeten waarde"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "Passed"
+msgstr "Gehaald"
+
+#. translators: 1: number of passes, 2: number of attempts
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+#, php-format
+msgid "%1$d of %2$d"
+msgstr "%1$d van %2$d"
+
+#. translators: 1: test name, 2: number of results, 3: first value, 4: first date, 5: latest value, 6: latest date
+#: src/Shared/Frontend/Components/TrendChart.php
+#, php-format
+msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
+msgstr "%1$s: %2$d metingen, van %3$s op %4$s naar %5$s op %6$s."
+
 #: src/Modules/Configuration/Admin/FormSlugContract.php:51
 #: src/Modules/Configuration/Admin/FormSlugContract.php:73
 #: src/Modules/DataBrowser/SemanticRegistry.php:46
