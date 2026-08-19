@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Activiteiten
+group: performance
+summary: Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid en evaluaties na wedstrijden.
+audience: [user]
+order: 30
+---
 
 # Activiteiten en aanwezigheid
 

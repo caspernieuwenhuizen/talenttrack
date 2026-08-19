@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Activities
+group: performance
+summary: Games, trainings, and other activities — typing, attendance, and post-game evaluations.
+audience: [user]
+order: 30
+---
 
 # Activities and attendance
 

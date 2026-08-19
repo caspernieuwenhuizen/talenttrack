@@ -4,328 +4,88 @@ namespace TT\Modules\Documentation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * HelpTopics — registry of all wiki topic slugs with metadata.
+ * HelpTopics — the registry of in-product help topics.
  *
- * The actual content of each topic lives in a markdown file at
- * docs/<slug>.md (inside the plugin). This class enumerates topics,
- * groups them for the TOC sidebar, and resolves slug → title +
- * filepath + group.
+ * The registry is a projection of `docs/`, not a list beside it. Every
+ * `docs/<slug>.md` carrying a front-matter block (see DocFrontMatter) is a
+ * topic; every file without one is invisible to the in-product index, which
+ * is how developer-facing documentation opts out.
  *
- * Per the v2.22.0 release discipline commitment: every sprint that
- * touches a feature must also update the relevant topic file(s) so
- * the wiki stays accurate.
+ * This used to be a hand-maintained PHP literal that had to be edited
+ * alongside each new file. It drifted — dozens of shipped features had
+ * documentation on disk that no reader could reach. Dropping a documented
+ * file into `docs/` now registers it.
+ *
+ * Metadata is read from the *localised* file when one exists, so Dutch
+ * titles and summaries come from `docs/nl_NL/<slug>.md` rather than from
+ * the translation catalogue. A topic with no localised twin falls back to
+ * English, the same way its body always has.
  */
 class HelpTopics {
 
+    /** Cache lifetime. Version-keyed as well, so an update busts it. */
+    private const CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+    /** Fallback when a topic omits `order:`. Sorts after curated entries. */
+    private const DEFAULT_ORDER = 50;
+
+    /** @var array<string, array<string, mixed>>|null in-process memo */
+    private static $memo = null;
+
     /**
-     * All topics, ordered within their groups. The tuple is:
-     *   slug => [ title, group_key, summary ]
+     * Every registered topic, keyed by slug and ordered for display:
+     * by `order:` first so a group can be curated, then by title.
      *
-     * `summary` is the first line of the intro — shown in search
-     * results and as a hover preview. Kept short.
+     * The tuple keeps `title` / `group` / `summary` for existing callers
+     * and adds the front-matter keys the docs surfaces consume — audience
+     * today, the gating and view-mapping keys shortly.
      *
-     * @return array<string, array{title:string, group:string, summary:string}>
+     * @return array<string, array{
+     *   title: string,
+     *   group: string,
+     *   summary: string,
+     *   audience: list<string>,
+     *   views: list<string>,
+     *   module: string,
+     *   feature: string,
+     *   tier: string,
+     *   capability: string,
+     *   order: int
+     * }>
      */
     public static function all(): array {
-        return [
-            'getting-started' => [
-                'title'   => __( 'Getting started', 'talenttrack' ),
-                'group'   => 'basics',
-                'summary' => __( 'Welcome to TalentTrack. The essentials to get going.', 'talenttrack' ),
-            ],
-            'teams-players' => [
-                'title'   => __( 'Teams & players', 'talenttrack' ),
-                'group'   => 'basics',
-                'summary' => __( 'How to create teams, add players, and assign players to teams.', 'talenttrack' ),
-            ],
-            'people-staff' => [
-                'title'   => __( 'People (staff)', 'talenttrack' ),
-                'group'   => 'basics',
-                'summary' => __( 'Coaches, physios, and other staff — add them as people and link to teams.', 'talenttrack' ),
-            ],
-            'evaluations' => [
-                'title'   => __( 'Evaluations', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Record player ratings with scores, notes, and categories.', 'talenttrack' ),
-            ],
-            'eval-categories-weights' => [
-                'title'   => __( 'Evaluation categories & weights', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Main categories, subcategories, and how per-age-group weighting works.', 'talenttrack' ),
-            ],
-            'activities' => [
-                'title'   => __( 'Activities', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Games, trainings, and other activities — typing, attendance, and post-game evaluations.', 'talenttrack' ),
-            ],
-            'holidays' => [
-                'title'   => __( 'Holidays', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Academy-wide holiday periods shown as banners on every team planner.', 'talenttrack' ),
-            ],
-            'goals' => [
-                'title'   => __( 'Goals', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Development goals per player with status and priority.', 'talenttrack' ),
-            ],
-            'pdp-cycle' => [
-                'title'   => __( 'Player Development Plan (PDP)', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Per-season development files, conversation cadence, end-of-season verdict.', 'talenttrack' ),
-            ],
-            'team-chemistry' => [
-                'title'   => __( 'Team chemistry', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores.', 'talenttrack' ),
-            ],
-            'player-journey' => [
-                'title'   => __( 'Player journey', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'A chronological view of every player\'s academy story — milestones, evaluations, injuries, transitions.', 'talenttrack' ),
-            ],
-            'reports' => [
-                'title'   => __( 'Reports', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'The tile launcher — progress charts, team ratings, coach activity.', 'talenttrack' ),
-            ],
-            'eval-coverage' => [
-                'title'   => __( 'Evaluation coverage', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance.', 'talenttrack' ),
-            ],
-            'cohort-board' => [
-                'title'   => __( 'Cohort decision board', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player.', 'talenttrack' ),
-            ],
-            'trials' => [
-                'title'   => __( 'Trial cases', 'talenttrack' ),
-                'group'   => 'people',
-                'summary' => __( 'Run a structured trial period: track templates, staff input, decision and the letter that goes to parents.', 'talenttrack' ),
-            ],
-            'wizards' => [
-                'title'   => __( 'Record creation wizards', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Step-by-step forms that replace the flat create form for new players, teams, evaluations, and goals.', 'talenttrack' ),
-            ],
-            'rate-cards' => [
-                'title'   => __( 'Player rate cards', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'Deep per-player dashboards with trends and charts.', 'talenttrack' ),
-            ],
-            'player-comparison' => [
-                'title'   => __( 'Player comparison', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'Compare up to 4 players side-by-side, cross-team.', 'talenttrack' ),
-            ],
-            'usage-statistics' => [
-                'title'   => __( 'Usage statistics', 'talenttrack' ),
-                'group'   => 'analytics',
-                'summary' => __( 'Logins, active users, DAU and evaluation trends.', 'talenttrack' ),
-            ],
-            'configuration-branding' => [
-                'title'   => __( 'Configuration & branding', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Academy name, logo, rating scale, color palette, lookup tables.', 'talenttrack' ),
-            ],
-            'custom-fields' => [
-                'title'   => __( 'Custom fields', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Add club-specific fields to players, teams, and evaluations.', 'talenttrack' ),
-            ],
-            'bulk-actions' => [
-                'title'   => __( 'Bulk actions (archive & delete)', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Selecting many rows at once. Archive vs. permanent delete.', 'talenttrack' ),
-            ],
-            'printing-pdf' => [
-                'title'   => __( 'Printing & PDF export', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Clean printable reports and browser-native PDF export.', 'talenttrack' ),
-            ],
-            'migrations' => [
-                'title'   => __( 'Migrations & updates', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'What happens when you update the plugin, and how to run migrations manually.', 'talenttrack' ),
-            ],
-            'invitations' => [
-                'title'   => __( 'Invitations', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through.', 'talenttrack' ),
-            ],
-            'player-dashboard' => [
-                'title'   => __( 'Player dashboard (frontend)', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'What players see when they log into the frontend shortcode.', 'talenttrack' ),
-            ],
-            'coach-dashboard' => [
-                'title'   => __( 'Coach dashboard (frontend)', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'What coaches see in the frontend tile grid.', 'talenttrack' ),
-            ],
-            'persona-dashboard' => [
-                'title'   => __( 'Persona dashboards', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.', 'talenttrack' ),
-            ],
-            'conversational-goals' => [
-                'title'   => __( 'Goals as a conversation', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Chat-style threads on every player goal — coach, player, parent dialogue with notifications, edit window, soft-delete, and audit log.', 'talenttrack' ),
-            ],
-            'access-control' => [
-                'title'   => __( 'Access control', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Roles, permissions, functional roles, and the Read-Only Observer.', 'talenttrack' ),
-            ],
-            'authorization-matrix' => [
-                'title'   => __( 'Authorization matrix', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Persona × entity × activity × scope grid — what each persona can do, with shadow-mode preview before applying.', 'talenttrack' ),
-            ],
-            'recycle-bin' => [
-                'title'   => __( 'Recycle bin', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Archive → trash → purge: the retention window, who can permanently delete, and the GDPR right-to-erasure path.', 'talenttrack' ),
-            ],
-            'modules' => [
-                'title'   => __( 'Modules', 'talenttrack' ),
-                'group'   => 'frontend',
-                'summary' => __( 'Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code.', 'talenttrack' ),
-            ],
-            'workflow-engine' => [
-                'title'   => __( 'Workflow & tasks engine', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews.', 'talenttrack' ),
-            ],
-            'workflow-engine-cron-setup' => [
-                'title'   => __( 'Workflow engine — cron setup', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing.', 'talenttrack' ),
-            ],
-            'setup-wizard' => [
-                'title'   => __( 'Setup wizard', 'talenttrack' ),
-                'group'   => 'basics',
-                'summary' => __( 'The first-run guided installer that hands you off into TalentTrack.', 'talenttrack' ),
-            ],
-            'license-and-account' => [
-                'title'   => __( 'License & account', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Tier, trial state, usage caps, upgrade flow.', 'talenttrack' ),
-            ],
-            'backups' => [
-                'title'   => __( 'Backups & disaster recovery', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Scheduled exports, partial restore, the 14-day undo window.', 'talenttrack' ),
-            ],
-            'go-live-runbook' => [
-                'title'   => __( 'Go-live runbook', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Pre-launch checklist for taking an academy install into production.', 'talenttrack' ),
-            ],
-            'methodology' => [
-                'title'   => __( 'Methodology', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Football framework primer, principles, set pieces, positions, voetbalhandelingen.', 'talenttrack' ),
-            ],
-            // #0029 dev tier — English-only by design.
-            'rest-api' => [
-                'title'   => __( 'REST API reference', 'talenttrack' ),
-                'group'   => 'developer',
-                'summary' => __( 'Plugin REST endpoints, payload shapes and capability scopes.', 'talenttrack' ),
-            ],
-            'hooks-and-filters' => [
-                'title'   => __( 'Hooks & filters', 'talenttrack' ),
-                'group'   => 'developer',
-                'summary' => __( 'Every action and filter the plugin exposes for extension.', 'talenttrack' ),
-            ],
-            'architecture' => [
-                'title'   => __( 'Architecture', 'talenttrack' ),
-                'group'   => 'developer',
-                'summary' => __( 'Module pattern, Kernel boot order, capability model, design tokens.', 'talenttrack' ),
-            ],
-            'theme-integration' => [
-                'title'   => __( 'Theme integration', 'talenttrack' ),
-                'group'   => 'developer',
-                'summary' => __( 'How TalentTrack isolates itself from the active WordPress theme in canvas mode.', 'talenttrack' ),
-            ],
-            'development-management' => [
-                'title'   => __( 'Development management', 'talenttrack' ),
-                'group'   => 'development',
-                'summary' => __( 'Submit, refine, and promote ideas straight to GitHub from the dashboard.', 'talenttrack' ),
-            ],
-            'translations' => [
-                'title'   => __( 'Auto-translation', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Opt-in DeepL / Google translation of user-entered free text.', 'talenttrack' ),
-            ],
-            // #0042 — youth-aware contact strategy KB.
-            'install-on-iphone' => [
-                'title'   => __( 'Install on iPhone', 'talenttrack' ),
-                'group'   => 'mobile',
-                'summary' => __( 'Add TalentTrack to your iPhone home screen via Safari and accept push notifications.', 'talenttrack' ),
-            ],
-            'install-on-android' => [
-                'title'   => __( 'Install on Android', 'talenttrack' ),
-                'group'   => 'mobile',
-                'summary' => __( 'Install TalentTrack as a Chrome PWA on Android and accept push notifications.', 'talenttrack' ),
-            ],
-            'notifications-setup' => [
-                'title'   => __( 'Notifications setup', 'talenttrack' ),
-                'group'   => 'mobile',
-                'summary' => __( 'Turn on push notifications, understand what TalentTrack sends, and how phone verification works.', 'talenttrack' ),
-            ],
-            'parent-handles-everything' => [
-                'title'   => __( 'Parent contact (U8 – U10)', 'talenttrack' ),
-                'group'   => 'mobile',
-                'summary' => __( 'For younger players, the parent is the primary contact — invitations, tasks, and pushes flow through you.', 'talenttrack' ),
-            ],
-            // #0069 — register orphan docs that lived on disk but
-            // weren't reachable from the in-product TOC. Dev-only
-            // docs (architecture-mobile-first, contributing,
-            // dev-tier-rest-port-backlog, phone-home, index) stay
-            // unregistered by design.
-            'custom-css' => [
-                'title'   => __( 'Custom CSS', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Visual editor and hand-rolled CSS for academy-specific theming, with sanitisation and history.', 'talenttrack' ),
-            ],
-            'demo-data' => [
-                'title'   => __( 'Demo data', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Fill a club with a plausible academy for exploring or demonstrating TalentTrack, and wipe it again cleanly.', 'talenttrack' ),
-            ],
-            'demo-data-excel' => [
-                'title'   => __( 'Demo data (Excel)', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Generate or import a demo dataset for sales / training. Excel template with auto_key cross-sheet links.', 'talenttrack' ),
-            ],
-            'pdp-planning' => [
-                'title'   => __( 'PDP planning', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / coach surface.', 'talenttrack' ),
-            ],
-            'player-status' => [
-                'title'   => __( 'Player status', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Traffic-light status calculation: weights, thresholds, behaviour floor, behaviour + potential capture.', 'talenttrack' ),
-            ],
-            'spond-integration' => [
-                'title'   => __( 'Spond integration', 'talenttrack' ),
-                'group'   => 'configuration',
-                'summary' => __( 'Read-only Spond → TalentTrack iCal sync per team.', 'talenttrack' ),
-            ],
-            'staff-development' => [
-                'title'   => __( 'Staff development', 'talenttrack' ),
-                'group'   => 'performance',
-                'summary' => __( 'Personal goals + evaluations + certifications + PDP for coaches and staff.', 'talenttrack' ),
-            ],
-        ];
+        if ( self::$memo !== null ) {
+            return self::$memo;
+        }
+
+        $key    = self::cacheKey();
+        $cached = get_transient( $key );
+        if ( is_array( $cached ) ) {
+            self::$memo = $cached;
+            return $cached;
+        }
+
+        $topics = self::scan();
+        set_transient( $key, $topics, self::CACHE_TTL );
+        self::$memo = $topics;
+        return $topics;
     }
 
     /**
-     * Group labels in display order. Keys match the `group` field of
-     * each topic.
+     * Drop the cached scan. Called from tests and by anything that writes
+     * a doc file at runtime; a plugin update busts the cache on its own
+     * through the version-keyed transient name.
+     */
+    public static function flushCache(): void {
+        delete_transient( self::cacheKey() );
+        self::$memo = null;
+    }
+
+    /**
+     * Group labels in display order. Keys match each topic's `group`.
+     *
+     * Hand-ordered on purpose — this decides the order of the sidebar,
+     * which a directory listing cannot express.
      *
      * @return array<string, string>
      */
@@ -343,24 +103,13 @@ class HelpTopics {
     }
 
     /**
-     * Resolve a topic slug to its markdown file path, or null if the
-     * slug is unknown.
-     *
-     * Locale-aware: if a translation exists at docs/<locale>/<slug>.md
-     * it is returned; otherwise falls back to the canonical English
-     * docs/<slug>.md. Locale is read via determine_locale() so an
-     * individual WP user's preferred language wins over the site locale.
+     * Resolve a registered topic slug to the markdown file that should be
+     * rendered for the current viewer, or null when the slug is not a
+     * topic. Locale-aware: `docs/<locale>/<slug>.md` wins over the
+     * canonical English file when it exists.
      */
     public static function filePath( string $slug ): ?string {
-        $topics = self::all();
-        if ( ! isset( $topics[ $slug ] ) ) return null;
-        $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
-        if ( $locale ) {
-            $localized = TT_PATH . 'docs/' . $locale . '/' . $slug . '.md';
-            if ( file_exists( $localized ) ) return $localized;
-        }
-        $path = TT_PATH . 'docs/' . $slug . '.md';
-        return file_exists( $path ) ? $path : null;
+        return isset( self::all()[ $slug ] ) ? self::resolvePath( $slug ) : null;
     }
 
     /**
@@ -368,5 +117,96 @@ class HelpTopics {
      */
     public static function defaultSlug(): string {
         return 'getting-started';
+    }
+
+    /**
+     * Read every `docs/*.md`, keep the ones carrying front matter.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function scan(): array {
+        $files = glob( TT_PATH . 'docs/*.md' );
+        if ( ! is_array( $files ) ) {
+            return [];
+        }
+
+        $topics = [];
+        foreach ( $files as $file ) {
+            $slug = basename( $file, '.md' );
+            if ( ! self::isValidSlug( $slug ) ) {
+                continue;
+            }
+
+            // Metadata comes from the localised file when there is one, so
+            // a translated title reaches the sidebar without a round trip
+            // through the translation catalogue.
+            $data = DocFrontMatter::fromFile( self::resolvePath( $slug ) );
+            if ( $data === [] ) {
+                $data = DocFrontMatter::fromFile( $file );
+            }
+            if ( $data === [] ) {
+                continue;
+            }
+
+            $title = DocFrontMatter::string( $data, 'title' );
+            $group = DocFrontMatter::string( $data, 'group' );
+            if ( $title === '' || $group === '' ) {
+                continue;
+            }
+
+            $order = DocFrontMatter::string( $data, 'order' );
+
+            $topics[ $slug ] = [
+                'title'      => $title,
+                'group'      => $group,
+                'summary'    => DocFrontMatter::string( $data, 'summary' ),
+                'audience'   => DocFrontMatter::list( $data, 'audience' ),
+                'views'      => DocFrontMatter::list( $data, 'views' ),
+                'module'     => DocFrontMatter::string( $data, 'module' ),
+                'feature'    => DocFrontMatter::string( $data, 'feature' ),
+                'tier'       => DocFrontMatter::string( $data, 'tier' ),
+                'capability' => DocFrontMatter::string( $data, 'capability' ),
+                'order'      => is_numeric( $order ) ? (int) $order : self::DEFAULT_ORDER,
+            ];
+        }
+
+        uasort( $topics, static function ( array $a, array $b ): int {
+            return $a['order'] <=> $b['order'] ?: strcasecmp( $a['title'], $b['title'] );
+        } );
+
+        return $topics;
+    }
+
+    /**
+     * Locale-aware path for a slug, without consulting the registry — the
+     * scan itself needs this, and going through `filePath()` would recurse.
+     * Returns null when neither the localised nor the canonical file exists.
+     */
+    private static function resolvePath( string $slug ): ?string {
+        if ( ! self::isValidSlug( $slug ) ) {
+            return null;
+        }
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+        if ( $locale ) {
+            $localized = TT_PATH . 'docs/' . $locale . '/' . $slug . '.md';
+            if ( file_exists( $localized ) ) {
+                return $localized;
+            }
+        }
+        $path = TT_PATH . 'docs/' . $slug . '.md';
+        return file_exists( $path ) ? $path : null;
+    }
+
+    /**
+     * Slugs are file names. Constrain them so no caller can traverse out
+     * of the docs directory with one.
+     */
+    private static function isValidSlug( string $slug ): bool {
+        return (bool) preg_match( '/^[a-z0-9][a-z0-9-]*$/', $slug );
+    }
+
+    private static function cacheKey(): string {
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+        return 'tt_help_topics_' . md5( (string) $locale . '|' . TT_VERSION );
     }
 }

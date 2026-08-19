@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spond integration
+group: configuration
+summary: Read-only Spond → TalentTrack iCal sync per team.
+audience: [user]
+order: 170
+---
 
 # Spond calendar integration
 

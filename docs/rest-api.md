@@ -1,4 +1,10 @@
-<!-- audience: dev -->
+---
+title: REST API reference
+group: developer
+summary: Plugin REST endpoints, payload shapes and capability scopes.
+audience: [dev]
+order: 10
+---
 
 # REST API reference
 

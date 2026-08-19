@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Authorization matrix
+group: frontend
+summary: Persona × entity × activity × scope grid — what each persona can do, with shadow-mode preview before applying.
+audience: [admin]
+order: 60
+---
 
 # Authorization matrix (admin guide)
 

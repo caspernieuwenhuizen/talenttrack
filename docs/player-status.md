@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Player status
+group: performance
+summary: 'Traffic-light status calculation: weights, thresholds, behaviour floor, behaviour + potential capture.'
+audience: [user]
+order: 110
+---
 
 # Player status — traffic light
 

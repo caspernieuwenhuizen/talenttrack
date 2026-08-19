@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Wizards voor record-aanmaak
+group: configuration
+summary: Stapsgewijze formulieren die het oude formulier vervangen voor nieuwe spelers, teams, evaluaties en doelen.
+audience: [user]
+order: 10
+---
 
 # Wizards voor het aanmaken van records
 

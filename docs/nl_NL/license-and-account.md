@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Licentie & account
+group: configuration
+summary: Tier, trial-status, gebruikslimieten, upgrade-flow.
+audience: [admin]
+order: 100
+---
 
 # Licentie en account
 

@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spelervergelijking
+group: analytics
+summary: Vergelijk tot 4 spelers naast elkaar, team-overstijgend.
+audience: [user]
+order: 50
+---
 
 # Spelers vergelijken
 

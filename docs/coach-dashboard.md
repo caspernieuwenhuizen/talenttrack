@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Coach dashboard (frontend)
+group: frontend
+summary: What coaches see in the frontend tile grid.
+audience: [user]
+order: 20
+---
 
 # Coach dashboard
 

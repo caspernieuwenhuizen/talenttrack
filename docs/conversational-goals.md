@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Goals as a conversation
+group: frontend
+summary: Chat-style threads on every player goal — coach, player, parent dialogue with notifications, edit window, soft-delete, and audit log.
+audience: [user, admin]
+order: 40
+---
 
 # Goals as a conversation
 

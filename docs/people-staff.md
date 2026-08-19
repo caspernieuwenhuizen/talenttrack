@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: People (staff)
+group: basics
+summary: Coaches, physios, and other staff — add them as people and link to teams.
+audience: [admin]
+order: 30
+---
 
 # People (staff)
 

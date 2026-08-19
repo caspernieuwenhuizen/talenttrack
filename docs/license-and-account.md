@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: License & account
+group: configuration
+summary: Tier, trial state, usage caps, upgrade flow.
+audience: [admin]
+order: 100
+---
 
 # License and account
 

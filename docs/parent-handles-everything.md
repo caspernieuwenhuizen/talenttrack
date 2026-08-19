@@ -1,4 +1,10 @@
-<!-- audience: parent -->
+---
+title: Parent contact (U8 – U10)
+group: mobile
+summary: For younger players, the parent is the primary contact — invitations, tasks, and pushes flow through you.
+audience: [parent]
+order: 40
+---
 
 # Parent guide for younger players (U8 – U10)
 

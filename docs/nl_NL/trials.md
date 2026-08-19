@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Stagedossiers
+group: performance
+summary: 'Voer een gestructureerde proefperiode uit: tracksjablonen, staf-input, besluit en de brief die naar ouders gaat.'
+audience: [user]
+order: 130
+---
 
 # Stagedossiers
 

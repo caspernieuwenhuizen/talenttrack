@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Bulk actions (archive & delete)
+group: configuration
+summary: Selecting many rows at once. Archive vs. permanent delete.
+audience: [user, admin]
+order: 40
+---
 
 # Bulk actions
 

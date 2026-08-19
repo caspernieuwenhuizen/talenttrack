@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Cohortbeslissingsbord
+group: analytics
+summary: 'Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, trend, aanwezigheid, POP-gesprekken en eindoordeel per speler.'
+audience: [admin]
+order: 30
+---
 
 # Cohortbeslissingsbord
 

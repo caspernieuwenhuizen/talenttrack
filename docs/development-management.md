@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Development management
+group: development
+summary: Submit, refine, and promote ideas straight to GitHub from the dashboard.
+audience: [admin, dev]
+order: 10
+---
 
 # Development management
 

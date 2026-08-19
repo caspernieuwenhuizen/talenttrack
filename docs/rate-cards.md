@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Player rate cards
+group: analytics
+summary: Deep per-player dashboards with trends and charts.
+audience: [user, admin]
+order: 40
+---
 
 # Player rate cards
 

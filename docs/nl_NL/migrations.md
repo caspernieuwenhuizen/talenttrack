@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Migraties & updates
+group: configuration
+summary: Wat er gebeurt wanneer je de plugin bijwerkt en hoe je migraties handmatig uitvoert.
+audience: [admin, dev]
+order: 60
+---
 
 # Migraties & updates
 

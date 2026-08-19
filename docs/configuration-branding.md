@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration & branding
+group: configuration
+summary: Academy name, logo, rating scale, color palette, lookup tables.
+audience: [admin]
+order: 20
+---
 
 # Configuration & branding
 

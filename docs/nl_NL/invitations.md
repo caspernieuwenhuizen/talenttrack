@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Uitnodigingen
+group: configuration
+summary: Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — wachtwoorden worden bij de eerste opvolging ingesteld.
+audience: [admin]
+order: 70
+---
 
 # Uitnodigingen
 

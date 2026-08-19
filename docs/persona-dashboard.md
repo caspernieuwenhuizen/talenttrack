@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Persona dashboards
+group: frontend
+summary: Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.
+audience: [user, admin]
+order: 30
+---
 
 # Persona dashboards
 

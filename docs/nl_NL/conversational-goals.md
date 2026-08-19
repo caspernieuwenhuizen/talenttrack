@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Doelen als gesprek
+group: frontend
+summary: Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, speler en ouder met meldingen, bewerkvenster, soft-delete en audit-log.
+audience: [user, admin]
+order: 40
+---
 
 # Doelen als gesprek
 

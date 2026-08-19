@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Gebruiksstatistieken
+group: analytics
+summary: Logins, actieve gebruikers, DAU en evaluatietrends.
+audience: [admin]
+order: 60
+---
 
 # Gebruiksstatistieken
 

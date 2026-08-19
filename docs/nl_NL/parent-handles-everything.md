@@ -1,4 +1,10 @@
-<!-- audience: parent -->
+---
+title: Oudercontact (O8 – O10)
+group: mobile
+summary: Voor jongere spelers is de ouder het primaire contact — uitnodigingen, taken en pushes lopen via jou.
+audience: [parent]
+order: 40
+---
 
 # Oudergids voor jongere spelers (U8 – U10)
 

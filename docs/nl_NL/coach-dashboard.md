@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Coachdashboard (frontend)
+group: frontend
+summary: Wat coaches zien in het tegelraster van de frontend.
+audience: [user]
+order: 20
+---
 
 # Coach-dashboard
 

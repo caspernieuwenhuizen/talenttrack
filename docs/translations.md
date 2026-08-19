@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Auto-translation
+group: configuration
+summary: Opt-in DeepL / Google translation of user-entered free text.
+audience: [admin]
+order: 130
+---
 
 # Auto-translation
 

@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Vakanties
+group: performance
+summary: Academiebrede vakantieperiodes die als banner op elke teamplanner worden getoond.
+audience: [user]
+order: 40
+---
 
 # Vakanties
 

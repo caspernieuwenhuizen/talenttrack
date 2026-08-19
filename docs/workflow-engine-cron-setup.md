@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Workflow engine — cron setup
+group: configuration
+summary: How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing.
+audience: [admin, dev]
+order: 90
+---
 
 # Workflow engine — cron setup
 

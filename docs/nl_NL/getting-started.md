@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Aan de slag
+group: basics
+summary: Welkom bij TalentTrack. De basis om van start te gaan.
+audience: [user, admin]
+order: 10
+---
 
 # Aan de slag
 

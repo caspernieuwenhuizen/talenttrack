@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Player journey
+group: performance
+summary: A chronological view of every player's academy story — milestones, evaluations, injuries, transitions.
+audience: [user]
+order: 80
+---
 
 # Player journey
 

@@ -38,9 +38,11 @@ class DocumentationPage {
         // Sidebar topics outside the allowed set don't render at all.
         $viewer_audiences = AudienceResolver::allowedFor( get_current_user_id() );
 
+        // Audience comes from the same front-matter scan that produced the
+        // topic list, so building the sidebar no longer re-reads every file.
         $topic_audiences  = [];
-        foreach ( $topics as $s => $_t ) {
-            $topic_audiences[ $s ] = AudienceResolver::readFromFile( HelpTopics::filePath( $s ) );
+        foreach ( $topics as $s => $t ) {
+            $topic_audiences[ $s ] = $t['audience'] ?? [];
         }
         $audience_labels = AudienceResolver::labels();
         $can_see_audience_badges = in_array( AudienceResolver::ADMIN, $viewer_audiences, true );

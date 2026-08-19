@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Evaluation coverage
+group: analytics
+summary: Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance.
+audience: [admin]
+order: 20
+---
 
 # Evaluation coverage
 

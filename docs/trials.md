@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Trial cases
+group: performance
+summary: 'Run a structured trial period: track templates, staff input, decision and the letter that goes to parents.'
+audience: [user]
+order: 130
+---
 
 # Trial cases
 

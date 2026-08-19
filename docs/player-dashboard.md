@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Player dashboard (frontend)
+group: frontend
+summary: What players see when they log into the frontend shortcode.
+audience: [user]
+order: 10
+---
 
 # Player dashboard
 

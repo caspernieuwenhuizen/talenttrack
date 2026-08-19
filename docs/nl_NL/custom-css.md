@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Aangepaste CSS
+group: configuration
+summary: Visuele editor en handgeschreven CSS voor academie-specifieke thematisering, met sanitization en geschiedenis.
+audience: [admin]
+order: 140
+---
 
 # Aangepaste CSS
 

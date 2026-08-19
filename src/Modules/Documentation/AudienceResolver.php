@@ -59,6 +59,15 @@ final class AudienceResolver {
      */
     public static function readFromFile( ?string $path ): array {
         if ( $path === null || ! is_string( $path ) || $path === '' || ! file_exists( $path ) ) return [];
+
+        // Front matter is the source of truth. The legacy comment marker
+        // is still honoured so a file that has not been migrated yet keeps
+        // its audience rather than silently disappearing from the index.
+        $declared = DocFrontMatter::list( DocFrontMatter::fromFile( $path ), 'audience' );
+        if ( $declared !== [] ) {
+            return self::clean( $declared );
+        }
+
         $head = (string) @file_get_contents( $path, false, null, 0, 512 );
         if ( $head === '' ) return [];
         return self::parse( $head );
@@ -69,10 +78,21 @@ final class AudienceResolver {
      */
     public static function parse( string $head ): array {
         if ( ! preg_match( '/<!--\s*audience\s*:\s*([^>]+?)\s*-->/i', $head, $m ) ) return [];
-        $raw   = (string) $m[1];
-        $parts = array_map( 'trim', explode( ',', strtolower( $raw ) ) );
+        return self::clean( explode( ',', (string) $m[1] ) );
+    }
+
+    /**
+     * Keep the recognised audience values, lower-cased and deduped.
+     * Anything unknown is dropped rather than failing — the docs lint is
+     * where a typo should surface, not a fatal in the sidebar.
+     *
+     * @param list<string> $parts
+     * @return list<string>
+     */
+    private static function clean( array $parts ): array {
         $clean = [];
         foreach ( $parts as $p ) {
+            $p = strtolower( trim( (string) $p ) );
             if ( in_array( $p, self::VALID, true ) && ! in_array( $p, $clean, true ) ) {
                 $clean[] = $p;
             }

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Modules
+group: frontend
+summary: Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code.
+audience: [admin]
+order: 80
+---
 
 # Modules (admin guide)
 

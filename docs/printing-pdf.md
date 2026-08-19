@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Printing & PDF export
+group: configuration
+summary: Clean printable reports and browser-native PDF export.
+audience: [user]
+order: 50
+---
 
 # Printing and PDFs
 

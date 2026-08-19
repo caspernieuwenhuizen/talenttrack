@@ -1,4 +1,10 @@
-<!-- audience: dev -->
+---
+title: Theme integration
+group: developer
+summary: How TalentTrack isolates itself from the active WordPress theme in canvas mode.
+audience: [dev]
+order: 40
+---
 
 # Theme integration
 

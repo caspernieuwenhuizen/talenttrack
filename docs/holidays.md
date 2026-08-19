@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Holidays
+group: performance
+summary: Academy-wide holiday periods shown as banners on every team planner.
+audience: [user]
+order: 40
+---
 
 # Holidays
 

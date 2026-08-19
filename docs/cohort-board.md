@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Cohort decision board
+group: analytics
+summary: 'One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player.'
+audience: [admin]
+order: 30
+---
 
 # Cohort decision board
 

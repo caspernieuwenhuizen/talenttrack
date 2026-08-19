@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Speler-ratingkaarten
+group: analytics
+summary: Uitgebreide spelerdashboards met trends en grafieken.
+audience: [user, admin]
+order: 40
+---
 
 # Speler rate cards
 

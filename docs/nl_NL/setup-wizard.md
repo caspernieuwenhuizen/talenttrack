@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Installatiewizard
+group: basics
+summary: De begeleide eerste-installatie die je TalentTrack inleidt.
+audience: [admin]
+order: 40
+---
 
 # Installatiewizard
 

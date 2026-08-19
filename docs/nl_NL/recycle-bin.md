@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Prullenbak
+group: frontend
+summary: 'Archiveren → prullenbak → opschonen: de bewaartermijn, wie definitief mag verwijderen en het AVG-pad voor het recht op vergetelheid.'
+audience: [admin]
+order: 70
+---
 
 # Prullenbak — bewaartermijn, definitief verwijderen en AVG
 

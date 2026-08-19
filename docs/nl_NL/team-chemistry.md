@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Teamchemie
+group: performance
+summary: Formatiebord met automatisch voorgestelde basiself, dieptestaat, koppel­overrides en traceerbare fit-scores.
+audience: [user]
+order: 70
+---
 
 # Teamchemie
 

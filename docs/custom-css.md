@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Custom CSS
+group: configuration
+summary: Visual editor and hand-rolled CSS for academy-specific theming, with sanitisation and history.
+audience: [admin]
+order: 140
+---
 
 # Custom CSS
 

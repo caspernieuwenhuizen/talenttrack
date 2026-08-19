@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Recycle bin
+group: frontend
+summary: 'Archive → trash → purge: the retention window, who can permanently delete, and the GDPR right-to-erasure path.'
+audience: [admin]
+order: 70
+---
 
 # Recycle bin — retention, permanent deletion, and GDPR
 

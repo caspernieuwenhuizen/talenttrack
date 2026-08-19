@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spelerdashboard (frontend)
+group: frontend
+summary: Wat spelers zien wanneer ze inloggen op de frontend-shortcode.
+audience: [user]
+order: 10
+---
 
 # Speler-dashboard
 

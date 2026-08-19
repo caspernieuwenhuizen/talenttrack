@@ -1,4 +1,10 @@
-<!-- audience: player, parent -->
+---
+title: Install on iPhone
+group: mobile
+summary: Add TalentTrack to your iPhone home screen via Safari and accept push notifications.
+audience: [player, parent]
+order: 10
+---
 
 # Install TalentTrack on your iPhone
 

@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Evaluaties
+group: performance
+summary: Leg spelerbeoordelingen vast met scores, notities en categorieën.
+audience: [user]
+order: 10
+---
 
 # Evaluaties
 

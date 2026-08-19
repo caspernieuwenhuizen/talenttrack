@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spond-integratie
+group: configuration
+summary: Alleen-lezen Spond → TalentTrack iCal-sync per team.
+audience: [user]
+order: 170
+---
 
 # Spond-agenda-integratie
 

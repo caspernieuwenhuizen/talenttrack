@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Custom fields
+group: configuration
+summary: Add club-specific fields to players, teams, and evaluations.
+audience: [admin]
+order: 30
+---
 
 # Custom fields
 

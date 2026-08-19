@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Bulkacties (archiveren & verwijderen)
+group: configuration
+summary: Meerdere rijen tegelijk selecteren. Archiveren versus definitief verwijderen.
+audience: [user, admin]
+order: 40
+---
 
 # Bulkacties
 

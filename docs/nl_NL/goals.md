@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Doelen
+group: performance
+summary: Ontwikkelingsdoelen per speler met status en prioriteit.
+audience: [user]
+order: 50
+---
 
 # Doelen
 

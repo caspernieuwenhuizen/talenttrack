@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Demogegevens (Excel)
+group: configuration
+summary: Genereer of importeer een demo-dataset voor sales / training. Excel-sjabloon met auto_key-cross-sheet-links.
+audience: [user]
+order: 160
+---
 
 # Demodata — Excel-werkboek
 

@@ -1,4 +1,10 @@
-<!-- audience: dev -->
+---
+title: Architecture
+group: developer
+summary: Module pattern, Kernel boot order, capability model, design tokens.
+audience: [dev]
+order: 30
+---
 
 # Architecture
 

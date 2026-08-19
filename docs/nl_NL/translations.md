@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Auto-vertaling
+group: configuration
+summary: Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst.
+audience: [admin]
+order: 130
+---
 
 # Auto-vertaling
 
