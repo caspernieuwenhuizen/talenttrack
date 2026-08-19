@@ -110,6 +110,12 @@ table.tt-agrid {
 /* activity column header: date + type glyph + per-column quick-fill */
 .tt-agrid__act { min-width: 58px; }
 .tt-agrid__act.is-match { background: #0d3325; }
+/* #2521 — a past-dated column that is still planned. Recording attendance
+   here marks the activity completed on Save (the coach is asked first), so
+   the column carries a standing marker rather than the change arriving as a
+   surprise. Colour alone never carries the meaning: the confirmation names
+   every affected activity in words. */
+.tt-agrid__act.is-incomplete { box-shadow: inset 0 -3px 0 var(--tt-warning, #e8902b); }
 .tt-agrid__act-date { display: block; font-weight: 800; font-size: 12px; }
 .tt-agrid__act-type { display: block; font-size: 15px; line-height: 1; margin: 2px 0; }
 .tt-agrid__fill {

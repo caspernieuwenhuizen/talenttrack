@@ -1276,6 +1276,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'methodology',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_staff_development',
+            // #2506 — only applied when the same label also appears in this
+            // group, i.e. for a user holding both the staff and player sets.
+            'label_qualifier' => __( 'staff', 'talenttrack' ),
         ]);
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
@@ -1289,6 +1292,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'goals',
             'color'        => '#1d7874',
             'cap'          => 'tt_view_staff_development',
+            // #2506 — only applied when the same label also appears in this
+            // group, i.e. for a user holding both the staff and player sets.
+            'label_qualifier' => __( 'staff', 'talenttrack' ),
         ]);
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
@@ -1302,6 +1308,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'evaluations',
             'color'        => '#7c3a9e',
             'cap'          => 'tt_view_staff_development',
+            // #2506 — only applied when the same label also appears in this
+            // group, i.e. for a user holding both the staff and player sets.
+            'label_qualifier' => __( 'staff', 'talenttrack' ),
         ]);
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
@@ -1315,6 +1324,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'rate-card',
             'color'        => '#c9962a',
             'cap'          => 'tt_view_staff_development',
+            // #2506 — only applied when the same label also appears in this
+            // group, i.e. for a user holding both the staff and player sets.
+            'label_qualifier' => __( 'staff', 'talenttrack' ),
         ]);
         // #1540 — "Staff overview" is the academy-wide HoD lens (open
         // goals, overdue reviews, expiring certs), not a personal tile.

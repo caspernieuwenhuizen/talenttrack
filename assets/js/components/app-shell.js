@@ -8,6 +8,9 @@
  *      it is open, close on Escape, scrim click, or following a link.
  *   2. Rail    (>=1024px) — collapse the sidebar to icons, remembered per
  *      user in localStorage.
+ *   3. Header height (#2504) — publish the sticky header's real height as
+ *      a CSS variable so the sticky sidebar starts below it. The stylesheet
+ *      carries a sensible default, so this only refines it.
  *
  * With JS disabled the nav is still in the DOM and every entry is a real
  * link; only the drawer toggle is inert, which is why the tile hub stays
@@ -115,8 +118,130 @@
 
 	/* ---- Rail ------------------------------------------------------ */
 
+	/* ---- Group slide (#2504) --------------------------------------- */
+	/*
+	 * <details> snaps open; this animates the height instead. The element
+	 * stays the source of truth — we only intercept the click long enough
+	 * to run the transition, and every path ends with `open` correct and
+	 * the inline height cleared, so a group can never be left clipped.
+	 *
+	 * With JS off, or under prefers-reduced-motion, the native instant
+	 * toggle is what happens. The animation is decoration, not mechanism.
+	 */
+	var reduceMotion = window.matchMedia
+		&& window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	function slideGroup(details, panel, opening) {
+		var end = opening ? panel.scrollHeight : 0;
+
+		if (opening) details.open = true;   // must be open to measure/paint
+
+		panel.style.height = (opening ? 0 : panel.scrollHeight) + 'px';
+		panel.classList.add('is-animating');
+
+		// Force a reflow so the start height is committed before we change it.
+		void panel.offsetHeight;
+		panel.style.height = end + 'px';
+
+		var done = function () {
+			panel.removeEventListener('transitionend', done);
+			panel.classList.remove('is-animating');
+			panel.style.height = '';
+			if (!opening) details.open = false;
+		};
+		panel.addEventListener('transitionend', done);
+		// Belt and braces: if the transition never fires (display:none in a
+		// closed rail, a zero-height group), settle anyway.
+		window.setTimeout(done, 260);
+	}
+
+	var userToggledGroups = false;
+
+	nav.addEventListener('click', function (e) {
+		var summary = e.target.closest && e.target.closest('.tt-shell-nav__group');
+		if (!summary) return;
+
+		var details = summary.parentElement;
+		var panel = details && details.querySelector('.tt-shell-nav__panel');
+		if (!details || !panel) return;
+
+		// Once you have folded something yourself, auto-fit stops second-
+		// guessing you for the rest of the visit.
+		userToggledGroups = true;
+
+		if (reduceMotion) return;            // let the native toggle happen
+		if (shell.classList.contains('is-rail')) return;  // rail keeps all open
+
+		e.preventDefault();                  // we drive `open` ourselves
+		slideGroup(details, panel, !details.open);
+	});
+
+	/* ---- Only collapse when there is actually no room --------------- */
+	/*
+	 * Collapsing is a response to overflow, not a house style: if every
+	 * destination fits in the rail, nothing should be folded and the
+	 * sidebar reads exactly like the design.
+	 *
+	 * The server renders only the active group open, which is the safe
+	 * starting point — on a full academy the list overflows, so that render
+	 * is already correct and nothing moves. This opens the rest back up
+	 * when they do fit. Measuring is one synchronous pass, so the browser
+	 * paints the settled state rather than flashing through it.
+	 */
+	function fitGroups() {
+		if (userToggledGroups) return;
+		if (shell.classList.contains('is-rail')) return;
+
+		var scroll = nav.querySelector('.tt-shell-nav__scroll');
+		var groups = nav.querySelectorAll('.tt-shell-nav__group-wrap');
+		if (!scroll || !groups.length) return;
+
+		var was = [];
+		Array.prototype.forEach.call(groups, function (d) { was.push(d.open); d.open = true; });
+
+		// scrollHeight > clientHeight means the fully-open list overflows.
+		if (scroll.scrollHeight > scroll.clientHeight) {
+			Array.prototype.forEach.call(groups, function (d, i) { d.open = was[i]; });
+		}
+	}
+
+	fitGroups();
+
+	var fitTimer = null;
+	window.addEventListener('resize', function () {
+		window.clearTimeout(fitTimer);
+		fitTimer = window.setTimeout(fitGroups, 150);
+	});
+
+	/*
+	 * #2504 — group collapse vs the icon rail.
+	 *
+	 * Groups are <details>, and a closed one hides its links. In the
+	 * collapsed rail the headings are gone, so a closed group would hide its
+	 * icons with no control left to reopen it — the entries would simply be
+	 * missing. A closed <details> cannot be reliably forced visible from CSS
+	 * (engines hide the content slot in ways author styles don't override),
+	 * so the rail opens them all and restores the previous state on the way
+	 * out.
+	 */
+	function setGroupsForRail(on) {
+		var groups = nav.querySelectorAll('.tt-shell-nav__group-wrap');
+		Array.prototype.forEach.call(groups, function (d) {
+			if (on) {
+				if (!d.hasAttribute('data-tt-was-open')) {
+					d.setAttribute('data-tt-was-open', d.open ? '1' : '0');
+				}
+				d.open = true;
+			} else if (d.hasAttribute('data-tt-was-open')) {
+				d.open = d.getAttribute('data-tt-was-open') === '1';
+				d.removeAttribute('data-tt-was-open');
+			}
+		});
+	}
+
 	function applyRail(on) {
 		shell.classList.toggle('is-rail', on);
+		setGroupsForRail(on);
 		if (collapser) {
 			collapser.setAttribute('aria-expanded', on ? 'false' : 'true');
 			var label = on
@@ -138,5 +263,31 @@
 			applyRail(next);
 			try { window.localStorage.setItem(RAIL_KEY, next ? '1' : '0'); } catch (err) { /* private mode */ }
 		});
+	}
+
+	/* ---- Header height (#2504) ------------------------------------- */
+	/*
+	 * The sidebar pins below the sticky header, so it needs the header's
+	 * height. CSS cannot measure it, and the default in the stylesheet is
+	 * only right for the common case — a long academy name wraps the brand
+	 * row, and browser zoom or a larger base font changes it too. Publish
+	 * the measured value; if this never runs, the CSS default still holds.
+	 */
+	var root = document.querySelector('.tt-dashboard.tt-shell-app');
+	var header = document.querySelector('.tt-dash-header');
+
+	if (root && header) {
+		var syncHeaderHeight = function () {
+			var h = Math.round(header.getBoundingClientRect().height);
+			if (h > 0) root.style.setProperty('--tt-shell-header-h', h + 'px');
+		};
+
+		syncHeaderHeight();
+
+		if (typeof ResizeObserver !== 'undefined') {
+			new ResizeObserver(syncHeaderHeight).observe(header);
+		} else {
+			window.addEventListener('resize', syncHeaderHeight);
+		}
 	}
 })();

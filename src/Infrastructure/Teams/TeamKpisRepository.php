@@ -53,6 +53,8 @@ class TeamKpisRepository {
         global $wpdb;
         $p    = $wpdb->prefix;
         $days = max( 1, $days );
+        // #2521 — count only sessions the coach marked completed.
+        $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
         $row  = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
@@ -63,7 +65,7 @@ class TeamKpisRepository {
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
+                AND {$completed}
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
             $team_id, $days
         ) );

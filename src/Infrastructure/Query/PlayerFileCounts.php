@@ -35,18 +35,22 @@ final class PlayerFileCounts {
         // v3.110.3 — restrict to completed activities. Mirrors the
         // tab's render query (FrontendPlayerDetailView::renderActivitiesTab)
         // so the badge and the tab list always agree on scope.
-        // Counts only rows where the activity is `plan_state =
-        // completed`; in-flight activities still have attendance rows
-        // (form pre-fills roster players to Present), but those aren't
-        // real attendance and shouldn't drive the badge count.
+        //
+        // #2521 — "completed" is the coach-set `activity_status_key`, not
+        // `plan_state` (which defaults to 'completed' on every row the
+        // planner did not create, so a still-planned session counted).
+        // #2522 — `record_type = 'actual'`: a player who is on the plan
+        // AND has a recorded row was counted twice.
+        $completed  = ActivityLifecycle::completedClause( 'a' );
         $activities = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
+                AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'",
+                AND {$completed}",
             $player_id
         ) );
         $pdp = (int) $wpdb->get_var( $wpdb->prepare(

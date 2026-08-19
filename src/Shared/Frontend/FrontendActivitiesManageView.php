@@ -758,7 +758,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $is_match,
                 (string) ( $session->start_time ?? '' ),
                 (string) ( $session->end_time ?? '' ),
-                $explicit_len
+                $explicit_len,
+                // #2523 — the present cell only shows once the activity is
+                // completed; the repository owns that decision (§4).
+                $status_key
             );
 
         $cells = [];

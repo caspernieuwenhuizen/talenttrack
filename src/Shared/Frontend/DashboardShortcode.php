@@ -1703,7 +1703,12 @@ class DashboardShortcode {
             echo '<a href="' . esc_url( self::shortcodeBaseUrl() ) . '" '
                 . 'class="tt-spotlight-trigger" data-tt-spotlight-open '
                 . 'aria-label="' . esc_attr__( 'Search players, teams, activities…', 'talenttrack' ) . '">'
-                . '<span aria-hidden="true">' . esc_html__( 'Search', 'talenttrack' ) . '</span>'
+                // #2504 — read as a search field: show the same prompt the
+                // palette's own input uses rather than the word "Search", so
+                // the header says what you can look for. Reuses the existing
+                // msgid, so no new string to translate.
+                . '<span class="tt-spotlight-trigger__text" aria-hidden="true">'
+                . esc_html__( 'Search players, teams, activities…', 'talenttrack' ) . '</span>'
                 . '<span class="tt-spotlight-trigger__hint" aria-hidden="true">⌘K</span>'
                 . '</a>';
         }

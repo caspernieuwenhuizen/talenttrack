@@ -480,6 +480,18 @@ dialog.tt-modal::backdrop {
     color: #475569;
     line-height: 1.45;
 }
+/* #2521 — a modal that lists the records an action is about to change
+   (the attendance grid names every activity it will mark completed).
+   Scrolls rather than growing past the viewport on a long batch. */
+.tt-modal-list {
+    margin: 0 0 20px;
+    padding: 0 0 0 20px;
+    max-height: 40vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    color: #475569;
+    line-height: 1.6;
+}
 /* #2411 — opt-in checkbox inside the archive confirm dialog (e.g. "also
    archive this team's 24 activities"). Hidden unless the action declares
    one, so every other archive dialog is unchanged. */

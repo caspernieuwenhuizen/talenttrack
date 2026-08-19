@@ -33,7 +33,20 @@ use WP_REST_Response;
 final class SearchRestController extends BaseController {
 
     /** Maximum rows returned across all types, after filtering. */
-    private const LIMIT = 8;
+    private const LIMIT = 10;
+
+    /**
+     * How many section results may take slots while records are also
+     * matching (#2508).
+     *
+     * Sections were merged before records and the combined list truncated to
+     * LIMIT, so any query matching LIMIT-or-more sections discarded every
+     * record. With ~59 registered tiles that is most two-letter fragments:
+     * typing `er` matched 19 players and showed none of them. Capping
+     * sections guarantees records a share; leftover section slots are
+     * handed back when there are too few records to use them.
+     */
+    private const VIEW_QUOTA = 3;
 
     /** Minimum query length. Below this the palette shows views only. */
     private const MIN_CHARS = 2;
@@ -67,27 +80,58 @@ final class SearchRestController extends BaseController {
         $types = $types !== '' ? array_map( 'sanitize_key', explode( ',', $types ) ) : [ 'view', 'player', 'team', 'activity' ];
 
         $user_id = get_current_user_id();
-        $results = [];
 
         // Views come from TileRegistry, so they are already capability- and
         // persona-filtered and honour the __hidden__ marker. Free.
-        if ( in_array( 'view', $types, true ) ) {
-            $results = array_merge( $results, self::views( $user_id, $q ) );
-        }
+        $views = in_array( 'view', $types, true ) ? self::views( $user_id, $q ) : [];
 
+        $records = [];
         if ( mb_strlen( $q ) >= self::MIN_CHARS ) {
             if ( in_array( 'player', $types, true ) ) {
-                $results = array_merge( $results, self::players( $user_id, $q ) );
+                $records = array_merge( $records, self::players( $user_id, $q ) );
             }
             if ( in_array( 'team', $types, true ) ) {
-                $results = array_merge( $results, self::teams( $q ) );
+                $records = array_merge( $records, self::teams( $q ) );
             }
             if ( in_array( 'activity', $types, true ) ) {
-                $results = array_merge( $results, self::activities( $q ) );
+                $records = array_merge( $records, self::activities( $q ) );
             }
         }
 
-        return new WP_REST_Response( [ 'results' => array_slice( $results, 0, self::LIMIT ) ], 200 );
+        return new WP_REST_Response( [ 'results' => self::merge( $views, $records ) ], 200 );
+    }
+
+    /**
+     * Combine sections and records into one capped list (#2508).
+     *
+     * Sections stay first — for a short query they are usually what the user
+     * means — but they are capped at VIEW_QUOTA whenever records also match,
+     * so a name search can never be crowded out. Whichever side under-uses
+     * its share hands the remainder to the other, so the list is still full
+     * when only one kind matched.
+     *
+     * @param list<array<string,mixed>> $views
+     * @param list<array<string,mixed>> $records
+     * @return list<array<string,mixed>>
+     */
+    private static function merge( array $views, array $records ): array {
+        if ( $records === [] ) {
+            return array_slice( $views, 0, self::LIMIT );
+        }
+        if ( $views === [] ) {
+            return array_slice( $records, 0, self::LIMIT );
+        }
+
+        // Sections take their quota; records take the rest. If records are
+        // too few to fill it, the leftover goes back to sections.
+        $view_take   = min( count( $views ), self::VIEW_QUOTA );
+        $record_take = min( count( $records ), self::LIMIT - $view_take );
+        $view_take   = min( count( $views ), self::LIMIT - $record_take );
+
+        return array_merge(
+            array_slice( $views, 0, $view_take ),
+            array_slice( $records, 0, $record_take )
+        );
     }
 
     /** @return list<array<string,mixed>> */

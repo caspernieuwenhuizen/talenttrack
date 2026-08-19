@@ -25,6 +25,12 @@ indefinitely.
 Those are one navigation in different clothes, not four different menus — same
 entries, same order, same permissions.
 
+The app shell uses the **full width of the window**, with the sidebar against
+the left edge — it is a workspace, not a centred document. The header stays put
+while you scroll, so search, notifications and your account stay reachable from
+anywhere on a long page. Classic keeps the centred, width-capped reading layout
+it has always had.
+
 ### The bottom bar on phones
 
 Four destinations plus **More**, which opens the full tile overview. It sits in

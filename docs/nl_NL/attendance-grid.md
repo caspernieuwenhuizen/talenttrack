@@ -54,11 +54,27 @@ activiteit volgen mee:
   wizard aan staat — hernoemd, zodat hij niet meer belooft dan hij doet.
 - **Aanwezigheid registreren** op je dashboard opent het raster voor de activiteit
   die erbij staat.
-- **Markeren als afgerond** verschijnt bij een geplande activiteit. Aanwezigheid
-  invoeren in het raster rondt de activiteit namelijk niet vanzelf af — één keer
-  opslaan kan weken aan trainingen omvatten — dus afronden blijft een bewuste
-  klik. Vul eerst de aanwezigheid in en markeer de activiteit daarna als
-  afgerond. Je kunt hem later altijd heropenen.
+- **Markeren als afgerond** verschijnt bij een geplande activiteit, maar voor
+  sessies die al geweest zijn heb je die knop zelden nodig. Opslaan in het
+  raster **markeert elke geplande activiteit uit het verleden waarin je iets
+  invulde als voltooid**. Vastleggen wie er was, is de uitspraak dat de sessie
+  heeft plaatsgevonden, en de aanwezigheidsrapporten tellen alleen voltooide
+  activiteiten — een invoer die de activiteit op *Gepland* laat staan, zou de
+  cijfers dus nooit bereiken.
+
+  **Je krijgt het altijd eerst te zien.** Een kolom van een sessie uit het
+  verleden die nog gepland staat, heeft een oranje streep in de kop, en bij
+  **Opslaan** opent een venster dat elke activiteit noemt waarvan de status
+  verandert, uitlegt waarom en wacht op je keuze: **Opslaan en op voltooid
+  zetten** gaat door, **Terug naar het raster** schrijft helemaal niets weg.
+  Verandert een opslag geen enkele status, dan verschijnt er geen venster.
+  Daarna meldt de opslagbalk hoeveel activiteiten zijn omgezet.
+
+  Twee gevallen worden zo nooit voltooid: een activiteit met een datum in de
+  **toekomst** (een bekende afmelding voor volgende week vooraf vastleggen is
+  geen uitspraak dat volgende week geweest is) en een activiteit die je op
+  **Geannuleerd** hebt gezet. Een voltooide activiteit kun je later altijd
+  heropenen.
 
 Staat de wizard aan, dan verandert er niets: afronden loopt via de begeleide
 flow, die de activiteit in de laatste stap op afgerond zet.

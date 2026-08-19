@@ -60,7 +60,24 @@ final class TileIconChip {
 
         // `--tt-chip-accent` drives both the glyph colour and the tint
         // (via color-mix in the enqueued/inline CSS).
-        $style = '--tt-chip-accent:' . $accent . ';';
+        //
+        // #2530 — a theme owns the complete visual design (#2515), and the
+        // accents reaching this component do not: three call sites pass each
+        // tile's registered per-module hue, and two pass the shipped green
+        // as a literal — so Configuration tiles rendered GREEN inside a navy
+        // theme. Under a theme the accent is dropped and the chip falls back
+        // to the stylesheet default (`var(--tt-primary)`), which the theme
+        // owns.
+        //
+        // Suppressed here rather than overridden in the theme sheet: the
+        // accent is an inline custom property, so only `!important` could
+        // beat it from CSS, and one conditional at the point of emission
+        // covers all five call sites without editing any of them. Same fix
+        // shape as BrandStyles in #2515.
+        $style = '';
+        if ( ! \TT\Shared\Frontend\ThemePreference::hasThemeSheet() ) {
+            $style = '--tt-chip-accent:' . $accent . ';';
+        }
         if ( isset( $attrs['style'] ) ) {
             $style .= $attrs['style'];
             unset( $attrs['style'] );

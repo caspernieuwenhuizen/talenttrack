@@ -39,7 +39,10 @@
     position: relative;
     z-index: 1;
     width: 100%;
-    max-width: 560px;
+    /* #2504 — 560px read as a narrow slot on a 27" screen. The palette
+       lists player, team and activity names, which are long; give it room
+       and keep it bounded so it never stretches across an ultrawide. */
+    max-width: min(720px, 92vw);
     max-height: min(70vh, 520px);
     display: flex;
     flex-direction: column;
@@ -140,20 +143,45 @@
 /* Utility-bar trigger — the non-keyboard way in, so ⌘K only ever
    accelerates (CLAUDE.md §2: a shortcut must have a non-shortcut
    fallback). */
+/*
+ * #2504 — the trigger reads as a search FIELD, not a pill.
+ *
+ * The target design puts a real search box in the header — placeholder text
+ * on the left, the shortcut hint on the right, filling the space between
+ * the breadcrumb and the account menu. A small "Zoeken" pill neither looks
+ * like search nor invites a click. It is still a link (the no-JS fallback
+ * is the tile hub), so this is styling only.
+ *
+ * `flex: 1 1 auto` with a max-width lets it grow into the header's free
+ * space on a wide monitor without stretching across an ultrawide; below
+ * 768px the header is tight, so it shrinks back to its content.
+ */
 .tt-dashboard .tt-spotlight-trigger {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    justify-content: space-between;
+    gap: 0.5rem;
     min-height: 44px;
-    padding: 0 0.7rem;
+    padding: 0 0.75rem;
     border: 1px solid rgba(255, 255, 255, .18);
-    border-radius: 999px;
+    border-radius: var(--tt-radius, 8px);
     background: rgba(255, 255, 255, .08);
     color: #fff;
     font: inherit;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    text-decoration: none;
     cursor: pointer;
     touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-spotlight-trigger {
+        flex: 1 1 auto;
+        max-width: 420px;
+        /* Sit between the breadcrumb and the account menu rather than
+           hugging one end, as in the design. */
+        margin-inline: auto;
+    }
 }
 
 .tt-dashboard .tt-spotlight-trigger:hover,
@@ -166,8 +194,21 @@
     outline-offset: 2px;
 }
 
+/* The prompt behaves like placeholder text: quieter than real content, and
+   it truncates rather than wrapping the header when the viewport is tight. */
+.tt-spotlight-trigger__text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: .75;
+}
+
 .tt-spotlight-trigger__hint {
     display: none;
+    flex: 0 0 auto;
+    padding: 1px 6px;
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 5px;
     font-size: 0.72rem;
     opacity: .7;
 }

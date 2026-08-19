@@ -49,11 +49,24 @@ main way attendance is entered, and the activity buttons follow:
   wizard is on — renamed so it doesn't promise more than it does.
 - **Mark attendance** on your dashboard opens the grid for the activity it
   names.
-- **Mark completed** appears on a planned activity's page. Recording
-  attendance in the grid does *not* complete the activity by itself — a single
-  Save can cover weeks of sessions — so completing stays a deliberate click.
-  Record attendance first, then mark the activity completed. You can reopen it
-  later if you need to.
+- **Mark completed** appears on a planned activity's page — but for sessions
+  that have already taken place you rarely need it. Saving the grid **marks
+  every past-dated planned activity it wrote to as completed**. Recording who
+  was there is the statement that the session happened, and the attendance
+  reports only count completed activities, so an entry that left the activity
+  *Planned* would never reach the numbers.
+
+  **You are always asked first.** A column for a past-dated session that is
+  still planned carries an amber underline in the header, and pressing
+  **Save** opens a dialog that names every activity about to change status,
+  explains why, and waits: **Save and mark completed** goes ahead, **Back to
+  the grid** writes nothing at all. A save that changes no statuses shows no
+  dialog. Afterwards the save bar reports how many were marked.
+
+  Two things are never completed this way: an activity dated in the **future**
+  (pre-recording next week's known absence is not a claim that next week has
+  happened), and an activity you marked **Cancelled**. You can reopen a
+  completed activity later if you need to.
 
 With the wizard switched on, none of this changes: completion runs through the
 guided flow and flips the activity to completed at its final step.

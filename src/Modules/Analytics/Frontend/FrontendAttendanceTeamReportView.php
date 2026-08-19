@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\ReportFilters;
@@ -246,6 +247,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         $where_type = $activity_type_key !== ''
             ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
             : '';
+        // #2521 — the status the coach set decides whether the session
+        // counted; `plan_state` defaults to 'completed' and cannot.
+        $completed = ActivityLifecycle::completedClause( 'a' );
         /** @var object[] $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -264,8 +268,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
              WHERE t.club_id = %d
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
-               AND a.plan_state = 'completed'
-               AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+               AND {$completed}
                AND a.session_date <= CURDATE()
                {$where_type}
                {$where_scope}
