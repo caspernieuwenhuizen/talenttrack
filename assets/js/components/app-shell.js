@@ -193,15 +193,47 @@
 		if (shell.classList.contains('is-rail')) return;
 
 		var scroll = nav.querySelector('.tt-shell-nav__scroll');
-		var groups = nav.querySelectorAll('.tt-shell-nav__group-wrap');
+		var groups = Array.prototype.slice.call(nav.querySelectorAll('.tt-shell-nav__group-wrap'));
 		if (!scroll || !groups.length) return;
 
-		var was = [];
-		Array.prototype.forEach.call(groups, function (d) { was.push(d.open); d.open = true; });
+		/*
+		 * #2533 — the rail should not scroll. Collapse exactly as far as it
+		 * takes to fit, and no further.
+		 *
+		 * The measurement is the scroll container, which sits between the
+		 * brand block and the account block — so "fits" already means "does
+		 * not run under the account", with no separate arithmetic to keep in
+		 * step with the layout.
+		 *
+		 * `+1` absorbs sub-pixel rounding; without it a fractional layout
+		 * reads as permanently overflowing and shuts every group.
+		 */
+		var overflows = function () {
+			return scroll.scrollHeight > scroll.clientHeight + 1;
+		};
 
-		// scrollHeight > clientHeight means the fully-open list overflows.
-		if (scroll.scrollHeight > scroll.clientHeight) {
-			Array.prototype.forEach.call(groups, function (d, i) { d.open = was[i]; });
+		// The group holding the current page is the last one to give up its
+		// space — collapsing where you are is the one unhelpful outcome.
+		var activeIndex = -1;
+		for (var a = 0; a < groups.length; a++) {
+			if (groups[a].querySelector('.tt-shell-nav__link.is-active')) { activeIndex = a; break; }
+		}
+
+		// Start from everything visible, then close from the bottom up: the
+		// groups nearest the top are the ones in daily use (groupOrder puts
+		// them there), so they are the last to be given away.
+		groups.forEach(function (d) { d.open = true; });
+
+		for (var i = groups.length - 1; i >= 0 && overflows(); i--) {
+			if (i === activeIndex) continue;
+			groups[i].open = false;
+		}
+
+		// Everything else is shut and it still does not fit — a very short
+		// viewport, or a very long group. The active one closes too, and the
+		// scroll container is the last resort rather than the first.
+		if (overflows() && activeIndex !== -1) {
+			groups[activeIndex].open = false;
 		}
 	}
 
