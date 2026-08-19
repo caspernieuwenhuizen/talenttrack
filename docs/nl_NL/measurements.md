@@ -107,6 +107,40 @@ Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
 en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
 het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
+### Het volledige verloop achter een test
+
+De kleine trendlijn beantwoordt in één oogopslag "welke kant gaat dit
+op?". Voor de rest heeft elke test met meer dan één meting een link
+**Toon verloop** die eronder de leesbare versie opent. Wat je daar ziet,
+hangt af van het soort test — een verloop betekent alleen iets in de
+termen van de test zelf:
+
+| Soort test | Wat het verloop toont |
+| --- | --- |
+| Een getal waarbij **hoger of lager beter is** (sprinttijd, sprongkracht) | Een grafiek met datums, de waarde-as, elke meting gelabeld en de **streefzone van de leeftijdsgroep gearceerd**, zodat je ziet wanneer de speler die binnenkwam. |
+| Een getal **zonder goed of fout** (lengte, gewicht, schoenmaat) | De **metingen per datum, in kolommen** — geen grafiek, geen streefzone, geen oordeel. Zie hieronder. |
+| Een **statustest** (niveaus als *Op koers* / *Aandacht*) | Eén blok per meetmoment in de kleur van dat niveau. Geen lijn: niveaus zijn benoemde standen, geen afstanden, dus een lijn ertussen zou een precisie suggereren die de data niet heeft. |
+| **Gehaald / niet gehaald** | Een vinkje of kruisje per datum plus de telling (*3 van 4*). |
+| Elke test met **één meting** | Een zin die dat zegt. Een grafiek om één punt leest als ontbrekende data in plaats van als een beginpunt. |
+
+Bij een grafiek waar **lager beter is**, gaat een verbeterende lijn omláág.
+Dat staat er onder elke zo'n grafiek in woorden bij — de helling alleen mag
+het niet dragen, want een dalende lijn leest als achteruitgang voor wie
+niet weet welke kant goed is.
+
+### Tests zonder goed of fout
+
+Lengte, gewicht en schoenmaat worden gemeten en gevolgd, maar een hogere
+waarde is geen betere waarde. Deze tests staan per categorie bij elkaar als
+**waarden per datum in kolommen**, met achteraan een kolom **Verloop**
+(`+6`) in gewone tekst.
+
+Ze krijgen bewust geen grafiek, geen streefzone en geen ranglijst. Een
+stijgende lijn zou vooruitgang suggereren, een gearceerde band een norm, en
+een lijstje "meest verbeterd" dat de langste speler het beste presteert —
+alle drie zijn onwaar. Een gemist meetmoment toont als `—`, nooit als een
+nul, en het verloop rekent over de datums waarop wél een meting staat.
+
 Het **In één oogopslag**-paneel van de speler bevat ook een signaal
 **Metingen** naast Gem. beoordeling, Aanwezigheid en Doelen: het aantal
 tests waarvoor de speler nu een waarde heeft, met een hint hoeveel daarvan
