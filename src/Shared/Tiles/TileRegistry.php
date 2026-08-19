@@ -488,6 +488,39 @@ final class TileRegistry {
     }
 
     /**
+     * #2540 — the reverse of `moduleForViewSlug()`: every `tt_view=`
+     * slug the given module owns, from both registered tiles and the
+     * tile-less `registerSlugOwnership()` declarations.
+     *
+     * Used by the configuration export to state which surfaces a module
+     * brings, so a reader can tell what a disabled module actually
+     * takes away. Sorted and de-duplicated for a stable payload — the
+     * export is meant to be diffed between installs.
+     *
+     * @return list<string>
+     */
+    public static function viewSlugsForModule( string $module_class ): array {
+        $module_class = ltrim( $module_class, '\\' );
+        if ( $module_class === '' ) return [];
+
+        $slugs = [];
+        foreach ( self::$tiles as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? '' );
+            if ( $slug === '' ) continue;
+            $owner = (string) ( $tile['module_class'] ?? '' );
+            if ( ltrim( $owner, '\\' ) === $module_class ) $slugs[ $slug ] = true;
+        }
+        foreach ( self::$slug_ownership as $slug => $owner ) {
+            if ( $owner === null ) continue;
+            if ( ltrim( (string) $owner, '\\' ) === $module_class ) $slugs[ (string) $slug ] = true;
+        }
+
+        $out = array_keys( $slugs );
+        sort( $out );
+        return $out;
+    }
+
+    /**
      * #0079 — return the matrix entity declared by the tile for this
      * view slug, or null when no tile declares the slug or the tile
      * was registered without an entity. Used by the dashboard

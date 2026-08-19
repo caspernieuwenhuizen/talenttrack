@@ -49046,6 +49046,44 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Export configuration"
+msgstr "Configuratie exporteren"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Download every setting plus which modules and features are on or off, as a JSON file. Credentials are redacted; no player data."
+msgstr "Download alle instellingen plus welke modules en functies aan of uit staan, als JSON-bestand. Inloggegevens worden weggelaten; geen spelersgegevens."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Download this academy's configuration as a JSON file: every setting, plus which modules and features are switched on or off. Useful for checking what is actually available here before writing training material, and for setting up a second academy the same way."
+msgstr "Download de configuratie van deze academie als JSON-bestand: alle instellingen, plus welke modules en functies aan of uit staan. Handig om te zien wat hier werkelijk beschikbaar is voordat je trainingsmateriaal schrijft, en om een tweede academie op dezelfde manier in te richten."
+
+#. translators: 1: enabled module count, 2: total module count, 3: enabled feature count, 4: total feature count.
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#, php-format
+msgid "Right now %1$d of %2$d modules and %3$d of %4$d features are enabled."
+msgstr "Op dit moment staan %1$d van %2$d modules en %3$d van %4$d functies aan."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Integration credentials (Strava, Spond, translation engines) are replaced with \"[redacted]\" — the setting name is listed so you can see it is configured, but the value never leaves the server. The file contains no player data."
+msgstr "Inloggegevens van integraties (Strava, Spond, vertaalmachines) worden vervangen door \"[redacted]\" — de naam van de instelling blijft staan zodat je ziet dat het is ingesteld, maar de waarde verlaat de server nooit. Het bestand bevat geen spelersgegevens."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Download configuration (JSON)"
+msgstr "Configuratie downloaden (JSON)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "You do not have permission to export the configuration."
+msgstr "Je hebt geen rechten om de configuratie te exporteren."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The Export module is switched off for this academy. Turn it on under Modules to export the configuration."
+msgstr "De module Export staat uit voor deze academie. Zet hem aan bij Modules om de configuratie te exporteren."
+
+#: src/Modules/Export/Exporters/ConfigJsonExporter.php
+msgid "Academy configuration (JSON)"
+msgstr "Academieconfiguratie (JSON)"
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 

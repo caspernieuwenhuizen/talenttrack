@@ -48,6 +48,38 @@ class ConfigService {
     }
 
     /**
+     * Every stored key/value pair for the current club, ordered by key.
+     *
+     * The per-key `get()` above is the hot path and stays as-is; this is
+     * the bulk read for surfaces that need the whole set rather than a
+     * named key — today the configuration export (#2540). Deliberately
+     * NOT cached: it is a one-shot read on an operator-initiated action,
+     * and populating the per-key cache from here would mask the default
+     * fallback `get()` applies for keys with no row.
+     *
+     * Returns raw stored values. Callers that expose the result outside
+     * the server MUST run it through `ConfigSnapshotService` (or apply
+     * their own redaction) — some keys hold integration credentials.
+     *
+     * @return array<string,string>
+     */
+    public function all(): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT config_key, config_value FROM {$wpdb->prefix}tt_config
+              WHERE club_id = %d ORDER BY config_key ASC",
+            CurrentClub::id()
+        ) );
+        $out = [];
+        if ( is_array( $rows ) ) {
+            foreach ( $rows as $r ) {
+                $out[ (string) $r->config_key ] = (string) $r->config_value;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Per-club cache namespace so multiple clubs in the same request
      * (test or future SaaS) don't return stale reads.
      */

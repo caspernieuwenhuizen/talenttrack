@@ -544,7 +544,7 @@ class FeatureRegistry {
      * @return list<array{
      *   key: string, label: string, description: string,
      *   module_class: string, enabled: bool, default_enabled: bool,
-     *   under_development: bool
+     *   under_development: bool, view_slugs: list<string>
      * }>
      */
     public static function allWithState(): array {
@@ -559,6 +559,10 @@ class FeatureRegistry {
                 'enabled'           => self::isEnabled( $key ),
                 'default_enabled'   => (bool) $meta['default_enabled'],
                 'under_development' => self::isUnderDevelopment( $key ),
+                // #2540 — the surfaces this feature gates. Consumers of
+                // the configuration export need to know what turning a
+                // feature off actually removes, not just that it is off.
+                'view_slugs'        => array_values( $meta['view_slugs'] ),
             ];
         }
         return $out;
