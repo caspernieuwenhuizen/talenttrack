@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-18T21:43:19+00:00\n"
+"POT-Creation-Date: 2026-08-19T04:19:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -35157,17 +35157,17 @@ msgstr ""
 msgid "Observer"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:118
+#: src/Shared/Frontend/Components/FrontendAppNav.php:175
 msgid "Main navigation"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:125
-#: src/Shared/Frontend/Components/FrontendAppNav.php:126
+#: src/Shared/Frontend/Components/FrontendAppNav.php:184
+#: src/Shared/Frontend/Components/FrontendAppNav.php:185
 #: src/Shared/Frontend/DashboardShortcode.php:166
 msgid "Collapse navigation"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:228
+#: src/Shared/Frontend/Components/FrontendAppNav.php:288
 msgid "Open navigation"
 msgstr ""
 

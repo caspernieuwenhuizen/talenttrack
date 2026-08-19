@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-18T21:43:19+00:00\n"
+"POT-Creation-Date: 2026-08-19T04:19:05+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -40025,17 +40025,17 @@ msgstr "Meer"
 msgid "Observer"
 msgstr "Waarnemer"
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:118
+#: src/Shared/Frontend/Components/FrontendAppNav.php:175
 msgid "Main navigation"
 msgstr "Hoofdnavigatie"
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:125
-#: src/Shared/Frontend/Components/FrontendAppNav.php:126
+#: src/Shared/Frontend/Components/FrontendAppNav.php:184
+#: src/Shared/Frontend/Components/FrontendAppNav.php:185
 #: src/Shared/Frontend/DashboardShortcode.php:166
 msgid "Collapse navigation"
 msgstr "Navigatie inklappen"
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:228
+#: src/Shared/Frontend/Components/FrontendAppNav.php:288
 msgid "Open navigation"
 msgstr "Navigatie openen"
 
