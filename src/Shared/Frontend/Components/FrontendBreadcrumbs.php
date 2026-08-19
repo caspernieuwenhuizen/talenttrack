@@ -12,6 +12,26 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class FrontendBreadcrumbs {
 
+    /** @var bool Set for the whole request by `suppress()`. */
+    private static $suppressed = false;
+
+    /**
+     * Silence the chain (and the back-pill above it) for this request.
+     *
+     * #2554 — the pre-authentication MFA screens compose the shared
+     * wizard view, which emits a chain on every code path. On a screen
+     * that renders before the app shell there is nowhere to navigate to
+     * and no session that has earned the links, so the caller turns the
+     * chain off rather than the shared view learning about auth state.
+     */
+    public static function suppress( bool $on = true ): void {
+        self::$suppressed = $on;
+    }
+
+    public static function isSuppressed(): bool {
+        return self::$suppressed;
+    }
+
     /**
      * v3.92.1 sweep helper. Most views need a "Dashboard / [self]" or
      * "Dashboard / [parent list] / [self]" chain. Constructs the
@@ -58,6 +78,7 @@ final class FrontendBreadcrumbs {
      * @param array<int,array{label:string,url?:?string,class?:?string}> $items
      */
     public static function render( array $items ): void {
+        if ( self::$suppressed ) return;
         // v3.110.0 — auto-render the URL-borne back pill above the
         // breadcrumb chain whenever the current request carries
         // `tt_back`. Empty string when no valid back-target exists, so

@@ -43,6 +43,7 @@ De TalentTrack-eigen MFA-route staat los van eventueel geïnstalleerde WordPress
 - Krijgen bij elke login de MFA-prompt (alleen overgeslagen als ze een geldig 30-daagse "vertrouw dit apparaat"-cookie op de huidige browser hebben).
 - Als ze nog niet aangemeld zijn worden ze bij het inloggen naar de aanmeldwizard gestuurd tot ze klaar zijn — ze kunnen niet doorklikken naar andere dashboardpagina's voordat de aanmelding compleet is.
 - Komen na het verifiëren uit op de pagina waar ze oorspronkelijk heen wilden, of op het dashboard als die er niet was. De prompt zelf is nooit een bestemming: verifiëren haalt je er altijd vanaf.
+- Zien de prompt op een gecentreerde kaart met academielogo en zonder navigatie eromheen — dezelfde vormgeving als het inlogscherm en de wachtwoordherstelschermen. Dat is bewust: zolang de tweede factor niet binnen is, is de sessie niet volledig geauthenticeerd en krijgt die dus geen navigatiebalk, geen zoekveld, geen meldingen en geen personamenu. Een *Uitloggen*-link op de kaart is de uitweg voor wie de prompt niet kan afronden (telefoon thuis, back-upcodes kwijt).
 
 Voeg persona's geleidelijk toe: zet het op dag één aan voor *Academy admin* + *Hoofd opleiding*; breid uit naar *Hoofdcoach* / *Assistent-coach* zodra je staf vertrouwd is met de wizard; overweeg *Scout* en *Teammanager* later als je academie bijzonder gevoelige prospect-data bewaart.
 

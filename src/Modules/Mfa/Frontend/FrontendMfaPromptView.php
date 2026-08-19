@@ -10,6 +10,7 @@ use TT\Modules\Mfa\Auth\RememberDeviceCookie;
 use TT\Modules\Mfa\Domain\BackupCodesService;
 use TT\Modules\Mfa\Domain\TotpService;
 use TT\Modules\Mfa\MfaSecretsRepository;
+use TT\Shared\Frontend\DashboardShortcode;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Wizards\WizardEntryPoint;
 
@@ -58,9 +59,10 @@ class FrontendMfaPromptView extends FrontendViewBase {
         $title = __( 'Two-factor authentication', 'talenttrack' );
 
         if ( $user_id <= 0 ) {
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
-            self::renderHeader( $title );
-            echo '<p class="tt-notice">' . esc_html__( 'You must be logged in to verify a code.', 'talenttrack' ) . '</p>';
+            self::openCard();
+            echo '<p class="tt-login-subtitle">' . esc_html( $title ) . '</p>';
+            echo '<p class="tt-login-help">' . esc_html__( 'You must be logged in to verify a code.', 'talenttrack' ) . '</p>';
+            self::closeCard();
             return;
         }
 
@@ -158,68 +160,62 @@ class FrontendMfaPromptView extends FrontendViewBase {
         $unused_backup = BackupCodesService::unusedCount( (array) ( $row['backup_codes'] ?? [] ) );
         $mode  = isset( $_GET['mode'] ) && (string) $_GET['mode'] === 'backup' ? 'backup' : 'totp';
 
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Two-factor authentication', 'talenttrack' ) );
-        self::renderHeader( __( 'Two-factor authentication', 'talenttrack' ) );
-
-        echo '<div style="max-width:480px; margin:0 auto;">';
-        echo '<p>'
+        self::openCard();
+        echo '<p class="tt-login-subtitle">' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-login-help">'
             . esc_html__( 'For your security, sign-in needs a second factor on your account.', 'talenttrack' )
             . '</p>';
 
         if ( $error ) {
-            echo '<div class="tt-notice tt-notice-error" role="alert" style="margin-bottom:16px;">'
-                . esc_html( $error )
-                . '</div>';
+            echo '<div class="tt-login-error" role="alert">' . esc_html( $error ) . '</div>';
         }
 
-        echo '<form method="post" action="">';
+        echo '<form method="post" action="" class="tt-login-form tt-mfa-form">';
         wp_nonce_field( 'tt_mfa_prompt_' . $user_id, 'tt_mfa_prompt_nonce' );
         echo '<input type="hidden" name="mode" value="' . esc_attr( $mode ) . '">';
 
         if ( $mode === 'backup' ) {
-            echo '<label for="tt-mfa-prompt-code" style="display:block; font-weight:600; margin-bottom:6px;">'
+            echo '<label class="tt-mfa-label" for="tt-mfa-prompt-code">'
                 . esc_html__( 'Backup code', 'talenttrack' )
                 . '</label>';
             echo '<input type="text" id="tt-mfa-prompt-code" name="code" required autocomplete="off" '
                 . 'maxlength="20" autofocus '
                 . 'placeholder="XXXX-XXXX-XXXX" '
-                . 'style="font-size:18px; letter-spacing:2px; padding:8px 12px; width:100%;">';
-            echo '<p style="font-size:13px; color:#5b6e75; margin-top:6px;">'
+                . 'class="tt-mfa-code tt-mfa-code-backup">';
+            echo '<p class="tt-mfa-hint">'
                 . esc_html__( 'Each backup code works once. Dashes optional.', 'talenttrack' )
                 . '</p>';
         } else {
-            echo '<label for="tt-mfa-prompt-code" style="display:block; font-weight:600; margin-bottom:6px;">'
+            echo '<label class="tt-mfa-label" for="tt-mfa-prompt-code">'
                 . esc_html__( 'Code from your authenticator app', 'talenttrack' )
                 . '</label>';
             echo '<input type="text" id="tt-mfa-prompt-code" name="code" required '
                 . 'autocomplete="one-time-code" inputmode="numeric" pattern="[0-9 ]*" '
                 . 'maxlength="11" autofocus '
                 . 'placeholder="000 000" '
-                . 'style="font-size:20px; letter-spacing:4px; padding:8px 12px; width:100%;">';
+                . 'class="tt-mfa-code">';
         }
 
-        echo '<label style="display:flex; gap:8px; align-items:center; margin-top:16px; cursor:pointer;">';
+        echo '<label class="tt-checkbox-label tt-mfa-remember">';
         echo '<input type="checkbox" name="remember_device" value="1">';
         echo '<span>' . esc_html__( "Remember this device for 30 days. Skip the code on this browser next time.", 'talenttrack' ) . '</span>';
         echo '</label>';
 
-        echo '<div style="margin-top:24px;">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary tt-btn-cta">'
+        echo '<button type="submit" class="tt-btn tt-btn-primary tt-btn-block">'
             . esc_html__( 'Verify', 'talenttrack' )
             . '</button>';
-        echo '</div>';
         echo '</form>';
 
         // Mode toggle.
         $base_url = remove_query_arg( [ 'mode' ] );
         if ( $mode === 'totp' ) {
             $url = add_query_arg( 'mode', 'backup', $base_url );
-            echo '<p style="margin-top:24px; text-align:center;">';
+            echo '<p class="tt-login-links">';
             echo '<a href="' . esc_url( $url ) . '">'
                 . esc_html__( "Use a backup code instead", 'talenttrack' )
                 . '</a>';
             if ( $unused_backup > 0 ) {
-                echo ' <span style="color:#5b6e75;">('
+                echo ' <span class="tt-mfa-hint-inline">('
                     . esc_html(
                         sprintf(
                             /* translators: %d unused backup codes */
@@ -232,29 +228,45 @@ class FrontendMfaPromptView extends FrontendViewBase {
             echo '</p>';
         } else {
             $url = remove_query_arg( 'mode', $base_url );
-            echo '<p style="margin-top:24px; text-align:center;">';
+            echo '<p class="tt-login-links">';
             echo '<a href="' . esc_url( $url ) . '">'
                 . esc_html__( 'Use the authenticator app code instead', 'talenttrack' )
                 . '</a>';
             echo '</p>';
         }
 
-        echo '<p style="margin-top:32px; font-size:13px; color:#5b6e75; text-align:center;">'
+        echo '<p class="tt-mfa-hint tt-mfa-hint-footer">'
             . esc_html__( "Lost both your phone and your backup codes? Ask your academy admin to reset MFA on your account.", 'talenttrack' )
             . '</p>';
-        echo '</div>';
+        self::closeCard();
+    }
+
+    /**
+     * Open the pre-authentication card (#2554). The challenge renders on
+     * the same centred, branded chrome as the login form and the password
+     * reset screens — no app shell, because the session has a cookie but
+     * has not cleared its second factor and has no business painting the
+     * navigation.
+     */
+    private static function openCard(): void {
+        echo '<div class="tt-dashboard"><div class="tt-preauth"><div class="tt-login-card">';
+        DashboardShortcode::renderPreAuthBrand();
+    }
+
+    private static function closeCard(): void {
+        DashboardShortcode::renderPreAuthSignOut();
+        echo '</div></div></div>';
     }
 
     private static function renderLockout( int $seconds_remaining ): void {
         $minutes = max( 1, (int) ceil( $seconds_remaining / 60 ) );
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Two-factor authentication', 'talenttrack' ) );
-        self::renderHeader( __( 'Two-factor authentication', 'talenttrack' ) );
-        echo '<div style="max-width:480px; margin:0 auto;">';
-        echo '<div class="tt-notice tt-notice-error" role="alert" style="padding:16px;">';
-        echo '<p style="margin:0 0 8px;"><strong>'
+        self::openCard();
+        echo '<p class="tt-login-subtitle">' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</p>';
+        echo '<div class="tt-login-error tt-mfa-lockout" role="alert">';
+        echo '<p><strong>'
             . esc_html__( 'Too many failed attempts.', 'talenttrack' )
             . '</strong></p>';
-        echo '<p style="margin:0;">' . esc_html(
+        echo '<p>' . esc_html(
             sprintf(
                 /* translators: %d minutes */
                 _n( 'Try again in %d minute.', 'Try again in %d minutes.', $minutes, 'talenttrack' ),
@@ -262,10 +274,10 @@ class FrontendMfaPromptView extends FrontendViewBase {
             )
         ) . '</p>';
         echo '</div>';
-        echo '<p style="margin-top:24px; font-size:13px; color:#5b6e75;">'
+        echo '<p class="tt-mfa-hint">'
             . esc_html__( "If you never see a working code, ask your academy admin to reset MFA on your account.", 'talenttrack' )
             . '</p>';
-        echo '</div>';
+        self::closeCard();
     }
 
     /**
