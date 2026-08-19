@@ -166,6 +166,89 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     padding-inline: 0.35rem;
 }
 
+/* ---- Brand + user blocks (#2530) ----------------------------------- */
+/*
+ * Academy identity at the head of the rail and the signed-in user at its
+ * foot. The name is in the top bar too, but the rail is where the session
+ * is spent, and "which academy am I in" should be answerable without
+ * looking away from the navigation.
+ *
+ * Both collapse to their mark alone in the icon rail (see the >=1024px
+ * block): the text is clip-path-hidden rather than removed, matching the
+ * nav labels, so a screen reader still reads the academy and the user.
+ */
+.tt-shell-app .tt-shell-nav__brand,
+.tt-shell-app .tt-shell-nav__user {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.7rem 0.6rem;
+    min-height: 56px;
+    flex: 0 0 auto;
+}
+
+.tt-shell-app .tt-shell-nav__brand {
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-shell-nav__user {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-shell-app .tt-shell-nav__mark,
+.tt-shell-app .tt-shell-nav__avatar {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-secondary, #e8b624);
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+}
+
+.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-shell-app .tt-shell-nav__logo {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-shell-app .tt-shell-nav__academy,
+.tt-shell-app .tt-shell-nav__whoami {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.tt-shell-app .tt-shell-nav__academy,
+.tt-shell-app .tt-shell-nav__username {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--tt-ink, #0e1a14);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-shell-app .tt-shell-nav__role {
+    font-size: 0.7rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* The collapse toggle is a desktop affordance; below 1024px the drawer
    is the presentation and the header hamburger is its control. */
 .tt-shell-app .tt-shell-nav__collapse {
@@ -462,6 +545,28 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     }
 
     .tt-shell-app .tt-shell.is-rail .tt-shell-nav__link {
+        justify-content: center;
+        gap: 0;
+        padding-inline: 0;
+    }
+
+    /* #2530 — in the rail the brand and user keep their mark and lose the
+       words, using the same clip-path treatment as the nav labels so the
+       accessible name survives. */
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__academy,
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__whoami {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__brand,
+    .tt-shell-app .tt-shell.is-rail .tt-shell-nav__user {
         justify-content: center;
         gap: 0;
         padding-inline: 0;

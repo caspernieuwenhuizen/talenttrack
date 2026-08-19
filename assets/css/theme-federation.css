@@ -238,6 +238,75 @@
     outline-offset: 2px;
 }
 
+/* ---- Collapsible groups (#2530) ------------------------------------ */
+/*
+ * The group summaries arrived after this theme was written, so they were
+ * still painting with light-surface tokens on the dark rail:
+ *
+ *   - the divider reads `--tt-line-soft` (#e2e8ef here) — a near-white
+ *     hairline at ~11:1 against the rail, which is why a 1px rule looked
+ *     like a heavy bar. It takes the rail's own separator instead.
+ *   - the hover reads `--tt-surface-2`, which nothing defines on this
+ *     surface, so the #f4f5f2 fallback painted a near-WHITE block on navy
+ *     with near-black text. Same failure as a dark value landing on a
+ *     light button: a token resolving to the wrong end of the scale.
+ *
+ * Hover now steps up the same navy ladder the nav links use, so a group
+ * header and a destination respond identically.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group-wrap {
+    border-top-color: var(--tt-fd-chrome-line);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group {
+    color: var(--tt-fd-chrome-ink-soft);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group:hover,
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group:focus-visible {
+    background: var(--tt-fd-chrome-2);
+    color: var(--tt-fd-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__group:focus-visible {
+    outline: 2px solid var(--tt-fd-gold);
+    outline-offset: -2px;
+}
+
+/* ---- Brand + user blocks (#2530) ----------------------------------- */
+/*
+ * The crest keeps the gold — it is the club's mark and the one place the
+ * theme spends that colour besides the active marker. The user avatar
+ * stays quiet navy so the two marks are not competing at opposite ends of
+ * the same rail.
+ */
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__brand {
+    border-bottom-color: var(--tt-fd-chrome-line);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__user {
+    border-top-color: var(--tt-fd-chrome-line);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__mark {
+    background: var(--tt-fd-gold);
+    color: var(--tt-fd-chrome);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__avatar {
+    background: var(--tt-fd-chrome-active);
+    color: var(--tt-fd-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__academy,
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__username {
+    color: var(--tt-fd-chrome-ink);
+}
+
+.tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__role {
+    color: var(--tt-fd-chrome-ink-soft);
+}
+
 /* The collapse control sits on the rail, so it inherits the rail's ink. */
 .tt-dashboard.tt-theme-federation.tt-shell-app .tt-shell-nav__collapse {
     color: var(--tt-fd-chrome-ink-soft);

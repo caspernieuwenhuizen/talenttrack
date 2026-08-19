@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Icons\IconRenderer;
+use TT\Infrastructure\Query\QueryHelpers;
 
 /**
  * FrontendAppNav (#2456) — the app shell's single primary navigation.
@@ -90,6 +91,62 @@ final class FrontendAppNav {
     }
 
     /**
+     * Academy identity at the head of the rail (#2530).
+     *
+     * The name already appears in the top bar, but the rail is where a user
+     * spends the session, and on a multi-academy install "which academy am I
+     * in" has to be answerable without looking away from the navigation.
+     *
+     * Same source as the header — `logo_url` when the operator set one,
+     * otherwise the gold initials mark — so the two can never disagree.
+     * In the 60px rail the wordmark is clip-path-hidden rather than removed,
+     * matching how nav labels behave there: the crest still shows, and a
+     * screen reader still reads the academy name.
+     */
+    private static function renderBrand(): void {
+        $name = (string) QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
+        $logo = (string) QueryHelpers::get_config( 'logo_url', '' );
+
+        echo '<div class="tt-shell-nav__brand">';
+        if ( $logo !== '' ) {
+            echo '<img class="tt-shell-nav__logo" src="' . esc_url( $logo ) . '" alt="" width="32" height="32" />';
+        } else {
+            echo '<span class="tt-shell-nav__mark" aria-hidden="true">'
+                . esc_html( FrontendAppChrome::initials( $name ) )
+                . '</span>';
+        }
+        echo '<span class="tt-shell-nav__academy">' . esc_html( $name ) . '</span>';
+        echo '</div>';
+    }
+
+    /**
+     * The signed-in user at the foot of the rail (#2530).
+     *
+     * Deliberately identity only — no menu. The account menu stays the top
+     * bar's job; duplicating its actions here would be a second place for the
+     * same controls to drift. Collapses to the avatar alone in the rail.
+     */
+    private static function renderUser( int $user_id ): void {
+        $user = get_userdata( $user_id );
+        if ( ! $user ) return;
+
+        $name    = (string) ( $user->display_name ?: $user->user_login );
+        $persona = (string) ( \TT\Modules\Authorization\PersonaResolver::activePersona( $user_id ) ?? '' );
+        $role    = $persona !== '' ? FrontendAppChrome::personaLabel( $persona ) : '';
+
+        echo '<div class="tt-shell-nav__user">';
+        echo '<span class="tt-shell-nav__avatar" aria-hidden="true">'
+            . esc_html( FrontendAppChrome::initials( $name ) ) . '</span>';
+        echo '<span class="tt-shell-nav__whoami">';
+        echo '<span class="tt-shell-nav__username">' . esc_html( $name ) . '</span>';
+        if ( $role !== '' ) {
+            echo '<span class="tt-shell-nav__role">' . esc_html( $role ) . '</span>';
+        }
+        echo '</span>';
+        echo '</div>';
+    }
+
+    /**
      * The `tt_view` slug a tile routes to, used for the active state.
      * Tiles registered by `CoreSurfaceRegistration` carry `view_slug`;
      * the rest fall back to `slug`, which the registry backfills from
@@ -116,6 +173,8 @@ final class FrontendAppNav {
 
         echo '<nav class="tt-shell-nav" id="tt-shell-nav" data-tt-shell-nav aria-label="'
             . esc_attr__( 'Main navigation', 'talenttrack' ) . '">';
+
+        self::renderBrand();
 
         // Collapse toggle — sidebar <-> icon rail at >=1024px. Hidden by
         // CSS below that width, where the drawer is the presentation and
@@ -199,6 +258,7 @@ final class FrontendAppNav {
             }
         }
         echo '</div>';
+        self::renderUser( $user_id );
         echo '</nav>';
     }
 
