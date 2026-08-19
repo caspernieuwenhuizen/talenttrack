@@ -328,4 +328,24 @@
 			window.addEventListener('resize', syncHeaderHeight);
 		}
 	}
+
+	/* ---- Shortcut badge (#2563) ------------------------------------- */
+	/*
+	 * The search badge is server-rendered as "Ctrl K" — the server cannot
+	 * know the platform, so it ships the majority case and this corrects it
+	 * on a Mac. It used to be hardcoded to the Command glyph, which told
+	 * every Windows user to press a key their keyboard does not have.
+	 *
+	 * `userAgentData.platform` where available, falling back to the classic
+	 * sniff. Both can be spoofed, but the cost of being wrong is a slightly
+	 * off label, not broken behaviour: the handler accepts Meta and Control
+	 * either way.
+	 */
+	var hint = document.querySelector('[data-tt-shortcut-hint]');
+	if (hint) {
+		var plat = (navigator.userAgentData && navigator.userAgentData.platform)
+			|| navigator.platform
+			|| '';
+		if (/mac/i.test(plat)) hint.textContent = '⌘K';
+	}
 })();

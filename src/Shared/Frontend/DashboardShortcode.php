@@ -1842,7 +1842,13 @@ class DashboardShortcode {
                 . 'autocomplete="off" spellcheck="false" '
                 . 'placeholder="' . esc_attr( $label ) . '" '
                 . 'aria-label="' . esc_attr( $label ) . '" />';
-            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true">⌘K</span>';
+            // #2563 — the badge renders Ctrl-K and app-shell.js swaps it to
+            // the Command glyph on a Mac. It was hardcoded to the Command
+            // glyph, which told every Windows user to press a key their
+            // keyboard does not have. Ctrl is the safer default: the server
+            // cannot know the platform, so the majority case renders correct
+            // even when the script never runs.
+            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true" data-tt-shortcut-hint>Ctrl K</span>';
             echo '<ul class="tt-spotlight-results" id="tt-spotlight-results" '
                 . 'role="listbox" aria-label="' . esc_attr__( 'Search results', 'talenttrack' ) . '" hidden></ul>';
             // Movement between options is announced from here, because focus
