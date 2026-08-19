@@ -175,6 +175,9 @@ class DashboardShortcode {
                 'spotlight_title'         => __( 'Jump to', 'talenttrack' ),
                 'spotlight_placeholder'   => __( 'Search players, teams, activities…', 'talenttrack' ),
                 'spotlight_empty'         => __( 'Nothing matched.', 'talenttrack' ),
+                // #2531 — announced politely when the result list changes;
+                // focus stays in the field, so nothing else reports it.
+                'spotlight_results'       => __( 'results', 'talenttrack' ),
                 'spotlight_type_view'     => __( 'Section', 'talenttrack' ),
                 'spotlight_type_player'   => __( 'Player', 'talenttrack' ),
                 'spotlight_type_team'     => __( 'Team', 'talenttrack' ),
@@ -1711,17 +1714,33 @@ class DashboardShortcode {
         // shortcut needs a non-shortcut fallback). Falls back to the tile
         // hub without JS, so it is never a dead control.
         if ( ShellPreference::isApp( (int) $user->ID ) ) {
-            echo '<a href="' . esc_url( self::shortcodeBaseUrl() ) . '" '
-                . 'class="tt-spotlight-trigger" data-tt-spotlight-open '
-                . 'aria-label="' . esc_attr__( 'Search players, teams, activities…', 'talenttrack' ) . '">'
-                // #2504 — read as a search field: show the same prompt the
-                // palette's own input uses rather than the word "Search", so
-                // the header says what you can look for. Reuses the existing
-                // msgid, so no new string to translate.
-                . '<span class="tt-spotlight-trigger__text" aria-hidden="true">'
-                . esc_html__( 'Search players, teams, activities…', 'talenttrack' ) . '</span>'
-                . '<span class="tt-spotlight-trigger__hint" aria-hidden="true">⌘K</span>'
-                . '</a>';
+            // #2531 — a real search field, not a button that opens a modal.
+            // Typing queries directly and results drop down beneath it; the
+            // combobox wiring (aria-expanded / activedescendant, the listbox)
+            // is completed by spotlight.js, which owns the open state.
+            //
+            // Wrapped in a GET form so it degrades: without JS, submitting
+            // lands on the tile hub — the same fallback the old trigger had,
+            // since there is no server-rendered results view to send it to.
+            $label = __( 'Search players, teams, activities…', 'talenttrack' );
+
+            echo '<form class="tt-spotlight-form" role="search" method="get" '
+                . 'action="' . esc_url( self::shortcodeBaseUrl() ) . '">';
+            echo '<span class="tt-spotlight-form__icon" aria-hidden="true"></span>';
+            echo '<input type="search" name="q" class="tt-spotlight-input" '
+                . 'data-tt-spotlight-input '
+                . 'role="combobox" aria-expanded="false" aria-haspopup="listbox" '
+                . 'aria-controls="tt-spotlight-results" aria-autocomplete="list" '
+                . 'autocomplete="off" spellcheck="false" '
+                . 'placeholder="' . esc_attr( $label ) . '" '
+                . 'aria-label="' . esc_attr( $label ) . '" />';
+            echo '<span class="tt-spotlight-trigger__hint" aria-hidden="true">⌘K</span>';
+            echo '<ul class="tt-spotlight-results" id="tt-spotlight-results" '
+                . 'role="listbox" aria-label="' . esc_attr__( 'Search results', 'talenttrack' ) . '" hidden></ul>';
+            // Movement between options is announced from here, because focus
+            // stays in the input the whole time.
+            echo '<span class="tt-screen-reader-text" aria-live="polite" data-tt-spotlight-status></span>';
+            echo '</form>';
         }
 
         // Filter point — other modules can inject pill-style affordances

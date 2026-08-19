@@ -40850,6 +40850,16 @@ msgstr "Zoek spelers, teams, activiteiten…"
 msgid "Nothing matched."
 msgstr "Geen resultaten."
 
+#: src/Shared/Frontend/DashboardShortcode.php:173
+#: src/Shared/Frontend/DashboardShortcode.php:727
+msgid "results"
+msgstr "resultaten"
+
+msgid "Search results"
+msgstr "Zoekresultaten"
+
+#: src/Shared/Frontend/DashboardShortcode.php:151
+#: src/Shared/Frontend/DashboardShortcode.php:701
 #: src/Shared/Frontend/DashboardShortcode.php:178
 #: src/Shared/Frontend/DashboardShortcode.php:732
 msgid "Section"
