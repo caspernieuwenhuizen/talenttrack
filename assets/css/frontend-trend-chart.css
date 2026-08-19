@@ -203,6 +203,74 @@
     font-weight: 700;
 }
 
+/* --- multi-series chart + report chrome (#2537) ---------------------- */
+
+/* A player's line is thinner than the single-series chart's, because a
+   squad's worth of them has to stay readable stacked together. */
+.tt-trend__line.is-player { stroke-width: 2; opacity: 0.85; }
+/* The squad average is deliberately NOT another player: heavier and dashed,
+   so it reads as an aggregate at a glance. */
+.tt-trend__line.is-average {
+    stroke: var(--tt-ink-soft, #6a6d66);
+    stroke-width: 3;
+    stroke-dasharray: 7 5;
+}
+.tt-trend-legend i.is-average {
+    height: 0;
+    border-top: 3px dashed var(--tt-ink-soft, #6a6d66);
+    background: none;
+}
+
+.tt-tr-meta {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-tr-ranks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+}
+@media (min-width: 640px) {
+    .tt-tr-ranks { grid-template-columns: 1fr 1fr; }
+}
+.tt-tr-rank {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.6rem 0.75rem;
+    min-width: 0;
+}
+.tt-tr-rank__title {
+    margin: 0 0 0.4rem;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-tr-rank__list { margin: 0; padding-left: 1.1rem; font-size: 0.875rem; }
+.tt-tr-rank__list li { margin-bottom: 0.2rem; }
+
+/* Direction-aware colouring: "up" means improvement in the terms of the
+   test, which on a lower-is-better test is a NEGATIVE number. The class is
+   named for the meaning, never for the sign. */
+.tt-tr-up { color: var(--tt-success, #2f9e5e); font-weight: 700; }
+.tt-tr-down { color: var(--tt-danger, #d8453b); font-weight: 700; }
+
+.tt-tr-verdict {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tt-meas-flag-flat {
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
 /* Pass / fail — a glyph, never colour alone. */
 .tt-meas-mark { font-weight: 700; }
 .tt-meas-mark--pass { color: var(--tt-success, #2f9e5e); }

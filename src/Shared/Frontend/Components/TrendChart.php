@@ -72,6 +72,90 @@ final class TrendChart {
     }
 
     /**
+     * Render several series on one pair of axes — the shape #2537 needs:
+     * a line per player plus the squad average over a shared date axis.
+     *
+     * Every series is plotted against the SAME x positions, taken from the
+     * shared date list, so a player who missed a round leaves a gap in their
+     * own line rather than sliding their remaining points leftwards to meet
+     * the others. Sliding them would silently compare different dates.
+     *
+     * @param array{
+     *   dates: array<int, string>,
+     *   series: array<int, array{label?: string, values?: array<string, float|int|string|null>, variant?: string}>,
+     *   unit?: string,
+     *   band?: array{min?: float|null, max?: float|null, label?: string}|null,
+     *   title?: string
+     * } $args
+     */
+    public static function renderMulti( array $args ): string {
+        $dates = array_values( array_filter( array_map( 'strval', $args['dates'] ?? [] ) ) );
+        $sets  = [];
+        $all   = [];
+
+        foreach ( (array) ( $args['series'] ?? [] ) as $set ) {
+            if ( ! is_array( $set ) ) continue;
+            $values = [];
+            foreach ( $dates as $d ) {
+                $v = $set['values'][ $d ] ?? null;
+                if ( $v === null || $v === '' || ! is_numeric( $v ) ) continue;
+                $values[ $d ] = (float) $v;
+                $all[] = (float) $v;
+            }
+            if ( count( $values ) < 1 ) continue;
+            $sets[] = [
+                'label'   => (string) ( $set['label'] ?? '' ),
+                'values'  => $values,
+                'variant' => (string) ( $set['variant'] ?? 'player' ),
+            ];
+        }
+
+        if ( count( $dates ) < 2 || $all === [] ) return '';
+
+        $band  = is_array( $args['band'] ?? null ) ? $args['band'] : null;
+        $scale = self::scale( $all, $band );
+        $n     = count( $dates );
+
+        $out  = '<div class="tt-trend">';
+        $out .= '<svg class="tt-trend__svg" viewBox="0 0 ' . self::VB_W . ' ' . self::VB_H . '"'
+            . ' preserveAspectRatio="xMidYMid meet" role="img"'
+            . ' aria-label="' . esc_attr( self::describeMulti( $sets, $dates, (string) ( $args['title'] ?? '' ) ) ) . '">';
+
+        $out .= self::band( $band, $scale );
+        $out .= self::axes( $scale, (string) ( $args['unit'] ?? '' ) );
+
+        foreach ( $sets as $set ) {
+            $coords = [];
+            foreach ( $dates as $i => $d ) {
+                if ( ! isset( $set['values'][ $d ] ) ) continue;
+                $coords[] = round( self::x( $i, $n ), 1 ) . ',' . round( self::y( $set['values'][ $d ], $scale ), 1 );
+            }
+            if ( count( $coords ) < 2 ) {
+                // A single reading cannot be a line. Draw the point so the
+                // player is not invisible, but never a one-point "trend".
+                if ( count( $coords ) === 1 ) {
+                    [ $x, $y ] = explode( ',', $coords[0] );
+                    $out .= '<circle class="tt-trend__dot" cx="' . $x . '" cy="' . $y . '" r="3"></circle>';
+                }
+                continue;
+            }
+            $cls = $set['variant'] === 'average' ? 'tt-trend__line is-average' : 'tt-trend__line is-player';
+            $out .= '<polyline class="' . $cls . '" points="' . esc_attr( implode( ' ', $coords ) ) . '"></polyline>';
+        }
+
+        // Date axis, thinned exactly as the single-series chart does.
+        $every = (int) max( 1, ceil( $n / 6 ) );
+        foreach ( $dates as $i => $d ) {
+            if ( $i !== 0 && $i !== $n - 1 && $i % $every !== 0 ) continue;
+            $out .= '<text class="tt-trend__date" x="' . round( self::x( $i, $n ), 1 ) . '" y="' . ( self::PLOT_B + 18 )
+                . '" text-anchor="middle">' . esc_html( self::shortDate( $d ) ) . '</text>';
+        }
+
+        $out .= '</svg></div>';
+        return $out;
+    }
+
+    /**
      * Keep only points that carry a real number, preserving order. A gap in
      * the series (a missed test round) is skipped rather than plotted as
      * zero — a zero would draw a cliff that never happened.
@@ -260,6 +344,30 @@ final class TrendChart {
         $rounded = round( $v, 2 );
         $decimals = ( floor( $rounded ) === $rounded ) ? 0 : ( round( $rounded, 1 ) === $rounded ? 1 : 2 );
         return number_format_i18n( $rounded, $decimals );
+    }
+
+    /**
+     * Text alternative for a multi-series chart: how many series over which
+     * window, and the average's movement when one is present. Naming twenty
+     * players would be unusable read aloud — the table below the chart is
+     * the accessible detail, and it is real markup.
+     *
+     * @param array<int, array{label: string, values: array<string, float>, variant: string}> $sets
+     * @param array<int, string> $dates
+     */
+    private static function describeMulti( array $sets, array $dates, string $title ): string {
+        $players = 0;
+        foreach ( $sets as $s ) {
+            if ( $s['variant'] !== 'average' ) $players++;
+        }
+        return trim( sprintf(
+            /* translators: 1: test name, 2: number of players plotted, 3: first date, 4: last date */
+            __( '%1$s: %2$d players plotted from %3$s to %4$s. The table below lists every value.', 'talenttrack' ),
+            $title,
+            $players,
+            self::shortDate( $dates[0] ),
+            self::shortDate( $dates[ count( $dates ) - 1 ] )
+        ) );
     }
 
     private static function shortDate( string $date ): string {

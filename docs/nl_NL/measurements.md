@@ -291,6 +291,52 @@ zien iedereen. Dezelfde rijen zijn beschikbaar via REST op
 `team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
 `measurements`-*lees*-rechten, voor integraties en de SaaS-frontend.
 
+## Testverloop — één test, elke speler, over het seizoen
+
+*Testresultaten* beantwoordt "hoe staat elke speler er **nu** voor op deze
+test". **Testverloop** (groep Analyse) beantwoordt de andere helft: **wie
+ontwikkelt zich en wie stagneert**. Het is het tabblad *Trends* uit de
+Excel-export, nu op het scherm.
+
+Kies een test, beperk desgewenst op team en een datumbereik, en klik
+**Toon**. Wat je krijgt hangt af van de test — dezelfde regel die het
+spelersverloop volgt, want een verloop betekent alleen iets in de termen
+van de test zelf:
+
+- **Een test met een richting** (sprinttijd, sprongkracht) krijgt een
+  **grafiek** met één lijn per speler over de gedeelde datum-as, plus een
+  zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
+  gemiddelde nooit als nóg een speler leest. Daaronder: **Meest verbeterd**
+  en **Teruggelopen**, en een tabel met de eerste waarde, de laatste
+  waarde, het **verschil** en een oordeel per speler.
+- **Een test zonder richting** (lengte, gewicht) krijgt alleen de metingen
+  per datum — geen grafiek, geen ranglijst, geen oordeel, want er is geen
+  beter of slechter om op te ranken.
+- **Een statustest** krijgt een matrix speler × datum met de niveaus in hun
+  eigen kleur. Geen lijnen: niveaus zijn benoemde standen, geen afstanden.
+- **Gehaald / niet gehaald** krijgt een vinkje of kruisje per datum, de
+  telling per speler en het **slagingspercentage per ronde** — het enige
+  getal dat over tijd iets zegt zonder twee uitkomsten als schaal te
+  behandelen.
+
+**Het verschil wordt gelezen in de richting van de test.** Bij een test
+waar lager beter is, is −0,08 s vooruitgang: het staat groen, het leest als
+*verbeterd* en het staat bij *Meest verbeterd*. Een speler met een
+verandering kleiner dan **2%** geldt als *nagenoeg gelijk* en staat in geen
+van beide ranglijsten — één procent op een handmatig geklokte sprint valt
+binnen de ruis, en dat vooruitgang noemen zou meer beweren dan er gemeten
+is.
+
+Elke spelersnaam linkt naar het profiel met een terug-pil. Een coach met
+teamscope ziet alleen de eigen teams; een link naar de data van een ander
+team wordt geweigerd in plaats van stilzwijgend verbreed. Integraties lezen
+dezelfde getallen via
+`GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
+
+Een beheerder kan het rapport verbergen via **Instellingen → Functies →
+Testverloop**; staat het uit, dan verdwijnt de tegel en wordt een directe
+link geweigerd.
+
 ## Wisselen tussen de schermen
 
 **Tests & metingen** heeft vier schermen voor staf — *Tests beheren* (de
