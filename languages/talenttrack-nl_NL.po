@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-19T17:17:39+00:00\n"
+"POT-Creation-Date: 2026-08-19T17:19:13+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -8767,6 +8767,7 @@ msgstr "Actor"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:560
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
 msgid "Change"
 msgstr "Wijziging"
 
@@ -13403,50 +13404,6 @@ msgstr "Waarschuwing"
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:129
 msgid "Show details"
 msgstr "Toon details"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "Show history"
-msgstr "Toon verloop"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "One result so far — a trend needs at least two."
-msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "These tests have no target and no direction — a higher or lower value is not better. The readings are shown per date, without a verdict."
-msgstr "Deze testen hebben geen streefwaarde en geen richting — een hogere of lagere waarde is niet beter. De metingen staan per datum, zonder oordeel."
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "On target for this age group"
-msgstr "Op niveau voor deze leeftijdsgroep"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "↓ A lower value is better on this test — the falling line is progress."
-msgstr "↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang."
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "↑ A higher value is better on this test."
-msgstr "↑ Bij deze test is een hogere waarde beter."
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "recorded value"
-msgstr "gemeten waarde"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-msgid "Passed"
-msgstr "Gehaald"
-
-#. translators: 1: number of passes, 2: number of attempts
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
-#, php-format
-msgid "%1$d of %2$d"
-msgstr "%1$d van %2$d"
-
-#. translators: 1: test name, 2: number of results, 3: first value, 4: first date, 5: latest value, 6: latest date
-#: src/Shared/Frontend/Components/TrendChart.php
-#, php-format
-msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
-msgstr "%1$s: %2$d metingen, van %3$s op %4$s naar %5$s op %6$s."
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:51
 #: src/Modules/Configuration/Admin/FormSlugContract.php:73
@@ -18196,6 +18153,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:243
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:438
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:271
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
@@ -18628,6 +18586,7 @@ msgstr "Je hebt geen toestemming om testresultaten te exporteren."
 
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
@@ -22250,23 +22209,73 @@ msgstr "Kies status"
 msgid "Measurements — %s"
 msgstr "Metingen — %s"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:63
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:72
 msgid "No tests have been set up yet."
 msgstr "Er zijn nog geen tests ingesteld."
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:166
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:163
+msgid ""
+"These tests have no target and no direction — a higher or lower value is not "
+"better. The readings are shown per date, without a verdict."
+msgstr ""
+"Deze testen hebben geen streefwaarde en geen richting — een hogere of lagere "
+"waarde is niet beter. De metingen staan per datum, zonder oordeel."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:292
+msgid "One result so far — a trend needs at least two."
+msgstr "Voorlopig één meting — een verloop heeft er minstens twee nodig."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:309
+msgid "Show history"
+msgstr "Toon verloop"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:327
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:356
+msgid "On target for this age group"
+msgstr "Op niveau voor deze leeftijdsgroep"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:343
+msgid "↓ A lower value is better on this test — the falling line is progress."
+msgstr ""
+"↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
+msgid "↑ A higher value is better on this test."
+msgstr "↑ Bij deze test is een hogere waarde beter."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:352
+msgid "recorded value"
+msgstr "gemeten waarde"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:439
+msgid "Passed"
+msgstr "Gehaald"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:440
+#: src/Shared/Frontend/FrontendTrialCaseView.php:663
+#: src/Shared/Frontend/FrontendTrialCaseView.php:681
+msgid "Outcome"
+msgstr "Uitkomst"
+
+#. translators: 1: number of passes, 2: number of attempts
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
+#, php-format
+msgid "%1$d of %2$d"
+msgstr "%1$d van %2$d"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:504
 msgid "annually"
 msgstr "jaarlijks"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:167
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:505
 msgid "twice a year"
 msgstr "twee keer per jaar"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:506
 msgid "quarterly"
 msgstr "per kwartaal"
 
-#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:169
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:507
 msgid "monthly"
 msgstr "maandelijks"
 
@@ -40398,6 +40407,12 @@ msgstr "Nog geen hoofdcoach"
 msgid "Upcoming"
 msgstr "Aankomend"
 
+#. translators: 1: test name, 2: number of results, 3: first value, 4: first date, 5: latest value, 6: latest date
+#: src/Shared/Frontend/Components/TrendChart.php:284
+#, php-format
+msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
+msgstr "%1$s: %2$d metingen, van %3$s op %4$s naar %5$s op %6$s."
+
 #: src/Shared/Frontend/Components/Tt404Page.php:43
 msgid "Offside! This page is out of play"
 msgstr "Buitenspel! Deze pagina staat niet meer in het veld"
@@ -47840,11 +47855,6 @@ msgid ""
 msgstr ""
 "Een beslissing vastleggen zet de spelersstatus en maakt de oudersbrief aan. "
 "Beslissingen zijn definitief voor het seizoen."
-
-#: src/Shared/Frontend/FrontendTrialCaseView.php:663
-#: src/Shared/Frontend/FrontendTrialCaseView.php:681
-msgid "Outcome"
-msgstr "Uitkomst"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:669
 msgid "Justification (internal record, ≥ 30 characters)"
