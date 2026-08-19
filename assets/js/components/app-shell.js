@@ -273,6 +273,12 @@
 
 	function applyRail(on) {
 		shell.classList.toggle('is-rail', on);
+		// #2533 — the grid now lives on .tt-dashboard (the rail spans both
+		// of its rows), so the column-width swap has to be reachable from
+		// there. `.tt-shell` keeps the class too: every other rail rule is
+		// written against it.
+		var gridRoot = document.querySelector('.tt-dashboard.tt-shell-app');
+		if (gridRoot) gridRoot.classList.toggle('is-rail', on);
 		setGroupsForRail(on);
 		if (collapser) {
 			collapser.setAttribute('aria-expanded', on ? 'false' : 'true');

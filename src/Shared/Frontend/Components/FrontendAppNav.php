@@ -186,20 +186,14 @@ final class FrontendAppNav {
             . IconRenderer::render( 'chevron-left', [ 'width' => 16, 'height' => 16 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
             . '</button>';
 
-        // #2504 — which group starts open. Normally the one holding the
-        // current view. On the dashboard root nothing is active, and leaving
-        // every group shut would present a wall of headings with no
-        // destinations, so the first group opens instead.
-        $active_group = -1;
-        foreach ( $groups as $i => $group ) {
-            if ( self::groupHasActive( $group, $active_view ) ) {
-                $active_group = $i;
-                break;
-            }
-        }
-        if ( $active_group === -1 ) {
-            $active_group = 0;
-        }
+        // #2533 — every group renders open. The design shows destinations,
+        // not a wall of headings, so expanded is the honest default; folding
+        // is what happens when the rail runs out of room, and app-shell.js
+        // closes exactly as many groups as it takes to fit (bottom-up,
+        // sparing the group holding the current view).
+        //
+        // Without JS nothing folds and a long list scrolls, which is the
+        // right trade: every destination stays reachable.
 
         echo '<div class="tt-shell-nav__scroll">';
         foreach ( $groups as $i => $group ) {
@@ -213,7 +207,7 @@ final class FrontendAppNav {
             // group with no label has nothing to collapse behind, so it stays
             // a plain list.
             $has_label = $group['label'] !== '';
-            $is_open   = ( $i === $active_group );
+            $is_open   = true;
 
             if ( $has_label ) {
                 echo '<details class="tt-shell-nav__group-wrap"' . ( $is_open ? ' open' : '' ) . '>';
@@ -262,20 +256,11 @@ final class FrontendAppNav {
         echo '</nav>';
     }
 
-    /**
-     * True when the active view sits inside this group — the one group that
-     * opens on load, so the rail shows where you are without expanding
-     * everything (#2504).
-     *
-     * @param array{label:string,tiles:list<array<string,mixed>>} $group
+    /*
+     * `groupHasActive()` was removed with #2533. It picked the single group
+     * to render open; every group now renders open and app-shell.js finds
+     * the active one from the DOM when it has to fold something away.
      */
-    private static function groupHasActive( array $group, string $active_view ): bool {
-        if ( $active_view === '' ) return false;
-        foreach ( $group['tiles'] as $tile ) {
-            if ( self::slugFor( $tile ) === $active_view ) return true;
-        }
-        return false;
-    }
 
     /**
      * The drawer trigger, rendered into the existing header actions row.
