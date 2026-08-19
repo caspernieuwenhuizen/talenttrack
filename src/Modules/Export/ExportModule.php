@@ -16,6 +16,7 @@ use TT\Modules\Export\Exporters\ActivityBriefPdfExporter;
 use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
 use TT\Modules\Export\Exporters\AuditLogCsvExporter;
 use TT\Modules\Export\Exporters\BackupZipExporter;
+use TT\Modules\Export\Exporters\ConfigJsonExporter;
 use TT\Modules\Export\Exporters\DemoDataXlsxExporter;
 use TT\Modules\Export\Exporters\EvaluationsXlsxExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
@@ -117,6 +118,11 @@ class ExportModule implements ModuleInterface {
         // v4.3.18 (#947) — per-team planning PDF, consumed by the team
         // planner's Export PDF button.
         ExporterRegistry::register( new TeamPlanningPdfExporter() );
+
+        // #2540 — academy configuration snapshot. Reached from the
+        // Configuration landing tile rather than the Exports page: it is
+        // a settings artifact, not a data extract.
+        ExporterRegistry::register( new ConfigJsonExporter() );
 
         // #1269 v4.20.59 — week-by-week styled xlsx mirroring the
         // online team-planner grid; replaces the team_activities flat
