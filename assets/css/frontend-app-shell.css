@@ -26,8 +26,10 @@
        #2504 — 210px was too tight: real destination labels ("VCT-trainings-
        ontwerper", "Seizoensovergang") wrapped or truncated. 260px holds the
        longest shipped label on one line at the nav's font size, and costs
-       nothing now the frame is full-bleed rather than inside a 1600px cap. */
-    --tt-shell-nav-w: 260px;
+       nothing now the frame is full-bleed rather than inside a 1600px cap.
+       #2533 — 300px on top of that, so the longest labels sit comfortably
+       rather than only just fitting. */
+    --tt-shell-nav-w: 300px;
     --tt-shell-rail-w: 60px;
 
     /*
@@ -460,26 +462,94 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 
 /* ---- 1024px+: persistent sidebar ----------------------------------- */
 @media (min-width: 1024px) {
-    .tt-shell-app .tt-shell {
+    /*
+     * #2533 — the rail owns the full left edge, top to bottom.
+     *
+     * The header used to be a sibling ABOVE `.tt-shell`, so it spanned the
+     * whole width and the rail could only begin underneath it. The design
+     * is the other way round: the rail runs the full height and the header
+     * is a toolbar inside the content column.
+     *
+     * `display: contents` on `.tt-shell` promotes the nav and the content
+     * column into this grid, so all three can be placed as one frame
+     * without moving anything in PHP — the DOM order (header, then shell)
+     * is untouched and `classic` never reaches this block.
+     */
+    .tt-dashboard.tt-shell-app {
         display: grid;
         grid-template-columns: var(--tt-shell-nav-w) minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
         align-items: start;
+    }
+
+    .tt-shell-app .tt-shell {
+        display: contents;
+    }
+
+    /* The rail spans both rows; header and content share column two. */
+    .tt-shell-app .tt-shell-nav {
+        grid-column: 1;
+        grid-row: 1 / -1;
+    }
+
+    .tt-dashboard.tt-shell-app .tt-dash-header {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .tt-shell-app .tt-shell-main {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    /*
+     * The academy name and the account menu now live in the rail (#2530).
+     * Keeping the header's copies would show both twice. Below this
+     * breakpoint the rail is the off-canvas drawer, so the header keeps
+     * them — signing out must not sit behind the hamburger.
+     */
+    .tt-dashboard.tt-shell-app .tt-dash-brand,
+    .tt-dashboard.tt-shell-app .tt-user-menu {
+        display: none;
+    }
+
+    /* The rail toggle moves the grid track, so the class has to be on the
+       grid itself; app-shell.js mirrors `is-rail` onto the root for this. */
+    .tt-dashboard.tt-shell-app.is-rail {
+        grid-template-columns: var(--tt-shell-rail-w) minmax(0, 1fr);
     }
 
     .tt-shell-app .tt-shell-nav {
         position: sticky;
-        /* #2504 — the header is sticky now, so the rail pins BELOW it
-           rather than to the viewport top (where it would slide under the
-           header). Both offsets come from the vars on .tt-shell-app: the
-           admin-bar allowance plus the measured header height. */
-        top: calc(var(--tt-shell-top, 0px) + var(--tt-shell-header-h, 56px));
+        /* #2533 — the rail now starts at the top of the frame rather than
+           below the header (which sits beside it, in column two), so the
+           only offset it needs is the WP admin bar. The header-height var
+           it used to add is no longer part of this sum. */
+        top: var(--tt-shell-top, 0px);
         inset-inline-start: auto;
         z-index: 1;
         width: auto;
-        /* Remaining viewport below that chrome — the nav scrolls internally
-           when the destination list is longer than the space left. */
-        max-height: calc(100vh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
-        max-height: calc(100dvh - var(--tt-shell-top, 0px) - var(--tt-shell-header-h, 56px));
+        /*
+         * #2533 — a fixed height, not a max-height.
+         *
+         * With `max-height` the rail was only as tall as its contents, so the
+         * dark column stopped after the last group and the page showed
+         * through beneath it. Once the panel ends there is nothing left to
+         * look pinned, which is why a sticky rail still read as scrolling
+         * away with the content.
+         *
+         * An explicit height fills the whole left edge on every page, short
+         * or long. Now that the rail spans both grid rows it starts at the
+         * top of the frame, so the height is the viewport minus only the WP
+         * admin bar — the header sits beside it, not above it, and no
+         * longer comes out of this sum.
+         *
+         * It adds no scrollbar to a short page: the rail is exactly one
+         * viewport tall. On a long page the grid row takes the content's
+         * height, which is what gives sticky the room to travel.
+         */
+        height: calc(100vh - var(--tt-shell-top, 0px));
+        height: calc(100dvh - var(--tt-shell-top, 0px));
         transform: none;
         visibility: visible;
         box-shadow: none;
