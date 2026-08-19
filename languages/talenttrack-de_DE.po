@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-19T17:26:18+00:00\n"
+"POT-Creation-Date: 2026-08-19T17:36:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1804
+#: src/Shared/Frontend/DashboardShortcode.php:1810
 #: src/Shared/Frontend/FrontendConfigurationView.php:2693
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1809
+#: src/Shared/Frontend/DashboardShortcode.php:1815
 msgid "Team Manager"
 msgstr ""
 
@@ -124,6 +124,9 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:976
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:259
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:245
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:303
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:337
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
@@ -166,7 +169,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:179
 #: src/Shared/Frontend/DashboardShortcode.php:212
-#: src/Shared/Frontend/DashboardShortcode.php:1803
+#: src/Shared/Frontend/DashboardShortcode.php:1809
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2906
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2918
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2995
@@ -243,7 +246,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1807
+#: src/Shared/Frontend/DashboardShortcode.php:1813
 #: src/Shared/Frontend/FrontendConfigurationView.php:2687
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -379,7 +382,7 @@ msgstr ""
 #: src/Core/FeatureRegistry.php:114
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:57
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:80
-#: src/Shared/CoreSurfaceRegistration.php:1031
+#: src/Shared/CoreSurfaceRegistration.php:1052
 msgid "Cohort transitions"
 msgstr ""
 
@@ -467,7 +470,7 @@ msgstr ""
 
 #: src/Core/FeatureRegistry.php:179
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:264
-#: src/Shared/CoreSurfaceRegistration.php:979
+#: src/Shared/CoreSurfaceRegistration.php:1000
 msgid "Podium"
 msgstr ""
 
@@ -733,7 +736,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:270
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:379
-#: src/Shared/CoreSurfaceRegistration.php:1181
+#: src/Shared/CoreSurfaceRegistration.php:1202
 #: src/Shared/Frontend/FrontendAuditLogView.php:43
 #: src/Shared/Frontend/FrontendAuditLogView.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:1594
@@ -862,13 +865,19 @@ msgid "Rate cards"
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:423
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:37
+#: src/Shared/CoreSurfaceRegistration.php:981
+msgid "Test trends"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:425
 msgid ""
 "Show this report and allow it to open. When off, the report tile is hidden "
 "and the report is rejected even via a direct link."
 msgstr ""
 
 #. translators: %s = report name, e.g. "Player · Minutes played".
-#: src/Core/FeatureRegistry.php:427
+#: src/Core/FeatureRegistry.php:429
 #, php-format
 msgid "Report: %s"
 msgstr ""
@@ -1054,7 +1063,7 @@ msgid "Docs (nl)"
 msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:33
-#: src/Shared/CoreSurfaceRegistration.php:1516
+#: src/Shared/CoreSurfaceRegistration.php:1537
 msgid "Module completeness (dev)"
 msgstr ""
 
@@ -1242,10 +1251,10 @@ msgid "Age group: %1$s → %2$s"
 msgstr ""
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:80
-#: src/Shared/CoreSurfaceRegistration.php:1281
-#: src/Shared/CoreSurfaceRegistration.php:1297
-#: src/Shared/CoreSurfaceRegistration.php:1313
-#: src/Shared/CoreSurfaceRegistration.php:1329
+#: src/Shared/CoreSurfaceRegistration.php:1302
+#: src/Shared/CoreSurfaceRegistration.php:1318
+#: src/Shared/CoreSurfaceRegistration.php:1334
+#: src/Shared/CoreSurfaceRegistration.php:1350
 msgid "staff"
 msgstr ""
 
@@ -1288,7 +1297,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:561
-#: src/Shared/Frontend/DashboardShortcode.php:1102
+#: src/Shared/Frontend/DashboardShortcode.php:1108
 msgid "Player not found."
 msgstr ""
 
@@ -1700,7 +1709,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1808
+#: src/Shared/Frontend/DashboardShortcode.php:1814
 #: src/Shared/Frontend/FrontendConfigurationView.php:2691
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1782,7 +1791,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1806
+#: src/Shared/Frontend/DashboardShortcode.php:1812
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1793,7 +1802,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1805
+#: src/Shared/Frontend/DashboardShortcode.php:1811
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -1857,7 +1866,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:260
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:386
 #: src/Shared/CoreSurfaceRegistration.php:752
-#: src/Shared/CoreSurfaceRegistration.php:1604
+#: src/Shared/CoreSurfaceRegistration.php:1625
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:972
 #: src/Shared/Modules/ModuleMetadata.php:209
 msgid "Methodology"
@@ -2186,6 +2195,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:450
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:607
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:499
@@ -2646,11 +2656,13 @@ msgid "A team is required."
 msgstr ""
 
 #: src/Infrastructure/REST/CohortBoardRestController.php:55
+#: src/Infrastructure/REST/MeasurementsRestController.php:177
 #: src/Infrastructure/REST/MinutesRestController.php:71
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:84
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:68
 msgid "You do not have access to this team."
 msgstr ""
@@ -3097,27 +3109,42 @@ msgstr ""
 msgid "Could not delete lookup value."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:232
-#: src/Infrastructure/REST/MeasurementsRestController.php:270
+#: src/Infrastructure/REST/MeasurementsRestController.php:161
+#: src/Infrastructure/REST/MeasurementsRestController.php:286
+#: src/Infrastructure/REST/MeasurementsRestController.php:324
 msgid "A test must be chosen."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:282
+#: src/Infrastructure/REST/MeasurementsRestController.php:164
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:84
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:75
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:50
+#: src/Modules/Reports/Admin/ReportsPage.php:39
+#: src/Shared/Frontend/FrontendRateCardView.php:57
+#: src/Shared/Frontend/FrontendStandardReportsView.php:115
+msgid "This report has been switched off for your academy."
+msgstr ""
+
+#: src/Infrastructure/REST/MeasurementsRestController.php:336
 msgid "Could not save the measurement."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:306
+#: src/Infrastructure/REST/MeasurementsRestController.php:360
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:208
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:238
 msgid "A test needs a name."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:317
+#: src/Infrastructure/REST/MeasurementsRestController.php:371
 #: src/Modules/Measurements/Rest/MeasurementDefinitionsRestController.php:214
 msgid "Could not save the test."
 msgstr ""
 
-#: src/Infrastructure/REST/MeasurementsRestController.php:343
+#: src/Infrastructure/REST/MeasurementsRestController.php:397
 msgid "Could not schedule the test."
 msgstr ""
 
@@ -3345,8 +3372,8 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:65
 #: src/Shared/Admin/BackNavigator.php:111 src/Shared/Admin/Menu.php:199
 #: src/Shared/CoreSurfaceRegistration.php:507
-#: src/Shared/CoreSurfaceRegistration.php:1543
-#: src/Shared/CoreSurfaceRegistration.php:1910
+#: src/Shared/CoreSurfaceRegistration.php:1564
+#: src/Shared/CoreSurfaceRegistration.php:1931
 #: src/Shared/Frontend/Components/TeamCard.php:103
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:230
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:255
@@ -4153,8 +4180,8 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:185
 #: src/Shared/Admin/BackNavigator.php:122 src/Shared/Admin/Menu.php:226
 #: src/Shared/CoreSurfaceRegistration.php:598
-#: src/Shared/CoreSurfaceRegistration.php:1575
-#: src/Shared/CoreSurfaceRegistration.php:1939
+#: src/Shared/CoreSurfaceRegistration.php:1596
+#: src/Shared/CoreSurfaceRegistration.php:1960
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:74
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:78
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:81
@@ -5037,6 +5064,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:460
 #: src/Modules/People/Admin/PeoplePage.php:389
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
@@ -5065,6 +5093,7 @@ msgstr "Von"
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:465
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:537
@@ -5324,8 +5353,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118 src/Shared/Admin/Menu.php:217
 #: src/Shared/CoreSurfaceRegistration.php:586
-#: src/Shared/CoreSurfaceRegistration.php:1566
-#: src/Shared/CoreSurfaceRegistration.php:1930
+#: src/Shared/CoreSurfaceRegistration.php:1587
+#: src/Shared/CoreSurfaceRegistration.php:1951
 #: src/Shared/Frontend/DashboardShortcode.php:727
 #: src/Shared/Frontend/FrontendComparisonView.php:390
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
@@ -5378,8 +5407,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsPage.php:353
 #: src/Shared/Admin/BackNavigator.php:125 src/Shared/Admin/Menu.php:235
 #: src/Shared/CoreSurfaceRegistration.php:678
-#: src/Shared/CoreSurfaceRegistration.php:1584
-#: src/Shared/CoreSurfaceRegistration.php:1948
+#: src/Shared/CoreSurfaceRegistration.php:1605
+#: src/Shared/CoreSurfaceRegistration.php:1969
 #: src/Shared/Frontend/DashboardShortcode.php:728
 #: src/Shared/Frontend/FrontendConfigurationView.php:258
 #: src/Shared/Frontend/FrontendExportsView.php:367
@@ -5687,11 +5716,11 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:447
 #: src/Shared/Frontend/DashboardShortcode.php:787
 #: src/Shared/Frontend/DashboardShortcode.php:843
-#: src/Shared/Frontend/DashboardShortcode.php:1052
-#: src/Shared/Frontend/DashboardShortcode.php:1061
-#: src/Shared/Frontend/DashboardShortcode.php:1363
-#: src/Shared/Frontend/DashboardShortcode.php:1371
-#: src/Shared/Frontend/DashboardShortcode.php:1379
+#: src/Shared/Frontend/DashboardShortcode.php:1058
+#: src/Shared/Frontend/DashboardShortcode.php:1067
+#: src/Shared/Frontend/DashboardShortcode.php:1369
+#: src/Shared/Frontend/DashboardShortcode.php:1377
+#: src/Shared/Frontend/DashboardShortcode.php:1385
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -5744,9 +5773,9 @@ msgstr ""
 #: src/Modules/Documentation/HelpTopics.php:336
 #: src/Shared/CoreSurfaceRegistration.php:847
 #: src/Shared/CoreSurfaceRegistration.php:862
-#: src/Shared/CoreSurfaceRegistration.php:1648
-#: src/Shared/CoreSurfaceRegistration.php:1955
-#: src/Shared/Frontend/DashboardShortcode.php:1513
+#: src/Shared/CoreSurfaceRegistration.php:1669
+#: src/Shared/CoreSurfaceRegistration.php:1976
+#: src/Shared/Frontend/DashboardShortcode.php:1519
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr ""
@@ -5797,8 +5826,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsPage.php:348
 #: src/Modules/Teams/Admin/TeamsPage.php:39
 #: src/Shared/Admin/BackNavigator.php:108 src/Shared/Admin/Menu.php:208
-#: src/Shared/CoreSurfaceRegistration.php:1534
-#: src/Shared/CoreSurfaceRegistration.php:1901
+#: src/Shared/CoreSurfaceRegistration.php:1555
+#: src/Shared/CoreSurfaceRegistration.php:1922
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:47
 #: src/Shared/Frontend/FrontendPersonDetailView.php:175
 #: src/Shared/Frontend/FrontendSpondView.php:185
@@ -5818,7 +5847,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:186
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:126
 #: src/Modules/Pdp/Admin/SeasonsPage.php:52
-#: src/Shared/CoreSurfaceRegistration.php:1593
+#: src/Shared/CoreSurfaceRegistration.php:1614
 #: src/Shared/Frontend/FrontendConfigurationView.php:1537
 #: src/Shared/Frontend/FrontendSeasonsView.php:54
 #: src/Shared/Frontend/FrontendSeasonsView.php:57
@@ -5851,6 +5880,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Authorization/Admin/RolesPage.php:494
 #: src/Modules/Documentation/HelpTopics.php:87
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:40
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
 #: src/Modules/Reports/Admin/ReportsPage.php:38
 #: src/Modules/Reports/Admin/ReportsPage.php:83
@@ -5862,8 +5892,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsPage.php:354
 #: src/Shared/Admin/BackNavigator.php:128
 #: src/Shared/CoreSurfaceRegistration.php:901
-#: src/Shared/CoreSurfaceRegistration.php:1654
-#: src/Shared/CoreSurfaceRegistration.php:1959
+#: src/Shared/CoreSurfaceRegistration.php:1675
+#: src/Shared/CoreSurfaceRegistration.php:1980
 #: src/Shared/Frontend/FrontendReportDetailView.php:62
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:52
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:53
@@ -5883,18 +5913,6 @@ msgstr "Berichte"
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:57
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:63
 msgid "You do not have permission to view this report."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:84
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:75
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
-#: src/Modules/Reports/Admin/ReportsPage.php:39
-#: src/Shared/Frontend/FrontendRateCardView.php:57
-#: src/Shared/Frontend/FrontendStandardReportsView.php:115
-msgid "This report has been switched off for your academy."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:127
@@ -5957,6 +5975,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:452
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
@@ -6149,6 +6168,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:473
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1745
 #: src/Shared/Frontend/FrontendTrialsManageView.php:346
@@ -6190,6 +6210,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:149
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:312
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:251
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1287
 msgid "Verdict"
 msgstr ""
@@ -7219,7 +7240,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:73
 #: src/Shared/Admin/BackNavigator.php:144
-#: src/Shared/CoreSurfaceRegistration.php:1817
+#: src/Shared/CoreSurfaceRegistration.php:1838
 #: src/Shared/Frontend/FrontendRolesView.php:118
 msgid "Permission Chain Debug"
 msgstr ""
@@ -7451,8 +7472,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:72
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:314
 #: src/Shared/Admin/BackNavigator.php:143
-#: src/Shared/CoreSurfaceRegistration.php:1800
-#: src/Shared/CoreSurfaceRegistration.php:2053
+#: src/Shared/CoreSurfaceRegistration.php:1821
+#: src/Shared/CoreSurfaceRegistration.php:2074
 #: src/Shared/Frontend/FrontendRolesView.php:117
 msgid "Permission Debug"
 msgstr ""
@@ -7613,8 +7634,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:71
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:298
 #: src/Shared/Admin/BackNavigator.php:142
-#: src/Shared/CoreSurfaceRegistration.php:1791
-#: src/Shared/CoreSurfaceRegistration.php:2044
+#: src/Shared/CoreSurfaceRegistration.php:1812
+#: src/Shared/CoreSurfaceRegistration.php:2065
 msgid "Functional Roles"
 msgstr "Funktionale Rollen"
 
@@ -7638,7 +7659,7 @@ msgstr ""
 # v3.47.0 — Roles & rights / Functional roles labelling
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:73
 #: src/Modules/Authorization/Admin/RolesPage.php:59
-#: src/Shared/CoreSurfaceRegistration.php:1782
+#: src/Shared/CoreSurfaceRegistration.php:1803
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:107
 #: src/Shared/Frontend/FrontendRolesView.php:39
 msgid "Roles & rights"
@@ -7818,7 +7839,7 @@ msgstr ""
 
 # v3.82.1 hotfix bundle
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:39
-#: src/Shared/CoreSurfaceRegistration.php:1499
+#: src/Shared/CoreSurfaceRegistration.php:1520
 msgid "Impersonate user"
 msgstr ""
 
@@ -7874,10 +7895,10 @@ msgstr ""
 #: src/Shared/Admin/BackNavigator.php:115
 #: src/Shared/CoreSurfaceRegistration.php:477
 #: src/Shared/CoreSurfaceRegistration.php:518
-#: src/Shared/CoreSurfaceRegistration.php:1528
-#: src/Shared/CoreSurfaceRegistration.php:1552
-#: src/Shared/CoreSurfaceRegistration.php:1897
-#: src/Shared/CoreSurfaceRegistration.php:1919
+#: src/Shared/CoreSurfaceRegistration.php:1549
+#: src/Shared/CoreSurfaceRegistration.php:1573
+#: src/Shared/CoreSurfaceRegistration.php:1918
+#: src/Shared/CoreSurfaceRegistration.php:1940
 #: src/Shared/Frontend/FrontendMailComposeView.php:49
 #: src/Shared/Frontend/FrontendPeopleManageView.php:50
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
@@ -7908,7 +7929,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:113
 #: src/Modules/Documentation/HelpTopics.php:62
-#: src/Shared/CoreSurfaceRegistration.php:1135
+#: src/Shared/CoreSurfaceRegistration.php:1156
 #: src/Shared/Frontend/FrontendHolidaysView.php:46
 #: src/Shared/Frontend/FrontendHolidaysView.php:146
 #: src/Shared/Frontend/FrontendHolidaysView.php:156
@@ -7973,8 +7994,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:125
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:331
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:384
-#: src/Shared/CoreSurfaceRegistration.php:1148
-#: src/Shared/CoreSurfaceRegistration.php:1756
+#: src/Shared/CoreSurfaceRegistration.php:1169
+#: src/Shared/CoreSurfaceRegistration.php:1777
 #: src/Shared/Frontend/FrontendMigrationsView.php:35
 #: src/Shared/Frontend/FrontendMigrationsView.php:36
 msgid "Migrations"
@@ -8040,7 +8061,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:46
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:383
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:79
-#: src/Shared/CoreSurfaceRegistration.php:1228
+#: src/Shared/CoreSurfaceRegistration.php:1249
 #: src/Shared/Modules/ModuleMetadata.php:97
 msgid "Invitations"
 msgstr ""
@@ -8095,7 +8116,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:147
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:40
-#: src/Shared/CoreSurfaceRegistration.php:1342
+#: src/Shared/CoreSurfaceRegistration.php:1363
 msgid "Staff overview"
 msgstr ""
 
@@ -8106,7 +8127,7 @@ msgstr "Diskussionsfäden"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:150
 #: src/Modules/Documentation/HelpTopics.php:314
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
-#: src/Shared/CoreSurfaceRegistration.php:1745
+#: src/Shared/CoreSurfaceRegistration.php:1766
 #: src/Shared/Frontend/FrontendConfigurationView.php:1553
 #: src/Shared/Frontend/FrontendSpondView.php:58
 msgid "Spond integration"
@@ -8261,7 +8282,7 @@ msgstr ""
 # === #0033 Sprints 3+4+5+6+7+8+9 — Authorization matrix admin strings ===
 #: src/Modules/Authorization/Admin/MatrixPage.php:67
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:294
-#: src/Shared/CoreSurfaceRegistration.php:1827
+#: src/Shared/CoreSurfaceRegistration.php:1848
 #: src/Shared/Frontend/FrontendRolesView.php:114
 msgid "Authorization Matrix"
 msgstr ""
@@ -8427,6 +8448,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:560
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:249
 msgid "Change"
 msgstr ""
 
@@ -8447,7 +8469,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1810
+#: src/Shared/Frontend/DashboardShortcode.php:1816
 msgid "Academy Admin"
 msgstr ""
 
@@ -8535,7 +8557,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:715
 #: src/Modules/Authorization/Admin/MatrixPage.php:716
 #: src/Modules/Authorization/Admin/MatrixPage.php:717
-#: src/Shared/CoreSurfaceRegistration.php:1106
+#: src/Shared/CoreSurfaceRegistration.php:1127
 #: src/Shared/Modules/ModuleMetadata.php:51
 msgid "Administration"
 msgstr ""
@@ -8625,7 +8647,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:52
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
 #: src/Modules/Documentation/HelpTopics.php:192
-#: src/Shared/CoreSurfaceRegistration.php:1857
+#: src/Shared/CoreSurfaceRegistration.php:1878
 #: src/Shared/Frontend/FrontendModulesView.php:228
 #: src/Shared/Frontend/FrontendModulesView.php:229
 #: src/Shared/Frontend/FrontendModulesView.php:483
@@ -8674,8 +8696,8 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
 #: src/Modules/Tournaments/TournamentsModule.php:89
 #: src/Shared/CoreSurfaceRegistration.php:562
-#: src/Shared/CoreSurfaceRegistration.php:1560
-#: src/Shared/CoreSurfaceRegistration.php:1926
+#: src/Shared/CoreSurfaceRegistration.php:1581
+#: src/Shared/CoreSurfaceRegistration.php:1947
 #: src/Shared/Tiles/TileRegistry.php:54
 msgid "Performance"
 msgstr "Leistung"
@@ -8691,12 +8713,12 @@ msgstr "Leistung"
 #: src/Modules/Stats/Admin/UsageStatsPage.php:356
 #: src/Modules/TeamDevelopment/TeamDevelopmentModule.php:53
 #: src/Shared/Admin/BackNavigator.php:133
-#: src/Shared/CoreSurfaceRegistration.php:1114
-#: src/Shared/CoreSurfaceRegistration.php:1397
-#: src/Shared/CoreSurfaceRegistration.php:1697
-#: src/Shared/CoreSurfaceRegistration.php:1703
-#: src/Shared/CoreSurfaceRegistration.php:1993
-#: src/Shared/CoreSurfaceRegistration.php:1997
+#: src/Shared/CoreSurfaceRegistration.php:1135
+#: src/Shared/CoreSurfaceRegistration.php:1418
+#: src/Shared/CoreSurfaceRegistration.php:1718
+#: src/Shared/CoreSurfaceRegistration.php:1724
+#: src/Shared/CoreSurfaceRegistration.php:2014
+#: src/Shared/CoreSurfaceRegistration.php:2018
 #: src/Shared/Frontend/FrontendConfigurationView.php:41
 #: src/Shared/Frontend/FrontendConfigurationView.php:146
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
@@ -8748,7 +8770,7 @@ msgid "Off"
 msgstr "Aus"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:155
-#: src/Shared/CoreSurfaceRegistration.php:1365
+#: src/Shared/CoreSurfaceRegistration.php:1386
 #: src/Shared/Frontend/FrontendFeaturesView.php:44
 #: src/Shared/Frontend/FrontendFeaturesView.php:52
 msgid "Features"
@@ -11378,8 +11400,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:538
 #: src/Modules/Stats/Admin/UsageStatsPage.php:358
 #: src/Shared/Admin/BackNavigator.php:137
-#: src/Shared/CoreSurfaceRegistration.php:1721
-#: src/Shared/CoreSurfaceRegistration.php:2015
+#: src/Shared/CoreSurfaceRegistration.php:1742
+#: src/Shared/CoreSurfaceRegistration.php:2036
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:683
 msgid "Evaluation Categories"
 msgstr ""
@@ -11394,8 +11416,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:539
 #: src/Modules/Stats/Admin/UsageStatsPage.php:359
 #: src/Shared/Admin/BackNavigator.php:140
-#: src/Shared/CoreSurfaceRegistration.php:1730
-#: src/Shared/CoreSurfaceRegistration.php:2024
+#: src/Shared/CoreSurfaceRegistration.php:1751
+#: src/Shared/CoreSurfaceRegistration.php:2045
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:684
 msgid "Category Weights"
 msgstr ""
@@ -11437,7 +11459,7 @@ msgstr ""
 # ─── v2.9.0 Sprint 1F — Authorization UI ───
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:301
 #: src/Shared/Admin/BackNavigator.php:141
-#: src/Shared/CoreSurfaceRegistration.php:2035
+#: src/Shared/CoreSurfaceRegistration.php:2056
 msgid "Roles & Permissions"
 msgstr ""
 
@@ -11446,7 +11468,7 @@ msgid "Inspect the WordPress roles and capabilities TalentTrack uses."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:304
-#: src/Shared/CoreSurfaceRegistration.php:1837
+#: src/Shared/CoreSurfaceRegistration.php:1858
 #: src/Shared/Frontend/FrontendRolesView.php:115
 msgid "Activate access control"
 msgstr ""
@@ -11490,8 +11512,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:537
 #: src/Modules/Stats/Admin/UsageStatsPage.php:357
 #: src/Shared/Admin/BackNavigator.php:134
-#: src/Shared/CoreSurfaceRegistration.php:1712
-#: src/Shared/CoreSurfaceRegistration.php:2006
+#: src/Shared/CoreSurfaceRegistration.php:1733
+#: src/Shared/CoreSurfaceRegistration.php:2027
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:682
 msgid "Custom Fields"
 msgstr ""
@@ -11559,7 +11581,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:433
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
-#: src/Shared/CoreSurfaceRegistration.php:1428
+#: src/Shared/CoreSurfaceRegistration.php:1449
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
 #: src/Shared/Frontend/FrontendTileGrid.php:783
 msgid "Welcome"
@@ -12401,7 +12423,7 @@ msgid "Warnings only"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:55
-#: src/Shared/CoreSurfaceRegistration.php:1768
+#: src/Shared/CoreSurfaceRegistration.php:1789
 msgid "Error Log"
 msgstr ""
 
@@ -12740,7 +12762,7 @@ msgid "Minutes played"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/MigrationsPage.php:40
-#: src/Shared/CoreSurfaceRegistration.php:1755
+#: src/Shared/CoreSurfaceRegistration.php:1776
 msgid "Database Migrations"
 msgstr ""
 
@@ -14556,7 +14578,7 @@ msgid "Basic"
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:325
-#: src/Shared/CoreSurfaceRegistration.php:1400
+#: src/Shared/CoreSurfaceRegistration.php:1421
 #: src/Shared/Frontend/FrontendConfigurationView.php:1996
 msgid "Advanced"
 msgstr ""
@@ -15013,7 +15035,7 @@ msgid "You do not have permission to review demo data."
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:53
-#: src/Shared/CoreSurfaceRegistration.php:1484
+#: src/Shared/CoreSurfaceRegistration.php:1505
 msgid "Demo data review"
 msgstr ""
 
@@ -15566,7 +15588,7 @@ msgstr ""
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:44
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:45
-#: src/Shared/CoreSurfaceRegistration.php:1085
+#: src/Shared/CoreSurfaceRegistration.php:1106
 msgid "Approval queue"
 msgstr ""
 
@@ -15655,7 +15677,7 @@ msgstr ""
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:41
 #: src/Modules/Development/Frontend/IdeasBoardView.php:42
-#: src/Shared/CoreSurfaceRegistration.php:1072
+#: src/Shared/CoreSurfaceRegistration.php:1093
 msgid "Development board"
 msgstr ""
 
@@ -15784,7 +15806,7 @@ msgstr ""
 
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:42
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:43
-#: src/Shared/CoreSurfaceRegistration.php:1059
+#: src/Shared/CoreSurfaceRegistration.php:1080
 msgid "Submit an idea"
 msgstr ""
 
@@ -15850,7 +15872,7 @@ msgstr ""
 
 #: src/Modules/Development/Frontend/TracksView.php:49
 #: src/Modules/Development/Frontend/TracksView.php:50
-#: src/Shared/CoreSurfaceRegistration.php:1098
+#: src/Shared/CoreSurfaceRegistration.php:1119
 msgid "Development tracks"
 msgstr ""
 
@@ -16034,8 +16056,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:541
 #: src/Modules/Stats/Admin/UsageStatsPage.php:361
 #: src/Shared/Admin/BackNavigator.php:145
-#: src/Shared/CoreSurfaceRegistration.php:1879
-#: src/Shared/CoreSurfaceRegistration.php:2064
+#: src/Shared/CoreSurfaceRegistration.php:1900
+#: src/Shared/CoreSurfaceRegistration.php:2085
 #: src/Shared/Frontend/FrontendDocsView.php:45
 #: src/Shared/Frontend/FrontendDocsView.php:46
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:686
@@ -16052,11 +16074,11 @@ msgid "No matching topics."
 msgstr ""
 
 #: src/Modules/Documentation/Admin/DocumentationPage.php:200
-#: src/Shared/CoreSurfaceRegistration.php:1399
-#: src/Shared/CoreSurfaceRegistration.php:1873
-#: src/Shared/CoreSurfaceRegistration.php:2060
+#: src/Shared/CoreSurfaceRegistration.php:1420
+#: src/Shared/CoreSurfaceRegistration.php:1894
+#: src/Shared/CoreSurfaceRegistration.php:2081
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1844
+#: src/Shared/Frontend/DashboardShortcode.php:1850
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -16479,7 +16501,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Documentation/HelpTopics.php:294
-#: src/Shared/CoreSurfaceRegistration.php:1470
+#: src/Shared/CoreSurfaceRegistration.php:1491
 #: src/Shared/Modules/ModuleMetadata.php:375
 msgid "Demo data"
 msgstr ""
@@ -16529,7 +16551,7 @@ msgid "Mobile install"
 msgstr ""
 
 #: src/Modules/Documentation/HelpTopics.php:340
-#: src/Shared/CoreSurfaceRegistration.php:1409
+#: src/Shared/CoreSurfaceRegistration.php:1430
 msgid "Developer"
 msgstr ""
 
@@ -17461,6 +17483,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:436
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
 msgid "Test"
@@ -17833,7 +17856,7 @@ msgstr "Drucken"
 #: src/Shared/Frontend/Components/FilterBar.php:348
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:185
-#: src/Shared/Frontend/DashboardShortcode.php:1849
+#: src/Shared/Frontend/DashboardShortcode.php:1855
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Schließen"
@@ -18756,7 +18779,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:109
 #: src/Modules/Mfa/Wizards/SecretStep.php:110
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:141
-#: src/Shared/CoreSurfaceRegistration.php:1442
+#: src/Shared/CoreSurfaceRegistration.php:1463
 #: src/Shared/Frontend/FrontendMyProfileView.php:292
 #: src/Shared/Frontend/FrontendSpondView.php:127
 #: src/Shared/Frontend/FrontendSpondView.php:218
@@ -19243,7 +19266,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:527
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
-#: src/Shared/CoreSurfaceRegistration.php:1455
+#: src/Shared/CoreSurfaceRegistration.php:1476
 #: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:28
 #: src/Shared/Frontend/FrontendConfigurationView.php:1497
 #: src/Shared/Frontend/FrontendConfigurationView.php:2738
@@ -20913,6 +20936,7 @@ msgid "↓ A lower value is better on this test — the falling line is progress
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:182
 msgid "↑ A higher value is better on this test."
 msgstr ""
 
@@ -20921,6 +20945,7 @@ msgid "recorded value"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:439
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:341
 msgid "Passed"
 msgstr ""
 
@@ -20932,6 +20957,7 @@ msgstr ""
 
 #. translators: 1: number of passes, 2: number of attempts
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:368
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
@@ -21164,10 +21190,12 @@ msgid "Test results"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:37
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:45
 msgid "You do not have permission to browse test results."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:65
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:72
 msgid ""
 "No tests are defined yet. Add a test under Manage tests to start recording "
 "results."
@@ -21178,10 +21206,12 @@ msgid "Choose a test to see every player's latest result."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:114
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:102
 msgid "No results match these filters yet."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:159
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:438
 msgid "— Choose a test —"
 msgstr ""
 
@@ -21211,6 +21241,81 @@ msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:329
 msgid "Well below target"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:91
+msgid "Choose a test to see how every player has developed."
+msgstr ""
+
+#. translators: 1: number of players, 2: number of measuring moments
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:119
+#, php-format
+msgid "%1$d player · %2$d measuring moment"
+msgid_plural "%1$d players · %2$d measuring moments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:142
+msgid ""
+"This test has no direction: a higher value is not better than a lower one. "
+"There is no target, no verdict and no ranking — only the readings per date."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:160
+msgid "Squad average"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:178
+msgid "↓ A lower value is better on this test — a falling line is progress."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:187
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1285
+msgid "player"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:189
+msgid "squad average"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:210
+msgid "Most improved"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:211
+msgid "Fallen back"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:216
+msgid "Nobody in this window."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:282
+msgid ""
+"The change is read in the direction of the test: on a test where lower is "
+"better, a negative change is progress and is ranked as such."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:299
+msgid ""
+"Levels have no numeric axis, so there is no line. Each cell shows the "
+"recorded level in its own colour."
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:374
+msgid "Pass rate"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:392
+msgid "improved"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:393
+msgid "fallen back"
+msgstr ""
+
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:394
+msgid "about the same"
 msgstr ""
 
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php:33
@@ -21362,7 +21467,7 @@ msgid "Shipped football actions are read-only."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:42
-#: src/Shared/CoreSurfaceRegistration.php:1640
+#: src/Shared/CoreSurfaceRegistration.php:1661
 msgid "Edit football action"
 msgstr ""
 
@@ -21426,7 +21531,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/MethodologyView.php:340
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:206
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:238
-#: src/Shared/CoreSurfaceRegistration.php:1632
+#: src/Shared/CoreSurfaceRegistration.php:1653
 msgid "Voetbalhandelingen"
 msgstr ""
 
@@ -21589,7 +21694,7 @@ msgid "Shipped influence factors are read-only."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:53
-#: src/Shared/CoreSurfaceRegistration.php:1617
+#: src/Shared/CoreSurfaceRegistration.php:1638
 msgid "Edit influence factor"
 msgstr ""
 
@@ -21636,7 +21741,7 @@ msgid "Shipped learning goals are read-only."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:48
-#: src/Shared/CoreSurfaceRegistration.php:1616
+#: src/Shared/CoreSurfaceRegistration.php:1637
 msgid "Edit learning goal"
 msgstr ""
 
@@ -21949,7 +22054,7 @@ msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:509
 #: src/Modules/Methodology/Admin/VisionEditPage.php:63
-#: src/Shared/CoreSurfaceRegistration.php:1613
+#: src/Shared/CoreSurfaceRegistration.php:1634
 msgid "Edit vision"
 msgstr ""
 
@@ -21998,7 +22103,7 @@ msgid "Author my own framework"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:573
-#: src/Shared/CoreSurfaceRegistration.php:1614
+#: src/Shared/CoreSurfaceRegistration.php:1635
 msgid "Edit framework"
 msgstr ""
 
@@ -22027,7 +22132,7 @@ msgid "Shipped phases are read-only. Clone the framework primer first."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:45
-#: src/Shared/CoreSurfaceRegistration.php:1615
+#: src/Shared/CoreSurfaceRegistration.php:1636
 msgid "Edit phase"
 msgstr ""
 
@@ -22062,7 +22167,7 @@ msgid "Shipped positions are read-only. Use Clone & Edit instead."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PositionEditPage.php:64
-#: src/Shared/CoreSurfaceRegistration.php:1611
+#: src/Shared/CoreSurfaceRegistration.php:1632
 msgid "Edit position"
 msgstr ""
 
@@ -22121,7 +22226,7 @@ msgid "Shipped principles are read-only. Use Clone & Edit instead."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:84
-#: src/Shared/CoreSurfaceRegistration.php:1610
+#: src/Shared/CoreSurfaceRegistration.php:1631
 msgid "Edit principle"
 msgstr ""
 
@@ -22185,7 +22290,7 @@ msgid "Shipped set pieces are read-only. Use Clone & Edit instead."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:59
-#: src/Shared/CoreSurfaceRegistration.php:1612
+#: src/Shared/CoreSurfaceRegistration.php:1633
 msgid "Edit set piece"
 msgstr ""
 
@@ -26327,7 +26432,7 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:54
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:62
 #: src/Shared/CoreSurfaceRegistration.php:341
-#: src/Shared/CoreSurfaceRegistration.php:1306
+#: src/Shared/CoreSurfaceRegistration.php:1327
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:115
@@ -26348,7 +26453,7 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59
 #: src/Shared/CoreSurfaceRegistration.php:369
-#: src/Shared/CoreSurfaceRegistration.php:1290
+#: src/Shared/CoreSurfaceRegistration.php:1311
 #: src/Shared/Frontend/FrontendMyGoalsView.php:30
 #: src/Shared/Frontend/FrontendMyGoalsView.php:38
 #: src/Shared/Frontend/FrontendMyGoalsView.php:39
@@ -26358,7 +26463,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:52
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:389
-#: src/Shared/CoreSurfaceRegistration.php:1272
+#: src/Shared/CoreSurfaceRegistration.php:1293
 msgid "My PDP"
 msgstr "Mein PDP"
 
@@ -26425,7 +26530,7 @@ msgstr "Probetrainings"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:258
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:382
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:23
-#: src/Shared/CoreSurfaceRegistration.php:1215
+#: src/Shared/CoreSurfaceRegistration.php:1236
 msgid "Accounts & access"
 msgstr ""
 
@@ -26445,8 +26550,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1759
-#: src/Shared/Frontend/DashboardShortcode.php:1760
+#: src/Shared/Frontend/DashboardShortcode.php:1765
+#: src/Shared/Frontend/DashboardShortcode.php:1766
 msgid "Help & docs"
 msgstr ""
 
@@ -29208,8 +29313,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1364
-#: src/Shared/Frontend/DashboardShortcode.php:1372
+#: src/Shared/Frontend/DashboardShortcode.php:1370
+#: src/Shared/Frontend/DashboardShortcode.php:1378
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -29910,7 +30015,7 @@ msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:40
-#: src/Shared/CoreSurfaceRegistration.php:1322
+#: src/Shared/CoreSurfaceRegistration.php:1343
 msgid "My certifications"
 msgstr ""
 
@@ -30224,8 +30329,8 @@ msgstr ""
 
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:122
 #: src/Shared/Admin/BackNavigator.php:130
-#: src/Shared/CoreSurfaceRegistration.php:1672
-#: src/Shared/CoreSurfaceRegistration.php:1977
+#: src/Shared/CoreSurfaceRegistration.php:1693
+#: src/Shared/CoreSurfaceRegistration.php:1998
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1441
 msgid "Player Comparison"
 msgstr ""
@@ -30317,8 +30422,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:535
 #: src/Modules/Stats/Admin/UsageStatsPage.php:355
 #: src/Shared/Admin/BackNavigator.php:129
-#: src/Shared/CoreSurfaceRegistration.php:1663
-#: src/Shared/CoreSurfaceRegistration.php:1968
+#: src/Shared/CoreSurfaceRegistration.php:1684
+#: src/Shared/CoreSurfaceRegistration.php:1989
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:680
 msgid "Player Rate Cards"
 msgstr ""
@@ -30378,7 +30483,7 @@ msgstr ""
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:55
 #: src/Shared/Admin/BackNavigator.php:132
-#: src/Shared/CoreSurfaceRegistration.php:1689
+#: src/Shared/CoreSurfaceRegistration.php:1710
 msgid "Usage Detail"
 msgstr ""
 
@@ -30578,8 +30683,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsPage.php:57
 #: src/Modules/Stats/Admin/UsageStatsPage.php:360
 #: src/Shared/Admin/BackNavigator.php:131
-#: src/Shared/CoreSurfaceRegistration.php:1681
-#: src/Shared/CoreSurfaceRegistration.php:1986
+#: src/Shared/CoreSurfaceRegistration.php:1702
+#: src/Shared/CoreSurfaceRegistration.php:2007
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:685
 msgid "Usage Statistics"
 msgstr ""
@@ -30831,7 +30936,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
 #: src/Shared/Frontend/DashboardShortcode.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:183
-#: src/Shared/Frontend/DashboardShortcode.php:1854
+#: src/Shared/Frontend/DashboardShortcode.php:1860
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:459
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -31138,7 +31243,7 @@ msgid "You do not have permission to edit this player's attributes."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1101
+#: src/Shared/Frontend/DashboardShortcode.php:1107
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:232
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -31583,10 +31688,6 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1284
 msgid "custom"
-msgstr ""
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1285
-msgid "player"
 msgstr ""
 
 #. translators: %d = tier number 1/2/3
@@ -36861,11 +36962,17 @@ msgid ""
 "Browse every test result: each player's latest value, colour, trend and flag."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:980
+#: src/Shared/CoreSurfaceRegistration.php:982
+msgid ""
+"One test, every player, over the season: who is developing and who is "
+"stalling."
+msgstr ""
+
+#: src/Shared/CoreSurfaceRegistration.php:1001
 msgid "Team rankings and top performers."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1004
+#: src/Shared/CoreSurfaceRegistration.php:1025
 #: src/Shared/Frontend/FrontendExportsView.php:305
 #: src/Shared/Frontend/FrontendExportsView.php:319
 #: src/Shared/Frontend/FrontendExportsView.php:325
@@ -36873,147 +36980,147 @@ msgstr ""
 msgid "Exports"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1005
+#: src/Shared/CoreSurfaceRegistration.php:1026
 msgid "Bulk exports: players, attendance, goals, more."
 msgstr ""
 
 # v3.28.0 — deferred follow-up
 # 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
-#: src/Shared/CoreSurfaceRegistration.php:1017
+#: src/Shared/CoreSurfaceRegistration.php:1038
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:60
 #: src/Shared/Frontend/FrontendUsageStatsView.php:71
 #: src/Shared/Frontend/FrontendUsageStatsView.php:72
 msgid "Application KPIs"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1018
+#: src/Shared/CoreSurfaceRegistration.php:1039
 msgid "Usage: evaluations, attendance, goals, players."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1032
+#: src/Shared/CoreSurfaceRegistration.php:1053
 msgid "Find players by journey event and date range."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1051
+#: src/Shared/CoreSurfaceRegistration.php:1072
 msgid "Idea pipeline"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1060
+#: src/Shared/CoreSurfaceRegistration.php:1081
 msgid "Spotted a bug or idea? Send it to the team."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1073
+#: src/Shared/CoreSurfaceRegistration.php:1094
 msgid "Kanban board of every staged idea."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1086
+#: src/Shared/CoreSurfaceRegistration.php:1107
 msgid "Approve and promote ideas, or reject them."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1099
+#: src/Shared/CoreSurfaceRegistration.php:1120
 msgid "Group ideas into a player-development roadmap."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1115
+#: src/Shared/CoreSurfaceRegistration.php:1136
 msgid "Lookups, branding, authorization, system settings."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1136
+#: src/Shared/CoreSurfaceRegistration.php:1157
 msgid "Academy holiday periods shown on every team planner."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1149
+#: src/Shared/CoreSurfaceRegistration.php:1170
 msgid "Database migration status (read-only)."
 msgstr ""
 
 # #0055 — Record creation wizards
-#: src/Shared/CoreSurfaceRegistration.php:1163
+#: src/Shared/CoreSurfaceRegistration.php:1184
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:35
 msgid "Wizards"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1164
+#: src/Shared/CoreSurfaceRegistration.php:1185
 msgid "Toggle record wizards; see completion stats."
 msgstr ""
 
 # #0021 — frontend audit-log viewer (only the strings new to this view —
 # Audit log / When / Entity / Payload / No audit entries match... /
 # Page %1$d of %2$d already translated above)
-#: src/Shared/CoreSurfaceRegistration.php:1182
+#: src/Shared/CoreSurfaceRegistration.php:1203
 #: src/Shared/Frontend/FrontendConfigurationView.php:1594
 msgid "Who changed what, when. Filterable, paginated."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1198
+#: src/Shared/CoreSurfaceRegistration.php:1219
 #: src/Shared/Frontend/FrontendDataBrowserView.php:62
 #: src/Shared/Frontend/FrontendDataBrowserView.php:63
 #: src/Shared/Frontend/FrontendDataBrowserView.php:201
 msgid "Data Browser"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1199
+#: src/Shared/CoreSurfaceRegistration.php:1220
 msgid "Browse the raw data behind TalentTrack, read-only."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1216
+#: src/Shared/CoreSurfaceRegistration.php:1237
 msgid "Link logins to player, parent and staff records."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1229
+#: src/Shared/CoreSurfaceRegistration.php:1250
 msgid "Pending invites + WhatsApp message templates."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1247
+#: src/Shared/CoreSurfaceRegistration.php:1268
 msgid "Open wp-admin"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1248
+#: src/Shared/CoreSurfaceRegistration.php:1269
 msgid "Drop into the full WordPress admin dashboard."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1273
+#: src/Shared/CoreSurfaceRegistration.php:1294
 msgid "Your personal development plan."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1291
+#: src/Shared/CoreSurfaceRegistration.php:1312
 msgid "Personal goals, optionally linked to a badge."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1307
+#: src/Shared/CoreSurfaceRegistration.php:1328
 msgid "Self and top-down staff evaluations."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1323
+#: src/Shared/CoreSurfaceRegistration.php:1344
 msgid "Coaching badges and certs with expiry tracking."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1343
+#: src/Shared/CoreSurfaceRegistration.php:1364
 msgid "Open goals, overdue reviews, expiring certs."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1359
+#: src/Shared/CoreSurfaceRegistration.php:1380
 msgid "About"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1366
+#: src/Shared/CoreSurfaceRegistration.php:1387
 msgid "See which parts of TalentTrack are switched on."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1398
+#: src/Shared/CoreSurfaceRegistration.php:1419
 msgid "Data & demo"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1408
-#: src/Shared/CoreSurfaceRegistration.php:1776
-#: src/Shared/CoreSurfaceRegistration.php:2031
+#: src/Shared/CoreSurfaceRegistration.php:1429
+#: src/Shared/CoreSurfaceRegistration.php:1797
+#: src/Shared/CoreSurfaceRegistration.php:2052
 msgid "Access Control"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1517
+#: src/Shared/CoreSurfaceRegistration.php:1538
 msgid "Module completeness"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1746
+#: src/Shared/CoreSurfaceRegistration.php:1767
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2117
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:39
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:49
@@ -37024,81 +37131,81 @@ msgstr ""
 msgid "Spond"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1847
+#: src/Shared/CoreSurfaceRegistration.php:1868
 #: src/Shared/Frontend/FrontendRolesView.php:116
 msgid "Compare users"
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1902
+#: src/Shared/CoreSurfaceRegistration.php:1923
 msgid "Manage teams, staff assignments, and age groups."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1911
+#: src/Shared/CoreSurfaceRegistration.php:1932
 msgid "Player roster, positions, photos, guardian info."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1920
+#: src/Shared/CoreSurfaceRegistration.php:1941
 msgid "Coaches, assistants, medical staff, volunteers."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1931
+#: src/Shared/CoreSurfaceRegistration.php:1952
 msgid "Rate players across training and match activities."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1940
+#: src/Shared/CoreSurfaceRegistration.php:1961
 msgid "Record training activities and attendance."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1949
+#: src/Shared/CoreSurfaceRegistration.php:1970
 msgid "Set and track development goals per player."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1960
+#: src/Shared/CoreSurfaceRegistration.php:1981
 msgid "Saved report presets and exports."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1969
+#: src/Shared/CoreSurfaceRegistration.php:1990
 msgid "Per-player rate cards with trends and charts."
 msgstr ""
 
 # ===== v2.20.0 — Player Comparison, Access Control tiles, Reports tile launcher =====
-#: src/Shared/CoreSurfaceRegistration.php:1978
+#: src/Shared/CoreSurfaceRegistration.php:1999
 msgid "Side-by-side comparison of up to 4 players."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1987
+#: src/Shared/CoreSurfaceRegistration.php:2008
 msgid "Logins, active users, most-visited pages."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:1998
+#: src/Shared/CoreSurfaceRegistration.php:2019
 msgid "Academy name, logo, rating scale, colors."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2007
+#: src/Shared/CoreSurfaceRegistration.php:2028
 msgid "Add club-specific fields to any entity."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2016
+#: src/Shared/CoreSurfaceRegistration.php:2037
 msgid "Main + subcategories used in evaluations."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2025
+#: src/Shared/CoreSurfaceRegistration.php:2046
 msgid "Per-age-group weighting for overall ratings."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2036
+#: src/Shared/CoreSurfaceRegistration.php:2057
 msgid "Who can do what — grant or revoke TalentTrack roles per user."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2045
+#: src/Shared/CoreSurfaceRegistration.php:2066
 msgid "Head coach, assistant, physio — map club roles to permissions."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2054
+#: src/Shared/CoreSurfaceRegistration.php:2075
 msgid "Inspect any user's effective permissions."
 msgstr ""
 
-#: src/Shared/CoreSurfaceRegistration.php:2065
+#: src/Shared/CoreSurfaceRegistration.php:2086
 msgid "How to use TalentTrack."
 msgstr ""
 
@@ -37885,8 +37992,16 @@ msgstr ""
 msgid "Upcoming"
 msgstr ""
 
+#. translators: 1: test name, 2: number of players plotted, 3: first date, 4: last date
+#: src/Shared/Frontend/Components/TrendChart.php:365
+#, php-format
+msgid ""
+"%1$s: %2$d players plotted from %3$s to %4$s. The table below lists every "
+"value."
+msgstr ""
+
 #. translators: 1: test name, 2: number of results, 3: first value, 4: first date, 5: latest value, 6: latest date
-#: src/Shared/Frontend/Components/TrendChart.php:284
+#: src/Shared/Frontend/Components/TrendChart.php:392
 #, php-format
 msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
 msgstr ""
@@ -37923,8 +38038,8 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:176
-#: src/Shared/Frontend/DashboardShortcode.php:1710
 #: src/Shared/Frontend/DashboardShortcode.php:1716
+#: src/Shared/Frontend/DashboardShortcode.php:1722
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -38101,87 +38216,87 @@ msgstr ""
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1053
+#: src/Shared/Frontend/DashboardShortcode.php:1059
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1062
+#: src/Shared/Frontend/DashboardShortcode.php:1068
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1380
+#: src/Shared/Frontend/DashboardShortcode.php:1386
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1515
+#: src/Shared/Frontend/DashboardShortcode.php:1521
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1651
+#: src/Shared/Frontend/DashboardShortcode.php:1657
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1654
+#: src/Shared/Frontend/DashboardShortcode.php:1660
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1657
+#: src/Shared/Frontend/DashboardShortcode.php:1663
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1680
+#: src/Shared/Frontend/DashboardShortcode.php:1686
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1738
+#: src/Shared/Frontend/DashboardShortcode.php:1744
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1778
+#: src/Shared/Frontend/DashboardShortcode.php:1784
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1785
+#: src/Shared/Frontend/DashboardShortcode.php:1791
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1797
+#: src/Shared/Frontend/DashboardShortcode.php:1803
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1800
+#: src/Shared/Frontend/DashboardShortcode.php:1806
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1824
+#: src/Shared/Frontend/DashboardShortcode.php:1830
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1828
+#: src/Shared/Frontend/DashboardShortcode.php:1834
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1846
+#: src/Shared/Frontend/DashboardShortcode.php:1852
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1918
+#: src/Shared/Frontend/DashboardShortcode.php:1924
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1919
+#: src/Shared/Frontend/DashboardShortcode.php:1925
 msgid "Switch back to all personas"
 msgstr ""
 
