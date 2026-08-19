@@ -137,12 +137,17 @@ class FrontendMfaPromptView extends FrontendViewBase {
             $limiter->recordSuccess( $user_id );
         }
 
+        // Resolve the destination before clearing — `clearPending()`
+        // drops the stashed post-verify URL along with the challenge
+        // flags (#2553), so reading it afterwards would always fall
+        // back to the dashboard and lose a legitimate deep link.
+        $redirect = self::resolvePostVerifyRedirect();
+
         MfaLoginGuard::clearPending( $user_id );
         if ( $remember ) {
             RememberDeviceCookie::setForUser( $user_id );
         }
 
-        $redirect = self::resolvePostVerifyRedirect();
         wp_safe_redirect( $redirect );
         exit;
     }
@@ -276,8 +281,14 @@ class FrontendMfaPromptView extends FrontendViewBase {
             $stashed   = get_transient( $stash_key );
             if ( is_string( $stashed ) && $stashed !== '' ) {
                 delete_transient( $stash_key );
-                $valid = wp_validate_redirect( $stashed, '' );
-                if ( $valid !== '' ) return $valid;
+                // #2553 — belt-and-braces. `onLogin()` no longer stashes a
+                // challenge URL, but a stash written by an older build is
+                // live for up to 15 minutes after the upgrade and would
+                // otherwise send the user straight back to the prompt.
+                if ( ! MfaLoginGuard::isChallengeUrl( $stashed ) ) {
+                    $valid = wp_validate_redirect( $stashed, '' );
+                    if ( $valid !== '' ) return $valid;
+                }
             }
         }
         return WizardEntryPoint::dashboardBaseUrl();
