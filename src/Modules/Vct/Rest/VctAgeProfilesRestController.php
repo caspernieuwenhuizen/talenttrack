@@ -14,7 +14,7 @@ use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
  *   PATCH /vct/age-profiles/{id}
  *
  * Read: `tt_vct_plan` (coaches need to know the ceiling).
- * Write: `tt_vct_admin_library` (HoD/admin only).
+ * Write: `tt_vct_admin_config` (HoD/admin only).
  */
 class VctAgeProfilesRestController {
 
@@ -47,7 +47,7 @@ class VctAgeProfilesRestController {
     }
 
     public static function can_admin(): bool {
-        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_library' );
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_config' );
     }
 
     public static function listAll(): \WP_REST_Response {

@@ -98,6 +98,15 @@ final class CoreSurfaceRegistration {
         // methodology view guard: tt_view_methodology.
         $reg::register( 'methodology', 'tt_view_methodology' );
 
+        // #2495 — the exercise library. Mirrors the view's own early
+        // return, so the Exercises action on the Training page hides for
+        // anyone who would only be shown a "not authorized" notice.
+        $reg::register( 'exercises', 'tt_view_activities' );
+
+        // #2496 — training plans. Same shape: the plan list guards on
+        // tt_training_plan, so any affordance pointing at it does too.
+        $reg::register( 'training-plans', 'tt_training_plan' );
+
         // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
         $chem_gate = static function ( int $uid ): bool {
             if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )

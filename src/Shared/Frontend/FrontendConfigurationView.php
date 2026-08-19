@@ -1729,13 +1729,13 @@ class FrontendConfigurationView extends FrontendViewBase {
      * reachable from one entry point. The count line summarises the
      * macro-block templates + age bands configured.
      *
-     * Gated on `tt_vct_admin_library` because the destination view
+     * Gated on `tt_vct_admin_config` because the destination view
      * re-checks the same capability and silent denials are worse than
      * hiding the tile.
      */
     private static function vctConfigTiles(): array {
         $user_id = get_current_user_id();
-        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' ) ) {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_config' ) ) {
             return [];
         }
 

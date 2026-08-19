@@ -32,7 +32,7 @@ use TT\Shared\Frontend\FrontendViewBase;
  * fallback so the common case (label + dates) stays friendly.
  *
  * All three are settings sub-forms; Save+Cancel exempt per
- * CLAUDE.md §6 (a). Cap: tt_vct_admin_library (HoD/admin only).
+ * CLAUDE.md §6 (a). Cap: tt_vct_admin_config (HoD/admin only).
  *
  * The age-profile + schedule forms POST back to the same view via the
  * standard shortcode dispatch; handlers call the repos directly.
@@ -40,7 +40,7 @@ use TT\Shared\Frontend\FrontendViewBase;
 class FrontendVctConfigView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' ) && ! $is_admin ) {
+        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_config' ) && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'VCT configuration', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to the VCT configuration tile.', 'talenttrack' ) . '</p>';

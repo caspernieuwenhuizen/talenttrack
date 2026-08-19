@@ -247,7 +247,7 @@ class MethodologyView extends FrontendViewBase {
         echo '<div class="tt-notice tt-notice--info">';
         echo '<p><strong>' . esc_html__( 'No periodisation cycle set up yet.', 'talenttrack' ) . '</strong></p>';
         echo '<p>' . esc_html__( 'The season periodisation combines a weekly speelwijze theme with the VCT conditioning cycle. Define the club-default macro-blocks for the current season to see them here.', 'talenttrack' ) . '</p>';
-        if ( current_user_can( 'tt_vct_admin_library' ) ) {
+        if ( current_user_can( 'tt_vct_admin_config' ) ) {
             echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $vct_url ) . '">'
                 . esc_html__( 'Set up macro-blocks', 'talenttrack' ) . '</a></p>';
         }

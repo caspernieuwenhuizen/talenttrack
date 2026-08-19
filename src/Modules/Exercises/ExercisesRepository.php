@@ -147,6 +147,205 @@ final class ExercisesRepository {
     }
 
     /**
+     * Browse the library for the management surface (#2495).
+     *
+     * Distinct from `listForTeam()`, which answers "what may this team
+     * pick from" and applies the per-team override rules. This answers
+     * "what is in the library", and is what the list screen and its
+     * search / filters / pager read.
+     *
+     * Superseded rows are excluded throughout: editing an exercise writes
+     * a new version, and the library shows the current one.
+     *
+     * @param array{search?:string, category_id?:int, principle_id?:int, tactical_theme?:string, intensity_band?:int, players?:int, visibility?:string, source?:string, status?:string, orderby?:string, order?:string, limit?:int, offset?:int} $args
+     * @return list<object>
+     */
+    public function browse( array $args = [] ): array {
+        global $wpdb;
+
+        [ $join, $where, $params ] = $this->browseClause( $args );
+
+        $sql = "SELECT e.* FROM {$this->table()} e {$join} {$where} "
+             . $this->browseOrder( $args );
+
+        $limit    = isset( $args['limit'] ) ? max( 1, min( 200, (int) $args['limit'] ) ) : 25;
+        $sql     .= ' LIMIT %d OFFSET %d';
+        $params[] = $limit;
+        $params[] = isset( $args['offset'] ) ? max( 0, (int) $args['offset'] ) : 0;
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * Unpaged count for the same filters. Shares `browseClause()` with
+     * `browse()` so the pager can never promise rows the list will not
+     * show.
+     *
+     * @param array<string,mixed> $args
+     */
+    public function countBrowse( array $args = [] ): int {
+        global $wpdb;
+
+        [ $join, $where, $params ] = $this->browseClause( $args );
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(DISTINCT e.id) FROM {$this->table()} e {$join} {$where}",
+            $params
+        ) );
+    }
+
+    /**
+     * @param array<string,mixed> $args
+     * @return array{0:string, 1:string, 2:list<mixed>}
+     */
+    private function browseClause( array $args ): array {
+        global $wpdb;
+
+        $join   = '';
+        $where  = ' WHERE e.club_id = %d AND e.superseded_by_id IS NULL';
+        $params = [ CurrentClub::id() ];
+
+        $status = (string) ( $args['status'] ?? 'active' );
+        if ( $status === 'archived' ) {
+            $where .= ' AND e.archived_at IS NOT NULL';
+        } elseif ( $status !== 'all' ) {
+            $where .= ' AND e.archived_at IS NULL';
+        }
+
+        if ( ! empty( $args['search'] ) ) {
+            $like     = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+            $where   .= ' AND (e.name LIKE %s OR e.description LIKE %s OR e.code LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+        }
+        if ( ! empty( $args['category_id'] ) ) {
+            $where   .= ' AND e.category_id = %d';
+            $params[] = (int) $args['category_id'];
+        }
+        if ( ! empty( $args['tactical_theme'] ) ) {
+            $where   .= ' AND e.tactical_theme = %s';
+            $params[] = (string) $args['tactical_theme'];
+        }
+        if ( ! empty( $args['intensity_band'] ) ) {
+            $where   .= ' AND e.intensity_band = %d';
+            $params[] = (int) $args['intensity_band'];
+        }
+        if ( ! empty( $args['visibility'] ) ) {
+            $where   .= ' AND e.visibility = %s';
+            $params[] = (string) $args['visibility'];
+        }
+        if ( ! empty( $args['source'] ) ) {
+            $where   .= ' AND e.source = %s';
+            $params[] = (string) $args['source'];
+        }
+        // "Fits a group of N" — an exercise with no player range is
+        // unconstrained and stays in the results rather than dropping out.
+        if ( ! empty( $args['players'] ) ) {
+            $where   .= ' AND (e.players_min IS NULL OR e.players_min <= %d)'
+                      . ' AND (e.players_max IS NULL OR e.players_max >= %d)';
+            $params[] = (int) $args['players'];
+            $params[] = (int) $args['players'];
+        }
+        if ( ! empty( $args['principle_id'] ) ) {
+            $join    .= " INNER JOIN {$wpdb->prefix}tt_exercise_principles ep"
+                      . ' ON ep.exercise_id = e.id AND ep.club_id = e.club_id';
+            $where   .= ' AND ep.principle_id = %d';
+            $params[] = (int) $args['principle_id'];
+        }
+
+        return [ $join, $where, $params ];
+    }
+
+    /**
+     * ORDER BY from an allowlist, so a caller cannot sort by an arbitrary
+     * string.
+     *
+     * @param array<string,mixed> $args
+     */
+    private function browseOrder( array $args ): string {
+        $allowed = [
+            'name'             => 'e.name',
+            'duration_minutes' => 'e.duration_minutes',
+            'intensity_band'   => 'e.intensity_band',
+            'created_at'       => 'e.created_at',
+            'updated_at'       => 'e.updated_at',
+        ];
+
+        $column = $allowed[ (string) ( $args['orderby'] ?? '' ) ] ?? null;
+        if ( $column === null ) return 'ORDER BY e.name ASC, e.id ASC';
+
+        $direction = strtolower( (string) ( $args['order'] ?? 'asc' ) ) === 'desc' ? 'DESC' : 'ASC';
+
+        return "ORDER BY {$column} {$direction}, e.id ASC";
+    }
+
+    /**
+     * Exercises a coach has authored at team visibility, awaiting a
+     * head-of-development decision (epic #2493 D9).
+     *
+     * Team-scoped rows are usable in their author's own plans from the
+     * moment they are saved — nothing waits on approval. Promotion only
+     * decides whether the rest of the club, and the generator's club-wide
+     * candidate pool, get them too.
+     *
+     * @return list<object>
+     */
+    public function promotionQueue( int $limit = 50 ): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.*, COUNT(DISTINCT b.plan_id) AS used_in_plans
+               FROM {$this->table()} e
+          LEFT JOIN {$wpdb->prefix}tt_training_plan_blocks b
+                 ON b.exercise_id = e.id AND b.club_id = e.club_id
+              WHERE e.club_id = %d
+                AND e.visibility = 'team'
+                AND e.archived_at IS NULL
+                AND e.superseded_by_id IS NULL
+           GROUP BY e.id
+           ORDER BY e.created_at DESC
+              LIMIT %d",
+            CurrentClub::id(),
+            max( 1, min( 200, $limit ) )
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    public function countPromotionQueue(): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table()}
+              WHERE club_id = %d AND visibility = 'team'
+                AND archived_at IS NULL AND superseded_by_id IS NULL",
+            CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * Make a team-scoped exercise club-wide.
+     *
+     * Deliberately a direct visibility flip rather than an edit-as-new-
+     * version: promotion changes who can see the exercise, not what it
+     * says, and versioning it would leave the team pointing at a stale
+     * copy of its own drill.
+     */
+    public function promote( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        global $wpdb;
+
+        $ok = $wpdb->update(
+            $this->table(),
+            [ 'visibility' => 'club' ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id(), 'visibility' => 'team' ]
+        );
+
+        return $ok !== false && $ok > 0;
+    }
+
+    /**
      * @param array<string,mixed> $data
      * @return int New exercise id (0 on failure).
      */
@@ -259,6 +458,35 @@ final class ExercisesRepository {
         if ( array_key_exists( 'author_user_id', $data ) ) {
             $out['author_user_id'] = max( 0, (int) $data['author_user_id'] );
         }
+
+        // Merged VCT attributes (migration 0212). Every one is optional:
+        // an exercise without an age window and an intensity band stays
+        // out of VCT session generation, which is correct — it cannot be
+        // judged age-safe. Values are clamped rather than trusted so a
+        // REST caller cannot store an intensity of 47.
+        $ranges = [
+            'intensity_band'       => [ 1, 5 ],
+            'duration_minutes_min' => [ 0, 240 ],
+            'duration_minutes_max' => [ 0, 240 ],
+            'players_min'          => [ 1, 40 ],
+            'players_max'          => [ 1, 40 ],
+            'age_min'              => [ 4, 21 ],
+            'age_max'              => [ 4, 21 ],
+        ];
+        foreach ( $ranges as $key => [ $low, $high ] ) {
+            if ( ! array_key_exists( $key, $data ) ) continue;
+            $value      = $data[ $key ];
+            $out[ $key ] = ( $value === null || $value === '' )
+                ? null
+                : max( $low, min( $high, (int) $value ) );
+        }
+
+        foreach ( [ 'code', 'tactical_theme', 'pitch_preset' ] as $key ) {
+            if ( ! array_key_exists( $key, $data ) ) continue;
+            $value       = $data[ $key ] === null ? '' : trim( (string) $data[ $key ] );
+            $out[ $key ] = $value === '' ? null : $value;
+        }
+
         return $out;
     }
 
