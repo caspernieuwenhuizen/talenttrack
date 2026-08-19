@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Evaluatiecategorieën & gewichten
+group: performance
+summary: Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie werkt.
+audience: [admin]
+order: 20
+---
 
 # Evaluatiecategorieën & gewichten
 

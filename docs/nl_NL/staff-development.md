@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Stafontwikkeling
+group: performance
+summary: Persoonlijke doelen + evaluaties + certificeringen + POP voor coaches en staf.
+audience: [user]
+order: 120
+---
 
 # Stafontwikkeling
 

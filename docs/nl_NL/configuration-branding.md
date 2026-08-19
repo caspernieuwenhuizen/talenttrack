@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie & branding
+group: configuration
+summary: Academie-naam, logo, beoordelingsschaal, kleurenpalet, referentietabellen.
+audience: [admin]
+order: 20
+---
 
 # Configuratie & branding
 

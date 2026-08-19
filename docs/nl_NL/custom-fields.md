@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Eigen velden
+group: configuration
+summary: Voeg clubspecifieke velden toe aan spelers, teams en evaluaties.
+audience: [admin]
+order: 30
+---
 
 # Aangepaste velden
 

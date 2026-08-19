@@ -1,4 +1,10 @@
-<!-- audience: player, parent -->
+---
+title: Install on Android
+group: mobile
+summary: Install TalentTrack as a Chrome PWA on Android and accept push notifications.
+audience: [player, parent]
+order: 20
+---
 
 # Install TalentTrack on your Android phone
 

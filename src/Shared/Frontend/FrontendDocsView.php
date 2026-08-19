@@ -29,9 +29,11 @@ class FrontendDocsView extends FrontendViewBase {
 
         $viewer_audiences = AudienceResolver::allowedFor( $user_id );
 
+        // Audience comes from the same front-matter scan that produced the
+        // topic list, so building the sidebar no longer re-reads every file.
         $topic_audiences  = [];
-        foreach ( $topics as $s => $_t ) {
-            $topic_audiences[ $s ] = AudienceResolver::readFromFile( HelpTopics::filePath( $s ) );
+        foreach ( $topics as $s => $t ) {
+            $topic_audiences[ $s ] = $t['audience'] ?? [];
         }
 
         $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Back-ups & disaster recovery
+group: configuration
+summary: Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster.
+audience: [admin]
+order: 110
+---
 
 # Back-ups
 

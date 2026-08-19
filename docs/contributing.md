@@ -4,20 +4,39 @@
 
 The two rules every doc PR has to pass.
 
-## 1. Audience marker
+## 1. Front matter
 
-Every file under `docs/` (English + Dutch) starts with an HTML-comment marker declaring its target audience:
+Every doc that should be readable inside the product starts with a front-matter block. The block **is** the registry — a file that has one is a help topic, a file that doesn't is invisible to the in-product index. That is how developer-only documentation opts out; there is no separate list to edit.
 
 ```markdown
-<!-- audience: user -->
-<!-- audience: admin -->
-<!-- audience: dev -->
-<!-- audience: player -->
-<!-- audience: parent -->
-<!-- audience: user, admin -->
+---
+title: Match minutes
+group: performance
+summary: Record minutes played per player per fixture.
+audience: [user, admin]
+order: 40
+---
 ```
 
-Allowed values: `user`, `admin`, `dev`, `player`, `parent`. Comma-separated for cross-cutting topics.
+| Key | Required | Meaning |
+| --- | --- | --- |
+| `title` | yes | Sidebar label. Also the H1 the body should open with. |
+| `group` | yes | Which sidebar group. Must be a key of `HelpTopics::groups()`. |
+| `summary` | yes | One line, tooltip-length. Also what the sidebar search matches on. |
+| `audience` | yes | Who sees it in the TOC. See below. |
+| `order` | no | Position within the group; lower sorts first. Topics without one sort after those with one, then alphabetically. |
+
+A value containing `: ` must be quoted, because a bare colon reads as a nested key:
+
+```markdown
+summary: 'Run a structured trial: templates, staff input, decision.'
+```
+
+Add the same block to the Dutch counterpart with `title` and `summary` translated — the sidebar reads metadata from `docs/nl_NL/<slug>.md` when it exists, so an untranslated block leaves an English label in a Dutch TOC. `group`, `audience` and `order` stay identical in both.
+
+Allowed `audience` values: `user`, `admin`, `dev`, `player`, `parent`. Use the inline-list form for cross-cutting topics (`audience: [user, admin]`).
+
+The older `<!-- audience: … -->` comment is still honoured so an unmigrated file keeps working, but it registers nothing on its own — a file with only the comment and no front matter will not appear in the TOC. Migrate it.
 
 `player` and `parent` (#0042) are persona-specific subsets of `user` — articles tagged with them surface only to the matching role. They're meant for the install-on-iPhone / install-on-Android / notifications-setup / parent-handles-everything KB; default user-facing docs stay on `audience: user`.
 
@@ -35,14 +54,14 @@ A doc shows up if any of its declared audiences overlap with the viewer's allowe
 
 Direct URL access is not gated — anyone with access to the docs page can read any doc by slug. The audience filter is a UX convenience, not access control.
 
-CI rejects PRs that add a new doc without a marker.
+CI rejects PRs that add a new doc without front matter.
 
 ## 2. Translations
 
 The translation discipline is per audience:
 
-- `audience: user`, `audience: admin`, `audience: player`, or `audience: parent` (or includes any of those) → translation in `docs/nl_NL/<slug>.md` is **required in the same PR**. Use the same audience marker on the Dutch counterpart.
-- `audience: dev` (only) → no Dutch translation. Dev docs are English-only by design — that's the working language for plugin extenders regardless of locale.
+- `audience` including `user`, `admin`, `player`, or `parent` → translation in `docs/nl_NL/<slug>.md` is **required in the same PR**, front matter included.
+- `audience: [dev]` only → no Dutch translation. Dev docs are English-only by design — that's the working language for plugin extenders regardless of locale.
 
 If a doc's audience changes from `dev` to anything else, add the Dutch translation in that PR. If it changes the other way, remove the Dutch counterpart in the same PR.
 
@@ -61,7 +80,7 @@ Dutch literals (`'Annuleren'`, `'Opslaan'`, `'Doelen…'`) as `msgid`s in PHP so
 
 ## Layout conventions
 
-- One H1 per file, matching the slug's title in `HelpTopics::all()`.
+- One H1 per file, matching the front-matter `title`.
 - H2 for major sections, H3 for sub-sections. Avoid going below H3.
 - Tables for structured data; bullets for lists; paragraphs for prose. No nested lists deeper than two levels — re-think the structure if you need three.
 - Code samples in fenced blocks with a language tag (`php`, `json`, `bash`, …).
@@ -79,7 +98,7 @@ Don't hard-code `/wp-admin/admin.php?page=tt-docs&topic=…` URLs unless you spe
 
 ## Slugs
 
-Slugs go in `HelpTopics::all()`. The pattern is kebab-case, matching the filename without `.md`. Add a `summary` line that fits in a tooltip — that's also what the search index uses. New slugs need a row in the layered TOC at [`docs/index.md`](index.md).
+Slugs are kebab-case and are simply the filename without `.md` — there is no list to add them to. Give the file front matter and it is registered. New slugs still need a row in the layered TOC at [`docs/index.md`](index.md).
 
 ## When you add a feature
 

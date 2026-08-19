@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Persona-dashboards
+group: frontend
+summary: Persona-bewuste landingspagina's met widget-catalogus, KPI-catalogus, rol-wisselaar en per-club-override.
+audience: [user, admin]
+order: 30
+---
 
 # Persona-dashboards
 

@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: POP-planning
+group: performance
+summary: Per-team-per-blok matrix van geplande versus uitgevoerde POP-gesprekken. HoD- / coach-oppervlak.
+audience: [user]
+order: 100
+---
 
 # POP-planningsvensters + HO-dashboard
 

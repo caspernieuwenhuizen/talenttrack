@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: PDP planning
+group: performance
+summary: Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / coach surface.
+audience: [user]
+order: 100
+---
 
 # PDP planning windows + HoD dashboard
 

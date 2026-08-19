@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Afdrukken & PDF-export
+group: configuration
+summary: Opgeschoonde afdrukbare rapporten en native PDF-export van de browser.
+audience: [user]
+order: 50
+---
 
 # Afdrukken en PDF's
 

@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spelerstatus
+group: performance
+summary: 'Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + potentieel-registratie.'
+audience: [user]
+order: 110
+---
 
 # Spelerstatus — stoplicht
 

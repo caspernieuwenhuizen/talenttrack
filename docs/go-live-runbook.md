@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Go-live runbook
+group: configuration
+summary: Pre-launch checklist for taking an academy install into production.
+audience: [admin]
+order: 120
+---
 
 # Go-live runbook
 

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Teams & spelers
+group: basics
+summary: Teams aanmaken, spelers toevoegen en spelers aan teams toewijzen.
+audience: [admin]
+order: 20
+---
 
 # Teams & spelers
 

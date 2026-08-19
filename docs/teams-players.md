@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Teams & players
+group: basics
+summary: How to create teams, add players, and assign players to teams.
+audience: [admin]
+order: 20
+---
 
 # Teams & players
 

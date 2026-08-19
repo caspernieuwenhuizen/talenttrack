@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Getting started
+group: basics
+summary: Welcome to TalentTrack. The essentials to get going.
+audience: [user, admin]
+order: 10
+---
 
 # Getting started
 

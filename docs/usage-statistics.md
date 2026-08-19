@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Usage statistics
+group: analytics
+summary: Logins, active users, DAU and evaluation trends.
+audience: [admin]
+order: 60
+---
 
 # Usage statistics
 

@@ -1,4 +1,10 @@
-<!-- audience: player, parent -->
+---
+title: Installeren op iPhone
+group: mobile
+summary: Zet TalentTrack op het iPhone-startscherm via Safari en accepteer pushnotificaties.
+audience: [player, parent]
+order: 10
+---
 
 # TalentTrack installeren op je iPhone
 

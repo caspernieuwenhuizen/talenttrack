@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Authorisatie­matrix
+group: frontend
+summary: Persona × entiteit × activiteit × scope-raster — wat elke persona mag, met shadow-modus preview vóór toepassen.
+audience: [admin]
+order: 60
+---
 
 # Authorisatie­matrix (beheerdersgids)
 

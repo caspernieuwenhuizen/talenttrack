@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Evaluation categories & weights
+group: performance
+summary: Main categories, subcategories, and how per-age-group weighting works.
+audience: [admin]
+order: 20
+---
 
 # Evaluation categories & weights
 

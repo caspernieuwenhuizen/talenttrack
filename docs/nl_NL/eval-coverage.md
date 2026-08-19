@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Evaluatie-dekking
+group: analytics
+summary: Welke spelers deze periode niet geëvalueerd zijn, welke coach verantwoordelijk is voor het gat, en de naleving van aanwezigheidsregistratie per team.
+audience: [admin]
+order: 20
+---
 
 # Evaluatiedekking
 

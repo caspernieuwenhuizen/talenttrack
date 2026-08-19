@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Go-live-runbook
+group: configuration
+summary: Pre-launch-checklist om een academie-installatie in productie te nemen.
+audience: [admin]
+order: 120
+---
 
 # Go-live-runbook
 

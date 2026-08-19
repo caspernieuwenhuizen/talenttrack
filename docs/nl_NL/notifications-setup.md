@@ -1,4 +1,10 @@
-<!-- audience: player, parent -->
+---
+title: Notificaties instellen
+group: mobile
+summary: Zet pushnotificaties aan, leer wat TalentTrack stuurt en hoe telefoonverificatie werkt.
+audience: [player, parent]
+order: 30
+---
 
 # Notificaties instellen
 

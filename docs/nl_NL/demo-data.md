@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Demogegevens
+group: configuration
+summary: Vul een club met een geloofwaardige academie om TalentTrack te verkennen of te demonstreren, en wis hem daarna weer netjes.
+audience: [admin, dev]
+order: 150
+---
 
 # Demodata
 

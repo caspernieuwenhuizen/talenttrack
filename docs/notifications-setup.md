@@ -1,4 +1,10 @@
-<!-- audience: player, parent -->
+---
+title: Notifications setup
+group: mobile
+summary: Turn on push notifications, understand what TalentTrack sends, and how phone verification works.
+audience: [player, parent]
+order: 30
+---
 
 # Setting up notifications
 

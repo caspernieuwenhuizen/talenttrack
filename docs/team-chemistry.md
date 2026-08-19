@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Team chemistry
+group: performance
+summary: Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores.
+audience: [user]
+order: 70
+---
 
 # Team chemistry
 

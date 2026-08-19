@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Player Development Plan (PDP)
+group: performance
+summary: Per-season development files, conversation cadence, end-of-season verdict.
+audience: [user]
+order: 60
+---
 
 # Player Development Plan (PDP)
 

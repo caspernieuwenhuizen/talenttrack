@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Staff development
+group: performance
+summary: Personal goals + evaluations + certifications + PDP for coaches and staff.
+audience: [user]
+order: 120
+---
 
 # Staff development
 

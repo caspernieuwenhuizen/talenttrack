@@ -53,8 +53,7 @@ class DocsRestController {
 
         $out = [];
         foreach ( $topics as $slug => $t ) {
-            $aud = AudienceResolver::readFromFile( HelpTopics::filePath( $slug ) );
-            if ( ! AudienceResolver::isVisible( $aud, $allowed ) ) continue;
+            if ( ! AudienceResolver::isVisible( $t['audience'] ?? [], $allowed ) ) continue;
             $out[] = [
                 'slug'    => (string) $slug,
                 'title'   => (string) $t['title'],
@@ -73,8 +72,7 @@ class DocsRestController {
         }
 
         $allowed = AudienceResolver::allowedFor( get_current_user_id() );
-        $aud     = AudienceResolver::readFromFile( HelpTopics::filePath( $slug ) );
-        if ( ! AudienceResolver::isVisible( $aud, $allowed ) ) {
+        if ( ! AudienceResolver::isVisible( $topics[ $slug ]['audience'] ?? [], $allowed ) ) {
             return new \WP_REST_Response( [ 'message' => __( 'Not authorised for this topic.', 'talenttrack' ) ], 403 );
         }
 

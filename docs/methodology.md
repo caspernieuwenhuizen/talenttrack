@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Methodology
+group: performance
+summary: Football framework primer, principles, set pieces, positions, voetbalhandelingen.
+audience: [user, admin]
+order: 90
+---
 
 # Methodology
 

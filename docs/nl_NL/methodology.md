@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Methodologie
+group: performance
+summary: Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen.
+audience: [user, admin]
+order: 90
+---
 
 # Methodologie
 

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Toegangsbeheer
+group: frontend
+summary: Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer.
+audience: [admin]
+order: 50
+---
 
 # Toegangsbeheer
 
@@ -84,9 +90,6 @@ Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt
 Dashboardtegels die uitkomen op een coach- of beheerderssurface declareren een tegelspecifieke matrixentiteit (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `wp_admin_portal`) los van de onderliggende data-entiteit (`team`, `players`, `evaluations`, …). De data-entiteiten blijven REST + repository-reads sturen — de dispatcher en de tegel-gate vragen het `*_panel`-entiteit aan, zodat het verlenen van "scout leest teamdata globaal" niet langer een coach-tegel **Mijn teams** op het scoutdashboard plaatst. De dispatcher (`DashboardShortcode`) leest de entiteit uit het tegelregister en raadpleegt `MatrixGate::canAnyScope` voor hetzelfde antwoord als de tegel-gate, zodat de eerdere situatie waarin een tegel rendert maar de bestemming alsnog *"Dit onderdeel is alleen beschikbaar voor coaches en beheerders."* meldt, definitief weg is.
 
 ## Kruislinks tussen weergaven — `CrossViewLink` (#2304)
-
-<!-- audience: developer -->
-
 Een in-body navigatie-affordance — een kruislink, tegel of knop die naar een andere `?tt_view=<slug>`-weergave verwijst — moet **verborgen zijn wanneer de huidige gebruiker de doelweergave niet kan bereiken**. Voorheen controleerde elke zo'n link de rechten van het doel inline, en die controles liepen uit de pas met de daadwerkelijke early-return-guard van de doelweergave.
 
 `\TT\Shared\Frontend\Components\CrossViewLink` centraliseert die beslissing. De HTML van de link wordt alleen weggeschreven wanneer de huidige gebruiker slaagt voor de gate van de doel-slug:

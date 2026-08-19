@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Setup wizard
+group: basics
+summary: The first-run guided installer that hands you off into TalentTrack.
+audience: [admin]
+order: 40
+---
 
 # Setup wizard
 

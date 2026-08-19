@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Invitations
+group: configuration
+summary: Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through.
+audience: [admin]
+order: 70
+---
 
 # Invitations
 

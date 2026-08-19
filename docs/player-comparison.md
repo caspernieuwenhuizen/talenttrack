@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Player comparison
+group: analytics
+summary: Compare up to 4 players side-by-side, cross-team.
+audience: [user]
+order: 50
+---
 
 # Comparing players
 

@@ -27,9 +27,11 @@ class Markdown {
 
     public static function render( string $source ): string {
         $source = str_replace( [ "\r\n", "\r" ], "\n", $source );
-        // #0048 — strip audience metadata HTML comments before render.
-        // The line-based renderer would otherwise pass them to inline()
-        // where esc_html turns them into visible literal text.
+        // Metadata never reaches the renderer: the front-matter block would
+        // come out as a horizontal rule followed by visible `key: value`
+        // lines, and the legacy audience comment would be escaped into
+        // literal text by inline().
+        $source = DocFrontMatter::strip( $source );
         $source = preg_replace( '/^\s*<!--\s*audience:.*?-->\s*$/mi', '', (string) $source );
         $lines = explode( "\n", (string) $source );
 

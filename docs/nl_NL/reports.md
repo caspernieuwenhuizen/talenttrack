@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Rapporten
+group: analytics
+summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
+audience: [user, admin]
+order: 10
+---
 
 # Rapporten
 

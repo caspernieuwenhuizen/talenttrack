@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Evaluations
+group: performance
+summary: Record player ratings with scores, notes, and categories.
+audience: [user]
+order: 10
+---
 
 # Evaluations
 

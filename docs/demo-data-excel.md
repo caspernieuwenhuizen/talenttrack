@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Demo data (Excel)
+group: configuration
+summary: Generate or import a demo dataset for sales / training. Excel template with auto_key cross-sheet links.
+audience: [user]
+order: 160
+---
 
 # Demo data — Excel-driven workbook
 

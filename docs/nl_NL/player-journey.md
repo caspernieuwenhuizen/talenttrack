@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Spelersreis
+group: performance
+summary: Een chronologisch overzicht van het verhaal van elke speler — mijlpalen, evaluaties, blessures, overgangen.
+audience: [user]
+order: 80
+---
 
 # Spelersreis
 

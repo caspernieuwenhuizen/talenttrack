@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Modules
+group: frontend
+summary: Module-toggles per installatie — schakel Methodology, Workflow, License, etc. uit zonder code aan te raken.
+audience: [admin]
+order: 80
+---
 
 # Modules (beheerdersgids)
 

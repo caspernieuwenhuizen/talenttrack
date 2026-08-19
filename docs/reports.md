@@ -1,4 +1,10 @@
-<!-- audience: user, admin -->
+---
+title: Reports
+group: analytics
+summary: The tile launcher — progress charts, team ratings, coach activity.
+audience: [user, admin]
+order: 10
+---
 
 # Reports
 

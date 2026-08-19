@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Mensen (staf)
+group: basics
+summary: Coaches, fysio's en andere staf — voeg ze toe als mensen en koppel aan teams.
+audience: [admin]
+order: 30
+---
 
 # Personen (staf)
 

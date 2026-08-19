@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Goals
+group: performance
+summary: Development goals per player with status and priority.
+audience: [user]
+order: 50
+---
 
 # Player goals
 

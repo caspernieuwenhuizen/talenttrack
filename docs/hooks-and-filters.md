@@ -1,4 +1,10 @@
-<!-- audience: dev -->
+---
+title: Hooks & filters
+group: developer
+summary: Every action and filter the plugin exposes for extension.
+audience: [dev]
+order: 20
+---
 
 # Hooks & filters
 

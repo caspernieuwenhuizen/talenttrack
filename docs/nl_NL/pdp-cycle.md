@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Persoonlijk Ontwikkelingsplan (POP)
+group: performance
+summary: Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel.
+audience: [user]
+order: 60
+---
 
 # Persoonlijk Ontwikkelingsplan (POP)
 

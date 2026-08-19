@@ -274,7 +274,7 @@ jobs:
           echo "No untranslatable 'session' strings — clean."
 
   docs-audience:
-    name: Docs audience markers (#0029)
+    name: Docs audience declaration (#0029, #2544)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -284,26 +284,35 @@ jobs:
           missing=()
           # English + per-locale doc trees. New locale folders inherit the rule
           # automatically because the loop matches docs/*.md and docs/*/*.md.
+          #
+          # Two accepted forms: the front-matter block that registers a topic
+          # (#2544), or the legacy HTML comment on a file not yet migrated.
           for f in docs/*.md docs/*/*.md; do
             [ -f "$f" ] || continue
-            if ! head -5 "$f" | grep -qE '^<!--\s*audience\s*:\s*([a-z, ]+)\s*-->'; then
-              missing+=("$f")
+            if head -12 "$f" | grep -qE '^audience:[[:space:]]*(\[[a-z, ]+\]|[a-z]+)[[:space:]]*$'; then
+              continue
             fi
+            if head -5 "$f" | grep -qE '^<!--[[:space:]]*audience[[:space:]]*:[[:space:]]*([a-z, ]+)[[:space:]]*-->'; then
+              continue
+            fi
+            missing+=("$f")
           done
           if [ ${#missing[@]} -gt 0 ]; then
-            echo "::error::Missing audience marker on:"
+            echo "::error::Missing audience declaration on:"
             printf '  %s\n' "${missing[@]}"
             echo ""
-            echo "Add a marker to the top of each file:"
-            echo "  <!-- audience: user -->"
-            echo "  <!-- audience: admin -->"
-            echo "  <!-- audience: dev -->"
-            echo "  <!-- audience: user, admin -->"
+            echo "Add a front-matter block to the top of each file:"
+            echo "  ---"
+            echo "  title: Match minutes"
+            echo "  group: performance"
+            echo "  summary: Record minutes played per player per fixture."
+            echo "  audience: [user, admin]"
+            echo "  ---"
             echo ""
             echo "See docs/contributing.md for the full rule."
             exit 1
           fi
-          echo "All docs declare an audience marker."
+          echo "All docs declare an audience."
 
   release:
     name: Build & Release ZIP
