@@ -147,6 +147,86 @@ final class ExercisesRepository {
     }
 
     /**
+     * The principles an exercise trains (#2497).
+     *
+     * This link is what the generator ranks candidates by and what wave 7
+     * computes per-player training exposure through — an exercise with no
+     * principle is invisible to both. Migration 0215 seeds it from the
+     * tactical theme where one exists; everything else is tagged here.
+     *
+     * @return list<int>
+     */
+    public function principleIdsFor( int $exercise_id ): array {
+        if ( $exercise_id <= 0 ) return [];
+        global $wpdb;
+
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT principle_id FROM {$wpdb->prefix}tt_exercise_principles
+              WHERE exercise_id = %d AND club_id = %d
+              ORDER BY principle_id ASC",
+            $exercise_id,
+            CurrentClub::id()
+        ) );
+
+        return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+    }
+
+    /**
+     * Replace an exercise's principle links wholesale. The caller hands
+     * over the desired set rather than a diff, which is what makes the
+     * form's multi-select a single save.
+     *
+     * @param list<int> $principle_ids
+     */
+    public function setPrincipleIds( int $exercise_id, array $principle_ids ): bool {
+        if ( $exercise_id <= 0 ) return false;
+        global $wpdb;
+
+        $club  = CurrentClub::id();
+        $table = $wpdb->prefix . 'tt_exercise_principles';
+
+        $deleted = $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$table} WHERE exercise_id = %d AND club_id = %d",
+            $exercise_id,
+            $club
+        ) );
+        if ( $deleted === false ) return false;
+
+        $now = current_time( 'mysql' );
+        foreach ( array_unique( array_filter( array_map( 'intval', $principle_ids ) ) ) as $principle_id ) {
+            $wpdb->insert( $table, [
+                'club_id'      => $club,
+                'exercise_id'  => $exercise_id,
+                'principle_id' => $principle_id,
+                'created_at'   => $now,
+            ] );
+        }
+
+        return true;
+    }
+
+    /**
+     * The methodology principles an academy can tag against, newest
+     * methodology first. Small enough to load whole for a select.
+     *
+     * @return list<object>
+     */
+    public function listPrinciples(): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, code, methodology_id, team_function_key, team_task_key, title_json
+               FROM {$wpdb->prefix}tt_principles
+              WHERE archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )
+              ORDER BY methodology_id ASC, code ASC",
+            CurrentClub::id()
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
      * Browse the library for the management surface (#2495).
      *
      * Distinct from `listForTeam()`, which answers "what may this team

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Training\Repositories\TrainingPlanBlocksRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
+use TT\Modules\Training\Services\SquadSizeEstimator;
+use TT\Modules\Training\Services\TrainingPlanComposer;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -78,6 +80,22 @@ final class TrainingPlansRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'archive_plan' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/training/plans/generate', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'generate_plan' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/training/plans/suggest', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'suggest_inputs' ],
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -188,6 +206,106 @@ final class TrainingPlansRestController {
         }
 
         return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $id ) ) ], 201 );
+    }
+
+    /**
+     * Draft a plan (#2497).
+     *
+     * `preview=1` composes without saving — the wizard's proposal step
+     * renders that, so a coach can regenerate or swap before anything is
+     * written. Without it the draft is persisted and the new plan
+     * returned.
+     *
+     * A blocking warning means the pipeline could not produce a session
+     * respecting a hard rule (an unusable age profile, a missing
+     * template, an intensity ceiling that cannot be met). Nothing is
+     * persisted and the caller gets 400 with the structured reasons —
+     * the same envelope `POST /vct/sessions/generate` uses, because it is
+     * the same engine underneath.
+     */
+    public static function generate_plan( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r->get_param( 'team_id' );
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'team_id_required', __( 'Pick a team to plan for.', 'talenttrack' ), 400 );
+        }
+
+        $payload = [
+            'team_id'                    => $team_id,
+            'season_id'                  => (int) ( $r->get_param( 'season_id' ) ?? 0 ),
+            'age_group'                  => (string) ( $r->get_param( 'age_group' ) ?? 'U13' ),
+            'session_date'               => (string) ( $r->get_param( 'session_date' ) ?? '' ),
+            'tactical_theme'             => $r->get_param( 'tactical_theme' ),
+            'start_time'                 => $r->get_param( 'start_time' ),
+            'requested_duration_minutes' => $r->get_param( 'requested_duration_minutes' ),
+        ];
+
+        // The wizard sends the squad the coach confirmed; without it the
+        // composer falls back to the team's active roster (D14).
+        $roster = $r->get_param( 'roster_player_ids' );
+        if ( is_array( $roster ) ) $payload['roster_player_ids'] = $roster;
+
+        $composer = new TrainingPlanComposer();
+
+        if ( $r->get_param( 'preview' ) ) {
+            $draft = $composer->preview( $payload );
+            if ( $draft['blocked'] ) {
+                return RestResponse::error(
+                    'cannot_compose',
+                    __( 'This training cannot be drafted as asked.', 'talenttrack' ),
+                    400,
+                    [ 'reasons' => $draft['warnings'] ]
+                );
+            }
+            return RestResponse::success( [
+                'blocks'   => $draft['blocks'],
+                'warnings' => $draft['warnings'],
+                'coverage' => $draft['coverage'],
+            ] );
+        }
+
+        $result = $composer->generate( $payload );
+        if ( $result['plan_id'] === null ) {
+            return RestResponse::error(
+                'cannot_compose',
+                __( 'This training cannot be drafted as asked.', 'talenttrack' ),
+                400,
+                [ 'reasons' => $result['warnings'] ]
+            );
+        }
+
+        $plans = new TrainingPlansRepository();
+        $plan  = self::shapePlan( $plans->findById( (int) $result['plan_id'] ) );
+        $plan['blocks'] = array_map(
+            [ __CLASS__, 'shapeBlock' ],
+            ( new TrainingPlanBlocksRepository() )->listForPlan( (int) $result['plan_id'] )
+        );
+
+        return RestResponse::success( [
+            'plan'     => $plan,
+            'warnings' => $result['warnings'],
+            'coverage' => $result['coverage'],
+        ], 201 );
+    }
+
+    /**
+     * What the wizard prefills its fields with, so the first screen is
+     * already answered rather than blank: the expected turnout derived
+     * from recent attendance, and where that number came from.
+     */
+    public static function suggest_inputs( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = (int) $r->get_param( 'team_id' );
+        if ( $team_id <= 0 ) {
+            return RestResponse::error( 'team_id_required', __( 'Pick a team to plan for.', 'talenttrack' ), 400 );
+        }
+
+        $estimator = new SquadSizeEstimator();
+        $suggest   = $estimator->suggest( $team_id );
+
+        return RestResponse::success( [
+            'squad_size'        => $suggest['value'],
+            'squad_size_source' => $suggest['source'],
+            'roster_player_ids' => $estimator->rosterFor( $team_id ),
+        ] );
     }
 
     public static function get_plan( \WP_REST_Request $r ): \WP_REST_Response {
