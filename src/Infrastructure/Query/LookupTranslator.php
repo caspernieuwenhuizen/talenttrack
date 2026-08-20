@@ -48,14 +48,24 @@ class LookupTranslator {
 
         $id = (int) ( $lookup->id ?? 0 );
         if ( $id > 0 ) {
+            // #2571-adjacent (#2568) — pass `$raw` as the fallback, not ''.
+            // `translate()` falls back to the `en_US` row when the requested
+            // locale has none, and migration 0131 gave EVERY lookup an
+            // `en_US` row copied verbatim from `tt_lookups.name`. Asking for
+            // '' therefore never returned '' — it returned the English echo,
+            // which shadowed the gettext step below and made it dead code for
+            // the whole table. Comparing against `$raw` tells the two apart:
+            // an `en_US` row that merely echoes the canonical column carries
+            // no operator intent, so the chain continues; a rebranded one
+            // differs and still wins, which is why step 2 exists.
             $tx = self::repo()->translate(
                 TranslatableFieldRegistry::ENTITY_LOOKUP,
                 $id,
                 'name',
                 self::currentLocale(),
-                ''
+                $raw
             );
-            if ( $tx !== '' ) return $tx;
+            if ( $tx !== '' && $tx !== $raw ) return $tx;
         }
 
         // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
@@ -72,14 +82,15 @@ class LookupTranslator {
 
         $id = (int) ( $lookup->id ?? 0 );
         if ( $id > 0 ) {
+            // #2568 — same en_US-echo guard as `name()`; see the note there.
             $tx = self::repo()->translate(
                 TranslatableFieldRegistry::ENTITY_LOOKUP,
                 $id,
                 'description',
                 self::currentLocale(),
-                ''
+                $raw
             );
-            if ( $tx !== '' ) return $tx;
+            if ( $tx !== '' && $tx !== $raw ) return $tx;
         }
 
         // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
