@@ -289,7 +289,7 @@ final class ReviewStep implements WizardStepInterface {
         // these state keys.
         $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
         $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
-        if ( ! empty( $behaviour_ratings ) && current_user_can( 'tt_rate_player_behaviour' ) ) {
+        if ( ! empty( $behaviour_ratings ) && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
             $repo = new \TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository();
             foreach ( $behaviour_ratings as $bp_id => $rating ) {
                 $bp_id  = (int) $bp_id;
@@ -431,7 +431,7 @@ final class ReviewStep implements WizardStepInterface {
         $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
         $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
         $behaviour_rating  = isset( $behaviour_ratings[ $pid ] ) ? (float) $behaviour_ratings[ $pid ] : 0.0;
-        if ( $behaviour_rating > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) {
+        if ( $behaviour_rating > 0 && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
             ( new \TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository() )->create( [
                 'player_id'           => $pid,
                 'rating'              => $behaviour_rating,

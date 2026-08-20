@@ -46,7 +46,10 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
             ]
         );
 
-        if ( ! current_user_can( 'tt_rate_player_behaviour' ) ) {
+        // #2574 — belt and braces: the dispatcher already blocks this slug
+        // when the feature is off (FeatureRegistry view_slugs), but the view
+        // keeps its own gate so it is never reachable by another route.
+        if ( ! \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
             self::renderHeader( __( 'Bulk-record behaviour', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to record behaviour ratings.', 'talenttrack' ) . '</p>';
             return;

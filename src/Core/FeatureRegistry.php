@@ -62,6 +62,33 @@ class FeatureRegistry {
             // its ?tt_view route (viewSlugDisabled(), consulted by the
             // dashboard dispatcher). The always-on player profile/anchor is
             // deliberately not listed — it can't be disabled.
+            // #2574 — behaviour rating as a switchable sub-feature of
+            // evaluations. Not every academy scores behaviour; those that
+            // don't were still shown a capture button on every player, a
+            // bulk action on every team, and a wizard step they always
+            // skipped. Default on, so nothing changes until an academy turns
+            // it off. Turning it off stops new capture and hides the entry
+            // points; existing behaviour rows are untouched and reappear if
+            // it is switched back on.
+            'behaviour_rating' => [
+                'label'           => __( 'Behaviour rating', 'talenttrack' ),
+                'description'     => __( 'Capturing behaviour scores for players: the evaluation wizard step, the player capture screen and the team bulk-capture screen. Turn off for academies that do not score behaviour. Existing records are kept.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Players\\PlayerStatusModule',
+                'default_enabled' => true,
+                // Only the behaviour-only route. `player-status-capture`
+                // deliberately is NOT listed: that view also captures
+                // potential bands, which are a separate act behind
+                // `tt_set_player_potential`. Gating the slug would take
+                // potential down with behaviour, so the view gates its
+                // behaviour half internally instead.
+                'view_slugs'      => [ 'team-behaviour-capture' ],
+                // No matrix entity: behaviour capture rides on the shared
+                // evaluations vocabulary, and the catalog contract is
+                // explicit that `entities` must never name an entity a
+                // sibling surface also uses. The REST callbacks gate
+                // explicitly instead.
+                'entities'        => [],
+            ],
             'player_journey' => [
                 'label'           => __( 'Player tile: My journey', 'talenttrack' ),
                 'description'     => __( 'The player\'s journey timeline tile and view. Turn off to hide it from players in this academy.', 'talenttrack' ),
