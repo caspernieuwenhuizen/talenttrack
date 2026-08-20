@@ -15,7 +15,7 @@ use TT\Infrastructure\Usage\UsageTracker;
  * slug, uid). Reuses the tile-based admin shell and frontend table
  * styles — no admin chrome, no full-page wp-admin wrap.
  *
- * Gated by tt_access_frontend_admin (matches FrontendUsageStatsView).
+ * Gated by tt_view_analytics (matches FrontendUsageStatsView).
  *
  * Supported metrics:
  *   - logins
@@ -44,7 +44,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
+        if ( ! current_user_can( 'tt_view_analytics' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;

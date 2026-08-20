@@ -31,7 +31,7 @@ use WP_REST_Request;
  * frontend filters review rows by joining against the latest action
  * for each entity_id.
  *
- * Cap gate: `tt_access_frontend_admin`. Same gate as the host view.
+ * Cap gate: `tt_edit_lookups`. Same gate as the host view; these routes
  * Mirrors how `FrontendConfigurationView` itself locks down.
  */
 final class LookupNormalisationRestController extends BaseController {
@@ -45,7 +45,7 @@ final class LookupNormalisationRestController extends BaseController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'accept' ],
-                'permission_callback' => self::permCan( 'tt_access_frontend_admin' ),
+                'permission_callback' => self::permCan( 'tt_edit_lookups' ),
                 'args'                => self::auditIdArg(),
             ],
         ] );
@@ -54,7 +54,7 @@ final class LookupNormalisationRestController extends BaseController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'skip' ],
-                'permission_callback' => self::permCan( 'tt_access_frontend_admin' ),
+                'permission_callback' => self::permCan( 'tt_edit_lookups' ),
                 'args'                => self::auditIdArg(),
             ],
         ] );
