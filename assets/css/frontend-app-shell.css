@@ -28,8 +28,9 @@
        longest shipped label on one line at the nav's font size, and costs
        nothing now the frame is full-bleed rather than inside a 1600px cap.
        #2533 — 300px on top of that, so the longest labels sit comfortably
-       rather than only just fitting. */
-    --tt-shell-nav-w: 300px;
+       rather than only just fitting.
+       #2563 — 320px after seeing it against the real destination list. */
+    --tt-shell-nav-w: 320px;
     --tt-shell-rail-w: 60px;
 
     /*
@@ -511,6 +512,43 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     .tt-dashboard.tt-shell-app .tt-dash-brand,
     .tt-dashboard.tt-shell-app .tt-user-menu {
         display: none;
+    }
+
+    /*
+     * #2563 — with the brand gone the actions row was the header's only
+     * child, so it collapsed to the left and left two-thirds of the bar
+     * empty. The row now fills the width and its contents sit right, as in
+     * the design.
+     */
+    .tt-dashboard.tt-shell-app .tt-dash-actions {
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    /*
+     * The search field is centred on the HEADER, not on the space left over
+     * before the buttons — `margin-inline: auto` would do the latter and
+     * sit visibly off-centre by half the buttons' width. Absolute centring
+     * is the only way to land it on the real midpoint; `max-width` keeps it
+     * off the buttons on narrower desktops, and the buttons stay above it
+     * in the stacking order so an overlap can never swallow a click.
+     */
+    .tt-dashboard.tt-shell-app .tt-dash-header {
+        position: relative;
+    }
+
+    .tt-dashboard.tt-shell-app .tt-spotlight-form {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-inline: 0;
+        width: min(940px, calc(100% - 22rem));
+        max-width: none;
+    }
+
+    .tt-dashboard.tt-shell-app .tt-dash-actions {
+        position: relative;
+        z-index: 1;
     }
 
     /* The rail toggle moves the grid track, so the class has to be on the
