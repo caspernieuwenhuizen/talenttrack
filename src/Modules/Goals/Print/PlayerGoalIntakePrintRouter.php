@@ -191,20 +191,17 @@ class PlayerGoalIntakePrintRouter {
             echo '<article class="paper"><h1 class="title">' . esc_html( sprintf( __( '%s — geen actieve spelers', 'talenttrack' ), $team->name ) ) . '</h1></article>';
         } else {
             foreach ( $players as $pid ) {
-                // Emit the player's 3 pages. emit() prints its own
-                // full HTML doc; for batching, we only want the
-                // <article> blocks. Capture each player's pages
-                // separately and inject them. #1313 — same $blocks
-                // selection applies to every player in the batch.
-                $pid = (int) $pid;
-                ob_start();
-                self::emit( $pid, $season, $blocks );
-                $full = (string) ob_get_clean();
-                if ( preg_match_all( '#<article class="paper">.*?</article>#s', $full, $matches ) ) {
-                    foreach ( $matches[0] as $page ) {
-                        echo $page;
-                    }
-                }
+                // #2572 — take the sheets straight from pagesHtml(). This
+                // used to render each player's whole document and recover
+                // the sheets with a non-greedy regex, which ended at the
+                // first nested `</article>` (the goal boxes are <article>
+                // too) and emitted truncated, unclosed markup. The browser
+                // then re-nested the following sheets inside the broken one
+                // and the batch printed as a couple of cascading pages.
+                // #1313 — the same $blocks selection applies to every player.
+                $pages = self::pagesHtml( (int) $pid, $season, $blocks );
+                if ( $pages === null ) continue; // player row gone — skip, don't abort the batch
+                echo $pages; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — assembled from escaped partials.
             }
         }
         ?>
@@ -228,9 +225,79 @@ class PlayerGoalIntakePrintRouter {
     }
 
     /**
+     * Full standalone print document for one player.
+     *
      * @param array<string,bool> $blocks #1313 — per-block render gates.
      */
     private static function emit( int $player_id, string $season, array $blocks ): void {
+        $pages = self::pagesHtml( $player_id, $season, $blocks );
+        if ( $pages === null ) {
+            wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
+        }
+
+        $name = self::displayName( $player_id );
+        ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php
+        echo esc_html( sprintf(
+            /* translators: 1: player display name, 2: season e.g. 2026/27 */
+            __( 'Goals intake — %1$s — %2$s', 'talenttrack' ),
+            $name, $season
+        ) );
+    ?></title>
+    <style><?php echo self::stylesCss(); ?></style><?php /* tt-inline-ok — standalone print document, not an app surface; no enqueued sheet to attach to. Pre-existing block, relocated by the emit()/pagesHtml() split. */ ?>
+</head>
+<body>
+
+<div class="toolbar">
+    <button type="button" onclick="window.print()"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
+    <a href="<?php echo esc_url( wp_get_referer() ?: home_url( '/' ) ); ?>"><?php esc_html_e( 'Close', 'talenttrack' ); ?></a>
+</div>
+
+<?php echo $pages; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — assembled from escaped partials. ?>
+
+</body>
+</html>
+        <?php
+    }
+
+    /** Display name for a player id, or '' when the row is gone. */
+    private static function displayName( int $player_id ): string {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT first_name, last_name FROM {$p}tt_players WHERE id = %d LIMIT 1",
+            $player_id
+        ) );
+        if ( ! $row ) return '';
+        return trim( (string) $row->first_name . ' ' . (string) $row->last_name );
+    }
+
+    /**
+     * #2572 — the player's `<article class="paper">` sheets, with no document
+     * chrome around them. Both consumers build on this: `emit()` wraps it in
+     * a standalone document, `renderTeamBatch()` concatenates one call per
+     * player.
+     *
+     * The batch previously recovered these sheets from `emit()`'s rendered
+     * output with `preg_match_all('#<article class="paper">.*?</article>#s')`.
+     * The goal boxes are themselves `<article>` elements, so the non-greedy
+     * match ended at the first nested `</article>`: every goals sheet came out
+     * truncated, missing its closing tags, and the browser's error recovery
+     * re-nested the following sheets inside it. Nested sheets cannot force a
+     * page break, so a 36-sheet batch printed as 2 pages with the content
+     * cascading. Returning the markup directly removes the parsing step
+     * entirely.
+     *
+     * Returns null when the player row does not exist, so `emit()` can
+     * `wp_die()` while the batch skips the player and carries on.
+     *
+     * @param array<string,bool> $blocks #1313 — per-block render gates.
+     */
+    private static function pagesHtml( int $player_id, string $season, array $blocks ): ?string {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -261,7 +328,7 @@ class PlayerGoalIntakePrintRouter {
             $player_id
         ) );
         if ( ! $player ) {
-            wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
+            return null;
         }
         $club_id = (int) $player->club_id;
 
@@ -274,27 +341,8 @@ class PlayerGoalIntakePrintRouter {
         // Lookback anchors — eval medians + prior goals + coach notes.
         $lookback = self::lookbackForPlayer( $player_id, $club_id );
 
-        ?><!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-    <meta charset="<?php bloginfo( 'charset' ); ?>">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php
-        echo esc_html( sprintf(
-            /* translators: 1: player display name, 2: season e.g. 2026/27 */
-            __( 'Goals intake — %1$s — %2$s', 'talenttrack' ),
-            $name, $season
-        ) );
-    ?></title>
-    <style><?php echo self::stylesCss(); ?></style>
-</head>
-<body>
-
-<div class="toolbar">
-    <button type="button" onclick="window.print()"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
-    <a href="<?php echo esc_url( wp_get_referer() ?: home_url( '/' ) ); ?>"><?php esc_html_e( 'Close', 'talenttrack' ); ?></a>
-</div>
-
+        ob_start();
+        ?>
 <?php // PAGE 1 — speler-snapshot. #1313 — only emit if snapshot block is selected. ?>
 <?php if ( $blocks['snapshot'] ) : ?>
 <article class="paper">
@@ -436,10 +484,8 @@ class PlayerGoalIntakePrintRouter {
     </div>
 </article>
 <?php endif; // page 3 has any block ?>
-
-</body>
-</html>
         <?php
+        return (string) ob_get_clean();
     }
 
     private static function renderGoalBox( int $num ): void {
