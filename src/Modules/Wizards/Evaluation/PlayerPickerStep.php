@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\MatrixGate;
 use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -33,19 +34,26 @@ final class PlayerPickerStep implements WizardStepInterface {
             <?php esc_html_e( 'Pick the player you\'re evaluating. Use this for ad-hoc observations not anchored to an activity row — a tournament moment, something you noticed in passing.', 'talenttrack' ); ?>
         </p>
         <?php
-        // v3.110.193 (#809, #810) — was passing `cross_team => true`
-        // and a narrow `is_admin` (only `tt_edit_settings`). Result:
-        // head coaches saw every team in the picker, not just the ones
-        // they coach. The component already has the cascading
-        // team-then-player UX; `cross_team => true` was overriding it
-        // by forcing all teams' players into the candidate set. Drop
-        // `cross_team` and treat `tt_access_frontend_admin` as the
-        // "is admin / HoD" gate (admin + tt_club_admin + tt_head_dev
-        // all hold it). Result: head coaches see only their assigned
-        // teams via `get_teams_for_coach()`; admin / HoD keep full
-        // visibility.
-        $can_cross_team = current_user_can( 'tt_edit_settings' )
-            || current_user_can( 'tt_access_frontend_admin' );
+        // #2567 — ask the question this actually means: does the user hold
+        // player-read authority across the whole academy?
+        //
+        // v3.110.193 (#809, #810) tried to fix "head coaches see every team"
+        // by gating on `tt_access_frontend_admin`, reasoning that admin +
+        // club_admin + head_dev all hold it. True, but not exclusive: the
+        // matrix seeds `frontend_admin [r, global]` to both coach personas
+        // too, so the cap is true for every coach and the fix never took
+        // effect. See #2569 for the cap itself.
+        //
+        // `players [read, global]` is seeded to head_of_development and
+        // academy_admin; both coach personas hold `players [r, team]`, so
+        // they fall through to `get_teams_for_coach()` — which is the
+        // cascading team-then-player UX the component already implements.
+        $can_cross_team = MatrixGate::can(
+            get_current_user_id(),
+            'players',
+            MatrixGate::READ,
+            MatrixGate::SCOPE_GLOBAL
+        );
         echo PlayerSearchPickerComponent::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             'name'             => 'player_id',
             'label'            => __( 'Which player?', 'talenttrack' ),
