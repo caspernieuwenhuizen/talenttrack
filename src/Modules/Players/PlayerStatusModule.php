@@ -22,6 +22,31 @@ final class PlayerStatusModule implements ModuleInterface {
 
     public function getName(): string { return 'player_status'; }
 
+    /**
+     * #2574 — may behaviour be captured here, by this user?
+     *
+     * Two independent questions, both of which must pass. The
+     * `behaviour_rating` feature flag answers "does this academy score
+     * behaviour at all?" — a per-club setting. `tt_rate_player_behaviour`
+     * answers "may this user record it?" — a per-role one. Neither
+     * substitutes for the other, and every behaviour entry point asks both
+     * through here so they cannot drift apart.
+     *
+     * Read-side surfaces (a rating already captured, shown on a profile or
+     * in a report) deliberately do NOT consult this: switching the feature
+     * off stops new capture and hides the entry points, it does not
+     * retroactively hide records the academy already has.
+     *
+     * @param int|null $user_id Defaults to the current user.
+     */
+    public static function behaviourCaptureAvailable( ?int $user_id = null ): bool {
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'behaviour_rating' ) ) return false;
+
+        return $user_id === null
+            ? current_user_can( 'tt_rate_player_behaviour' )
+            : user_can( $user_id, 'tt_rate_player_behaviour' );
+    }
+
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {

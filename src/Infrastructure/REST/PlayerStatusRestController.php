@@ -35,7 +35,8 @@ final class PlayerStatusRestController {
         register_rest_route( self::NS, '/players/(?P<id>\d+)/behaviour-ratings', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'createBehaviourRating' ],
-            'permission_callback' => static fn() => current_user_can( 'tt_rate_player_behaviour' ),
+            // #2574 — feature flag AND capability; see behaviourCaptureAvailable().
+            'permission_callback' => static fn() => \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable(),
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/potential', [
             'methods'             => 'POST',

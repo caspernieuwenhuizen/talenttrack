@@ -44,7 +44,7 @@ final class BehaviourPendingSource implements TableRowSource {
         $p = $wpdb->prefix;
 
         if ( $user_id <= 0 ) return [];
-        if ( ! user_can( $user_id, 'tt_rate_player_behaviour' ) ) return [];
+        if ( ! \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable( $user_id ) ) return [];
 
         $club_id = CurrentClub::id();
         $limit   = max( 1, min( 50, (int) ( $config['limit'] ?? 10 ) ) );

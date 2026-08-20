@@ -41,6 +41,9 @@ final class BehaviourStep implements WizardStepInterface {
 
     public function notApplicableFor( array $state ): bool {
         if ( ( $state['_path'] ?? '' ) !== 'player-first' ) return true;
+        // #2574 — academies that don't score behaviour switch the feature
+        // off and the step drops out of the rail entirely.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'behaviour_rating' ) ) return true;
         if ( ! current_user_can( 'tt_rate_player_behaviour' ) ) return true;
         return false;
     }

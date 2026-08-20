@@ -558,7 +558,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         } );
 
         $bulk_url = '';
-        if ( $team_id > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) {
+        if ( $team_id > 0 && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
             $bulk_url = add_query_arg(
                 [ 'tt_view' => 'team-behaviour-capture', 'team_id' => $team_id ],
                 RecordLink::dashboardUrl()

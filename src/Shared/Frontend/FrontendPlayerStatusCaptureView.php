@@ -60,7 +60,9 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             self::renderHeader( __( 'Player not found', 'talenttrack' ) );
             return;
         }
-        if ( ! current_user_can( 'tt_rate_player_behaviour' ) && ! current_user_can( 'tt_set_player_potential' ) ) {
+        // #2574 — behaviour capture is feature-gated; potential is not. The
+        // view stays reachable for potential alone when behaviour is off.
+        if ( ! \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() && ! current_user_can( 'tt_set_player_potential' ) ) {
             self::renderHeader( __( 'Capture behaviour & potential', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to record behaviour or potential ratings.', 'talenttrack' ) . '</p>';
             return;
@@ -71,7 +73,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST[ self::NONCE_FIELD ] )
              && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION ) ) {
             $kind = isset( $_POST['kind'] ) ? sanitize_key( (string) $_POST['kind'] ) : '';
-            if ( $kind === 'behaviour' && current_user_can( 'tt_rate_player_behaviour' ) ) {
+            if ( $kind === 'behaviour' && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
                 $related_activity = isset( $_POST['related_activity_id'] )
                     ? absint( $_POST['related_activity_id'] )
                     : 0;
@@ -133,7 +135,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         echo '<div class="tt-psc-grid">';
 
         // Behaviour column
-        if ( current_user_can( 'tt_rate_player_behaviour' ) ) :
+        if ( \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) :
             // v3.74.2 — pull rating-scale settings + the player's recent
             // completed activities so the form matches club config and
             // can tie a rating to "during game X".
