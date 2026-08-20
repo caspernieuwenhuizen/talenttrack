@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-19T20:28:46+00:00\n"
+"POT-Creation-Date: 2026-08-20T02:50:45+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -61,7 +61,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1835
+#: src/Shared/Frontend/DashboardShortcode.php:1937
 #: src/Shared/Frontend/FrontendConfigurationView.php:2693
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -71,7 +71,7 @@ msgstr "Ouder"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1840
+#: src/Shared/Frontend/DashboardShortcode.php:1942
 msgid "Team Manager"
 msgstr "Team Manager"
 
@@ -171,7 +171,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:182
 #: src/Shared/Frontend/DashboardShortcode.php:215
-#: src/Shared/Frontend/DashboardShortcode.php:1834
+#: src/Shared/Frontend/DashboardShortcode.php:1936
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2906
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2918
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2995
@@ -248,7 +248,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1838
+#: src/Shared/Frontend/DashboardShortcode.php:1940
 #: src/Shared/Frontend/FrontendConfigurationView.php:2687
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -410,7 +410,7 @@ msgstr ""
 "uitstaat."
 
 # #0018 — team development sprints 2-5 (engine + UI + pairings + team-fit)
-#: src/Core/FeatureRegistry.php:122 src/Modules/Documentation/HelpTopics.php:77
+#: src/Core/FeatureRegistry.php:122
 #: src/Modules/License/Admin/AccountPage.php:825
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:263
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:48
@@ -447,7 +447,6 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:248
 #: src/Modules/Analytics/AnalyticsModule.php:425
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:61
-#: src/Modules/Documentation/HelpTopics.php:92
 #: src/Shared/CoreSurfaceRegistration.php:918
 msgid "Evaluation coverage"
 msgstr "Evaluatie-dekking"
@@ -466,7 +465,6 @@ msgstr ""
 #: src/Core/FeatureRegistry.php:157
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:64
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:65
-#: src/Modules/Documentation/HelpTopics.php:97
 #: src/Shared/CoreSurfaceRegistration.php:938
 msgid "Cohort decision board"
 msgstr "Cohortbeslissingsbord"
@@ -482,7 +480,6 @@ msgstr ""
 "analyse-engine blijven beschikbaar wanneer dit uit staat."
 
 #: src/Core/FeatureRegistry.php:171
-#: src/Modules/Documentation/HelpTopics.php:117
 #: src/Modules/License/Admin/AccountPage.php:815
 #: src/Shared/CoreSurfaceRegistration.php:881
 #: src/Shared/Frontend/FrontendComparisonView.php:68
@@ -1428,7 +1425,7 @@ msgstr "Een speler en een WordPress-gebruiker zijn allebei vereist."
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:561
-#: src/Shared/Frontend/DashboardShortcode.php:1111
+#: src/Shared/Frontend/DashboardShortcode.php:1122
 msgid "Player not found."
 msgstr "Speler niet gevonden."
 
@@ -1848,7 +1845,7 @@ msgstr "Fysio"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1839
+#: src/Shared/Frontend/DashboardShortcode.php:1941
 #: src/Shared/Frontend/FrontendConfigurationView.php:2691
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1930,7 +1927,7 @@ msgstr "Clubbeheerder"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1837
+#: src/Shared/Frontend/DashboardShortcode.php:1939
 msgid "Head Coach"
 msgstr "Hoofdtrainer"
 
@@ -1941,7 +1938,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1836
+#: src/Shared/Frontend/DashboardShortcode.php:1938
 msgid "Assistant Coach"
 msgstr "Assistent-trainer"
 
@@ -1994,7 +1991,6 @@ msgstr "Teamvergadering"
 
 #: src/Infrastructure/Query/LabelTranslator.php:221
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:114
-#: src/Modules/Documentation/HelpTopics.php:227
 #: src/Modules/Methodology/Admin/MethodologyPage.php:73
 #: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php:38
 #: src/Modules/Methodology/Frontend/Manage/MethodologyManageView.php:49
@@ -4359,7 +4355,6 @@ msgstr "Alle types"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1021
-#: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
@@ -5581,7 +5576,6 @@ msgstr "Totaal minuten"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
 #: src/Modules/DemoData/DemoCoverage.php:1022
-#: src/Modules/Documentation/HelpTopics.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
 #: src/Modules/License/Admin/AccountPage.php:804
@@ -5599,7 +5593,7 @@ msgstr "Totaal minuten"
 #: src/Shared/CoreSurfaceRegistration.php:586
 #: src/Shared/CoreSurfaceRegistration.php:1587
 #: src/Shared/CoreSurfaceRegistration.php:1951
-#: src/Shared/Frontend/DashboardShortcode.php:730
+#: src/Shared/Frontend/DashboardShortcode.php:741
 #: src/Shared/Frontend/FrontendComparisonView.php:390
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
@@ -5640,7 +5634,6 @@ msgstr "Beoordelaar"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
 #: src/Modules/DemoData/DemoCoverage.php:1023
-#: src/Modules/Documentation/HelpTopics.php:67
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -5653,7 +5646,7 @@ msgstr "Beoordelaar"
 #: src/Shared/CoreSurfaceRegistration.php:678
 #: src/Shared/CoreSurfaceRegistration.php:1605
 #: src/Shared/CoreSurfaceRegistration.php:1969
-#: src/Shared/Frontend/DashboardShortcode.php:731
+#: src/Shared/Frontend/DashboardShortcode.php:742
 #: src/Shared/Frontend/FrontendConfigurationView.php:258
 #: src/Shared/Frontend/FrontendExportsView.php:367
 #: src/Shared/Frontend/FrontendGoalsManageView.php:44
@@ -5961,14 +5954,14 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:65
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
-#: src/Shared/Frontend/DashboardShortcode.php:450
-#: src/Shared/Frontend/DashboardShortcode.php:790
-#: src/Shared/Frontend/DashboardShortcode.php:846
-#: src/Shared/Frontend/DashboardShortcode.php:1061
-#: src/Shared/Frontend/DashboardShortcode.php:1070
-#: src/Shared/Frontend/DashboardShortcode.php:1378
-#: src/Shared/Frontend/DashboardShortcode.php:1386
-#: src/Shared/Frontend/DashboardShortcode.php:1394
+#: src/Shared/Frontend/DashboardShortcode.php:461
+#: src/Shared/Frontend/DashboardShortcode.php:801
+#: src/Shared/Frontend/DashboardShortcode.php:857
+#: src/Shared/Frontend/DashboardShortcode.php:1072
+#: src/Shared/Frontend/DashboardShortcode.php:1081
+#: src/Shared/Frontend/DashboardShortcode.php:1389
+#: src/Shared/Frontend/DashboardShortcode.php:1397
+#: src/Shared/Frontend/DashboardShortcode.php:1405
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -6018,12 +6011,12 @@ msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:175
 #: src/Modules/Authorization/Admin/ModulesPage.php:91
-#: src/Modules/Documentation/HelpTopics.php:336
+#: src/Modules/Documentation/HelpTopics.php:96
 #: src/Shared/CoreSurfaceRegistration.php:847
 #: src/Shared/CoreSurfaceRegistration.php:862
 #: src/Shared/CoreSurfaceRegistration.php:1669
 #: src/Shared/CoreSurfaceRegistration.php:1976
-#: src/Shared/Frontend/DashboardShortcode.php:1528
+#: src/Shared/Frontend/DashboardShortcode.php:1631
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr "Analyses"
@@ -6132,7 +6125,6 @@ msgstr "Geen vermeldingen."
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:80
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Authorization/Admin/RolesPage.php:494
-#: src/Modules/Documentation/HelpTopics.php:87
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:40
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
 #: src/Modules/Reports/Admin/ReportsPage.php:38
@@ -8311,7 +8303,6 @@ msgid "Rating scale"
 msgstr "Beoordelingsschaal"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:113
-#: src/Modules/Documentation/HelpTopics.php:62
 #: src/Shared/CoreSurfaceRegistration.php:1156
 #: src/Shared/Frontend/FrontendHolidaysView.php:46
 #: src/Shared/Frontend/FrontendHolidaysView.php:146
@@ -8368,7 +8359,6 @@ msgid "Translations"
 msgstr "Vertalingen"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:124
-#: src/Modules/Documentation/HelpTopics.php:132
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:32
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:58
 msgid "Custom fields"
@@ -8388,7 +8378,6 @@ msgstr "Migraties"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:64
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:441
-#: src/Modules/Documentation/HelpTopics.php:207
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:45
 msgid "Setup wizard"
 msgstr "Installatiewizard"
@@ -8398,7 +8387,6 @@ msgid "Frontend admin"
 msgstr "Frontend-beheer"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:129
-#: src/Modules/Documentation/HelpTopics.php:182
 msgid "Authorization matrix"
 msgstr "Authorisatie­matrix"
 
@@ -8438,7 +8426,6 @@ msgid "Workflow templates"
 msgstr "Workflow-templates"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:138
-#: src/Modules/Documentation/HelpTopics.php:152
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:36
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:37
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:46
@@ -8469,7 +8456,6 @@ msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
 #: src/Modules/DemoData/DemoCoverage.php:1025
-#: src/Modules/Documentation/HelpTopics.php:102
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:768
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -8492,7 +8478,6 @@ msgstr "Stage-samenvatting"
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
 #: src/Modules/DemoData/DemoCoverage.php:1038
-#: src/Modules/Documentation/HelpTopics.php:319
 #: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -8508,7 +8493,6 @@ msgid "Threads"
 msgstr "Gesprekken"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:150
-#: src/Modules/Documentation/HelpTopics.php:314
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
 #: src/Shared/CoreSurfaceRegistration.php:1766
 #: src/Shared/Frontend/FrontendConfigurationView.php:1553
@@ -8535,7 +8519,6 @@ msgid "Player behaviour ratings"
 msgstr "Spelers-gedragsbeoordelingen"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:155
-#: src/Modules/Documentation/HelpTopics.php:309
 #: src/Shared/Modules/ModuleMetadata.php:147
 msgid "Player status"
 msgstr "Spelerstatus"
@@ -8562,7 +8545,6 @@ msgstr "Safeguarding-notities"
 
 # v3.53.0 — PDP planning windows (#0054)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:161
-#: src/Modules/Documentation/HelpTopics.php:304
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:43
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:59
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:330
@@ -8587,7 +8569,6 @@ msgstr "PDP-eindoordeel"
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:101
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:110
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:346
-#: src/Modules/Documentation/HelpTopics.php:289
 #: src/Shared/Frontend/FrontendConfigurationView.php:1506
 #: src/Shared/Modules/ModuleMetadata.php:363
 msgid "Custom CSS"
@@ -8621,7 +8602,6 @@ msgid "Player notes"
 msgstr "Spelersnotities"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:179
-#: src/Modules/Documentation/HelpTopics.php:187
 #: src/Shared/Frontend/FrontendConfigurationView.php:1621
 #: src/Shared/Frontend/FrontendRecycleBinView.php:41
 #: src/Shared/Frontend/FrontendRecycleBinView.php:53
@@ -8878,7 +8858,7 @@ msgstr "Hoofd Opleidingen"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1841
+#: src/Shared/Frontend/DashboardShortcode.php:1943
 msgid "Academy Admin"
 msgstr "Academy Admin"
 
@@ -8943,7 +8923,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:704
 #: src/Modules/Authorization/Admin/MatrixPage.php:705
 #: src/Modules/Authorization/Admin/MatrixPage.php:706
-#: src/Modules/Documentation/HelpTopics.php:341
+#: src/Modules/Documentation/HelpTopics.php:101
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:566
@@ -9063,7 +9043,6 @@ msgstr "Je hebt geen rechten om modules te beheren."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:52
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
-#: src/Modules/Documentation/HelpTopics.php:192
 #: src/Shared/CoreSurfaceRegistration.php:1878
 #: src/Shared/Frontend/FrontendModulesView.php:228
 #: src/Shared/Frontend/FrontendModulesView.php:229
@@ -9116,7 +9095,7 @@ msgstr "Personen & teams"
 
 # ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
 #: src/Modules/Authorization/Admin/ModulesPage.php:90
-#: src/Modules/Documentation/HelpTopics.php:335
+#: src/Modules/Documentation/HelpTopics.php:95
 #: src/Modules/Measurements/MeasurementsModule.php:82
 #: src/Modules/Measurements/MeasurementsModule.php:104
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
@@ -9132,7 +9111,7 @@ msgstr "Prestaties"
 #: src/Modules/Authorization/Admin/RolesPage.php:495
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:80
 #: src/Modules/DataBrowser/SemanticRegistry.php:142
-#: src/Modules/Documentation/HelpTopics.php:337
+#: src/Modules/Documentation/HelpTopics.php:97
 #: src/Modules/Measurements/MeasurementsModule.php:130
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
@@ -9157,7 +9136,6 @@ msgid "Configuration"
 msgstr "Configuratie"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:93
-#: src/Modules/Documentation/HelpTopics.php:177
 msgid "Access control"
 msgstr "Toegangsbeheer"
 
@@ -9318,7 +9296,6 @@ msgid "Team chemistry board + formation suggestions."
 msgstr "Teamchemie-bord + opstelling-suggesties."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:304
-#: src/Modules/Documentation/HelpTopics.php:321
 msgid ""
 "Personal goals + evaluations + certifications + PDP for coaches and staff."
 msgstr ""
@@ -9363,7 +9340,6 @@ msgid "First-run setup wizard for fresh installs."
 msgstr "Setup-wizard voor eerste keer op verse installaties."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:314
-#: src/Modules/Documentation/HelpTopics.php:316
 msgid "Read-only Spond → TalentTrack iCal sync per team."
 msgstr "Alleen-lezen Spond → TalentTrack iCal-sync per team."
 
@@ -16391,7 +16367,7 @@ msgstr "Spelersrapporten"
 #: src/Modules/DemoData/DemoCoverage.php:1030
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
-#: src/Shared/Frontend/DashboardShortcode.php:734
+#: src/Shared/Frontend/DashboardShortcode.php:745
 #: src/Shared/Frontend/FrontendMySettingsView.php:309
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:162
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:707
@@ -17355,45 +17331,45 @@ msgstr ""
 "Er wordt gewerkt aan je geaccepteerde idee \"%s\". Het schuift door naar "
 "Klaar zodra het is uitgeleverd."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:58
+#: src/Modules/Documentation/Admin/DocumentationPage.php:60
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:541
 #: src/Modules/Stats/Admin/UsageStatsPage.php:361
 #: src/Shared/Admin/BackNavigator.php:145
 #: src/Shared/CoreSurfaceRegistration.php:1900
 #: src/Shared/CoreSurfaceRegistration.php:2085
-#: src/Shared/Frontend/FrontendDocsView.php:45
-#: src/Shared/Frontend/FrontendDocsView.php:46
+#: src/Shared/Frontend/FrontendDocsView.php:47
+#: src/Shared/Frontend/FrontendDocsView.php:48
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:686
 msgid "Help & Docs"
 msgstr "Hulp & documentatie"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:158
-#: src/Shared/Frontend/FrontendDocsView.php:74
+#: src/Modules/Documentation/Admin/DocumentationPage.php:160
+#: src/Shared/Frontend/FrontendDocsView.php:76
 msgid "Search topics…"
 msgstr "Zoek onderwerpen…"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:159
+#: src/Modules/Documentation/Admin/DocumentationPage.php:161
 msgid "No matching topics."
 msgstr "Geen passende onderwerpen."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:200
+#: src/Modules/Documentation/Admin/DocumentationPage.php:202
 #: src/Shared/CoreSurfaceRegistration.php:1420
 #: src/Shared/CoreSurfaceRegistration.php:1894
 #: src/Shared/CoreSurfaceRegistration.php:2081
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1875
-#: src/Shared/Frontend/FrontendDocsView.php:103
+#: src/Shared/Frontend/DashboardShortcode.php:1977
+#: src/Shared/Frontend/FrontendDocsView.php:105
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
 msgstr "Hulp"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:249
-#: src/Shared/Frontend/FrontendDocsView.php:137
+#: src/Modules/Documentation/Admin/DocumentationPage.php:251
+#: src/Shared/Frontend/FrontendDocsView.php:139
 msgid "This topic has no content yet."
 msgstr "Dit onderwerp heeft nog geen inhoud."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:253
-#: src/Shared/Frontend/FrontendDocsView.php:139
+#: src/Modules/Documentation/Admin/DocumentationPage.php:255
+#: src/Shared/Frontend/FrontendDocsView.php:141
 msgid "This topic is empty."
 msgstr "Dit onderwerp is leeg."
 
@@ -17409,504 +17385,15 @@ msgstr "Beheerder"
 msgid "Dev"
 msgstr "Ontwikkelaar"
 
-#: src/Modules/Documentation/DocsRestController.php:72
+#: src/Modules/Documentation/DocsRestController.php:71
 msgid "Topic not found."
 msgstr "Onderwerp niet gevonden."
 
-#: src/Modules/Documentation/DocsRestController.php:78
+#: src/Modules/Documentation/DocsRestController.php:76
 msgid "Not authorised for this topic."
 msgstr "Niet bevoegd voor dit onderwerp."
 
-#: src/Modules/Documentation/HelpTopics.php:32
-msgid "Getting started"
-msgstr "Aan de slag"
-
-#: src/Modules/Documentation/HelpTopics.php:34
-msgid "Welcome to TalentTrack. The essentials to get going."
-msgstr "Welkom bij TalentTrack. De basis om van start te gaan."
-
-#: src/Modules/Documentation/HelpTopics.php:37
-msgid "Teams & players"
-msgstr "Teams & spelers"
-
-#: src/Modules/Documentation/HelpTopics.php:39
-msgid "How to create teams, add players, and assign players to teams."
-msgstr "Teams aanmaken, spelers toevoegen en spelers aan teams toewijzen."
-
-#: src/Modules/Documentation/HelpTopics.php:42
-msgid "People (staff)"
-msgstr "Mensen (staf)"
-
-#: src/Modules/Documentation/HelpTopics.php:44
-msgid ""
-"Coaches, physios, and other staff — add them as people and link to teams."
-msgstr ""
-"Coaches, fysio's en andere staf — voeg ze toe als mensen en koppel aan teams."
-
-#: src/Modules/Documentation/HelpTopics.php:49
-msgid "Record player ratings with scores, notes, and categories."
-msgstr "Leg spelerbeoordelingen vast met scores, notities en categorieën."
-
-#: src/Modules/Documentation/HelpTopics.php:52
-msgid "Evaluation categories & weights"
-msgstr "Evaluatiecategorieën & gewichten"
-
-#: src/Modules/Documentation/HelpTopics.php:54
-msgid "Main categories, subcategories, and how per-age-group weighting works."
-msgstr ""
-"Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie "
-"werkt."
-
-#: src/Modules/Documentation/HelpTopics.php:59
-msgid ""
-"Games, trainings, and other activities — typing, attendance, and post-game "
-"evaluations."
-msgstr ""
-"Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid en "
-"evaluaties na wedstrijden."
-
-#: src/Modules/Documentation/HelpTopics.php:64
-msgid "Academy-wide holiday periods shown as banners on every team planner."
-msgstr ""
-"Academiebrede vakantieperiodes die als banner op elke teamplanner worden "
-"getoond."
-
-#: src/Modules/Documentation/HelpTopics.php:69
-msgid "Development goals per player with status and priority."
-msgstr "Ontwikkelingsdoelen per speler met status en prioriteit."
-
-# #0044 — PDP cycle (Sprint 2: UX surfaces)
-#: src/Modules/Documentation/HelpTopics.php:72
-msgid "Player Development Plan (PDP)"
-msgstr "Persoonlijk Ontwikkelingsplan (POP)"
-
-#: src/Modules/Documentation/HelpTopics.php:74
-msgid ""
-"Per-season development files, conversation cadence, end-of-season verdict."
-msgstr ""
-"Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel."
-
-#: src/Modules/Documentation/HelpTopics.php:79
-msgid ""
-"Formation board with auto-suggested XI, depth chart, paired-player "
-"overrides, and traceable fit scores."
-msgstr ""
-"Formatiebord met automatisch voorgestelde basiself, dieptestaat, koppel­"
-"overrides en traceerbare fit-scores."
-
-#: src/Modules/Documentation/HelpTopics.php:82
-#: src/Shared/Modules/ModuleMetadata.php:165
-msgid "Player journey"
-msgstr "Spelersreis"
-
-#: src/Modules/Documentation/HelpTopics.php:84
-msgid ""
-"A chronological view of every player's academy story — milestones, "
-"evaluations, injuries, transitions."
-msgstr ""
-"Een chronologisch overzicht van het verhaal van elke speler — mijlpalen, "
-"evaluaties, blessures, overgangen."
-
-#: src/Modules/Documentation/HelpTopics.php:89
-msgid "The tile launcher — progress charts, team ratings, coach activity."
-msgstr ""
-"De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit."
-
 #: src/Modules/Documentation/HelpTopics.php:94
-msgid ""
-"Which players are unevaluated this window, which coach owns the gap, and per-"
-"team attendance-recording compliance."
-msgstr ""
-"Welke spelers deze periode niet geëvalueerd zijn, welke coach "
-"verantwoordelijk is voor het gat, en de naleving van "
-"aanwezigheidsregistratie per team."
-
-#: src/Modules/Documentation/HelpTopics.php:99
-msgid ""
-"One read-only screen for end-of-season decisions: rating, trend, attendance, "
-"PDP talks and verdict per player."
-msgstr ""
-"Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, trend, "
-"aanwezigheid, POP-gesprekken en eindoordeel per speler."
-
-#: src/Modules/Documentation/HelpTopics.php:104
-msgid ""
-"Run a structured trial period: track templates, staff input, decision and "
-"the letter that goes to parents."
-msgstr ""
-"Voer een gestructureerde proefperiode uit: tracksjablonen, staf-input, "
-"besluit en de brief die naar ouders gaat."
-
-#: src/Modules/Documentation/HelpTopics.php:107
-msgid "Record creation wizards"
-msgstr "Wizards voor record-aanmaak"
-
-#: src/Modules/Documentation/HelpTopics.php:109
-msgid ""
-"Step-by-step forms that replace the flat create form for new players, teams, "
-"evaluations, and goals."
-msgstr ""
-"Stapsgewijze formulieren die het oude formulier vervangen voor nieuwe "
-"spelers, teams, evaluaties en doelen."
-
-#: src/Modules/Documentation/HelpTopics.php:112
-msgid "Player rate cards"
-msgstr "Speler-ratingkaarten"
-
-#: src/Modules/Documentation/HelpTopics.php:114
-msgid "Deep per-player dashboards with trends and charts."
-msgstr "Uitgebreide spelerdashboards met trends en grafieken."
-
-#: src/Modules/Documentation/HelpTopics.php:119
-msgid "Compare up to 4 players side-by-side, cross-team."
-msgstr "Vergelijk tot 4 spelers naast elkaar, team-overstijgend."
-
-#: src/Modules/Documentation/HelpTopics.php:122
-#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:378
-msgid "Usage statistics"
-msgstr "Gebruiksstatistieken"
-
-#: src/Modules/Documentation/HelpTopics.php:124
-msgid "Logins, active users, DAU and evaluation trends."
-msgstr "Logins, actieve gebruikers, DAU en evaluatietrends."
-
-#: src/Modules/Documentation/HelpTopics.php:127
-msgid "Configuration & branding"
-msgstr "Configuratie & branding"
-
-#: src/Modules/Documentation/HelpTopics.php:129
-msgid "Academy name, logo, rating scale, color palette, lookup tables."
-msgstr ""
-"Academie-naam, logo, beoordelingsschaal, kleurenpalet, referentietabellen."
-
-#: src/Modules/Documentation/HelpTopics.php:134
-msgid "Add club-specific fields to players, teams, and evaluations."
-msgstr "Voeg clubspecifieke velden toe aan spelers, teams en evaluaties."
-
-#: src/Modules/Documentation/HelpTopics.php:137
-msgid "Bulk actions (archive & delete)"
-msgstr "Bulkacties (archiveren & verwijderen)"
-
-#: src/Modules/Documentation/HelpTopics.php:139
-msgid "Selecting many rows at once. Archive vs. permanent delete."
-msgstr ""
-"Meerdere rijen tegelijk selecteren. Archiveren versus definitief verwijderen."
-
-#: src/Modules/Documentation/HelpTopics.php:142
-msgid "Printing & PDF export"
-msgstr "Afdrukken & PDF-export"
-
-#: src/Modules/Documentation/HelpTopics.php:144
-msgid "Clean printable reports and browser-native PDF export."
-msgstr "Opgeschoonde afdrukbare rapporten en native PDF-export van de browser."
-
-#: src/Modules/Documentation/HelpTopics.php:147
-msgid "Migrations & updates"
-msgstr "Migraties & updates"
-
-#: src/Modules/Documentation/HelpTopics.php:149
-msgid ""
-"What happens when you update the plugin, and how to run migrations manually."
-msgstr ""
-"Wat er gebeurt wanneer je de plugin bijwerkt en hoe je migraties handmatig "
-"uitvoert."
-
-#: src/Modules/Documentation/HelpTopics.php:154
-msgid ""
-"Invite players, parents, and staff via shareable WhatsApp links — set "
-"passwords on first follow-through."
-msgstr ""
-"Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — wachtwoorden "
-"worden bij de eerste opvolging ingesteld."
-
-#: src/Modules/Documentation/HelpTopics.php:157
-msgid "Player dashboard (frontend)"
-msgstr "Spelerdashboard (frontend)"
-
-#: src/Modules/Documentation/HelpTopics.php:159
-msgid "What players see when they log into the frontend shortcode."
-msgstr "Wat spelers zien wanneer ze inloggen op de frontend-shortcode."
-
-#: src/Modules/Documentation/HelpTopics.php:162
-msgid "Coach dashboard (frontend)"
-msgstr "Coachdashboard (frontend)"
-
-#: src/Modules/Documentation/HelpTopics.php:164
-msgid "What coaches see in the frontend tile grid."
-msgstr "Wat coaches zien in het tegelraster van de frontend."
-
-# #0060 — Persona dashboard help topic
-#: src/Modules/Documentation/HelpTopics.php:167
-msgid "Persona dashboards"
-msgstr "Persona-dashboards"
-
-#: src/Modules/Documentation/HelpTopics.php:169
-msgid ""
-"Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, "
-"and per-club override."
-msgstr ""
-"Persona-bewuste landingspagina's met widget-catalogus, KPI-catalogus, rol-"
-"wisselaar en per-club-override."
-
-#: src/Modules/Documentation/HelpTopics.php:172
-msgid "Goals as a conversation"
-msgstr "Doelen als gesprek"
-
-#: src/Modules/Documentation/HelpTopics.php:174
-msgid ""
-"Chat-style threads on every player goal — coach, player, parent dialogue "
-"with notifications, edit window, soft-delete, and audit log."
-msgstr ""
-"Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, speler "
-"en ouder met meldingen, bewerkvenster, soft-delete en audit-log."
-
-#: src/Modules/Documentation/HelpTopics.php:179
-msgid "Roles, permissions, functional roles, and the Read-Only Observer."
-msgstr "Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer."
-
-#: src/Modules/Documentation/HelpTopics.php:184
-msgid ""
-"Persona × entity × activity × scope grid — what each persona can do, with "
-"shadow-mode preview before applying."
-msgstr ""
-"Persona × entiteit × activiteit × scope-raster — wat elke persona mag, met "
-"shadow-modus preview vóór toepassen."
-
-#: src/Modules/Documentation/HelpTopics.php:189
-msgid ""
-"Archive → trash → purge: the retention window, who can permanently delete, "
-"and the GDPR right-to-erasure path."
-msgstr ""
-"Archiveren → prullenbak → opschonen: de bewaartermijn, wie definitief mag "
-"verwijderen en het AVG-pad voor het recht op vergetelheid."
-
-#: src/Modules/Documentation/HelpTopics.php:194
-msgid ""
-"Per-install module toggles — disable Methodology, Workflow, License, etc. "
-"without touching code."
-msgstr ""
-"Module-toggles per installatie — schakel Methodology, Workflow, License, "
-"etc. uit zonder code aan te raken."
-
-# Workflow & tasks engine (#0022 Sprint 1)
-#: src/Modules/Documentation/HelpTopics.php:197
-msgid "Workflow & tasks engine"
-msgstr "Workflow- en takenmotor"
-
-#: src/Modules/Documentation/HelpTopics.php:199
-msgid ""
-"Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-"
-"setting, HoD reviews."
-msgstr ""
-"Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, "
-"zelfevaluaties, doelen stellen, HoD-reviews."
-
-#: src/Modules/Documentation/HelpTopics.php:202
-msgid "Workflow engine — cron setup"
-msgstr "Workflow-motor — cron-instellingen"
-
-#: src/Modules/Documentation/HelpTopics.php:204
-msgid ""
-"How WP-cron drives scheduled tasks on this install, and how to fix it when "
-"it stops firing."
-msgstr ""
-"Hoe WP-cron geplande taken op deze installatie aanstuurt, en hoe je het "
-"herstelt als het stopt met afvuren."
-
-#: src/Modules/Documentation/HelpTopics.php:209
-msgid "The first-run guided installer that hands you off into TalentTrack."
-msgstr "De begeleide eerste-installatie die je TalentTrack inleidt."
-
-#: src/Modules/Documentation/HelpTopics.php:212
-msgid "License & account"
-msgstr "Licentie & account"
-
-#: src/Modules/Documentation/HelpTopics.php:214
-msgid "Tier, trial state, usage caps, upgrade flow."
-msgstr "Tier, trial-status, gebruikslimieten, upgrade-flow."
-
-#: src/Modules/Documentation/HelpTopics.php:217
-msgid "Backups & disaster recovery"
-msgstr "Back-ups & disaster recovery"
-
-#: src/Modules/Documentation/HelpTopics.php:219
-msgid "Scheduled exports, partial restore, the 14-day undo window."
-msgstr "Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster."
-
-# ===== #1347 — go-live runbook topic =====
-#: src/Modules/Documentation/HelpTopics.php:222
-msgid "Go-live runbook"
-msgstr "Go-live-runbook"
-
-#: src/Modules/Documentation/HelpTopics.php:224
-msgid "Pre-launch checklist for taking an academy install into production."
-msgstr ""
-"Pre-launch-checklist om een academie-installatie in productie te nemen."
-
-#: src/Modules/Documentation/HelpTopics.php:229
-msgid ""
-"Football framework primer, principles, set pieces, positions, "
-"voetbalhandelingen."
-msgstr ""
-"Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, "
-"voetbalhandelingen."
-
-#: src/Modules/Documentation/HelpTopics.php:233
-msgid "REST API reference"
-msgstr "REST API reference"
-
-#: src/Modules/Documentation/HelpTopics.php:235
-msgid "Plugin REST endpoints, payload shapes and capability scopes."
-msgstr "REST-endpoints van de plugin, payload-vormen en capability-scopes."
-
-#: src/Modules/Documentation/HelpTopics.php:238
-msgid "Hooks & filters"
-msgstr "Hooks & filters"
-
-#: src/Modules/Documentation/HelpTopics.php:240
-msgid "Every action and filter the plugin exposes for extension."
-msgstr "Elke actie en filter die de plugin blootstelt voor uitbreiding."
-
-#: src/Modules/Documentation/HelpTopics.php:243
-msgid "Architecture"
-msgstr "Architectuur"
-
-#: src/Modules/Documentation/HelpTopics.php:245
-msgid "Module pattern, Kernel boot order, capability model, design tokens."
-msgstr "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
-
-#: src/Modules/Documentation/HelpTopics.php:248
-msgid "Theme integration"
-msgstr "Theme-integratie"
-
-#: src/Modules/Documentation/HelpTopics.php:250
-msgid ""
-"How TalentTrack isolates itself from the active WordPress theme in canvas "
-"mode."
-msgstr ""
-"Hoe TalentTrack zich in canvas-modus isoleert van het actieve WordPress-"
-"thema."
-
-#: src/Modules/Documentation/HelpTopics.php:253
-msgid "Development management"
-msgstr "Ontwikkelingsbeheer"
-
-#: src/Modules/Documentation/HelpTopics.php:255
-msgid ""
-"Submit, refine, and promote ideas straight to GitHub from the dashboard."
-msgstr ""
-"Ideeën indienen, verfijnen en rechtstreeks vanaf het dashboard naar GitHub "
-"promoten."
-
-# v3.22.0 — Multilingual auto-translate (#0025)
-#: src/Modules/Documentation/HelpTopics.php:258
-#: src/Modules/Translations/Admin/TranslationsConfigTab.php:71
-msgid "Auto-translation"
-msgstr "Auto-vertaling"
-
-#: src/Modules/Documentation/HelpTopics.php:260
-msgid "Opt-in DeepL / Google translation of user-entered free text."
-msgstr ""
-"Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst."
-
-#: src/Modules/Documentation/HelpTopics.php:264
-msgid "Install on iPhone"
-msgstr "Installeren op iPhone"
-
-#: src/Modules/Documentation/HelpTopics.php:266
-msgid ""
-"Add TalentTrack to your iPhone home screen via Safari and accept push "
-"notifications."
-msgstr ""
-"Zet TalentTrack op het iPhone-startscherm via Safari en accepteer "
-"pushnotificaties."
-
-#: src/Modules/Documentation/HelpTopics.php:269
-msgid "Install on Android"
-msgstr "Installeren op Android"
-
-#: src/Modules/Documentation/HelpTopics.php:271
-msgid ""
-"Install TalentTrack as a Chrome PWA on Android and accept push notifications."
-msgstr ""
-"Installeer TalentTrack als Chrome-PWA op Android en accepteer "
-"pushnotificaties."
-
-#: src/Modules/Documentation/HelpTopics.php:274
-msgid "Notifications setup"
-msgstr "Notificaties instellen"
-
-#: src/Modules/Documentation/HelpTopics.php:276
-msgid ""
-"Turn on push notifications, understand what TalentTrack sends, and how phone "
-"verification works."
-msgstr ""
-"Zet pushnotificaties aan, leer wat TalentTrack stuurt en hoe "
-"telefoonverificatie werkt."
-
-#: src/Modules/Documentation/HelpTopics.php:279
-msgid "Parent contact (U8 – U10)"
-msgstr "Oudercontact (O8 – O10)"
-
-#: src/Modules/Documentation/HelpTopics.php:281
-msgid ""
-"For younger players, the parent is the primary contact — invitations, tasks, "
-"and pushes flow through you."
-msgstr ""
-"Voor jongere spelers is de ouder het primaire contact — uitnodigingen, taken "
-"en pushes lopen via jou."
-
-#: src/Modules/Documentation/HelpTopics.php:291
-msgid ""
-"Visual editor and hand-rolled CSS for academy-specific theming, with "
-"sanitisation and history."
-msgstr ""
-"Visuele editor en handgeschreven CSS voor academie-specifieke thematisering, "
-"met sanitization en geschiedenis."
-
-#: src/Modules/Documentation/HelpTopics.php:294
-#: src/Shared/CoreSurfaceRegistration.php:1491
-#: src/Shared/Modules/ModuleMetadata.php:375
-msgid "Demo data"
-msgstr "Demogegevens"
-
-#: src/Modules/Documentation/HelpTopics.php:296
-msgid ""
-"Fill a club with a plausible academy for exploring or demonstrating "
-"TalentTrack, and wipe it again cleanly."
-msgstr ""
-"Vul een club met een geloofwaardige academie om TalentTrack te verkennen of "
-"te demonstreren, en wis hem daarna weer netjes."
-
-#: src/Modules/Documentation/HelpTopics.php:299
-msgid "Demo data (Excel)"
-msgstr "Demogegevens (Excel)"
-
-#: src/Modules/Documentation/HelpTopics.php:301
-msgid ""
-"Generate or import a demo dataset for sales / training. Excel template with "
-"auto_key cross-sheet links."
-msgstr ""
-"Genereer of importeer een demo-dataset voor sales / training. Excel-sjabloon "
-"met auto_key-cross-sheet-links."
-
-#: src/Modules/Documentation/HelpTopics.php:306
-msgid ""
-"Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / "
-"coach surface."
-msgstr ""
-"Per-team-per-blok matrix van geplande versus uitgevoerde POP-gesprekken. "
-"HoD- / coach-oppervlak."
-
-#: src/Modules/Documentation/HelpTopics.php:311
-msgid ""
-"Traffic-light status calculation: weights, thresholds, behaviour floor, "
-"behaviour + potential capture."
-msgstr ""
-"Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + "
-"potentieel-registratie."
-
-#: src/Modules/Documentation/HelpTopics.php:334
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:23
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:44
 #: src/Modules/Wizards/Person/BasicsStep.php:17
@@ -17914,15 +17401,15 @@ msgstr ""
 msgid "Basics"
 msgstr "Basis"
 
-#: src/Modules/Documentation/HelpTopics.php:338
+#: src/Modules/Documentation/HelpTopics.php:98
 msgid "Frontend & access"
 msgstr "Frontend & toegang"
 
-#: src/Modules/Documentation/HelpTopics.php:339
+#: src/Modules/Documentation/HelpTopics.php:99
 msgid "Mobile install"
 msgstr "Mobiele installatie"
 
-#: src/Modules/Documentation/HelpTopics.php:340
+#: src/Modules/Documentation/HelpTopics.php:100
 #: src/Shared/CoreSurfaceRegistration.php:1430
 msgid "Developer"
 msgstr "Ontwikkelaar"
@@ -19285,7 +18772,7 @@ msgstr "Printen"
 #: src/Shared/Frontend/Components/FilterBar.php:348
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:188
-#: src/Shared/Frontend/DashboardShortcode.php:1880
+#: src/Shared/Frontend/DashboardShortcode.php:1982
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Sluiten"
@@ -20278,11 +19765,9 @@ msgid "You must be logged in to manage your MFA settings."
 msgstr "Je moet ingelogd zijn om je MFA-instellingen te beheren."
 
 #: src/Modules/License/Admin/AccountPage.php:152
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:58
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:161
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:162
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:250
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:251
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:59
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:164
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:264
 msgid "Two-factor authentication"
 msgstr "Tweestapsverificatie"
 
@@ -20812,7 +20297,7 @@ msgstr "Spelerkaarten"
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
 #: src/Shared/CoreSurfaceRegistration.php:1476
-#: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:28
+#: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:48
 #: src/Shared/Frontend/FrontendConfigurationView.php:1497
 #: src/Shared/Frontend/FrontendConfigurationView.php:2738
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:254
@@ -25691,22 +25176,22 @@ msgstr ""
 "Inschrijving gewist voor %1$s (#%2$d) — opnieuw inschrijven bij de volgende "
 "login."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:63
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:64
 msgid "You must be logged in to verify a code."
 msgstr "Je moet ingelogd zijn om een code te verifiëren."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:105
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:107
 msgid ""
 "Your MFA setup is incomplete. Sign out and back in, then re-enroll if needed."
 msgstr ""
 "Je MFA-setup is niet compleet. Log uit, log opnieuw in en meld je zo nodig "
 "opnieuw aan."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:116
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:118
 msgid "That code didn't match."
 msgstr "Die code klopt niet."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:131
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:133
 #: src/Modules/Mfa/Wizards/VerifyStep.php:63
 msgid ""
 "The code is six digits. Try again with the current code from your "
@@ -25715,7 +25200,7 @@ msgstr ""
 "De code is zes cijfers. Probeer opnieuw met de huidige code uit je "
 "authenticator-app."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:135
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:137
 #: src/Modules/Mfa/Wizards/VerifyStep.php:80
 msgid ""
 "That code didn't match. Make sure your phone's clock is correct, then try "
@@ -25730,47 +25215,47 @@ msgid "For your security, sign-in needs a second factor on your account."
 msgstr ""
 "Voor je veiligheid heeft inloggen een tweede factor op je account nodig."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:181
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:179
 msgid "Backup code"
 msgstr "Reservecode"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:188
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:186
 msgid "Each backup code works once. Dashes optional."
 msgstr "Elke reservecode werkt één keer. Streepjes mogen weg."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:192
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:190
 msgid "Code from your authenticator app"
 msgstr "Code uit je authenticator-app"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:203
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:201
 msgid ""
 "Remember this device for 30 days. Skip the code on this browser next time."
 msgstr ""
 "Vertrouw dit apparaat 30 dagen. Sla de code op deze browser de volgende keer "
 "over."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:208
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:205
 #: src/Modules/Mfa/Wizards/VerifyStep.php:29
 msgid "Verify"
 msgstr "Verifiëren"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:219
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:215
 msgid "Use a backup code instead"
 msgstr "Gebruik in plaats daarvan een reservecode"
 
 #. translators: %d unused backup codes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:226
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:222
 #, php-format
 msgid "%d code remaining"
 msgid_plural "%d codes remaining"
 msgstr[0] "%d code over"
 msgstr[1] "%d codes over"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:237
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:233
 msgid "Use the authenticator app code instead"
 msgstr "Gebruik in plaats daarvan de code uit de authenticator-app"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:243
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:239
 msgid ""
 "Lost both your phone and your backup codes? Ask your academy admin to reset "
 "MFA on your account."
@@ -25778,19 +25263,19 @@ msgstr ""
 "Ben je zowel je telefoon als je reservecodes kwijt? Vraag je academy admin "
 "om MFA op je account te resetten."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:255
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:267
 msgid "Too many failed attempts."
 msgstr "Te veel mislukte pogingen."
 
 #. translators: %d minutes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:260
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:272
 #, php-format
 msgid "Try again in %d minute."
 msgid_plural "Try again in %d minutes."
 msgstr[0] "Probeer het over %d minuut opnieuw."
 msgstr[1] "Probeer het over %d minuten opnieuw."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:266
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:278
 msgid ""
 "If you never see a working code, ask your academy admin to reset MFA on your "
 "account."
@@ -28525,10 +28010,14 @@ msgstr "Mijn rapporten"
 msgid "My assigned players"
 msgstr "Mijn toegewezen spelers"
 
+#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:378
+msgid "Usage statistics"
+msgstr "Gebruiksstatistieken"
+
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1790
-#: src/Shared/Frontend/DashboardShortcode.php:1791
+#: src/Shared/Frontend/DashboardShortcode.php:1892
+#: src/Shared/Frontend/DashboardShortcode.php:1893
 msgid "Help & docs"
 msgstr "Help & docs"
 
@@ -31510,8 +30999,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1379
-#: src/Shared/Frontend/DashboardShortcode.php:1387
+#: src/Shared/Frontend/DashboardShortcode.php:1390
+#: src/Shared/Frontend/DashboardShortcode.php:1398
 msgid "You need scout-management permission to view this page."
 msgstr "Je hebt scout-beheerrechten nodig om deze pagina te bekijken."
 
@@ -33212,7 +32701,7 @@ msgstr "Gekoppelde spelers"
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
 #: src/Shared/Frontend/DashboardShortcode.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:186
-#: src/Shared/Frontend/DashboardShortcode.php:1885
+#: src/Shared/Frontend/DashboardShortcode.php:1987
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:459
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -33536,7 +33025,7 @@ msgid "You do not have permission to edit this player's attributes."
 msgstr "Je hebt geen toestemming om de attributen van deze speler te bewerken."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1110
+#: src/Shared/Frontend/DashboardShortcode.php:1121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:229
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:232
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -35528,6 +35017,11 @@ msgstr "DeepL"
 #: src/Shared/Frontend/FrontendTranslationsView.php:71
 msgid "Google Translate"
 msgstr "Google Translate"
+
+# v3.22.0 — Multilingual auto-translate (#0025)
+#: src/Modules/Translations/Admin/TranslationsConfigTab.php:71
+msgid "Auto-translation"
+msgstr "Auto-vertaling"
 
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:73
 #: src/Shared/Frontend/FrontendTranslationsView.php:83
@@ -38745,7 +38239,7 @@ msgid "Security check failed. Please refresh the page and try again."
 msgstr "Beveiligingscontrole mislukt. Vernieuw de pagina en probeer opnieuw."
 
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
-#: src/Shared/Frontend/DashboardShortcode.php:856
+#: src/Shared/Frontend/DashboardShortcode.php:867
 msgid "Task completed."
 msgstr "Taak voltooid."
 
@@ -39222,7 +38716,7 @@ msgstr ""
 
 # ===== v2.22.0 — Hierarchical back button + Help wiki =====
 #: src/Shared/Admin/BackButton.php:68
-#: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:70
+#: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:91
 msgid "Breadcrumb"
 msgstr "Kruimelpad"
 
@@ -39897,6 +39391,11 @@ msgstr "Gegevens & demo"
 #: src/Shared/CoreSurfaceRegistration.php:2052
 msgid "Access Control"
 msgstr "Toegangsbeheer"
+
+#: src/Shared/CoreSurfaceRegistration.php:1491
+#: src/Shared/Modules/ModuleMetadata.php:375
+msgid "Demo data"
+msgstr "Demogegevens"
 
 #: src/Shared/CoreSurfaceRegistration.php:1538
 msgid "Module completeness"
@@ -40845,7 +40344,7 @@ msgid "Jump to"
 msgstr "Spring naar"
 
 #: src/Shared/Frontend/DashboardShortcode.php:176
-#: src/Shared/Frontend/DashboardShortcode.php:1731
+#: src/Shared/Frontend/DashboardShortcode.php:1833
 msgid "Search players, teams, activities…"
 msgstr "Zoek spelers, teams, activiteiten…"
 
@@ -40858,7 +40357,7 @@ msgid "results"
 msgstr "resultaten"
 
 #: src/Shared/Frontend/DashboardShortcode.php:181
-#: src/Shared/Frontend/DashboardShortcode.php:735
+#: src/Shared/Frontend/DashboardShortcode.php:746
 msgid "Section"
 msgstr "Onderdeel"
 
@@ -40984,66 +40483,71 @@ msgstr "Kies een wachtwoord van minimaal 8 tekens."
 msgid "Please fill in both password fields."
 msgstr "Vul beide wachtwoordvelden in."
 
-#: src/Shared/Frontend/DashboardShortcode.php:287
+#: src/Shared/Frontend/DashboardShortcode.php:298
 msgid "If that account exists, we've sent a password reset link to its email."
 msgstr ""
 "Als dat account bestaat, hebben we een resetlink naar het bijbehorende e-"
 "mailadres gestuurd."
 
-#: src/Shared/Frontend/DashboardShortcode.php:292
+#: src/Shared/Frontend/DashboardShortcode.php:303
 msgid "Your password has been updated. You can sign in now."
 msgstr "Je wachtwoord is bijgewerkt. Je kunt nu inloggen."
 
-#: src/Shared/Frontend/DashboardShortcode.php:451
+#: src/Shared/Frontend/DashboardShortcode.php:462
 msgid "You do not have access to this surface."
 msgstr "Je hebt geen toegang tot dit onderdeel."
 
-#: src/Shared/Frontend/DashboardShortcode.php:465
+#: src/Shared/Frontend/DashboardShortcode.php:476
 msgid "Page not found"
 msgstr "Pagina niet gevonden"
 
-#: src/Shared/Frontend/DashboardShortcode.php:732
+#: src/Shared/Frontend/DashboardShortcode.php:743
 #: src/Shared/Frontend/FrontendMySettingsView.php:308
 #: src/Shared/Frontend/FrontendPlayersManageView.php:588
 msgid "Journey"
 msgstr "Reis"
 
-#: src/Shared/Frontend/DashboardShortcode.php:733
+#: src/Shared/Frontend/DashboardShortcode.php:744
 msgid "Development plan"
 msgstr "Ontwikkelplan"
 
-#: src/Shared/Frontend/DashboardShortcode.php:791
+#: src/Shared/Frontend/DashboardShortcode.php:802
 msgid "This section is only available for users linked to a player record."
 msgstr ""
 "Dit onderdeel is alleen beschikbaar voor gebruikers die aan een speler zijn "
 "gekoppeld."
 
-#: src/Shared/Frontend/DashboardShortcode.php:832
+#: src/Shared/Frontend/DashboardShortcode.php:843
 msgid "Sign in required"
 msgstr "Inloggen vereist"
 
-#: src/Shared/Frontend/DashboardShortcode.php:833
+#: src/Shared/Frontend/DashboardShortcode.php:844
 #: src/Shared/Frontend/FrontendMySettingsView.php:57
 msgid "You need to be logged in to manage your settings."
 msgstr "Je moet ingelogd zijn om je instellingen te beheren."
 
-#: src/Shared/Frontend/DashboardShortcode.php:847
+#: src/Shared/Frontend/DashboardShortcode.php:858
 msgid "Your role does not have access to tasks."
 msgstr "Jouw rol heeft geen toegang tot taken."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1062
+#: src/Shared/Frontend/DashboardShortcode.php:1073
 msgid "Your role does not have access to team chemistry boards."
 msgstr "Jouw rol heeft geen toegang tot teamchemie-borden."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1071
+#: src/Shared/Frontend/DashboardShortcode.php:1082
 msgid "Your role does not have access to team blueprints."
 msgstr "Je rol heeft geen toegang tot teamblauwdrukken."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1395
+#: src/Shared/Frontend/DashboardShortcode.php:1406
 msgid "This area is for scout users."
 msgstr "Dit deel is voor scoutgebruikers."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1530
+#: src/Shared/Frontend/DashboardShortcode.php:1582
+#: src/Shared/Frontend/DashboardShortcode.php:1961
+msgid "Log out"
+msgstr "Uitloggen"
+
+#: src/Shared/Frontend/DashboardShortcode.php:1633
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
@@ -41051,15 +40555,15 @@ msgstr ""
 "De Analytics-verkenner staat uit. Je rapporten werken nog — die vind je "
 "onder Rapporten. Een beheerder kan de verkenner weer aanzetten onder Modules."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1666
+#: src/Shared/Frontend/DashboardShortcode.php:1768
 msgid "Section unavailable"
 msgstr "Sectie niet beschikbaar"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1669
+#: src/Shared/Frontend/DashboardShortcode.php:1771
 msgid "This section is currently unavailable."
 msgstr "Dit onderdeel is momenteel niet beschikbaar."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1672
+#: src/Shared/Frontend/DashboardShortcode.php:1774
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
@@ -41068,7 +40572,7 @@ msgstr ""
 "Probeer het later opnieuw, of neem contact op met je beheerder als je "
 "toegang nodig hebt."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1695
+#: src/Shared/Frontend/DashboardShortcode.php:1797
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
@@ -41076,53 +40580,49 @@ msgstr ""
 "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen totdat "
 "demomodus wordt uitgeschakeld."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1745
+#: src/Shared/Frontend/DashboardShortcode.php:1847
 msgid "Search results"
 msgstr "Zoekresultaten"
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1769
+#: src/Shared/Frontend/DashboardShortcode.php:1871
 msgid "DEMO"
 msgstr "DEMO"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1809
+#: src/Shared/Frontend/DashboardShortcode.php:1911
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr "Mijn instellingen"
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1816
+#: src/Shared/Frontend/DashboardShortcode.php:1918
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr "Mijn sessies"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1828
+#: src/Shared/Frontend/DashboardShortcode.php:1930
 msgid "View as"
 msgstr "Bekijken als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1831
+#: src/Shared/Frontend/DashboardShortcode.php:1933
 msgid "All personas (default)"
 msgstr "Alle persona's (standaard)"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1855
+#: src/Shared/Frontend/DashboardShortcode.php:1957
 msgid "Go to Admin"
 msgstr "Naar beheer"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1859
-msgid "Log out"
-msgstr "Uitloggen"
-
-#: src/Shared/Frontend/DashboardShortcode.php:1877
+#: src/Shared/Frontend/DashboardShortcode.php:1979
 msgid "Open full Help & Docs"
 msgstr "Volledige Help & Docs openen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1949
+#: src/Shared/Frontend/DashboardShortcode.php:2051
 msgid "You are viewing as"
 msgstr "Je bekijkt als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1950
+#: src/Shared/Frontend/DashboardShortcode.php:2052
 msgid "Switch back to all personas"
 msgstr "Terug naar alle persona's"
 
@@ -43417,7 +42917,7 @@ msgstr ""
 msgid "Dismiss for now"
 msgstr "Voor nu sluiten"
 
-#: src/Shared/Frontend/FrontendDocsView.php:49
+#: src/Shared/Frontend/FrontendDocsView.php:51
 msgid "No documentation topics are available."
 msgstr "Geen documentatieonderwerpen beschikbaar."
 
@@ -49218,6 +48718,10 @@ msgid "Age-group squads players belong to, with rosters and staff assignments."
 msgstr ""
 "De leeftijdsteams waartoe spelers behoren, met selecties en stafindelingen."
 
+#: src/Shared/Modules/ModuleMetadata.php:165
+msgid "Player journey"
+msgstr "Spelersreis"
+
 #: src/Shared/Modules/ModuleMetadata.php:166
 msgid ""
 "The chronological timeline of every player — trial, signing, injuries and "
@@ -49555,6 +49059,395 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Getting started"
+#~ msgstr "Aan de slag"
+
+#~ msgid "Welcome to TalentTrack. The essentials to get going."
+#~ msgstr "Welkom bij TalentTrack. De basis om van start te gaan."
+
+#~ msgid "Teams & players"
+#~ msgstr "Teams & spelers"
+
+#~ msgid "How to create teams, add players, and assign players to teams."
+#~ msgstr "Teams aanmaken, spelers toevoegen en spelers aan teams toewijzen."
+
+#~ msgid "People (staff)"
+#~ msgstr "Mensen (staf)"
+
+#~ msgid ""
+#~ "Coaches, physios, and other staff — add them as people and link to teams."
+#~ msgstr ""
+#~ "Coaches, fysio's en andere staf — voeg ze toe als mensen en koppel aan "
+#~ "teams."
+
+#~ msgid "Record player ratings with scores, notes, and categories."
+#~ msgstr "Leg spelerbeoordelingen vast met scores, notities en categorieën."
+
+#~ msgid "Evaluation categories & weights"
+#~ msgstr "Evaluatiecategorieën & gewichten"
+
+#~ msgid ""
+#~ "Main categories, subcategories, and how per-age-group weighting works."
+#~ msgstr ""
+#~ "Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie "
+#~ "werkt."
+
+#~ msgid ""
+#~ "Games, trainings, and other activities — typing, attendance, and post-"
+#~ "game evaluations."
+#~ msgstr ""
+#~ "Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid "
+#~ "en evaluaties na wedstrijden."
+
+#~ msgid "Academy-wide holiday periods shown as banners on every team planner."
+#~ msgstr ""
+#~ "Academiebrede vakantieperiodes die als banner op elke teamplanner worden "
+#~ "getoond."
+
+#~ msgid "Development goals per player with status and priority."
+#~ msgstr "Ontwikkelingsdoelen per speler met status en prioriteit."
+
+# #0044 — PDP cycle (Sprint 2: UX surfaces)
+#~ msgid "Player Development Plan (PDP)"
+#~ msgstr "Persoonlijk Ontwikkelingsplan (POP)"
+
+#~ msgid ""
+#~ "Per-season development files, conversation cadence, end-of-season verdict."
+#~ msgstr ""
+#~ "Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel."
+
+#~ msgid ""
+#~ "Formation board with auto-suggested XI, depth chart, paired-player "
+#~ "overrides, and traceable fit scores."
+#~ msgstr ""
+#~ "Formatiebord met automatisch voorgestelde basiself, dieptestaat, koppel­"
+#~ "overrides en traceerbare fit-scores."
+
+#~ msgid ""
+#~ "A chronological view of every player's academy story — milestones, "
+#~ "evaluations, injuries, transitions."
+#~ msgstr ""
+#~ "Een chronologisch overzicht van het verhaal van elke speler — mijlpalen, "
+#~ "evaluaties, blessures, overgangen."
+
+#~ msgid "The tile launcher — progress charts, team ratings, coach activity."
+#~ msgstr ""
+#~ "De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit."
+
+#~ msgid ""
+#~ "Which players are unevaluated this window, which coach owns the gap, and "
+#~ "per-team attendance-recording compliance."
+#~ msgstr ""
+#~ "Welke spelers deze periode niet geëvalueerd zijn, welke coach "
+#~ "verantwoordelijk is voor het gat, en de naleving van "
+#~ "aanwezigheidsregistratie per team."
+
+#~ msgid ""
+#~ "One read-only screen for end-of-season decisions: rating, trend, "
+#~ "attendance, PDP talks and verdict per player."
+#~ msgstr ""
+#~ "Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, "
+#~ "trend, aanwezigheid, POP-gesprekken en eindoordeel per speler."
+
+#~ msgid ""
+#~ "Run a structured trial period: track templates, staff input, decision and "
+#~ "the letter that goes to parents."
+#~ msgstr ""
+#~ "Voer een gestructureerde proefperiode uit: tracksjablonen, staf-input, "
+#~ "besluit en de brief die naar ouders gaat."
+
+#~ msgid "Record creation wizards"
+#~ msgstr "Wizards voor record-aanmaak"
+
+#~ msgid ""
+#~ "Step-by-step forms that replace the flat create form for new players, "
+#~ "teams, evaluations, and goals."
+#~ msgstr ""
+#~ "Stapsgewijze formulieren die het oude formulier vervangen voor nieuwe "
+#~ "spelers, teams, evaluaties en doelen."
+
+#~ msgid "Player rate cards"
+#~ msgstr "Speler-ratingkaarten"
+
+#~ msgid "Deep per-player dashboards with trends and charts."
+#~ msgstr "Uitgebreide spelerdashboards met trends en grafieken."
+
+#~ msgid "Compare up to 4 players side-by-side, cross-team."
+#~ msgstr "Vergelijk tot 4 spelers naast elkaar, team-overstijgend."
+
+#~ msgid "Logins, active users, DAU and evaluation trends."
+#~ msgstr "Logins, actieve gebruikers, DAU en evaluatietrends."
+
+#~ msgid "Configuration & branding"
+#~ msgstr "Configuratie & branding"
+
+#~ msgid "Academy name, logo, rating scale, color palette, lookup tables."
+#~ msgstr ""
+#~ "Academie-naam, logo, beoordelingsschaal, kleurenpalet, referentietabellen."
+
+#~ msgid "Add club-specific fields to players, teams, and evaluations."
+#~ msgstr "Voeg clubspecifieke velden toe aan spelers, teams en evaluaties."
+
+#~ msgid "Bulk actions (archive & delete)"
+#~ msgstr "Bulkacties (archiveren & verwijderen)"
+
+#~ msgid "Selecting many rows at once. Archive vs. permanent delete."
+#~ msgstr ""
+#~ "Meerdere rijen tegelijk selecteren. Archiveren versus definitief "
+#~ "verwijderen."
+
+#~ msgid "Printing & PDF export"
+#~ msgstr "Afdrukken & PDF-export"
+
+#~ msgid "Clean printable reports and browser-native PDF export."
+#~ msgstr ""
+#~ "Opgeschoonde afdrukbare rapporten en native PDF-export van de browser."
+
+#~ msgid "Migrations & updates"
+#~ msgstr "Migraties & updates"
+
+#~ msgid ""
+#~ "What happens when you update the plugin, and how to run migrations "
+#~ "manually."
+#~ msgstr ""
+#~ "Wat er gebeurt wanneer je de plugin bijwerkt en hoe je migraties "
+#~ "handmatig uitvoert."
+
+#~ msgid ""
+#~ "Invite players, parents, and staff via shareable WhatsApp links — set "
+#~ "passwords on first follow-through."
+#~ msgstr ""
+#~ "Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — "
+#~ "wachtwoorden worden bij de eerste opvolging ingesteld."
+
+#~ msgid "Player dashboard (frontend)"
+#~ msgstr "Spelerdashboard (frontend)"
+
+#~ msgid "What players see when they log into the frontend shortcode."
+#~ msgstr "Wat spelers zien wanneer ze inloggen op de frontend-shortcode."
+
+#~ msgid "Coach dashboard (frontend)"
+#~ msgstr "Coachdashboard (frontend)"
+
+#~ msgid "What coaches see in the frontend tile grid."
+#~ msgstr "Wat coaches zien in het tegelraster van de frontend."
+
+# #0060 — Persona dashboard help topic
+#~ msgid "Persona dashboards"
+#~ msgstr "Persona-dashboards"
+
+#~ msgid ""
+#~ "Persona-aware landing pages with widget catalog, KPI catalog, role-"
+#~ "switcher, and per-club override."
+#~ msgstr ""
+#~ "Persona-bewuste landingspagina's met widget-catalogus, KPI-catalogus, rol-"
+#~ "wisselaar en per-club-override."
+
+#~ msgid "Goals as a conversation"
+#~ msgstr "Doelen als gesprek"
+
+#~ msgid ""
+#~ "Chat-style threads on every player goal — coach, player, parent dialogue "
+#~ "with notifications, edit window, soft-delete, and audit log."
+#~ msgstr ""
+#~ "Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, "
+#~ "speler en ouder met meldingen, bewerkvenster, soft-delete en audit-log."
+
+#~ msgid "Roles, permissions, functional roles, and the Read-Only Observer."
+#~ msgstr "Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer."
+
+#~ msgid ""
+#~ "Persona × entity × activity × scope grid — what each persona can do, with "
+#~ "shadow-mode preview before applying."
+#~ msgstr ""
+#~ "Persona × entiteit × activiteit × scope-raster — wat elke persona mag, "
+#~ "met shadow-modus preview vóór toepassen."
+
+#~ msgid ""
+#~ "Archive → trash → purge: the retention window, who can permanently "
+#~ "delete, and the GDPR right-to-erasure path."
+#~ msgstr ""
+#~ "Archiveren → prullenbak → opschonen: de bewaartermijn, wie definitief mag "
+#~ "verwijderen en het AVG-pad voor het recht op vergetelheid."
+
+#~ msgid ""
+#~ "Per-install module toggles — disable Methodology, Workflow, License, etc. "
+#~ "without touching code."
+#~ msgstr ""
+#~ "Module-toggles per installatie — schakel Methodology, Workflow, License, "
+#~ "etc. uit zonder code aan te raken."
+
+# Workflow & tasks engine (#0022 Sprint 1)
+#~ msgid "Workflow & tasks engine"
+#~ msgstr "Workflow- en takenmotor"
+
+#~ msgid ""
+#~ "Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-"
+#~ "setting, HoD reviews."
+#~ msgstr ""
+#~ "Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, "
+#~ "zelfevaluaties, doelen stellen, HoD-reviews."
+
+#~ msgid "Workflow engine — cron setup"
+#~ msgstr "Workflow-motor — cron-instellingen"
+
+#~ msgid ""
+#~ "How WP-cron drives scheduled tasks on this install, and how to fix it "
+#~ "when it stops firing."
+#~ msgstr ""
+#~ "Hoe WP-cron geplande taken op deze installatie aanstuurt, en hoe je het "
+#~ "herstelt als het stopt met afvuren."
+
+#~ msgid "The first-run guided installer that hands you off into TalentTrack."
+#~ msgstr "De begeleide eerste-installatie die je TalentTrack inleidt."
+
+#~ msgid "License & account"
+#~ msgstr "Licentie & account"
+
+#~ msgid "Tier, trial state, usage caps, upgrade flow."
+#~ msgstr "Tier, trial-status, gebruikslimieten, upgrade-flow."
+
+#~ msgid "Backups & disaster recovery"
+#~ msgstr "Back-ups & disaster recovery"
+
+#~ msgid "Scheduled exports, partial restore, the 14-day undo window."
+#~ msgstr "Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster."
+
+# ===== #1347 — go-live runbook topic =====
+#~ msgid "Go-live runbook"
+#~ msgstr "Go-live-runbook"
+
+#~ msgid "Pre-launch checklist for taking an academy install into production."
+#~ msgstr ""
+#~ "Pre-launch-checklist om een academie-installatie in productie te nemen."
+
+#~ msgid ""
+#~ "Football framework primer, principles, set pieces, positions, "
+#~ "voetbalhandelingen."
+#~ msgstr ""
+#~ "Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, "
+#~ "voetbalhandelingen."
+
+#~ msgid "REST API reference"
+#~ msgstr "REST API reference"
+
+#~ msgid "Plugin REST endpoints, payload shapes and capability scopes."
+#~ msgstr "REST-endpoints van de plugin, payload-vormen en capability-scopes."
+
+#~ msgid "Hooks & filters"
+#~ msgstr "Hooks & filters"
+
+#~ msgid "Every action and filter the plugin exposes for extension."
+#~ msgstr "Elke actie en filter die de plugin blootstelt voor uitbreiding."
+
+#~ msgid "Architecture"
+#~ msgstr "Architectuur"
+
+#~ msgid "Module pattern, Kernel boot order, capability model, design tokens."
+#~ msgstr ""
+#~ "Module-patroon, Kernel boot-volgorde, capability-model, design tokens."
+
+#~ msgid "Theme integration"
+#~ msgstr "Theme-integratie"
+
+#~ msgid ""
+#~ "How TalentTrack isolates itself from the active WordPress theme in canvas "
+#~ "mode."
+#~ msgstr ""
+#~ "Hoe TalentTrack zich in canvas-modus isoleert van het actieve WordPress-"
+#~ "thema."
+
+#~ msgid "Development management"
+#~ msgstr "Ontwikkelingsbeheer"
+
+#~ msgid ""
+#~ "Submit, refine, and promote ideas straight to GitHub from the dashboard."
+#~ msgstr ""
+#~ "Ideeën indienen, verfijnen en rechtstreeks vanaf het dashboard naar "
+#~ "GitHub promoten."
+
+#~ msgid "Opt-in DeepL / Google translation of user-entered free text."
+#~ msgstr ""
+#~ "Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst."
+
+#~ msgid "Install on iPhone"
+#~ msgstr "Installeren op iPhone"
+
+#~ msgid ""
+#~ "Add TalentTrack to your iPhone home screen via Safari and accept push "
+#~ "notifications."
+#~ msgstr ""
+#~ "Zet TalentTrack op het iPhone-startscherm via Safari en accepteer "
+#~ "pushnotificaties."
+
+#~ msgid "Install on Android"
+#~ msgstr "Installeren op Android"
+
+#~ msgid ""
+#~ "Install TalentTrack as a Chrome PWA on Android and accept push "
+#~ "notifications."
+#~ msgstr ""
+#~ "Installeer TalentTrack als Chrome-PWA op Android en accepteer "
+#~ "pushnotificaties."
+
+#~ msgid "Notifications setup"
+#~ msgstr "Notificaties instellen"
+
+#~ msgid ""
+#~ "Turn on push notifications, understand what TalentTrack sends, and how "
+#~ "phone verification works."
+#~ msgstr ""
+#~ "Zet pushnotificaties aan, leer wat TalentTrack stuurt en hoe "
+#~ "telefoonverificatie werkt."
+
+#~ msgid "Parent contact (U8 – U10)"
+#~ msgstr "Oudercontact (O8 – O10)"
+
+#~ msgid ""
+#~ "For younger players, the parent is the primary contact — invitations, "
+#~ "tasks, and pushes flow through you."
+#~ msgstr ""
+#~ "Voor jongere spelers is de ouder het primaire contact — uitnodigingen, "
+#~ "taken en pushes lopen via jou."
+
+#~ msgid ""
+#~ "Visual editor and hand-rolled CSS for academy-specific theming, with "
+#~ "sanitisation and history."
+#~ msgstr ""
+#~ "Visuele editor en handgeschreven CSS voor academie-specifieke "
+#~ "thematisering, met sanitization en geschiedenis."
+
+#~ msgid ""
+#~ "Fill a club with a plausible academy for exploring or demonstrating "
+#~ "TalentTrack, and wipe it again cleanly."
+#~ msgstr ""
+#~ "Vul een club met een geloofwaardige academie om TalentTrack te verkennen "
+#~ "of te demonstreren, en wis hem daarna weer netjes."
+
+#~ msgid "Demo data (Excel)"
+#~ msgstr "Demogegevens (Excel)"
+
+#~ msgid ""
+#~ "Generate or import a demo dataset for sales / training. Excel template "
+#~ "with auto_key cross-sheet links."
+#~ msgstr ""
+#~ "Genereer of importeer een demo-dataset voor sales / training. Excel-"
+#~ "sjabloon met auto_key-cross-sheet-links."
+
+#~ msgid ""
+#~ "Per-team-per-block matrix of planned vs conducted PDP conversations. "
+#~ "HoD / coach surface."
+#~ msgstr ""
+#~ "Per-team-per-blok matrix van geplande versus uitgevoerde POP-gesprekken. "
+#~ "HoD- / coach-oppervlak."
+
+#~ msgid ""
+#~ "Traffic-light status calculation: weights, thresholds, behaviour floor, "
+#~ "behaviour + potential capture."
+#~ msgstr ""
+#~ "Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + "
+#~ "potentieel-registratie."
 
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
