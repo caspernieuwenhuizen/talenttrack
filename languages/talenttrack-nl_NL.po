@@ -49066,6 +49066,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Core/FeatureRegistry.php:75
+msgid "Capturing behaviour scores for players: the evaluation wizard step, the player capture screen and the team bulk-capture screen. Turn off for academies that do not score behaviour. Existing records are kept."
+msgstr "Gedragsscores vastleggen voor spelers: de stap in de evaluatiewizard, het opnamescherm van de speler en het bulk-opnamescherm van het team. Zet dit uit voor academies die geen gedrag scoren. Bestaande registraties blijven behouden."
+
 #~ msgid "Getting started"
 #~ msgstr "Aan de slag"
 
