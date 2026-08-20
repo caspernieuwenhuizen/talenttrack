@@ -18,7 +18,7 @@ use TT\Modules\Configuration\LookupCanonicalSeeds;
  * so the queue stops surfacing the row.
  *
  * Reachable via `?tt_view=lookup-normalisation`. Cap gate
- * `tt_access_frontend_admin` — mirrors `FrontendConfigurationView`.
+ * `tt_edit_lookups` — curation surface; its REST routes mutate lookups.
  *
  * Reads server-side, writes via REST. No JS framework — vanilla
  * `fetch()` against `/wp-json/talenttrack/v1/lookup-normalisation/...`,
@@ -27,7 +27,7 @@ use TT\Modules\Configuration\LookupCanonicalSeeds;
  */
 class FrontendLookupNormalisationView extends FrontendViewBase {
 
-    private const CAP = 'tt_access_frontend_admin';
+    private const CAP = 'tt_edit_lookups';
 
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( self::CAP ) ) {

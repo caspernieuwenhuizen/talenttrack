@@ -1039,7 +1039,8 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Usage: evaluations, attendance, goals, players.', 'talenttrack' ),
             'icon'         => 'usage-stats',
             'color'        => '#555',
-            'cap'          => 'tt_access_frontend_admin',
+            // #2569 — matches FrontendUsageStatsView's gate.
+            'cap'          => 'tt_view_analytics',
         ]);
         TileRegistry::register([
             'module_class' => self::M_JOURNEY,
@@ -1136,7 +1137,8 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Lookups, branding, authorization, system settings.', 'talenttrack' ),
             'icon'         => 'settings',
             'color'        => '#555',
-            'cap'          => 'tt_access_frontend_admin',
+            // #2569 — matches FrontendConfigurationView's gate.
+            'cap'          => 'tt_view_settings',
             'desktop_preferred' => true,
             // #0069 — HoD's job is player development, not configuration.
             // They get the cap (it cascades through allCapsTrue) but the
@@ -1170,7 +1172,8 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Database migration status (read-only).', 'talenttrack' ),
             'icon'         => 'migrations',
             'color'        => '#555',
-            'cap'          => 'tt_access_frontend_admin',
+            // #2569 — matches FrontendMigrationsView's gate.
+            'cap'          => 'tt_view_migrations',
             'desktop_preferred' => true,
             'hide_for_personas' => [ 'head_of_development' ],
         ]);

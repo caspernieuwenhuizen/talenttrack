@@ -25,7 +25,7 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 class FrontendConfigurationView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
+        if ( ! current_user_can( 'tt_view_settings' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this section.', 'talenttrack' ) . '</p>';
             return;
@@ -1516,7 +1516,10 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_edit_players' ) ) {
             $sections['data']['tiles'][] = [ 'title' => __( 'Players CSV import', 'talenttrack' ), 'desc' => __( 'Bulk-import players from a spreadsheet. Map columns, choose duplicate-handling, preview before commit.', 'talenttrack' ), 'url' => $view( 'players-import' ), 'icon' => 'import' ];
         }
-        if ( current_user_can( 'tt_access_frontend_admin' ) && self::pendingLookupDriftCount() > 0 ) {
+        // #2569 — the drift tile links into lookup normalisation, which is a
+        // curation surface behind tt_edit_lookups. Gate the tile on the same
+        // cap so it never advertises a screen the viewer can't open.
+        if ( current_user_can( 'tt_edit_lookups' ) && self::pendingLookupDriftCount() > 0 ) {
             $pending = self::pendingLookupDriftCount();
             $sections['data']['tiles'][] = [
                 'title' => __( 'Lookup canonical-language review', 'talenttrack' ),
