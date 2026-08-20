@@ -248,7 +248,7 @@ class PlayerGoalIntakePrintRouter {
             $name, $season
         ) );
     ?></title>
-    <style><?php echo self::stylesCss(); ?></style>
+    <style><?php echo self::stylesCss(); ?></style><?php /* tt-inline-ok — standalone print document, not an app surface; no enqueued sheet to attach to. Pre-existing block, relocated by the emit()/pagesHtml() split. */ ?>
 </head>
 <body>
 
