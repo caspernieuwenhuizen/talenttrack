@@ -443,6 +443,11 @@ msgstr ""
 "standaardrapporten en de analyse-engine blijven beschikbaar wanneer dit "
 "uitstaat."
 
+#. translators: %s: link text
+#: src/Modules/Documentation/Markdown.php:243
+msgid "%s (opens the WordPress admin)"
+msgstr "%s (opent wp-admin)"
+
 #: src/Core/FeatureRegistry.php:149
 #: src/Modules/Analytics/AnalyticsModule.php:248
 #: src/Modules/Analytics/AnalyticsModule.php:425

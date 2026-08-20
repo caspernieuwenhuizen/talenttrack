@@ -2,9 +2,9 @@
 
 # Security operator guide
 
-> The Academy Admin's playbook for keeping a TalentTrack install secure. Written for the person who installed TalentTrack at their academy and is responsible for who has access to what. If you're a coach or a player, this page is not for you — see [Getting started](?page=tt-docs&topic=getting-started) instead.
+> The Academy Admin's playbook for keeping a TalentTrack install secure. Written for the person who installed TalentTrack at their academy and is responsible for who has access to what. If you're a coach or a player, this page is not for you — see [Getting started](getting-started.md) instead.
 
-This guide covers the security configuration an academy admin should set up on day one and revisit at least once a year. It does not cover the underlying authorization model — see [Access control](?page=tt-docs&topic=access-control) for that. It does not cover backups — see [Backups](?page=tt-docs&topic=backups). It covers what *you* should configure, in what order, and what to do when something goes wrong.
+This guide covers the security configuration an academy admin should set up on day one and revisit at least once a year. It does not cover the underlying authorization model — see [Access control](access-control.md) for that. It does not cover backups — see [Backups](backups.md). It covers what *you* should configure, in what order, and what to do when something goes wrong.
 
 For the public-facing security commitments TalentTrack makes (where data lives, encryption claims, breach commitments, audit cadence) see `talenttrack.app/security`.
 
@@ -119,7 +119,7 @@ When to use this: a coach loses their phone with the academy account logged in. 
 
 ## Impersonation — the operator's lens, not a back door
 
-The Academy Admin can switch into any user's session via [Impersonation](?page=tt-docs&topic=impersonation). This is intended for legitimate support and testing — not for spying. Three properties make it safer than a "share password" workaround:
+The Academy Admin can switch into any user's session via [Impersonation](impersonation.md). This is intended for legitimate support and testing — not for spying. Three properties make it safer than a "share password" workaround:
 
 1. Every start, end, and orphan-cleanup is written to `tt_impersonation_log`. You cannot use impersonation invisibly.
 2. A bright-yellow non-dismissible banner sits at the top of every page during impersonation, so the operator never forgets they're someone else.
@@ -141,7 +141,7 @@ GDPR breach-notification rules: a personal-data breach that's likely to result i
 
 ## Backups — your other security layer
 
-A working backup is the difference between "we lost an afternoon of work" and "we lost the season." See [Backups](?page=tt-docs&topic=backups) for the full guide. Three points worth repeating:
+A working backup is the difference between "we lost an afternoon of work" and "we lost the season." See [Backups](backups.md) for the full guide. Three points worth repeating:
 
 1. **A scheduled backup is configured** by default — verify it's running by opening `wp-admin → TalentTrack → Backups` and checking the "Last run" timestamp.
 2. **Off-site copies matter.** A backup that lives only on the same WordPress install dies with the install. Copy backup files to your own off-site storage (Dropbox, OneDrive, Google Drive — anywhere not the same hosting account) at least monthly.

@@ -2,7 +2,7 @@
 
 # Privacy operator guide
 
-> The Academy Admin's playbook for handling personal data in TalentTrack — particularly minors' data, which is most of what TalentTrack stores. Written for the person who installed TalentTrack and is responsible for its day-to-day data handling. If you're a coach, scout, or staff member, this page is not for you — see [Getting started](?page=tt-docs&topic=getting-started).
+> The Academy Admin's playbook for handling personal data in TalentTrack — particularly minors' data, which is most of what TalentTrack stores. Written for the person who installed TalentTrack and is responsible for its day-to-day data handling. If you're a coach, scout, or staff member, this page is not for you — see [Getting started](getting-started.md).
 
 This guide covers what an academy needs to do under EU privacy law (the GDPR) when running TalentTrack: who you tell, what you must let parents and players do, how long you keep data, what to do when someone asks you to export or erase a record. The legal commitments TalentTrack makes — sub-processor list, hosting region, retention defaults, the DPA — live at `talenttrack.app/privacy`. This page is the operator-facing how-to.
 

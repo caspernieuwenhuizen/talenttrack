@@ -16,7 +16,7 @@ Een **team** is een selectie binnen een specifieke leeftijdscategorie (bijv. "U1
 - Een hoofdcoach (uit je **Personen**-register)
 - Toegewezen spelers
 
-Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](?page=tt-docs&topic=eval-categories-weights) per leeftijdscategorie worden gedefinieerd.
+Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](eval-categories-weights.md) per leeftijdscategorie worden gedefinieerd.
 
 ### De Teams-lijst (v4.40.0 — #1614)
 
@@ -66,7 +66,7 @@ Als een speler een `wp_user_id` heeft, wordt die gebruiker na inloggen doorgestu
 
 ## Archiveren versus verwijderen
 
-Gearchiveerde spelers blijven in de database maar verdwijnen uit actieve lijsten (oude evaluaties blijven wel naar ze verwijzen). Permanent verwijderen werkt alleen als er geen evaluaties, doelen of sessies naar de speler verwijzen. Gebruik in de meeste gevallen **archiveren** — zie [Bulkacties](?page=tt-docs&topic=bulk-actions).
+Gearchiveerde spelers blijven in de database maar verdwijnen uit actieve lijsten (oude evaluaties blijven wel naar ze verwijzen). Permanent verwijderen werkt alleen als er geen evaluaties, doelen of sessies naar de speler verwijzen. Gebruik in de meeste gevallen **archiveren** — zie [Bulkacties](bulk-actions.md).
 
 ### Een team archiveren neemt zijn activiteiten mee (v4.x+)
 
@@ -113,7 +113,7 @@ De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stage
 
 ## Teamdetail — herontwerp in spelersprofiel-stijl (v4.40.0 — #1613)
 
-De teampagina is opnieuw opgebouwd in de stijl van het [spelersprofiel](?page=tt-docs&topic=teams-players): dezelfde vormen, hetzelfde kaartsysteem, hetzelfde responsieve rail/main-grid. Backend ongewijzigd — dezelfde `tt_teams`-rij, dezelfde `tt_view_teams`-poort, dezelfde `?tt_view=teams&id=N`-URL.
+De teampagina is opnieuw opgebouwd in de stijl van het [spelersprofiel](teams-players.md): dezelfde vormen, hetzelfde kaartsysteem, hetzelfde responsieve rail/main-grid. Backend ongewijzigd — dezelfde `tt_teams`-rij, dezelfde `tt_view_teams`-poort, dezelfde `?tt_view=teams&id=N`-URL.
 
 - **Hero.** Papieren ondergrond met het teamembleem (initialen in een accentchip, status-gekleurde rand), naam, een "Teams · leeftijdsgroep"-subregel en identiteitspillen (status, leeftijdsgroep, aantal spelers). De hero wordt **altijd getoond** en kan niet verborgen worden.
 - **Actierij.** Nieuwe activiteit (primair) · Planner · Bewerken · Seizoens-intakes printen · Aanpassen · `⋯` overflow (Archiveren). Bevoegdheidsgating: Nieuwe activiteit → `tt_edit_activities`, Bewerken + Archiveren → `tt_edit_teams`, batch-print → `tt_edit_goals`, Aanpassen → coach van dit team.

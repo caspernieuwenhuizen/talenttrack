@@ -20,7 +20,7 @@ Snelle visuele rapporten voor coaches:
 - **Spelervergelijking** — kies twee of meer spelers en zie hun laatste evaluaties als overlappende radars.
 - **Teamgemiddelden** — gemiddelden per team over de hoofdcategorieën.
 
-Voor diepere weergaven per speler, zie [Rate cards](?page=tt-docs&topic=rate-cards) en [Spelervergelijking](?page=tt-docs&topic=player-comparison).
+Voor diepere weergaven per speler, zie [Rate cards](rate-cards.md) en [Spelervergelijking](player-comparison.md).
 
 ## Teambeoordeling gemiddelden
 

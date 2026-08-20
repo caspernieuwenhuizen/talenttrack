@@ -22,7 +22,7 @@ Koppel ze als beide bestaan. De koppeling maakt dingen mogelijk als "coach X mag
 
 ## Functionele rollen
 
-Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**, **Assistent-coach**, **Fysio**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](?page=tt-docs&topic=access-control) — door iemand de functionele rol Hoofdcoach toe te kennen, krijgt hij/zij automatisch de benodigde rechten.
+Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**, **Assistent-coach**, **Fysio**. Deze worden gekoppeld aan autorisatierollen via de pagina [Toegangsbeheer](access-control.md) — door iemand de functionele rol Hoofdcoach toe te kennen, krijgt hij/zij automatisch de benodigde rechten.
 
 ## Personen toewijzen aan teams
 

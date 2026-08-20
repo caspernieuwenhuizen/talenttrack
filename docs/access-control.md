@@ -251,7 +251,7 @@ The persona dashboard (`persona_dashboard.enabled`) ships a parallel, richer par
 
 Two cap-and-matrix-adjacent operator guides shipped in v3.97.2 (#0086 Workstream A):
 
-- [Security operator guide](?page=tt-docs&topic=security-operator-guide) — the day-one + annual-review checklist for the Academy Admin: limiting administrator accounts, MFA recommendations, audit-log review, suspected-breach response, the future `require_mfa_for_personas` enforcement.
-- [Privacy operator guide](?page=tt-docs&topic=privacy-operator-guide) — the GDPR-facing how-to: subject-access requests, right-to-be-forgotten requests (manual until the formal erasure pipeline ships), retention windows per data category, the privacy lifecycle of a player joining and leaving the academy.
+- [Security operator guide](security-operator-guide.md) — the day-one + annual-review checklist for the Academy Admin: limiting administrator accounts, MFA recommendations, audit-log review, suspected-breach response, the future `require_mfa_for_personas` enforcement.
+- [Privacy operator guide](privacy-operator-guide.md) — the GDPR-facing how-to: subject-access requests, right-to-be-forgotten requests (manual until the formal erasure pipeline ships), retention windows per data category, the privacy lifecycle of a player joining and leaving the academy.
 
 The public-facing trust artifacts (security page, privacy policy, DPA template) live on `talenttrack.app/security` and `talenttrack.app/privacy`; the source is in `marketing/security/` for editing.

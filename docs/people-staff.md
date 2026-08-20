@@ -22,7 +22,7 @@ Link them when both exist. The link powers things like "coach X can see team Y" 
 
 ## Functional roles
 
-Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**. These map to authorization roles via the [Access control](?page=tt-docs&topic=access-control) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.
+Each person can have one or more functional roles like **Head coach**, **Assistant coach**, **Physio**. These map to authorization roles via the [Access control](access-control.md) page — so granting someone the Head coach functional role can automatically grant them the capabilities needed.
 
 ## Assigning people to teams
 

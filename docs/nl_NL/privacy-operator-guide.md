@@ -2,7 +2,7 @@
 
 # Privacy — handleiding voor de academy admin
 
-> Het draaiboek van de academy admin voor het omgaan met persoonsgegevens in TalentTrack — vooral met die van minderjarigen, want dat is het meeste wat TalentTrack opslaat. Geschreven voor de persoon die TalentTrack heeft geïnstalleerd en verantwoordelijk is voor de dagelijkse gegevensverwerking. Ben je coach, scout of staf? Dan is deze pagina niet voor jou — kijk dan op [Aan de slag](?page=tt-docs&topic=getting-started).
+> Het draaiboek van de academy admin voor het omgaan met persoonsgegevens in TalentTrack — vooral met die van minderjarigen, want dat is het meeste wat TalentTrack opslaat. Geschreven voor de persoon die TalentTrack heeft geïnstalleerd en verantwoordelijk is voor de dagelijkse gegevensverwerking. Ben je coach, scout of staf? Dan is deze pagina niet voor jou — kijk dan op [Aan de slag](getting-started.md).
 
 Deze gids beschrijft wat een academie onder de Europese privacywet (de AVG / GDPR) moet doen wanneer ze TalentTrack draait: wie informeer je, wat moet je ouders en spelers laten doen, hoe lang bewaar je data, wat doe je als iemand vraagt om export of verwijdering. De juridische beloftes die TalentTrack maakt — subverwerker-lijst, hostingregio, retentie-defaults, de DPA — staan op `talenttrack.app/privacy`. Deze pagina is de operator-handleiding hoe je het in de praktijk doet.
 

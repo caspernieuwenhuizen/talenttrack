@@ -2,9 +2,9 @@
 
 # Beveiliging — handleiding voor de academy admin
 
-> Het draaiboek van de academy admin om een TalentTrack-installatie veilig te houden. Geschreven voor de persoon die TalentTrack op zijn academie heeft geïnstalleerd en verantwoordelijk is voor wie waar bij kan. Ben je coach of speler? Dan is deze pagina niet voor jou — kijk dan op [Aan de slag](?page=tt-docs&topic=getting-started).
+> Het draaiboek van de academy admin om een TalentTrack-installatie veilig te houden. Geschreven voor de persoon die TalentTrack op zijn academie heeft geïnstalleerd en verantwoordelijk is voor wie waar bij kan. Ben je coach of speler? Dan is deze pagina niet voor jou — kijk dan op [Aan de slag](getting-started.md).
 
-Deze gids beschrijft de beveiligingsconfiguratie die je op dag één moet inrichten en minimaal eens per jaar opnieuw bekijkt. Hij behandelt niet het onderliggende rechten-model — daarvoor is er [Toegangsbeheer](?page=tt-docs&topic=access-control). Hij behandelt niet back-ups — daarvoor is er [Back-ups](?page=tt-docs&topic=backups). Hij behandelt wat *jij* moet configureren, in welke volgorde, en wat je doet als er iets misgaat.
+Deze gids beschrijft de beveiligingsconfiguratie die je op dag één moet inrichten en minimaal eens per jaar opnieuw bekijkt. Hij behandelt niet het onderliggende rechten-model — daarvoor is er [Toegangsbeheer](access-control.md). Hij behandelt niet back-ups — daarvoor is er [Back-ups](backups.md). Hij behandelt wat *jij* moet configureren, in welke volgorde, en wat je doet als er iets misgaat.
 
 De publieke beveiligingsbeloftes van TalentTrack (waar data staat, encryptie-claims, melding-bij-incidenten, audit-cadans) staan op `talenttrack.app/security`.
 
@@ -119,7 +119,7 @@ Wanneer gebruik je dit: een coach raakt zijn telefoon kwijt waar het academy-acc
 
 ## Impersonatie — de operator-lens, geen achterdeur
 
-De Academy Admin kan in elke gebruikerssessie stappen via [Impersonatie](?page=tt-docs&topic=impersonation). Bedoeld voor legitieme support en testen — niet voor bespieden. Drie eigenschappen maken het veiliger dan een "geef me je wachtwoord"-omweg:
+De Academy Admin kan in elke gebruikerssessie stappen via [Impersonatie](impersonation.md). Bedoeld voor legitieme support en testen — niet voor bespieden. Drie eigenschappen maken het veiliger dan een "geef me je wachtwoord"-omweg:
 
 1. Elke start, einde en orphan-cleanup wordt naar `tt_impersonation_log` geschreven. Onzichtbaar impersonator-zijn kan niet.
 2. Een felgele niet-wegklikbare banner staat bovenaan elke pagina tijdens impersonatie, zodat de operator nooit vergeet dat hij iemand anders is.
@@ -141,7 +141,7 @@ GDPR-meldplicht: een persoonsgegevensinbreuk waarbij waarschijnlijk een risico v
 
 ## Back-ups — je tweede beveiligingslaag
 
-Een werkende back-up is het verschil tussen "we hebben een middag werk verloren" en "we hebben het seizoen verloren". Zie [Back-ups](?page=tt-docs&topic=backups) voor de volledige gids. Drie punten zijn het herhalen waard:
+Een werkende back-up is het verschil tussen "we hebben een middag werk verloren" en "we hebben het seizoen verloren". Zie [Back-ups](backups.md) voor de volledige gids. Drie punten zijn het herhalen waard:
 
 1. **Een geplande back-up is standaard geconfigureerd** — verifieer dat hij draait door `wp-admin → TalentTrack → Back-ups` te openen en het tijdstip "Laatst uitgevoerd" te bekijken.
 2. **Off-site kopieën zijn cruciaal.** Een back-up die alleen op dezelfde WordPress-installatie staat, sterft mee als de installatie sterft. Kopieer back-up-bestanden minstens maandelijks naar je eigen externe opslag (Dropbox, OneDrive, Google Drive — alles wat geen onderdeel is van hetzelfde hosting-account).

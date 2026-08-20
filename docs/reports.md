@@ -20,7 +20,7 @@ Quick visual reports for coaches:
 - **Player comparison** — pick two or more players and see their latest evaluations as overlapping radars.
 - **Team averages** — per-team averages across the main categories.
 
-For deeper per-player views, see [Rate cards](?page=tt-docs&topic=rate-cards) and [Player comparison](?page=tt-docs&topic=player-comparison).
+For deeper per-player views, see [Rate cards](rate-cards.md) and [Player comparison](player-comparison.md).
 
 ## Team rating averages
 

@@ -33,6 +33,6 @@ Beheerders zien dat alles plus configuratietegels voor de academie-brede instell
 
 ## Waar naartoe
 
-- Evaluaties vastleggen: [Evaluaties](?page=tt-docs&topic=evaluations)
-- Een training of wedstrijd loggen: [Activiteiten en aanwezigheid](?page=tt-docs&topic=activities)
-- Ontwikkelingsdoelen instellen: [Doelen](?page=tt-docs&topic=goals)
+- Evaluaties vastleggen: [Evaluaties](evaluations.md)
+- Een training of wedstrijd loggen: [Activiteiten en aanwezigheid](activities.md)
+- Ontwikkelingsdoelen instellen: [Doelen](goals.md)
