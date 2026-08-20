@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-20T03:50:23+00:00\n"
+"POT-Creation-Date: 2026-08-20T03:51:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1941
+#: src/Shared/Frontend/DashboardShortcode.php:1947
 #: src/Shared/Frontend/FrontendConfigurationView.php:2693
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1946
+#: src/Shared/Frontend/DashboardShortcode.php:1952
 msgid "Team Manager"
 msgstr ""
 
@@ -169,7 +169,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:186
 #: src/Shared/Frontend/DashboardShortcode.php:219
-#: src/Shared/Frontend/DashboardShortcode.php:1940
+#: src/Shared/Frontend/DashboardShortcode.php:1946
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2906
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2918
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2995
@@ -246,7 +246,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1944
+#: src/Shared/Frontend/DashboardShortcode.php:1950
 #: src/Shared/Frontend/FrontendConfigurationView.php:2687
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1706,7 +1706,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1945
+#: src/Shared/Frontend/DashboardShortcode.php:1951
 #: src/Shared/Frontend/FrontendConfigurationView.php:2691
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1788,7 +1788,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1943
+#: src/Shared/Frontend/DashboardShortcode.php:1949
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1799,7 +1799,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1942
+#: src/Shared/Frontend/DashboardShortcode.php:1948
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -8449,7 +8449,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1947
+#: src/Shared/Frontend/DashboardShortcode.php:1953
 msgid "Academy Admin"
 msgstr ""
 
@@ -16054,7 +16054,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1894
 #: src/Shared/CoreSurfaceRegistration.php:2081
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1981
+#: src/Shared/Frontend/DashboardShortcode.php:1987
 #: src/Shared/Frontend/FrontendDocsView.php:105
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -17418,7 +17418,7 @@ msgstr "Drucken"
 #: src/Shared/Frontend/Components/FilterBar.php:348
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:192
-#: src/Shared/Frontend/DashboardShortcode.php:1986
+#: src/Shared/Frontend/DashboardShortcode.php:1992
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 msgid "Close"
 msgstr "Schließen"
@@ -26114,8 +26114,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1896
-#: src/Shared/Frontend/DashboardShortcode.php:1897
+#: src/Shared/Frontend/DashboardShortcode.php:1902
+#: src/Shared/Frontend/DashboardShortcode.php:1903
 msgid "Help & docs"
 msgstr ""
 
@@ -30500,7 +30500,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
 #: src/Shared/Frontend/DashboardShortcode.php:156
 #: src/Shared/Frontend/DashboardShortcode.php:190
-#: src/Shared/Frontend/DashboardShortcode.php:1991
+#: src/Shared/Frontend/DashboardShortcode.php:1997
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:459
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -37810,7 +37810,7 @@ msgid "This area is for scout users."
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:1586
-#: src/Shared/Frontend/DashboardShortcode.php:1965
+#: src/Shared/Frontend/DashboardShortcode.php:1971
 msgid "Log out"
 msgstr ""
 
@@ -37840,49 +37840,49 @@ msgid ""
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1851
+#: src/Shared/Frontend/DashboardShortcode.php:1857
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1875
+#: src/Shared/Frontend/DashboardShortcode.php:1881
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1915
+#: src/Shared/Frontend/DashboardShortcode.php:1921
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1922
+#: src/Shared/Frontend/DashboardShortcode.php:1928
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1934
+#: src/Shared/Frontend/DashboardShortcode.php:1940
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1937
+#: src/Shared/Frontend/DashboardShortcode.php:1943
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1961
+#: src/Shared/Frontend/DashboardShortcode.php:1967
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1983
+#: src/Shared/Frontend/DashboardShortcode.php:1989
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2055
+#: src/Shared/Frontend/DashboardShortcode.php:2061
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2056
+#: src/Shared/Frontend/DashboardShortcode.php:2062
 msgid "Switch back to all personas"
 msgstr ""
 
