@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-20T03:51:47+00:00\n"
+"POT-Creation-Date: 2026-08-20T04:13:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -152,7 +152,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:818
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:362
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:19
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:20
 #: src/Modules/Wizards/Goal/PlayerStep.php:36
 #: src/Shared/Frontend/CoachDashboardView.php:195
 #: src/Shared/Frontend/CoachDashboardView.php:263
@@ -34505,18 +34505,18 @@ msgstr ""
 msgid "New evaluation"
 msgstr "Nouvelle évaluation"
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:33
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:34
 msgid ""
 "Pick the player you're evaluating. Use this for ad-hoc observations not "
 "anchored to an activity row — a tournament moment, something you noticed in "
 "passing."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:51
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:59
 msgid "Which player?"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:66
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:74
 #: src/Modules/Wizards/Goal/PlayerStep.php:115
 msgid "Please pick a player."
 msgstr ""

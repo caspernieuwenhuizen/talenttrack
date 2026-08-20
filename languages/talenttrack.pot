@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-20T03:51:47+00:00\n"
+"POT-Creation-Date: 2026-08-20T04:13:21+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -154,7 +154,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:818
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:362
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:19
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:20
 #: src/Modules/Wizards/Goal/PlayerStep.php:36
 #: src/Shared/Frontend/CoachDashboardView.php:195
 #: src/Shared/Frontend/CoachDashboardView.php:263
@@ -32605,15 +32605,15 @@ msgstr ""
 msgid "New evaluation"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:33
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:34
 msgid "Pick the player you're evaluating. Use this for ad-hoc observations not anchored to an activity row — a tournament moment, something you noticed in passing."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:51
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:59
 msgid "Which player?"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:66
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:74
 #: src/Modules/Wizards/Goal/PlayerStep.php:115
 msgid "Please pick a player."
 msgstr ""
