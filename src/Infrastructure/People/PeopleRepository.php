@@ -394,10 +394,17 @@ class PeopleRepository {
 
     /**
      * #0079 — keep `tt_user_role_scopes` in sync with the FR assignments
-     * for a single (person, team) pair. Called from both `assignToTeam`
-     * and `unassign`. The matrix's team-scope check at
+     * for a single (person, team) pair. The matrix's team-scope check at
      * `MatrixGate::userHasAnyScope` reads exactly this table; without the
      * sync, FR-assigned coaches fail every team-scoped tile gate.
+     *
+     * #2571 — this is the canonical hook for the mirror, and it is public
+     * because `tt_team_people` is written from outside this repository too
+     * (the demo generator, the Excel importer). Every path that inserts or
+     * removes a `tt_team_people` row MUST call this for the affected pair;
+     * skipping it strands the assignment with no team scope, which reads
+     * downstream as "this coach has no teams" — an empty Evaluations list,
+     * an empty wizard player picker, failing team-scoped gates.
      *
      * Behaviour:
      *  - If at least one `tt_team_people` row remains for the pair, ensure
@@ -410,7 +417,7 @@ class PeopleRepository {
      * scope_id + date range). The legacy `tt_authorization_user_walk`
      * migration that did populate it is now historical.
      */
-    private static function syncTeamScopeRow( int $team_id, int $person_id ): void {
+    public static function syncTeamScopeRow( int $team_id, int $person_id ): void {
         global $wpdb;
         $p = $wpdb->prefix;
         if ( $team_id <= 0 || $person_id <= 0 ) return;

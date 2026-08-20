@@ -292,12 +292,18 @@ final class ExcelImporter {
                 $team_key = (string) ( $r['team_key'] ?? '' );
                 $role     = (string) ( $r['role']     ?? '' );
                 if ( $team_key !== '' && isset( $team_id_by_key[ $team_key ] ) ) {
+                    $assigned_team_id = (int) $team_id_by_key[ $team_key ];
                     $wpdb->insert( "{$p}tt_team_people", [
                         'club_id'   => CurrentClub::id(),
-                        'team_id'   => $team_id_by_key[ $team_key ],
+                        'team_id'   => $assigned_team_id,
                         'person_id' => $id,
                         'role'      => $role !== '' ? $role : 'staff',
                     ] );
+                    // #2571 — mirror into `tt_user_role_scopes`. An imported
+                    // academy otherwise ends up with staff who show as head
+                    // coach on the team page but hold no team scope, so
+                    // team-scoped reads return nothing for them.
+                    \TT\Infrastructure\People\PeopleRepository::syncTeamScopeRow( $assigned_team_id, $id );
                 }
             }
         }
