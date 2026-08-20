@@ -1,1 +1,0 @@
-Fixed "Seizoensintakes printen" producing a few cascading pages instead of one sheet per page. Printing a squad of twelve now yields the expected 36 pages — three per player — rather than collapsing them into two. Printing a single player's intake was never affected and is unchanged.

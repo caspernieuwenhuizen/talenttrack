@@ -1,3 +1,104 @@
+# TalentTrack v4.91.1 — Staff Certifications unusable on a fresh install (#2490)
+
+The certificate-type vocabulary the screen depends on was never seeded, so
+Staff Certifications could not be used at all until an admin added types by
+hand — and nothing on the screen explained that this was the blocker.
+
+Installs now arrive with UEFA-A, UEFA-B, UEFA-C, First aid, GDPR awareness and
+Child safeguarding, translated into Dutch, German, French and Spanish.
+Academies that already added their own types keep them.
+
+# TalentTrack v4.91.1 — New-evaluation wizard offered coaches the whole academy (#2567)
+
+The player picker in the new-evaluation wizard listed every team and every
+player, not the ones the coach actually coaches. It gated on a capability that
+reads like an admin check but that every coach turns out to hold, so an
+earlier attempt at this same fix never took effect.
+
+It now asks whether the user holds academy-wide player access. Head coaches
+and assistant coaches see only their own squads; Head of Development and
+academy admins keep the full list. Scouts, who previously got an empty picker
+despite being able to record evaluations, now see the academy-wide list their
+role is meant to have.
+
+# TalentTrack v4.91.1 — Lookup labels rendered in English on translated installs (#2568)
+
+Every lookup carries an English row copied from its canonical value, and that
+copy was being returned in place of the translation — hiding translated labels
+the plugin already ships. Most visibly the evaluation Type dropdown, which
+read "Training / Wedstrijd / Oefen / Tournament / Observation / Other" on a
+Dutch install.
+
+Dutch, German, French and Spanish installs now show the translated label
+wherever one exists. An academy that has deliberately renamed a lookup in
+English still sees its own wording. Tournament, Observation and Other are also
+seeded with translations for all four languages, since one of them had no
+translation anywhere to fall back on.
+
+# TalentTrack v4.91.1 — Admin screens were reachable by any coach via their address (#2569)
+
+Configuration, Custom fields, Evaluation categories, Application KPIs, Lookup
+normalisation, Roles & rights and Migrations all gated on a capability that
+reads like an admin check but that every coach holds. Their tiles were hidden
+from a coach's navigation, so this stayed invisible — but typing the address
+was enough. A coach could also call the lookup-normalisation endpoints, which
+change vocabulary academy-wide.
+
+Each screen now gates on the permission that matches what it actually does.
+Coaches are refused, academy admins are unaffected. Head of Development keeps
+Evaluation categories and Application KPIs and no longer reaches the
+configuration screens, matching the read-only-on-config intent already applied
+to their dashboard.
+
+# TalentTrack v4.91.1 — Evaluations list showed a coach nothing while the team rating showed data (#2571)
+
+Team assignment is stored in one table and team *scope* — the thing that
+answers "which teams is this coach responsible for?" — in another. The demo
+generator and the Excel importer wrote the first without mirroring into the
+second, so affected coaches held no team scope at all and the Evaluations list
+quietly narrowed to "evaluations I personally authored". The team rating and
+the player's Evaluations tab aren't coach-scoped, which is why they kept
+showing the same players' data and the contradiction looked like a phantom
+rating.
+
+A migration backfills the missing scope rows, both import paths now mirror
+correctly, and deleting a team clears its scope rows instead of leaving them
+behind to outlive it.
+
+# TalentTrack v4.91.1 — Season-intake batch printing cascaded pages into each other (#2572)
+
+Printing a whole squad's season intakes produced a couple of pages with the
+sheets running into one another instead of one sheet per page. The batch was
+assembled by pulling each player's sheets back out of rendered HTML, which cut
+them short and left the markup unclosed, so the browser nested the sheets
+inside each other and page breaks stopped working.
+
+Printing a squad of twelve now yields the expected 36 pages — three per
+player. Printing a single player's intake was never affected and is unchanged.
+
+# TalentTrack v4.91.1 — Players with no join date showed "2028 yrs in academy" (#2573)
+
+A player whose join date was never set rendered an absurd academy tenure on
+their status chip and a raw `0000-00-00` as the join date on their profile.
+An unset date of that shape is neither empty nor invalid enough to be caught,
+and reading it as a real date puts it two millennia in the past.
+
+It is now treated as no date: the tenure falls back to when the record was
+created, and the profile omits the join date rather than printing a
+placeholder that looks like real data.
+
+# TalentTrack v4.91.1 — Behaviour rating can be switched off per academy (#2574)
+
+Academies that don't score behaviour were still shown a capture button on
+every player, a bulk action on every team, and a step in the evaluation wizard
+they always skipped. Behaviour rating is now a switchable sub-feature of
+evaluations, controlled from the feature toggles screen.
+
+It is on by default, so nothing changes unless you turn it off. Switching it
+off stops new capture and hides the entry points; behaviour already recorded
+is kept, and reappears if you switch it back on. Setting a player's potential
+band is unaffected either way.
+
 # TalentTrack v4.91.0 — The exercise library gets a screen (#2495)
 
 The merged exercise library is now browsable. Open the **Training** tile and

@@ -1,1 +1,0 @@
-Fixed players whose join date was never set showing an absurd academy tenure — "2028 yrs in academy" — and a raw `0000-00-00` as their join date on the profile. Such a date is now treated as "no date": the tenure falls back to when the record was created, and the profile omits the join date rather than printing a placeholder that looks like real data.
