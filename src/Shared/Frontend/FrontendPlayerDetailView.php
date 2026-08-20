@@ -599,9 +599,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * to open Profile to check basic identity.
      */
     private static function renderKeyFacts( object $player ): void {
-        $dob_raw    = (string) ( $player->date_of_birth ?? '' );
+        // #2573 — normalise stored zero dates to '' so they render as '—'
+        // rather than as a real-looking date.
+        $dob_raw    = (string) ( \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->date_of_birth ?? '' ) ?? '' );
         $foot_raw   = (string) ( $player->preferred_foot ?? '' );
-        $joined_raw = (string) ( $player->date_joined ?? '' );
+        $joined_raw = (string) ( \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->date_joined ?? '' ) ?? '' );
         $positions  = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
 
         $dob_value = $dob_raw !== '' ? self::shortDate( $dob_raw ) : '—';
@@ -847,8 +849,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * @return array{days:string,joined:string}|null  null when no usable date.
      */
     private static function journeyText( object $player ): ?array {
-        $joined_raw  = (string) ( $player->date_joined ?? '' );
-        $created_raw = (string) ( $player->created_at ?? '' );
+        // #2573 — a stored `0000-00-00` is non-empty AND parses (to year -1),
+        // so both the emptiness guard and `strtotime()` let it through and
+        // the player rendered "2028 yrs in academy". Normalise first.
+        $joined_raw  = (string) ( \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->date_joined ?? '' ) ?? '' );
+        $created_raw = (string) ( \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->created_at ?? '' ) ?? '' );
         $source = $joined_raw !== '' ? $joined_raw : $created_raw;
         if ( $source === '' ) return null;
 
@@ -1118,8 +1123,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( $tier_label !== '' ) {
             $academy_rows[] = [ __( 'Age tier', 'talenttrack' ), esc_html( $tier_label ) ];
         }
-        if ( ! empty( $player->date_joined ) ) {
-            $academy_rows[] = [ __( 'Date joined', 'talenttrack' ), esc_html( (string) $player->date_joined ) ];
+        // #2573 — `! empty()` passed a stored '0000-00-00' straight through
+        // to the card, which printed it verbatim as the join date.
+        $joined_value = \TT\Infrastructure\Query\QueryHelpers::usableDate( $player->date_joined ?? '' );
+        if ( $joined_value !== null ) {
+            $academy_rows[] = [ __( 'Date joined', 'talenttrack' ), esc_html( $joined_value ) ];
         }
         // #2207 — Academy / Parents / Discovery are club-configurable and
         // may be hidden academy-wide (Identity is always-on). The staff-only

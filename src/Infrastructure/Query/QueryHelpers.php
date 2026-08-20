@@ -14,6 +14,25 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class QueryHelpers {
 
+    /**
+     * #2573 — is this stored date usable, or is it one of MySQL's "no date"
+     * spellings? Returns the trimmed date, or null.
+     *
+     * Guarding on `!== ''` is not enough and neither is `! empty()`: a
+     * zero date is a non-empty, truthy string, and `strtotime()` does not
+     * reject it either — `strtotime('0000-00-00')` resolves to year -1
+     * rather than returning false. Anything deriving a duration from that
+     * gets roughly two millennia. The plugin writes zero dates in a few
+     * places (Spond sync's session fallback) and imports carry them in, so
+     * every read of a stored date should come through here.
+     */
+    public static function usableDate( ?string $raw ): ?string {
+        $raw = trim( (string) $raw );
+        if ( $raw === '' ) return null;
+        if ( strpos( $raw, '0000-00-00' ) === 0 ) return null;
+        return $raw;
+    }
+
     /** @var ConfigService|null */
     private static $config = null;
 
