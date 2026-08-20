@@ -146,6 +146,14 @@ class TeamGenerator implements GeneratorInterface {
             'is_head_coach'      => $role_key === 'head_coach' ? 1 : 0,
         ] );
         $team_person_id = (int) $wpdb->insert_id;
+
+        // #2571 — mirror the assignment into `tt_user_role_scopes`. Without
+        // this the generated coaches hold no team scope, so every
+        // team-scoped read (Evaluations list, wizard player picker) returns
+        // nothing for them on a demo install. Read `insert_id` first — the
+        // sync runs its own queries and would clobber it.
+        \TT\Infrastructure\People\PeopleRepository::syncTeamScopeRow( $team_id, $person_id );
+
         if ( $team_person_id > 0 ) {
             $this->registry->tag( 'team_person', $team_person_id, [
                 'team_id'   => $team_id,

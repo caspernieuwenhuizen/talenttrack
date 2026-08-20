@@ -235,7 +235,13 @@ final class CascadeRegistry {
                 [ 'tt_vct_sessions', 'team_id' ],
                 [ 'tt_vct_microcycles', 'team_id' ],
             ],
-            'cascade_poly' => [],
+            // #2571 — the team's scope rows. Polymorphic: `scope_id` is a
+            // team id only when `scope_type = 'team'`, so it can't go in
+            // `cascade` (that would delete player-scoped rows with a
+            // colliding id). Left behind, these outlive the team and keep
+            // satisfying `MatrixGate::userHasAnyScope()`, which counts rows
+            // without joining `tt_teams`.
+            'cascade_poly' => [ [ 'tt_user_role_scopes', 'scope_type', 'scope_id', 'team' ] ],
             'threads'      => null,
             'set_null'     => [
                 [ 'tt_invitations', 'target_team_id' ],
