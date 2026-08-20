@@ -1,3 +1,285 @@
+# TalentTrack v4.91.0 — The exercise library gets a screen (#2495)
+
+The merged exercise library is now browsable. Open the **Training** tile and
+choose **Exercises**: search by name, code or description, filter by category,
+intensity, visibility or status, and open any drill to see its setup, group
+size and diagram. VCT's conditioning exercises sit alongside your own, labelled
+so you can tell them apart.
+
+**Coaches can add their own drills.** A new exercise belongs to your team and
+is usable in your plans immediately — nothing waits on approval. Whether the
+rest of the club gets it is a separate call: the head of development sees an
+"Added by teams" panel listing what coaches have written, with how many plans
+already use each one, and makes the good ones club-wide.
+
+Editing an exercise creates a new version, so plans and trainings that used the
+old one keep showing it exactly as it was.
+
+**For administrators.** The VCT permission that used to cover the exercise
+catalogue, the age profiles and the macro-blocks has been split. The library
+moved to the exercises permission coaches already hold; the age profiles and
+macro-blocks kept a head-of-development-only permission, renamed
+`tt_vct_admin_config`. Nobody gained or lost access — in particular the age
+profiles, which set the age-safe intensity ceilings for U10–U14 players, remain
+restricted.
+
+# TalentTrack v4.91.0 — Moving between screens no longer flashes, and lands faster (#2517)
+
+Clicking through the app reloaded the whole page: the screen blanked, the
+sidebar and header were redrawn identically, and you waited.
+
+Two changes make that feel like it used to look. Hovering a link now quietly
+starts loading that page, so by the time you click it is usually already there.
+And where the browser supports it, moving between screens cross-fades instead
+of blanking — the sidebar and header hold still and only the content changes.
+
+Neither alters how the app works: every click is still a normal page load, so
+the back button, bookmarks, refresh and opening links in a new tab all behave
+exactly as before. Browsers without these features simply navigate the way they
+always have.
+
+Two details worth knowing. Prefetching is skipped when your device asks for
+reduced data or is on a slow connection, and it never runs ahead of a link that
+changes something. And a page loaded in advance is **not** counted as a visit,
+so your usage statistics still show where people actually went, not where they
+hovered.
+
+# TalentTrack v4.91.0 — **Fixed:** the app shell's sidebar now carries the academy crest and name at
+
+the top and the signed-in user at the foot, so which academy you are in is
+answerable without looking away from the navigation. Both shrink to their mark
+alone when the sidebar is collapsed to icons.
+
+**Fixed:** icon chips ignored the active visual theme. Dashboard tiles kept
+their per-module colours and Configuration tiles rendered in the old green
+even under a navy theme. While a theme is active, every chip now takes the
+theme's colour; under the default theme the per-module colours are unchanged.
+
+**Fixed:** with a theme active, the collapsible navigation groups still used
+light-surface colours on the dark sidebar — hovering a group painted a
+near-white block behind near-black text, and the hairline between groups
+rendered as a bright bar. Both now follow the theme.
+
+# TalentTrack v4.91.0 — Search where you look: type straight into the header field (#2531)
+
+The search box in the header used to be a button in disguise — clicking it
+opened a separate window with its own box to type in. Two steps to start
+something already on screen.
+
+Now it is a real search field. Type in it and matching players, teams,
+activities and sections appear directly underneath as you go; click one, or
+pick it with the arrow keys and press Enter. Escape closes the list and leaves
+your cursor where it was. **⌘K** (Ctrl-K on Windows) jumps to the field.
+
+The field is also about twice as wide and sits centred in the header, so long
+player and team names fit on one line instead of being cut off.
+
+# TalentTrack v4.91.0 — The navigation column now stays put and reaches the bottom of the screen (#2533)
+
+The sidebar stopped after its last group, leaving the page showing through
+below it, and it drifted with the content as you scrolled a long page.
+
+It now fills the left side from under the header to the bottom of the window
+and stays there while the content scrolls. When there are more destinations
+than fit, the list scrolls inside the sidebar rather than making the page
+longer.
+
+The column is also a little wider, so the longest section names sit
+comfortably instead of only just fitting.
+
+# TalentTrack v4.91.0 — A player's test results now have a readable history (#2536)
+
+A test on a player's **Measurements** tab showed its latest value, a flag
+against the age-group target, and a sparkline about a centimetre tall. To see
+whether a player was actually getting faster over the season you had to export
+to Excel.
+
+Every test with more than one result now carries a **Show history** link that
+opens the full picture underneath it: a dated chart with the value axis, each
+reading labelled, and the age-group target shaded so you can see when the
+player crossed into it. Where a test measures something with no better or worse
+— height, weight, shoe size — there is deliberately no chart: those are grouped
+together and shown as readings per date in columns, with a plain change figure
+and no verdict, because a rising line would imply progress and a shaded band
+would imply a norm that does not exist. Status tests show one block per date in
+that level's own colour rather than a line through named states, and pass/fail
+tests show a tick per date with the tally.
+
+On a test where lower is better, an improving line goes down — every such chart
+now says so in words rather than leaving the reader to work it out from the
+slope. A test with a single result says so too, instead of drawing an axis
+around one point.
+
+The chart is server-rendered SVG with no JavaScript, so it also works in print
+and in the PDF report path.
+
+# TalentTrack v4.91.0 — Test trends: one test, every player, over the season (#2537)
+
+*Test results* has always answered "how is each player doing on this test right
+now". The other half of the question — **who is developing and who is
+stalling** — existed only inside the Excel export's Trends sheet. It is now a
+report.
+
+**Test trends** (Analysis group) takes a test, optionally a team and a date
+window, and shows a line per player over the shared date axis with a heavier
+dashed squad-average line, then **Most improved** and **Fallen back**, then a
+table with each player's first value, latest value, change and verdict. Every
+player name links to their profile and back.
+
+The report's shape follows the test, because a trend only means something in
+the terms of its own test. A test with no direction — height, weight — gets the
+readings per date and nothing else: no chart, no ranking, no verdict, because
+there is no better or worse to rank. A status test gets a player × date matrix
+of levels in their own colours rather than lines through named states. Pass /
+fail gets ticks, a per-player tally and the pass rate per round.
+
+**The change is read in the direction of the test.** On a test where lower is
+better, −0,08 s is an improvement: green, *improved*, and ranked under Most
+improved. A change smaller than 2% counts as *about the same* and appears in
+neither ranking — a one-percent move on a hand-timed sprint is inside the noise.
+
+A team-scoped coach sees only their own teams, and a link to another team's data
+is refused rather than quietly widened. Integrations read the same numbers from
+`GET /reports/test-trends`. Administrators can hide the report under
+**Settings → Features → Test trends**.
+
+# TalentTrack v4.91.0 — Configuration: export the academy's settings and module state as JSON (#2540)
+
+**Configuration → Export configuration** downloads this academy's whole
+configuration as one JSON file: every setting from `tt_config`, the
+install-level values from `wp_options`, and — the part that had no surface
+before — which modules and features are switched on or off.
+
+Each module and feature entry carries its human label and the `?tt_view=`
+screens it owns, so the file answers "which surfaces does this install
+actually have?" rather than just listing class names and booleans. That is
+the question worth asking before writing training material for an academy:
+a module that is off takes its screens with it.
+
+Integration credentials stored in `tt_config` — the Strava app secret, the
+Spond password and token, the DeepL API key, the Google service account —
+are replaced with `[redacted]` and collected under `redacted_keys`. The key
+name is kept so you can still see that an integration is configured; the
+value never leaves the server. No player data is included.
+
+Also available through the API at
+`GET /wp-json/talenttrack/v1/exports/config_json?format=json`, gated on
+`tt_edit_settings` and recorded in the audit log. Export only for now —
+there is no importer yet.
+
+# TalentTrack v4.91.0 — Help topics are registered by the doc files themselves (#2544)
+
+Each help topic's title, group, summary and audience now live in a front-matter
+block at the top of its own markdown file instead of in a separate list inside
+the plugin. Dropping a documented file into the docs folder registers it — which
+is what stops shipped features from having documentation nobody can reach.
+
+Dutch titles and summaries come from the Dutch doc, so the sidebar no longer
+depends on the translation catalogue for its labels.
+
+One topic surfaces as a result: **Trial cases** was filed under a sidebar group
+that does not exist, so it had never appeared in Help & Docs and could only be
+reached by typing its URL. It now sits at the end of Performance.
+
+# TalentTrack v4.91.0 — Help links stay inside the app, and can open the screen they describe (#2545)
+
+Following a link inside Help & Docs used to hand you to the WordPress admin —
+a dead end for a coach or a parent, most of whom cannot load it. Cross-references
+between help topics now stay in the help viewer you are already reading in.
+
+Help topics can also link straight to the screen they describe. Those links know
+what you can reach: a link to a screen your academy has switched off, or that
+your role cannot open, is shown as plain text rather than sending you to a
+permission-denied page. Following one carries a back link, so you land on the
+screen with one tap back to what you were reading.
+
+The handful of topics that genuinely document WordPress admin pages still link
+there, but only for administrators, and the link is marked as leaving
+TalentTrack.
+
+Also fixes cross-references between topics, which had been rendering as
+unclickable text.
+
+# TalentTrack v4.91.0 — Two-factor sign-in no longer loops back to the code screen (#2553)
+
+**Fixed:** entering a correct two-factor code could drop you straight back on
+the code screen instead of moving you into the app. The challenge had actually
+been cleared, so nothing intercepted the page any more — you were signed in,
+looking at a form with nothing left to verify, and the only way out was editing
+the address bar.
+
+The cause was the sign-in form's "where to go next" value, which defaults to
+whatever page you are currently on. Once the address bar held the two-factor
+screen — after a refresh, a back-button, or signing in again from that page —
+that screen became its own destination. It is now excluded: the two-factor
+prompt and the enrollment wizard can never be a post-verification landing page,
+and anything else you were genuinely headed for still survives the detour.
+
+Also fixed: an abandoned challenge left its destination live for a quarter of an
+hour, so a later sign-in inside that window inherited it. The destination is now
+dropped along with the challenge.
+
+# TalentTrack v4.91.0 — The two-factor screen no longer wears the whole app around it (#2554)
+
+**Fixed:** immediately after signing in, before the second factor had been
+entered, the two-factor screen rendered inside the full application — navigation
+rail with every module, global search, notification bell, persona menu, a link
+into the WordPress admin, and a breadcrumb trail back to the dashboard, with the
+code field sitting underneath all of it. That reads as "you're in, now also type
+a code", which is the opposite of what the screen means.
+
+Both challenge screens — the code prompt and the enrollment wizard a user is
+held at when two-factor is required but not yet set up — now render on the same
+centred, branded card as the sign-in and password-reset screens: academy crest,
+academy name, the challenge, nothing else. A *Log out* link on the card is the
+way out for someone who can't complete it, which the navigation used to provide
+by accident.
+
+Enrollment started deliberately from the Account page is unaffected and keeps its
+normal in-app wizard chrome.
+
+# TalentTrack v4.91.0 — Head coaches can create team blueprints again (#2557)
+
+The "+ New blueprint" button on a team's blueprint list was a dead link for
+head coaches: the list rendered it from the `team_chemistry` matrix (which
+grants head coaches manage on their own teams) while the wizard behind it
+still gated on the raw `tt_manage_team_chemistry` capability, which only
+administrators, heads of development and club admins hold. Clicking the
+button just reloaded the page.
+
+The blueprint wizard now resolves its entry gate through the same
+`TeamChemistryAccess::canManage()` decision the list, the editor and the REST
+writes already use, via a new optional `isAvailableFor()` hook on the wizard
+registry. The other seven wizards are unchanged. A read-only viewer no longer
+sees an empty-state message pointing at a button they don't have.
+
+# TalentTrack v4.91.0 — The Spond connection page for a team opens again instead of erroring (#2559)
+
+A head coach who opened **Spond connection** from their team's page got the
+site's critical-error screen instead of the panel. The page never worked:
+it looked up the team id from a place that did not hold it, so it always
+asked for team "nothing" and stopped there.
+
+It now reads the team from the address as the other per-team pages do, and
+opens on the connection panel for that team. An address without a usable
+team id shows the ordinary "no access to this team's Spond connection"
+message rather than an error page.
+
+# TalentTrack v4.91.0 — Top bar tidied, and the keyboard hint now names a key you have (#2563)
+
+Three fixes to the top bar in the app shell layout.
+
+Its contents had drifted to the far left, leaving most of the bar empty — the
+academy name moved into the sidebar and nothing took its place. Notifications
+and help now sit on the right where they belong, and the search box is centred
+in the bar rather than tucked beside them. The search box is wider again, and
+the navigation column gains a few pixels too.
+
+The keyboard hint on the search box read **⌘K** for everyone. That is the Mac
+Command key, so on Windows it named a key that is not on the keyboard. It now
+reads **Ctrl K** on Windows and Linux and **⌘K** on a Mac. The shortcut itself
+always worked on both — only the label was wrong.
+
 # TalentTrack v4.90.0 — One exercise library: the VCT catalogue merges into the main library (#2494)
 
 TalentTrack held two exercise catalogues that could not see each other — the
