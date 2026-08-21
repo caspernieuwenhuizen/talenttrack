@@ -43038,7 +43038,6 @@ msgstr ""
 "starttemplates en terugdraaibare geschiedenis."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2017
-msgid "Open Custom CSS"
 #: src/Shared/Frontend/FrontendConfigurationView.php:2002
 msgid "Open custom CSS"
 msgstr "Aangepaste CSS openen"
