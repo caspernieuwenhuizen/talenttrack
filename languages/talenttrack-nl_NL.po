@@ -50491,6 +50491,197 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "about the same"
 #~ msgstr "nagenoeg gelijk"
 
+#: src/Modules/Media/Wizard/NewMediaWizard.php
+msgid "Add media"
+msgstr "Media toevoegen"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "Who for"
+msgstr "Voor wie"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "Who is this photo or video about?"
+msgstr "Over wie gaat deze foto of video?"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "There are no players to attach media to yet."
+msgstr "Er zijn nog geen spelers om media aan te koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "— choose a player —"
+msgstr "— kies een speler —"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "You can attach the same photo to more players, a team or a training afterwards."
+msgstr ""
+"Je kunt dezelfde foto daarna ook aan meer spelers, een team of een training "
+"koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "You can attach the same photo to more records afterwards."
+msgstr "Je kunt dezelfde foto daarna ook aan meer records koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "This is being added to:"
+msgstr "Dit wordt toegevoegd aan:"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "Choose who this is for first."
+msgstr "Kies eerst voor wie dit is."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "You do not have permission to add media to that record."
+msgstr "Je hebt geen rechten om media aan dat record toe te voegen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "this player"
+msgstr "deze speler"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "this team"
+msgstr "dit team"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php
+msgid "this training"
+msgstr "deze training"
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+msgid "Photos and video"
+msgstr "Foto's en video"
+
+#. translators: %s is the player, team or training the media is being added to.
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+#, php-format
+msgid "Add photos or video for %s."
+msgstr "Voeg foto's of video toe voor %s."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+msgid "Go back and choose who this is for first."
+msgstr "Ga terug en kies eerst voor wie dit is."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+msgid "Files are saved as soon as they finish uploading, so you can leave at any point without losing them."
+msgstr ""
+"Bestanden worden bewaard zodra ze klaar zijn met uploaden, dus je kunt op "
+"elk moment stoppen zonder ze kwijt te raken."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+msgid "Add at least one photo, video or link before continuing."
+msgstr "Voeg eerst minstens één foto, video of link toe."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php
+msgid "Those uploads could not be found. Try adding them again."
+msgstr "Die uploads zijn niet gevonden. Probeer ze opnieuw toe te voegen."
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php
+msgid "When was this taken?"
+msgstr "Wanneer is dit gemaakt?"
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php
+msgid "The date decides where this sits on the player's timeline — so it is the day of the training or match, not the day you uploaded it."
+msgstr ""
+"De datum bepaalt waar dit op de tijdlijn van de speler staat — dus de dag "
+"van de training of wedstrijd, niet de dag waarop je het hebt geüpload."
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php
+msgid "That date could not be read. Use the date picker."
+msgstr "Die datum kon niet worden gelezen. Gebruik de datumkiezer."
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php
+#, php-format
+msgid "These details apply to the %d item you added."
+msgid_plural "These details apply to all %d items you added."
+msgstr[0] "Deze gegevens gelden voor het %d item dat je hebt toegevoegd."
+msgstr[1] "Deze gegevens gelden voor alle %d items die je hebt toegevoegd."
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php
+msgid "Confirm"
+msgstr "Bevestigen"
+
+#. translators: %s is the player, team or training the media was added to.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php
+#, php-format
+msgid "This will appear on %s."
+msgstr "Dit verschijnt bij %s."
+
+#. translators: %s is a date.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php
+#, php-format
+msgid "Filed under %s on the timeline."
+msgstr "Op de tijdlijn geplaatst onder %s."
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php
+msgid "Nothing was added."
+msgstr "Er is niets toegevoegd."
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php
+msgid "The uploads could not be updated. They are still saved on the record."
+msgstr ""
+"De uploads konden niet worden bijgewerkt. Ze staan wel gewoon bij het record."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Choose photos or video"
+msgstr "Kies foto's of video"
+
+#. translators: %s is the largest file this server accepts, e.g. "64 MB".
+#: src/Shared/Frontend/Components/MediaUploader.php
+#, php-format
+msgid "Up to %s per file on this server."
+msgstr "Maximaal %s per bestand op deze server."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Or paste a link to video hosted elsewhere"
+msgstr "Of plak een link naar video die ergens anders staat"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Add link"
+msgstr "Link toevoegen"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "https://…"
+msgstr "https://…"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Veo, Hudl, YouTube and Vimeo are recognised automatically. Anything else is saved as a plain link with a title you type."
+msgstr ""
+"Veo, Hudl, YouTube en Vimeo worden automatisch herkend. Al het andere wordt "
+"bewaard als gewone link met een titel die je zelf typt."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Uploading…"
+msgstr "Bezig met uploaden…"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Added"
+msgstr "Toegevoegd"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Could not be added"
+msgstr "Kon niet worden toegevoegd"
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "This file is larger than the server accepts."
+msgstr "Dit bestand is groter dan de server accepteert."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or MOV video."
+msgstr ""
+"Dit bestandstype kan niet worden toegevoegd. Gebruik een JPEG-, PNG- of "
+"WebP-afbeelding, of een MP4- of MOV-video."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "Paste a web address first."
+msgstr "Plak eerst een webadres."
+
+#: src/Shared/Frontend/Components/MediaUploader.php
+msgid "The upload failed. Check your connection and try again."
+msgstr "De upload is mislukt. Controleer je verbinding en probeer het opnieuw."
+
+#. translators: %d is how many files were added.
+#: src/Shared/Frontend/Components/MediaUploader.php
+#, php-format
+msgid "%d added"
+msgstr "%d toegevoegd"
 #~ msgid ""
 #~ "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
 #~ "thumbnail om 'm als primair te markeren of te archiveren."
