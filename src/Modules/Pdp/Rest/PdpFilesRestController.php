@@ -426,7 +426,7 @@ class PdpFilesRestController {
                 . esc_html__( 'Not started', 'talenttrack' ) . '</span>';
             $action_html = current_user_can( 'tt_edit_pdp' )
                 ? '<a class="tt-btn tt-btn-primary tt-btn-sm" href="' . esc_url( $create_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
-                    . esc_html__( 'Create PDP', 'talenttrack' ) . '</a>'
+                    . esc_html__( 'Add PDP', 'talenttrack' ) . '</a>'
                 : '';
             $row_url = current_user_can( 'tt_edit_pdp' ) ? $create_url : '';
         }

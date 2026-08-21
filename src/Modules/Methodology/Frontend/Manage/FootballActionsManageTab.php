@@ -56,7 +56,7 @@ final class FootballActionsManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New football action', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add action', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $actions = ( new FootballActionsRepository() )->listAll();

@@ -1409,7 +1409,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 . esc_html( QueryHelpers::player_display_name( $pl ) ) . '</option>';
         }
         echo '</select></label>';
-        echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Run Report', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Run', 'talenttrack' ) . '</button>';
         echo '</form>';
 
         if ( ! $run ) return;

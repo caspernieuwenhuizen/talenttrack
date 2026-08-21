@@ -229,6 +229,34 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         ];
                     }
                 }
+                // #2499 (epic #2493) — running a training plan. Trainings
+                // only: a match has match prep and the live-match surface,
+                // and a meeting has neither. The label carries the state
+                // so the button does not lie about what is behind it —
+                // "Run this training" for a fresh one, "Continue this training"
+                // when a plan is already attached, which is what the REST
+                // contract's 200-not-201 means in the UI (#2499).
+                if ( $type_key === ActivityTypeKey::TRAINING
+                    && \TT\Shared\Frontend\Components\CrossViewLink::allows( 'training-run' ) ) {
+                    $run = ( new \TT\Modules\Training\Repositories\TrainingPlanRunsRepository() )
+                        ->findForActivity( (int) $session->id );
+
+                    $run_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                        add_query_arg(
+                            $run
+                                ? [ 'tt_view' => 'training-run', 'id' => (int) $run->id ]
+                                : [ 'tt_view' => 'training-run', 'activity_id' => (int) $session->id ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        )
+                    );
+
+                    $detail_actions[] = [
+                        'label' => $run
+                            ? __( 'Continue this training', 'talenttrack' )
+                            : __( 'Run this training', 'talenttrack' ),
+                        'href'  => $run_url,
+                    ];
+                }
                 // #2245 — status transition buttons replace the status
                 // dropdown on the edit form. The type-branch decision
                 // (wizard vs. match-execution) lives in the domain-layer

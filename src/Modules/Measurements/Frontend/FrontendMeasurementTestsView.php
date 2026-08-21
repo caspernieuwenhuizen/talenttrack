@@ -424,7 +424,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         echo '<input type="hidden" name="definition_id" value="' . esc_attr( (string) $definition_id ) . '" />';
         echo '<input type="hidden" name="tt_export_return_url" value="' . esc_attr( $return_url ) . '" />';
         echo '<button type="submit" class="tt-btn tt-btn-secondary tt-mt-action tt-mt-action--export">'
-            . esc_html__( 'Export to Excel', 'talenttrack' ) . '</button>';
+            . esc_html__( 'Export Excel', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 
@@ -694,7 +694,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
         $url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'measurement', '' );
         if ( $url === '' ) return;
         echo '<a class="tt-btn tt-btn-primary tt-mt-link" href="' . esc_url( $url ) . '">'
-            . esc_html__( '+ New test', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add test', 'talenttrack' ) . '</a>';
     }
 
     private static function enqueueViewCss(): void {

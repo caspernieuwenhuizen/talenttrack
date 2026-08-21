@@ -154,7 +154,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $themes     = QueryHelpers::get_lookup_names( 'vct_tactical_theme' );
 
         echo '<details class="tt-vct-lib-add">';
-        echo '<summary>' . esc_html__( '+ Add exercise', 'talenttrack' ) . '</summary>';
+        echo '<summary>' . esc_html__( 'Add exercise', 'talenttrack' ) . '</summary>';
         echo '<form method="POST" action="" class="tt-vct-lib-add-form">';
         wp_nonce_field( 'tt_vct_library_add', '_tt_vct_lib_add_nonce' );
         echo '<input type="hidden" name="_tt_action" value="add">';

@@ -140,19 +140,18 @@ class FrontendAnalyticsView extends FrontendViewBase {
      * registered KPIs yet — they render an honest empty state.
      */
     private static function renderEntityAnalytics( string $type, int $id, string $entity_label ): void {
-        $back_url = add_query_arg(
-            [ 'tt_view' => 'analytics' ],
-            WizardEntryPoint::dashboardBaseUrl()
-        );
         $type_label = self::labelForType( $type );
 
+        // #2618 — the "← Academy view" button that used to sit here was a
+        // third navigation affordance (CLAUDE.md §5a). It pointed at
+        // `?tt_view=analytics`, which is exactly where the Analytics crumb
+        // this view already emits goes — see the fromDashboard() call in
+        // render(). The crumb IS the back-to-academy affordance.
         echo '<div class="tt-analytics-entity-header">';
         echo '<div>';
         echo '<div class="tt-analytics-entity-header-type">' . esc_html( $type_label ) . '</div>';
         echo '<div class="tt-analytics-entity-header-name">' . esc_html( $entity_label !== '' ? $entity_label : ( '#' . (int) $id ) ) . '</div>';
         echo '</div>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $back_url ) . '">'
-             . esc_html__( '← Academy view', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         if ( in_array( $type, [ 'player', 'team', 'activity' ], true ) ) {

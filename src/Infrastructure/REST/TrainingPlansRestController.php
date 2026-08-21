@@ -170,7 +170,9 @@ final class TrainingPlansRestController {
         }
 
         // The list-table's record-state pill: active (default) / archived / all.
-        $status = (string) ( $filter['status'] ?? 'active' );
+        // #2625 — `filter[archived]` is canonical; `filter[status]` is a
+        // deprecated alias kept for one release.
+        $status = (string) ( $filter['archived'] ?? ( $filter['status'] ?? 'active' ) );
         if ( $status === 'archived' ) {
             $args['archived_only'] = true;
         } elseif ( $status === 'all' ) {

@@ -23,6 +23,7 @@ use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
 use TT\Modules\DemoData\Generators\TrainingPlanGenerator;
+use TT\Modules\DemoData\Generators\TrainingRunGenerator;
 use TT\Modules\DemoData\Generators\TournamentGenerator;
 
 /**
@@ -615,8 +616,18 @@ class DemoCoverage {
             'written_by'  => TrainingPlanGenerator::class,
             'depends_on'  => [ 'tt_training_plan_blocks' ],
         ],
-        'tt_training_plan_runs'       => [ 'planned' => '#2499' ],
-        'tt_training_plan_run_blocks' => [ 'planned' => '#2499' ],
+        'tt_training_plan_runs' => [
+            'entity_type' => 'training_plan_run',
+            'category'    => 'training_runs',
+            'written_by'  => TrainingRunGenerator::class,
+            'depends_on'  => [ 'tt_training_plans', 'tt_activities' ],
+        ],
+        'tt_training_plan_run_blocks' => [
+            'entity_type' => 'training_plan_run_block',
+            'category'    => 'training_runs',
+            'written_by'  => TrainingRunGenerator::class,
+            'depends_on'  => [ 'tt_training_plan_runs' ],
+        ],
 
         // Media (#2590, epic #2589). Generated in #2596, once the surfaces
         // exist to show it — a demo academy whose media tab is empty does
@@ -845,6 +856,14 @@ class DemoCoverage {
             'run_order' => 190,
             'cascade'   => [ 'training_plan_principle', 'training_plan_block', 'training_plan' ],
         ],
+        // #2499 — after the plans, because a run attaches to one. Runs
+        // are cascaded ahead of plans in the delete order for the same
+        // reason, which `depends_on` already encodes.
+        'training_runs' => [
+            'tier'      => 'dependent',
+            'run_order' => 200,
+            'cascade'   => [ 'training_plan_run_block', 'training_plan_run' ],
+        ],
     ];
 
     /**
@@ -884,6 +903,12 @@ class DemoCoverage {
         ],
         'tt_training_plan_principles' => [
             'delete_by' => [ 'column' => 'plan_id', 'entity_type' => 'training_plan_principle' ],
+        ],
+        // #2499 — same shape one level down: a run's block rows are
+        // addressed by run_id, and the type is tagged with the run id so
+        // the cleaner does not skip the table for having no tags.
+        'tt_training_plan_run_blocks' => [
+            'delete_by' => [ 'column' => 'run_id', 'entity_type' => 'training_plan_run_block' ],
         ],
     ];
 

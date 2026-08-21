@@ -286,7 +286,7 @@ class FrontendVctSessionView extends FrontendViewBase {
                 )
             ) . '</p>';
             echo '<input type="hidden" name="bind_existing" value="1">';
-            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Bind to existing Activity', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Bind activity', 'talenttrack' ) . '</button>';
             echo '</form>';
             return;
         }

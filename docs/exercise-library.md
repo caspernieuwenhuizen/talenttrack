@@ -22,7 +22,7 @@ Search by name, code or description, and narrow with the filters:
 
 ## Adding your own
 
-Open **+ New exercise**. Only the name is required; everything else helps the
+Open **Add exercise**. Only the name is required; everything else helps the
 generator pick well later, so fill in what you know:
 
 | Field | What it does |

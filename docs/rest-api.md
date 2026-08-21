@@ -138,6 +138,20 @@ List endpoints follow the Sprint 2 contract used by `FrontendListTable`:
 - `?search=<text>` for free-text search.
 - `?include_archived=1` when the resource supports soft archive.
 
+**Archive state is always `filter[archived]`** (#2625). Values: `active`
+(the default when the param is absent), `archived`, and — where the endpoint
+already supported them — `all` / `trashed`. Holidays, tournaments, exercises
+and training plans used to spell this `filter[status]`; that key is accepted
+as a **deprecated alias for one release** on those four endpoints only, and
+`filter[archived]` wins when both are present.
+
+Do not generalise that alias. `filter[status]` is a genuine domain filter
+elsewhere and must keep its own meaning: on players it selects on
+`tt_players.status` (`active` / `trial` / `released` / `inactive`), and on
+goals it selects the Active / Achieved / Missed bucket. Those two are
+unaffected by the rename and are covered by regression tests in
+`tests/php/ArchiveFilterParamTest.php`.
+
 Coach-scoping for non-admins (`! current_user_can('tt_edit_settings')`) usually limits list reads to teams returned by `QueryHelpers::get_teams_for_coach( get_current_user_id() )`.
 
 ### Capabilities

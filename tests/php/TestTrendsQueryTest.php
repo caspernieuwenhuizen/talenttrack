@@ -72,6 +72,64 @@ final class TestTrendsQueryTest extends WP_UnitTestCase {
         $this->assertSame( 'declined', $by_name['Down Player']['verdict'] );
     }
 
+    /**
+     * #2628 — the display state the reports and the REST payload share. It
+     * follows the verdict, never the sign: a faster sprint is 'up' even
+     * though its delta is negative.
+     */
+    public function test_trend_state_follows_the_verdict_not_the_sign(): void {
+        $def    = $this->definition( 'Sprint 10 m', 'numeric', 'lower', 's' );
+        $faster = $this->player( 'Milan', 'Faster' );
+        $slower = $this->player( 'Daan', 'Slower' );
+        $same   = $this->player( 'Jesse', 'Same' );
+
+        $this->results( $def, $faster, [ '2026-01-05' => 2.05, '2026-03-05' => 1.94 ] );
+        $this->results( $def, $slower, [ '2026-01-05' => 2.05, '2026-03-05' => 2.15 ] );
+        $this->results( $def, $same,   [ '2026-01-05' => 2.05, '2026-03-05' => 2.04 ] );
+
+        $by_name = [];
+        foreach ( ( new TestTrendsQuery() )->forDefinition( $def )['players'] as $p ) $by_name[ $p['name'] ] = $p;
+
+        $this->assertSame( 'up', $by_name['Milan Faster']['trend'], 'a faster sprint points up' );
+        $this->assertLessThan( 0, $by_name['Milan Faster']['delta'], 'while its number is negative' );
+        $this->assertSame( 'down', $by_name['Daan Slower']['trend'] );
+        $this->assertSame( 'flat', $by_name['Jesse Same']['trend'] );
+    }
+
+    /**
+     * #2628 — a neutral test still gets a state, so the report can say which
+     * way the value moved. It is deliberately not one of the verdict states:
+     * a taller player is not a better one.
+     */
+    public function test_neutral_test_reports_direction_of_travel_without_a_verdict(): void {
+        $def     = $this->definition( 'Height', 'numeric', 'neutral', 'cm' );
+        $growing = $this->player( 'Growing', 'Player' );
+        $shrunk  = $this->player( 'Shrunk', 'Player' );
+
+        $this->results( $def, $growing, [ '2026-01-05' => 162.0, '2026-03-05' => 168.0 ] );
+        $this->results( $def, $shrunk,  [ '2026-01-05' => 168.0, '2026-03-05' => 162.0 ] );
+
+        $by_name = [];
+        foreach ( ( new TestTrendsQuery() )->forDefinition( $def )['players'] as $p ) $by_name[ $p['name'] ] = $p;
+
+        $this->assertSame( 'rose', $by_name['Growing Player']['trend'] );
+        $this->assertSame( 'fell', $by_name['Shrunk Player']['trend'] );
+        $this->assertNull( $by_name['Growing Player']['verdict'], 'still no judgement' );
+        $this->assertNull( $by_name['Shrunk Player']['verdict'] );
+    }
+
+    /** No previous reading is no state — the report shows an em dash. */
+    public function test_a_single_reading_has_no_trend_state(): void {
+        $def    = $this->definition( 'Vertical jump', 'numeric', 'higher', 'cm' );
+        $player = $this->player( 'Only', 'Once' );
+        $this->results( $def, $player, [ '2026-01-05' => 28.0 ] );
+
+        $data = ( new TestTrendsQuery() )->forDefinition( $def );
+
+        $this->assertNull( $data['players'][0]['trend'] );
+        $this->assertNull( $data['players'][0]['delta'], 'and no fabricated zero' );
+    }
+
     /** A test with no better or worse must never hand back a judgement. */
     public function test_neutral_test_has_no_verdict(): void {
         $def    = $this->definition( 'Height', 'numeric', 'neutral', 'cm' );

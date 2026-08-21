@@ -171,6 +171,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( MatrixGate::canAnyScope( $user_id, 'trial_cases', MatrixGate::READ ) ) {
             $tabs['trials'] = __( 'Trials', 'talenttrack' );
         }
+        // #2609 — injuries in context. Gated on the `player_injuries`
+        // entity, so an assistant coach (who holds no row for it at all)
+        // never sees the tab, let alone its contents.
+        if ( MatrixGate::canAnyScope( $user_id, 'player_injuries', MatrixGate::READ ) ) {
+            $tabs['injuries'] = __( 'Injuries', 'talenttrack' );
+        }
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
         }
@@ -364,6 +370,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'strava':      \TT\Modules\Strava\Frontend\FrontendStravaView::renderPanel( $player ); break;
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
+                        case 'injuries':    self::renderInjuriesTab( $player_id, $user_id ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                         case 'card':        self::renderCardTab( $player ); break;
                         case 'profile':
@@ -1880,6 +1887,143 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * before the dispatcher reaches here; per-player scope is enforced
      * by `PlayerThreadAdapter::canRead` when FrontendThreadView renders.
      */
+    /**
+     * #2609 — the injuries tab. Read gate is the `player_injuries` entity
+     * narrowed to this player; the capture and return-to-play actions ask
+     * for `change` on top, so a reader with academy-wide read but no write
+     * sees the history without the buttons.
+     *
+     * Setting the return date is the load-bearing action here: it is what
+     * emits the `injury_ended` journey event and drops the player out of
+     * the squad overview. Without it every injury stays open forever.
+     */
+    private static function renderInjuriesTab( int $player_id, int $user_id ): void {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::READ ) ) {
+            EmptyStateCard::render( [
+                'headline'  => __( 'Injuries are not in your scope', 'talenttrack' ),
+                'explainer' => __( 'Injury records are medical data and stay with the coaching staff responsible for this player. Talk to your academy admin if you should have access.', 'talenttrack' ),
+            ] );
+            return;
+        }
+
+        $can_write = \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::CHANGE );
+        $rows      = ( new \TT\Infrastructure\Journey\InjuryRepository() )->listForPlayer( $player_id );
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+            'surface' => 'player_file_tab',
+            'count'   => count( $rows ),
+        ] );
+
+        // Empty fallback on purpose: there is no flat-form path for an
+        // injury, so if the wizard is unavailable the button hides rather
+        // than pointing somewhere that cannot record one.
+        $add_url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'injury', '', [ 'player_id' => $player_id ] );
+
+        if ( empty( $rows ) ) {
+            EmptyStateCard::render( array_filter( [
+                'headline'  => __( 'No injuries recorded', 'talenttrack' ),
+                'explainer' => __( 'Recording an injury puts it on this player\'s journey, so a coach reading the file next season can see what they came back from.', 'talenttrack' ),
+                'cta_label' => $can_write ? __( 'Record injury', 'talenttrack' ) : null,
+                'cta_url'   => $can_write ? $add_url : null,
+            ] ) );
+            return;
+        }
+
+        $today = current_time( 'Y-m-d' );
+        ?>
+        <div class="tt-player-card">
+            <div class="tt-player-card__head">
+                <h3 class="tt-player-card__title"><?php esc_html_e( 'Injuries', 'talenttrack' ); ?></h3>
+                <?php if ( $can_write && $add_url !== '' ) : ?>
+                    <a class="tt-btn tt-btn-primary tt-btn-small" href="<?php echo esc_url( $add_url ); ?>">
+                        <?php esc_html_e( 'Record injury', 'talenttrack' ); ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+            <div class="tt-player-card__body">
+                <?php foreach ( $rows as $row ) :
+                    $started  = (string) ( $row->started_on ?? '' );
+                    $expected = (string) ( $row->expected_return ?? '' );
+                    $actual   = (string) ( $row->actual_return ?? '' );
+                    $overdue  = $actual === '' && $expected !== '' && strtotime( $expected ) < strtotime( $today );
+                    $body     = self::injuryLookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' );
+                    $severity = self::injuryLookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' );
+                    ?>
+                    <div class="tt-player-row">
+                        <div class="tt-player-row__main">
+                            <strong><?php echo esc_html( $body !== '—' ? $body : __( 'Injury', 'talenttrack' ) ); ?></strong>
+                            <?php if ( $severity !== '—' ) : ?>
+                                <span class="tt-chip"><?php echo esc_html( $severity ); ?></span>
+                            <?php endif; ?>
+                            <div class="tt-player-row__meta">
+                                <?php
+                                if ( $started !== '' ) {
+                                    /* translators: %s is a date. */
+                                    echo esc_html( sprintf( __( 'Since %s', 'talenttrack' ), date_i18n( get_option( 'date_format' ), strtotime( $started ) ) ) );
+                                }
+                                if ( $actual !== '' ) {
+                                    echo ' · <span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span> ';
+                                    echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $actual ) ) );
+                                } elseif ( $expected !== '' ) {
+                                    /* translators: %s is a date. */
+                                    echo ' · ' . esc_html( sprintf( __( 'Expected back %s', 'talenttrack' ), date_i18n( get_option( 'date_format' ), strtotime( $expected ) ) ) );
+                                    if ( $overdue ) {
+                                        echo ' <span class="tt-chip tt-chip--warn">' . esc_html__( 'Overdue', 'talenttrack' ) . '</span>';
+                                    }
+                                } else {
+                                    echo ' · ' . esc_html__( 'Return date not set', 'talenttrack' );
+                                }
+                                ?>
+                            </div>
+                            <?php if ( ! empty( $row->notes ) ) : ?>
+                                <div class="tt-player-row__meta"><?php echo esc_html( (string) $row->notes ); ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ( $can_write && $actual === '' ) : ?>
+                            <div class="tt-player-row__side">
+                                <button type="button"
+                                        class="tt-btn tt-btn-secondary tt-btn-small"
+                                        data-tt-injury-recover="<?php echo (int) $row->id; ?>">
+                                    <?php esc_html_e( 'Record return', 'talenttrack' ); ?>
+                                </button>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
+        if ( $can_write ) {
+            wp_enqueue_script(
+                'tt-player-injuries',
+                TT_PLUGIN_URL . 'assets/js/frontend-player-injuries.js',
+                [],
+                TT_VERSION,
+                true
+            );
+            wp_localize_script( 'tt-player-injuries', 'TTInjuries', [
+                'restBase' => esc_url_raw( rest_url( 'talenttrack/v1/player-injuries/' ) ),
+                'nonce'    => wp_create_nonce( 'wp_rest' ),
+                'i18n'     => [
+                    'prompt' => __( 'Date the player returned to play (yyyy-mm-dd):', 'talenttrack' ),
+                    'failed' => __( 'Could not save the return date. Try again.', 'talenttrack' ),
+                    'badDate'=> __( 'Enter the date as yyyy-mm-dd.', 'talenttrack' ),
+                ],
+            ] );
+        }
+    }
+
+    /** #2609 — resolve a lookup row to its translated label. */
+    private static function injuryLookupLabel( int $lookup_id, string $type ): string {
+        if ( $lookup_id <= 0 ) return '—';
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( $type ) as $row ) {
+            if ( (int) $row->id === $lookup_id ) {
+                return \TT\Infrastructure\Query\LookupTranslator::name( $row );
+            }
+        }
+        return '—';
+    }
+
     private static function renderNotesTab( int $player_id, int $user_id ): void {
         if ( ! current_user_can( 'tt_view_player_notes' ) ) {
             EmptyStateCard::render( [

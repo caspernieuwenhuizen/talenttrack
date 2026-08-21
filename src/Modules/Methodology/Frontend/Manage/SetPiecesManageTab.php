@@ -56,7 +56,7 @@ final class SetPiecesManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New set piece', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add set piece', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $set_pieces = ( new SetPiecesRepository() )->listFiltered();

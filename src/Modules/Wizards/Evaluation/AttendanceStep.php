@@ -156,7 +156,7 @@ final class AttendanceStep implements WizardStepInterface {
 
                     <?php if ( $has_late ) : ?>
                         <div class="tt-att-late-row" <?php if ( ! in_array( $stored, [ AttendanceStatus::PRESENT, AttendanceStatus::LATE ], true ) ) echo 'hidden'; ?>>
-                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '+ Mark late', 'talenttrack' ); ?></button>
+                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( 'Mark late', 'talenttrack' ); ?></button>
                             <button type="button" class="tt-att-late-chip"   data-tt-att-late-on     <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '✓ Late', 'talenttrack' ); ?></button>
                             <button type="button" class="tt-att-late-revert" data-tt-att-late-revert <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '× Revert to on-time', 'talenttrack' ); ?></button>
                         </div>

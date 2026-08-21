@@ -96,7 +96,7 @@ class MethodologyView extends FrontendViewBase {
 
         $tabs = [
             'vision'       => __( 'Visie',             'talenttrack' ),
-            'framework'    => __( 'Raamwerk',          'talenttrack' ),
+            'framework'    => __( 'Framework',          'talenttrack' ),
             'formations'   => __( 'Formaties',          'talenttrack' ),
             'principles'   => __( 'Spelprincipes',     'talenttrack' ),
             'scenes'       => __( 'Speelwijze',        'talenttrack' ),

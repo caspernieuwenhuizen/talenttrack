@@ -44,7 +44,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $current = __( 'Goals', 'talenttrack' );
         $intermediate = null;
         if ( $action === 'new' ) {
-            $current = __( 'New goal', 'talenttrack' );
+            $current = __( 'Add goal', 'talenttrack' );
             $intermediate = [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'goals', __( 'Goals', 'talenttrack' ) ) ];
         } elseif ( $id > 0 && $action === 'edit' ) {
             $current = __( 'Edit goal', 'talenttrack' );
@@ -56,7 +56,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $current, $intermediate );
 
         if ( $action === 'new' ) {
-            self::renderHeader( __( 'New goal', 'talenttrack' ) );
+            self::renderHeader( __( 'Add goal', 'talenttrack' ) );
             self::renderForm( $user_id, $is_admin, null );
             return;
         }
@@ -151,7 +151,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         if ( current_user_can( 'tt_edit_goals' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], $list_base_url );
             $page_actions[] = [
-                'label'   => __( 'New goal', 'talenttrack' ),
+                'label'   => __( 'Add goal', 'talenttrack' ),
                 'href'    => \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'new-goal', $flat_url ),
                 'primary' => true,
                 'icon'    => '+',

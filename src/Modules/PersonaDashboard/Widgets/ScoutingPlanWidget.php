@@ -77,7 +77,7 @@ class ScoutingPlanWidget extends AbstractWidget {
                 . esc_html__( 'No upcoming visits planned. Plan your next scouting visit to keep your portfolio fresh.', 'talenttrack' )
                 . '</p>'
                 . '<a class="tt-pd-cta tt-pd-cta-secondary" href="' . esc_url( add_query_arg( [ 'action' => 'new' ], $base_url ) ) . '">'
-                . esc_html__( '+ Plan visit', 'talenttrack' )
+                . esc_html__( 'Plan visit', 'talenttrack' )
                 . '</a>';
             return $this->wrap( $slot, $body );
         }

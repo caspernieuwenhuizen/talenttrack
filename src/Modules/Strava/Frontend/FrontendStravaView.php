@@ -74,7 +74,7 @@ final class FrontendStravaView extends FrontendViewBase {
                     <span><?php esc_html_e( 'I agree to share this player\'s Strava activity data (distance, duration, pace, elevation) with the academy.', 'talenttrack' ); ?></span>
                 </label>
                 <button type="button" class="tt-btn tt-btn-primary tt-strava__connect-btn" data-tt-strava-connect-btn disabled>
-                    <?php esc_html_e( 'Connect with Strava', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Connect Strava', 'talenttrack' ); ?>
                 </button>
             </div>
 

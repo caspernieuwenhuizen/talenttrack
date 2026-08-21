@@ -55,7 +55,7 @@ class FrontendSeasonsView extends FrontendViewBase {
         $new_url = add_query_arg( [ 'tt_view' => 'seasons', 'action' => 'new' ], self::dashboardUrl() );
         self::renderHeader(
             __( 'Seasons', 'talenttrack' ),
-            '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( '+ New season', 'talenttrack' ) . '</a>'
+            '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add season', 'talenttrack' ) . '</a>'
         );
 
         echo '<p class="tt-admin-lead">'

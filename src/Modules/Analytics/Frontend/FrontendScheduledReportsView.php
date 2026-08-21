@@ -149,7 +149,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             ? $back['url']
             : add_query_arg( 'tt_view', 'scheduled-reports', RecordLink::dashboardUrl() );
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
-            'label'      => __( 'Create schedule', 'talenttrack' ),
+            'label'      => __( 'Add schedule', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
         echo '</form>';

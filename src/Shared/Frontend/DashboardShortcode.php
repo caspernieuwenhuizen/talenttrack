@@ -195,9 +195,9 @@ class DashboardShortcode {
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
                 'network_error'        => __( 'Network error.', 'talenttrack' ),
                 'confirm_delete_goal'  => __( 'Delete this goal?', 'talenttrack' ),
-                'save_evaluation'      => __( 'Save Evaluation', 'talenttrack' ),
-                'save_activity'        => __( 'Save Activity', 'talenttrack' ),
-                'add_goal'             => __( 'Add Goal', 'talenttrack' ),
+                'save_evaluation'      => __( 'Save', 'talenttrack' ),
+                'save_activity'        => __( 'Save', 'talenttrack' ),
+                'add_goal'             => __( 'Add goal', 'talenttrack' ),
                 'save'                 => __( 'Save', 'talenttrack' ),
                 'draft_prompt'         => __( 'You have unsaved changes from an earlier session — restore?', 'talenttrack' ),
                 'draft_restore'        => __( 'Restore', 'talenttrack' ),
@@ -1006,6 +1006,11 @@ class DashboardShortcode {
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
+            // #2609 — squad-wide "who is out right now". Matrix-gated on
+            // `player_injuries` read inside the view.
+            case 'injuries':
+                \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $user_id, $is_admin );
+                return true;
             // #2145 — the "Test results" analysis browser. Matrix-gated on
             // `measurements` read inside the view (and by matrixDispatchAllows
             // via the tile's `measurements` entity).
@@ -1202,6 +1207,13 @@ class DashboardShortcode {
             case 'training-plans':
             case 'training-plan':
                 \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $user_id, $is_admin );
+                return true;
+            // #2499 — running a plan. `&activity_id=` attaches a plan to a
+            // training; `&id=` is the sideline view of that run. One route
+            // because it is one errand, and whether a run row already
+            // exists is bookkeeping the coach should not have to know.
+            case 'training-run':
+                \TT\Modules\Training\Frontend\FrontendTrainingRunView::render( $user_id, $is_admin );
                 return true;
             // #2495 — the one exercise library (club drills + the VCT
             // catalogue merged in by migration 0212). `?id=` opens a

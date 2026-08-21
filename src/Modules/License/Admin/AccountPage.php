@@ -536,7 +536,7 @@ class AccountPage {
                     <?php wp_nonce_field( 'tt_license_start_trial', 'tt_license_nonce' ); ?>
                     <input type="hidden" name="action" value="tt_license_start_trial" />
                     <button type="submit" class="button button-primary button-hero">
-                        <?php esc_html_e( 'Start 30-day Pro trial', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Start trial', 'talenttrack' ); ?>
                     </button>
                 </form>
                 <p class="description" style="margin-top:6px;">

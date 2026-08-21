@@ -43,18 +43,22 @@ Everything is **idempotent**: re-saving an evaluation does not duplicate the jou
 
 ## Injuries
 
-Injuries get their own page on the player. Open the player → **Injuries** to log a new one with:
+Injuries have their own tab on the player. Open the player → **Injuries** and choose **Record injury**, which walks through:
 - Body part (ankle, knee, hamstring, ...)
-- Severity (minor, moderate, serious, season-ending)
+- Type and severity (minor, moderate, serious, season-ending)
 - When it started
 - When you expect them back
 - Notes
 
-When you log an injury, two things happen:
-1. An *Injury started* entry lands on the player's journey (visible to medical / head-of-academy roles by default — see Privacy below).
-2. A reminder task is scheduled for the player's head coach so they confirm the player is on track or update the expected return date as it approaches.
+Only the start date is required — the rest is what you happen to know at the time.
 
-When the player returns, set **Actual return** on the injury and an *Injury ended* entry lands on the journey.
+When you record an injury, two things happen:
+1. An *Injury started* entry lands on the player's journey (visible to medical / head-of-academy roles by default — see Privacy below).
+2. A reminder task is scheduled for the player's head coach so they confirm the player is on track or update the expected return date as it approaches. (This one needs the Workflow module switched on.)
+
+When the player returns, use **Record return** on the injury and an *Injury ended* entry lands on the journey. Until you do, the injury stays open and the player keeps showing up as unavailable.
+
+The **Injuries** tile gives the squad-wide version of the same data: who is out right now across your teams, and who was expected back before today. Full detail in [Injuries](injuries.md).
 
 The injury record is **deliberately minimal**: body part, severity, dates, notes and a coach reminder. There are no return-to-play stages, no medical-file attachments, no treatment plans — TalentTrack tracks the development impact of an injury, not its clinical management. If your physio expects a medical system, set that expectation up front: this isn't one.
 

@@ -9,8 +9,8 @@ The Lookups tile on the Configuration page is the one place to manage every drop
 ## The four surfaces
 
 1. **Configuration → Lookups** — landing page. One tile per lookup category, **grouped into domain sections** (Activities & attendance, Players & teams, Evaluations & development, Goals, Scouting & trials, Tournaments & match, Staff & people, Reports & workflow, Advanced / internal). Each tile carries an icon, a short description, and clicks through to the per-category editor. A section with no visible tiles renders no heading. *(v4.26.11 — previously a single flat grid of ~32 cards.)*
-2. **Per-category editor** — the list-first view of one lookup category's values (e.g. Activity types). Default view: a clean roster of values with a `+ Add value` button at the top.
-3. **Add new value** — opens from the `+ Add value` button. Empty form with the Internal key field at the top + a 5-locale translation grid below.
+2. **Per-category editor** — the list-first view of one lookup category's values (e.g. Activity types). Default view: a clean roster of values with an `Add value` button at the top.
+3. **Add new value** — opens from the `Add value` button. Empty form with the Internal key field at the top + a 5-locale translation grid below.
 4. **Edit value** — opens by tapping a row in the list. Same shape as Add but populated with the row's data and translations. The Internal key field is read-only on existing rows.
 
 ## List view
@@ -24,7 +24,7 @@ Each row shows, left to right:
 - **Sort order** — the integer the row sorts by within the category.
 - **Delete button** — hidden on locked rows (rows that workflow rules depend on). Locked rows are still click-through to the edit view; the delete button is simply not rendered.
 
-A `+ Add value` button at the top of the list opens the Add view.
+An `Add value` button at the top of the list opens the Add view.
 
 ## Edit view
 

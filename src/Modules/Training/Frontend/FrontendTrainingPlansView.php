@@ -117,10 +117,12 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'created_at'     => [ 'label' => __( 'Created', 'talenttrack' ),  'sortable' => true, 'render' => 'date' ],
             ],
             'filters' => [
-                'status' => [
+                // #2625 — canonical archive-state param; `status` is reserved
+                // for domain status.
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active', 'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
@@ -257,6 +259,14 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'label'   => __( 'Edit blocks', 'talenttrack' ),
                 'href'    => self::detailUrl( $id, true ), /* tt-xview-ok — same view, same record */
                 'primary' => true,
+            ],
+            // #2499 — the clipboard sheet. Opens in a new tab because it
+            // is a standalone print document, not a dashboard page: the
+            // coach prints it and comes back to where they were.
+            [
+                'label'  => __( 'Print', 'talenttrack' ),
+                'href'   => add_query_arg( [ 'print' => '1' ], self::detailUrl( $id, false ) ),
+                'target' => '_blank',
             ],
         ];
     }
