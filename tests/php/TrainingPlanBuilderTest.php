@@ -6,6 +6,7 @@ use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\DemoData\DemoCoverage;
+use TT\Modules\Exercises\ExercisesRepository;
 use TT\Modules\Training\Services\PlanCoverageService;
 
 /**
@@ -81,23 +82,24 @@ final class TrainingPlanBuilderTest extends WP_UnitTestCase {
         return $player_id;
     }
 
+    /**
+     * Goes through the repository rather than a raw insert.
+     *
+     * A direct `$wpdb->insert` leaves `uuid` empty, and `uk_uuid` is
+     * UNIQUE — so the first exercise lands and every one after it fails
+     * silently, which shows up as a ranking assertion off by one rather
+     * than as an error. The repository writes the uuid; use it.
+     */
     private function makeExerciseOn( string $name, array $principle_ids ): int {
-        global $wpdb;
-
-        $wpdb->insert( $wpdb->prefix . 'tt_exercises', [
-            'club_id'          => 1,
+        $exercises   = new ExercisesRepository();
+        $exercise_id = $exercises->create( [
             'name'             => $name,
             'visibility'       => 'club',
             'duration_minutes' => 20,
         ] );
-        $exercise_id = (int) $wpdb->insert_id;
 
-        foreach ( $principle_ids as $principle_id ) {
-            $wpdb->insert( $wpdb->prefix . 'tt_exercise_principles', [
-                'club_id'      => 1,
-                'exercise_id'  => $exercise_id,
-                'principle_id' => $principle_id,
-            ] );
+        if ( $principle_ids !== [] ) {
+            $exercises->setPrincipleIds( $exercise_id, $principle_ids );
         }
 
         return $exercise_id;
