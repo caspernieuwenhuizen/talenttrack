@@ -57,7 +57,7 @@ final class FrameworkPrimerManageTab {
     public static function register(): void {
         MethodologyManageRegistry::register( [
             'key'    => self::MTAB,
-            'label'  => __( 'Raamwerk', 'talenttrack' ),
+            'label'  => __( 'Framework', 'talenttrack' ),
             'render' => [ self::class, 'render' ],
             'handle' => [ self::class, 'handle' ],
             'order'  => 20,
@@ -74,7 +74,7 @@ final class FrameworkPrimerManageTab {
         $values     = self::extract( $row );
         $cancel_url = MethodologyManageView::cancelUrl( self::MTAB );
         ?>
-        <p class="tt-mmg-intro"><?php esc_html_e( 'The framework primer is a single record. Edit its intro sections here; they appear on the read view’s Raamwerk tab.', 'talenttrack' ); ?></p>
+        <p class="tt-mmg-intro"><?php esc_html_e( 'The framework primer is a single record. Edit its intro sections here; they appear on the read view’s Framework tab.', 'talenttrack' ); ?></p>
         <form method="post" class="tt-mmg-form">
             <?php wp_nonce_field( MethodologyManageView::NONCE_ACTION, MethodologyManageView::NONCE_FIELD ); ?>
             <input type="hidden" name="op" value="save" />

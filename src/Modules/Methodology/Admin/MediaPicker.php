@@ -54,15 +54,15 @@ final class MediaPicker {
         $caption_tag = 'data-tt-asset-caption';
         ?>
         <div class="tt-methodology-media" data-entity-type="<?php echo esc_attr( $entity_type ); ?>" data-entity-id="<?php echo (int) $entity_id; ?>">
-            <h3 style="margin-top:24px;"><?php esc_html_e( 'Diagrammen en afbeeldingen', 'talenttrack' ); ?></h3>
+            <h3 style="margin-top:24px;"><?php esc_html_e( 'Diagrams and images', 'talenttrack' ); ?></h3>
             <p class="description" style="margin:4px 0 12px; color:#5b6470;">
-                <?php esc_html_e( 'De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een thumbnail om \'m als primair te markeren of te archiveren.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it.', 'talenttrack' ); ?>
             </p>
 
             <div class="tt-methodology-media-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px;">
                 <?php if ( empty( $assets ) ) : ?>
                     <p class="description" style="grid-column:1/-1; padding:24px; background:#fafafa; border:1px dashed #d4d6db; text-align:center; color:#5b6470; margin:0;">
-                        <?php esc_html_e( 'Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via "Afbeelding kiezen" hieronder.', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'No images added yet. Add a diagram with "Pick image" below.', 'talenttrack' ); ?>
                     </p>
                 <?php else : foreach ( $assets as $asset ) :
                     $thumb = wp_get_attachment_image_src( (int) $asset->attachment_id, 'medium' );
@@ -82,7 +82,7 @@ final class MediaPicker {
                             <?php endif; ?>
                             <?php if ( ! empty( $asset->is_primary ) ) : ?>
                                 <span style="position:absolute; top:6px; left:6px; background:#0a7c41; color:#fff; padding:3px 8px; font-size:11px; border-radius:3px;">
-                                    <?php esc_html_e( 'Primair', 'talenttrack' ); ?>
+                                    <?php esc_html_e( 'Primary', 'talenttrack' ); ?>
                                 </span>
                             <?php endif; ?>
                             <?php if ( ! empty( $asset->is_shipped ) ) : ?>
@@ -93,7 +93,7 @@ final class MediaPicker {
                         </div>
                         <div style="padding:10px; display:flex; flex-direction:column; gap:6px;">
                             <details>
-                                <summary style="cursor:pointer; font-size:12px; color:#5b6470;"><?php esc_html_e( 'Bijschrift bewerken', 'talenttrack' ); ?></summary>
+                                <summary style="cursor:pointer; font-size:12px; color:#5b6470;"><?php esc_html_e( 'Edit caption', 'talenttrack' ); ?></summary>
                                 <label style="display:block; margin-top:6px; font-size:11px; color:#5b6470;">NL</label>
                                 <input type="text" name="<?php echo esc_attr( 'tt_assets_caption[' . (int) $asset->id . '][nl]' ); ?>" value="<?php echo esc_attr( $caption_nl ); ?>" style="width:100%;" />
                                 <label style="display:block; margin-top:6px; font-size:11px; color:#5b6470;">EN</label>
@@ -102,11 +102,11 @@ final class MediaPicker {
                             <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
                                 <?php if ( empty( $asset->is_primary ) ) : ?>
                                     <button type="submit" class="button button-small" name="tt_assets_primary" value="<?php echo (int) $asset->id; ?>">
-                                        <?php esc_html_e( 'Maak primair', 'talenttrack' ); ?>
+                                        <?php esc_html_e( 'Set primary', 'talenttrack' ); ?>
                                     </button>
                                 <?php endif; ?>
-                                <button type="submit" class="button button-small" name="tt_assets_remove[]" value="<?php echo (int) $asset->id; ?>" style="color:#b32d2e;" onclick="return confirm('<?php echo esc_js( __( 'Verwijder deze afbeelding?', 'talenttrack' ) ); ?>');">
-                                    <?php esc_html_e( 'Archiveren', 'talenttrack' ); ?>
+                                <button type="submit" class="button button-small" name="tt_assets_remove[]" value="<?php echo (int) $asset->id; ?>" style="color:#b32d2e;" onclick="return confirm('<?php echo esc_js( __( 'Remove this image?', 'talenttrack' ) ); ?>');">
+                                    <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
                                 </button>
                             </div>
                         </div>
@@ -116,10 +116,10 @@ final class MediaPicker {
 
             <p style="margin-top:12px;">
                 <button type="button" class="button" data-tt-methodology-media-add>
-                    <?php esc_html_e( 'Afbeelding kiezen…', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Choose image', 'talenttrack' ); ?>
                 </button>
                 <span class="description" style="margin-left:8px; color:#5b6470;">
-                    <?php esc_html_e( 'Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen herbruikbaar.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Opens the WordPress media library. Uploaded images are reusable right away.', 'talenttrack' ); ?>
                 </span>
             </p>
 

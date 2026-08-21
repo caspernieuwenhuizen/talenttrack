@@ -61,11 +61,11 @@ final class InfluenceFactorsManageTab {
 
     private static function renderNoPrimer(): void {
         echo '<p class="tt-notice">'
-            . esc_html__( 'Author the framework primer first — influence factors hang off it. Open the Raamwerk tab and save the primer.', 'talenttrack' )
+            . esc_html__( 'Author the framework primer first — influence factors hang off it. Open the Framework tab and save the primer.', 'talenttrack' )
             . '</p>';
         echo '<a class="tt-btn tt-btn-secondary" href="'
             . esc_url( MethodologyManageView::tabUrl( FrameworkPrimerManageTab::MTAB ) ) . '">'
-            . esc_html__( 'Go to Raamwerk', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Open framework', 'talenttrack' ) . '</a>';
     }
 
     private static function renderList( int $primer_id ): void {

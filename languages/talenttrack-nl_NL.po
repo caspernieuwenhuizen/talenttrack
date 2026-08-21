@@ -6113,10 +6113,6 @@ msgstr ""
 "geladen; van daaruit kun je pivoteren, groeperen en filteren. Kies een "
 "entiteit uit de linker zijbalk om naar de analytics van die entiteit te gaan."
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:155
-msgid "← Academy view"
-msgstr "← Academy-weergave"
-
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:162
 msgid "No analytics registered for this entity type yet."
 msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
@@ -23195,7 +23191,7 @@ msgstr "Wordt toegevoegd bij opslaan"
 
 # v3.20.0 — methodology framework expansion (#0027 follow-up)
 #: src/Modules/Methodology/Admin/MediaPicker.php:57
-msgid "Diagrammen en afbeeldingen"
+msgid "Diagrams and images"
 msgstr "Diagrammen en afbeeldingen"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:59
@@ -23214,28 +23210,20 @@ msgstr ""
 "Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding "
 "kiezen\" hieronder."
 
-#: src/Modules/Methodology/Admin/MediaPicker.php:85
-msgid "Primair"
-msgstr "Primair"
-
 #: src/Modules/Methodology/Admin/MediaPicker.php:96
-msgid "Bijschrift bewerken"
+msgid "Edit caption"
 msgstr "Bijschrift bewerken"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:105
-msgid "Maak primair"
+msgid "Set primary"
 msgstr "Maak primair"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:108
-msgid "Verwijder deze afbeelding?"
+msgid "Remove this image?"
 msgstr "Verwijder deze afbeelding?"
 
-#: src/Modules/Methodology/Admin/MediaPicker.php:109
-msgid "Archiveren"
-msgstr "Archiveren"
-
 #: src/Modules/Methodology/Admin/MediaPicker.php:119
-msgid "Afbeelding kiezen…"
+msgid "Choose image"
 msgstr "Afbeelding kiezen…"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:122
@@ -23249,7 +23237,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:63
 #: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:60
 #: src/Modules/Methodology/Frontend/MethodologyView.php:99
-msgid "Raamwerk"
+msgid "Framework"
 msgstr "Raamwerk"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:64
@@ -24091,7 +24079,7 @@ msgstr "Positie aangemaakt."
 #: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:77
 msgid ""
 "The framework primer is a single record. Edit its intro sections here; they "
-"appear on the read view’s Raamwerk tab."
+"appear on the read view’s Framework tab."
 msgstr ""
 "De raamwerk-introductie is één record. Bewerk de introductiesecties hier; ze "
 "verschijnen op het tabblad Raamwerk van de leesweergave."
@@ -24119,7 +24107,7 @@ msgstr "Kon de raamwerk-introductie niet aanmaken."
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:64
 msgid ""
 "Author the framework primer first — influence factors hang off it. Open the "
-"Raamwerk tab and save the primer."
+"Framework tab and save the primer."
 msgstr ""
 "Maak eerst de raamwerk-introductie aan — factoren van invloed hangen "
 "daaronder. Open het tabblad Raamwerk en sla de introductie op."
@@ -24127,7 +24115,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:68
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:68
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:68
-msgid "Go to Raamwerk"
+msgid "Open framework"
 msgstr "Naar Raamwerk"
 
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:75
@@ -24200,7 +24188,7 @@ msgstr "Kon de factor van invloed niet aanmaken."
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:64
 msgid ""
 "Author the framework primer first — learning goals hang off it. Open the "
-"Raamwerk tab and save the primer."
+"Framework tab and save the primer."
 msgstr ""
 "Maak eerst de raamwerk-introductie aan — leerdoelen hangen daaronder. Open "
 "het tabblad Raamwerk en sla de introductie op."
@@ -24304,23 +24292,19 @@ msgid "Methodology entities"
 msgstr "Methodologie-onderdelen"
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:39
-msgid "Speelwijzen"
+msgid "Play styles"
 msgstr "Speelwijzen"
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:67
-msgid "+ Nieuwe speelwijze"
+msgid "Add play style"
 msgstr "+ Nieuwe speelwijze"
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:73
 msgid "No methodology sets yet."
 msgstr "Nog geen speelwijzen."
 
-#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
-msgid "Actief"
-msgstr "Actief"
-
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:114
-msgid "Maak actief"
+msgid "Set active"
 msgstr "Maak actief"
 
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:121
@@ -24385,7 +24369,7 @@ msgstr "Fasen"
 
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:64
 msgid ""
-"Author the framework primer first — phases hang off it. Open the Raamwerk "
+"Author the framework primer first — phases hang off it. Open the Framework "
 "tab and save the primer."
 msgstr ""
 "Maak eerst de raamwerk-introductie aan — fasen hangen daaronder. Open het "
@@ -50029,6 +50013,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Bied sms aan als berichtenkanaal. Sms-bezorging vereist nog steeds een "
 #~ "providerplug-in. De andere kanalen (e-mail, push, WhatsApp-link, in-app) "
 #~ "blijven beschikbaar als dit uit staat."
+msgid "Opens the WordPress media library. Uploaded images are reusable right away."
+msgstr "Opens the WordPress media library. Uploaded images are reusable right away."
+
+msgid "The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it."
+msgstr "The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it."
+
+msgid "No images added yet. Add a diagram with \"Pick image\" below."
+msgstr "No images added yet. Add a diagram with \"Pick image\" below."
 
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
