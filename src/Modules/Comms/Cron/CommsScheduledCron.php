@@ -3,6 +3,7 @@ namespace TT\Modules\Comms\Cron;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
@@ -58,12 +59,45 @@ final class CommsScheduledCron {
         self::runOne( 'staff_development_reminder', [ __CLASS__, 'detectStaffDevReminders' ] );
     }
 
+    /**
+     * Option holding the per-detector health record. Read by the Gate C
+     * message-log surface (#2606) so an admin can tell a detector that
+     * found nothing from one that has been crashing for three months.
+     *
+     * Shape: [ template_key => [ 'ran_at' => gmdate, 'ok' => bool,
+     *          'error' => string ] ]
+     */
+    public const HEALTH_OPTION = 'tt_comms_cron_health';
+
     private static function runOne( string $template_key, callable $detector ): void {
         try {
             $detector();
+            self::recordHealth( $template_key, true, '' );
         } catch ( \Throwable $e ) {
             // Best-effort; one detector's failure mustn't block the rest.
+            // But "best-effort" is not "unobserved" — a detector that has
+            // silently thrown every night for months looks identical to
+            // one with nothing to send unless we record the difference.
+            Logger::error( 'Comms scheduled detector failed', [
+                'template_key' => $template_key,
+                'exception'    => $e->getMessage(),
+            ] );
+            self::recordHealth( $template_key, false, $e->getMessage() );
         }
+    }
+
+    /** @param string $error  empty when the run succeeded */
+    private static function recordHealth( string $template_key, bool $ok, string $error ): void {
+        $health = get_option( self::HEALTH_OPTION, [] );
+        if ( ! is_array( $health ) ) {
+            $health = [];
+        }
+        $health[ $template_key ] = [
+            'ran_at' => gmdate( 'Y-m-d H:i:s' ),
+            'ok'     => $ok,
+            'error'  => substr( $error, 0, 500 ),
+        ];
+        update_option( self::HEALTH_OPTION, $health, false );
     }
 
     private static function detectGoalNudges(): void {
