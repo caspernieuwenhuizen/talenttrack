@@ -41059,6 +41059,16 @@ msgstr "Deze functie wordt nog gebouwd en kan veranderen."
 msgid "Open filters"
 msgstr "Filters openen"
 
+#: src/Shared/Frontend/Components/FilterBar.php:620
+msgid "More filters"
+msgstr "Meer filters"
+
+#. translators: %s: the filter's name, e.g. "Archive".
+#: src/Shared/Frontend/Components/FilterBar.php:652
+#, php-format
+msgid "Clear the %s filter"
+msgstr "Filter %s wissen"
+
 #: src/Shared/Frontend/Components/FormSaveButton.php:47
 #: src/Shared/Frontend/DashboardShortcode.php:193
 msgid "Saving..."

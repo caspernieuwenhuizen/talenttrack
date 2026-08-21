@@ -1758,11 +1758,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'active_label' => (string) ( $period_labels[ $period_filter ] ?? $period_labels[''] ),
                     'options'      => $period_options,
                 ],
+                // #2622 — the archive state collapses to the icon overflow
+                // menu here too. This view builds its group by hand (its list
+                // is server-rendered in date buckets, not a FrontendListTable),
+                // so it opts in explicitly rather than through the shared
+                // builder.
                 [
-                    'type'    => 'status',
-                    'key'     => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
-                    'options' => $status_options,
+                    'type'          => 'menu',
+                    'key'           => 'archived',
+                    'label'         => __( 'Archive', 'talenttrack' ),
+                    'default_value' => 'active',
+                    'options'       => $status_options,
                 ],
                 [
                     'type'      => 'toggle',

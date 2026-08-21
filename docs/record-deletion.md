@@ -8,8 +8,9 @@ them (soft-delete) and can restore them. A separate, irreversible
 ### Where to find it
 
 - **List views** (players, teams, evaluations, goals, tournaments,
-  holidays): the **Delete permanently** action appears on archived rows
-  (use the Archived tab/filter), alongside Restore.
+  holidays): the **Delete permanently** action appears on archived rows —
+  switch to them with the **⋯** button at the end of the filter row —
+  alongside Restore.
 - **Detail / editor pages** (trial case, trial track, VCT exercise): a
   **Delete permanently** button sits beside the page's Archive control.
 

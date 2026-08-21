@@ -29,7 +29,7 @@ The **PDP** tile opens on a single **player-centric list** for the current seaso
   - **Not started** — a grey *Not started* pill plus a **Create PDP** button that opens the create flow pre-filled for that player and team.
 - **Filters** — team dropdown + player search, scoped the same way as the rest of the app: coaches see only their own teams' players; admins see everyone.
 - **Only players without a PDP** — a one-click toggle to hide everyone who already has a file, so you can work straight through the gaps.
-- **Active / Archived** state pills (for operators who can unarchive or delete) switch the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
+- The **⋯** button at the end of the filter row (for operators who can unarchive or delete) switches the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
 - Clicking a covered row opens the player's PDP file; clicking a missing row jumps into the create flow.
 
 The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `filter[team_id]`, `search`, `only_missing`, `archived`), so a future front end gets the same answer.

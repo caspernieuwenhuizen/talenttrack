@@ -29,7 +29,7 @@ De **POP**-tegel opent op één **spelergerichte lijst** voor het huidige seizoe
   - **Niet gestart** — een grijze *Niet gestart*-pil plus een knop **POP aanmaken** die de aanmaakflow opent, voor­ingevuld voor die speler en dat team.
 - **Filters** — teamkeuze + zoeken op speler, op dezelfde manier afgebakend als de rest van de app: coaches zien alleen spelers van hun eigen teams; beheerders zien iedereen.
 - **Alleen spelers zonder POP** — een schakelaar met één klik om iedereen te verbergen die al een dossier heeft, zodat je de gaten kunt wegwerken.
-- **Actief / Gearchiveerd**-statuspillen (voor wie mag herstellen of verwijderen) schakelen de lijst naar de spelers van wie het POP voor het seizoen **gearchiveerd** is, met per rij **Herstellen** / permanent verwijderen. Dit vervangt het oude aparte tabblad Dossiers — gearchiveerde bestanden staan nu in dezelfde lijst.
+- Met de **⋯**-knop aan het eind van de filterrij (voor wie mag herstellen of verwijderen) schakel je de lijst naar de spelers van wie het POP voor het seizoen **gearchiveerd** is, met per rij **Herstellen** / permanent verwijderen. Dit vervangt het oude aparte tabblad Dossiers — gearchiveerde bestanden staan nu in dezelfde lijst.
 - Klik op een gedekte rij om het POP-dossier van de speler te openen; klik op een ontbrekende rij om naar de aanmaakflow te springen.
 
 De dekkingsdata is ook beschikbaar via REST op `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `filter[team_id]`, `search`, `only_missing`, `archived`), zodat een toekomstige front-end hetzelfde antwoord krijgt.
