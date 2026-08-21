@@ -19,7 +19,7 @@ use TT\Shared\Frontend\Components\RecordLink;
  *   `?tt_view=training-run&id=N`           the sideline view of that run
  *
  * They are one view because they are one errand: a coach walking onto the
- * pitch wants "run tonight's session", and whether a run row already
+ * pitch wants to run tonight's training, and whether a run row already
  * exists is bookkeeping they should not have to know about. Landing on
  * the attach screen for an activity that already has a run is not an
  * error — it redirects to the run, which is what "already attached"
