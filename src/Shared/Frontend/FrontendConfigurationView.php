@@ -55,6 +55,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'profile-cards' => __( 'Profile cards', 'talenttrack' ),
                 // #2540 — download the configuration as a JSON file.
                 'export'        => __( 'Export configuration', 'talenttrack' ),
+                // #2603 — per-template on/off for outgoing messages.
+                'messages'      => __( 'Messages', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -120,6 +122,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'Export configuration', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderExportForm();
+                return;
+            case 'messages':
+                // #2603 — switch individual message templates off.
+                self::renderHeader( __( 'Messages', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderMessagesForm();
                 return;
             case 'lookups':
                 // v3.74.3 — #5: per-category frontend editor. When
@@ -1606,6 +1614,13 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( current_user_can( 'tt_edit_settings' ) ) {
             $sections['system']['tiles'][] = [ 'title' => __( 'Setup', 'talenttrack' ), 'desc' => __( 'Run or re-run first-time setup: academy basics, your first team, your admin profile, and the dashboard page.', 'talenttrack' ), 'url' => $view( 'setup' ), 'icon' => 'lightbulb' ];
         }
+        // #2603 — per-template on/off for outgoing messages. Cap-gated to
+        // tt_edit_feature_toggles, matching the sub-cap the underlying
+        // `comms_templates_disabled` config key resolves to, so the tile
+        // never offers a screen whose save the REST layer would refuse.
+        if ( current_user_can( 'tt_edit_feature_toggles' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Messages', 'talenttrack' ), 'desc' => __( 'Choose which messages your academy sends — cancellations, nudges, reminders and letters. Switching one off stops it for everyone; the message log still records that it would have gone out.', 'talenttrack' ), 'url' => $sub( 'messages' ), 'icon' => 'docs' ];
+        }
         $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
         // #2540 — configuration snapshot as JSON. Cap-gated to
         // tt_edit_settings, matching the exporter's own gate, so the tile
@@ -2472,6 +2487,103 @@ class FrontendConfigurationView extends FrontendViewBase {
      * Save-only — settings sub-form (CLAUDE.md §6a exemption). Which-card
      * logic lives in ProfileCardsConfig, not here.
      */
+    /**
+     * #2603 — per-template on/off for every message TalentTrack sends.
+     *
+     * Built from `TemplateRegistry::all()` rather than a hardcoded list,
+     * so a template registered by a later release shows up here with no
+     * change to this view.
+     *
+     * Wizard plan: exemption — settings toggle list, single-field changes
+     * per row (CLAUDE.md §3 exemption (a) analogue, ruled on #2603).
+     * §6(a) likewise exempts it from Cancel + Save.
+     *
+     * Mirrors the profile-cards form (#2207): the checkboxes are synced
+     * into one hidden JSON field so the standard config-form submit
+     * handler ships a single value. Checked = enabled, and the STORED set
+     * is the unchecked one — see TemplateSwitch for why that direction.
+     */
+    private static function renderMessagesForm(): void {
+        $templates = \TT\Modules\Comms\Template\TemplateRegistry::all();
+        $disabled  = \TT\Modules\Comms\Template\TemplateSwitch::disabledKeys();
+        ksort( $templates );
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="messages" data-tt-messages-form>
+            <input type="hidden" name="config[comms_templates_disabled]" value="" data-tt-messages-json />
+            <div class="tt-panel">
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'Choose which messages your academy sends. Unchecking one stops it being sent to anyone, for every channel. Nothing is lost: a message that was switched off is still recorded in the message log, so you can see it would have gone out.', 'talenttrack' ); ?>
+                </p>
+
+                <?php if ( empty( $templates ) ) : ?>
+                    <p class="tt-notice"><?php esc_html_e( 'No message templates are registered.', 'talenttrack' ); ?></p>
+                <?php else : ?>
+                    <div class="tt-messages-list" role="group" aria-label="<?php esc_attr_e( 'Messages this academy sends', 'talenttrack' ); ?>">
+                        <?php foreach ( $templates as $key => $template ) :
+                            $key      = (string) $key;
+                            $is_off   = in_array( $key, $disabled, true );
+                            $field_id = 'tt-msg-tpl-' . sanitize_html_class( $key );
+                            $channels = implode( ', ', array_map( 'strval', $template->supportedChannels() ) );
+                        ?>
+                            <label class="tt-messages-row" for="<?php echo esc_attr( $field_id ); ?>">
+                                <input
+                                    type="checkbox"
+                                    id="<?php echo esc_attr( $field_id ); ?>"
+                                    data-tt-message-template="<?php echo esc_attr( $key ); ?>"
+                                    value="1"
+                                    <?php checked( ! $is_off ); ?>
+                                />
+                                <span class="tt-messages-label">
+                                    <strong><?php echo esc_html( $template->label() ); ?></strong>
+                                    <?php if ( $channels !== '' ) : ?>
+                                        <span class="tt-messages-channels"><?php echo esc_html( $channels ); ?></span>
+                                    <?php endif; ?>
+                                </span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="tt-form-actions">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save messages', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <?php
+        self::renderMessagesJs();
+        self::renderConfigJs( false );
+    }
+
+    /**
+     * #2603 — keep the hidden `comms_templates_disabled` JSON field in
+     * sync with the per-template checkboxes (the UNchecked templates are
+     * the disabled set), so the standard config-form submit handler ships
+     * a single JSON value.
+     */
+    private static function renderMessagesJs(): void {
+        ?>
+        <script>
+        (function(){
+            var form = document.querySelector('[data-tt-messages-form]');
+            if (!form) return;
+            var hidden = form.querySelector('[data-tt-messages-json]');
+            var boxes  = form.querySelectorAll('[data-tt-message-template]');
+
+            function sync(){
+                var off = [];
+                boxes.forEach(function(box){
+                    if (!box.checked) off.push(box.getAttribute('data-tt-message-template'));
+                });
+                hidden.value = JSON.stringify(off);
+            }
+
+            boxes.forEach(function(box){ box.addEventListener('change', sync); });
+            sync();
+        })();
+        </script>
+        <?php
+    }
+
     private static function renderProfileCardsForm(): void {
         wp_enqueue_style(
             'tt-frontend-profile-cards-config',

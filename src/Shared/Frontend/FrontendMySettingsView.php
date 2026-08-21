@@ -150,9 +150,103 @@ class FrontendMySettingsView extends FrontendViewBase {
             <?php self::renderAppearanceCard( $user_id ); ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
+            <?php self::renderMessagePreferencesCard( $user_id ); ?>
+
             <?php self::renderParentVisibilityCard( $user_id ); ?>
         </div>
         <?php
+    }
+
+    /**
+     * #2603 — per-message-type opt-out. GDPR requires it, and until now
+     * `OptOutPolicy` read a preference that no screen could write: a parent
+     * had no way to mute anything.
+     *
+     * Everything is on by default, so an existing user's mail is unchanged
+     * until they choose otherwise. Operational messages (safeguarding, and
+     * account recovery) are shown as always-on with the reason rather than
+     * hidden — a preferences screen that quietly omits the messages you
+     * cannot refuse is the same silent behaviour #2602 set out to remove.
+     */
+    private static function renderMessagePreferencesCard( int $user_id ): void {
+        $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
+        $labels = self::messageTypeLabels();
+        ?>
+        <form method="post" class="tt-form tt-msettings-card">
+            <?php wp_nonce_field( 'tt_my_settings_comms', 'tt_my_settings_comms_nonce' ); ?>
+            <input type="hidden" name="tt_my_settings_action" value="update_comms_optout" />
+
+            <h3><?php esc_html_e( 'Messages you receive', 'talenttrack' ); ?></h3>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child.', 'talenttrack' ); ?>
+            </p>
+
+            <?php foreach ( $labels as $type => $label ) :
+                $checked  = ! $policy->isOptedOut( $user_id, $type );
+                $field_id = 'tt-comms-opt-' . sanitize_html_class( $type );
+                ?>
+                <div class="tt-field tt-visibility-row">
+                    <label class="tt-visibility-toggle" for="<?php echo esc_attr( $field_id ); ?>">
+                        <input type="checkbox" id="<?php echo esc_attr( $field_id ); ?>" name="comms_opt_in[]" value="<?php echo esc_attr( $type ); ?>"<?php echo $checked ? ' checked' : ''; ?> />
+                        <span><?php echo esc_html( $label ); ?></span>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+
+            <?php foreach ( self::operationalMessageTypeLabels() as $op_label ) : ?>
+                <div class="tt-field tt-visibility-row">
+                    <label class="tt-visibility-toggle">
+                        <input type="checkbox" checked disabled />
+                        <span><?php echo esc_html( $op_label ); ?></span>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Safeguarding messages, and messages about getting back into your account, are always sent. They cannot be switched off.', 'talenttrack' ); ?>
+            </p>
+
+            <div class="tt-form-actions">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save message preferences', 'talenttrack' ); ?></button>
+            </div>
+        </form>
+        <?php
+    }
+
+    /**
+     * Message types a user may refuse, in display order.
+     *
+     * Deliberately the full non-operational set rather than a role-filtered
+     * one: a coach and a parent both land on this screen, and a row for a
+     * message you never receive costs nothing, while a missing row for one
+     * you do receive is exactly the gap this card exists to close.
+     *
+     * @return array<string,string> message_type => user-facing label
+     */
+    private static function messageTypeLabels(): array {
+        return [
+            \TT\Modules\Comms\Domain\MessageType::TRAINING_CANCELLED         => __( 'A training is cancelled', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::SCHEDULE_CHANGE_FROM_SPOND => __( 'An activity changes time or place', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::SELECTION_LETTER           => __( 'Selection decisions', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::PDP_READY                  => __( 'A development plan is ready to read', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::PARENT_MEETING_INVITE      => __( 'Invitations to parent meetings', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::TRIAL_PLAYER_WELCOME       => __( 'Welcome messages for trial players', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::GUEST_PLAYER_INVITE        => __( 'Invitations to join an activity as a guest', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::GOAL_NUDGE                 => __( 'Reminders to update a goal', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::ATTENDANCE_FLAG            => __( 'Alerts about repeated absence', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::METHODOLOGY_DELIVERED      => __( 'New training plans are published', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::ONBOARDING_NUDGE_INACTIVE  => __( 'Reminders when you have not logged in for a while', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::STAFF_DEVELOPMENT_REMINDER => __( 'Reminders about your own development review', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::LETTER_DELIVERY            => __( 'Formal letters', 'talenttrack' ),
+            \TT\Modules\Comms\Domain\MessageType::MASS_ANNOUNCEMENT          => __( 'Academy-wide announcements', 'talenttrack' ),
+        ];
+    }
+
+    /** @return string[] labels for the types that cannot be refused. */
+    private static function operationalMessageTypeLabels(): array {
+        return [
+            __( 'Safeguarding messages', 'talenttrack' ),
+            __( 'Getting back into your account', 'talenttrack' ),
+        ];
     }
 
     /**
@@ -423,6 +517,27 @@ class FrontendMySettingsView extends FrontendViewBase {
             wp_set_auth_cookie( $user_id, true );
             wp_set_current_user( $user_id );
             $out['success'] = __( 'Password changed. Other devices have been logged out.', 'talenttrack' );
+            return $out;
+        }
+
+        // #2603 — per-message-type opt-out. No capability beyond being
+        // logged in: this only changes what the current user receives.
+        // `OptOutPolicy::setOptedOut` refuses operational types server-side,
+        // so a forged payload cannot mute a safeguarding message even
+        // though the form renders those rows as disabled.
+        if ( $action === 'update_comms_optout' ) {
+            if ( ! isset( $_POST['tt_my_settings_comms_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_comms_nonce'] ) ), 'tt_my_settings_comms' ) ) {
+                $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            $opted_in = isset( $_POST['comms_opt_in'] ) && is_array( $_POST['comms_opt_in'] )
+                ? array_map( 'sanitize_text_field', wp_unslash( $_POST['comms_opt_in'] ) )
+                : [];
+            $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
+            foreach ( array_keys( self::messageTypeLabels() ) as $type ) {
+                $policy->setOptedOut( $user_id, $type, ! in_array( $type, $opted_in, true ) );
+            }
+            $out['success'] = __( 'Message preferences saved.', 'talenttrack' );
             return $out;
         }
 

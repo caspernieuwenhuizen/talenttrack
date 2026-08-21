@@ -330,11 +330,17 @@ class FeatureRegistry {
             // current behaviour on upgrade; academies opt out. Gating
             // sites are inline `FeatureRegistry::isEnabled()` checks at
             // the owning module/repository (no unique view-slug/entity).
+            // #2603 — default OFF. TalentTrack ships no SMS provider, so
+            // with this on the channel advertises itself and then fails
+            // every send with `no_sms_provider`. Turn it on only once a
+            // provider plugin has registered the `tt_comms_sms_send`
+            // filter. Existing installs that explicitly enabled it keep
+            // their stored value; only fresh installs see the new default.
             'comms_sms_channel' => [
                 'label'           => __( 'SMS channel', 'talenttrack' ),
-                'description'     => __( 'Offer SMS as a messaging channel. SMS delivery still needs a provider plugin. The other channels (email, push, WhatsApp link, in-app) stay available when this is off.', 'talenttrack' ),
+                'description'     => __( 'Offer SMS as a messaging channel. TalentTrack does not send SMS by itself — this needs a provider plugin, and without one every SMS fails. The other channels (email, push, WhatsApp link, in-app) are unaffected.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Comms\\CommsModule',
-                'default_enabled' => true,
+                'default_enabled' => false,
                 'view_slugs'      => [],
                 'entities'        => [],
             ],
