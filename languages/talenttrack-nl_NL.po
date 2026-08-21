@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T22:13:24+00:00\n"
+"POT-Creation-Date: 2026-08-21T22:17:09+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1726,7 +1726,7 @@ msgstr "Hoog"
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:226
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:124
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:125
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:241
 #: src/Modules/Wizards/Prospect/IdentityStep.php:122
 #: src/Shared/Admin/BulkActionsHelper.php:100
@@ -1927,7 +1927,7 @@ msgstr "Overig"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:252
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:180
 #: src/Modules/Teams/Admin/TeamsPage.php:107
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:125
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:126
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:241
 #: src/Shared/Admin/BulkActionsHelper.php:101
@@ -1996,9 +1996,9 @@ msgstr "Mentor"
 
 #: src/Infrastructure/Query/LabelTranslator.php:217
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:237
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:70
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:166
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:174
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:71
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:167
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:175
 #: src/Modules/Training/TrainingModule.php:86
 msgid "Training"
 msgstr "Training"
@@ -2155,7 +2155,8 @@ msgid "Centre forward"
 msgstr "Centrumspits"
 
 #: src/Infrastructure/Query/LabelTranslator.php:341
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:327
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:403
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:330
 msgid "Warm-up"
 msgstr "Warming-up"
 
@@ -2175,12 +2176,14 @@ msgstr "Conditie"
 
 #: src/Infrastructure/Query/LabelTranslator.php:345
 #: src/Infrastructure/Query/LabelTranslator.php:387
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:330
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:406
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:334
 msgid "Finishing"
 msgstr "Afronden"
 
 #: src/Infrastructure/Query/LabelTranslator.php:346
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:331
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:407
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:335
 msgid "Cool-down"
 msgstr "Cooling-down"
 
@@ -2257,7 +2260,7 @@ msgid "Mixed"
 msgstr "Gemengd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1041
+#: src/Modules/DemoData/DemoCoverage.php:1077
 msgid "Match day"
 msgstr "Wedstrijddag"
 
@@ -2297,7 +2300,7 @@ msgstr "Gepubliceerd"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:376
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:340
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:416
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:123
@@ -3472,7 +3475,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:146
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:630
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:122
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:123
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:213
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:175
 #: src/Modules/Wizards/Activity/ReviewStep.php:61
@@ -3581,7 +3584,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1028
+#: src/Modules/DemoData/DemoCoverage.php:1064
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -4222,49 +4225,49 @@ msgstr "Selectie-payload moet een array zijn."
 msgid "The squad member could not be removed."
 msgstr "Het selectielid kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:52
+#: src/Infrastructure/REST/TrainingPlansRestController.php:54
 #: src/Infrastructure/REST/TrainingRunsRestController.php:103
 msgid "Training plan not found."
 msgstr "Trainingsplan niet gevonden."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:199
+#: src/Infrastructure/REST/TrainingPlansRestController.php:217
 msgid "A training plan needs a title."
 msgstr "Een trainingsplan heeft een titel nodig."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:205
+#: src/Infrastructure/REST/TrainingPlansRestController.php:223
 msgid "The training plan could not be created."
 msgstr "Het trainingsplan kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:229
-#: src/Infrastructure/REST/TrainingPlansRestController.php:298
+#: src/Infrastructure/REST/TrainingPlansRestController.php:247
+#: src/Infrastructure/REST/TrainingPlansRestController.php:316
 msgid "Pick a team to plan for."
 msgstr "Kies een team om voor te plannen."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:254
-#: src/Infrastructure/REST/TrainingPlansRestController.php:270
+#: src/Infrastructure/REST/TrainingPlansRestController.php:272
+#: src/Infrastructure/REST/TrainingPlansRestController.php:288
 msgid "This training cannot be drafted as asked."
 msgstr "Deze training kan niet worden opgesteld zoals gevraagd."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:387
+#: src/Infrastructure/REST/TrainingPlansRestController.php:476
 msgid "Send a blocks array, even an empty one."
 msgstr "Stuur een blocks-array mee, ook als die leeg is."
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:392
+#: src/Infrastructure/REST/TrainingPlansRestController.php:481
 msgid "The blocks could not be saved."
 msgstr "De blokken konden niet worden opgeslagen."
 
 #. translators: %d is a number of minutes.
-#: src/Infrastructure/REST/TrainingPlansRestController.php:437
+#: src/Infrastructure/REST/TrainingPlansRestController.php:526
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:501
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:195
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:275
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:271
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:351
 #, php-format
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] "%d minuut"
 msgstr[1] "%d minuten"
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:442
+#: src/Infrastructure/REST/TrainingPlansRestController.php:531
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:854
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:173
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
@@ -4275,8 +4278,8 @@ msgstr[1] "%d minuten"
 msgid "Template"
 msgstr "Template"
 
-#: src/Infrastructure/REST/TrainingPlansRestController.php:443
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:112
+#: src/Infrastructure/REST/TrainingPlansRestController.php:532
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:113
 msgid "Plan"
 msgstr "Plan"
 
@@ -4419,7 +4422,7 @@ msgstr "Alle types"
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1029
+#: src/Modules/DemoData/DemoCoverage.php:1065
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
@@ -4481,6 +4484,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1321
 #: src/Modules/Teams/Admin/TeamsPage.php:40
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:364
 #: src/Shared/Frontend/Components/SavedViews.php:140
 #: src/Shared/Frontend/DashboardShortcode.php:194
 #: src/Shared/Frontend/FrontendSetupView.php:419
@@ -5034,6 +5038,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1320
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
 #: src/Shared/Frontend/FrontendBackupsView.php:249
 #: src/Shared/Frontend/FrontendConfigurationView.php:503
@@ -5640,7 +5645,7 @@ msgstr "Totaal minuten"
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1030
+#: src/Modules/DemoData/DemoCoverage.php:1066
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
 #: src/Modules/License/Admin/AccountPage.php:804
@@ -5698,7 +5703,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1031
+#: src/Modules/DemoData/DemoCoverage.php:1067
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -5808,7 +5813,7 @@ msgid "Promoted"
 msgstr "Gepromoveerd"
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1032
+#: src/Modules/DemoData/DemoCoverage.php:1068
 msgid "Journey events"
 msgstr "Reisgebeurtenissen"
 
@@ -5912,7 +5917,7 @@ msgstr "Openen"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:149
 #: src/Modules/Development/IdeaStatus.php:101
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:269
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:339
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:415
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
 #: src/Modules/Workflow/TaskStatus.php:65
 #: src/Shared/Frontend/FrontendExportsView.php:122
@@ -5936,7 +5941,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:287
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:375
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:343
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:419
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1629
 msgid "Planned"
 msgstr "Gepland"
@@ -6013,7 +6018,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:43
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:43
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:54
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:45
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:46
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:44
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:39
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:65
@@ -6124,7 +6129,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:1026
+#: src/Modules/DemoData/DemoCoverage.php:1062
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -7180,7 +7185,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:329
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:405
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:333
 msgid "Game"
 msgstr "Wedstrijd"
 
@@ -7435,7 +7441,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:449
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:126
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:581
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:140
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:141
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:261
 #: src/Shared/Admin/BulkActionsHelper.php:170
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:420
@@ -8327,7 +8333,7 @@ msgstr "Imitatie starten"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:1027
+#: src/Modules/DemoData/DemoCoverage.php:1063
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:530
@@ -8520,7 +8526,7 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1033
+#: src/Modules/DemoData/DemoCoverage.php:1069
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:768
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -8542,7 +8548,7 @@ msgstr "Stage-samenvatting"
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1046
+#: src/Modules/DemoData/DemoCoverage.php:1082
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -8657,7 +8663,7 @@ msgid "Impersonation"
 msgstr "Impersonatie"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1042
+#: src/Modules/DemoData/DemoCoverage.php:1078
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr "Proeftrainingen"
@@ -10457,7 +10463,7 @@ msgstr "Bestandsnaam"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:116
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:117
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
 #: src/Shared/Frontend/FrontendBackupsView.php:271
 #: src/Shared/Frontend/FrontendBackupsView.php:289
@@ -12809,6 +12815,7 @@ msgstr "Geen items."
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:575
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:800
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:363
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:352
 #: src/Shared/Frontend/FrontendConfigurationView.php:586
 #: src/Shared/Frontend/FrontendConfigurationView.php:956
 msgid "Drag to reorder"
@@ -14807,9 +14814,9 @@ msgstr ""
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:113
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:130
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:199
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:114
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:131
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:275
 msgid "Kind"
 msgstr "Soort"
 
@@ -15564,7 +15571,7 @@ msgid "The kind of transition."
 msgstr "Het soort overgang."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1035
+#: src/Modules/DemoData/DemoCoverage.php:1071
 msgid "Injuries"
 msgstr "Blessures"
 
@@ -16517,21 +16524,21 @@ msgstr "Geen batches geselecteerd."
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1034
+#: src/Modules/DemoData/DemoCoverage.php:1070
 msgid "Guardians"
 msgstr "Verzorgers"
 
-#: src/Modules/DemoData/DemoCoverage.php:1036
+#: src/Modules/DemoData/DemoCoverage.php:1072
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr "Spelersprofiel"
 
-#: src/Modules/DemoData/DemoCoverage.php:1037
+#: src/Modules/DemoData/DemoCoverage.php:1073
 msgid "Player reports"
 msgstr "Spelersrapporten"
 
 #. translators: %s: player name
-#: src/Modules/DemoData/DemoCoverage.php:1038
+#: src/Modules/DemoData/DemoCoverage.php:1074
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:749
@@ -16541,27 +16548,27 @@ msgstr "Spelersrapporten"
 msgid "Measurements"
 msgstr "Metingen"
 
-#: src/Modules/DemoData/DemoCoverage.php:1039
+#: src/Modules/DemoData/DemoCoverage.php:1075
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:169
 msgid "PDP cycle"
 msgstr "PDP-cyclus"
 
-#: src/Modules/DemoData/DemoCoverage.php:1040
+#: src/Modules/DemoData/DemoCoverage.php:1076
 msgid "Training content"
 msgstr "Trainingsinhoud"
 
-#: src/Modules/DemoData/DemoCoverage.php:1043
+#: src/Modules/DemoData/DemoCoverage.php:1079
 #: src/Shared/Frontend/FrontendTeamsManageView.php:516
 #: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Team development"
 msgstr "Teamontwikkeling"
 
-#: src/Modules/DemoData/DemoCoverage.php:1044
+#: src/Modules/DemoData/DemoCoverage.php:1080
 msgid "Scouting pipeline"
 msgstr "Scoutingpijplijn"
 
 # v3.110.131+ — #0093 Tournament planner
-#: src/Modules/DemoData/DemoCoverage.php:1045
+#: src/Modules/DemoData/DemoCoverage.php:1081
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
@@ -16569,11 +16576,11 @@ msgstr "Scoutingpijplijn"
 msgid "Tournaments"
 msgstr "Toernooien"
 
-#: src/Modules/DemoData/DemoCoverage.php:1047
+#: src/Modules/DemoData/DemoCoverage.php:1083
 msgid "Messages and operator records"
 msgstr "Berichten en beheerdersgegevens"
 
-#: src/Modules/DemoData/DemoCoverage.php:1055
+#: src/Modules/DemoData/DemoCoverage.php:1091
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
@@ -16581,7 +16588,7 @@ msgstr ""
 "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en "
 "beoordelingen van die teams."
 
-#: src/Modules/DemoData/DemoCoverage.php:1056
+#: src/Modules/DemoData/DemoCoverage.php:1092
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
@@ -16589,7 +16596,7 @@ msgstr ""
 "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven "
 "staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
 
-#: src/Modules/DemoData/DemoCoverage.php:1057
+#: src/Modules/DemoData/DemoCoverage.php:1093
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
@@ -16597,25 +16604,25 @@ msgstr ""
 "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, "
 "tijdlijngebeurtenissen en proefdossiers van die spelers."
 
-#: src/Modules/DemoData/DemoCoverage.php:1058
+#: src/Modules/DemoData/DemoCoverage.php:1094
 msgid "Also wipes attendance for those activities."
 msgstr "Wist ook de aanwezigheid bij die activiteiten."
 
-#: src/Modules/DemoData/DemoCoverage.php:1059
+#: src/Modules/DemoData/DemoCoverage.php:1095
 msgid "Also wipes per-category eval_ratings."
 msgstr "Wist ook de beoordelingen per categorie."
 
-#: src/Modules/DemoData/DemoCoverage.php:1060
+#: src/Modules/DemoData/DemoCoverage.php:1096
 msgid "Per-player development goals."
 msgstr "Ontwikkeldoelen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1061
+#: src/Modules/DemoData/DemoCoverage.php:1097
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber "
 "zijn geschreven."
 
-#: src/Modules/DemoData/DemoCoverage.php:1062
+#: src/Modules/DemoData/DemoCoverage.php:1098
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
@@ -16623,12 +16630,12 @@ msgstr ""
 "Historische proefdossiers van bestaande spelers plus enkele lopende "
 "dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1063
+#: src/Modules/DemoData/DemoCoverage.php:1099
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1064
+#: src/Modules/DemoData/DemoCoverage.php:1100
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
@@ -16636,7 +16643,7 @@ msgstr ""
 "Een toernooi per team met selectie, streefminuten, wedstrijden en "
 "opstellingen per periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1065
+#: src/Modules/DemoData/DemoCoverage.php:1101
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
@@ -16644,7 +16651,7 @@ msgstr ""
 "Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, en "
 "mentorkoppels voor de staf van de club."
 
-#: src/Modules/DemoData/DemoCoverage.php:1066
+#: src/Modules/DemoData/DemoCoverage.php:1102
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
@@ -16652,7 +16659,7 @@ msgstr ""
 "Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, "
 "workflowtaken en uitnodigingen. Er wordt nooit e-mail verstuurd."
 
-#: src/Modules/DemoData/DemoCoverage.php:1067
+#: src/Modules/DemoData/DemoCoverage.php:1103
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
@@ -16660,7 +16667,7 @@ msgstr ""
 "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de "
 "zichtbaarheidsinstellingen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1068
+#: src/Modules/DemoData/DemoCoverage.php:1104
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
@@ -16668,7 +16675,7 @@ msgstr ""
 "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit "
 "volgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1069
+#: src/Modules/DemoData/DemoCoverage.php:1105
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
@@ -16676,13 +16683,13 @@ msgstr ""
 "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club "
 "met hun waarden, en koppelingen tussen doelen en evaluaties."
 
-#: src/Modules/DemoData/DemoCoverage.php:1070
+#: src/Modules/DemoData/DemoCoverage.php:1106
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers "
 "aangemaakt."
 
-#: src/Modules/DemoData/DemoCoverage.php:1071
+#: src/Modules/DemoData/DemoCoverage.php:1107
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
@@ -16690,7 +16697,7 @@ msgstr ""
 "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team "
 "en één resultaat per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1072
+#: src/Modules/DemoData/DemoCoverage.php:1108
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
@@ -16698,7 +16705,7 @@ msgstr ""
 "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, "
 "agendakoppelingen en eindoordelen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1073
+#: src/Modules/DemoData/DemoCoverage.php:1109
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
@@ -16706,7 +16713,7 @@ msgstr ""
 "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per "
 "team, en de vakantieperiodes van het seizoen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1074
+#: src/Modules/DemoData/DemoCoverage.php:1110
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
@@ -16715,14 +16722,14 @@ msgstr ""
 "rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels "
 "voor de gespeelde wedstrijden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1075
+#: src/Modules/DemoData/DemoCoverage.php:1111
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend "
 "per leeftijdsgroep."
 
-#: src/Modules/DemoData/DemoCoverage.php:1076
+#: src/Modules/DemoData/DemoCoverage.php:1112
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
@@ -18023,7 +18030,7 @@ msgstr "Je hebt geen rechten om de oefeningenbibliotheek te bekijken."
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:134
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:485
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:493
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:98
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:99
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Exercises"
 msgstr "Oefeningen"
@@ -18250,7 +18257,7 @@ msgid "Any category"
 msgstr "Elke categorie"
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:484
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:165
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:166
 msgid "Not found"
 msgstr "Niet gevonden"
 
@@ -18261,8 +18268,8 @@ msgstr "Die oefening bestaat niet meer."
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:499
 #: src/Modules/License/Admin/AccountPage.php:921
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:114
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:193
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:115
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:269
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:173
 #: src/Modules/Vct/Wizard/DurationStep.php:19
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
@@ -18865,6 +18872,7 @@ msgstr "vs %s"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:691
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:617
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:84
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:360
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:379
 #, php-format
 msgid "%d min"
@@ -18966,6 +18974,7 @@ msgstr "Printen"
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:110
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:755
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:253
 #: src/Shared/Frontend/Components/FilterBar.php:111
 #: src/Shared/Frontend/Components/FilterBar.php:348
@@ -20882,6 +20891,7 @@ msgid "vs"
 msgstr "tegen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:294
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:245
 msgid "Done editing"
 msgstr "Klaar met bewerken"
 
@@ -28037,6 +28047,7 @@ msgid "Reset to default."
 msgstr "Teruggezet naar standaard."
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:382
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:372
 msgid "You have unsaved changes."
 msgstr "Je hebt niet-opgeslagen wijzigingen."
 
@@ -33459,7 +33470,7 @@ msgstr "Het team voor deze blauwdruk bestaat niet meer."
 #. translators: 1: localised "Today", 2: day-of-week + date (e.g. "Wed 28 May")
 #. translators: 1: team name, 2: date window
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:233
-#: src/Modules/Training/Services/TrainingPlanComposer.php:366
+#: src/Modules/Training/Services/TrainingPlanComposer.php:361
 #: src/Modules/Training/Wizard/ReviewStep.php:103
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2233
 #: src/Shared/Frontend/FrontendStandardReportsView.php:484
@@ -35075,19 +35086,19 @@ msgstr "%d in selectie"
 msgid "%d not picked"
 msgstr "%d niet gekozen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:47
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:48
 msgid "You do not have permission to view training plans."
 msgstr "Je hebt geen rechten om trainingsplannen te bekijken."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:82
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:83
 msgid "New plan"
 msgstr "Nieuw plan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:102
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:103
 msgid "Training plans"
 msgstr "Trainingsplannen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:105
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:106
 msgid ""
 "Your training plans and the club templates you can build from. A plan you "
 "attach to a training records what was actually trained, so it lands on the "
@@ -35097,8 +35108,8 @@ msgstr ""
 "Koppel je een plan aan een training, dan wordt vastgelegd wat er echt "
 "getraind is en komt dat op het spelersdossier terecht."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:115
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:204
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:116
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:280
 #: src/Modules/Training/Wizard/ThemeStep.php:20
 #: src/Modules/Training/Wizard/ThemeStep.php:34
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:210
@@ -35109,38 +35120,38 @@ msgstr ""
 msgid "Theme"
 msgstr "Thema"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:133
 msgid "Plans and templates"
 msgstr "Plannen en sjablonen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:133
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:134
 msgid "Plans only"
 msgstr "Alleen plannen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:134
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:135
 msgid "Templates only"
 msgstr "Alleen sjablonen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:143
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:144
 msgid ""
 "Archive this training plan? Trainings already run with it keep their record."
 msgstr ""
 "Dit trainingsplan archiveren? Trainingen die er al mee zijn uitgevoerd "
 "behouden hun gegevens."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:148
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:149
 msgid "Search plans…"
 msgstr "Zoek plannen…"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:150
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:151
 msgid "No training plans match your search."
 msgstr "Geen trainingsplannen gevonden."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:153
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:154
 msgid "No training plans yet"
 msgstr "Nog geen trainingsplannen"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:154
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:155
 msgid ""
 "A training plan holds the blocks of one training. Attach it to a training in "
 "the calendar and what you trained lands on each player who was there."
@@ -35148,40 +35159,59 @@ msgstr ""
 "Een trainingsplan bevat de blokken van één training. Koppel het aan een "
 "training en wat je traint komt bij elke aanwezige speler op het dossier."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:169
 msgid "That training plan no longer exists."
 msgstr "Dat trainingsplan bestaat niet meer."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:198
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:253
-msgid "Blocks"
-msgstr "Blokken"
-
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:200
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:221
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:276
 msgid "Club template"
 msgstr "Clubsjabloon"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:201
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:222
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:277
 msgid "Team plan"
 msgstr "Teamplan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:232
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:225
+#: src/Shared/Admin/Menu.php:463
+#: src/Shared/Frontend/FrontendTrialCaseView.php:198
+#: src/Shared/Frontend/PlayerDashboardView.php:45
+msgid "Overview"
+msgstr "Overzicht"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:230
+msgid "Build"
+msgstr "Bouwen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:257
+msgid "Edit blocks"
+msgstr "Blokken bewerken"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:274
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:329
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:74
+msgid "Blocks"
+msgstr "Blokken"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:308
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:79
 msgid "How the training time is split across its blocks"
 msgstr "Hoe de trainingstijd over de blokken is verdeeld"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:256
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:332
 msgid "This plan has no blocks yet."
 msgstr "Dit plan heeft nog geen blokken."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:265
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:341
 msgid "Untitled block"
 msgstr "Blok zonder titel"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:298
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:374
 msgid "Times this plan was run"
 msgstr "Uitvoeringen van dit plan"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:302
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:378
 msgid ""
 "This plan has not been run yet. Attaching it to a training records what was "
 "actually trained."
@@ -35189,7 +35219,7 @@ msgstr ""
 "Dit plan is nog niet uitgevoerd. Koppel het aan een training om vast te "
 "leggen wat er echt getraind is."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:317
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:393
 msgid ""
 "Each run keeps its own copy of the blocks as they were on the day, so "
 "editing this plan never changes a training that already happened."
@@ -35198,21 +35228,204 @@ msgstr ""
 "waren, dus het aanpassen van dit plan verandert nooit een training die al "
 "geweest is."
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:328
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:404
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:331
 msgid "Rondo"
 msgstr "Rondo"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:332
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:408
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:336
 msgid "Team talk"
 msgstr "Nabespreking"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:334
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:410
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:332
 msgid "Main"
 msgstr "Hoofdvorm"
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:341
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:417
 msgid "Abandoned"
 msgstr "Afgebroken"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:75
+msgid "Drag, or use the up and down buttons"
+msgstr "Sleep, of gebruik de knoppen omhoog en omlaag"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:82
+msgid "Total planned"
+msgstr "Totaal gepland"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:89
+msgid "Add a block"
+msgstr "Blok toevoegen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:91
+msgid "Save plan"
+msgstr "Plan opslaan"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:113
+msgid "Save as club template"
+msgstr "Opslaan als clubsjabloon"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:116
+msgid "Copy to a new plan"
+msgstr "Kopiëren naar een nieuw plan"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:121
+msgid ""
+"A copy is independent: editing it later leaves this plan untouched, and a "
+"training already run keeps its own record either way."
+msgstr ""
+"Een kopie staat op zichzelf: als je die later aanpast, verandert dit plan "
+"niet, en een training die al gedraaid is houdt hoe dan ook zijn eigen "
+"registratie."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:138
+msgid "Player goals this plan touches"
+msgstr "Spelerdoelen die dit plan raakt"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:159
+msgid ""
+"No player on this team has an open goal tied to a principle yet, so there is "
+"nothing to match this plan against."
+msgstr ""
+"Nog geen speler in dit team heeft een open doel dat aan een principe hangt, "
+"dus er is niets om dit plan mee te vergelijken."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:166
+msgid "Players with an open goal on a principle this plan trains."
+msgstr "Spelers met een open doel op een principe dat dit plan traint."
+
+#. translators: 1: how many players are not served, 2: their names, comma separated.
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:187
+#, php-format
+msgid "%1$d player with an open goal is not touched by this plan: %2$s."
+msgid_plural ""
+"%1$d players with an open goal are not touched by this plan: %2$s."
+msgstr[0] ""
+"%1$d speler met een open doel wordt niet geraakt door dit plan: %2$s."
+msgstr[1] ""
+"%1$d spelers met een open doel worden niet geraakt door dit plan: %2$s."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:215
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:218
+msgid "Choose an exercise"
+msgstr "Oefening kiezen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:223
+msgid "Search exercises"
+msgstr "Oefeningen zoeken"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:225
+msgid "Search by name or code"
+msgstr "Zoek op naam of code"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:228
+msgid ""
+"Sorted by how many of this team's open player goals each exercise would "
+"serve."
+msgstr ""
+"Gesorteerd op hoeveel open spelerdoelen van dit team elke oefening bedient."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:350
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
+msgid "Move up"
+msgstr "Omhoog"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:351
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
+msgid "Move down"
+msgstr "Omlaag"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:353
+msgid "Shorter"
+msgstr "Korter"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:354
+msgid "Longer"
+msgstr "Langer"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:355
+msgid "Swap exercise"
+msgstr "Oefening vervangen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:356
+msgid "Remove block"
+msgstr "Blok verwijderen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:357
+msgid "Kind of block"
+msgstr "Soort blok"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:358
+msgid "Coaching points for this block"
+msgstr "Coachpunten voor dit blok"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:359
+msgid "Empty block — choose an exercise"
+msgstr "Leeg blok — kies een oefening"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:361
+#, php-format
+msgid "%d minutes"
+msgstr "%d minuten"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:362
+msgid "This plan has no blocks yet. Add one to start building."
+msgstr "Dit plan heeft nog geen blokken. Voeg er een toe om te beginnen."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:365
+msgid "That did not save. Check your connection and try again."
+msgstr ""
+"Dat is niet opgeslagen. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:366
+msgid "The library could not be loaded. Try again in a moment."
+msgstr "De bibliotheek kon niet worden geladen. Probeer het zo nog eens."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:367
+msgid "No exercise in the library matches that."
+msgstr "Geen enkele oefening in de bibliotheek past daarbij."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:368
+msgid "Choose"
+msgstr "Kies"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:369
+msgid "serves no open goal"
+msgstr "bedient geen open doel"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:370
+#, php-format
+msgid "serves %d player goals"
+msgstr "bedient %d spelerdoelen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:371
+#, php-format
+msgid "Moved to position %d"
+msgstr "Verplaatst naar positie %d"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:373
+msgid ""
+"Save a club-wide template from this plan? The template is a copy — editing "
+"it later will not change this plan."
+msgstr ""
+"Een clubbreed sjabloon opslaan vanuit dit plan? Het sjabloon is een kopie — "
+"als je die later aanpast, verandert dit plan niet."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:374
+msgid "Copy this plan into a new one for the same team?"
+msgstr "Dit plan kopiëren naar een nieuw plan voor hetzelfde team?"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:375
+msgid "The copy could not be made. Try again in a moment."
+msgstr "De kopie kon niet worden gemaakt. Probeer het zo nog eens."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:376
+msgid "Save your changes first — a copy is made from the saved plan."
+msgstr ""
+"Sla je wijzigingen eerst op — een kopie wordt gemaakt van het opgeslagen "
+"plan."
 
 #. translators: %s is the title of the plan being copied.
 #: src/Modules/Training/Repositories/TrainingPlansRepository.php:472
@@ -35220,7 +35433,7 @@ msgstr "Afgebroken"
 msgid "%s (copy)"
 msgstr "%s (kopie)"
 
-#: src/Modules/Training/Services/TrainingPlanComposer.php:370
+#: src/Modules/Training/Services/TrainingPlanComposer.php:365
 #: src/Modules/Training/Wizard/ReviewStep.php:105
 msgid "Training plan"
 msgstr "Trainingsplan"
@@ -36268,14 +36481,6 @@ msgstr "Blokkenset opslaan"
 #, php-format
 msgid "Team #%d"
 msgstr "Team #%d"
-
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
-msgid "Move up"
-msgstr "Omhoog"
-
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
-msgid "Move down"
-msgstr "Omlaag"
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
 msgid "Advanced: weekly phase profile (JSON)"
@@ -39468,12 +39673,6 @@ msgstr "Open het frontend-dashboard"
 #: src/Shared/Admin/Menu.php:445
 msgid "Re-enable legacy menus (wp-admin Configuration)"
 msgstr "Oude menu's opnieuw inschakelen (wp-admin Configuratie)"
-
-#: src/Shared/Admin/Menu.php:463
-#: src/Shared/Frontend/FrontendTrialCaseView.php:198
-#: src/Shared/Frontend/PlayerDashboardView.php:45
-msgid "Overview"
-msgstr "Overzicht"
 
 #: src/Shared/Admin/Menu.php:470 src/Shared/Admin/Menu.php:471
 msgid "this week"
@@ -49822,164 +50021,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:78
-msgid "Drag, or use the up and down buttons"
-msgstr "Sleep, of gebruik de knoppen omhoog en omlaag"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:85
-msgid "Total planned"
-msgstr "Totaal gepland"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:92
-msgid "Add a block"
-msgstr "Blok toevoegen"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:94
-msgid "Save plan"
-msgstr "Plan opslaan"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:114
-msgid "Save as club template"
-msgstr "Opslaan als clubsjabloon"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:117
-msgid "Copy to a new plan"
-msgstr "Kopiëren naar een nieuw plan"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:122
-msgid "A copy is independent: editing it later leaves this plan untouched, and a training already run keeps its own record either way."
-msgstr "Een kopie staat op zichzelf: als je die later aanpast, verandert dit plan niet, en een training die al gedraaid is houdt hoe dan ook zijn eigen registratie."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:137
-msgid "Player goals this plan touches"
-msgstr "Spelerdoelen die dit plan raakt"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:158
-msgid "No player on this team has an open goal tied to a principle yet, so there is nothing to match this plan against."
-msgstr "Nog geen speler in dit team heeft een open doel dat aan een principe hangt, dus er is niets om dit plan mee te vergelijken."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:164
-msgid "Players with an open goal on a principle this plan trains."
-msgstr "Spelers met een open doel op een principe dat dit plan traint."
-
-#. translators: 1: how many players are not served, 2: their names, comma separated.
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:184
-#, php-format
-msgid "%1$d player with an open goal is not touched by this plan: %2$s."
-msgid_plural "%1$d players with an open goal are not touched by this plan: %2$s."
-msgstr[0] "%1$d speler met een open doel wordt niet geraakt door dit plan: %2$s."
-msgstr[1] "%1$d spelers met een open doel worden niet geraakt door dit plan: %2$s."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:208
-msgid "Choose an exercise"
-msgstr "Oefening kiezen"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:216
-msgid "Search exercises"
-msgstr "Oefeningen zoeken"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:218
-msgid "Search by name or code"
-msgstr "Zoek op naam of code"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:221
-msgid "Sorted by how many of this team's open player goals each exercise would serve."
-msgstr "Gesorteerd op hoeveel open spelerdoelen van dit team elke oefening bedient."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:305
-msgid "Shorter"
-msgstr "Korter"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:306
-msgid "Longer"
-msgstr "Langer"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:307
-msgid "Swap exercise"
-msgstr "Oefening vervangen"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:308
-msgid "Remove block"
-msgstr "Blok verwijderen"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:309
-msgid "Kind of block"
-msgstr "Soort blok"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:310
-msgid "Coaching points for this block"
-msgstr "Coachpunten voor dit blok"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:311
-msgid "Empty block — choose an exercise"
-msgstr "Leeg blok — kies een oefening"
-
-#. translators: %d is a number of minutes.
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:313
-#, php-format
-msgid "%d minutes"
-msgstr "%d minuten"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:314
-msgid "This plan has no blocks yet. Add one to start building."
-msgstr "Dit plan heeft nog geen blokken. Voeg er een toe om te beginnen."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:317
-msgid "That did not save. Check your connection and try again."
-msgstr "Dat is niet opgeslagen. Controleer je verbinding en probeer het opnieuw."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:318
-msgid "The library could not be loaded. Try again in a moment."
-msgstr "De bibliotheek kon niet worden geladen. Probeer het zo nog eens."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:319
-msgid "No exercise in the library matches that."
-msgstr "Geen enkele oefening in de bibliotheek past daarbij."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:320
-msgid "Choose"
-msgstr "Kies"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:321
-msgid "serves no open goal"
-msgstr "bedient geen open doel"
-
-#. translators: %d is how many player goals the exercise would serve.
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:322
-#, php-format
-msgid "serves %d player goals"
-msgstr "bedient %d spelerdoelen"
-
-#. translators: %d is the block's new position in the plan.
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:323
-#, php-format
-msgid "Moved to position %d"
-msgstr "Verplaatst naar positie %d"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:325
-msgid "Save a club-wide template from this plan? The template is a copy — editing it later will not change this plan."
-msgstr "Een clubbreed sjabloon opslaan vanuit dit plan? Het sjabloon is een kopie — als je die later aanpast, verandert dit plan niet."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:326
-msgid "Copy this plan into a new one for the same team?"
-msgstr "Dit plan kopiëren naar een nieuw plan voor hetzelfde team?"
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:327
-msgid "The copy could not be made. Try again in a moment."
-msgstr "De kopie kon niet worden gemaakt. Probeer het zo nog eens."
-
-#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:328
-msgid "Save your changes first — a copy is made from the saved plan."
-msgstr "Sla je wijzigingen eerst op — een kopie wordt gemaakt van het opgeslagen plan."
-
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:224
-msgid "Build"
-msgstr "Bouwen"
-
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:249
-msgid "Edit blocks"
-msgstr "Blokken bewerken"
 #~ msgid ""
 #~ "Offer SMS as a messaging channel. SMS delivery still needs a provider "
 #~ "plugin. The other channels (email, push, WhatsApp link, in-app) stay "
