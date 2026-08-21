@@ -234,7 +234,7 @@ final class FrontendTestResultsView extends FrontendViewBase {
             echo '<input type="hidden" name="date_to" value="' . esc_attr( $date_to ) . '" />';
         }
         echo '<input type="hidden" name="tt_export_return_url" value="' . esc_attr( $return_url ) . '" />';
-        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Export to Excel', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Export Excel', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 

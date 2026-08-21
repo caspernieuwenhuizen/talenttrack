@@ -72,7 +72,7 @@ final class PhasesManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New phase', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add phase', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $phases = ( new PhasesRepository() )->listForPrimer( $primer_id );

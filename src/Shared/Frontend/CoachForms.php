@@ -124,7 +124,7 @@ class CoachForms {
         $rest_path        = $is_edit ? 'evaluations/' . (int) $existing_eval->id : 'evaluations';
         $rest_method      = $is_edit ? 'PUT' : 'POST';
         $title_text       = $is_edit ? __( 'Edit evaluation', 'talenttrack' ) : __( 'Submit Evaluation', 'talenttrack' );
-        $submit_label     = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Save Evaluation', 'talenttrack' );
+        $submit_label     = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Save', 'talenttrack' );
         $existing_player  = $is_edit ? (int) $existing_eval->player_id : 0;
         $existing_ratings = [];
         if ( $is_edit ) {
@@ -545,7 +545,7 @@ class CoachForms {
                 <?php endforeach; ?>
                 </tbody></table>
             <?php endif; ?>
-            <?php echo FormSaveButton::render( [ 'label' => __( 'Save Activity', 'talenttrack' ) ] ); ?>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php
@@ -578,7 +578,7 @@ class CoachForms {
             ) );
         }
         ?>
-        <h3><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></h3>
+        <h3><?php esc_html_e( 'Add goal', 'talenttrack' ); ?></h3>
         <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
@@ -594,7 +594,7 @@ class CoachForms {
                 <?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
-            <?php echo FormSaveButton::render( [ 'label' => __( 'Add Goal', 'talenttrack' ) ] ); ?>
+            <?php echo FormSaveButton::render( [ 'label' => __( 'Add goal', 'talenttrack' ) ] ); ?>
             <div class="tt-form-msg"></div>
         </form>
         <h3 style="margin-top:20px;"><?php esc_html_e( 'Current Goals', 'talenttrack' ); ?></h3>

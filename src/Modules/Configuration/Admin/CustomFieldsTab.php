@@ -110,7 +110,7 @@ class CustomFieldsTab {
             </table>
 
             <p style="margin-top:10px;">
-                <button type="submit" class="button button-primary"><?php esc_html_e( 'Save Order', 'talenttrack' ); ?></button>
+                <button type="submit" class="button button-primary"><?php esc_html_e( 'Save order', 'talenttrack' ); ?></button>
                 <span class="description" style="margin-left:10px;"><?php esc_html_e( 'Drag rows to reorder, then click Save Order.', 'talenttrack' ); ?></span>
             </p>
         </form>

@@ -69,7 +69,7 @@ class FrontendEvalCategoriesView extends FrontendViewBase {
         $weights_url = admin_url( 'admin.php?page=tt-category-weights' );
 
         echo '<p style="margin:0 0 var(--tt-sp-3); display:flex; gap:8px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New category', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add category', 'talenttrack' ) . '</a>';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $weights_url ) . '">' . esc_html__( 'Edit per-age-group weights (wp-admin)', 'talenttrack' ) . '</a>';
         echo '</p>';
 

@@ -72,15 +72,15 @@ class FrontendTrialsManageView extends FrontendViewBase {
                     __( 'Not authorized', 'talenttrack' ),
                     [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ]
                 );
-                self::renderHeader( __( 'New trial case', 'talenttrack' ) );
+                self::renderHeader( __( 'Add case', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to create trial cases.', 'talenttrack' ) . '</p>';
                 return;
             }
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                __( 'New trial case', 'talenttrack' ),
+                __( 'Add case', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trials', $trials_label ) ]
             );
-            self::renderHeader( __( 'New trial case', 'talenttrack' ) );
+            self::renderHeader( __( 'Add case', 'talenttrack' ) );
             self::renderCreateForm();
             return;
         }
@@ -253,7 +253,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         // #2005 — the "New trial case" CTA is create-gated. A read-only
         // head coach sees the list but not the create button.
         if ( $can_manage ) {
-            echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
+            echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'Add case', 'talenttrack' ) . '</a></div>';
         }
 
         // #2174 — filters render via the shared FilterBar component:
@@ -490,7 +490,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $back = \TT\Shared\Frontend\Components\BackLink::resolve();
         $cancel_url = $back['url'] ?? add_query_arg( [ 'tt_view' => 'trials' ], home_url( '/' ) );
         echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
-            'label'      => __( 'Create case', 'talenttrack' ),
+            'label'      => __( 'Add case', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
         echo '</form>';

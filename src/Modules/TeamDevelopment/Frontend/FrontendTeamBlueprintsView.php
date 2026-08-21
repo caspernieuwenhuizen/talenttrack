@@ -124,7 +124,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         if ( $new_url !== '' ) {
             echo '<p class="tt-bp-list-actions">';
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-                . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
+                . esc_html__( 'Add blueprint', 'talenttrack' ) . '</a>';
             echo '</p>';
         }
 
@@ -352,7 +352,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                     <ul class="tt-bpe-roster-list" role="list"></ul>
                     <?php if ( $can_edit ) : ?>
                         <button type="button" class="tt-bpe-add-toggle">
-                            <?php esc_html_e( '+ Add guest / custom name', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Add guest', 'talenttrack' ); ?>
                         </button>
                         <div class="tt-bpe-add-form" hidden>
                             <div class="tt-bpe-add-tabs" role="tablist">

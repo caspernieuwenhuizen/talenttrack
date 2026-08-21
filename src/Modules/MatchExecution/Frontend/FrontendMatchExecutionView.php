@@ -794,7 +794,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <?php if ( $is_editable ) : ?>
                         <div class="tt-mexec-add-goal tt-mexec-edit-only">
                             <button type="button" class="tt-mexec-add-goal-open" data-tt-mexec-away-goal-open>
-                                <?php esc_html_e( '+ Add an opponent goal', 'talenttrack' ); ?>
+                                <?php esc_html_e( 'Add goal', 'talenttrack' ); ?>
                             </button>
                             <form class="tt-mexec-add-goal-form" data-tt-mexec-away-goal-form>
                                 <label class="tt-mexec-add-goal-field">
@@ -811,7 +811,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                 </label>
                                 <div class="tt-mexec-add-goal-actions">
                                     <button type="button" class="tt-mexec-add-goal-cancel" data-tt-mexec-away-goal-cancel><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                                    <button type="submit" class="tt-mexec-add-goal-save"><?php esc_html_e( 'Add opponent goal', 'talenttrack' ); ?></button>
+                                    <button type="submit" class="tt-mexec-add-goal-save"><?php esc_html_e( 'Add goal', 'talenttrack' ); ?></button>
                                 </div>
                             </form>
                         </div>
@@ -969,7 +969,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
                     <details class="tt-mexec-late-event-panel">
                         <summary class="tt-mexec-late-event-summary">
-                            <?php esc_html_e( '+ Add late goal', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Add late goal', 'talenttrack' ); ?>
                         </summary>
                         <form class="tt-mexec-late-event-form" data-tt-mexec-late-goal-form>
                             <label class="tt-mexec-late-event-field">
@@ -1004,7 +1004,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
                     <details class="tt-mexec-late-event-panel">
                         <summary class="tt-mexec-late-event-summary">
-                            <?php esc_html_e( '+ Add late substitution', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Add late substitution', 'talenttrack' ); ?>
                         </summary>
                         <form class="tt-mexec-late-event-form" data-tt-mexec-late-sub-form>
                             <label class="tt-mexec-late-event-field">

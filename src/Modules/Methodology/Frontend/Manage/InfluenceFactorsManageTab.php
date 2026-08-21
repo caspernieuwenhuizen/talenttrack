@@ -72,7 +72,7 @@ final class InfluenceFactorsManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New influence factor', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add factor', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $factors = ( new InfluenceFactorsRepository() )->listForPrimer( $primer_id );

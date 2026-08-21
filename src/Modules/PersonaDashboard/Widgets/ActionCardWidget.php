@@ -46,21 +46,21 @@ class ActionCardWidget extends AbstractWidget {
         // CTA routes through WizardEntryPoint::urlFor() with an
         // action=new fallback URL so installs that flip
         // `tt_wizards_enabled` off keep working.
-        'new_evaluation' => [ 'label_key' => '+ New evaluation',   'view' => 'evaluations',  'cap' => 'tt_edit_evaluations', 'wizard' => 'new-evaluation' ],
-        'new_goal'       => [ 'label_key' => '+ New goal',         'view' => 'goals',        'cap' => 'tt_edit_goals',       'wizard' => 'new-goal' ],
-        'new_activity'   => [ 'label_key' => '+ New activity',     'view' => 'activities',   'cap' => 'tt_edit_activities',  'wizard' => 'new-activity' ],
-        'new_player'     => [ 'label_key' => '+ Add player',       'view' => 'players',      'cap' => 'tt_edit_players',     'wizard' => 'new-player' ],
-        'new_team'       => [ 'label_key' => '+ Add team',         'view' => 'teams',        'cap' => 'tt_edit_teams',       'wizard' => 'new-team' ],
+        'new_evaluation' => [ 'label_key' => 'Add evaluation',   'view' => 'evaluations',  'cap' => 'tt_edit_evaluations', 'wizard' => 'new-evaluation' ],
+        'new_goal'       => [ 'label_key' => 'Add goal',         'view' => 'goals',        'cap' => 'tt_edit_goals',       'wizard' => 'new-goal' ],
+        'new_activity'   => [ 'label_key' => 'Add activity',     'view' => 'activities',   'cap' => 'tt_edit_activities',  'wizard' => 'new-activity' ],
+        'new_player'     => [ 'label_key' => 'Add player',       'view' => 'players',      'cap' => 'tt_edit_players',     'wizard' => 'new-player' ],
+        'new_team'       => [ 'label_key' => 'Add team',         'view' => 'teams',        'cap' => 'tt_edit_teams',       'wizard' => 'new-team' ],
         // scout_report + new_trial keep the flat path — no wizard
         // registered yet.
-        'scout_report'   => [ 'label_key' => '+ New scout report', 'view' => 'scout-history','cap' => 'tt_generate_scout_report' ],
-        'new_trial'      => [ 'label_key' => '+ New trial',        'view' => 'trials',       'cap' => 'tt_manage_trials' ],
+        'scout_report'   => [ 'label_key' => 'Add scout report', 'view' => 'scout-history','cap' => 'tt_generate_scout_report' ],
+        'new_trial'      => [ 'label_key' => 'Add trial',        'view' => 'trials',       'cap' => 'tt_manage_trials' ],
         // v3.110.113 — distinct from `new_trial` (which creates a
         // multi-week `tt_trial_cases` row). Test trainings are one-off
         // sessions a prospect is invited to so the academy can observe
         // them. Routes to the create-only frontend view shipped in the
         // same release.
-        'new_test_training' => [ 'label_key' => '+ New test training', 'view' => 'test-trainings', 'cap' => 'tt_edit_prospects' ],
+        'new_test_training' => [ 'label_key' => 'Add test training', 'view' => 'test-trainings', 'cap' => 'tt_edit_prospects' ],
     ];
 
     public function id(): string { return 'action_card'; }
@@ -95,14 +95,14 @@ class ActionCardWidget extends AbstractWidget {
      */
     private static function actionLabel( string $id ): string {
         switch ( $id ) {
-            case 'new_evaluation':    return __( '+ New evaluation',    'talenttrack' );
-            case 'new_goal':          return __( '+ New goal',          'talenttrack' );
-            case 'new_activity':      return __( '+ New activity',      'talenttrack' );
-            case 'new_player':        return __( '+ Add player',        'talenttrack' );
-            case 'new_team':          return __( '+ Add team',          'talenttrack' );
-            case 'scout_report':      return __( '+ New scout report',  'talenttrack' );
-            case 'new_trial':         return __( '+ New trial',         'talenttrack' );
-            case 'new_test_training': return __( '+ New test training', 'talenttrack' );
+            case 'new_evaluation':    return __( 'Add evaluation',    'talenttrack' );
+            case 'new_goal':          return __( 'Add goal',          'talenttrack' );
+            case 'new_activity':      return __( 'Add activity',      'talenttrack' );
+            case 'new_player':        return __( 'Add player',        'talenttrack' );
+            case 'new_team':          return __( 'Add team',          'talenttrack' );
+            case 'scout_report':      return __( 'Add scout report',  'talenttrack' );
+            case 'new_trial':         return __( 'Add trial',         'talenttrack' );
+            case 'new_test_training': return __( 'Add test training', 'talenttrack' );
         }
         return $id;
     }

@@ -72,7 +72,7 @@ final class LearningGoalsManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New learning goal', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add goal', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $goals = ( new LearningGoalsRepository() )->listForPrimer( $primer_id );

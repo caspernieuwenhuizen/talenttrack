@@ -76,7 +76,7 @@ final class FormationsManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New formation', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add formation', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $formations = ( new FormationsRepository() )->listAll();
@@ -216,7 +216,7 @@ final class FormationsManageTab {
             $new_url = BackLink::appendTo( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'position_new', 'formation_id' => $formation_id ] ) );
             echo '<div class="tt-mmg-toolbar">';
             echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="' . esc_url( $new_url ) . '">'
-                . esc_html__( '+ New position', 'talenttrack' ) . '</a>';
+                . esc_html__( 'Add position', 'talenttrack' ) . '</a>';
             echo '</div>';
         } else {
             echo '<p class="tt-notice">' . esc_html__( 'Shipped formations are read-only reference content; their positions cannot be edited.', 'talenttrack' ) . '</p>';

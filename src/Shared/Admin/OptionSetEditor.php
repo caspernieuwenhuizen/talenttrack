@@ -56,7 +56,7 @@ class OptionSetEditor {
             </table>
             <p>
                 <button type="button" class="button tt-add-option">
-                    <?php esc_html_e( '+ Add option', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Add option', 'talenttrack' ); ?>
                 </button>
                 <span class="description" style="margin-left:10px;">
                     <?php esc_html_e( 'Drag rows to reorder. Leave Value blank to auto-fill from Label.', 'talenttrack' ); ?>
