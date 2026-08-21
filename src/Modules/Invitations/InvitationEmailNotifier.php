@@ -3,6 +3,7 @@ namespace TT\Modules\Invitations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Comms\Domain\Recipient;
 
 /**
@@ -12,8 +13,12 @@ use TT\Modules\Comms\Domain\Recipient;
  *
  * Transactional: the `*_OPERATIONAL` message type bypasses opt-out /
  * quiet-hours / rate-limit, so an invitee is never withheld their invite.
- * When the invite carries no usable email it silently no-ops — the
- * copy-link / WhatsApp share path on the UI still stands.
+ *
+ * An invite with no usable email is a deliberate path, not a failure —
+ * the copy-link / WhatsApp share flow still stands — but it is recorded
+ * at info level so support can tell "no email was ever intended" from
+ * "the email didn't arrive" (#2602). A missing token is a genuine data
+ * anomaly and logs as an error.
  */
 final class InvitationEmailNotifier {
 
@@ -25,13 +30,35 @@ final class InvitationEmailNotifier {
         if ( $invitation_id <= 0 ) return;
 
         $invitation = ( new InvitationsRepository() )->find( $invitation_id );
-        if ( ! $invitation ) return;
+        if ( ! $invitation ) {
+            Logger::error( 'Invitation email skipped — invitation row not found', [
+                'invitation_id' => $invitation_id,
+                'kind'          => $kind,
+            ] );
+            return;
+        }
 
+        // Link-only invite: no email was ever intended. Recorded, not
+        // flagged — the share-a-link flow is a supported path.
         $email = sanitize_email( (string) ( $invitation->prefill_email ?? '' ) );
-        if ( $email === '' || ! is_email( $email ) ) return; // link-only fallback.
+        if ( $email === '' || ! is_email( $email ) ) {
+            Logger::info( 'Invitation email skipped — no usable pre-fill email, link-only invite', [
+                'invitation_id' => $invitation_id,
+                'kind'          => $kind,
+            ] );
+            return;
+        }
 
+        // A token-less invitation cannot produce a working accept link.
+        // That is a data anomaly, not a supported path.
         $token = (string) ( $invitation->token ?? '' );
-        if ( $token === '' ) return;
+        if ( $token === '' ) {
+            Logger::error( 'Invitation email skipped — invitation has no token', [
+                'invitation_id' => $invitation_id,
+                'kind'          => $kind,
+            ] );
+            return;
+        }
 
         $recipient = new Recipient(
             0,                          // not a WP user yet

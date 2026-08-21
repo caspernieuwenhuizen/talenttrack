@@ -31,6 +31,7 @@ use TT\Modules\I18n\TranslationsRepository;
  *
  *   GET    /functional-roles/assignments                    — paginated list of team-staff assignments
  *   POST   /functional-roles/assignments                    — create assignment
+ *   PUT    /functional-roles/assignments/{assignment_id}    — change an assignment's role + dates in place
  *   DELETE /functional-roles/assignments/{assignment_id}    — delete assignment
  *
  * Capability gates:
@@ -94,6 +95,11 @@ class FunctionalRolesRestController {
             ],
         ] );
         register_rest_route( self::NS, '/functional-roles/assignments/(?P<assignment_id>\d+)', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'update_assignment' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+            ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_assignment' ],
@@ -355,6 +361,47 @@ class FunctionalRolesRestController {
             );
         }
         return RestResponse::success( [ 'created' => true ] );
+    }
+
+    /**
+     * #2608 — change an assignment's role and dates in place. Team and
+     * person are not accepted: moving either is a different assignment,
+     * and unassign + create makes that explicit.
+     */
+    public static function update_assignment( \WP_REST_Request $r ) {
+        $assignment_id = absint( $r['assignment_id'] );
+        if ( $assignment_id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid assignment id.', 'talenttrack' ), 400 );
+
+        $role_id = absint( $r['functional_role_id'] ?? 0 );
+        if ( $role_id <= 0 ) {
+            return RestResponse::error( 'missing_fields', __( 'A functional role is required.', 'talenttrack' ), 400 );
+        }
+
+        $start = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) ) ?: null;
+        $end   = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) ) ?: null;
+
+        $repo = new PeopleRepository();
+        if ( $repo->findAssignment( $assignment_id ) === null ) {
+            return RestResponse::error( 'not_found', __( 'Assignment not found.', 'talenttrack' ), 404 );
+        }
+
+        if ( ! $repo->updateAssignment( $assignment_id, $role_id, $start, $end ) ) {
+            global $wpdb;
+            $err = (string) $wpdb->last_error;
+            Logger::error( 'rest.functional_role.update.failed', [
+                'db_error' => $err, 'assignment_id' => $assignment_id, 'role_id' => $role_id,
+            ] );
+            // Most likely cause: unique-key violation on (team, person, role)
+            // — the person already holds the target role on this team.
+            return RestResponse::error(
+                'update_failed',
+                __( 'Could not update the assignment. The person may already hold this role on this team.', 'talenttrack' ),
+                409,
+                [ 'db_error' => $err ]
+            );
+        }
+
+        return RestResponse::success( [ 'updated' => true, 'assignment_id' => $assignment_id ] );
     }
 
     public static function delete_assignment( \WP_REST_Request $r ) {

@@ -67,6 +67,11 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 __( 'New assignment', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'functional-roles', $fr_label, [ 'tab' => 'assignments' ] ) ]
             );
+        } elseif ( $tab === 'assignments' && $action === 'edit' ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Edit assignment', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'functional-roles', $fr_label, [ 'tab' => 'assignments' ] ) ]
+            );
         } elseif ( $tab === 'types' && $id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'Edit role', 'talenttrack' ),
@@ -79,6 +84,29 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         if ( $tab === 'assignments' && $action === 'new' ) {
             self::renderHeader( __( 'New assignment', 'talenttrack' ) );
             self::renderAssignmentForm( $user_id, $is_admin );
+            return;
+        }
+
+        // #2608 — edit an existing assignment's role and dates in place,
+        // so promoting an assistant to head coach no longer means
+        // unassign + re-create with a lost start date.
+        if ( $tab === 'assignments' && $action === 'edit' ) {
+            $assignment_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+            $assignment    = $assignment_id > 0 ? ( new PeopleRepository() )->findAssignment( $assignment_id ) : null;
+
+            if ( ! current_user_can( 'tt_edit_people' ) ) {
+                self::renderHeader( __( 'Edit assignment', 'talenttrack' ) );
+                echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to change assignments.', 'talenttrack' ) . '</p>';
+                return;
+            }
+            if ( $assignment === null ) {
+                self::renderHeader( __( 'Assignment not found', 'talenttrack' ) );
+                echo '<p class="tt-notice">' . esc_html__( 'That assignment no longer exists.', 'talenttrack' ) . '</p>';
+                return;
+            }
+
+            self::renderHeader( __( 'Edit assignment', 'talenttrack' ) );
+            self::renderAssignmentForm( $user_id, $is_admin, $assignment );
             return;
         }
 
@@ -272,6 +300,16 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         $row_actions = [
+            'edit' => [
+                // Raw href template — the list-table JS substitutes `{id}`
+                // literally (no URL-encoding of the placeholder), so build
+                // the base with add_query_arg then append it unencoded.
+                'label' => __( 'Edit', 'talenttrack' ),
+                'href'  => add_query_arg(
+                    [ 'tt_view' => 'functional-roles', 'tab' => 'assignments', 'action' => 'edit' ],
+                    $base
+                ) . '&id={id}',
+            ],
             'delete' => [
                 'label'       => __( 'Unassign', 'talenttrack' ),
                 'rest_method' => 'DELETE',
@@ -308,24 +346,45 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     }
 
-    private static function renderAssignmentForm( int $user_id, bool $is_admin ): void {
-        $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
-        $roles = ( new FunctionalRolesRepository() )->listRoles();
+    /**
+     * The assignment form, in create or edit mode.
+     *
+     * #2608 — in edit mode team and person render as read-only text
+     * rather than disabled selects: there is nothing to submit, and
+     * moving either is a different assignment (unassign + create).
+     */
+    private static function renderAssignmentForm( int $user_id, bool $is_admin, ?object $assignment = null ): void {
+        $is_edit = $assignment !== null;
+        $teams  = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
+        $roles  = ( new FunctionalRolesRepository() )->listRoles();
         $people = ( new PeopleRepository() )->list( [ 'status' => 'active' ] );
 
         $preselected_team   = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         $preselected_person = isset( $_GET['person_id'] ) ? absint( $_GET['person_id'] ) : 0;
+        $selected_role      = $is_edit ? (int) $assignment->functional_role_id : 0;
+        $start_value        = $is_edit ? (string) ( $assignment->start_date ?? '' ) : '';
+        $end_value          = $is_edit ? (string) ( $assignment->end_date   ?? '' ) : '';
+
+        $rest_path = $is_edit ? 'functional-roles/assignments/' . (int) $assignment->id : 'functional-roles/assignments';
+        $rest_meth = $is_edit ? 'PUT' : 'POST';
 
         ?>
-        <form id="tt-fnrole-assignment-form" class="tt-ajax-form" data-rest-path="functional-roles/assignments" data-rest-method="POST" data-redirect-after-save="list">
+        <form id="tt-fnrole-assignment-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
-                <?php echo TeamPickerComponent::render( [
-                    'name'     => 'team_id',
-                    'label'    => __( 'Team', 'talenttrack' ),
-                    'required' => true,
-                    'teams'    => $teams,
-                    'selected' => $preselected_team,
-                ] ); ?>
+                <?php if ( $is_edit ) : ?>
+                    <div class="tt-field">
+                        <label class="tt-field-label"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
+                        <p><?php echo esc_html( (string) ( $assignment->team_name ?? '' ) ); ?></p>
+                    </div>
+                <?php else : ?>
+                    <?php echo TeamPickerComponent::render( [
+                        'name'     => 'team_id',
+                        'label'    => __( 'Team', 'talenttrack' ),
+                        'required' => true,
+                        'teams'    => $teams,
+                        'selected' => $preselected_team,
+                    ] ); ?>
+                <?php endif; ?>
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-fnrole-assign-role"><?php esc_html_e( 'Role', 'talenttrack' ); ?></label>
                     <select id="tt-fnrole-assign-role" class="tt-input" name="functional_role_id" required>
@@ -334,25 +393,42 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                             $r_translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $r->role_key ?? '' ), (int) $r->id );
                             $r_label      = $r_translated !== null ? $r_translated : (string) $r->label;
                             ?>
-                            <option value="<?php echo (int) $r->id; ?>"><?php echo esc_html( $r_label ); ?></option>
+                            <option value="<?php echo (int) $r->id; ?>" <?php selected( $selected_role, (int) $r->id ); ?>><?php echo esc_html( $r_label ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-field">
-                    <label class="tt-field-label tt-field-required" for="tt-fnrole-assign-person"><?php esc_html_e( 'Person', 'talenttrack' ); ?></label>
-                    <select id="tt-fnrole-assign-person" class="tt-input" name="person_id" required>
-                        <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $people as $p ) :
-                            $name = trim( ( (string) $p->first_name ) . ' ' . ( (string) $p->last_name ) );
-                            ?>
-                            <option value="<?php echo (int) $p->id; ?>" <?php selected( $preselected_person, (int) $p->id ); ?>><?php echo esc_html( $name ); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <?php if ( $is_edit ) : ?>
+                    <div class="tt-field">
+                        <label class="tt-field-label"><?php esc_html_e( 'Person', 'talenttrack' ); ?></label>
+                        <p><?php echo esc_html( (string) ( $assignment->person_name ?? '' ) ); ?></p>
+                    </div>
+                <?php else : ?>
+                    <div class="tt-field">
+                        <label class="tt-field-label tt-field-required" for="tt-fnrole-assign-person"><?php esc_html_e( 'Person', 'talenttrack' ); ?></label>
+                        <select id="tt-fnrole-assign-person" class="tt-input" name="person_id" required>
+                            <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
+                            <?php foreach ( $people as $p ) :
+                                $name = trim( ( (string) $p->first_name ) . ' ' . ( (string) $p->last_name ) );
+                                ?>
+                                <option value="<?php echo (int) $p->id; ?>" <?php selected( $preselected_person, (int) $p->id ); ?>><?php echo esc_html( $name ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
                 <?php echo DateInputComponent::render( [
                     'name'  => 'start_date',
                     'label' => __( 'Start date', 'talenttrack' ),
-                    'value' => '',
+                    'value' => $start_value,
+                ] ); ?>
+                <?php
+                // #2608 — create_assignment() has always read end_date; the
+                // form simply never offered it, so an assignment could not
+                // be closed off anywhere in the UI.
+                echo DateInputComponent::render( [
+                    'name'  => 'end_date',
+                    'label' => __( 'End date', 'talenttrack' ),
+                    'value' => $end_value,
+                    'hint'  => __( 'Leave empty while the assignment is current.', 'talenttrack' ),
                 ] ); ?>
             </div>
 
@@ -363,7 +439,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 remove_query_arg( [ 'action', 'id', 'team_id', 'person_id' ] )
             );
             echo FormSaveButton::render( [
-                'label'      => __( 'Save assignment', 'talenttrack' ),
+                'label'      => $is_edit ? __( 'Update assignment', 'talenttrack' ) : __( 'Save assignment', 'talenttrack' ),
                 'cancel_url' => $cancel_url,
             ] );
             ?>

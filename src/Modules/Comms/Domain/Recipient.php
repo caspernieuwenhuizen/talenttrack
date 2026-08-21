@@ -44,4 +44,17 @@ final class Recipient {
     public static function coach( int $coachUserId, ?int $aboutPlayerId = null, string $email = '', string $phone = '', string $locale = '' ): self {
         return new self( $coachUserId, self::KIND_COACH, $aboutPlayerId, $email, $phone, $locale );
     }
+
+    /**
+     * Placeholder addressee for a send that resolved to nobody.
+     *
+     * A message whose recipient list came back empty — a team with no
+     * linked parents, a player with no reachable contact — still has to
+     * leave an audit row, and both `CommsResult` and `CommsAuditLogger`
+     * require a `Recipient`. This is that stand-in: it addresses no one
+     * and is never dispatched to.
+     */
+    public static function none( ?int $aboutPlayerId = null ): self {
+        return new self( 0, self::KIND_SYSTEM, $aboutPlayerId );
+    }
 }
