@@ -50030,6 +50030,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "providerplug-in. De andere kanalen (e-mail, push, WhatsApp-link, in-app) "
 #~ "blijven beschikbaar als dit uit staat."
 
+#: src/Modules/Comms/Templates/NotificationTemplate.php:41
+msgid "In-product notifications"
+msgstr "Meldingen in de app"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:244
+msgid "Notifications about your tasks and conversations"
+msgstr "Meldingen over je taken en gesprekken"
+
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
 
