@@ -387,6 +387,15 @@ class FrontendListTable {
                 // status pills (link-based, full-reload). Default stays a
                 // plain select so existing views are unchanged.
                 if ( $render === 'status' ) {
+                    // #2622 — the archive-state filter collapses to an icon
+                    // overflow menu. It is identifiable by key alone because
+                    // #2625 normalised every list on `archived`; `status` is a
+                    // domain filter (goals' Achieved/Missed, a player's trial
+                    // state) and keeps its one-tap pills.
+                    if ( $key === self::ARCHIVE_FILTER_KEY ) {
+                        $groups[] = self::archiveMenuGroup( $key, $opts, $sel );
+                        continue;
+                    }
                     // #2202 — a status filter can drop the leading "All" pill
                     // (`no_all => true`) when the view wants a mandatory
                     // selection with a seeded default (goals default to Active).
@@ -480,6 +489,67 @@ class FrontendListTable {
      * @param bool                    $no_all drop the leading "All" pill (#2202)
      * @return array<string,mixed>
      */
+    /**
+     * The canonical archive-state filter key (#2625). Every list endpoint
+     * spells it this way, which is what lets the shared builder recognise the
+     * archive filter without a per-view opt-in flag.
+     */
+    public const ARCHIVE_FILTER_KEY = 'archived';
+
+    /** The archive state a list shows when nothing is asked for. */
+    private const ARCHIVE_DEFAULT = 'active';
+
+    /**
+     * Build the icon-only overflow menu for the archive-state filter (#2622).
+     *
+     * Two behaviours differ from `statusGroup()`, both deliberate:
+     *
+     *   - **no "All" option.** The one the builder used to inject cleared the
+     *     param, and every controller reads an absent param as `active`
+     *     (ArchiveRepository::sanitizeView()) — so "All" and "Active" returned
+     *     identical rows while "All" was the pill highlighted on arrival. The
+     *     chrome was claiming to show everything while showing active-only.
+     *   - **Active is the default and its URL is param-free**, so the address
+     *     bar stays clean on the state 99% of visits are in.
+     *
+     * @param array<int|string,mixed> $opts value => label
+     * @return array<string,mixed>
+     */
+    private static function archiveMenuGroup( string $key, array $opts, string $selected ): array {
+        $base = self::currentQueryArgs();
+        unset( $base['filter'][ $key ], $base['page'] );
+
+        if ( $selected === '' ) $selected = self::ARCHIVE_DEFAULT;
+
+        $options = [];
+        foreach ( $opts as $value => $text ) {
+            $value = (string) $value;
+            $args  = $base;
+            // The default state carries no param — a clean URL for the common
+            // case, and the target the chip's clear action points at.
+            if ( $value !== self::ARCHIVE_DEFAULT ) {
+                $args['filter'][ $key ] = $value;
+            }
+            $options[] = [
+                'value'  => $value,
+                'label'  => (string) $text,
+                'url'    => esc_url_raw( add_query_arg( $args ) ),
+                'active' => ( $selected === $value ),
+            ];
+        }
+
+        return [
+            'type'          => 'menu',
+            'key'           => $key,
+            // Not rendered as a visible label — it is the trigger's accessible
+            // name, the menu heading and the chip prefix.
+            'label'         => __( 'Archive', 'talenttrack' ),
+            'default_value' => self::ARCHIVE_DEFAULT,
+            'options'       => $options,
+            'param'         => 'filter[' . $key . ']',
+        ];
+    }
+
     private static function statusGroup( string $key, string $label, array $opts, string $selected, bool $no_all = false ): array {
         $base = self::currentQueryArgs();
         unset( $base['filter'][ $key ], $base['page'] );
