@@ -1,0 +1,65 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "prompt": "Waarom geeft een term als 'aeroob vermogen' een voetbaltrainer geen sturing?",
+      "options": [
+        "Omdat het begrip wetenschappelijk achterhaald is",
+        "Omdat het niets zegt over wat een speler op het veld moet doen",
+        "Omdat het alleen voor volwassen spelers geldt",
+        "Omdat het niet te meten is zonder laboratorium"
+      ],
+      "answer": 1,
+      "explanation": "De term komt uit sporten waarin de beweging vaststaat. Hij benoemt geen voetbalhandeling, dus een trainer kan er geen oefening uit afleiden."
+    },
+    {
+      "id": "q2",
+      "type": "order",
+      "prompt": "Zet de onderdelen van voetbal in de juiste logische volgorde, van eerst naar laatst.",
+      "options": [
+        "Speelstijl (communicatie)",
+        "Besluitvorming (spelinzicht)",
+        "Uitvoering (individuele techniek)",
+        "Voetbalconditie"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "Voetbalconditie staat onderaan: ze ondersteunt de speelstijl in plaats van eraan vooraf te gaan."
+    },
+    {
+      "id": "q3",
+      "type": "multiple",
+      "prompt": "Welke vier componenten kunnen misgaan in een voetbalhandeling?",
+      "options": ["Positie", "Moment", "Kracht", "Richting", "Snelheid"],
+      "answer": [0, 1, 3, 4],
+      "explanation": "Positie, moment, richting en snelheid — elk zowel in de besluitvorming als in de uitvoering. Kracht is een conditiebegrip, geen component van een handeling."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Wat is het gevolg van eerst 'de conditie op orde brengen' en pas daarna aan speelstijl werken?",
+      "options": [
+        "De ploeg piekt te vroeg in het seizoen",
+        "Meer blessures en daardoor minder trainingen met het sterkste elftal",
+        "Spelers raken gedemotiveerd door de zware belasting",
+        "De conditie zakt weg voor de competitie begint"
+      ],
+      "answer": 1,
+      "explanation": "Wie blessures oploopt, traint minder vaak compleet — en dat is precies de ploeg die de afspraken moet inslijpen."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Waarom is de voetbaltrainer de logische conditietrainer?",
+      "options": [
+        "Omdat hij het meeste contact met de spelers heeft",
+        "Omdat hij als enige ziet dat een speler minder handelingen maakt",
+        "Omdat een externe conditietrainer te duur is",
+        "Omdat hij de wedstrijdplanning bepaalt"
+      ],
+      "answer": 1,
+      "explanation": "Sturen op belasting vraagt dat je het spelbeeld leest. Wie dat kan, ziet direct wie zich inhoudt; wie dat niet kan, heeft alleen een stopwatch."
+    }
+  ]
+}

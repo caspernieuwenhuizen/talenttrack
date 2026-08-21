@@ -1,0 +1,52 @@
+{
+  "pass_mark": 3,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "prompt": "Waarom is voetbalconditietraining vóór de groeispurt niet zinvol?",
+      "options": [
+        "Omdat jonge spelers de oefenvormen technisch niet aankunnen",
+        "Omdat het testosteronniveau te laag is om de schade om te zetten in een trainingseffect",
+        "Omdat hun hart nog niet volgroeid is",
+        "Omdat ze te snel herstellen om overload te voelen"
+      ],
+      "answer": 1,
+      "explanation": "Je beschadigt wel, maar je bouwt nauwelijks op. De belasting blijft over zonder het rendement."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Rond welke leeftijd zet de groeispurt gemiddeld in?",
+      "options": ["10 tot 11 jaar", "13 tot 14 jaar", "16 tot 17 jaar", "Dat verschilt te veel om te noemen"],
+      "answer": 1,
+      "explanation": "Rond dertien of veertien jaar stijgt het testosteronniveau sterk. Binnen één jaargang zit wel vaak twee jaar verschil in biologische ontwikkeling."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Waarop deel je een jeugdselectie in voor de periodisering?",
+      "options": [
+        "Op geboortejaar",
+        "Op biologische ontwikkeling en groeigegevens",
+        "Op positie in het veld",
+        "Op prestatieniveau in de wedstrijd"
+      ],
+      "answer": 1,
+      "explanation": "Kalenderleeftijd zegt weinig. Individuele periodisering in de jeugd is daarom geen luxe maar noodzaak."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Wat is het bezwaar tegen twee veldtrainingen op één dag in de jeugdopleiding?",
+      "options": [
+        "Het levert meer uren op maar minder uren op honderd procent",
+        "Het is voor ouders logistiek onhaalbaar",
+        "De accommodatie is er niet op ingericht",
+        "Spelers verliezen dan schooltijd"
+      ],
+      "answer": 0,
+      "explanation": "Voetbal is een intensiteitssport: de snelheid van handelingen is bepalend, niet het aantal uren. Beter trainen in plaats van meer trainen."
+    }
+  ]
+}

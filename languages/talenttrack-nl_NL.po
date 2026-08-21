@@ -775,6 +775,20 @@ msgstr ""
 "van inzetbaarheid, gelijke speelminuten en spreiding van basisplaatsen. "
 "Handmatig wisselen via klikken blijft beschikbaar als dit uit staat."
 
+#: src/Core/FeatureRegistry.php:424
+msgid "Courses"
+msgstr "Cursussen"
+
+#: src/Core/FeatureRegistry.php:425
+msgid ""
+"The coach-development courses shipped with the plugin. Turn off for an "
+"academy that runs its coach education elsewhere. Progress already recorded "
+"is kept."
+msgstr ""
+"De cursussen voor trainersontwikkeling die met de plug-in worden "
+"meegeleverd. Zet dit uit voor een academie die haar trainersopleiding elders "
+"doet. Al vastgelegde voortgang blijft bewaard."
+
 #: src/Core/FeatureRegistry.php:430
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:86
