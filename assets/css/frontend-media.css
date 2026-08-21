@@ -271,6 +271,231 @@
 	color: var(--tt-ink, #1c2126);
 }
 
+/* ── Gallery (#2594) ──────────────────────────────────────────────── */
+
+/*
+ * auto-fill with a minmax floor rather than a fixed column count: two
+ * tiles at 360px, more as the viewport allows, without a breakpoint per
+ * step.
+ */
+.tt-media-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+	gap: var(--tt-sp-3, 0.75rem);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+@media (min-width: 768px) {
+	.tt-media-grid {
+		grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+	}
+}
+
+.tt-media-tile {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: var(--tt-sp-1, 0.25rem);
+	min-width: 0;
+}
+
+/*
+ * The tile reserves its box before the image arrives, so a gallery does
+ * not reflow as thumbnails load (§2 — no layout shift after first paint).
+ */
+.tt-media-tile__open {
+	position: relative;
+	display: block;
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid var(--tt-line-soft, #e6e8eb);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-bg-soft, #f7f8f9);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-media-tile__open:focus-visible {
+	outline: 2px solid var(--tt-primary, #0b3d2e);
+	outline-offset: 2px;
+}
+
+.tt-media-tile__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.tt-media-tile__placeholder {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, var(--tt-bg-soft, #f7f8f9), var(--tt-line-soft, #e6e8eb));
+}
+
+.tt-media-tile__play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.55);
+	color: #fff;
+	font-size: var(--tt-fs-lg, 1.125rem);
+	pointer-events: none;
+}
+
+.tt-media-tile__badge {
+	position: absolute;
+	right: var(--tt-sp-1, 0.25rem);
+	bottom: var(--tt-sp-1, 0.25rem);
+	padding: 0.125rem 0.375rem;
+	border-radius: var(--tt-radius, 8px);
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+.tt-media-tile__meta {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.tt-media-tile__title {
+	overflow: hidden;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-ink, #1c2126);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tt-media-tile__when {
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-muted, #77808c);
+}
+
+/*
+ * Always visible, never hover-revealed: hover does not exist on touch,
+ * and CLAUDE.md §2 forbids gating an action behind it.
+ */
+.tt-media-tile__delete {
+	align-self: flex-start;
+	min-width: 48px;
+	min-height: 48px;
+	padding: 0 var(--tt-sp-2, 0.5rem);
+	border: 1px solid var(--tt-line, #d4d6db);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+	color: var(--tt-ink-soft, #5b6470);
+	font-size: var(--tt-fs-sm, 0.875rem);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-media-tile__delete:hover,
+.tt-media-tile__delete:focus-visible {
+	border-color: var(--tt-danger, #c0392b);
+	color: var(--tt-danger, #c0392b);
+}
+
+/* ── Lightbox ─────────────────────────────────────────────────────── */
+
+.tt-media-lightbox {
+	width: min(96vw, 60rem);
+	max-width: 96vw;
+	max-height: 92vh;
+	padding: 0;
+	border: 0;
+	border-radius: var(--tt-radius-lg, 12px);
+	background: var(--tt-paper, #fff);
+	color: var(--tt-ink, #1c2126);
+}
+
+.tt-media-lightbox::backdrop {
+	background: rgba(0, 0, 0, 0.75);
+}
+
+.tt-media-lightbox__stage {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #000;
+}
+
+.tt-media-lightbox__media {
+	display: block;
+	width: 100%;
+	max-height: 70vh;
+	object-fit: contain;
+}
+
+.tt-media-lightbox__bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tt-sp-2, 0.5rem);
+	align-items: center;
+	padding: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-media-lightbox__caption {
+	flex: 1 1 100%;
+	order: 3;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-ink-soft, #5b6470);
+}
+
+@media (min-width: 480px) {
+	.tt-media-lightbox__caption {
+		flex: 1 1 auto;
+		order: 0;
+	}
+}
+
+.tt-media-lightbox__nav,
+.tt-media-lightbox__close {
+	min-width: 48px;
+	min-height: 48px;
+	padding: 0 var(--tt-sp-3, 0.75rem);
+	border: 1px solid var(--tt-line, #d4d6db);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+	color: var(--tt-ink, #1c2126);
+	font-size: var(--tt-fs-body, 1rem);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+/* ── Inline uploader disclosure ───────────────────────────────────── */
+
+.tt-media-inline {
+	margin-top: var(--tt-sp-4, 1rem);
+	padding: var(--tt-sp-2, 0.5rem);
+	border: 1px solid var(--tt-line-soft, #e6e8eb);
+	border-radius: var(--tt-radius, 8px);
+	background: var(--tt-paper, #fff);
+}
+
+.tt-media-inline__summary {
+	min-height: 48px;
+	display: flex;
+	align-items: center;
+	font-weight: 600;
+	color: var(--tt-ink, #1c2126);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
 /* ── Motion ───────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

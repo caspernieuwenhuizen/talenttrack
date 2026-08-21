@@ -51029,6 +51029,42 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Media"
+msgstr "Media"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "No photos or video yet"
+msgstr "Nog geen foto's of video"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "A clip of a moment in training says more about how a player is developing than a score does. Anything added here sits on their timeline under the day it was taken."
+msgstr ""
+"Een fragment van een moment op de training zegt meer over de ontwikkeling "
+"van een speler dan een cijfer. Wat je hier toevoegt, staat op de tijdlijn "
+"onder de dag waarop het gemaakt is."
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "Add photos or video"
+msgstr "Foto's of video toevoegen"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "Media viewer"
+msgstr "Mediaweergave"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "Previous"
+msgstr "Vorige"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "Remove this permanently? The file is deleted, not archived."
+msgstr ""
+"Definitief verwijderen? Het bestand wordt gewist, niet gearchiveerd."
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "It could not be removed."
+msgstr "Het kon niet worden verwijderd."
 #~ msgid "improved"
 #~ msgstr "verbeterd"
 

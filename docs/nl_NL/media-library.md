@@ -28,6 +28,21 @@ Een media-item hangt aan één of meer records — een speler, een team, of een 
 worden gekoppeld **én** aan elke speler die erop staat, zodat één upload op elk bijbehorend record verschijnt in plaats van vier keer geüpload te
 moeten worden.
 
+## Waar je het ziet
+
+De foto's en video's van een speler staan op een tabblad **Media** op het spelersprofiel, naast Beoordelingen en Blessures. Het tabblad verschijnt
+alleen voor wie met zijn rechten bij de media van die speler kan; een trainer zonder toegang tot een selectie ziet het simpelweg niet.
+
+Media staat gesorteerd op **wanneer het gemaakt is**, nieuwste eerst — niet op het moment van uploaden. Daardoor leest het tabblad als een deel van
+het verhaal van de speler in plaats van als een map: een camerarol die je in november leegmaakt, duwt augustus niet naar beneden.
+
+Tik op een foto om hem groot te zien, of op een video om af te spelen. Met de pijltjestoetsen ga je heen en weer, met Escape sluit je de weergave.
+Video's beginnen pas te laden zodra je er een afspeelt, dus het openen van het tabblad op een telefoon kost geen data aan beeld waar je niet om
+hebt gevraagd.
+
+**Verwijderen** wist definitief — het bestand zelf, niet alleen de vermelding. Het wordt alleen aangeboden aan wie de media van die speler mag
+bewerken.
+
 ## Media toevoegen
 
 Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft vier stappen:

@@ -1,0 +1,198 @@
+/**
+ * TalentTrack media gallery (#2594, epic #2589).
+ *
+ * The lightbox and the remove action for `.tt-media-gallery`.
+ *
+ * The dialog is a native `<dialog>`, so the focus trap, the Escape key
+ * and the inertness of the page behind all come from the browser rather
+ * than from code here that would be subtly wrong. What is added is arrow
+ * navigation between items and making sure a video actually stops when
+ * the viewer closes — a `<video>` left in the DOM keeps playing, and a
+ * clip talking from an invisible dialog is a genuinely startling bug.
+ */
+( function () {
+	'use strict';
+
+	var CFG = window.TT_MediaGallery || {};
+	var I18N = CFG.i18n || {};
+
+	function t( key, fallback ) {
+		return I18N[ key ] || fallback || '';
+	}
+
+	function Gallery( root ) {
+		this.root = root;
+		this.dialog = document.querySelector( '[data-role="lightbox"]' );
+		this.stage = this.dialog ? this.dialog.querySelector( '[data-role="stage"]' ) : null;
+		this.caption = this.dialog ? this.dialog.querySelector( '[data-role="caption"]' ) : null;
+		this.index = -1;
+		this.bind();
+	}
+
+	Gallery.prototype.openers = function () {
+		return Array.prototype.slice.call( this.root.querySelectorAll( '[data-role="open"]' ) );
+	};
+
+	Gallery.prototype.bind = function () {
+		var self = this;
+
+		this.root.addEventListener( 'click', function ( e ) {
+			var open = e.target.closest( '[data-role="open"]' );
+			if ( open && open.tagName === 'BUTTON' ) {
+				e.preventDefault();
+				self.show( self.openers().indexOf( open ) );
+				return;
+			}
+
+			var del = e.target.closest( '[data-role="delete"]' );
+			if ( del ) {
+				e.preventDefault();
+				self.remove( del );
+			}
+		} );
+
+		if ( ! this.dialog ) return;
+
+		this.dialog.addEventListener( 'click', function ( e ) {
+			if ( e.target.closest( '[data-role="close"]' ) ) { self.close(); return; }
+			if ( e.target.closest( '[data-role="prev"]' ) ) { self.step( -1 ); return; }
+			if ( e.target.closest( '[data-role="next"]' ) ) { self.step( 1 ); return; }
+			// A click on the backdrop itself (not on the content) closes.
+			if ( e.target === self.dialog ) self.close();
+		} );
+
+		this.dialog.addEventListener( 'keydown', function ( e ) {
+			if ( e.key === 'ArrowLeft' ) { e.preventDefault(); self.step( -1 ); }
+			if ( e.key === 'ArrowRight' ) { e.preventDefault(); self.step( 1 ); }
+		} );
+
+		// `close` fires for Escape too, so cleanup lives in one place.
+		this.dialog.addEventListener( 'close', function () { self.clearStage(); } );
+	};
+
+	Gallery.prototype.show = function ( index ) {
+		var items = this.openers();
+		if ( index < 0 || index >= items.length || ! this.dialog ) return;
+
+		this.index = index;
+		var node = items[ index ];
+
+		this.clearStage();
+
+		var kind = node.getAttribute( 'data-kind' );
+		var src = node.getAttribute( 'data-src' );
+		var title = node.getAttribute( 'data-title' ) || '';
+		var when = node.getAttribute( 'data-when' ) || '';
+
+		if ( kind === 'video' ) {
+			var video = document.createElement( 'video' );
+			video.src = src;
+			video.controls = true;
+			video.playsInline = true;
+			// metadata, not auto: opening the viewer should not commit the
+			// coach's data plan to the whole clip before they press play.
+			video.preload = 'metadata';
+			video.className = 'tt-media-lightbox__media';
+			this.stage.appendChild( video );
+		} else {
+			var img = document.createElement( 'img' );
+			img.src = src;
+			img.alt = title;
+			img.className = 'tt-media-lightbox__media';
+			this.stage.appendChild( img );
+		}
+
+		if ( this.caption ) {
+			this.caption.textContent = when ? title + ' — ' + when : title;
+		}
+
+		if ( ! this.dialog.open ) {
+			if ( typeof this.dialog.showModal === 'function' ) {
+				this.dialog.showModal();
+			} else {
+				this.dialog.setAttribute( 'open', 'open' );
+			}
+		}
+	};
+
+	Gallery.prototype.step = function ( delta ) {
+		var items = this.openers();
+		if ( ! items.length ) return;
+		var next = ( this.index + delta + items.length ) % items.length;
+		this.show( next );
+	};
+
+	Gallery.prototype.close = function () {
+		if ( ! this.dialog ) return;
+		if ( typeof this.dialog.close === 'function' && this.dialog.open ) {
+			this.dialog.close();
+		} else {
+			this.dialog.removeAttribute( 'open' );
+			this.clearStage();
+		}
+	};
+
+	/**
+	 * Emptying the stage is what actually stops playback — pausing is not
+	 * enough if the element stays around, and a hidden video that keeps
+	 * talking is worse than one that never opened.
+	 */
+	Gallery.prototype.clearStage = function () {
+		if ( ! this.stage ) return;
+		var video = this.stage.querySelector( 'video' );
+		if ( video ) {
+			try { video.pause(); } catch ( e ) {}
+			video.removeAttribute( 'src' );
+			try { video.load(); } catch ( e ) {}
+		}
+		this.stage.innerHTML = '';
+	};
+
+	Gallery.prototype.remove = function ( button ) {
+		var uuid = button.getAttribute( 'data-uuid' );
+		if ( ! uuid ) return;
+
+		if ( ! window.confirm( t( 'confirmDelete', 'Remove this permanently?' ) ) ) return;
+
+		var tile = button.closest( '.tt-media-tile' );
+		button.disabled = true;
+
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'DELETE', CFG.root + '/media/' + uuid + '?hard=1', true );
+		xhr.setRequestHeader( 'X-WP-Nonce', CFG.nonce );
+
+		xhr.addEventListener( 'load', function () {
+			if ( xhr.status >= 200 && xhr.status < 300 ) {
+				if ( tile ) tile.remove();
+				return;
+			}
+			button.disabled = false;
+			window.alert( t( 'deleteFailed', 'It could not be removed.' ) );
+		} );
+
+		xhr.addEventListener( 'error', function () {
+			button.disabled = false;
+			window.alert( t( 'deleteFailed', 'It could not be removed.' ) );
+		} );
+
+		xhr.send();
+	};
+
+	function init( scope ) {
+		var nodes = ( scope || document ).querySelectorAll( '.tt-media-gallery' );
+		Array.prototype.forEach.call( nodes, function ( node ) {
+			if ( node.getAttribute( 'data-tt-bound' ) === '1' ) return;
+			node.setAttribute( 'data-tt-bound', '1' );
+			new Gallery( node );
+		} );
+	}
+
+	if ( document.readyState === 'loading' ) {
+		document.addEventListener( 'DOMContentLoaded', function () { init(); } );
+	} else {
+		init();
+	}
+
+	window.TT = window.TT || {};
+	window.TT.mediaGallery = { init: init };
+} )();
