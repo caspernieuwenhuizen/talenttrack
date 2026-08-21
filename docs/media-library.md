@@ -27,6 +27,30 @@ Three kinds:
 A media item is attached to one or more records — a player, a team, or a training or match activity. One photo taken at a training can be attached
 to that activity **and** to each player in the frame, so a single upload appears on every record it belongs to instead of being uploaded four times.
 
+## Adding media
+
+Use **Add media** from a player, team or training. The wizard has four steps:
+
+1. **Who for** — prefilled when you started from a record, so there is nothing to pick.
+2. **Files** — choose photos or video, or paste a link to video hosted elsewhere. On a phone the camera is one tap away.
+3. **Details** — a title, an optional description, and the date it was taken.
+4. **Confirm** — what will be saved, and where it will appear.
+
+**Uploads are saved as soon as they finish**, before you reach the last step. That is deliberate: it means a dropped connection or a closed tab
+never loses a file you have already waited for. If you leave halfway through, the photos are on the record already — just without a title, which
+you can add later from the record itself.
+
+The date in step 3 decides where the media sits on the player's timeline, so it should be the day of the training or match rather than the day you
+uploaded it. When a photo carries its own date, that date is filled in for you.
+
+Each file's progress is shown while it uploads, and you can cancel one that is taking too long without losing the others.
+
+### Video links
+
+Paste the web address of a video and TalentTrack works out where it is hosted. Veo, Hudl, YouTube and Vimeo are recognised; for YouTube and Vimeo
+the title and a thumbnail are fetched automatically. Anything else is saved as a plain link with a title you type — TalentTrack never contacts an
+address it does not recognise.
+
 ## Where the files are kept
 
 Uploaded files are **not** put in the WordPress media library. A file in the WordPress media library has a public web address: anyone who knows or

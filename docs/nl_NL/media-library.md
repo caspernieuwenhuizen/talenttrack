@@ -28,6 +28,30 @@ Een media-item hangt aan één of meer records — een speler, een team, of een 
 worden gekoppeld **én** aan elke speler die erop staat, zodat één upload op elk bijbehorend record verschijnt in plaats van vier keer geüpload te
 moeten worden.
 
+## Media toevoegen
+
+Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft vier stappen:
+
+1. **Voor wie** — al ingevuld als je vanaf een record begon, dus er valt niets te kiezen.
+2. **Bestanden** — kies foto's of video, of plak een link naar video die ergens anders staat. Op een telefoon zit de camera één tik verderop.
+3. **Details** — een titel, eventueel een omschrijving, en de datum waarop het gemaakt is.
+4. **Bevestigen** — wat er wordt opgeslagen, en waar het verschijnt.
+
+**Uploads worden bewaard zodra ze klaar zijn**, dus vóór je de laatste stap bereikt. Dat is een bewuste keuze: een wegvallende verbinding of een
+gesloten tabblad kost je nooit een bestand waar je al op hebt staan wachten. Stop je halverwege, dan staan de foto's al bij het record — alleen
+zonder titel, die je later vanaf het record zelf kunt toevoegen.
+
+De datum in stap 3 bepaalt waar de media op de tijdlijn van de speler staat, dus dat is de dag van de training of wedstrijd, niet de dag waarop je
+hebt geüpload. Draagt een foto zijn eigen datum, dan wordt die alvast ingevuld.
+
+Van elk bestand zie je de voortgang tijdens het uploaden, en je kunt er één annuleren die te lang duurt zonder de rest kwijt te raken.
+
+### Videolinks
+
+Plak het webadres van een video en TalentTrack bepaalt waar die gehost wordt. Veo, Hudl, YouTube en Vimeo worden herkend; bij YouTube en Vimeo
+worden de titel en een miniatuur automatisch opgehaald. Al het andere wordt bewaard als gewone link met een titel die jij typt — TalentTrack neemt
+nooit contact op met een adres dat het niet herkent.
+
 ## Waar de bestanden staan
 
 Geüploade bestanden komen **niet** in de WordPress-mediabibliotheek. Een bestand daarin heeft een openbaar webadres: wie het adres kent of raadt,
