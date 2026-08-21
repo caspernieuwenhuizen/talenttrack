@@ -54,7 +54,7 @@ final class MediaPicker {
         $caption_tag = 'data-tt-asset-caption';
         ?>
         <div class="tt-methodology-media" data-entity-type="<?php echo esc_attr( $entity_type ); ?>" data-entity-id="<?php echo (int) $entity_id; ?>">
-            <h3 style="margin-top:24px;"><?php esc_html_e( 'Diagrams and images', 'talenttrack' ); ?></h3>
+            <h3 class="tt-methodology-media__heading"><?php esc_html_e( 'Diagrams and images', 'talenttrack' ); ?></h3>
             <p class="description" style="margin:4px 0 12px; color:#5b6470;">
                 <?php esc_html_e( 'The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it.', 'talenttrack' ); ?>
             </p>
@@ -93,7 +93,7 @@ final class MediaPicker {
                         </div>
                         <div style="padding:10px; display:flex; flex-direction:column; gap:6px;">
                             <details>
-                                <summary style="cursor:pointer; font-size:12px; color:#5b6470;"><?php esc_html_e( 'Edit caption', 'talenttrack' ); ?></summary>
+                                <summary class="tt-methodology-media__caption-toggle"><?php esc_html_e( 'Edit caption', 'talenttrack' ); ?></summary>
                                 <label style="display:block; margin-top:6px; font-size:11px; color:#5b6470;">NL</label>
                                 <input type="text" name="<?php echo esc_attr( 'tt_assets_caption[' . (int) $asset->id . '][nl]' ); ?>" value="<?php echo esc_attr( $caption_nl ); ?>" style="width:100%;" />
                                 <label style="display:block; margin-top:6px; font-size:11px; color:#5b6470;">EN</label>
@@ -105,7 +105,7 @@ final class MediaPicker {
                                         <?php esc_html_e( 'Set primary', 'talenttrack' ); ?>
                                     </button>
                                 <?php endif; ?>
-                                <button type="submit" class="button button-small" name="tt_assets_remove[]" value="<?php echo (int) $asset->id; ?>" style="color:#b32d2e;" onclick="return confirm('<?php echo esc_js( __( 'Remove this image?', 'talenttrack' ) ); ?>');">
+                                <button type="submit" class="button button-small tt-methodology-media__remove" name="tt_assets_remove[]" value="<?php echo (int) $asset->id; ?>" onclick="return confirm('<?php echo esc_js( __( 'Remove this image?', 'talenttrack' ) ); ?>');">
                                     <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
                                 </button>
                             </div>

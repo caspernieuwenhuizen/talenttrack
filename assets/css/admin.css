@@ -234,3 +234,19 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+/* #2618 — methodology media picker. These three declarations were inline
+   `style=` attributes on the markup; the label pass touched those lines, so
+   they moved here rather than being grandfathered through the inline-style
+   gate. The rest of the picker's inline styling is untouched backlog. */
+.tt-methodology-media__heading {
+    margin-top: 24px;
+}
+.tt-methodology-media__caption-toggle {
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--tt-muted, #5b6470);
+}
+.tt-methodology-media__remove {
+    color: var(--tt-danger, #b32d2e);
+}
