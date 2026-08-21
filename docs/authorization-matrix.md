@@ -162,7 +162,9 @@ Seeded grants:
 
 Three of those are decisions rather than defaults, and are worth stating:
 
-**The scout reads at `player` scope, not globally.** This mirrors the #1378 tightening of `evaluations` for the same persona. A photograph of a child is at least as sensitive as a written judgment about them, and academy-wide read was the widest sensitive-data grant in the matrix before #1378 removed it. A scout sees media for players they are actually linked to, via trial or prospect assignment.
+**The scout reads at `player` scope, not globally.** This mirrors the #1378 tightening of `evaluations` for the same persona. A photograph of a child is at least as sensitive as a written judgment about them, and academy-wide read was the widest sensitive-data grant in the matrix before #1378 removed it.
+
+Note the practical consequence, which is the same one `evaluations` already has: `MatrixGate::userHasScope()` resolves `player` scope only for the player themselves and their parent. There is no scout → player link path until #0017 lands, so **a scout's media grant does not resolve to anything today** — in effect a scout currently sees no media. That is the deliberately safe end of the gap, and the row is seeded now so scouts pick up exactly the intended access the moment #0017 provides the link, rather than needing a matrix edit at that point.
 
 **Coaches hold `create_delete` because create and delete are one verb.** A coach who cannot create cannot upload, which makes the feature unusable for the people it exists for. The consequence — the same grant lets them delete — is the right trade: someone who publishes a photograph to a family in error must be able to withdraw it without waiting for an admin.
 

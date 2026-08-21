@@ -167,31 +167,39 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
     // ── activity verbs ─────────────────────────────────────────────────
 
     /**
-     * A read-only persona — the shape `team_manager` and `scout` hold —
-     * must not gain upload or delete from its read grant.
+     * A read grant must not carry upload or delete with it.
      *
-     * Exercised through `head_coach` rather than `team_manager` because
-     * the `tt_team_manager` WP role does not exist yet (PersonaResolver
-     * maps it, but RolesService does not install it until its own sprint),
-     * so a team-manager user would resolve to no persona and this would
-     * pass for the wrong reason. The grant under test is written by the
-     * test itself; the real seeded scopes are covered by
-     * `test_seeded_grants_match_the_intended_matrix`.
+     * Exercised through `parent`, which is the one persona the shipped
+     * seed gives read and nothing else at a scope `MatrixGate` can
+     * actually resolve. Writing a narrower grant for a coach persona would
+     * prove nothing: the migrations have already seeded head_coach `rcd`
+     * at team scope in this database, and `MatrixGate` answers from the
+     * union of a persona's rows, so the extra row would be invisible.
+     *
+     * (`team_manager` would be the natural subject, but its WP role does
+     * not exist yet — PersonaResolver maps `tt_team_manager` while
+     * RolesService does not install it until its own sprint, so such a
+     * user resolves to no persona and every assertion would pass for the
+     * wrong reason. Its read-only seed row is covered by
+     * `test_seeded_grants_match_the_intended_matrix` instead.)
      */
     public function test_read_grant_alone_does_not_permit_upload_or_delete(): void {
-        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'parent', MatrixGate::READ, MatrixGate::SCOPE_PLAYER );
 
-        $team   = 5701;
-        $viewer = $this->makeStaffScopedToTeam( 'tt_coach', 'head_coach', $team );
+        $child  = $this->makePlayer( 5701 );
+        $parent = $this->makeParentOf( $child );
 
         $media = $this->makeMedia();
-        ( new MediaLinksRepository() )->link( $media->id, MediaEntityType::TEAM, $team );
+        ( new MediaLinksRepository() )->link( $media->id, MediaEntityType::PLAYER, $child );
 
         $svc = new MediaVisibilityService();
-        $this->assertTrue( $svc->canView( $viewer, $media ) );
-        $this->assertFalse( $svc->canEdit( $viewer, $media ) );
-        $this->assertFalse( $svc->canDelete( $viewer, $media ) );
-        $this->assertFalse( $svc->canAttachTo( $viewer, MediaEntityType::TEAM, $team ) );
+        $this->assertTrue( $svc->canView( $parent, $media ) );
+        $this->assertFalse( $svc->canEdit( $parent, $media ) );
+        $this->assertFalse(
+            $svc->canDelete( $parent, $media ),
+            'a family may see their child\'s media; they do not curate the academy\'s record of it'
+        );
+        $this->assertFalse( $svc->canAttachTo( $parent, MediaEntityType::PLAYER, $child ) );
     }
 
     public function test_global_grant_short_circuits_without_links(): void {
@@ -322,10 +330,14 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
             'academy_admin'       => [ 'global' => [ 'change', 'create_delete', 'read' ] ],
         ];
 
+        $have_personas = array_keys( $media );
+        $want_personas = array_keys( $expected );
+        sort( $have_personas );
+        sort( $want_personas );
         $this->assertSame(
-            array_keys( $expected ),
-            array_keys( $media ),
-            'exactly these eight personas hold a media grant, in this order'
+            $want_personas,
+            $have_personas,
+            'exactly these eight personas hold a media grant — no more, no fewer'
         );
 
         foreach ( $expected as $persona => $scopes ) {
@@ -381,7 +393,10 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
             'first_name' => 'Test',
             'last_name'  => 'Player',
             'team_id'    => $team_id,
-            'wp_user_id' => $wp_user_id,
+            // "No account" is NULL, not 0 — migration 0170 added
+            // UNIQUE (club_id, wp_user_id) to enforce the 1:1 mapping, and
+            // a second player with 0 would collide on it.
+            'wp_user_id' => $wp_user_id > 0 ? $wp_user_id : null,
         ] );
         return (int) $wpdb->insert_id;
     }

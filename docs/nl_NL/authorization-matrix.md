@@ -152,7 +152,9 @@ Geseede rechten:
 
 Drie daarvan zijn keuzes en geen vanzelfsprekendheden:
 
-**De scout leest op `player`-scope, niet globaal.** Dat volgt de aanscherping van `evaluations` voor dezelfde persona in #1378. Een foto van een kind is minstens zo gevoelig als een geschreven oordeel erover, en academiebrede leestoegang was vóór #1378 het breedste recht op gevoelige gegevens in de matrix. Een scout ziet media van spelers waaraan hij daadwerkelijk gekoppeld is.
+**De scout leest op `player`-scope, niet globaal.** Dat volgt de aanscherping van `evaluations` voor dezelfde persona in #1378. Een foto van een kind is minstens zo gevoelig als een geschreven oordeel erover, en academiebrede leestoegang was vóór #1378 het breedste recht op gevoelige gegevens in de matrix.
+
+Let op het praktische gevolg, dat `evaluations` overigens al kent: `MatrixGate::userHasScope()` kan `player`-scope alleen oplossen voor de speler zelf en voor diens ouder. Er bestaat geen koppeling scout → speler totdat #0017 landt, dus **komt het mediarecht van een scout vandaag nergens op uit** — een scout ziet in de praktijk geen media. Dat is de veilige kant van dat gat, en de rij wordt nu al geseed zodat scouts precies het bedoelde recht krijgen zodra #0017 de koppeling levert, in plaats van dat er dan een matrixwijziging nodig is.
 
 **Trainers hebben `create_delete` omdat create en delete één werkwoord zijn.** Een trainer die niet kan aanmaken, kan niet uploaden — en dan is de functie onbruikbaar voor precies de mensen voor wie zij bestaat. Het gevolg, dat hetzelfde recht ook verwijderen toestaat, is de juiste afweging: wie per ongeluk een foto met een gezin deelt, moet die zelf kunnen terugtrekken zonder op een beheerder te wachten.
 

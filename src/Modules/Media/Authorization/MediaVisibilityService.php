@@ -47,8 +47,22 @@ final class MediaVisibilityService {
     /** Matrix entity name. Owned solely by the media feature. */
     public const ENTITY = 'media';
 
-    /** @var array<int, array<string, mixed>> per-request scope cache, keyed by user id */
-    private static $scopeCache = [];
+    /** @var array<string, int> per-request record → team_id memo */
+    private static $teamCache = [];
+
+    /**
+     * Per-request memo of decided grants, keyed by
+     * user:entity_type:entity_id:activity.
+     *
+     * `MatrixGate::can()` runs a scope query on every call, so a gallery
+     * of thirty photographs attached to the same team would otherwise ask
+     * the database the same question thirty times. The decision cannot
+     * change within a request, so caching it is safe; `flush()` clears it
+     * for tests and long-running processes.
+     *
+     * @var array<string, bool>
+     */
+    private static $grantCache = [];
 
     public function canView( int $user_id, object $media ): bool {
         return $this->can( $user_id, $media, MatrixGate::READ );
@@ -116,9 +130,10 @@ final class MediaVisibilityService {
         return $out;
     }
 
-    /** Drop the per-request scope cache. Test seam. */
+    /** Drop the per-request memos. Test seam. */
     public static function flush(): void {
-        self::$scopeCache = [];
+        self::$teamCache  = [];
+        self::$grantCache = [];
     }
 
     // Internals
@@ -155,6 +170,13 @@ final class MediaVisibilityService {
     private function linkGrants( int $user_id, string $entity_type, int $entity_id, string $activity ): bool {
         if ( ! MediaEntityType::isValid( $entity_type ) || $entity_id <= 0 ) return false;
 
+        $key = $user_id . ':' . $entity_type . ':' . $entity_id . ':' . $activity;
+        if ( isset( self::$grantCache[ $key ] ) ) return self::$grantCache[ $key ];
+
+        return self::$grantCache[ $key ] = $this->resolveLinkGrant( $user_id, $entity_type, $entity_id, $activity );
+    }
+
+    private function resolveLinkGrant( int $user_id, string $entity_type, int $entity_id, string $activity ): bool {
         switch ( $entity_type ) {
             case MediaEntityType::TEAM:
                 return MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $entity_id );
@@ -188,7 +210,7 @@ final class MediaVisibilityService {
         global $wpdb;
 
         $key = $table . ':' . $id;
-        if ( isset( self::$scopeCache[ $key ] ) ) return (int) self::$scopeCache[ $key ];
+        if ( isset( self::$teamCache[ $key ] ) ) return self::$teamCache[ $key ];
 
         $team_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT team_id FROM {$wpdb->prefix}{$table} WHERE id = %d AND club_id = %d",
@@ -196,8 +218,7 @@ final class MediaVisibilityService {
             CurrentClub::id()
         ) );
 
-        self::$scopeCache[ $key ] = $team_id;
-        return $team_id;
+        return self::$teamCache[ $key ] = $team_id;
     }
 
     /**
