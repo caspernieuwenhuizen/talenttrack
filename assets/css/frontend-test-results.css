@@ -112,6 +112,16 @@
     font-weight: 600;
 }
 
+/* #2586 — the signed change beside the trend arrow. Tabular figures so a
+   column of deltas lines up on the decimal separator. */
+.tt-dashboard .tt-tr-trend__delta {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-left: 0.35rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
 /* ===== Result chips, flags, trend ===== */
 
 .tt-dashboard .tt-tr-level {
@@ -220,6 +230,30 @@
     }
     .tt-dashboard .tt-tr-table thead th[data-tt-sort="off"] {
         cursor: default;
+    }
+
+    /* #2585 — column behaviour. Without this the table is `table-layout:
+       auto` with no width guidance, so the browser hands the surplus to the
+       first column: the player name took ~45% of the row for "Kai Bosch"
+       while "Voetbalacademie De Maasoever U9" wrapped to three lines and the
+       date wrapped to two. The short, predictable columns are pinned to
+       their content and the name column takes what is left. */
+    .tt-dashboard .tt-tr-table th:nth-child(3),
+    .tt-dashboard .tt-tr-table td:nth-child(3),   /* age group */
+    .tt-dashboard .tt-tr-table th:nth-child(4),
+    .tt-dashboard .tt-tr-table td:nth-child(4),   /* result */
+    .tt-dashboard .tt-tr-table th:nth-child(5),
+    .tt-dashboard .tt-tr-table td:nth-child(5),   /* trend */
+    .tt-dashboard .tt-tr-table th:nth-child(6),
+    .tt-dashboard .tt-tr-table td:nth-child(6) {  /* date */
+        width: 1%;
+        white-space: nowrap;
+    }
+    /* Team is the one that wrapped worst; give it room but stop it growing. */
+    .tt-dashboard .tt-tr-table th:nth-child(2),
+    .tt-dashboard .tt-tr-table td:nth-child(2) {
+        width: 1%;
+        white-space: nowrap;
     }
 }
 

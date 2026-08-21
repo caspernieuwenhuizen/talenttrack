@@ -619,7 +619,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $pos  = json_decode( (string) $player->preferred_positions, true );
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         ?>
-        <div class="tt-card">
+        <div class="tt-card tt-media-card">
             <?php if ( ! empty( $player->photo_url ) ) : ?>
                 <div class="tt-card-thumb"><img src="<?php echo esc_url( (string) $player->photo_url ); ?>" alt="" /></div>
             <?php endif; ?>

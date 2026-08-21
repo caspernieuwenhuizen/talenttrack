@@ -33,6 +33,73 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 class GoalsRepository {
 
     /**
+     * Which principles a squad currently has open goals on (#2497).
+     *
+     * The Training module's generator ranks candidate exercises by how many
+     * of a squad's open development targets they touch. Rather than let it
+     * reach into `tt_goals` and `tt_goal_links` itself, Goals answers the
+     * question — the module owns its own data, and the same answer is what
+     * a future SaaS front end would ask for (CLAUDE.md §4, epic #2493 D13).
+     *
+     * "Open" means not archived and not in a terminal status. A goal
+     * carries its principle two ways, and both count:
+     *
+     *   - `tt_goals.linked_principle_id` — the single principle a goal
+     *     supports (migration 0015)
+     *   - `tt_goal_links` with `link_type = 'principle'` — the polymorphic
+     *     link table added by the PDP cycle (migration 0031)
+     *
+     * @param list<int> $player_ids
+     * @return array<int, list<int>> player id => principle ids, deduplicated
+     */
+    public function openPrincipleTargetsForPlayers( array $player_ids ): array {
+        $player_ids = array_values( array_unique( array_filter( array_map( 'intval', $player_ids ) ) ) );
+        if ( ! $player_ids ) return [];
+
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = CurrentClub::id();
+
+        $ph     = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+        $closed = [ 'completed', 'cancelled', 'achieved' ];
+        $sph    = implode( ',', array_fill( 0, count( $closed ), '%s' ) );
+
+        // One pass over both link shapes. COALESCE picks whichever of the
+        // two carries a principle for that row; the outer filter drops the
+        // goals that carry neither.
+        $sql = "SELECT g.player_id,
+                       COALESCE(gl.link_id, g.linked_principle_id) AS principle_id
+                  FROM {$p}tt_goals g
+             LEFT JOIN {$p}tt_goal_links gl
+                    ON gl.goal_id = g.id
+                   AND gl.link_type = 'principle'
+                   AND gl.club_id = g.club_id
+                 WHERE g.player_id IN ({$ph})
+                   AND g.archived_at IS NULL
+                   AND ( g.club_id = %d OR g.club_id IS NULL )
+                   AND ( g.status IS NULL OR g.status NOT IN ({$sph}) )
+                HAVING principle_id IS NOT NULL";
+
+        $params = array_merge( $player_ids, [ $club_id ], $closed );
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $player    = (int) $row->player_id;
+            $principle = (int) $row->principle_id;
+            if ( $player <= 0 || $principle <= 0 ) continue;
+            $out[ $player ][ $principle ] = true;
+        }
+
+        return array_map(
+            static fn( array $set ): array => array_map( 'intval', array_keys( $set ) ),
+            $out
+        );
+    }
+
+    /**
      * Active goals for a player, newest-first. Used by the player's
      * "My goals" surface.
      *

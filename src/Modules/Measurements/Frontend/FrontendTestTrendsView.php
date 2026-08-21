@@ -8,6 +8,7 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementLevelsRepository;
+use TT\Modules\Measurements\Reports\MeasurementDeltaFormat;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -398,17 +399,17 @@ final class FrontendTestTrendsView extends FrontendViewBase {
             . esc_html( $map[ $verdict ][1] ) . '</span>';
     }
 
-    /** A change, signed so it reads as a movement, with its unit. */
+    /**
+     * #2586 — delegates to the shared formatter. These were private statics
+     * here while the Test results report showed no number at all; one place
+     * now owns how a change is written so the two reports cannot drift.
+     */
     private static function signed( float $delta, string $unit ): string {
-        $sign = $delta > 0 ? '+' : ( $delta < 0 ? '−' : '' );
-        $out  = $sign . self::num( abs( $delta ) );
-        return $unit !== '' ? $out . ' ' . $unit : $out;
+        return MeasurementDeltaFormat::signed( $delta, $unit );
     }
 
     private static function num( float $v ): string {
-        $r = round( $v, 2 );
-        $d = ( floor( $r ) === $r ) ? 0 : ( round( $r, 1 ) === $r ? 1 : 2 );
-        return number_format_i18n( $r, $d );
+        return MeasurementDeltaFormat::num( $v );
     }
 
     private static function shortDate( string $date ): string {

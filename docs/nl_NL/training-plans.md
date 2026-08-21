@@ -66,14 +66,53 @@ Wordt een team verwijderd, dan verdwijnen zijn plannen niet mee. Ze verliezen
 hun team en worden clubbreed, zodat het werk van een trainer een
 seizoensovergang overleeft.
 
+## Een plan maken
+
+Druk op **Nieuw plan**. Vier korte vragen, dan een kant-en-klare training:
+
+1. **Wanneer** — het team en de datum. De leeftijdscategorie, het aantal dagen
+   tot de eerstvolgende wedstrijd en waar je in het seizoen zit worden voor je
+   afgeleid.
+2. **Thema** — waar de training over gaat. Bij elke optie staat hoeveel
+   oefeningen je bibliotheek ervoor heeft, zodat je nooit een richting op
+   wordt gestuurd waar niets achter zit.
+3. **Vorm** — hoe lang, en hoeveel spelers je verwacht. Dat aantal komt uit de
+   recente opkomst van dit team en niet uit de selectielijst, want een
+   selectie van zestien zet zelden zestien spelers op het veld. Pas het aan
+   wanneer je het beter weet — een schoolreisje staat niet in de data.
+4. **Voorstel** — het concept. Ga terug en verander wat je wilt; er wordt
+   niets opgeslagen tot jij dat zegt.
+5. **Controle** — aan welke open doelen van je spelers deze training werkt, en
+   daarna opslaan.
+
+### Wat de generator wel en niet doet
+
+- **Elke oefening komt uit je eigen bibliotheek.** Er wordt niets verzonnen.
+- **Niets gaat boven het intensiteitsplafond van de leeftijdscategorie.** Een
+  JO13-training stelt nooit een oefening voor die zwaarder is dan JO13 toestaat.
+- **Dezelfde antwoorden geven altijd dezelfde training.** Er wordt niet geloot.
+- **Een oefening komt nooit twee keer voor in één training.**
+- **Heeft je bibliotheek niets passends voor een onderdeel, dan blijft dat blok
+  leeg en staat erbij waarom** — in plaats van het op te vullen met iets dat
+  er niet bij hoort.
+
+### Waarom de ene training beter bij je spelers past dan de andere
+
+De generator geeft voorrang aan oefeningen die een principe trainen waar je
+spelers open doelen op hebben: een oefening die zes van hen nodig hebben wint
+van een oefening waar niemand aan werkt.
+
+Daarvoor moeten twee dingen gekoppeld zijn: oefeningen met de principes die ze
+trainen (het veld **traint welke principes** in de bibliotheek, automatisch
+ingevuld voor oefeningen die al een thema hadden) en doelen die een principe
+noemen. Zolang de doelen van een selectie geen principes noemen, zegt de
+controlestap dat gewoon — in plaats van een zelfverzekerde nul te tonen.
+
 ## Wat er nog niet is
 
-Deze release levert het planrecord, de lijst en de alleen-lezen weergave. Wat
-nog volgt, op volgorde:
+Wat nog volgt, op volgorde:
 
-- een plan bouwen en bewerken vanuit de oefeningenbibliotheek
-- de generator die een plan voorstelt op basis van je thema, je
-  periodiseringsweek en de open doelen van je spelers
+- een gegenereerd plan blok voor blok bewerken
 - een plan aan een training koppelen, de weergave langs de lijn en de
   A4-afdruk
 - de trainingsgeschiedenis per speler waar dit alles naartoe werkt
