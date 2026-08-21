@@ -125,6 +125,47 @@ Beide coach-persona's worden bewust geseed. De ruwe `tt_manage_exercises`-capabi
 
 Migratie `0180_authorization_seed_topup_exercises` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `exercises`-rijen loopt).
 
+## Matrix-entiteit `media` — foto's en video (#2591)
+
+De mediabibliotheek (`tt_media` + `tt_media_links`, epic #2589) krijgt een eigen entiteit. Zij valt bewust niet onder `players`: een foto van een kind is een andere gevoeligheid dan het spelersdossier, en een academie moet het één kunnen toekennen zonder het ander.
+
+Drie caps sluiten erop aan, in plaats van het gebruikelijke view/edit-paar. Uploaden is een *create*, en het matrixvocabulaire brengt create onder `create_delete` onder, dus een uploadcontrole heeft een cap nodig die bij dat werkwoord uitkomt:
+
+| Ruwe cap | Matrixtupel |
+| - | - |
+| `tt_view_media` | `media` / `read` |
+| `tt_edit_media` | `media` / `change` |
+| `tt_manage_media` | `media` / `create_delete` |
+
+Geseede rechten:
+
+| Persona | Handelingen | Scope |
+| - | - | - |
+| player | r | self |
+| parent | r | player |
+| scout | r | player |
+| team_manager | r | team |
+| assistant_coach | rcd | team |
+| head_coach | rcd | team |
+| head_of_development | rcd | global |
+| academy_admin | rcd | global |
+
+Drie daarvan zijn keuzes en geen vanzelfsprekendheden:
+
+**De scout leest op `player`-scope, niet globaal.** Dat volgt de aanscherping van `evaluations` voor dezelfde persona in #1378. Een foto van een kind is minstens zo gevoelig als een geschreven oordeel erover, en academiebrede leestoegang was vóór #1378 het breedste recht op gevoelige gegevens in de matrix.
+
+Let op het praktische gevolg, dat `evaluations` overigens al kent: `MatrixGate::userHasScope()` kan `player`-scope alleen oplossen voor de speler zelf en voor diens ouder. Er bestaat geen koppeling scout → speler totdat #0017 landt, dus **komt het mediarecht van een scout vandaag nergens op uit** — een scout ziet in de praktijk geen media. Dat is de veilige kant van dat gat, en de rij wordt nu al geseed zodat scouts precies het bedoelde recht krijgen zodra #0017 de koppeling levert, in plaats van dat er dan een matrixwijziging nodig is.
+
+**Trainers hebben `create_delete` omdat create en delete één werkwoord zijn.** Een trainer die niet kan aanmaken, kan niet uploaden — en dan is de functie onbruikbaar voor precies de mensen voor wie zij bestaat. Het gevolg, dat hetzelfde recht ook verwijderen toestaat, is de juiste afweging: wie per ongeluk een foto met een gezin deelt, moet die zelf kunnen terugtrekken zonder op een beheerder te wachten.
+
+**De teammanager leest alleen.** Een teammanager beheert een selectie; hij beheert niet het bewijsmateriaal van de ontwikkeling van een speler.
+
+Toegang wordt bepaald door `MediaVisibilityService`, niet per scherm. De regel: een gebruiker mag iets met een media-item als hij dat ook mag met **een record waaraan het gekoppeld is** — de koppeling is de eenheid van toegang, want een media-item op zichzelf heeft geen onderwerp. Twee toevoegingen bovenop `MatrixGate`: een `player`-koppeling is óók bereikbaar voor staf met scope op het **team** van die speler (een trainer is immers niet de speler en niet de ouder), en een `activity`-koppeling wordt herleid naar het team van die activiteit.
+
+**Meerdere kinderen op één foto is toegestaan.** Een fragment dat aan drie spelers hangt, is voor alle drie de gezinnen zichtbaar. Dat is een bewuste productkeuze (epic #2589, D5) en volgt uit de koppelingsregel in plaats van een uitzondering te zijn — zie `docs/nl_NL/media-library.md`, waar het beleid staat zodat de toestemmingstekst van een academie erop kan aansluiten. `MediaVisibilityTest` legt het vast, zodat het niet voor een bug wordt aangezien en "gerepareerd" wordt.
+
+Migratie `0220_authorization_seed_media` vult de entiteit aan in `tt_authorization_matrix` op bestaande installaties (idempotente `INSERT IGNORE`, uitsluitend over de nieuwe `media`-rijen).
+
 ## Matrix-entiteit `email_compose` — de in-product mailer (#1945)
 
 De in-product e-mailcomposer (`FrontendMailComposeView`, bereikbaar via `?tt_view=mail-compose&person_id=N`) verstuurt via `wp_mail()` en schrijft per verzending een auditregel weg. Een e-mail versturen is een **handeling**, geen record — er is geen "e-mail-entiteit" om te lezen of te bewerken — dus krijgt zij, net als `impersonation_action`, een eigen **handelings-entiteit** `email_compose` in plaats van een bestaande data-entiteit te lenen.
