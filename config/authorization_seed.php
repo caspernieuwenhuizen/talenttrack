@@ -95,6 +95,9 @@ $mod_tournaments      = class_exists( '\TT\Modules\Tournaments\TournamentsModule
 $mod_exercises        = class_exists( '\TT\Modules\Exercises\ExercisesModule' )           ? \TT\Modules\Exercises\ExercisesModule::class           : $mod_authorization;
 // #2496 — Training plans (epic #2493). Same autoload fallback as above.
 $mod_training         = class_exists( '\TT\Modules\Training\TrainingModule' )             ? \TT\Modules\Training\TrainingModule::class             : $mod_authorization;
+// #2591 — Media library (epic #2589). Photographs and video of players.
+// Same autoload fallback as above.
+$mod_media            = class_exists( '\TT\Modules\Media\MediaModule' )                   ? \TT\Modules\Media\MediaModule::class                   : $mod_authorization;
 // #1945 — Email compose (in-product mailer, #0063). Action-entity for
 // the `tt_send_email` act-cap — sending is an act with no record entity,
 // like impersonation. Falls back to $mod_authorization if the Comms
@@ -147,6 +150,8 @@ return array_merge(
         'my_journey'              => [ 'r',   'self',   $mod_journey ],
         // #1856 — a player sees only their own measurement results + trend.
         'measurements'            => [ 'r',   'self',   $mod_measurements ],
+        // #2591 (epic #2589) — a player sees their own photos and video.
+        'media'                   => [ 'r',   'self',   $mod_media ],
         // #2153 — a player connects their own Strava (personal activity
         // data). Self-scoped read/change mirrors `my_profile`; a player
         // can never touch another player's integration.
@@ -192,6 +197,8 @@ return array_merge(
         'evaluations'             => [ 'r',   'player', $mod_evals ],
         // #1856 — a parent sees only their own child's measurement results.
         'measurements'            => [ 'r',   'player', $mod_measurements ],
+        // #2591 — a parent sees their own child's media, and no other.
+        'media'                   => [ 'r',   'player', $mod_media ],
         'goals'                   => [ 'r',   'player', $mod_goals ],
         'activities'              => [ 'r',   'player', $mod_activities ],
         'attendance'              => [ 'r',   'player', $mod_activities ],
@@ -238,6 +245,12 @@ return array_merge(
         // measures height), unlike subjective evaluations: AC enters
         // results + schedules sessions for their team. Test setup stays HoD.
         'measurements'               => [ 'rc',  'team',   $mod_measurements ],
+        // #2591 — coaches upload and curate for their own teams. The seed
+        // vocabulary fuses create and delete into one verb, so granting
+        // upload necessarily grants removal. That is the right trade here:
+        // a coach who can publish a photograph to a player's family must be
+        // able to take it down again without waiting for an admin.
+        'media'                      => [ 'rcd', 'team',   $mod_media ],
         'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
@@ -348,6 +361,8 @@ return array_merge(
         // #1856 — head coach owns their team's measurement results +
         // sessions; reads (not edits) the global test catalogue.
         'measurements'               => [ 'rcd', 'team',   $mod_measurements ],
+        // #2591 — see the assistant-coach block.
+        'media'                      => [ 'rcd', 'team',   $mod_media ],
         'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'measurement_definitions'    => [ 'r',   'global', $mod_measurements ],
         'activities'                 => [ 'rcd', 'team',   $mod_activities ],
@@ -458,6 +473,9 @@ return array_merge(
         'evaluations'                => [ 'r',   'team',   $mod_evals ],
         // #1856 — team manager views the team's measurements + sessions.
         'measurements'               => [ 'r',   'team',   $mod_measurements ],
+        // #2591 — read-only: a team manager administers a squad, they do
+        // not curate the evidence of a player's development.
+        'media'                      => [ 'r',   'team',   $mod_media ],
         'measurement_sessions'       => [ 'r',   'team',   $mod_measurements ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
         'documentation'              => [ 'r',   'global', $mod_documentation ],
@@ -511,6 +529,11 @@ return array_merge(
         // sensitive-data grant in the matrix. Mirrors the #1060 AC
         // tightening; migration 0154 backfills existing installs.
         'evaluations'                => [ 'r',   'player', $mod_evals ],
+        // #2591 — player scope, mirroring the #1378 evaluations tightening
+        // directly above. Photographs of children are at least as sensitive
+        // as a judgment about them, so a scout reads media only for the
+        // players they are actually linked to, never academy-wide.
+        'media'                      => [ 'r',   'player', $mod_media ],
         'activities'                 => [ 'r',   'global', $mod_activities ],
         'goals'                      => [ 'r',   'global', $mod_goals ],
         'reports'                    => [ 'r',   'global', $mod_reports ],
@@ -593,6 +616,8 @@ return array_merge(
         // #1856 — HoD owns the test catalogue (definitions + targets) and
         // sees every team's results + sessions academy-wide.
         'measurements'                  => [ 'rc',  'global', $mod_measurements ],
+        // #2591 — oversees development across the whole academy.
+        'media'                         => [ 'rcd', 'global', $mod_media ],
         'measurement_sessions'          => [ 'r',   'global', $mod_measurements ],
         'measurement_definitions'       => [ 'rcd', 'global', $mod_measurements ],
         'activities'                    => [ 'rcd', 'global', $mod_activities ],
@@ -742,6 +767,8 @@ return array_merge(
         'parent_accounts'               => [ 'rcd', 'global', $mod_players ],
         // #1856 — academy admin has full control of the Measurements module.
         'measurements'                  => [ 'rcd', 'global', $mod_measurements ],
+        // #2591 — oversees the whole academy.
+        'media'                         => [ 'rcd', 'global', $mod_media ],
         'measurement_sessions'          => [ 'rcd', 'global', $mod_measurements ],
         'measurement_definitions'       => [ 'rcd', 'global', $mod_measurements ],
         'activities'                    => [ 'rcd', 'global', $mod_activities ],

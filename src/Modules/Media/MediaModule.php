@@ -42,7 +42,33 @@ class MediaModule implements ModuleInterface {
 
     public function register( Container $container ): void {}
 
+    /**
+     * Media capabilities. **Matrix-only** — deliberately absent from
+     * `RolesService::VIEW_CAPS` / `EDIT_CAPS`, which propagate to Head of
+     * Development and the Read-Only Observer wholesale. Photographs of
+     * minors are not something to hand out by propagation; every grant is
+     * an explicit row in `config/authorization_seed.php`, per persona and
+     * per scope.
+     *
+     * Three caps rather than the usual view/edit pair: uploading is a
+     * create, and the matrix carries create under `create_delete`, so an
+     * upload gate needs a cap that bridges to that verb.
+     *
+     * They are registered on the coach/admin roles here purely so the raw
+     * capability exists to be bridged; `LegacyCapMapper` routes each
+     * through `MatrixGate`, and the matrix decides the scope.
+     *
+     * @var list<string>
+     */
+    public const CAPS = [
+        'tt_view_media',
+        'tt_edit_media',
+        'tt_manage_media',
+    ];
+
     public function boot( Container $container ): void {
+        add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
         // The private store's guards are written on first use rather than
         // on activation, so an install whose uploads directory only
         // becomes writable later still gets them.
@@ -62,6 +88,24 @@ class MediaModule implements ModuleInterface {
 
     public static function ensureStorage(): void {
         LocalPrivateStorage::ensureRoot();
+    }
+
+    /**
+     * Register the raw caps so the matrix has something to bridge.
+     *
+     * Parent and player roles are absent on purpose: their read grant is a
+     * matrix row at `player` / `self` scope, resolved by `MatrixGate`
+     * against the actual parent-child link. Handing a family the raw
+     * capability would be a club-wide grant waiting for a bug to expose it.
+     */
+    public static function ensureCapabilities(): void {
+        foreach ( [ 'administrator', 'tt_club_admin', 'tt_head_dev', 'tt_coach' ] as $role_name ) {
+            $role = get_role( $role_name );
+            if ( ! $role ) continue;
+            foreach ( self::CAPS as $cap ) {
+                if ( ! $role->has_cap( $cap ) ) $role->add_cap( $cap );
+            }
+        }
     }
 
     /**

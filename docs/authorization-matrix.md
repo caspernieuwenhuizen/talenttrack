@@ -135,6 +135,45 @@ Both coach personas are seeded deliberately. The raw `tt_manage_exercises` cap i
 
 Migration `0180_authorization_seed_topup_exercises` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `exercises` rows).
 
+## Matrix entity `media` — photographs and video (#2591)
+
+The media library (`tt_media` + `tt_media_links`, epic #2589) gets its own entity. It is not folded into `players`: a photograph of a child is a distinct sensitivity from the player's record, and an academy must be able to grant one without the other.
+
+Three caps bridge to it, rather than the usual view/edit pair. Uploading is a *create*, and the matrix vocabulary carries create under `create_delete`, so an upload gate needs a cap that reaches that verb:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_view_media` | `media` / `read` |
+| `tt_edit_media` | `media` / `change` |
+| `tt_manage_media` | `media` / `create_delete` |
+
+Seeded grants:
+
+| Persona | Activities | Scope |
+| - | - | - |
+| player | r | self |
+| parent | r | player |
+| scout | r | player |
+| team_manager | r | team |
+| assistant_coach | rcd | team |
+| head_coach | rcd | team |
+| head_of_development | rcd | global |
+| academy_admin | rcd | global |
+
+Three of those are decisions rather than defaults, and are worth stating:
+
+**The scout reads at `player` scope, not globally.** This mirrors the #1378 tightening of `evaluations` for the same persona. A photograph of a child is at least as sensitive as a written judgment about them, and academy-wide read was the widest sensitive-data grant in the matrix before #1378 removed it. A scout sees media for players they are actually linked to, via trial or prospect assignment.
+
+**Coaches hold `create_delete` because create and delete are one verb.** A coach who cannot create cannot upload, which makes the feature unusable for the people it exists for. The consequence — the same grant lets them delete — is the right trade: someone who publishes a photograph to a family in error must be able to withdraw it without waiting for an admin.
+
+**Team manager is read-only.** A team manager administers a squad; they do not curate the evidence of a player's development.
+
+Access is decided by `MediaVisibilityService`, not by each surface. The rule is that a user may act on a media item if they may act on **any record it is attached to** — attachment is the unit of access, because a media item on its own has no subject. Two mappings sit on top of `MatrixGate`: a `player` link is also reachable by staff scoped to that player's **team** (a coach is neither the player nor its parent), and an `activity` link resolves to that activity's team.
+
+**Co-depiction is permitted.** A clip linked to three players is visible to all three families. This is a deliberate product decision (epic #2589, D5) and falls out of the any-link rule rather than being special-cased — see `docs/media-library.md`, which states the policy so an academy's consent wording can match it. `MediaVisibilityTest` pins it so it is not mistaken for a bug and "fixed".
+
+Migration `0220_authorization_seed_media` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `media` rows).
+
 ## Matrix entity `email_compose` — the in-product mailer (#1945)
 
 The in-product email composer (`FrontendMailComposeView`, reachable via `?tt_view=mail-compose&person_id=N`) sends through `wp_mail()` and writes an audit row per send. Sending an email is an **act**, not a record — there is no "email entity" to read or edit — so, like `impersonation_action`, it gets a dedicated **action-entity** `email_compose` rather than borrowing an existing data entity.

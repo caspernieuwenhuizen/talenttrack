@@ -72,6 +72,13 @@ final class LegacyCapMapper {
         // holds only `change`), so no new matrix entity or seed migration is
         // needed — the archive/restore gate just re-points here.
         'tt_delete_activities'           => [ 'activities',     'create_delete' ],
+        // #2591 (epic #2589) — media library. Three caps rather than the
+        // usual view/edit pair: uploading is a create, and the matrix
+        // vocabulary carries create under `create_delete`, so an upload
+        // gate needs a cap that bridges to it.
+        'tt_view_media'                  => [ 'media',          'read' ],
+        'tt_edit_media'                  => [ 'media',          'change' ],
+        'tt_manage_media'                => [ 'media',          'create_delete' ],
         'tt_view_methodology'            => [ 'methodology',    'read' ],
         'tt_edit_methodology'            => [ 'methodology',    'change' ],
         // #1944 — Exercises (club-global drill library). Distinct from
