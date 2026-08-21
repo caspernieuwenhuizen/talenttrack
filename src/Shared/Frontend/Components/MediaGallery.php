@@ -7,6 +7,7 @@ use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\Links\VideoLinkResolver;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
+use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 
 /**
@@ -38,6 +39,7 @@ final class MediaGallery {
      *   entity_type: string,
      *   entity_id: int,
      *   can_edit?: bool,
+     *   tag_players?: array<int, string>,
      *   empty_headline?: string,
      *   empty_explainer?: string
      * } $args
@@ -70,11 +72,13 @@ final class MediaGallery {
             return;
         }
 
+        $tag_players = (array) ( $args['tag_players'] ?? [] );
+
         echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
         echo '<ul class="tt-media-grid" data-role="grid">';
 
         foreach ( $items as $item ) {
-            self::renderTile( $item, $can_edit );
+            self::renderTile( $item, $can_edit, $tag_players );
         }
 
         echo '</ul>';
@@ -87,7 +91,8 @@ final class MediaGallery {
 
     // Internals
 
-    private static function renderTile( object $item, bool $can_edit ): void {
+    /** @param array<int, string> $tag_players */
+    private static function renderTile( object $item, bool $can_edit, array $tag_players = [] ): void {
         $uuid = (string) $item->uuid;
         $kind = (string) $item->kind;
         $base = rest_url( 'talenttrack/v1/media/' . $uuid );
@@ -143,6 +148,10 @@ final class MediaGallery {
         }
         echo '</div>';
 
+        if ( $can_edit && $tag_players !== [] ) {
+            self::renderTagControl( $item, $tag_players );
+        }
+
         if ( $can_edit ) {
             printf(
                 '<button type="button" class="tt-media-tile__delete" data-role="delete" data-uuid="%1$s" aria-label="%2$s">%3$s</button>',
@@ -159,6 +168,55 @@ final class MediaGallery {
         }
 
         echo '</li>';
+    }
+
+    /**
+     * Tag the players in this photo, from the activity's own roster.
+     *
+     * A `<details>` with checkboxes rather than a modal: it degrades to
+     * a plain disclosure with no JavaScript, it needs no focus
+     * management, and on a phone it pushes the page down instead of
+     * covering the photo the coach is looking at while they decide who
+     * is in it.
+     *
+     * Already-attached players are checked, so the control reads as the
+     * current state rather than as a blank form that silently re-adds.
+     *
+     * @param array<int, string> $players
+     */
+    private static function renderTagControl( object $item, array $players ): void {
+        $attached = [];
+        foreach ( ( new MediaLinksRepository() )->listForMedia( (int) $item->id ) as $link ) {
+            if ( (string) $link->entity_type === MediaEntityType::PLAYER ) {
+                $attached[ (int) $link->entity_id ] = (int) $link->id;
+            }
+        }
+
+        echo '<details class="tt-media-tag" data-role="tag" data-uuid="' . esc_attr( (string) $item->uuid ) . '">';
+        echo '<summary class="tt-media-tag__summary">' . esc_html(
+            $attached === []
+                ? __( 'Tag players', 'talenttrack' )
+                : sprintf(
+                    /* translators: %d is how many players are tagged in this photo or video. */
+                    _n( '%d player tagged', '%d players tagged', count( $attached ), 'talenttrack' ),
+                    count( $attached )
+                )
+        ) . '</summary>';
+
+        echo '<ul class="tt-media-tag__list">';
+        foreach ( $players as $player_id => $name ) {
+            $is_on = isset( $attached[ $player_id ] );
+            printf(
+                '<li class="tt-media-tag__item"><label class="tt-media-tag__label">'
+                    . '<input type="checkbox" data-role="tag-player" data-player-id="%1$d" data-link-id="%2$d" %3$s /> %4$s</label></li>',
+                (int) $player_id,
+                (int) ( $attached[ $player_id ] ?? 0 ),
+                checked( $is_on, true, false ),
+                esc_html( $name )
+            );
+        }
+        echo '</ul>';
+        echo '</details>';
     }
 
     /**
@@ -277,6 +335,11 @@ final class MediaGallery {
             'i18n'  => [
                 'confirmDelete' => __( 'Remove this permanently? The file is deleted, not archived.', 'talenttrack' ),
                 'deleteFailed'  => __( 'It could not be removed.', 'talenttrack' ),
+                'tagFailed'     => __( 'That tag could not be saved.', 'talenttrack' ),
+                'tagNone'       => __( 'Tag players', 'talenttrack' ),
+                /* translators: %d is how many players are tagged. */
+                'tagCount'      => __( '%d players tagged', 'talenttrack' ),
+                'tagOne'        => __( '1 player tagged', 'talenttrack' ),
             ],
         ] );
     }

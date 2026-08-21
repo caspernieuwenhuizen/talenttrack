@@ -476,6 +476,52 @@
 	touch-action: manipulation;
 }
 
+/* ── Player tagging (#2595) ───────────────────────────────────────── */
+
+.tt-media-tag__summary {
+	display: flex;
+	align-items: center;
+	min-height: 48px;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-ink-soft, #5b6470);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-media-tag__list {
+	max-height: 14rem;
+	overflow-y: auto;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	/* A long roster must scroll inside the control, not stretch the tile. */
+	overscroll-behavior: contain;
+}
+
+.tt-media-tag__label {
+	display: flex;
+	gap: var(--tt-sp-2, 0.5rem);
+	align-items: center;
+	min-height: 48px;
+	font-size: var(--tt-fs-sm, 0.875rem);
+	color: var(--tt-ink, #1c2126);
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-media-tag__label input {
+	width: 1.25rem;
+	height: 1.25rem;
+	flex: 0 0 auto;
+}
+
+/* ── Activity + team sections ─────────────────────────────────────── */
+
+.tt-act-detail__media,
+.tt-team-section--media {
+	margin-top: var(--tt-sp-5, 1.25rem);
+}
+
 /* ── Inline uploader disclosure ───────────────────────────────────── */
 
 .tt-media-inline {

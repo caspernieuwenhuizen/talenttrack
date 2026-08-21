@@ -51065,6 +51065,54 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php
 msgid "It could not be removed."
 msgstr "Het kon niet worden verwijderd."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+msgid "No team photos or video yet"
+msgstr "Nog geen teamfoto's of video"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+msgid "Squad photos, tournament days and end-of-season moments belong to the whole team. Media of an individual player lives on their own profile."
+msgstr ""
+"Selectiefoto's, toernooidagen en momenten aan het eind van het seizoen horen "
+"bij het hele team. Media van een individuele speler staat op diens eigen "
+"profiel."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No photos or video from this activity"
+msgstr "Nog geen foto's of video van deze activiteit"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Add a photo here and you can tag the players in it, so it appears on their profiles too without uploading it again."
+msgstr ""
+"Voeg hier een foto toe en tag de spelers die erop staan, dan verschijnt hij "
+"ook op hun profiel zonder dat je hem opnieuw hoeft te uploaden."
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "Tag players"
+msgstr "Spelers taggen"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+#, php-format
+msgid "%d player tagged"
+msgid_plural "%d players tagged"
+msgstr[0] "%d speler getagd"
+msgstr[1] "%d spelers getagd"
+
+#. The JS summary counter. Distinct from the _n() entry above, whose
+#. msgid is the singular form — this one is a standalone __() string the
+#. gallery script reads, and the browser has no gettext plural machinery.
+#: src/Shared/Frontend/Components/MediaGallery.php
+#, php-format
+msgid "%d players tagged"
+msgstr "%d spelers getagd"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "1 player tagged"
+msgstr "1 speler getagd"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "That tag could not be saved."
+msgstr "Die tag kon niet worden opgeslagen."
 #~ msgid "improved"
 #~ msgstr "verbeterd"
 

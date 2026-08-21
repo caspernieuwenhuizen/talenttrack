@@ -40,6 +40,24 @@ you actually play one, so opening the tab on a phone does not spend your data on
 
 **Remove** deletes permanently — the file itself, not just the entry. It is only offered to people who may edit that player's media.
 
+### Teams and trainings
+
+A team has a **Media** section on its page, below the roster and fixtures — squad photos, tournament days, end-of-season moments. It shows only
+what is attached to the team itself; media of an individual player stays on their profile, so browsing a team does not scroll through every
+player's file. Like the other sections on that page, you can switch it off for your own view.
+
+A training or match has its own **Media** section, and that is where tagging happens.
+
+### Tagging the players in a photo
+
+On a training or match, each photo offers **Tag players**, listing that team's squad. Tick the players who are in the picture and it appears on
+their profiles too — one upload, however many records it belongs to. No Save button: each tick is stored as you make it, and reverts if it cannot
+be.
+
+Untagging one player removes it from that player only. The photo stays on the training and on everyone else you tagged.
+
+This is also what makes the shared-visibility point earlier concrete: a photo tagged to three players is visible to all three families.
+
 ## Adding media
 
 Use **Add media** from a player, team or training. The wizard has four steps:

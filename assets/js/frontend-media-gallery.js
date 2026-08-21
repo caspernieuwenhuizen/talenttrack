@@ -51,6 +51,13 @@
 			}
 		} );
 
+		// Tagging is a change event, not a click: a checkbox toggled by
+		// keyboard has to save too.
+		this.root.addEventListener( 'change', function ( e ) {
+			var box = e.target.closest( '[data-role="tag-player"]' );
+			if ( box ) self.tag( box );
+		} );
+
 		if ( ! this.dialog ) return;
 
 		this.dialog.addEventListener( 'click', function ( e ) {
@@ -176,6 +183,83 @@
 		} );
 
 		xhr.send();
+	};
+
+	/**
+	 * Attach or detach one player, immediately.
+	 *
+	 * No Save button: a checkbox that needs confirming elsewhere is a
+	 * checkbox people forget to confirm. The box reverts on failure, so
+	 * what is on screen is always what the server holds.
+	 */
+	Gallery.prototype.tag = function ( box ) {
+		var details = box.closest( '[data-role="tag"]' );
+		if ( ! details ) return;
+
+		var uuid = details.getAttribute( 'data-uuid' );
+		var playerId = box.getAttribute( 'data-player-id' );
+		var linkId = box.getAttribute( 'data-link-id' );
+		var wanted = box.checked;
+		var self = this;
+
+		box.disabled = true;
+
+		var xhr = new XMLHttpRequest();
+		if ( wanted ) {
+			xhr.open( 'POST', CFG.root + '/media/' + uuid + '/links', true );
+			xhr.setRequestHeader( 'Content-Type', 'application/json' );
+		} else {
+			xhr.open( 'DELETE', CFG.root + '/media/' + uuid + '/links/' + linkId, true );
+		}
+		xhr.setRequestHeader( 'X-WP-Nonce', CFG.nonce );
+
+		xhr.addEventListener( 'load', function () {
+			box.disabled = false;
+
+			if ( xhr.status < 200 || xhr.status >= 300 ) {
+				box.checked = ! wanted; // the server did not agree; say so
+				window.alert( t( 'tagFailed', 'That tag could not be saved.' ) );
+				return;
+			}
+
+			if ( wanted ) {
+				var body = null;
+				try { body = JSON.parse( xhr.responseText ); } catch ( e ) { body = null; }
+				var links = body && body.data && body.data.links ? body.data.links : [];
+				for ( var i = 0; i < links.length; i++ ) {
+					if ( String( links[ i ].entity_id ) === String( playerId ) && links[ i ].entity_type === 'player' ) {
+						box.setAttribute( 'data-link-id', links[ i ].id );
+					}
+				}
+			} else {
+				box.setAttribute( 'data-link-id', '0' );
+			}
+
+			self.refreshTagSummary( details );
+		} );
+
+		xhr.addEventListener( 'error', function () {
+			box.disabled = false;
+			box.checked = ! wanted;
+			window.alert( t( 'tagFailed', 'That tag could not be saved.' ) );
+		} );
+
+		xhr.send( wanted ? JSON.stringify( { entity_type: 'player', entity_id: parseInt( playerId, 10 ) } ) : null );
+	};
+
+	Gallery.prototype.refreshTagSummary = function ( details ) {
+		var summary = details.querySelector( '.tt-media-tag__summary' );
+		if ( ! summary ) return;
+
+		var checked = details.querySelectorAll( '[data-role="tag-player"]:checked' ).length;
+
+		if ( checked === 0 ) {
+			summary.textContent = t( 'tagNone', 'Tag players' );
+		} else if ( checked === 1 ) {
+			summary.textContent = t( 'tagOne', '1 player tagged' );
+		} else {
+			summary.textContent = ( t( 'tagCount', '%d players tagged' ) ).replace( '%d', checked );
+		}
 	};
 
 	function init( scope ) {
