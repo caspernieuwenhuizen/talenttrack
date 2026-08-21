@@ -48,6 +48,7 @@ tags:
   - name: personas
   - name: docs
   - name: config
+  - name: media
 
 components:
   securitySchemes:
@@ -641,6 +642,24 @@ paths:
     get: { tags: [docs], summary: List docs index, responses: { '200': { description: OK } } }
   /docs/{slug}:
     get: { tags: [docs], summary: Read one doc topic, parameters: [{ in: path, name: slug, required: true, schema: { type: string } }], responses: { '200': { description: OK } } }
+
+  /media:
+    get: { tags: [media], summary: List media attached to one record, parameters: [{ in: query, name: entity_type, required: true, schema: { type: string, enum: [player, team, activity] } }, { in: query, name: entity_id, required: true, schema: { type: integer } }, { in: query, name: kind, schema: { type: string, enum: [image, video, video_link] } }, { in: query, name: include_archived, schema: { type: boolean } }], responses: { '200': { description: OK }, '400': { description: Missing or invalid target } } }
+    post: { tags: [media], summary: Upload a file or record a video link, responses: { '201': { description: Created }, '400': { description: Unusable file or URL }, '403': { description: Not permitted on the target record }, '413': { description: Larger than the server accepts } } }
+  /media/{uuid}:
+    get: { tags: [media], summary: Read one media item, parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }], responses: { '200': { description: OK }, '404': { description: 'Not found, or not visible to this caller' } } }
+    patch: { tags: [media], summary: 'Update title, description or capture date', parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }], responses: { '200': { description: OK }, '403': { description: Read-only for this caller }, '404': { description: Not found } } }
+    delete: { tags: [media], summary: 'Archive the item, or erase it and its bytes with hard=1', parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }, { in: query, name: hard, schema: { type: boolean } }], responses: { '200': { description: OK }, '403': { description: Not permitted }, '404': { description: Not found } } }
+  /media/{uuid}/links:
+    post: { tags: [media], summary: Attach the item to another record, parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }], responses: { '201': { description: Attached }, '403': { description: Not permitted on the destination record }, '404': { description: Not found } } }
+  /media/{uuid}/links/{link_id}:
+    delete: { tags: [media], summary: Detach; the item and its bytes are removed when this was its last attachment, parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }, { in: path, name: link_id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '404': { description: Not found } } }
+  /media/{uuid}/file:
+    get: { tags: [media], summary: Stream the bytes (Range supported), parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }, { in: header, name: Range, schema: { type: string } }], responses: { '200': { description: Whole file }, '206': { description: Partial content }, '404': { description: 'Not found, or not visible to this caller' }, '409': { description: The item is a link to video hosted elsewhere }, '416': { description: Range outside the file } } }
+  /media/{uuid}/thumb:
+    get: { tags: [media], summary: Stream the thumbnail, parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }], responses: { '200': { description: OK }, '404': { description: 'No thumbnail, or not visible to this caller' } } }
+  /players/{id}/media:
+    get: { tags: [media], summary: Media attached to one player, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
 
   /config:
     get: { tags: [config], summary: Read config keys, responses: { '200': { description: OK } } }
