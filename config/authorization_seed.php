@@ -199,6 +199,13 @@ return array_merge(
         'measurements'            => [ 'r',   'player', $mod_measurements ],
         // #2591 — a parent sees their own child's media, and no other.
         'media'                   => [ 'r',   'player', $mod_media ],
+        // #2500 (epic #2493) — what their own child has been taught.
+        // Read-only and player-scoped: a parent seeing another family's
+        // training history would be the same breach as seeing their
+        // evaluations. Deliberately NOT granted to the `player` persona
+        // (D16) — a minor reading a per-principle ledger of their own
+        // shortfalls is a coaching conversation, not a dashboard.
+        'training_exposure'       => [ 'r',   'player', $mod_training ],
         'goals'                   => [ 'r',   'player', $mod_goals ],
         'activities'              => [ 'r',   'player', $mod_activities ],
         'attendance'              => [ 'r',   'player', $mod_activities ],
@@ -326,6 +333,13 @@ return array_merge(
         // #2496 — Training plans (epic #2493). Plans on their own team
         // scope, same as VCT sessions above. Matrix-only cap.
         'training_plan'              => [ 'rcd', 'team',   $mod_training ],
+        // #2500 — what the players on their teams have actually been
+        // taught. Read-only because exposure is derived from runs: there
+        // is nothing to author. A separate entity from `training_plan`
+        // because reading a player's training history and planning a
+        // training are different rights — a scout or team manager could
+        // reasonably have one without the other (D16).
+        'training_exposure'          => [ 'r',   'team',   $mod_training ],
         // #1944 — Exercises (club-global drill library). The raw
         // `tt_manage_exercises` cap is held by the tt_coach WP role, which
         // backs BOTH the assistant_coach AND head_coach personas — so AC
@@ -446,6 +460,9 @@ return array_merge(
         // #2496 — Training plans (epic #2493). Plans on their own team
         // scope, same as VCT sessions above. Matrix-only cap.
         'training_plan'              => [ 'rcd', 'team',   $mod_training ],
+        // #2500 — see the assistant_coach note: read-only exposure on
+        // their own teams.
+        'training_exposure'          => [ 'r',   'team',   $mod_training ],
         // #1944 — Exercises (club-global drill library). Raw
         // `tt_manage_exercises` is held by the tt_coach role behind this
         // persona; seed `rcd` at `global` (the library is club-wide, no
@@ -752,6 +769,11 @@ return array_merge(
         'vct_workload'                  => [ 'r',   'global', $mod_vct ],
         // #2496 — Training plans (epic #2493), academy-wide.
         'training_plan'                 => [ 'rcd', 'global', $mod_training ],
+        // #2500 — the coverage matrix is a head-of-development surface:
+        // which principles each team actually trains, academy-wide. That
+        // is the whole reason this entity is global here and team-scoped
+        // for a coach.
+        'training_exposure'             => [ 'r',   'global', $mod_training ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -929,5 +951,7 @@ return array_merge(
         'vct_workload'                  => [ 'r',   'global', $mod_vct ],
         // #2496 — Training plans (epic #2493), academy-wide.
         'training_plan'                 => [ 'rcd', 'global', $mod_training ],
+        // #2500 — academy-wide, same as the head of development.
+        'training_exposure'             => [ 'r',   'global', $mod_training ],
     ] )
 );

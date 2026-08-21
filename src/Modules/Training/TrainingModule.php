@@ -9,6 +9,8 @@ use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
 use TT\Modules\Training\Print\TrainingPlanPrintRouter;
 use TT\Modules\Training\Wizard\NewTrainingPlanWizard;
+use TT\Modules\Training\Workflow\PlayerExposureAggregationTaskTemplate;
+use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -61,6 +63,11 @@ class TrainingModule implements ModuleInterface {
 
         add_action( 'init', [ self::class, 'registerTiles' ], 20 );
 
+        // #2500 — the nightly exposure rebuild. Priority 5, matching VCT
+        // and PDP, so the dispatchers at priority 20 find the template
+        // already registered.
+        add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
+
         // #2497 — the generator's wizard. Registered on `init` so the
         // registry is populated before any request resolves
         // `?tt_view=wizard&slug=new-training-plan`.
@@ -69,6 +76,17 @@ class TrainingModule implements ModuleInterface {
                 WizardRegistry::register( new NewTrainingPlanWizard() );
             }
         }, 20 );
+    }
+
+    /**
+     * #2500 — register the exposure aggregation with the Workflow
+     * registry. The scheduler is the SaaS-port chokepoint (CLAUDE.md §4),
+     * so this job goes through it rather than `wp_schedule_event`.
+     */
+    public static function registerWorkflowTemplates(): void {
+        if ( ! class_exists( WorkflowModule::class ) ) return;
+
+        WorkflowModule::registry()->register( new PlayerExposureAggregationTaskTemplate() );
     }
 
     /**
