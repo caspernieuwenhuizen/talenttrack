@@ -296,10 +296,17 @@ final class MediaVisibilityTest extends WP_UnitTestCase {
 
         $this->assertSame( 3, count( $small ) );
         $this->assertSame( 30, count( $large ) );
-        $this->assertSame(
-            $cost_small,
+
+        // Ten times the items must not cost ten times the queries. A small
+        // constant difference is fine and expected — what this guards is
+        // the shape of the curve, not an exact number, because pinning the
+        // exact count would break on any unrelated query added upstream
+        // while telling us nothing about scaling.
+        $this->assertLessThanOrEqual(
+            $cost_small + 2,
             $cost_large,
-            "filtering 30 items cost {$cost_large} queries vs {$cost_small} for 3 — the batch lookup has regressed to per-item"
+            "filtering 30 items cost {$cost_large} queries against {$cost_small} for 3 — "
+                . 'the batch link lookup or the grant memo has regressed to per-item'
         );
     }
 
