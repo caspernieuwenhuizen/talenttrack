@@ -112,6 +112,16 @@
     font-weight: 600;
 }
 
+/* #2586 — the signed change beside the trend arrow. Tabular figures so a
+   column of deltas lines up on the decimal separator. */
+.tt-dashboard .tt-tr-trend__delta {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-left: 0.35rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
 /* ===== Result chips, flags, trend ===== */
 
 .tt-dashboard .tt-tr-level {

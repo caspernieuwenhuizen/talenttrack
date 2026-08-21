@@ -82,6 +82,11 @@ class MeasurementResultsBrowse {
                 'level_token'   => '',
                 'flag'          => '',
                 'trend'         => '',
+                // #2586 — the signed movement behind the trend arrow. The
+                // arrow says "better"; this says by how much. Raw float, so
+                // the view owns formatting and the table can sort on it.
+                // Null when there is no previous value to compare against.
+                'delta'         => null,
                 'value_sort'    => $this->sortValue( $row, $is_status ),
             ];
 
@@ -99,11 +104,17 @@ class MeasurementResultsBrowse {
                     $target = $this->targets->forDefinitionAndAge( $definition_id, $age_group );
                     $entry['flag'] = $this->targets->flagFor( (float) $row->value_numeric, $target, $direction );
                 }
-                $entry['trend'] = $this->trend(
-                    $row->value_numeric !== null ? (float) $row->value_numeric : null,
-                    isset( $row->prev_value_numeric ) && $row->prev_value_numeric !== null ? (float) $row->prev_value_numeric : null,
-                    $direction
-                );
+                $current  = $row->value_numeric !== null ? (float) $row->value_numeric : null;
+                $previous = isset( $row->prev_value_numeric ) && $row->prev_value_numeric !== null
+                    ? (float) $row->prev_value_numeric
+                    : null;
+
+                $entry['trend'] = $this->trend( $current, $previous, $direction );
+                // #2586 — same pair the trend is derived from, so the arrow
+                // and the number can never disagree.
+                $entry['delta'] = ( $current !== null && $previous !== null )
+                    ? $current - $previous
+                    : null;
             }
 
             $out[] = $entry;

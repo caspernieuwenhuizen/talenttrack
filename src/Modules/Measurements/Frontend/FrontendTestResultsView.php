@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
+use TT\Modules\Measurements\Reports\MeasurementDeltaFormat;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Services\MeasurementResultsBrowse;
 use TT\Shared\Frontend\Components\BackLink;
@@ -272,7 +273,14 @@ final class FrontendTestResultsView extends FrontendViewBase {
             echo self::resultCell( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — resultCell() escapes internally.
             echo '</td>';
 
-            echo '<td data-label="' . esc_attr__( 'Trend', 'talenttrack' ) . '">' . self::trendCell( (string) $row['trend'] ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trendCell() escapes internally.
+            // #2586 — sort on the raw delta so the column orders by magnitude
+            // rather than by the rendered string ("−0,08 s" would sort as text).
+            $delta = isset( $row['delta'] ) && $row['delta'] !== null ? (float) $row['delta'] : null;
+            echo '<td data-label="' . esc_attr__( 'Trend', 'talenttrack' ) . '"'
+                . ( $delta !== null ? ' data-tt-sort-value="' . esc_attr( (string) $delta ) . '"' : '' )
+                . '>'
+                . self::trendCell( (string) $row['trend'], $delta, (string) ( $row['unit'] ?? '' ) )
+                . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trendCell() escapes internally.
             echo '<td data-label="' . esc_attr__( 'Date', 'talenttrack' ) . '">' . esc_html( (string) $row['recorded_date'] ) . '</td>';
             echo '</tr>';
         }
@@ -307,7 +315,16 @@ final class FrontendTestResultsView extends FrontendViewBase {
         return $out;
     }
 
-    private static function trendCell( string $trend ): string {
+    /**
+     * #2586 — the arrow says whether it got better; the delta says by how
+     * much. Both come from the same current/previous pair (the service derives
+     * them together), so they cannot contradict each other: on a
+     * lower-is-better test `−0,08 s` pairs with ▲.
+     *
+     * `$delta` is null when there is no previous measurement — then the cell
+     * stays the bare em dash rather than showing a fabricated zero.
+     */
+    private static function trendCell( string $trend, ?float $delta = null, string $unit = '' ): string {
         if ( $trend === '' ) {
             return '<span class="tt-tr-empty">—</span>';
         }
@@ -317,9 +334,18 @@ final class FrontendTestResultsView extends FrontendViewBase {
             'flat' => [ '▬', __( 'Unchanged', 'talenttrack' ) ],
         ];
         [ $glyph, $label ] = $map[ $trend ] ?? $map['flat'];
+
+        $amount = '';
+        if ( $delta !== null ) {
+            $amount = ' <span class="tt-tr-trend__delta">'
+                . esc_html( MeasurementDeltaFormat::signed( $delta, $unit ) )
+                . '</span>';
+        }
+
         return '<span class="tt-tr-trend tt-tr-trend--' . esc_attr( sanitize_html_class( $trend ) ) . '" title="' . esc_attr( $label ) . '">'
             . '<span aria-hidden="true">' . esc_html( $glyph ) . '</span>'
-            . '<span class="tt-tr-sr">' . esc_html( $label ) . '</span></span>';
+            . '<span class="tt-tr-sr">' . esc_html( $label ) . '</span></span>'
+            . $amount; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
     }
 
     private static function flagLabel( string $flag ): string {
