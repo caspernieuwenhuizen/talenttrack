@@ -88,7 +88,7 @@ Eight personas ship in the seed:
 - `player` — a player viewing their own data (self-scope on most reads).
 - `parent` — a parent of a player (scoped to their child via `tt_player_parents`).
 - `assistant_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 0` for at least one team.
-- `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another.
+- `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another. Since #2584 the head coach holds `players [rc, team]` — they can correct a player record on a team they run (position, jersey, preferred foot) without going through an admin. `create_delete` is deliberately withheld: adding or removing a player is a registration act with squad-size, billing and safeguarding consequences, so it stays with `academy_admin`. `assistant_coach` keeps `players [r, team]`, and since both personas share the `tt_coach` WP role, the matrix is the only layer that separates them — which is why the grant lives here and not on the role.
 - `head_of_development` — `tt_head_dev` WP role; oversees the whole academy.
 - `scout` — `tt_scout` WP role; reads players cross-team. Since v4.20.103 (#1378) evaluation reads are scoped to assigned players, and PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
 - `team_manager` — new in #0033 Sprint 7; `tt_team_manager` WP role. Logistics for a team (sessions, attendance, invitations) without coaching authority.

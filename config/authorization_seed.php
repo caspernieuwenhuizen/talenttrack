@@ -333,7 +333,15 @@ return array_merge(
     $expand( 'head_coach', [
         'holidays'                => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'rc',  'team',   $mod_teams ],
-        'players'                    => [ 'r',   'team',   $mod_players ],
+        // #2584 — head coaches correct their own squad's player records
+        // (position, jersey, foot, …) without routing every change through an
+        // admin. `c` = change only: creating and removing player records is a
+        // registration act with squad-size, billing and safeguarding
+        // consequences, so it stays with the academy admin. assistant_coach
+        // deliberately keeps `r` — this is one of the few places the two coach
+        // personas were identical, and owning the squad record is the head
+        // coach's job.
+        'players'                    => [ 'rc',  'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
         'my_person'                  => [ 'rc',  'self',   $mod_people ],
         'evaluations'                => [ 'rcd', 'team',   $mod_evals ],
