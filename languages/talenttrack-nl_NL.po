@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T22:30:20+00:00\n"
+"POT-Creation-Date: 2026-08-21T22:34:43+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -86,7 +86,7 @@ msgstr "Team Manager"
 #: src/Modules/Analytics/AnalyticsModule.php:156
 #: src/Modules/Analytics/AnalyticsModule.php:175
 #: src/Modules/Analytics/AnalyticsModule.php:234
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:230
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:229
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:207
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:201
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:53
@@ -1710,6 +1710,7 @@ msgstr "Hoog"
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:166
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:201
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:159
+#: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:522
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1476
 #: src/Modules/People/Admin/PeoplePage.php:153
@@ -1865,7 +1866,7 @@ msgstr "Fysio"
 #: src/Infrastructure/Query/LabelTranslator.php:138
 #: src/Infrastructure/Query/LabelTranslator.php:242
 #: src/Infrastructure/Security/RolesService.php:379
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
 #: src/Modules/Authorization/Admin/MatrixPage.php:591
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
@@ -2333,7 +2334,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Analytics/AnalyticsModule.php:114
 #: src/Modules/Analytics/AnalyticsModule.php:135
 #: src/Modules/Analytics/AnalyticsModule.php:158
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:231
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:230
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:208
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:343
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:202
@@ -2475,7 +2476,7 @@ msgstr "Evaluatie"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:46
 #: src/Modules/Analytics/AnalyticsModule.php:252
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:231
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:322
 #: src/Modules/Authorization/Admin/MatrixPage.php:558
 #: src/Modules/DataBrowser/SemanticRegistry.php:105
@@ -3582,7 +3583,7 @@ msgid "Date of birth"
 msgstr "Geboortedatum"
 
 #: src/Infrastructure/REST/PeekRestController.php:136
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:181
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:186
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:171
@@ -3631,7 +3632,7 @@ msgid "Players"
 msgstr "Spelers"
 
 #: src/Infrastructure/REST/PeekRestController.php:140
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:234
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:150
@@ -4423,7 +4424,7 @@ msgstr "Alle types"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:144
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:368
 #: src/Modules/Analytics/AnalyticsModule.php:132
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:209
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:203
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:152
@@ -4907,10 +4908,16 @@ msgstr "Bijwerken"
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:492
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
+#: src/Shared/Frontend/CoachDashboardView.php:230
+#: src/Shared/Frontend/CoachDashboardView.php:272
+#: src/Shared/Frontend/CoachForms.php:127
+#: src/Shared/Frontend/CoachForms.php:548
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:174
 #: src/Shared/Frontend/Components/SavedViews.php:110
 #: src/Shared/Frontend/Components/SavedViews.php:156
+#: src/Shared/Frontend/DashboardShortcode.php:198
+#: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:201
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
@@ -6127,11 +6134,11 @@ msgstr ""
 "geladen; van daaruit kun je pivoteren, groeperen en filteren. Kies een "
 "entiteit uit de linker zijbalk om naar de analytics van die entiteit te gaan."
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:162
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:161
 msgid "No analytics registered for this entity type yet."
 msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:183
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:182
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:151
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:105
 #: src/Modules/Authorization/Admin/MatrixPage.php:699
@@ -6166,11 +6173,11 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 msgid "Teams"
 msgstr "Teams"
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:185
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
 msgid "Scouts"
 msgstr "Scouts"
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:186
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:185
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:126
 #: src/Modules/Pdp/Admin/SeasonsPage.php:52
 #: src/Shared/CoreSurfaceRegistration.php:1622
@@ -6181,7 +6188,7 @@ msgstr "Scouts"
 msgid "Seasons"
 msgstr "Seizoenen"
 
-#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:205
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:204
 msgid "No entries."
 msgstr "Geen vermeldingen."
 
@@ -7448,6 +7455,7 @@ msgstr ""
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:104
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:188
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:76
+#: src/Modules/Methodology/Admin/MediaPicker.php:109
 #: src/Modules/Methodology/Admin/MethodologyPage.php:193
 #: src/Modules/Methodology/Admin/MethodologyPage.php:290
 #: src/Modules/Methodology/Admin/MethodologyPage.php:449
@@ -13417,6 +13425,9 @@ msgid "Update field"
 msgstr "Veld bijwerken"
 
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:296
+#: src/Shared/Frontend/FrontendCustomFieldsView.php:35
+#: src/Shared/Frontend/FrontendCustomFieldsView.php:43
+#: src/Shared/Frontend/FrontendCustomFieldsView.php:67
 msgid "Add field"
 msgstr "Veld toevoegen"
 
@@ -13993,6 +14004,7 @@ msgid "No migrations found."
 msgstr "Geen migraties gevonden."
 
 #: src/Modules/Configuration/Admin/MigrationsPage.php:132
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1412
 msgid "Run"
 msgstr "Uitvoeren"
 
@@ -14089,6 +14101,7 @@ msgstr ""
 
 # v3.73.0 / #0075 Sprint 1 PR 1 — design-system token catalogue + grouped editor
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:96
+#: src/Modules/Methodology/Admin/MediaPicker.php:85
 msgid "Primary"
 msgstr "Primair"
 
@@ -17344,6 +17357,7 @@ msgid "Description (optional)"
 msgstr "Omschrijving (optioneel)"
 
 #: src/Modules/Development/Frontend/TracksView.php:75
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:83
 msgid "Add track"
 msgstr "Spoor toevoegen"
 
@@ -17804,6 +17818,7 @@ msgid "Update category"
 msgstr "Categorie bijwerken"
 
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:312
+#: src/Shared/Frontend/FrontendEvalCategoriesView.php:72
 msgid "Add category"
 msgstr "Categorie toevoegen"
 
@@ -18152,6 +18167,12 @@ msgstr "Dat lukte niet. Probeer het zo nog eens."
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:278
 msgid "Working…"
 msgstr "Bezig…"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:289
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:157
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:199
+msgid "Add exercise"
+msgstr "Oefening toevoegen"
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:297
 msgid "Code (optional)"
@@ -18907,6 +18928,25 @@ msgstr "Geen doelen."
 msgid "Edit Goal"
 msgstr "Doel bewerken"
 
+#: src/Modules/Goals/Admin/GoalsPage.php:114
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:797
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:814
+#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:75
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:99
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:145
+#: src/Shared/Frontend/CoachDashboardView.php:297
+#: src/Shared/Frontend/CoachDashboardView.php:309
+#: src/Shared/Frontend/CoachForms.php:581
+#: src/Shared/Frontend/CoachForms.php:597
+#: src/Shared/Frontend/DashboardShortcode.php:200
+#: src/Shared/Frontend/FrontendGoalsManageView.php:47
+#: src/Shared/Frontend/FrontendGoalsManageView.php:59
+#: src/Shared/Frontend/FrontendGoalsManageView.php:154
+#: src/Shared/Frontend/FrontendGoalsManageView.php:628
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1404
+msgid "Add goal"
+msgstr "Doel toevoegen"
+
 #: src/Modules/Goals/Admin/GoalsPage.php:118
 msgid ""
 "The goal was saved, but one or more custom fields had invalid values and "
@@ -19660,6 +19700,11 @@ msgstr "Accept-URL"
 #: src/Modules/Invitations/Frontend/InviteButton.php:120
 msgid "Message preview"
 msgstr "Berichtvoorbeeld"
+
+#: src/Modules/Invitations/Frontend/InviteButton.php:129
+#: src/Shared/Frontend/FrontendUsageStatsView.php:236
+msgid "Share"
+msgstr "Aandeel"
 
 #: src/Modules/Invitations/Frontend/InviteButton.php:143
 msgid "Revoke this invitation? The link will stop working immediately."
@@ -22920,6 +22965,7 @@ msgid "Voetbalhandelingen"
 msgstr "Voetbalhandelingen"
 
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:40
+#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:59
 msgid "Add action"
 msgstr "Handeling toevoegen"
 
@@ -23192,19 +23238,15 @@ msgstr "Diagrammen en afbeeldingen"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:59
 msgid ""
-"De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
-"thumbnail om 'm als primair te markeren of te archiveren."
+"The primary image is shown at the top of this entity. Click a thumbnail to "
+"mark it primary or archive it."
 msgstr ""
-"De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
-"thumbnail om 'm als primair te markeren of te archiveren."
+"The primary image is shown at the top of this entity. Click a thumbnail to "
+"mark it primary or archive it."
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:65
-msgid ""
-"Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding "
-"kiezen\" hieronder."
-msgstr ""
-"Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding "
-"kiezen\" hieronder."
+msgid "No images added yet. Add a diagram with \"Pick image\" below."
+msgstr "No images added yet. Add a diagram with \"Pick image\" below."
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:96
 msgid "Edit caption"
@@ -23224,11 +23266,9 @@ msgstr "Afbeelding kiezen…"
 
 #: src/Modules/Methodology/Admin/MediaPicker.php:122
 msgid ""
-"Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen "
-"herbruikbaar."
+"Opens the WordPress media library. Uploaded images are reusable right away."
 msgstr ""
-"Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen "
-"herbruikbaar."
+"Opens the WordPress media library. Uploaded images are reusable right away."
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:63
 #: src/Modules/Methodology/Frontend/Manage/FrameworkPrimerManageTab.php:60
@@ -23262,6 +23302,7 @@ msgstr "Visie"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:76
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:84
+#: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:61
 msgid "Add principle"
 msgstr "Principe toevoegen"
 
@@ -23527,6 +23568,7 @@ msgid "Edit phase"
 msgstr "Fase bewerken"
 
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:45
+#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:75
 msgid "Add phase"
 msgstr "Fase toevoegen"
 
@@ -23562,6 +23604,7 @@ msgid "Edit position"
 msgstr "Positie bewerken"
 
 #: src/Modules/Methodology/Admin/PositionEditPage.php:64
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:219
 msgid "Add position"
 msgstr "Positie toevoegen"
 
@@ -23686,6 +23729,7 @@ msgid "Edit set piece"
 msgstr "Spelhervatting bewerken"
 
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:59
+#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:59
 msgid "Add set piece"
 msgstr "Spelhervatting toevoegen"
 
@@ -26126,6 +26170,7 @@ msgid "2026/2027"
 msgstr "2026/2027"
 
 #: src/Modules/Pdp/Admin/SeasonsPage.php:121
+#: src/Shared/Frontend/FrontendSeasonsView.php:58
 msgid "Add season"
 msgstr "Seizoen toevoegen"
 
@@ -27823,6 +27868,7 @@ msgstr ""
 
 #: src/Modules/People/Admin/TeamStaffPanel.php:167
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:129
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:221
 #: src/Shared/Frontend/FrontendTrialCaseView.php:441
 msgid "Assign"
 msgstr "Toewijzen"
@@ -29399,6 +29445,11 @@ msgstr ""
 "Geen geplande bezoeken. Plan je volgende scoutingbezoek om je portfolio vers "
 "te houden."
 
+#: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:80
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
+msgid "Plan visit"
+msgstr "Bezoek plannen"
+
 #. translators: %d: prospects logged so far from this visit.
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:101
 #, php-format
@@ -30822,10 +30873,6 @@ msgstr "Verwachte leeftijdsgroepen"
 msgid "Players to watch, contacts, logistics…"
 msgstr "Spelers om in de gaten te houden, contacten, logistiek…"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
-msgid "Plan visit"
-msgstr "Bezoek plannen"
-
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:34
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:59
 msgid "Scouting visit"
@@ -32092,12 +32139,6 @@ msgstr "Doel toevoegen"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:126
 msgid "Targets a certification (optional)"
 msgstr "Gericht op een certificering (optioneel)"
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:145
-#: src/Shared/Frontend/FrontendGoalsManageView.php:628
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1404
-msgid "Add goal"
-msgstr "Doel toevoegen"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:69
 msgid "Strengths"
@@ -33459,6 +33500,13 @@ msgstr ""
 "Sleep een speler op een positie, of klik een positie om uit de lijst te "
 "kiezen."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:355
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:383
+#: src/Shared/Frontend/Components/GuestAddModal.php:47
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3243
+msgid "Add guest"
+msgstr "Gast toevoegen"
+
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:359
 msgid "Other team"
 msgstr "Ander team"
@@ -33493,12 +33541,6 @@ msgstr "Naam gast (bv. stagespeler op bezoek)"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:381
 msgid "Position (optional, e.g. ST)"
 msgstr "Positie (optioneel, bv. ST)"
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:383
-#: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3243
-msgid "Add guest"
-msgstr "Gast toevoegen"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
 msgid "Custom label"
@@ -36962,10 +37004,6 @@ msgstr "Spelers max."
 msgid "MD contexts (tick all that apply)"
 msgstr "MD-contexten (vink alles wat van toepassing is aan)"
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:199
-msgid "Add exercise"
-msgstr "Oefening toevoegen"
-
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
 #: src/Modules/Vct/Wizard/PreviewStep.php:86
 msgid "Band"
@@ -38314,9 +38352,6 @@ msgid "Pick the entity to link"
 msgstr "Kies de entiteit om aan te koppelen"
 
 #: src/Modules/Wizards/Goal/NewGoalWizard.php:16
-#: src/Shared/Frontend/FrontendGoalsManageView.php:47
-#: src/Shared/Frontend/FrontendGoalsManageView.php:59
-#: src/Shared/Frontend/FrontendGoalsManageView.php:154
 msgid "New goal"
 msgstr "Nieuw doel"
 
@@ -42663,7 +42698,9 @@ msgid "All lookups"
 msgstr "Alle lookups"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:501
+#: src/Shared/Frontend/FrontendConfigurationView.php:673
 #: src/Shared/Frontend/FrontendConfigurationView.php:889
+#: src/Shared/Frontend/FrontendConfigurationView.php:928
 msgid "Add value"
 msgstr "Waarde toevoegen"
 
@@ -42766,12 +42803,7 @@ msgstr ""
 "De dekkingsbolletjes tonen de vertaalstatus voor %s. Gevuld = ingevuld; "
 "waarschuwing = ontbreekt."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:673
-msgid "+ Add value"
-msgstr "+ Waarde toevoegen"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:708
-#: src/Shared/Frontend/FrontendConfigurationView.php:700
 msgid "Edit lookup value"
 msgstr "Opzoekwaarde bewerken"
 
@@ -42842,12 +42874,7 @@ msgstr "Beschrijving in %s"
 msgid "Lookup rows"
 msgstr "Opzoekregels"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:928
-msgid "+ Add new"
-msgstr "+ Nieuwe toevoegen"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:933
-#: src/Shared/Frontend/FrontendConfigurationView.php:925
 msgid "No items yet. Use \"+ Add new\" to seed the first row."
 msgstr ""
 "Nog geen items. Gebruik \"+ Nieuwe toevoegen\" om de eerste regel te starten."
@@ -43267,7 +43294,6 @@ msgstr ""
 "starttemplates en terugdraaibare geschiedenis."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2017
-#: src/Shared/Frontend/FrontendConfigurationView.php:2002
 msgid "Open custom CSS"
 msgstr "Aangepaste CSS openen"
 
@@ -44297,8 +44323,6 @@ msgstr "Altijd aan"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:294
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:80
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:266
 msgid "Add assignment"
 msgstr "Nieuwe toewijzing"
 
@@ -44339,8 +44363,6 @@ msgstr "Dat roltype bestaat niet meer."
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:126
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:169
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:98
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:141
 msgid "Add role type"
 msgstr "Nieuw roltype"
 
@@ -44360,12 +44382,7 @@ msgstr "Roltypes"
 msgid "No role types defined yet."
 msgstr "Nog geen roltypes gedefinieerd."
 
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:221
-msgid "+ Assign"
-msgstr "+ Toewijzen"
-
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:252
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:224
 msgid "Lowercase, digits, and underscores only. Cannot be changed later."
 msgstr ""
 "Alleen kleine letters, cijfers en underscores. Kan later niet meer aangepast "
@@ -49121,6 +49138,7 @@ msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:80
 #: src/Shared/Frontend/FrontendTrialsManageView.php:83
 #: src/Shared/Frontend/FrontendTrialsManageView.php:256
+#: src/Shared/Frontend/FrontendTrialsManageView.php:493
 msgid "Add case"
 msgstr "Nieuw stagedossier"
 
@@ -49412,10 +49430,6 @@ msgid ""
 msgstr ""
 "Nog geen weergaven in deze periode. Verruim de periode hierboven, of kom "
 "terug zodra mensen de app gaan gebruiken."
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php:236
-msgid "Share"
-msgstr "Aandeel"
 
 #. translators: %d is the number of days
 #: src/Shared/Frontend/FrontendUsageStatsView.php:263
@@ -50156,6 +50170,36 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid ""
+#~ "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
+#~ "thumbnail om 'm als primair te markeren of te archiveren."
+#~ msgstr ""
+#~ "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
+#~ "thumbnail om 'm als primair te markeren of te archiveren."
+
+#~ msgid ""
+#~ "Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding "
+#~ "kiezen\" hieronder."
+#~ msgstr ""
+#~ "Nog geen afbeeldingen toegevoegd. Voeg een diagram toe via \"Afbeelding "
+#~ "kiezen\" hieronder."
+
+#~ msgid ""
+#~ "Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen "
+#~ "herbruikbaar."
+#~ msgstr ""
+#~ "Opent de WordPress mediabibliotheek. Geüploade afbeeldingen zijn meteen "
+#~ "herbruikbaar."
+
+#~ msgid "+ Add value"
+#~ msgstr "+ Waarde toevoegen"
+
+#~ msgid "+ Add new"
+#~ msgstr "+ Nieuwe toevoegen"
+
+#~ msgid "+ Assign"
+#~ msgstr "+ Toewijzen"
+
+#~ msgid ""
 #~ "Offer SMS as a messaging channel. SMS delivery still needs a provider "
 #~ "plugin. The other channels (email, push, WhatsApp link, in-app) stay "
 #~ "available when this is off."
@@ -50163,14 +50207,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Bied sms aan als berichtenkanaal. Sms-bezorging vereist nog steeds een "
 #~ "providerplug-in. De andere kanalen (e-mail, push, WhatsApp-link, in-app) "
 #~ "blijven beschikbaar als dit uit staat."
-msgid "Opens the WordPress media library. Uploaded images are reusable right away."
-msgstr "Opens the WordPress media library. Uploaded images are reusable right away."
-
-msgid "The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it."
-msgstr "The primary image is shown at the top of this entity. Click a thumbnail to mark it primary or archive it."
-
-msgid "No images added yet. Add a diagram with \"Pick image\" below."
-msgstr "No images added yet. Add a diagram with \"Pick image\" below."
 
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
