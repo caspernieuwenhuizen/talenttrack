@@ -602,6 +602,14 @@ class DemoCoverage {
         'tt_training_plan_runs'       => [ 'planned' => '#2499' ],
         'tt_training_plan_run_blocks' => [ 'planned' => '#2499' ],
 
+        // Media (#2590, epic #2589). Generated in #2596, once the surfaces
+        // exist to show it — a demo academy whose media tab is empty does
+        // not demo the feature. The generator writes small placeholder
+        // images at runtime rather than committing binaries to the repo,
+        // plus one external video link so the provider badge is visible.
+        'tt_media'       => [ 'planned' => '#2596' ],
+        'tt_media_links' => [ 'planned' => '#2596' ],
+
         // ===== Exempt — reference data seeded by migrations =====
 
         'tt_player_attribute_defs' => [ 'exempt' => 'The 23 chemistry attribute definitions are seeded by migration 0178; #2463 fills values against them rather than inventing more.' ],

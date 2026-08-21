@@ -179,6 +179,12 @@ class ModuleMetadata {
                 'icon'        => 'players',
                 'category'    => self::CAT_PLAYER,
             ],
+            'TT\\Modules\\Media\\MediaModule' => [
+                'label'       => __( 'Media library', 'talenttrack' ),
+                'description' => __( 'Photos and video attached to players, teams and sessions. Files are stored privately and are only visible to staff around the player and to the player\'s own family. Turn off to keep photographs out of the academy entirely.', 'talenttrack' ),
+                'icon'        => 'players',
+                'category'    => self::CAT_PLAYER,
+            ],
 
             // — Coaching & development —
             'TT\\Modules\\Evaluations\\EvaluationsModule' => [
