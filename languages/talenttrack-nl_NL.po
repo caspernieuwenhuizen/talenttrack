@@ -50531,8 +50531,8 @@ msgid "this training"
 msgstr "deze training"
 
 #: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Files"
-msgstr "Bestanden"
+msgid "Photos and video"
+msgstr "Foto's en video"
 
 #. translators: %s is the player, team or training the media is being added to.
 #: src/Modules/Media/Wizard/MediaSourceStep.php

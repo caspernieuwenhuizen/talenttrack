@@ -24,7 +24,7 @@ final class MediaSourceStep implements WizardStepInterface {
 
     public function slug(): string { return 'source'; }
 
-    public function label(): string { return __( 'Files', 'talenttrack' ); }
+    public function label(): string { return __( 'Photos and video', 'talenttrack' ); }
 
     public function render( array $state ): void {
         $type = (string) ( $state['entity_type'] ?? '' );
