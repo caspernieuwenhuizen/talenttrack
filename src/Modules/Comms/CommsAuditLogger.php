@@ -53,7 +53,7 @@ final class CommsAuditLogger {
         }
 
         try {
-            $wpdb->insert( $table, [
+            $inserted = $wpdb->insert( $table, [
                 'club_id'             => (int) $request->clubId,
                 'uuid'                => $uuid,
                 'template_key'        => $request->templateKey,
@@ -71,6 +71,20 @@ final class CommsAuditLogger {
                 'attempt'             => 1,
                 'attached_export_id'  => $request->attachedExportId,
             ] );
+
+            // #2603 — `$wpdb->insert()` reports a rejected row by returning
+            // false, not by throwing, so the catch below never sees it. That
+            // is how a `status` value one character too wide for the column
+            // silently produced no audit row at all (migration 0220). Check
+            // the return value: an audit write that fails must say so.
+            if ( $inserted === false ) {
+                Logger::error( 'Comms audit row rejected by the database', [
+                    'template_key' => $request->templateKey,
+                    'status'       => $result->status,
+                    'uuid'         => $uuid,
+                    'db_error'     => (string) $wpdb->last_error,
+                ] );
+            }
         } catch ( \Throwable $e ) {
             // Audit failure is non-fatal to delivery, but it must not be
             // invisible — an unlogged failure to log is the worst of both.
