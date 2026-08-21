@@ -1,0 +1,59 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "prompt": "Hoeveel supercompensatietijd vragen partijen 4v4/3v3?",
+      "options": ["24 uur", "48 uur", "72 uur", "96 uur"],
+      "answer": 2,
+      "explanation": "Het fosfaatsysteem raakt uitgeput en er ontstaat veel melkzuur. Het lichaam heeft 72 uur nodig om die schade te herstellen en er iets bovenop te bouwen."
+    },
+    {
+      "id": "q2",
+      "type": "order",
+      "prompt": "Zet de oefenvormen op oplopende hersteltijd, van kortste naar langste.",
+      "options": [
+        "Explosiviteitsvoorbereidende oefeningen",
+        "Partijen 7v7 – 5v5",
+        "Partijen 4v4 – 3v3"
+      ],
+      "answer": [0, 1, 2],
+      "explanation": "24 uur, 48 uur, 72 uur. De grote partijen 11v11/8v8 zitten met 24–48 uur tussen de eerste twee in."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Wedstrijd op zaterdag om 15:00. Wat is de laatste bruikbare avond voor een overloadsessie 4v4/3v3?",
+      "options": ["Donderdag", "Woensdag", "Dinsdag", "Maandag"],
+      "answer": 1,
+      "explanation": "72 uur terugrekenen vanaf zaterdagmiddag komt uit op woensdagmiddag; een woensdagavondtraining valt daar net binnen en is in de praktijk de grens. Donderdag is te laat."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Waarom kost een underloadsessie geen supercompensatietijd?",
+      "options": [
+        "Omdat de sessie korter duurt",
+        "Omdat spelers niet tot hun grens gaan en er dus geen schade is om te herstellen",
+        "Omdat er geen wedstrijdelement in zit",
+        "Omdat de hartslag onder een drempelwaarde blijft"
+      ],
+      "answer": 1,
+      "explanation": "Geen overload betekent geen schade en dus niets te repareren. Dat is precies waarom het underloadmodel bijna dagelijks kan."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Waarom is de tweede dag na de wedstrijd beter vrij dan een lichte training?",
+      "options": [
+        "Omdat spelers dan mentaal herstellen",
+        "Omdat alle energie dan naar het herstel van de schade kan",
+        "Omdat de spierpijn dan op zijn hoogtepunt is",
+        "Omdat de derde dag anders te zwaar wordt"
+      ],
+      "answer": 1,
+      "explanation": "Op dag 1 helpt een extensieve hersteltraining de doorbloeding; op dag 2 levert niets doen meer op dan iets doen."
+    }
+  ]
+}

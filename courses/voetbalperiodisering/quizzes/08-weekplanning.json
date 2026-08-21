@@ -1,0 +1,71 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "match",
+      "prompt": "Koppel elk principe aan wat het voorschrijft.",
+      "pairs": ["Principe 1", "Principe 2", "Principe 3", "Principe 4"],
+      "options": [
+        "Hersteltraining op dag 1, dag 2 vrij",
+        "Tactische training één of twee dagen voor de wedstrijd",
+        "Conditietraining op dag 3 of 4 na de wedstrijd",
+        "Periodes van twee tot drie dagen zonder voetbal"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "Herstel, voorbereiden, conditie, brein — in die volgorde genummerd."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Waarom heeft de jeugdopleiding op zondag geen hersteltraining, terwijl principe 1 dat voorschrijft?",
+      "options": [
+        "Omdat jeugdspelers geen herstel nodig hebben",
+        "Omdat zondag vaak de enige dag zonder school én voetbal is",
+        "Omdat de accommodatie op zondag gesloten is",
+        "Omdat ouders dat niet willen"
+      ],
+      "answer": 1,
+      "explanation": "Het sociale argument krijgt voorrang op het fysiologische. Principe 1 verschuift naar maandag als lichte technische training."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Waarom staat de conditietraining in de jeugdweek op dinsdag en niet op woensdag?",
+      "options": [
+        "Omdat dinsdag exact 72 uur na de wedstrijd is",
+        "Omdat een vrije woensdag anders vervalt en er vijf trainingsdagen op rij ontstaan",
+        "Omdat woensdag voor wedstrijden gereserveerd is",
+        "Omdat de belasting op dinsdag lager is"
+      ],
+      "answer": 1,
+      "explanation": "De vrije woensdag breekt de week. Jeugdspelers verdragen de prikkel op dag 3 omdat ze sneller herstellen dan volwassenen."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Waarom vervalt de hersteltraining bij een amateurteam dat drie keer per week traint?",
+      "options": [
+        "Omdat amateurs minder hard spelen",
+        "Omdat een derde van de trainingstijd dan aan herstel opgaat",
+        "Omdat de wedstrijd op zaterdag te laat eindigt",
+        "Omdat herstel bij amateurs vanzelf gaat"
+      ],
+      "answer": 1,
+      "explanation": "Met drie sessies zou herstel een van de drie kosten. De eerste training komt daarom pas op dag 2 en blijft kort en laag in intensiteit."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Waarom plant een amateurcoach de laatste sessie twee dagen voor de wedstrijd in plaats van één?",
+      "options": [
+        "Omdat de zaalhuur op vrijdag duurder is",
+        "Omdat amateurs dagelijkse belasting niet gewend zijn en meer hersteltijd nodig hebben",
+        "Omdat de opstelling dan al bekend moet zijn",
+        "Omdat de tactische training anders te lang duurt"
+      ],
+      "answer": 1,
+      "explanation": "Met 48 uur ruimte gaan spelers frisser de wedstrijd in én is de kwaliteit van die laatste sessie hoger."
+    }
+  ]
+}

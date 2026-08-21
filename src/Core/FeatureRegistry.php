@@ -413,6 +413,21 @@ class FeatureRegistry {
                 'view_slugs'      => [],
                 'entities'        => [],
             ],
+            // #2642 (epic #2641) — the shipped course curriculum, as
+            // distinct from the library module itself. A course declares
+            // `feature: knowledge_courses` in its manifest, so switching
+            // this off takes the courses down while leaving the module
+            // free to carry other material later. No `view_slugs` yet:
+            // the reader lands in #2646 and registers its own routes
+            // against this key then.
+            'knowledge_courses' => [
+                'label'           => __( 'Courses', 'talenttrack' ),
+                'description'     => __( 'The coach-development courses shipped with the plugin. Turn off for an academy that runs its coach education elsewhere. Progress already recorded is kept.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Knowledge\\KnowledgeModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
         ];
 
         // #1762 — one feature per bulk export tile, so an academy admin can

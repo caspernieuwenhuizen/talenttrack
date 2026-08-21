@@ -1,0 +1,69 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "order",
+      "prompt": "Zet de drie blokken van het zeswekenmodel in de juiste volgorde, van week 1–2 naar week 5–6.",
+      "options": [
+        "Explosiviteitsvoorbereidende oefeningen + partijen 11v11/8v8",
+        "Voetbalsprints met minimale rust + partijen 7v7/5v5",
+        "Voetbalsprints met maximale rust + partijen 4v4/3v3"
+      ],
+      "answer": [0, 1, 2],
+      "explanation": "Van volume naar intensiteit, van kwantiteit naar kwaliteit."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Je team houdt het gewenste speeltempo nu 45 minuten vol. Wat is het eerste doel?",
+      "options": [
+        "Het tempo verhogen",
+        "Dat tempo negentig minuten volhouden",
+        "Beide tegelijk aanpakken",
+        "Eerst de explosiviteit verbeteren"
+      ],
+      "answer": 1,
+      "explanation": "Eerst volume, dan intensiteit. Ga je meteen op tempo trainen, dan speelt je team dertig minuten goed voetbal en zestig minuten iets anders."
+    },
+    {
+      "id": "q3",
+      "type": "multiple",
+      "prompt": "Welke argumenten pleiten voor een cyclus van zes weken in plaats van drie?",
+      "options": [
+        "Meer stapeling van trainingseffect over dezelfde periode",
+        "Een speler kan een week overslaan zonder het effect te verliezen",
+        "Het patroon nulpunt – progressie – herhalen – progressie wordt mogelijk",
+        "Er is minder trainingstijd nodig per week"
+      ],
+      "answer": [0, 1, 2],
+      "explanation": "De hoeveelheid trainingstijd per week verandert niet — er is en blijft ruimte voor één conditietraining."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Wat gebeurt er in de vier weken dat een oefenvorm niet als overload terugkomt?",
+      "options": [
+        "Het trainingseffect gaat verloren",
+        "Het trainingseffect ontstaat juist — dat is de afbouw",
+        "De vorm wordt vervangen door een gelijkwaardige",
+        "Er wordt op die vorm alleen technisch getraind zonder bal"
+      ],
+      "answer": 1,
+      "explanation": "Afbouw is geen gemis maar de bedoeling: in die weken ontwikkelt de supercompensatie zich."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Wat is volgens het model het verschil in absoluut conditieniveau tussen een snelle en een geleidelijke opbouw?",
+      "options": [
+        "De geleidelijke opbouw komt hoger uit",
+        "De snelle opbouw komt hoger uit",
+        "Er is geen verschil",
+        "Dat hangt af van het niveau van de spelers"
+      ],
+      "answer": 2,
+      "explanation": "Het eindniveau is gelijk. Wat verschilt is blessurerisico, speelstijlontwikkeling, vermoeidheidsstapeling en of de conditie het hele seizoen standhoudt."
+    }
+  ]
+}

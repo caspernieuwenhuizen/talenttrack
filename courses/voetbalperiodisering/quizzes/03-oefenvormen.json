@@ -1,0 +1,60 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "prompt": "Wat is de veldmaat voor 8v8 volgens de vuistregel?",
+      "options": ["60 × 36 m", "70 × 42 m", "80 × 48 m", "90 × 54 m"],
+      "answer": 1,
+      "explanation": "Zeven veldspelers per ploeg × 10 bij 6 meter geeft 70 × 42 meter."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "De rekenregel geeft voor 5v5 een veld van 40 × 24 meter. Waarom wijk je daarvan af?",
+      "options": [
+        "Omdat 5v5 altijd op een half veld hoort",
+        "Omdat 24 meter te smal is; de ondergrens is 30 meter",
+        "Omdat de vuistregel alleen voor grote partijen geldt",
+        "Omdat de doelmaten anders niet passen"
+      ],
+      "answer": 1,
+      "explanation": "Bij 7v7, 6v6 en 5v5 is de berekende breedte in de praktijk te smal. Een te klein veld levert veel meer handelingen op dan bedoeld."
+    },
+    {
+      "id": "q3",
+      "type": "order",
+      "prompt": "Zet de partijvormen op oplopende intensiteit, van laagste naar hoogste aantal handelingen per minuut.",
+      "options": ["11v11 – 8v8", "7v7 – 5v5", "4v4 – 3v3"],
+      "answer": [0, 1, 2],
+      "explanation": "Hoe kleiner de vorm, hoe korter de tijd tussen twee handelingen."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Waarom is een sprint tussen twee pionnen ongeschikt om de explosiviteitsgrens te verleggen?",
+      "options": [
+        "Omdat de afstand nooit precies klopt",
+        "Omdat spelers zonder tegenstander, bal en doel niet echt honderd procent lopen",
+        "Omdat het te veel tijd kost om op te bouwen",
+        "Omdat de ondergrond te hard is"
+      ],
+      "answer": 1,
+      "explanation": "Je kunt alleen verleggen wat je eerst bereikt. In een duel om de bal loopt een speler wél honderd procent."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Wat is het doel van voetbalsprints met minimale rust?",
+      "options": [
+        "De maximale explosiviteit verhogen",
+        "De explosiviteit langer kunnen volhouden",
+        "Het herstel na de wedstrijd versnellen",
+        "De techniek onder druk verbeteren"
+      ],
+      "answer": 1,
+      "explanation": "Tien seconden rust is te weinig om te herstellen, dus de speler moet vechten om zijn explosiviteit vast te houden. Kwantiteit, niet kwaliteit."
+    }
+  ]
+}
