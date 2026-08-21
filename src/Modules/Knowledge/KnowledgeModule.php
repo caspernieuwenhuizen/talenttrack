@@ -40,5 +40,9 @@ class KnowledgeModule implements ModuleInterface {
      */
     public function boot( Container $container ): void {
         add_action( 'upgrader_process_complete', [ CourseRegistry::class, 'flushCache' ] );
+
+        // Registered, not enqueued: a lesson pulls the stylesheet in when
+        // it renders, and the script only when a block on it needs one.
+        add_action( 'wp_enqueue_scripts', [ LessonRenderer::class, 'registerAssets' ] );
     }
 }
