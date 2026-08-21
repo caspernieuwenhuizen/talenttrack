@@ -40,6 +40,7 @@ jobs:
   lint:
     name: Wizard form-field + URL safety
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
 

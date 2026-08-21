@@ -27,12 +27,17 @@ jobs:
   release:
     name: Build & Release ZIP for ${{ inputs.tag }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.tag }}
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

@@ -27,6 +27,7 @@ jobs:
   lint:
     name: No ungated cross-view links
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:

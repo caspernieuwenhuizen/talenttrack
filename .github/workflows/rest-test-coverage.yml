@@ -32,6 +32,7 @@ jobs:
   mandate:
     name: New-route smoke-test mandate
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:

@@ -36,6 +36,7 @@ jobs:
   drift-gate:
     name: Empty-msgstr delta + hardcoded-English grep
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -49,7 +50,11 @@ jobs:
           tools: wp-cli
 
       - name: Install gettext (msgmerge)
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
 
       # Compute baseline empty-msgstr count for nl_NL on the merge
       # base. We checkout main into a sibling worktree so the PR
