@@ -3,6 +3,7 @@ namespace TT\Modules\Comms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
@@ -40,6 +41,14 @@ use TT\Modules\Comms\Template\TemplateRegistry;
  * the template / channel adapter / recipient is unresolvable; nothing
  * here throws. Callers get one `CommsResult` per recipient; the
  * dispatcher itself returns the full list.
+ *
+ * Every exit path writes an audit row — including the guard clauses.
+ * A send that resolves to nobody, or names a template that isn't
+ * registered, leaves the same evidence a delivered one does. Silence
+ * is never an outcome (#2602).
+ *
+ * `preflight()` runs the same policy chain without rendering or
+ * dispatching, so a caller can warn the user before they commit.
  */
 final class CommsService {
 
@@ -64,20 +73,50 @@ final class CommsService {
      * @return CommsResult[]   one per recipient
      */
     public function send( CommsRequest $request ): array {
+        // A send that resolved to nobody is the commonest invisible
+        // failure in the wild — a team with no linked parents looks
+        // exactly like a successful send. Record it.
+        if ( $request->recipients === [] ) {
+            $result = new CommsResult(
+                wp_generate_uuid4(),
+                CommsResult::STATUS_NO_RECIPIENTS,
+                '',
+                Recipient::none(),
+                'no_recipients'
+            );
+            $this->auditLogger->record( $request, $result->recipient, $result->uuid, '', '', $result );
+            Logger::warning( 'Comms send resolved to zero recipients', [
+                'template_key' => $request->templateKey,
+                'message_type' => $request->messageType,
+                'club_id'      => $request->clubId,
+            ] );
+            return [ $result ];
+        }
+
         $template = TemplateRegistry::get( $request->templateKey );
         if ( $template === null ) {
-            // No template registered — return one failure result per
-            // recipient so the caller can surface the misconfiguration.
-            return array_map(
-                fn ( Recipient $r ) => new CommsResult(
+            // No template registered — one failure result per recipient so
+            // the caller can surface the misconfiguration, AND an audit row
+            // each, so a typo'd template key isn't the one send that leaves
+            // no evidence anywhere.
+            Logger::error( 'Comms send referenced an unregistered template', [
+                'template_key'    => $request->templateKey,
+                'recipient_count' => count( $request->recipients ),
+            ] );
+
+            $results = [];
+            foreach ( $request->recipients as $recipient ) {
+                $result = new CommsResult(
                     wp_generate_uuid4(),
                     CommsResult::STATUS_FAILED,
                     '',
-                    $r,
+                    $recipient,
                     'unknown_template'
-                ),
-                $request->recipients
-            );
+                );
+                $this->auditLogger->record( $request, $recipient, $result->uuid, '', '', $result );
+                $results[] = $result;
+            }
+            return $results;
         }
 
         $results = [];
@@ -85,6 +124,70 @@ final class CommsService {
             $results[] = $this->sendOne( $request, $recipient, $template );
         }
         return $results;
+    }
+
+    /**
+     * Dry run: evaluate the policy chain without rendering or dispatching.
+     *
+     * Returns the same per-recipient shape `send()` does, so a compose
+     * screen can warn *before* the click — "quiet hours are active, this
+     * sends at 07:00", "4 of 12 recipients are unreachable", "this
+     * template is switched off". A `STATUS_QUEUED` verdict means the
+     * recipient would be sent to.
+     *
+     * Writes no audit rows and calls no adapter's `send()`. The spec's
+     * "preview-before-send mandatory" needs this; #2603's kill switch and
+     * #2604's user-triggered sends both consume it.
+     *
+     * @return CommsResult[]   one per recipient
+     */
+    public function preflight( CommsRequest $request ): array {
+        if ( $request->recipients === [] ) {
+            return [ new CommsResult(
+                '',
+                CommsResult::STATUS_NO_RECIPIENTS,
+                '',
+                Recipient::none(),
+                'no_recipients'
+            ) ];
+        }
+
+        $template = TemplateRegistry::get( $request->templateKey );
+        if ( $template === null ) {
+            return array_map(
+                fn ( Recipient $r ) => new CommsResult( '', CommsResult::STATUS_FAILED, '', $r, 'unknown_template' ),
+                $request->recipients
+            );
+        }
+
+        $results = [];
+        foreach ( $request->recipients as $recipient ) {
+            $results[] = $this->preflightOne( $request, $recipient, $template );
+        }
+        return $results;
+    }
+
+    private function preflightOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {
+        if ( $this->optOut->isOptedOut( $recipient->userId, $request->messageType ) ) {
+            return new CommsResult( '', CommsResult::STATUS_OPTED_OUT, '', $recipient );
+        }
+        if ( $this->quietHours->shouldDefer( $request ) ) {
+            return new CommsResult( '', CommsResult::STATUS_QUIET_HOURS, '', $recipient );
+        }
+        if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
+            return new CommsResult( '', CommsResult::STATUS_RATE_LIMITED, '', $recipient );
+        }
+
+        $channelKey = $this->resolveChannel( $request, $recipient, $template->supportedChannels() );
+        if ( $channelKey === null ) {
+            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'no_channel_available' );
+        }
+        if ( ChannelAdapterRegistry::get( $channelKey ) === null ) {
+            return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing' );
+        }
+
+        // Would be sent to. Not yet sent — hence queued, not sent.
+        return new CommsResult( '', CommsResult::STATUS_QUEUED, $channelKey, $recipient );
     }
 
     private function sendOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {

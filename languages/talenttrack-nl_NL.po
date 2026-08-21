@@ -49480,6 +49480,94 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "5 — maximum"
 #~ msgstr "5 — maximaal"
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:48
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:110
+msgid "Nothing was sent — no recipients were resolved."
+msgstr "Er is niets verstuurd — er zijn geen ontvangers gevonden."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:88
+#, php-format
+msgid "Sent to %d recipient."
+msgid_plural "Sent to %d recipients."
+msgstr[0] "Verstuurd naar %d ontvanger."
+msgstr[1] "Verstuurd naar %d ontvangers."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:92
+#, php-format
+msgid "%d recipient will be sent to."
+msgid_plural "%d recipients will be sent to."
+msgstr[0] "%d ontvanger krijgt dit bericht."
+msgstr[1] "%d ontvangers krijgen dit bericht."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:96
+#, php-format
+msgid "%d recipient has opted out of this type of message."
+msgid_plural "%d recipients have opted out of this type of message."
+msgstr[0] "%d ontvanger heeft zich afgemeld voor dit soort berichten."
+msgstr[1] "%d ontvangers hebben zich afgemeld voor dit soort berichten."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:100
+#, php-format
+msgid "%d message is held until quiet hours end."
+msgid_plural "%d messages are held until quiet hours end."
+msgstr[0] "%d bericht wacht tot de stille uren voorbij zijn."
+msgstr[1] "%d berichten wachten tot de stille uren voorbij zijn."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:104
+#, php-format
+msgid "%d message was held back by the sending limit."
+msgid_plural "%d messages were held back by the sending limit."
+msgstr[0] "%d bericht is tegengehouden door de verzendlimiet."
+msgstr[1] "%d berichten zijn tegengehouden door de verzendlimiet."
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:107
+msgid "This message type is switched off for your academy, so nothing was sent."
+msgstr "Dit soort bericht staat uit voor jouw academie, er is niets verstuurd."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:114
+#, php-format
+msgid "%d message bounced."
+msgid_plural "%d messages bounced."
+msgstr[0] "%d bericht kwam niet aan."
+msgstr[1] "%d berichten kwamen niet aan."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:118
+#, php-format
+msgid "%d message failed with an unexpected error. It has been logged."
+msgid_plural "%d messages failed with an unexpected error. They have been logged."
+msgstr[0] "%d bericht is mislukt door een onverwachte fout. Dit is vastgelegd."
+msgstr[1] "%d berichten zijn mislukt door een onverwachte fout. Dit is vastgelegd."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:122
+#, php-format
+msgid "%d recipient has no usable contact details."
+msgid_plural "%d recipients have no usable contact details."
+msgstr[0] "%d ontvanger heeft geen bruikbare contactgegevens."
+msgstr[1] "%d ontvangers hebben geen bruikbare contactgegevens."
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:125
+msgid "This message could not be built — its template is not registered. Contact your administrator."
+msgstr "Dit bericht kon niet worden opgebouwd — de template is niet geregistreerd. Neem contact op met je beheerder."
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:128
+msgid "SMS is switched on but no SMS provider is configured, so nothing was sent."
+msgstr "Sms staat aan, maar er is geen sms-provider ingesteld. Er is niets verstuurd."
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:132
+#, php-format
+msgid "%d message could not be sent. The failure has been logged."
+msgid_plural "%d messages could not be sent. The failures have been logged."
+msgstr[0] "%d bericht kon niet worden verstuurd. De fout is vastgelegd."
+msgstr[1] "%d berichten konden niet worden verstuurd. De fouten zijn vastgelegd."
 
 #~ msgid "Getting started"
 #~ msgstr "Aan de slag"
