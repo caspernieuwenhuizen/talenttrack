@@ -27,6 +27,19 @@ Three kinds:
 A media item is attached to one or more records — a player, a team, or a training or match activity. One photo taken at a training can be attached
 to that activity **and** to each player in the frame, so a single upload appears on every record it belongs to instead of being uploaded four times.
 
+## Where you see it
+
+A player's photos and video live on a **Media** tab on their profile, beside Evaluations and Injuries. The tab appears only for people whose
+permissions reach that player's media, so a coach without access to a squad never sees it at all.
+
+Media is ordered by **when it was taken**, newest first — not by when it was uploaded. That is what makes the tab read as part of the player's
+story rather than as a folder: emptying a camera roll in November does not push August's training above it.
+
+Tap a photo to see it full size, or a video to play it. Arrow keys move between items and Escape closes the viewer. Videos only start loading when
+you actually play one, so opening the tab on a phone does not spend your data on footage you have not asked for.
+
+**Remove** deletes permanently — the file itself, not just the entry. It is only offered to people who may edit that player's media.
+
 ## Adding media
 
 Use **Add media** from a player, team or training. The wizard has four steps:
