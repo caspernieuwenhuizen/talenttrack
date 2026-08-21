@@ -104,10 +104,86 @@ exercises that already had a theme), and goals that name a principle. Until a
 squad's goals name principles, the review step says so plainly rather than
 showing a confident zero.
 
+## Changing a plan
+
+The generator gives you a draft; your judgement turns it into a session.
+Open a plan and press **Edit blocks**.
+
+### Reordering
+
+Every block has **↑** and **↓** buttons. They are the main way to reorder, on
+every screen size and by keyboard — tab to a button and press Enter. On a wide
+screen you can also drag a block by the handle on its right, but you never
+have to.
+
+Nothing is written until you press **Save plan**, so rearranging is free until
+you commit to it.
+
+### Changing how long a block runs
+
+The **−** and **+** buttons change a block in five-minute steps. The time
+strip and the total above it update as you go, so you can see the shape of the
+session change rather than doing the arithmetic yourself.
+
+The total is what the plan ends up as. There is no target it has to hit —
+if you have the pitch for an hour, build an hour.
+
+### Swapping an exercise
+
+**Swap exercise** opens your library. On a phone it slides up from the bottom
+so it sits under your thumb; on a desktop it appears bottom-right.
+
+The list is **sorted by how many of this team's open player goals each
+exercise would serve**, and each row says its number. An exercise that serves
+six players your squad is actually working on sits above one that serves
+nobody, and you can see why.
+
+Search narrows the list by name or code.
+
+### Adding, removing, and coaching points
+
+**Add a block** puts an empty block at the end — choose its kind, then swap an
+exercise into it. A block with no exercise is fine: a team talk or a
+walk-through has no drill behind it.
+
+Each block has a **coaching points** box for what you want to say on the
+night.
+
+### Player goals this plan touches
+
+Beside the blocks (below them on a phone) is the panel that makes the whole
+module worth using: **which players this plan actually works on, by name**.
+
+Players with an open goal on a principle the plan trains are listed
+individually. Underneath, the players with an open goal the plan *misses* are
+named too — because that is the list you can do something about before
+Tuesday.
+
+The panel updates every time you save, so you can swap a block and see who it
+gained or lost.
+
+If it says there is nothing to compare against, that means no player in the
+squad has an open goal tied to a principle yet. See *Why some sessions suit
+your players better than others* above.
+
+### Reusing a plan
+
+Two buttons under the block list:
+
+- **Save as club template** makes a club-wide copy with no team on it — the
+  session that worked becomes a starting shape anyone can build from.
+- **Copy to a new plan** makes an independent copy for the same team, which is
+  the quickest route to next week's session.
+
+Both copy the **saved** plan, so save your changes first — the buttons will
+tell you if you have not.
+
+A copy is genuinely independent: editing it later never changes the plan you
+copied it from.
+
 ## What is not here yet
 
 Still to come, in order:
 
-- editing a generated plan block by block
 - attaching a plan to a training, the sideline view and the A4 print
 - the per-player training history that all of it feeds

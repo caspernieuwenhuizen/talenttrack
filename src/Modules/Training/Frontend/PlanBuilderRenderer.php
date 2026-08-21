@@ -261,8 +261,10 @@ final class PlanBuilderRenderer {
             'step'       => self::STEP_MINUTES,
             'min'        => self::MIN_MINUTES,
             'max'        => self::MAX_MINUTES,
-            'planUrl'    => esc_url_raw( add_query_arg(
-                [ 'tt_view' => 'training-plan', 'id' => $plan_id ],
+            // Where a copy lands. Same view, same module, and the user is
+            // already standing in it — there is no cross-view affordance
+            // to gate, only a redirect target for a write they just made.
+            'planUrl'    => esc_url_raw( add_query_arg( [ 'tt_view' => 'training-plan', 'id' => $plan_id ], /* tt-xview-ok — same view the user is already in */
                 \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             ) ),
             'i18n'       => self::strings(),
