@@ -1530,3 +1530,10 @@
     min-height: 48px;
     line-height: 1.4;
 }
+
+/* #2616 — the coach attendance form submit button. Was an inline
+   style="margin-top:10px" on the markup; moved here so the label pass
+   did not have to grandfather it. */
+.tt-dashboard .tt-coach-form__submit {
+    margin-top: var(--tt-sp-3, 12px);
+}

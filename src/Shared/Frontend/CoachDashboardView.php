@@ -269,7 +269,7 @@ class CoachDashboardView {
                     <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" style="width:150px" /></td></tr>
             <?php endforeach; ?>
             </tbody></table>
-            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
+            <button type="submit" class="tt-btn tt-btn-primary tt-coach-form__submit"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>
         <?php
