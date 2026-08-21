@@ -74,22 +74,31 @@ final class ArchiveFilterParamTest extends WP_UnitTestCase {
 
     // --- Exercises ------------------------------------------------------
 
+    /**
+     * The library browse pages at 25 and the install seeds exercises of its
+     * own, so every call here carries a search term unique to the fixture.
+     * Without it the assertions would be about pagination, not archiving.
+     */
+    private const EX_TOKEN = 'Zzarchivefixture';
+
     public function test_exercises_honour_both_the_canonical_and_legacy_key(): void {
         $repo = new ExercisesRepository();
-        $live = $repo->create( [ 'name' => 'Rondo 5v2', 'visibility' => 'club', 'duration_minutes' => 20 ] );
-        $gone = $repo->create( [ 'name' => 'Afgedankte vorm', 'visibility' => 'club', 'duration_minutes' => 20 ] );
-        $this->archiveRow( 'tt_vct_exercises', $gone );
+        $live = $repo->create( [ 'name' => self::EX_TOKEN . ' rondo',     'visibility' => 'club', 'duration_minutes' => 20 ] );
+        $gone = $repo->create( [ 'name' => self::EX_TOKEN . ' afgedankt', 'visibility' => 'club', 'duration_minutes' => 20 ] );
+        $this->archiveRow( 'tt_exercises', $gone );
 
         $route = '/talenttrack/v1/exercises';
+        $base  = [ 'browse' => 1, 'per_page' => 50, 'search' => self::EX_TOKEN ];
 
-        [ , $default ] = $this->call( $route, [ 'browse' => 1, 'per_page' => 50 ] );
+        [ , $default ] = $this->call( $route, $base );
         $this->assertContains( $live, $this->ids( $default['rows'] ), 'the default view is active-only' );
         $this->assertNotContains( $gone, $this->ids( $default['rows'] ) );
 
-        [ , $canonical ] = $this->call( $route, [ 'browse' => 1, 'per_page' => 50, 'filter' => [ 'archived' => 'archived' ] ] );
+        [ , $canonical ] = $this->call( $route, $base + [ 'filter' => [ 'archived' => 'archived' ] ] );
         $this->assertContains( $gone, $this->ids( $canonical['rows'] ) );
+        $this->assertNotContains( $live, $this->ids( $canonical['rows'] ) );
 
-        [ , $legacy ] = $this->call( $route, [ 'browse' => 1, 'per_page' => 50, 'filter' => [ 'status' => 'archived' ] ] );
+        [ , $legacy ] = $this->call( $route, $base + [ 'filter' => [ 'status' => 'archived' ] ] );
         $this->assertSame(
             $this->ids( $canonical['rows'] ),
             $this->ids( $legacy['rows'] ),
@@ -99,13 +108,14 @@ final class ArchiveFilterParamTest extends WP_UnitTestCase {
 
     public function test_the_canonical_key_wins_when_both_are_present(): void {
         $repo = new ExercisesRepository();
-        $live = $repo->create( [ 'name' => 'Levende vorm', 'visibility' => 'club', 'duration_minutes' => 20 ] );
-        $gone = $repo->create( [ 'name' => 'Gearchiveerde vorm', 'visibility' => 'club', 'duration_minutes' => 20 ] );
-        $this->archiveRow( 'tt_vct_exercises', $gone );
+        $live = $repo->create( [ 'name' => self::EX_TOKEN . ' levend',       'visibility' => 'club', 'duration_minutes' => 20 ] );
+        $gone = $repo->create( [ 'name' => self::EX_TOKEN . ' gearchiveerd', 'visibility' => 'club', 'duration_minutes' => 20 ] );
+        $this->archiveRow( 'tt_exercises', $gone );
 
         [ , $data ] = $this->call( '/talenttrack/v1/exercises', [
             'browse'   => 1,
             'per_page' => 50,
+            'search'   => self::EX_TOKEN,
             'filter'   => [ 'archived' => 'active', 'status' => 'archived' ],
         ] );
 
@@ -177,7 +187,7 @@ final class ArchiveFilterParamTest extends WP_UnitTestCase {
         $gone = $repo->create( [ 'title' => 'Weekplan 1' ] );
         $this->archiveRow( 'tt_training_plans', $gone );
 
-        $route = '/talenttrack/v1/training-plans';
+        $route = '/talenttrack/v1/training/plans';
 
         [ , $default ] = $this->call( $route, [ 'per_page' => 50 ] );
         $this->assertContains( $live, $this->ids( $default['rows'] ) );
@@ -196,7 +206,7 @@ final class ArchiveFilterParamTest extends WP_UnitTestCase {
         $gone = $repo->create( [ 'title' => 'Gearchiveerd plan' ] );
         $this->archiveRow( 'tt_training_plans', $gone );
 
-        [ , $data ] = $this->call( '/talenttrack/v1/training-plans', [
+        [ , $data ] = $this->call( '/talenttrack/v1/training/plans', [
             'per_page' => 50,
             'filter'   => [ 'archived' => 'all' ],
         ] );
