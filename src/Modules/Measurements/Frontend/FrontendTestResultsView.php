@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
-use TT\Modules\Measurements\Reports\MeasurementDeltaFormat;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Services\MeasurementResultsBrowse;
 use TT\Shared\Frontend\Components\BackLink;
@@ -325,27 +324,9 @@ final class FrontendTestResultsView extends FrontendViewBase {
      * stays the bare em dash rather than showing a fabricated zero.
      */
     private static function trendCell( string $trend, ?float $delta = null, string $unit = '' ): string {
-        if ( $trend === '' ) {
-            return '<span class="tt-tr-empty">—</span>';
-        }
-        $map = [
-            'up'   => [ '▲', __( 'Improved', 'talenttrack' ) ],
-            'down' => [ '▼', __( 'Declined', 'talenttrack' ) ],
-            'flat' => [ '▬', __( 'Unchanged', 'talenttrack' ) ],
-        ];
-        [ $glyph, $label ] = $map[ $trend ] ?? $map['flat'];
-
-        $amount = '';
-        if ( $delta !== null ) {
-            $amount = ' <span class="tt-tr-trend__delta">'
-                . esc_html( MeasurementDeltaFormat::signed( $delta, $unit ) )
-                . '</span>';
-        }
-
-        return '<span class="tt-tr-trend tt-tr-trend--' . esc_attr( sanitize_html_class( $trend ) ) . '" title="' . esc_attr( $label ) . '">'
-            . '<span aria-hidden="true">' . esc_html( $glyph ) . '</span>'
-            . '<span class="tt-tr-sr">' . esc_html( $label ) . '</span></span>'
-            . $amount; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
+        // #2628 — the indicator moved to a shared component so this report and
+        // Test trends cannot drift apart about the same player's trend.
+        return \TT\Shared\Frontend\Components\TrendGlyph::render( $trend, $delta, $unit );
     }
 
     private static function flagLabel( string $flag ): string {
