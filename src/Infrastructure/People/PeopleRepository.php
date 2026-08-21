@@ -366,6 +366,96 @@ class PeopleRepository {
         return true;
     }
 
+    /**
+     * One assignment row with its team, person and role labels resolved.
+     *
+     * #2608 — the edit form and the REST update handler both need to know
+     * whether the row exists for the current club before doing anything
+     * else, and the form needs the labels to render team and person as
+     * read-only text.
+     */
+    public function findAssignment( int $assignment_id ): ?object {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        if ( $assignment_id <= 0 ) return null;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT tp.*, t.name AS team_name,
+                    fr.role_key AS functional_role_key, fr.label AS functional_role_label,
+                    TRIM(CONCAT(COALESCE(pe.first_name,''), ' ', COALESCE(pe.last_name,''))) AS person_name
+             FROM {$p}tt_team_people tp
+             INNER JOIN {$p}tt_teams t ON t.id = tp.team_id AND t.club_id = tp.club_id
+             LEFT  JOIN {$p}tt_people pe ON pe.id = tp.person_id AND pe.club_id = tp.club_id
+             LEFT  JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+             WHERE tp.id = %d AND tp.club_id = %d",
+            $assignment_id, CurrentClub::id()
+        ) );
+
+        return $row ?: null;
+    }
+
+    /**
+     * Change an existing assignment's functional role and dates in place.
+     *
+     * #2608 — promoting an assistant coach to head coach previously meant
+     * unassign + re-create, which discarded the original start date. The
+     * three columns that must move together are written here as one
+     * update: `functional_role_id`, the legacy `role_in_team` string that
+     * backs the `uniq_team_person_role` index, and `is_head_coach`, which
+     * `PersonaResolver::resolveCoachPersona()` reads to decide whether the
+     * coach lands on the head-coach or assistant-coach dashboard.
+     *
+     * Team and person are deliberately not editable — moving an assignment
+     * to a different team or person is a different assignment, and unassign
+     * + create makes that explicit.
+     *
+     * Fires the existing `tt_person_assigned_to_team` hook rather than a
+     * new one, so every current listener stays correct — notably
+     * `AuthorizationService::flushCache()`, without which a promoted coach
+     * keeps landing on the assistant dashboard until the cache expires.
+     */
+    public function updateAssignment( int $assignment_id, int $functional_role_id, ?string $start = null, ?string $end = null ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        if ( $assignment_id <= 0 || $functional_role_id <= 0 ) return false;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT team_id, person_id FROM {$p}tt_team_people WHERE id = %d AND club_id = %d",
+            $assignment_id, CurrentClub::id()
+        ) );
+        if ( $row === null ) return false;
+
+        $fn_role_key = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT role_key FROM {$p}tt_functional_roles WHERE id = %d AND club_id = %d",
+            $functional_role_id, CurrentClub::id()
+        ) );
+        if ( $fn_role_key === '' ) return false;
+
+        $result = $wpdb->update(
+            "{$p}tt_team_people",
+            [
+                'functional_role_id' => $functional_role_id,
+                'role_in_team'       => $fn_role_key,
+                'is_head_coach'      => $fn_role_key === 'head_coach' ? 1 : 0,
+                'start_date'         => $start ?: null,
+                'end_date'           => $end ?: null,
+            ],
+            [ 'id' => $assignment_id, 'club_id' => CurrentClub::id() ]
+        );
+        if ( $result === false ) return false;
+
+        // The (person, team) pair is unchanged, so this is a no-op in
+        // practice. Kept on the write path anyway: the invariant belongs
+        // next to the write, not assumed from a sibling method.
+        self::syncTeamScopeRow( (int) $row->team_id, (int) $row->person_id );
+
+        /** This block documented on {@see self::assignToTeam()}. */
+        do_action( 'tt_person_assigned_to_team', (int) $row->team_id, (int) $row->person_id, $fn_role_key, $functional_role_id );
+
+        return true;
+    }
+
     public function unassign( int $assignment_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;

@@ -49472,6 +49472,42 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "Edit assignment"
+msgstr "Toewijzing bewerken"
+
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "Assignment not found"
+msgstr "Toewijzing niet gevonden"
+
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "That assignment no longer exists."
+msgstr "Die toewijzing bestaat niet meer."
+
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "You do not have permission to change assignments."
+msgstr "Je hebt geen rechten om toewijzingen te wijzigen."
+
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "Update assignment"
+msgstr "Toewijzing bijwerken"
+
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php
+msgid "Leave empty while the assignment is current."
+msgstr "Laat leeg zolang de toewijzing loopt."
+
+#: src/Infrastructure/REST/FunctionalRolesRestController.php
+msgid "A functional role is required."
+msgstr "Een functionele rol is verplicht."
+
+#: src/Infrastructure/REST/FunctionalRolesRestController.php
+msgid "Assignment not found."
+msgstr "Toewijzing niet gevonden."
+
+#: src/Infrastructure/REST/FunctionalRolesRestController.php
+msgid "Could not update the assignment. The person may already hold this role on this team."
+msgstr "De toewijzing kon niet worden bijgewerkt. Mogelijk heeft deze persoon deze rol al bij dit team."
+
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
 
