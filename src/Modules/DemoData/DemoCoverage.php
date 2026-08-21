@@ -22,6 +22,7 @@ use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
+use TT\Modules\DemoData\Generators\TrainingPlanGenerator;
 use TT\Modules\DemoData\Generators\TournamentGenerator;
 
 /**
@@ -596,9 +597,24 @@ class DemoCoverage {
         // inventing a shape the builder has not settled yet, so these wait
         // for the wave that gives them one.
 
-        'tt_training_plans'           => [ 'planned' => '#2498' ],
-        'tt_training_plan_blocks'     => [ 'planned' => '#2498' ],
-        'tt_training_plan_principles' => [ 'planned' => '#2498' ],
+        'tt_training_plans' => [
+            'entity_type' => 'training_plan',
+            'category'    => 'training_plans',
+            'written_by'  => TrainingPlanGenerator::class,
+            'depends_on'  => [ 'tt_teams', 'tt_exercises' ],
+        ],
+        'tt_training_plan_blocks' => [
+            'entity_type' => 'training_plan_block',
+            'category'    => 'training_plans',
+            'written_by'  => TrainingPlanGenerator::class,
+            'depends_on'  => [ 'tt_training_plans' ],
+        ],
+        'tt_training_plan_principles' => [
+            'entity_type' => 'training_plan_principle',
+            'category'    => 'training_plans',
+            'written_by'  => TrainingPlanGenerator::class,
+            'depends_on'  => [ 'tt_training_plan_blocks' ],
+        ],
         'tt_training_plan_runs'       => [ 'planned' => '#2499' ],
         'tt_training_plan_run_blocks' => [ 'planned' => '#2499' ],
 
@@ -821,6 +837,14 @@ class DemoCoverage {
                 'report_preset', 'workflow_task', 'invitation',
             ],
         ],
+        // #2498 — appended rather than inserted, so every generator
+        // before it draws the same values from the seeded stream and the
+        // same (seed, preset) keeps reproducing.
+        'training_plans' => [
+            'tier'      => 'dependent',
+            'run_order' => 190,
+            'cascade'   => [ 'training_plan_principle', 'training_plan_block', 'training_plan' ],
+        ],
     ];
 
     /**
@@ -848,6 +872,18 @@ class DemoCoverage {
         // and leaves a real user's read state on real threads alone.
         'tt_thread_reads' => [
             'delete_by' => [ 'column' => 'thread_id', 'entity_type' => 'thread_read' ],
+        ],
+        // #2498 — a plan's blocks and its derived principle rows have
+        // their own ids but are never tagged individually: they exist
+        // only as part of a plan, and tagging six blocks per plan would
+        // triple the batch registry for nothing. The wipe reaches them
+        // through the plan id instead, which is also what guarantees a
+        // wiped plan cannot leave orphaned blocks behind.
+        'tt_training_plan_blocks' => [
+            'delete_by' => [ 'column' => 'plan_id', 'entity_type' => 'training_plan_block' ],
+        ],
+        'tt_training_plan_principles' => [
+            'delete_by' => [ 'column' => 'plan_id', 'entity_type' => 'training_plan_principle' ],
         ],
     ];
 

@@ -11,6 +11,7 @@ use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\RecordSpine;
 use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
@@ -174,7 +175,15 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             [ FrontendBreadcrumbs::viewCrumb( 'training-plans', __( 'Training', 'talenttrack' ) ) ]
         );
 
-        self::renderHeader( (string) $plan->title );
+        $building = self::isBuildMode();
+
+        self::renderHeader( (string) $plan->title, self::pageActionsHtml( self::detailActions( $id, $building ) ) );
+        self::renderSpine( $id, $plan, $building );
+
+        if ( $building ) {
+            PlanBuilderRenderer::render( $plan );
+            return;
+        }
 
         $blocks = ( new TrainingPlanBlocksRepository() )->listForPlan( $id );
         $runs   = ( new TrainingPlanRunsRepository() )->listForPlan( $id );
@@ -183,6 +192,73 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         self::renderTimeline( $blocks, (int) $plan->total_duration_minutes );
         self::renderBlocks( $blocks );
         self::renderRuns( $runs );
+    }
+
+    private static function isBuildMode(): bool {
+        return isset( $_GET['mode'] ) && sanitize_key( wp_unslash( $_GET['mode'] ) ) === 'build';
+    }
+
+    private static function detailUrl( int $id, bool $build ): string {
+        $args = [ 'tt_view' => 'training-plan', 'id' => $id ];
+        if ( $build ) $args['mode'] = 'build';
+
+        return add_query_arg( $args, RecordLink::dashboardUrl() );
+    }
+
+    /**
+     * The record's two tabs, through the shared spine (CLAUDE.md §5c).
+     *
+     * The spine renders nothing under the `classic` shell, which is why
+     * Edit / Done also exists as a header action — under classic, that
+     * link is the only way into the builder, and a feature reachable
+     * only through chrome that half the installs do not render is a
+     * feature half the installs do not have.
+     */
+    private static function renderSpine( int $id, object $plan, bool $building ): void {
+        RecordSpine::render( [
+            'name' => (string) $plan->title,
+            'meta' => $plan->is_template
+                ? __( 'Club template', 'talenttrack' )
+                : __( 'Team plan', 'talenttrack' ),
+            'tabs' => [
+                [
+                    'label'  => __( 'Overview', 'talenttrack' ),
+                    'url'    => self::detailUrl( $id, false ),
+                    'active' => ! $building,
+                ],
+                [
+                    'label'  => __( 'Build', 'talenttrack' ),
+                    'url'    => self::detailUrl( $id, true ),
+                    'active' => $building,
+                ],
+            ],
+        ] );
+    }
+
+    /**
+     * @return list<array<string,mixed>>
+     */
+    private static function detailActions( int $id, bool $building ): array {
+        if ( $building ) {
+            return [
+                [
+                    'label' => __( 'Done editing', 'talenttrack' ),
+                    'href'  => self::detailUrl( $id, false ), /* tt-xview-ok — same view, same record */
+                ],
+            ];
+        }
+
+        // Save-as-template lives inside the builder rather than here.
+        // It is a write, so it needs the builder's REST client; putting
+        // it on the read-only page would mean enqueuing that script on a
+        // view whose whole point is that it does not need one.
+        return [
+            [
+                'label'   => __( 'Edit blocks', 'talenttrack' ),
+                'href'    => self::detailUrl( $id, true ), /* tt-xview-ok — same view, same record */
+                'primary' => true,
+            ],
+        ];
     }
 
     /**

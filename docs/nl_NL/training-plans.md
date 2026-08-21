@@ -108,11 +108,88 @@ ingevuld voor oefeningen die al een thema hadden) en doelen die een principe
 noemen. Zolang de doelen van een selectie geen principes noemen, zegt de
 controlestap dat gewoon — in plaats van een zelfverzekerde nul te tonen.
 
+## Een plan aanpassen
+
+De generator geeft je een concept; jouw vakmanschap maakt er een training van.
+Open een plan en klik op **Blokken bewerken**.
+
+### Volgorde veranderen
+
+Elk blok heeft een **↑**- en een **↓**-knop. Dat is de gewone manier om de
+volgorde te veranderen: op elk schermformaat, en met het toetsenbord — tab
+naar een knop en druk op Enter. Op een breed scherm kun je een blok ook
+verslepen aan het handvat rechts, maar dat hoeft nooit.
+
+Er wordt niets weggeschreven tot je op **Plan opslaan** klikt, dus schuiven
+kost je niets tot je het vastlegt.
+
+### De duur van een blok veranderen
+
+Met **−** en **+** verandert een blok in stappen van vijf minuten. De tijdbalk
+en het totaal erboven lopen mee, zodat je de opbouw van de training ziet
+veranderen in plaats van zelf te rekenen.
+
+Het totaal is wat het plan wordt. Er is geen streefduur die gehaald moet
+worden — heb je het veld een uur, bouw dan een uur.
+
+### Een oefening vervangen
+
+**Oefening vervangen** opent je bibliotheek. Op een telefoon schuift die van
+onderen omhoog, binnen bereik van je duim; op een desktop verschijnt hij
+rechtsonder.
+
+De lijst is **gesorteerd op hoeveel open spelerdoelen van dit team elke
+oefening bedient**, en bij elke regel staat dat aantal. Een oefening die zes
+spelers bedient waar je selectie echt aan werkt, staat boven een oefening die
+niemand bedient — en je ziet waarom.
+
+Met zoeken beperk je de lijst op naam of code.
+
+### Toevoegen, verwijderen en coachpunten
+
+**Blok toevoegen** zet een leeg blok onderaan — kies het soort en vervang er
+dan een oefening in. Een blok zonder oefening mag: een nabespreking of een
+doorloopmoment heeft geen oefening nodig.
+
+Elk blok heeft een veld voor **coachpunten**: wat je die avond wilt zeggen.
+
+### Spelerdoelen die dit plan raakt
+
+Naast de blokken (eronder op een telefoon) staat het paneel dat de hele module
+de moeite waard maakt: **welke spelers dit plan echt bedient, met naam**.
+
+Spelers met een open doel op een principe dat het plan traint, staan er
+afzonderlijk in. Daaronder staan ook de spelers met een open doel dat het plan
+juist **niet** raakt — want dat is de lijst waar je vóór dinsdag nog iets mee
+kunt.
+
+Het paneel loopt mee met elke keer dat je opslaat, dus je kunt een blok
+vervangen en meteen zien wie erbij komt of wegvalt.
+
+Staat er dat er niets is om mee te vergelijken, dan heeft nog geen speler in
+de selectie een open doel dat aan een principe hangt. Zie hierboven bij
+*Waarom de ene training beter bij je spelers past dan de andere*.
+
+### Een plan hergebruiken
+
+Onder de blokkenlijst staan twee knoppen:
+
+- **Opslaan als clubsjabloon** maakt een clubbrede kopie zonder team — de
+  training die goed werkte wordt een vertrekpunt waar iedereen op kan
+  voortbouwen.
+- **Kopiëren naar een nieuw plan** maakt een zelfstandige kopie voor hetzelfde
+  team; de snelste route naar de training van volgende week.
+
+Allebei kopiëren ze het **opgeslagen** plan, dus sla je wijzigingen eerst op —
+de knoppen zeggen het als je dat nog niet hebt gedaan.
+
+Een kopie staat echt op zichzelf: als je die later aanpast, verandert het plan
+waar je hem van kopieerde niet.
+
 ## Wat er nog niet is
 
 Wat nog volgt, op volgorde:
 
-- een gegenereerd plan blok voor blok bewerken
 - een plan aan een training koppelen, de weergave langs de lijn en de
   A4-afdruk
 - de trainingsgeschiedenis per speler waar dit alles naartoe werkt
