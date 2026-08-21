@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T23:19:04+00:00\n"
+"POT-Creation-Date: 2026-08-21T23:35:45+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -131,6 +131,7 @@ msgstr "Team Manager"
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:255
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:310
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:344
+#: src/Modules/Media/Wizard/MediaTargetStep.php:45
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
@@ -2029,6 +2030,7 @@ msgstr "Training"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:185
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:130
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:156
+#: src/Modules/Knowledge/Periodisation.php:225
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:59
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
 #: src/Shared/Frontend/FrontendStandardReportsView.php:518
@@ -4629,6 +4631,7 @@ msgstr "Filteren"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
 #: src/Modules/Goals/Admin/GoalsPage.php:138
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:44
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
 #: src/Modules/Methodology/Admin/MethodologyPage.php:423
@@ -5389,6 +5392,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/Components/FormSaveButton.php:63
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
+#: src/Shared/Frontend/Components/MediaUploader.php:136
 #: src/Shared/Frontend/Components/SavedViews.php:155
 #: src/Shared/Frontend/DashboardShortcode.php:233
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3280
@@ -6045,6 +6049,7 @@ msgstr "In uitvoering"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
 #: src/Modules/Workflow/TaskStatus.php:69
+#: src/Shared/Frontend/Components/MediaUploader.php:137
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1776
 msgid "Cancelled"
 msgstr "Geannuleerd"
@@ -8255,6 +8260,7 @@ msgstr "Sleutel"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:40
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:101
 #: src/Modules/Goals/Admin/GoalsPage.php:140
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:50
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:151
@@ -9043,6 +9049,7 @@ msgstr "Wijziging"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:561
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:45
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:38
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2942
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2965
@@ -13344,6 +13351,7 @@ msgid "Select Logo"
 msgstr "Logo selecteren"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
 #: src/Modules/Players/Admin/PlayersPage.php:422
 #: src/Shared/Frontend/FrontendConfigurationView.php:2914
 #: src/Shared/Frontend/FrontendPlayersManageView.php:313
@@ -14037,6 +14045,7 @@ msgstr "Thuis/Uit"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:158
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:48
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:135
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:79
 msgid "Minutes played"
 msgstr "Gespeelde minuten"
 
@@ -17411,6 +17420,7 @@ msgid "A short summary of the idea"
 msgstr "Een korte samenvatting van het idee"
 
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:67
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:24
 #: src/Modules/Wizards/Activity/DetailsStep.php:23
 #: src/Modules/Wizards/Goal/DetailsStep.php:12
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:322
@@ -18194,6 +18204,7 @@ msgstr ""
 "meteen gebruiken."
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:154
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:84
 #: src/Modules/Vct/Wizard/PreviewStep.php:84
 msgid "Exercise"
 msgstr "Oefening"
@@ -20260,6 +20271,346 @@ msgid ""
 msgstr ""
 "Een speler in jouw team is bijna terug van blessure. Bevestig dat ze op "
 "schema liggen of werk de verwachte terugkeer bij."
+
+#. translators: 1: quality percentage, 2: seconds between actions
+#: src/Modules/Knowledge/Blocks/ActionLineBlock.php:91
+#, php-format
+msgid "Actions at %1$d%% quality, %2$d seconds apart."
+msgstr "Handelingen op %1$d%% kwaliteit, %2$d seconden ertussen."
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php:49
+msgid "Practical assignment"
+msgstr "Praktijkopdracht"
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php:51
+msgid ""
+"Work this through with your own team. Handing it in for review opens once "
+"progress tracking is switched on."
+msgstr ""
+"Werk dit uit met je eigen team. Inleveren ter beoordeling wordt mogelijk "
+"zodra voortgangsregistratie aanstaat."
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:35
+msgid "What you will learn"
+msgstr "Wat je gaat leren"
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:36
+msgid "The point"
+msgstr "Waar het om gaat"
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:37
+msgid "Watch out"
+msgstr "Let op"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:55
+msgid "Load pattern"
+msgstr "Belastingpatroon"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:56
+msgid "Cycle length"
+msgstr "Cyclusduur"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:59
+msgid "Six weeks"
+msgstr "Zes weken"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:61
+msgid "Three weeks"
+msgstr "Drie weken"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:63
+msgid "100 = overload · 50 = underload · 0 = taper"
+msgstr "100 = overload · 50 = underload · 0 = afbouw"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:77
+msgid "11v11 – 8v8"
+msgstr "11v11 – 8v8"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:78
+msgid "7v7 – 5v5"
+msgstr "7v7 – 5v5"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:79
+msgid "4v4 – 3v3"
+msgstr "4v4 – 3v3"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:59
+msgid "Training methods"
+msgstr "Trainingsmethoden"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:66
+msgid "Volume · quantity"
+msgstr "Volume · kwantiteit"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:67
+msgid "Intensity · quality"
+msgstr "Intensiteit · kwaliteit"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:77
+msgid "Pitch size calculator"
+msgstr "Veldmaatberekening"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:79
+msgid "Game format"
+msgstr "Spelvorm"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:81
+msgid "Rule of thumb"
+msgstr "Vuistregel"
+
+#. translators: 1: metres of length, 2: metres of width
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:89
+#, php-format
+msgid "Derived from %1$d by %2$d metres per outfield player."
+msgstr "Afgeleid van %1$d bij %2$d meter per veldspeler."
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
+#: src/Modules/Knowledge/LessonRenderer.php:111
+msgid "The rule of thumb works at this format."
+msgstr "De vuistregel werkt bij deze spelvorm."
+
+#. translators: 1: computed width in metres, 2: minimum usable width in metres
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
+#: src/Modules/Knowledge/LessonRenderer.php:113
+#, php-format
+msgid ""
+"The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
+"m, or the game turns into a more intensive method than you planned."
+msgstr ""
+"De berekende breedte van %1$d m is smaller dan een strafschopgebied. Maak "
+"het veld %2$d m breed, anders wordt het spel een intensievere methode dan je "
+"gepland had."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:39
+msgid "Check your understanding"
+msgstr "Toets jezelf"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:40
+msgid ""
+"The questions for this module open once progress tracking is switched on."
+msgstr ""
+"De vragen bij deze module komen beschikbaar zodra voortgangsregistratie "
+"aanstaat."
+
+#: src/Modules/Knowledge/Blocks/RevealBlock.php:38
+msgid "Think it through, then check"
+msgstr "Denk na, en controleer daarna"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:79
+msgid "Week planner"
+msgstr "Weekplanner"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:80
+msgid ""
+"Set your match day and your trainings. The plan is checked against the "
+"recovery times as you go."
+msgstr ""
+"Zet je wedstrijddag en je trainingen neer. Het schema wordt meteen "
+"gecontroleerd op de hersteltijden."
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:82
+#: src/Modules/Knowledge/LessonRenderer.php:108
+msgid "Add a match and at least one training to check the week."
+msgstr ""
+"Voeg een wedstrijd en minstens één training toe om de week te controleren."
+
+#. translators: 1: session label, 2: day name, 3: match day name, 4: available hours, 5: required hours
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:125
+#, php-format
+msgid "%1$s on %2$s, match on %3$s: %4$d hours available, %5$d needed."
+msgstr "%1$s op %2$s, wedstrijd op %3$s: %4$d uur beschikbaar, %5$d nodig."
+
+#. translators: 1: session label, 2: first day, 3: second day, 4: gap in hours, 5: required hours
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:154
+#, php-format
+msgid ""
+"%1$s on %2$s and again on %3$s: %4$d hours apart, %5$d needed between two of "
+"the same stimulus."
+msgstr ""
+"%1$s op %2$s en opnieuw op %3$s: %4$d uur ertussen, %5$d nodig tussen twee "
+"gelijksoortige prikkels."
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:183
+#: src/Shared/Frontend/FrontendConfigurationView.php:2072
+msgid "Monday"
+msgstr "Maandag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:184
+msgid "Tuesday"
+msgstr "dinsdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:185
+msgid "Wednesday"
+msgstr "woensdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:186
+msgid "Thursday"
+msgstr "donderdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:187
+msgid "Friday"
+msgstr "vrijdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:188
+msgid "Saturday"
+msgstr "zaterdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:189
+#: src/Shared/Frontend/FrontendConfigurationView.php:2073
+msgid "Sunday"
+msgstr "Zondag"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:74
+msgid "Zero-point measurement"
+msgstr "Nulpuntmeting"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:75
+msgid ""
+"Enter the minutes your team played before the majority visibly dropped their "
+"action count."
+msgstr ""
+"Vul in hoeveel minuten je team speelde voordat de meerderheid zichtbaar "
+"minder handelingen ging maken."
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:77
+msgid "Training method"
+msgstr "Trainingsmethode"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:80
+#: src/Modules/Knowledge/LessonRenderer.php:105
+msgid "Enter the minutes to see your starting step."
+msgstr "Vul de minuten in om je startstap te zien."
+
+#. translators: 1: step number, 2: number of games, 3: minutes per game
+#: src/Modules/Knowledge/LessonRenderer.php:104
+#, php-format
+msgid "Start at step %1$d: %2$d games of %3$s minutes."
+msgstr "Begin bij stap %1$d: %2$d partijen van %3$s minuten."
+
+#: src/Modules/Knowledge/LessonRenderer.php:106
+msgid "That is below the lightest step. Start at step 1 and build from there."
+msgstr ""
+"Dat ligt onder de lichtste stap. Begin bij stap 1 en bouw van daaruit op."
+
+#: src/Modules/Knowledge/LessonRenderer.php:107
+msgid "This week respects every recovery time."
+msgstr "Deze week respecteert elke hersteltijd."
+
+#. translators: %d: number of problems found
+#: src/Modules/Knowledge/LessonRenderer.php:110
+#, php-format
+msgid "%d problem(s) with this week:"
+msgstr "%d probleem/problemen met deze week:"
+
+#: src/Modules/Knowledge/Periodisation.php:37
+#: src/Modules/Knowledge/Periodisation.php:85
+msgid "Explosivity preparation exercises"
+msgstr "Explosiviteitsvoorbereidende oefeningen"
+
+#: src/Modules/Knowledge/Periodisation.php:42
+#: src/Modules/Knowledge/Periodisation.php:86
+msgid "Games 11v11 – 8v8"
+msgstr "Partijen 11v11 – 8v8"
+
+#: src/Modules/Knowledge/Periodisation.php:47
+#: src/Modules/Knowledge/Periodisation.php:109
+msgid "Football sprints with maximum rest"
+msgstr "Voetbalsprints met maximale rust"
+
+#: src/Modules/Knowledge/Periodisation.php:52
+#: src/Modules/Knowledge/Periodisation.php:98
+msgid "Games 7v7 – 5v5"
+msgstr "Partijen 7v7 – 5v5"
+
+#: src/Modules/Knowledge/Periodisation.php:57
+#: src/Modules/Knowledge/Periodisation.php:97
+msgid "Football sprints with minimum rest"
+msgstr "Voetbalsprints met minimale rust"
+
+#: src/Modules/Knowledge/Periodisation.php:62
+#: src/Modules/Knowledge/Periodisation.php:110
+msgid "Games 4v4 – 3v3"
+msgstr "Partijen 4v4 – 3v3"
+
+#: src/Modules/Knowledge/Periodisation.php:82
+msgid "Week 1–2"
+msgstr "Week 1–2"
+
+#: src/Modules/Knowledge/Periodisation.php:89
+msgid "Acceleration runs"
+msgstr "Versnellingslopen"
+
+#: src/Modules/Knowledge/Periodisation.php:90
+msgid "Extensive endurance method"
+msgstr "Extensieve duurmethode"
+
+#: src/Modules/Knowledge/Periodisation.php:94
+msgid "Week 3–4"
+msgstr "Week 3–4"
+
+#: src/Modules/Knowledge/Periodisation.php:101
+msgid "Repeated short sprinting"
+msgstr "Herhaald kort sprinten"
+
+#: src/Modules/Knowledge/Periodisation.php:102
+msgid "Intensive endurance method"
+msgstr "Intensieve duurmethode"
+
+#: src/Modules/Knowledge/Periodisation.php:106
+msgid "Week 5–6"
+msgstr "Week 5–6"
+
+#: src/Modules/Knowledge/Periodisation.php:113
+msgid "Start and acceleration speed"
+msgstr "Start- en acceleratiesnelheid"
+
+#: src/Modules/Knowledge/Periodisation.php:114
+msgid "Extensive interval method"
+msgstr "Extensieve intervalmethode"
+
+#: src/Modules/Knowledge/Periodisation.php:137
+msgid "Extensive endurance method (11v11 – 8v8)"
+msgstr "Extensieve duurmethode (11v11 – 8v8)"
+
+#: src/Modules/Knowledge/Periodisation.php:153
+msgid "Intensive endurance method (7v7 – 5v5)"
+msgstr "Intensieve duurmethode (7v7 – 5v5)"
+
+#: src/Modules/Knowledge/Periodisation.php:226
+msgid "Recovery training"
+msgstr "Hersteltraining"
+
+#: src/Modules/Knowledge/Periodisation.php:227
+msgid "Technical training"
+msgstr "Technische training"
+
+#: src/Modules/Knowledge/Periodisation.php:228
+msgid "Tactical training"
+msgstr "Tactische training"
+
+#: src/Modules/Knowledge/Periodisation.php:229
+msgid "Conditioning 11v11 – 8v8"
+msgstr "Conditietraining 11v11 – 8v8"
+
+#: src/Modules/Knowledge/Periodisation.php:230
+msgid "Conditioning 7v7 – 5v5"
+msgstr "Conditietraining 7v7 – 5v5"
+
+#: src/Modules/Knowledge/Periodisation.php:231
+msgid "Conditioning 4v4 – 3v3"
+msgstr "Conditietraining 4v4 – 3v3"
+
+#: src/Modules/Knowledge/Periodisation.php:232
+msgid "Sprints with minimum rest"
+msgstr "Sprints met minimale rust"
+
+#: src/Modules/Knowledge/Periodisation.php:233
+msgid "Sprints with maximum rest"
+msgstr "Sprints met maximale rust"
+
+#: src/Modules/Knowledge/Periodisation.php:234
+msgid "Day off"
+msgstr "Vrije dag"
 
 #: src/Modules/License/Admin/AccountPage.php:90
 msgid "TalentTrack — Account"
@@ -23149,6 +23500,141 @@ msgstr "Videolink"
 #: src/Shared/Frontend/FrontendPlayersManageView.php:412
 msgid "Photo"
 msgstr "Foto"
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:28
+msgid "Confirm"
+msgstr "Bevestigen"
+
+#. translators: %s is the player, team or training the media was added to.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:41
+#, php-format
+msgid "This will appear on %s."
+msgstr "Dit verschijnt bij %s."
+
+#. translators: %s is a date.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:66
+#, php-format
+msgid "Filed under %s on the timeline."
+msgstr "Op de tijdlijn geplaatst onder %s."
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:82
+msgid "Nothing was added."
+msgstr "Er is niets toegevoegd."
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:109
+msgid "The uploads could not be updated. They are still saved on the record."
+msgstr ""
+"De uploads konden niet worden bijgewerkt. Ze staan wel gewoon bij het record."
+
+#. translators: %d is how many items were added.
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:38
+#, php-format
+msgid "These details apply to the %d item you added."
+msgid_plural "These details apply to all %d items you added."
+msgstr[0] "Deze gegevens gelden voor het %d item dat je hebt toegevoegd."
+msgstr[1] "Deze gegevens gelden voor alle %d items die je hebt toegevoegd."
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:56
+msgid "When was this taken?"
+msgstr "Wanneer is dit gemaakt?"
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:63
+msgid ""
+"The date decides where this sits on the player's timeline — so it is the day "
+"of the training or match, not the day you uploaded it."
+msgstr ""
+"De datum bepaalt waar dit op de tijdlijn van de speler staat — dus de dag "
+"van de training of wedstrijd, niet de dag waarop je het hebt geüpload."
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:71
+msgid "That date could not be read. Use the date picker."
+msgstr "Die datum kon niet worden gelezen. Gebruik de datumkiezer."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:27
+msgid "Photos and video"
+msgstr "Foto's en video"
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:34
+msgid "Go back and choose who this is for first."
+msgstr "Ga terug en kies eerst voor wie dit is."
+
+#. translators: %s is the player, team or training the media is being added to.
+#: src/Modules/Media/Wizard/MediaSourceStep.php:41
+#, php-format
+msgid "Add photos or video for %s."
+msgstr "Voeg foto's of video toe voor %s."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:54
+msgid ""
+"Files are saved as soon as they finish uploading, so you can leave at any "
+"point without losing them."
+msgstr ""
+"Bestanden worden bewaard zodra ze klaar zijn met uploaden, dus je kunt op "
+"elk moment stoppen zonder ze kwijt te raken."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:65
+msgid "Add at least one photo, video or link before continuing."
+msgstr "Voeg eerst minstens één foto, video of link toe."
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:80
+msgid "Those uploads could not be found. Try adding them again."
+msgstr "Die uploads zijn niet gevonden. Probeer ze opnieuw toe te voegen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:25
+msgid "Who for"
+msgstr "Voor wie"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:36
+msgid "Who is this photo or video about?"
+msgstr "Over wie gaat deze foto of video?"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:40
+msgid "There are no players to attach media to yet."
+msgstr "Er zijn nog geen spelers om media aan te koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:47
+msgid "— choose a player —"
+msgstr "— kies een speler —"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:60
+msgid ""
+"You can attach the same photo to more players, a team or a training "
+"afterwards."
+msgstr ""
+"Je kunt dezelfde foto daarna ook aan meer spelers, een team of een training "
+"koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:69
+msgid "Choose who this is for first."
+msgstr "Kies eerst voor wie dit is."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:78
+msgid "You do not have permission to add media to that record."
+msgstr "Je hebt geen rechten om media aan dat record toe te voegen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:95
+msgid "This is being added to:"
+msgstr "Dit wordt toegevoegd aan:"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:98
+msgid "You can attach the same photo to more records afterwards."
+msgstr "Je kunt dezelfde foto daarna ook aan meer records koppelen."
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:107
+msgid "this player"
+msgstr "deze speler"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:113
+msgid "this team"
+msgstr "dit team"
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:121
+msgid "this training"
+msgstr "deze training"
+
+#: src/Modules/Media/Wizard/NewMediaWizard.php:49
+msgid "Add media"
+msgstr "Media toevoegen"
 
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:33
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:111
@@ -28235,6 +28721,7 @@ msgstr "KPI toevoegen"
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
+#: src/Shared/Frontend/Components/MediaUploader.php:138
 #: src/Shared/Frontend/DashboardShortcode.php:227
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3239
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3273
@@ -41320,6 +41807,74 @@ msgstr ""
 "Geen TalentTrack-record nodig. Vul de basisgegevens in; de gast wordt alleen "
 "bij deze activiteit geregistreerd."
 
+#: src/Shared/Frontend/Components/MediaUploader.php:64
+msgid "Choose photos or video"
+msgstr "Kies foto's of video"
+
+#. translators: %s is the largest file this server accepts, e.g. "64 MB".
+#: src/Shared/Frontend/Components/MediaUploader.php:69
+#, php-format
+msgid "Up to %s per file on this server."
+msgstr "Maximaal %s per bestand op deze server."
+
+#: src/Shared/Frontend/Components/MediaUploader.php:85
+msgid "Or paste a link to video hosted elsewhere"
+msgstr "Of plak een link naar video die ergens anders staat"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:90
+msgid "https://…"
+msgstr "https://…"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:93
+msgid "Add link"
+msgstr "Link toevoegen"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:96
+msgid ""
+"Veo, Hudl, YouTube and Vimeo are recognised automatically. Anything else is "
+"saved as a plain link with a title you type."
+msgstr ""
+"Veo, Hudl, YouTube en Vimeo worden automatisch herkend. Al het andere wordt "
+"bewaard als gewone link met een titel die je zelf typt."
+
+#: src/Shared/Frontend/Components/MediaUploader.php:134
+msgid "Uploading…"
+msgstr "Bezig met uploaden…"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:135
+msgid "Added"
+msgstr "Toegevoegd"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:139
+msgid "Could not be added"
+msgstr "Kon niet worden toegevoegd"
+
+#: src/Shared/Frontend/Components/MediaUploader.php:140
+msgid "This file is larger than the server accepts."
+msgstr "Dit bestand is groter dan de server accepteert."
+
+#: src/Shared/Frontend/Components/MediaUploader.php:141
+msgid ""
+"That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or "
+"MOV video."
+msgstr ""
+"Dit bestandstype kan niet worden toegevoegd. Gebruik een JPEG-, PNG- of WebP-"
+"afbeelding, of een MP4- of MOV-video."
+
+#: src/Shared/Frontend/Components/MediaUploader.php:142
+msgid "Paste a web address first."
+msgstr "Plak eerst een webadres."
+
+#: src/Shared/Frontend/Components/MediaUploader.php:143
+msgid "The upload failed. Check your connection and try again."
+msgstr "De upload is mislukt. Controleer je verbinding en probeer het opnieuw."
+
+#. translators: %d is how many files were added.
+#: src/Shared/Frontend/Components/MediaUploader.php:145
+#, php-format
+msgid "%d added"
+msgstr "%d toegevoegd"
+
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:49
 msgid "No per-match minutes recorded in this window."
 msgstr "Geen minuten per wedstrijd vastgelegd in deze periode."
@@ -43571,14 +44126,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:2070
 msgid "First day of the week"
 msgstr "Eerste dag van de week"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2072
-msgid "Monday"
-msgstr "Maandag"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2073
-msgid "Sunday"
-msgstr "Zondag"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2076
 msgid "The day the team planner week grid starts on."
@@ -50527,197 +51074,6 @@ msgstr "Het kon niet worden verwijderd."
 #~ msgid "about the same"
 #~ msgstr "nagenoeg gelijk"
 
-#: src/Modules/Media/Wizard/NewMediaWizard.php
-msgid "Add media"
-msgstr "Media toevoegen"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "Who for"
-msgstr "Voor wie"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "Who is this photo or video about?"
-msgstr "Over wie gaat deze foto of video?"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "There are no players to attach media to yet."
-msgstr "Er zijn nog geen spelers om media aan te koppelen."
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "— choose a player —"
-msgstr "— kies een speler —"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "You can attach the same photo to more players, a team or a training afterwards."
-msgstr ""
-"Je kunt dezelfde foto daarna ook aan meer spelers, een team of een training "
-"koppelen."
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "You can attach the same photo to more records afterwards."
-msgstr "Je kunt dezelfde foto daarna ook aan meer records koppelen."
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "This is being added to:"
-msgstr "Dit wordt toegevoegd aan:"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "Choose who this is for first."
-msgstr "Kies eerst voor wie dit is."
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "You do not have permission to add media to that record."
-msgstr "Je hebt geen rechten om media aan dat record toe te voegen."
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "this player"
-msgstr "deze speler"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "this team"
-msgstr "dit team"
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php
-msgid "this training"
-msgstr "deze training"
-
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Photos and video"
-msgstr "Foto's en video"
-
-#. translators: %s is the player, team or training the media is being added to.
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-#, php-format
-msgid "Add photos or video for %s."
-msgstr "Voeg foto's of video toe voor %s."
-
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Go back and choose who this is for first."
-msgstr "Ga terug en kies eerst voor wie dit is."
-
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Files are saved as soon as they finish uploading, so you can leave at any point without losing them."
-msgstr ""
-"Bestanden worden bewaard zodra ze klaar zijn met uploaden, dus je kunt op "
-"elk moment stoppen zonder ze kwijt te raken."
-
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Add at least one photo, video or link before continuing."
-msgstr "Voeg eerst minstens één foto, video of link toe."
-
-#: src/Modules/Media/Wizard/MediaSourceStep.php
-msgid "Those uploads could not be found. Try adding them again."
-msgstr "Die uploads zijn niet gevonden. Probeer ze opnieuw toe te voegen."
-
-#: src/Modules/Media/Wizard/MediaDetailsStep.php
-msgid "When was this taken?"
-msgstr "Wanneer is dit gemaakt?"
-
-#: src/Modules/Media/Wizard/MediaDetailsStep.php
-msgid "The date decides where this sits on the player's timeline — so it is the day of the training or match, not the day you uploaded it."
-msgstr ""
-"De datum bepaalt waar dit op de tijdlijn van de speler staat — dus de dag "
-"van de training of wedstrijd, niet de dag waarop je het hebt geüpload."
-
-#: src/Modules/Media/Wizard/MediaDetailsStep.php
-msgid "That date could not be read. Use the date picker."
-msgstr "Die datum kon niet worden gelezen. Gebruik de datumkiezer."
-
-#: src/Modules/Media/Wizard/MediaDetailsStep.php
-#, php-format
-msgid "These details apply to the %d item you added."
-msgid_plural "These details apply to all %d items you added."
-msgstr[0] "Deze gegevens gelden voor het %d item dat je hebt toegevoegd."
-msgstr[1] "Deze gegevens gelden voor alle %d items die je hebt toegevoegd."
-
-#: src/Modules/Media/Wizard/MediaConfirmStep.php
-msgid "Confirm"
-msgstr "Bevestigen"
-
-#. translators: %s is the player, team or training the media was added to.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php
-#, php-format
-msgid "This will appear on %s."
-msgstr "Dit verschijnt bij %s."
-
-#. translators: %s is a date.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php
-#, php-format
-msgid "Filed under %s on the timeline."
-msgstr "Op de tijdlijn geplaatst onder %s."
-
-#: src/Modules/Media/Wizard/MediaConfirmStep.php
-msgid "Nothing was added."
-msgstr "Er is niets toegevoegd."
-
-#: src/Modules/Media/Wizard/MediaConfirmStep.php
-msgid "The uploads could not be updated. They are still saved on the record."
-msgstr ""
-"De uploads konden niet worden bijgewerkt. Ze staan wel gewoon bij het record."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Choose photos or video"
-msgstr "Kies foto's of video"
-
-#. translators: %s is the largest file this server accepts, e.g. "64 MB".
-#: src/Shared/Frontend/Components/MediaUploader.php
-#, php-format
-msgid "Up to %s per file on this server."
-msgstr "Maximaal %s per bestand op deze server."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Or paste a link to video hosted elsewhere"
-msgstr "Of plak een link naar video die ergens anders staat"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Add link"
-msgstr "Link toevoegen"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "https://…"
-msgstr "https://…"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Veo, Hudl, YouTube and Vimeo are recognised automatically. Anything else is saved as a plain link with a title you type."
-msgstr ""
-"Veo, Hudl, YouTube en Vimeo worden automatisch herkend. Al het andere wordt "
-"bewaard als gewone link met een titel die je zelf typt."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Uploading…"
-msgstr "Bezig met uploaden…"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Added"
-msgstr "Toegevoegd"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Could not be added"
-msgstr "Kon niet worden toegevoegd"
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "This file is larger than the server accepts."
-msgstr "Dit bestand is groter dan de server accepteert."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or MOV video."
-msgstr ""
-"Dit bestandstype kan niet worden toegevoegd. Gebruik een JPEG-, PNG- of "
-"WebP-afbeelding, of een MP4- of MOV-video."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "Paste a web address first."
-msgstr "Plak eerst een webadres."
-
-#: src/Shared/Frontend/Components/MediaUploader.php
-msgid "The upload failed. Check your connection and try again."
-msgstr "De upload is mislukt. Controleer je verbinding en probeer het opnieuw."
-
-#. translators: %d is how many files were added.
-#: src/Shared/Frontend/Components/MediaUploader.php
-#, php-format
-msgid "%d added"
-msgstr "%d toegevoegd"
 #~ msgid ""
 #~ "De primaire afbeelding wordt boven aan deze entiteit getoond. Klik op een "
 #~ "thumbnail om 'm als primair te markeren of te archiveren."
