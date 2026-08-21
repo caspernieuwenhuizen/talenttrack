@@ -28,6 +28,20 @@ Each person can have one or more functional roles like **Head coach**, **Assista
 
 From the **Teams** edit page, add a person with a functional role. The person can be on multiple teams (an assistant coach who assists two age groups, for example).
 
+Every assignment is also listed under **Functional roles → Assignments**, with an optional **End date** for closing one off without removing it.
+
+## Changing someone's role on a team
+
+When an assistant coach takes over as head coach, edit the assignment rather than removing and re-creating it:
+
+1. Open **Functional roles → Assignments**.
+2. Find the line and choose **Edit**.
+3. Pick the new **Role**, adjust the dates if needed, and choose **Update assignment**.
+
+The team and the person are shown as read-only text — moving an assignment to a different team or person is a different assignment, so use **Unassign** and create a new one for that.
+
+Changing the role here is not cosmetic. It rewrites the person's head-coach flag on that team, so the coach lands on the head-coach dashboard on their next page load, and workflow notifications for the team route to them. Deleting and re-creating the line achieved the same result but discarded the original start date; editing keeps it.
+
 ## Archiving
 
 When staff leave, archive them. Archived people disappear from team assignment dropdowns but historical records stay intact.

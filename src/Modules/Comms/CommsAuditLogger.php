@@ -3,6 +3,7 @@ namespace TT\Modules\Comms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\CommsResult;
@@ -40,8 +41,14 @@ final class CommsAuditLogger {
         $p = $wpdb->prefix;
         $table = "{$p}tt_comms_log";
 
-        // Defensive: don't crash if the migration hasn't run yet.
+        // Defensive: don't crash if the migration hasn't run yet. Loud,
+        // though — an install where every send goes unaudited is exactly
+        // the state an operator needs to hear about.
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            Logger::error( 'Comms audit skipped — tt_comms_log is missing (migration 0075 has not run)', [
+                'template_key' => $request->templateKey,
+                'status'       => $result->status,
+            ] );
             return;
         }
 
@@ -65,7 +72,14 @@ final class CommsAuditLogger {
                 'attached_export_id'  => $request->attachedExportId,
             ] );
         } catch ( \Throwable $e ) {
-            // Audit failure is non-fatal.
+            // Audit failure is non-fatal to delivery, but it must not be
+            // invisible — an unlogged failure to log is the worst of both.
+            Logger::error( 'Comms audit row could not be written', [
+                'template_key' => $request->templateKey,
+                'status'       => $result->status,
+                'uuid'         => $uuid,
+                'exception'    => $e->getMessage(),
+            ] );
         }
     }
 }

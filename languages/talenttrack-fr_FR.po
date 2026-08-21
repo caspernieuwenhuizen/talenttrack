@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T21:13:37+00:00\n"
+"POT-Creation-Date: 2026-08-21T21:39:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -10607,6 +10607,100 @@ msgstr ""
 #: src/Modules/Backup/PresetRegistry.php:99
 msgid "Use the table list below. Only the tables you list are backed up."
 msgstr ""
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:48
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:109
+msgid "Nothing was sent — no recipients were resolved."
+msgstr ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:87
+#, php-format
+msgid "Sent to %d recipient."
+msgid_plural "Sent to %d recipients."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:91
+#, php-format
+msgid "%d recipient will be sent to."
+msgid_plural "%d recipients will be sent to."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:95
+#, php-format
+msgid "%d recipient has opted out of this type of message."
+msgid_plural "%d recipients have opted out of this type of message."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:99
+#, php-format
+msgid "%d message is held until quiet hours end."
+msgid_plural "%d messages are held until quiet hours end."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:103
+#, php-format
+msgid "%d message was held back by the sending limit."
+msgid_plural "%d messages were held back by the sending limit."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:106
+msgid ""
+"This message type is switched off for your academy, so nothing was sent."
+msgstr ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:113
+#, php-format
+msgid "%d message bounced."
+msgid_plural "%d messages bounced."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:117
+#, php-format
+msgid "%d message failed with an unexpected error. It has been logged."
+msgid_plural ""
+"%d messages failed with an unexpected error. They have been logged."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:121
+#, php-format
+msgid "%d recipient has no usable contact details."
+msgid_plural "%d recipients have no usable contact details."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:124
+msgid ""
+"This message could not be built — its template is not registered. Contact "
+"your administrator."
+msgstr ""
+
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:127
+msgid ""
+"SMS is switched on but no SMS provider is configured, so nothing was sent."
+msgstr ""
+
+#. translators: %d: number of recipients.
+#: src/Modules/Comms/Domain/CommsOutcomeSummary.php:131
+#, php-format
+msgid "%d message could not be sent. The failure has been logged."
+msgid_plural "%d messages could not be sent. The failures have been logged."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Comms/Templates/AttendanceFlagTemplate.php:23
 msgid "Attendance flag"

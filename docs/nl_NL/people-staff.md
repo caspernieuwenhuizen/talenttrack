@@ -28,6 +28,20 @@ Elke persoon kan een of meerdere functionele rollen hebben, zoals **Hoofdcoach**
 
 Voeg via de bewerkpagina **Teams** een persoon toe met een functionele rol. Een persoon kan in meerdere teams actief zijn (bijvoorbeeld een assistent-coach die twee leeftijdscategorieën ondersteunt).
 
+Elke toewijzing staat ook onder **Functionele rollen → Toewijzingen**, met een optionele **Einddatum** om er een af te sluiten zonder hem te verwijderen.
+
+## De rol van iemand binnen een team wijzigen
+
+Neemt een assistent-coach het over als hoofdcoach, bewerk dan de toewijzing in plaats van hem te verwijderen en opnieuw aan te maken:
+
+1. Open **Functionele rollen → Toewijzingen**.
+2. Zoek de regel op en kies **Bewerken**.
+3. Kies de nieuwe **Rol**, pas zo nodig de datums aan en kies **Toewijzing bijwerken**.
+
+Het team en de persoon staan er als vaste tekst — een toewijzing naar een ander team of een andere persoon verplaatsen is een andere toewijzing; gebruik daarvoor **Ontkoppelen** en maak een nieuwe aan.
+
+De rol wijzigen is hier niet cosmetisch. Het herschrijft de hoofdcoach-vlag van die persoon bij dat team, dus de coach komt bij zijn volgende paginalading op het hoofdcoach-dashboard en workflowmeldingen voor het team gaan naar hem. Verwijderen en opnieuw aanmaken gaf hetzelfde resultaat, maar gooide de oorspronkelijke startdatum weg; bewerken behoudt die.
+
 ## Archiveren
 
 Als staf vertrekt, archiveer ze. Gearchiveerde personen verdwijnen uit de keuzelijsten voor teamtoewijzing, maar historische gegevens blijven intact.
