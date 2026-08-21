@@ -1,6 +1,6 @@
 <?php
 /**
- * Migration 0218 — media library foundation (#2590, epic #2589).
+ * Migration 0219 — media library foundation (#2590, epic #2589).
  *
  * Two tables:
  *
@@ -45,7 +45,7 @@ use TT\Infrastructure\Database\Migration;
 return new class extends Migration {
 
     public function getName(): string {
-        return '0218_media_foundation';
+        return '0219_media_foundation';
     }
 
     public function up(): void {

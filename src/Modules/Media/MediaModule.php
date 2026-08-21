@@ -13,7 +13,7 @@ use TT\Modules\Media\Storage\LocalPrivateStorage;
  * MediaModule (#2590, epic #2589) — photos and video attached to the
  * records they belong to.
  *
- * Owns `tt_media` and `tt_media_links` (migration 0218), the storage
+ * Owns `tt_media` and `tt_media_links` (migration 0219), the storage
  * adapters, the ingest pipeline and the repositories over both tables.
  *
  * The module is switchable from its first commit rather than gaining an
