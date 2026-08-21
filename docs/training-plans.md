@@ -181,9 +181,66 @@ tell you if you have not.
 A copy is genuinely independent: editing it later never changes the plan you
 copied it from.
 
+## Running a plan
+
+A plan becomes a training when you attach it to one.
+
+### Attaching
+
+Open the training in the calendar and press **Run this training**. Pick the
+plan and press **Attach plan**.
+
+The plan is **copied onto the training as it is at that moment**. Everything
+that follows reads that copy, so editing the plan afterwards — even the same
+evening — never changes what the training recorded.
+
+If the training already has a plan the button says **Open the session**
+instead, and takes you straight to it. Attaching twice is not an error and
+never replaces the first copy: a training that already happened keeps its own
+record.
+
+### The sideline view
+
+This is the screen you hold on the pitch, so it is built differently from the
+rest of TalentTrack: dark, one block at a time, big controls at the bottom
+where your thumb already is.
+
+- **Start the training** when you begin. The first block opens with a timer.
+- The timer counts **up**, against the block's planned length. Nothing moves
+  on by itself — you decide when a block is done.
+- **Running over is fine.** The screen turns amber and tells you how far over
+  you are and what the block will be recorded as if you finish now. It does
+  not nag and it does not stop you.
+- **Finish this block** records how long it actually ran and opens the next.
+- **Skip this block** records that it did not happen. The block stays in the
+  plan; only this training records the skip.
+- **‹ and ›** move between blocks without recording anything, for when you
+  want to look ahead.
+- **Finish the training** closes the session. Blocks you never ran are
+  recorded as skipped.
+
+At the end you get the totals: minutes actually trained against minutes
+planned, how many blocks ran, how many were skipped.
+
+**This screen needs a connection.** If you lose signal mid-session it tells
+you the write failed rather than pretending it saved. Offline is coming
+separately.
+
+### The paper version
+
+Press **Print** on a plan for an A4 sheet you can carry: every block with its
+start time, its length, its organisation and its coaching points, on one page
+for a normal session.
+
+If any player on the team has a growth-spurt ceiling below the hardest block
+in the plan, the sheet says so by name — the person holding the paper is the
+person who has to act on it.
+
+The sheet is the plan, not the record. What you actually run is recorded on
+the training.
+
 ## What is not here yet
 
-Still to come, in order:
+Still to come:
 
-- attaching a plan to a training, the sideline view and the A4 print
 - the per-player training history that all of it feeds

@@ -49765,6 +49765,187 @@ msgstr "Toewijzing niet gevonden."
 msgid "Could not update the assignment. The person may already hold this role on this team."
 msgstr "De toewijzing kon niet worden bijgewerkt. Mogelijk heeft deze persoon deze rol al bij dit team."
 
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:60
+msgid "You do not have permission to run training plans."
+msgstr "Je hebt geen rechten om trainingsplannen uit te voeren."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:103
+msgid "That training run no longer exists."
+msgstr "Die uitvoering bestaat niet meer."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:119
+msgid "Attach a plan"
+msgstr "Plan koppelen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:123
+msgid "Attach a plan to this training"
+msgstr "Koppel een plan aan deze training"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:127
+msgid "That training no longer exists."
+msgstr "Die training bestaat niet meer."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:140
+msgid "The plan is copied onto this training as it is right now. Editing the plan afterwards will not change what this training recorded."
+msgstr "Het plan wordt op deze training gekopieerd zoals het nu is. Pas je het plan later aan, dan verandert er niets aan wat deze training heeft vastgelegd."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:146
+msgid "This team has no training plans yet. Make one first, then come back here to attach it."
+msgstr "Dit team heeft nog geen trainingsplannen. Maak er eerst een en kom dan hier terug om het te koppelen."
+
+#. translators: 1: plan title, 2: total duration in minutes.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:167
+#, php-format
+msgid "%1$s — %2$d min"
+msgstr "%1$s — %2$d min"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:179
+msgid "Attach plan"
+msgstr "Plan koppelen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:214
+msgid "How far through the training you are"
+msgstr "Hoe ver je in de training bent"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:300
+msgid "Ready to start"
+msgstr "Klaar om te beginnen"
+
+#. translators: 1: number of blocks, 2: total minutes.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:301
+#, php-format
+msgid "%1$d blocks · %2$d minutes"
+msgstr "%1$d blokken · %2$d minuten"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:302
+msgid "Start the training"
+msgstr "Start de training"
+
+#. translators: 1: this block's number, 2: how many blocks in total, 3: the kind of block.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:303
+#, php-format
+msgid "Block %1$d of %2$d · %3$s"
+msgstr "Blok %1$d van %2$d · %3$s"
+
+#. translators: %s is the block's planned length as minutes:seconds.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:304
+#, php-format
+msgid "of %s"
+msgstr "van %s"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:305
+msgid "Organisation"
+msgstr "Organisatie"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:306
+msgid "Coaching points"
+msgstr "Coachpunten"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:307
+msgid "Previous block"
+msgstr "Vorig blok"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:308
+msgid "Next block"
+msgstr "Volgend blok"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:309
+msgid "Finish this block"
+msgstr "Blok afronden"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:310
+msgid "Skip this block"
+msgstr "Blok overslaan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:311
+msgid "Finish the training"
+msgstr "Training afronden"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:314
+msgid "That did not save — you are offline or the connection dropped. Note the time and try again; nothing is recorded until it saves."
+msgstr "Dat is niet opgeslagen — je bent offline of de verbinding viel weg. Noteer de tijd en probeer het opnieuw; er wordt niets vastgelegd tot het is opgeslagen."
+
+#. translators: 1: how far over you are, as minutes:seconds, 2: what this block would be recorded as, in minutes.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:319
+#, php-format
+msgid "You are %1$s over. Finish now and this block is recorded as %2$d minutes."
+msgstr "Je loopt %1$s uit. Rond je nu af, dan wordt dit blok vastgelegd als %2$d minuten."
+
+#. translators: %d is the number of minutes actually trained.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:321
+#, php-format
+msgid "%d minutes trained"
+msgstr "%d minuten getraind"
+
+#. translators: %d is the planned number of minutes.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:322
+#, php-format
+msgid "planned %d"
+msgstr "gepland %d"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:324
+msgid "Blocks run"
+msgstr "Blokken gedaan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:326
+msgid "Recorded against this training. The plan itself is unchanged, so the next team to use it starts from the same place you did."
+msgstr "Vastgelegd bij deze training. Het plan zelf blijft ongewijzigd, dus het volgende team dat het gebruikt begint waar jij begon."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:327
+msgid "Skipped blocks are recorded here, not removed from the plan."
+msgstr "Overgeslagen blokken worden hier vastgelegd, niet uit het plan gehaald."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:328
+msgid "Back to the plan"
+msgstr "Terug naar het plan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:329
+msgid "Finish the training? Any blocks you have not run are recorded as skipped."
+msgstr "Training afronden? Blokken die je niet hebt gedaan worden vastgelegd als overgeslagen."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:330
+msgid "Attaching…"
+msgstr "Koppelen…"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:331
+msgid "The plan could not be attached. Check your connection and try again."
+msgstr "Het plan kon niet worden gekoppeld. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:332
+msgid "This training already had a plan attached — opening it."
+msgstr "Aan deze training was al een plan gekoppeld — we openen het."
+
+#: src/Modules/Training/Print/TrainingPlanPrintable.php:120
+msgid "What you actually run is recorded on the training itself, not on this sheet."
+msgstr "Wat je werkelijk doet wordt vastgelegd bij de training zelf, niet op dit blad."
+
+#: src/Modules/Training/Print/TrainingPlanPrintable.php:158
+msgid "Growth-spurt ceilings"
+msgstr "Plafonds bij groeispurt"
+
+#. translators: 1: player name, 2: their intensity ceiling, 3: the hardest block in this plan.
+#: src/Modules/Training/Print/TrainingPlanPrintable.php:161
+#, php-format
+msgid "%1$s — ceiling %2$d, and this plan reaches %3$d. Give them an adapted role in the hard blocks."
+msgstr "%1$s — plafond %2$d, en dit plan gaat tot %3$d. Geef hem of haar een aangepaste rol in de zware blokken."
+
+#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:38
+msgid "Log in to print this training plan."
+msgstr "Log in om dit trainingsplan af te drukken."
+
+#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:41
+msgid "You do not have access to print this training plan."
+msgstr "Je hebt geen toegang om dit trainingsplan af te drukken."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:258
+msgid "Open the session"
+msgstr "Open de sessie"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:259
+msgid "Run this training"
+msgstr "Deze training uitvoeren"
+
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
 
