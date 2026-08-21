@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\MediaRestController;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Modules\Media\Storage\LocalPrivateStorage;
@@ -68,6 +69,12 @@ class MediaModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        // Registered here rather than unconditionally, so switching the
+        // module off takes the byte-delivery endpoint down with it. On
+        // nginx that endpoint is the only guard on the media directory,
+        // so "off" has to mean genuinely unreachable.
+        MediaRestController::init();
 
         // The private store's guards are written on first use rather than
         // on activation, so an install whose uploads directory only

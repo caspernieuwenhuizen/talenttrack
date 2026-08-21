@@ -50021,6 +50021,109 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Media item not found."
+msgstr "Media-item niet gevonden."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "You do not have permission to do that."
+msgstr "Je hebt geen rechten om dat te doen."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Provide entity_type (player, team or activity) and entity_id."
+msgstr "Geef entity_type (player, team of activity) en entity_id op."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Provide entity_type (player, team or activity) and entity_id to attach the media to."
+msgstr ""
+"Geef entity_type (player, team of activity) en entity_id op om de media aan "
+"te koppelen."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Provide a valid entity_type and entity_id."
+msgstr "Geef een geldige entity_type en entity_id op."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "That attachment was not found."
+msgstr "Die koppeling is niet gevonden."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "No editable fields were provided."
+msgstr "Er zijn geen te wijzigen velden meegegeven."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The capture date could not be understood."
+msgstr "De opnamedatum kon niet worden gelezen."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The media item could not be saved."
+msgstr "Het media-item kon niet worden opgeslagen."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The media item could not be attached."
+msgstr "Het media-item kon niet worden gekoppeld."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The media item could not be removed."
+msgstr "Het media-item kon niet worden verwijderd."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid ""
+"No file was received. Attach a file, or provide external_url for a video "
+"hosted elsewhere."
+msgstr ""
+"Er is geen bestand ontvangen. Voeg een bestand toe, of geef external_url op "
+"voor video die ergens anders staat."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid ""
+"That does not look like a video address. Paste the web address of the video "
+"as it appears in your browser."
+msgstr ""
+"Dat lijkt geen videoadres. Plak het webadres van de video zoals het in je "
+"browser staat."
+
+#. translators: %s is the server's maximum upload size.
+#: src/Infrastructure/REST/MediaRestController.php
+#, php-format
+msgid "That file is larger than this server accepts (%s)."
+msgstr "Dat bestand is groter dan deze server accepteert (%s)."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The upload did not finish. Check your connection and try again."
+msgstr ""
+"De upload is niet afgerond. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "The file could not be uploaded."
+msgstr "Het bestand kon niet worden geüpload."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "That item is a link to video hosted elsewhere; there is no file to download."
+msgstr ""
+"Dit item is een link naar video die ergens anders staat; er is geen bestand "
+"om te downloaden."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "That item has no thumbnail."
+msgstr "Dit item heeft geen miniatuur."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "That item has no stored file."
+msgstr "Dit item heeft geen opgeslagen bestand."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "The stored file could not be found."
+msgstr "Het opgeslagen bestand kon niet worden gevonden."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "The stored file is empty."
+msgstr "Het opgeslagen bestand is leeg."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php
+msgid "The requested byte range is outside the file."
+msgstr "Het opgevraagde bytebereik valt buiten het bestand."
 #~ msgid ""
 #~ "Offer SMS as a messaging channel. SMS delivery still needs a provider "
 #~ "plugin. The other channels (email, push, WhatsApp link, in-app) stay "
