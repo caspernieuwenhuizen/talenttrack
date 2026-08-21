@@ -162,6 +162,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
         $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        // #2500 (epic #2493) — what this player has actually been taught,
+        // per principle, from the trainings they attended. Gated on its
+        // own `training_exposure` entity rather than on `training_plan`:
+        // reading a player's training history and planning a training are
+        // different rights, and this one is player data (D16).
+        if ( MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ ) ) {
+            $tabs['training'] = __( 'Training', 'talenttrack' );
+        }
         // #2061 (epic #2002) — per-player Strava connection + imported
         // training, alongside the team-session activities.
         $tabs['strava'] = __( 'Strava', 'talenttrack' );
@@ -361,6 +369,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'evaluations': self::renderEvaluationsTab( $player_id ); break;
                         case 'measurements': self::renderMeasurementsTab( $player_id ); break;
                         case 'activities':  self::renderActivitiesTab( $player_id, $player ); break;
+                        case 'training':
+                            \TT\Modules\Training\Frontend\PlayerTrainingTab::render( $player_id, $user_id );
+                            break;
                         case 'strava':      \TT\Modules\Strava\Frontend\FrontendStravaView::renderPanel( $player ); break;
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
