@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T23:28:05+00:00\n"
+"POT-Creation-Date: 2026-08-21T23:35:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1880,6 +1880,7 @@ msgstr "Entraînement"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:185
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:130
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:156
+#: src/Modules/Knowledge/Periodisation.php:225
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:59
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
 #: src/Shared/Frontend/FrontendStandardReportsView.php:518
@@ -8619,6 +8620,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:561
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:45
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:38
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2942
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2965
@@ -12365,6 +12367,7 @@ msgid "Select Logo"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
 #: src/Modules/Players/Admin/PlayersPage.php:422
 #: src/Shared/Frontend/FrontendConfigurationView.php:2914
 #: src/Shared/Frontend/FrontendPlayersManageView.php:313
@@ -13023,6 +13026,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:158
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:48
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:135
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:79
 msgid "Minutes played"
 msgstr ""
 
@@ -16832,6 +16836,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:154
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:84
 #: src/Modules/Vct/Wizard/PreviewStep.php:84
 msgid "Exercise"
 msgstr ""
@@ -18820,6 +18825,331 @@ msgstr ""
 msgid ""
 "A player on your team is due back from injury soon. Confirm they are on "
 "track or update the expected return date."
+msgstr ""
+
+#. translators: 1: quality percentage, 2: seconds between actions
+#: src/Modules/Knowledge/Blocks/ActionLineBlock.php:91
+#, php-format
+msgid "Actions at %1$d%% quality, %2$d seconds apart."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php:49
+msgid "Practical assignment"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php:51
+msgid ""
+"Work this through with your own team. Handing it in for review opens once "
+"progress tracking is switched on."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:35
+msgid "What you will learn"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:36
+msgid "The point"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php:37
+msgid "Watch out"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:55
+msgid "Load pattern"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:56
+msgid "Cycle length"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:59
+msgid "Six weeks"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:61
+msgid "Three weeks"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:63
+msgid "100 = overload · 50 = underload · 0 = taper"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:77
+msgid "11v11 – 8v8"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:78
+msgid "7v7 – 5v5"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:79
+msgid "4v4 – 3v3"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:59
+msgid "Training methods"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:66
+msgid "Volume · quantity"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php:67
+msgid "Intensity · quality"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:77
+msgid "Pitch size calculator"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:79
+msgid "Game format"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:81
+msgid "Rule of thumb"
+msgstr ""
+
+#. translators: 1: metres of length, 2: metres of width
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:89
+#, php-format
+msgid "Derived from %1$d by %2$d metres per outfield player."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
+#: src/Modules/Knowledge/LessonRenderer.php:111
+msgid "The rule of thumb works at this format."
+msgstr ""
+
+#. translators: 1: computed width in metres, 2: minimum usable width in metres
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
+#: src/Modules/Knowledge/LessonRenderer.php:113
+#, php-format
+msgid ""
+"The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
+"m, or the game turns into a more intensive method than you planned."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:39
+msgid "Check your understanding"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:40
+msgid ""
+"The questions for this module open once progress tracking is switched on."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/RevealBlock.php:38
+msgid "Think it through, then check"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:79
+msgid "Week planner"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:80
+msgid ""
+"Set your match day and your trainings. The plan is checked against the "
+"recovery times as you go."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:82
+#: src/Modules/Knowledge/LessonRenderer.php:108
+msgid "Add a match and at least one training to check the week."
+msgstr ""
+
+#. translators: 1: session label, 2: day name, 3: match day name, 4: available hours, 5: required hours
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:125
+#, php-format
+msgid "%1$s on %2$s, match on %3$s: %4$d hours available, %5$d needed."
+msgstr ""
+
+#. translators: 1: session label, 2: first day, 3: second day, 4: gap in hours, 5: required hours
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:154
+#, php-format
+msgid ""
+"%1$s on %2$s and again on %3$s: %4$d hours apart, %5$d needed between two of "
+"the same stimulus."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:183
+#: src/Shared/Frontend/FrontendConfigurationView.php:2072
+msgid "Monday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:184
+msgid "Tuesday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:185
+msgid "Wednesday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:186
+msgid "Thursday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:187
+msgid "Friday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:188
+msgid "Saturday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:189
+#: src/Shared/Frontend/FrontendConfigurationView.php:2073
+msgid "Sunday"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:74
+msgid "Zero-point measurement"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:75
+msgid ""
+"Enter the minutes your team played before the majority visibly dropped their "
+"action count."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:77
+msgid "Training method"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:80
+#: src/Modules/Knowledge/LessonRenderer.php:105
+msgid "Enter the minutes to see your starting step."
+msgstr ""
+
+#. translators: 1: step number, 2: number of games, 3: minutes per game
+#: src/Modules/Knowledge/LessonRenderer.php:104
+#, php-format
+msgid "Start at step %1$d: %2$d games of %3$s minutes."
+msgstr ""
+
+#: src/Modules/Knowledge/LessonRenderer.php:106
+msgid "That is below the lightest step. Start at step 1 and build from there."
+msgstr ""
+
+#: src/Modules/Knowledge/LessonRenderer.php:107
+msgid "This week respects every recovery time."
+msgstr ""
+
+#. translators: %d: number of problems found
+#: src/Modules/Knowledge/LessonRenderer.php:110
+#, php-format
+msgid "%d problem(s) with this week:"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:37
+#: src/Modules/Knowledge/Periodisation.php:85
+msgid "Explosivity preparation exercises"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:42
+#: src/Modules/Knowledge/Periodisation.php:86
+msgid "Games 11v11 – 8v8"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:47
+#: src/Modules/Knowledge/Periodisation.php:109
+msgid "Football sprints with maximum rest"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:52
+#: src/Modules/Knowledge/Periodisation.php:98
+msgid "Games 7v7 – 5v5"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:57
+#: src/Modules/Knowledge/Periodisation.php:97
+msgid "Football sprints with minimum rest"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:62
+#: src/Modules/Knowledge/Periodisation.php:110
+msgid "Games 4v4 – 3v3"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:82
+msgid "Week 1–2"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:89
+msgid "Acceleration runs"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:90
+msgid "Extensive endurance method"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:94
+msgid "Week 3–4"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:101
+msgid "Repeated short sprinting"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:102
+msgid "Intensive endurance method"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:106
+msgid "Week 5–6"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:113
+msgid "Start and acceleration speed"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:114
+msgid "Extensive interval method"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:137
+msgid "Extensive endurance method (11v11 – 8v8)"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:153
+msgid "Intensive endurance method (7v7 – 5v5)"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:226
+msgid "Recovery training"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:227
+msgid "Technical training"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:228
+msgid "Tactical training"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:229
+msgid "Conditioning 11v11 – 8v8"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:230
+msgid "Conditioning 7v7 – 5v5"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:231
+msgid "Conditioning 4v4 – 3v3"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:232
+msgid "Sprints with minimum rest"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:233
+msgid "Sprints with maximum rest"
+msgstr ""
+
+#: src/Modules/Knowledge/Periodisation.php:234
+msgid "Day off"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:90
@@ -40725,14 +41055,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2070
 msgid "First day of the week"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2072
-msgid "Monday"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2073
-msgid "Sunday"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2076
