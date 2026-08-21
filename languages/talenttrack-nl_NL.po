@@ -49571,6 +49571,76 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/Media/MediaKind.php:32
+msgid "Video"
+msgstr "Video"
+
+#: src/Modules/Media/MediaKind.php:34
+msgid "Video link"
+msgstr "Videolink"
+
+#: src/Core/FeatureRegistry.php src/Shared/Modules/ModuleMetadata.php
+msgid "Media library"
+msgstr "Mediabibliotheek"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid ""
+"Photos and video attached to players, teams and activities. Files are stored "
+"privately and are only visible to staff around the player and to the "
+"player's own family. Turn off to keep photographs out of the academy "
+"entirely."
+msgstr ""
+"Foto's en video bij spelers, teams en trainingen. Bestanden worden "
+"afgeschermd opgeslagen en zijn alleen zichtbaar voor de staf rond de speler "
+"en voor het eigen gezin van de speler. Zet uit om foto's volledig buiten de "
+"academie te houden."
+
+#: src/Core/FeatureRegistry.php
+msgid ""
+"Photos and video attached to players, teams and activities. Turn off to hide "
+"the media tabs and uploads across the academy; stored files are kept and "
+"reappear if it is switched back on."
+msgstr ""
+"Foto's en video bij spelers, teams en trainingen. Zet uit om de "
+"mediatabbladen en uploads in de hele academie te verbergen; opgeslagen "
+"bestanden blijven bewaard en verschijnen weer zodra je het aanzet."
+
+#: src/Modules/Media/Ingest/MediaIngestService.php
+msgid "No file was received."
+msgstr "Er is geen bestand ontvangen."
+
+#: src/Modules/Media/Ingest/MediaIngestService.php
+msgid "That file is empty."
+msgstr "Dat bestand is leeg."
+
+#. translators: 1: size of the file, 2: the server's limit.
+#: src/Modules/Media/Ingest/MediaIngestService.php
+#, php-format
+msgid "That file is %1$s. This server accepts uploads up to %2$s."
+msgstr "Dat bestand is %1$s. Deze server accepteert uploads tot %2$s."
+
+#: src/Modules/Media/Ingest/MediaIngestService.php
+msgid ""
+"That file type cannot be uploaded because it can contain scripts. Upload a "
+"JPEG, PNG or WebP image instead."
+msgstr ""
+"Dit bestandstype kan niet worden geüpload omdat het scripts kan bevatten. "
+"Upload in plaats daarvan een JPEG-, PNG- of WebP-afbeelding."
+
+#: src/Modules/Media/Ingest/MediaIngestService.php
+msgid ""
+"That file type is not supported. Upload a JPEG, PNG or WebP image, or an MP4 "
+"or MOV video."
+msgstr ""
+"Dit bestandstype wordt niet ondersteund. Upload een JPEG-, PNG- of "
+"WebP-afbeelding, of een MP4- of MOV-video."
+
+#: src/Modules/Media/Ingest/MediaIngestService.php
+msgid "The file could not be saved. Check that the uploads folder is writable."
+msgstr ""
+"Het bestand kon niet worden opgeslagen. Controleer of er naar de "
+"uploadmap geschreven kan worden."
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php
 msgid "Edit assignment"
 msgstr "Toewijzing bewerken"

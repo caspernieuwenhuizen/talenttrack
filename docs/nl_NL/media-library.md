@@ -1,0 +1,118 @@
+---
+title: Mediabibliotheek
+group: development
+summary: Foto's en video bij spelers, teams en activiteiten — waar bestanden staan, wie ze mag zien, en hoe je het geheel uitzet.
+audience: [admin, dev]
+order: 70
+---
+
+# Mediabibliotheek
+
+Een 7 voor één-tegen-één verdedigen is een cijfer. Het fragment van twaalf seconden erachter is het bewijs. In de mediabibliotheek staan foto's en
+video's zó opgeslagen dat ze bij het spelersdossier horen en niet in de camerarol van een trainer blijven liggen.
+
+Deze pagina beschrijft het **fundament**: waar bestanden staan, wie erbij kan, en hoe een academie de functie uitzet. De uploadschermen, het
+mediatabblad bij een speler en de demo-inhoud worden hierop gebouwd en worden beschreven zodra ze er zijn.
+
+## Wat een media-item is
+
+Drie soorten:
+
+| Soort | Wat het is |
+|---|---|
+| Foto | Een afbeelding die naar deze academie is geüpload — JPEG, PNG of WebP. |
+| Video | Een videobestand dat naar deze academie is geüpload — MP4 of MOV. |
+| Videolink | Een link naar beeld dat ergens anders staat: Veo, Hudl, YouTube of Vimeo. Er wordt niets gekopieerd; de academie bewaart een verwijzing naar de wedstrijd die al online staat. |
+
+Een media-item hangt aan één of meer records — een speler, een team, of een trainings- of wedstrijdactiviteit. Eén foto van een training kan aan die activiteit
+worden gekoppeld **én** aan elke speler die erop staat, zodat één upload op elk bijbehorend record verschijnt in plaats van vier keer geüpload te
+moeten worden.
+
+## Waar de bestanden staan
+
+Geüploade bestanden komen **niet** in de WordPress-mediabibliotheek. Een bestand daarin heeft een openbaar webadres: wie het adres kent of raadt,
+kan het openen, en dat adres is achteraf niet meer in te trekken. Voor foto's van kinderen is dat geen acceptabel uitgangspunt.
+
+TalentTrack bewaart media in plaats daarvan in een eigen, afgeschermde map (`uploads/tt-media/`) met willekeurig genoemde bestanden. Er is geen
+webadres dat ze uitserveert. Elke weergave van een foto of video loopt via TalentTrack, dat eerst controleert wie het opvraagt voordat er ook maar
+één byte verstuurd wordt.
+
+Twee beveiligingen, en het is goed om te weten welke het echte werk doet:
+
+- De map bevat een regel die directe toegang via het web blokkeert. **Op Apache-servers werkt dit. Op nginx-servers doet het niets** — nginx leest
+  die regels niet.
+- De eigen rechtencontrole van TalentTrack draait bij elk verzoek om een bestand, op elke server.
+
+De tweede is de echte grens. De eerste is een nuttige extra waar de server hem respecteert.
+
+### Locatiegegevens worden uit foto's verwijderd
+
+Een foto die met een telefoon is gemaakt, legt meestal vast waar hij gemaakt is. Bij een trainingsfoto is dat de locatie van een veld vol kinderen,
+en die informatie zit ín het beeldbestand.
+
+TalentTrack leest de opnamedatum uit — zodat de foto op de juiste plek in de tijdlijn van de speler belandt — en verwijdert daarna alle ingesloten
+gegevens, locatie inbegrepen, vóór opslag. Het opgeslagen bestand bevat de foto en verder niets.
+
+**Video is de uitzondering.** Het verwijderen van ingesloten gegevens uit een videobestand vraagt gereedschap dat TalentTrack niet meelevert, en
+telefoons schrijven locatie wél in video. Geüploade video behoudt daarom wat de camera heeft vastgelegd. Is dat voor jouw academie bezwaarlijk,
+gebruik dan de videolink en houd beeld bij je videoleverancier, of upload geen telefoonvideo van een locatie die je liever niet prijsgeeft.
+
+### Uploadgrootte
+
+Hoe groot een bestand mag zijn, bepaalt je webserver — niet TalentTrack. Veel hostingpakketten staan standaard tussen 8MB en 64MB toe, minder dan
+een minuut telefoonvideo. Het uploadscherm toont de werkelijke limiet van jouw server. Is die te klein, vraag je host dan om `upload_max_filesize`
+en `post_max_size` te verhogen, of gebruik videolinks.
+
+Geüploade video kost ook echte schijfruimte, en niets ruimt die automatisch op. Een academie die wekelijks wedstrijdfragmenten uploadt, moet de
+opslag van de hosting in de gaten houden.
+
+## Wie de media van een speler mag zien
+
+- **Staf** — trainers, scouts en beheerders — ziet de media van de spelers waar zij verantwoordelijk voor zijn, volgens dezelfde rechten die voor
+  de rest van het spelersdossier gelden.
+- **De speler zelf** en de **ouder of verzorger** zien de media van die speler.
+- Verder niemand. Media gaat nooit van de ene academie naar de andere, en komt niet bij staf zonder toegang tot die speler.
+
+### Op een foto kan meer dan één kind staan
+
+Staat een foto of fragment gekoppeld aan drie spelers, dan kunnen alle drie de gezinnen het zien. Dat is een bewuste keuze: teamsport wordt in
+groepen gefotografeerd, en het alternatief — een gezin alleen beeld tonen waarop hun kind alléén staat — zou vrijwel elke trainingsfoto voor
+iedereen verbergen.
+
+**Zorg dat je toestemmingstekst hierop aansluit.** Vertel gezinnen bij aanmelding dat foto's en video's die bij de academie gemaakt worden hun kind
+samen met anderen kunnen tonen, en zichtbaar kunnen zijn voor die andere gezinnen. Dit hoort geen ontdekking te zijn die een ouder doet bij het
+zien van een onverwachte foto.
+
+## Een speler verwijderen verwijdert de media
+
+Wordt een speler definitief verwijderd, dan gaan de mediakoppelingen mee. Elke foto of video die alléén aan die speler hing, wordt volledig
+verwijderd — zowel de registratie als het bestand zelf. Media die ook aan een team of een activiteit hangt, blijft bestaan, omdat die records er nog
+naar verwijzen.
+
+Dat is van belang bij een verzoek om vergeten te worden: het wissen van een speler wist ook de foto's, niet alleen de regel met de naam erin.
+
+## Uitzetten
+
+Er zijn twee schakelaars, met verschillende gevolgen.
+
+**De moduleschakelaar** (Modules → Mediabibliotheek) zet de functie volledig uit. Een academie die helemaal geen foto's van haar spelers in het
+systeem wil, gebruikt deze. Met de module uit wordt niets van de mediafunctionaliteit geladen.
+
+**De functieschakelaar** (Functies → Mediabibliotheek) verbergt de mediaschermen, maar laat de module en alles wat al opgeslagen is intact. Gebruik
+deze om media uit het dagelijks gebruik te halen zonder het verzamelde materiaal weg te gooien.
+
+Geen van beide schakelaars verwijdert iets. Weer aanzetten brengt de bestaande media precies terug zoals die was.
+
+## Voor ontwikkelaars
+
+- Tabellen: `tt_media` (het item) en `tt_media_links` (waar het aan hangt). Beide club-scoped; `tt_media` heeft een `uuid`, en dát is de identiteit
+  die de REST-laag naar buiten brengt — oplopende id's zijn van buitenaf niet adresseerbaar.
+- Opslag zit achter `MediaStorageInterface`. `LocalPrivateStorage` is de meegeleverde implementatie. `tt_media.storage_key` is **ondoorzichtig**:
+  geen pad en geen URL, en alleen de adapter die hem geschreven heeft mag hem interpreteren. Registreer een andere adapter via de filter
+  `tt_media_storage_adapters`; bestaande rijen blijven bediend door de adapter die in de rij genoemd staat.
+- De mediamap is standaard `uploads/tt-media/` en is aan te passen via de filter `tt_media_storage_root`. Wijs hem naar een apart volume wanneer
+  groeiende video anders de schijf bedreigt waarop WordPress zelf draait. Een gefilterd pad wordt letterlijk gebruikt en moet dus absoluut en
+  beschrijfbaar zijn.
+- `MediaIngestService` bepaalt het bestandstype aan de hand van de bytes zelf, nooit aan de hand van de naam, en weigert SVG categorisch.
+- `MediaLinksRepository::unlink()` verwijdert de media én het bestand zodra de laatste koppeling weggaat. Een media-item zonder koppelingen is
+  onbereikbaar en wordt niet bewaard.
