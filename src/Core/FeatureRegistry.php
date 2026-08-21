@@ -231,7 +231,7 @@ class FeatureRegistry {
             // `view_slugs` is empty until #2593 ships the first route.
             'media' => [
                 'label'           => __( 'Media library', 'talenttrack' ),
-                'description'     => __( 'Photos and video attached to players, teams and sessions. Turn off to hide the media tabs and uploads across the academy; stored files are kept and reappear if it is switched back on.', 'talenttrack' ),
+                'description'     => __( 'Photos and video attached to players, teams and activities. Turn off to hide the media tabs and uploads across the academy; stored files are kept and reappear if it is switched back on.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Media\\MediaModule',
                 'default_enabled' => true,
                 'view_slugs'      => [],

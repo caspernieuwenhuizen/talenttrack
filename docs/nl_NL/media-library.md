@@ -1,7 +1,7 @@
 ---
 title: Mediabibliotheek
 group: development
-summary: Foto's en video bij spelers, teams en trainingen — waar bestanden staan, wie ze mag zien, en hoe je het geheel uitzet.
+summary: Foto's en video bij spelers, teams en activiteiten — waar bestanden staan, wie ze mag zien, en hoe je het geheel uitzet.
 audience: [admin, dev]
 order: 70
 ---
@@ -24,7 +24,7 @@ Drie soorten:
 | Video | Een videobestand dat naar deze academie is geüpload — MP4 of MOV. |
 | Videolink | Een link naar beeld dat ergens anders staat: Veo, Hudl, YouTube of Vimeo. Er wordt niets gekopieerd; de academie bewaart een verwijzing naar de wedstrijd die al online staat. |
 
-Een media-item hangt aan één of meer records — een speler, een team, of een training of wedstrijd. Eén foto van een training kan aan de training
+Een media-item hangt aan één of meer records — een speler, een team, of een trainings- of wedstrijdactiviteit. Eén foto van een training kan aan die activiteit
 worden gekoppeld **én** aan elke speler die erop staat, zodat één upload op elk bijbehorend record verschijnt in plaats van vier keer geüpload te
 moeten worden.
 
@@ -86,7 +86,7 @@ zien van een onverwachte foto.
 ## Een speler verwijderen verwijdert de media
 
 Wordt een speler definitief verwijderd, dan gaan de mediakoppelingen mee. Elke foto of video die alléén aan die speler hing, wordt volledig
-verwijderd — zowel de registratie als het bestand zelf. Media die ook aan een team of een training hangt, blijft bestaan, omdat die records er nog
+verwijderd — zowel de registratie als het bestand zelf. Media die ook aan een team of een activiteit hangt, blijft bestaan, omdat die records er nog
 naar verwijzen.
 
 Dat is van belang bij een verzoek om vergeten te worden: het wissen van een speler wist ook de foto's, niet alleen de regel met de naam erin.
@@ -110,6 +110,9 @@ Geen van beide schakelaars verwijdert iets. Weer aanzetten brengt de bestaande m
 - Opslag zit achter `MediaStorageInterface`. `LocalPrivateStorage` is de meegeleverde implementatie. `tt_media.storage_key` is **ondoorzichtig**:
   geen pad en geen URL, en alleen de adapter die hem geschreven heeft mag hem interpreteren. Registreer een andere adapter via de filter
   `tt_media_storage_adapters`; bestaande rijen blijven bediend door de adapter die in de rij genoemd staat.
+- De mediamap is standaard `uploads/tt-media/` en is aan te passen via de filter `tt_media_storage_root`. Wijs hem naar een apart volume wanneer
+  groeiende video anders de schijf bedreigt waarop WordPress zelf draait. Een gefilterd pad wordt letterlijk gebruikt en moet dus absoluut en
+  beschrijfbaar zijn.
 - `MediaIngestService` bepaalt het bestandstype aan de hand van de bytes zelf, nooit aan de hand van de naam, en weigert SVG categorisch.
 - `MediaLinksRepository::unlink()` verwijdert de media én het bestand zodra de laatste koppeling weggaat. Een media-item zonder koppelingen is
   onbereikbaar en wordt niet bewaard.

@@ -23,12 +23,47 @@ final class MediaFoundationTest extends WP_UnitTestCase {
     /** @var list<string> */
     private $temp_files = [];
 
+    /** @var string */
+    private $root = '';
+
+    /**
+     * Point the store at a scratch directory for the duration of each test.
+     *
+     * Without this the assertions depend on whether the CI container's
+     * `uploads/` happens to be writable, which is WordPress's business, not
+     * this module's — a failure there would say nothing about the sharding,
+     * the guards or the key validation these tests exist to pin down.
+     */
+    public function set_up(): void {
+        parent::set_up();
+        $this->root = untrailingslashit( get_temp_dir() ) . '/tt-media-test-' . wp_generate_password( 8, false );
+        add_filter( 'tt_media_storage_root', function () { return $this->root; } );
+    }
+
     public function tear_down(): void {
+        remove_all_filters( 'tt_media_storage_root' );
+
         foreach ( $this->temp_files as $path ) {
             if ( is_file( $path ) ) @unlink( $path );
         }
         $this->temp_files = [];
+
+        if ( $this->root !== '' && is_dir( $this->root ) ) {
+            $this->rmrf( $this->root );
+        }
+
         parent::tear_down();
+    }
+
+    private function rmrf( string $dir ): void {
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ( $items as $item ) {
+            $item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
+        }
+        @rmdir( $dir );
     }
 
     // ── storage ────────────────────────────────────────────────────────

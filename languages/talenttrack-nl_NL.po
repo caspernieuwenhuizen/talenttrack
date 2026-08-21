@@ -49487,7 +49487,7 @@ msgstr "Mediabibliotheek"
 
 #: src/Shared/Modules/ModuleMetadata.php
 msgid ""
-"Photos and video attached to players, teams and sessions. Files are stored "
+"Photos and video attached to players, teams and activities. Files are stored "
 "privately and are only visible to staff around the player and to the "
 "player's own family. Turn off to keep photographs out of the academy "
 "entirely."
@@ -49499,7 +49499,7 @@ msgstr ""
 
 #: src/Core/FeatureRegistry.php
 msgid ""
-"Photos and video attached to players, teams and sessions. Turn off to hide "
+"Photos and video attached to players, teams and activities. Turn off to hide "
 "the media tabs and uploads across the academy; stored files are kept and "
 "reappear if it is switched back on."
 msgstr ""

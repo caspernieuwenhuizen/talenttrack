@@ -1,7 +1,7 @@
 ---
 title: Media library
 group: development
-summary: Photos and video attached to players, teams and sessions — where files are stored, who can see them, and how to switch the whole thing off.
+summary: Photos and video attached to players, teams and activities — where files are stored, who can see them, and how to switch the whole thing off.
 audience: [admin, dev]
 order: 70
 ---
@@ -24,8 +24,8 @@ Three kinds:
 | Video | A video file uploaded to this academy — MP4 or MOV. |
 | Video link | A link to footage hosted elsewhere: Veo, Hudl, YouTube or Vimeo. Nothing is copied; the academy keeps a pointer to the match it already has online. |
 
-A media item is attached to one or more records — a player, a team, or a training session or match. One photo taken at a session can be attached
-to the session **and** to each player in the frame, so a single upload appears on every record it belongs to instead of being uploaded four times.
+A media item is attached to one or more records — a player, a team, or a training or match activity. One photo taken at a training can be attached
+to that activity **and** to each player in the frame, so a single upload appears on every record it belongs to instead of being uploaded four times.
 
 ## Where the files are kept
 
@@ -74,7 +74,7 @@ its hosting storage.
 ### A photo can show more than one child
 
 If a photo or clip is attached to three players, all three families can see it. That is deliberate: team sport is photographed in groups, and the
-alternative — only ever showing a family a picture in which their child appears alone — would hide nearly every session photo from everyone.
+alternative — only ever showing a family a picture in which their child appears alone — would hide nearly every training photo from everyone.
 
 **Make sure your consent wording matches this.** Families should be told, when they join, that photographs and video taken at the academy may show
 their child alongside others and may be visible to those other families. This should not be something a parent discovers by seeing a photo they
@@ -83,7 +83,7 @@ did not expect.
 ## Deleting a player deletes their media
 
 When a player is permanently deleted, their media attachments go with them. Any photo or video that was attached only to that player is deleted
-outright — the database record and the file itself. Media that is also attached to a team or a session stays, because those records still point at
+outright — the database record and the file itself. Media that is also attached to a team or an activity stays, because those records still point at
 it.
 
 This matters for a request to be forgotten: erasing a player erases their photographs, not just the row with their name in it.
@@ -107,6 +107,8 @@ Neither switch deletes anything. Turning either back on brings the existing medi
 - Storage sits behind `MediaStorageInterface`. `LocalPrivateStorage` is the shipped implementation. `tt_media.storage_key` is **opaque**: it is not
   a path and not a URL, and only the adapter that wrote it may interpret it. Register another adapter through the `tt_media_storage_adapters`
   filter; existing rows keep being served by the adapter named in the row.
+- The media root defaults to `uploads/tt-media/` and is filterable via `tt_media_storage_root`. Point it at a separate volume when video growth
+  would otherwise threaten the disk WordPress itself runs on. A filtered path is used verbatim, so it must be absolute and writable.
 - `MediaIngestService` decides file type from the file's own bytes, never from its name, and refuses SVG outright.
 - `MediaLinksRepository::unlink()` deletes the media and its file when it removes the last link. A media item attached to nothing is unreachable
   and is not kept.

@@ -2,7 +2,7 @@
 
 Bump: minor
 
-Groundwork for attaching photos and video to players, teams and sessions. This release ships the storage and data model, not yet the screens —
+Groundwork for attaching photos and video to players, teams and activities. This release ships the storage and data model, not yet the screens —
 a new **Media library** module appears in Modules, switchable on or off like any other, and does nothing visible until the upload and gallery
 surfaces land.
 
@@ -12,7 +12,7 @@ information — including the location a phone records at a training ground — 
 are decided by the file's own content rather than its name, and SVG is refused outright.
 
 Permanently deleting a player now also deletes their media. A photo attached only to that player is removed along with its file; media also
-attached to a team or a session is kept, because those records still point at it. Previously a polymorphic attachment like this would have been
+attached to a team or an activity is kept, because those records still point at it. Previously a polymorphic attachment like this would have been
 missed by the deletion sweep, leaving photographs on disk after an erasure request.
 
 Two known limits, both documented on the Media library page: video files keep their own embedded data, because stripping it needs tooling the

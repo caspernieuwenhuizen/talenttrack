@@ -124,11 +124,23 @@ final class LocalPrivateStorage implements MediaStorageInterface {
             . ')\z#';
     }
 
-    /** Absolute path of the media root, or '' when uploads is unavailable. */
+    /**
+     * Absolute path of the media root, or '' when uploads is unavailable.
+     *
+     * Filterable via `tt_media_storage_root` so an academy can put media on
+     * a different volume from the rest of `uploads/` — video fills a disk
+     * far faster than anything else the plugin writes, and separating it is
+     * the difference between a full media mount and a dead WordPress. A
+     * filtered path is used verbatim, so it must be absolute and writable.
+     */
     public static function root(): string {
         $uploads = wp_upload_dir( null, false );
-        if ( ! is_array( $uploads ) || empty( $uploads['basedir'] ) ) return '';
-        return untrailingslashit( (string) $uploads['basedir'] ) . '/' . self::DIR_NAME;
+        $default = ( is_array( $uploads ) && ! empty( $uploads['basedir'] ) )
+            ? untrailingslashit( (string) $uploads['basedir'] ) . '/' . self::DIR_NAME
+            : '';
+
+        $root = (string) apply_filters( 'tt_media_storage_root', $default );
+        return $root === '' ? '' : untrailingslashit( $root );
     }
 
     /**
