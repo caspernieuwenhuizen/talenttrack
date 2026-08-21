@@ -153,6 +153,12 @@
 .tt-dashboard .tt-tr-trend--down { color: var(--tt-danger, #d8453b); }
 .tt-dashboard .tt-tr-trend--flat { color: var(--tt-muted, #6a6d66); }
 
+/* #2628 — a test whose `direction` column is `neutral` (height, weight) has
+   no better or worse. The glyph reports which way the value moved and the
+   colour deliberately stays neutral, so nothing reads as praise or alarm. */
+.tt-dashboard .tt-tr-trend--rose,
+.tt-dashboard .tt-tr-trend--fell { color: var(--tt-muted, #6a6d66); }
+
 .tt-dashboard .tt-tr-empty {
     color: var(--tt-muted, #6a6d66);
 }

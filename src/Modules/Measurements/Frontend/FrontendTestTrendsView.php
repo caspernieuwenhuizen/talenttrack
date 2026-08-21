@@ -13,6 +13,7 @@ use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\TrendChart;
+use TT\Shared\Frontend\Components\TrendGlyph;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -218,7 +219,10 @@ final class FrontendTestTrendsView extends FrontendViewBase {
             } else {
                 echo '<ol class="tt-tr-rank__list">';
                 foreach ( $ranks[ $key ] as $p ) {
-                    echo '<li>' . esc_html( (string) $p['name'] ) . ' '
+                    // #2628 — the name is a route to the player record here
+                    // too; it was the one place in the report rendering it as
+                    // plain text.
+                    echo '<li>' . self::playerLink( $p ) . ' '
                         . '<span class="' . ( $key === 'improved' ? 'tt-tr-up' : 'tt-tr-down' ) . '">'
                         . esc_html( self::signed( (float) $p['delta'], $unit ) )
                         . '</span></li>';
@@ -232,8 +236,13 @@ final class FrontendTestTrendsView extends FrontendViewBase {
 
     /**
      * One row per player: their value on each measuring moment, then the
-     * change over the window. The verdict column only exists where the test
-     * has a direction.
+     * change over the window.
+     *
+     * #2628 — the change cell carries its own indicator, so there is no
+     * separate verdict column any more; the word survives as the glyph's
+     * title + screen-reader text. `$with_verdict` now only decides whether
+     * the direction footnote is worth printing — on a neutral test there is
+     * no direction to explain.
      *
      * @param array<string, mixed> $data
      */
@@ -248,9 +257,6 @@ final class FrontendTestTrendsView extends FrontendViewBase {
             echo '<th scope="col">' . esc_html( self::shortDate( $d ) ) . '</th>';
         }
         echo '<th scope="col">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
-        if ( $with_verdict ) {
-            echo '<th scope="col">' . esc_html__( 'Verdict', 'talenttrack' ) . '</th>';
-        }
         echo '</tr></thead><tbody>';
 
         foreach ( (array) $data['players'] as $p ) {
@@ -263,17 +269,17 @@ final class FrontendTestTrendsView extends FrontendViewBase {
                 }
             }
 
+            // #2628 — the glyph carries the verdict, so the separate Verdict
+            // column is gone. Colour alone did not survive a greyscale print
+            // and was invisible to a red/green colour-blind reader.
+            //
+            // On a `direction = neutral` test (height, weight) the state is
+            // rose/fell: which way it moved, in grey, with no verdict word.
             $delta = $p['delta'] ?? null;
-            $cls   = 'tt-meas-cols__change';
-            if ( $with_verdict && $p['verdict'] === 'improved' ) $cls .= ' tt-tr-up';
-            if ( $with_verdict && $p['verdict'] === 'declined' ) $cls .= ' tt-tr-down';
-            echo '<td class="' . esc_attr( $cls ) . '">'
-                . ( $delta === null ? '&mdash;' : esc_html( self::signed( (float) $delta, $unit ) ) )
-                . '</td>';
-
-            if ( $with_verdict ) {
-                echo '<td>' . self::verdictChip( (string) ( $p['verdict'] ?? '' ) ) . '</td>';
-            }
+            $state = (string) ( $p['trend'] ?? '' );
+            echo '<td class="tt-meas-cols__change">'
+                . TrendGlyph::render( $state, $delta === null ? null : (float) $delta, $unit )
+                . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped within the component.
             echo '</tr>';
         }
         echo '</tbody></table></div>';
@@ -382,21 +388,18 @@ final class FrontendTestTrendsView extends FrontendViewBase {
 
     /* ---- small helpers -------------------------------------------------- */
 
-    /** @param array<string, mixed> $p */
+    /**
+     * #2628 — through RecordLink::inline() rather than a hand-rolled anchor.
+     * The hand-rolled one built its URL here but dropped the class, so the
+     * name fell through to the theme's `a` rule (blue + underlined where every
+     * other record name keeps the surrounding colour) and never received the
+     * `data-tt-peek` attribute the hover summary card is bound to.
+     *
+     * @param array<string, mixed> $p
+     */
     private static function playerLink( array $p ): string {
         $url = RecordLink::detailUrlForWithBack( 'players', (int) $p['player_id'] );
-        return '<a href="' . esc_url( $url ) . '">' . esc_html( (string) $p['name'] ) . '</a>';
-    }
-
-    private static function verdictChip( string $verdict ): string {
-        $map = [
-            'improved' => [ 'tt-meas-flag-ok',   __( 'improved', 'talenttrack' ) ],
-            'declined' => [ 'tt-meas-flag-bad',  __( 'fallen back', 'talenttrack' ) ],
-            'flat'     => [ 'tt-meas-flag-flat', __( 'about the same', 'talenttrack' ) ],
-        ];
-        if ( ! isset( $map[ $verdict ] ) ) return '<span class="tt-meas-cols__none">&mdash;</span>';
-        return '<span class="tt-tr-verdict ' . esc_attr( $map[ $verdict ][0] ) . '">'
-            . esc_html( $map[ $verdict ][1] ) . '</span>';
+        return RecordLink::inline( (string) $p['name'], $url );
     }
 
     /**
