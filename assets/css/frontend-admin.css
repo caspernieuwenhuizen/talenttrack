@@ -224,6 +224,12 @@
     border: 1px solid transparent;
     text-decoration: none;
     cursor: pointer;
+    /* #2615 — declared here so the canonical block settles casing for every
+       tag. Without them these two properties fell through to whichever of
+       `.tt-btn` (0,1,0) or `.tt-dashboard button` (0,1,1) matched, so the
+       same button rendered differently as an <a> than as a <button>. */
+    text-transform: none;
+    letter-spacing: normal;
     transition: background .12s, border-color .12s, opacity .12s;
 }
 .tt-dashboard .tt-btn:hover,

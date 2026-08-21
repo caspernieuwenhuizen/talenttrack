@@ -981,7 +981,14 @@ input[type="checkbox"], input[type="radio"] {
 .tt-scout-link-header { padding-top: env(safe-area-inset-top); }
 .tt-meeting-fullscreen-launcher { padding-bottom: env(safe-area-inset-bottom); }
 
-.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; cursor: pointer; transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
+/* #2615 — no text-transform / letter-spacing here. Casing belongs in the
+   label, not the stylesheet: this rule only ever won for <a class="tt-btn">
+   (the .tt-dashboard normalize block covers button/input/select/textarea but
+   not anchors), so Cancel rendered UPPERCASE beside a sentence-case Save in
+   the same flex row. Dropping it rather than adding a counter-override also
+   fixes the surfaces outside .tt-dashboard — the login card, the 404 page and
+   the wp-admin screens that borrow .tt-btn. */
+.tt-btn, .tt-btn-primary { display: inline-block; padding: .65rem 1.4rem; background: var(--tt-primary, #0b3d2e); color: #fff; border: none; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.8rem; font-weight: 700; text-decoration: none; cursor: pointer; transition: background var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
 .tt-btn:hover, .tt-btn-primary:hover { background: var(--tt-primary-hover, var(--tt-secondary, #e8b624)); color: var(--tt-ink); text-decoration: none; }
 .tt-btn-sm { padding: 3px 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--tt-line); cursor: pointer; color: var(--tt-muted); text-decoration: none; }
 .tt-form-msg { margin-top: 1rem; padding: 10px 14px; font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; display: none; }
