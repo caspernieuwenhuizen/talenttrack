@@ -77,9 +77,9 @@ final class WeekPlannerBlock implements BlockRenderer {
             . '<div class="tt-lesson-week__verdict" data-tt-week-verdict role="status">%4$s</div>'
             . '</div>',
             esc_html__( 'Week planner', 'talenttrack' ),
-            esc_html__( 'Set your match day and your sessions. The plan is checked against the recovery times as you go.', 'talenttrack' ),
+            esc_html__( 'Set your match day and your trainings. The plan is checked against the recovery times as you go.', 'talenttrack' ),
             $rows,
-            esc_html__( 'Add a match and at least one session to check the week.', 'talenttrack' )
+            esc_html__( 'Add a match and at least one training to check the week.', 'talenttrack' )
         );
     }
 

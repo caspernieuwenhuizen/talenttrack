@@ -105,7 +105,7 @@ final class LessonRenderer {
             'zeroPointPrompt'  => __( 'Enter the minutes to see your starting step.', 'talenttrack' ),
             'zeroPointTooLow'  => __( 'That is below the lightest step. Start at step 1 and build from there.', 'talenttrack' ),
             'weekOk'           => __( 'This week respects every recovery time.', 'talenttrack' ),
-            'weekPrompt'       => __( 'Add a match and at least one session to check the week.', 'talenttrack' ),
+            'weekPrompt'       => __( 'Add a match and at least one training to check the week.', 'talenttrack' ),
             /* translators: %d: number of problems found */
             'weekProblems'     => __( '%d problem(s) with this week:', 'talenttrack' ),
             'pitchRuleWorks'   => __( 'The rule of thumb works at this format.', 'talenttrack' ),

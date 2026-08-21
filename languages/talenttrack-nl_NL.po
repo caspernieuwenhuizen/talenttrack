@@ -50603,7 +50603,7 @@ msgstr "Weekplanner"
 
 #: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
 msgid ""
-"Set your match day and your sessions. The plan is checked against the "
+"Set your match day and your trainings. The plan is checked against the "
 "recovery times as you go."
 msgstr ""
 "Zet je wedstrijddag en je trainingen neer. Het schema wordt meteen "
@@ -50674,7 +50674,7 @@ msgid "This week respects every recovery time."
 msgstr "Deze week respecteert elke hersteltijd."
 
 #: src/Modules/Knowledge/LessonRenderer.php
-msgid "Add a match and at least one session to check the week."
+msgid "Add a match and at least one training to check the week."
 msgstr "Voeg een wedstrijd en minstens één training toe om de week te controleren."
 
 #: src/Modules/Knowledge/LessonRenderer.php
