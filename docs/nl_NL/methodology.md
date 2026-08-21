@@ -22,7 +22,7 @@ De tabbladen beginnen met **Visie** — de speelvisie van de club opent standaar
 2. **Raamwerk** — de introductie van je academie: inleiding, het voetbalmodel, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie. Elke sectie kan illustraties dragen. De secties zijn **inklapbaar** — de eerste opent automatisch en de rest staat ingeklapt; klap open wat je nodig hebt. Je open/dicht-keuzes worden onthouden voor je volgende bezoek.
 3. **Formaties & posities** — de formatievisual plus een rolkaart per rugnummer. Positiekaarten tonen aanvallende en verdedigende taken en een optioneel diagram.
 4. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw) of VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (aanvallers / middenvelders / verdedigers / keeper), een formatiediagram en een primaire illustratie. Onder het principe-overzicht toont de sectie **Sub-principes** de concrete afspraken per linie voor elke spelfase (zie hieronder).
-5. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen, plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht en communicatie).
+5. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen, plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht en communicatie). **Gedeeld over alle methodologiesets**, anders dan de tabbladen eromheen: een voetbalhandeling is vocabulaire van het spel, niet van de speelwijze van één club, dus het wisselen van de actieve set verandert nooit welke handelingen er zijn. Een handeling die je toevoegt is onder elke set beschikbaar, en een doel dat eraan gekoppeld is blijft naar dezelfde handeling verwijzen, welke set een team ook volgt.
 6. **Spelhervattingen** — corners, vrije trappen, penalty's en inworpen, met illustraties, in aanvallende en verdedigende varianten.
 
 Wanneer de VCT-module is ingeschakeld, verschijnt een zevende tabblad — **Periodisering** (zie hieronder).
@@ -81,3 +81,5 @@ Scènes zijn vandaag geleverde inhoud voor de set JO13-1 Hedel en zijn in de app
 ## Printbare referentiekaart
 
 De actie **Print referentiekaart** maakt een lamineerbare A4-kaart met de spelprincipes, voetbalhandelingen en leerdoelen van de methodiek. De kaart volgt de **actieve methodiek**: ze print precies de set die de bibliotheek toont, dus het wisselen van de actieve methodiek (of van de set van een team) verandert wat er op de kaart staat — de twee lopen nooit door elkaar op één blad.
+
+Eén uitzondering, in lijn met het tabblad zelf: het **blok voetbalhandelingen is op elke kaart hetzelfde**, omdat die catalogus gedeeld is. Wat per kaart verschilt zijn de spelprincipes en de leerdoelen.
