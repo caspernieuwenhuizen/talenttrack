@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\TrainingExposureRestController;
 use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
 use TT\Modules\Training\Print\TrainingPlanPrintRouter;
@@ -55,6 +56,14 @@ class TrainingModule implements ModuleInterface {
 
         TrainingPlansRestController::init();
         TrainingRunsRestController::init();
+
+        // #2500 — the exposure read API. A separate controller because it
+        // is player data with a different audience (D16): a parent may
+        // read their own child's, a coach who can plan a training may not
+        // automatically read a player's history. Sharing a controller
+        // would have meant sharing a permission_callback, which is how
+        // two different rights quietly become one.
+        TrainingExposureRestController::init();
 
         // #2499 — the A4 clipboard sheet. Hooks `template_redirect` at
         // priority 1 so it emits a standalone document before the theme

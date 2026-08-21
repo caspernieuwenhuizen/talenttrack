@@ -17,7 +17,19 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 class PlayerParentVisibilityRepository {
 
     /** Sections a player can hide from a parent. */
-    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'pdp' ];
+    /**
+     * #2500 — `training` joins the list. A player's training exposure is
+     * a per-principle ledger of what they have and have not been taught,
+     * which reads as a list of their shortfalls. If a young person may
+     * withhold their measurements and their PDP from a parent, this
+     * belongs in the same bracket rather than being the one development
+     * surface they cannot close.
+     *
+     * A section absent from this list is always visible — `isVisible()`
+     * returns true for an unknown key — so adding it here is what makes
+     * the control real rather than decorative.
+     */
+    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'pdp', 'training' ];
 
     private function table(): string {
         global $wpdb;

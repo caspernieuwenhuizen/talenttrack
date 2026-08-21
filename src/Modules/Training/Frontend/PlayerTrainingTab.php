@@ -3,6 +3,7 @@ namespace TT\Modules\Training\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Training\Repositories\TrainingObservationsRepository;
 use TT\Modules\Training\Services\PlayerExposureReader;
@@ -43,6 +44,16 @@ final class PlayerTrainingTab {
         if ( ! MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ ) ) {
             echo '<p class="tt-notice">'
                 . esc_html__( 'You do not have permission to see this player\'s training history.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        // #1867 — a parent reads only what the child has left visible.
+        // The REST route applies the same check, so the screen and the
+        // API cannot disagree about what a family may see.
+        if ( ! AuthorizationService::parentCanViewSection( $user_id, $player_id, 'training' ) ) {
+            echo '<p class="tt-notice">'
+                . esc_html__( 'This player has chosen not to share their training history.', 'talenttrack' )
                 . '</p>';
             return;
         }
