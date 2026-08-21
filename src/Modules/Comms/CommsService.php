@@ -167,15 +167,23 @@ final class CommsService {
         return $results;
     }
 
+    /**
+     * Note the deliberate ordering difference from `sendOne()`.
+     *
+     * Delivery checks quiet hours before resolving a channel, because a
+     * deferred send never needs a channel. A *warning* surface must do
+     * the opposite: problems intrinsic to the recipient (opted out, no
+     * usable contact details) are reported ahead of purely temporal ones
+     * (quiet hours, rate limit), because the first kind is what the
+     * sender can actually act on before committing.
+     *
+     * Ordered the other way, a preflight run at 22:00 would report
+     * "held until quiet hours end" for everyone and never mention the
+     * four recipients who have no email address at all.
+     */
     private function preflightOne( CommsRequest $request, Recipient $recipient, $template ): CommsResult {
         if ( $this->optOut->isOptedOut( $recipient->userId, $request->messageType ) ) {
             return new CommsResult( '', CommsResult::STATUS_OPTED_OUT, '', $recipient );
-        }
-        if ( $this->quietHours->shouldDefer( $request ) ) {
-            return new CommsResult( '', CommsResult::STATUS_QUIET_HOURS, '', $recipient );
-        }
-        if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
-            return new CommsResult( '', CommsResult::STATUS_RATE_LIMITED, '', $recipient );
         }
 
         $channelKey = $this->resolveChannel( $request, $recipient, $template->supportedChannels() );
@@ -184,6 +192,13 @@ final class CommsService {
         }
         if ( ChannelAdapterRegistry::get( $channelKey ) === null ) {
             return new CommsResult( '', CommsResult::STATUS_FAILED, '', $recipient, 'adapter_missing' );
+        }
+
+        if ( $this->quietHours->shouldDefer( $request ) ) {
+            return new CommsResult( '', CommsResult::STATUS_QUIET_HOURS, $channelKey, $recipient );
+        }
+        if ( $this->rateLimiter->wouldExceed( $request->senderUserId, $request->messageType ) ) {
+            return new CommsResult( '', CommsResult::STATUS_RATE_LIMITED, $channelKey, $recipient );
         }
 
         // Would be sent to. Not yet sent — hence queued, not sent.

@@ -55,8 +55,26 @@ final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
         return $wpdb->get_results( "SELECT * FROM {$this->table}" );
     }
 
+    /**
+     * `urgent: true` pins the quiet-hours outcome so these assertions do
+     * not depend on the wall clock. Without it the suite passes by day and
+     * fails after 21:00 — quiet hours default to 21:00-07:00, and CI runs
+     * at whatever hour it happens to run. `quietHoursRequest()` covers the
+     * deferred path deliberately instead.
+     */
     private function request( array $recipients, string $templateKey = 'test_template' ): CommsRequest {
-        return new CommsRequest( $templateKey, 'test_template', 1, 0, $recipients );
+        return new CommsRequest( $templateKey, 'test_template', 1, 0, $recipients, [], null, true );
+    }
+
+    /** Same request, subject to quiet hours. */
+    private function quietHoursRequest( array $recipients ): CommsRequest {
+        return new CommsRequest( 'test_template', 'test_template', 1, 0, $recipients, [], null, false );
+    }
+
+    /** Force the quiet-hours window open or shut regardless of the hour. */
+    private function setQuietHours( string $start, string $end ): void {
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_start', $start );
+        \TT\Infrastructure\Query\QueryHelpers::set_config( 'comms_quiet_hours_end', $end );
     }
 
     private function recipient( string $email = 'parent@example.test' ): Recipient {
@@ -122,6 +140,42 @@ final class CommsNoSilentFailuresTest extends WP_UnitTestCase {
 
         $this->assertSame( CommsResult::STATUS_FAILED, $results[0]->status );
         $this->assertSame( 'no_channel_available', $results[0]->errorCode );
+    }
+
+    /**
+     * Ordering guard. Delivery checks quiet hours before resolving a
+     * channel; preflight must not, or a warning shown at 22:00 would say
+     * "held until quiet hours end" and never mention the recipients who
+     * have no contact details at all — which is the actionable half.
+     */
+    public function test_preflight_reports_unreachable_over_quiet_hours(): void {
+        TemplateRegistry::register( new SpyTemplate() );
+        ChannelAdapterRegistry::register( new SpyAdapter() );
+        $this->setQuietHours( '00:00', '23:59' );  // always inside the window
+
+        $results = ( new CommsService() )->preflight(
+            $this->quietHoursRequest( [ $this->recipient( '' ) ] )
+        );
+
+        $this->assertSame(
+            CommsResult::STATUS_FAILED,
+            $results[0]->status,
+            'An unreachable recipient must be reported even during quiet hours.'
+        );
+        $this->assertSame( 'no_channel_available', $results[0]->errorCode );
+    }
+
+    public function test_preflight_reports_quiet_hours_for_a_reachable_recipient(): void {
+        TemplateRegistry::register( new SpyTemplate() );
+        ChannelAdapterRegistry::register( new SpyAdapter() );
+        $this->setQuietHours( '00:00', '23:59' );
+
+        $results = ( new CommsService() )->preflight(
+            $this->quietHoursRequest( [ $this->recipient() ] )
+        );
+
+        $this->assertSame( CommsResult::STATUS_QUIET_HOURS, $results[0]->status );
+        $this->assertCount( 0, $this->rows(), 'Preflight must not write audit rows.' );
     }
 
     public function test_preflight_on_empty_recipients_reports_no_recipients(): void {
