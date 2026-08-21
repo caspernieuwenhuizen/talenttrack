@@ -258,6 +258,14 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'href'    => self::detailUrl( $id, true ), /* tt-xview-ok — same view, same record */
                 'primary' => true,
             ],
+            // #2499 — the clipboard sheet. Opens in a new tab because it
+            // is a standalone print document, not a dashboard page: the
+            // coach prints it and comes back to where they were.
+            [
+                'label'  => __( 'Print', 'talenttrack' ),
+                'href'   => add_query_arg( [ 'print' => '1' ], self::detailUrl( $id, false ) ),
+                'target' => '_blank',
+            ],
         ];
     }
 

@@ -1203,6 +1203,13 @@ class DashboardShortcode {
             case 'training-plan':
                 \TT\Modules\Training\Frontend\FrontendTrainingPlansView::render( $user_id, $is_admin );
                 return true;
+            // #2499 — running a plan. `&activity_id=` attaches a plan to a
+            // training; `&id=` is the sideline view of that run. One route
+            // because it is one errand, and whether a run row already
+            // exists is bookkeeping the coach should not have to know.
+            case 'training-run':
+                \TT\Modules\Training\Frontend\FrontendTrainingRunView::render( $user_id, $is_admin );
+                return true;
             // #2495 — the one exercise library (club drills + the VCT
             // catalogue merged in by migration 0212). `?id=` opens a
             // single exercise.

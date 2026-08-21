@@ -1,0 +1,204 @@
+/**
+ * The training plan clipboard sheet (#2499).
+ *
+ * Read from disk by TrainingPlanPrintable and inlined into the standalone
+ * print document — a print document has no wp_head to enqueue into, but
+ * the CSS still belongs in assets/css/ with every other stylesheet
+ * rather than as a PHP string.
+ *
+ * The constraint that shapes this file: **a 75-minute plan fits one A4
+ * page.** Six blocks, each with a name, an organisation line and its
+ * coaching points, plus a header and the growth-spurt warning. That is
+ * why the type scale is tight and why nothing here is decorative.
+ *
+ * Colours are plain ink on white. A coach printing on the academy's
+ * office laser printer gets a legible sheet, not a wash of grey.
+ */
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    padding: 12mm;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: #111;
+    background: #fff;
+}
+
+/* ---- toolbar (screen only) ---- */
+
+.tt-tp__toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10mm;
+}
+
+.tt-tp__toolbar button,
+.tt-tp__toolbar a {
+    min-height: 44px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    border: 1px solid #cfd4cd;
+    background: #fff;
+    color: #111;
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.tt-tp__toolbar .tt-tp__print {
+    background: #0b3d2e;
+    border-color: #0b3d2e;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* ---- header ---- */
+
+.tt-tp__head {
+    border-bottom: 2px solid #0b3d2e;
+    padding-bottom: 3mm;
+    margin-bottom: 4mm;
+}
+
+.tt-tp__head h1 {
+    margin: 0;
+    font-size: 16pt;
+    line-height: 1.2;
+}
+
+.tt-tp__meta {
+    margin: 1mm 0 0;
+    font-size: 9pt;
+    color: #555;
+}
+
+/* ---- blocks ---- */
+
+.tt-tp__blocks {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tt-tp__row {
+    /* Never split a block across two pages: half a drill on the back of
+       the sheet is worse than a shorter sheet. */
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border-bottom: 1px solid #e0e3de;
+}
+
+.tt-tp__when {
+    width: 22mm;
+    vertical-align: top;
+    padding: 2.5mm 3mm 2.5mm 0;
+    /* The colour bar is the block type — the same six colours the screen
+       uses, so a coach recognises the shape of a session on paper. */
+    border-left: 3px solid #2f9e5e;
+    padding-left: 3mm;
+}
+
+.tt-tp__row--warmup .tt-tp__when    { border-left-color: #7fb3d5; }
+.tt-tp__row--rondo .tt-tp__when     { border-left-color: #9b8ec4; }
+.tt-tp__row--main .tt-tp__when      { border-left-color: #2f9e5e; }
+.tt-tp__row--game .tt-tp__when      { border-left-color: #e8b624; }
+.tt-tp__row--finishing .tt-tp__when { border-left-color: #e07a5f; }
+.tt-tp__row--cooldown .tt-tp__when  { border-left-color: #8fa3ad; }
+.tt-tp__row--talk .tt-tp__when      { border-left-color: #b9bdb6; }
+
+.tt-tp__clock {
+    display: block;
+    font-size: 12pt;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-tp__dur {
+    display: block;
+    font-size: 8.5pt;
+    color: #555;
+}
+
+.tt-tp__what {
+    vertical-align: top;
+    padding: 2.5mm 0;
+}
+
+.tt-tp__type {
+    margin: 0;
+    font-size: 8pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #666;
+}
+
+.tt-tp__name {
+    margin: 0.5mm 0 0;
+    font-size: 11.5pt;
+    font-weight: 700;
+}
+
+.tt-tp__org {
+    margin: 1mm 0 0;
+    color: #333;
+}
+
+.tt-tp__points {
+    margin: 1mm 0 0;
+    padding-left: 3mm;
+    border-left: 2px solid #e0e3de;
+    color: #333;
+    /* Coaching points are written as lines; keep them as lines. */
+    white-space: pre-line;
+}
+
+/* ---- growth-spurt warning ---- */
+
+.tt-tp__warn {
+    margin-top: 4mm;
+    padding: 3mm;
+    border: 1.5pt solid #b3452c;
+    border-radius: 2mm;
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+.tt-tp__warn h2 {
+    margin: 0 0 1.5mm;
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #b3452c;
+}
+
+.tt-tp__warn ul {
+    margin: 0;
+    padding-left: 4mm;
+}
+
+.tt-tp__foot {
+    margin-top: 4mm;
+    font-size: 8.5pt;
+    color: #666;
+}
+
+/* ---- print ---- */
+
+@page {
+    size: A4 portrait;
+    margin: 12mm;
+}
+
+@media print {
+    body { padding: 0; }
+
+    /* The toolbar is a screen affordance; on paper it is a wasted band
+       across the top of the sheet. */
+    .tt-tp__toolbar { display: none; }
+}

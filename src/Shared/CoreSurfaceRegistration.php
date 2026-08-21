@@ -107,6 +107,11 @@ final class CoreSurfaceRegistration {
         // tt_training_plan, so any affordance pointing at it does too.
         $reg::register( 'training-plans', 'tt_training_plan' );
 
+        // #2499 — the sideline view. Same cap as the plan it runs: a coach
+        // who may read the plan may run it, and the activity's own team
+        // scope is what actually decides which trainings they reach.
+        $reg::register( 'training-run', 'tt_training_plan' );
+
         // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
         $chem_gate = static function ( int $uid ): bool {
             if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )

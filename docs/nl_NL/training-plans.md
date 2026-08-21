@@ -186,10 +186,66 @@ de knoppen zeggen het als je dat nog niet hebt gedaan.
 Een kopie staat echt op zichzelf: als je die later aanpast, verandert het plan
 waar je hem van kopieerde niet.
 
+## Een plan uitvoeren
+
+Een plan wordt een training zodra je het aan een training koppelt.
+
+### Koppelen
+
+Open de training in de agenda en klik op **Deze training uitvoeren**. Kies het
+plan en klik op **Plan koppelen**.
+
+Het plan wordt **op de training gekopieerd zoals het op dat moment is**. Alles
+wat daarna volgt leest die kopie, dus als je het plan later aanpast — ook
+dezelfde avond nog — verandert er niets aan wat de training heeft vastgelegd.
+
+Hangt er al een plan aan, dan staat er **Ga verder met deze training** en ga je direct
+naartoe. Twee keer koppelen is geen fout en overschrijft de eerste kopie
+nooit: een training die al geweest is houdt zijn eigen registratie.
+
+### De weergave langs de lijn
+
+Dit is het scherm dat je op het veld vasthoudt, en het is daarom anders
+gebouwd dan de rest van TalentTrack: donker, één blok tegelijk, grote knoppen
+onderin waar je duim al is.
+
+- **Start de training** als je begint. Het eerste blok opent met een klok.
+- De klok loopt **op**, tegen de geplande duur van het blok. Er gaat niets
+  vanzelf verder — jij bepaalt wanneer een blok klaar is.
+- **Uitlopen mag.** Het scherm kleurt oranje en zegt hoeveel je uitloopt en
+  wat er wordt vastgelegd als je nu afrondt. Het zeurt niet en het houdt je
+  niet tegen.
+- **Blok afronden** legt vast hoe lang het werkelijk duurde en opent het
+  volgende.
+- **Blok overslaan** legt vast dat het niet is gedaan. Het blok blijft in het
+  plan staan; alleen deze training legt de overslag vast.
+- **‹ en ›** verplaatsen je tussen blokken zonder iets vast te leggen, om
+  vooruit te kijken.
+- **Training afronden** sluit de sessie. Blokken die je niet hebt gedaan
+  worden vastgelegd als overgeslagen.
+
+Aan het eind zie je de totalen: werkelijk getrainde minuten tegen geplande
+minuten, hoeveel blokken je hebt gedaan en hoeveel je hebt overgeslagen.
+
+**Dit scherm heeft verbinding nodig.** Val je halverwege weg, dan zegt het dat
+het opslaan mislukt is in plaats van te doen alsof het gelukt is. Offline
+werken komt apart.
+
+### De papieren versie
+
+Klik op **Afdrukken** bij een plan voor een A4'tje dat je mee kunt nemen: elk
+blok met begintijd, duur, organisatie en coachpunten, bij een normale training
+op één pagina.
+
+Heeft een speler in het team een groeispurtplafond dat lager ligt dan het
+zwaarste blok in het plan, dan staat dat er met naam bij — degene die het
+papier vasthoudt is degene die er iets mee moet.
+
+Het blad is het plan, niet de registratie. Wat je werkelijk doet wordt
+vastgelegd bij de training.
+
 ## Wat er nog niet is
 
-Wat nog volgt, op volgorde:
+Wat nog volgt:
 
-- een plan aan een training koppelen, de weergave langs de lijn en de
-  A4-afdruk
 - de trainingsgeschiedenis per speler waar dit alles naartoe werkt
