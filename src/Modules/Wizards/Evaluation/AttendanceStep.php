@@ -114,7 +114,7 @@ final class AttendanceStep implements WizardStepInterface {
         ?>
         <div class="tt-att-allhere">
             <button type="submit" name="tt_wizard_action" value="next" class="tt-btn tt-btn-primary tt-att-allhere-btn" data-tt-att-all-here>
-                <?php esc_html_e( 'Everyone was here - continue', 'talenttrack' ); ?>
+                <?php esc_html_e( 'All present', 'talenttrack' ); ?>
             </button>
             <p class="tt-att-allhere-hint"><?php esc_html_e( 'Or mark any absences below first, then continue.', 'talenttrack' ); ?></p>
         </div>

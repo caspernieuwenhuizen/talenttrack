@@ -288,7 +288,7 @@ class FrontendSetupView extends FrontendViewBase {
                 <?php esc_html_e( 'Skip', 'talenttrack' ); ?>
             </button>
             <button type="button" class="tt-btn tt-btn-primary" data-tt-setup-create-page>
-                <?php esc_html_e( 'Create page & set as homepage', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Create page', 'talenttrack' ); ?>
             </button>
         </div>
         <p class="tt-setup__hint">

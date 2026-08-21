@@ -103,7 +103,7 @@ class TeamPlannerWeeklyPrintRouter {
         ?>
         <div class="tt-wp-toolbar">
             <button type="button" class="primary" onclick="window.print();" data-tt-filename="<?php echo esc_attr( $filename ); ?>">
-                <?php esc_html_e( 'Save as PDF / Print', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Print', 'talenttrack' ); ?>
             </button>
             <a href="<?php echo esc_url( $close_url ); ?>"
                onclick="if (window.opener) { window.close(); return false; }">

@@ -130,7 +130,7 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
             ? $back['url']
             : add_query_arg( 'tt_view', 'my-staff-evaluations', RecordLink::dashboardUrl() );
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
-            'label'      => __( 'Save evaluation', 'talenttrack' ),
+            'label'      => __( 'Save', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
         echo '</form>';

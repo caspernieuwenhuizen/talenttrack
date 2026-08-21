@@ -437,7 +437,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                         data-target=".tt-mp-grid"
                         data-orientation="portrait"
                         data-filename="<?php echo esc_attr( $export_filename ); ?>">
-                    <?php esc_html_e( 'Export as PDF (A4)', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
                 </button>
                 <?php
                 // #1194, #1475 — pitch-side team-sheet (Starting XI / Bench

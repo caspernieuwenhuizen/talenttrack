@@ -94,7 +94,7 @@ body { padding: 20px 0 60px; }
 </head>
 <body>
 <div class="tt-scout-actions">
-    <button type="button" class="tt-scout-btn tt-scout-btn--primary" onclick="window.print();"><?php esc_html_e( 'Print this report', 'talenttrack' ); ?></button>
+    <button type="button" class="tt-scout-btn tt-scout-btn--primary" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
     <button type="button" class="tt-scout-btn" onclick="window.close();"><?php esc_html_e( 'Close window', 'talenttrack' ); ?></button>
 </div>
 <?php echo $row->rendered_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped + photos already inlined. ?>

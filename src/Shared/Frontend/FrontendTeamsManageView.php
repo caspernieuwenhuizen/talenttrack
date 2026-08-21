@@ -481,7 +481,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
         if ( current_user_can( 'tt_edit_people' ) ) {
             echo '<p style="margin-top:8px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
-                . esc_html__( 'Manage team assignments', 'talenttrack' )
+                . esc_html__( 'Manage assignments', 'talenttrack' )
                 . '</a></p>';
         }
     }

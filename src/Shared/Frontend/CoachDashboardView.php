@@ -99,7 +99,7 @@ class CoachDashboardView {
             echo '<a href="' . $_print_url . '" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;color:#1a1d21;font-size:13px;text-decoration:none;">';
             // #1365 — inline SVG instead of the OS-dependent printer emoji.
             echo \TT\Shared\Icons\IconRenderer::render( 'print', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;margin-right:4px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
-            echo esc_html__( 'Print report', 'talenttrack' );
+            echo esc_html__( 'Print', 'talenttrack' );
             echo '</a>';
             echo '</div>';
 

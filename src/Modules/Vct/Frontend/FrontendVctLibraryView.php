@@ -365,7 +365,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
                     <div class="tt-vct-lib-edit-actions">
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
-                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save exercise', 'talenttrack' ); ?></button>
+                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                     </div>
                 </form>
             </td>

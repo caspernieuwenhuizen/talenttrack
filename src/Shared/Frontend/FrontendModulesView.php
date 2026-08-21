@@ -397,7 +397,7 @@ class FrontendModulesView extends FrontendViewBase {
 
             <?php
             echo FormSaveButton::render( [
-                'label'      => __( 'Save module state', 'talenttrack' ),
+                'label'      => __( 'Save', 'talenttrack' ),
                 'cancel_url' => self::dashboardUrl(),
             ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- component returns escaped HTML.
             ?>

@@ -439,7 +439,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 remove_query_arg( [ 'action', 'id', 'team_id', 'person_id' ] )
             );
             echo FormSaveButton::render( [
-                'label'      => $is_edit ? __( 'Update assignment', 'talenttrack' ) : __( 'Save assignment', 'talenttrack' ),
+                'label'      => $is_edit ? __( 'Update assignment', 'talenttrack' ) : __( 'Save', 'talenttrack' ),
                 'cancel_url' => $cancel_url,
             ] );
             ?>

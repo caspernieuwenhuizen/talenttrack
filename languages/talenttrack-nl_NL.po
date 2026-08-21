@@ -6726,10 +6726,6 @@ msgstr "Start"
 msgid "End"
 msgstr "Einde"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
-msgid "Save windows"
-msgstr "Periodes opslaan"
-
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:172
 msgid "Windows"
 msgstr "Periodes"
@@ -7109,11 +7105,6 @@ msgstr "override"
 #, php-format
 msgid "Minutes for %s"
 msgstr "Minuten voor %s"
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:932
-msgid "Save minutes"
-msgstr "Minuten opslaan"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:78
 msgid ""
@@ -14733,17 +14724,13 @@ msgstr ""
 msgid "Save CSS"
 msgstr "CSS opslaan"
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:674
-msgid "Open preview in new tab"
-msgstr "Open preview in nieuw tabblad"
-
 # v3.84.1 / #0075 follow-up — full-stylesheet download
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:675
 msgid "Download saved CSS"
 msgstr "Opgeslagen CSS downloaden"
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:676
-msgid "Download full stylesheet (for designer)"
+msgid "Download full CSS"
 msgstr "Volledige stylesheet downloaden (voor designer)"
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:679
@@ -14773,10 +14760,6 @@ msgstr ""
 "stylesheets blijven laden; jouw bewerkte bestand wint op laadvolgorde, dus "
 "alle selectoren die de designer heeft aangepast overschrijven de "
 "standaardwaarden."
-
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:718
-msgid "Download full stylesheet"
-msgstr "Volledige stylesheet downloaden"
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:722
 msgid "Upload a .css file"
@@ -17157,7 +17140,7 @@ msgstr ""
 "afwijzingen en promoties gebeuren in de Goedkeuringswachtrij."
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:58
-msgid "Open approval queue"
+msgid "Open queue"
 msgstr "Open goedkeuringswachtrij"
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:59
@@ -18233,11 +18216,6 @@ msgid ""
 msgstr ""
 "Een nieuwe oefening blijft bij je eigen team en is meteen bruikbaar in je "
 "plannen. Het hoofd opleidingen bepaalt wat clubbreed wordt."
-
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:358
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
-msgid "Save exercise"
-msgstr "Oefening opslaan"
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:381
 msgid "Trains which principles"
@@ -20451,7 +20429,7 @@ msgid "Started %1$s, expires %2$s, grace ends %3$s."
 msgstr "Gestart %1$s, verloopt %2$s, overgangstermijn eindigt %3$s."
 
 #: src/Modules/License/Admin/AccountPage.php:660
-msgid "Reset trial state (dev only)"
+msgid "Reset trial"
 msgstr "Trialstatus resetten (alleen dev)"
 
 #: src/Modules/License/Admin/AccountPage.php:702
@@ -21292,7 +21270,7 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:894
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:899
-msgid "Correct recorded minutes"
+msgid "Correct minutes"
 msgstr "Geregistreerde minuten corrigeren"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:896
@@ -21698,10 +21676,6 @@ msgstr "min"
 msgid "Availability"
 msgstr "Beschikbaarheid"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:440
-msgid "Export as PDF (A4)"
-msgstr "Exporteren als PDF (A4)"
-
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:460
 msgid "Print team sheet"
 msgstr "Wedstrijdformulier afdrukken"
@@ -21984,10 +21958,6 @@ msgstr "Wedstrijdformulier — afdrukken"
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:148
 msgid "No team sheet found for this activity."
 msgstr "Geen wedstrijdformulier gevonden voor deze activiteit."
-
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:174
-msgid "Export as PDF (A4 landscape)"
-msgstr "Exporteren als PDF (A4 liggend)"
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:79
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
@@ -22439,10 +22409,6 @@ msgstr "Oranje vanaf"
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:52
 msgid "Amber to"
 msgstr "Oranje tot"
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
-msgid "Save test"
-msgstr "Test opslaan"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:393
 msgid "Export results"
@@ -26001,7 +25967,7 @@ msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:273
 #: src/Shared/Frontend/FrontendSetupView.php:291
-msgid "Create page & set as homepage"
+msgid "Create page"
 msgstr "Pagina aanmaken & als homepage instellen"
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:280
@@ -26384,10 +26350,6 @@ msgstr ""
 msgid "Add or update your self-reflection"
 msgstr "Voeg je zelfreflectie toe of werk hem bij"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
-msgid "Save reflection"
-msgstr "Reflectie opslaan"
-
 #. translators: %s = last-saved timestamp
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
 #, php-format
@@ -26750,10 +26712,6 @@ msgstr "Gebruik club- / teamstandaard"
 #, php-format
 msgid "PDP file — %s"
 msgstr "POP-dossier — %s"
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784
-msgid "Print / PDF"
-msgstr "Printen / PDF"
 
 #. translators: 1: signed-off count, 2: cycle size
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:834
@@ -27616,7 +27574,7 @@ msgstr ""
 "coach en is optioneel, nooit verplicht."
 
 #: src/Modules/Pdp/Workflow/PdpSelfReviewForm.php:25
-msgid "Open my development plan"
+msgid "Open plan"
 msgstr "Open mijn ontwikkelplan"
 
 #: src/Modules/Pdp/Workflow/PdpSelfReviewTemplate.php:34
@@ -31606,12 +31564,6 @@ msgstr "Deze scoutlink is verlopen."
 msgid "%s — Player report"
 msgstr "%s — Spelerrapport"
 
-#: src/Modules/Reports/ScoutLinkRouter.php:97
-#: src/Modules/Stats/PrintRouter.php:201
-#: src/Shared/Frontend/FrontendReportWizardView.php:344
-msgid "Print this report"
-msgstr "Rapport printen"
-
 # ===== v3.6.0 — demo prep batch A (PR #11) =====
 #: src/Modules/Reports/ScoutLinkRouter.php:98
 #: src/Modules/Stats/PrintRouter.php:207
@@ -31673,10 +31625,6 @@ msgstr "%1$d bijgewerkt, %2$d ongewijzigd."
 msgid "1. Download review template"
 msgstr "1. Download review-sjabloon"
 
-#: src/Modules/SeedReview/Admin/SeedReviewPage.php:63
-msgid "Download seed review .xlsx"
-msgstr "Download seed-review .xlsx"
-
 #: src/Modules/SeedReview/Admin/SeedReviewPage.php:66
 msgid "2. Apply edits from upload"
 msgstr "2. Pas wijzigingen toe vanuit upload"
@@ -31732,11 +31680,6 @@ msgstr ""
 msgid "API base URL"
 msgstr "API-base-URL"
 
-#: src/Modules/Spond/Admin/SpondOverviewPage.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:365
-msgid "Save endpoint"
-msgstr "Eindpunt opslaan"
-
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:134
 #: src/Shared/Frontend/FrontendSpondView.php:363
 msgid "Leave blank and save to revert to the default."
@@ -31779,12 +31722,6 @@ msgid ""
 msgstr ""
 "Versleuteld bewaard. Bij rotatie van de WordPress AUTH_KEY-salt wordt de "
 "waarde ongeldig en moet je opnieuw invoeren."
-
-#: src/Modules/Spond/Admin/SpondOverviewPage.php:163
-#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:162
-msgid "Save credentials"
-msgstr "Credentials opslaan"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:166
 #: src/Shared/Frontend/FrontendSpondView.php:172
@@ -32112,10 +32049,6 @@ msgstr "Zelf-evaluatie"
 msgid "Top-down (head of development)"
 msgstr "Top-down (hoofd ontwikkeling)"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:133
-msgid "Save evaluation"
-msgstr "Evaluatie opslaan"
-
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:40
 msgid "My staff goals"
 msgstr "Mijn stafdoelen"
@@ -32155,10 +32088,6 @@ msgstr "Acties komend kwartaal"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:78
 msgid "Narrative (optional)"
 msgstr "Narratief (optioneel)"
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
-msgid "Save PDP"
-msgstr "POP opslaan"
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:93
 msgid "Last reviewed:"
@@ -33299,10 +33228,6 @@ msgid ""
 msgstr ""
 "Beoordeel elk attribuut 0–100. Laat leeg om te wissen. Deze voeden de "
 "teamchemie-engine."
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
-msgid "Save attributes"
-msgstr "Attributen opslaan"
 
 #. translators: %d: number of attributes saved
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:141
@@ -36679,10 +36604,6 @@ msgstr "Macro-blokken — %s"
 msgid "Add block"
 msgstr "Blok toevoegen"
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
-msgid "Save block set"
-msgstr "Blokkenset opslaan"
-
 #. translators: %d = team id for a team no longer in the list
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:245
 #, php-format
@@ -36906,10 +36827,6 @@ msgstr "Standaardstarttijd"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:429
 msgid "Default duration (minutes)"
 msgstr "Standaardduur (minuten)"
-
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
-msgid "Save schedule"
-msgstr "Schema opslaan"
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:470
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:494
@@ -37875,7 +37792,7 @@ msgstr ""
 "de beoordelingsstap."
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:117
-msgid "Everyone was here - continue"
+msgid "All present"
 msgstr "Iedereen was er - doorgaan"
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:119
@@ -38179,10 +38096,6 @@ msgid "%d player marked Present or Late."
 msgid_plural "%d players marked Present or Late."
 msgstr[0] "%d speler staat op Aanwezig of Te laat."
 msgstr[1] "%d spelers staan op Aanwezig of Te laat."
-
-#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:65
-msgid "Rate the present players"
-msgstr "Beoordeel de aanwezige spelers"
 
 #: src/Modules/Wizards/Evaluation/RateConfirmStep.php:68
 msgid "Skip rating — I'll rate later"
@@ -40525,15 +40438,6 @@ msgstr "Spelerdetail"
 msgid "No teams assigned."
 msgstr "Geen teams toegewezen."
 
-#: src/Shared/Frontend/CoachDashboardView.php:102
-#: src/Shared/Frontend/FrontendOverviewView.php:76
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:975
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:981
-#: src/Shared/Frontend/FrontendPlayersManageView.php:589
-#: src/Shared/Frontend/PlayerDashboardView.php:77
-msgid "Print report"
-msgstr "Rapport afdrukken"
-
 #: src/Shared/Frontend/CoachDashboardView.php:119
 msgid "Select a player from the roster."
 msgstr "Selecteer een speler uit de selectie."
@@ -41201,7 +41105,7 @@ msgid "Edit or delete saved view %s"
 msgstr "Opgeslagen weergave %s bewerken of verwijderen"
 
 #: src/Shared/Frontend/Components/SavedViews.php:101
-msgid "Save current filters…"
+msgid "Save filters"
 msgstr "Huidige filters opslaan…"
 
 #: src/Shared/Frontend/Components/SavedViews.php:104
@@ -43297,10 +43201,6 @@ msgstr ""
 msgid "Open custom CSS"
 msgstr "Aangepaste CSS openen"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2021
-msgid "Save appearance"
-msgstr "Vormgeving opslaan"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2057
 msgid "Date notation"
 msgstr "Datumnotatie"
@@ -43429,10 +43329,6 @@ msgstr ""
 "de WordPress-standaard — je e-mail wordt nooit met een kapotte afzender "
 "verzonden."
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2181
-msgid "Save general settings"
-msgstr "Algemene instellingen opslaan"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2211
 msgid "Max"
 msgstr "Max"
@@ -43454,10 +43350,6 @@ msgstr ""
 "groeitrend in plaats van een rang \"#N van M\". Zet het alleen aan als je "
 "academie wil dat spelers hun numerieke positie zien. Stafleden zien altijd "
 "rangen; de rang van een andere teamgenoot wordt nooit aan een speler getoond."
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2232
-msgid "Save rating scale"
-msgstr "Beoordelingsschaal opslaan"
 
 #. translators: %d is the global fallback minutes per half.
 #: src/Shared/Frontend/FrontendConfigurationView.php:2266
@@ -43499,10 +43391,6 @@ msgstr "Minuten per helft (N)"
 msgid "Total (2 x N)"
 msgstr "Totaal (2 x N)"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2326
-msgid "Save match minutes"
-msgstr "Wedstrijdminuten opslaan"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2382
 msgid ""
 "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-"
@@ -43521,10 +43409,6 @@ msgstr ""
 "Maak de oude menu-items in wp-admin opnieuw zichtbaar voor wie ze "
 "prefereert. De plugin werkt aan beide kanten; dit stuurt alleen de "
 "zichtbaarheid van het menu."
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2396
-msgid "Save menus"
-msgstr "Menu's opslaan"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2425
 msgid "You do not have permission to export the configuration."
@@ -43570,7 +43454,7 @@ msgstr ""
 "bestand bevat geen spelersgegevens."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2471
-msgid "Download configuration (JSON)"
+msgid "Download JSON"
 msgstr "Configuratie downloaden (JSON)"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2515
@@ -43612,10 +43496,6 @@ msgstr ""
 msgid "Visible profile cards"
 msgstr "Zichtbare profielkaarten"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2624
-msgid "Save profile cards"
-msgstr "Profielkaarten opslaan"
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2675
 msgid ""
 "No seasons configured yet. Add a season under Configuration → Seasons first, "
@@ -43649,10 +43529,6 @@ msgstr "Blokdatums"
 #: src/Shared/Frontend/FrontendConfigurationView.php:2736
 msgid "Year timeline"
 msgstr "Jaartijdlijn"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2745
-msgid "Save blocks"
-msgstr "Blokken opslaan"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2771
 msgid "Blocks saved."
@@ -43725,10 +43601,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:2865
 msgid "Inherit (use global default)"
 msgstr "Overerven (gebruik standaardinstelling)"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2878
-msgid "Save default dashboard"
-msgstr "Standaard dashboard opslaan"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2913
 msgid "Select logo"
@@ -44416,10 +44288,6 @@ msgstr "Laat leeg zolang de toewijzing loopt."
 msgid "Update assignment"
 msgstr "Toewijzing bijwerken"
 
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
-msgid "Save assignment"
-msgstr "Toewijzing opslaan"
-
 #: src/Shared/Frontend/FrontendGoalsManageView.php:50
 msgid "Edit goal"
 msgstr "Doel bewerken"
@@ -44812,7 +44680,7 @@ msgstr ""
 "bouwen bij onomkeerbare bewerkingen."
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:53
-msgid "Open wp-admin to run them"
+msgid "Run in wp-admin"
 msgstr "Open wp-admin om ze uit te voeren"
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:63
@@ -44852,10 +44720,6 @@ msgstr "Migraties in afwachting"
 #: src/Shared/Frontend/FrontendMigrationsView.php:111
 msgid "None pending."
 msgstr "Niets in afwachting."
-
-#: src/Shared/Frontend/FrontendMigrationsView.php:125
-msgid "Open wp-admin to run pending migrations"
-msgstr "Open wp-admin om migraties uit te voeren"
 
 # v3.103.2 — #0084 Child 1: mobile surface classification + desktop-prompt page
 #: src/Shared/Frontend/FrontendMobilePromptView.php:52
@@ -45004,10 +44868,6 @@ msgstr "%s inschakelen"
 #: src/Shared/Frontend/FrontendModulesView.php:395
 msgid "No modules or features match your search."
 msgstr "Geen modules of functies komen overeen met je zoekopdracht."
-
-#: src/Shared/Frontend/FrontendModulesView.php:400
-msgid "Save module state"
-msgstr "Modulestatus opslaan"
 
 #: src/Shared/Frontend/FrontendModulesView.php:484
 msgid "Turn TalentTrack modules on or off."
@@ -45398,7 +45258,7 @@ msgstr ""
 "apparaat zal opnieuw moeten inloggen."
 
 #: src/Shared/Frontend/FrontendMySessionsView.php:83
-msgid "Revoke all other sessions"
+msgid "Revoke others"
 msgstr "Alle andere sessies intrekken"
 
 #: src/Shared/Frontend/FrontendMySessionsView.php:108
@@ -45740,10 +45600,6 @@ msgstr "Clubaccount gebruiken"
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:136
 msgid "Pick the Spond group whose calendar belongs to this team."
 msgstr "Kies de Spond-groep waarvan de agenda bij dit team hoort."
-
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
-msgid "Save group"
-msgstr "Groep opslaan"
 
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:150
 msgid ""
@@ -46528,10 +46384,6 @@ msgstr "— Niet ingesteld —"
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2066
-msgid "Save PHV flag"
-msgstr "PHV-vlag opslaan"
-
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2074
 msgid "Cleared"
 msgstr "Vrijgegeven"
@@ -46845,10 +46697,6 @@ msgstr ""
 "Optionele motivering — bijv. waarom je de band naar boven of beneden hebt "
 "bijgesteld."
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
-msgid "Save potential"
-msgstr "Sla potentieel op"
-
 #. translators: 1: band 2: timestamp
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:286
 #, php-format
@@ -47015,10 +46863,6 @@ msgstr "Je rol heeft geen toegang tot rapporten."
 #: src/Shared/Frontend/FrontendReportDetailView.php:58
 msgid "Report"
 msgstr "Rapport"
-
-#: src/Shared/Frontend/FrontendReportDetailView.php:69
-msgid "Print / Save as PDF"
-msgstr "Afdrukken / Opslaan als PDF"
 
 #: src/Shared/Frontend/FrontendReportDetailView.php:80
 msgid "Unknown report."
@@ -47722,7 +47566,7 @@ msgid "as %s"
 msgstr "als %s"
 
 #: src/Shared/Frontend/FrontendSpondView.php:188
-msgid "Open integration monitor"
+msgid "Open monitor"
 msgstr "Integratiemonitor openen"
 
 #: src/Shared/Frontend/FrontendSpondView.php:325
@@ -48333,7 +48177,7 @@ msgid "No players on this roster yet."
 msgstr "Nog geen spelers in deze selectie."
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:841
-msgid "Open the chemistry board"
+msgid "Open board"
 msgstr "Open het chemiebord"
 
 # #1088 — VCT-13 team-defaults panel
@@ -48463,10 +48307,6 @@ msgstr "Uitnodigen"
 msgid "Edit team"
 msgstr "Team bewerken"
 
-#: src/Shared/Frontend/FrontendTeamsManageView.php:484
-msgid "Manage team assignments"
-msgstr "Team-toewijzingen beheren"
-
 #: src/Shared/Frontend/FrontendTeamsManageView.php:522
 msgid ""
 "Formation board with auto-suggested XI, fit scores, depth chart, link "
@@ -48566,7 +48406,7 @@ msgid "No matches yet."
 msgstr "Nog geen wedstrijden."
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:389
-msgid "Open planner grid"
+msgid "Open planner"
 msgstr "Open planner grid"
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:394
@@ -48888,7 +48728,7 @@ msgid "Acceptance slip received on:"
 msgstr "Acceptatiestrook ontvangen op:"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:694
-msgid "Mark acceptance slip as received"
+msgid "Mark received"
 msgstr "Acceptatiestrook als ontvangen markeren"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:700
@@ -48904,7 +48744,7 @@ msgstr ""
 "Beslissing om er een te maken."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:717
-msgid "Open print-ready view"
+msgid "Print view"
 msgstr "Afdrukweergave openen"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:726
@@ -48926,7 +48766,7 @@ msgstr ""
 "basisgegevens van de speler, en de brief."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:745
-msgid "Open meeting view"
+msgid "Open meeting"
 msgstr "Gespreksweergave openen"
 
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:40
@@ -49012,10 +48852,6 @@ msgstr "Inhoud van de brief"
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:152
 msgid "Variables you can use"
 msgstr "Variabelen die je kunt gebruiken"
-
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:172
-msgid "Save template"
-msgstr "Sjabloon opslaan"
 
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:177
 msgid "Reset this template to the shipped default?"
@@ -49290,10 +49126,6 @@ msgid ""
 msgstr ""
 "Hoe lang een stage op dit traject standaard duurt. De staf kan de einddatum "
 "per speler nog aanpassen."
-
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:138
-msgid "Save track"
-msgstr "Traject opslaan"
 
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:144
 msgid "Archive this track?"

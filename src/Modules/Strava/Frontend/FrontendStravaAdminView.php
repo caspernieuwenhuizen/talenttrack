@@ -128,7 +128,7 @@ final class FrontendStravaAdminView extends FrontendViewBase {
                     <?php if ( $can_edit ) : ?>
                         <div class="tt-strava-admin__actions-row">
                             <?php echo FormSaveButton::render( [
-                                'label'        => __( 'Save credentials', 'talenttrack' ),
+                                'label'        => __( 'Save', 'talenttrack' ),
                                 'label_saving' => __( 'Saving…', 'talenttrack' ),
                                 'label_saved'  => __( 'Saved', 'talenttrack' ),
                                 'cancel_url'   => $cancel_url,

@@ -80,7 +80,7 @@ class FrontendMySessionsView extends FrontendViewBase {
                 <?php wp_nonce_field( MySessionsActionHandlers::ACTION_REVOKE_OTHERS, 'tt_my_sessions_nonce' ); ?>
                 <input type="hidden" name="action" value="<?php echo esc_attr( MySessionsActionHandlers::ACTION_REVOKE_OTHERS ); ?>" />
                 <button type="submit" class="tt-btn tt-btn-secondary" onclick="return confirm('<?php echo esc_js( __( 'Revoke every other session? You will stay signed in here, but every other device will need to sign in again.', 'talenttrack' ) ); ?>');">
-                    <?php esc_html_e( 'Revoke all other sessions', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Revoke others', 'talenttrack' ); ?>
                 </button>
             </form>
         <?php endif; ?>

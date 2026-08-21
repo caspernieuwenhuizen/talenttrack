@@ -218,7 +218,7 @@ class FrontendVctConfigView extends FrontendViewBase {
         echo '</div>';
         echo '<div class="tt-vct-blocks-messages" data-tt-vct-messages role="status" aria-live="polite"></div>';
         echo '<div class="tt-form-actions">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-vct-save>' . esc_html__( 'Save block set', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-vct-save>' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
         echo '<span class="tt-form-msg" data-tt-vct-msg></span>';
         echo '</div>';
         echo '</form>';
@@ -432,7 +432,7 @@ class FrontendVctConfigView extends FrontendViewBase {
             echo '</div>';
 
             echo '<div class="tt-form-actions">';
-            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save schedule', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
             echo '</div>';
             echo '</form></details>';
         }

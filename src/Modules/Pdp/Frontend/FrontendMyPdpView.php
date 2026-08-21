@@ -396,7 +396,7 @@ class FrontendMyPdpView extends FrontendViewBase {
             <label class="tt-field-label" for="tt-myrefl-<?php echo (int) $cid; ?>"><?php esc_html_e( 'Add or update your self-reflection', 'talenttrack' ); ?></label>
             <textarea id="tt-myrefl-<?php echo (int) $cid; ?>" name="player_reflection" class="tt-input" rows="5" inputmode="text"<?php echo $disabled; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static literal ?>><?php echo esc_textarea( $saved ); ?></textarea>
             <div class="tt-form-actions">
-                <button type="submit" class="tt-btn tt-btn-primary"<?php echo $disabled; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static literal ?>><?php esc_html_e( 'Save reflection', 'talenttrack' ); ?></button>
+                <button type="submit" class="tt-btn tt-btn-primary"<?php echo $disabled; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static literal ?>><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
             </div>
             <div class="tt-form-msg"></div>
         </form>

@@ -50,7 +50,7 @@ class FrontendMigrationsView extends FrontendViewBase {
                     <?php esc_html_e( 'Migrations are run from wp-admin to add a deliberate friction point on irreversible operations.', 'talenttrack' ); ?>
                 </span>
                 <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $admin_url ); ?>">
-                    <?php esc_html_e( 'Open wp-admin to run them', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Run in wp-admin', 'talenttrack' ); ?>
                 </a>
             </div>
             <?php
@@ -122,7 +122,7 @@ class FrontendMigrationsView extends FrontendViewBase {
             </div></div>
             <p class="tt-migrations-run">
                 <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $admin_url ); ?>">
-                    <?php esc_html_e( 'Open wp-admin to run pending migrations', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Run in wp-admin', 'talenttrack' ); ?>
                 </a>
             </p>
         <?php endif; ?>

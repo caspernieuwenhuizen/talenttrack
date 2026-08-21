@@ -149,7 +149,7 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
         echo '</div>';
 
         echo '<div class="tt-ec-window-actions">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save windows', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
         echo '</div>';
         echo '</form>';
         echo '</section>';

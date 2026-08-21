@@ -270,7 +270,7 @@ class OnboardingPage {
         <?php endif; ?>
         <p style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
             <a class="button button-primary button-hero" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_create_dashboard_page' ) ); ?>">
-                <?php esc_html_e( 'Create page & set as homepage', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Create page', 'talenttrack' ); ?>
             </a>
             <a class="button button-secondary button-hero" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_advance', [ 'from' => 'dashboard', 'skip' => '1' ] ) ); ?>">
                 <?php esc_html_e( 'Skip', 'talenttrack' ); ?>

@@ -253,7 +253,7 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
         // Save + Cancel (§6). Save drives the per-row writes via the JS,
         // which flips the shared .tt-save-btn state machine.
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes.
-            'label'        => __( 'Save minutes', 'talenttrack' ),
+            'label'        => __( 'Save', 'talenttrack' ),
             'label_saving' => __( 'Saving…', 'talenttrack' ),
             'label_saved'  => __( 'Saved', 'talenttrack' ),
             'cancel_url'   => $cancel_url,
