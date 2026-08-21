@@ -49689,6 +49689,114 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Core/FeatureRegistry.php:314
+msgid "Offer SMS as a messaging channel. TalentTrack does not send SMS by itself — this needs a provider plugin, and without one every SMS fails. The other channels (email, push, WhatsApp link, in-app) are unaffected."
+msgstr "Bied sms aan als kanaal voor berichten. TalentTrack verstuurt zelf geen sms — daar is een providerplugin voor nodig, en zonder die plugin mislukt elke sms. De andere kanalen (e-mail, push, WhatsApp-link, in-app) blijven ongemoeid."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1637
+msgid "Choose which messages your academy sends — cancellations, nudges, reminders and letters. Switching one off stops it for everyone; the message log still records that it would have gone out."
+msgstr "Kies welke berichten jouw academie verstuurt — afgelastingen, herinneringen en brieven. Zet je er een uit, dan stopt het voor iedereen; het berichtenlogboek legt nog steeds vast dat het verstuurd zou zijn."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2510
+msgid "Choose which messages your academy sends. Unchecking one stops it being sent to anyone, for every channel. Nothing is lost: a message that was switched off is still recorded in the message log, so you can see it would have gone out."
+msgstr "Kies welke berichten jouw academie verstuurt. Vink je er een uit, dan wordt het naar niemand meer verstuurd, via geen enkel kanaal. Er gaat niets verloren: een uitgezet bericht wordt nog steeds vastgelegd in het berichtenlogboek, zodat je kunt zien dat het verstuurd zou zijn."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2514
+msgid "No message templates are registered."
+msgstr "Er zijn geen berichttemplates geregistreerd."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2516
+msgid "Messages this academy sends"
+msgstr "Berichten die deze academie verstuurt"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2545
+msgid "Save messages"
+msgstr "Berichten opslaan"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:180
+msgid "Messages you receive"
+msgstr "Berichten die je ontvangt"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:182
+msgid "Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child."
+msgstr "Kies welke berichten de academie je mag sturen. Vink je er een uit, dan stopt het via elk kanaal. Je ontvangt alleen berichten die over jou of over je eigen kind gaan."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:206
+msgid "Safeguarding messages, and messages about getting back into your account, are always sent. They cannot be switched off."
+msgstr "Veiligheidsberichten en berichten over het terugkrijgen van toegang tot je account worden altijd verstuurd. Die kun je niet uitzetten."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:210
+msgid "Save message preferences"
+msgstr "Berichtvoorkeuren opslaan"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:230
+msgid "A training is cancelled"
+msgstr "Een training wordt afgelast"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:231
+msgid "An activity changes time or place"
+msgstr "Een activiteit verandert van tijd of plaats"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:232
+msgid "Selection decisions"
+msgstr "Selectiebesluiten"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:233
+msgid "A development plan is ready to read"
+msgstr "Een ontwikkelplan staat klaar om te lezen"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:234
+msgid "Invitations to parent meetings"
+msgstr "Uitnodigingen voor ouderavonden"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:235
+msgid "Welcome messages for trial players"
+msgstr "Welkomstberichten voor proefspelers"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:236
+msgid "Invitations to join an activity as a guest"
+msgstr "Uitnodigingen om als gastspeler mee te trainen"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:237
+msgid "Reminders to update a goal"
+msgstr "Herinneringen om een doel bij te werken"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:238
+msgid "Alerts about repeated absence"
+msgstr "Meldingen over herhaalde afwezigheid"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:239
+msgid "New training plans are published"
+msgstr "Nieuwe trainingsplannen zijn gepubliceerd"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:240
+msgid "Reminders when you have not logged in for a while"
+msgstr "Herinneringen als je een tijdje niet ingelogd bent"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:241
+msgid "Reminders about your own development review"
+msgstr "Herinneringen over je eigen ontwikkelgesprek"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:242
+msgid "Formal letters"
+msgstr "Formele brieven"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:243
+msgid "Academy-wide announcements"
+msgstr "Mededelingen voor de hele academie"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:250
+msgid "Safeguarding messages"
+msgstr "Veiligheidsberichten"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:251
+msgid "Getting back into your account"
+msgstr "Weer toegang krijgen tot je account"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:430
+msgid "Message preferences saved."
+msgstr "Berichtvoorkeuren opgeslagen."
+
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
 
