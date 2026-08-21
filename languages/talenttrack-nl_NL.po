@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T22:44:44+00:00\n"
+"POT-Creation-Date: 2026-08-21T22:51:13+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -126,11 +126,11 @@ msgstr "Team Manager"
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:129
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:24
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:976
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:260
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:246
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:304
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:338
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:259
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:255
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:310
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:344
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
@@ -983,7 +983,7 @@ msgid "Rate cards"
 msgstr "Rapportkaarten"
 
 #: src/Core/FeatureRegistry.php:483
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:38
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:39
 #: src/Shared/CoreSurfaceRegistration.php:990
 msgid "Test trends"
 msgstr "Testverloop"
@@ -2384,10 +2384,10 @@ msgstr "Radarkaarten"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:113
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:125
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:172
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:451
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:454
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:607
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:499
@@ -2875,8 +2875,8 @@ msgstr "Een team is vereist."
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:54
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:82
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:85
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:86
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:71
 msgid "You do not have access to this team."
 msgstr "Je hebt geen toegang tot dit team."
@@ -3369,7 +3369,7 @@ msgstr "Er moet een test gekozen worden."
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:51
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:52
 #: src/Modules/Reports/Admin/ReportsPage.php:39
 #: src/Shared/Frontend/FrontendRateCardView.php:57
 #: src/Shared/Frontend/FrontendStandardReportsView.php:115
@@ -3394,6 +3394,85 @@ msgstr "De test kon niet worden opgeslagen."
 #: src/Infrastructure/REST/MeasurementsRestController.php:397
 msgid "Could not schedule the test."
 msgstr "De test kon niet worden ingepland."
+
+#: src/Infrastructure/REST/MediaRestController.php:150
+msgid "Provide entity_type (player, team or activity) and entity_id."
+msgstr "Geef entity_type (player, team of activity) en entity_id op."
+
+#: src/Infrastructure/REST/MediaRestController.php:203
+msgid ""
+"Provide entity_type (player, team or activity) and entity_id to attach the "
+"media to."
+msgstr ""
+"Geef entity_type (player, team of activity) en entity_id op om de media aan "
+"te koppelen."
+
+#: src/Infrastructure/REST/MediaRestController.php:223
+msgid "The media item could not be saved."
+msgstr "Het media-item kon niet worden opgeslagen."
+
+#: src/Infrastructure/REST/MediaRestController.php:256
+msgid "The capture date could not be understood."
+msgstr "De opnamedatum kon niet worden gelezen."
+
+#: src/Infrastructure/REST/MediaRestController.php:265
+msgid "No editable fields were provided."
+msgstr "Er zijn geen te wijzigen velden meegegeven."
+
+#: src/Infrastructure/REST/MediaRestController.php:290
+msgid "The media item could not be removed."
+msgstr "Het media-item kon niet worden verwijderd."
+
+#: src/Infrastructure/REST/MediaRestController.php:306
+msgid "Provide a valid entity_type and entity_id."
+msgstr "Geef een geldige entity_type en entity_id op."
+
+#: src/Infrastructure/REST/MediaRestController.php:324
+msgid "The media item could not be attached."
+msgstr "Het media-item kon niet worden gekoppeld."
+
+#: src/Infrastructure/REST/MediaRestController.php:338
+msgid "That attachment was not found."
+msgstr "Die koppeling is niet gevonden."
+
+#: src/Infrastructure/REST/MediaRestController.php:394
+msgid ""
+"That does not look like a video address. Paste the web address of the video "
+"as it appears in your browser."
+msgstr ""
+"Dat lijkt geen videoadres. Plak het webadres van de video zoals het in je "
+"browser staat."
+
+#: src/Infrastructure/REST/MediaRestController.php:427
+msgid ""
+"No file was received. Attach a file, or provide external_url for a video "
+"hosted elsewhere."
+msgstr ""
+"Er is geen bestand ontvangen. Voeg een bestand toe, of geef external_url op "
+"voor video die ergens anders staat."
+
+#: src/Infrastructure/REST/MediaRestController.php:493
+msgid "Media item not found."
+msgstr "Media-item niet gevonden."
+
+#: src/Infrastructure/REST/MediaRestController.php:497
+msgid "You do not have permission to do that."
+msgstr "Je hebt geen rechten om dat te doen."
+
+#. translators: %s is the server's maximum upload size.
+#: src/Infrastructure/REST/MediaRestController.php:520
+#, php-format
+msgid "That file is larger than this server accepts (%s)."
+msgstr "Dat bestand is groter dan deze server accepteert (%s)."
+
+#: src/Infrastructure/REST/MediaRestController.php:525
+msgid "The upload did not finish. Check your connection and try again."
+msgstr ""
+"De upload is niet afgerond. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Infrastructure/REST/MediaRestController.php:527
+msgid "The file could not be uploaded."
+msgstr "Het bestand kon niet worden geüpload."
 
 #: src/Infrastructure/REST/MinutesRestController.php:61
 msgid "Invalid team or player."
@@ -3674,8 +3753,8 @@ msgstr "Seizoen"
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:253
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:284
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:283
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -5376,8 +5455,8 @@ msgstr "Datumbereik"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:127
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:192
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:461
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:464
 #: src/Modules/People/Admin/PeoplePage.php:389
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
@@ -5405,8 +5484,8 @@ msgstr "Vanaf"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:197
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:466
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:469
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:537
@@ -6218,7 +6297,7 @@ msgstr "Geen vermeldingen."
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:80
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Authorization/Admin/RolesPage.php:494
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:41
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:42
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
 #: src/Modules/Reports/Admin/ReportsPage.php:38
 #: src/Modules/Reports/Admin/ReportsPage.php:83
@@ -6319,8 +6398,8 @@ msgstr "%d gemist"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:90
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:174
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:453
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:456
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
@@ -6523,8 +6602,8 @@ msgstr "— Selecteer een team —"
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:202
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:474
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:477
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1773
 #: src/Shared/Frontend/FrontendTrialsManageView.php:346
@@ -6551,8 +6630,8 @@ msgstr "Beoordeling"
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:146
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:309
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:279
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:278
 #: src/Modules/Reports/PlayerReportRenderer.php:243
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:353
 msgid "Trend"
@@ -6566,7 +6645,6 @@ msgstr "POP-gesprekken"
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:149
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:312
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:252
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1287
 msgid "Verdict"
 msgstr "Eindoordeel"
@@ -8944,7 +9022,7 @@ msgstr "Actor"
 #: src/Modules/Authorization/Admin/MatrixPage.php:560
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:250
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:259
 msgid "Change"
 msgstr "Wijziging"
 
@@ -13852,9 +13930,9 @@ msgstr "Roltype"
 #: src/Modules/DataBrowser/SemanticRegistry.php:59
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:200
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:446
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:182
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:269
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:136
@@ -17949,8 +18027,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:438
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:272
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:271
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:219
 #: src/Shared/Frontend/CoachForms.php:235
@@ -18656,8 +18734,8 @@ msgstr "Je hebt geen toestemming om testresultaten te exporteren."
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:158
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:437
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:440
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
 msgid "Test"
@@ -22450,7 +22528,7 @@ msgstr ""
 "↓ Bij deze test is een lagere waarde beter — de dalende lijn is vooruitgang."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:183
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:184
 msgid "↑ A higher value is better on this test."
 msgstr "↑ Bij deze test is een hogere waarde beter."
 
@@ -22459,7 +22537,7 @@ msgid "recorded value"
 msgstr "gemeten waarde"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:439
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:342
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:348
 msgid "Passed"
 msgstr "Gehaald"
 
@@ -22471,7 +22549,7 @@ msgstr "Uitkomst"
 
 #. translators: 1: number of passes, 2: number of attempts
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:369
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:375
 #, php-format
 msgid "%1$d of %2$d"
 msgstr "%1$d van %2$d"
@@ -22621,7 +22699,7 @@ msgstr ""
 "bestand."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:237
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:236
 msgid "Export Excel"
 msgstr "Exporteren naar Excel"
 
@@ -22707,18 +22785,18 @@ msgstr "Geen van beide (alleen bijhouden)"
 msgid "No fixed cadence"
 msgstr "Geen vaste frequentie"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:33
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:32
 #: src/Shared/CoreSurfaceRegistration.php:970
 msgid "Test results"
 msgstr "Testresultaten"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:38
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:46
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:37
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:47
 msgid "You do not have permission to browse test results."
 msgstr "Je hebt geen rechten om testresultaten te bekijken."
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:66
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:73
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:65
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:74
 msgid ""
 "No tests are defined yet. Add a test under Manage tests to start recording "
 "results."
@@ -22726,61 +22804,49 @@ msgstr ""
 "Er zijn nog geen tests gedefinieerd. Voeg een test toe bij Tests beheren om "
 "resultaten te registreren."
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:91
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:90
 msgid "Choose a test to see every player's latest result."
 msgstr "Kies een test om de laatste waarde van elke speler te zien."
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:115
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:103
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:114
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:104
 msgid "No results match these filters yet."
 msgstr "Nog geen resultaten die aan deze filters voldoen."
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:160
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:439
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:159
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:442
 msgid "— Choose a test —"
 msgstr "— Kies een test —"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:184
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:183
 msgid "All age groups"
 msgstr "Alle leeftijdsgroepen"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:332
-msgid "Improved"
-msgstr "Verbeterd"
-
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:333
-msgid "Declined"
-msgstr "Verslechterd"
-
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:334
-msgid "Unchanged"
-msgstr "Gelijk"
-
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:353
 msgid "On target"
 msgstr "Op niveau"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:354
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:335
 msgid "Below target"
 msgstr "Onder niveau"
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:355
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:336
 msgid "Well below target"
 msgstr "Ruim onder niveau"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:92
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:93
 msgid "Choose a test to see how every player has developed."
 msgstr "Kies een test om te zien hoe elke speler zich heeft ontwikkeld."
 
 #. translators: 1: number of players, 2: number of measuring moments
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:120
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:121
 #, php-format
 msgid "%1$d player · %2$d measuring moment"
 msgid_plural "%1$d players · %2$d measuring moments"
 msgstr[0] "%1$d speler · %2$d meetmoment"
 msgstr[1] "%1$d spelers · %2$d meetmomenten"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:143
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:144
 msgid ""
 "This test has no direction: a higher value is not better than a lower one. "
 "There is no target, no verdict and no ranking — only the readings per date."
@@ -22789,37 +22855,37 @@ msgstr ""
 "lagere. Er is geen streefwaarde, geen oordeel en geen ranglijst — alleen de "
 "metingen per datum."
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:161
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:162
 msgid "Squad average"
 msgstr "Teamgemiddelde"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:179
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:180
 msgid "↓ A lower value is better on this test — a falling line is progress."
 msgstr ""
 "↓ Bij deze test is een lagere waarde beter — een dalende lijn is vooruitgang."
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:188
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:189
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1298
 msgid "player"
 msgstr "speler"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:190
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:191
 msgid "squad average"
 msgstr "teamgemiddelde"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:211
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:212
 msgid "Most improved"
 msgstr "Meest verbeterd"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:212
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:213
 msgid "Fallen back"
 msgstr "Teruggelopen"
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:217
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:218
 msgid "Nobody in this window."
 msgstr "Niemand in deze periode."
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:283
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:289
 msgid ""
 "The change is read in the direction of the test: on a test where lower is "
 "better, a negative change is progress and is ranked as such."
@@ -22828,7 +22894,7 @@ msgstr ""
 "lager beter is, is een negatief verschil vooruitgang en telt het ook zo mee "
 "in de ranglijst."
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:300
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:306
 msgid ""
 "Levels have no numeric axis, so there is no line. Each cell shows the "
 "recorded level in its own colour."
@@ -22836,21 +22902,9 @@ msgstr ""
 "Niveaus hebben geen numerieke as, dus is er geen lijn. Elk vakje toont het "
 "vastgelegde niveau in de eigen kleur."
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:375
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:381
 msgid "Pass rate"
 msgstr "Slagingspercentage"
-
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:393
-msgid "improved"
-msgstr "verbeterd"
-
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:394
-msgid "fallen back"
-msgstr "teruggelopen"
-
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:395
-msgid "about the same"
-msgstr "nagenoeg gelijk"
 
 #: src/Modules/Measurements/Levels/MeasurementLevelPalette.php:33
 msgid "Green"
@@ -23003,6 +23057,33 @@ msgstr "De test kon niet worden aangemaakt."
 #: src/Modules/Measurements/Wizards/NewMeasurementWizard.php:25
 msgid "New test"
 msgstr "Nieuwe test"
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:69
+msgid ""
+"That item is a link to video hosted elsewhere; there is no file to download."
+msgstr ""
+"Dit item is een link naar video die ergens anders staat; er is geen bestand "
+"om te downloaden."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:81
+msgid "That item has no thumbnail."
+msgstr "Dit item heeft geen miniatuur."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:82
+msgid "That item has no stored file."
+msgstr "Dit item heeft geen opgeslagen bestand."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:93
+msgid "The stored file could not be found."
+msgstr "Het opgeslagen bestand kon niet worden gevonden."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:100
+msgid "The stored file is empty."
+msgstr "Het opgeslagen bestand is leeg."
+
+#: src/Modules/Media/Delivery/MediaDelivery.php:120
+msgid "The requested byte range is outside the file."
+msgstr "Het opgevraagde bytebereik valt buiten het bestand."
 
 #: src/Modules/Media/Ingest/MediaIngestService.php:58
 msgid "No file was received."
@@ -41427,6 +41508,18 @@ msgstr ""
 msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
 msgstr "%1$s: %2$d metingen, van %3$s op %4$s naar %5$s op %6$s."
 
+#: src/Shared/Frontend/Components/TrendGlyph.php:64
+msgid "Improved"
+msgstr "Verbeterd"
+
+#: src/Shared/Frontend/Components/TrendGlyph.php:65
+msgid "Declined"
+msgstr "Verslechterd"
+
+#: src/Shared/Frontend/Components/TrendGlyph.php:66
+msgid "Unchanged"
+msgstr "Gelijk"
+
 #: src/Shared/Frontend/Components/Tt404Page.php:43
 msgid "Offside! This page is out of play"
 msgstr "Buitenspel! Deze pagina staat niet meer in het veld"
@@ -50374,14 +50467,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#~ msgid "improved"
+#~ msgstr "verbeterd"
 
-#: src/Infrastructure/REST/MediaRestController.php
-msgid "Media item not found."
-msgstr "Media-item niet gevonden."
+#~ msgid "fallen back"
+#~ msgstr "teruggelopen"
 
-#: src/Infrastructure/REST/MediaRestController.php
-msgid "You do not have permission to do that."
-msgstr "Je hebt geen rechten om dat te doen."
+#~ msgid "about the same"
+#~ msgstr "nagenoeg gelijk"
 
 #: src/Infrastructure/REST/MediaRestController.php
 msgid "Provide entity_type (player, team or activity) and entity_id."
