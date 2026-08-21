@@ -136,6 +136,12 @@ class ConfigRestController {
         // the Configuration → Profile cards sub-form; consumed by
         // ProfileCardsConfig. Mapped to the feature_toggles area below.
         'profile_cards_hidden',
+        // #2603 — club-wide set of switched-off Comms templates (JSON array
+        // of template keys, e.g. ["goal_nudge"]). Written from the
+        // Configuration → Messages sub-form; enforced inside CommsService.
+        // Stored as the DISABLED set so a template that ships in a later
+        // release is on by default. Mapped to feature_toggles below.
+        'comms_templates_disabled',
     ];
 
     /**
@@ -165,6 +171,9 @@ class ConfigRestController {
         'show_legacy_menus' => 'feature_toggles',
         // #2207 — profile-card visibility is a per-club feature toggle.
         'profile_cards_hidden' => 'feature_toggles',
+        // #2603 — switching a message template off is a per-club feature
+        // toggle, gated by the same sub-cap pair.
+        'comms_templates_disabled' => 'feature_toggles',
     ];
 
     /**
@@ -228,6 +237,12 @@ class ConfigRestController {
             // stored value.
             if ( $key === 'profile_cards_hidden' ) {
                 $clean = \TT\Modules\Players\Services\ProfileCardsConfig::normaliseStored( $clean );
+            }
+            // #2603 — same treatment for the switched-off template set:
+            // normalise to canonical JSON of registered template keys so a
+            // stale payload can't disable a template that no longer exists.
+            if ( $key === 'comms_templates_disabled' ) {
+                $clean = \TT\Modules\Comms\Template\TemplateSwitch::normaliseStored( $clean );
             }
             QueryHelpers::set_config( $key, $clean );
             $written++;

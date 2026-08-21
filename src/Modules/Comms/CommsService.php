@@ -12,6 +12,7 @@ use TT\Modules\Comms\OptOut\OptOutPolicy;
 use TT\Modules\Comms\QuietHours\QuietHoursPolicy;
 use TT\Modules\Comms\RateLimit\RateLimiter;
 use TT\Modules\Comms\Template\TemplateRegistry;
+use TT\Modules\Comms\Template\TemplateSwitch;
 
 /**
  * CommsService (#0066) — orchestrator for one Comms send.
@@ -119,6 +120,26 @@ final class CommsService {
             return $results;
         }
 
+        // #2603 — the club switched this template off. Checked before any
+        // per-recipient policy so no caller can route around it, and
+        // audited per recipient: the switch suppresses the message, never
+        // the evidence that one was meant to go out.
+        if ( ! TemplateSwitch::isEnabled( $request->templateKey ) ) {
+            $results = [];
+            foreach ( $request->recipients as $recipient ) {
+                $result = new CommsResult(
+                    wp_generate_uuid4(),
+                    CommsResult::STATUS_TEMPLATE_DISABLED,
+                    '',
+                    $recipient,
+                    'template_disabled'
+                );
+                $this->auditLogger->record( $request, $recipient, $result->uuid, '', '', $result );
+                $results[] = $result;
+            }
+            return $results;
+        }
+
         $results = [];
         foreach ( $request->recipients as $recipient ) {
             $results[] = $this->sendOne( $request, $recipient, $template );
@@ -156,6 +177,16 @@ final class CommsService {
         if ( $template === null ) {
             return array_map(
                 fn ( Recipient $r ) => new CommsResult( '', CommsResult::STATUS_FAILED, '', $r, 'unknown_template' ),
+                $request->recipients
+            );
+        }
+
+        // #2603 — surfaced here so a screen can say "this message type is
+        // switched off" BEFORE the user writes and sends it, rather than
+        // reporting a dead send afterwards.
+        if ( ! TemplateSwitch::isEnabled( $request->templateKey ) ) {
+            return array_map(
+                fn ( Recipient $r ) => new CommsResult( '', CommsResult::STATUS_TEMPLATE_DISABLED, '', $r, 'template_disabled' ),
                 $request->recipients
             );
         }
