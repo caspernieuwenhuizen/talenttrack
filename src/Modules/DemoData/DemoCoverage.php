@@ -599,8 +599,18 @@ class DemoCoverage {
         'tt_training_plans'           => [ 'planned' => '#2498' ],
         'tt_training_plan_blocks'     => [ 'planned' => '#2498' ],
         'tt_training_plan_principles' => [ 'planned' => '#2498' ],
-        'tt_training_plan_runs'       => [ 'planned' => '#2499' ],
-        'tt_training_plan_run_blocks' => [ 'planned' => '#2499' ],
+        'tt_training_plan_runs' => [
+            'entity_type' => 'training_plan_run',
+            'category'    => 'training_runs',
+            'written_by'  => TrainingRunGenerator::class,
+            'depends_on'  => [ 'tt_training_plans', 'tt_activities' ],
+        ],
+        'tt_training_plan_run_blocks' => [
+            'entity_type' => 'training_plan_run_block',
+            'category'    => 'training_runs',
+            'written_by'  => TrainingRunGenerator::class,
+            'depends_on'  => [ 'tt_training_plan_runs' ],
+        ],
 
         // ===== Exempt — reference data seeded by migrations =====
 

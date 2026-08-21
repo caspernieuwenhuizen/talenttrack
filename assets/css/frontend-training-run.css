@@ -1,0 +1,336 @@
+/**
+ * The sideline view (#2499) — running a plan on the pitch.
+ *
+ * This sheet deliberately breaks the house look, because the screen it
+ * styles is not read at a desk. It is read at arm's length, outdoors,
+ * possibly in rain, by someone holding a phone in one hand.
+ *
+ * What that changes:
+ *   - **Dark ground.** Legible at low brightness, which is what a phone
+ *     that has been in a pocket all evening actually has. Scoped to
+ *     `.tt-run` so nothing else in the dashboard inherits it.
+ *   - **56px controls**, not the usual 48. A cold or gloved thumb, on a
+ *     surface that moves, needs more than the desk minimum.
+ *   - **Big type.** The block name and the timer are the two things read
+ *     from arm's length, so they are sized for that and nothing else
+ *     competes with them.
+ *   - **Bottom-anchored controls** inside `env(safe-area-inset-bottom)`,
+ *     so the commit action sits in the thumb zone and clears the home
+ *     indicator.
+ *
+ * Mobile-first per CLAUDE.md §2: the base is the phone, and the only
+ * min-width query relaxes it for the rare desk use.
+ */
+
+.tt-run {
+    /* Local palette. Not tokens: the token set is the daylight palette,
+       and this surface deliberately is not on it. */
+    --run-ground: #12161a;
+    --run-panel:  #1b2127;
+    --run-ink:    #f2f5f7;
+    --run-soft:   #9aa6b1;
+    --run-line:   #2b333b;
+    --run-go:     #e8b624;
+    --run-over:   #e0603f;
+
+    background: var(--run-ground);
+    color: var(--run-ink);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    /* Room for the fixed control bar plus the home indicator. */
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+    min-height: 70vh;
+}
+
+/* ---- progress pips ---- */
+
+.tt-run__progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-run__progress i {
+    flex: 1 1 0;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--run-line);
+}
+
+.tt-run__progress i.is-done    { background: #2f9e5e; }
+.tt-run__progress i.is-now     { background: var(--run-go); }
+.tt-run__progress i.is-skipped { background: var(--run-soft); opacity: 0.5; }
+
+/* ---- the card ---- */
+
+.tt-run__card {
+    background: var(--run-panel);
+    border: 1px solid var(--run-line);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-run__kicker {
+    margin: 0 0 4px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--run-soft);
+}
+
+/* Read from arm's length — this and the timer are the whole screen. */
+.tt-run__name {
+    margin: 0;
+    font-size: 1.625rem;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.tt-run__sub {
+    margin: var(--tt-sp-4, 16px) 0 4px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--run-soft);
+}
+
+.tt-run__org { margin: 0; line-height: 1.5; }
+
+.tt-run__points {
+    margin: 0;
+    padding-left: 1.1rem;
+    line-height: 1.6;
+}
+
+/* ---- timer ---- */
+
+.tt-run__timer {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tt-sp-2, 8px);
+    margin: var(--tt-sp-4, 16px) 0 var(--tt-sp-2, 8px);
+}
+
+.tt-run__timer-big {
+    font-size: 3.25rem;
+    line-height: 1;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-run__timer-big.is-over { color: var(--run-over); }
+
+.tt-run__timer-of {
+    font-size: 1rem;
+    color: var(--run-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-run__bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--run-line);
+    overflow: hidden;
+}
+
+.tt-run__bar i {
+    display: block;
+    height: 100%;
+    background: var(--run-go);
+    /* The width is data — how far through the block you are. */
+    transition: width 1s linear;
+}
+
+.tt-run__bar.is-over i { background: var(--run-over); }
+
+.tt-run__over {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: rgba(224, 96, 63, 0.15);
+    border: 1px solid var(--run-over);
+    line-height: 1.5;
+}
+
+/* ---- timeline strip (ready state) ---- */
+
+.tt-run__timeline {
+    display: flex;
+    height: 30px;
+    margin-top: var(--tt-sp-4, 16px);
+    border-radius: var(--tt-radius, 8px);
+    overflow: hidden;
+}
+
+.tt-run__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.625rem;
+    font-weight: 800;
+    color: #10141a;
+}
+
+.tt-run__seg--warmup    { background: #7fb3d5; }
+.tt-run__seg--rondo     { background: #9b8ec4; }
+.tt-run__seg--main      { background: #2f9e5e; }
+.tt-run__seg--game      { background: #e8b624; }
+.tt-run__seg--finishing { background: #e07a5f; }
+.tt-run__seg--cooldown  { background: #8fa3ad; }
+.tt-run__seg--talk      { background: #b9bdb6; }
+
+/* ---- completed ---- */
+
+.tt-run__kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-run__kpi {
+    background: var(--run-ground);
+    border: 1px solid var(--run-line);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+    text-align: center;
+}
+
+.tt-run__kpi-num {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-run__kpi-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--run-soft);
+}
+
+.tt-run__kpi-sub {
+    display: block;
+    font-size: 0.6875rem;
+    color: var(--run-soft);
+}
+
+.tt-run__note {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    color: var(--run-soft);
+    line-height: 1.5;
+}
+
+/* ---- controls ---- */
+
+/* Anchored to the bottom of the viewport: the commit action has to be
+   where the thumb already is, not where the page happens to end. */
+.tt-run__controls {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-3, 12px);
+    padding-bottom: calc(var(--tt-sp-3, 12px) + env(safe-area-inset-bottom, 0px));
+    background: var(--run-ground);
+    border-top: 1px solid var(--run-line);
+}
+
+.tt-run__nav,
+.tt-run__go,
+.tt-run__text,
+.tt-run__wide {
+    /* 56px, not the usual 48: a cold thumb on a moving surface. */
+    min-height: 56px;
+    border-radius: var(--tt-radius, 8px);
+    font-weight: 800;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-run__nav {
+    border: 1px solid var(--run-line);
+    background: var(--run-panel);
+    color: var(--run-ink);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.tt-run__go {
+    background: var(--run-go);
+    color: #241f00;
+    border: 0;
+    font-size: 1.0625rem;
+}
+
+.tt-run__nav:active,
+.tt-run__go:active { filter: brightness(0.9); }
+
+.tt-run__nav:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* The two least-committal actions sit on their own row, full width, so
+   neither can be hit while reaching for Finish. */
+.tt-run__text {
+    grid-column: 1 / -1;
+    background: transparent;
+    border: 1px solid var(--run-line);
+    color: var(--run-soft);
+    font-weight: 600;
+}
+
+.tt-run__wide { grid-column: 1 / -1; }
+
+.tt-run__msg {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    min-height: 1.2em;
+    color: var(--run-soft);
+    line-height: 1.5;
+}
+
+/* ---- focus ---- */
+
+.tt-run button:focus-visible {
+    outline: 3px solid var(--run-go);
+    outline-offset: 2px;
+}
+
+/* ---- desk use ---- */
+
+@media (min-width: 1024px) {
+    .tt-run { padding-bottom: var(--tt-sp-4, 16px); }
+
+    /* On a desktop the thumb zone is meaningless and a fixed bar just
+       covers content, so the controls return to the flow. */
+    .tt-run__controls {
+        position: static;
+        margin-top: var(--tt-sp-4, 16px);
+        border-top: 0;
+        padding: 0;
+    }
+}
+
+/* ---- attach screen ---- */
+
+.tt-training-attach { max-width: 32rem; }
+
+.tt-training-attach select {
+    width: 100%;
+    min-height: 48px;
+    /* 16px floor stops iOS zooming the page on focus. */
+    font-size: 1rem;
+}
+
+/* ---- motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-run__bar i { transition: none; }
+}

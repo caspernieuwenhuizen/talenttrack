@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
+use TT\Modules\Training\Print\TrainingPlanPrintRouter;
 use TT\Modules\Training\Wizard\NewTrainingPlanWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -52,6 +53,11 @@ class TrainingModule implements ModuleInterface {
 
         TrainingPlansRestController::init();
         TrainingRunsRestController::init();
+
+        // #2499 — the A4 clipboard sheet. Hooks `template_redirect` at
+        // priority 1 so it emits a standalone document before the theme
+        // shell renders anything onto paper.
+        TrainingPlanPrintRouter::init();
 
         add_action( 'init', [ self::class, 'registerTiles' ], 20 );
 
