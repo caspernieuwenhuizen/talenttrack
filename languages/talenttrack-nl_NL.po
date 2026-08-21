@@ -44069,7 +44069,6 @@ msgstr "Altijd aan"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:294
-msgid "New assignment"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:80
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:266
 msgid "Add assignment"
@@ -44112,7 +44111,6 @@ msgstr "Dat roltype bestaat niet meer."
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:126
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:169
-msgid "New role type"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:98
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:141
 msgid "Add role type"
