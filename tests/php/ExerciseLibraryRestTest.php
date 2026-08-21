@@ -271,7 +271,26 @@ final class ExerciseLibraryRestTest extends WP_UnitTestCase {
         ] );
 
         $row = ( new ExercisesRepository() )->findById( (int) $data['id'] );
-        $this->assertSame( 5, (int) $row->intensity_band, 'intensity is a 1-5 band' );
+        $this->assertSame(
+            10,
+            (int) $row->intensity_band,
+            'the band scale runs 1-10: ten seeded vct_intensity_band rows, and U13/U14 profiles cap at 7'
+        );
         $this->assertSame( 1, (int) $row->players_min );
+    }
+
+    public function test_a_high_band_survives_a_save(): void {
+        $this->curator();
+
+        // The regression this guards: #2495 clamped the band to 5, so
+        // saving any of the 34 merged exercises at band 6 or 7 through
+        // the library form silently downgraded it.
+        [ , $data ] = $this->call( 'POST', self::BASE, [
+            'name'           => 'Zware vorm',
+            'intensity_band' => 7,
+        ] );
+
+        $row = ( new ExercisesRepository() )->findById( (int) $data['id'] );
+        $this->assertSame( 7, (int) $row->intensity_band, 'a band the age profiles actually allow must round-trip' );
     }
 }

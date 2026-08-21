@@ -115,17 +115,17 @@ final class ProposalStep implements WizardStepInterface {
     public static function warningText( string $code ): string {
         switch ( $code ) {
             case 'no_candidate_for_slot':
-                return __( 'One part of the session has no matching exercise in your library yet. It is left blank for you to fill in.', 'talenttrack' );
+                return __( 'One part of the training has no matching exercise in your library yet. It is left blank for you to fill in.', 'talenttrack' );
             case 'no_macro_block_configured':
-                return __( 'No periodisation calendar is set up, so the session is not adjusted for where you are in the season.', 'talenttrack' );
+                return __( 'No periodisation calendar is set up, so the training is not adjusted for where you are in the season.', 'talenttrack' );
             case 'unrecognised_age_group_for_selection':
                 return __( 'This team has no usable age group, so exercises cannot be checked as age-safe.', 'talenttrack' );
             case 'missing_age_profile':
                 return __( 'This age group has no profile, so there is no intensity ceiling to plan inside.', 'talenttrack' );
             case 'over_weekly_envelope':
-                return __( 'This session pushes the team past its planned load for the week.', 'talenttrack' );
+                return __( 'This training pushes the team past its planned load for the week.', 'talenttrack' );
             case 'insufficient_recovery':
-                return __( 'This falls too soon after a hard session for this age group.', 'talenttrack' );
+                return __( 'This falls too soon after a hard training for this age group.', 'talenttrack' );
             case 'phv_reduction_applied':
                 return __( 'A player is flagged for a growth spurt, so the intensity has been held back.', 'talenttrack' );
         }

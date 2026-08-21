@@ -49390,7 +49390,7 @@ msgid "That is not a theme we know."
 msgstr "Dat thema kennen we niet."
 
 #: src/Modules/Training/Wizard/ShapeStep.php:36
-msgid "How long is the session, and how many players do you expect?"
+msgid "How long is the training, and how many players do you expect?"
 msgstr "Hoe lang duurt de training, en hoeveel spelers verwacht je?"
 
 #: src/Modules/Training/Wizard/ShapeStep.php:38
@@ -49402,7 +49402,7 @@ msgid "Players you expect"
 msgstr "Spelers die je verwacht"
 
 #: src/Modules/Training/Wizard/ShapeStep.php:50
-msgid "The age group sets its own ceiling on how hard and how long a session may be. If what you ask for goes past it, the next step says so rather than quietly trimming it."
+msgid "The age group sets its own ceiling on how hard and how long a training may be. If what you ask for goes past it, the next step says so rather than quietly trimming it."
 msgstr "De leeftijdscategorie heeft een eigen plafond voor hoe zwaar en hoe lang een training mag zijn. Vraag je meer, dan zegt de volgende stap dat — in plaats van het stilletjes bij te knippen."
 
 #: src/Modules/Training/Wizard/ShapeStep.php:59
@@ -49421,7 +49421,7 @@ msgstr "Nog geen selectiegegevens voor dit team, dus dit is een schatting. Pas h
 
 #: src/Modules/Training/Wizard/ShapeStep.php:79
 #, php-format
-msgid "Give the session a length between %1$d and %2$d minutes."
+msgid "Give the training a length between %1$d and %2$d minutes."
 msgstr "Geef de training een duur tussen %1$d en %2$d minuten."
 
 #: src/Modules/Training/Wizard/ShapeStep.php:87
@@ -49463,11 +49463,11 @@ msgid "Unknown exercise"
 msgstr "Onbekende oefening"
 
 #: src/Modules/Training/Wizard/ProposalStep.php:114
-msgid "One part of the session has no matching exercise in your library yet. It is left blank for you to fill in."
+msgid "One part of the training has no matching exercise in your library yet. It is left blank for you to fill in."
 msgstr "Voor één onderdeel van de training staat nog geen passende oefening in je bibliotheek. Dat blok blijft leeg zodat je het zelf kunt invullen."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:116
-msgid "No periodisation calendar is set up, so the session is not adjusted for where you are in the season."
+msgid "No periodisation calendar is set up, so the training is not adjusted for where you are in the season."
 msgstr "Er is geen periodiseringskalender ingesteld, dus de training wordt niet aangepast aan waar je in het seizoen zit."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:118
@@ -49479,11 +49479,11 @@ msgid "This age group has no profile, so there is no intensity ceiling to plan i
 msgstr "Deze leeftijdscategorie heeft geen profiel, dus er is geen intensiteitsplafond om binnen te plannen."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:122
-msgid "This session pushes the team past its planned load for the week."
+msgid "This training pushes the team past its planned load for the week."
 msgstr "Deze training brengt het team boven de geplande belasting voor deze week."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:124
-msgid "This falls too soon after a hard session for this age group."
+msgid "This falls too soon after a hard training for this age group."
 msgstr "Dit valt te kort na een zware training voor deze leeftijdscategorie."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:126
@@ -49492,8 +49492,8 @@ msgstr "Er staat een groeispurt-vlag bij een speler, dus de intensiteit is terug
 
 #: src/Modules/Training/Wizard/ReviewStep.php:66
 #, php-format
-msgid "This session works on an open goal for %1$d player. %2$d others have goals it does not touch."
-msgid_plural "This session works on an open goal for %1$d players. %2$d others have goals it does not touch."
+msgid "This training works on an open goal for %1$d player. %2$d others have goals it does not touch."
+msgid_plural "This training works on an open goal for %1$d players. %2$d others have goals it does not touch."
 msgstr[0] "Deze training werkt aan een open doel van %1$d speler. %2$d anderen hebben doelen waar hij niets mee doet."
 msgstr[1] "Deze training werkt aan een open doel van %1$d spelers. %2$d anderen hebben doelen waar hij niets mee doet."
 
@@ -49511,7 +49511,7 @@ msgid "Name this plan"
 msgstr "Geef dit plan een naam"
 
 #: src/Modules/Training/Wizard/ReviewStep.php:59
-msgid "None of this squad's goals name a playing principle yet, so there is nothing to match this session against. Once goals are linked to principles, this is where you will see which players it serves."
+msgid "None of this squad's goals name a playing principle yet, so there is nothing to match this training against. Once goals are linked to principles, this is where you will see which players it serves."
 msgstr "Nog geen enkel doel van deze selectie noemt een spelprincipe, dus er valt niets te vergelijken met deze training. Zodra doelen aan principes gekoppeld zijn, zie je hier voor welke spelers hij nuttig is."
 
 #: src/Modules/Training/Services/TrainingPlanComposer.php:329

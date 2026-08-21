@@ -80,9 +80,14 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         // four short questions and gets a finished session back.
         $actions[] = [
             'label'   => __( 'New plan', 'talenttrack' ),
+            // The wizard gates itself on `tt_training_plan`, the same cap
+            // this whole view already required to render, and the
+            // fallback is this module's own create route rather than a
+            // different surface. Nothing to hide that is not already
+            // hidden. /* tt-xview-ok — same module, wizard-gated */
             'href'    => WizardEntryPoint::urlFor(
                 'new-training-plan',
-                add_query_arg( [ 'tt_view' => 'training-plan', 'action' => 'new' ], RecordLink::dashboardUrl() )
+                add_query_arg( [ 'tt_view' => 'training-plan', 'action' => 'new' ], RecordLink::dashboardUrl() ) /* tt-xview-ok */
             ),
             'primary' => true,
             'icon'    => '+',

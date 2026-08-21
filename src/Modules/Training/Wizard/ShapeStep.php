@@ -34,7 +34,7 @@ final class ShapeStep implements WizardStepInterface {
         $minutes  = (int) ( $state['requested_duration_minutes'] ?? 75 );
         $expected = (int) ( $state['expected_players'] ?? $squad['value'] );
 
-        echo '<p>' . esc_html__( 'How long is the session, and how many players do you expect?', 'talenttrack' ) . '</p>';
+        echo '<p>' . esc_html__( 'How long is the training, and how many players do you expect?', 'talenttrack' ) . '</p>';
 
         echo '<label><span>' . esc_html__( 'Length in minutes', 'talenttrack' ) . '</span>'
             . '<input type="number" name="requested_duration_minutes" inputmode="numeric"'
@@ -48,7 +48,7 @@ final class ShapeStep implements WizardStepInterface {
         echo '<p class="description">' . esc_html( self::sourceHint( $squad ) ) . '</p>';
 
         echo '<p class="description">'
-            . esc_html__( 'The age group sets its own ceiling on how hard and how long a session may be. If what you ask for goes past it, the next step says so rather than quietly trimming it.', 'talenttrack' )
+            . esc_html__( 'The age group sets its own ceiling on how hard and how long a training may be. If what you ask for goes past it, the next step says so rather than quietly trimming it.', 'talenttrack' )
             . '</p>';
     }
 
@@ -78,7 +78,7 @@ final class ShapeStep implements WizardStepInterface {
         if ( $minutes < self::MIN_MINUTES || $minutes > self::MAX_MINUTES ) {
             return new \WP_Error( 'bad_duration', sprintf(
                 /* translators: 1: shortest allowed session, 2: longest allowed session, both in minutes. */
-                __( 'Give the session a length between %1$d and %2$d minutes.', 'talenttrack' ),
+                __( 'Give the training a length between %1$d and %2$d minutes.', 'talenttrack' ),
                 self::MIN_MINUTES,
                 self::MAX_MINUTES
             ) );

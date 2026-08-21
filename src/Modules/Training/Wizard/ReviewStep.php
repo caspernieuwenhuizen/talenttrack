@@ -56,7 +56,7 @@ final class ReviewStep implements WizardStepInterface {
 
         if ( $hit === 0 && $missed === 0 ) {
             echo '<p class="description">'
-                . esc_html__( 'None of this squad\'s goals name a playing principle yet, so there is nothing to match this session against. Once goals are linked to principles, this is where you will see which players it serves.', 'talenttrack' )
+                . esc_html__( 'None of this squad\'s goals name a playing principle yet, so there is nothing to match this training against. Once goals are linked to principles, this is where you will see which players it serves.', 'talenttrack' )
                 . '</p>';
             return;
         }
@@ -64,8 +64,8 @@ final class ReviewStep implements WizardStepInterface {
         echo '<p>' . esc_html( sprintf(
             /* translators: 1: how many players this session serves, 2: how many it does not. */
             _n(
-                'This session works on an open goal for %1$d player. %2$d others have goals it does not touch.',
-                'This session works on an open goal for %1$d players. %2$d others have goals it does not touch.',
+                'This training works on an open goal for %1$d player. %2$d others have goals it does not touch.',
+                'This training works on an open goal for %1$d players. %2$d others have goals it does not touch.',
                 $hit,
                 'talenttrack'
             ),
