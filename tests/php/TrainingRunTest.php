@@ -153,6 +153,41 @@ final class TrainingRunTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * The regression this guards: `listBlocks()` read the planned figures
+     * by joining to the live plan block. Delete that block — which
+     * editing a plan does, since a save replaces the whole set — and the
+     * join returned NULL, so a completed session read "27 minutes actual
+     * against 0 planned". Every wave-7 number is computed from these
+     * rows, so a silent zero here becomes a wrong number on a player's
+     * file.
+     */
+    public function test_planned_figures_survive_the_plan_being_rewritten(): void {
+        $plan_id = $this->makePlan();
+        $runs    = new TrainingPlanRunsRepository();
+        $run_id  = $runs->attach( $plan_id, $this->makeActivity(), 7, '2026-08-18' );
+
+        $blocks = $runs->listBlocks( $run_id );
+        $runs->updateBlock( (int) $blocks[1]->id, [ 'actual_duration_minutes' => 27 ] );
+
+        // A coach tidies the plan up afterwards — the whole block set is
+        // replaced, so the rows the run joined to are gone.
+        ( new TrainingPlanBlocksRepository() )->replaceAll( $plan_id, [
+            [ 'order_index' => 0, 'block_type' => 'game', 'duration_minutes' => 90 ],
+        ] );
+
+        $after = $runs->listBlocks( $run_id );
+
+        $this->assertCount( 3, $after, 'the run keeps its own blocks' );
+        $this->assertSame(
+            22,
+            (int) $after[1]->planned_duration_minutes,
+            'the planned figure comes from the snapshot once the plan block is gone'
+        );
+        $this->assertSame( 27, (int) $after[1]->actual_duration_minutes );
+        $this->assertSame( 'main', (string) $after[1]->planned_block_type );
+    }
+
     public function test_status_transitions_stamp_their_own_timestamps(): void {
         $runs   = new TrainingPlanRunsRepository();
         $run_id = $runs->attach( $this->makePlan(), $this->makeActivity(), 7, '2026-08-18' );

@@ -153,6 +153,14 @@ final class TrainingPlanRunsRepository {
      * planned versus actual side by side. LEFT JOIN because the plan block
      * may since have been edited away — the snapshot is authoritative.
      *
+     * #2499 — and when it *has* been edited away, the join returns NULL
+     * and a completed session reads "27 minutes actual against 0
+     * planned". The docblock always said the snapshot was authoritative;
+     * this now makes it true in the data rather than only in the comment,
+     * by filling the planned columns from the snapshot whenever the live
+     * plan block is gone. Every wave-7 number is computed from these
+     * rows, so a silent zero here is a wrong number on a player's file.
+     *
      * @return list<object>
      */
     public function listBlocks( int $run_id ): array {
@@ -174,7 +182,43 @@ final class TrainingPlanRunsRepository {
             CurrentClub::id()
         ) );
 
-        return is_array( $rows ) ? $rows : [];
+        return $this->fillPlannedFromSnapshot( $run_id, is_array( $rows ) ? $rows : [] );
+    }
+
+    /**
+     * Fill in the planned figures the join could not supply.
+     *
+     * Only reads the snapshot when at least one row needs it, so the
+     * ordinary case — a plan nobody has touched since — costs nothing.
+     *
+     * @param list<object> $rows
+     * @return list<object>
+     */
+    private function fillPlannedFromSnapshot( int $run_id, array $rows ): array {
+        $needs = false;
+        foreach ( $rows as $row ) {
+            if ( $row->planned_duration_minutes === null ) { $needs = true; break; }
+        }
+        if ( ! $needs ) return $rows;
+
+        $by_order = [];
+        foreach ( (array) ( $this->snapshot( $run_id )['blocks'] ?? [] ) as $block ) {
+            $by_order[ (int) ( $block['order_index'] ?? 0 ) ] = $block;
+        }
+
+        foreach ( $rows as $row ) {
+            if ( $row->planned_duration_minutes !== null ) continue;
+
+            $snap = $by_order[ (int) $row->order_index ] ?? null;
+            if ( $snap === null ) continue;
+
+            $row->planned_duration_minutes = isset( $snap['duration_minutes'] ) ? (int) $snap['duration_minutes'] : null;
+            $row->planned_block_type       = $snap['block_type'] ?? $row->planned_block_type;
+            $row->planned_exercise_id      = $snap['exercise_id'] ?? $row->planned_exercise_id;
+            $row->planned_title_override   = $snap['title'] ?? $row->planned_title_override;
+        }
+
+        return $rows;
     }
 
     /**
