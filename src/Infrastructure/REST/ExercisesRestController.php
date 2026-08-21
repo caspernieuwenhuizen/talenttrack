@@ -136,7 +136,10 @@ final class ExercisesRestController {
         }
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
-        $args   = [ 'status' => (string) ( $filter['status'] ?? 'active' ) ];
+        // #2625 — `filter[archived]` is canonical; `filter[status]` is a
+        // deprecated alias kept for one release. The repository arg keeps its
+        // own `status` name; only the request param is renamed.
+        $args   = [ 'status' => (string) ( $filter['archived'] ?? ( $filter['status'] ?? 'active' ) ) ];
 
         foreach ( [ 'category_id', 'principle_id', 'intensity_band', 'players' ] as $key ) {
             $value = $r->get_param( $key ) ?? ( $filter[ $key ] ?? null );

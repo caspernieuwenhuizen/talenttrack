@@ -158,10 +158,12 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
                 'players_label'    => [ 'label' => __( 'Group size', 'talenttrack' ) ],
             ],
             'filters' => [
-                'status' => [
+                // #2625 — canonical archive-state param; `status` is reserved
+                // for domain status.
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active', 'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
