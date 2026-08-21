@@ -3,8 +3,10 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Exercises\ExercisesRepository;
 use TT\Modules\Training\Repositories\TrainingPlanBlocksRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
+use TT\Modules\Training\Services\PlanCoverageService;
 use TT\Modules\Training\Services\SquadSizeEstimator;
 use TT\Modules\Training\Services\TrainingPlanComposer;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -104,6 +106,22 @@ final class TrainingPlansRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'duplicate_plan' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/coverage', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'plan_coverage' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/exercise-options', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'exercise_options' ],
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -358,6 +376,77 @@ final class TrainingPlansRestController {
         if ( $new_id <= 0 ) return self::notFound();
 
         return RestResponse::success( [ 'plan' => self::shapePlan( $repo->findById( $new_id ) ) ], 201 );
+    }
+
+    /**
+     * Who this plan works on, by name. The builder's side panel re-reads
+     * this after every save, so a coach sees the consequence of a swap
+     * immediately rather than at the end.
+     */
+    public static function plan_coverage( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( ! ( new TrainingPlansRepository() )->findById( $id ) ) return self::notFound();
+
+        return RestResponse::success( [ 'coverage' => ( new PlanCoverageService() )->forPlan( $id ) ] );
+    }
+
+    /**
+     * The picker's list, sorted by how many of this team's open goals
+     * each drill would serve.
+     *
+     * The sort key travels with each row as `players_served`, because a
+     * ranked list whose ranking the user cannot see is just an arbitrary
+     * order they have to trust (#2498 acceptance: "the picker's sort is
+     * open-goal coverage, and says so").
+     */
+    public static function exercise_options( \WP_REST_Request $r ): \WP_REST_Response {
+        $plans = new TrainingPlansRepository();
+        $id    = (int) $r['id'];
+        $plan  = $plans->findById( $id );
+        if ( ! $plan ) return self::notFound();
+
+        $exercises = new ExercisesRepository();
+        $rows      = $exercises->browse( [
+            'search'         => (string) ( $r->get_param( 'search' ) ?? '' ),
+            'tactical_theme' => (string) ( $r->get_param( 'tactical_theme' ) ?? '' ),
+            'limit'          => 50,
+        ] );
+
+        $roster = ( new SquadSizeEstimator() )->rosterFor( (int) ( $plan->team_id ?? 0 ) );
+        $served = ( new PlanCoverageService() )->playersServedByExercise(
+            array_map( static fn( $row ): int => (int) $row->id, $rows ),
+            $roster
+        );
+
+        $options = array_map(
+            static function ( object $row ) use ( $served ): array {
+                return [
+                    'id'               => (int) $row->id,
+                    'name'             => (string) ( $row->name ?? '' ),
+                    'duration_minutes' => (int) ( $row->duration_minutes ?? 0 ),
+                    'intensity_band'   => isset( $row->intensity_band ) ? (int) $row->intensity_band : null,
+                    'players_min'      => isset( $row->players_min ) ? (int) $row->players_min : null,
+                    'players_max'      => isset( $row->players_max ) ? (int) $row->players_max : null,
+                    'tactical_theme'   => $row->tactical_theme ?? null,
+                    'players_served'   => (int) ( $served[ (int) $row->id ] ?? 0 ),
+                ];
+            },
+            $rows
+        );
+
+        // Most useful first, then the shortest — a coach filling a
+        // fifteen-minute slot should not scroll past hour-long games.
+        usort( $options, static function ( array $a, array $b ): int {
+            if ( $a['players_served'] !== $b['players_served'] ) {
+                return $b['players_served'] <=> $a['players_served'];
+            }
+            return $a['duration_minutes'] <=> $b['duration_minutes'];
+        } );
+
+        return RestResponse::success( [
+            'options'     => $options,
+            'roster_size' => count( $roster ),
+        ] );
     }
 
     public static function list_blocks( \WP_REST_Request $r ): \WP_REST_Response {

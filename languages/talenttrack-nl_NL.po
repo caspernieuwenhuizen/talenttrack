@@ -49078,6 +49078,165 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:78
+msgid "Drag, or use the up and down buttons"
+msgstr "Sleep, of gebruik de knoppen omhoog en omlaag"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:85
+msgid "Total planned"
+msgstr "Totaal gepland"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:92
+msgid "Add a block"
+msgstr "Blok toevoegen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:94
+msgid "Save plan"
+msgstr "Plan opslaan"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:114
+msgid "Save as club template"
+msgstr "Opslaan als clubsjabloon"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:117
+msgid "Copy to a new plan"
+msgstr "Kopiëren naar een nieuw plan"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:122
+msgid "A copy is independent: editing it later leaves this plan untouched, and a training already run keeps its own record either way."
+msgstr "Een kopie staat op zichzelf: als je die later aanpast, verandert dit plan niet, en een training die al gedraaid is houdt hoe dan ook zijn eigen registratie."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:137
+msgid "Player goals this plan touches"
+msgstr "Spelerdoelen die dit plan raakt"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:158
+msgid "No player on this team has an open goal tied to a principle yet, so there is nothing to match this plan against."
+msgstr "Nog geen speler in dit team heeft een open doel dat aan een principe hangt, dus er is niets om dit plan mee te vergelijken."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:164
+msgid "Players with an open goal on a principle this plan trains."
+msgstr "Spelers met een open doel op een principe dat dit plan traint."
+
+#. translators: 1: how many players are not served, 2: their names, comma separated.
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:184
+#, php-format
+msgid "%1$d player with an open goal is not touched by this plan: %2$s."
+msgid_plural "%1$d players with an open goal are not touched by this plan: %2$s."
+msgstr[0] "%1$d speler met een open doel wordt niet geraakt door dit plan: %2$s."
+msgstr[1] "%1$d spelers met een open doel worden niet geraakt door dit plan: %2$s."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:208
+msgid "Choose an exercise"
+msgstr "Oefening kiezen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:216
+msgid "Search exercises"
+msgstr "Oefeningen zoeken"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:218
+msgid "Search by name or code"
+msgstr "Zoek op naam of code"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:221
+msgid "Sorted by how many of this team's open player goals each exercise would serve."
+msgstr "Gesorteerd op hoeveel open spelerdoelen van dit team elke oefening bedient."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:305
+msgid "Shorter"
+msgstr "Korter"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:306
+msgid "Longer"
+msgstr "Langer"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:307
+msgid "Swap exercise"
+msgstr "Oefening vervangen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:308
+msgid "Remove block"
+msgstr "Blok verwijderen"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:309
+msgid "Kind of block"
+msgstr "Soort blok"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:310
+msgid "Coaching points for this block"
+msgstr "Coachpunten voor dit blok"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:311
+msgid "Empty block — choose an exercise"
+msgstr "Leeg blok — kies een oefening"
+
+#. translators: %d is a number of minutes.
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:313
+#, php-format
+msgid "%d minutes"
+msgstr "%d minuten"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:314
+msgid "This plan has no blocks yet. Add one to start building."
+msgstr "Dit plan heeft nog geen blokken. Voeg er een toe om te beginnen."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:317
+msgid "That did not save. Check your connection and try again."
+msgstr "Dat is niet opgeslagen. Controleer je verbinding en probeer het opnieuw."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:318
+msgid "The library could not be loaded. Try again in a moment."
+msgstr "De bibliotheek kon niet worden geladen. Probeer het zo nog eens."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:319
+msgid "No exercise in the library matches that."
+msgstr "Geen enkele oefening in de bibliotheek past daarbij."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:320
+msgid "Choose"
+msgstr "Kies"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:321
+msgid "serves no open goal"
+msgstr "bedient geen open doel"
+
+#. translators: %d is how many player goals the exercise would serve.
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:322
+#, php-format
+msgid "serves %d player goals"
+msgstr "bedient %d spelerdoelen"
+
+#. translators: %d is the block's new position in the plan.
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:323
+#, php-format
+msgid "Moved to position %d"
+msgstr "Verplaatst naar positie %d"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:325
+msgid "Save a club-wide template from this plan? The template is a copy — editing it later will not change this plan."
+msgstr "Een clubbreed sjabloon opslaan vanuit dit plan? Het sjabloon is een kopie — als je die later aanpast, verandert dit plan niet."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:326
+msgid "Copy this plan into a new one for the same team?"
+msgstr "Dit plan kopiëren naar een nieuw plan voor hetzelfde team?"
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:327
+msgid "The copy could not be made. Try again in a moment."
+msgstr "De kopie kon niet worden gemaakt. Probeer het zo nog eens."
+
+#: src/Modules/Training/Frontend/PlanBuilderRenderer.php:328
+msgid "Save your changes first — a copy is made from the saved plan."
+msgstr "Sla je wijzigingen eerst op — een kopie wordt gemaakt van het opgeslagen plan."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:224
+msgid "Build"
+msgstr "Bouwen"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:249
+msgid "Edit blocks"
+msgstr "Blokken bewerken"
+
 #~ msgid "Getting started"
 #~ msgstr "Aan de slag"
 

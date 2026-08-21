@@ -69,15 +69,17 @@ final class TrainingPlanComposer {
     private TrainingPlansRepository $plans;
     private TrainingPlanBlocksRepository $blocks;
     private GoalsRepository $goals;
+    private PlanCoverageService $coverage;
 
     public function __construct(
         ?TrainingPlansRepository $plans = null,
         ?TrainingPlanBlocksRepository $blocks = null,
         ?GoalsRepository $goals = null
     ) {
-        $this->plans  = $plans  ?? new TrainingPlansRepository();
-        $this->blocks = $blocks ?? new TrainingPlanBlocksRepository();
-        $this->goals  = $goals  ?? new GoalsRepository();
+        $this->plans    = $plans  ?? new TrainingPlansRepository();
+        $this->blocks   = $blocks ?? new TrainingPlanBlocksRepository();
+        $this->goals    = $goals  ?? new GoalsRepository();
+        $this->coverage = new PlanCoverageService( $this->goals );
     }
 
     /**
@@ -290,9 +292,16 @@ final class TrainingPlanComposer {
      * the wizard's review step shows by name, and the reason a coach
      * trusts the proposal.
      *
+     * A draft's blocks already carry the principles the selection pass
+     * matched them on, so this only has to flatten them and hand the set
+     * to the shared service. The builder (#2498) asks the same question
+     * of a saved plan, where the principles come back through the
+     * exercise links instead — same reasoning, different starting point,
+     * one place that owns it.
+     *
      * @param list<array<string,mixed>> $blocks
      * @param list<int>                 $roster
-     * @return array{principle_ids:list<int>, player_ids:list<int>, missed_player_ids:list<int>}
+     * @return array<string,mixed>
      */
     private function coverageFor( array $blocks, array $roster ): array {
         $covered = [];
@@ -302,21 +311,7 @@ final class TrainingPlanComposer {
             }
         }
 
-        $hit    = [];
-        $missed = [];
-        foreach ( $this->goals->openPrincipleTargetsForPlayers( $roster ) as $player_id => $principle_ids ) {
-            $touched = false;
-            foreach ( $principle_ids as $principle_id ) {
-                if ( isset( $covered[ (int) $principle_id ] ) ) { $touched = true; break; }
-            }
-            if ( $touched ) $hit[] = (int) $player_id; else $missed[] = (int) $player_id;
-        }
-
-        return [
-            'principle_ids'     => array_map( 'intval', array_keys( $covered ) ),
-            'player_ids'        => $hit,
-            'missed_player_ids' => $missed,
-        ];
+        return $this->coverage->forPrincipleIds( array_map( 'intval', array_keys( $covered ) ), $roster );
     }
 
     // ---- wiring ----------------------------------------------------------

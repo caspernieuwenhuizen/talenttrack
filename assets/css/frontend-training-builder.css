@@ -1,0 +1,418 @@
+/**
+ * Training plan builder (#2498) — the editable surface at
+ * `?tt_view=training-plan&id=N&mode=build`.
+ *
+ * Mobile-first per CLAUDE.md §2: base rules target ~360px and min-width
+ * queries scale up. Loaded only in build mode, and depends on
+ * frontend-training.css for the block-type palette — the same six colours
+ * mean the same thing on the read-only timeline and here.
+ *
+ * The touch rules this sheet is responsible for:
+ *   - every control is at least 48x48 with 8px between neighbours;
+ *   - the picker is a bottom sheet within thumb reach on a phone and a
+ *     bottom-right panel on desktop, one element in two presentations;
+ *   - `overscroll-behavior: contain` on the sheet, so flicking past the
+ *     end of the list does not scroll the plan away underneath it;
+ *   - `touch-action: manipulation` to kill Android's 300ms tap delay,
+ *     and an `:active` state so feedback is CSS-fast, not JS-fast.
+ */
+
+/* ---- layout ---- */
+
+.tt-builder {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-4, 16px);
+}
+
+/* The coverage panel sits beside the blocks only when there is genuinely
+   room for both. Below this it follows the plan, because on a phone the
+   blocks are the task and the panel is the consequence. */
+@media (min-width: 1024px) {
+    .tt-builder {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+    }
+}
+
+.tt-builder__main,
+.tt-builder__side { min-width: 0; }
+
+/* ---- cards ---- */
+
+.tt-builder .tt-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-builder .tt-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-3, 12px);
+}
+
+.tt-builder .tt-card__title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 800;
+}
+
+.tt-builder .tt-card__hint {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- timeline + total ---- */
+
+.tt-builder__timeline {
+    display: flex;
+    height: 34px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    overflow: hidden;
+}
+
+.tt-builder__seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.625rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.tt-builder__seg--warmup    { background: var(--tt-blk-warmup); }
+.tt-builder__seg--rondo     { background: var(--tt-blk-rondo); }
+.tt-builder__seg--main      { background: var(--tt-blk-main); }
+.tt-builder__seg--finishing { background: var(--tt-blk-finishing); }
+.tt-builder__seg--cooldown  { background: var(--tt-blk-cooldown); }
+
+/* Gold and light grey need dark ink to clear the contrast floor. */
+.tt-builder__seg--game,
+.tt-builder__seg--talk {
+    color: #241f00;
+    text-shadow: none;
+}
+.tt-builder__seg--game { background: var(--tt-blk-game); }
+.tt-builder__seg--talk { background: var(--tt-blk-talk); }
+
+.tt-builder__total {
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-builder__total b { font-variant-numeric: tabular-nums; }
+
+/* ---- block list ---- */
+
+.tt-builder__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-builder__empty {
+    padding: var(--tt-sp-4, 16px);
+    text-align: center;
+}
+
+.tt-builder__block {
+    position: relative;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+    padding-left: calc(var(--tt-sp-3, 12px) + 6px);
+    background: var(--tt-paper, #fff);
+}
+
+/* The colour bar is the block's type, readable at a glance down a long
+   list. ::before rather than an element so the markup stays semantic. */
+.tt-builder__block::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 6px;
+    border-radius: var(--tt-radius-lg, 14px) 0 0 var(--tt-radius-lg, 14px);
+    background: var(--tt-blk-main);
+}
+
+.tt-builder__block--warmup::before    { background: var(--tt-blk-warmup); }
+.tt-builder__block--rondo::before     { background: var(--tt-blk-rondo); }
+.tt-builder__block--main::before      { background: var(--tt-blk-main); }
+.tt-builder__block--game::before      { background: var(--tt-blk-game); }
+.tt-builder__block--finishing::before { background: var(--tt-blk-finishing); }
+.tt-builder__block--cooldown::before  { background: var(--tt-blk-cooldown); }
+.tt-builder__block--talk::before      { background: var(--tt-blk-talk); }
+
+.tt-builder__block.is-drop-target {
+    outline: 2px dashed var(--tt-primary, #2f9e5e);
+    outline-offset: 2px;
+}
+
+.tt-builder__block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__block-type {
+    min-height: 48px;
+    font-weight: 700;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    padding: 0 var(--tt-sp-2, 8px);
+    max-width: 100%;
+}
+
+.tt-builder__handle {
+    cursor: grab;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--tt-ink-soft, #6a6d66);
+    padding: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__handle:active { cursor: grabbing; }
+
+.tt-builder__block-name {
+    margin: 0 0 4px;
+    font-weight: 700;
+}
+
+.tt-builder__block-desc { margin: 0 0 var(--tt-sp-2, 8px); }
+
+.tt-builder__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__points { display: block; margin-bottom: var(--tt-sp-2, 8px); }
+
+.tt-builder__points textarea {
+    width: 100%;
+    /* 16px floor stops iOS zooming the page on focus. */
+    font-size: 1rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px);
+}
+
+/* ---- per-block controls ---- */
+
+.tt-builder__block-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__duration,
+.tt-builder__move {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__duration output {
+    min-width: 5.5ch;
+    text-align: center;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-builder .tt-btn-icon {
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-builder .tt-btn-icon:active { background: var(--tt-wash, #f3f5f2); }
+
+.tt-builder .tt-btn-icon:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tt-builder .tt-btn-sm {
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    touch-action: manipulation;
+}
+
+.tt-builder__actions { margin-top: var(--tt-sp-4, 16px); }
+
+/* Kept apart from Save so "save my work" cannot become "publish a
+   template" on a mis-tap. */
+.tt-builder__secondary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin-top: var(--tt-sp-4, 16px);
+    padding-top: var(--tt-sp-3, 12px);
+    border-top: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-builder__secondary-hint { margin: var(--tt-sp-2, 8px) 0 0; }
+
+.tt-builder__msg {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+    min-height: 1.2em;
+}
+
+/* ---- coverage panel ---- */
+
+.tt-builder__goalhit {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    padding: 6px 0;
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-builder__goalhit:last-of-type { border-bottom: 0; }
+
+.tt-builder__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 50%;
+    background: var(--tt-wash, #f3f5f2);
+    font-size: 0.6875rem;
+    font-weight: 800;
+}
+
+.tt-builder__missed {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- picker ---- */
+
+.tt-builder__scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 40;
+}
+
+.tt-builder__scrim[hidden],
+.tt-builder__picker[hidden] { display: none; }
+
+/* Phone: a bottom sheet, so the list sits in the thumb zone and the plan
+   stays visible above it. env() keeps it clear of the home indicator. */
+.tt-builder__picker {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 41;
+    max-height: 80vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--tt-paper, #fff);
+    border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    padding: var(--tt-sp-4, 16px);
+    padding-bottom: calc(var(--tt-sp-4, 16px) + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Desktop: a panel in the bottom-right, near where the swap button was. */
+@media (min-width: 1024px) {
+    .tt-builder__picker {
+        inset: auto 24px 24px auto;
+        width: 420px;
+        max-height: 70vh;
+        border-radius: var(--tt-radius-lg, 14px);
+    }
+}
+
+.tt-builder__picker-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__picker-head h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 800;
+}
+
+.tt-builder__picker input[type="search"] {
+    width: 100%;
+    min-height: 48px;
+    /* 16px floor: see the textarea note above. */
+    font-size: 1rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0 var(--tt-sp-2, 8px);
+}
+
+.tt-builder__picker-rows {
+    list-style: none;
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__picker-row {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px);
+}
+
+.tt-builder__picker-body { flex: 1 1 auto; min-width: 0; }
+
+.tt-builder__picker-title {
+    margin: 0 0 2px;
+    font-weight: 700;
+}
+
+.tt-builder__picker-body p:last-child { margin: 0; }
+
+/* Body scroll stays put while the sheet is open — otherwise dismissing it
+   drops the coach somewhere else in the plan. */
+body.tt-builder-picking { overflow: hidden; }
+
+/* ---- motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-builder__picker,
+    .tt-builder__scrim { transition: none; }
+}
