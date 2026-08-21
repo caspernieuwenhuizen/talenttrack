@@ -105,6 +105,68 @@ exactly what the library index needs.
 
 Both default to `false`, so a lesson only ever opts in to a requirement.
 
+## Interactive blocks
+
+Markdown is the storage format, not the render. A lesson renders to HTML
+through PHP, and interactive elements are fenced sections whose info string
+names a renderer:
+
+````markdown
+```tt-zeropoint method="extensive_endurance"
+```
+
+```tt-callout type="warning"
+Bij 7v7 is de berekende breedte te smal.
+```
+````
+
+`BlockRegistry` maps the info string to a class implementing `BlockRenderer`.
+Each renderer emits `.tt-*` markup and declares whether it needs the block
+script, so a lesson made only of prose and callouts loads no JavaScript.
+
+An info string nothing claims renders as a code block. A course written
+against a newer release, opened on an older one, loses one widget rather than
+the whole lesson.
+
+| Block | Attributes | Interactive |
+| --- | --- | --- |
+| `tt-callout` | `type` — `objectives`, `key`, `warning`, `note` | no |
+| `tt-reveal` | `question` | no |
+| `tt-actionline` | body rows: `label \| quality% \| seconds` | no |
+| `tt-model` | — | no |
+| `tt-pitchsize` | `format` | yes |
+| `tt-zeropoint` | `method` | yes |
+| `tt-weekplanner` | — | yes |
+| `tt-loadmatrix` | `cycle`, `cycles` | yes |
+| `tt-quiz` | — | placeholder until #2647 |
+| `tt-assignment` | `id` | placeholder until #2648 |
+
+Every block renders a usable state server-side. The script upgrades that
+state; it never creates it. A reader with JavaScript blocked still gets the
+pitch table, the model and the default load matrix.
+
+### One source for the numbers
+
+Supercompensation times, the overload step tables, the pitch-size rule and
+the session types all live in `Periodisation`. `tt-zeropoint`,
+`tt-weekplanner` and `tt-pitchsize` read them, and the script gets the same
+values through `wp_localize_script`.
+
+This matters more than it looks: a course that teaches "4v4 needs 72 hours"
+alongside a planner that warns at 48 would be worse than either alone. When
+the Training module needs these numbers (#2493), it reads them from here.
+
+The step tables are written out rather than generated. They are not a
+rectangular grid — after 2 × 15 the next step is 3 × 11, not 3 × 10 — and a
+generated grid shifts every step number from the seventh on.
+
+### Adding a block
+
+Implement `BlockRenderer`, then either add the class to `BlockRegistry::all()`
+or hook `tt_knowledge_blocks`. Escape everything interpolated: the corpus is
+plugin-shipped, but translated courses are edited by people who are not
+reviewing PHP.
+
 ## Quiz payload
 
 ```json

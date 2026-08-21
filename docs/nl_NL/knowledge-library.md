@@ -110,6 +110,70 @@ dat is precies wat de bibliotheekpagina nodig heeft.
 Beide staan standaard op `false`, zodat een les zich alleen aanmeldt voor een
 eis.
 
+## Interactieve blokken
+
+Markdown is het opslagformaat, niet de weergave. Een les wordt via PHP naar
+HTML gerenderd, en interactieve elementen zijn gemarkeerde secties waarvan de
+inforegel een renderer noemt:
+
+````markdown
+```tt-zeropoint method="extensive_endurance"
+```
+
+```tt-callout type="warning"
+Bij 7v7 is de berekende breedte te smal.
+```
+````
+
+`BlockRegistry` koppelt de inforegel aan een klasse die `BlockRenderer`
+implementeert. Elke renderer levert `.tt-*`-markup en geeft aan of hij het
+blokscript nodig heeft, zodat een les met alleen tekst en callouts geen
+JavaScript laadt.
+
+Een inforegel die niemand opeist, wordt als codeblok weergegeven. Een cursus
+die voor een nieuwere versie is geschreven en op een oudere wordt geopend,
+verliest één element in plaats van de hele les.
+
+| Blok | Attributen | Interactief |
+| --- | --- | --- |
+| `tt-callout` | `type` — `objectives`, `key`, `warning`, `note` | nee |
+| `tt-reveal` | `question` | nee |
+| `tt-actionline` | regels: `label \| kwaliteit% \| seconden` | nee |
+| `tt-model` | — | nee |
+| `tt-pitchsize` | `format` | ja |
+| `tt-zeropoint` | `method` | ja |
+| `tt-weekplanner` | — | ja |
+| `tt-loadmatrix` | `cycle`, `cycles` | ja |
+| `tt-quiz` | — | plaatshouder tot #2647 |
+| `tt-assignment` | `id` | plaatshouder tot #2648 |
+
+Elk blok rendert server-side een bruikbare weergave. Het script verbetert die
+weergave; het maakt hem nooit. Een lezer met geblokkeerde JavaScript krijgt
+nog steeds de veldmatentabel, het model en de standaardbelastingmatrix.
+
+### Eén bron voor de getallen
+
+Supercompensatietijden, de overloadstaptabellen, de veldmaatregel en de
+sessietypes staan in `Periodisation`. `tt-zeropoint`, `tt-weekplanner` en
+`tt-pitchsize` lezen ze, en het script krijgt dezelfde waarden via
+`wp_localize_script`.
+
+Dat is belangrijker dan het lijkt: een cursus die leert dat 4v4 72 uur vraagt
+naast een planner die bij 48 waarschuwt, is slechter dan elk van de twee
+afzonderlijk. Zodra de Training-module deze getallen nodig heeft (#2493),
+leest hij ze hier.
+
+De staptabellen zijn uitgeschreven, niet gegenereerd. Ze vormen geen
+rechthoekig raster — na 2 × 15 volgt 3 × 11, niet 3 × 10 — en een gegenereerd
+raster verschuift elk stapnummer vanaf de zevende.
+
+### Een blok toevoegen
+
+Implementeer `BlockRenderer` en voeg de klasse toe aan
+`BlockRegistry::all()`, of haak in op `tt_knowledge_blocks`. Escape alles wat
+je invoegt: het corpus wordt meegeleverd, maar vertaalde cursussen worden
+bewerkt door mensen die geen PHP nakijken.
+
 ## Quizinhoud
 
 ```json

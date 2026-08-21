@@ -50481,6 +50481,310 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/Knowledge/Blocks/ActionLineBlock.php
+msgid "Actions at %1$d%% quality, %2$d seconds apart."
+msgstr "Handelingen op %1$d%% kwaliteit, %2$d seconden ertussen."
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php
+msgid "Practical assignment"
+msgstr "Praktijkopdracht"
+
+#: src/Modules/Knowledge/Blocks/AssignmentBlock.php
+msgid ""
+"Work this through with your own team. Handing it in for review opens once "
+"progress tracking is switched on."
+msgstr ""
+"Werk dit uit met je eigen team. Inleveren ter beoordeling wordt mogelijk "
+"zodra voortgangsregistratie aanstaat."
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php
+msgid "What you will learn"
+msgstr "Wat je gaat leren"
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php
+msgid "The point"
+msgstr "Waar het om gaat"
+
+#: src/Modules/Knowledge/Blocks/CalloutBlock.php
+msgid "Watch out"
+msgstr "Let op"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "Load pattern"
+msgstr "Belastingpatroon"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "Cycle length"
+msgstr "Cyclusduur"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "Six weeks"
+msgstr "Zes weken"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "Three weeks"
+msgstr "Drie weken"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "100 = overload · 50 = underload · 0 = taper"
+msgstr "100 = overload · 50 = underload · 0 = afbouw"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "11v11 – 8v8"
+msgstr "11v11 – 8v8"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "7v7 – 5v5"
+msgstr "7v7 – 5v5"
+
+#: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php
+msgid "4v4 – 3v3"
+msgstr "4v4 – 3v3"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php
+msgid "Training methods"
+msgstr "Trainingsmethoden"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php
+msgid "Volume · quantity"
+msgstr "Volume · kwantiteit"
+
+#: src/Modules/Knowledge/Blocks/ModelBlock.php
+msgid "Intensity · quality"
+msgstr "Intensiteit · kwaliteit"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid "Pitch size calculator"
+msgstr "Veldmaatberekening"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid "Game format"
+msgstr "Spelvorm"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid "Rule of thumb"
+msgstr "Vuistregel"
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid "Derived from %1$d by %2$d metres per outfield player."
+msgstr "Afgeleid van %1$d bij %2$d meter per veldspeler."
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid "The rule of thumb works at this format."
+msgstr "De vuistregel werkt bij deze spelvorm."
+
+#: src/Modules/Knowledge/Blocks/PitchSizeBlock.php
+msgid ""
+"The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
+"m, or the game turns into a more intensive method than you planned."
+msgstr ""
+"De berekende breedte van %1$d m is smaller dan een strafschopgebied. Maak "
+"het veld %2$d m breed, anders wordt het spel een intensievere methode dan je "
+"gepland had."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Check your understanding"
+msgstr "Toets jezelf"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "The questions for this module open once progress tracking is switched on."
+msgstr ""
+"De vragen bij deze module komen beschikbaar zodra voortgangsregistratie "
+"aanstaat."
+
+#: src/Modules/Knowledge/Blocks/RevealBlock.php
+msgid "Think it through, then check"
+msgstr "Denk na, en controleer daarna"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Week planner"
+msgstr "Weekplanner"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid ""
+"Set your match day and your sessions. The plan is checked against the "
+"recovery times as you go."
+msgstr ""
+"Zet je wedstrijddag en je trainingen neer. Het schema wordt meteen "
+"gecontroleerd op de hersteltijden."
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "%1$s on %2$s, match on %3$s: %4$d hours available, %5$d needed."
+msgstr "%1$s op %2$s, wedstrijd op %3$s: %4$d uur beschikbaar, %5$d nodig."
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid ""
+"%1$s on %2$s and again on %3$s: %4$d hours apart, %5$d needed between two of "
+"the same stimulus."
+msgstr ""
+"%1$s op %2$s en opnieuw op %3$s: %4$d uur ertussen, %5$d nodig tussen twee "
+"gelijksoortige prikkels."
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Tuesday"
+msgstr "dinsdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Wednesday"
+msgstr "woensdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Thursday"
+msgstr "donderdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Friday"
+msgstr "vrijdag"
+
+#: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php
+msgid "Saturday"
+msgstr "zaterdag"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php
+msgid "Zero-point measurement"
+msgstr "Nulpuntmeting"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php
+msgid ""
+"Enter the minutes your team played before the majority visibly dropped their "
+"action count."
+msgstr ""
+"Vul in hoeveel minuten je team speelde voordat de meerderheid zichtbaar "
+"minder handelingen ging maken."
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php
+msgid "Training method"
+msgstr "Trainingsmethode"
+
+#: src/Modules/Knowledge/Blocks/ZeroPointBlock.php
+msgid "Enter the minutes to see your starting step."
+msgstr "Vul de minuten in om je startstap te zien."
+
+#: src/Modules/Knowledge/LessonRenderer.php
+msgid "Start at step %1$d: %2$d games of %3$s minutes."
+msgstr "Begin bij stap %1$d: %2$d partijen van %3$s minuten."
+
+#: src/Modules/Knowledge/LessonRenderer.php
+msgid "That is below the lightest step. Start at step 1 and build from there."
+msgstr "Dat ligt onder de lichtste stap. Begin bij stap 1 en bouw van daaruit op."
+
+#: src/Modules/Knowledge/LessonRenderer.php
+msgid "This week respects every recovery time."
+msgstr "Deze week respecteert elke hersteltijd."
+
+#: src/Modules/Knowledge/LessonRenderer.php
+msgid "Add a match and at least one session to check the week."
+msgstr "Voeg een wedstrijd en minstens één training toe om de week te controleren."
+
+#: src/Modules/Knowledge/LessonRenderer.php
+msgid "%d problem(s) with this week:"
+msgstr "%d probleem/problemen met deze week:"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Explosivity preparation exercises"
+msgstr "Explosiviteitsvoorbereidende oefeningen"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Games 11v11 – 8v8"
+msgstr "Partijen 11v11 – 8v8"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Games 7v7 – 5v5"
+msgstr "Partijen 7v7 – 5v5"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Games 4v4 – 3v3"
+msgstr "Partijen 4v4 – 3v3"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Football sprints with maximum rest"
+msgstr "Voetbalsprints met maximale rust"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Football sprints with minimum rest"
+msgstr "Voetbalsprints met minimale rust"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Week 1–2"
+msgstr "Week 1–2"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Week 3–4"
+msgstr "Week 3–4"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Week 5–6"
+msgstr "Week 5–6"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Acceleration runs"
+msgstr "Versnellingslopen"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Extensive endurance method"
+msgstr "Extensieve duurmethode"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Intensive endurance method"
+msgstr "Intensieve duurmethode"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Extensive interval method"
+msgstr "Extensieve intervalmethode"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Repeated short sprinting"
+msgstr "Herhaald kort sprinten"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Start and acceleration speed"
+msgstr "Start- en acceleratiesnelheid"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Extensive endurance method (11v11 – 8v8)"
+msgstr "Extensieve duurmethode (11v11 – 8v8)"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Intensive endurance method (7v7 – 5v5)"
+msgstr "Intensieve duurmethode (7v7 – 5v5)"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Recovery training"
+msgstr "Hersteltraining"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Technical training"
+msgstr "Technische training"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Tactical training"
+msgstr "Tactische training"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Conditioning 11v11 – 8v8"
+msgstr "Conditietraining 11v11 – 8v8"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Conditioning 7v7 – 5v5"
+msgstr "Conditietraining 7v7 – 5v5"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Conditioning 4v4 – 3v3"
+msgstr "Conditietraining 4v4 – 3v3"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Sprints with minimum rest"
+msgstr "Sprints met minimale rust"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Sprints with maximum rest"
+msgstr "Sprints met maximale rust"
+
+#: src/Modules/Knowledge/Periodisation.php
+msgid "Day off"
+msgstr "Vrije dag"
+
 #~ msgid "improved"
 #~ msgstr "verbeterd"
 
