@@ -319,7 +319,11 @@ class TournamentsRestController {
 
         // #2023 — through filterClause (alias 't') so archived/active views
         // also exclude trashed (recycle-bin) rows.
-        $status = isset( $filter['status'] ) ? sanitize_key( (string) $filter['status'] ) : 'active';
+        // #2625 — `filter[archived]` is canonical; `filter[status]` is a
+        // deprecated alias kept for one release. Inline by design: `status`
+        // means domain status on other resources.
+        $raw     = $filter['archived'] ?? ( $filter['status'] ?? null );
+        $status  = $raw !== null ? sanitize_key( (string) $raw ) : 'active';
         $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause(
             $status === 'archived' ? 'archived' : 'active',
             't'

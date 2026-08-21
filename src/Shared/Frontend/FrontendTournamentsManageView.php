@@ -208,10 +208,12 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                     'label'   => __( 'Team', 'talenttrack' ),
                     'options' => $team_options,
                 ],
-                'status' => [
+                // #2625 — canonical archive-state param; `status` is reserved
+                // for domain status.
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
