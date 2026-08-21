@@ -210,6 +210,33 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'podium' ],
                 'entities'        => [],
             ],
+            // #2590 (epic #2589) — the media library's surfaces. Registered
+            // with the foundation slice rather than with the first view, so
+            // the module is switchable before anything depends on it: each
+            // later slice adds its own slug here in the same PR that adds
+            // the surface, instead of six merged PRs later needing a
+            // retrofit.
+            //
+            // Two levels of off-switch, deliberately. Disabling the MODULE
+            // (config/modules.php) stops media existing at all — an academy
+            // that does not want photographs of minors in the system. This
+            // FEATURE toggle is the softer one: keep the module and its
+            // stored files, hide the surfaces.
+            //
+            // Default ON: media is core to the player-centric picture, and an
+            // academy that does not want it simply never uploads. Making an
+            // operator find a toggle before the feature exists is a support
+            // ticket, not a safeguard — the safeguard is the module switch.
+            //
+            // `view_slugs` is empty until #2593 ships the first route.
+            'media' => [
+                'label'           => __( 'Media library', 'talenttrack' ),
+                'description'     => __( 'Photos and video attached to players, teams and activities. Turn off to hide the media tabs and uploads across the academy; stored files are kept and reappear if it is switched back on.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Media\\MediaModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [ 'media' ],
+            ],
             // #2382 (epic #2381) — the desktop attendance-entry grid, the
             // Excel-familiar alternative to the mark-attendance wizard.
             // Default ON: it's the power-entry path an academy uses instead

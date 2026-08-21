@@ -22,7 +22,7 @@ The tabs lead with **Vision** — the club's playing vision opens by default, so
 2. **Framework** — your academy's primer: introduction, the football model, football actions, the four phases of attacking and defending, learning goals, factors of influence, and reflection. Each section can carry illustrations. The sections are **collapsible** — the first opens automatically and the rest are tucked away; expand the ones you need. Your open/closed choices are remembered the next time you return.
 3. **Formations & positions** — the formation visual plus a card for each shirt number. Position cards list attacking and defending tasks and an optional diagram.
 4. **Principles** — coded principles like AO-01 (build-up) or VS-02 (disrupting). Each one has an explanation, team-level guidance, per-line guidance for forwards / midfielders / defenders / goalkeeper, a formation diagram and a primary illustration. Below the principle grid, the **Sub-principes** section lists the concrete per-line coaching points for each game phase (see below).
-5. **Football actions** — the catalogue of football actions (receiving, passing, dribbling, shooting, heading, plus running free, marking, pressing, and supporting actions like game insight and communication).
+5. **Football actions** — the catalogue of football actions (receiving, passing, dribbling, shooting, heading, plus running free, marking, pressing, and supporting actions like game insight and communication). **Shared across every methodology set**, unlike the tabs around it: a football action is vocabulary of the game rather than of one club's play style, so switching the active set never changes which actions exist. An action you add is available under every set, and a goal linked to one keeps resolving to the same action whichever set a team follows.
 6. **Set pieces** — corners, free kicks, penalties and throw-ins, illustrated, with attacking and defending variants.
 
 When the VCT module is switched on, a seventh tab appears — **Periodisation** (see below).
@@ -81,3 +81,5 @@ Scenes are shipped content for the JO13-1 Hedel set today and are read-only in t
 ## Printable reference card
 
 The **Print referentiekaart** action produces a laminatable A4 card of the methodology's principles, football actions and learning goals. The card follows the **active methodology**: it prints exactly the set the library is showing, so switching the active methodology (or a team's set) changes what the card contains — the two never mix onto one sheet.
+
+One exception, following the tab itself: the **football actions block is identical on every set's card**, because the catalogue is shared. What changes between cards is the principles and learning goals.

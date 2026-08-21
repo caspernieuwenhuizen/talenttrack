@@ -35,6 +35,17 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Player photos are `photo_url` strings (no attachment linkage) —
  * upload cleanup stays a manual step per the privacy operator guide.
  *
+ * `tt_media_links` (#2590) is the exception the sweep cannot cover: it
+ * references a player through a polymorphic (entity_type, entity_id)
+ * pair rather than a `player_id` column, so it is invisible to
+ * information_schema's search and needs the explicit delete below.
+ * Without it, erasing a player would leave link rows pointing at a dead
+ * id and photographs of that player on disk — a right-to-erasure request
+ * that once again does not erase. The link rows go inside the
+ * transaction; the bytes are removed after COMMIT via
+ * `tt_media_links_pruned`, because a filesystem unlink cannot be rolled
+ * back and must not run for a batch that ends up failing.
+ *
  * Single transaction; any failure rolls back the whole batch.
  */
 class PlayerDeletionCascade {
@@ -120,6 +131,28 @@ class PlayerDeletionCascade {
                 if ( (int) $n > 0 ) $per_table[ $thread_table ] = (int) $n;
             }
 
+            // Media attachments (#2590). Polymorphic, so the dynamic sweep
+            // below cannot see them. Capture which media items were
+            // attached before deleting the links — after the commit that
+            // list is the only way to tell which files nothing points at
+            // any more.
+            $pruned_media = [];
+            if ( $this->tableExists( 'tt_media_links' ) ) {
+                $pruned_media = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
+                    "SELECT DISTINCT media_id FROM {$p}tt_media_links
+                      WHERE entity_type = 'player' AND entity_id IN ({$ph})",
+                    ...$ids
+                ) ) );
+
+                $sql = "DELETE FROM {$p}tt_media_links
+                         WHERE entity_type = 'player' AND entity_id IN ({$ph})";
+                $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                if ( $n === false ) {
+                    throw new \RuntimeException( 'Cascade failed on tt_media_links: ' . $wpdb->last_error );
+                }
+                if ( (int) $n > 0 ) $per_table['tt_media_links'] = (int) $n;
+            }
+
             // Dynamic sweep: every tt_* table with a player reference.
             foreach ( $this->playerColumns() as $ref ) {
                 $bare = $ref['bare_table'];
@@ -152,6 +185,15 @@ class PlayerDeletionCascade {
             }
 
             $wpdb->query( 'COMMIT' );
+
+            // Post-commit, deliberately. Deleting a blob is not
+            // transactional, so it only runs once the batch is durable —
+            // a rolled-back cascade must not leave files missing for
+            // players who still exist. The media module works out which
+            // of these are now orphaned and removes their bytes.
+            if ( $pruned_media !== [] ) {
+                do_action( 'tt_media_links_pruned', $pruned_media );
+            }
 
             Logger::info( 'player.deleted_with_cascade', [
                 'player_ids' => $ids,

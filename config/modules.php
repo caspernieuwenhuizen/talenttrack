@@ -136,6 +136,14 @@ return [
     // the "+ New test" wizard, and the frontend surfaces follow in the
     // next slices.
     TT\Modules\Measurements\MeasurementsModule::class            => true,
+    // #2589 — Media library. Photos and video held in a private store
+    // (never the WP media library, whose URLs are world-readable) and
+    // attached to players, teams and activities. Foundation ship is
+    // schema (migration 0218) + storage adapter + ingest + repositories;
+    // authorization, REST, the wizard and the surfaces land in
+    // #2591-#2596. Deliberately togglable — an academy that does not want
+    // photographs of its players in the system switches it off here.
+    TT\Modules\Media\MediaModule::class                          => true,
     // #1859 — read-only Data Browser. Matrix/academy-admin-only browser
     // over the live tt_* schema (friendly labels + raw paginated rows +
     // lightweight relationship navigation). Owns its REST controller;

@@ -100,10 +100,12 @@ final class FootballActionsRepository {
         global $wpdb;
         $row = $this->normalize( $data, true );
         $row['club_id'] = CurrentClub::id();
-        $mid = MethodologyScope::active();
-        if ( $mid > 0 && ! isset( $row['methodology_id'] ) ) {
-            $row['methodology_id'] = $mid;
-        }
+        // #2620 — deliberately NOT stamped with the active methodology.
+        // The football-action catalogue is shared across every set (see
+        // migration 0219): stamping meant a coach-authored action was
+        // invisible outside the set that happened to be active when they
+        // wrote it. `listAll()` keeps its `methodology_id = %d OR IS NULL`
+        // clause, which stays correct for any legacy stamped row.
         $wpdb->insert( $this->table(), $row );
         return (int) $wpdb->insert_id;
     }
