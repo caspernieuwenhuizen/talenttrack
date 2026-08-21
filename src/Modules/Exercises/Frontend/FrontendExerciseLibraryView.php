@@ -73,7 +73,16 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         if ( $visibility === 'club' && ! self::canPromote( $user_id ) ) $visibility = 'team';
         $payload['visibility'] = $visibility;
 
-        $id = ( new ExercisesRepository() )->create( $payload );
+        $repo = new ExercisesRepository();
+        $id   = $repo->create( $payload );
+
+        // The principle links are what make the drill visible to the
+        // generator and to the training-exposure figures, so they are
+        // saved with the exercise rather than left to a second step
+        // nobody comes back for.
+        if ( $id > 0 && isset( $post['principle_ids'] ) && is_array( $post['principle_ids'] ) ) {
+            $repo->setPrincipleIds( $id, array_map( 'intval', $post['principle_ids'] ) );
+        }
 
         wp_safe_redirect( add_query_arg(
             $id > 0 ? [ 'tt_exercise' => 'created', 'id' => $id ] : [ 'tt_exercise' => 'failed' ],
@@ -176,14 +185,7 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
                 'intensity_band' => [
                     'type'    => 'select',
                     'label'   => __( 'Intensity', 'talenttrack' ),
-                    'options' => [
-                        ''  => __( 'Any intensity', 'talenttrack' ),
-                        '1' => __( '1 — recovery', 'talenttrack' ),
-                        '2' => __( '2 — low', 'talenttrack' ),
-                        '3' => __( '3 — moderate', 'talenttrack' ),
-                        '4' => __( '4 — high', 'talenttrack' ),
-                        '5' => __( '5 — maximum', 'talenttrack' ),
-                    ],
+                    'options' => self::intensityOptions(),
                 ],
             ],
             'search'       => [ 'placeholder' => __( 'Search by name, code or description…', 'talenttrack' ) ],
@@ -305,25 +307,35 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         self::field( 'players_min', __( 'Smallest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
         self::field( 'players_max', __( 'Largest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
 
-        echo '<label class="tt-field"><span>' . esc_html__( 'Intensity', 'talenttrack' ) . '</span>';
-        echo '<select name="intensity_band">';
+        // 1–10, matching the ten seeded `vct_intensity_band` lookup rows
+        // and the age profiles, which cap U13/U14 at 7. An earlier 1–5
+        // select here did not just mislabel: saving through it clamped a
+        // band 6–7 exercise down to 5.
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field__label" for="tt-ex-band">' . esc_html__( 'Intensity', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-ex-band" name="intensity_band">';
         echo '<option value="">' . esc_html__( '— not set —', 'talenttrack' ) . '</option>';
-        foreach ( [
-            1 => __( '1 — recovery', 'talenttrack' ),
-            2 => __( '2 — low', 'talenttrack' ),
-            3 => __( '3 — moderate', 'talenttrack' ),
-            4 => __( '4 — high', 'talenttrack' ),
-            5 => __( '5 — maximum', 'talenttrack' ),
-        ] as $value => $label ) {
-            printf( '<option value="%d">%s</option>', (int) $value, esc_html( (string) $label ) );
+        for ( $band = 1; $band <= 10; $band++ ) {
+            printf(
+                '<option value="%1$d">%2$s</option>',
+                $band,
+                /* translators: %d is an intensity level from 1 to 10. */
+                esc_html( sprintf( __( 'Level %d', 'talenttrack' ), $band ) )
+            );
         }
-        echo '</select></label>';
+        echo '</select>';
+        echo '<p class="tt-field__hint">'
+            . esc_html__( 'Higher is harder. Each age group has its own ceiling, and the generator never proposes an exercise above it.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
 
         echo '<label class="tt-field tt-field--full"><span>' . esc_html__( 'Description and organisation', 'talenttrack' ) . '</span>';
         echo '<textarea name="description" rows="4"></textarea></label>';
 
         echo '<label class="tt-field tt-field--full"><span>' . esc_html__( 'Diagram image URL (optional)', 'talenttrack' ) . '</span>';
         echo '<input type="url" name="diagram_url" inputmode="url" autocomplete="off"></label>';
+
+        self::renderPrincipleField();
 
         echo '<div class="tt-field tt-field--full">';
         echo '<span class="tt-field__label">' . esc_html__( 'Visible to', 'talenttrack' ) . '</span>';
@@ -352,6 +364,75 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
     }
 
     /**
+     * Which principles this drill trains (#2497).
+     *
+     * This is not decoration. It is the link the generator ranks
+     * candidates by and the one wave 7 computes per-player training
+     * exposure through — an untagged exercise is invisible to both, which
+     * is why the hint says so rather than leaving the field looking
+     * optional-in-the-boring-sense.
+     */
+    private static function renderPrincipleField(): void {
+        $principles = ( new ExercisesRepository() )->listPrinciples();
+        if ( ! $principles ) return;
+
+        echo '<div class="tt-field tt-field--full">';
+        echo '<label class="tt-field__label" for="tt-ex-principles">'
+            . esc_html__( 'Trains which principles', 'talenttrack' )
+            . '</label>';
+        echo '<select id="tt-ex-principles" name="principle_ids[]" multiple size="6">';
+
+        $current_group = null;
+        foreach ( $principles as $principle ) {
+            $group = self::phaseLabel(
+                (string) ( $principle->team_function_key ?? '' ),
+                (string) ( $principle->team_task_key ?? '' )
+            );
+            if ( $group !== $current_group ) {
+                if ( $current_group !== null ) echo '</optgroup>';
+                echo '<optgroup label="' . esc_attr( $group ) . '">';
+                $current_group = $group;
+            }
+
+            printf(
+                '<option value="%1$d">%2$s</option>',
+                (int) $principle->id,
+                esc_html( trim( (string) ( $principle->code ?? '' ) . ' · ' . self::principleTitle( $principle ) ) )
+            );
+        }
+        if ( $current_group !== null ) echo '</optgroup>';
+
+        echo '</select>';
+        echo '<p class="tt-field__hint">'
+            . esc_html__( 'Hold Ctrl or Cmd to pick more than one. An exercise with no principle never gets suggested by the generator, and the time spent on it does not count towards what your players have been taught.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
+    }
+
+    private static function principleTitle( object $principle ): string {
+        $decoded = json_decode( (string) ( $principle->title_json ?? '' ), true );
+        if ( ! is_array( $decoded ) ) return '';
+
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : 'nl_NL';
+        $title  = $decoded[ $locale ] ?? $decoded['nl_NL'] ?? $decoded['en_US'] ?? reset( $decoded );
+
+        return is_string( $title ) ? mb_substr( $title, 0, 70 ) : '';
+    }
+
+    /** Group the select by game phase, which is how a coach thinks about it. */
+    private static function phaseLabel( string $function, string $task ): string {
+        switch ( $function . '|' . $task ) {
+            case 'aanvallen|opbouwen':                            return __( 'Attacking — build-up', 'talenttrack' );
+            case 'aanvallen|scoren':                              return __( 'Attacking — finishing', 'talenttrack' );
+            case 'verdedigen|storen':                             return __( 'Defending — pressing', 'talenttrack' );
+            case 'verdedigen|doelpunten_voorkomen':               return __( 'Defending — preventing goals', 'talenttrack' );
+            case 'omschakelen_naar_aanvallen|overgang_balwinst':  return __( 'Transition — winning the ball', 'talenttrack' );
+            case 'omschakelen_naar_verdedigen|overgang_balverlies': return __( 'Transition — losing the ball', 'talenttrack' );
+        }
+        return __( 'Other', 'talenttrack' );
+    }
+
+    /**
      * @param array<string,mixed> $attrs
      */
     private static function field( string $name, string $label, string $type, array $attrs = [] ): void {
@@ -367,6 +448,20 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             esc_attr( $name ),
             $extra // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — each attribute escaped above.
         );
+    }
+
+    /**
+     * The ten intensity bands, as filter options.
+     *
+     * @return array<string,string>
+     */
+    private static function intensityOptions(): array {
+        $out = [ '' => __( 'Any intensity', 'talenttrack' ) ];
+        for ( $band = 1; $band <= 10; $band++ ) {
+            /* translators: %d is an intensity level from 1 to 10. */
+            $out[ (string) $band ] = sprintf( __( 'Level %d', 'talenttrack' ), $band );
+        }
+        return $out;
     }
 
     /**

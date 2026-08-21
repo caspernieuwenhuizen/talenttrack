@@ -7,7 +7,9 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
+use TT\Modules\Training\Wizard\NewTrainingPlanWizard;
 use TT\Shared\Tiles\TileRegistry;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * TrainingModule (#2496, epic #2493) — owns the training plan.
@@ -52,6 +54,15 @@ class TrainingModule implements ModuleInterface {
         TrainingRunsRestController::init();
 
         add_action( 'init', [ self::class, 'registerTiles' ], 20 );
+
+        // #2497 — the generator's wizard. Registered on `init` so the
+        // registry is populated before any request resolves
+        // `?tt_view=wizard&slug=new-training-plan`.
+        add_action( 'init', static function (): void {
+            if ( class_exists( WizardRegistry::class ) ) {
+                WizardRegistry::register( new NewTrainingPlanWizard() );
+            }
+        }, 20 );
     }
 
     /**

@@ -11,6 +11,7 @@ use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * FrontendTrainingPlansView (#2496) — the training plan list at
@@ -73,6 +74,25 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
         // own guard, so the action hides rather than leading someone to a
         // "not authorized" notice.
         $actions = [];
+
+        // #2497 — the generator is the way in, so it leads. A blank
+        // builder is where coaching apps go to die; the coach answers
+        // four short questions and gets a finished session back.
+        $actions[] = [
+            'label'   => __( 'New plan', 'talenttrack' ),
+            // The wizard gates itself on `tt_training_plan`, the same cap
+            // this whole view already required to render, and the
+            // fallback is this module's own create route rather than a
+            // different surface. Nothing to hide that is not already
+            // hidden. /* tt-xview-ok — same module, wizard-gated */
+            'href'    => WizardEntryPoint::urlFor(
+                'new-training-plan',
+                add_query_arg( [ 'tt_view' => 'training-plan', 'action' => 'new' ], RecordLink::dashboardUrl() ) /* tt-xview-ok */
+            ),
+            'primary' => true,
+            'icon'    => '+',
+        ];
+
         if ( CrossViewLink::allows( 'exercises' ) ) {
             $actions[] = [
                 'label' => __( 'Exercises', 'talenttrack' ),

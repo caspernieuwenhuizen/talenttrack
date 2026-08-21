@@ -49467,6 +49467,286 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + "
 #~ "potentieel-registratie."
 
+
+#: src/Modules/Training/Wizard/WhenStep.php:31
+msgid "Which team are you planning for, and when?"
+msgstr "Voor welk team plan je, en wanneer?"
+
+#: src/Modules/Training/Wizard/WhenStep.php:51
+msgid "The age group, how many days until the next match, and where you are in the season are worked out from the team and the date. You do not need to enter them."
+msgstr "De leeftijdscategorie, het aantal dagen tot de eerstvolgende wedstrijd en waar je in het seizoen zit worden afgeleid uit het team en de datum. Die hoef je niet in te vullen."
+
+#: src/Modules/Training/Wizard/ThemeStep.php:41
+#, php-format
+msgid "%d exercise"
+msgid_plural "%d exercises"
+msgstr[0] "%d oefening"
+msgstr[1] "%d oefeningen"
+
+#: src/Modules/Training/Wizard/ThemeStep.php:25
+msgid "What is this training about?"
+msgstr "Waar gaat deze training over?"
+
+#: src/Modules/Training/Wizard/ThemeStep.php:29
+msgid "Your academy has no periodisation calendar set up, so there is no suggested theme for this week. Pick one yourself — or set the calendar up under Configuration to get a suggestion here."
+msgstr "Je academie heeft nog geen periodiseringskalender, dus er is geen voorgesteld thema voor deze week. Kies er zelf een — of stel de kalender in bij Configuratie om hier een suggestie te krijgen."
+
+#: src/Modules/Training/Wizard/ThemeStep.php:35
+msgid "— no particular theme —"
+msgstr "— geen specifiek thema —"
+
+#: src/Modules/Training/Wizard/ThemeStep.php:47
+msgid "nothing in the library yet"
+msgstr "nog niets in de bibliotheek"
+
+#: src/Modules/Training/Wizard/ThemeStep.php:59
+msgid "The theme decides which exercises are considered. Leave it open and the generator draws from the whole library."
+msgstr "Het thema bepaalt welke oefeningen meedoen. Laat het open en de generator kiest uit de hele bibliotheek."
+
+#: src/Modules/Training/Wizard/ThemeStep.php:67
+msgid "That is not a theme we know."
+msgstr "Dat thema kennen we niet."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:36
+msgid "How long is the training, and how many players do you expect?"
+msgstr "Hoe lang duurt de training, en hoeveel spelers verwacht je?"
+
+#: src/Modules/Training/Wizard/ShapeStep.php:38
+msgid "Length in minutes"
+msgstr "Duur in minuten"
+
+#: src/Modules/Training/Wizard/ShapeStep.php:43
+msgid "Players you expect"
+msgstr "Spelers die je verwacht"
+
+#: src/Modules/Training/Wizard/ShapeStep.php:50
+msgid "The age group sets its own ceiling on how hard and how long a training may be, and its own shape for how the time is divided. The draft can therefore come out a little longer or shorter than you type here — the next step tells you when it does, rather than quietly changing it on you."
+msgstr "De leeftijdscategorie heeft een eigen plafond voor hoe zwaar en hoe lang een training mag zijn, en een eigen opbouw voor hoe de tijd wordt verdeeld. Het concept kan daardoor iets langer of korter uitvallen dan wat je hier invult — de volgende stap zegt het wanneer dat gebeurt, in plaats van het stilletjes aan te passen."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:59
+#, php-format
+msgid "Suggested from recent attendance — an average of %d turned up at this team's last few trainings."
+msgstr "Voorgesteld op basis van de recente opkomst — gemiddeld %d spelers bij de laatste trainingen van dit team."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:65
+#, php-format
+msgid "This team has no attendance recorded yet, so this is its full squad of %d. Expect fewer in practice."
+msgstr "Van dit team is nog geen aanwezigheid vastgelegd, dus dit is de volledige selectie van %d. In de praktijk zullen het er minder zijn."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:70
+msgid "No squad information for this team yet, so this is a guess. Change it to what you expect."
+msgstr "Nog geen selectiegegevens voor dit team, dus dit is een schatting. Pas het aan naar wat je verwacht."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:79
+#, php-format
+msgid "Give the training a length between %1$d and %2$d minutes."
+msgstr "Geef de training een duur tussen %1$d en %2$d minuten."
+
+#: src/Modules/Training/Wizard/ShapeStep.php:87
+msgid "How many players do you expect? Somewhere between 1 and 40."
+msgstr "Hoeveel spelers verwacht je? Ergens tussen 1 en 40."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:22
+msgid "Proposal"
+msgstr "Voorstel"
+
+#: src/Modules/Training/Wizard/ProposalStep.php:29
+msgid "This training cannot be drafted as asked:"
+msgstr "Deze training kan niet worden opgesteld zoals gevraagd:"
+
+#: src/Modules/Training/Wizard/ProposalStep.php:118
+#, php-format
+msgid "You asked for %1$d minutes; this draft comes out at %2$d. The blocks follow the age group's training shape, so the total is not always the length you typed."
+msgstr "Je vroeg om %1$d minuten; dit concept komt uit op %2$d. De blokken volgen de trainingsopbouw van de leeftijdscategorie, dus het totaal is niet altijd de duur die je invulde."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:143
+msgid "This training cannot be drafted as asked. Go back and change the length or the theme."
+msgstr "Deze training kan niet worden opgesteld zoals gevraagd. Ga terug en pas de duur of het thema aan."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:37
+msgid "Go back and change the length or the theme. If that does not help, this team cannot be drafted for automatically yet — build the training by hand instead."
+msgstr "Ga terug en pas de duur of het thema aan. Helpt dat niet, dan kan voor dit team nog geen concept worden opgesteld — stel de training dan zelf samen."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:47
+#, php-format
+msgid "Here is the draft — %1$d blocks, %2$d minutes."
+msgstr "Dit is het voorstel — %1$d blokken, %2$d minuten."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:60
+#, php-format
+msgid "%1$d min · level %2$d"
+msgstr "%1$d min · niveau %2$d"
+
+#: src/Modules/Training/Wizard/ProposalStep.php:75
+msgid "Nothing is saved yet. Go back to change the theme or the length, or continue to look it over and save."
+msgstr "Er is nog niets opgeslagen. Ga terug om het thema of de duur aan te passen, of ga verder om het na te kijken en op te slaan."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:96
+msgid "Nothing suitable in the library yet"
+msgstr "Nog niets passends in de bibliotheek"
+
+#: src/Modules/Training/Wizard/ProposalStep.php:104
+msgid "Unknown exercise"
+msgstr "Onbekende oefening"
+
+#: src/Modules/Training/Wizard/ProposalStep.php:114
+msgid "One part of the training has no matching exercise in your library yet. It is left blank for you to fill in."
+msgstr "Voor één onderdeel van de training staat nog geen passende oefening in je bibliotheek. Dat blok blijft leeg zodat je het zelf kunt invullen."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:116
+msgid "No periodisation calendar is set up, so the training is not adjusted for where you are in the season."
+msgstr "Er is geen periodiseringskalender ingesteld, dus de training wordt niet aangepast aan waar je in het seizoen zit."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:118
+msgid "This team has no usable age group, so exercises cannot be checked as age-safe."
+msgstr "Dit team heeft geen bruikbare leeftijdscategorie, dus oefeningen kunnen niet op leeftijdsveiligheid worden gecontroleerd."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:120
+msgid "This age group has no training profile yet, so there is no age-safe intensity ceiling to plan inside. Only age groups that have a profile can be drafted automatically."
+msgstr "Deze leeftijdscategorie heeft nog geen trainingsprofiel, dus er is geen leeftijdsveilig intensiteitsplafond om binnen te plannen. Alleen leeftijdscategorieën met een profiel kunnen automatisch worden opgesteld."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:122
+msgid "This training pushes the team past its planned load for the week."
+msgstr "Deze training brengt het team boven de geplande belasting voor deze week."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:124
+msgid "This falls too soon after a hard training for this age group."
+msgstr "Dit valt te kort na een zware training voor deze leeftijdscategorie."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:126
+msgid "A player is flagged for a growth spurt, so the intensity has been held back."
+msgstr "Er staat een groeispurt-vlag bij een speler, dus de intensiteit is teruggebracht."
+
+#: src/Modules/Training/Wizard/ReviewStep.php:66
+#, php-format
+msgid "This training works on an open goal for %1$d player. %2$d others have goals it does not touch."
+msgid_plural "This training works on an open goal for %1$d players. %2$d others have goals it does not touch."
+msgstr[0] "Deze training werkt aan een open doel van %1$d speler. %2$d anderen hebben doelen waar hij niets mee doet."
+msgstr[1] "Deze training werkt aan een open doel van %1$d spelers. %2$d anderen hebben doelen waar hij niets mee doet."
+
+#: src/Modules/Training/Wizard/ReviewStep.php:34
+#, php-format
+msgid "%1$s on %2$s — %3$d minutes."
+msgstr "%1$s op %2$s — %3$d minuten."
+
+#: src/Modules/Training/Wizard/ReviewStep.php:36
+msgid "No particular theme"
+msgstr "Geen specifiek thema"
+
+#: src/Modules/Training/Wizard/ReviewStep.php:49
+msgid "Name this plan"
+msgstr "Geef dit plan een naam"
+
+#: src/Modules/Training/Wizard/ReviewStep.php:59
+msgid "None of this squad's goals name a playing principle yet, so there is nothing to match this training against. Once goals are linked to principles, this is where you will see which players it serves."
+msgstr "Nog geen enkel doel van deze selectie noemt een spelprincipe, dus er valt niets te vergelijken met deze training. Zodra doelen aan principes gekoppeld zijn, zie je hier voor welke spelers hij nuttig is."
+
+#: src/Modules/Training/Services/TrainingPlanComposer.php:329
+msgid "Training plan"
+msgstr "Trainingsplan"
+
+#: src/Modules/Training/Wizard/ReviewStep.php:124
+msgid "This training could not be saved. Go back and try a different length or theme."
+msgstr "Deze training kon niet worden opgeslagen. Ga terug en probeer een andere duur of een ander thema."
+
+#: src/Modules/Training/Wizard/WizardContext.php:68
+msgid "Building up from the back"
+msgstr "Opbouwen van achteruit"
+
+#: src/Modules/Training/Wizard/WizardContext.php:69
+msgid "Keeping the ball"
+msgstr "De bal houden"
+
+#: src/Modules/Training/Wizard/WizardContext.php:70
+msgid "Pressing and winning it back"
+msgstr "Druk zetten en heroveren"
+
+#: src/Modules/Training/Wizard/WizardContext.php:71
+msgid "Defending as a team"
+msgstr "Verdedigen als team"
+
+#: src/Modules/Training/Wizard/WizardContext.php:72
+msgid "Switching between attack and defence"
+msgstr "Omschakelen tussen aanvallen en verdedigen"
+
+#: src/Modules/Training/Wizard/WizardContext.php:73
+msgid "Countering after winning the ball"
+msgstr "Counteren na balverovering"
+
+#: src/Modules/Training/Wizard/WizardContext.php:74
+msgid "Creating and finishing chances"
+msgstr "Kansen creëren en afronden"
+
+#: src/Modules/Training/Wizard/WizardContext.php:76
+msgid "One-against-one duels"
+msgstr "Een-tegen-een duels"
+
+#: src/Modules/Training/Wizard/WizardContext.php:77
+msgid "A bit of everything"
+msgstr "Van alles wat"
+
+#: src/Modules/Training/Wizard/NewTrainingPlanWizard.php:33
+msgid "New training plan"
+msgstr "Nieuw trainingsplan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:71
+msgid "New plan"
+msgstr "Nieuw plan"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:320
+#, php-format
+msgid "Level %d"
+msgstr "Niveau %d"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:326
+msgid "Higher is harder. Each age group has its own ceiling, and the generator never proposes an exercise above it."
+msgstr "Hoger is zwaarder. Elke leeftijdscategorie heeft een eigen plafond, en de generator stelt nooit een oefening voor die daarboven zit."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:404
+msgid "Trains which principles"
+msgstr "Traint welke principes"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:433
+msgid "Hold Ctrl or Cmd to pick more than one. An exercise with no principle never gets suggested by the generator, and the time spent on it does not count towards what your players have been taught."
+msgstr "Houd Ctrl of Cmd ingedrukt om er meer te kiezen. Een oefening zonder principe wordt nooit door de generator voorgesteld, en de tijd die eraan besteed wordt telt niet mee in wat je spelers geleerd hebben."
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:447
+msgid "Attacking — build-up"
+msgstr "Aanvallen — opbouwen"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:448
+msgid "Attacking — finishing"
+msgstr "Aanvallen — scoren"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:449
+msgid "Defending — pressing"
+msgstr "Verdedigen — storen"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:450
+msgid "Defending — preventing goals"
+msgstr "Verdedigen — doelpunten voorkomen"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:451
+msgid "Transition — winning the ball"
+msgstr "Omschakelen — balwinst"
+
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:452
+msgid "Transition — losing the ball"
+msgstr "Omschakelen — balverlies"
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:132
+msgid "Pick a team to plan for."
+msgstr "Kies een team om voor te plannen."
+
+#: src/Infrastructure/REST/TrainingPlansRestController.php:156
+msgid "This training cannot be drafted as asked."
+msgstr "Deze training kan niet worden opgesteld zoals gevraagd."
+
+
+#: src/Modules/Training/Wizard/ShapeStep.php:31
+msgid "Shape"
+msgstr "Vorm"
+
 #~ msgid "Trial cases imported from an Excel workbook."
 #~ msgstr "Proefdossiers geïmporteerd uit een Excel-werkboek."
 
