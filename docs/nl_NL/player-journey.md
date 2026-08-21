@@ -42,18 +42,22 @@ Alles is **idempotent**: een evaluatie opnieuw opslaan dupliceert de regel niet.
 
 ## Blessures
 
-Blessures hebben hun eigen scherm bij de speler. Open de speler → **Blessures** om een nieuwe vast te leggen met:
+Blessures hebben hun eigen tabblad bij de speler. Open de speler → **Blessures** en kies **Blessure vastleggen**. Je legt vast:
 - Lichaamsdeel (enkel, knie, hamstring, ...)
-- Ernst (licht, matig, ernstig, seizoensbeperkend)
+- Type en ernst (licht, matig, ernstig, seizoensbeperkend)
 - Begindatum
 - Verwachte terugkeer
 - Notities
 
+Alleen de begindatum is verplicht — de rest is wat je op dat moment toevallig weet.
+
 Wanneer je een blessure vastlegt, gebeuren er twee dingen:
 1. Er komt een *Blessure ingetreden*-regel op de spelersreis (standaard alleen zichtbaar voor medische rol / hoofd opleidingen — zie Privacy hieronder).
-2. Er wordt een herinneringstaak gepland voor de hoofdcoach van de speler om te bevestigen dat de speler op schema ligt of de verwachte terugkeer bij te werken.
+2. Er wordt een herinneringstaak gepland voor de hoofdcoach van de speler om te bevestigen dat de speler op schema ligt of de verwachte terugkeer bij te werken. (Daarvoor moet de module Workflow aanstaan.)
 
-Wanneer de speler terugkomt, vul je **Werkelijke terugkeer** in en verschijnt er een *Blessure hersteld*-regel op de reis.
+Wanneer de speler terugkomt, gebruik je **Terugkeer vastleggen** en verschijnt er een *Blessure hersteld*-regel op de reis. Zolang je dat niet doet blijft de blessure openstaan en blijft de speler als niet-beschikbaar in beeld.
+
+De tegel **Blessures** geeft dezelfde gegevens op teamniveau: wie er nu uit ligt binnen jouw teams, en wie er vóór vandaag terug werd verwacht. Volledige uitleg in [Blessures](injuries.md).
 
 Het blessurerecord is **bewust minimaal**: lichaamsdeel, ernst, datums, notities en een coach-herinnering. Geen return-to-play-fasen, geen medische bijlagen, geen behandelplannen — TalentTrack volgt de ontwikkelimpact van een blessure, niet de klinische behandeling. Verwacht je fysio een medisch systeem, stel die verwachting dan vooraf bij: dit is er geen.
 

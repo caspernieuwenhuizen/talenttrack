@@ -1006,6 +1006,11 @@ class DashboardShortcode {
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
+            // #2609 — squad-wide "who is out right now". Matrix-gated on
+            // `player_injuries` read inside the view.
+            case 'injuries':
+                \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $user_id, $is_admin );
+                return true;
             // #2145 — the "Test results" analysis browser. Matrix-gated on
             // `measurements` read inside the view (and by matrixDispatchAllows
             // via the tile's `measurements` entity).

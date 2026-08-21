@@ -400,7 +400,15 @@ return array_merge(
         'player_status_breakdown'    => [ 'r',   'team',   $mod_players ],
         'player_potential'           => [ 'r',   'team',   $mod_players ],
         'player_behaviour_ratings'   => [ 'rc',  'team',   $mod_players ],
-        'player_injuries'            => [ 'r',   'team',   $mod_journey ],
+        // #2609 — `rc`, was `r`. The head coach is the person standing on
+        // the pitch when the hamstring goes, so they record the injury and
+        // set the return date; without `change` the capture surface exists
+        // for nobody who is ever there. `create_delete` stays with HoD /
+        // academy admin: deleting a minor's medical record is not a
+        // touchline decision. assistant_coach deliberately holds no
+        // `player_injuries` row at all (CLAUDE.md §1 — default to less
+        // visibility on medical data).
+        'player_injuries'            => [ 'rc',  'team',   $mod_journey ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
         'spond_integration'          => [ 'rc',  'team',   $mod_spond ],
         'strava_integration'         => [ 'rc',  'team',   $mod_strava ],

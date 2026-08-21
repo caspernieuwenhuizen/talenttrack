@@ -50029,6 +50029,137 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Bied sms aan als berichtenkanaal. Sms-bezorging vereist nog steeds een "
 #~ "providerplug-in. De andere kanalen (e-mail, push, WhatsApp-link, in-app) "
 #~ "blijven beschikbaar als dit uit staat."
+#: src/Modules/Journey/Wizards/NewInjuryWizard.php
+msgid "Record injury"
+msgstr "Blessure vastleggen"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Record return"
+msgstr "Terugkeer vastleggen"
+
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "Body part"
+msgstr "Lichaamsdeel"
+
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "Type of injury"
+msgstr "Type blessure"
+
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "Severity"
+msgstr "Ernst"
+
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "What happened"
+msgstr "Wat er gebeurde"
+
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "— Not recorded —"
+msgstr "— Niet vastgelegd —"
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Date of injury"
+msgstr "Datum van de blessure"
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Expected back"
+msgstr "Verwacht terug"
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Leave empty if you do not know yet. Setting it lets the squad overview flag the injury when the date passes."
+msgstr "Laat leeg als je het nog niet weet. Vul je het in, dan markeert het squad-overzicht de blessure zodra die datum voorbij is."
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "What happened, and anything the next coach should know. Write it as if the family will read it."
+msgstr "Wat er gebeurde, en alles wat de volgende trainer moet weten. Schrijf het alsof het gezin meeleest."
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "A date of injury is required."
+msgstr "Een datum van de blessure is verplicht."
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "The expected return cannot be before the date of injury."
+msgstr "De verwachte terugkeer kan niet vóór de datum van de blessure liggen."
+
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Could not record the injury."
+msgstr "De blessure kon niet worden vastgelegd."
+
+#: src/Modules/Journey/Wizards/InjuryPlayerStep.php
+msgid "Which player got injured?"
+msgstr "Welke speler raakte geblesseerd?"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Currently out"
+msgstr "Nu uit"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Recovered"
+msgstr "Hersteld"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Days out"
+msgstr "Dagen uit"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Not set"
+msgstr "Niet ingesteld"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "You do not have permission to view injuries."
+msgstr "Je hebt geen rechten om blessures te bekijken."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Nobody is currently out injured. That is the answer, not missing data."
+msgstr "Er ligt op dit moment niemand geblesseerd uit. Dat is het antwoord, geen ontbrekende gegevens."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "No injuries match your filters."
+msgstr "Geen blessures die aan je filters voldoen."
+
+#: src/Modules/Journey/JourneyModule.php
+msgid "Who is out right now, since when, and who was due back."
+msgstr "Wie er nu uit ligt, sinds wanneer, en wie er terug werd verwacht."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Injuries are not in your scope"
+msgstr "Blessures vallen buiten jouw bereik"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Injury records are medical data and stay with the coaching staff responsible for this player. Talk to your academy admin if you should have access."
+msgstr "Blessuregegevens zijn medische gegevens en blijven bij de staf die voor deze speler verantwoordelijk is. Overleg met je academiebeheerder als je toegang hoort te hebben."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No injuries recorded"
+msgstr "Geen blessures vastgelegd"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Recording an injury puts it on this player's journey, so a coach reading the file next season can see what they came back from."
+msgstr "Een blessure vastleggen zet haar op de reis van deze speler, zodat een trainer die het dossier volgend seizoen leest ziet waarvan hij is teruggekomen."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Return date not set"
+msgstr "Terugkeerdatum niet ingesteld"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Expected back %s"
+msgstr "Verwacht terug %s"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Date the player returned to play (yyyy-mm-dd):"
+msgstr "Datum waarop de speler weer meedeed (jjjj-mm-dd):"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Could not save the return date. Try again."
+msgstr "De terugkeerdatum kon niet worden opgeslagen. Probeer opnieuw."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Enter the date as yyyy-mm-dd."
+msgstr "Voer de datum in als jjjj-mm-dd."
+
+#: src/Infrastructure/REST/PlayerJourneyRestController.php
+msgid "You cannot record injuries for this player."
+msgstr "Je kunt voor deze speler geen blessures vastleggen."
 
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"

@@ -239,6 +239,12 @@ final class LegacyCapMapper {
         // #0071 — Already-declared module caps that finally have a
         // matrix entity to bridge to.
         'tt_view_player_medical'         => [ 'player_injuries',       'read' ],
+        // #2609 — the write counterpart. The injury REST routes previously
+        // carried the view cap on their POST/PUT/DELETE callbacks, so a
+        // read grant was nominally gating a write; the handlers' own
+        // per-player check was doing all the work. This gives the write
+        // routes a capability that means what they do.
+        'tt_edit_player_medical'         => [ 'player_injuries',       'change' ],
         'tt_view_player_safeguarding'    => [ 'safeguarding_notes',    'read' ],
         'tt_manage_trials'               => [ 'trial_cases',           'create_delete' ],
         'tt_submit_trial_input'          => [ 'trial_inputs',          'change' ],
