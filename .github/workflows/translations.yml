@@ -20,10 +20,15 @@ jobs:
     name: Validate .po syntax
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
       - name: Verify each .po file compiles
         run: |
           set -e
@@ -63,12 +68,17 @@ jobs:
     name: Auto-compile .po → .mo
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
       - name: Regenerate .mo files
         run: |
           for po in languages/*.po; do

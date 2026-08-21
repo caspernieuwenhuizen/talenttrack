@@ -48,6 +48,7 @@ jobs:
   sync-pot:
     name: Regenerate .pot + msgmerge into .po
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -60,7 +61,11 @@ jobs:
           tools: wp-cli
 
       - name: Install gettext (for msgmerge)
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
 
       # `wp i18n make-pot` is WordPress's official .pot generator —
       # it understands the gettext keyword conventions

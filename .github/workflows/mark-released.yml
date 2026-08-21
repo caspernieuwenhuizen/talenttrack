@@ -24,6 +24,7 @@ jobs:
   flip-status:
     name: Flip referenced issues to Released
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:

@@ -35,6 +35,7 @@ jobs:
   report:
     name: Refresh .pot, msgmerge, file/update tracking issue
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -48,7 +49,11 @@ jobs:
           tools: wp-cli
 
       - name: Install gettext (msgmerge / msgattrib)
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
 
       # Refresh the .pot from PHP source so msgmerge has a current
       # template to compare each locale against. We write to a temp

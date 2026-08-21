@@ -39,6 +39,7 @@ jobs:
   auto-release:
     name: Publish release for the version on main
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -70,7 +71,11 @@ jobs:
 
       - name: Install gettext
         if: steps.exists.outputs.exists == 'false'
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
 
       - name: Setup PHP
         if: steps.exists.outputs.exists == 'false'

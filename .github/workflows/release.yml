@@ -17,6 +17,7 @@ jobs:
   lint:
     name: PHP Syntax Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Setup PHP
@@ -46,6 +47,7 @@ jobs:
   phpstan:
     name: PHPStan Static Analysis (level 8)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Setup PHP
@@ -63,6 +65,7 @@ jobs:
   admin-center-self-check:
     name: Admin Center payload self-check (#0065)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Setup PHP
@@ -75,6 +78,7 @@ jobs:
   legacy-sessions-gate:
     name: No legacy 'sessions' strings (#0035)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Verify no Sessions terminology snuck back in
@@ -276,6 +280,7 @@ jobs:
   docs-audience:
     name: Docs audience declaration (#0029, #2544)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Verify every docs/*.md declares an audience
@@ -319,10 +324,15 @@ jobs:
     needs: [lint]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - name: Install gettext
-        run: sudo apt-get update && sudo apt-get install -y gettext
+        run: |
+          sudo apt-get update -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
+          sudo apt-get install -y gettext -o Acquire::Retries=3 \
+            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:

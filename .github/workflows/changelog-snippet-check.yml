@@ -31,6 +31,7 @@ jobs:
   snippet-present:
     name: changelog.d snippet present
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
