@@ -48,7 +48,7 @@ final class ShapeStep implements WizardStepInterface {
         echo '<p class="description">' . esc_html( self::sourceHint( $squad ) ) . '</p>';
 
         echo '<p class="description">'
-            . esc_html__( 'The age group sets its own ceiling on how hard and how long a training may be. If what you ask for goes past it, the next step says so rather than quietly trimming it.', 'talenttrack' )
+            . esc_html__( 'The age group sets its own ceiling on how hard and how long a training may be, and its own shape for how the time is divided. The draft can therefore come out a little longer or shorter than you type here — the next step tells you when it does, rather than quietly changing it on you.', 'talenttrack' )
             . '</p>';
     }
 

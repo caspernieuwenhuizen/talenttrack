@@ -49402,8 +49402,8 @@ msgid "Players you expect"
 msgstr "Spelers die je verwacht"
 
 #: src/Modules/Training/Wizard/ShapeStep.php:50
-msgid "The age group sets its own ceiling on how hard and how long a training may be. If what you ask for goes past it, the next step says so rather than quietly trimming it."
-msgstr "De leeftijdscategorie heeft een eigen plafond voor hoe zwaar en hoe lang een training mag zijn. Vraag je meer, dan zegt de volgende stap dat — in plaats van het stilletjes bij te knippen."
+msgid "The age group sets its own ceiling on how hard and how long a training may be, and its own shape for how the time is divided. The draft can therefore come out a little longer or shorter than you type here — the next step tells you when it does, rather than quietly changing it on you."
+msgstr "De leeftijdscategorie heeft een eigen plafond voor hoe zwaar en hoe lang een training mag zijn, en een eigen opbouw voor hoe de tijd wordt verdeeld. Het concept kan daardoor iets langer of korter uitvallen dan wat je hier invult — de volgende stap zegt het wanneer dat gebeurt, in plaats van het stilletjes aan te passen."
 
 #: src/Modules/Training/Wizard/ShapeStep.php:59
 #, php-format
@@ -49436,9 +49436,18 @@ msgstr "Voorstel"
 msgid "This training cannot be drafted as asked:"
 msgstr "Deze training kan niet worden opgesteld zoals gevraagd:"
 
+#: src/Modules/Training/Wizard/ProposalStep.php:118
+#, php-format
+msgid "You asked for %1$d minutes; this draft comes out at %2$d. The blocks follow the age group's training shape, so the total is not always the length you typed."
+msgstr "Je vroeg om %1$d minuten; dit concept komt uit op %2$d. De blokken volgen de trainingsopbouw van de leeftijdscategorie, dus het totaal is niet altijd de duur die je invulde."
+
+#: src/Modules/Training/Wizard/ProposalStep.php:143
+msgid "This training cannot be drafted as asked. Go back and change the length or the theme."
+msgstr "Deze training kan niet worden opgesteld zoals gevraagd. Ga terug en pas de duur of het thema aan."
+
 #: src/Modules/Training/Wizard/ProposalStep.php:37
-msgid "Go back and change the length or the theme, or ask an academy admin to check this age group's settings."
-msgstr "Ga terug en pas de duur of het thema aan, of vraag een academy-beheerder om de instellingen van deze leeftijdscategorie na te kijken."
+msgid "Go back and change the length or the theme. If that does not help, this team cannot be drafted for automatically yet — build the training by hand instead."
+msgstr "Ga terug en pas de duur of het thema aan. Helpt dat niet, dan kan voor dit team nog geen concept worden opgesteld — stel de training dan zelf samen."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:47
 #, php-format
@@ -49475,8 +49484,8 @@ msgid "This team has no usable age group, so exercises cannot be checked as age-
 msgstr "Dit team heeft geen bruikbare leeftijdscategorie, dus oefeningen kunnen niet op leeftijdsveiligheid worden gecontroleerd."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:120
-msgid "This age group has no profile, so there is no intensity ceiling to plan inside."
-msgstr "Deze leeftijdscategorie heeft geen profiel, dus er is geen intensiteitsplafond om binnen te plannen."
+msgid "This age group has no training profile yet, so there is no age-safe intensity ceiling to plan inside. Only age groups that have a profile can be drafted automatically."
+msgstr "Deze leeftijdscategorie heeft nog geen trainingsprofiel, dus er is geen leeftijdsveilig intensiteitsplafond om binnen te plannen. Alleen leeftijdscategorieën met een profiel kunnen automatisch worden opgesteld."
 
 #: src/Modules/Training/Wizard/ProposalStep.php:122
 msgid "This training pushes the team past its planned load for the week."

@@ -8,7 +8,9 @@ use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Training\Rules\TrainingExerciseSelectionPass;
 use TT\Modules\Training\Services\SquadSizeEstimator;
+use TT\Modules\Training\Services\TrainingPlanComposer;
 use TT\Modules\Training\Wizard\NewTrainingPlanWizard;
+use TT\Modules\Training\Wizard\ProposalStep;
 use TT\Modules\Vct\Rules\SessionPlanContext;
 
 /**
@@ -202,6 +204,88 @@ final class TrainingGeneratorTest extends WP_UnitTestCase {
 
         $this->assertSame( 'block', $ctx->warnings[0]['severity'] );
         $this->assertSame( [], $ctx->blocks, 'nothing is composed when age safety cannot be judged' );
+    }
+
+    /**
+     * The dead-end this closes: the proposal step renders "this training
+     * cannot be drafted", but its Next button used to advance anyway, so
+     * a coach would name the plan on the review step and only learn at
+     * Save that it was never going to exist.
+     */
+    public function test_a_blocked_draft_holds_the_coach_on_the_proposal_step(): void {
+        $step  = new ProposalStep();
+        $state = [
+            'team_id'                    => 0,
+            'age_group'                  => 'seniors',
+            'session_date'               => '2026-08-26',
+            'tactical_theme'             => 'build_up',
+            'requested_duration_minutes' => 75,
+            'roster_player_ids'          => [],
+        ];
+
+        $result = $step->validate( [], $state );
+
+        $this->assertInstanceOf( \WP_Error::class, $result );
+        $this->assertSame( 'draft_blocked', $result->get_error_code() );
+        $this->assertNotEmpty(
+            $result->get_error_message(),
+            'the reason the engine blocked is what the coach needs to read, not a bare code'
+        );
+    }
+
+    /**
+     * The shape step asks for a length, but the engine composes from the
+     * age group's slot template and reports whatever the slots summed to
+     * — ask for 75 and a U13 draft lands on 90. That is the engine's
+     * behaviour, not a bug to paper over, so the draft says it out loud.
+     */
+    public function test_a_draft_that_misses_the_requested_length_says_so(): void {
+        $warnings = $this->lengthNotice(
+            [ [ 'duration_minutes' => 45 ], [ 'duration_minutes' => 45 ] ],
+            [ 'requested_duration_minutes' => 75 ]
+        );
+
+        $this->assertCount( 1, $warnings );
+        $this->assertSame( 'drafted_length_differs', $warnings[0]['code'] );
+        $this->assertSame( 'caution', $warnings[0]['severity'], 'a length difference is the coach\'s call, not a block' );
+        $this->assertSame( 75, $warnings[0]['requested'] );
+        $this->assertSame( 90, $warnings[0]['drafted'] );
+
+        $text = ProposalStep::warningText( 'drafted_length_differs', $warnings[0] );
+        $this->assertStringContainsString( '75', $text );
+        $this->assertStringContainsString( '90', $text );
+    }
+
+    public function test_a_few_minutes_of_slot_rounding_is_not_worth_a_notice(): void {
+        $this->assertSame(
+            [],
+            $this->lengthNotice(
+                [ [ 'duration_minutes' => 38 ], [ 'duration_minutes' => 40 ] ],
+                [ 'requested_duration_minutes' => 75 ]
+            ),
+            'three minutes is rounding between slots, not something to plan around'
+        );
+
+        $this->assertSame(
+            [],
+            $this->lengthNotice(
+                [ [ 'duration_minutes' => 90 ] ],
+                [ 'requested_duration_minutes' => 0 ]
+            ),
+            'no requested length means nothing to compare against'
+        );
+    }
+
+    /**
+     * @param list<array<string,mixed>> $blocks
+     * @param array<string,mixed>       $payload
+     * @return list<array<string,mixed>>
+     */
+    private function lengthNotice( array $blocks, array $payload ): array {
+        $method = new \ReflectionMethod( TrainingPlanComposer::class, 'withLengthNotice' );
+        $method->setAccessible( true );
+
+        return (array) $method->invoke( null, $blocks, [], $payload );
     }
 
     // ---- goals read API ---------------------------------------------------

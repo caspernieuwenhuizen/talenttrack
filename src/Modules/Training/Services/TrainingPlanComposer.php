@@ -98,7 +98,7 @@ final class TrainingPlanComposer {
 
         return [
             'blocks'   => $ctx->blocks,
-            'warnings' => $ctx->warnings,
+            'warnings' => self::withLengthNotice( $ctx->blocks, $ctx->warnings, $payload ),
             'coverage' => $this->coverageFor( $ctx->blocks, $roster ),
             'blocked'  => $this->isBlocked( $ctx ),
         ];
@@ -145,6 +145,42 @@ final class TrainingPlanComposer {
         ) );
 
         return [ 'plan_id' => $plan_id, 'warnings' => $draft['warnings'], 'coverage' => $draft['coverage'] ];
+    }
+
+    /**
+     * The engine composes from a slot template and reports whatever the
+     * slots summed to; the requested length only ever acted as a ceiling
+     * check against the age profile. So a coach who asks for 75 minutes
+     * can be handed a 90-minute draft.
+     *
+     * Rather than let the wizard imply a promise the engine does not
+     * keep, say so. A coach with the pitch booked for an hour needs to
+     * see the difference, not discover it at the last cone.
+     *
+     * @param list<array<string,mixed>> $blocks
+     * @param list<array<string,mixed>> $warnings
+     * @param array<string,mixed>       $payload
+     * @return list<array<string,mixed>>
+     */
+    private static function withLengthNotice( array $blocks, array $warnings, array $payload ): array {
+        $requested = (int) ( $payload['requested_duration_minutes'] ?? 0 );
+        if ( $requested <= 0 || $blocks === [] ) return $warnings;
+
+        $drafted = 0;
+        foreach ( $blocks as $block ) $drafted += (int) ( $block['duration_minutes'] ?? 0 );
+
+        // Five minutes either way is rounding between slots, not a
+        // difference a coach would plan around.
+        if ( abs( $drafted - $requested ) <= 5 ) return $warnings;
+
+        $warnings[] = [
+            'code'      => 'drafted_length_differs',
+            'severity'  => 'caution',
+            'requested' => $requested,
+            'drafted'   => $drafted,
+        ];
+
+        return $warnings;
     }
 
     // ---- context ---------------------------------------------------------

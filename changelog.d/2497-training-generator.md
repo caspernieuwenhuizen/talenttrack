@@ -20,6 +20,17 @@ out.
 The last screen tells you which players' open goals the session actually works
 on, by name.
 
+Where a training cannot be drafted at all — an age group with no training
+profile, so there is no age-safe intensity ceiling to plan inside — the wizard
+now says so on the proposal screen and keeps you there, next to the Back button
+that can fix it. It no longer walks you on to name a plan that was never going
+to save.
+
+The length you type is a request, not a guarantee: the blocks follow the age
+group's training shape, so a 75-minute ask can come out at 90. When the draft
+misses what you asked for by more than a few minutes, it tells you both
+numbers rather than letting you find out on the pitch.
+
 **Exercises now carry the principles they train.** The library's form gained a
 "trains which principles" field, and exercises that already had a tactical
 theme were linked automatically — 63 of them, across both shipped

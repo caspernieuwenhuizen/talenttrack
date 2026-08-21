@@ -35,7 +35,7 @@ final class ProposalStep implements WizardStepInterface {
                 echo '<li>' . esc_html( self::warningText( (string) $warning['code'] ) ) . '</li>';
             }
             echo '</ul><p>'
-                . esc_html__( 'Go back and change the length or the theme, or ask an academy admin to check this age group\'s settings.', 'talenttrack' )
+                . esc_html__( 'Go back and change the length or the theme. If that does not help, this team cannot be drafted for automatically yet — build the training by hand instead.', 'talenttrack' )
                 . '</p>';
             return;
         }
@@ -68,7 +68,7 @@ final class ProposalStep implements WizardStepInterface {
 
         foreach ( $draft['warnings'] as $warning ) {
             if ( ( $warning['severity'] ?? '' ) === 'block' ) continue;
-            echo '<p class="description">' . esc_html( self::warningText( (string) $warning['code'] ) ) . '</p>';
+            echo '<p class="description">' . esc_html( self::warningText( (string) $warning['code'], $warning ) ) . '</p>';
         }
 
         echo '<p class="description">'
@@ -112,8 +112,15 @@ final class ProposalStep implements WizardStepInterface {
      * unmapped code falls back to its own name rather than being
      * swallowed — a warning nobody can read is worse than an ugly one.
      */
-    public static function warningText( string $code ): string {
+    public static function warningText( string $code, array $warning = [] ): string {
         switch ( $code ) {
+            case 'drafted_length_differs':
+                return sprintf(
+                    /* translators: 1: minutes the coach asked for, 2: minutes the draft came out at. */
+                    __( 'You asked for %1$d minutes; this draft comes out at %2$d. The blocks follow the age group\'s training shape, so the total is not always the length you typed.', 'talenttrack' ),
+                    (int) ( $warning['requested'] ?? 0 ),
+                    (int) ( $warning['drafted'] ?? 0 )
+                );
             case 'no_candidate_for_slot':
                 return __( 'One part of the training has no matching exercise in your library yet. It is left blank for you to fill in.', 'talenttrack' );
             case 'no_macro_block_configured':
@@ -121,7 +128,7 @@ final class ProposalStep implements WizardStepInterface {
             case 'unrecognised_age_group_for_selection':
                 return __( 'This team has no usable age group, so exercises cannot be checked as age-safe.', 'talenttrack' );
             case 'missing_age_profile':
-                return __( 'This age group has no profile, so there is no intensity ceiling to plan inside.', 'talenttrack' );
+                return __( 'This age group has no training profile yet, so there is no age-safe intensity ceiling to plan inside. Only age groups that have a profile can be drafted automatically.', 'talenttrack' );
             case 'over_weekly_envelope':
                 return __( 'This training pushes the team past its planned load for the week.', 'talenttrack' );
             case 'insufficient_recovery':
@@ -132,7 +139,31 @@ final class ProposalStep implements WizardStepInterface {
         return $code;
     }
 
-    public function validate( array $post, array $state ) { return []; }
+    /**
+     * Nothing is entered on this step, but it is still the place to
+     * refuse a draft the engine has blocked.
+     *
+     * Without this, a coach reading "this training cannot be drafted"
+     * could still click Next, name the plan on the review step, press
+     * Save — and only then be told, having typed a title for a plan that
+     * was never going to exist. Returning a WP_Error keeps them here,
+     * next to the Back button that can actually fix it.
+     */
+    public function validate( array $post, array $state ) {
+        $draft = ( new TrainingPlanComposer() )->preview( self::payloadFrom( $state ) );
+        if ( empty( $draft['blocked'] ) ) return [];
+
+        foreach ( $draft['warnings'] as $warning ) {
+            if ( ( $warning['severity'] ?? '' ) === 'block' ) {
+                return new \WP_Error( 'draft_blocked', self::warningText( (string) $warning['code'] ) );
+            }
+        }
+
+        return new \WP_Error(
+            'draft_blocked',
+            __( 'This training cannot be drafted as asked. Go back and change the length or the theme.', 'talenttrack' )
+        );
+    }
 
     public function nextStep( array $state ): ?string { return 'review'; }
 
