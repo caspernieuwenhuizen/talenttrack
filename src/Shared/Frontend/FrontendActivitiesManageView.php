@@ -233,7 +233,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // only: a match has match prep and the live-match surface,
                 // and a meeting has neither. The label carries the state
                 // so the button does not lie about what is behind it —
-                // "Run this training" for a fresh one, "Open the session"
+                // "Run this training" for a fresh one, "Continue this training"
                 // when a plan is already attached, which is what the REST
                 // contract's 200-not-201 means in the UI (#2499).
                 if ( $type_key === ActivityTypeKey::TRAINING
@@ -252,7 +252,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
                     $detail_actions[] = [
                         'label' => $run
-                            ? __( 'Open the session', 'talenttrack' )
+                            ? __( 'Continue this training', 'talenttrack' )
                             : __( 'Run this training', 'talenttrack' ),
                         'href'  => $run_url,
                     ];

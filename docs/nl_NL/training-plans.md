@@ -199,7 +199,7 @@ Het plan wordt **op de training gekopieerd zoals het op dat moment is**. Alles
 wat daarna volgt leest die kopie, dus als je het plan later aanpast — ook
 dezelfde avond nog — verandert er niets aan wat de training heeft vastgelegd.
 
-Hangt er al een plan aan, dan staat er **Open de sessie** en ga je er direct
+Hangt er al een plan aan, dan staat er **Ga verder met deze training** en ga je direct
 naartoe. Twee keer koppelen is geen fout en overschrijft de eerste kopie
 nooit: een training die al geweest is houdt zijn eigen registratie.
 

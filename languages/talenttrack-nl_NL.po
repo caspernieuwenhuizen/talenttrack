@@ -50022,8 +50022,8 @@ msgid "You do not have access to print this training plan."
 msgstr "Je hebt geen toegang om dit trainingsplan af te drukken."
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:258
-msgid "Open the session"
-msgstr "Open de sessie"
+msgid "Continue this training"
+msgstr "Ga verder met deze training"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:259
 msgid "Run this training"

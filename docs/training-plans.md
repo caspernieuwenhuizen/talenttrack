@@ -194,7 +194,7 @@ The plan is **copied onto the training as it is at that moment**. Everything
 that follows reads that copy, so editing the plan afterwards — even the same
 evening — never changes what the training recorded.
 
-If the training already has a plan the button says **Open the session**
+If the training already has a plan the button says **Continue this training**
 instead, and takes you straight to it. Attaching twice is not an error and
 never replaces the first copy: a training that already happened keeps its own
 record.
