@@ -185,14 +185,7 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
                 'intensity_band' => [
                     'type'    => 'select',
                     'label'   => __( 'Intensity', 'talenttrack' ),
-                    'options' => [
-                        ''  => __( 'Any intensity', 'talenttrack' ),
-                        '1' => __( '1 — recovery', 'talenttrack' ),
-                        '2' => __( '2 — low', 'talenttrack' ),
-                        '3' => __( '3 — moderate', 'talenttrack' ),
-                        '4' => __( '4 — high', 'talenttrack' ),
-                        '5' => __( '5 — maximum', 'talenttrack' ),
-                    ],
+                    'options' => self::intensityOptions(),
                 ],
             ],
             'search'       => [ 'placeholder' => __( 'Search by name, code or description…', 'talenttrack' ) ],
@@ -314,19 +307,27 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         self::field( 'players_min', __( 'Smallest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
         self::field( 'players_max', __( 'Largest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
 
-        echo '<label class="tt-field"><span>' . esc_html__( 'Intensity', 'talenttrack' ) . '</span>';
-        echo '<select name="intensity_band">';
+        // 1–10, matching the ten seeded `vct_intensity_band` lookup rows
+        // and the age profiles, which cap U13/U14 at 7. An earlier 1–5
+        // select here did not just mislabel: saving through it clamped a
+        // band 6–7 exercise down to 5.
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field__label" for="tt-ex-band">' . esc_html__( 'Intensity', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-ex-band" name="intensity_band">';
         echo '<option value="">' . esc_html__( '— not set —', 'talenttrack' ) . '</option>';
-        foreach ( [
-            1 => __( '1 — recovery', 'talenttrack' ),
-            2 => __( '2 — low', 'talenttrack' ),
-            3 => __( '3 — moderate', 'talenttrack' ),
-            4 => __( '4 — high', 'talenttrack' ),
-            5 => __( '5 — maximum', 'talenttrack' ),
-        ] as $value => $label ) {
-            printf( '<option value="%d">%s</option>', (int) $value, esc_html( (string) $label ) );
+        for ( $band = 1; $band <= 10; $band++ ) {
+            printf(
+                '<option value="%1$d">%2$s</option>',
+                $band,
+                /* translators: %d is an intensity level from 1 to 10. */
+                esc_html( sprintf( __( 'Level %d', 'talenttrack' ), $band ) )
+            );
         }
-        echo '</select></label>';
+        echo '</select>';
+        echo '<p class="tt-field__hint">'
+            . esc_html__( 'Higher is harder. Each age group has its own ceiling, and the generator never proposes an exercise above it.', 'talenttrack' )
+            . '</p>';
+        echo '</div>';
 
         echo '<label class="tt-field tt-field--full"><span>' . esc_html__( 'Description and organisation', 'talenttrack' ) . '</span>';
         echo '<textarea name="description" rows="4"></textarea></label>';
@@ -447,6 +448,20 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             esc_attr( $name ),
             $extra // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — each attribute escaped above.
         );
+    }
+
+    /**
+     * The ten intensity bands, as filter options.
+     *
+     * @return array<string,string>
+     */
+    private static function intensityOptions(): array {
+        $out = [ '' => __( 'Any intensity', 'talenttrack' ) ];
+        for ( $band = 1; $band <= 10; $band++ ) {
+            /* translators: %d is an intensity level from 1 to 10. */
+            $out[ (string) $band ] = sprintf( __( 'Level %d', 'talenttrack' ), $band );
+        }
+        return $out;
     }
 
     /**

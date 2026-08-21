@@ -65,13 +65,49 @@ again.
 If a team is deleted, its plans are not deleted with it. They lose their team
 and become club-wide, so a coach's work survives a season rollover.
 
+## Making a plan
+
+Press **New plan**. Four short questions, then a finished session:
+
+1. **When** — the team and the date. The age group, how many days until the
+   next match and where you are in the season are worked out for you.
+2. **Theme** — what the session is about. Each option shows how many exercises
+   your library can offer for it, so you are never sent down a path with
+   nothing behind it.
+3. **Shape** — how long, and how many players you expect. The number of
+   players comes from this team's recent attendance rather than its squad
+   list, because a sixteen-player squad rarely puts sixteen on the pitch.
+   Change it whenever you know better — a school trip is not in the data.
+4. **Proposal** — the draft. Go back and change anything; nothing is saved
+   until you say so.
+5. **Review** — which players' open goals this session works on, then save.
+
+### What the generator will and will not do
+
+- **Every exercise comes from your library.** Nothing is invented.
+- **Nothing goes above the age group's intensity ceiling.** A U13 session
+  never proposes an exercise harder than U13 allows.
+- **The same answers always give the same session.** It is not shuffling.
+- **A drill never appears twice in one session.**
+- **If your library has nothing suitable for part of the session, that block
+  is left blank and says so** rather than being padded out with something
+  that does not fit.
+
+### Why some sessions suit your players better than others
+
+The generator prefers exercises that train a principle your players actually
+have open goals on — a drill six of them need beats one nobody is working on.
+
+That needs two things linked: exercises tagged with the principles they train
+(the library's **trains which principles** field, filled in automatically for
+exercises that already had a theme), and goals that name a principle. Until a
+squad's goals name principles, the review step says so plainly rather than
+showing a confident zero.
+
 ## What is not here yet
 
-This release ships the plan record, the list and the read-only detail. Still
-to come, in order:
+Still to come, in order:
 
-- building and editing a plan from the exercise library
-- the generator that proposes a plan from your theme, your periodisation
-  week and your players' open goals
+- editing a generated plan block by block
 - attaching a plan to a training, the sideline view and the A4 print
 - the per-player training history that all of it feeds

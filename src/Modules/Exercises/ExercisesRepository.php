@@ -545,7 +545,13 @@ final class ExercisesRepository {
         // judged age-safe. Values are clamped rather than trusted so a
         // REST caller cannot store an intensity of 47.
         $ranges = [
-            'intensity_band'       => [ 1, 5 ],
+            // 1–10, not 1–5. VCT seeds ten `vct_intensity_band` lookup
+            // rows, the merged catalogue uses bands up to 7, and the U13
+            // and U14 age profiles cap at 7. Clamping to 5 here silently
+            // downgraded any band 6–7 exercise the moment it was saved
+            // through the library form (#2495 shipped that bug; caught
+            // while verifying the generator in #2497).
+            'intensity_band'       => [ 1, 10 ],
             'duration_minutes_min' => [ 0, 240 ],
             'duration_minutes_max' => [ 0, 240 ],
             'players_min'          => [ 1, 40 ],

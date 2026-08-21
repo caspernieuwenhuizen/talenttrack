@@ -317,6 +317,11 @@ final class TrainingPlanComposer {
 
     /** @param array<string,mixed> $payload */
     private function titleFor( array $payload ): string {
+        // The wizard's review step lets a coach name the plan; anything
+        // they typed wins over the derived title.
+        $given = trim( (string) ( $payload['title'] ?? '' ) );
+        if ( $given !== '' ) return mb_substr( $given, 0, 190 );
+
         $theme = (string) ( $payload['tactical_theme'] ?? '' );
         $date  = (string) ( $payload['session_date'] ?? '' );
 
