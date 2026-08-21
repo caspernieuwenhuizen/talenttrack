@@ -66,7 +66,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             );
             echo '<p class="tt-pipeline-cta">'
                 . '<a class="tt-btn tt-btn-primary" href="' . esc_url( $wizard_url ) . '">'
-                . esc_html__( '+ New prospect', 'talenttrack' )
+                . esc_html__( 'Add prospect', 'talenttrack' )
                 . '</a></p>';
         }
 

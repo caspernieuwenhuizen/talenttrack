@@ -392,7 +392,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         $url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'measurement', '' );
         if ( $url === '' ) return;
         echo '<p class="tt-me-newtest"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">'
-            . esc_html__( '+ New test', 'talenttrack' ) . '</a></p>';
+            . esc_html__( 'Add test', 'talenttrack' ) . '</a></p>';
     }
 
     private static function enqueueViewCss(): void {

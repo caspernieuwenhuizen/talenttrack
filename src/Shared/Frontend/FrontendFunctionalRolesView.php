@@ -64,7 +64,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $fr_label = __( 'Functional roles', 'talenttrack' );
         if ( $tab === 'assignments' && $action === 'new' ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                __( 'New assignment', 'talenttrack' ),
+                __( 'Add assignment', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'functional-roles', $fr_label, [ 'tab' => 'assignments' ] ) ]
             );
         } elseif ( $tab === 'assignments' && $action === 'edit' ) {
@@ -82,7 +82,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         if ( $tab === 'assignments' && $action === 'new' ) {
-            self::renderHeader( __( 'New assignment', 'talenttrack' ) );
+            self::renderHeader( __( 'Add assignment', 'talenttrack' ) );
             self::renderAssignmentForm( $user_id, $is_admin );
             return;
         }
@@ -123,7 +123,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         }
 
         if ( $tab === 'types' && $action === 'new' ) {
-            self::renderHeader( __( 'New role type', 'talenttrack' ) );
+            self::renderHeader( __( 'Add role type', 'talenttrack' ) );
             self::renderRoleTypeForm( null );
             return;
         }
@@ -166,7 +166,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $new_url = add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'types', 'action' => 'new' ], $base );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New role type', 'talenttrack' )
+            . esc_html__( 'Add role type', 'talenttrack' )
             . '</a></p>';
 
         $roles = ( new FunctionalRolesRepository() )->listRoles();
@@ -218,7 +218,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                             $base
                         );
                         echo '<a class="tt-list-table-action" href="' . esc_url( $assign_url ) . '">'
-                            . esc_html__( '+ Assign', 'talenttrack' )
+                            . esc_html__( 'Assign', 'talenttrack' )
                             . '</a>';
                     }
                     ?>
@@ -291,7 +291,7 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
         $new_url = add_query_arg( [ 'tt_view' => 'functional-roles', 'tab' => 'assignments', 'action' => 'new' ], $base );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
-            . esc_html__( 'New assignment', 'talenttrack' )
+            . esc_html__( 'Add assignment', 'talenttrack' )
             . '</a></p>';
 
         $role_options = [];

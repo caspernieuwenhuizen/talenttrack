@@ -59,7 +59,7 @@ final class SubPrinciplesManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New sub-principle', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add sub-principle', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $rows = ( new SubPrinciplesRepository() )->listFiltered();

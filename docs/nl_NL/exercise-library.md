@@ -22,7 +22,7 @@ Zoek op naam, code of omschrijving, en verfijn met de filters:
 
 ## Zelf een oefening toevoegen
 
-Open **+ Nieuwe oefening**. Alleen de naam is verplicht; de rest helpt de
+Open **Oefening toevoegen**. Alleen de naam is verplicht; de rest helpt de
 generator later een goede keuze te maken, dus vul in wat je weet:
 
 | Veld | Wat het doet |

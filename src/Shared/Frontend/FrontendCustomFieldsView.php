@@ -32,7 +32,7 @@ class FrontendCustomFieldsView extends FrontendViewBase {
         $cf_label = __( 'Custom fields', 'talenttrack' );
         if ( $action === 'new' || $id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                $action === 'new' ? __( 'New custom field', 'talenttrack' ) : __( 'Edit custom field', 'talenttrack' ),
+                $action === 'new' ? __( 'Add field', 'talenttrack' ) : __( 'Edit custom field', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'custom-fields', $cf_label ) ]
             );
         } else {
@@ -40,7 +40,7 @@ class FrontendCustomFieldsView extends FrontendViewBase {
         }
 
         if ( $action === 'new' ) {
-            self::renderHeader( __( 'New custom field', 'talenttrack' ) );
+            self::renderHeader( __( 'Add field', 'talenttrack' ) );
             self::renderForm( null );
             return;
         }
@@ -64,7 +64,7 @@ class FrontendCustomFieldsView extends FrontendViewBase {
         $new  = add_query_arg( [ 'tt_view' => 'custom-fields', 'action' => 'new' ], $base );
 
         echo '<p style="margin:0 0 var(--tt-sp-3, 12px);"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new ) . '">'
-            . esc_html__( 'New custom field', 'talenttrack' )
+            . esc_html__( 'Add field', 'talenttrack' )
             . '</a></p>';
 
         $entity_options = [];

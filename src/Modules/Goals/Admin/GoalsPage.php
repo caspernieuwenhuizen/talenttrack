@@ -111,7 +111,7 @@ class GoalsPage {
         <div class="wrap">
             
             <?php BackButton::render( admin_url( 'admin.php?page=tt-goals' ) ); ?>
-            <h1><?php echo $goal ? esc_html__( 'Edit Goal', 'talenttrack' ) : esc_html__( 'Add Goal', 'talenttrack' ); ?></h1>
+            <h1><?php echo $goal ? esc_html__( 'Edit Goal', 'talenttrack' ) : esc_html__( 'Add goal', 'talenttrack' ); ?></h1>
 
             <?php if ( ! empty( $_GET['tt_cf_error'] ) ) : ?>
                 <div class="notice notice-warning is-dismissible">

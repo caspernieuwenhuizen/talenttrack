@@ -84,7 +84,7 @@ class AddProspectHeroWidget extends AbstractWidget {
             . '<div class="tt-pd-hero-detail">' . esc_html( $detail ) . '</div>'
             . '<div class="tt-pd-hero-cta-row">'
             . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $wizard_url ) . '">'
-            . esc_html__( '+ Scouting find', 'talenttrack' )
+            . esc_html__( 'Add find', 'talenttrack' )
             . '</a>'
             // v3.110.147 — secondary hero link rendered as a ghost
             // button (translucent white on the dark gradient) rather

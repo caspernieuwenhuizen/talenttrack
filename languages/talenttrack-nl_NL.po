@@ -7386,7 +7386,7 @@ msgstr ""
 "Eén per regel — e-mailadressen of WordPress-rolkeys (bijv. tt_head_dev)."
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:152
-msgid "Create schedule"
+msgid "Add schedule"
 msgstr "Schema aanmaken"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:162
@@ -10039,7 +10039,7 @@ msgid "Compare"
 msgstr "Vergelijk"
 
 #: src/Modules/Authorization/Admin/UserComparisonPage.php:105
-msgid "+ Add another user"
+msgid "Add user"
 msgstr "+ Voeg gebruiker toe"
 
 #: src/Modules/Authorization/Admin/UserComparisonPage.php:149
@@ -13497,7 +13497,7 @@ msgid "No custom fields defined yet."
 msgstr "Nog geen aangepaste velden gedefinieerd."
 
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:113
-msgid "Save Order"
+msgid "Save order"
 msgstr "Volgorde opslaan"
 
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:114
@@ -18141,10 +18141,6 @@ msgstr "Dat lukte niet. Probeer het zo nog eens."
 msgid "Working…"
 msgstr "Bezig…"
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:289
-msgid "+ New exercise"
-msgstr "+ Nieuwe oefening"
-
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:297
 msgid "Code (optional)"
 msgstr "Code (optioneel)"
@@ -18895,15 +18891,6 @@ msgstr "Geen doelen."
 #: src/Shared/Admin/BackNavigator.php:127
 msgid "Edit Goal"
 msgstr "Doel bewerken"
-
-#: src/Modules/Goals/Admin/GoalsPage.php:114
-#: src/Shared/Frontend/CoachDashboardView.php:297
-#: src/Shared/Frontend/CoachDashboardView.php:309
-#: src/Shared/Frontend/CoachForms.php:581
-#: src/Shared/Frontend/CoachForms.php:597
-#: src/Shared/Frontend/DashboardShortcode.php:200
-msgid "Add Goal"
-msgstr "Doel toevoegen"
 
 #: src/Modules/Goals/Admin/GoalsPage.php:118
 msgid ""
@@ -19657,10 +19644,6 @@ msgstr "Accept-URL"
 msgid "Message preview"
 msgstr "Berichtvoorbeeld"
 
-#: src/Modules/Invitations/Frontend/InviteButton.php:129
-msgid "Share via WhatsApp"
-msgstr "Delen via WhatsApp"
-
 #: src/Modules/Invitations/Frontend/InviteButton.php:143
 msgid "Revoke this invitation? The link will stop working immediately."
 msgstr "Deze uitnodiging intrekken? De link werkt onmiddellijk niet meer."
@@ -19696,7 +19679,7 @@ msgid "e.g. season kick-off onboarding for 60 players"
 msgstr "bijv. seizoensstart-onboarding voor 60 spelers"
 
 #: src/Modules/Invitations/Frontend/InviteButton.php:207
-msgid "Create invitation"
+msgid "Add invitation"
 msgstr "Uitnodiging aanmaken"
 
 #: src/Modules/Invitations/Frontend/MessageSaveHandler.php:30
@@ -20292,7 +20275,7 @@ msgstr[1] ""
 "evaluaties te blijven toevoegen."
 
 #: src/Modules/License/Admin/AccountPage.php:539
-msgid "Start 30-day Pro trial"
+msgid "Start trial"
 msgstr "Start 30-daagse Pro-trial"
 
 #: src/Modules/License/Admin/AccountPage.php:543
@@ -21189,10 +21172,6 @@ msgstr "Minuut doelpunt tegenstander"
 msgid "Remove opponent goal"
 msgstr "Doelpunt tegenstander verwijderen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:797
-msgid "+ Add an opponent goal"
-msgstr "+ Doelpunt tegenstander toevoegen"
-
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:801
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:987
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1033
@@ -21204,10 +21183,6 @@ msgstr "Helft"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1040
 msgid "Minute"
 msgstr "Minuut"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:814
-msgid "Add opponent goal"
-msgstr "Doelpunt tegenstander toevoegen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:830
 msgid "Post-match status"
@@ -21287,7 +21262,7 @@ msgid "Minute 0–%d"
 msgstr "Minuut 0–%d"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:972
-msgid "+ Add late goal"
+msgid "Add late goal"
 msgstr "+ Laat doelpunt toevoegen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:978
@@ -21301,7 +21276,7 @@ msgid "Log goal"
 msgstr "Doelpunt vastleggen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1007
-msgid "+ Add late substitution"
+msgid "Add late substitution"
 msgstr "+ Late wissel toevoegen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1011
@@ -22204,7 +22179,7 @@ msgstr[1] "%d metingen vastgelegd."
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:395
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:697
-msgid "+ New test"
+msgid "Add test"
 msgstr "+ Nieuwe test"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:424
@@ -22420,7 +22395,7 @@ msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:237
-msgid "Export to Excel"
+msgid "Export Excel"
 msgstr "Exporteren naar Excel"
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:447
@@ -23777,10 +23752,6 @@ msgstr "De meegeleverde voorbeeldvisie is alleen-lezen."
 msgid "Formation diagram: %s"
 msgstr "Formatiediagram: %s"
 
-#: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:59
-msgid "+ New football action"
-msgstr "+ Nieuwe voetbalhandeling"
-
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:64
 msgid ""
 "No football actions yet. Use “+ New football action” to author the first one."
@@ -23918,7 +23889,7 @@ msgid "Formaties"
 msgstr "Formaties"
 
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:79
-msgid "+ New formation"
+msgid "Add formation"
 msgstr "+ Nieuwe formatie"
 
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:84
@@ -23970,10 +23941,6 @@ msgstr "Formatie aanmaken"
 #, php-format
 msgid "Positions — %s"
 msgstr "Posities — %s"
-
-#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:219
-msgid "+ New position"
-msgstr "+ Nieuwe positie"
 
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:222
 msgid ""
@@ -24131,7 +24098,7 @@ msgid "Go to Raamwerk"
 msgstr "Naar Raamwerk"
 
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:75
-msgid "+ New influence factor"
+msgid "Add factor"
 msgstr "+ Nieuwe factor van invloed"
 
 #: src/Modules/Methodology/Frontend/Manage/InfluenceFactorsManageTab.php:80
@@ -24204,10 +24171,6 @@ msgid ""
 msgstr ""
 "Maak eerst de raamwerk-introductie aan — leerdoelen hangen daaronder. Open "
 "het tabblad Raamwerk en sla de introductie op."
-
-#: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:75
-msgid "+ New learning goal"
-msgstr "+ Nieuw leerdoel"
 
 #: src/Modules/Methodology/Frontend/Manage/LearningGoalsManageTab.php:80
 msgid ""
@@ -24391,10 +24354,6 @@ msgstr ""
 "Maak eerst de raamwerk-introductie aan — fasen hangen daaronder. Open het "
 "tabblad Raamwerk en sla de introductie op."
 
-#: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:75
-msgid "+ New phase"
-msgstr "+ Nieuwe fase"
-
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:80
 msgid "No phases yet. Use “+ New phase” to author the first one."
 msgstr "Nog geen fasen. Gebruik “+ Nieuwe fase” om de eerste toe te voegen."
@@ -24449,10 +24408,6 @@ msgstr "Fase aangemaakt."
 #: src/Modules/Methodology/Frontend/Manage/PhasesManageTab.php:294
 msgid "Could not create the phase."
 msgstr "Kon de fase niet aanmaken."
-
-#: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:61
-msgid "+ New principle"
-msgstr "+ Nieuw principe"
 
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:66
 msgid "No principles yet. Use “+ New principle” to author the first one."
@@ -24511,10 +24466,6 @@ msgstr "Principe aangemaakt."
 #: src/Modules/Methodology/Frontend/Manage/PrinciplesManageTab.php:348
 msgid "Could not create the principle."
 msgstr "Kon het principe niet aanmaken."
-
-#: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:59
-msgid "+ New set piece"
-msgstr "+ Nieuwe spelhervatting"
 
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:64
 msgid "No set pieces yet. Use “+ New set piece” to author the first one."
@@ -24597,7 +24548,7 @@ msgid "Sub-principes"
 msgstr "Sub-principes"
 
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:62
-msgid "+ New sub-principle"
+msgid "Add sub-principle"
 msgstr "+ Nieuw sub-principe"
 
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:67
@@ -27449,7 +27400,7 @@ msgid "PDP ✓"
 msgstr "POP ✓"
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:429
-msgid "Create PDP"
+msgid "Add PDP"
 msgstr "POP aanmaken"
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:500
@@ -28640,35 +28591,31 @@ msgstr ""
 # `wp i18n make-pot` couldn't extract, causing the strings to render
 # in English on Dutch installs).
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:98
-msgid "+ New evaluation"
+msgid "Add evaluation"
 msgstr "+ Nieuwe evaluatie"
 
-#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:99
-msgid "+ New goal"
-msgstr "+ Nieuw doel"
-
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:100
-msgid "+ New activity"
+msgid "Add activity"
 msgstr "+ Nieuwe activiteit"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:101
-msgid "+ Add player"
+msgid "Add player"
 msgstr "+ Speler toevoegen"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:102
-msgid "+ Add team"
+msgid "Add team"
 msgstr "+ Team toevoegen"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:103
-msgid "+ New scout report"
+msgid "Add scout report"
 msgstr "+ Nieuw scoutrapport"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:104
-msgid "+ New trial"
+msgid "Add trial"
 msgstr "+ Nieuwe stage"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:105
-msgid "+ New test training"
+msgid "Add test training"
 msgstr "+ Nieuwe kennismakingstraining"
 
 #: src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php:46
@@ -28697,7 +28644,7 @@ msgid "Log a scouting find"
 msgstr "Leg een scoutingbevinding vast"
 
 #: src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php:87
-msgid "+ Scouting find"
+msgid "Add find"
 msgstr "+ Scoutingbevinding"
 
 # v3.110.119 — Hero secondary link to the scouting-visits surface.
@@ -29446,10 +29393,6 @@ msgid ""
 msgstr ""
 "Geen geplande bezoeken. Plan je volgende scoutingbezoek om je portfolio vers "
 "te houden."
-
-#: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:80
-msgid "+ Plan visit"
-msgstr "+ Plan bezoek"
 
 #. translators: %d: prospects logged so far from this visit.
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:101
@@ -30686,7 +30629,7 @@ msgid "You do not have access to the onboarding pipeline."
 msgstr "Je hebt geen toegang tot de instroompijplijn."
 
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:69
-msgid "+ New prospect"
+msgid "Add prospect"
 msgstr "+ Nieuwe prospect"
 
 #. translators: %s: prospect name
@@ -33065,7 +33008,7 @@ msgstr ""
 "duur, tempo, hoogtemeters) met de academie te delen."
 
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:77
-msgid "Connect with Strava"
+msgid "Connect Strava"
 msgstr "Koppelen met Strava"
 
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:93
@@ -33421,7 +33364,7 @@ msgid "Blueprints — %s"
 msgstr "Blauwdrukken — %s"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:127
-msgid "+ New blueprint"
+msgid "Add blueprint"
 msgstr "+ Nieuwe blauwdruk"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:135
@@ -33509,10 +33452,6 @@ msgid "Drag a player onto a slot, or click a slot to pick from the list."
 msgstr ""
 "Sleep een speler op een positie, of klik een positie om uit de lijst te "
 "kiezen."
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:355
-msgid "+ Add guest / custom name"
-msgstr "+ Voeg gast / aangepaste naam toe"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:359
 msgid "Other team"
@@ -34084,7 +34023,7 @@ msgid "Remove pairing"
 msgstr "Koppel verwijderen"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:622
-msgid "+ Mark a pairing"
+msgid "Mark pairing"
 msgstr "+ Een koppel markeren"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:627
@@ -36754,10 +36693,6 @@ msgstr "Verbergt gearchiveerde"
 msgid "Show archived"
 msgstr "Toon gearchiveerd"
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:157
-msgid "+ Add exercise"
-msgstr "+ Oefening toevoegen"
-
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:161
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:314
 msgid "Code (unique slug)"
@@ -36996,7 +36931,7 @@ msgstr ""
 "training daaraan koppelen?"
 
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:289
-msgid "Bind to existing Activity"
+msgid "Bind activity"
 msgstr "Koppelen aan bestaande Activiteit"
 
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:296
@@ -37706,7 +37641,7 @@ msgid "Attendance for %s"
 msgstr "Aanwezigheid voor %s"
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:159
-msgid "+ Mark late"
+msgid "Mark late"
 msgstr "+ Markeer als te laat"
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:160
@@ -39724,7 +39659,7 @@ msgid "You must be logged in to manage your sessions."
 msgstr "Je moet ingelogd zijn om je sessies te beheren."
 
 #: src/Shared/Admin/OptionSetEditor.php:59
-msgid "+ Add option"
+msgid "Add option"
 msgstr "+ Optie toevoegen"
 
 #: src/Shared/Admin/OptionSetEditor.php:62
@@ -40390,22 +40325,10 @@ msgstr "Aanvullende informatie"
 msgid "Submit Evaluation"
 msgstr "Evaluatie verzenden"
 
-#: src/Shared/Frontend/CoachDashboardView.php:230
-#: src/Shared/Frontend/CoachForms.php:127
-#: src/Shared/Frontend/DashboardShortcode.php:198
-msgid "Save Evaluation"
-msgstr "Evaluatie opslaan"
-
 #: src/Shared/Frontend/CoachDashboardView.php:253
 #: src/Shared/Frontend/CoachForms.php:521
 msgid "Record Training Activity"
 msgstr "Training vastleggen"
-
-#: src/Shared/Frontend/CoachDashboardView.php:272
-#: src/Shared/Frontend/CoachForms.php:548
-#: src/Shared/Frontend/DashboardShortcode.php:199
-msgid "Save Activity"
-msgstr "Activiteit opslaan"
 
 #: src/Shared/Frontend/CoachDashboardView.php:312
 #: src/Shared/Frontend/CoachForms.php:600
@@ -42619,6 +42542,7 @@ msgid "+ Add value"
 msgstr "+ Waarde toevoegen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:708
+#: src/Shared/Frontend/FrontendConfigurationView.php:700
 msgid "Edit lookup value"
 msgstr "Opzoekwaarde bewerken"
 
@@ -42694,6 +42618,7 @@ msgid "+ Add new"
 msgstr "+ Nieuwe toevoegen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:933
+#: src/Shared/Frontend/FrontendConfigurationView.php:925
 msgid "No items yet. Use \"+ Add new\" to seed the first row."
 msgstr ""
 "Nog geen items. Gebruik \"+ Nieuwe toevoegen\" om de eerste regel te starten."
@@ -43114,6 +43039,8 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2017
 msgid "Open Custom CSS"
+#: src/Shared/Frontend/FrontendConfigurationView.php:2002
+msgid "Open custom CSS"
 msgstr "Aangepaste CSS openen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2021
@@ -43554,12 +43481,6 @@ msgid "Select logo"
 msgstr "Logo kiezen"
 
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:35
-#: src/Shared/Frontend/FrontendCustomFieldsView.php:43
-#: src/Shared/Frontend/FrontendCustomFieldsView.php:67
-msgid "New custom field"
-msgstr "Nieuw eigen veld"
-
-#: src/Shared/Frontend/FrontendCustomFieldsView.php:35
 msgid "Edit custom field"
 msgstr "Aangepast veld bewerken"
 
@@ -43767,10 +43688,6 @@ msgstr "Categorie niet gevonden"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:55
 msgid "That category no longer exists."
 msgstr "Die categorie bestaat niet meer."
-
-#: src/Shared/Frontend/FrontendEvalCategoriesView.php:72
-msgid "New category"
-msgstr "Nieuwe categorie"
 
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:73
 msgid "Edit per-age-group weights (wp-admin)"
@@ -44153,6 +44070,9 @@ msgstr "Altijd aan"
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:294
 msgid "New assignment"
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:80
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:266
+msgid "Add assignment"
 msgstr "Nieuwe toewijzing"
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:72
@@ -44193,6 +44113,9 @@ msgstr "Dat roltype bestaat niet meer."
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:126
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:169
 msgid "New role type"
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:98
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:141
+msgid "Add role type"
 msgstr "Nieuw roltype"
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:133
@@ -44216,6 +44139,7 @@ msgid "+ Assign"
 msgstr "+ Toewijzen"
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:252
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:224
 msgid "Lowercase, digits, and underscores only. Cannot be changed later."
 msgstr ""
 "Alleen kleine letters, cijfers en underscores. Kan later niet meer aangepast "
@@ -47326,10 +47250,6 @@ msgstr "Toekennen:"
 msgid "WordPress → Users → Edit user → Role."
 msgstr "WordPress → Gebruikers → Gebruiker bewerken → Rol."
 
-#: src/Shared/Frontend/FrontendSeasonsView.php:58
-msgid "+ New season"
-msgstr "+ Nieuw seizoen"
-
 #: src/Shared/Frontend/FrontendSeasonsView.php:62
 msgid ""
 "Exactly one season is current. PDP files are scoped to a season, and the "
@@ -47999,10 +47919,6 @@ msgstr "Team-gemiddelden (radar)"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1403
 msgid "Player(s)"
 msgstr "Speler(s)"
-
-#: src/Shared/Frontend/FrontendStandardReportsView.php:1412
-msgid "Run Report"
-msgstr "Rapport uitvoeren"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1422
 msgid "Player Progress Over Time"
@@ -48979,7 +48895,7 @@ msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:80
 #: src/Shared/Frontend/FrontendTrialsManageView.php:83
 #: src/Shared/Frontend/FrontendTrialsManageView.php:256
-msgid "New trial case"
+msgid "Add case"
 msgstr "Nieuw stagedossier"
 
 #: src/Shared/Frontend/FrontendTrialsManageView.php:76
@@ -49044,10 +48960,6 @@ msgstr "Aanvankelijke staf (optioneel)"
 msgid "Staff slot %d"
 msgstr "Stafplek %d"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:493
-msgid "Create case"
-msgstr "Dossier aanmaken"
-
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:35
 msgid "You do not have permission to edit trial tracks."
 msgstr "Je hebt geen rechten om stagetrajecten te bewerken."
@@ -49077,10 +48989,6 @@ msgstr ""
 "een naam en het standaard aantal dagen dat het loopt. Als je een nieuwe "
 "stage voor een speler start, kies je een traject en worden deze "
 "standaardwaarden ingevuld."
-
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:83
-msgid "New track"
-msgstr "Nieuw traject"
 
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:86
 msgid "No tracks exist yet. Create one to get started."

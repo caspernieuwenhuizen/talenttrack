@@ -670,7 +670,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <button type="button"
                         class="tt-lkp-btn tt-lkp-btn-primary tt-lkp-btn-add"
                         data-tt-lkp-go="add">
-                    <?php esc_html_e( '+ Add value', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Add value', 'talenttrack' ); ?>
                 </button>
             </div>
             <?php
@@ -925,7 +925,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <div class="tt-lookup-md-rail-head">
                     <button type="button" class="tt-btn tt-btn-primary tt-btn-small tt-lookup-md-new"
                             data-tt-lookup-new>
-                        <?php esc_html_e( '+ Add new', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Add value', 'talenttrack' ); ?>
                     </button>
                 </div>
                 <div class="tt-lookup-md-rail-body">
@@ -2014,7 +2014,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Advanced', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);"><?php esc_html_e( 'Per-club custom styling — visual + code editor, file upload, starter templates and revertable history.', 'talenttrack' ); ?></p>
-                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $css_url ); ?>"><?php esc_html_e( 'Open Custom CSS', 'talenttrack' ); ?></a>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $css_url ); ?>"><?php esc_html_e( 'Open custom CSS', 'talenttrack' ); ?></a>
             </div>
 
             <div style="margin-top:16px;">

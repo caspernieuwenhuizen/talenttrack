@@ -227,7 +227,7 @@ class CoachDashboardView {
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
             <?php endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3"></textarea></div>
-            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save Evaluation', 'talenttrack' ); ?></button>
+            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>
         <script>
@@ -269,7 +269,7 @@ class CoachDashboardView {
                     <td><input type="text" name="att[<?php echo (int) $pl->id; ?>][notes]" style="width:150px" /></td></tr>
             <?php endforeach; ?>
             </tbody></table>
-            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save Activity', 'talenttrack' ); ?></button>
+            <button type="submit" class="tt-btn tt-btn-primary" style="margin-top:10px;"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>
         <?php
@@ -294,7 +294,7 @@ class CoachDashboardView {
             ));
         }
         ?>
-        <h3><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></h3>
+        <h3><?php esc_html_e( 'Add goal', 'talenttrack' ); ?></h3>
         <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
@@ -306,7 +306,7 @@ class CoachDashboardView {
                 <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>"><?php echo esc_html( LabelTranslator::goalPriority( $pr ) ); ?></option><?php endforeach; ?>
             </select></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></label><input type="date" name="due_date" /></div>
-            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></button>
+            <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add goal', 'talenttrack' ); ?></button>
             <div class="tt-form-msg"></div>
         </form>
         <h3 style="margin-top:20px;"><?php esc_html_e( 'Current Goals', 'talenttrack' ); ?></h3>

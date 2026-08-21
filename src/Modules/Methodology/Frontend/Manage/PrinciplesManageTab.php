@@ -58,7 +58,7 @@ final class PrinciplesManageTab {
         echo '<div class="tt-mmg-toolbar">';
         echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
             . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-            . esc_html__( '+ New principle', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Add principle', 'talenttrack' ) . '</a>';
         echo '</div>';
 
         $principles = ( new PrinciplesRepository() )->listFiltered();

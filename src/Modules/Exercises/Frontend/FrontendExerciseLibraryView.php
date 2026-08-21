@@ -286,7 +286,7 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
      */
     private static function renderCreateForm( int $user_id ): void {
         echo '<details class="tt-ex-create">';
-        echo '<summary class="tt-ex-create__summary">' . esc_html__( '+ New exercise', 'talenttrack' ) . '</summary>';
+        echo '<summary class="tt-ex-create__summary">' . esc_html__( 'Add exercise', 'talenttrack' ) . '</summary>';
         echo '<form class="tt-ex-create__form" method="post" action="">';
         wp_nonce_field( 'tt_exercise_create', 'tt_exercise_nonce' );
         echo '<input type="hidden" name="tt_action" value="create_exercise">';

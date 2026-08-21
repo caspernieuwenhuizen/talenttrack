@@ -619,7 +619,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                 ?>
                 <details class="tt-tc-pairing-add">
                     <summary class="tt-tc-pairing-add-toggle">
-                        <?php esc_html_e( '+ Mark a pairing', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Mark pairing', 'talenttrack' ); ?>
                     </summary>
                     <form class="tt-tc-pairing-form tt-ajax-form"
                           data-rest-path="<?php echo esc_attr( 'teams/' . $team_id . '/pairings' ); ?>"
