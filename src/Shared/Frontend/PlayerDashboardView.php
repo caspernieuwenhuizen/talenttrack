@@ -290,7 +290,7 @@ class PlayerDashboardView {
     private function renderPlayerCard( object $player ): void {
         $pos  = json_decode( (string) $player->preferred_positions, true );
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
-        echo '<div class="tt-card">';
+        echo '<div class="tt-card tt-media-card">';
         if ( $player->photo_url ) echo '<div class="tt-card-thumb"><img src="' . esc_url( (string) $player->photo_url ) . '" alt="" /></div>';
         echo '<div class="tt-card-body">';
         echo '<h3>' . esc_html( QueryHelpers::player_display_name( $player ) ) . '</h3>';
