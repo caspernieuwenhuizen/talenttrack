@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T23:19:04+00:00\n"
+"POT-Creation-Date: 2026-08-21T23:28:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -129,6 +129,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:255
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:310
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:344
+#: src/Modules/Media/Wizard/MediaTargetStep.php:45
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
@@ -4413,6 +4414,7 @@ msgstr "Filter"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
 #: src/Modules/Goals/Admin/GoalsPage.php:138
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:44
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
 #: src/Modules/Methodology/Admin/MethodologyPage.php:423
@@ -5147,6 +5149,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FormSaveButton.php:63
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
+#: src/Shared/Frontend/Components/MediaUploader.php:136
 #: src/Shared/Frontend/Components/SavedViews.php:155
 #: src/Shared/Frontend/DashboardShortcode.php:233
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3280
@@ -5777,6 +5780,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
 #: src/Modules/Workflow/TaskStatus.php:69
+#: src/Shared/Frontend/Components/MediaUploader.php:137
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1776
 msgid "Cancelled"
 msgstr "Abgebrochen"
@@ -7871,6 +7875,7 @@ msgstr "Schlüssel"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:40
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:101
 #: src/Modules/Goals/Admin/GoalsPage.php:140
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:50
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
 #: src/Modules/Methodology/Frontend/Manage/FootballActionsManageTab.php:151
@@ -16089,6 +16094,7 @@ msgid "A short summary of the idea"
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:67
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:24
 #: src/Modules/Wizards/Activity/DetailsStep.php:23
 #: src/Modules/Wizards/Goal/DetailsStep.php:12
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:322
@@ -21528,6 +21534,134 @@ msgstr ""
 msgid "Photo"
 msgstr "Foto"
 
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:28
+msgid "Confirm"
+msgstr ""
+
+#. translators: %s is the player, team or training the media was added to.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:41
+#, php-format
+msgid "This will appear on %s."
+msgstr ""
+
+#. translators: %s is a date.
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:66
+#, php-format
+msgid "Filed under %s on the timeline."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:82
+msgid "Nothing was added."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:109
+msgid "The uploads could not be updated. They are still saved on the record."
+msgstr ""
+
+#. translators: %d is how many items were added.
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:38
+#, php-format
+msgid "These details apply to the %d item you added."
+msgid_plural "These details apply to all %d items you added."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:56
+msgid "When was this taken?"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:63
+msgid ""
+"The date decides where this sits on the player's timeline — so it is the day "
+"of the training or match, not the day you uploaded it."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaDetailsStep.php:71
+msgid "That date could not be read. Use the date picker."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:27
+msgid "Photos and video"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:34
+msgid "Go back and choose who this is for first."
+msgstr ""
+
+#. translators: %s is the player, team or training the media is being added to.
+#: src/Modules/Media/Wizard/MediaSourceStep.php:41
+#, php-format
+msgid "Add photos or video for %s."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:54
+msgid ""
+"Files are saved as soon as they finish uploading, so you can leave at any "
+"point without losing them."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:65
+msgid "Add at least one photo, video or link before continuing."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaSourceStep.php:80
+msgid "Those uploads could not be found. Try adding them again."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:25
+msgid "Who for"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:36
+msgid "Who is this photo or video about?"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:40
+msgid "There are no players to attach media to yet."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:47
+msgid "— choose a player —"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:60
+msgid ""
+"You can attach the same photo to more players, a team or a training "
+"afterwards."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:69
+msgid "Choose who this is for first."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:78
+msgid "You do not have permission to add media to that record."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:95
+msgid "This is being added to:"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:98
+msgid "You can attach the same photo to more records afterwards."
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:107
+msgid "this player"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:113
+msgid "this team"
+msgstr ""
+
+#: src/Modules/Media/Wizard/MediaTargetStep.php:121
+msgid "this training"
+msgstr ""
+
+#: src/Modules/Media/Wizard/NewMediaWizard.php:49
+msgid "Add media"
+msgstr ""
+
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:33
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:111
 #: src/Modules/Methodology/Rest/FootballActionsRestController.php:86
@@ -26303,6 +26437,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
+#: src/Shared/Frontend/Components/MediaUploader.php:138
 #: src/Shared/Frontend/DashboardShortcode.php:227
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3239
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3273
@@ -38470,6 +38605,70 @@ msgstr ""
 msgid ""
 "No TalentTrack record needed. Fill in the basics; the guest is recorded "
 "against this activity only."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:64
+msgid "Choose photos or video"
+msgstr ""
+
+#. translators: %s is the largest file this server accepts, e.g. "64 MB".
+#: src/Shared/Frontend/Components/MediaUploader.php:69
+#, php-format
+msgid "Up to %s per file on this server."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:85
+msgid "Or paste a link to video hosted elsewhere"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:90
+msgid "https://…"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:93
+msgid "Add link"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:96
+msgid ""
+"Veo, Hudl, YouTube and Vimeo are recognised automatically. Anything else is "
+"saved as a plain link with a title you type."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:134
+msgid "Uploading…"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:135
+msgid "Added"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:139
+msgid "Could not be added"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:140
+msgid "This file is larger than the server accepts."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:141
+msgid ""
+"That file type cannot be added. Use a JPEG, PNG or WebP image, or an MP4 or "
+"MOV video."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:142
+msgid "Paste a web address first."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaUploader.php:143
+msgid "The upload failed. Check your connection and try again."
+msgstr ""
+
+#. translators: %d is how many files were added.
+#: src/Shared/Frontend/Components/MediaUploader.php:145
+#, php-format
+msgid "%d added"
 msgstr ""
 
 #: src/Shared/Frontend/Components/MinutesBreakdown.php:49
