@@ -50157,10 +50157,6 @@ msgstr "De terugkeerdatum kon niet worden opgeslagen. Probeer opnieuw."
 msgid "Enter the date as yyyy-mm-dd."
 msgstr "Voer de datum in als jjjj-mm-dd."
 
-#: src/Infrastructure/REST/PlayerJourneyRestController.php
-msgid "You cannot record injuries for this player."
-msgstr "Je kunt voor deze speler geen blessures vastleggen."
-
 #~ msgid "1 — recovery"
 #~ msgstr "1 — herstel"
 
