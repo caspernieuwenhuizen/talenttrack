@@ -129,6 +129,10 @@ final class CoreSurfaceRegistration {
         $reg::register( 'measurements-entry', [ 'measurements', 'change' ] );
         $reg::register( 'measurements-coverage', [ 'measurement_sessions', 'read' ] );
 
+        // #2609 — the squad injury overview. Medical data on minors, so the
+        // dispatch gate matches the view's own MatrixGate read guard.
+        $reg::register( 'injuries', [ 'player_injuries', 'read' ] );
+
         // player-attributes guard: per-player canEvaluatePlayer (tighter than
         // the tt_edit_evaluations cap the old inline check used).
         $reg::register( 'player-attributes', static function ( int $uid, array $ctx ): bool {

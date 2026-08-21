@@ -96,6 +96,13 @@ class PlayerJourneyRestController extends BaseController {
         ] );
 
         // Injuries.
+        //
+        // #2609 — the write routes used to carry `tt_view_player_medical`,
+        // a READ capability, as their permission_callback. The per-player
+        // scope check inside each handler is the real gate (and now asks
+        // the `player_injuries` entity), but the route-level callback
+        // should still name a write. `tt_edit_player_medical` bridges to
+        // `player_injuries:change`; the reads keep the view cap.
         register_rest_route( self::NS, '/players/(?P<id>\d+)/injuries', [
             [
                 'methods'             => 'GET',
@@ -105,19 +112,19 @@ class PlayerJourneyRestController extends BaseController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_injury' ],
-                'permission_callback' => self::permCan( 'tt_view_player_medical' ),
+                'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
             ],
         ] );
         register_rest_route( self::NS, '/player-injuries/(?P<id>\d+)', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_injury' ],
-                'permission_callback' => self::permCan( 'tt_view_player_medical' ),
+                'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
             ],
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'archive_injury' ],
-                'permission_callback' => self::permCan( 'tt_view_player_medical' ),
+                'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
             ],
         ] );
 
@@ -345,7 +352,7 @@ class PlayerJourneyRestController extends BaseController {
 
     public static function create_injury( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
-        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+        if ( ! AuthorizationService::canRecordInjury( get_current_user_id(), $player_id, 'change' ) ) {
             return RestResponse::error( 'forbidden', __( 'You cannot record injuries for this player.', 'talenttrack' ), 403 );
         }
         $payload = (array) $r->get_json_params();
@@ -378,7 +385,7 @@ class PlayerJourneyRestController extends BaseController {
             return RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );
         }
         $player_id = (int) $row->player_id;
-        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+        if ( ! AuthorizationService::canRecordInjury( get_current_user_id(), $player_id, 'change' ) ) {
             return RestResponse::error( 'forbidden', __( 'You cannot edit injuries for this player.', 'talenttrack' ), 403 );
         }
 
@@ -420,7 +427,7 @@ class PlayerJourneyRestController extends BaseController {
             return RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );
         }
         $player_id = (int) $row->player_id;
-        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+        if ( ! AuthorizationService::canRecordInjury( get_current_user_id(), $player_id, 'create_delete' ) ) {
             return RestResponse::error( 'forbidden', __( 'You cannot edit injuries for this player.', 'talenttrack' ), 403 );
         }
         $ok = $repo->archive( $id, get_current_user_id() );

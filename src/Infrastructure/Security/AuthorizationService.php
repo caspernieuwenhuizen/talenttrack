@@ -123,6 +123,34 @@ class AuthorizationService {
         return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'vct', $activity, 'team', $team_id );
     }
 
+    /**
+     * #2609 — may this user take `$activity` on a player's injury record?
+     *
+     * Injury writes used to gate on `canEditPlayer()`, i.e. `players.edit`,
+     * which no coach persona holds — so the matrix could grant
+     * `player_injuries:change` all it liked and the API would still refuse.
+     * The entity that names the thing is the entity that decides.
+     *
+     * Global scope wins outright (head of development, academy admin);
+     * otherwise the check narrows to the player's own team, so a head coach
+     * records injuries for their squad and nobody else's.
+     *
+     * `$activity` is `read` / `change` / `create_delete`.
+     */
+    public static function canRecordInjury( int $user_id, int $player_id, string $activity = 'change' ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        if ( \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'global' ) ) {
+            return true;
+        }
+
+        $team_id = self::getPlayerTeamId( $player_id );
+        if ( ! $team_id ) return false;
+
+        return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'player_injuries', $activity, 'team', $team_id );
+    }
+
     public static function registerCacheInvalidators(): void {
         static $registered = false;
         if ( $registered ) return;
