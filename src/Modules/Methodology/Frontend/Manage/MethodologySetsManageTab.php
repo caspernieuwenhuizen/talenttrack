@@ -36,7 +36,7 @@ final class MethodologySetsManageTab {
     public static function register(): void {
         MethodologyManageRegistry::register( [
             'key'    => self::MTAB,
-            'label'  => __( 'Speelwijzen', 'talenttrack' ),
+            'label'  => __( 'Play styles', 'talenttrack' ),
             'render' => [ self::class, 'render' ],
             'handle' => [ self::class, 'handle' ],
             'order'  => 5,
@@ -64,7 +64,7 @@ final class MethodologySetsManageTab {
             echo '<div class="tt-mmg-toolbar">';
             echo '<a class="tt-btn tt-btn-primary tt-mmg-new" href="'
                 . esc_url( MethodologyManageView::tabUrl( self::MTAB, [ 'action' => 'new' ] ) ) . '">'
-                . esc_html__( '+ Nieuwe speelwijze', 'talenttrack' ) . '</a>';
+                . esc_html__( 'Add play style', 'talenttrack' ) . '</a>';
             echo '</div>';
         }
 
@@ -93,7 +93,7 @@ final class MethodologySetsManageTab {
                     . esc_html( $name !== '' ? $name : __( '(untitled)', 'talenttrack' ) ) . '</span>';
             }
             if ( $is_active ) {
-                echo '<span class="tt-mmg-chip tt-mmg-chip--active">' . esc_html__( 'Actief', 'talenttrack' ) . '</span>';
+                echo '<span class="tt-mmg-chip tt-mmg-chip--active">' . esc_html__( 'Active', 'talenttrack' ) . '</span>';
             }
             if ( $shipped ) {
                 echo '<span class="tt-mmg-chip tt-mmg-chip--shipped">' . esc_html__( 'Shipped', 'talenttrack' ) . '</span>';
@@ -111,7 +111,7 @@ final class MethodologySetsManageTab {
                     echo '<input type="hidden" name="op" value="make_default" />';
                     echo '<input type="hidden" name="id" value="' . esc_attr( (string) (int) $s->id ) . '" />';
                     echo '<button type="submit" class="tt-btn tt-btn-secondary tt-mmg-action">'
-                        . esc_html__( 'Maak actief', 'talenttrack' ) . '</button>';
+                        . esc_html__( 'Set active', 'talenttrack' ) . '</button>';
                     echo '</form>';
                 }
 
