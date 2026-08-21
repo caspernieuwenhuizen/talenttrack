@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-21T21:10:33+00:00\n"
+"POT-Creation-Date: 2026-08-21T21:13:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -122,11 +122,11 @@ msgstr ""
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:134
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:976
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:259
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:245
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:303
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:337
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:260
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:246
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:304
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:338
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:677
@@ -874,7 +874,7 @@ msgid "Rate cards"
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:450
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:37
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:38
 #: src/Shared/CoreSurfaceRegistration.php:981
 msgid "Test trends"
 msgstr ""
@@ -2202,10 +2202,10 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:113
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:125
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:450
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:172
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:451
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:607
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:499
@@ -2672,8 +2672,8 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:84
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:82
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:85
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:71
 msgid "You do not have access to this team."
 msgstr ""
@@ -3133,7 +3133,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:50
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:51
 #: src/Modules/Reports/Admin/ReportsPage.php:39
 #: src/Shared/Frontend/FrontendRateCardView.php:57
 #: src/Shared/Frontend/FrontendStandardReportsView.php:115
@@ -3441,8 +3441,8 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:135
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:147
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:276
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:253
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:284
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
@@ -5084,8 +5084,8 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:127
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:460
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:192
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:461
 #: src/Modules/People/Admin/PeoplePage.php:389
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
@@ -5113,8 +5113,8 @@ msgstr "Von"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:465
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:197
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:466
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:537
@@ -5898,7 +5898,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:80
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Authorization/Admin/RolesPage.php:494
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:40
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:41
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
 #: src/Modules/Reports/Admin/ReportsPage.php:38
 #: src/Modules/Reports/Admin/ReportsPage.php:83
@@ -5992,8 +5992,8 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:282
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:452
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:174
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:453
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
@@ -6185,8 +6185,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:473
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:202
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:474
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1745
 #: src/Shared/Frontend/FrontendTrialsManageView.php:346
@@ -6213,8 +6213,8 @@ msgstr "Bewertung"
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:146
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:309
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:275
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:252
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:279
 #: src/Modules/Reports/PlayerReportRenderer.php:243
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:353
 msgid "Trend"
@@ -6228,7 +6228,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:149
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:312
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:251
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:252
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1287
 msgid "Verdict"
 msgstr ""
@@ -8455,7 +8455,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:560
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:249
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:250
 msgid "Change"
 msgstr ""
 
@@ -12669,9 +12669,9 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:59
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:200
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:446
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:181
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:249
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:268
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:182
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:269
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:125
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:136
@@ -16413,8 +16413,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:438
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:250
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:271
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:251
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:272
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:219
 #: src/Shared/Frontend/CoachForms.php:235
@@ -17092,8 +17092,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:436
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:158
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:437
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
 msgid "Test"
@@ -20544,7 +20544,7 @@ msgid "↓ A lower value is better on this test — the falling line is progress
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:182
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:183
 msgid "↑ A higher value is better on this test."
 msgstr ""
 
@@ -20553,7 +20553,7 @@ msgid "recorded value"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:439
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:341
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:342
 msgid "Passed"
 msgstr ""
 
@@ -20565,7 +20565,7 @@ msgstr ""
 
 #. translators: 1: number of passes, 2: number of attempts
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:368
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:369
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
@@ -20709,7 +20709,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:427
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:236
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:237
 msgid "Export to Excel"
 msgstr ""
 
@@ -20792,137 +20792,137 @@ msgstr ""
 msgid "No fixed cadence"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:32
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:33
 #: src/Shared/CoreSurfaceRegistration.php:961
 msgid "Test results"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:37
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:45
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:38
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:46
 msgid "You do not have permission to browse test results."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:65
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:72
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:66
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:73
 msgid ""
 "No tests are defined yet. Add a test under Manage tests to start recording "
 "results."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:90
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:91
 msgid "Choose a test to see every player's latest result."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:114
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:102
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:115
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:103
 msgid "No results match these filters yet."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:159
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:438
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:160
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:439
 msgid "— Choose a test —"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:183
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:184
 msgid "All age groups"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:315
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:332
 msgid "Improved"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:316
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:333
 msgid "Declined"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:317
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:334
 msgid "Unchanged"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:327
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:353
 msgid "On target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:328
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:354
 msgid "Below target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:329
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:355
 msgid "Well below target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:91
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:92
 msgid "Choose a test to see how every player has developed."
 msgstr ""
 
 #. translators: 1: number of players, 2: number of measuring moments
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:119
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:120
 #, php-format
 msgid "%1$d player · %2$d measuring moment"
 msgid_plural "%1$d players · %2$d measuring moments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:142
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:143
 msgid ""
 "This test has no direction: a higher value is not better than a lower one. "
 "There is no target, no verdict and no ranking — only the readings per date."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:160
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:161
 msgid "Squad average"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:178
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:179
 msgid "↓ A lower value is better on this test — a falling line is progress."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:187
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:188
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1298
 msgid "player"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:189
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:190
 msgid "squad average"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:210
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:211
 msgid "Most improved"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:211
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:212
 msgid "Fallen back"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:216
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:217
 msgid "Nobody in this window."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:282
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:283
 msgid ""
 "The change is read in the direction of the test: on a test where lower is "
 "better, a negative change is progress and is ranked as such."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:299
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:300
 msgid ""
 "Levels have no numeric axis, so there is no line. Each cell shows the "
 "recorded level in its own colour."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:374
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:375
 msgid "Pass rate"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:392
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:393
 msgid "improved"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:393
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:394
 msgid "fallen back"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:394
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:395
 msgid "about the same"
 msgstr ""
 
