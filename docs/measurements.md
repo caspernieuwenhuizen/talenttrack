@@ -168,7 +168,7 @@ academy admin see every team. The same data is available over REST at
 ## Creating a test
 
 The head of development (or an academy admin) creates tests with the
-**+ New test** wizard — reachable from the *Record measurements* screen.
+**Add test** — the *New test* wizard — reachable from the *Record measurements* screen.
 It walks through three steps:
 
 1. **Details** — the category, a name, and the value type (a number, a
@@ -203,14 +203,14 @@ up — name, category, unit, direction and cadence — with its **Active** or
 - **Activate / Deactivate** — an inactive test stays in the catalogue and
   keeps its history, but is hidden from the *Record measurements* picker so
   staff can't log new results against it.
-- **Export to Excel** — downloads every recorded result for this test as a
+- **Export Excel** — downloads every recorded result for this test as a
   formatted `.xlsx` workbook (see below).
 - **Archive** — soft-deletes the test into the recycle bin. Nothing is
   lost; an admin can restore it.
 
 ### Exporting a test's results
 
-Each test row — and the test's edit view — carries an **Export to Excel**
+Each test row — and the test's edit view — carries an **Export Excel**
 action. It produces a formatted workbook for that one test: a header block
 (test name, unit or *status*, date range and club) over a frozen, bold
 column-header row, then one row per recorded result with the **player,
@@ -235,7 +235,7 @@ The export reuses the central export pipeline and is gated on the same
 `measurements` *read* permission as the rest of the module — only staff who
 may see a test's results may export them.
 
-Creating a test still runs through the **+ New test** wizard, reachable
+Creating a test still runs through the *New test* wizard, opened with **Add test**, reachable
 from the top of this list as well as from *Record measurements*. The same
 catalogue is available over REST at
 `/wp-json/talenttrack/v1/measurement-definitions` for integrations and the
@@ -264,7 +264,7 @@ without opening profiles one by one.
 
 The grid is **sortable** (tap a column header on tablet and desktop) and
 every **player name links to their profile**, arriving with a back-pill so
-one click returns you to the browser. An **Export to Excel** button
+one click returns you to the browser. An **Export Excel** button
 downloads the current test (honouring the team and date filters) through
 the same formatted workbook the *Manage tests* export produces.
 
@@ -291,10 +291,30 @@ own test:
   with one line per player over the shared date axis, plus a heavier dashed
   **squad-average** line so the aggregate never reads as another player.
   Under it: **Most improved** and **Fallen back**, then a table with each
-  player's first value, latest value, **change** and a verdict.
-- **A test with no direction** (height, weight) gets the readings per date
-  and nothing else — no chart, no ranking, no verdict, because there is no
-  better or worse to rank.
+  player's first value, latest value and **change**.
+- **A test with no direction** (height, weight) gets the readings per date —
+  no chart and no ranking, because there is no better or worse to rank. The
+  change is still shown, with a grey ▲ or ▼ saying only which way the value
+  moved.
+
+**Reading the change column.** Every change carries an indicator, not just a
+colour, so the report stays readable in black and white and for a
+colour-blind reader:
+
+| Indicator | Meaning |
+| --- | --- |
+| green ▲ | improved, in the terms of this test |
+| red ▼ | fallen back |
+| grey ▬ | unchanged (less than 2% either way) |
+| grey ▲ / ▼ | the value rose or fell on a test with no better or worse |
+| — | no earlier reading to compare against |
+
+The arrow follows the **verdict**, never the sign of the number. On a test
+where lower is better, a change of −0,08 s is progress and shows a green ▲.
+Hovering the indicator (or reading it with a screen reader) gives the word.
+
+Player names in every table and in the two ranking lists link through to the
+player's record, and show a summary card on hover.
 - **A status test** gets a player × date matrix of levels in their own
   colours. No lines: levels are named states, not distances.
 - **Pass / fail** gets a tick or cross per date, each player's tally, and

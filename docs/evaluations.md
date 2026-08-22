@@ -33,4 +33,4 @@ Click any row in the evaluations list to see the full breakdown — a radar char
 
 ## Removing or hiding old evaluations
 
-You can **archive** an evaluation to hide it from lists while keeping it in the player's history, or **delete** it if it was a mistake. Archived evaluations don't count toward player rate cards. The list's **Archive** filter (Active / Archived / All) lets you find archived evaluations again — it defaults to Active.
+You can **archive** an evaluation to hide it from lists while keeping it in the player's history, or **delete** it if it was a mistake. Archived evaluations don't count toward player rate cards. The list opens on active evaluations; the **⋯** button at the end of the filter row switches to Archived, and a chip beside it says so while you are there.

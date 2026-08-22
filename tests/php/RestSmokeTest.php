@@ -112,6 +112,17 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'GET /activities/minutes-grid'  => [ 'GET',    '/talenttrack/v1/activities/minutes-grid' ],
             'POST /minutes/bulk'            => [ 'POST',   '/talenttrack/v1/minutes/bulk' ],
 
+            // #2592 — media. The byte-serving routes matter most here: on
+            // nginx the media directory's own guard does nothing, so an
+            // unauthenticated 200 from /file would be a photograph of a
+            // child served to anyone who asks.
+            'GET /media'                    => [ 'GET',    '/talenttrack/v1/media' ],
+            'POST /media'                   => [ 'POST',   '/talenttrack/v1/media' ],
+            'GET /media/{uuid}/file'        => [ 'GET',    '/talenttrack/v1/media/00000000-0000-4000-8000-000000000000/file' ],
+            'GET /media/{uuid}/thumb'       => [ 'GET',    '/talenttrack/v1/media/00000000-0000-4000-8000-000000000000/thumb' ],
+            'DELETE /media/{uuid}'          => [ 'DELETE', '/talenttrack/v1/media/00000000-0000-4000-8000-000000000000' ],
+            'GET /players/1/media'          => [ 'GET',    '/talenttrack/v1/players/1/media' ],
+
             // Cross-cutting / admin surfaces.
             'POST /config'                  => [ 'POST',   '/talenttrack/v1/config' ],
             'GET /audit-log'                => [ 'GET',    '/talenttrack/v1/audit-log' ],

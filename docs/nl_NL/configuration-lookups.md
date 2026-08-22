@@ -9,8 +9,8 @@ De tegel Lookups op de configuratiepagina is de enige plek om elke dropdown-voca
 ## De vier surfaces
 
 1. **Configuratie → Lookups** — landingspagina. Eén tegel per lookup-categorie, **gegroepeerd in domeinsecties** (Activiteiten & aanwezigheid, Spelers & teams, Evaluaties & ontwikkeling, Doelen, Scouting & stages, Toernooien & wedstrijd, Staf & mensen, Rapporten & workflow, Geavanceerd / intern). Elke tegel heeft een icoon, een korte beschrijving en klikt door naar de per-categorie editor. Een sectie zonder zichtbare tegels toont geen kop. *(v4.26.11 — voorheen één plat raster van ~32 kaarten.)*
-2. **Per-categorie editor** — de list-first weergave van de waarden van één lookup-categorie (bijv. Activiteitstypes). Standaardweergave: een overzichtelijke lijst van waarden met een knop `+ Waarde toevoegen` bovenaan.
-3. **Nieuwe waarde toevoegen** — opent vanaf de `+ Waarde toevoegen` knop. Leeg formulier met het veld Interne sleutel bovenaan + een vertalingsraster met 5 locales eronder.
+2. **Per-categorie editor** — de list-first weergave van de waarden van één lookup-categorie (bijv. Activiteitstypes). Standaardweergave: een overzichtelijke lijst van waarden met een knop `Waarde toevoegen` bovenaan.
+3. **Nieuwe waarde toevoegen** — opent vanaf de `Waarde toevoegen` knop. Leeg formulier met het veld Interne sleutel bovenaan + een vertalingsraster met 5 locales eronder.
 4. **Waarde bewerken** — opent door op een rij in de lijst te tikken. Zelfde vorm als Toevoegen maar gevuld met de data en vertalingen van de rij. Het veld Interne sleutel is alleen-lezen op bestaande rijen.
 
 ## Lijstweergave
@@ -24,7 +24,7 @@ Elke rij toont van links naar rechts:
 - **Sorteervolgorde** — het gehele getal waarop de rij gesorteerd wordt binnen de categorie.
 - **Verwijderknop** — verborgen op vergrendelde rijen (rijen waar workflow-regels van afhankelijk zijn). Vergrendelde rijen zijn nog steeds aanklikbaar voor de bewerkweergave; de verwijderknop wordt gewoon niet getoond.
 
-Een knop `+ Waarde toevoegen` bovenaan de lijst opent de Toevoegen-weergave.
+Een knop `Waarde toevoegen` bovenaan de lijst opent de Toevoegen-weergave.
 
 ## Bewerkweergave
 

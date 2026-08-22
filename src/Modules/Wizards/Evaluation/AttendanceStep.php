@@ -114,7 +114,7 @@ final class AttendanceStep implements WizardStepInterface {
         ?>
         <div class="tt-att-allhere">
             <button type="submit" name="tt_wizard_action" value="next" class="tt-btn tt-btn-primary tt-att-allhere-btn" data-tt-att-all-here>
-                <?php esc_html_e( 'Everyone was here - continue', 'talenttrack' ); ?>
+                <?php esc_html_e( 'All present', 'talenttrack' ); ?>
             </button>
             <p class="tt-att-allhere-hint"><?php esc_html_e( 'Or mark any absences below first, then continue.', 'talenttrack' ); ?></p>
         </div>
@@ -156,7 +156,7 @@ final class AttendanceStep implements WizardStepInterface {
 
                     <?php if ( $has_late ) : ?>
                         <div class="tt-att-late-row" <?php if ( ! in_array( $stored, [ AttendanceStatus::PRESENT, AttendanceStatus::LATE ], true ) ) echo 'hidden'; ?>>
-                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '+ Mark late', 'talenttrack' ); ?></button>
+                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( 'Mark late', 'talenttrack' ); ?></button>
                             <button type="button" class="tt-att-late-chip"   data-tt-att-late-on     <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '✓ Late', 'talenttrack' ); ?></button>
                             <button type="button" class="tt-att-late-revert" data-tt-att-late-revert <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '× Revert to on-time', 'talenttrack' ); ?></button>
                         </div>

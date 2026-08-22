@@ -269,7 +269,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                     </p>
                     <div class="tt-psc-actions">
                         <?php echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                            'label'      => __( 'Save potential', 'talenttrack' ),
+                            'label'      => __( 'Save', 'talenttrack' ),
                             'cancel_url' => $cancel_url,
                         ] ); ?>
                     </div>

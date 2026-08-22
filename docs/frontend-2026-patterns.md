@@ -59,6 +59,7 @@ chrome only — the calling view supplies the options + active state (CLAUDE.md
 | `date_range` | paired from/to date inputs | on Apply / live-filtered |
 | `period` | pill-dropdown (inline) → segmented track (sheet); link-based | navigation (no JS needed) |
 | `status` | one-tap status pills; link-based | navigation |
+| `menu` | icon-only `⋯` overflow menu; link-based | navigation (no JS needed) |
 | `toggle` | boolean switch (checkbox) | auto-submits on change |
 
 **`FrontendListTable` renders its filter chrome through FilterBar** (#2082) —
@@ -68,10 +69,23 @@ The list table maps its `filters` config to FilterBar groups: `select` →
 `date_range` → `date_range`. The `filter[<key>]` param names, `static_filters`,
 search, sort, pagination and JS hydration are unchanged. A view can opt a
 select into status pills with `'render' => 'status'` on the filter config
-(default stays a plain select) — the active/archived record-state filter on
-the Goals, Players, Teams, People, Holidays, Tournaments, Evaluations and
-PDP-coverage lists uses this (#2083), so record state is the same one-tap
-pill on every surface. The bar's own `<form>` carries the
+(default stays a plain select) — the Goals list's Active / Achieved / Missed
+bucket is the example (#2083), so a domain status reads as the same one-tap
+pill on every surface.
+
+**The archive-state filter is the exception, and it is automatic** (#2622).
+A filter keyed `archived` — the canonical archive-state key on every list
+endpoint since #2625 — renders as an icon-only `⋯` overflow menu instead of a
+pill row, on every viewport. No per-view flag: the key is the signal, which is
+why normalising it first mattered. The list defaults to Active and its URL is
+param-free; when the reader is not in that default the trigger takes the accent
+colour **and** a clearable chip appears beside it, because an icon alone would
+make an archived list indistinguishable from a short active one.
+
+There is deliberately no "All" option. The one the builder used to inject
+cleared the param, and every controller reads an absent param as `active`, so
+"All" and "Active" returned identical rows while "All" was the pill highlighted
+on arrival — chrome claiming to show everything while showing active-only. The bar's own `<form>` carries the
 `data-tt-list-form` hook the hydrator binds to, so live-filtering and the no-JS
 full-submit fallback both keep working; the inline + sheet copies of each
 control are kept in sync by the hydrator so FormData never sees a conflicting

@@ -238,6 +238,10 @@ class FrontendMySettingsView extends FrontendViewBase {
             \TT\Modules\Comms\Domain\MessageType::STAFF_DEVELOPMENT_REMINDER => __( 'Reminders about your own development review', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::LETTER_DELIVERY            => __( 'Formal letters', 'talenttrack' ),
             \TT\Modules\Comms\Domain\MessageType::MASS_ANNOUNCEMENT          => __( 'Academy-wide announcements', 'talenttrack' ),
+            // #2604 — notifications raised in-product (a task assigned to
+            // you, a reply on a conversation) now route through Comms, so
+            // they belong on this list like everything else that reaches you.
+            \TT\Modules\Comms\Domain\MessageType::NOTIFICATION               => __( 'Notifications about your tasks and conversations', 'talenttrack' ),
         ];
     }
 

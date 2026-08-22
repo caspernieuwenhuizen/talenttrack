@@ -308,10 +308,30 @@ van de test zelf:
   zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
   gemiddelde nooit als nóg een speler leest. Daaronder: **Meest verbeterd**
   en **Teruggelopen**, en een tabel met de eerste waarde, de laatste
-  waarde, het **verschil** en een oordeel per speler.
-- **Een test zonder richting** (lengte, gewicht) krijgt alleen de metingen
-  per datum — geen grafiek, geen ranglijst, geen oordeel, want er is geen
-  beter of slechter om op te ranken.
+  waarde en het **verschil** per speler.
+- **Een test zonder richting** (lengte, gewicht) krijgt de metingen per
+  datum — geen grafiek en geen ranglijst, want er is geen beter of slechter
+  om op te ranken. Het verschil wordt wel getoond, met een grijze ▲ of ▼ die
+  alleen zegt welke kant de waarde op ging.
+
+**De kolom Verschil lezen.** Elk verschil heeft een teken, niet alleen een
+kleur, zodat het rapport ook in zwart-wit en voor een kleurenblinde lezer
+leesbaar blijft:
+
+| Teken | Betekenis |
+| --- | --- |
+| groene ▲ | verbeterd, in de termen van deze test |
+| rode ▼ | teruggelopen |
+| grijze ▬ | gelijk gebleven (minder dan 2% verschil) |
+| grijze ▲ / ▼ | de waarde ging omhoog of omlaag bij een test zonder beter of slechter |
+| — | geen eerdere meting om mee te vergelijken |
+
+De pijl volgt het **oordeel**, nooit het teken van het getal. Bij een test
+waar lager beter is hoort −0,08 s bij een groene ▲. Beweeg over het teken
+(of laat het voorlezen) voor het woord erbij.
+
+Spelersnamen in elke tabel en in beide ranglijsten linken door naar het
+spelersdossier en tonen een samenvattingskaart als je erover beweegt.
 - **Een statustest** krijgt een matrix speler × datum met de niveaus in hun
   eigen kleur. Geen lijnen: niveaus zijn benoemde standen, geen afstanden.
 - **Gehaald / niet gehaald** krijgt een vinkje of kruisje per datum, de

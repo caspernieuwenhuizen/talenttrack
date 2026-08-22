@@ -73,7 +73,7 @@ class FrontendOverviewView extends FrontendViewBase {
                     // public.css (or inline-styled here so no CSS file
                     // change is required for the polish ship).
                     $print_url   = add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) );
-                    $print_label = __( 'Print report', 'talenttrack' );
+                    $print_label = __( 'Print', 'talenttrack' );
                     ?>
                     <a class="tt-print-icon-btn"
                        href="<?php echo esc_url( $print_url ); ?>"

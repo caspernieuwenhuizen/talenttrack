@@ -1,0 +1,76 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "match",
+      "prompt": "Koppel elk prestatiekenmerk aan het conditiekenmerk dat het ondersteunt.",
+      "pairs": [
+        "Betere handeling",
+        "Meer handelingen per minuut",
+        "Goede handelingen volhouden",
+        "Veel handelingen per minuut volhouden"
+      ],
+      "options": [
+        "Maximaal explosieve handeling",
+        "Sneller herstel tussen handelingen",
+        "Maximaal explosieve handelingen volhouden",
+        "Snel herstel tussen handelingen volhouden"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "De eerste twee gaan over kwaliteit en kwantiteit; de laatste twee over hetzelfde met de klok erbij."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Een speler tikt de bal in minuut 85 nog steeds scherp rond, maar schuift merkbaar minder vaak door. Welk kenmerk schiet tekort?",
+      "options": [
+        "Maximaal explosieve handeling",
+        "Sneller herstel tussen handelingen",
+        "Maximaal explosieve handelingen volhouden",
+        "Snel herstel tussen handelingen volhouden"
+      ],
+      "answer": 3,
+      "explanation": "De kwaliteit staat nog overeind; het aantal handelingen per minuut zakt in de slotfase. Dat is het vierde kenmerk."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Waarom is 'vermoeidheid' geen bruikbare observatie?",
+      "options": [
+        "Omdat het per speler verschilt",
+        "Omdat het niet zegt welk deel van de handeling misgaat",
+        "Omdat het pas na de wedstrijd te meten is",
+        "Omdat spelers het zelf niet betrouwbaar melden"
+      ],
+      "answer": 1,
+      "explanation": "Wat werkelijk gebeurt is dat positie, moment, richting of snelheid niet meer kloppen. Dát is zichtbaar, benoembaar en trainbaar."
+    },
+    {
+      "id": "q4",
+      "type": "multiple",
+      "prompt": "Welke twee kenmerken gaan over de kwantiteit van handelingen?",
+      "options": [
+        "Betere handeling",
+        "Meer handelingen per minuut",
+        "Goede handelingen volhouden",
+        "Veel handelingen per minuut volhouden"
+      ],
+      "answer": [1, 3],
+      "explanation": "Kwantiteit gaat over hoe vaak; kwaliteit over hoe goed. Elk komt in een 'nu'-variant en een 'volhouden'-variant."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Waarom levert dit model vier trainingsdoelen op in plaats van één?",
+      "options": [
+        "Omdat spelers verschillende posities hebben",
+        "Omdat elk kenmerk een eigen oefenvorm, prikkel en hersteltijd vraagt",
+        "Omdat een wedstrijd in vier fases uiteenvalt",
+        "Omdat de KNVB vier conditiedomeinen onderscheidt"
+      ],
+      "answer": 1,
+      "explanation": "Zonder dit onderscheid wordt elke conditietraining hetzelfde — en dan verbetert er weinig."
+    }
+  ]
+}

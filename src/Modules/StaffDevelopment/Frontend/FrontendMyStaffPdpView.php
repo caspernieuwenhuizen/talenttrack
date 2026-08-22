@@ -86,7 +86,7 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
             ? $back['url']
             : add_query_arg( 'tt_view', 'my-staff-pdp', RecordLink::dashboardUrl() );
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
-            'label'      => __( 'Save PDP', 'talenttrack' ),
+            'label'      => __( 'Save', 'talenttrack' ),
             'cancel_url' => $cancel_url,
         ] );
         if ( $pdp && $pdp->last_reviewed_at ) {

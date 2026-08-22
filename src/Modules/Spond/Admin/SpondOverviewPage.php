@@ -128,7 +128,7 @@ final class SpondOverviewPage {
                                inputmode="url" autocomplete="off" />
                     </p>
                     <p>
-                        <button type="submit" class="button button-secondary"><?php esc_html_e( 'Save endpoint', 'talenttrack' ); ?></button>
+                        <button type="submit" class="button button-secondary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                         <?php if ( $override !== '' ) : ?>
                             <span style="margin-left:8px; color:#5b6e75; font-size:12px;">
                                 <?php esc_html_e( 'Leave blank and save to revert to the default.', 'talenttrack' ); ?>
@@ -160,7 +160,7 @@ final class SpondOverviewPage {
                     </tr>
                 </table>
                 <p>
-                    <button type="submit" class="button button-primary"><?php esc_html_e( 'Save credentials', 'talenttrack' ); ?></button>
+                    <button type="submit" class="button button-primary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                     <?php if ( $has_creds ) : ?>
                         <button type="submit" class="button button-secondary" formaction="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" name="action" value="tt_spond_test_connection">
                             <?php esc_html_e( 'Test connection', 'talenttrack' ); ?>

@@ -80,7 +80,7 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
 
         echo '<p class="tt-trial-editor-intro">' . esc_html__( 'A trial track is a reusable template for a trial period — its name and how many days it runs by default. When you start a new trial for a player you pick a track, and these settings fill in the defaults.', 'talenttrack' ) . '</p>';
 
-        echo '<div class="tt-toolbar"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new ) . '">' . esc_html__( 'New track', 'talenttrack' ) . '</a></div>';
+        echo '<div class="tt-toolbar"><a class="tt-btn tt-btn-primary" href="' . esc_url( $new ) . '">' . esc_html__( 'Add track', 'talenttrack' ) . '</a></div>';
 
         if ( ! $tracks ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No tracks exist yet. Create one to get started.', 'talenttrack' ) . '</p>';
@@ -135,7 +135,7 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
             $cancel_url = $back['url'];
         }
         echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
-            'label'      => __( 'Save track', 'talenttrack' ),
+            'label'      => __( 'Save', 'talenttrack' ),
             'variant'    => 'primary',
             'cancel_url' => $cancel_url,
         ] );

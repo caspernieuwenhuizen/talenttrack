@@ -12,6 +12,7 @@ use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
 use TT\Modules\DemoData\Generators\MatchDayGenerator;
 use TT\Modules\DemoData\Generators\MeasurementGenerator;
+use TT\Modules\DemoData\Generators\MediaGenerator;
 use TT\Modules\DemoData\Generators\PdpGenerator;
 use TT\Modules\DemoData\Generators\PeopleGenerator;
 use TT\Modules\DemoData\Generators\PipelineGenerator;
@@ -648,13 +649,25 @@ class DemoCoverage {
             'exempt' => 'Derived aggregate. PlayerExposureAggregationTaskTemplate rebuilds it nightly from runs + attendance + exercise principles; generating it would create rows that contradict their own source.',
         ],
 
-        // Media (#2590, epic #2589). Generated in #2596, once the surfaces
-        // exist to show it — a demo academy whose media tab is empty does
-        // not demo the feature. The generator writes small placeholder
-        // images at runtime rather than committing binaries to the repo,
-        // plus one external video link so the provider badge is visible.
-        'tt_media'       => [ 'planned' => '#2596' ],
-        'tt_media_links' => [ 'planned' => '#2596' ],
+        // Media (#2596, epic #2589). A demo academy whose media tab is
+        // empty does not demo the feature, so the generator writes a squad
+        // photo per team, a few player portraits and one external video
+        // link. Placeholder images are drawn at runtime rather than
+        // committed as binaries, and nothing here is fetched over the
+        // network — the Veo link has no oEmbed endpoint, so generating
+        // demo data works offline.
+        'tt_media' => [
+            'entity_type' => 'media',
+            'category'    => 'media',
+            'written_by'  => MediaGenerator::class,
+            'depends_on'  => [ 'team', 'player' ],
+        ],
+        'tt_media_links' => [
+            'entity_type' => 'media_link',
+            'category'    => 'media',
+            'written_by'  => MediaGenerator::class,
+            'depends_on'  => [ 'media', 'team', 'player' ],
+        ],
 
         // ===== Exempt — reference data seeded by migrations =====
 
@@ -883,10 +896,22 @@ class DemoCoverage {
             'run_order' => 200,
             'cascade'   => [ 'training_plan_run_block', 'training_plan_run' ],
         ],
-        // #2500 — after the runs, because an observation is about one.
-        'training_observations' => [
+        // #2596 — appended rather than inserted, so the existing
+        // (seed, preset) fingerprint keeps reproducing. Links cascade
+        // ahead of the media itself: a media row with no links is
+        // unreachable, and the repository deletes it along with its file.
+        'media' => [
             'tier'      => 'dependent',
             'run_order' => 210,
+            'cascade'   => [ 'media_link', 'media' ],
+        ],
+        // #2500 — after the runs, because an observation is about one.
+        // 220 rather than 210: #2596 took that number first, and the rule
+        // is to append rather than insert so every generator before this
+        // one keeps drawing the same values from the seeded stream.
+        'training_observations' => [
+            'tier'      => 'dependent',
+            'run_order' => 220,
             'cascade'   => [ 'training_observation' ],
         ],
     ];

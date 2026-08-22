@@ -60,7 +60,7 @@ class MethodologyPage {
 
         $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'framework';
         $tabs = [
-            'framework'  => __( 'Raamwerk',           'talenttrack' ),
+            'framework'  => __( 'Framework',           'talenttrack' ),
             'principles' => __( 'Spelprincipes',      'talenttrack' ),
             'formations' => __( 'Formaties & Posities', 'talenttrack' ),
             'set_pieces' => __( 'Spelhervattingen',   'talenttrack' ),

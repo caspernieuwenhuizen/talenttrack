@@ -691,7 +691,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             } else {
                 echo '<form method="post" class="tt-trial-accept-form"><input type="hidden" name="tt_trial_action" value="accept_received">';
                 wp_nonce_field( 'tt_trial_accept_' . (int) $case->id, 'tt_trial_accept_nonce' );
-                echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Mark acceptance slip as received', 'talenttrack' ) . '</button></form>';
+                echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Mark received', 'talenttrack' ) . '</button></form>';
             }
         }
 
@@ -714,7 +714,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<p class="tt-player-empty">' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
         } else {
             $print_url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'letter', 'print' => 1 ], home_url( '/' ) );
-            echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Open print-ready view', 'talenttrack' ) . '</a></p>';
+            echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Print view', 'talenttrack' ) . '</a></p>';
             echo '<div class="tt-trial-letter-preview">' . wp_kses_post( (string) $letter->rendered_html ) . '</div>';
         }
 
@@ -742,7 +742,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $url = add_query_arg( [ 'tt_view' => 'trial-parent-meeting', 'id' => (int) $case->id ], home_url( '/' ) );
         self::cardOpen( __( 'Parent meeting mode', 'talenttrack' ) );
         echo '<p>' . esc_html__( 'A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter.', 'talenttrack' ) . '</p>';
-        echo '<p><a class="tt-btn tt-btn-primary" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open meeting view', 'talenttrack' ) . '</a></p>';
+        echo '<p><a class="tt-btn tt-btn-primary" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open meeting', 'talenttrack' ) . '</a></p>';
         self::cardClose();
     }
 

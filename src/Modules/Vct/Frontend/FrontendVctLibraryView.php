@@ -154,7 +154,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $themes     = QueryHelpers::get_lookup_names( 'vct_tactical_theme' );
 
         echo '<details class="tt-vct-lib-add">';
-        echo '<summary>' . esc_html__( '+ Add exercise', 'talenttrack' ) . '</summary>';
+        echo '<summary>' . esc_html__( 'Add exercise', 'talenttrack' ) . '</summary>';
         echo '<form method="POST" action="" class="tt-vct-lib-add-form">';
         wp_nonce_field( 'tt_vct_library_add', '_tt_vct_lib_add_nonce' );
         echo '<input type="hidden" name="_tt_action" value="add">';
@@ -365,7 +365,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
                     <div class="tt-vct-lib-edit-actions">
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
-                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save exercise', 'talenttrack' ); ?></button>
+                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                     </div>
                 </form>
             </td>

@@ -517,7 +517,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             $filters['archived'] = [
                 'type'    => 'select',
                 'render'  => 'status',
-                'label'   => __( 'Status', 'talenttrack' ),
+                'label'   => __( 'Archive', 'talenttrack' ),
                 'options' => [
                     'active'   => __( 'Active',   'talenttrack' ),
                     'archived' => __( 'Archived', 'talenttrack' ),
@@ -781,7 +781,7 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         echo '<div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">';
         echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">'
-            . esc_html__( 'Print / PDF', 'talenttrack' ) . '</a>';
+            . esc_html__( 'Print', 'talenttrack' ) . '</a>';
         // #2043 — the "Record verdict" CTA moved out of the top action bar to
         // sit by the conversation list + cycle progress (rendered after the
         // conversations table below), where its "all conversations closed"

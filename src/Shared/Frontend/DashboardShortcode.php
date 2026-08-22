@@ -195,9 +195,9 @@ class DashboardShortcode {
                 'error_generic'        => __( 'Error.', 'talenttrack' ),
                 'network_error'        => __( 'Network error.', 'talenttrack' ),
                 'confirm_delete_goal'  => __( 'Delete this goal?', 'talenttrack' ),
-                'save_evaluation'      => __( 'Save Evaluation', 'talenttrack' ),
-                'save_activity'        => __( 'Save Activity', 'talenttrack' ),
-                'add_goal'             => __( 'Add Goal', 'talenttrack' ),
+                'save_evaluation'      => __( 'Save', 'talenttrack' ),
+                'save_activity'        => __( 'Save', 'talenttrack' ),
+                'add_goal'             => __( 'Add goal', 'talenttrack' ),
                 'save'                 => __( 'Save', 'talenttrack' ),
                 'draft_prompt'         => __( 'You have unsaved changes from an earlier session — restore?', 'talenttrack' ),
                 'draft_restore'        => __( 'Restore', 'talenttrack' ),
@@ -1005,6 +1005,11 @@ class DashboardShortcode {
                 return true;
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
+                return true;
+            // #2609 — squad-wide "who is out right now". Matrix-gated on
+            // `player_injuries` read inside the view.
+            case 'injuries':
+                \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $user_id, $is_admin );
                 return true;
             // #2145 — the "Test results" analysis browser. Matrix-gated on
             // `measurements` read inside the view (and by matrixDispatchAllows

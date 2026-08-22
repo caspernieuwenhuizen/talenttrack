@@ -198,7 +198,7 @@ body { padding: 20px 0 60px; }
 
 <div class="tt-print-actions">
     <button type="button" class="tt-print-btn tt-print-btn--primary" onclick="window.print();">
-        🖨 <?php esc_html_e( 'Print this report', 'talenttrack' ); ?>
+        🖨 <?php esc_html_e( 'Print', 'talenttrack' ); ?>
     </button>
     <button type="button" class="tt-print-btn" id="tt-download-pdf">
         📄 <?php esc_html_e( 'Download PDF', 'talenttrack' ); ?>

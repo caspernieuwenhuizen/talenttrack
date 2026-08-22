@@ -127,10 +127,12 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'created_at'     => [ 'label' => __( 'Created', 'talenttrack' ),  'sortable' => true, 'render' => 'date' ],
             ],
             'filters' => [
-                'status' => [
+                // #2625 — canonical archive-state param; `status` is reserved
+                // for domain status.
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active', 'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),

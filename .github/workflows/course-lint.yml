@@ -1,0 +1,52 @@
+name: Course corpus lint
+
+# #2642 (epic #2641) — the knowledge-library corpus is a projection of
+# `courses/`, so a course registers by existing and unregisters by being
+# deleted. CourseRegistry deliberately skips anything it cannot parse: a
+# half-written lesson must not fatal a reader's page.
+#
+# That silence is right at runtime and wrong in review. It is how the docs
+# corpus drifted until 53 files were unreachable (#2548). This gate is the
+# other half of the contract — what the registry passes over quietly, CI
+# fails loudly, with the failure annotated on the offending file.
+#
+# Whole-corpus, not diff-only. A course folder is small and the corpus is
+# a handful of them, so there is no cost to checking all of it; and the
+# failures that matter most are cross-file (a manifest naming a lesson
+# that a later commit deleted), which a diff-only scan cannot see.
+
+on:
+  pull_request:
+    paths:
+      - 'courses/**'
+      - 'src/Modules/Knowledge/**'
+      - 'src/Modules/Documentation/DocFrontMatter.php'
+      - 'tools/check-courses.php'
+      - '.github/workflows/course-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'courses/**'
+      - 'src/Modules/Knowledge/**'
+      - 'tools/check-courses.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Courses resolve
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Lint the course corpus
+        run: php tools/check-courses.php

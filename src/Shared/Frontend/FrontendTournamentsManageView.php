@@ -208,10 +208,12 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                     'label'   => __( 'Team', 'talenttrack' ),
                     'options' => $team_options,
                 ],
-                'status' => [
+                // #2625 — canonical archive-state param; `status` is reserved
+                // for domain status.
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
@@ -386,7 +388,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
 
                         <div class="tt-planner-actions">
                             <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
-                                <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
+                                <?php esc_html_e( 'Open planner', 'talenttrack' ); ?>
                             </button>
                             <?php // #1979 — hide Auto-balance when the feature is off; manual planning stays. ?>
                             <?php if ( current_user_can( 'tt_edit_tournaments' ) && empty( $m->completed_at ) && \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' ) ) : ?>

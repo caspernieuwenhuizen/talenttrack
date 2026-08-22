@@ -5,9 +5,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\MediaRestController;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Modules\Media\Storage\LocalPrivateStorage;
+use TT\Modules\Media\Wizard\NewMediaWizard;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * MediaModule (#2590, epic #2589) — photos and video attached to the
@@ -69,6 +72,26 @@ class MediaModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
+        // Registered here rather than unconditionally, so switching the
+        // module off takes the byte-delivery endpoint down with it. On
+        // nginx that endpoint is the only guard on the media directory,
+        // so "off" has to mean genuinely unreachable.
+        MediaRestController::init();
+
+        // Registered on `init` so the registry is populated before a
+        // request resolves `?tt_view=wizard&tt_wizard=new-media`.
+        //
+        // No `view_slugs` entry accompanies this in FeatureRegistry: every
+        // wizard is reached through the shared `wizard` aggregator slug,
+        // which the media feature does not own and must not gate. Turning
+        // the feature off removes the entry points that link here, and
+        // turning the module off unregisters the wizard entirely.
+        add_action( 'init', static function (): void {
+            if ( class_exists( WizardRegistry::class ) ) {
+                WizardRegistry::register( new NewMediaWizard() );
+            }
+        }, 20 );
+
         // The private store's guards are written on first use rather than
         // on activation, so an install whose uploads directory only
         // becomes writable later still gets them.
@@ -86,6 +109,21 @@ class MediaModule implements ModuleInterface {
         add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
     }
 
+    /**
+     * **No tile, deliberately** (#2596).
+     *
+     * `TileRegistry` entries are destinations on the shell's primary
+     * navigation, and media has none: every surface it owns is a tab or a
+     * section on a record that already has its own tile — a player, a
+     * team, an activity. Media is reached *through* the thing it is
+     * about, which is the point of a player-centric system.
+     *
+     * A tile would need a standalone browse-all-media view behind it. That
+     * is a real feature with real questions (what does an academy-wide
+     * gallery of children's photographs mean, and who should have it?),
+     * not a box to tick for completeness. Registering a tile pointing at
+     * a view that does not exist would be worse than having neither.
+     */
     public static function ensureStorage(): void {
         LocalPrivateStorage::ensureRoot();
     }

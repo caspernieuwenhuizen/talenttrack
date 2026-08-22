@@ -157,6 +157,17 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 if ( $sections['upcoming_activities'] ) {
                     self::renderUpcomingActivities( $team_id );
                 }
+                // #2595 (epic #2589) — the team's own photos and video.
+                // Gated on the `media` entity, which also carries the
+                // feature toggle, on top of the user's section preference.
+                if ( ! empty( $sections['media'] )
+                    && \TT\Modules\Authorization\MatrixGate::canAnyScope(
+                        get_current_user_id(),
+                        \TT\Modules\Media\Authorization\MediaVisibilityService::ENTITY,
+                        \TT\Modules\Authorization\MatrixGate::READ
+                    ) ) {
+                    self::renderMedia( $team_id );
+                }
                 // Team chemistry teaser stays on — a link card, not a
                 // toggleable content section.
                 self::renderChemistryTeaser( $team_id );
@@ -764,6 +775,34 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         self::cardClose();
     }
 
+    /**
+     * #2595 (epic #2589) — the team's photos and video.
+     *
+     * Team media is the squad photo, the tournament day, the group shot
+     * after a final — things that belong to the team rather than to any
+     * one player. Media of an individual player stays on their profile;
+     * this section deliberately shows only what is attached to the team
+     * itself, so a coach browsing here does not end up scrolling every
+     * player's file.
+     */
+    private static function renderMedia( int $team_id ): void {
+        $can_edit = ( new \TT\Modules\Media\Authorization\MediaVisibilityService() )
+            ->canAttachTo( get_current_user_id(), \TT\Modules\Media\MediaEntityType::TEAM, $team_id );
+
+        echo '<section class="tt-team-section tt-team-section--media">';
+        echo '<h2 class="tt-team-section__title">' . esc_html__( 'Media', 'talenttrack' ) . '</h2>';
+
+        \TT\Shared\Frontend\Components\MediaGallery::render( [
+            'entity_type'     => \TT\Modules\Media\MediaEntityType::TEAM,
+            'entity_id'       => $team_id,
+            'can_edit'        => $can_edit,
+            'empty_headline'  => __( 'No team photos or video yet', 'talenttrack' ),
+            'empty_explainer' => __( 'Squad photos, tournament days and end-of-season moments belong to the whole team. Media of an individual player lives on their own profile.', 'talenttrack' ),
+        ] );
+
+        echo '</section>';
+    }
+
     private static function renderUpcomingActivities( int $team_id ): void {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -838,7 +877,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         );
         self::cardOpen( __( 'Team chemistry', 'talenttrack' ) );
         echo '<p style="margin:0;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">';
-        echo esc_html__( 'Open the chemistry board', 'talenttrack' );
+        echo esc_html__( 'Open board', 'talenttrack' );
         echo '</a></p>';
         self::cardClose();
     }

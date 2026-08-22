@@ -1,0 +1,51 @@
+{
+  "pass_mark": 3,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "order",
+      "prompt": "Zet de bouwstenen van de warming-up in de juiste volgorde.",
+      "options": [
+        "Lichaamstemperatuur verhogen, rustig en met de bal",
+        "Dynamisch rekken",
+        "Explosiviteitsvoorbereidende oefeningen"
+      ],
+      "answer": [0, 1, 2],
+      "explanation": "Opwarmen, mobiliseren, spierspanning verhogen. Statisch rekken hoort in geen van de drie."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Waarom hoort statisch rekken niet in de warming-up?",
+      "options": [
+        "Het kost te veel tijd",
+        "Het verlaagt de spierspanning en daarmee de explosiviteit",
+        "Het is alleen zinvol na afloop",
+        "Spelers raken er mentaal door uit de wedstrijd"
+      ],
+      "answer": 1,
+      "explanation": "Onderzoek laat geen blessurepreventief effect zien, wél een negatief effect op precies de kenmerken die je wilt verleggen."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "In welke belasting voer je de explosiviteitsvoorbereidende oefeningen in de warming-up uit?",
+      "options": ["Overload", "Underload", "Maakt niet uit", "Op wedstrijdintensiteit"],
+      "answer": 1,
+      "explanation": "Altijd in underload — spelers moeten fris de training in, niet moe of beschadigd."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Waarom voeren spelers kniehefjes vaak op tachtig procent uit?",
+      "options": [
+        "Omdat honderd procent te belastend is",
+        "Omdat het voor hen een gewoonte is en geen oefening met een doel",
+        "Omdat de trainer meestal geen tempo aangeeft",
+        "Omdat het op nat gras niet anders kan"
+      ],
+      "answer": 1,
+      "explanation": "Ze doen het sinds hun zesde zonder ooit te horen waarvoor. Leg het doel uit en de uitvoering verandert direct."
+    }
+  ]
+}

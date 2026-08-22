@@ -153,6 +153,11 @@ final class TestTrendsQuery {
         $p['delta']   = null;
         $p['pct']     = null;
         $p['verdict'] = null;
+        // #2628 — the display state, in the six-value vocabulary the reports
+        // and the REST payload share. Derived here rather than in a view so
+        // both consumers get the same answer (CLAUDE.md §4), and so a
+        // non-WordPress front end can pick its own glyph for each state.
+        $p['trend']   = null;
 
         if ( count( $present ) < 2 ) return $p;
 
@@ -160,15 +165,28 @@ final class TestTrendsQuery {
         $p['delta'] = $delta;
         $p['pct']   = $p['first'] != 0.0 ? ( $delta / abs( $p['first'] ) ) * 100 : null;
 
-        if ( ! $has_direction ) return $p;
-
         $magnitude = $p['pct'] !== null ? abs( $p['pct'] ) : 0.0;
+
+        // A neutral test has no better or worse: report which way the value
+        // moved and stop there. A move under the flat threshold is 'flat'
+        // either way — "unchanged" is a fact, not a judgement.
+        if ( ! $has_direction ) {
+            if ( $magnitude < self::FLAT_PCT ) {
+                $p['trend'] = 'flat';
+            } else {
+                $p['trend'] = $delta > 0 ? 'rose' : ( $delta < 0 ? 'fell' : 'flat' );
+            }
+            return $p;
+        }
+
         if ( $magnitude < self::FLAT_PCT ) {
             $p['verdict'] = 'flat';
+            $p['trend']   = 'flat';
             return $p;
         }
         $better       = $direction === 'lower' ? $delta < 0 : $delta > 0;
         $p['verdict'] = $better ? 'improved' : 'declined';
+        $p['trend']   = $better ? 'up' : 'down';
         return $p;
     }
 

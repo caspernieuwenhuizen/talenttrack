@@ -149,4 +149,10 @@ return [
     // lightweight relationship navigation). Owns its REST controller;
     // the frontend view + tile live in Shared.
     TT\Modules\DataBrowser\DataBrowserModule::class              => true,
+    // #2641 — Knowledge library. Courses for coach development, shipped
+    // as markdown under `courses/` and read in-app. This ship is the
+    // content spine: corpus format, parsers, registry. Schema, gating,
+    // reader and statistics land in #2644-#2650. Togglable — an academy
+    // running its own coach education elsewhere switches it off here.
+    TT\Modules\Knowledge\KnowledgeModule::class                  => true,
 ];

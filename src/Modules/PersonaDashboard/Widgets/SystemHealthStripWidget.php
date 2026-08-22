@@ -50,6 +50,13 @@ class SystemHealthStripWidget extends AbstractWidget {
             self::modulesPanel(),
         ];
 
+        // #2596 (epic #2589) — only once there is media to account for.
+        // An academy that never uploads should not carry a permanent
+        // "0 B" panel on the one strip that exists to show what needs
+        // attention.
+        $media = self::mediaStoragePanel();
+        if ( $media !== null ) $panels[] = $media;
+
         $cards = '';
         foreach ( $panels as $p ) {
             $cards .= '<div class="tt-pd-health-panel tt-pd-health-' . sanitize_html_class( $p['state'] ) . '">'
@@ -64,6 +71,40 @@ class SystemHealthStripWidget extends AbstractWidget {
     }
 
     /** @return array{label:string,value:string,state:string} */
+    /**
+     * #2596 (epic #2589) — how much disk the media library is holding.
+     *
+     * Self-hosted video fills a shared-hosting disk quietly, and nothing
+     * else in the product watches it. This is the one place an academy
+     * admin already looks to see whether anything needs attention, so the
+     * number belongs here rather than behind a settings tab nobody opens.
+     *
+     * The thresholds are deliberately generous — this is a heads-up, not
+     * a quota. TalentTrack cannot know the host's actual disk size, so it
+     * reports what the academy is using and leaves the judgement to the
+     * person who knows what they are paying for.
+     *
+     * Returns null when the module is off or nothing is stored.
+     *
+     * @return array{label:string,value:string,state:string}|null
+     */
+    private static function mediaStoragePanel(): ?array {
+        if ( ! class_exists( \TT\Modules\Media\Repositories\MediaRepository::class ) ) return null;
+        if ( ! \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Media\MediaModule::class ) ) return null;
+
+        $bytes = ( new \TT\Modules\Media\Repositories\MediaRepository() )->totalBytes();
+        if ( $bytes <= 0 ) return null;
+
+        $gb    = $bytes / GB_IN_BYTES;
+        $state = $gb >= 20 ? 'warn' : 'ok';
+
+        return [
+            'label' => __( 'Media stored', 'talenttrack' ),
+            'value' => size_format( $bytes, $gb >= 1 ? 1 : 0 ),
+            'state' => $state,
+        ];
+    }
+
     private static function backupPanel(): array {
         $last = (string) get_option( 'tt_backup_last_run', '' );
         if ( $last === '' ) {

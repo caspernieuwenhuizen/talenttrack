@@ -1,0 +1,73 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "match",
+      "prompt": "Koppel elke oefenvorm aan de bijbehorende trainingsmethode.",
+      "pairs": [
+        "Partijen 11v11 – 8v8",
+        "Partijen 7v7 – 5v5",
+        "Partijen 4v4 – 3v3",
+        "Voetbalsprints met maximale rust",
+        "Voetbalsprints met minimale rust"
+      ],
+      "options": [
+        "Extensieve duurmethode",
+        "Intensieve duurmethode",
+        "Extensieve intervalmethode",
+        "Start- en acceleratiesnelheid",
+        "Herhaald kort sprinten"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Elke oefenvorm heeft precies één methode die erbij hoort, met eigen parameters voor werk en rust."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Wat verhoog je binnen een methode als eerste?",
+      "options": [
+        "Het aantal series",
+        "Het aantal partijen",
+        "De duur of het aantal herhalingen",
+        "De veldmaat"
+      ],
+      "answer": 2,
+      "explanation": "De wet van duurzaamheid vraagt eerst een langere duur, daarna pas meer partijen of series."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Je meet op 11v11 dat de meerderheid na 24 gespeelde minuten duidelijk minder handelingen maakt. Welke stap is dat?",
+      "options": ["Stap 1 (2 × 10′)", "Stap 3 (2 × 12′)", "Stap 8 (3 × 12′)", "Stap 12 (4 × 12′)"],
+      "answer": 1,
+      "explanation": "24 minuten komt overeen met 2 × 12 minuten, stap 3. Dat is een gebruikelijk nulpunt voor een amateurteam."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "In de eerste serie 4v4 maken de spelers in partij 5 en 6 nog net zoveel handelingen als in partij 1. Wat doe je in de tweede serie?",
+      "options": [
+        "Dezelfde stap herhalen",
+        "Een of twee stappen omhoog",
+        "Een stap terug",
+        "De serie afbreken"
+      ],
+      "answer": 1,
+      "explanation": "Geen zichtbare terugval betekent geen overload. Verhoog de belasting binnen dezelfde sessie."
+    },
+    {
+      "id": "q5",
+      "type": "single",
+      "prompt": "Waarom valt de intensieve intervalmethode (2v2, 1v1) buiten het periodiseringsmodel?",
+      "options": [
+        "Omdat er te weinig spelers voor nodig zijn",
+        "Omdat de melkzuuropeenhoping groot en de hersteltijd onvoorspelbaar is",
+        "Omdat de vorm technisch te makkelijk is",
+        "Omdat het veld te klein wordt om te coachen"
+      ],
+      "answer": 1,
+      "explanation": "In overload leveren deze vormen enorme schade op. Ze horen thuis in de technische en tactische training, in underload."
+    }
+  ]
+}

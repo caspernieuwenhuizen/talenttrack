@@ -86,10 +86,13 @@ final class FrontendHolidaysView extends FrontendViewBase {
             // #1784 — Active / Archived tab so the Restore + Delete-
             // permanently actions (below) have somewhere to surface.
             'filters' => [
-                'status' => [
+                // #2625 — `archived` is the canonical archive-state param on
+                // every list endpoint. `status` stays reserved for domain
+                // status (goals' Achieved/Missed, an activity's own state).
+                'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         'active'   => __( 'Active', 'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),

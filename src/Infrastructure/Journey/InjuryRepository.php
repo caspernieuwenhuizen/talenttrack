@@ -154,6 +154,65 @@ final class InjuryRepository {
     }
 
     /**
+     * #2609 — injuries across a set of teams, for the squad overview.
+     *
+     * Answers "who is out right now" rather than "what happened to this
+     * player", so it joins the player and team through and defaults to
+     * open injuries only. An injury is **open** when no actual return has
+     * been recorded — that is the single fact the overview is built on,
+     * and the reason setting a return date matters.
+     *
+     * @param list<int>            $team_ids  Empty means every team (academy-wide readers).
+     * @param array<string, mixed> $filters   status: open|recovered|all, severity_id, from, to
+     * @return list<object>
+     */
+    public function listForTeams( array $team_ids, array $filters = [] ): array {
+        $p      = $this->wpdb->prefix;
+        $status = (string) ( $filters['status'] ?? 'open' );
+
+        $where = [ 'i.club_id = %d', 'i.archived_at IS NULL' ];
+        $args  = [ CurrentClub::id() ];
+
+        if ( ! empty( $team_ids ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[] = "pl.team_id IN ({$placeholders})";
+            foreach ( $team_ids as $tid ) $args[] = (int) $tid;
+        }
+
+        if ( $status === 'open' ) {
+            $where[] = 'i.actual_return IS NULL';
+        } elseif ( $status === 'recovered' ) {
+            $where[] = 'i.actual_return IS NOT NULL';
+        }
+
+        if ( ! empty( $filters['severity_id'] ) ) {
+            $where[] = 'i.severity_lookup_id = %d';
+            $args[]  = (int) $filters['severity_id'];
+        }
+        if ( ! empty( $filters['from'] ) ) {
+            $where[] = 'i.started_on >= %s';
+            $args[]  = (string) $filters['from'];
+        }
+        if ( ! empty( $filters['to'] ) ) {
+            $where[] = 'i.started_on <= %s';
+            $args[]  = (string) $filters['to'];
+        }
+
+        $sql = "SELECT i.*,
+                       pl.first_name, pl.last_name, pl.team_id,
+                       t.name AS team_name
+                  FROM {$this->table} i
+            INNER JOIN {$p}tt_players pl ON pl.id = i.player_id AND pl.club_id = i.club_id
+             LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id  AND t.club_id = i.club_id
+                 WHERE " . implode( ' AND ', $where ) . "
+              ORDER BY i.started_on DESC, i.id DESC";
+
+        /** @var list<object> $rows */
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$args ) );
+        return $rows ?: [];
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     private function emitStartedEvent( int $injury_id, array $row ): void {

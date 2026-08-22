@@ -116,7 +116,7 @@ final class FrontendPlayerAttributesView extends FrontendViewBase {
                     <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
                 </a>
                 <button type="submit" class="tt-btn tt-btn-primary">
-                    <?php esc_html_e( 'Save attributes', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Save', 'talenttrack' ); ?>
                 </button>
             </div>
         </form>

@@ -102,7 +102,7 @@ class UserComparisonPage {
                 <p style="margin:10px 0 0;">
                     <button type="submit" class="button button-primary"><?php esc_html_e( 'Compare', 'talenttrack' ); ?></button>
                     <button type="button" class="button button-secondary" id="tt-cmp-add-more">
-                        <?php esc_html_e( '+ Add another user', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Add user', 'talenttrack' ); ?>
                     </button>
                 </p>
             </form>

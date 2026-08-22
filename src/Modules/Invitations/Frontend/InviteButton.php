@@ -126,7 +126,7 @@ class InviteButton {
                 <a class="tt-btn tt-btn-primary" target="_blank" rel="noopener noreferrer"
                    href="<?php echo esc_url( $whatsapp ); ?>"
                    style="background:#25d366; border-color:#25d366; color:#fff; flex:1; min-width:120px; text-align:center;">
-                    <?php esc_html_e( 'Share via WhatsApp', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Share', 'talenttrack' ); ?>
                 </a>
                 <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $mailto ); ?>"
                    style="flex:1; min-width:80px; text-align:center;">
@@ -204,7 +204,7 @@ class InviteButton {
             <?php endif; ?>
 
             <button type="submit" class="tt-btn tt-btn-primary" style="width:100%;">
-                <?php esc_html_e( 'Create invitation', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Add invitation', 'talenttrack' ); ?>
             </button>
         </form>
         <?php

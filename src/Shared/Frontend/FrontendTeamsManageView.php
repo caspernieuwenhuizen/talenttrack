@@ -181,7 +181,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'archived' => [
                     'type'    => 'select',
                     'render'  => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
+                    'label'   => __( 'Archive', 'talenttrack' ),
                     'options' => [
                         // #2023 — "All" dropped: trashed rows never appear in
                         // per-entity lists; Active | Archived is the full set.
@@ -481,7 +481,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
         if ( current_user_can( 'tt_edit_people' ) ) {
             echo '<p style="margin-top:8px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
-                . esc_html__( 'Manage team assignments', 'talenttrack' )
+                . esc_html__( 'Manage assignments', 'talenttrack' )
                 . '</a></p>';
         }
     }

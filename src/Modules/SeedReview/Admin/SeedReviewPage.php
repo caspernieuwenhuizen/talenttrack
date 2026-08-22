@@ -60,7 +60,7 @@ final class SeedReviewPage {
         echo '<form method="post" action="' . esc_url( $export_url ) . '">';
         wp_nonce_field( 'tt_seed_review_export', 'tt_seed_review_nonce' );
         echo '<input type="hidden" name="action" value="tt_seed_review_export" />';
-        echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Download seed review .xlsx', 'talenttrack' ) . '</button></p>';
+        echo '<p><button type="submit" class="button button-primary">' . esc_html__( 'Download .xlsx', 'talenttrack' ) . '</button></p>';
         echo '</form>';
 
         echo '<h2 style="margin-top:32px;">' . esc_html__( '2. Apply edits from upload', 'talenttrack' ) . '</h2>';

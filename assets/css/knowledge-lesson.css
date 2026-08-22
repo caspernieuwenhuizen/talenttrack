@@ -1,0 +1,580 @@
+/**
+ * Lesson reader — prose, tables and the interactive blocks (#2643).
+ *
+ * Mobile-first: base rules target ~360px and scale up with min-width
+ * queries. Every control is at least 48x48px with 8px between neighbours,
+ * inputs are 16px so iOS does not zoom on focus, and nothing is reachable
+ * by hover alone.
+ *
+ * Colours come from tokens.css; brand shades read var(--tt-primary, …)
+ * because BrandStyles owns those and an academy re-themes them.
+ */
+
+/* ── prose ──────────────────────────────────────────────────────────── */
+
+.tt-lesson-body {
+    max-width: 68ch;
+    color: var(--tt-ink, #0e1a14);
+    font-size: var(--tt-fs-body, 1rem);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+.tt-lesson-body > * + * {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-lesson-h1,
+.tt-lesson-h2,
+.tt-lesson-h3,
+.tt-lesson-h4 {
+    color: var(--tt-ink, #0e1a14);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.tt-lesson-h1 { font-size: var(--tt-fs-h1, 1.75rem); }
+.tt-lesson-h2 { font-size: var(--tt-fs-h2, 1.5rem); }
+.tt-lesson-h3 { font-size: var(--tt-fs-h3, 1.25rem); }
+.tt-lesson-h4 { font-size: var(--tt-fs-lg, 1.125rem); }
+
+.tt-lesson-body > .tt-lesson-h2,
+.tt-lesson-body > .tt-lesson-h3 {
+    margin-top: var(--tt-sp-6, 24px);
+}
+
+.tt-lesson-list {
+    padding-left: 1.25rem;
+}
+
+.tt-lesson-list li + li {
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+.tt-lesson-quote {
+    margin: 0;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+}
+
+.tt-lesson-inline-code,
+.tt-lesson-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+}
+
+.tt-lesson-code {
+    margin: 0;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    overflow-x: auto;
+}
+
+.tt-lesson-inline-code {
+    padding: 0.1em 0.35em;
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-radius: 4px;
+}
+
+/* ── tables ─────────────────────────────────────────────────────────── */
+
+/* The wide tables in this course must scroll inside their own box; the
+   page body never scrolls sideways. */
+.tt-lesson-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-lesson-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 32rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-lesson-table th,
+.tt-lesson-table td {
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-lesson-table thead th {
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    white-space: nowrap;
+}
+
+.tt-lesson-table tbody th {
+    font-weight: 600;
+}
+
+.tt-lesson-table tbody tr:last-child th,
+.tt-lesson-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* ── callouts ───────────────────────────────────────────────────────── */
+
+.tt-lesson-callout {
+    padding: var(--tt-sp-4, 16px);
+    border-left: 3px solid var(--tt-info, #2d6fb3);
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+}
+
+.tt-lesson-callout__label {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-info, #2d6fb3);
+}
+
+.tt-lesson-callout__body > * + * {
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+.tt-lesson-callout__body > :first-child { margin-top: 0; }
+
+.tt-lesson-callout--key {
+    border-left-color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-lesson-callout--key .tt-lesson-callout__label { color: var(--tt-primary, #0b3d2e); }
+
+.tt-lesson-callout--warning {
+    border-left-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+.tt-lesson-callout--warning .tt-lesson-callout__label { color: #8a5a12; }
+
+.tt-lesson-callout--note {
+    border-left-color: var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-lesson-callout--note .tt-lesson-callout__label { color: var(--tt-muted, #6a6d66); }
+
+/* ── reveal ─────────────────────────────────────────────────────────── */
+
+.tt-lesson-reveal {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-lesson-reveal__question {
+    /* 48px min target: 16px padding top and bottom around a 1.5 line. */
+    padding: var(--tt-sp-4, 16px);
+    min-height: 48px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-lesson-reveal__question::-webkit-details-marker { display: none; }
+
+.tt-lesson-reveal__question::before {
+    content: "?";
+    flex: 0 0 1.5rem;
+    height: 1.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    font-size: 0.8rem;
+}
+
+.tt-lesson-reveal[open] .tt-lesson-reveal__question::before { content: "✓"; }
+
+.tt-lesson-reveal__answer {
+    padding: 0 var(--tt-sp-4, 16px) var(--tt-sp-4, 16px);
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    padding-top: var(--tt-sp-3, 12px);
+}
+
+/* ── action line ────────────────────────────────────────────────────── */
+
+.tt-lesson-actionline {
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-lesson-actionline__row {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+}
+
+@media (min-width: 480px) {
+    .tt-lesson-actionline__row {
+        grid-template-columns: 9rem 1fr auto;
+        align-items: center;
+        gap: var(--tt-sp-3, 12px);
+    }
+}
+
+.tt-lesson-actionline__label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+}
+
+.tt-lesson-actionline__track {
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+}
+
+.tt-lesson-actionline__mark {
+    flex: 0 0 auto;
+    width: calc(0.85rem * var(--tt-mark-scale, 1));
+    height: calc(0.85rem * var(--tt-mark-scale, 1));
+    border-radius: 50%;
+    background: var(--tt-primary, #0b3d2e);
+}
+
+.tt-lesson-actionline__gap {
+    flex: 1 1 calc(0.5rem + 2.5rem * var(--tt-gap-scale, 0.5));
+    height: 1px;
+    background: var(--tt-line, #e3e6e1);
+}
+
+.tt-lesson-actionline__figures {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ── six-week model ─────────────────────────────────────────────────── */
+
+.tt-lesson-model {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+@media (min-width: 680px) {
+    .tt-lesson-model {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: start;
+    }
+    .tt-lesson-model__axis { grid-column: 1 / -1; }
+}
+
+.tt-lesson-model__phase {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-top: 3px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px) var(--tt-sp-4, 16px);
+}
+
+.tt-lesson-model__phase--volume     { border-top-color: #3f7e90; }
+.tt-lesson-model__phase--transition { border-top-color: #a97a2b; }
+.tt-lesson-model__phase--intensity  { border-top-color: #a9462c; }
+
+.tt-lesson-model__weeks {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-lesson-model__exercises,
+.tt-lesson-model__methods {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.tt-lesson-model__exercises { font-weight: 600; }
+
+.tt-lesson-model__methods-label {
+    margin: var(--tt-sp-3, 12px) 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-model__methods {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-model__axis {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0;
+    padding-top: var(--tt-sp-2, 8px);
+    border-top: 1px dashed var(--tt-line, #e3e6e1);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ── shared tool chrome ─────────────────────────────────────────────── */
+
+.tt-lesson-tool {
+    padding: var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-lesson-tool__title {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 600;
+}
+
+.tt-lesson-tool__intro,
+.tt-lesson-tool__note,
+.tt-lesson-tool__derivation,
+.tt-lesson-tool__legend {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-tool__controls {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+@media (min-width: 480px) {
+    .tt-lesson-tool__controls {
+        grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    }
+}
+
+.tt-lesson-tool__label {
+    display: block;
+    margin-bottom: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+}
+
+.tt-lesson-tool__select,
+.tt-lesson-tool__number {
+    width: 100%;
+    min-height: 48px;
+    /* 16px keeps iOS from zooming the viewport on focus. */
+    font-size: 16px;
+    touch-action: manipulation;
+}
+
+.tt-lesson-tool__output {
+    display: block;
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    font-weight: 600;
+}
+
+.tt-lesson-tool__result {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+}
+
+@media (min-width: 480px) {
+    .tt-lesson-tool__result { grid-template-columns: 1fr 1fr; }
+}
+
+.tt-lesson-tool__result > div {
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-lesson-tool__result dt {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-tool__result dd {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── week planner ───────────────────────────────────────────────────── */
+
+.tt-lesson-week__grid {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+@media (min-width: 700px) {
+    .tt-lesson-week__grid { grid-template-columns: repeat(7, 1fr); }
+}
+
+.tt-lesson-week__label {
+    display: block;
+    margin-bottom: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+}
+
+.tt-lesson-week__select {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+    touch-action: manipulation;
+}
+
+.tt-lesson-week__verdict {
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left-width: 3px;
+}
+
+/* State is carried by more than colour: the icon and the wording change
+   with it, so the verdict reads the same to a colour-blind coach. */
+.tt-lesson-week__verdict--ok {
+    border-left-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+
+.tt-lesson-week__verdict--problem {
+    border-left-color: var(--tt-danger, #d8453b);
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+
+.tt-lesson-week__problems {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding-left: 1.1rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-lesson-week__problems li + li { margin-top: var(--tt-sp-1, 4px); }
+
+/* ── load matrix ────────────────────────────────────────────────────── */
+
+.tt-lesson-matrix__toggle {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px) var(--tt-sp-4, 16px);
+}
+
+.tt-lesson-matrix__toggle label {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-lesson-matrix__toggle input {
+    width: 20px;
+    height: 20px;
+}
+
+.tt-lesson-matrix__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-lesson-matrix__table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 30rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-lesson-matrix__table th,
+.tt-lesson-matrix__table td {
+    padding: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    text-align: center;
+}
+
+.tt-lesson-matrix__table th[scope="row"] {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tt-lesson-matrix__cell--100 { background: #f2ddd6; color: #8c3823; font-weight: 600; }
+.tt-lesson-matrix__cell--50  { background: #f1e7d3; color: #7d5a1f; }
+.tt-lesson-matrix__cell--0   { color: var(--tt-muted, #6a6d66); }
+
+/* ── quiz + assignment placeholders ─────────────────────────────────── */
+
+.tt-lesson-quiz,
+.tt-lesson-assignment {
+    padding: var(--tt-sp-4, 16px);
+    border: 1px dashed var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-lesson-assignment {
+    border-style: solid;
+    border-left: 3px solid var(--tt-warning, #e8902b);
+}
+
+.tt-lesson-quiz__title,
+.tt-lesson-assignment__label {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-assignment__label { color: #8a5a12; }
+
+.tt-lesson-quiz__note,
+.tt-lesson-assignment__note {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-assignment__body > * + * { margin-top: var(--tt-sp-2, 8px); }
+
+/* ── motion ─────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-lesson-body * {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}
