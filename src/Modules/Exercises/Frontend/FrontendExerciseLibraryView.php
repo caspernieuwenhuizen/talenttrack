@@ -4,8 +4,10 @@ namespace TT\Modules\Exercises\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Exercises\ExerciseScenesRepository;
 use TT\Modules\Exercises\ExercisesRepository;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -490,6 +492,16 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             return;
         }
 
+        // #2501 — the scene editor is a mode of this record, not a view of
+        // its own: the subject is still this exercise, so the breadcrumb
+        // chain simply grows one crumb and §5's two affordances are
+        // unchanged.
+        $mode = isset( $_GET['mode'] ) ? sanitize_key( wp_unslash( $_GET['mode'] ) ) : '';
+        if ( $mode === 'scene' ) {
+            self::renderSceneEditor( $row, $user_id );
+            return;
+        }
+
         FrontendBreadcrumbs::fromDashboard(
             (string) $row->name,
             [ FrontendBreadcrumbs::viewCrumb( 'exercises', __( 'Exercises', 'talenttrack' ) ) ]
@@ -526,6 +538,8 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         }
         echo '</div>';
 
+        self::renderScenes( $row, $user_id );
+
         if ( ! empty( $row->diagram_url ) ) {
             printf(
                 '<img class="tt-ex-diagram" src="%s" alt="%s" loading="lazy">',
@@ -543,6 +557,140 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
                 . esc_html__( 'This exercise ships with TalentTrack, so it cannot be edited here. Duplicate it to make a version of your own.', 'talenttrack' )
                 . '</p>';
         }
+    }
+
+    /** This exercise's own page. */
+    private static function detailUrl( int $id ): string {
+        return add_query_arg( /* tt-xview-ok — same view */
+            [ 'tt_view' => 'exercises', 'id' => $id ],
+            RecordLink::dashboardUrl()
+        );
+    }
+
+    private static function sceneUrl( int $id, int $scene_id = 0 ): string {
+        $args = [ 'tt_view' => 'exercises', 'id' => $id, 'mode' => 'scene' ];
+        if ( $scene_id > 0 ) $args['scene'] = $scene_id;
+
+        return BackLink::appendTo(
+            add_query_arg( $args, RecordLink::dashboardUrl() ) /* tt-xview-ok — same view */
+        );
+    }
+
+    /**
+     * The animated scene on the exercise page.
+     *
+     * Rendered through `SceneRenderer` — the same call the sideline view
+     * and the print sheet make — so what a coach drew is what all three
+     * show. This method decides only which scene and whether to offer
+     * the pencil.
+     */
+    private static function renderScenes( object $row, int $user_id ): void {
+        $id     = (int) $row->id;
+        $repo   = new ExerciseScenesRepository();
+        $scenes = $repo->listForExercise( $id );
+        $can_write = self::canWrite( $user_id ) && (string) ( $row->source ?? 'club' ) === 'club';
+
+        if ( $scenes === [] ) {
+            if ( $can_write ) {
+                printf(
+                    '<p class="tt-ex-scene-empty"><a class="tt-btn tt-btn-secondary" href="%s">%s</a></p>',
+                    esc_url( self::sceneUrl( $id ) ),
+                    esc_html__( 'Draw a scene', 'talenttrack' )
+                );
+            }
+            return;
+        }
+
+        echo '<section class="tt-ex-scenes">';
+
+        SceneRenderer::render( $scenes[0] );
+
+        if ( $can_write ) {
+            echo '<p class="tt-ex-scene-actions">';
+            printf(
+                '<a class="tt-btn tt-btn-secondary" href="%s">%s</a>',
+                esc_url( self::sceneUrl( $id, (int) $scenes[0]->id ) ),
+                esc_html__( 'Edit scene', 'talenttrack' )
+            );
+            printf(
+                ' <a class="tt-btn tt-btn-secondary" href="%s">%s</a>',
+                esc_url( self::sceneUrl( $id ) ),
+                esc_html__( 'Add a scene', 'talenttrack' )
+            );
+            echo '</p>';
+        }
+
+        // More than one scene means the drill has phases. Name them so a
+        // coach can get at the second one; a single scene needs no list.
+        if ( count( $scenes ) > 1 ) {
+            echo '<ul class="tt-ex-scene-list">';
+            foreach ( $scenes as $index => $scene ) {
+                $label = trim( (string) ( $scene->name ?? '' ) );
+                if ( $label === '' ) {
+                    $label = sprintf(
+                        /* translators: %d is the position of a scene within an exercise. */
+                        __( 'Scene %d', 'talenttrack' ),
+                        $index + 1
+                    );
+                }
+                printf(
+                    '<li><a href="%s">%s</a></li>',
+                    esc_url( self::sceneUrl( $id, (int) $scene->id ) ),
+                    esc_html( $label )
+                );
+            }
+            echo '</ul>';
+        }
+
+        echo '</section>';
+    }
+
+    /**
+     * `?tt_view=exercises&id=N&mode=scene` — the editor.
+     *
+     * `&scene=N` opens an existing one; without it the editor starts
+     * empty and the first save creates the row. Gated on the same
+     * capability the library form uses, because authoring a scene is
+     * authoring the exercise (#2501 D6).
+     */
+    private static function renderSceneEditor( object $row, int $user_id ): void {
+        $id = (int) $row->id;
+
+        FrontendBreadcrumbs::fromDashboard(
+            __( 'Edit scene', 'talenttrack' ),
+            [
+                FrontendBreadcrumbs::viewCrumb( 'exercises', __( 'Exercises', 'talenttrack' ) ),
+                FrontendBreadcrumbs::viewCrumb( 'exercises', (string) $row->name, [ 'id' => $id ] ),
+            ]
+        );
+
+        if ( ! self::canWrite( $user_id ) || (string) ( $row->source ?? 'club' ) !== 'club' ) {
+            echo '<p class="tt-notice">'
+                . esc_html__( 'You do not have permission to draw scenes for this exercise.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        self::renderHeader( (string) $row->name );
+
+        $repo     = new ExerciseScenesRepository();
+        $scene_id = isset( $_GET['scene'] ) ? absint( wp_unslash( $_GET['scene'] ) ) : 0;
+        $scene    = $scene_id > 0 ? $repo->findById( $scene_id ) : null;
+
+        // A scene id that belongs to a different exercise is a stale
+        // link, not a permission problem — start a new scene rather than
+        // letting the editor save one exercise's drawing onto another.
+        if ( $scene !== null && (int) $scene->exercise_id !== $id ) $scene = null;
+
+        // §6 — Cancel lands on the record's own page, unless the entry URL
+        // captured somewhere better to go back to.
+        $back = BackLink::resolve();
+
+        SceneEditorRenderer::render(
+            $row,
+            $scene,
+            $back !== null ? $back['url'] : self::detailUrl( $id )
+        );
     }
 
     private static function visibilityLabel( string $visibility ): string {

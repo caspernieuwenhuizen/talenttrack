@@ -3,6 +3,7 @@ namespace TT\Modules\Training\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Exercises\ExerciseScenesRepository;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -421,17 +422,40 @@ final class FrontendTrainingRunView extends FrontendViewBase {
     }
 
     private static function enqueueSideline( object $run, TrainingPlanRunsRepository $runs, string $title ): void {
+        // #2501 — the drill's diagram at the sideline. The same two
+        // sheets and the same renderer the exercise page uses, so the
+        // scene a coach approved on a desk is the scene they see on the
+        // pitch.
+        wp_enqueue_style(
+            'tt-frontend-methodology-scene',
+            TT_PLUGIN_URL . 'assets/css/frontend-methodology-scene.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-training-scene',
+            TT_PLUGIN_URL . 'assets/css/frontend-training-scene.css',
+            [ 'tt-frontend-methodology-scene' ],
+            TT_VERSION
+        );
         wp_enqueue_style(
             'tt-frontend-training-run',
             TT_PLUGIN_URL . 'assets/css/frontend-training-run.css',
-            [],
+            [ 'tt-frontend-training-scene' ],
             TT_VERSION
         );
 
         wp_enqueue_script(
+            'tt-frontend-training-scene',
+            TT_PLUGIN_URL . 'assets/js/frontend-training-scene.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_enqueue_script(
             'tt-frontend-training-run',
             TT_PLUGIN_URL . 'assets/js/frontend-training-run.js',
-            [],
+            [ 'tt-frontend-training-scene' ],
             TT_VERSION,
             true
         );
@@ -468,12 +492,34 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             $by_order[ (int) ( $block['order_index'] ?? 0 ) ] = $block;
         }
 
+        // #2501 — the diagram for each block's drill, in one query.
+        // Keyed off the snapshot's exercise id, so a plan edited tonight
+        // does not change the picture the coach is looking at, for the
+        // same reason the rest of this method reads the snapshot.
+        $exercise_ids = [];
+        foreach ( $by_order as $block ) {
+            $exercise_ids[] = (int) ( $block['exercise_id'] ?? 0 );
+        }
+        $scene_rows = ( new ExerciseScenesRepository() )->primaryForExercises( $exercise_ids );
+        $scenes_repo = new ExerciseScenesRepository();
+
         $out = [];
         foreach ( $runs->listBlocks( (int) $run->id ) as $row ) {
             $order = (int) ( $row->order_index ?? 0 );
             $snap  = $by_order[ $order ] ?? [];
 
+            $scene_row = $scene_rows[ (int) ( $snap['exercise_id'] ?? 0 ) ] ?? null;
+
             $out[] = [
+                // Carried as an encoded string, not as an array.
+                // `wp_localize_script` casts every scalar it walks to a
+                // string, and a scene is numbers — an x of "30" makes the
+                // interpolator concatenate instead of add. A JSON string
+                // survives the cast untouched, and it is the exact shape
+                // the renderer's payload element wants anyway.
+                'scene'           => $scene_row !== null
+                    ? (string) wp_json_encode( $scenes_repo->decode( $scene_row ) )
+                    : '',
                 'id'              => (int) ( $row->id ?? 0 ),
                 'order_index'     => $order,
                 'block_type'      => (string) ( $snap['block_type'] ?? $row->planned_block_type ?? 'main' ),
@@ -517,6 +563,10 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             'of'           => __( 'of %s', 'talenttrack' ),
             'organisation' => __( 'Organisation', 'talenttrack' ),
             'coachingPts'  => __( 'Coaching points', 'talenttrack' ),
+            'scenePlay'    => __( 'Play', 'talenttrack' ),
+            'scenePause'   => __( 'Pause', 'talenttrack' ),
+            'sceneRestart' => __( 'Restart', 'talenttrack' ),
+            'sceneLabel'   => __( 'Diagram for this drill', 'talenttrack' ),
             'previous'     => __( 'Previous block', 'talenttrack' ),
             'next'         => __( 'Next block', 'talenttrack' ),
             'finishBlock'  => __( 'Finish this block', 'talenttrack' ),
