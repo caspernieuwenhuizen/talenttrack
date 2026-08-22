@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T10:11:53+00:00\n"
+"POT-Creation-Date: 2026-08-22T10:21:10+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5899,6 +5899,30 @@ msgstr[0] ""
 msgstr[1] ""
 "%1$s heeft geen evaluatie in %2$s, en die periode sluit over %3$d dagen."
 
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:67
+msgid "Goal past its target date"
+msgstr "Doel over de streefdatum"
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:71
+msgid ""
+"A development goal has passed the date it was aimed at and is still open. "
+"Either the player got there and nobody recorded it, or the plan needs "
+"changing."
+msgstr ""
+"Een ontwikkeldoel is voorbij de datum waarop het gehaald zou zijn en staat "
+"nog open. Of de speler is er, en niemand heeft het vastgelegd, of het plan "
+"moet worden bijgesteld."
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:106
+msgid "Untitled goal"
+msgstr "Naamloos doel"
+
+#. translators: 1: player name, 2: goal title
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:110
+#, php-format
+msgid "%1$s's goal \"%2$s\" is past its target date and still open."
+msgstr "Het doel \"%2$s\" van %1$s is over de streefdatum en staat nog open."
+
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
 msgid "Upcoming activity has no coach"
 msgstr "Aankomende activiteit zonder trainer"
@@ -5948,6 +5972,26 @@ msgid "%1$s is still marked as planned, %2$d day after it took place."
 msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
 msgstr[0] "%1$s staat nog op gepland, %2$d dag nadat die plaatsvond."
 msgstr[1] "%1$s staat nog op gepland, %2$d dagen nadat die plaatsvond."
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:56
+msgid "No PDP conversation this cycle"
+msgstr "Geen PDP-gesprek deze cyclus"
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:60
+msgid ""
+"A player's PDP file for this season is open but no conversation has actually "
+"been held. The file looks complete on every list and the player has been "
+"told nothing."
+msgstr ""
+"Het PDP-dossier van een speler voor dit seizoen staat open, maar er is nog "
+"geen gesprek gevoerd. In elke lijst ziet het dossier er compleet uit en de "
+"speler heeft niets te horen gekregen."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:102
+#, php-format
+msgid "No PDP conversation has been held with %s this cycle."
+msgstr "Er is deze cyclus nog geen PDP-gesprek gevoerd met %s."
 
 #: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:46
 msgid "Player not evaluated recently"
@@ -52646,38 +52690,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "No markings"
 #~ msgstr "Zonder lijnen"
-
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:71
-msgid "Goal past its target date"
-msgstr "Doel over de streefdatum"
-
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:75
-msgid "A development goal has passed the date it was aimed at and is still open. Either the player got there and nobody recorded it, or the plan needs changing."
-msgstr "Een ontwikkeldoel is voorbij de datum waarop het gehaald zou zijn en staat nog open. Of de speler is er, en niemand heeft het vastgelegd, of het plan moet worden bijgesteld."
-
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:112
-msgid "Untitled goal"
-msgstr "Naamloos doel"
-
-#. translators: 1: player name, 2: goal title
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:116
-#, php-format
-msgid "%1$s's goal \"%2$s\" is past its target date and still open."
-msgstr "Het doel \"%2$s\" van %1$s is over de streefdatum en staat nog open."
-
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:61
-msgid "No PDP conversation this cycle"
-msgstr "Geen PDP-gesprek deze cyclus"
-
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:65
-msgid "A player's PDP file for this season is open but no conversation has actually been held. The file looks complete on every list and the player has been told nothing."
-msgstr "Het PDP-dossier van een speler voor dit seizoen staat open, maar er is nog geen gesprek gevoerd. In elke lijst ziet het dossier er compleet uit en de speler heeft niets te horen gekregen."
-
-#. translators: %s: player name
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:113
-#, php-format
-msgid "No PDP conversation has been held with %s this cycle."
-msgstr "Er is deze cyclus nog geen PDP-gesprek gevoerd met %s."
 
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"

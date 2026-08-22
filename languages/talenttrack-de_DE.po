@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T10:11:53+00:00\n"
+"POT-Creation-Date: 2026-08-22T10:21:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5618,6 +5618,27 @@ msgid_plural "%1$s has no evaluation in %2$s, which closes in %3$d days."
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:67
+msgid "Goal past its target date"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:71
+msgid ""
+"A development goal has passed the date it was aimed at and is still open. "
+"Either the player got there and nobody recorded it, or the plan needs "
+"changing."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:106
+msgid "Untitled goal"
+msgstr ""
+
+#. translators: 1: player name, 2: goal title
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:110
+#, php-format
+msgid "%1$s's goal \"%2$s\" is past its target date and still open."
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
 msgid "Upcoming activity has no coach"
 msgstr ""
@@ -5661,6 +5682,23 @@ msgid "%1$s is still marked as planned, %2$d day after it took place."
 msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:56
+msgid "No PDP conversation this cycle"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:60
+msgid ""
+"A player's PDP file for this season is open but no conversation has actually "
+"been held. The file looks complete on every list and the player has been "
+"told nothing."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:102
+#, php-format
+msgid "No PDP conversation has been held with %s this cycle."
+msgstr ""
 
 #: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:46
 msgid "Player not evaluated recently"
