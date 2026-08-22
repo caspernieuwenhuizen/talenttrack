@@ -17,7 +17,9 @@ use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Definitions\NoMeasurementThisSeasonAlert;
 use TT\Modules\Alerts\Definitions\PlayerNotEvaluatedAlert;
 use TT\Modules\Alerts\Definitions\PlayerTurns18Alert;
+use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
+use TT\Modules\Alerts\Definitions\TeamWithoutHeadCoachAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
@@ -105,6 +107,10 @@ final class AlertsModule implements ModuleInterface {
 
         // #2636 instalment 4 — Measurements.
         $alerts[] = new NoMeasurementThisSeasonAlert();
+
+        // #2636 instalment 5 — data quality.
+        $alerts[] = new PlayerWithoutTeamAlert();
+        $alerts[] = new TeamWithoutHeadCoachAlert();
 
         return $alerts;
     }
