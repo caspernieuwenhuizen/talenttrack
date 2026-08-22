@@ -136,3 +136,24 @@ De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk bet
 - Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, en `GET /alerts/rollup` voor de samenvatting per team.
 - Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
+
+## Meldingen per e-mail ontvangen
+
+Open je TalentTrack niet vaak, dan kun je je openstaande meldingen als samenvattingsmail laten sturen.
+
+Dit staat **uit tot je het zelf aanzet**. Niemand wordt automatisch aangemeld — de app toont je meldingen in de bel en op het dashboard, maar mailt je pas als je erom vraagt.
+
+Aanzetten doe je door bij **Account → Meldingsinstellingen** per melding **In de samenvattingsmail** aan te vinken.
+
+Waar je op kunt rekenen:
+
+- Je krijgt dezelfde melding nooit twee keer. Een melding blijft open tot het onderliggende is opgelost, en zonder dit zou je elke ochtend dezelfde drie punten krijgen.
+- Er wordt niets gemaild dat je in de app al gelezen, uitgesteld of weggeklikt hebt.
+- Is er niets te melden, dan wordt er geen mail verstuurd.
+- Elke regel linkt rechtstreeks naar het record dat aandacht vraagt, niet naar een lijst.
+
+## Hoe lang meldingen bewaard blijven
+
+Een melding die is opgelost blijft **90 dagen** bewaard en wordt daarna verwijderd. Meldingen die nog openstaan worden nooit verwijderd, hoe oud ook — een melding waar een jaar lang niets mee gedaan is, wil je juist zien.
+
+Dat betekent dat het meldingssysteem geen vragen kan beantwoorden die verder terugkijken dan ongeveer een kwartaal. Gebruik voor patronen over een heel seizoen de rapportages; die lezen de onderliggende gegevens in plaats van de meldingen erover.

@@ -31,6 +31,20 @@ use TT\Modules\Alerts\Repositories\AlertPreferencesRepository;
  */
 final class AlertPolicyResolver {
 
+    /**
+     * Surfaces that reach a person outside the app, and therefore may never
+     * be switched on by a shipped default (#2634, epic decision 10).
+     *
+     * The asymmetry is deliberate and worth stating: the app may nag you
+     * in-app the moment an alert ships, but it may not put mail in your
+     * inbox or a notification on your lock screen until you have asked for
+     * it. In-app noise is recoverable by ignoring a page; unsolicited mail
+     * is what gets a sender filtered permanently.
+     *
+     * @var list<string>
+     */
+    private const OPT_IN_ONLY_SURFACES = [ Surface::DIGEST, Surface::PUSH ];
+
     /** @var ClubAlertPolicy */
     private $club;
 
@@ -77,7 +91,17 @@ final class AlertPolicyResolver {
             return [];
         }
 
-        $surfaces = Surface::normalise( $definition->defaultSurfaces() );
+        // #2634 — surfaces that leave the building are opt-in only (epic
+        // decision 10). A definition listing `digest` or `push` among its
+        // defaults would otherwise enrol every eligible user the day it
+        // ships, which is precisely the unsolicited-mail outcome that
+        // decision rules out. They appear only when a user's stored
+        // preference asks for them, or when a club force-on names them
+        // explicitly — both of which are somebody choosing.
+        $surfaces = array_values( array_diff(
+            Surface::normalise( $definition->defaultSurfaces() ),
+            self::OPT_IN_ONLY_SURFACES
+        ) );
 
         if ( $mode === ClubAlertPolicy::MODE_FORCE_ON ) {
             // The club's chosen surfaces win outright; an empty club set

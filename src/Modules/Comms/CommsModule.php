@@ -23,6 +23,7 @@ use TT\Modules\Comms\Templates\LetterDeliveryTemplate;
 use TT\Modules\Comms\Templates\InvitationEmailTemplate;
 use TT\Modules\Comms\Templates\MassAnnouncementTemplate;
 use TT\Modules\Comms\Templates\MethodologyDeliveredTemplate;
+use TT\Modules\Comms\Templates\AlertDigestTemplate;
 use TT\Modules\Comms\Templates\NotificationTemplate;
 use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
 use TT\Modules\Comms\Templates\ParentMeetingInviteTemplate;
@@ -141,6 +142,7 @@ class CommsModule implements ModuleInterface {
         TemplateRegistry::register( new SafeguardingBroadcastTemplate() );      // use case 15
         TemplateRegistry::register( new InvitationEmailTemplate() );            // #1902 invitation email
         TemplateRegistry::register( new NotificationTemplate() );               // #2604 caller-composed copy
+        TemplateRegistry::register( new AlertDigestTemplate() );                // #2634 alerts roll-up
 
         // Generic event-driven dispatch hook. Owning modules fire
         //   do_action( 'tt_comms_dispatch', $template_key, $payload, $recipients, $options );
