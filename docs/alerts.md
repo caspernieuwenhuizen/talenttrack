@@ -80,7 +80,15 @@ Each alert links straight to the record it is about, so fixing it is one click a
 
 These two go to whoever looks after the records rather than to a coach, because there is no coach to send them to — that is the condition. They are quieter than the rest of the catalogue: **Player has no team** appears on the bell only, not as a banner.
 
-More alerts, covering onboarding, arrive in a later release. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### Onboarding
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Invitation never accepted** | A player or staff invitation was sent a fortnight ago and never accepted. | *Where has this player come from?* An invitation is the first step of a player's journey through the academy's own systems, and an unaccepted one is a journey that never started — no account, no sight of their own evaluations, no reading the feedback their coach wrote for them. |
+
+Parent invitations have their own alert (**Parent invited but never activated**), because the question they raise is different: a parent invitation that was never accepted may still be fine if the family is linked another way. Splitting them keeps each message specific.
+
+That completes the alert catalogue for now. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -100,6 +108,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
 | `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
 | `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
+| `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted before the alert appears. |
 
 ## New alerts arrive switched on
 
