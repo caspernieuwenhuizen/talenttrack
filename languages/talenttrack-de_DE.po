@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T08:39:59+00:00\n"
+"POT-Creation-Date: 2026-08-22T08:43:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -19331,32 +19331,38 @@ msgstr ""
 msgid "Day off"
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:153
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:183
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:163
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:173
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:209
 msgid "That course is not in this library."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:194
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:220
 msgid "This login is not linked to a staff record, so it cannot be enrolled."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:206
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:232
 msgid "Could not enrol on that course."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:223
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:249
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:268
 msgid "That lesson is not part of this course."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:230
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:256
 msgid "This login is not linked to a staff record."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:246
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:274
+msgid "Finish the previous lesson first."
+msgstr ""
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:291
 msgid "Could not record progress."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:285
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:330
 msgid "That enrolment does not exist."
 msgstr ""
 

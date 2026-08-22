@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T08:39:59+00:00\n"
+"POT-Creation-Date: 2026-08-22T08:43:07+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -20807,34 +20807,40 @@ msgstr "Sprints met maximale rust"
 msgid "Day off"
 msgstr "Vrije dag"
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:153
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:183
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:163
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:173
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:209
 msgid "That course is not in this library."
 msgstr "Die cursus zit niet in deze kennisbank."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:194
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:220
 msgid "This login is not linked to a staff record, so it cannot be enrolled."
 msgstr ""
 "Dit account is niet gekoppeld aan een medewerkersdossier en kan daarom niet "
 "worden ingeschreven."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:206
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:232
 msgid "Could not enrol on that course."
 msgstr "Inschrijven op die cursus is niet gelukt."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:223
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:249
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:268
 msgid "That lesson is not part of this course."
 msgstr "Die les hoort niet bij deze cursus."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:230
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:256
 msgid "This login is not linked to a staff record."
 msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:246
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:274
+msgid "Finish the previous lesson first."
+msgstr "Rond eerst de vorige les af."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:291
 msgid "Could not record progress."
 msgstr "Voortgang vastleggen is niet gelukt."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:285
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:330
 msgid "That enrolment does not exist."
 msgstr "Die inschrijving bestaat niet."
 
@@ -51450,12 +51456,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#, php-format
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "Finish the previous lesson first."
-msgstr "Rond eerst de vorige les af."
 
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
