@@ -263,7 +263,7 @@ class ModuleMetadata {
             ],
             'TT\\Modules\\Training\\TrainingModule' => [
                 'label'       => __( 'Training plans', 'talenttrack' ),
-                'description' => __( 'Reusable session plans built from the exercise library, and a record of what each one actually trained.', 'talenttrack' ),
+                'description' => __( 'Reusable training plans built from the exercise library, and a record of what each one actually trained.', 'talenttrack' ),
                 'icon'        => 'activities',
                 'category'    => self::CAT_PLANNING,
             ],

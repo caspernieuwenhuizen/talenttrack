@@ -51025,7 +51025,7 @@ msgstr ""
 "buiten de training op het spelersdossier terechtkomt."
 
 #: src/Shared/Modules/ModuleMetadata.php
-msgid "Reusable session plans built from the exercise library, and a record of what each one actually trained."
+msgid "Reusable training plans built from the exercise library, and a record of what each one actually trained."
 msgstr ""
 "Herbruikbare trainingsplannen uit de oefeningenbibliotheek, plus een "
 "vastlegging van wat er per keer daadwerkelijk getraind is."
