@@ -49150,6 +49150,8 @@ msgstr "Nog geen spelers in deze selectie."
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:841
 msgid "Open board"
+msgstr "Open het chemiebord"
+
 #: src/Shared/Frontend/FrontendTeamDetailView.php:799
 msgid "No team photos or video yet"
 msgstr "Nog geen teamfoto's of video"
@@ -49394,6 +49396,8 @@ msgstr "Nog geen wedstrijden."
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:389
 msgid "Open planner"
+msgstr "Open planner grid"
+
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:391
 msgid "Open planner grid"
 msgstr "Open planner grid"
