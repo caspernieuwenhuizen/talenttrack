@@ -22,6 +22,13 @@ languages/*.mo    binary
 docs/reports.md       merge=union
 docs/nl_NL/reports.md merge=union
 
+# Same reasoning for the alerts docs (#2629): each wave of the epic appends
+# its own section — preferences, inline surfaces, digests, the catalogue —
+# and several of those waves are built on parallel branches. Union keeps
+# every branch's added section instead of a hard conflict on prose.
+docs/alerts.md        merge=union
+docs/nl_NL/alerts.md  merge=union
+
 # Note: never put CODE files under merge=union — it would keep both
 # versions of a conflicting line and silently break the code. union is
 # only safe for append-only text. The version constant lives in
