@@ -122,8 +122,13 @@ Hoe groot een bestand mag zijn, bepaalt je webserver — niet TalentTrack. Veel 
 een minuut telefoonvideo. Het uploadscherm toont de werkelijke limiet van jouw server. Is die te klein, vraag je host dan om `upload_max_filesize`
 en `post_max_size` te verhogen, of gebruik videolinks.
 
-Geüploade video kost ook echte schijfruimte, en niets ruimt die automatisch op. Een academie die wekelijks wedstrijdfragmenten uploadt, moet de
-opslag van de hosting in de gaten houden.
+Geüploade video kost ook echte schijfruimte, en niets ruimt die automatisch op. Zodra een academie media heeft opgeslagen, verschijnt het totaal
+als **Media opgeslagen** op de systeemstatusbalk van de academiebeheerder — dus op de plek waar je toch al kijkt, en niet achter een instellingen-
+tabblad. Er is nog geen automatische opschoning en geen bewaartermijn: wanneer oude media weg mag, is een beleidskeuze, en die verzint TalentTrack
+niet voor je.
+
+Een academie die wekelijks wedstrijdfragmenten uploadt, moet dat getal afzetten tegen wat de hosting daadwerkelijk biedt — TalentTrack kan niet
+zien hoe groot de schijf is waarop het draait.
 
 ## Wie de media van een speler mag zien
 

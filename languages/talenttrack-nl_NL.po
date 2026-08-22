@@ -51123,6 +51123,10 @@ msgstr "1 speler getagd"
 #: src/Shared/Frontend/Components/MediaGallery.php
 msgid "That tag could not be saved."
 msgstr "Die tag kon niet worden opgeslagen."
+
+#: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php
+msgid "Media stored"
+msgstr "Media opgeslagen"
 #~ msgid "improved"
 #~ msgstr "verbeterd"
 

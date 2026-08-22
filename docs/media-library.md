@@ -116,8 +116,12 @@ The largest file you can upload is set by your web server, not by TalentTrack. M
 smaller than a minute of phone video. The upload screen shows your server's actual limit. If it is too small, ask your host to raise
 `upload_max_filesize` and `post_max_size`, or use video links instead.
 
-Uploaded video also uses real disk space, and nothing reclaims it automatically. An academy uploading match clips every week should keep an eye on
-its hosting storage.
+Uploaded video also uses real disk space, and nothing reclaims it automatically. Once an academy has media stored, the total appears as **Media
+stored** on the academy admin's system-health strip, so it is visible in the place you already check rather than behind a settings tab. There is
+no automatic clean-up and no retention rule yet: deciding when old media should go is a policy question, and TalentTrack does not guess at it.
+
+An academy uploading match clips every week should watch that number against whatever their hosting actually provides — TalentTrack has no way to
+know the disk size it is running on.
 
 ## Who can see a player's media
 
