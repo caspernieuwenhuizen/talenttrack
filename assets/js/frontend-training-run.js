@@ -205,6 +205,38 @@
             }));
         }
 
+        /**
+         * The drill's diagram (#2501).
+         *
+         * Handed to `TTTrainingScene.render()` — the same call the
+         * exercise page makes — rather than drawn here. That is what
+         * makes the picture on the pitch the picture that was approved
+         * at the desk, including the play controls and the
+         * reduced-motion behaviour, none of which this file has to know
+         * anything about.
+         */
+        function renderScene(block) {
+            if (!block.scene || !window.TTTrainingScene) { return; }
+
+            var figure = document.createElement('figure');
+            figure.className = 'tt-training-scene tt-run__scene';
+            figure.setAttribute('data-i18n-play', i18n.scenePlay || '');
+            figure.setAttribute('data-i18n-pause', i18n.scenePause || '');
+            figure.setAttribute('data-i18n-restart', i18n.sceneRestart || '');
+            figure.setAttribute('aria-label', i18n.sceneLabel || '');
+
+            // Already a JSON string from PHP — see the note on `scene`
+            // in shapeBlocks(). Handed straight to the payload element
+            // rather than parsed and re-encoded.
+            var payload = document.createElement('script');
+            payload.type = 'application/json';
+            payload.textContent = block.scene;
+            figure.appendChild(payload);
+
+            el.card.appendChild(figure);
+            window.TTTrainingScene.render(figure);
+        }
+
         function renderBlock() {
             var block = state.blocks[state.index];
             if (!block) { renderDone(); return; }
@@ -234,6 +266,8 @@
             var over = node('p', 'tt-run__over', '');
             over.hidden = true;
             el.card.appendChild(over);
+
+            renderScene(block);
 
             if (block.organisation) {
                 el.card.appendChild(node('h3', 'tt-run__sub', i18n.organisation));

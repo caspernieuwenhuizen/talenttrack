@@ -85,6 +85,43 @@ final class ExerciseScenesRepository {
         return $scenes === [] ? null : $scenes[0];
     }
 
+    /**
+     * The primary scene for each of several exercises, in one query.
+     *
+     * The print sheet needs one per block; asking per block would be a
+     * query per row of a page that is already assembled from three
+     * tables. Same fallback as `primaryFor()` — the lowest-sorted scene
+     * when nothing carries the flag.
+     *
+     * @param list<int> $exercise_ids
+     * @return array<int,object> keyed by exercise id
+     */
+    public function primaryForExercises( array $exercise_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $exercise_ids ) ) ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$this->table()}
+              WHERE club_id = %d AND exercise_id IN ( {$placeholders} )
+           ORDER BY exercise_id ASC, is_primary DESC, sort_order ASC, id ASC",
+            array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $exercise_id = (int) $row->exercise_id;
+            // Ordered so the winner is first; later rows for the same
+            // exercise are the other scenes and are not wanted here.
+            if ( ! isset( $out[ $exercise_id ] ) ) $out[ $exercise_id ] = $row;
+        }
+
+        return $out;
+    }
+
     public function findById( int $id ): ?object {
         if ( $id <= 0 ) return null;
 

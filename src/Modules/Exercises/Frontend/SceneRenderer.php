@@ -66,6 +66,24 @@ final class SceneRenderer {
      * scene to be a picture rather than a player.
      */
     public static function renderStatic( object $scene ): void {
+        echo self::staticMarkup( $scene ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built below with esc_attr()/esc_html() on every dynamic value.
+    }
+
+    /**
+     * The same static frame, returned rather than echoed.
+     *
+     * The print sheet composes one long string and hands it to the
+     * router, so it needs the markup as a value. Both entry points build
+     * it here, which is the whole point of this class.
+     */
+    public static function staticMarkup( object $scene ): string {
+        ob_start();
+        self::echoStatic( $scene );
+
+        return (string) ob_get_clean();
+    }
+
+    private static function echoStatic( object $scene ): void {
         $decoded = ( new ExerciseScenesRepository() )->decode( $scene );
         $ms      = (int) $decoded['duration_ms'];
 
