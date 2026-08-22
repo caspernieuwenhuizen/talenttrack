@@ -52691,6 +52691,100 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No markings"
 #~ msgstr "Zonder lijnen"
 
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:71
+msgid "Goal past its target date"
+msgstr "Doel over de streefdatum"
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:75
+msgid "A development goal has passed the date it was aimed at and is still open. Either the player got there and nobody recorded it, or the plan needs changing."
+msgstr "Een ontwikkeldoel is voorbij de datum waarop het gehaald zou zijn en staat nog open. Of de speler is er, en niemand heeft het vastgelegd, of het plan moet worden bijgesteld."
+
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:112
+msgid "Untitled goal"
+msgstr "Naamloos doel"
+
+#. translators: 1: player name, 2: goal title
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:116
+#, php-format
+msgid "%1$s's goal \"%2$s\" is past its target date and still open."
+msgstr "Het doel \"%2$s\" van %1$s is over de streefdatum en staat nog open."
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:61
+msgid "No PDP conversation this cycle"
+msgstr "Geen PDP-gesprek deze cyclus"
+
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:65
+msgid "A player's PDP file for this season is open but no conversation has actually been held. The file looks complete on every list and the player has been told nothing."
+msgstr "Het PDP-dossier van een speler voor dit seizoen staat open, maar er is nog geen gesprek gevoerd. In elke lijst ziet het dossier er compleet uit en de speler heeft niets te horen gekregen."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:113
+#, php-format
+msgid "No PDP conversation has been held with %s this cycle."
+msgstr "Er is deze cyclus nog geen PDP-gesprek gevoerd met %s."
+
+#: src/Modules/Alerts/Definitions/PlayerTurns18Alert.php:53
+msgid "Player turns 18 soon"
+msgstr "Speler wordt binnenkort 18"
+
+#: src/Modules/Alerts/Definitions/PlayerTurns18Alert.php:57
+msgid "A player is about to turn 18. Parental consent stops being the basis for holding their data, and the paperwork is easy to do a month early and awkward to do a month late."
+msgstr "Een speler wordt binnenkort 18. Toestemming van ouders is dan niet langer de grondslag om zijn gegevens te bewaren, en het papierwerk is een maand te vroeg makkelijk en een maand te laat lastig."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerTurns18Alert.php:78
+#, php-format
+msgid "%s turns 18 today. Consent and agreement records need updating."
+msgstr "%s wordt vandaag 18. De vastlegging van toestemming en overeenkomst moet worden bijgewerkt."
+
+#. translators: 1: player name, 2: number of days until the birthday
+#: src/Modules/Alerts/Definitions/PlayerTurns18Alert.php:87
+#, php-format
+msgid "%1$s turns 18 in %2$d day. Consent and agreement records need updating."
+msgid_plural "%1$s turns 18 in %2$d days. Consent and agreement records need updating."
+msgstr[0] "%1$s wordt over %2$d dag 18. De vastlegging van toestemming en overeenkomst moet worden bijgewerkt."
+msgstr[1] "%1$s wordt over %2$d dagen 18. De vastlegging van toestemming en overeenkomst moet worden bijgewerkt."
+
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:63
+msgid "Parent invited but never activated"
+msgstr "Ouder uitgenodigd maar nooit geactiveerd"
+
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:67
+msgid "A parent was invited and never created their account, and the player still has no parent linked. The invitation looks sent everywhere; the family's side of the record never opened."
+msgstr "Een ouder is uitgenodigd en heeft nooit een account aangemaakt, en aan de speler hangt nog geen enkele ouder. Overal lijkt de uitnodiging verstuurd; de kant van het gezin is nooit opengegaan."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:101
+#, php-format
+msgid "%s's parent was invited but never activated their account."
+msgstr "De ouder van %s is uitgenodigd maar heeft het account nooit geactiveerd."
+
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:76
+msgid "Certificate expiring"
+msgstr "Certificaat verloopt"
+
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:80
+msgid "One of your certificates is about to expire or has just expired. Every player in the squad needs the person running their session to be qualified to run it."
+msgstr "Een van je certificaten verloopt binnenkort of is net verlopen. Elke speler in de selectie heeft er belang bij dat wie zijn training geeft daarvoor gekwalificeerd is."
+
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:193
+msgid "A certificate"
+msgstr "Een certificaat"
+
+#. translators: %s: certificate name
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:199
+#, php-format
+msgid "Your %s certificate has expired."
+msgstr "Je certificaat %s is verlopen."
+
+#. translators: 1: certificate name, 2: number of days until it expires
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:210
+#, php-format
+msgid "Your %1$s certificate expires in %2$d day."
+msgid_plural "Your %1$s certificate expires in %2$d days."
+msgstr[0] "Je certificaat %1$s verloopt over %2$d dag."
+msgstr[1] "Je certificaat %1$s verloopt over %2$d dagen."
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"
