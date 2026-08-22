@@ -3,12 +3,10 @@ namespace TT\Modules\Mfa\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Mfa\Audit\MfaAuditEvents;
+use TT\Modules\Mfa\Auth\MfaChallengeHandler;
 use TT\Modules\Mfa\Auth\MfaLoginGuard;
 use TT\Modules\Mfa\Auth\RateLimiter;
-use TT\Modules\Mfa\Auth\RememberDeviceCookie;
 use TT\Modules\Mfa\Domain\BackupCodesService;
-use TT\Modules\Mfa\Domain\TotpService;
 use TT\Modules\Mfa\MfaSecretsRepository;
 use TT\Shared\Frontend\DashboardShortcode;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -24,32 +22,20 @@ use TT\Shared\Wizards\WizardEntryPoint;
  * redirects all subsequent requests here until the user verifies a
  * fresh TOTP code (or a backup code).
  *
- * GET renders the form (or the lockout screen). POST validates the
- * submitted code against `TotpService::verify()` first, then falls
- * back to `BackupCodesService::verify()` if a separate "use a backup
- * code instead" mode is on.
+ * This class renders and nothing else (#2668). The submitted code is
+ * validated by `MfaChallengeHandler` on `init`, before a byte of the
+ * page has gone out — a successful verify has to redirect, and a
+ * redirect issued from here (during `the_content`) arrives after the
+ * headers and is silently dropped. What's left for the view:
  *
- * Successful verify:
- *   - Clears the pending transient (the guard's middleware stops
- *     redirecting on the next request).
- *   - Optionally issues a 30-day "remember this device" cookie.
- *   - Audit-logs `mfa.verified` (or `mfa.backup_code_used` for
- *     backup codes).
- *   - Redirects the user back to the dashboard / their original
- *     destination.
- *
- * Failed verify:
- *   - `RateLimiter::recordFailure()` increments the counter and
- *     audit-logs `mfa.verify_failed`. On the threshold the limiter
- *     also writes `mfa.lockout`.
- *   - Re-renders the form with a generic error (not "wrong code"
- *     vs "backup code didn't match" — same string for both, no
- *     side-channel for guessing).
- *
- * Lockout state (`RateLimiter::isLockedOut()`):
- *   - Renders a countdown screen instead of the input. No form,
- *     so the user can't accumulate further failures during the
- *     window.
+ *   - The form, in TOTP or backup-code mode.
+ *   - The failed-attempt error, read back from
+ *     `MfaChallengeHandler::error()` — one generic string for both
+ *     modes, no "wrong code" vs "backup code didn't match"
+ *     side-channel for guessing.
+ *   - The lockout countdown (`RateLimiter::isLockedOut()`) in place of
+ *     the input, so the user can't accumulate further failures during
+ *     the window.
  */
 class FrontendMfaPromptView extends FrontendViewBase {
 
@@ -72,12 +58,14 @@ class FrontendMfaPromptView extends FrontendViewBase {
 
         // Defensive: if the user is here but not enrolled, the guard
         // shouldn't have redirected — it would have sent them to the
-        // enrollment wizard instead. Treat as "no challenge needed",
-        // clear the transient, send them to the dashboard.
+        // enrollment wizard instead. `MfaChallengeHandler` bounces this
+        // case at `init`; reaching it here means the handler didn't run,
+        // and the headers are already out, so offer a way forward
+        // instead of a redirect that would blank the page (#2668).
         if ( $row === null || empty( $row['enrolled_at'] ) || empty( $row['secret'] ) ) {
             MfaLoginGuard::clearPending( $user_id );
-            wp_safe_redirect( WizardEntryPoint::dashboardBaseUrl() );
-            exit;
+            self::renderContinue( WizardEntryPoint::dashboardBaseUrl() );
+            return;
         }
 
         // Lockout screen.
@@ -86,72 +74,26 @@ class FrontendMfaPromptView extends FrontendViewBase {
             return;
         }
 
-        $error = null;
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST'
-             && isset( $_POST['tt_mfa_prompt_nonce'] )
-             && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_mfa_prompt_nonce'] ) ), 'tt_mfa_prompt_' . $user_id )
-        ) {
-            $error = self::handleSubmit( $user_id, $repo, $limiter );
-        }
-
-        self::renderForm( $user_id, $error );
+        self::renderForm( $user_id, MfaChallengeHandler::error() );
     }
 
     /**
-     * Process the POSTed code. On success, redirects (and exits). On
-     * failure, returns the error string for re-render.
+     * Dead-end insurance (#2668). Every "you don't belong on this page"
+     * case is a redirect issued from `MfaChallengeHandler` at `init`, so
+     * this should never paint. If it ever does — the headers are already
+     * out and a redirect would blank the page — the user gets a card with
+     * a link out instead of an empty screen.
      */
-    private static function handleSubmit( int $user_id, MfaSecretsRepository $repo, RateLimiter $limiter ): ?string {
-        $row     = $repo->findByUserId( $user_id );
-        if ( $row === null || empty( $row['secret'] ) ) {
-            return __( 'Your MFA setup is incomplete. Sign out and back in, then re-enroll if needed.', 'talenttrack' );
-        }
-
-        $mode    = isset( $_POST['mode'] ) ? sanitize_key( (string) $_POST['mode'] ) : 'totp';
-        $raw     = isset( $_POST['code'] ) ? (string) wp_unslash( (string) $_POST['code'] ) : '';
-        $remember = ! empty( $_POST['remember_device'] );
-
-        if ( $mode === 'backup' ) {
-            $idx = BackupCodesService::verify( $raw, (array) ( $row['backup_codes'] ?? [] ) );
-            if ( $idx === -1 ) {
-                $limiter->recordFailure( $user_id );
-                return __( "That code didn't match.", 'talenttrack' );
-            }
-            $updated = BackupCodesService::markUsed( (array) ( $row['backup_codes'] ?? [] ), $idx );
-            $repo->updateBackupCodes( $user_id, $updated );
-            $limiter->recordSuccess( $user_id );
-            MfaAuditEvents::record( MfaAuditEvents::BACKUP_CODE_USED, $user_id, [
-                'codes_remaining' => BackupCodesService::unusedCount( $updated ),
-            ] );
-        } else {
-            $stripped = preg_replace( '/\s+/', '', $raw );
-            if ( $stripped === null || ! ctype_digit( $stripped ) || strlen( $stripped ) !== 6 ) {
-                // Format-only error doesn't count against the rate limit
-                // (no information leaked) — but to keep the policy simple
-                // and resistant to enumeration, we still record it.
-                $limiter->recordFailure( $user_id );
-                return __( 'The code is six digits. Try again with the current code from your authenticator app.', 'talenttrack' );
-            }
-            if ( ! TotpService::verify( (string) $row['secret'], $stripped ) ) {
-                $limiter->recordFailure( $user_id );
-                return __( "That code didn't match. Make sure your phone's clock is correct, then try the current code from your authenticator.", 'talenttrack' );
-            }
-            $limiter->recordSuccess( $user_id );
-        }
-
-        // Resolve the destination before clearing — `clearPending()`
-        // drops the stashed post-verify URL along with the challenge
-        // flags (#2553), so reading it afterwards would always fall
-        // back to the dashboard and lose a legitimate deep link.
-        $redirect = self::resolvePostVerifyRedirect();
-
-        MfaLoginGuard::clearPending( $user_id );
-        if ( $remember ) {
-            RememberDeviceCookie::setForUser( $user_id );
-        }
-
-        wp_safe_redirect( $redirect );
-        exit;
+    public static function renderContinue( string $url ): void {
+        self::openCard();
+        echo '<p class="tt-login-subtitle">' . esc_html__( 'Two-factor authentication', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-login-help">'
+            . esc_html__( "You're verified. Continue to your dashboard.", 'talenttrack' )
+            . '</p>';
+        echo '<p class="tt-login-links"><a class="tt-btn tt-btn-primary tt-btn-block" href="' . esc_url( $url ) . '">'
+            . esc_html__( 'Go to dashboard', 'talenttrack' )
+            . '</a></p>';
+        self::closeCard();
     }
 
     private static function renderForm( int $user_id, ?string $error ): void {
@@ -278,31 +220,5 @@ class FrontendMfaPromptView extends FrontendViewBase {
             . esc_html__( "If you never see a working code, ask your academy admin to reset MFA on your account.", 'talenttrack' )
             . '</p>';
         self::closeCard();
-    }
-
-    /**
-     * Where to send the user after a successful verification. Prefers
-     * the original destination they were trying to reach (stashed in the
-     * `tt_mfa_post_verify_url_<user_id>` transient by the guard); falls
-     * back to the dashboard.
-     */
-    private static function resolvePostVerifyRedirect(): string {
-        $user_id = get_current_user_id();
-        if ( $user_id > 0 ) {
-            $stash_key = 'tt_mfa_post_verify_url_' . $user_id;
-            $stashed   = get_transient( $stash_key );
-            if ( is_string( $stashed ) && $stashed !== '' ) {
-                delete_transient( $stash_key );
-                // #2553 — belt-and-braces. `onLogin()` no longer stashes a
-                // challenge URL, but a stash written by an older build is
-                // live for up to 15 minutes after the upgrade and would
-                // otherwise send the user straight back to the prompt.
-                if ( ! MfaLoginGuard::isChallengeUrl( $stashed ) ) {
-                    $valid = wp_validate_redirect( $stashed, '' );
-                    if ( $valid !== '' ) return $valid;
-                }
-            }
-        }
-        return WizardEntryPoint::dashboardBaseUrl();
     }
 }
