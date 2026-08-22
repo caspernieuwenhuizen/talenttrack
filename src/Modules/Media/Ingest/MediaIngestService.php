@@ -183,6 +183,30 @@ final class MediaIngestService {
         return self::ALLOWED;
     }
 
+    /**
+     * A temp file, from a context that may not be wp-admin.
+     *
+     * `wp_tempnam()` lives in `wp-admin/includes/file.php`, which
+     * WordPress does **not** load during a REST request. Calling it
+     * unguarded from an endpoint is a fatal, and that is exactly what
+     * happened: every photo upload 500'd while video happened to survive,
+     * because only the image path builds a thumbnail (#2674).
+     *
+     * Centralised so a third call site cannot reintroduce it. Any media
+     * code needing a temp file should come through here rather than
+     * calling `wp_tempnam()` directly.
+     *
+     * @return string Path, or '' when one could not be made.
+     */
+    public static function tempFile( string $prefix = 'tt-media' ): string {
+        if ( ! function_exists( 'wp_tempnam' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+
+        $path = wp_tempnam( $prefix );
+        return is_string( $path ) ? $path : '';
+    }
+
     // Internals
 
     /**
@@ -344,8 +368,8 @@ final class MediaIngestService {
 
         $editor->resize( self::THUMB_MAX_EDGE, self::THUMB_MAX_EDGE, false );
 
-        $temp = wp_tempnam( 'tt-media-thumb' );
-        if ( ! $temp ) return null;
+        $temp = self::tempFile( 'tt-media-thumb' );
+        if ( $temp === '' ) return null;
 
         $saved = $editor->save( $temp );
         if ( is_wp_error( $saved ) || empty( $saved['path'] ) ) {
