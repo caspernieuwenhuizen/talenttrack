@@ -51394,6 +51394,11 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #, php-format
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "Finish the previous lesson first."
+msgstr "Rond eerst de vorige les af."
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"
