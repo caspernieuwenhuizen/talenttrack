@@ -51431,6 +51431,74 @@ msgstr ""
 "Alleen-lezen weergave van de ruwe academietabellen, voor een beheerder die "
 "uitzoekt waar een getal vandaan komt."
 
+#: src/Shared/Frontend/Components/AlertChip.php
+#, php-format
+msgid "%1$d open alert (%2$s). Open the alerts list."
+msgid_plural "%1$d open alerts (%2$s). Open the alerts list."
+msgstr[0] "%1$d open melding (%2$s). Open de meldingenlijst."
+msgstr[1] "%1$d open meldingen (%2$s). Open de meldingenlijst."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "You need to be signed in to see your alerts."
+msgstr "Je moet ingelogd zijn om je meldingen te zien."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Alerts are not available on this site yet."
+msgstr "Meldingen zijn op deze site nog niet beschikbaar."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Nothing needs your attention right now."
+msgstr "Er vraagt op dit moment niets om je aandacht."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Area"
+msgstr "Onderdeel"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "All areas"
+msgstr "Alle onderdelen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Any severity"
+msgstr "Elke urgentie"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Unread"
+msgstr "Ongelezen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Resolved"
+msgstr "Opgelost"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Alert"
+msgstr "Melding"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Showing alerts for one record only."
+msgstr "Je ziet alleen meldingen over één record."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "Show all alerts"
+msgstr "Alle meldingen tonen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+#, php-format
+msgid "%d team has records that need attention"
+msgid_plural "%d teams have records that need attention"
+msgstr[0] "%d team heeft records die aandacht vragen"
+msgstr[1] "%d teams hebben records die aandacht vragen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "These are the conditions your teams' coaches have been told about. You are not sent one alert per team."
+msgstr ""
+"Dit zijn de situaties waarvan de trainers van je teams bericht hebben "
+"gekregen. Je krijgt niet per team een eigen melding."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Open alerts"
+msgstr "Open meldingen"
+
 #, php-format
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"

@@ -92,6 +92,14 @@ final class CoreSurfaceRegistration {
         $reg = '\\TT\\Shared\\Frontend\\Components\\CrossViewLinkRegistry';
         if ( ! class_exists( $reg ) ) return;
 
+        // #2633 — the alerts inbox. Its guard is "signed in", because the
+        // list is scoped to `recipient_user_id = me` in SQL and the
+        // capability question was answered when the evaluator decided
+        // whether to write the row. Registered explicitly rather than left
+        // to the permissive fallback so the chip's gate is stated, and so a
+        // future capability on that view has one place to land.
+        $reg::register( 'alerts', static fn( int $uid ): bool => $uid > 0 );
+
         // team-planner view guard: tt_view_plan.
         $reg::register( 'team-planner', 'tt_view_plan' );
 

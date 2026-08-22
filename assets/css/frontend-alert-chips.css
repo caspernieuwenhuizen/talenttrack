@@ -1,0 +1,199 @@
+/**
+ * frontend-alert-chips.css — the inline alert chip (#2633, epic #2629).
+ *
+ * Mobile-first per CLAUDE.md §2: the base rules ARE the ~360px layout and
+ * the media queries only scale up. Tokens only, no raw hex.
+ *
+ * The chip rides along inside rows that are already dense — an activity
+ * card, a team hero, a player rail. Three constraints shape every rule
+ * here:
+ *
+ *  1. **It must never widen its row.** At 360px an activity card is already
+ *     date + title + meta; a chip that forces horizontal scroll would make
+ *     the list worse for everyone to help the few rows that carry one. So
+ *     the chip shrinks its label away below 480px and keeps only the count
+ *     and the severity dot, which is the part that carries the signal.
+ *  2. **It must still be a 48x48 tap target** (§2), even when the visible
+ *     ink is a dot and a digit. That is what the padding + min-height are
+ *     for — the target is the whole chip, not the glyph.
+ *  3. **Severity is never carried by colour alone.** The count is a number
+ *     you can read and the label is a word you can read; the colour is the
+ *     third, redundant signal. A colour-blind coach loses nothing, and
+ *     neither does one on a washed-out phone screen in daylight.
+ */
+
+.tt-alert-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--tt-sp-2, 8px);
+  min-height: 48px;
+  min-width: 48px;
+  padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+  border: 1px solid var(--tt-line, #e3e6e1);
+  border-left: 4px solid var(--tt-warning, #e8902b);
+  border-radius: 999px;
+  background: var(--tt-paper, #fff);
+  color: var(--tt-ink, #0e1a14);
+  font-size: var(--tt-fs-sm, 0.85rem);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.tt-alert-chip__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tt-warning, #e8902b);
+}
+
+.tt-alert-chip__count {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Hidden below 480px, not removed: a screen reader still reads the chip's
+ * aria-label, which carries the count AND the severity in a full sentence,
+ * so the meaning never depends on the label being painted.
+ */
+.tt-alert-chip__label {
+  display: none;
+}
+
+.tt-alert-chip:hover {
+  border-color: var(--tt-warning, #e8902b);
+  color: var(--tt-ink, #0e1a14);
+}
+
+/* Hover only deepens what is already there. Nothing about the chip's
+   meaning or reachability waits for a pointer that a phone does not have. */
+.tt-alert-chip:focus-visible {
+  outline: 2px solid var(--tt-info, #2d6fb3);
+  outline-offset: 2px;
+}
+
+.tt-alert-chip:active {
+  transform: translateY(1px);
+}
+
+/* The roll-up's per-team chip is a label, not a link — the team name next
+   to it is what navigates. */
+.tt-alert-chip--static {
+  min-height: 0;
+  min-width: 0;
+  padding: 2px var(--tt-sp-2, 8px);
+}
+
+.tt-alert-chip--urgent {
+  border-left-color: var(--tt-danger, #d8453b);
+}
+
+.tt-alert-chip--urgent .tt-alert-chip__dot {
+  background: var(--tt-danger, #d8453b);
+}
+
+.tt-alert-chip--attention {
+  border-left-color: var(--tt-warning, #e8902b);
+}
+
+.tt-alert-chip--attention .tt-alert-chip__dot {
+  background: var(--tt-warning, #e8902b);
+}
+
+.tt-alert-chip--info {
+  border-left-color: var(--tt-info, #2d6fb3);
+}
+
+.tt-alert-chip--info .tt-alert-chip__dot {
+  background: var(--tt-info, #2d6fb3);
+}
+
+/* The oversight roll-up. A list, not a table: at 360px a two-column table
+   of team names and counts wraps into something unreadable, and there are
+   only ever two values per row. */
+.tt-alert-rollup {
+  margin: 0 0 var(--tt-sp-4, 16px);
+  padding: var(--tt-sp-3, 12px);
+  border-radius: var(--tt-radius, 8px);
+  background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-alert-rollup__title {
+  margin: 0 0 var(--tt-sp-2, 8px);
+  font-size: var(--tt-fs-lg, 1.125rem);
+  color: var(--tt-ink, #0e1a14);
+}
+
+.tt-alert-rollup__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tt-sp-2, 8px);
+}
+
+.tt-alert-rollup__row {
+  display: flex;
+  align-items: center;
+  gap: var(--tt-sp-2, 8px);
+  min-height: 48px;
+}
+
+.tt-alert-rollup__note {
+  margin: var(--tt-sp-3, 12px) 0 0;
+  font-size: var(--tt-fs-sm, 0.85rem);
+  color: var(--tt-muted, #6a6d66);
+}
+
+/* The player record's rail card. Only ever emitted when the player has an
+   open alert — an empty "Alerts (0)" block on every profile is how a
+   section teaches people to stop looking at it. */
+.tt-player-alerts {
+  margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* The inbox list reuses .tt-alert from frontend-alerts.css; these are the
+   two states that sheet has no reason to know about. */
+.tt-alert-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tt-sp-2, 8px);
+}
+
+.tt-alert--resolved {
+  opacity: 0.65;
+}
+
+.tt-alert-scope {
+  margin: 0 0 var(--tt-sp-3, 12px);
+  font-size: var(--tt-fs-sm, 0.85rem);
+  color: var(--tt-muted, #6a6d66);
+}
+
+@media (min-width: 480px) {
+  /* Room for the word. Below this the count alone has to carry it, which
+     is why the count is never the thing that gets dropped. */
+  .tt-alert-chip__label {
+    display: inline;
+  }
+}
+
+@media (min-width: 768px) {
+  .tt-alert-rollup {
+    padding: var(--tt-sp-4, 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-alert-chip:active {
+    transform: none;
+  }
+}
