@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Repositories\AlertPreferencesRepository;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FlashMessages;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -147,14 +148,25 @@ final class FrontendAlertSettingsView extends FrontendViewBase {
      * mitigation for the support question that choice predicts.
      */
     private static function renderCrossLink(): void {
-        $url = add_query_arg( [ 'tt_view' => 'my-settings' ], self::dashboardUrl() );
-        echo '<p class="tt-alert-settings-crosslink">';
-        printf(
-            /* translators: %s: link to the message preferences screen */
-            esc_html__( 'Looking for emails and messages the academy sends you? Those live under %s.', 'talenttrack' ),
-            '<a href="' . esc_url( $url ) . '">' . esc_html__( 'message preferences', 'talenttrack' ) . '</a>'
-        );
-        echo '</p>';
+        // Routed through CrossViewLink (#2304) rather than emitted directly:
+        // a navigation affordance must disappear for a user who cannot reach
+        // its target. `my-settings` needs nothing beyond being logged in, so
+        // the gate is permissive today — but going through the helper is what
+        // keeps that true if the target ever grows a guard.
+        // The `tt-xview-ok` marker on the URL line below is the gate's
+        // escape hatch for "gated by another mechanism": the lint matches
+        // per line, and the CrossViewLink call that actually gates this
+        // affordance is two lines up rather than on the URL line itself.
+        CrossViewLink::render( 'my-settings', static function (): void {
+            $url = add_query_arg( [ 'tt_view' => 'my-settings' ], self::dashboardUrl() ); /* tt-xview-ok */
+            echo '<p class="tt-alert-settings-crosslink">';
+            printf(
+                /* translators: %s: link to the message preferences screen */
+                esc_html__( 'Looking for emails and messages the academy sends you? Those live under %s.', 'talenttrack' ),
+                '<a href="' . esc_url( $url ) . '">' . esc_html__( 'message preferences', 'talenttrack' ) . '</a>'
+            );
+            echo '</p>';
+        } );
     }
 
     /**

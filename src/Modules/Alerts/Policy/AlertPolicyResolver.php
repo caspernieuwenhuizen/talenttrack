@@ -54,8 +54,24 @@ final class AlertPolicyResolver {
     public function surfacesFor( int $userId, string $alertKey ): array {
         $definition = AlertRegistry::find( $alertKey );
         if ( $definition === null ) return [];
+        return $this->surfacesForDefinition( $userId, $definition );
+    }
 
-        $mode = $this->club->modeFor( $alertKey );
+    /**
+     * As `surfacesFor()`, but for a definition you already hold.
+     *
+     * The evaluator uses this rather than the key-based variant, and the
+     * distinction matters: `run()` can legitimately be handed a definition
+     * that is not in the registry — a test stub, or a caller evaluating one
+     * definition directly. Resolving that by key would find nothing, return
+     * "no surfaces", and silently drop every occurrence. Failing closed on a
+     * registry miss is right for a UI lookup and badly wrong here.
+     *
+     * @return list<string>
+     */
+    public function surfacesForDefinition( int $userId, AlertInterface $definition ): array {
+        $alertKey = $definition->key();
+        $mode     = $this->club->modeFor( $alertKey );
 
         if ( $mode === ClubAlertPolicy::MODE_FORCE_OFF ) {
             return [];
@@ -94,6 +110,11 @@ final class AlertPolicyResolver {
      */
     public function isEnabledFor( int $userId, string $alertKey ): bool {
         return ! empty( $this->surfacesFor( $userId, $alertKey ) );
+    }
+
+    /** As `isEnabledFor()`, for a definition you already hold. */
+    public function isEnabledForDefinition( int $userId, AlertInterface $definition ): bool {
+        return ! empty( $this->surfacesForDefinition( $userId, $definition ) );
     }
 
     public function allows( int $userId, string $alertKey, string $surface ): bool {

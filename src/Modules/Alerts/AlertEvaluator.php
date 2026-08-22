@@ -113,7 +113,7 @@ final class AlertEvaluator {
             // one layer down: storing an occurrence that resolves to no
             // surface is storage and retention cost for something that can
             // never be shown.
-            if ( ! $this->policy->isEnabledFor( $occ->recipientUserId, $alert->key() ) ) {
+            if ( ! $this->policy->isEnabledForDefinition( $occ->recipientUserId, $alert ) ) {
                 $stat['skipped']++;
                 continue;
             }

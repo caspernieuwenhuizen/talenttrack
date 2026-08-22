@@ -216,15 +216,22 @@ class FrontendMySettingsView extends FrontendViewBase {
                 \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
             );
             ?>
-            <p class="tt-field-hint">
-                <?php
-                printf(
-                    /* translators: %s: link to the alert settings screen */
-                    esc_html__( 'Alerts about your own data — unmarked activities, missing attendance — are set separately under %s.', 'talenttrack' ),
-                    '<a href="' . esc_url( $tt_alert_settings_url ) . '">' . esc_html__( 'alert settings', 'talenttrack' ) . '</a>'
-                );
-                ?>
-            </p>
+            <?php
+            // Routed through CrossViewLink (#2304): the affordance hides
+            // itself for anyone who cannot reach the target.
+            \TT\Shared\Frontend\Components\CrossViewLink::render(
+                \TT\Modules\Alerts\Frontend\FrontendAlertSettingsView::SLUG,
+                static function () use ( $tt_alert_settings_url ): void {
+                    echo '<p class="tt-field-hint">';
+                    printf(
+                        /* translators: %s: link to the alert settings screen */
+                        esc_html__( 'Alerts about your own data — unmarked activities, missing attendance — are set separately under %s.', 'talenttrack' ),
+                        '<a href="' . esc_url( $tt_alert_settings_url ) . '">' . esc_html__( 'alert settings', 'talenttrack' ) . '</a>'
+                    );
+                    echo '</p>';
+                }
+            );
+            ?>
 
             <div class="tt-form-actions">
                 <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save message preferences', 'talenttrack' ); ?></button>
