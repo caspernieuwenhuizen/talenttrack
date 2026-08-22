@@ -786,6 +786,20 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] If exempt (settings sub-form, inline lookup editor, wizard step):
       exemption matches one of the categories in § 6.
 
+**Switchability (`#2599` — new module or new routable surface):**
+- [ ] New module is declared in `config/modules.php` and has a
+      `ModuleMetadata` entry (label, description, icon, category).
+      `ALWAYS_ON_MODULES` only when the product is genuinely unusable
+      without it.
+- [ ] Every new `?tt_view=` slug a tile registers is listed in a
+      `FeatureRegistry` entry's `view_slugs` **in the same PR that adds
+      the surface** — or in `config/always_on_surfaces.php` with a
+      sentence saying what breaks if it can be switched off.
+- [ ] `entities` on a feature are unique to it — never an entity a
+      sibling surface also uses.
+- [ ] Enforced by `tools/check-module-toggles.php`; see
+      `docs/modules.md` § Switchability.
+
 **SaaS-readiness (if any feature added):**
 - [ ] Feature is reachable through a REST endpoint, not only via PHP render.
 - [ ] Business logic lives outside view files.
