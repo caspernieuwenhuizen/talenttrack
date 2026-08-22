@@ -891,12 +891,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                   $minutes_cancel_url = ( $minutes_back !== null ) ? $minutes_back['url'] : $minutes_self_url;
                   ?>
             <?php if ( $minutes_editable && ! empty( $minutes_players ) ) : ?>
-                <section class="tt-mexec-minutes-correct" data-tt-mexec-minutes-section data-edit-mode="off" aria-label="<?php esc_attr_e( 'Correct recorded minutes', 'talenttrack' ); ?>">
+                <section class="tt-mexec-minutes-correct" data-tt-mexec-minutes-section data-edit-mode="off" aria-label="<?php esc_attr_e( 'Correct minutes', 'talenttrack' ); ?>">
                     <div class="tt-mexec-section-head">
                         <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Recorded minutes', 'talenttrack' ); ?></h2>
                         <button type="button" class="tt-mexec-minutes-edit-btn" data-tt-mexec-minutes-edit aria-pressed="false">
                             <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
-                            <?php esc_html_e( 'Correct recorded minutes', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Correct minutes', 'talenttrack' ); ?>
                         </button>
                     </div>
                     <p class="tt-mexec-minutes-help"><?php esc_html_e( 'The match is finalized. Correct a recorded figure here if a player\'s minutes were logged wrong.', 'talenttrack' ); ?></p>
@@ -929,7 +929,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <div class="tt-mexec-edit-only">
                             <?php
                             echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
-                                'label'      => __( 'Save minutes', 'talenttrack' ),
+                                'label'      => __( 'Save', 'talenttrack' ),
                                 'variant'    => 'primary',
                                 'cancel_url' => $minutes_cancel_url,
                             ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

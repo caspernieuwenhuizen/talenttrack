@@ -380,7 +380,7 @@ final class FrontendMeasurementTestsView extends FrontendViewBase {
 
             <?php
             echo FormSaveButton::render( [
-                'label'      => __( 'Save test', 'talenttrack' ),
+                'label'      => __( 'Save', 'talenttrack' ),
                 'cancel_url' => $cancel_url,
             ] );
             ?>

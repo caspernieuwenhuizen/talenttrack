@@ -55,7 +55,7 @@ class IdeasBoardView extends FrontendViewBase {
             <?php esc_html_e( 'Submitted ideas flow left-to-right. Drop a card into Ready for approval to send it to the lead developer; rejections and promotions happen on the Approval queue.', 'talenttrack' ); ?>
         </p>
         <p class="tt-ideas-toolbar">
-            <a class="tt-btn" href="<?php echo esc_url( $approval_url ); ?>"><?php esc_html_e( 'Open approval queue', 'talenttrack' ); ?></a>
+            <a class="tt-btn" href="<?php echo esc_url( $approval_url ); ?>"><?php esc_html_e( 'Open queue', 'talenttrack' ); ?></a>
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $tracks_url ); ?>"><?php esc_html_e( 'Manage tracks', 'talenttrack' ); ?></a>
         </p>
 

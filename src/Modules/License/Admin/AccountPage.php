@@ -657,7 +657,7 @@ class AccountPage {
                         <?php wp_nonce_field( 'tt_license_reset_trial', 'tt_license_nonce' ); ?>
                         <input type="hidden" name="action" value="tt_license_reset_trial" />
                         <p>
-                            <button type="submit" class="button"><?php esc_html_e( 'Reset trial state (dev only)', 'talenttrack' ); ?></button>
+                            <button type="submit" class="button"><?php esc_html_e( 'Reset trial', 'talenttrack' ); ?></button>
                         </p>
                     </form>
                 <?php endif; ?>

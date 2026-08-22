@@ -2018,7 +2018,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             </div>
 
             <div style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save appearance', 'talenttrack' ), 'cancel_url' => $cancel_url ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ), 'cancel_url' => $cancel_url ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2178,7 +2178,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save general settings', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2229,7 +2229,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save rating scale', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2323,7 +2323,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <?php endif; ?>
             </div>
             <div class="tt-form-actions tt-mm-actions">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save match minutes', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2393,7 +2393,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save menus', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2468,7 +2468,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $return_url ); ?>" />
                 <div class="tt-form-actions">
                     <button type="submit" class="tt-btn tt-btn-primary">
-                        <?php esc_html_e( 'Download configuration (JSON)', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Download JSON', 'talenttrack' ); ?>
                     </button>
                 </div>
             </form>
@@ -2621,7 +2621,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
             <div class="tt-form-actions tt-profile-cards-actions">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save profile cards', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
@@ -2742,7 +2742,7 @@ class FrontendConfigurationView extends FrontendViewBase {
 
             <div class="tt-form-actions" style="margin-top: var(--tt-sp-3, 16px);">
                 <button type="submit" class="tt-btn tt-btn-primary" data-tt-pdp-blocks-save>
-                    <?php esc_html_e( 'Save blocks', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Save', 'talenttrack' ); ?>
                 </button>
                 <span class="tt-form-msg" data-tt-pdp-blocks-msg></span>
             </div>
@@ -2875,7 +2875,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             </div>
 
             <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save default dashboard', 'talenttrack' ) ] ); ?>
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>

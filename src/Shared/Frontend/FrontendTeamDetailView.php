@@ -877,7 +877,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         );
         self::cardOpen( __( 'Team chemistry', 'talenttrack' ) );
         echo '<p style="margin:0;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">';
-        echo esc_html__( 'Open the chemistry board', 'talenttrack' );
+        echo esc_html__( 'Open board', 'talenttrack' );
         echo '</a></p>';
         self::cardClose();
     }

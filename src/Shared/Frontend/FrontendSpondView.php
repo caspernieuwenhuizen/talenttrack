@@ -159,7 +159,7 @@ class FrontendSpondView extends FrontendViewBase {
                     <?php if ( $can_edit_creds ) : ?>
                         <div class="tt-spond__actions-row">
                             <?php echo FormSaveButton::render( [
-                                'label'        => __( 'Save credentials', 'talenttrack' ),
+                                'label'        => __( 'Save', 'talenttrack' ),
                                 'label_saving' => __( 'Saving…', 'talenttrack' ),
                                 'label_saved'  => __( 'Saved', 'talenttrack' ),
                                 'cancel_url'   => $cancel_url,
@@ -185,7 +185,7 @@ class FrontendSpondView extends FrontendViewBase {
                 <h2><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h2>
                 <p class="tt-spond__monitor-link">
                     <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $monitor_url ); ?>">
-                        <?php esc_html_e( 'Open integration monitor', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'Open monitor', 'talenttrack' ); ?>
                     </a>
                 </p>
                 <p class="tt-spond__summary">
@@ -362,7 +362,7 @@ class FrontendSpondView extends FrontendViewBase {
                                 placeholder="<?php echo esc_attr( $default_base ); ?>" autocomplete="off" />
                             <p class="tt-spond__hint"><?php esc_html_e( 'Leave blank and save to revert to the default.', 'talenttrack' ); ?></p>
                         </div>
-                        <button type="submit" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Save endpoint', 'talenttrack' ); ?></button>
+                        <button type="submit" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                     </form>
                 </details>
             <?php endif; ?>

@@ -357,7 +357,7 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
 
         // §6 — Cancel first in DOM, Save right on screen.
         echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper returns escaped HTML.
-            'label'      => __( 'Save exercise', 'talenttrack' ),
+            'label'      => __( 'Save', 'talenttrack' ),
             'cancel_url' => self::listUrl(),
         ] );
 

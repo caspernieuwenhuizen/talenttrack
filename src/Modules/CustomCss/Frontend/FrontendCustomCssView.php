@@ -671,9 +671,9 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '<textarea id="tt-css-body" name="css_body" rows="22" class="tt-input" style="font-family:Menlo, Consolas, monospace; font-size:13px;">' . esc_textarea( $css_body ) . '</textarea>';
         echo '<div class="tt-form-actions" style="margin-top:14px; display:flex; flex-wrap:wrap; gap:8px;">';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save CSS', 'talenttrack' ) . '</button>';
-        echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $preview_url ) . '">' . esc_html__( 'Open preview in new tab', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $preview_url ) . '">' . esc_html__( 'Preview', 'talenttrack' ) . '</a>';
         echo '<a class="tt-btn tt-btn-secondary" href="' . $download_url . '" download>' . esc_html__( 'Download saved CSS', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full stylesheet (for designer)', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full CSS', 'talenttrack' ) . '</a>';
         echo '</div>';
         echo '<p class="tt-field-hint" style="margin:8px 0 0; max-width:760px;">';
         echo esc_html__( 'Saved CSS contains only your overrides. Full stylesheet bundles every TalentTrack stylesheet plus your overrides into one file — give it to a designer for a holistic pass, then re-upload via the Upload tab.', 'talenttrack' );
@@ -715,7 +715,7 @@ class FrontendCustomCssView extends FrontendViewBase {
         echo '<section class="tt-panel">';
         echo '<h3 class="tt-panel-title">' . esc_html__( 'Round-trip with a designer', 'talenttrack' ) . '</h3>';
         echo '<p class="tt-field-hint" style="margin:0 0 10px;">' . esc_html__( 'Step 1 — download the full stylesheet. Step 2 — your designer edits it. Step 3 — re-upload it below. The bundled stylesheets keep loading; your edited file wins on source order, so any selectors the designer touched override the bundled defaults.', 'talenttrack' ) . '</p>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full stylesheet', 'talenttrack' ) . '</a>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . $download_full_url . '" download>' . esc_html__( 'Download full CSS', 'talenttrack' ) . '</a>';
         echo '</section>';
 
         echo '<section class="tt-panel">';

@@ -135,7 +135,7 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
             $cancel_url = $back['url'];
         }
         echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
-            'label'      => __( 'Save track', 'talenttrack' ),
+            'label'      => __( 'Save', 'talenttrack' ),
             'variant'    => 'primary',
             'cancel_url' => $cancel_url,
         ] );

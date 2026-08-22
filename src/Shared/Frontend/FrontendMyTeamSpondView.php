@@ -137,7 +137,7 @@ class FrontendMyTeamSpondView extends FrontendViewBase {
                         <p class="tt-spond__warning" data-tt-spond-group-warning hidden></p>
                         <div class="tt-spond__team-account-actions">
                             <button type="button" class="tt-btn tt-btn-primary" data-tt-spond-team-group-save data-team-id="<?php echo (int) $team_id; ?>">
-                                <?php esc_html_e( 'Save group', 'talenttrack' ); ?>
+                                <?php esc_html_e( 'Save', 'talenttrack' ); ?>
                             </button>
                             <?php if ( $has_group ) : ?>
                                 <button type="button" class="tt-btn tt-btn-secondary" data-tt-spond-refresh data-team-id="<?php echo (int) $team_id; ?>">

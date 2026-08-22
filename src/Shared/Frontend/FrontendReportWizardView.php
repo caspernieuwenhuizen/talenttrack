@@ -341,7 +341,7 @@ class FrontendReportWizardView extends FrontendViewBase {
             <div class="tt-rwz-preview-head">
                 <h3 class="tt-rwz-preview-title"><?php esc_html_e( 'Preview', 'talenttrack' ); ?></h3>
                 <button type="button" class="tt-btn tt-btn-secondary" onclick="window.print();">
-                    <?php esc_html_e( 'Print this report', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Print', 'talenttrack' ); ?>
                 </button>
             </div>
             <p class="tt-rwz-help">

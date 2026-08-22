@@ -22,7 +22,7 @@ class PdpSelfReviewForm implements FormInterface {
             . esc_html__( 'Add a short self-reflection before your development talk. It helps your coach, and it is optional, never required.', 'talenttrack' )
             . '</p>';
         $out .= '<p><a class="tt-btn tt-btn-primary" href="' . esc_url( $url ) . '">'
-            . esc_html__( 'Open my development plan', 'talenttrack' )
+            . esc_html__( 'Open plan', 'talenttrack' )
             . '</a></p>';
         return $out;
     }

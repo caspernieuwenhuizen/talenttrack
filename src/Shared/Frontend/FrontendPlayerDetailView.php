@@ -989,13 +989,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <a class="tt-player-card__cta tt-player-cardtab__print"
                    href="<?php echo esc_url( $print_url ); ?>"
                    target="_blank" rel="noopener"
-                   title="<?php esc_attr_e( 'Print report', 'talenttrack' ); ?>">
+                   title="<?php esc_attr_e( 'Print', 'talenttrack' ); ?>">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                         <polyline points="6 9 6 2 18 2 18 9"></polyline>
                         <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                         <rect x="6" y="14" width="12" height="8"></rect>
                     </svg>
-                    <?php esc_html_e( 'Print report', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Print', 'talenttrack' ); ?>
                 </a>
             </div>
             <div class="tt-player-card__body">
@@ -2246,7 +2246,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
                     <?php
                     echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
-                        'label'      => __( 'Save PHV flag', 'talenttrack' ),
+                        'label'      => __( 'Save', 'talenttrack' ),
                         'cancel_url' => $cancel_url,
                     ] );
                     ?>

@@ -66,7 +66,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
 
         echo '<p class="tt-rep-detail-actions">';
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-print-button" onclick="window.print()">'
-            . esc_html__( 'Print / Save as PDF', 'talenttrack' )
+            . esc_html__( 'Print', 'talenttrack' )
             . '</button>';
         echo '</p>';
 

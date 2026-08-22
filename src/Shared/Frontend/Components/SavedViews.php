@@ -98,7 +98,7 @@ final class SavedViews {
         // for users who never save one.
         $out .= '<div class="tt-saved-views__save">';
         $out .= '<button type="button" class="tt-btn tt-btn-secondary" data-tt-view-save-toggle>'
-            . esc_html__( 'Save current filters…', 'talenttrack' ) . '</button>';
+            . esc_html__( 'Save filters', 'talenttrack' ) . '</button>';
         $out .= '<div class="tt-saved-views__save-form" data-tt-view-save-form hidden>';
         $out .= '<label class="tt-screen-reader-text" for="tt-view-name-' . esc_attr( $view_key ) . '">'
             . esc_html__( 'Name for this saved view', 'talenttrack' ) . '</label>';

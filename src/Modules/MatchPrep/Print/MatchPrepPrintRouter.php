@@ -171,7 +171,7 @@ class MatchPrepPrintRouter {
                     data-tt-image-pdf
                     data-target="<?php echo esc_attr( $target_selector ); ?>"
                     data-filename="<?php echo esc_attr( $filename ); ?>">
-                <?php esc_html_e( 'Export as PDF (A4 landscape)', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
             </button>
             <button type="button" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
             <a href="<?php echo esc_url( $close_url ); ?>"
