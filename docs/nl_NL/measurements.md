@@ -303,16 +303,25 @@ Kies een test, beperk desgewenst op team en een datumbereik, en klik
 spelersverloop volgt, want een verloop betekent alleen iets in de termen
 van de test zelf:
 
-- **Een test met een richting** (sprinttijd, sprongkracht) krijgt een
-  **grafiek** met één lijn per speler over de gedeelde datum-as, plus een
-  zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
-  gemiddelde nooit als nóg een speler leest. Daaronder: **Meest verbeterd**
-  en **Teruggelopen**, en een tabel met de eerste waarde, de laatste
-  waarde en het **verschil** per speler.
+- **Een test met een richting** (sprinttijd, sprongkracht) begint bij de
+  cijfers: een tabel met de waarde van elke speler op elk meetmoment en het
+  **verschil**, daarna **Meest verbeterd** en **Teruggelopen**, en als
+  laatste een **grafiek** met één lijn per speler over de gedeelde datum-as,
+  plus een zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
+  gemiddelde nooit als nóg een speler leest.
 - **Een test zonder richting** (lengte, gewicht) krijgt de metingen per
   datum — geen grafiek en geen ranglijst, want er is geen beter of slechter
   om op te ranken. Het verschil wordt wel getoond, met een grijze ▲ of ▼ die
   alleen zegt welke kant de waarde op ging.
+
+**Je speler terugvinden in de grafiek.** Elke speler heeft een eigen kleur,
+en diezelfde kleur staat als kort lijntje vóór de naam in de tabel en in de
+twee ranglijsten — dat lijntje ís de legenda. Een selectie groter dan tien
+gaat voorbij de tien kleuren die een lezer nog uit elkaar houdt, dus de elfde
+speler krijgt de eerste kleur opnieuw, maar **gestreept**; de eenentwintigste
+krijgt hem **gestippeld**. Kleur en patroon samen houden een volledige
+selectie leesbaar: op het scherm, in een zwart-witafdruk, en voor een
+kleurenblinde lezer.
 
 **De kolom Verschil lezen.** Elk verschil heeft een teken, niet alleen een
 kleur, zodat het rapport ook in zwart-wit en voor een kleurenblinde lezer
