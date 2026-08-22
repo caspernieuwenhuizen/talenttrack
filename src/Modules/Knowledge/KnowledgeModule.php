@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Knowledge\Rest\KnowledgeRestController;
 
 /**
  * KnowledgeModule (#2642, epic #2641) — the knowledge library.
@@ -19,11 +20,8 @@ use TT\Core\ModuleInterface;
  * #2644, #2645 and #2646. What exists after this ship is a codebase that
  * knows what a course is, and a CI gate that keeps the corpus honest.
  *
- * Capabilities are deliberately not installed here. Nothing is reachable
- * until #2646 adds a surface, and a capability that gates nothing is a
- * capability nobody can reason about. The manifest key `capability:` is
- * parsed and carried through now so the corpus can declare its intent
- * before the gate exists to enforce it.
+ * #2644 adds the enrolment schema, the repositories and the REST surface,
+ * and with them the three capabilities that gate it.
  */
 class KnowledgeModule implements ModuleInterface {
 
@@ -44,5 +42,44 @@ class KnowledgeModule implements ModuleInterface {
         // Registered, not enqueued: a lesson pulls the stylesheet in when
         // it renders, and the script only when a block on it needs one.
         add_action( 'wp_enqueue_scripts', [ LessonRenderer::class, 'registerAssets' ] );
+
+        add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        KnowledgeRestController::init();
+    }
+
+    /**
+     * Idempotent capability assignment.
+     *
+     *   tt_view_knowledge             — see the library and work through a
+     *                                   course. Own record only.
+     *   tt_view_knowledge_statistics  — see everyone's progress: the
+     *                                   per-course, per-person and per-team
+     *                                   roll-up.
+     *   tt_manage_knowledge           — assign courses, set due dates,
+     *                                   withdraw enrolments, review
+     *                                   submitted assignments.
+     *
+     * Three levels rather than the usual view/manage pair, because a coach
+     * must be able to see their own progress without seeing their
+     * colleagues'. Folding the roll-up into `tt_view_knowledge` would make
+     * hiding a column the only thing between a coach and their peers'
+     * completion rates.
+     */
+    public static function ensureCapabilities(): void {
+        $grants = [
+            'tt_view_knowledge'            => [ 'administrator', 'tt_head_dev', 'tt_club_admin', 'tt_coach', 'tt_scout', 'tt_staff' ],
+            'tt_view_knowledge_statistics' => [ 'administrator', 'tt_head_dev', 'tt_club_admin' ],
+            'tt_manage_knowledge'          => [ 'administrator', 'tt_head_dev', 'tt_club_admin' ],
+        ];
+
+        foreach ( $grants as $cap => $roles ) {
+            foreach ( $roles as $role_name ) {
+                $role = get_role( $role_name );
+                if ( $role && ! $role->has_cap( $cap ) ) {
+                    $role->add_cap( $cap );
+                }
+            }
+        }
     }
 }

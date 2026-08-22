@@ -12,9 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * before resolving channel + dispatching.
  *
  * Constants are stable strings (used as `tt_comms_log.message_type`
- * column values + `tt_user_optouts.message_type` keys). Add new types
+ * column values + `tt_comms_optouts.message_type` keys). Add new types
  * here as use cases ship; never rename existing ones — they're a
  * persisted vocabulary.
+ *
+ * (#2638 — this line named `tt_user_optouts`, a table that was never built:
+ * the opt-out policy reached for `wp_usermeta` instead, and the docblock was
+ * never corrected. Migration 0225 created the table the design had always
+ * described, under the name matching the module's other tables.)
  *
  * Two reserved tiers:
  *   - `*_OPERATIONAL` — always sendable; opt-out forbidden.
