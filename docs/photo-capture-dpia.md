@@ -4,11 +4,32 @@
 
 > Required by EU GDPR Art. 35 before broad deployment of #0016 (photo-to-session capture) to any club whose photographs may include minor athletes.
 
-This template captures the Data Protection Impact Assessment for the photo-capture flow. Each section has space for the deploying academy's specifics; the technical defaults shipped by TalentTrack v3.110.40 are pre-filled where applicable. Print, complete, sign, retain — that's the operator's record of due diligence.
+> ## ⚠️ Not ready for signature
+>
+> **Do not sign this document, and do not enable photo capture on any install, until [#2695](https://github.com/caspernieuwenhuizen/talenttrack/issues/2695) is closed.**
+>
+> An audit of this document against the shipped code (2026-08-22) found that several of its technical assertions described safeguards that do not exist. Those sections have been rewritten below to describe what the code actually does, and the gaps are listed in **§ 0. Before this can be signed**.
+>
+> The most important correction: **this feature does not route to an EU-resident endpoint by default.** The previous version of this document said it did, and that breaking it required a deliberate opt-out. The opposite is true.
+
+This template captures the Data Protection Impact Assessment for the photo-capture flow. Each section has space for the deploying academy's specifics; the technical defaults actually shipped are pre-filled where applicable. Print, complete, sign, retain — that's the operator's record of due diligence.
+
+## 0. Before this can be signed
+
+Each item is an engineering or decision prerequisite. A signature obtained while any of these is open records a due-diligence check that did not happen.
+
+| # | What is missing | Who closes it |
+| --- | --- | --- |
+| 1 | **EU residency is not enforced.** The default endpoint is Anthropic's direct API, not an EU-resident one, and nothing validates an operator-supplied override. Either implement an enforced EU path, or accept and document that residency is the operator's unchecked responsibility. | Product decision, then engineering — see #2695 |
+| 2 | **Retention of the offline queue.** Wave 9 (#2502) holds photographs in IndexedDB on the coach's device until reconnect. That is a processing location this document does not yet describe, and it needs a retention answer. | Engineering + DPO |
+| 3 | **Lawful basis** — § 4 is still unticked. | Data controller |
+| 4 | **Consent surface** — whether a coach must acknowledge something in-product before the first upload is a legal answer, not a product one (#2502). | DPO |
+| 5 | **Provider terms validation** — confirm the current contract's non-retention and non-training clauses as at the signing date. | Data controller |
+| 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting (#0016). Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
 
 ## 1. Processing description
 
-**What the feature does**: A coach photographs their hand-written training plan with a phone camera. The image is sent to a vision-capable LLM (Claude Sonnet 4.x via AWS Bedrock by default; Gemini Pro via Vertex AI as alternate). The model extracts a structured list of exercises + durations + (optionally) attendance markings. The coach reviews the extraction, edits as needed, and saves the session.
+**What the feature does**: A coach photographs their hand-written training plan with a phone camera. The image is sent to a vision-capable LLM — Claude Sonnet by default, via **Anthropic's direct API** unless the operator overrides the endpoint; Gemini Pro is a configured alternate. The model extracts a structured list of exercises + durations + (optionally) attendance markings. The coach reviews the extraction, edits as needed, and saves the session.
 
 **Personal data potentially in scope**:
 
@@ -24,41 +45,54 @@ This template captures the Data Protection Impact Assessment for the photo-captu
 ```
 [Phone camera]
      │
-     │ HTTP POST multipart/form-data
+     │ HTTP POST multipart/form-data (or JSON photo_base64)
      ▼
 [TalentTrack server]
+     │   Image bytes are read from PHP's temporary upload location
+     │   straight into memory. They are NEVER written to
+     │   wp-content/uploads or any other persistent store.
      │
-     │ HTTPS (TLS 1.2+)
+     │ HTTPS
      ▼
-[Vision provider — AWS Bedrock eu-central-1]
+[Vision provider — endpoint is operator-configured; see EU residency below]
      │
-     │ Inference, no persistence per Bedrock terms
+     │ Inference
      ▼
 [Structured JSON response]
      │
      ▼
-[TalentTrack server] — stores extraction; deletes the source photo
-     │              within 7 days (next cron run)
+[TalentTrack server] — returns the extraction to the browser.
+     │                 The image bytes go out of scope at the end of
+     │                 the request; PHP removes the temp file.
      ▼
-[Coach review — wp-admin / frontend]
+[Coach review — nothing is persisted before the coach confirms]
      │
      ▼
 [Saved session — tt_activities + tt_activity_exercises]
 ```
 
-**EU residency**: AWS Bedrock `eu-central-1` (Frankfurt) is the default endpoint. Vertex AI `europe-west` is the alternate. The OpenAI provider is shipped as a stub but flagged DPIA-incompatible for EU clubs because OpenAI's vision endpoint is US-routed only — do not enable it on a club whose data subjects include minors.
+**Access gate**: the endpoint refuses every request unless the `exercises_vision_extraction` feature flag is switched on **and** the caller holds `tt_edit_activities`. On a default install the flag is off, so the feature cannot process anything until an operator deliberately enables it. (`VisionExtractRestController::register()`)
 
-**Provider non-persistence**: AWS Bedrock + Vertex AI both contractually do not retain or train on inference inputs (per their respective data-processing terms — confirm against your contract date). Validate this against the current contract before each annual DPIA refresh.
+**EU residency — read this carefully.** The default endpoint is `https://api.anthropic.com/v1/messages`, Anthropic's direct API. It is **not** AWS Bedrock, and there is no Bedrock code path: Bedrock requires SigV4 request signing, which is not implemented, and the `TT_VISION_BEDROCK_*` constants named in older versions of this document are not read by any code.
+
+An operator who requires an EU-resident endpoint must set `TT_VISION_ENDPOINT` themselves. **Nothing validates that value.** A typo, an omission, or a later edit silently sends photographs to whatever endpoint is configured, with no warning and no log entry distinguishing the two cases.
+
+This is prerequisite 1 in § 0 and must be resolved before signature.
+
+The OpenAI provider is shipped as a stub and flagged DPIA-incompatible for EU clubs in its own label, because OpenAI's vision endpoint is US-routed only — do not enable it on a club whose data subjects include minors.
+
+**Provider non-persistence**: whichever provider the operator configures, confirm its data-processing terms exclude retention and training on inference inputs, as at the signing date. Do not rely on a claim in this document about a provider you have not contracted with.
 
 ## 3. Retention
 
 | Data | Retention | Mechanism |
 |---|---|---|
-| Source photograph (raw bytes) | 7 days max | Background cron job sweeps the upload directory and deletes any `tt-vision-photo-*` blob older than 7 days. Operator can shorten by setting `TT_VISION_PHOTO_RETENTION_DAYS` in `wp-config.php`. |
+| Source photograph (raw bytes), server-side | **Duration of the HTTP request only** | The bytes are read from PHP's temporary upload location into memory and passed to the provider. Nothing writes them to disk, so there is no upload directory and no sweep. PHP removes its own temp file when the request ends. Earlier versions of this document described a 7-day retention with a cron sweep and a `TT_VISION_PHOTO_RETENTION_DAYS` constant; **neither exists**, and the actual behaviour is stricter. |
+| Source photograph, **on the coach's device** | **Not yet decided** | Wave 9 (#2502) queues photographs in IndexedDB when the phone is offline and uploads them on reconnect. Retention there is prerequisite 2 in § 0 and must be answered before this document is signed. |
 | Structured extraction text | Indefinite (joined to the saved session) | Persists in `tt_activity_exercises` as part of the session record. Subject to the academy's overall retention policy. |
-| Provider-side input data | 0 — no persistence per provider terms | Validate against current contract. |
+| Provider-side input data | Per the operator's contract with the provider | Validate against the current contract; see § 2. |
 
-Operator can disable photo capture entirely via `define( 'TT_VISION_PROVIDER', '' );` in `wp-config.php`; the existing manual session-edit flow is unaffected.
+Operator can disable photo capture entirely via `define( 'TT_VISION_PROVIDER', '' );` in `wp-config.php`, or by switching off the `exercises_vision_extraction` feature — which is the state a default install is already in. The manual session-edit flow is unaffected either way.
 
 ## 4. Lawful basis
 
@@ -77,13 +111,13 @@ Pick at most two; document why.
   - Coach types directly into the session form → high friction; fails in practice.
   - Voice capture → considered for v2; deferred per spec.
   - On-device-only extraction (no cloud LLM) → not feasible at v1 quality bar; revisit when local vision models match Claude Sonnet 4.x quality.
-- **Proportionality**: The data sent off-site is the photograph the coach made on a personal phone anyway. The AI provider does not persist the input. The academy retains only the structured extraction, not the raw photo (after 7 days).
+- **Proportionality**: The data sent off-site is the photograph the coach made on a personal phone anyway, and the server keeps only the structured extraction — the image bytes are never written to disk. Whether the provider persists the input depends on the operator's contract with it, which § 0 prerequisite 5 requires confirming.
 
 ## 6. Data subject rights
 
 | Right | How TalentTrack supports it |
 |---|---|
-| Access (Art. 15) | The structured extraction lives in `tt_activity_exercises` joined to `tt_activities`. The existing #0063 use case 10 GDPR subject-access ZIP exporter includes both tables in the data subject's ZIP. |
+| Access (Art. 15) | ⚠️ **Gap.** The structured extraction lives in `tt_activity_exercises` joined to `tt_activities`. Neither table is registered in `PlayerDataMap`, so **neither is included in the subject-access export** — `CorePiiRegistrations` covers 13 tables and these are not among them. An earlier version of this document claimed both were included. Either register them or state the limitation; tracked in #2695. |
 | Rectification (Art. 16) | The session edit form lets a coach correct any extracted exercise / attendance. Sprint 4's review wizard makes this the default path before save. |
 | Erasure (Art. 17) | Deleting the activity cascades to `tt_activity_exercises`. The `tt_activities.archived_at` flag soft-deletes; the GDPR erasure follow-up spec hard-deletes. |
 | Restriction (Art. 18) | Operator can flag an activity as `is_draft` to prevent it from rolling into reports. |
@@ -94,17 +128,19 @@ Pick at most two; document why.
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Photo of a minor is sent to a US-routed AI provider | Low (default routes EU-only) | High | wp-config gate forces EU-resident endpoints. The OpenAI adapter's `label()` flags the issue. Operator must explicitly opt out of EU residency to break this. |
-| Provider trains on input data | Low (contractually excluded) | Very high | Validate against the current AWS Bedrock + Vertex AI data-processing terms at every annual DPIA refresh. |
-| Extracted text contains incorrect attendance attribution | Medium | Medium | Review wizard requires explicit coach approval before save; fuzzy-matcher confidence < 0.6 surfaces the row as "manual review needed". |
-| Photo retention exceeds 7 days due to cron failure | Low | Low | Cron is monitored via #0086 audit log; failures alert. |
+| Photo of a minor is sent to a non-EU-resident endpoint | **High while prerequisite 1 is open** — this is the default behaviour, not a misconfiguration | High | **Currently unmitigated.** EU residency is opt-in via `TT_VISION_ENDPOINT` and unvalidated. The only real mitigations today are that the feature is off by default and that the OpenAI adapter's label flags its own incompatibility. See § 0 prerequisite 1. |
+| Provider trains on input data | Depends on the operator's contract | Very high | Validate the configured provider's data-processing terms at signing and at every annual refresh. This document makes no claim on the operator's behalf. |
+| Extracted text contains incorrect attendance attribution | Medium | Medium | Review wizard requires explicit coach approval before save; fuzzy-matcher confidence < 0.6 surfaces the row as "manual review needed" (`ExerciseFuzzyMatcher::DEFAULT_MIN_SIMILARITY`). |
+| A queued photo lingers on a lost or shared device | Unknown until #2502 lands | Medium | Prerequisite 2 — the offline queue's retention is undecided. |
 | API key leak | Low (constant in wp-config) | High | Document key rotation procedure; never commit `wp-config.php` to git. |
+| The feature is enabled before this document is signed | Low | High | The `exercises_vision_extraction` feature flag is off on a default install and the endpoint returns 403 until it is switched on. Treat switching it on as the act this signature authorises. |
 
 ## 8. Annual review
 
 DPIA refresh schedule: every 12 months from the date of broad deployment. Earlier refresh is required if any of:
 
-- Provider terms change (AWS Bedrock, Vertex AI, etc.).
+- The configured provider's terms change.
+- `TT_VISION_ENDPOINT` is added, removed or edited — that changes where photographs go.
 - Provider region changes.
 - A new vision provider is added to the registry.
 - The retention period is extended.
@@ -127,12 +163,20 @@ Retain one copy in the academy's DPIA register; keep one in the wp-config-adjace
 Default configuration (TalentTrack v3.110.40+):
 
 ```php
-// wp-config.php
-define( 'TT_VISION_PROVIDER',         'claude_sonnet' );
-define( 'TT_VISION_API_KEY',          'sk-ant-...' );           // Anthropic direct OR via Bedrock IAM
-define( 'TT_VISION_BEDROCK_REGION',   'eu-central-1' );         // EU residency
-define( 'TT_VISION_PHOTO_RETENTION_DAYS', 7 );                  // Default; lower if your DPIA requires it
+// wp-config.php — constants the code actually reads
+define( 'TT_VISION_PROVIDER', 'claude_sonnet' );  // '' disables the feature entirely
+define( 'TT_VISION_API_KEY',  'sk-ant-...' );     // sent as the x-api-key header
+define( 'TT_VISION_ENDPOINT', '...' );            // overrides the default endpoint
 ```
+
+The feature also requires the `exercises_vision_extraction` flag to be switched on; it is off by default.
+
+**Constants that do NOT exist**, despite appearing in earlier versions of this document and in `ClaudeSonnetProvider`'s docblock — setting any of them has no effect whatsoever:
+
+- `TT_VISION_BEDROCK_REGION`, `TT_VISION_BEDROCK_ACCESS_KEY`, `TT_VISION_BEDROCK_SECRET_KEY` — there is no Bedrock code path.
+- `TT_VISION_PHOTO_RETENTION_DAYS` — there is no stored photo to retain.
+
+Without `TT_VISION_ENDPOINT`, requests go to `https://api.anthropic.com/v1/messages`.
 
 To disable photo capture entirely:
 
@@ -144,4 +188,4 @@ See also:
 
 - `specs/shipped/0016-epic-photo-to-session-capture.md` — the original spec.
 - `docs/i18n-architecture.md` — how the extracted strings flow through the translation layer.
-- AWS Bedrock data-processing terms: https://aws.amazon.com/service-terms/ (link is operator's responsibility to validate at DPIA refresh time).
+- The data-processing terms of whichever provider the operator has configured. Identifying and validating the right ones is the operator's responsibility, at signing and at every refresh — this document deliberately no longer names a provider's terms, because it cannot know which endpoint an install is pointed at.
