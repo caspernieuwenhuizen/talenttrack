@@ -26249,6 +26249,11 @@ msgid "For your security, sign-in needs a second factor on your account."
 msgstr ""
 "Voor je veiligheid heeft inloggen een tweede factor op je account nodig."
 
+# #2668 — dead-end insurance on the MFA challenge screen
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:88
+msgid "You're verified. Continue to your dashboard."
+msgstr "Je bent geverifieerd. Ga verder naar je dashboard."
+
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:179
 msgid "Backup code"
 msgstr "Reservecode"
