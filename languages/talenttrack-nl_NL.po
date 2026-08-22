@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T00:21:37+00:00\n"
+"POT-Creation-Date: 2026-08-22T07:13:55+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5001,17 +5001,32 @@ msgstr "Bijwerken"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:318
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:245
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:864
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1006
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:360
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:932
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
+#: src/Modules/Spond/Admin/SpondOverviewPage.php:131
+#: src/Modules/Spond/Admin/SpondOverviewPage.php:163
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:133
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:492
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
 #: src/Shared/Frontend/CoachDashboardView.php:230
 #: src/Shared/Frontend/CoachDashboardView.php:272
 #: src/Shared/Frontend/CoachForms.php:127
@@ -5023,9 +5038,26 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/DashboardShortcode.php:198
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:201
+#: src/Shared/Frontend/FrontendConfigurationView.php:2021
+#: src/Shared/Frontend/FrontendConfigurationView.php:2181
+#: src/Shared/Frontend/FrontendConfigurationView.php:2232
+#: src/Shared/Frontend/FrontendConfigurationView.php:2326
+#: src/Shared/Frontend/FrontendConfigurationView.php:2396
+#: src/Shared/Frontend/FrontendConfigurationView.php:2624
+#: src/Shared/Frontend/FrontendConfigurationView.php:2745
+#: src/Shared/Frontend/FrontendConfigurationView.php:2878
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
+#: src/Shared/Frontend/FrontendModulesView.php:400
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2249
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
+#: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
+#: src/Shared/Frontend/FrontendSpondView.php:365
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:172
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:138
 msgid "Save"
 msgstr "Opslaan"
 
@@ -6962,6 +6994,8 @@ msgid "Below threshold — review with the team."
 msgstr "Onder de drempel — bespreek met het team."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:147
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:440
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:174
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:226
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:228
 msgid "Export PDF"
@@ -8943,6 +8977,7 @@ msgstr ""
 "uploads blokkeert."
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:356
+#: src/Modules/SeedReview/Admin/SeedReviewPage.php:63
 msgid "Download .xlsx"
 msgstr "Download .xlsx"
 
@@ -14853,12 +14888,22 @@ msgstr ""
 msgid "Save CSS"
 msgstr "CSS opslaan"
 
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:674
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
+#: src/Modules/Vct/Wizard/PreviewStep.php:44
+#: src/Shared/Frontend/DashboardShortcode.php:189
+#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
+#: src/Shared/Frontend/FrontendReportWizardView.php:342
+msgid "Preview"
+msgstr "Voorbeeld"
+
 # v3.84.1 / #0075 follow-up — full-stylesheet download
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:675
 msgid "Download saved CSS"
 msgstr "Opgeslagen CSS downloaden"
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:676
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:718
 msgid "Download full CSS"
 msgstr "Volledige stylesheet downloaden (voor designer)"
 
@@ -15184,14 +15229,6 @@ msgstr "Filters instellen"
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:155
 msgid "Choose chart type"
 msgstr "Kies een grafiektype"
-
-#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
-#: src/Modules/Vct/Wizard/PreviewStep.php:44
-#: src/Shared/Frontend/DashboardShortcode.php:189
-#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
-#: src/Shared/Frontend/FrontendReportWizardView.php:342
-msgid "Preview"
-msgstr "Voorbeeld"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:157
 msgid "Name and save"
@@ -18353,12 +18390,6 @@ msgstr ""
 "Een nieuwe oefening blijft bij je eigen team en is meteen bruikbaar in je "
 "plannen. Het hoofd opleidingen bepaalt wat clubbreed wordt."
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:381
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:360
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
-msgid "Save exercise"
-msgstr "Oefening opslaan"
-
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:383
 msgid "Trains which principles"
 msgstr "Traint welke principes"
@@ -19124,8 +19155,20 @@ msgstr "Seizoens-intakes — %1$s — %2$s"
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:176
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:75
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:153
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
+#: src/Modules/Reports/ScoutLinkRouter.php:97
+#: src/Modules/Stats/PrintRouter.php:201
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:267
+#: src/Shared/Frontend/CoachDashboardView.php:102
+#: src/Shared/Frontend/FrontendOverviewView.php:76
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:992
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:998
+#: src/Shared/Frontend/FrontendPlayersManageView.php:589
+#: src/Shared/Frontend/FrontendReportDetailView.php:69
+#: src/Shared/Frontend/FrontendReportWizardView.php:344
+#: src/Shared/Frontend/PlayerDashboardView.php:77
 msgid "Print"
 msgstr "Printen"
 
@@ -30615,11 +30658,6 @@ msgstr "Log in om deze planning af te drukken."
 msgid "You do not have access to print this planner."
 msgstr "Je hebt geen toegang om deze planning af te drukken."
 
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
-#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:91
-msgid "Save as PDF / Print"
-msgstr "Opslaan als pdf / afdrukken"
-
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:112
 msgid ""
 "Tip: in the print dialog, enable \"Background graphics\" and set margins to "
@@ -36334,6 +36372,10 @@ msgstr "Log in om dit trainingsplan af te drukken."
 msgid "You do not have access to print this training plan."
 msgstr "Je hebt geen toegang om dit trainingsplan af te drukken."
 
+#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:91
+msgid "Save as PDF / Print"
+msgstr "Opslaan als pdf / afdrukken"
+
 #. translators: %s is the title of the plan being copied.
 #: src/Modules/Training/Repositories/TrainingPlansRepository.php:472
 #, php-format
@@ -38738,6 +38780,7 @@ msgid "Which player?"
 msgstr "Welke speler?"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:28
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:65
 msgid "Rate players"
 msgstr "Spelers beoordelen"
 
@@ -41183,15 +41226,6 @@ msgstr "Spelerdetail"
 #: src/Shared/Frontend/FrontendPodiumView.php:40
 msgid "No teams assigned."
 msgstr "Geen teams toegewezen."
-
-#: src/Shared/Frontend/CoachDashboardView.php:102
-#: src/Shared/Frontend/FrontendOverviewView.php:76
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:992
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:998
-#: src/Shared/Frontend/FrontendPlayersManageView.php:589
-#: src/Shared/Frontend/PlayerDashboardView.php:77
-msgid "Print report"
-msgstr "Rapport afdrukken"
 
 #: src/Shared/Frontend/CoachDashboardView.php:119
 msgid "Select a player from the roster."
@@ -45581,6 +45615,7 @@ msgstr ""
 "bouwen bij onomkeerbare bewerkingen."
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:53
+#: src/Shared/Frontend/FrontendMigrationsView.php:125
 msgid "Run in wp-admin"
 msgstr "Open wp-admin om ze uit te voeren"
 
@@ -46762,6 +46797,7 @@ msgid "Not assigned to any team."
 msgstr "Aan geen enkel team toegewezen."
 
 #: src/Shared/Frontend/FrontendPeopleManageView.php:277
+#: src/Shared/Frontend/FrontendTeamsManageView.php:484
 msgid "Manage assignments"
 msgstr "Toewijzingen beheren"
 
@@ -47350,11 +47386,6 @@ msgstr "— Niet ingesteld —"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2244
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2074
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2249
-msgid "Save PHV flag"
-msgstr "PHV-vlag opslaan"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2257
 msgid "Cleared"
@@ -49148,10 +49179,6 @@ msgstr "Selectie · %d"
 msgid "No players on this roster yet."
 msgstr "Nog geen spelers in deze selectie."
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:841
-msgid "Open board"
-msgstr "Open het chemiebord"
-
 #: src/Shared/Frontend/FrontendTeamDetailView.php:799
 msgid "No team photos or video yet"
 msgstr "Nog geen teamfoto's of video"
@@ -49166,7 +49193,7 @@ msgstr ""
 "profiel."
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:880
-msgid "Open the chemistry board"
+msgid "Open board"
 msgstr "Open het chemiebord"
 
 # #1088 — VCT-13 team-defaults panel
@@ -49394,12 +49421,8 @@ msgstr "Wedstrijdprogramma"
 msgid "No matches yet."
 msgstr "Nog geen wedstrijden."
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:389
-msgid "Open planner"
-msgstr "Open planner grid"
-
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:391
-msgid "Open planner grid"
+msgid "Open planner"
 msgstr "Open planner grid"
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:396
@@ -50993,6 +51016,21 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Save exercise"
+#~ msgstr "Oefening opslaan"
+
+#~ msgid "Print report"
+#~ msgstr "Rapport afdrukken"
+
+#~ msgid "Save PHV flag"
+#~ msgstr "PHV-vlag opslaan"
+
+#~ msgid "Open the chemistry board"
+#~ msgstr "Open het chemiebord"
+
+#~ msgid "Open planner grid"
+#~ msgstr "Open planner grid"
 
 #~ msgid "improved"
 #~ msgstr "verbeterd"

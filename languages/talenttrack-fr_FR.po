@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T00:21:37+00:00\n"
+"POT-Creation-Date: 2026-08-22T07:13:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -4774,17 +4774,32 @@ msgstr "Mettre à jour"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:318
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:245
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:864
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1006
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:360
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:932
+#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:284
+#: src/Modules/Spond/Admin/SpondOverviewPage.php:131
+#: src/Modules/Spond/Admin/SpondOverviewPage.php:163
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:133
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
+#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:492
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
 #: src/Shared/Frontend/CoachDashboardView.php:230
 #: src/Shared/Frontend/CoachDashboardView.php:272
 #: src/Shared/Frontend/CoachForms.php:127
@@ -4796,9 +4811,26 @@ msgstr "Mettre à jour"
 #: src/Shared/Frontend/DashboardShortcode.php:198
 #: src/Shared/Frontend/DashboardShortcode.php:199
 #: src/Shared/Frontend/DashboardShortcode.php:201
+#: src/Shared/Frontend/FrontendConfigurationView.php:2021
+#: src/Shared/Frontend/FrontendConfigurationView.php:2181
+#: src/Shared/Frontend/FrontendConfigurationView.php:2232
+#: src/Shared/Frontend/FrontendConfigurationView.php:2326
+#: src/Shared/Frontend/FrontendConfigurationView.php:2396
+#: src/Shared/Frontend/FrontendConfigurationView.php:2624
+#: src/Shared/Frontend/FrontendConfigurationView.php:2745
+#: src/Shared/Frontend/FrontendConfigurationView.php:2878
+#: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
+#: src/Shared/Frontend/FrontendModulesView.php:400
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:93
+#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2249
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
+#: src/Shared/Frontend/FrontendSpondView.php:162
 #: src/Shared/Frontend/FrontendSpondView.php:309
+#: src/Shared/Frontend/FrontendSpondView.php:365
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:172
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:138
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -6544,10 +6576,6 @@ msgstr "Début"
 msgid "End"
 msgstr "Fin"
 
-#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
-msgid "Save windows"
-msgstr ""
-
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:172
 msgid "Windows"
 msgstr ""
@@ -6672,6 +6700,8 @@ msgid "Below threshold — review with the team."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:147
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:440
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:174
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:226
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:228
 msgid "Export PDF"
@@ -6910,11 +6940,6 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:235
 #, php-format
 msgid "Minutes for %s"
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:932
-msgid "Save minutes"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:78
@@ -8535,6 +8560,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:356
+#: src/Modules/SeedReview/Admin/SeedReviewPage.php:63
 msgid "Download .xlsx"
 msgstr ""
 
@@ -13815,7 +13841,12 @@ msgid "Save CSS"
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:674
-msgid "Open preview in new tab"
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
+#: src/Modules/Vct/Wizard/PreviewStep.php:44
+#: src/Shared/Frontend/DashboardShortcode.php:189
+#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
+#: src/Shared/Frontend/FrontendReportWizardView.php:342
+msgid "Preview"
 msgstr ""
 
 # v3.84.1 / #0075 follow-up — full-stylesheet download
@@ -13824,7 +13855,8 @@ msgid "Download saved CSS"
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:676
-msgid "Download full stylesheet (for designer)"
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:718
+msgid "Download full CSS"
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:679
@@ -13844,10 +13876,6 @@ msgid ""
 "3 — re-upload it below. The bundled stylesheets keep loading; your edited "
 "file wins on source order, so any selectors the designer touched override "
 "the bundled defaults."
-msgstr ""
-
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:718
-msgid "Download full stylesheet"
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:722
@@ -14118,14 +14146,6 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:155
 msgid "Choose chart type"
-msgstr ""
-
-#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
-#: src/Modules/Vct/Wizard/PreviewStep.php:44
-#: src/Shared/Frontend/DashboardShortcode.php:189
-#: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
-#: src/Shared/Frontend/FrontendReportWizardView.php:342
-msgid "Preview"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:157
@@ -15973,7 +15993,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:58
-msgid "Open approval queue"
+msgid "Open queue"
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeasBoardView.php:59
@@ -16994,11 +17014,6 @@ msgid ""
 "The head of development decides what becomes club-wide."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:360
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
-msgid "Save exercise"
-msgstr ""
-
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:383
 msgid "Trains which principles"
 msgstr ""
@@ -17750,8 +17765,20 @@ msgstr ""
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:176
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:92
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:75
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:153
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
+#: src/Modules/Reports/ScoutLinkRouter.php:97
+#: src/Modules/Stats/PrintRouter.php:201
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:267
+#: src/Shared/Frontend/CoachDashboardView.php:102
+#: src/Shared/Frontend/FrontendOverviewView.php:76
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:992
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:998
+#: src/Shared/Frontend/FrontendPlayersManageView.php:589
+#: src/Shared/Frontend/FrontendReportDetailView.php:69
+#: src/Shared/Frontend/FrontendReportWizardView.php:344
+#: src/Shared/Frontend/PlayerDashboardView.php:77
 msgid "Print"
 msgstr "Imprimer"
 
@@ -19563,7 +19590,7 @@ msgid "Started %1$s, expires %2$s, grace ends %3$s."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:660
-msgid "Reset trial state (dev only)"
+msgid "Reset trial"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:702
@@ -20356,7 +20383,7 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:894
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:899
-msgid "Correct recorded minutes"
+msgid "Correct minutes"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:896
@@ -20746,10 +20773,6 @@ msgstr ""
 msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:440
-msgid "Export as PDF (A4)"
-msgstr ""
-
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:460
 msgid "Print team sheet"
 msgstr ""
@@ -21031,10 +21054,6 @@ msgstr ""
 
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:148
 msgid "No team sheet found for this activity."
-msgstr ""
-
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:174
-msgid "Export as PDF (A4 landscape)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:79
@@ -21453,10 +21472,6 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:371
 #: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php:52
 msgid "Amber to"
-msgstr ""
-
-#: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:383
-msgid "Save test"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:393
@@ -24910,7 +24925,7 @@ msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:273
 #: src/Shared/Frontend/FrontendSetupView.php:291
-msgid "Create page & set as homepage"
+msgid "Create page"
 msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:280
@@ -25272,10 +25287,6 @@ msgstr ""
 msgid "Add or update your self-reflection"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:399
-msgid "Save reflection"
-msgstr ""
-
 #. translators: %s = last-saved timestamp
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:411
 #, php-format
@@ -25617,10 +25628,6 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:768
 #, php-format
 msgid "PDP file — %s"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784
-msgid "Print / PDF"
 msgstr ""
 
 #. translators: 1: signed-off count, 2: cycle size
@@ -26445,7 +26452,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Pdp/Workflow/PdpSelfReviewForm.php:25
-msgid "Open my development plan"
+msgid "Open plan"
 msgstr ""
 
 #: src/Modules/Pdp/Workflow/PdpSelfReviewTemplate.php:34
@@ -28536,11 +28543,6 @@ msgstr ""
 msgid "You do not have access to print this planner."
 msgstr ""
 
-#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
-#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:91
-msgid "Save as PDF / Print"
-msgstr ""
-
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:112
 msgid ""
 "Tip: in the print dialog, enable \"Background graphics\" and set margins to "
@@ -30166,12 +30168,6 @@ msgstr ""
 msgid "%s — Player report"
 msgstr ""
 
-#: src/Modules/Reports/ScoutLinkRouter.php:97
-#: src/Modules/Stats/PrintRouter.php:201
-#: src/Shared/Frontend/FrontendReportWizardView.php:344
-msgid "Print this report"
-msgstr ""
-
 # ===== v3.6.0 — demo prep batch A (PR #11) =====
 #: src/Modules/Reports/ScoutLinkRouter.php:98
 #: src/Modules/Stats/PrintRouter.php:207
@@ -30225,10 +30221,6 @@ msgstr ""
 msgid "1. Download review template"
 msgstr ""
 
-#: src/Modules/SeedReview/Admin/SeedReviewPage.php:63
-msgid "Download seed review .xlsx"
-msgstr ""
-
 #: src/Modules/SeedReview/Admin/SeedReviewPage.php:66
 msgid "2. Apply edits from upload"
 msgstr ""
@@ -30277,11 +30269,6 @@ msgstr ""
 msgid "API base URL"
 msgstr ""
 
-#: src/Modules/Spond/Admin/SpondOverviewPage.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:365
-msgid "Save endpoint"
-msgstr ""
-
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:134
 #: src/Shared/Frontend/FrontendSpondView.php:363
 msgid "Leave blank and save to revert to the default."
@@ -30317,12 +30304,6 @@ msgstr ""
 msgid ""
 "Stored encrypted at rest. Rotating the WordPress AUTH_KEY salt invalidates "
 "the stored value and requires re-entry."
-msgstr ""
-
-#: src/Modules/Spond/Admin/SpondOverviewPage.php:163
-#: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
-#: src/Shared/Frontend/FrontendSpondView.php:162
-msgid "Save credentials"
 msgstr ""
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:166
@@ -30639,10 +30620,6 @@ msgstr ""
 msgid "Top-down (head of development)"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:133
-msgid "Save evaluation"
-msgstr ""
-
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:40
 msgid "My staff goals"
 msgstr ""
@@ -30681,10 +30658,6 @@ msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:78
 msgid "Narrative (optional)"
-msgstr ""
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
-msgid "Save PDP"
 msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:93
@@ -31768,10 +31741,6 @@ msgstr ""
 msgid ""
 "Rate each attribute 0–100. Leave blank to clear. These feed the team-"
 "chemistry engine."
-msgstr ""
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
-msgid "Save attributes"
 msgstr ""
 
 #. translators: %d: number of attributes saved
@@ -33954,6 +33923,10 @@ msgstr ""
 msgid "You do not have access to print this training plan."
 msgstr ""
 
+#: src/Modules/Training/Print/TrainingPlanPrintRouter.php:91
+msgid "Save as PDF / Print"
+msgstr ""
+
 #. translators: %s is the title of the plan being copied.
 #: src/Modules/Training/Repositories/TrainingPlansRepository.php:472
 #, php-format
@@ -34890,10 +34863,6 @@ msgstr ""
 msgid "Add block"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
-msgid "Save block set"
-msgstr ""
-
 #. translators: %d = team id for a team no longer in the list
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:245
 #, php-format
@@ -35100,10 +35069,6 @@ msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:429
 msgid "Default duration (minutes)"
-msgstr ""
-
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
-msgid "Save schedule"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:470
@@ -35958,7 +35923,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:117
-msgid "Everyone was here - continue"
+msgid "All present"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:119
@@ -36123,6 +36088,7 @@ msgid "Which player?"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:28
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:65
 msgid "Rate players"
 msgstr ""
 
@@ -36232,10 +36198,6 @@ msgid "%d player marked Present or Late."
 msgid_plural "%d players marked Present or Late."
 msgstr[0] ""
 msgstr[1] ""
-
-#: src/Modules/Wizards/Evaluation/RateConfirmStep.php:65
-msgid "Rate the present players"
-msgstr ""
 
 #: src/Modules/Wizards/Evaluation/RateConfirmStep.php:68
 msgid "Skip rating — I'll rate later"
@@ -38410,15 +38372,6 @@ msgstr ""
 msgid "No teams assigned."
 msgstr ""
 
-#: src/Shared/Frontend/CoachDashboardView.php:102
-#: src/Shared/Frontend/FrontendOverviewView.php:76
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:992
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:998
-#: src/Shared/Frontend/FrontendPlayersManageView.php:589
-#: src/Shared/Frontend/PlayerDashboardView.php:77
-msgid "Print report"
-msgstr ""
-
 #: src/Shared/Frontend/CoachDashboardView.php:119
 msgid "Select a player from the roster."
 msgstr ""
@@ -39196,7 +39149,7 @@ msgid "Edit or delete saved view %s"
 msgstr ""
 
 #: src/Shared/Frontend/Components/SavedViews.php:101
-msgid "Save current filters…"
+msgid "Save filters"
 msgstr ""
 
 #: src/Shared/Frontend/Components/SavedViews.php:104
@@ -41121,10 +41074,6 @@ msgstr ""
 msgid "Open custom CSS"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2021
-msgid "Save appearance"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2057
 msgid "Date notation"
 msgstr ""
@@ -41224,10 +41173,6 @@ msgid ""
 "WordPress default — your email is never sent with a broken sender."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2181
-msgid "Save general settings"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2211
 msgid "Max"
 msgstr "Max"
@@ -41242,10 +41187,6 @@ msgid ""
 "of a \"#N of M\" rank. Turn on only if your academy wants players to see "
 "their numeric standing. Staff always see ranks; no other teammate's rank is "
 "ever shown to a player."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2232
-msgid "Save rating scale"
 msgstr ""
 
 #. translators: %d is the global fallback minutes per half.
@@ -41283,10 +41224,6 @@ msgstr ""
 msgid "Total (2 x N)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2326
-msgid "Save match minutes"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2382
 msgid ""
 "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-"
@@ -41298,10 +41235,6 @@ msgstr ""
 msgid ""
 "Re-expose the legacy menu entries in wp-admin for users who prefer them. "
 "Plugin still works on both surfaces; this just controls menu visibility."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2396
-msgid "Save menus"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2425
@@ -41337,7 +41270,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2471
-msgid "Download configuration (JSON)"
+msgid "Download JSON"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2515
@@ -41371,10 +41304,6 @@ msgstr ""
 msgid "Visible profile cards"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:2624
-msgid "Save profile cards"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendConfigurationView.php:2675
 msgid ""
 "No seasons configured yet. Add a season under Configuration → Seasons first, "
@@ -41402,10 +41331,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2736
 msgid "Year timeline"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2745
-msgid "Save blocks"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2771
@@ -41466,10 +41391,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2865
 msgid "Inherit (use global default)"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:2878
-msgid "Save default dashboard"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:2913
@@ -42100,10 +42021,6 @@ msgstr ""
 msgid "Update assignment"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendFunctionalRolesView.php:442
-msgid "Save assignment"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendGoalsManageView.php:50
 msgid "Edit goal"
 msgstr ""
@@ -42469,7 +42386,8 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:53
-msgid "Open wp-admin to run them"
+#: src/Shared/Frontend/FrontendMigrationsView.php:125
+msgid "Run in wp-admin"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:63
@@ -42506,10 +42424,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:111
 msgid "None pending."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendMigrationsView.php:125
-msgid "Open wp-admin to run pending migrations"
 msgstr ""
 
 # v3.103.2 — #0084 Child 1: mobile surface classification + desktop-prompt page
@@ -42643,10 +42557,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendModulesView.php:395
 msgid "No modules or features match your search."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendModulesView.php:400
-msgid "Save module state"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendModulesView.php:484
@@ -43012,7 +42922,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMySessionsView.php:83
-msgid "Revoke all other sessions"
+msgid "Revoke others"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMySessionsView.php:108
@@ -43336,10 +43246,6 @@ msgstr ""
 msgid "Pick the Spond group whose calendar belongs to this team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamSpondView.php:140
-msgid "Save group"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:150
 msgid ""
 "Group selection unlocks once the Spond login succeeds — save the email and "
@@ -43586,6 +43492,7 @@ msgid "Not assigned to any team."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPeopleManageView.php:277
+#: src/Shared/Frontend/FrontendTeamsManageView.php:484
 msgid "Manage assignments"
 msgstr ""
 
@@ -44140,10 +44047,6 @@ msgstr ""
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2249
-msgid "Save PHV flag"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2257
 msgid "Cleared"
 msgstr ""
@@ -44426,10 +44329,6 @@ msgstr ""
 msgid "Optional rationale — e.g. why you've revised the band up or down."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:272
-msgid "Save potential"
-msgstr ""
-
 #. translators: 1: band 2: timestamp
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:286
 #, php-format
@@ -44574,10 +44473,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendReportDetailView.php:58
 msgid "Report"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendReportDetailView.php:69
-msgid "Print / Save as PDF"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendReportDetailView.php:80
@@ -45180,7 +45075,7 @@ msgid "as %s"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendSpondView.php:188
-msgid "Open integration monitor"
+msgid "Open monitor"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendSpondView.php:325
@@ -45763,7 +45658,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:880
-msgid "Open the chemistry board"
+msgid "Open board"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:983
@@ -45888,10 +45783,6 @@ msgstr ""
 msgid "Edit team"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamsManageView.php:484
-msgid "Manage team assignments"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendTeamsManageView.php:522
 msgid ""
 "Formation board with auto-suggested XI, fit scores, depth chart, link "
@@ -45989,7 +45880,7 @@ msgid "No matches yet."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:391
-msgid "Open planner grid"
+msgid "Open planner"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:396
@@ -46300,7 +46191,7 @@ msgid "Acceptance slip received on:"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:694
-msgid "Mark acceptance slip as received"
+msgid "Mark received"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:700
@@ -46314,7 +46205,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:717
-msgid "Open print-ready view"
+msgid "Print view"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:726
@@ -46333,7 +46224,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:745
-msgid "Open meeting view"
+msgid "Open meeting"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:40
@@ -46410,10 +46301,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:152
 msgid "Variables you can use"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:172
-msgid "Save template"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:177
@@ -46662,10 +46549,6 @@ msgstr ""
 msgid ""
 "How long a trial on this track runs by default. Staff can still adjust the "
 "end date per player."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:138
-msgid "Save track"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:144
