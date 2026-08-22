@@ -51457,6 +51457,169 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#, php-format
+#: src/Modules/Alerts/Domain/Surface.php:99
+msgid "In the bell"
+msgstr "In de bel"
+
+#: src/Modules/Alerts/Domain/Surface.php:101
+msgid "On the record itself"
+msgstr "Bij het record zelf"
+
+#: src/Modules/Alerts/Domain/Surface.php:103
+msgid "Banner on the dashboard"
+msgstr "Balk op het dashboard"
+
+#: src/Modules/Alerts/Domain/Surface.php:105
+msgid "Must be acknowledged"
+msgstr "Moet bevestigd worden"
+
+#: src/Modules/Alerts/Domain/Surface.php:107
+msgid "In the summary email"
+msgstr "In de samenvattingsmail"
+
+#: src/Modules/Alerts/Domain/Surface.php:109
+msgid "Push notification"
+msgstr "Pushbericht"
+
+#: src/Modules/Alerts/Policy/ClubAlertPolicy.php:73
+msgid "Always on for everyone"
+msgstr "Altijd aan voor iedereen"
+
+#: src/Modules/Alerts/Policy/ClubAlertPolicy.php:75
+msgid "Off for the whole club"
+msgstr "Uit voor de hele club"
+
+#: src/Modules/Alerts/Policy/ClubAlertPolicy.php:77
+msgid "Each person chooses"
+msgstr "Iedereen kiest zelf"
+
+#: src/Modules/Alerts/Policy/ClubAlertPolicy.php:171
+msgid "\"%s\" protects a child's safety and cannot be switched off for the club."
+msgstr "\"%s\" gaat over de veiligheid van een kind en kan niet voor de club worden uitgezet."
+
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:143
+msgid "Always on — this one concerns a child's safety."
+msgstr "Altijd aan — deze gaat over de veiligheid van een kind."
+
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:148
+msgid "Your academy has set this to always on."
+msgstr "Je academie heeft deze op altijd aan gezet."
+
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:150
+msgid "Your academy has switched this off for everyone."
+msgstr "Je academie heeft deze voor iedereen uitgezet."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:40
+msgid "Alert settings"
+msgstr "Meldingsinstellingen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:44
+msgid "You need to be logged in to manage your alert settings."
+msgstr "Je moet ingelogd zijn om je meldingsinstellingen te beheren."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:54
+msgid "Alerts tell you about things in your data that need attention right now — an activity still marked as planned, a training with no attendance recorded. You never tick them off: fix the thing and the alert clears itself."
+msgstr "Meldingen wijzen je op dingen in je gegevens die nu aandacht vragen — een activiteit die nog op gepland staat, een training zonder ingevulde aanwezigheid. Je vinkt ze nooit af: los het op en de melding verdwijnt vanzelf."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:60
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:60
+msgid "No alerts are available on this installation yet."
+msgstr "Er zijn nog geen meldingen beschikbaar op deze installatie."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:79
+msgid "Save alert settings"
+msgstr "Meldingsinstellingen opslaan"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:151
+msgid "Looking for emails and messages the academy sends you? Those live under %s."
+msgstr "Zoek je e-mails en berichten die de academie je stuurt? Die staan onder %s."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:152
+msgid "message preferences"
+msgstr "berichtvoorkeuren"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:166
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:169
+msgid "Security check failed. Reload the page and try again."
+msgstr "Beveiligingscontrole mislukt. Herlaad de pagina en probeer het opnieuw."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:194
+msgid "Alert settings saved."
+msgstr "Meldingsinstellingen opgeslagen."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:210
+msgid "Activities and attendance"
+msgstr "Activiteiten en aanwezigheid"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:214
+msgid "Development plans"
+msgstr "Ontwikkelplannen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:37
+msgid "Alert policy"
+msgstr "Meldingsbeleid"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:40
+msgid "You do not have permission to manage alert policy."
+msgstr "Je hebt geen rechten om het meldingsbeleid te beheren."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:52
+msgid "Decide which alerts your academy uses and who controls them. \"Each person chooses\" is the default and suits almost everything — reach for the others when an alert matters too much to be optional, or when your academy does not use that part of the system at all."
+msgstr "Bepaal welke meldingen jullie academie gebruikt en wie ze beheert. \"Iedereen kiest zelf\" is de standaard en past bij vrijwel alles — kies iets anders als een melding te belangrijk is om optioneel te zijn, of als jullie dat onderdeel helemaal niet gebruiken."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:88
+msgid "This alert concerns a child's safety and cannot be switched off."
+msgstr "Deze melding gaat over de veiligheid van een kind en kan niet worden uitgezet."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:96
+msgid "Who decides"
+msgstr "Wie beslist"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:119
+msgid "When always on, show it"
+msgstr "Als hij altijd aan staat, toon hem"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:140
+msgid "Require people to acknowledge this before continuing"
+msgstr "Mensen moeten dit eerst bevestigen"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:146
+msgid "Turn into a task after (days)"
+msgstr "Omzetten in een taak na (dagen)"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:153
+msgid "Leave empty to use the built-in default. Takes effect once task escalation ships."
+msgstr "Laat leeg voor de ingebouwde standaard. Dit werkt zodra taakescalatie beschikbaar is."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:71
+msgid "Save alert policy"
+msgstr "Meldingsbeleid opslaan"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:196
+msgid "Alert policy saved."
+msgstr "Meldingsbeleid opgeslagen."
+
+#: src/Modules/Alerts/Rest/AlertsRestController.php:150
+msgid "Choose how long to snooze this alert: a day, a week, or a month."
+msgstr "Kies hoe lang je deze melding wilt uitstellen: een dag, een week of een maand."
+
+#: src/Modules/Alerts/Rest/AlertsRestController.php:196
+msgid "Expected a preferences object."
+msgstr "Er werd een voorkeurenobject verwacht."
+
+#: src/Modules/Alerts/Rest/AlertsRestController.php:243
+msgid "Expected a policy object."
+msgstr "Er werd een beleidsobject verwacht."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:222
+msgid "Alerts about your own data — unmarked activities, missing attendance — are set separately under %s."
+msgstr "Meldingen over je eigen gegevens — niet afgeronde activiteiten, ontbrekende aanwezigheid — stel je apart in onder %s."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:223
+msgid "alert settings"
+msgstr "meldingsinstellingen"
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"

@@ -564,6 +564,11 @@ class DemoCoverage {
         // to see, and an opt-out is meaningless on an account nobody signs
         // into. Absence of a row is the default (opted in), so an empty
         // table is already the correct demo state.
+        // #2632 — a real person's own settings. Same reasoning as the comms
+        // opt-outs below: seeding one would silence demo alerts the operator
+        // expects to see, and absence of a row already means "use the
+        // shipped default", which is the correct demo state.
+        'tt_alert_preferences' => [ 'exempt' => 'A real person\'s own alert settings. Absence of a row already means "use the default", so an empty table is the correct state.' ],
         'tt_comms_optouts' => [ 'exempt' => 'A real recipient\'s own choice about what reaches them. Seeding one would suppress demo messages the operator expects to see.' ],
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
