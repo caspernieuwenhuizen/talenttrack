@@ -224,29 +224,22 @@
     }
 
     /**
-     * Build one scene. Exposed so the editor can re-render after an edit
-     * without duplicating the drawing code — one renderer, so what a
-     * coach authors is exactly what every read surface shows.
+     * Build the SVG for a scene and return the handle that moves it.
+     *
+     * Split out of `render()` so the editor draws through this same
+     * function rather than a copy of it. The alternative — an editor
+     * that builds its own pitch and its own tokens — is a second
+     * renderer that starts identical and diverges on the first change
+     * to either, which is exactly the drift the wave's "renders
+     * identically everywhere" criterion is about.
+     *
+     * Returns the nodes as well as `renderAt`, because an editor needs
+     * to reach a specific actor's group to mark it selected.
      */
-    function render( container ) {
-        var payloadEl = container.querySelector( 'script[type="application/json"]' );
-        if ( !payloadEl ) { return null; }
-
-        var scene;
-        try {
-            scene = JSON.parse( payloadEl.textContent || '{}' );
-        } catch ( e ) {
-            return null;
-        }
-
+    function mount( scene ) {
         var duration = Number( scene.duration_ms ) > 0 ? Number( scene.duration_ms ) : 6000;
         var actors = Array.isArray( scene.actors ) ? scene.actors : [];
         var links = Array.isArray( scene.links ) ? scene.links : [];
-
-        container.textContent = '';
-
-        var stage = document.createElement( 'div' );
-        stage.className = 'tt-tsc-stage';
 
         var svg = el( 'svg', {
             'class': 'tt-tsc-svg',
@@ -272,9 +265,6 @@
             actorNodes.push( { node: buildActor( svg, actor ), actor: actor } );
         }
 
-        stage.appendChild( svg );
-        container.appendChild( stage );
-
         function renderAt( ms ) {
             for ( var j = 0; j < actorNodes.length; j++ ) {
                 placeActor( actorNodes[ j ].node, actorNodes[ j ].actor.keyframes, ms );
@@ -283,6 +273,42 @@
                 placeLink( linkNodes[ j ].node, linkNodes[ j ].link, actorsById, ms );
             }
         }
+
+        return {
+            svg: svg,
+            renderAt: renderAt,
+            duration: duration,
+            actorNodes: actorNodes,
+            linkNodes: linkNodes,
+            actorsById: actorsById
+        };
+    }
+
+    /**
+     * Build one scene into a container, with playback controls.
+     */
+    function render( container ) {
+        var payloadEl = container.querySelector( 'script[type="application/json"]' );
+        if ( !payloadEl ) { return null; }
+
+        var scene;
+        try {
+            scene = JSON.parse( payloadEl.textContent || '{}' );
+        } catch ( e ) {
+            return null;
+        }
+
+        container.textContent = '';
+
+        var built = mount( scene );
+        var svg = built.svg;
+        var duration = built.duration;
+        var renderAt = built.renderAt;
+
+        var stage = document.createElement( 'div' );
+        stage.className = 'tt-tsc-stage';
+        stage.appendChild( svg );
+        container.appendChild( stage );
 
         // ── controls ────────────────────────────────────────────────
         var controls = document.createElement( 'div' );
@@ -348,8 +374,22 @@
         Array.prototype.forEach.call( nodes, render );
     }
 
-    // The editor drives its own rendering, so expose the builder.
-    window.TTTrainingScene = { render: render, positionAt: positionAt, mapX: mapX, mapY: mapY };
+    // The editor drives its own rendering, so expose the builder and
+    // the coordinate mapping in both directions — a drag has to turn a
+    // pointer back into pitch space, and it must be the exact inverse
+    // of what draws the token or the marker jumps out from under the
+    // finger.
+    window.TTTrainingScene = {
+        render: render,
+        mount: mount,
+        positionAt: positionAt,
+        mapX: mapX,
+        mapY: mapY,
+        unmapX: function ( x ) { return clamp( x, 0, 100 ); },
+        unmapY: function ( y ) {
+            return clamp( ( ( y - Y_TOP ) / ( Y_BOTTOM - Y_TOP ) ) * 100, 0, 100 );
+        }
+    };
 
     if ( document.readyState === 'loading' ) {
         document.addEventListener( 'DOMContentLoaded', init );

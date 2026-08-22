@@ -1,0 +1,374 @@
+/**
+ * Scene editor (#2501) — the authoring surface at
+ * `?tt_view=exercises&id=N&mode=scene`.
+ *
+ * Loaded on top of `frontend-methodology-scene.css` +
+ * `frontend-training-scene.css`, never instead of them: the pitch, the
+ * tokens and the arrows are drawn by the read-only renderer, and this
+ * sheet only adds the things that are true while someone is editing —
+ * selection, the ghost path, the timeline and the panels around it.
+ *
+ * ## Mobile-first, but honest about the gesture (CLAUDE.md §2)
+ *
+ * Base rules target ~360px and stack the three panels. The wave calls
+ * this surface desktop-primary and it means it: drawing a run with a
+ * timeline needs room. So the phone layout is not a pretend desktop —
+ * the canvas and the inspector stay usable for moving a marker, the
+ * notice above says where the rest of the work is best done, and the
+ * three-column arrangement waits for 1024px.
+ *
+ * Nothing here is hover-gated. Selection is a class the JS sets, so it
+ * survives a touch that has no hover to give.
+ */
+
+/* ---- layout ---- */
+
+.tt-sced {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 1024px) {
+    .tt-sced {
+        grid-template-columns: 15rem minmax(0, 1fr) 17rem;
+        align-items: start;
+    }
+}
+
+.tt-sced__panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+    min-width: 0;
+}
+
+.tt-sced__panel-title {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 700;
+    text-transform: none;
+    color: var(--tt-muted, #5b6470);
+}
+
+.tt-sced__canvas {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+/* ---- the pitch ---- */
+
+.tt-sced__stage {
+    background: var(--tt-bg-soft, #eef3ef);
+    border-radius: var(--tt-radius-lg, 12px);
+    padding: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* Dragging a marker must not scroll the page out from under the
+       finger — the whole gesture lives inside this element. */
+    touch-action: none;
+}
+
+.tt-sced__stage--placing .tt-sced__svg {
+    cursor: copy;
+}
+
+.tt-sced__svg .tt-scene-hit {
+    cursor: grab;
+}
+
+.tt-sced__svg .tt-scene-actor:focus-visible {
+    outline: none;
+}
+
+/* The selection ring goes on whatever shape the marker happens to be —
+   a cone is a polygon and a goal is a rect, so keying this to `circle`
+   would leave two of the six kinds with no visible selection at all.
+   Text and the invisible hit circle are excluded: one would smear, the
+   other is not a mark. */
+.tt-sced__svg .tt-scene-actor:focus-visible > :not(.tt-scene-hit):not(text),
+.tt-sced__svg .tt-sced__actor--selected > :not(.tt-scene-hit):not(text) {
+    stroke: var(--tt-warning, #d9a400);
+    stroke-width: 1.4;
+}
+
+/* The first tap of a two-tap line. Distinct from selection, because
+   both states can be true at once and they mean different things. */
+.tt-sced__svg .tt-sced__actor--linking > :not(.tt-scene-hit):not(text) {
+    stroke: var(--tt-info, #2f6fed);
+    stroke-width: 1.6;
+}
+
+.tt-sced__ghost-path {
+    fill: none;
+    stroke: var(--tt-warning, #d9a400);
+    stroke-width: 0.5;
+    stroke-dasharray: 1.8 1.4;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.tt-sced__ghost-dot {
+    fill: var(--tt-warning, #d9a400);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+/* ---- tools ---- */
+
+.tt-sced__tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+    gap: var(--tt-sp-2, 8px);
+}
+
+@media (min-width: 1024px) {
+    .tt-sced__tools {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.tt-sced__tool {
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    border: 1.5px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-sced__tool[aria-pressed="true"] {
+    border-color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-success-subtle, #e8f3ec);
+}
+
+.tt-sced__tool:active {
+    transform: translateY(1px);
+}
+
+.tt-sced__settings {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+/* ---- timeline ---- */
+
+.tt-sced__timeline {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius-lg, 12px);
+    padding: var(--tt-sp-3, 12px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__transport {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__scrub {
+    flex: 1 1 8rem;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-sced__time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 4rem;
+    text-align: right;
+}
+
+.tt-sced__tracks {
+    display: flex;
+    flex-direction: column;
+    /* Twenty markers is a plausible scene and twenty rows is not a
+       plausible page, so the tracks scroll inside the card. */
+    max-height: 16rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.tt-sced__row {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: var(--tt-sp-2, 8px);
+    align-items: center;
+    padding: var(--tt-sp-1, 4px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef1f5);
+}
+
+.tt-sced__row:last-child {
+    border-bottom: 0;
+}
+
+.tt-sced__row--selected {
+    background: var(--tt-success-subtle, #e8f3ec);
+}
+
+.tt-sced__row-name {
+    min-height: 48px;
+    padding: 0 var(--tt-sp-2, 8px);
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tt-sced__track {
+    position: relative;
+    height: 48px;
+    background: var(--tt-bg-soft, #f1f4f8);
+    border-radius: var(--tt-radius, 6px);
+    touch-action: none;
+}
+
+/* A keyframe handle is a 48px column with a small visible diamond — the
+   target is thumb-sized even though the mark is not. */
+.tt-sced__kf {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 48px;
+    margin-left: -24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.tt-sced__kf::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: 2px solid var(--tt-primary, #0b3d2e);
+    border-radius: 3px;
+    background: var(--tt-paper, #fff);
+    transform: rotate(45deg);
+}
+
+.tt-sced__kf--current::before {
+    background: var(--tt-warning, #d9a400);
+    border-color: var(--tt-ink, #12212b);
+}
+
+.tt-sced__kf:active::before {
+    transform: rotate(45deg) scale(1.15);
+}
+
+.tt-sced__playhead {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--tt-danger, #b32d2e);
+    pointer-events: none;
+}
+
+/* ---- inspector ---- */
+
+.tt-sced__inspector,
+.tt-sced__links {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__coords {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__field input,
+.tt-sced__field select {
+    /* 16px or iOS zooms the whole page on focus. */
+    font-size: 1rem;
+    min-height: 48px;
+    width: 100%;
+}
+
+.tt-sced__actor-actions {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__actor-actions .tt-btn {
+    flex: 1 1 0;
+}
+
+.tt-sced__link-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-sced__link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-sced__link-text {
+    flex: 1 1 8rem;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 600;
+}
+
+.tt-sced__link-time {
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-muted, #5b6470);
+    font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+/* ---- save ---- */
+
+.tt-sced__save {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+/* ---- motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-sced__tool:active,
+    .tt-sced__kf:active::before {
+        transform: none;
+    }
+
+    .tt-sced__kf:active::before {
+        transform: rotate(45deg);
+    }
+}
