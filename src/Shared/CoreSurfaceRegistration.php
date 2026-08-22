@@ -1409,10 +1409,15 @@ final class CoreSurfaceRegistration {
         // training half of their own development. The library itself is a
         // destination rather than a personal record, so it gets its own
         // group below.
+        // No `entity`: these surfaces are capability-gated, not matrix
+        // entities. Declaring one the seed does not define makes
+        // `tileVisibleFor()` ask the matrix about an entity nobody
+        // granted, and the tile disappears on every matrix-active
+        // install. An empty entity falls through to the `cap` rung,
+        // which is the gate these views actually use.
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
             'view_slug'    => 'my-learning',
-            'entity'       => 'my_learning',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 110,
@@ -1434,7 +1439,6 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_KNOWLEDGE,
             'view_slug'    => 'knowledge',
-            'entity'       => 'knowledge_library',
             'group'        => $learning_group,
             'kind'         => 'work',
             'order'        => 10,

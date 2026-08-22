@@ -52140,6 +52140,21 @@ msgstr ""
 "\n"
 "Open TalentTrack: {deep_link}"
 
+#: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+#, php-format
+msgid "%d lesson"
+msgid_plural "%d lessons"
+msgstr[0] "%d les"
+msgstr[1] "%d lessen"
+
+#: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php
+#, php-format
+msgid "%d hour"
+msgid_plural "%d hours"
+msgstr[0] "%d uur"
+msgstr[1] "%d uur"
+
 #~ msgid "Ball"
 #~ msgstr "Bal"
 
