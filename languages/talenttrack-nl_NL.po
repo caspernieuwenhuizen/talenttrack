@@ -51962,6 +51962,66 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgctxt "line or marker in a drill diagram"
+msgid "Player"
+msgstr "Speler"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Opponent"
+msgstr "Tegenstander"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Keeper"
+msgstr "Keeper"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Ball"
+msgstr "Bal"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Cone"
+msgstr "Pion"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Goal"
+msgstr "Doel"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Pass"
+msgstr "Pass"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Dribble"
+msgstr "Dribbel"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Run"
+msgstr "Loopactie"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Shot"
+msgstr "Schot"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Press"
+msgstr "Druk zetten"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Full pitch"
+msgstr "Heel veld"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Half pitch"
+msgstr "Halve veld"
+
+msgctxt "line or marker in a drill diagram"
+msgid "Grid square"
+msgstr "Vierkant"
+
+msgctxt "line or marker in a drill diagram"
+msgid "No markings"
+msgstr "Zonder lijnen"
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"

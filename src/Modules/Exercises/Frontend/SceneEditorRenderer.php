@@ -131,6 +131,29 @@ final class SceneEditorRenderer {
         return $point === '' ? '.' : (string) $point;
     }
 
+    /*
+     * ---- the diagram vocabulary (#2687) ----
+     *
+     * Every label in the next three methods is translated under the
+     * context `line or marker in a drill diagram`, spelled out in full
+     * at each call because `_x()` needs a literal for string extraction
+     * to see it — a shared constant would make the whole set invisible
+     * to `make-pot`.
+     *
+     * The context is not decoration. These are one-word English msgids
+     * in a nine-thousand-entry catalogue, and a translator only ever
+     * sees the word. `Pass` already meant a pass/fail result here and
+     * `Run` already meant "run this job", so the line picker offered a
+     * Dutch coach *Geslaagd* and *Uitvoeren* — correct translations of
+     * the wrong sense, with nothing anywhere to warn about it: the
+     * msgid resolved, the English read fine, and the untranslated-
+     * string gate saw a full catalogue.
+     *
+     * A context gives each of these its own entry, which is what stops
+     * the next short word added to this set from silently inheriting a
+     * meaning from somewhere else in the product.
+     */
+
     /**
      * The markers a coach can place. `side` decides which shirt the
      * renderer draws, and is derived from the kind rather than being a
@@ -141,33 +164,37 @@ final class SceneEditorRenderer {
      */
     private static function actorTools(): array {
         return [
-            [ 'kind' => 'player',   'label' => __( 'Player', 'talenttrack' ),   'side' => 'own' ],
-            [ 'kind' => 'opponent', 'label' => __( 'Opponent', 'talenttrack' ), 'side' => 'opp' ],
-            [ 'kind' => 'keeper',   'label' => __( 'Keeper', 'talenttrack' ),   'side' => 'own' ],
-            [ 'kind' => 'ball',     'label' => __( 'Ball', 'talenttrack' ),     'side' => 'own' ],
-            [ 'kind' => 'cone',     'label' => __( 'Cone', 'talenttrack' ),     'side' => 'own' ],
-            [ 'kind' => 'goal',     'label' => __( 'Goal', 'talenttrack' ),     'side' => 'own' ],
+            [ 'kind' => 'player',   'label' => _x( 'Player', 'line or marker in a drill diagram', 'talenttrack' ),   'side' => 'own' ],
+            [ 'kind' => 'opponent', 'label' => _x( 'Opponent', 'line or marker in a drill diagram', 'talenttrack' ), 'side' => 'opp' ],
+            [ 'kind' => 'keeper',   'label' => _x( 'Keeper', 'line or marker in a drill diagram', 'talenttrack' ),   'side' => 'own' ],
+            [ 'kind' => 'ball',     'label' => _x( 'Ball', 'line or marker in a drill diagram', 'talenttrack' ),     'side' => 'own' ],
+            [ 'kind' => 'cone',     'label' => _x( 'Cone', 'line or marker in a drill diagram', 'talenttrack' ),     'side' => 'own' ],
+            // "Goal" is the thing you shoot at, not a development
+            // objective. Both are "doel" in Dutch today, so this reads
+            // correctly by luck; the context is what keeps it correct
+            // when the Goals module's own translation changes.
+            [ 'kind' => 'goal',     'label' => _x( 'Goal', 'line or marker in a drill diagram', 'talenttrack' ),     'side' => 'own' ],
         ];
     }
 
     /** @return list<array{value:string, label:string}> */
     private static function linkKinds(): array {
         return [
-            [ 'value' => 'pass',    'label' => __( 'Pass', 'talenttrack' ) ],
-            [ 'value' => 'dribble', 'label' => __( 'Dribble', 'talenttrack' ) ],
-            [ 'value' => 'run',     'label' => __( 'Run', 'talenttrack' ) ],
-            [ 'value' => 'shot',    'label' => __( 'Shot', 'talenttrack' ) ],
-            [ 'value' => 'press',   'label' => __( 'Press', 'talenttrack' ) ],
+            [ 'value' => 'pass',    'label' => _x( 'Pass', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'dribble', 'label' => _x( 'Dribble', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'run',     'label' => _x( 'Run', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'shot',    'label' => _x( 'Shot', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'press',   'label' => _x( 'Press', 'line or marker in a drill diagram', 'talenttrack' ) ],
         ];
     }
 
     /** @return list<array{value:string, label:string}> */
     private static function pitchOptions(): array {
         return [
-            [ 'value' => 'full',  'label' => __( 'Full pitch', 'talenttrack' ) ],
-            [ 'value' => 'half',  'label' => __( 'Half pitch', 'talenttrack' ) ],
-            [ 'value' => 'third', 'label' => __( 'Grid square', 'talenttrack' ) ],
-            [ 'value' => 'blank', 'label' => __( 'No markings', 'talenttrack' ) ],
+            [ 'value' => 'full',  'label' => _x( 'Full pitch', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'half',  'label' => _x( 'Half pitch', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'third', 'label' => _x( 'Grid square', 'line or marker in a drill diagram', 'talenttrack' ) ],
+            [ 'value' => 'blank', 'label' => _x( 'No markings', 'line or marker in a drill diagram', 'talenttrack' ) ],
         ];
     }
 
