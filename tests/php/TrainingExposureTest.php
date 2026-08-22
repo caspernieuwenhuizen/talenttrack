@@ -425,7 +425,7 @@ final class TrainingExposureTest extends WP_UnitTestCase {
 
         $summary = ( new PlayerExposureReader() )->summaryFor( $player );
 
-        $this->assertSame( 1, $summary['sessions'], 'one training that trained two things is one training' );
+        $this->assertSame( 1, $summary['trainings'], 'one training that trained two things is one training' );
         $this->assertSame( 2, $summary['principles_trained'] );
     }
 

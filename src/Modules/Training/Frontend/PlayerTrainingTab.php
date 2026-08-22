@@ -78,7 +78,7 @@ final class PlayerTrainingTab {
     }
 
     /**
-     * @param array{minutes:int, principles_trained:int, principles_total:int, sessions:int, last_trained_on:?string} $summary
+     * @param array{minutes:int, principles_trained:int, principles_total:int, trainings:int, last_trained_on:?string} $summary
      */
     private static function renderSummary( array $summary ): void {
         echo '<div class="tt-exposure__facts">';
@@ -86,11 +86,11 @@ final class PlayerTrainingTab {
         self::fact(
             (string) $summary['minutes'],
             __( 'Minutes trained', 'talenttrack' ),
-            $summary['sessions'] > 0
+            $summary['trainings'] > 0
                 ? sprintf(
                     /* translators: %d is a number of trainings. */
-                    _n( 'across %d training', 'across %d trainings', $summary['sessions'], 'talenttrack' ),
-                    $summary['sessions']
+                    _n( 'across %d training', 'across %d trainings', $summary['trainings'], 'talenttrack' ),
+                    $summary['trainings']
                 )
                 : ''
         );

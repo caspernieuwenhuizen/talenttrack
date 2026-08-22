@@ -95,7 +95,7 @@ final class PlayerExposureReader {
      * denominator to come from the club's principles rather than from
      * what happens to have minutes.
      *
-     * @return array{minutes:int, principles_trained:int, principles_total:int, sessions:int, last_trained_on:?string}
+     * @return array{minutes:int, principles_trained:int, principles_total:int, trainings:int, last_trained_on:?string}
      */
     public function summaryFor( int $player_id ): array {
         $rows = $this->forPlayer( $player_id );
@@ -122,7 +122,7 @@ final class PlayerExposureReader {
             // Distinct trainings, not the sum of per-principle counts: one
             // training that touched three principles is one training, and
             // summing the column would report it as three.
-            'sessions'           => $this->distinctSessions( $player_id ),
+            'trainings'          => $this->distinctTrainings( $player_id ),
             'last_trained_on'    => $last,
         ];
     }
@@ -131,10 +131,10 @@ final class PlayerExposureReader {
      * How many completed trainings this player actually attended.
      *
      * Counted from the runs rather than from the exposure rows, because
-     * `sessions_count` is per principle and adding those up
+     * the per-principle count is per principle and adding those up
      * double-counts every training that trained more than one thing.
      */
-    private function distinctSessions( int $player_id ): int {
+    private function distinctTrainings( int $player_id ): int {
         global $wpdb;
 
         return (int) $wpdb->get_var( $wpdb->prepare(
