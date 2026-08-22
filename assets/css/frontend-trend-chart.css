@@ -205,9 +205,68 @@
 
 /* --- multi-series chart + report chrome (#2537) ---------------------- */
 
+/* The series palette (#2670). Ten hues chosen to stay apart from each
+   other at a 1.5px stroke on white, ordered so the first six — the ones a
+   small squad uses — are the most different. Past ten the hue repeats and
+   the dash pattern changes instead; see SeriesPalette. The hue rides a
+   custom property so one class paints both the SVG line and the swatch in
+   the table that identifies it. */
+.tt-root {
+    --tt-series-1:  #4477aa;
+    --tt-series-2:  #ee6677;
+    --tt-series-3:  #228833;
+    --tt-series-4:  #cc6600;
+    --tt-series-5:  #aa3377;
+    --tt-series-6:  #0088a8;
+    --tt-series-7:  #997700;
+    --tt-series-8:  #333333;
+    --tt-series-9:  #8a5a2b;
+    --tt-series-10: #117766;
+}
+
+.tt-series-1  { --tt-series: var(--tt-series-1); }
+.tt-series-2  { --tt-series: var(--tt-series-2); }
+.tt-series-3  { --tt-series: var(--tt-series-3); }
+.tt-series-4  { --tt-series: var(--tt-series-4); }
+.tt-series-5  { --tt-series: var(--tt-series-5); }
+.tt-series-6  { --tt-series: var(--tt-series-6); }
+.tt-series-7  { --tt-series: var(--tt-series-7); }
+.tt-series-8  { --tt-series: var(--tt-series-8); }
+.tt-series-9  { --tt-series: var(--tt-series-9); }
+.tt-series-10 { --tt-series: var(--tt-series-10); }
+
 /* A player's line is thinner than the single-series chart's, because a
-   squad's worth of them has to stay readable stacked together. */
-.tt-trend__line.is-player { stroke-width: 2; opacity: 0.85; }
+   squad's worth of them has to stay readable stacked together — and once
+   each line carries its own hue it can be thinner still, at full opacity:
+   a washed-out thin line loses its colour, which is the thing doing the
+   identifying. */
+.tt-trend__line.is-player {
+    stroke: var(--tt-series, var(--tt-primary, #0b3d2e));
+    stroke-width: 1.5;
+    opacity: 1;
+}
+/* A player with a single reading is drawn as a point rather than a line;
+   it takes the same hue, or it would read as somebody else. */
+.tt-trend__dot[class*="tt-series-"] { fill: var(--tt-series); }
+
+/* Second and third pass through the palette. The pattern is what separates
+   player 11 from player 1 — in colour, in greyscale print, and for a reader
+   who cannot tell the two hues apart. */
+.tt-trend__line.is-dash-1 { stroke-dasharray: 6 4; }
+.tt-trend__line.is-dash-2 { stroke-dasharray: 1.5 3; }
+
+/* The cue in the table: the same colour and the same pattern, drawn as a
+   line rather than a dot so the dash is visible. */
+.tt-series-swatch {
+    display: inline-block;
+    width: 18px;
+    margin-right: 0.45rem;
+    vertical-align: middle;
+    border-top: 3px solid var(--tt-series, var(--tt-primary, #0b3d2e));
+}
+.tt-series-swatch.is-dash-1 { border-top-style: dashed; }
+.tt-series-swatch.is-dash-2 { border-top-style: dotted; }
+
 /* The squad average is deliberately NOT another player: heavier and dashed,
    so it reads as an aggregate at a glance. */
 .tt-trend__line.is-average {

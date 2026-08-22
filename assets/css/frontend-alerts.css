@@ -1,0 +1,120 @@
+/**
+ * frontend-alerts.css — the alerts banner (#2631, epic #2629).
+ *
+ * Mobile-first per CLAUDE.md §2: the base rules are the ~360px layout and
+ * the media query scales up. Tokens only, no raw hex.
+ *
+ * The banner stacks vertically on a phone and only becomes a row on a
+ * tablet, because the alert text is a full sentence and squeezing it beside
+ * a severity chip and a CTA at 360px produces three unreadable columns.
+ */
+
+.tt-alert-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+}
+
+.tt-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--tt-radius-md, 8px);
+  border-left: 4px solid var(--tt-color-border, #d7dde0);
+  background: var(--tt-color-surface-alt, #f5f7f8);
+  color: var(--tt-color-text, #1d2327);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.tt-alert-sev {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+.tt-alert-text {
+  flex: 1 1 auto;
+}
+
+/* 48x48 minimum touch target per §2, met via padding rather than a fixed
+   height so the label can wrap on a narrow screen without clipping. */
+.tt-alert-cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0.5rem 1rem;
+  border-radius: var(--tt-radius-sm, 6px);
+  background: var(--tt-color-primary, #2271b1);
+  color: var(--tt-color-on-primary, #fff);
+  font-weight: 600;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.tt-alert-cta:hover,
+.tt-alert-cta:focus-visible {
+  background: var(--tt-color-primary-dark, #135e96);
+  color: var(--tt-color-on-primary, #fff);
+}
+
+.tt-alert-cta:focus-visible {
+  outline: 2px solid var(--tt-color-focus, #2271b1);
+  outline-offset: 2px;
+}
+
+.tt-alert-cta:active {
+  transform: translateY(1px);
+}
+
+.tt-alert-bar-more {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+/* Severity is carried by the left border, not by a background wash: the
+   banner sits above the page body and three saturated blocks would compete
+   with the content the coach actually came for. */
+.tt-alert-urgent {
+  border-left-color: var(--tt-color-danger, #b32d2e);
+}
+
+.tt-alert-urgent .tt-alert-sev {
+  color: var(--tt-color-danger, #b32d2e);
+}
+
+.tt-alert-attention {
+  border-left-color: var(--tt-color-warning, #dba617);
+}
+
+.tt-alert-info {
+  border-left-color: var(--tt-color-info, #2271b1);
+}
+
+@media (min-width: 480px) {
+  .tt-alert {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .tt-alert-sev {
+    min-width: 7.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-alert-cta:active {
+    transform: none;
+  }
+}

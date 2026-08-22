@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T07:55:06+00:00\n"
+"POT-Creation-Date: 2026-08-22T08:04:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -121,14 +121,14 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:134
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:134
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:129
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:158
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:24
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:976
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:259
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:255
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:310
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:344
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:289
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:345
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:379
 #: src/Modules/Media/Wizard/MediaTargetStep.php:45
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:498
@@ -899,7 +899,7 @@ msgid "Rate cards"
 msgstr ""
 
 #: src/Core/FeatureRegistry.php:498
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:39
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:1006
 msgid "Test trends"
 msgstr ""
@@ -2245,8 +2245,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:45
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:132
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:371
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:88
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:130
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:108
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:159
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:62
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:87
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
@@ -2255,7 +2255,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:171
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:248
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:454
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:489
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:607
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:499
@@ -2439,7 +2439,7 @@ msgid "Custom widget"
 msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:56
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:131
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:160
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2004
 msgid "Injury"
 msgstr ""
@@ -2724,11 +2724,11 @@ msgstr ""
 #: src/Infrastructure/REST/MeasurementsRestController.php:177
 #: src/Infrastructure/REST/MinutesRestController.php:71
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:54
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:74
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:86
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:87
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:71
 msgid "You do not have access to this team."
 msgstr ""
@@ -3203,7 +3203,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:101
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:68
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:74
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:52
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:53
 #: src/Modules/Reports/Admin/ReportsPage.php:39
 #: src/Shared/Frontend/FrontendRateCardView.php:57
 #: src/Shared/Frontend/FrontendStandardReportsView.php:115
@@ -3372,7 +3372,7 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:103
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:742
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
@@ -5286,7 +5286,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:99
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:191
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:464
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:499
 #: src/Modules/People/Admin/PeoplePage.php:389
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
@@ -5315,7 +5315,7 @@ msgstr "Von"
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:103
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:252
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:469
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:504
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:555
@@ -6098,7 +6098,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:80
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Authorization/Admin/RolesPage.php:494
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:42
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:43
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:268
 #: src/Modules/Reports/Admin/ReportsPage.php:38
 #: src/Modules/Reports/Admin/ReportsPage.php:83
@@ -6191,10 +6191,10 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:282
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:90
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:456
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:491
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:89
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
@@ -6225,7 +6225,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:383
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:100
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1478
@@ -6386,10 +6386,10 @@ msgid "— Select a team —"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:477
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:512
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:396
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1844
 #: src/Shared/Frontend/FrontendTrialsManageView.php:346
@@ -8669,7 +8669,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:560
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:155
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:172
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:259
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:293
 msgid "Change"
 msgstr ""
 
@@ -14674,7 +14674,7 @@ msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
 #: src/Modules/DemoData/DemoCoverage.php:1146
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:30
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:189
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1986
@@ -17419,7 +17419,7 @@ msgstr ""
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:136
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:168
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:157
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:440
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:475
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:94
 #: src/Shared/Frontend/FrontendSpondView.php:310
 msgid "Test"
@@ -18630,54 +18630,69 @@ msgstr[1] "%d matches."
 msgid "Open journey"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:35
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:37
 msgid "You do not have permission to view injuries."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:46
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:57
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:145
+#: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1976
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1989
+msgid "Record injury"
+msgstr ""
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:66
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:48
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:48
 msgid "No teams are available to you yet."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:98
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:118
 msgid "Currently out"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:99
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:172
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:119
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:201
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2015
 msgid "Recovered"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
-msgid "Nobody is currently out injured. That is the answer, not missing data."
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:143
+msgid "Nobody is currently out injured"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:121
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:144
+msgid ""
+"That is the answer, not missing data. Recording an injury here puts it on "
+"the player's journey, so next season a coach can see what they came back "
+"from."
+msgstr ""
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:151
 msgid "No injuries match your filters."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:132
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:161
 #: src/Modules/Journey/Wizards/InjuryDetailsStep.php:43
 msgid "Severity"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:133
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:162
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 msgid "Since"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:134
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:163
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:38
 msgid "Expected back"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:135
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:164
 msgid "Days out"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:176
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:205
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:178
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
@@ -18686,7 +18701,7 @@ msgstr ""
 msgid "Overdue"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:179
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:208
 msgid "Not set"
 msgstr ""
 
@@ -18843,12 +18858,6 @@ msgstr ""
 
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:96
 msgid "Could not record the injury."
-msgstr ""
-
-#: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1976
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1989
-msgid "Record injury"
 msgstr ""
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:36
@@ -21347,7 +21356,7 @@ msgid "↓ A lower value is better on this test — the falling line is progress
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:347
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:184
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:190
 msgid "↑ A higher value is better on this test."
 msgstr ""
 
@@ -21356,7 +21365,7 @@ msgid "recorded value"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:439
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:348
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:383
 msgid "Passed"
 msgstr ""
 
@@ -21368,7 +21377,7 @@ msgstr ""
 
 #. translators: 1: number of passes, 2: number of attempts
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:375
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:410
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
@@ -21597,12 +21606,12 @@ msgid "Test results"
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:37
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:47
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:48
 msgid "You do not have permission to browse test results."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:65
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:74
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:75
 msgid ""
 "No tests are defined yet. Add a test under Manage tests to start recording "
 "results."
@@ -21613,12 +21622,12 @@ msgid "Choose a test to see every player's latest result."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:114
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:104
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:105
 msgid "No results match these filters yet."
 msgstr ""
 
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:159
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:442
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:477
 msgid "— Choose a test —"
 msgstr ""
 
@@ -21638,66 +21647,61 @@ msgstr ""
 msgid "Well below target"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:93
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:94
 msgid "Choose a test to see how every player has developed."
 msgstr ""
 
 #. translators: 1: number of players, 2: number of measuring moments
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:121
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:122
 #, php-format
 msgid "%1$d player · %2$d measuring moment"
 msgid_plural "%1$d players · %2$d measuring moments"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:144
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:148
 msgid ""
 "This test has no direction: a higher value is not better than a lower one. "
 "There is no target, no verdict and no ranking — only the readings per date."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:162
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:168
 msgid "Squad average"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:180
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:186
 msgid "↓ A lower value is better on this test — a falling line is progress."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:189
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1298
-msgid "player"
-msgstr ""
-
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:191
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:199
 msgid "squad average"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:212
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:239
 msgid "Most improved"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:213
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:240
 msgid "Fallen back"
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:218
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:245
 msgid "Nobody in this window."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:289
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:324
 msgid ""
 "The change is read in the direction of the test: on a test where lower is "
 "better, a negative change is progress and is ranked as such."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:306
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:341
 msgid ""
 "Levels have no numeric axis, so there is no line. Each cell shows the "
 "recorded level in its own colour."
 msgstr ""
 
-#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:381
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:416
 msgid "Pass rate"
 msgstr ""
 
@@ -32193,6 +32197,10 @@ msgstr ""
 msgid "custom"
 msgstr ""
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1298
+msgid "player"
+msgstr ""
+
 #. translators: %d = tier number 1/2/3
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1300
 #, php-format
@@ -39396,7 +39404,7 @@ msgid "Upcoming"
 msgstr ""
 
 #. translators: 1: test name, 2: number of players plotted, 3: first date, 4: last date
-#: src/Shared/Frontend/Components/TrendChart.php:365
+#: src/Shared/Frontend/Components/TrendChart.php:373
 #, php-format
 msgid ""
 "%1$s: %2$d players plotted from %3$s to %4$s. The table below lists every "
@@ -39404,7 +39412,7 @@ msgid ""
 msgstr ""
 
 #. translators: 1: test name, 2: number of results, 3: first value, 4: first date, 5: latest value, 6: latest date
-#: src/Shared/Frontend/Components/TrendChart.php:392
+#: src/Shared/Frontend/Components/TrendChart.php:400
 #, php-format
 msgid "%1$s: %2$d results, from %3$s on %4$s to %5$s on %6$s."
 msgstr ""

@@ -1,3 +1,116 @@
+# TalentTrack v4.94.1 — Test trends: numbers first, and a colour per player (#2670)
+
+The Test trends report led with a chart in which every player's line was
+drawn in the same colour — a full squad overlapped into one navy band that
+no reader could trace a single player through, and nothing connected a line
+to a row in the table underneath it.
+
+The report now opens with the values: the player table, then Most improved
+and Fallen back, then the chart as the summary of what they already said.
+Each player's line is thinner and carries its own colour, and the same
+colour appears as a short line in front of their name in the table and in
+both ranking lists. Past ten players the palette reuses a colour with a
+dashed and then a dotted line, so a large squad stays identifiable in
+colour, in greyscale print, and for a colour-blind reader.
+
+Presentation only — the same figures, the same
+`GET /reports/test-trends` payload. Status, pass/fail and directionless
+tests are untouched; they have no chart to key.
+
+# TalentTrack v4.94.0 — What has this player actually been taught? (#2500)
+
+The question the Training module was built to answer.
+
+**A Training tab on every player file.** Minutes trained per principle, how
+many of your methodology's principles they have touched, and when they last
+trained — drawn from the trainings they actually attended.
+
+**The principles they have never trained are listed too, at the top, marked.**
+That is the whole point. A list that quietly dropped the empty rows would look
+complete while hiding exactly what you opened the tab to find.
+
+The minutes are honest about what happened rather than what was planned.
+Present and late count; excused, absent and injured do not. A skipped block
+contributes nothing. A block that ran twenty-seven minutes contributes
+twenty-seven, not the twenty-two someone typed into the plan. A player who
+guested for another team carries those minutes on their own file.
+
+**Notes on players, from the touchline.** The sideline view now lists everyone
+who is there with your academy's own scale under each name and a box for a
+note. You do not have to score anyone — a note on its own is a complete
+observation, and on a wet Tuesday it is the usual one. Tap a number again to
+clear it. A score outside your configured range is refused rather than rounded
+into it, because a rounded number on a child's record is one nobody chose.
+
+Each note lands on that player's **Journey** straight away, dated to the
+training rather than to when you typed it up.
+
+**A coverage matrix for the head of development.** Every principle down the
+side, every team across the top, and how many trainings each has spent on
+each. Only "never" is marked: four shades of nearly-fine would bury the one
+thing worth acting on.
+
+**Who sees it.** Coaches for their own teams, head of development and academy
+admins for everyone, and a parent for their own child. A player can switch it
+off for their parent entirely, under *My settings → what your parent can see*,
+alongside evaluations, goals, measurements and their PDP — training history is
+a ledger of what a young person has and has not been taught, and belongs in
+the same bracket as the rest.
+
+**When it updates.** Immediately when a training is finished, for the players
+who were there, and fully every night — which is what picks up a plan edited
+after the fact, an exercise re-tagged with a different principle, or
+attendance corrected the next morning.
+
+**Demo academies** now carry observations as well as plans and runs:
+deliberately sparse and mostly unscored, because a demo where every player has
+a tidy 7 would teach the wrong idea about what this is for.
+
+# TalentTrack v4.94.0 — MFA: a correct code no longer lands on a blank page (#2668)
+
+Entering a valid authenticator or backup code on the two-factor challenge
+could leave the user on an empty screen, still parked on the challenge URL,
+with no way forward but editing the address bar. The code itself was always
+accepted — only the hop to the dashboard failed.
+
+The challenge page renders inside the dashboard shortcode, so by the time it
+ran the response headers had already gone out; the post-verify redirect was
+silently dropped and the `exit` behind it truncated the page. Reloading made
+it worse: with the challenge now cleared, the same unguarded redirect fired
+again from a second code path.
+
+Verification, rate limiting, audit logging and the "remember this device"
+cookie now resolve on `init`, before a byte of the page is written, so the
+redirect is a real one. The view renders the form, the error and the lockout
+countdown and nothing else. The two bounce-out cases — no challenge
+outstanding, or a pending challenge on an un-enrolled account — go the same
+way, and every remaining path carries a card with a link out rather than a
+blank screen.
+
+# TalentTrack v4.94.0 — Injuries overview: record an injury without opening a player file first (#2671)
+
+The squad-level Injuries page was read-only by omission — the injury wizard
+existed and was registered, but only the player file linked to it, so a coach
+who opened the overview to see who was out had no way in from there. The page
+now carries a **Record injury** action in its header, and the "Nobody is
+currently out injured" state carries the same call to action instead of a bare
+notice.
+
+Entering from the overview starts the wizard on its team → player step, which
+is scoped to the squads the coach holds. The button follows the same gate as
+the player file: it is absent for roles without `tt_edit_player_medical` and
+when wizards are switched off, because there is no flat-form path to fall back
+on. The docs already described this entry point; the code has caught up.
+
+# TalentTrack v4.94.0 — Fixed: uploading a photo failed with an error (#2674)
+
+Adding a photo to a player, team or training failed — the file showed "Could not be added" and nothing was saved. Uploading video, or pasting a
+video link, was unaffected, which is why the problem looked intermittent.
+
+The cause was a thumbnail step that used a WordPress function only available inside the admin screens, so it broke as soon as the upload came from
+the media wizard. Photo uploads work again, and nothing was lost: the failure happened before anything was written, so no half-saved photos or
+stray files were left behind.
+
 # TalentTrack v4.93.0 — Change a plan block by block, and see who it serves (#2498)
 
 A training plan is no longer read-only. Open one and press **Edit blocks**.

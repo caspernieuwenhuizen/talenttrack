@@ -107,4 +107,54 @@ final class TrendChartTest extends WP_UnitTestCase {
         preg_match( '/class="tt-trend__line" points="([^"]+)"/', $svg, $m );
         $this->assertCount( 2, explode( ' ', html_entity_decode( $m[1] ) ), 'the gap contributes no point' );
     }
+
+    /**
+     * #2670 — a series may name its own class so the caller can colour one
+     * line apart from the rest. A single-reading series draws a dot rather
+     * than a line, and the dot has to carry the class too or that player
+     * appears in somebody else's colour.
+     */
+    public function test_series_class_reaches_the_line_and_the_lone_dot(): void {
+        $svg = TrendChart::renderMulti( [
+            'dates'  => [ '2026-01-01', '2026-02-01', '2026-03-01' ],
+            'series' => [
+                [
+                    'label'  => 'Jansen',
+                    'values' => [ '2026-01-01' => 2.24, '2026-02-01' => 2.20, '2026-03-01' => 2.18 ],
+                    'class'  => 'tt-series-3 is-dash-0',
+                ],
+                [
+                    'label'  => 'De Vries',
+                    'values' => [ '2026-02-01' => 2.31 ],
+                    'class'  => 'tt-series-4 is-dash-1',
+                ],
+                [
+                    'label'   => 'Squad average',
+                    'values'  => [ '2026-01-01' => 2.26, '2026-03-01' => 2.21 ],
+                    'variant' => 'average',
+                ],
+            ],
+        ] );
+
+        $this->assertStringContainsString( 'tt-trend__line is-player tt-series-3 is-dash-0', $svg );
+        $this->assertStringContainsString( 'tt-trend__dot tt-series-4 is-dash-1', $svg );
+        $this->assertStringContainsString( 'tt-trend__line is-average', $svg );
+        $this->assertStringNotContainsString(
+            'is-average tt-series',
+            $svg,
+            'the squad average is not one of the players and takes no series colour'
+        );
+        $this->assertStringNotContainsString( 'style=', $svg, 'inline styles are barred by the #1389 gate' );
+    }
+
+    /** Without a class the line keeps the shared treatment it always had. */
+    public function test_series_without_a_class_is_unchanged(): void {
+        $svg = TrendChart::renderMulti( [
+            'dates'  => [ '2026-01-01', '2026-02-01' ],
+            'series' => [
+                [ 'label' => 'Jansen', 'values' => [ '2026-01-01' => 2.24, '2026-02-01' => 2.18 ] ],
+            ],
+        ] );
+        $this->assertStringContainsString( 'class="tt-trend__line is-player"', $svg );
+    }
 }

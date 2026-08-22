@@ -287,15 +287,25 @@ Pick a test, optionally narrow by team and a date window, and press
 timeline follows, because a trend only means something in the terms of its
 own test:
 
-- **A test with a direction** (sprint time, jump height) gets a **chart**
-  with one line per player over the shared date axis, plus a heavier dashed
-  **squad-average** line so the aggregate never reads as another player.
-  Under it: **Most improved** and **Fallen back**, then a table with each
-  player's first value, latest value and **change**.
+- **A test with a direction** (sprint time, jump height) leads with the
+  numbers: a table of each player's value on every measuring moment and
+  their **change**, then **Most improved** and **Fallen back**, and last a
+  **chart** with one line per player over the shared date axis, plus a
+  heavier dashed **squad-average** line so the aggregate never reads as
+  another player.
 - **A test with no direction** (height, weight) gets the readings per date —
   no chart and no ranking, because there is no better or worse to rank. The
   change is still shown, with a grey ▲ or ▼ saying only which way the value
   moved.
+
+**Finding your player in the chart.** Every player has their own colour, and
+the same colour appears as a short line in front of their name in the table
+and in the two ranking lists — that line is the legend. A squad larger than
+ten runs past the ten colours a reader can reliably tell apart, so the
+eleventh player takes the first colour again **dashed**, the twenty-first
+takes it **dotted**. Colour and pattern together mean a full squad stays
+readable, on screen, in a black-and-white print, and for a colour-blind
+reader.
 
 **Reading the change column.** Every change carries an indicator, not just a
 colour, so the report stays readable in black and white and for a

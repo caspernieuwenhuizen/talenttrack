@@ -12,6 +12,7 @@ use TT\Modules\Measurements\Reports\MeasurementDeltaFormat;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\SeriesPalette;
 use TT\Shared\Frontend\Components\TrendChart;
 use TT\Shared\Frontend\Components\TrendGlyph;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -132,9 +133,12 @@ final class FrontendTestTrendsView extends FrontendViewBase {
             self::renderNeutralNotice();
             self::renderValueTable( $data, false );
         } else {
-            self::renderChart( $data );
+            // #2670 — numbers first. The coach opens this report for the
+            // values; the chart is the summary of what the table already
+            // said, so it reads better after it than in front of it.
+            self::renderValueTable( $data, true, true );
             self::renderRankings( $data );
-            self::renderValueTable( $data, true );
+            self::renderChart( $data );
         }
         echo '</section>';
     }
@@ -149,12 +153,14 @@ final class FrontendTestTrendsView extends FrontendViewBase {
     private static function renderChart( array $data ): void {
         $def    = (array) $data['definition'];
         $series = [];
+        $index  = self::seriesIndex( $data );
 
         foreach ( (array) $data['players'] as $p ) {
             $series[] = [
                 'label'   => (string) $p['name'],
                 'values'  => (array) $p['values'],
                 'variant' => 'player',
+                'class'   => SeriesPalette::classFor( $index[ (int) $p['player_id'] ] ?? 0 ),
             ];
         }
         if ( $data['average'] !== [] ) {
@@ -185,12 +191,32 @@ final class FrontendTestTrendsView extends FrontendViewBase {
                 . '</p>';
         }
 
-        echo '<p class="tt-trend-legend">';
-        echo '<span><i></i>' . esc_html__( 'player', 'talenttrack' ) . '</span>';
+        // #2670 — no "player" key any more: every player now has their own
+        // colour, so a single swatch labelled "player" named nothing. The
+        // table's swatches are the legend. The average still needs saying.
         if ( $data['average'] !== [] ) {
+            echo '<p class="tt-trend-legend">';
             echo '<span><i class="is-average"></i>' . esc_html__( 'squad average', 'talenttrack' ) . '</span>';
+            echo '</p>';
         }
-        echo '</p>';
+    }
+
+    /**
+     * Player id -> the position that decides their colour. TestTrendsQuery
+     * sorts players by name, so the map is the same on every surface of one
+     * render — the rankings re-sort their own copy, and looking the index up
+     * by id is what stops a ranked player picking up a different colour from
+     * the one their line is drawn in.
+     *
+     * @param array<string, mixed> $data
+     * @return array<int, int>
+     */
+    private static function seriesIndex( array $data ): array {
+        $map = [];
+        foreach ( array_values( (array) $data['players'] ) as $i => $p ) {
+            $map[ (int) $p['player_id'] ] = $i;
+        }
+        return $map;
     }
 
     /**
@@ -205,7 +231,8 @@ final class FrontendTestTrendsView extends FrontendViewBase {
         $ranks = ( new TestTrendsQuery() )->rankings( (array) $data['players'] );
         if ( $ranks['improved'] === [] && $ranks['declined'] === [] ) return;
 
-        $unit = (string) ( (array) $data['definition'] )['unit'];
+        $unit  = (string) ( (array) $data['definition'] )['unit'];
+        $index = self::seriesIndex( $data );
 
         echo '<div class="tt-tr-ranks">';
         foreach ( [
@@ -222,7 +249,8 @@ final class FrontendTestTrendsView extends FrontendViewBase {
                     // #2628 — the name is a route to the player record here
                     // too; it was the one place in the report rendering it as
                     // plain text.
-                    echo '<li>' . self::playerLink( $p ) . ' '
+                    echo '<li>' . SeriesPalette::swatch( $index[ (int) $p['player_id'] ] ?? 0 )
+                        . self::playerLink( $p ) . ' '
                         . '<span class="' . ( $key === 'improved' ? 'tt-tr-up' : 'tt-tr-down' ) . '">'
                         . esc_html( self::signed( (float) $p['delta'], $unit ) )
                         . '</span></li>';
@@ -244,11 +272,17 @@ final class FrontendTestTrendsView extends FrontendViewBase {
      * the direction footnote is worth printing — on a neutral test there is
      * no direction to explain.
      *
+     * #2670 — `$with_swatch` adds the colour cue that ties each row to its
+     * line in the chart below. Only the directional report draws a chart, so
+     * only it gets swatches: a colour key to a chart that isn't there would
+     * be noise.
+     *
      * @param array<string, mixed> $data
      */
-    private static function renderValueTable( array $data, bool $with_verdict ): void {
+    private static function renderValueTable( array $data, bool $with_verdict, bool $with_swatch = false ): void {
         $dates = (array) $data['dates'];
         $unit  = (string) ( (array) $data['definition'] )['unit'];
+        $index = $with_swatch ? self::seriesIndex( $data ) : [];
 
         echo '<div class="tt-meas-cols">';
         echo '<table>';
@@ -260,7 +294,8 @@ final class FrontendTestTrendsView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
 
         foreach ( (array) $data['players'] as $p ) {
-            echo '<tr><th scope="row">' . self::playerLink( $p ) . '</th>';
+            $swatch = $with_swatch ? SeriesPalette::swatch( $index[ (int) $p['player_id'] ] ?? 0 ) : '';
+            echo '<tr><th scope="row">' . $swatch . self::playerLink( $p ) . '</th>';
             foreach ( $dates as $d ) {
                 if ( isset( $p['values'][ $d ] ) ) {
                     echo '<td>' . esc_html( self::num( (float) $p['values'][ $d ] ) ) . '</td>';
