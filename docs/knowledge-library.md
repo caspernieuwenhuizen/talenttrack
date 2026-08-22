@@ -243,6 +243,71 @@ Two hooks fire on the transition, once each:
 The certification bridge and the methodology binding (#2649) hang off the
 first, so the completion service does not have to know what happens next.
 
+## The reader
+
+Four routable surfaces, all owned by the `knowledge_courses` feature — so
+switching the feature off takes the routes down as well as the tiles, and a
+bookmarked lesson URL stops resolving rather than rendering a surface the
+academy turned off.
+
+| Slug | Surface |
+| --- | --- |
+| `knowledge` | Library index. Tile in the **Learning** group |
+| `course` | One course: state, progress, lesson list. `?slug=` |
+| `lesson` | The reader. `?slug=&lesson=` |
+| `my-learning` | One person's own record. Tile in the **Me** group |
+
+### Navigation (CLAUDE.md §5)
+
+The chain is `Dashboard › Knowledge library › Course › Lesson`. The course
+crumb is the way back up to the course and the library crumb is the way back
+to the library — there is no separate back button, because that would be the
+third affordance §5a forbids.
+
+`RecordSpine` pins the course identity on the course and lesson views, so a
+coach eleven lessons into a long course never has to scroll up to remember
+which one they are in. **No tabs**: a course has one view, not alternative
+views of one record, and using the spine's tab slot for the sake of it would
+be decoration.
+
+Every link between these surfaces goes through `CrossViewLink::render()` with
+a gate registered in `CoreSurfaceRegistration`, so a link to a view the
+reader cannot open is not rendered at all (§7 / #2304). `KnowledgeLinks`
+builds the hrefs and always attaches the `tt_back` hint; it deliberately does
+not decide visibility.
+
+### Resume, and marking a lesson read
+
+Opening a course goes to the **first incomplete lesson**, not lesson one.
+Opening a lesson enrols the reader on first touch — a separate enrol step
+before you can read lesson one is a step nobody would understand.
+
+Marking a lesson read is an **explicit control**, never a scroll heuristic. A
+coach who skims and clicks it has made a claim; a scroll listener has only
+measured a thumb. It is a real form POST, so the lesson completes with
+JavaScript unavailable; `knowledge-reader.js` upgrades that to an in-place
+save.
+
+The end-of-lesson block also names what the lesson still wants — a passed
+check, an approved assignment — because a coach who marks a lesson read and
+sees the course percentage not move needs to know it is the quiz, not a bug.
+
+### Interactive block state
+
+`tt-zeropoint` and `tt-weekplanner` persist to
+`tt_course_progress.tool_state` through
+`PATCH /courses/{slug}/progress/{lesson}`, debounced. The zero-point
+measurement a coach takes in module 4 is still there in module 11, where the
+final assignment asks for it.
+
+Rehydration is why `knowledge-reader.js` is enqueued as a *dependent* of
+`knowledge-blocks.js`: it assigns `window.TTKnowledge.savedState` at parse
+time, which is before either script boots on `DOMContentLoaded`, so the
+blocks read their saved state during their own init rather than being
+re-initialised afterwards. The first paint deliberately does not save —
+rendering what was already stored is not a change, and writing it back would
+touch the record on every page view.
+
 ### Gating
 
 Six gates, resolved in one pass. The first four are shared with the help

@@ -1,0 +1,404 @@
+/**
+ * Knowledge library chrome (#2646) — the library grid, the course page,
+ * the lesson list and the reader's own furniture.
+ *
+ * The lesson *body* is styled by frontend-knowledge-lesson.css (#2643);
+ * this is everything around it.
+ *
+ * Mobile-first: base rules target ~360px and scale up with min-width
+ * queries. Every control is at least 48x48px with 8px between neighbours;
+ * nothing is reachable by hover alone.
+ */
+
+/* ── shared ─────────────────────────────────────────────────────────── */
+
+.tt-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tt-knowledge-lede {
+    max-width: 68ch;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-lg, 1.125rem);
+    line-height: 1.5;
+}
+
+.tt-knowledge-muted {
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ── state chips ────────────────────────────────────────────────────── */
+
+/* State is carried by the word as well as the colour, so a coach who
+   cannot tell the two greens apart still reads "Completed". */
+.tt-knowledge-chip {
+    display: inline-block;
+    padding: 2px var(--tt-sp-2, 8px);
+    border-radius: 99px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.6;
+    white-space: nowrap;
+}
+
+.tt-knowledge-chip--new      { background: var(--tt-bg-soft, #f4f6f3); color: var(--tt-muted, #6a6d66); }
+.tt-knowledge-chip--active   { background: var(--tt-info-subtle, #e6f0fa); color: #1c4f80; }
+.tt-knowledge-chip--done     { background: var(--tt-success-subtle, #dff5e1); color: #1d6b3e; }
+.tt-knowledge-chip--overdue  { background: var(--tt-danger-subtle, #fde2e2); color: #97281f; }
+.tt-knowledge-chip--locked   { background: var(--tt-bg-soft, #f4f6f3); color: var(--tt-muted, #6a6d66); }
+.tt-knowledge-chip--retired  { background: var(--tt-bg-soft, #f4f6f3); color: var(--tt-muted, #6a6d66); }
+
+/* ── progress ───────────────────────────────────────────────────────── */
+
+.tt-knowledge-progress {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-width: 8rem;
+}
+
+.tt-knowledge-progress__track {
+    height: 6px;
+    border-radius: 99px;
+    background: var(--tt-line, #e3e6e1);
+    overflow: hidden;
+}
+
+.tt-knowledge-progress__fill {
+    display: block;
+    height: 100%;
+    border-radius: 99px;
+    background: var(--tt-primary, #0b3d2e);
+}
+
+.tt-knowledge-progress__figure {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── library grid ───────────────────────────────────────────────────── */
+
+.tt-knowledge-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+@media (min-width: 720px) {
+    .tt-knowledge-grid { grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+}
+
+.tt-knowledge-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+}
+
+.tt-knowledge-card--locked {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-knowledge-card__title {
+    margin: 0;
+    font-size: var(--tt-fs-h3, 1.25rem);
+    line-height: 1.25;
+}
+
+.tt-knowledge-card__title a {
+    /* The whole title is the target; 48px comes from the line box plus
+       the card's own padding. */
+    display: inline-block;
+    min-height: 24px;
+    text-decoration: none;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-knowledge-card__title a:hover,
+.tt-knowledge-card__title a:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-knowledge-card__summary {
+    margin: 0;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-knowledge-card__meta,
+.tt-knowledge-card__locked {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-knowledge-card__cta {
+    margin: var(--tt-sp-2, 8px) 0 0;
+}
+
+.tt-knowledge-card__cta .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+/* ── course page ────────────────────────────────────────────────────── */
+
+.tt-knowledge-course__state {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    margin: var(--tt-sp-4, 16px) 0;
+}
+
+.tt-knowledge-course__resume {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin: var(--tt-sp-4, 16px) 0;
+}
+
+.tt-knowledge-course__resume .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.tt-knowledge-course__resume-target {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-knowledge-course__resume--done {
+    color: #1d6b3e;
+    font-weight: 600;
+}
+
+.tt-knowledge-course__requirements {
+    max-width: 68ch;
+    margin: 0 0 var(--tt-sp-5, 20px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ── lesson list ────────────────────────────────────────────────────── */
+
+.tt-knowledge-lessons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    overflow: hidden;
+}
+
+.tt-knowledge-lesson-row {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+    align-items: baseline;
+    /* 48px minimum row height with room for a wrapped title. */
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    min-height: 48px;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-knowledge-lesson-row:last-child { border-bottom: 0; }
+
+@media (min-width: 560px) {
+    .tt-knowledge-lesson-row {
+        grid-template-columns: 1.5rem 1fr auto;
+        align-items: center;
+    }
+}
+
+.tt-knowledge-lesson-row__state {
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 700;
+}
+
+.tt-knowledge-lesson-row--done .tt-knowledge-lesson-row__state {
+    color: var(--tt-success, #2f9e5e);
+}
+
+.tt-knowledge-lesson-row__title a {
+    display: inline-block;
+    /* Row is already 48px tall; this keeps the hit area filling it. */
+    padding: var(--tt-sp-1, 4px) 0;
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    font-weight: 600;
+    touch-action: manipulation;
+}
+
+.tt-knowledge-lesson-row__title a:hover,
+.tt-knowledge-lesson-row__title a:focus-visible {
+    text-decoration: underline;
+}
+
+.tt-knowledge-lesson-row--locked .tt-knowledge-lesson-row__title {
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-knowledge-lesson-row__meta {
+    grid-column: 2 / -1;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 560px) {
+    .tt-knowledge-lesson-row__meta {
+        grid-column: auto;
+        text-align: right;
+        white-space: nowrap;
+    }
+}
+
+/* ── the reader ─────────────────────────────────────────────────────── */
+
+.tt-knowledge-lesson__position {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-knowledge-lesson__objectives {
+    max-width: 68ch;
+    margin: 0 0 var(--tt-sp-5, 20px);
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-info-subtle, #e6f0fa);
+    border-left: 3px solid var(--tt-info, #2d6fb3);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+}
+
+.tt-knowledge-lesson__objectives h2 {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #1c4f80;
+}
+
+.tt-knowledge-lesson__objectives ul {
+    margin: 0;
+    padding-left: 1.2rem;
+}
+
+.tt-knowledge-lesson__completion {
+    max-width: 68ch;
+    margin: var(--tt-sp-6, 24px) 0 0;
+    padding: var(--tt-sp-4, 16px);
+    border-top: 2px solid var(--tt-line, #e3e6e1);
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-knowledge-lesson__form { margin: 0; }
+
+.tt-knowledge-lesson__completion .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.tt-knowledge-lesson__read {
+    margin: 0;
+    font-weight: 600;
+    color: #1d6b3e;
+}
+
+.tt-knowledge-lesson__note {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-knowledge-lesson__next { margin: 0; }
+
+.tt-knowledge-lesson__save-state {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    min-height: 1.4em;
+}
+
+.tt-knowledge-lesson__save-state--failed {
+    color: var(--tt-danger, #d8453b);
+}
+
+/* ── notices ────────────────────────────────────────────────────────── */
+
+.tt-notice--locked {
+    border-left: 3px solid var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+}
+
+.tt-notice--success {
+    border-left: 3px solid var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+}
+
+/* ── my learning table ──────────────────────────────────────────────── */
+
+.tt-knowledge-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-knowledge-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 34rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-knowledge-table th,
+.tt-knowledge-table td {
+    padding: var(--tt-sp-3, 12px);
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-knowledge-table tbody tr:last-child th,
+.tt-knowledge-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tt-knowledge-row--retired th,
+.tt-knowledge-row--retired td {
+    color: var(--tt-muted, #6a6d66);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-knowledge-progress__fill { transition: none !important; }
+}
