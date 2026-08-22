@@ -7,8 +7,11 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
+use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
+use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
+use TT\Modules\Alerts\Definitions\PlayerNotEvaluatedAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
@@ -74,6 +77,17 @@ final class AlertsModule implements ModuleInterface {
         $alerts[] = new PastStillPlannedAlert();
         $alerts[] = new AttendanceUnrecordedAlert();
         $alerts[] = new NoCoachAssignedAlert();
+
+        // #2636 instalment 1 — Evaluations. The catalogue grows one module
+        // per release (epic decision 9): a new definition arrives ON for
+        // every existing user, so a twelve-definition release would be an
+        // ambush. Two or three at a time, each named in that release's
+        // changelog, is the difference between being informed and being
+        // spammed by your own tooling.
+        $alerts[] = new PlayerNotEvaluatedAlert();
+        $alerts[] = new EvaluationWindowClosingAlert();
+        $alerts[] = new EvaluationNotSharedAlert();
+
         return $alerts;
     }
 

@@ -1,7 +1,7 @@
 ---
 title: Alerts
 group: performance
-summary: Conditions in your data that need attention — unmarked activities, missing attendance, unstaffed training — surfaced automatically and cleared by fixing them.
+summary: Conditions in your data that need attention — unmarked activities, missing attendance, unevaluated players — surfaced automatically and cleared by fixing them.
 audience: [user, admin]
 order: 35
 ---
@@ -34,17 +34,44 @@ Each alert links straight to the record it is about, so fixing it is one click a
 
 ## What TalentTrack currently alerts on
 
+### Activities
+
 | Alert | What it means |
 | --- | --- |
 | **Past activity still planned** | The activity's date has passed but nobody marked it completed or cancelled. Until they do, its attendance and minutes are missing from every report. |
 | **Attendance not recorded** | The activity is marked completed but nobody recorded who was there. It looks finished everywhere except in the reports. |
 | **Upcoming activity has no coach** | An activity in the next week has nobody assigned to run it. Unstaffed activities tend to get cancelled late, which costs every player in the squad a training slot. |
 
-More alerts, covering evaluations, goals, PDP cycles and player records, arrive in later releases.
+### Evaluations
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Player not evaluated recently** | Nobody has recorded an evaluation for a player for longer than your academy's threshold. | *Where is this player now?* An academy that has written nothing down about a player for two months cannot answer that — not for a selection meeting, not for a parent, not for the player. |
+| **Evaluation window closing** | An evaluation window is about to close and players in your team have no evaluation in it. | *Where is this player now, according to the review the academy promised to do?* Once the window closes the gap is permanent: that period has no record for them. |
+| **Evaluation not shared with the player** | An evaluation was recorded but nothing was written in the player-facing feedback field. | *What does this player need next?* An evaluation the player never sees cannot answer that for them. The ratings and internal notes stay with staff, so from the player's side nothing happened. |
+
+More alerts, covering goals, PDP cycles, measurements and player records, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+
+### Settings that change when these alerts fire
+
+These live in academy configuration, not in code, because academies genuinely differ about what "recently" means. The one whose threshold is wrong stops trusting the alert.
+
+| Setting | Default | What it controls |
+| --- | --- | --- |
+| `alerts_eval_stale_weeks` | 8 weeks | How long a player may go without an evaluation before the alert appears. A player who has never been evaluated is measured from the day they joined, not from the beginning of time. |
+| `alerts_eval_window_closing_days` | 3 days | How much warning you get before an evaluation window closes. |
+| `alerts_eval_share_grace_days` | 7 days | How long after an evaluation is recorded before the "not shared" alert appears. |
+| `alerts_eval_share_lookback_days` | 60 days | How far back the "not shared" alert still looks. Older evaluations are left alone: telling you in April what you should have written in September is a backlog, not an action. |
+
+## New alerts arrive switched on
+
+When a release adds an alert, it takes effect immediately for everyone who can act on it — you do not have to turn it on. That is deliberate: an alert nobody enabled is an alert nobody sees.
+
+The safeguard is that new alerts arrive **one module at a time**, never the whole catalogue at once, and every release's notes name the alerts it adds and say what they will surface. Two new alerts with an explanation is being informed; twelve with no explanation is being spammed by your own tooling.
 
 ## Who receives an alert
 
-The people who can actually fix it: the coach assigned to the activity, and the team's head coach.
+The people who can actually fix it: the team's head coach, plus whoever else is directly involved — the coach assigned to the activity, or the coach who wrote the evaluation.
 
 Heads of Development and academy admins do **not** receive an alert for every team. Twenty teams' worth of alerts arriving at the person with the least time to read them is how a system gets ignored. An overview for that role is coming in a later release.
 
