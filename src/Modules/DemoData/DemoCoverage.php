@@ -679,6 +679,14 @@ class DemoCoverage {
         'tt_exercises'            => [ 'exempt' => 'The exercise library is seeded by migration 0090; #2465 attaches those exercises to trainings rather than building a second library.' ],
         'tt_exercise_categories'  => [ 'exempt' => 'Exercise category vocabulary, seeded by migrations.' ],
         'tt_exercise_principles'  => [ 'exempt' => 'Exercise/principle reference mapping, seeded by migrations.' ],
+        // #2501 — a scene is authored content: a coach draws it on a
+        // canvas for their own drill. Generating one would mean inventing
+        // a tactical pattern and presenting it as an academy's own
+        // coaching, which is a different thing from generating a
+        // plausible attendance row. The library the demo installs is
+        // itself seeded rather than generated (see tt_exercises above),
+        // so there is nothing here a demo run would attach a scene to.
+        'tt_exercise_scenes'      => [ 'exempt' => 'Authored diagrams. Generating one would mean inventing a tactical pattern and presenting it as the academy\'s own coaching; the demo library is seeded rather than generated, so there is nothing to attach one to.' ],
         'tt_football_actions'     => [ 'exempt' => 'Football-action vocabulary, seeded by migrations.' ],
         'tt_principles'           => [ 'exempt' => 'Methodology principles, seeded by migrations (JO13 set in 0206).' ],
         'tt_methodologies'                    => [ 'exempt' => 'Methodology sets, seeded by migrations.' ],
