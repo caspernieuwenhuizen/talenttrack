@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T08:56:35+00:00\n"
+"POT-Creation-Date: 2026-08-22T09:11:36+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -112,7 +112,6 @@ msgstr "Team Manager"
 #: src/Modules/Documentation/AudienceResolver.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:146
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:372
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:144
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:139
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
@@ -2529,7 +2528,6 @@ msgid "Activity"
 msgstr "Activiteit"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:47
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:149
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:682
 #: src/Modules/Methodology/Admin/MethodologyPage.php:613
@@ -5049,7 +5047,7 @@ msgstr "Bijwerken"
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:362
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:225
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:932
@@ -5228,7 +5226,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:72
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:258
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:285
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:851
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
@@ -5452,7 +5450,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:831
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:970
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1228
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:224
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:251
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:946
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:583
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:813
@@ -7174,7 +7172,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:58
 #: src/Modules/Development/Frontend/TracksView.php:66
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:300
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:206
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:233
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:25
 #: src/Modules/Measurements/Frontend/FrontendMeasurementTestsView.php:262
 #: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php:33
@@ -7933,7 +7931,7 @@ msgid "Next run"
 msgstr "Volgende uitvoer"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:214
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:212
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:239
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:45
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1131
 #: src/Modules/Methodology/Frontend/MethodologyView.php:884
@@ -14392,7 +14390,6 @@ msgstr "Evaluatiedatum"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:125
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:385
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:145
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:155
@@ -14517,7 +14514,6 @@ msgid "No migrations found."
 msgstr "Geen migraties gevonden."
 
 #: src/Modules/Configuration/Admin/MigrationsPage.php:132
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:158
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1412
 msgid "Run"
 msgstr "Uitvoeren"
@@ -18884,79 +18880,108 @@ msgstr ""
 "De scène-editor heeft JavaScript nodig. De scène zelf is ook zonder "
 "JavaScript te zien op de oefeningpagina."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:146
-#: src/Modules/Methodology/MethodologyEnums.php:119
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:167
+msgctxt "line or marker in a drill diagram"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:168
+msgctxt "line or marker in a drill diagram"
+msgid "Opponent"
+msgstr "Tegenstander"
+
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:169
+msgctxt "line or marker in a drill diagram"
 msgid "Keeper"
 msgstr "Keeper"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:147
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:170
+msgctxt "line or marker in a drill diagram"
 msgid "Ball"
 msgstr "Bal"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:148
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:171
+msgctxt "line or marker in a drill diagram"
 msgid "Cone"
 msgstr "Pion"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:156
-#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:234
-msgid "Pass"
-msgstr "Geslaagd"
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:176
+msgctxt "line or marker in a drill diagram"
+msgid "Goal"
+msgstr "Doel"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:157
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:183
+msgctxt "line or marker in a drill diagram"
+msgid "Pass"
+msgstr "Pass"
+
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:184
+msgctxt "line or marker in a drill diagram"
 msgid "Dribble"
 msgstr "Dribbel"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:159
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:185
+msgctxt "line or marker in a drill diagram"
+msgid "Run"
+msgstr "Loopactie"
+
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:186
+msgctxt "line or marker in a drill diagram"
 msgid "Shot"
 msgstr "Schot"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:160
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:187
+msgctxt "line or marker in a drill diagram"
 msgid "Press"
 msgstr "Druk zetten"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:167
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:194
+msgctxt "line or marker in a drill diagram"
 msgid "Full pitch"
 msgstr "Heel veld"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:168
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:195
+msgctxt "line or marker in a drill diagram"
 msgid "Half pitch"
 msgstr "Halve veld"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:169
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:196
+msgctxt "line or marker in a drill diagram"
 msgid "Grid square"
 msgstr "Vierkant"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:170
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:197
+msgctxt "line or marker in a drill diagram"
 msgid "No markings"
 msgstr "Zonder lijnen"
 
 #. translators: %d is a whole number of seconds.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:188
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:215
 #, php-format
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d seconde"
 msgstr[1] "%d seconden"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:204
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:231
 msgid "Add a marker"
 msgstr "Markering toevoegen"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:205
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:232
 msgid "The scene"
 msgstr "De scène"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:207
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:234
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:399
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:441
 msgid "Pitch"
 msgstr "Veld"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:208
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:235
 msgid "Length"
 msgstr "Duur"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:209
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:236
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:115
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:140
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:359
@@ -18965,18 +18990,18 @@ msgstr "Duur"
 msgid "Timeline"
 msgstr "Tijdlijn"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:210
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:237
 msgid "Time in the scene"
 msgstr "Tijd in de scène"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:211
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:238
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:44
 #: src/Modules/Methodology/Frontend/MethodologyView.php:883
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:566
 msgid "Play"
 msgstr "Afspelen"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:213
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:240
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:468
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1140
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:59
@@ -18984,44 +19009,44 @@ msgstr "Afspelen"
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:214
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:241
 msgid "Selected marker"
 msgstr "Geselecteerde markering"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:215
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:242
 msgid "Lines"
 msgstr "Lijnen"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:216
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:243
 msgid "Shirt number"
 msgstr "Rugnummer"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:217
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:244
 msgid "Across"
 msgstr "Breedte"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:218
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:245
 msgid "Along"
 msgstr "Diepte"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:219
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:246
 msgid "Mark position"
 msgstr "Positie vastleggen"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:220
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:247
 msgid "Clear position"
 msgstr "Positie wissen"
 
 # #1371 - repeat last session (v4.20.125). i18n-sync will merge these
 # into the proper position on next run; meanwhile they land here
 # verbatim so a Dutch install reads correctly today.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:221
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:248
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:736
 msgid "Duplicate"
 msgstr "Dupliceren"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:222
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:223
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:249
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:250
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
@@ -19039,7 +19064,7 @@ msgstr "Dupliceren"
 msgid "Remove"
 msgstr "Verwijderen"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:227
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:254
 msgid ""
 "Drag a marker on the pitch to record where it is at this moment. Arrow keys "
 "move it a step at a time."
@@ -19047,11 +19072,11 @@ msgstr ""
 "Sleep een markering over het veld om vast te leggen waar die op dit moment "
 "staat. Met de pijltjestoetsen verplaats je hem stap voor stap."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:228
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:255
 msgid "Pick a marker on the pitch to edit it."
 msgstr "Kies een markering op het veld om die te bewerken."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:229
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:256
 msgid ""
 "Nothing on the pitch yet. Choose a marker on the left, then tap the pitch to "
 "place it."
@@ -19059,99 +19084,99 @@ msgstr ""
 "Nog niets op het veld. Kies links een markering en tik op het veld om die te "
 "plaatsen."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:230
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:257
 msgid "No lines yet. Pick a line type on the left, then tap two markers."
 msgstr ""
 "Nog geen lijnen. Kies links een lijnsoort en tik daarna op twee markeringen."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:231
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:258
 msgid "Pick a marker first."
 msgstr "Kies eerst een markering."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:232
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:259
 msgid "A marker needs at least one position, so this one cannot be cleared."
 msgstr ""
 "Een markering heeft minstens één positie nodig, dus deze kun je niet wissen."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:233
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:260
 msgid "This marker has no position recorded at this moment."
 msgstr "Deze markering heeft op dit moment geen vastgelegde positie."
 
 #. translators: %s is the name or shirt number of a marker.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:236
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:263
 #, php-format
 msgid "Marker %s"
 msgstr "Markering %s"
 
 #. translators: %s is the name or shirt number of a marker.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:238
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:265
 #, php-format
 msgid "Edit marker %s"
 msgstr "Markering %s bewerken"
 
 #. translators: %s is the name or shirt number of a marker.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:240
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:267
 #, php-format
 msgid "Added %s."
 msgstr "%s toegevoegd."
 
 #. translators: %s is the name or shirt number of a marker.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:242
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:269
 #, php-format
 msgid "Removed %s."
 msgstr "%s verwijderd."
 
 #. translators: %s is the name or shirt number of a marker.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:244
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:271
 #, php-format
 msgid "Line starts at %s. Now tap where it ends."
 msgstr "De lijn begint bij %s. Tik nu waar die eindigt."
 
 #. translators: 1: line type, for example Pass. 2: the marker it starts at. 3: the marker it ends at.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:246
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:273
 #, php-format
 msgid "%1$s from %2$s to %3$s"
 msgstr "%1$s van %2$s naar %3$s"
 
 #. translators: %s is a moment in the scene, for example 2.4 s.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:248
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:275
 #, php-format
 msgid "Position at %s"
 msgstr "Positie op %s"
 
 #. translators: %s is a moment in the scene, for example 2.4 s.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:250
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:277
 #, php-format
 msgid "Moved to %s"
 msgstr "Verplaatst naar %s"
 
 #. translators: %s is a number of seconds with one decimal, for example 2.4.
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:279
 #, php-format
 msgid "%s s"
 msgstr "%s s"
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:254
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:281
 msgid "Line added."
 msgstr "Lijn toegevoegd."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:255
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:282
 msgid "Tap the pitch to place it."
 msgstr "Tik op het veld om te plaatsen."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:256
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:283
 msgid "Back to selecting."
 msgstr "Terug naar selecteren."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:257
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:284
 msgid "Undone."
 msgstr "Ongedaan gemaakt."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:259
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:286
 msgid "Scene saved."
 msgstr "Scène opgeslagen."
 
-#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:260
+#: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:287
 msgid "The scene could not be saved. Check your connection and try again."
 msgstr ""
 "De scène kon niet worden opgeslagen. Controleer je verbinding en probeer het "
@@ -23580,6 +23605,10 @@ msgstr "Alles opslaan"
 msgid "— skip —"
 msgstr "— overslaan —"
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:234
+msgid "Pass"
+msgstr "Geslaagd"
+
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:235
 msgid "Fail"
 msgstr "Niet geslaagd"
@@ -26435,6 +26464,10 @@ msgstr "Middenvelders"
 #: src/Modules/Methodology/MethodologyEnums.php:118
 msgid "Verdedigers"
 msgstr "Verdedigers"
+
+#: src/Modules/Methodology/MethodologyEnums.php:119
+msgid "Keeper"
+msgstr "Keeper"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:45
 msgid "Log in to print the methodology reference."
@@ -51962,65 +51995,32 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-msgctxt "line or marker in a drill diagram"
-msgid "Player"
-msgstr "Speler"
+#~ msgid "Ball"
+#~ msgstr "Bal"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Opponent"
-msgstr "Tegenstander"
+#~ msgid "Cone"
+#~ msgstr "Pion"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Keeper"
-msgstr "Keeper"
+#~ msgid "Dribble"
+#~ msgstr "Dribbel"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Ball"
-msgstr "Bal"
+#~ msgid "Shot"
+#~ msgstr "Schot"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Cone"
-msgstr "Pion"
+#~ msgid "Press"
+#~ msgstr "Druk zetten"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Goal"
-msgstr "Doel"
+#~ msgid "Full pitch"
+#~ msgstr "Heel veld"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Pass"
-msgstr "Pass"
+#~ msgid "Half pitch"
+#~ msgstr "Halve veld"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Dribble"
-msgstr "Dribbel"
+#~ msgid "Grid square"
+#~ msgstr "Vierkant"
 
-msgctxt "line or marker in a drill diagram"
-msgid "Run"
-msgstr "Loopactie"
-
-msgctxt "line or marker in a drill diagram"
-msgid "Shot"
-msgstr "Schot"
-
-msgctxt "line or marker in a drill diagram"
-msgid "Press"
-msgstr "Druk zetten"
-
-msgctxt "line or marker in a drill diagram"
-msgid "Full pitch"
-msgstr "Heel veld"
-
-msgctxt "line or marker in a drill diagram"
-msgid "Half pitch"
-msgstr "Halve veld"
-
-msgctxt "line or marker in a drill diagram"
-msgid "Grid square"
-msgstr "Vierkant"
-
-msgctxt "line or marker in a drill diagram"
-msgid "No markings"
-msgstr "Zonder lijnen"
+#~ msgid "No markings"
+#~ msgstr "Zonder lijnen"
 
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
