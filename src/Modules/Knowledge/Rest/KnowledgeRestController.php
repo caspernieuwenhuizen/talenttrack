@@ -4,6 +4,7 @@ namespace TT\Modules\Knowledge\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\REST\RestResponse;
+use TT\Modules\Knowledge\CourseAccessResolver;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
@@ -118,23 +119,32 @@ final class KnowledgeRestController {
     /* ===== routes ===== */
 
     /**
-     * The catalogue, each entry carrying this user's state.
+     * The catalogue, each entry carrying this user's state and its gate
+     * verdict.
      *
-     * Gating is not applied yet — #2645 adds it, and applies it here as
-     * well as in the view, so a course a persona may not see cannot be
-     * reached by calling the API directly.
+     * Courses this install does not have, and courses this reader may not
+     * open, are absent rather than listed-and-locked: listing them is
+     * advertising. A course locked behind a prerequisite stays listed with
+     * its verdict, because that is how a reader learns the path exists.
      */
     public static function list_courses( WP_REST_Request $r ) {
         $person_id = self::currentPersonId();
         $service   = new CourseCompletionService();
         $repo      = new EnrolmentRepository();
+        $access    = new CourseAccessResolver();
 
         $out = [];
         foreach ( CourseRegistry::all() as $slug => $manifest ) {
+            $verdict = $access->forCourse( $slug, $person_id, get_current_user_id() );
+            if ( ! $verdict->isListable() ) {
+                continue;
+            }
+
             $enrolment = $person_id > 0 ? $repo->findFor( $person_id, $slug ) : null;
 
             $out[] = [
                 'course'    => $manifest->toArray(),
+                'access'    => $verdict->toArray(),
                 'enrolment' => self::shapeEnrolment( $enrolment ),
                 'progress'  => $enrolment !== null
                     ? $service->progressFor( (int) $enrolment->id, $slug )
@@ -154,19 +164,35 @@ final class KnowledgeRestController {
         }
 
         $person_id = self::currentPersonId();
+        $access    = new CourseAccessResolver();
+        $verdict   = $access->forCourse( $slug, $person_id, get_current_user_id() );
+
+        // Absent, not forbidden. A 403 confirms the course exists here,
+        // which is the one thing hiding it was meant to avoid.
+        if ( ! $verdict->isListable() ) {
+            return RestResponse::notFound( 'course_not_found', __( 'That course is not in this library.', 'talenttrack' ) );
+        }
+
         $repo      = new EnrolmentRepository();
         $enrolment = $person_id > 0 ? $repo->findFor( $person_id, $slug ) : null;
         $service   = new CourseCompletionService();
 
-        $states = $enrolment !== null ? $service->lessonStates( (int) $enrolment->id, $slug ) : [];
+        $states       = $enrolment !== null ? $service->lessonStates( (int) $enrolment->id, $slug ) : [];
+        $lesson_gates = $access->forLessons( $slug, $person_id, get_current_user_id() );
 
         $lessons = [];
         foreach ( CourseRegistry::lessons( $slug ) as $lesson_slug => $lesson ) {
-            $lessons[] = $lesson->toArray() + [ 'complete' => $states[ $lesson_slug ] ?? false ];
+            $lessons[] = $lesson->toArray() + [
+                'complete' => $states[ $lesson_slug ] ?? false,
+                'access'   => isset( $lesson_gates[ $lesson_slug ] )
+                    ? $lesson_gates[ $lesson_slug ]->toArray()
+                    : null,
+            ];
         }
 
         return RestResponse::success( [
             'course'      => $manifest->toArray(),
+            'access'      => $verdict->toArray(),
             'lessons'     => $lessons,
             'enrolment'   => self::shapeEnrolment( $enrolment ),
             'progress'    => $enrolment !== null
@@ -229,6 +255,25 @@ final class KnowledgeRestController {
                 'no_person_record',
                 __( 'This login is not linked to a staff record.', 'talenttrack' ),
                 400
+            );
+        }
+
+        // The write path is where a sequential course would actually be
+        // walked around: hiding a locked lesson in the reader means nothing
+        // if POSTing its progress marks it read. Enforced here, not only in
+        // the view.
+        $verdict = ( new CourseAccessResolver() )->forLesson( $slug, $lesson, $person_id, get_current_user_id() );
+
+        if ( $verdict->isUnavailable() || $verdict->isDenied() ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        if ( $verdict->isLocked() ) {
+            return RestResponse::error(
+                'lesson_locked',
+                __( 'Finish the previous lesson first.', 'talenttrack' ),
+                403,
+                $verdict->toArray()
             );
         }
 

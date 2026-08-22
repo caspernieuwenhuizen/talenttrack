@@ -144,6 +144,38 @@ It lists each user-facing module with an **On / Off / Always on** badge, a one-l
 
 The same data is available over REST at `GET /wp-json/talenttrack/v1/feature-status` (any logged-in user). All the shaping lives in `FeatureStatusService`, so the view and the API return the same answer. Only modules that actually present something to a user (own a tile or a feature) appear — pure-infrastructure modules are omitted.
 
+## Switchability — the contract a new module must satisfy (#2599)
+
+*Audience: developers.* Everything above describes using the toggles. This describes keeping them honest.
+
+The switching mechanism has always worked. What was missing was anything that **fails** when a new module or a new routable surface ships without a toggle — so every part of it was convention, and a convention gets discovered by an academy asking "why can't I turn this off?".
+
+`tools/check-module-toggles.php` runs on every PR that touches the files deciding switchability. Five assertions:
+
+1. **Every module class on disk is declared in `config/modules.php`.** A module that exists but is not declared never boots, and no operator can switch it on.
+2. **Every declared module has a `ModuleMetadata` entry.** Without one the modules page shows a slugified class name where a label belongs. This assertion found five modules missing metadata the day it was written.
+3. **Every tile's `?tt_view=` slug is claimed by a `FeatureRegistry` entry, or listed in `config/always_on_surfaces.php` with a reason.** This is the assertion that actually stops an un-switchable feature shipping.
+4. **No matrix entity is claimed by two features.** The catalog docblock has always said this MUST hold; nothing checked it, and a duplicate silently gates a sibling surface too.
+5. **Every feature's `module_class` resolves to a declared module.** A feature naming a class that is not registered gates nothing, silently.
+
+### What this means when you add a module
+
+- Add the class to `config/modules.php`, and to `ModuleRegistry::ALWAYS_ON_MODULES` **only** if the product is genuinely unusable without it — three modules qualify today.
+- Add a `ModuleMetadata` entry: a label, a one-line description in the academy's language rather than the codebase's, an icon, a category.
+- Add a `FeatureRegistry` entry if the module owns surfaces an academy might not want, and **list each new view slug in the same PR that adds the surface**. That habit is the whole point; the gate is what stops it depending on anyone remembering.
+
+### When a surface must always be on
+
+List it in `config/always_on_surfaces.php` with a sentence saying what breaks if it can be switched off. Four entries there are real decisions — the settings page, the feature-toggle page itself, migrations, and the audit log, all of which would remove the means of recovering if they could be turned off.
+
+The other 54 are marked `grandfathered`: they predate the gate and **nobody has decided about them**. That is not a judgement that they should be always-on. Replacing one with a real reason, or moving the slug into a feature's `view_slugs`, is a small and welcome change to make while you are in the area.
+
+### The gate is itself tested
+
+`bin/module-toggle-selfcheck.php` runs the gate against deliberately broken copies of the tree and asserts it fails on each, for the right reason. A gate that passes is not evidence that it works.
+
+Two things it deliberately cannot check, and says so rather than guessing: a tile slug built from a variable at runtime, and any surface that is not registered as a tile at all.
+
 ## See also
 
 - [Authorization matrix](authorization-matrix.md) — module disable feeds into the matrix gate.

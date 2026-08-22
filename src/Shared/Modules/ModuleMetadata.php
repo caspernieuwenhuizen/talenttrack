@@ -173,6 +173,12 @@ class ModuleMetadata {
                 'icon'        => 'check',
                 'category'    => self::CAT_PLAYER,
             ],
+            'TT\\Modules\\Measurements\\MeasurementsModule' => [
+                'label'       => __( 'Measurements & testing', 'talenttrack' ),
+                'description' => __( 'Dated physical test results per player — sprints, jumps, height and weight — so athletic development is comparable over seasons.', 'talenttrack' ),
+                'icon'        => 'weights',
+                'category'    => self::CAT_PLAYER,
+            ],
             'TT\\Modules\\Prospects\\ProspectsModule' => [
                 'label'       => __( 'Prospects', 'talenttrack' ),
                 'description' => __( 'The recruitment pipeline of players being scouted before they enter the academy.', 'talenttrack' ),
@@ -241,11 +247,23 @@ class ModuleMetadata {
                 'icon'        => 'activities',
                 'category'    => self::CAT_COACHING,
             ],
+            'TT\\Modules\\Knowledge\\KnowledgeModule' => [
+                'label'       => __( 'Knowledge library', 'talenttrack' ),
+                'description' => __( 'Courses and reference material for the coaching staff\'s own development.', 'talenttrack' ),
+                'icon'        => 'docs',
+                'category'    => self::CAT_COACHING,
+            ],
 
             // — Planning & match day —
             'TT\\Modules\\Activities\\ActivitiesModule' => [
                 'label'       => __( 'Activities', 'talenttrack' ),
                 'description' => __( 'Training activities and matches, with attendance and the minutes each player gets.', 'talenttrack' ),
+                'icon'        => 'activities',
+                'category'    => self::CAT_PLANNING,
+            ],
+            'TT\\Modules\\Training\\TrainingModule' => [
+                'label'       => __( 'Training plans', 'talenttrack' ),
+                'description' => __( 'Reusable training plans built from the exercise library, and a record of what each one actually trained.', 'talenttrack' ),
                 'icon'        => 'activities',
                 'category'    => self::CAT_PLANNING,
             ],
@@ -339,12 +357,30 @@ class ModuleMetadata {
                 'icon'        => 'external-link',
                 'category'    => self::CAT_INTEGRATIONS,
             ],
+            'TT\\Modules\\Strava\\StravaModule' => [
+                'label'       => __( 'Strava', 'talenttrack' ),
+                'description' => __( 'Lets a player connect their own Strava account so the running they do outside training shows up on their record.', 'talenttrack' ),
+                'icon'        => 'track',
+                'category'    => self::CAT_INTEGRATIONS,
+            ],
 
             // — Advanced / developer —
+            'TT\\Modules\\Alerts\\AlertsModule' => [
+                'label'       => __( 'Alerts', 'talenttrack' ),
+                'description' => __( 'Flags things that need attention right now — an unrecorded attendance, a team without a coach — and clears them by itself once the data is put right.', 'talenttrack' ),
+                'icon'        => 'bell',
+                'category'    => self::CAT_ADVANCED,
+            ],
             'TT\\Modules\\Workflow\\WorkflowModule' => [
                 'label'       => __( 'Workflow', 'talenttrack' ),
                 'description' => __( 'Automated task templates and scheduled background work across the academy.', 'talenttrack' ),
                 'icon'        => 'workflow',
+                'category'    => self::CAT_ADVANCED,
+            ],
+            'TT\\Modules\\DataBrowser\\DataBrowserModule' => [
+                'label'       => __( 'Data browser', 'talenttrack' ),
+                'description' => __( 'Read-only view of the raw academy tables, for an admin diagnosing where a number came from.', 'talenttrack' ),
+                'icon'        => 'layers',
                 'category'    => self::CAT_ADVANCED,
             ],
             'TT\\Modules\\Wizards\\WizardsModule' => [

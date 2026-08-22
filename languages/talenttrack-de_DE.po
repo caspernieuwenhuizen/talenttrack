@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T08:09:13+00:00\n"
+"POT-Creation-Date: 2026-08-22T08:43:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -492,7 +492,7 @@ msgid ""
 "hide it from this academy."
 msgstr ""
 
-#: src/Core/FeatureRegistry.php:233 src/Shared/Modules/ModuleMetadata.php:183
+#: src/Core/FeatureRegistry.php:233 src/Shared/Modules/ModuleMetadata.php:189
 msgid "Media library"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:84
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:85
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:126
-#: src/Shared/Modules/ModuleMetadata.php:363
+#: src/Shared/Modules/ModuleMetadata.php:399
 msgid "Custom widgets"
 msgstr ""
 
@@ -1915,7 +1915,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:777
 #: src/Shared/CoreSurfaceRegistration.php:1653
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1065
-#: src/Shared/Modules/ModuleMetadata.php:215
+#: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Methodology"
 msgstr "Methodik"
 
@@ -2141,7 +2141,7 @@ msgid "Mixed"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1211
+#: src/Modules/DemoData/DemoCoverage.php:1217
 msgid "Match day"
 msgstr ""
 
@@ -3501,7 +3501,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1198
+#: src/Modules/DemoData/DemoCoverage.php:1204
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -4341,7 +4341,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1199
+#: src/Modules/DemoData/DemoCoverage.php:1205
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
@@ -4368,7 +4368,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:167
 #: src/Shared/Frontend/FrontendTrialCaseView.php:488
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:677
-#: src/Shared/Modules/ModuleMetadata.php:247
+#: src/Shared/Modules/ModuleMetadata.php:259
 msgid "Activities"
 msgstr "Aktivitäten"
 
@@ -5582,6 +5582,7 @@ msgid "Needs attention"
 msgstr ""
 
 #: src/Modules/Alerts/Frontend/AlertBanner.php:55
+#: src/Shared/Modules/ModuleMetadata.php:369
 msgid "Alerts"
 msgstr ""
 
@@ -5676,7 +5677,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1200
+#: src/Modules/DemoData/DemoCoverage.php:1206
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
 #: src/Modules/License/Admin/AccountPage.php:804
@@ -5717,7 +5718,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTrialCaseView.php:510
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:676
 #: src/Shared/Frontend/PlayerDashboardView.php:47
-#: src/Shared/Modules/ModuleMetadata.php:191
+#: src/Shared/Modules/ModuleMetadata.php:197
 msgid "Evaluations"
 msgstr "Bewertungen"
 
@@ -5734,7 +5735,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1201
+#: src/Modules/DemoData/DemoCoverage.php:1207
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -5761,7 +5762,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTrialCaseView.php:538
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:678
 #: src/Shared/Frontend/PlayerDashboardView.php:48
-#: src/Shared/Modules/ModuleMetadata.php:197
+#: src/Shared/Modules/ModuleMetadata.php:203
 msgid "Goals"
 msgstr "Ziele"
 
@@ -5820,7 +5821,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:42
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:47
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:48
-#: src/Shared/Modules/ModuleMetadata.php:177
+#: src/Shared/Modules/ModuleMetadata.php:183
 msgid "Prospects"
 msgstr ""
 
@@ -5844,7 +5845,7 @@ msgid "Promoted"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1202
+#: src/Modules/DemoData/DemoCoverage.php:1208
 msgid "Journey events"
 msgstr ""
 
@@ -6097,7 +6098,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1697
 #: src/Shared/CoreSurfaceRegistration.php:2004
 #: src/Shared/Frontend/DashboardShortcode.php:1673
-#: src/Shared/Modules/ModuleMetadata.php:317
+#: src/Shared/Modules/ModuleMetadata.php:335
 msgid "Analytics"
 msgstr ""
 
@@ -6130,7 +6131,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:1196
+#: src/Modules/DemoData/DemoCoverage.php:1202
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -6218,7 +6219,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendStandardReportsView.php:124
 #: src/Shared/Frontend/FrontendStandardReportsView.php:133
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:679
-#: src/Shared/Modules/ModuleMetadata.php:305
+#: src/Shared/Modules/ModuleMetadata.php:323
 msgid "Reports"
 msgstr "Berichte"
 
@@ -8214,7 +8215,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:1197
+#: src/Modules/DemoData/DemoCoverage.php:1203
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -8262,7 +8263,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendHolidaysView.php:159
 #: src/Shared/Frontend/FrontendHolidaysView.php:167
 #: src/Shared/Frontend/FrontendHolidaysView.php:225
-#: src/Shared/Modules/ModuleMetadata.php:259
+#: src/Shared/Modules/ModuleMetadata.php:277
 msgid "Holidays"
 msgstr ""
 
@@ -8408,7 +8409,7 @@ msgid "My profile"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1203
+#: src/Modules/DemoData/DemoCoverage.php:1209
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:793
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -8430,8 +8431,8 @@ msgstr ""
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1216
-#: src/Shared/Modules/ModuleMetadata.php:227
+#: src/Modules/DemoData/DemoCoverage.php:1222
+#: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr ""
 
@@ -8523,7 +8524,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:110
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:346
 #: src/Shared/Frontend/FrontendConfigurationView.php:1514
-#: src/Shared/Modules/ModuleMetadata.php:369
+#: src/Shared/Modules/ModuleMetadata.php:405
 msgid "Custom CSS"
 msgstr ""
 
@@ -8545,7 +8546,7 @@ msgid "Impersonation"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1212
+#: src/Modules/DemoData/DemoCoverage.php:1218
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
@@ -14771,7 +14772,7 @@ msgid "The kind of transition."
 msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1205
+#: src/Modules/DemoData/DemoCoverage.php:1211
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:189
@@ -15603,21 +15604,21 @@ msgstr ""
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1204
+#: src/Modules/DemoData/DemoCoverage.php:1210
 msgid "Guardians"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1206
+#: src/Modules/DemoData/DemoCoverage.php:1212
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1207
+#: src/Modules/DemoData/DemoCoverage.php:1213
 msgid "Player reports"
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/DemoData/DemoCoverage.php:1208
+#: src/Modules/DemoData/DemoCoverage.php:1214
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:759
@@ -15627,161 +15628,162 @@ msgstr ""
 msgid "Measurements"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1209
+#: src/Modules/DemoData/DemoCoverage.php:1215
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:180
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1210
+#: src/Modules/DemoData/DemoCoverage.php:1216
 msgid "Training content"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1213
+#: src/Modules/DemoData/DemoCoverage.php:1219
 #: src/Shared/Frontend/FrontendTeamsManageView.php:516
-#: src/Shared/Modules/ModuleMetadata.php:221
+#: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1214
+#: src/Modules/DemoData/DemoCoverage.php:1220
 msgid "Scouting pipeline"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1215
+#: src/Modules/DemoData/DemoCoverage.php:1221
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
-#: src/Shared/Modules/ModuleMetadata.php:265
+#: src/Shared/Modules/ModuleMetadata.php:283
 msgid "Tournaments"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1217
+#: src/Modules/DemoData/DemoCoverage.php:1223
 msgid "Messages and operator records"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1218
+#: src/Modules/DemoData/DemoCoverage.php:1224
+#: src/Shared/Modules/ModuleMetadata.php:251
 msgid "Knowledge library"
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1226
+#: src/Modules/DemoData/DemoCoverage.php:1232
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1227
+#: src/Modules/DemoData/DemoCoverage.php:1233
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1228
+#: src/Modules/DemoData/DemoCoverage.php:1234
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1229
+#: src/Modules/DemoData/DemoCoverage.php:1235
 msgid "Also wipes attendance for those activities."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1230
+#: src/Modules/DemoData/DemoCoverage.php:1236
 msgid "Also wipes per-category eval_ratings."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1231
+#: src/Modules/DemoData/DemoCoverage.php:1237
 msgid "Per-player development goals."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1232
+#: src/Modules/DemoData/DemoCoverage.php:1238
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1233
+#: src/Modules/DemoData/DemoCoverage.php:1239
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1234
+#: src/Modules/DemoData/DemoCoverage.php:1240
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1235
+#: src/Modules/DemoData/DemoCoverage.php:1241
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1236
+#: src/Modules/DemoData/DemoCoverage.php:1242
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1237
+#: src/Modules/DemoData/DemoCoverage.php:1243
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1238
+#: src/Modules/DemoData/DemoCoverage.php:1244
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1239
+#: src/Modules/DemoData/DemoCoverage.php:1245
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1240
+#: src/Modules/DemoData/DemoCoverage.php:1246
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1241
+#: src/Modules/DemoData/DemoCoverage.php:1247
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1242
+#: src/Modules/DemoData/DemoCoverage.php:1248
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1243
+#: src/Modules/DemoData/DemoCoverage.php:1249
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1244
+#: src/Modules/DemoData/DemoCoverage.php:1250
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1245
+#: src/Modules/DemoData/DemoCoverage.php:1251
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1246
+#: src/Modules/DemoData/DemoCoverage.php:1252
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1247
+#: src/Modules/DemoData/DemoCoverage.php:1253
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
 msgstr ""
 
-#: src/Modules/DemoData/DemoCoverage.php:1248
+#: src/Modules/DemoData/DemoCoverage.php:1254
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
@@ -16980,7 +16982,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:487
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:495
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:99
-#: src/Shared/Modules/ModuleMetadata.php:233
+#: src/Shared/Modules/ModuleMetadata.php:239
 msgid "Exercises"
 msgstr ""
 
@@ -18501,7 +18503,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:59
 #: src/Shared/Frontend/FrontendConfigurationView.php:128
 #: src/Shared/Frontend/FrontendConfigurationView.php:1622
-#: src/Shared/Modules/ModuleMetadata.php:285
+#: src/Shared/Modules/ModuleMetadata.php:303
 msgid "Messages"
 msgstr ""
 
@@ -19329,32 +19331,38 @@ msgstr ""
 msgid "Day off"
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:153
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:183
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:163
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:173
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:209
 msgid "That course is not in this library."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:194
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:220
 msgid "This login is not linked to a staff record, so it cannot be enrolled."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:206
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:232
 msgid "Could not enrol on that course."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:223
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:249
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:268
 msgid "That lesson is not part of this course."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:230
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:256
 msgid "This login is not linked to a staff record."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:246
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:274
+msgid "Finish the previous lesson first."
+msgstr ""
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:291
 msgid "Could not record progress."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:285
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:330
 msgid "That enrolment does not exist."
 msgstr ""
 
@@ -20172,7 +20180,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:64
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:65
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:183
-#: src/Shared/Modules/ModuleMetadata.php:277
+#: src/Shared/Modules/ModuleMetadata.php:295
 msgid "Match execution"
 msgstr ""
 
@@ -31454,6 +31462,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:48
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:31
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:178
+#: src/Shared/Modules/ModuleMetadata.php:361
 msgid "Strava"
 msgstr ""
 
@@ -33620,6 +33629,7 @@ msgid "New plan"
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:113
+#: src/Shared/Modules/ModuleMetadata.php:265
 msgid "Training plans"
 msgstr ""
 
@@ -38415,7 +38425,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendExportsView.php:305
 #: src/Shared/Frontend/FrontendExportsView.php:319
 #: src/Shared/Frontend/FrontendExportsView.php:325
-#: src/Shared/Modules/ModuleMetadata.php:323
+#: src/Shared/Modules/ModuleMetadata.php:341
 msgid "Exports"
 msgstr ""
 
@@ -38556,7 +38566,7 @@ msgid "Access Control"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1519
-#: src/Shared/Modules/ModuleMetadata.php:381
+#: src/Shared/Modules/ModuleMetadata.php:417
 msgid "Demo data"
 msgstr ""
 
@@ -38571,7 +38581,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:196
 #: src/Shared/Frontend/FrontendSpondView.php:50
 #: src/Shared/Frontend/FrontendSpondView.php:57
-#: src/Shared/Modules/ModuleMetadata.php:331
+#: src/Shared/Modules/ModuleMetadata.php:349
 msgid "Spond"
 msgstr ""
 
@@ -47362,13 +47372,23 @@ msgid ""
 "Trials and outcomes for players being assessed before a signing decision."
 msgstr ""
 
+#: src/Shared/Modules/ModuleMetadata.php:177
+msgid "Measurements & testing"
+msgstr ""
+
 #: src/Shared/Modules/ModuleMetadata.php:178
+msgid ""
+"Dated physical test results per player — sprints, jumps, height and weight — "
+"so athletic development is comparable over seasons."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:184
 msgid ""
 "The recruitment pipeline of players being scouted before they enter the "
 "academy."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:184
+#: src/Shared/Modules/ModuleMetadata.php:190
 msgid ""
 "Photos and video attached to players, teams and activities. Files are stored "
 "privately and are only visible to staff around the player and to the "
@@ -47376,213 +47396,246 @@ msgid ""
 "entirely."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:192
+#: src/Shared/Modules/ModuleMetadata.php:198
 msgid ""
 "Dated player assessments that build a picture of progress over months and "
 "seasons."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:198
+#: src/Shared/Modules/ModuleMetadata.php:204
 msgid "Individual development goals set for and with each player."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:203
+#: src/Shared/Modules/ModuleMetadata.php:209
 msgid "Personal development plans"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:204
+#: src/Shared/Modules/ModuleMetadata.php:210
 msgid ""
 "Structured development plans that turn assessments and goals into a player "
 "roadmap."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:209
+#: src/Shared/Modules/ModuleMetadata.php:215
 msgid "Development insights"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:210
+#: src/Shared/Modules/ModuleMetadata.php:216
 msgid ""
 "Cross-cutting development views that show where each player is heading next."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:216
+#: src/Shared/Modules/ModuleMetadata.php:222
 msgid ""
 "The academy playing philosophy and curriculum that coaching is measured "
 "against."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:222
+#: src/Shared/Modules/ModuleMetadata.php:228
 msgid ""
 "Team blueprints and formation planning that frame how players develop "
 "together."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:228
+#: src/Shared/Modules/ModuleMetadata.php:234
 msgid ""
 "Coach growth tracking, so the people developing players keep developing too."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:234
+#: src/Shared/Modules/ModuleMetadata.php:240
 msgid "A library of training exercises coaches draw on when planning training."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:239
+#: src/Shared/Modules/ModuleMetadata.php:245
 msgid "Conditioning training (VCT)"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:240
+#: src/Shared/Modules/ModuleMetadata.php:246
 msgid ""
 "Age-aware conditioning-training planner for U10–U14 with workload safeguards."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:248
+#: src/Shared/Modules/ModuleMetadata.php:252
+msgid ""
+"Courses and reference material for the coaching staff's own development."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:260
 msgid ""
 "Training activities and matches, with attendance and the minutes each player "
 "gets."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:253
+#: src/Shared/Modules/ModuleMetadata.php:266
+msgid ""
+"Reusable training plans built from the exercise library, and a record of "
+"what each one actually trained."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:271
 msgid "Planning calendar"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:254
+#: src/Shared/Modules/ModuleMetadata.php:272
 msgid ""
 "A shared calendar that lays out each team's activities and fixtures across "
 "the season."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:260
+#: src/Shared/Modules/ModuleMetadata.php:278
 msgid ""
 "Academy-wide holiday calendar that warns planners when activities fall on a "
 "break."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:266
+#: src/Shared/Modules/ModuleMetadata.php:284
 msgid ""
 "Plan tournament squads and balance the minutes players get across the day."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:271
+#: src/Shared/Modules/ModuleMetadata.php:289
 msgid "Match preparation"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:272
+#: src/Shared/Modules/ModuleMetadata.php:290
 msgid ""
 "Head-coach match plan — line-up, availability and the printable team sheet."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:278
+#: src/Shared/Modules/ModuleMetadata.php:296
 msgid ""
 "Live match-day surface for the assistant coach to record minutes and events."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:286
+#: src/Shared/Modules/ModuleMetadata.php:304
 msgid ""
 "Conversation threads between coaches, players and parents about a player."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:291
+#: src/Shared/Modules/ModuleMetadata.php:309
 msgid "Notifications"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:292
+#: src/Shared/Modules/ModuleMetadata.php:310
 msgid ""
 "Outbound email and notifications, with opt-out, quiet hours and rate "
 "limiting."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:297
+#: src/Shared/Modules/ModuleMetadata.php:315
 msgid "Push notifications"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:298
+#: src/Shared/Modules/ModuleMetadata.php:316
 msgid "Browser and device push alerts for time-sensitive academy updates."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:306
+#: src/Shared/Modules/ModuleMetadata.php:324
 msgid ""
 "Standard player and team reports — attendance, minutes and development "
 "summaries."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:311
+#: src/Shared/Modules/ModuleMetadata.php:329
 msgid "Statistics"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:312
+#: src/Shared/Modules/ModuleMetadata.php:330
 msgid "Player and team statistics, including the player card summary figures."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:318
+#: src/Shared/Modules/ModuleMetadata.php:336
 msgid ""
 "The analytics engine plus the optional explorer for ad-hoc KPI and dimension "
 "queries."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:324
+#: src/Shared/Modules/ModuleMetadata.php:342
 msgid "Download academy data as CSV, JSON or calendar files for use elsewhere."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:332
+#: src/Shared/Modules/ModuleMetadata.php:350
 msgid "Connects to Spond so team scheduling and availability stay in sync."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:337
+#: src/Shared/Modules/ModuleMetadata.php:355
 msgid "Admin Center link"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:338
+#: src/Shared/Modules/ModuleMetadata.php:356
 msgid ""
 "Connects this academy to the central TalentTrack Admin Center for support "
 "and updates."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:345
+#: src/Shared/Modules/ModuleMetadata.php:362
+msgid ""
+"Lets a player connect their own Strava account so the running they do "
+"outside training shows up on their record."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:370
+msgid ""
+"Flags things that need attention right now — an unrecorded attendance, a "
+"team without a coach — and clears them by itself once the data is put right."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:375
 msgid "Workflow"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:346
+#: src/Shared/Modules/ModuleMetadata.php:376
 msgid ""
 "Automated task templates and scheduled background work across the academy."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:351
+#: src/Shared/Modules/ModuleMetadata.php:381
+msgid "Data browser"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:382
+msgid ""
+"Read-only view of the raw academy tables, for an admin diagnosing where a "
+"number came from."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php:387
 msgid "Setup wizards"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:352
+#: src/Shared/Modules/ModuleMetadata.php:388
 msgid ""
 "Guided step-by-step flows for creating players, teams and other records."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:357
+#: src/Shared/Modules/ModuleMetadata.php:393
 msgid "Personal dashboards"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:358
+#: src/Shared/Modules/ModuleMetadata.php:394
 msgid ""
 "Role-tailored dashboard layouts so each persona lands on what matters to "
 "them."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:364
+#: src/Shared/Modules/ModuleMetadata.php:400
 msgid ""
 "A builder for bespoke dashboard widgets backed by custom data sources (beta)."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:370
+#: src/Shared/Modules/ModuleMetadata.php:406
 msgid "Inject site-specific styling without editing the plugin."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:375
+#: src/Shared/Modules/ModuleMetadata.php:411
 msgid "Documentation"
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:376
+#: src/Shared/Modules/ModuleMetadata.php:412
 msgid "In-product help pages and admin guides built into the dashboard."
 msgstr ""
 
-#: src/Shared/Modules/ModuleMetadata.php:382
+#: src/Shared/Modules/ModuleMetadata.php:418
 msgid ""
 "Generates sample players and teams for demos and testing — turn off in "
 "production."

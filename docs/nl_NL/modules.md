@@ -145,6 +145,38 @@ Het toont elke gebruikersgerichte module met een **Aan / Uit / Altijd aan**-badg
 
 Dezelfde data is via REST beschikbaar op `GET /wp-json/talenttrack/v1/feature-status` (elke ingelogde gebruiker). Alle vormgeving zit in `FeatureStatusService`, zodat de weergave en de API hetzelfde antwoord geven. Alleen modules die de gebruiker daadwerkelijk iets tonen (een tegel of functie bezitten) verschijnen — pure infrastructuurmodules worden weggelaten.
 
+## Uitschakelbaarheid — het contract voor een nieuwe module (#2599)
+
+*Doelgroep: ontwikkelaars.* Alles hierboven gaat over het gebruiken van de schakelaars. Dit gaat over ze eerlijk houden.
+
+Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanneer een nieuwe module of een nieuw routeerbaar scherm zonder schakelaar meegaat — het was dus allemaal conventie, en een conventie ontdek je doordat een academie vraagt: "waarom kan ik dit niet uitzetten?".
+
+`tools/check-module-toggles.php` draait bij elke PR die de bestanden raakt die over uitschakelbaarheid gaan. Vijf controles:
+
+1. **Elke moduleklasse op schijf staat in `config/modules.php`.** Een module die er wel is maar niet aangemeld, start nooit op en is voor geen enkele beheerder aan te zetten.
+2. **Elke aangemelde module heeft een `ModuleMetadata`-vermelding.** Zonder die vermelding toont de modulepagina een geslugificeerde klassenaam waar een label hoort. Deze controle vond op de dag dat ze geschreven werd vijf modules zonder metadata.
+3. **Elke `?tt_view=`-slug van een tegel wordt geclaimd door een `FeatureRegistry`-vermelding, of staat in `config/always_on_surfaces.php` mét reden.** Dít is de controle die daadwerkelijk voorkomt dat een niet-uitschakelbare functie meegaat.
+4. **Geen matrix-entiteit wordt door twee functies geclaimd.** De docblock van de catalogus zegt dit al altijd; niets controleerde het, en een dubbele claim gate't stilletjes ook het scherm van de buur.
+5. **Elke `module_class` van een functie verwijst naar een aangemelde module.** Een functie die een niet-aangemelde klasse noemt, gate't stilletjes niets.
+
+### Wat dit betekent als je een module toevoegt
+
+- Zet de klasse in `config/modules.php`, en alleen in `ModuleRegistry::ALWAYS_ON_MODULES` als het product er écht onbruikbaar zonder is — vandaag voldoen drie modules daaraan.
+- Voeg een `ModuleMetadata`-vermelding toe: een label, een omschrijving van één regel in de taal van de academie in plaats van die van de codebase, een icoon, een categorie.
+- Voeg een `FeatureRegistry`-vermelding toe als de module schermen bezit die een academie misschien niet wil, en **zet elke nieuwe view-slug in dezelfde PR die het scherm toevoegt**. Die gewoonte is de hele bedoeling; de gate zorgt dat ze niet afhangt van wie eraan denkt.
+
+### Wanneer een scherm altijd aan moet staan
+
+Zet het in `config/always_on_surfaces.php` met een zin over wat er stukgaat als het uitgezet kan worden. Vier vermeldingen daar zijn echte keuzes — de instellingenpagina, de functieschakelpagina zelf, migraties en het auditlogboek: stuk voor stuk dingen die, als je ze uit kon zetten, de weg terug zouden afsnijden.
+
+De overige 54 staan als `grandfathered`: ze bestonden al vóór de gate en **niemand heeft er een beslissing over genomen**. Dat is dus geen oordeel dat ze altijd aan moeten staan. Er één vervangen door een echte reden, of de slug verplaatsen naar de `view_slugs` van een functie, is een kleine en welkome verbetering als je toch in de buurt bent.
+
+### De gate wordt zelf getest
+
+`bin/module-toggle-selfcheck.php` draait de gate tegen bewust kapotgemaakte kopieën van de boom en controleert dat hij op elk daarvan faalt, en om de juiste reden. Dat een gate slaagt, bewijst niet dat hij werkt.
+
+Twee dingen kan hij bewust niet controleren, en dat zegt hij dan ook in plaats van te gokken: een tegel-slug die tijdens runtime uit een variabele wordt opgebouwd, en elk scherm dat helemaal niet als tegel is aangemeld.
+
 ## Zie ook
 
 - [Authorisatie­matrix](authorization-matrix.md) — module-disable voedt de matrix-gate.
