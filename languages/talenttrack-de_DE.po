@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T07:48:37+00:00\n"
+"POT-Creation-Date: 2026-08-22T07:55:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1968
+#: src/Shared/Frontend/DashboardShortcode.php:1975
 #: src/Shared/Frontend/FrontendConfigurationView.php:2808
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1973
+#: src/Shared/Frontend/DashboardShortcode.php:1980
 msgid "Team Manager"
 msgstr ""
 
@@ -172,7 +172,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:186
 #: src/Shared/Frontend/DashboardShortcode.php:219
-#: src/Shared/Frontend/DashboardShortcode.php:1967
+#: src/Shared/Frontend/DashboardShortcode.php:1974
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3005
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3017
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3094
@@ -249,7 +249,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1971
+#: src/Shared/Frontend/DashboardShortcode.php:1978
 #: src/Shared/Frontend/FrontendConfigurationView.php:2802
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1749,7 +1749,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1972
+#: src/Shared/Frontend/DashboardShortcode.php:1979
 #: src/Shared/Frontend/FrontendConfigurationView.php:2806
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1832,7 +1832,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1970
+#: src/Shared/Frontend/DashboardShortcode.php:1977
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1843,7 +1843,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1969
+#: src/Shared/Frontend/DashboardShortcode.php:1976
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -5998,7 +5998,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:887
 #: src/Shared/CoreSurfaceRegistration.php:1697
 #: src/Shared/CoreSurfaceRegistration.php:2004
-#: src/Shared/Frontend/DashboardShortcode.php:1656
+#: src/Shared/Frontend/DashboardShortcode.php:1663
 #: src/Shared/Modules/ModuleMetadata.php:317
 msgid "Analytics"
 msgstr ""
@@ -8692,7 +8692,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1974
+#: src/Shared/Frontend/DashboardShortcode.php:1981
 msgid "Academy Admin"
 msgstr ""
 
@@ -16407,7 +16407,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1922
 #: src/Shared/CoreSurfaceRegistration.php:2109
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2008
+#: src/Shared/Frontend/DashboardShortcode.php:2015
 #: src/Shared/Frontend/FrontendDocsView.php:105
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -17821,7 +17821,7 @@ msgstr "Drucken"
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:261
 #: src/Shared/Frontend/DashboardShortcode.php:192
-#: src/Shared/Frontend/DashboardShortcode.php:2013
+#: src/Shared/Frontend/DashboardShortcode.php:2020
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:119
 msgid "Close"
 msgstr "Schließen"
@@ -19241,9 +19241,10 @@ msgid "You must be logged in to manage your MFA settings."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:152
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:59
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:164
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:264
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:45
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:89
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:106
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:206
 msgid "Two-factor authentication"
 msgstr ""
 
@@ -24438,6 +24439,24 @@ msgstr ""
 msgid "The vision is a single record and cannot be deleted over REST."
 msgstr ""
 
+#: src/Modules/Mfa/Auth/MfaChallengeHandler.php:129
+msgid "That code didn't match."
+msgstr ""
+
+#: src/Modules/Mfa/Auth/MfaChallengeHandler.php:144
+#: src/Modules/Mfa/Wizards/VerifyStep.php:63
+msgid ""
+"The code is six digits. Try again with the current code from your "
+"authenticator app."
+msgstr ""
+
+#: src/Modules/Mfa/Auth/MfaChallengeHandler.php:148
+#: src/Modules/Mfa/Wizards/VerifyStep.php:80
+msgid ""
+"That code didn't match. Make sure your phone's clock is correct, then try "
+"the current code from your authenticator."
+msgstr ""
+
 #: src/Modules/Mfa/Auth/RememberDeviceCookie.php:160
 msgid "Unnamed device"
 msgstr ""
@@ -24469,106 +24488,94 @@ msgstr ""
 msgid "Enrollment wiped for %1$s (#%2$d) — they re-enroll on next login."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:64
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:50
 msgid "You must be logged in to verify a code."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:107
-msgid ""
-"Your MFA setup is incomplete. Sign out and back in, then re-enroll if needed."
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:91
+msgid "You're verified. Continue to your dashboard."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:118
-msgid "That code didn't match."
-msgstr ""
-
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:133
-#: src/Modules/Mfa/Wizards/VerifyStep.php:63
-msgid ""
-"The code is six digits. Try again with the current code from your "
-"authenticator app."
-msgstr ""
-
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:137
-#: src/Modules/Mfa/Wizards/VerifyStep.php:80
-msgid ""
-"That code didn't match. Make sure your phone's clock is correct, then try "
-"the current code from your authenticator."
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:94
+#: src/Modules/Onboarding/Admin/OnboardingPage.php:358
+#: src/Shared/Frontend/FrontendMobilePromptView.php:88
+#: src/Shared/Frontend/FrontendSetupView.php:347
+msgid "Go to dashboard"
 msgstr ""
 
 # v3.101.2 — #0086 Workstream B Child 1 sprint 3: MFA login enforcement
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:166
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:108
 msgid "For your security, sign-in needs a second factor on your account."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:179
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:121
 msgid "Backup code"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:186
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:128
 msgid "Each backup code works once. Dashes optional."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:190
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:132
 msgid "Code from your authenticator app"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:201
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:143
 msgid ""
 "Remember this device for 30 days. Skip the code on this browser next time."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:205
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:147
 #: src/Modules/Mfa/Wizards/VerifyStep.php:29
 msgid "Verify"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:215
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:157
 msgid "Use a backup code instead"
 msgstr ""
 
 #. translators: %d unused backup codes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:222
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:164
 #, php-format
 msgid "%d code remaining"
 msgid_plural "%d codes remaining"
 msgstr[0] "%d code over"
 msgstr[1] "%d codes over"
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:233
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:175
 msgid "Use the authenticator app code instead"
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:239
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:181
 msgid ""
 "Lost both your phone and your backup codes? Ask your academy admin to reset "
 "MFA on your account."
 msgstr ""
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:267
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:209
 msgid "Too many failed attempts."
 msgstr ""
 
 #. translators: %d minutes
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:272
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:214
 #, php-format
 msgid "Try again in %d minute."
 msgid_plural "Try again in %d minutes."
 msgstr[0] "Probeer het over %d minuut opnieuw."
 msgstr[1] "Probeer het over %d minuten opnieuw."
 
-#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:278
+#: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:220
 msgid ""
 "If you never see a working code, ask your academy admin to reset MFA on your "
 "account."
 msgstr ""
 
-#: src/Modules/Mfa/MfaModule.php:71
+#: src/Modules/Mfa/MfaModule.php:77
 msgid ""
 "TalentTrack: MFA enforcement is disabled via the TT_MFA_DISABLE constant."
 msgstr ""
 
-#: src/Modules/Mfa/MfaModule.php:73
+#: src/Modules/Mfa/MfaModule.php:79
 msgid ""
 "Remove the define from wp-config.php to re-enable enforcement. Enrollment "
 "and policy were not changed."
@@ -25024,12 +25031,6 @@ msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:350
 msgid "Schedule daily backups so a hosting hiccup does not lose your data."
-msgstr ""
-
-#: src/Modules/Onboarding/Admin/OnboardingPage.php:358
-#: src/Shared/Frontend/FrontendMobilePromptView.php:88
-#: src/Shared/Frontend/FrontendSetupView.php:347
-msgid "Go to dashboard"
 msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:378
@@ -27099,8 +27100,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1923
-#: src/Shared/Frontend/DashboardShortcode.php:1924
+#: src/Shared/Frontend/DashboardShortcode.php:1930
+#: src/Shared/Frontend/DashboardShortcode.php:1931
 msgid "Help & docs"
 msgstr ""
 
@@ -31436,7 +31437,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
 #: src/Shared/Frontend/DashboardShortcode.php:156
 #: src/Shared/Frontend/DashboardShortcode.php:190
-#: src/Shared/Frontend/DashboardShortcode.php:2018
+#: src/Shared/Frontend/DashboardShortcode.php:2025
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -39452,7 +39453,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:180
-#: src/Shared/Frontend/DashboardShortcode.php:1858
+#: src/Shared/Frontend/DashboardShortcode.php:1865
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -39645,80 +39646,80 @@ msgstr ""
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1607
-#: src/Shared/Frontend/DashboardShortcode.php:1992
+#: src/Shared/Frontend/DashboardShortcode.php:1614
+#: src/Shared/Frontend/DashboardShortcode.php:1999
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1658
+#: src/Shared/Frontend/DashboardShortcode.php:1665
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1793
+#: src/Shared/Frontend/DashboardShortcode.php:1800
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1796
+#: src/Shared/Frontend/DashboardShortcode.php:1803
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1799
+#: src/Shared/Frontend/DashboardShortcode.php:1806
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1822
+#: src/Shared/Frontend/DashboardShortcode.php:1829
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1878
+#: src/Shared/Frontend/DashboardShortcode.php:1885
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1902
+#: src/Shared/Frontend/DashboardShortcode.php:1909
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1942
+#: src/Shared/Frontend/DashboardShortcode.php:1949
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1949
+#: src/Shared/Frontend/DashboardShortcode.php:1956
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1961
+#: src/Shared/Frontend/DashboardShortcode.php:1968
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1964
+#: src/Shared/Frontend/DashboardShortcode.php:1971
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1988
+#: src/Shared/Frontend/DashboardShortcode.php:1995
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2010
+#: src/Shared/Frontend/DashboardShortcode.php:2017
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2082
+#: src/Shared/Frontend/DashboardShortcode.php:2089
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2083
+#: src/Shared/Frontend/DashboardShortcode.php:2090
 msgid "Switch back to all personas"
 msgstr ""
 
