@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T10:04:36+00:00\n"
+"POT-Creation-Date: 2026-08-22T10:11:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5549,6 +5549,11 @@ msgstr ""
 msgid "Mark attendance"
 msgstr ""
 
+#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:272
+#: src/Modules/Media/Wizard/MediaTargetStep.php:107
+msgid "this player"
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:35
 msgid "Attendance not recorded"
 msgstr ""
@@ -5570,6 +5575,48 @@ msgstr ""
 #, php-format
 msgid "No attendance was recorded for %s."
 msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:61
+msgid "Evaluation not shared with the player"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:65
+msgid ""
+"An evaluation was recorded but nothing was written for the player to read. "
+"The ratings and the internal notes stay with staff, so from the player's "
+"side nothing happened at all."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:99
+#, php-format
+msgid "The evaluation recorded for %s has no feedback for the player."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:59
+msgid "Evaluation window closing"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:63
+msgid ""
+"An evaluation window is about to close and some players in your team have "
+"not been evaluated in it. After it closes the gap is permanent — that period "
+"simply has no record for them."
+msgstr ""
+
+#. translators: 1: player name, 2: evaluation window name
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:85
+#, php-format
+msgid "%1$s has no evaluation in %2$s, which closes today."
+msgstr ""
+
+#. translators: 1: player name, 2: evaluation window name, 3: number of days until it closes
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:93
+#, php-format
+msgid "%1$s has no evaluation in %2$s, which closes in %3$d day."
+msgid_plural "%1$s has no evaluation in %2$s, which closes in %3$d days."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
 msgid "Upcoming activity has no coach"
@@ -5612,6 +5659,31 @@ msgstr ""
 #, php-format
 msgid "%1$s is still marked as planned, %2$d day after it took place."
 msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:46
+msgid "Player not evaluated recently"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:50
+msgid ""
+"No evaluation has been recorded for a player for longer than the academy's "
+"threshold. Nothing on any screen shows the gap, because a missing record "
+"renders as nothing."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:74
+#, php-format
+msgid "%s has never been evaluated."
+msgstr ""
+
+#. translators: 1: player name, 2: number of weeks since the last evaluation
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:82
+#, php-format
+msgid "%1$s has not been evaluated for %2$d week."
+msgid_plural "%1$s has not been evaluated for %2$d weeks."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -23113,10 +23185,6 @@ msgstr ""
 
 #: src/Modules/Media/Wizard/MediaTargetStep.php:98
 msgid "You can attach the same photo to more records afterwards."
-msgstr ""
-
-#: src/Modules/Media/Wizard/MediaTargetStep.php:107
-msgid "this player"
 msgstr ""
 
 #: src/Modules/Media/Wizard/MediaTargetStep.php:113
