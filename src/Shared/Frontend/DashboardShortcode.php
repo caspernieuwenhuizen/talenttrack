@@ -47,6 +47,14 @@ class DashboardShortcode {
         // worth a per-view conditional enqueue, and the settings screens are
         // reachable from more than one entry point.
         wp_enqueue_style( 'tt-frontend-alert-settings', TT_PLUGIN_URL . 'assets/css/frontend-alert-settings.css', [ 'tt-public' ], TT_VERSION );
+        // #2633 — the inline alert chip. Enqueued here rather than lazily
+        // from AlertChip itself: a chip is frequently built into a markup
+        // STRING (the activity card is assembled and returned, not echoed),
+        // which can happen long after wp_enqueue_scripts has run. A
+        // stylesheet that arrives after the head is written is a stylesheet
+        // that never applies, so the sheet loads with the rest of the
+        // dashboard chrome and the component stays a pure renderer.
+        \TT\Shared\Frontend\Components\AlertChip::enqueue();
         // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
         // fallback (and shared with the standalone WP-404 takeover).
         wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
@@ -858,6 +866,20 @@ class DashboardShortcode {
                 // capability beyond `read`, which the matrix-dispatch
                 // gate above already enforces.
                 FrontendMySessionsView::render();
+                return true;
+            // #2633 (epic #2629) — the alerts inbox. Account-group rather
+            // than a group of its own: an occurrence is written per
+            // recipient, so this list is scoped to "me" in SQL exactly like
+            // my-sessions is. No capability beyond being signed in — the
+            // capability question was already answered when the evaluator
+            // decided whether to write the row.
+            //
+            // Not routed through `renderSignInRequired()`: that helper's copy
+            // is about managing settings, and the view already emits the
+            // breadcrumb chain on its signed-out path (§5 — every path,
+            // including the refusals).
+            case 'alerts':
+                \TT\Modules\Alerts\Frontend\FrontendAlertsInboxView::render( $user_id );
                 return true;
             default:
                 return false;

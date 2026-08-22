@@ -313,6 +313,20 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
             <div class="tt-player-detail__rail">
                 <?php
+                // #2633 (epic #2629) — OPEN alerts about this player, at the
+                // top of the rail, answering "what is missing from this
+                // player's record right now?" at the moment somebody is
+                // looking at that record and could act on it.
+                //
+                // Two things this deliberately does NOT do (epic decision
+                // 12). It shows no resolved occurrence: the journey records
+                // what happened to the player, and an alert records what
+                // staff failed to record, which is a different thing wearing
+                // similar clothing. And it writes nothing to the journey at
+                // all — at 90-day retention a journey entry would vanish
+                // retroactively, which is worse than never having been
+                // written.
+                self::renderPlayerAlerts( $player_id );
                 self::renderKeyFacts( $player );
                 self::renderAtAGlance( $player_id, $player, $base_url, $counts );
                 ?>
@@ -626,6 +640,24 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * Surface DOB / Foot / Joined above the tabs. Coaches stop having
      * to open Profile to check basic identity.
      */
+    /**
+     * #2633 — the player-record alert surface.
+     *
+     * Renders nothing when the player's record is clean, which is the
+     * common case: an empty "Alerts (0)" card on every profile would train
+     * everyone to stop seeing the section on the day it finally has
+     * something in it.
+     */
+    private static function renderPlayerAlerts( int $player_id ): void {
+        $chip = \TT\Shared\Frontend\Components\AlertChip::playerHtml( $player_id );
+        if ( $chip === '' ) return;
+
+        echo '<section class="tt-player-alerts" aria-label="' . esc_attr__( 'Open alerts', 'talenttrack' ) . '">';
+        echo '<p class="tt-player-glance__title">' . esc_html__( 'Needs attention', 'talenttrack' ) . '</p>';
+        echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in AlertChip.
+        echo '</section>';
+    }
+
     private static function renderKeyFacts( object $player ): void {
         // #2573 — normalise stored zero dates to '' so they render as '—'
         // rather than as a real-looking date.

@@ -200,6 +200,284 @@ final class AlertOccurrencesRepository {
         ) );
     }
 
+    /**
+     * Open occurrences for a set of subjects, keyed by subject id (#2633).
+     *
+     * ONE query for a whole list. This is the only correct way to render
+     * inline chips: a per-row read would put fifty queries behind a fifty-row
+     * activities list, which is the shape that gets an inline surface pulled
+     * back out again a release later.
+     *
+     * Scoped to `$userId` as recipient, not to the subject alone. That is a
+     * deliberate authorization decision rather than a convenience: the
+     * evaluator already answered "may this person see this condition" when it
+     * decided whether to write the row, and it re-answers it on every sweep.
+     * Reading by subject only would hand a chip to anyone who can open the
+     * record, which for a `player_id`-bearing occurrence is exactly the leak
+     * CLAUDE.md §1 forbids. Oversight users who are not recipients get the
+     * aggregate in {@see rollupByTeams()} instead, per epic decision 7.
+     *
+     * @param list<int> $ids
+     * @return array<int, list<object>> subject_id => occurrences, loudest first
+     */
+    public function openBySubjects( string $type, array $ids, int $userId = 0 ): array {
+        global $wpdb;
+
+        $type = sanitize_key( $type );
+        $ids  = $this->intList( $ids );
+        if ( $type === '' || empty( $ids ) ) return [];
+
+        if ( $userId <= 0 ) $userId = (int) get_current_user_id();
+        if ( $userId <= 0 ) return [];
+        if ( ! $this->tableExists() ) return [];
+
+        $table = $this->table();
+        $list  = implode( ',', $ids );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$table}
+              WHERE " . QueryHelpers::clubScopeWhere() . "
+                AND recipient_user_id = %d
+                AND subject_type = %s
+                AND subject_id IN ({$list})
+                AND resolved_at IS NULL
+                AND dismissed_at IS NULL
+                AND ( snoozed_until IS NULL OR snoozed_until <= %s )
+              ORDER BY FIELD(severity,'urgent','attention','info'), first_seen_at ASC, id ASC",
+            $userId,
+            $type,
+            current_time( 'mysql' )
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->subject_id ][] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * Open occurrences for a set of players, keyed by player id (#2633).
+     *
+     * The player-record surface. Only OPEN rows are ever returned — epic
+     * decision 12: a resolved occurrence is operational exhaust, not
+     * biography, and at 90-day retention it would vanish from the record
+     * retroactively anyway. Nothing about an alert is written to the
+     * player's journey; this read is the entire player-facing surface.
+     *
+     * @param list<int> $playerIds
+     * @return array<int, list<object>> player_id => occurrences, loudest first
+     */
+    public function openByPlayers( array $playerIds, int $userId = 0 ): array {
+        global $wpdb;
+
+        $playerIds = $this->intList( $playerIds );
+        if ( empty( $playerIds ) ) return [];
+
+        if ( $userId <= 0 ) $userId = (int) get_current_user_id();
+        if ( $userId <= 0 ) return [];
+        if ( ! $this->tableExists() ) return [];
+
+        $table = $this->table();
+        $list  = implode( ',', $playerIds );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$table}
+              WHERE " . QueryHelpers::clubScopeWhere() . "
+                AND recipient_user_id = %d
+                AND player_id IN ({$list})
+                AND resolved_at IS NULL
+                AND dismissed_at IS NULL
+                AND ( snoozed_until IS NULL OR snoozed_until <= %s )
+              ORDER BY FIELD(severity,'urgent','attention','info'), first_seen_at ASC, id ASC",
+            $userId,
+            current_time( 'mysql' )
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) $row->player_id ][] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * The oversight roll-up (#2633) — open conditions per team, in one
+     * GROUP BY over the rows that already exist.
+     *
+     * This is the counterpart that makes epic decision 7 sustainable. A Head
+     * of Development receives no occurrences of their own; fanning twenty
+     * teams' worth of rows at the person with the least reading time is how
+     * the whole feature gets ignored. Instead they read the same table
+     * sideways. **Nothing here writes.**
+     *
+     * Two deliberate differences from the inbox reads above:
+     *
+     *  - **No `recipient_user_id` filter.** The point is precisely to see
+     *    conditions addressed to somebody else. Team scope is the
+     *    authorization boundary here, and the caller resolves it from the
+     *    capability model before calling in.
+     *  - **`read_at` / `snoozed_until` / `dismissed_at` are ignored.** Those
+     *    are one recipient's inbox hygiene. A coach snoozing an alert must
+     *    not make the condition disappear from their Head of Development's
+     *    overview — that would turn a per-user convenience into a way of
+     *    hiding from oversight.
+     *
+     * Counted DISTINCT over the subject, not over rows: an occurrence is
+     * written once per recipient (decision 5), so counting rows would report
+     * "6 unmarked activities" for three activities with two recipients each.
+     *
+     * @param list<int>    $teamIds  teams the viewer oversees; empty = no rows
+     * @param list<string> $alertKeys optional narrowing to specific definitions
+     * @return list<object> {team_id, team_name, subject_count, severity}
+     */
+    public function rollupByTeams( array $teamIds, array $alertKeys = [] ): array {
+        global $wpdb;
+
+        $teamIds = $this->intList( $teamIds );
+        if ( empty( $teamIds ) ) return [];
+        if ( ! $this->tableExists() ) return [];
+
+        $p     = $wpdb->prefix;
+        $table = $this->table();
+        $list  = implode( ',', $teamIds );
+
+        // An occurrence reaches a team one of two ways: it is about the team
+        // itself, or it is about an activity that belongs to one. The CASE in
+        // the join collapses both into a single grouped read rather than a
+        // UNION the caller would have to re-aggregate.
+        $sql = "SELECT t.id AS team_id,
+                       t.name AS team_name,
+                       COUNT(DISTINCT o.subject_type, o.subject_id) AS subject_count,
+                       MAX(FIELD(o.severity,'info','attention','urgent')) AS severity_weight
+                  FROM {$table} o
+             LEFT JOIN {$p}tt_activities a
+                    ON o.subject_type = 'activity' AND a.id = o.subject_id
+            INNER JOIN {$p}tt_teams t
+                    ON t.id = CASE WHEN o.subject_type = 'team' THEN o.subject_id ELSE a.team_id END
+                 WHERE " . QueryHelpers::clubScopeWhere( 'o' ) . "
+                   AND " . QueryHelpers::clubScopeWhere( 't' ) . "
+                   AND o.resolved_at IS NULL
+                   AND t.id IN ({$list})";
+
+        $params = [];
+        if ( ! empty( $alertKeys ) ) {
+            $keys    = array_values( array_filter( array_map( 'strval', $alertKeys ) ) );
+            $sql    .= ' AND o.alert_key IN (' . implode( ',', array_fill( 0, count( $keys ), '%s' ) ) . ')';
+            $params  = $keys;
+        }
+
+        $sql .= ' GROUP BY t.id, t.name
+                  HAVING subject_count > 0
+                  ORDER BY severity_weight DESC, subject_count DESC, t.name ASC';
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = empty( $params ) ? $wpdb->get_results( $sql ) : $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * The inbox read (#2633) — one recipient's occurrences under the
+     * module / severity / state / subject filters the view and the REST
+     * list both offer.
+     *
+     * Both consumers call this rather than each assembling their own WHERE,
+     * so the API and the rendered page can never disagree about what "open"
+     * means (CLAUDE.md §4).
+     *
+     * @param array<string,mixed> $args state|alert_keys|severity|subject_type|subject_id|player_id|limit
+     * @return list<object>
+     */
+    public function listForUser( int $userId, array $args = [] ): array {
+        global $wpdb;
+        if ( $userId <= 0 ) return [];
+        if ( ! $this->tableExists() ) return [];
+
+        $table = $this->table();
+        $now   = current_time( 'mysql' );
+        $limit = max( 1, min( 200, (int) ( $args['limit'] ?? 50 ) ) );
+
+        $where  = [ QueryHelpers::clubScopeWhere(), 'recipient_user_id = %d' ];
+        $params = [ $userId ];
+
+        switch ( (string) ( $args['state'] ?? 'open' ) ) {
+            case 'resolved':
+                $where[] = 'resolved_at IS NOT NULL';
+                break;
+            case 'unread':
+                $where[] = 'resolved_at IS NULL AND dismissed_at IS NULL AND read_at IS NULL';
+                $where[] = '( snoozed_until IS NULL OR snoozed_until <= %s )';
+                $params[] = $now;
+                break;
+            default:
+                $where[] = 'resolved_at IS NULL AND dismissed_at IS NULL';
+                $where[] = '( snoozed_until IS NULL OR snoozed_until <= %s )';
+                $params[] = $now;
+        }
+
+        if ( ! empty( $args['alert_keys'] ) && is_array( $args['alert_keys'] ) ) {
+            $keys    = array_values( array_filter( array_map( 'strval', $args['alert_keys'] ) ) );
+            $where[] = 'alert_key IN (' . implode( ',', array_fill( 0, count( $keys ), '%s' ) ) . ')';
+            $params  = array_merge( $params, $keys );
+        }
+
+        // Not `Severity::normalise()`: that coerces an unknown value to
+        // `attention`, which on a filter would silently answer a different
+        // question than the one asked. An unrecognised severity means "no
+        // severity filter", so the caller sees everything rather than a
+        // plausible-looking subset.
+        $severity = (string) ( $args['severity'] ?? '' );
+        if ( ! in_array( $severity, Severity::all(), true ) ) $severity = '';
+        if ( $severity !== '' ) {
+            $where[]  = 'severity = %s';
+            $params[] = $severity;
+        }
+
+        $subject_type = sanitize_key( (string) ( $args['subject_type'] ?? '' ) );
+        $subject_id   = (int) ( $args['subject_id'] ?? 0 );
+        if ( $subject_type !== '' ) {
+            $where[]  = 'subject_type = %s';
+            $params[] = $subject_type;
+        }
+        if ( $subject_id > 0 ) {
+            $where[]  = 'subject_id = %d';
+            $params[] = $subject_id;
+        }
+
+        $player_id = (int) ( $args['player_id'] ?? 0 );
+        if ( $player_id > 0 ) {
+            $where[]  = 'player_id = %d';
+            $params[] = $player_id;
+        }
+
+        $sql = "SELECT * FROM {$table} WHERE " . implode( ' AND ', $where )
+             . " ORDER BY FIELD(severity,'urgent','attention','info'), first_seen_at ASC, id ASC
+                LIMIT %d";
+        $params[] = $limit;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * Positive, unique, integer-cast ids, capped.
+     *
+     * The cap is not paranoia about SQL length: it bounds the IN-list a
+     * caller can build out of URL input, so a hand-crafted request cannot
+     * turn one chip read into a pathological scan.
+     *
+     * @param list<mixed> $ids
+     * @return list<int>
+     */
+    private function intList( array $ids ): array {
+        $out = array_values( array_unique( array_filter(
+            array_map( 'intval', $ids ),
+            static fn( int $id ): bool => $id > 0
+        ) ) );
+        return array_slice( $out, 0, 500 );
+    }
+
     /** One occurrence by uuid, scoped to a recipient so a uuid is not a capability. */
     public function findForUser( string $uuid, int $userId ): ?object {
         global $wpdb;

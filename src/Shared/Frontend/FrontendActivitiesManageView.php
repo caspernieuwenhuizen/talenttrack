@@ -977,6 +977,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo ' ' . \TT\Infrastructure\Query\LookupPill::render( 'activity_status', $status_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</p>';
 
+        // #2633 — the inline alert chip, in the record's own header. This is
+        // the surface a coach reaches from the banner or the list, so it is
+        // the last place the condition should still be visible before they
+        // act on it. One subject, so the component's single-subject read is
+        // the right cost here; a list primes instead.
+        \TT\Shared\Frontend\Components\AlertChip::render(
+            'activity',
+            (int) ( $session->id ?? 0 ),
+            [ 'class' => 'tt-act-detail__alert' ]
+        );
+
         echo '</div>'; // hero-main
         echo '</header>';
     }
@@ -1660,6 +1671,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // Bucket the (active) rows.
         $buckets = self::bucketize( $bucket_rows, $today_str );
 
+        // #2633 — resolve every open alert on this page in ONE query before
+        // any card is built. `AlertChip::html()` will lazily read a single
+        // subject it has not seen, which is right for a detail view and
+        // catastrophic for a list: fifty unprimed cards would be fifty
+        // queries. Priming here is what keeps the inline surface affordable,
+        // and it is why the whole page's ids are collected first rather than
+        // the chip being asked for row by row.
+        $alert_subject_ids = [];
+        foreach ( array_merge( $bucket_rows, $archived_rows ) as $alert_row ) {
+            $alert_subject_ids[] = (int) ( $alert_row->id ?? 0 );
+        }
+        \TT\Shared\Frontend\Components\AlertChip::prime( 'activity', $alert_subject_ids );
+
         $past_total      = count( $buckets['past'] );
         $archived_total  = count( $archived_rows );
 
@@ -2249,6 +2273,18 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $card .= '</div>';
         $card .= '<span class="tt-act-card__chev" aria-hidden="true">›</span>';
         $card .= '</a>';
+
+        // #2633 — the inline alert chip. Rendered OUTSIDE the card's
+        // tap-to-open `<a>` on purpose: the chip is itself a link, and a
+        // nested anchor is invalid markup that browsers resolve
+        // unpredictably. Same reasoning as the Complete quick-action below
+        // it — two destinations, two separate targets, neither swallowing
+        // the other's tap.
+        $card .= \TT\Shared\Frontend\Components\AlertChip::html(
+            'activity',
+            $id,
+            [ 'class' => 'tt-act-card__alert' ]
+        );
 
         // #2245 — "Complete activity" quick-action on planned cards, so
         // most activities complete in one click without opening the

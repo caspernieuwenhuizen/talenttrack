@@ -263,6 +263,18 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                             ?>
                         </span>
                     </p>
+                    <?php
+                    // #2633 (epic #2629) — team-scoped open alerts, inline
+                    // on the record they are about. Its own line rather than
+                    // another identity pill: the pills say what this team IS
+                    // and the chip says what it currently NEEDS, and mixing
+                    // the two teaches a reader to skim past both.
+                    \TT\Shared\Frontend\Components\AlertChip::render(
+                        'team',
+                        (int) $team->id,
+                        [ 'class' => 'tt-team-hero__alert' ]
+                    );
+                    ?>
                 </div>
             </div>
         </header>
