@@ -50200,6 +50200,161 @@ msgstr "Ga verder met deze training"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:259
 msgid "Run this training"
 msgstr "Deze training uitvoeren"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:44
+msgid "You do not have permission to see this player's training history."
+msgstr "Je hebt geen rechten om de trainingsgeschiedenis van deze speler te zien."
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:55
+msgid "This player has chosen not to share their training history."
+msgstr "Deze speler deelt zijn of haar trainingsgeschiedenis niet."
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:92
+msgid "Minutes trained"
+msgstr "Getrainde minuten"
+
+#. translators: %d is a number of trainings.
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:95
+#, php-format
+msgid "across %d training"
+msgid_plural "across %d trainings"
+msgstr[0] "over %d training"
+msgstr[1] "over %d trainingen"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:103
+msgid "Principles touched"
+msgstr "Geraakte principes"
+
+#. translators: %d is how many principles have never been trained.
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:107
+#, php-format
+msgid "%d never trained"
+msgid_plural "%d never trained"
+msgstr[0] "%d nooit getraind"
+msgstr[1] "%d nooit getraind"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:117
+msgid "Last training"
+msgstr "Laatste training"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:139
+msgid "Minutes per principle"
+msgstr "Minuten per principe"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:143
+msgid "No methodology principles are set up yet, so there is nothing to measure training against."
+msgstr "Er zijn nog geen methodiekprincipes ingericht, dus er is niets om de training tegen af te zetten."
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:148
+msgid "Every principle in the club's methodology, including the ones this player has never trained — those are the ones worth reading first."
+msgstr "Elk principe uit de methodiek van de club, ook de principes die deze speler nooit heeft getraind — juist die zijn het eerst het lezen waard."
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:174
+msgid "Never trained"
+msgstr "Nooit getraind"
+
+#. translators: 1: minutes, 2: number of trainings.
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:178
+#, php-format
+msgid "%1$d min across %2$d training"
+msgid_plural "%1$d min across %2$d trainings"
+msgstr[0] "%1$d min over %2$d training"
+msgstr[1] "%1$d min over %2$d trainingen"
+
+#. translators: %s is a date.
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:186
+#, php-format
+msgid "last %s"
+msgstr "laatst %s"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:200
+msgid "Recent observations"
+msgstr "Recente waarnemingen"
+
+#: src/Modules/Training/Frontend/PlayerTrainingTab.php:204
+msgid "Nothing noted about this player during a training yet."
+msgstr "Nog niets genoteerd over deze speler tijdens een training."
+
+#: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:52
+msgid "Training coverage is an academy-wide view. Your access to training history is limited to your own teams — open a player to see theirs."
+msgstr "Trainingsdekking is een academiebrede weergave. Jouw toegang tot trainingsgeschiedenis geldt alleen voor je eigen teams — open een speler om die van hem of haar te zien."
+
+#: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:59
+msgid "Training coverage"
+msgstr "Trainingsdekking"
+
+#: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:75
+msgid "How many trainings each team has spent on each principle of the methodology. A principle a team has never trained is marked — that is the column worth reading."
+msgstr "Hoeveel trainingen elk team aan elk principe uit de methodiek heeft besteed. Een principe dat een team nooit heeft getraind is gemarkeerd — dat is de kolom die je moet lezen."
+
+#: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:112
+msgid "No training has been run from a plan yet, so there is nothing to report. Attach a plan to a training and finish it, and this fills in."
+msgstr "Er is nog geen training vanuit een plan uitgevoerd, dus er valt niets te melden. Koppel een plan aan een training en rond die af, dan vult dit zich."
+
+#: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:152
+msgid "Each number is how many completed trainings included an exercise that trains that principle. Skipped blocks do not count, and editing a plan afterwards never changes what a training already recorded."
+msgstr "Elk getal is het aantal afgeronde trainingen met een oefening die dat principe traint. Overgeslagen blokken tellen niet mee, en een plan later aanpassen verandert nooit wat een training al heeft vastgelegd."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:231
+msgid "Notes on players"
+msgstr "Notities over spelers"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:233
+msgid "Optional, and you do not have to score anyone. A note on its own is a complete observation — tap a number again to clear it."
+msgstr "Optioneel, en je hoeft niemand een cijfer te geven. Een notitie alleen is een volledige waarneming — tik nogmaals op een cijfer om het te wissen."
+
+#. translators: %s is the player's name.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:262
+#, php-format
+msgid "Score for %s"
+msgstr "Cijfer voor %s"
+
+#. translators: %s is the player's name.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:277
+#, php-format
+msgid "Note about %s"
+msgstr "Notitie over %s"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:281
+msgid "What you saw"
+msgstr "Wat je zag"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:284
+msgid "Save note"
+msgstr "Notitie opslaan"
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:340
+msgid "Noted."
+msgstr "Genoteerd."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:341
+msgid "Add a score or a note first."
+msgstr "Voeg eerst een cijfer of een notitie toe."
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:342
+msgid "That note did not save. Try again."
+msgstr "Die notitie is niet opgeslagen. Probeer het opnieuw."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:243
+msgid "An observation is about a player, so it needs one."
+msgstr "Een waarneming gaat over een speler, dus die is verplicht."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:262
+msgid "An observation needs a rating, a note, or both. A rating outside the configured scale is refused rather than rounded."
+msgstr "Een waarneming heeft een cijfer, een notitie of allebei nodig. Een cijfer buiten de ingestelde schaal wordt geweigerd en niet afgerond."
+
+#: src/Infrastructure/REST/TrainingRunsRestController.php:275
+msgid "That observation no longer exists."
+msgstr "Die waarneming bestaat niet meer."
+
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:96
+msgid "Observed in training"
+msgstr "Waargenomen tijdens training"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:406
+msgid "Training history"
+msgstr "Trainingsgeschiedenis"
+
 #~ msgid ""
 #~ "Offer SMS as a messaging channel. SMS delivery still needs a provider "
 #~ "plugin. The other channels (email, push, WhatsApp link, in-app) stay "
