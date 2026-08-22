@@ -1,6 +1,6 @@
 <?php
 /**
- * Migration 0225 — animated scenes for exercises (#2501, epic #2493).
+ * Migration 0226 — animated scenes for exercises (#2501, epic #2493).
  *
  * A scene is a field of an exercise, the same category as its diagram
  * image or its coaching points, that happens to be edited on a canvas.
@@ -38,7 +38,7 @@ use TT\Infrastructure\Database\Migration;
 return new class extends Migration {
 
     public function getName(): string {
-        return '0225_exercise_scenes';
+        return '0226_exercise_scenes';
     }
 
     public function up(): void {
