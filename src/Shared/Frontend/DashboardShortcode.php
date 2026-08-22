@@ -39,6 +39,10 @@ class DashboardShortcode {
         // #1690 — shared frontend "app chrome": restyles the global header
         // into the top bar + persona chip, and ships the reusable KPI tile.
         wp_enqueue_style( 'tt-frontend-app-chrome', TT_PLUGIN_URL . 'assets/css/frontend-app-chrome.css', [ 'tt-public', 'tt-frontend-admin' ], TT_VERSION );
+        // #2631 — the alerts banner. Loaded on every view rather than only
+        // the landing page: the banner renders above the body of whatever
+        // the coach opened, so its styles must be present there too.
+        wp_enqueue_style( 'tt-frontend-alerts', TT_PLUGIN_URL . 'assets/css/frontend-alerts.css', [ 'tt-public' ], TT_VERSION );
         // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
         // fallback (and shared with the standalone WP-404 takeover).
         wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
@@ -335,6 +339,12 @@ class DashboardShortcode {
         // #0019 Sprint 1 — flush any queued flash messages ahead of the
         // body so post-save redirects surface their result.
         FlashMessages::render();
+
+        // #2631 — extension point for chrome that belongs above the body but
+        // below the flash queue. Flash messages are about the action just
+        // taken; anything hooking here is ambient state (the alerts banner is
+        // the first consumer). Emits nothing when nobody is listening.
+        do_action( 'tt_dashboard_before_body' );
 
         $user_id  = get_current_user_id();
         $is_admin = current_user_can( 'tt_edit_settings' );

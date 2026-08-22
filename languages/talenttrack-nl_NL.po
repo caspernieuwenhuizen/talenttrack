@@ -51241,6 +51241,94 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Domain/Severity.php:52
+msgid "Urgent"
+msgstr "Urgent"
+
+#: src/Modules/Alerts/Domain/Severity.php:54
+msgid "For information"
+msgstr "Ter informatie"
+
+#: src/Modules/Alerts/Domain/Severity.php:56
+msgid "Needs attention"
+msgstr "Vraagt aandacht"
+
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:36
+msgid "Past activity still planned"
+msgstr "Activiteit uit het verleden staat nog op gepland"
+
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:40
+msgid "An activity whose date has passed is still marked as planned. Until it is completed or cancelled, its attendance and minutes are missing from every report."
+msgstr "Een activiteit waarvan de datum voorbij is, staat nog op gepland. Zolang die niet is afgerond of geannuleerd, ontbreken de aanwezigheid en de speelminuten in elk rapport."
+
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:56
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:56
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:57
+msgid "Untitled activity"
+msgstr "Naamloze activiteit"
+
+#: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:62
+msgid "%1$s is still marked as planned, %2$d day after it took place."
+msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
+msgstr[0] "%1$s staat nog op gepland, %2$d dag nadat die plaatsvond."
+msgstr[1] "%1$s staat nog op gepland, %2$d dagen nadat die plaatsvond."
+
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:37
+msgid "Attendance not recorded"
+msgstr "Aanwezigheid niet geregistreerd"
+
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:41
+msgid "An activity is marked completed but nobody recorded who was there. It counts as finished while every player's attendance for that date is missing."
+msgstr "Een activiteit staat op afgerond, maar niemand heeft geregistreerd wie erbij was. De activiteit telt als klaar terwijl de aanwezigheid van elke speler voor die datum ontbreekt."
+
+#: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
+msgid "No attendance was recorded for %s."
+msgstr "Er is geen aanwezigheid geregistreerd voor %s."
+
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:39
+msgid "Upcoming activity has no coach"
+msgstr "Aankomende activiteit zonder trainer"
+
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:43
+msgid "An activity in the next week has nobody assigned to run it. Unstaffed activities tend to be cancelled late, which costs every player in the squad a training slot."
+msgstr "Voor een activiteit binnen een week is niemand ingedeeld. Activiteiten zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment."
+
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:63
+msgid "%s is today and has no coach assigned."
+msgstr "%s is vandaag en heeft geen trainer toegewezen."
+
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:72
+msgid "%1$s is in %2$d day and has no coach assigned."
+msgid_plural "%1$s is in %2$d days and has no coach assigned."
+msgstr[0] "%1$s is over %2$d dag en heeft geen trainer toegewezen."
+msgstr[1] "%1$s is over %2$d dagen en heeft geen trainer toegewezen."
+
+#: src/Modules/Alerts/Frontend/AlertBanner.php:50
+msgid "Alerts"
+msgstr "Meldingen"
+
+#: src/Modules/Alerts/Frontend/AlertBanner.php:62
+msgid "%d more alert needs your attention."
+msgid_plural "%d more alerts need your attention."
+msgstr[0] "Nog %d melding vraagt je aandacht."
+msgstr[1] "Nog %d meldingen vragen je aandacht."
+
+#: src/Modules/Workflow/Frontend/NotificationBell.php:62
+#: src/Modules/Workflow/Frontend/NotificationBell.php:103
+msgid "%d item needs your attention"
+msgid_plural "%d items need your attention"
+msgstr[0] "%d item vraagt je aandacht"
+msgstr[1] "%d items vragen je aandacht"
+
+#: src/Modules/Workflow/Frontend/NotificationBell.php:66
+msgid "Nothing needs your attention"
+msgstr "Niets vraagt je aandacht"
+
+#: src/Modules/Alerts/Rest/AlertsRestController.php:118
+#: src/Modules/Alerts/Rest/AlertsRestController.php:124
+#: src/Modules/Alerts/Rest/AlertsRestController.php:132
+msgid "Alert not found."
+msgstr "Melding niet gevonden."
 #~ msgid ""
 #~ "Your MFA setup is incomplete. Sign out and back in, then re-enroll if "
 #~ "needed."
