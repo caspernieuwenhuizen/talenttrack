@@ -80,9 +80,14 @@ final class TrendChart {
      * own line rather than sliding their remaining points leftwards to meet
      * the others. Sliding them would silently compare different dates.
      *
+     * A series may name its own `class` — the caller's way of colouring one
+     * line apart from the rest (SeriesPalette does this for #2670). The
+     * component neither knows nor cares what the class means; without one,
+     * every line keeps the shared `is-player` treatment.
+     *
      * @param array{
      *   dates: array<int, string>,
-     *   series: array<int, array{label?: string, values?: array<string, float|int|string|null>, variant?: string}>,
+     *   series: array<int, array{label?: string, values?: array<string, float|int|string|null>, variant?: string, class?: string}>,
      *   unit?: string,
      *   band?: array{min?: float|null, max?: float|null, label?: string}|null,
      *   title?: string
@@ -107,6 +112,7 @@ final class TrendChart {
                 'label'   => (string) ( $set['label'] ?? '' ),
                 'values'  => $values,
                 'variant' => (string) ( $set['variant'] ?? 'player' ),
+                'class'   => trim( (string) ( $set['class'] ?? '' ) ),
             ];
         }
 
@@ -125,6 +131,7 @@ final class TrendChart {
         $out .= self::axes( $scale, (string) ( $args['unit'] ?? '' ) );
 
         foreach ( $sets as $set ) {
+            $own    = $set['class'] !== '' ? ' ' . $set['class'] : '';
             $coords = [];
             foreach ( $dates as $i => $d ) {
                 if ( ! isset( $set['values'][ $d ] ) ) continue;
@@ -135,12 +142,13 @@ final class TrendChart {
                 // player is not invisible, but never a one-point "trend".
                 if ( count( $coords ) === 1 ) {
                     [ $x, $y ] = explode( ',', $coords[0] );
-                    $out .= '<circle class="tt-trend__dot" cx="' . $x . '" cy="' . $y . '" r="3"></circle>';
+                    $out .= '<circle class="' . esc_attr( 'tt-trend__dot' . $own ) . '" cx="' . $x
+                        . '" cy="' . $y . '" r="3"></circle>';
                 }
                 continue;
             }
-            $cls = $set['variant'] === 'average' ? 'tt-trend__line is-average' : 'tt-trend__line is-player';
-            $out .= '<polyline class="' . $cls . '" points="' . esc_attr( implode( ' ', $coords ) ) . '"></polyline>';
+            $cls = $set['variant'] === 'average' ? 'tt-trend__line is-average' : 'tt-trend__line is-player' . $own;
+            $out .= '<polyline class="' . esc_attr( $cls ) . '" points="' . esc_attr( implode( ' ', $coords ) ) . '"></polyline>';
         }
 
         // Date axis, thinned exactly as the single-series chart does.
