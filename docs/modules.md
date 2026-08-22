@@ -154,7 +154,10 @@ The switching mechanism has always worked. What was missing was anything that **
 
 1. **Every module class on disk is declared in `config/modules.php`.** A module that exists but is not declared never boots, and no operator can switch it on.
 2. **Every declared module has a `ModuleMetadata` entry.** Without one the modules page shows a slugified class name where a label belongs. This assertion found five modules missing metadata the day it was written.
-3. **Every tile's `?tt_view=` slug is claimed by a `FeatureRegistry` entry, or listed in `config/always_on_surfaces.php` with a reason.** This is the assertion that actually stops an un-switchable feature shipping.
+3. **Every tile's `?tt_view=` slug has an off-switch.** Three ways to qualify, and only the third needs the manifest:
+   1. a `FeatureRegistry` entry claims the slug in its `view_slugs`;
+   2. the tile names a `module_class` an academy can switch off — the module toggle already hides it;
+   3. it is listed in `config/always_on_surfaces.php` with a reason.
 4. **No matrix entity is claimed by two features.** The catalog docblock has always said this MUST hold; nothing checked it, and a duplicate silently gates a sibling surface too.
 5. **Every feature's `module_class` resolves to a declared module.** A feature naming a class that is not registered gates nothing, silently.
 
@@ -166,9 +169,11 @@ The switching mechanism has always worked. What was missing was anything that **
 
 ### When a surface must always be on
 
-List it in `config/always_on_surfaces.php` with a sentence saying what breaks if it can be switched off. Four entries there are real decisions — the settings page, the feature-toggle page itself, migrations, and the audit log, all of which would remove the means of recovering if they could be turned off.
+First check it is actually un-switchable: **a tile that names its owning module is already covered**, because the module toggle hides it. That is the common case, and naming the module is nearly always the right fix rather than adding anything.
 
-The other 54 are marked `grandfathered`: they predate the gate and **nobody has decided about them**. That is not a judgement that they should be always-on. Replacing one with a real reason, or moving the slug into a feature's `view_slugs`, is a small and welcome change to make while you are in the area.
+If it genuinely has no off-switch, list it in `config/always_on_surfaces.php` with a sentence saying what breaks if it can be turned off. There are six entries, all real decisions: the settings page, the feature-toggle page itself, migrations and the audit log would each remove the means of recovering; functional roles is how anyone gets a permission at all; and `open-wp-admin` is a link out of the product, so it must not depend on the product working.
+
+The manifest briefly held 54 more, marked `grandfathered`. Almost all were an artefact of the gate's first version, which only knew about route (1) and so demanded a feature toggle for surfaces whose module was switchable all along. Teaching it route (2) removed 47 at a stroke — and turned up one real bug, a Data browser tile that named no module and therefore survived its own module being switched off.
 
 ### The gate is itself tested
 
