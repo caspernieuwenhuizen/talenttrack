@@ -36,7 +36,7 @@ final class SceneEditorRenderer {
     public static function render( object $exercise, ?object $scene, string $cancel_url ): void {
         self::enqueue( $exercise, $scene, $cancel_url );
 
-        echo '<p class="tt-notice tt-notice--info tt-sced__note">'
+        echo '<p class="tt-notice tt-sced__note">'
             . esc_html__( 'Drawing works best on a tablet or a desktop. On a phone you can watch the scene and move a marker, but the timeline needs more room than a phone has.', 'talenttrack' )
             . '</p>';
 

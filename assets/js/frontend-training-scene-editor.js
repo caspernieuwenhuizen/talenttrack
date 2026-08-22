@@ -578,7 +578,7 @@
         el.tracks.textContent = '';
 
         if ( !state.scene.actors.length ) {
-            el.tracks.appendChild( node( 'p', 'tt-small tt-muted', i18n.emptyScene || '' ) );
+            el.tracks.appendChild( node( 'p', 'tt-muted', i18n.emptyScene || '' ) );
             return;
         }
 
@@ -771,7 +771,7 @@
         el.inputY = null;
 
         if ( !actor ) {
-            el.inspector.appendChild( node( 'p', 'tt-small tt-muted', i18n.nothingSelected || '' ) );
+            el.inspector.appendChild( node( 'p', 'tt-muted', i18n.nothingSelected || '' ) );
             return;
         }
 
@@ -808,7 +808,7 @@
         coords.appendChild( fieldY );
         el.inspector.appendChild( coords );
 
-        el.inspector.appendChild( node( 'p', 'tt-small tt-muted', i18n.dragHint || '' ) );
+        el.inspector.appendChild( node( 'p', 'tt-muted', i18n.dragHint || '' ) );
 
         var actions = node( 'div', 'tt-form-actions tt-sced__actor-actions' );
         actions.appendChild( button( i18n.addKeyframe, 'tt-btn tt-btn-secondary', addKeyframeHere ) );
@@ -848,7 +848,7 @@
         el.links.textContent = '';
 
         if ( !state.scene.links.length ) {
-            el.links.appendChild( node( 'p', 'tt-small tt-muted', i18n.noLinks || '' ) );
+            el.links.appendChild( node( 'p', 'tt-muted', i18n.noLinks || '' ) );
             return;
         }
 
@@ -1121,7 +1121,12 @@
         actions.appendChild( el.save );
         root.appendChild( actions );
 
-        el.live = node( 'div', 'tt-sr-only' );
+        // Visible, not screen-reader-only. "Position at 2.4 s" is worth
+        // seeing as well as hearing — it is the confirmation that the
+        // drag recorded something, which is otherwise only visible as a
+        // new diamond in a timeline row the coach may not be looking at.
+        el.live = node( 'p', 'tt-sced__msg tt-muted' );
+        el.live.setAttribute( 'role', 'status' );
         el.live.setAttribute( 'aria-live', 'polite' );
         root.appendChild( el.live );
     }

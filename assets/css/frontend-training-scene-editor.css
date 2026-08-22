@@ -354,10 +354,19 @@
     font-size: var(--tt-fs-sm, 0.875rem);
 }
 
-/* ---- save ---- */
+/* ---- save + status ---- */
 
 .tt-sced__save {
     margin-top: var(--tt-sp-4, 16px);
+}
+
+/* The running commentary — "Position at 2,4 s", "Scene saved". Given a
+   reserved line so an announcement never shifts the layout under a
+   thumb that is mid-drag. */
+.tt-sced__msg {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    min-height: 1.4em;
+    font-size: var(--tt-fs-sm, 0.875rem);
 }
 
 /* ---- motion ---- */
