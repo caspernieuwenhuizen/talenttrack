@@ -194,6 +194,87 @@ reader lands in
 [#2647](https://github.com/caspernieuwenhuizen/talenttrack/issues/2647) — the
 answer key must never reach the browser.
 
+## Enrolment and progress
+
+Courses are files; a person's relationship to a course is data. Migration
+0225 adds four tables.
+
+| Table | Holds |
+| --- | --- |
+| `tt_course_enrolments` | one person on one course — status, due date, started, completed. Root entity, carries `uuid` |
+| `tt_course_progress` | one row per lesson: read, quiz passed, assignment approved, plus `tool_state` |
+| `tt_course_quiz_attempts` | every attempt, not just the last |
+| `tt_course_submissions` | an assignment and its review verdict. Root entity, carries `uuid` |
+
+`course_slug` and `lesson_slug` are strings with no table behind them. A slug
+that stops resolving is a course withdrawn in a later release; those rows are
+shown as **retired**, never deleted, because a coach's completion history has
+to outlive the course that produced it.
+
+Assignment attachments are not in `tt_course_submissions`. They ride
+`tt_media_links` with `entity_type = 'course_submission'`, so a photo of a
+whiteboard plan goes through the same private store and lifecycle as every
+other file.
+
+### What counts as complete
+
+`CourseCompletionService` owns the rule, and is the only place that does —
+the reader, the gate (#2645) and the statistics report (#2650) all ask it
+rather than deciding for themselves.
+
+A **lesson** is complete when every requirement its front matter declares is
+met: read it always, pass the quiz when `quiz: true`, get the assignment
+approved when `assignment: true`. A **course** is complete when every lesson
+its manifest declares is complete.
+
+Requirements are read from the corpus on every call, never cached against the
+enrolment. A course revision that adds a lesson reopens the people who had
+finished the old version, rather than leaving them certified for a course they
+have not done. `percent` floors rather than rounds, so nine of ten lessons
+reads 90%.
+
+Two hooks fire on the transition, once each:
+
+| Hook | Fires when |
+| --- | --- |
+| `tt_knowledge_course_completed` | an enrolment reaches completion |
+| `tt_knowledge_course_reopened` | a completed enrolment no longer is |
+
+The certification bridge and the methodology binding (#2649) hang off the
+first, so the completion service does not have to know what happens next.
+
+### Capabilities
+
+| Capability | Grants |
+| --- | --- |
+| `tt_view_knowledge` | see the library, work through a course, see **your own** record |
+| `tt_view_knowledge_statistics` | see everyone's progress |
+| `tt_manage_knowledge` | assign, set due dates, withdraw, review submissions |
+
+Three levels rather than the usual view/manage pair, because a coach must be
+able to see their own progress without seeing their colleagues'. Folding the
+roll-up into `tt_view_knowledge` would make hiding a column the only thing
+standing between a coach and their peers' completion rates.
+
+### REST
+
+```
+GET    /talenttrack/v1/courses                            catalogue + your state
+GET    /talenttrack/v1/courses/{slug}                      manifest + per-lesson state
+POST   /talenttrack/v1/courses/{slug}/enrolments           enrol self, or assign
+PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}    mark read, persist tool state
+DELETE /talenttrack/v1/enrolments/{id}                     withdraw
+GET    /talenttrack/v1/people/{id}/learning                one person's record
+```
+
+Marking a lesson read enrols the reader on first touch — a separate enrol step
+before you can open lesson one is a step nobody would understand.
+
+Lesson bodies are deliberately not served yet. `/courses/{slug}/lessons/{lesson}`
+arrives with the reader (#2646), once the gate (#2645) can decide whether a
+given lesson is open; serving bodies before then would ship the unlocked
+version of a sequential course.
+
 ## The CI gate
 
 `tools/check-courses.php` runs on every PR touching `courses/`, the Knowledge

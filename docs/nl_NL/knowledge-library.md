@@ -201,6 +201,89 @@ server-side zodra de lezer in
 [#2647](https://github.com/caspernieuwenhuizen/talenttrack/issues/2647) landt —
 de antwoordsleutel mag nooit in de browser terechtkomen.
 
+## Inschrijving en voortgang
+
+Cursussen zijn bestanden; de relatie van een persoon tot een cursus is data.
+Migratie 0225 voegt vier tabellen toe.
+
+| Tabel | Bevat |
+| --- | --- |
+| `tt_course_enrolments` | één persoon op één cursus — status, deadline, gestart, afgerond. Hoofdentiteit, met `uuid` |
+| `tt_course_progress` | één rij per les: gelezen, quiz behaald, opdracht goedgekeurd, plus `tool_state` |
+| `tt_course_quiz_attempts` | elke poging, niet alleen de laatste |
+| `tt_course_submissions` | een opdracht en het oordeel erover. Hoofdentiteit, met `uuid` |
+
+`course_slug` en `lesson_slug` zijn tekstwaarden zonder tabel erachter. Een
+slug die niet meer oplost is een cursus die in een latere release is
+teruggetrokken; die rijen worden getoond als **teruggetrokken**, nooit
+verwijderd — de afrondingsgeschiedenis van een trainer moet de cursus
+overleven.
+
+Bijlagen bij opdrachten staan niet in `tt_course_submissions`. Ze lopen via
+`tt_media_links` met `entity_type = 'course_submission'`, zodat een foto van
+een whiteboard door dezelfde afgeschermde opslag en levenscyclus gaat als elk
+ander bestand.
+
+### Wanneer is iets afgerond
+
+`CourseCompletionService` bezit die regel, en is de enige plek waar hij staat —
+de lezer, de vergrendeling (#2645) en het overzichtsrapport (#2650) vragen het
+allemaal daar op in plaats van het zelf te bepalen.
+
+Een **les** is afgerond als aan elke eis uit de front matter is voldaan: altijd
+lezen, de quiz behalen bij `quiz: true`, de opdracht goedgekeurd krijgen bij
+`assignment: true`. Een **cursus** is afgerond als elke les uit het manifest
+afgerond is.
+
+De eisen worden bij elke aanroep uit het corpus gelezen, nooit vastgelegd op de
+inschrijving. Een cursusherziening die een les toevoegt heropent daarmee de
+mensen die de oude versie hadden afgerond, in plaats van ze gecertificeerd te
+laten voor iets wat ze niet gedaan hebben. `percent` rondt naar beneden af, dus
+negen van de tien lessen leest als 90%.
+
+Twee hooks vuren op de overgang, elk één keer:
+
+| Hook | Vuurt wanneer |
+| --- | --- |
+| `tt_knowledge_course_completed` | een inschrijving wordt afgerond |
+| `tt_knowledge_course_reopened` | een afgeronde inschrijving dat niet meer is |
+
+De certificeringsbrug en de methodiekkoppeling (#2649) hangen aan de eerste,
+zodat de completion-service niet hoeft te weten wat er daarna gebeurt.
+
+### Rechten
+
+| Recht | Geeft toegang tot |
+| --- | --- |
+| `tt_view_knowledge` | de kennisbank zien, een cursus doorlopen, **je eigen** dossier zien |
+| `tt_view_knowledge_statistics` | de voortgang van iedereen zien |
+| `tt_manage_knowledge` | toewijzen, deadlines zetten, uitschrijven, opdrachten beoordelen |
+
+Drie niveaus in plaats van het gebruikelijke view/manage-paar, omdat een
+trainer zijn eigen voortgang moet kunnen zien zonder die van zijn collega's.
+Het overzicht onder `tt_view_knowledge` schuiven zou een verborgen kolom het
+enige maken tussen een trainer en de cijfers van zijn collega's.
+
+### REST
+
+```
+GET    /talenttrack/v1/courses                            catalogus + jouw status
+GET    /talenttrack/v1/courses/{slug}                      manifest + status per les
+POST   /talenttrack/v1/courses/{slug}/enrolments           zelf inschrijven, of toewijzen
+PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}    gelezen markeren, tool-state bewaren
+DELETE /talenttrack/v1/enrolments/{id}                     uitschrijven
+GET    /talenttrack/v1/people/{id}/learning                het dossier van één persoon
+```
+
+Een les als gelezen markeren schrijft de lezer bij de eerste aanraking in — een
+aparte inschrijfstap voordat je les één kunt openen is een stap die niemand zou
+begrijpen.
+
+Lesinhoud wordt bewust nog niet geserveerd.
+`/courses/{slug}/lessons/{lesson}` komt met de lezer (#2646), zodra de
+vergrendeling (#2645) kan bepalen of een les open is; inhoud daarvóór serveren
+zou de ontgrendelde versie van een opeenvolgende cursus opleveren.
+
 ## De CI-gate
 
 `tools/check-courses.php` draait op elke PR die `courses/`, de Knowledge-module

@@ -10,6 +10,7 @@ use TT\Modules\DemoData\Generators\EvaluationGenerator;
 use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
+use TT\Modules\DemoData\Generators\KnowledgeGenerator;
 use TT\Modules\DemoData\Generators\MatchDayGenerator;
 use TT\Modules\DemoData\Generators\MeasurementGenerator;
 use TT\Modules\DemoData\Generators\MediaGenerator;
@@ -669,6 +670,40 @@ class DemoCoverage {
             'depends_on'  => [ 'media', 'team', 'player' ],
         ],
 
+        // ===== Knowledge library =====
+        //
+        // #2644 — staff working through the shipped courses. The courses
+        // themselves are markdown in the repository, not rows, so nothing
+        // here generates a course; these are people's relationships to
+        // one. The spread is deliberately mixed (finished / mid-course /
+        // not started / overdue / awaiting review) so the roll-up report
+        // has something real to render on a demo install.
+
+        'tt_course_enrolments' => [
+            'entity_type' => 'course_enrolment',
+            'category'    => 'knowledge',
+            'written_by'  => KnowledgeGenerator::class,
+            'depends_on'  => [ 'person' ],
+        ],
+        'tt_course_progress' => [
+            'entity_type' => 'course_progress',
+            'category'    => 'knowledge',
+            'written_by'  => KnowledgeGenerator::class,
+            'depends_on'  => [ 'course_enrolment' ],
+        ],
+        'tt_course_quiz_attempts' => [
+            'entity_type' => 'course_quiz_attempt',
+            'category'    => 'knowledge',
+            'written_by'  => KnowledgeGenerator::class,
+            'depends_on'  => [ 'course_enrolment' ],
+        ],
+        'tt_course_submissions' => [
+            'entity_type' => 'course_submission',
+            'category'    => 'knowledge',
+            'written_by'  => KnowledgeGenerator::class,
+            'depends_on'  => [ 'course_enrolment' ],
+        ],
+
         // ===== Exempt — reference data seeded by migrations =====
 
         'tt_player_attribute_defs' => [ 'exempt' => 'The 23 chemistry attribute definitions are seeded by migration 0178; #2463 fills values against them rather than inventing more.' ],
@@ -914,6 +949,22 @@ class DemoCoverage {
             'run_order' => 220,
             'cascade'   => [ 'training_observation' ],
         ],
+        // #2644 — 230, because #2500 landed on 220 while this was in
+        // flight. Appended rather than inserted for the same reason it
+        // was: every generator ahead of this one keeps drawing the same
+        // values from the seeded stream, so the (seed, preset)
+        // fingerprint still reproduces. Cascade runs the children before
+        // the enrolment they hang off — progress, attempts and
+        // submissions all key on `enrolment_id`, so deleting the
+        // enrolment first would strand them.
+        'knowledge' => [
+            'tier'      => 'dependent',
+            'run_order' => 230,
+            'cascade'   => [
+                'course_submission', 'course_quiz_attempt',
+                'course_progress', 'course_enrolment',
+            ],
+        ],
     ];
 
     /**
@@ -1156,6 +1207,7 @@ class DemoCoverage {
             'tournaments' => __( 'Tournaments', 'talenttrack' ),
             'staff_development' => __( 'Staff development', 'talenttrack' ),
             'comms_ops'   => __( 'Messages and operator records', 'talenttrack' ),
+            'knowledge'   => __( 'Knowledge library', 'talenttrack' ),
         ];
         return $labels[ $category ] ?? $category;
     }
@@ -1185,6 +1237,7 @@ class DemoCoverage {
             'match_day'   => __( 'Match prep for every fixture — availability, lineup, roles, per-player intent — plus results, goals and substitutions for the ones already played.', 'talenttrack' ),
             'test_trainings' => __( 'Open sessions for invited players, one past and one upcoming per age group.', 'talenttrack' ),
             'team_development' => __( 'A formation and playing-style mix per team, a match-day blueprint with its assignments, coach-marked pairings, and a chemistry series across the window.', 'talenttrack' ),
+            'knowledge'   => __( 'Staff enrolled on the shipped courses, with a mixed spread: some finished, some mid-course, one overdue and one assignment awaiting review. The courses themselves ship with the plugin and are never generated.', 'talenttrack' ),
         ];
         return $hints[ $category ] ?? '';
     }
