@@ -1,0 +1,61 @@
+name: Module toggle lint
+
+# Fails a PR that ships a module or a routable surface an academy cannot
+# switch off (#2599).
+#
+# The switching mechanism — config/modules.php + ModuleRegistry for a whole
+# module, FeatureRegistry for a surface — has always been good. What was
+# missing was anything that fails when a new one arrives without a toggle,
+# so every part of it was convention. A convention is discovered by a user
+# asking "why can't I turn this off?", which is the worst time to find out.
+#
+# The gate reads the registries by loading them, not by parsing them, so it
+# cannot drift from the code it checks. `bin/module-toggle-selfcheck.php`
+# proves it still bites by running it against deliberately broken copies of
+# the tree.
+#
+# Grandfathered: surfaces that predate the gate are listed in
+# config/always_on_surfaces.php. The backlog is not this gate's problem;
+# the next addition is. Same diff-only spirit as inline-style-lint.
+#
+# Scope: the files that decide switchability, plus the gate itself.
+
+on:
+  pull_request:
+    paths:
+      - 'config/modules.php'
+      - 'config/always_on_surfaces.php'
+      - 'src/Core/FeatureRegistry.php'
+      - 'src/Core/ModuleRegistry.php'
+      - 'src/Shared/Modules/ModuleMetadata.php'
+      - 'src/Modules/**'
+      - 'src/Shared/**'
+      - 'tools/check-module-toggles.php'
+      - 'bin/module-toggle-selfcheck.php'
+      - '.github/workflows/module-toggle-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  toggles:
+    name: Modules and surfaces are switchable
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Every module and routable surface is switchable, or says why not
+        run: php tools/check-module-toggles.php
+
+      # A gate that passes is not evidence that it works. This runs the
+      # gate against broken trees and asserts it fails on each, and only
+      # for the right reason.
+      - name: The gate still bites
+        run: php bin/module-toggle-selfcheck.php

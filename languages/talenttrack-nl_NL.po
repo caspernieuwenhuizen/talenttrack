@@ -51017,6 +51017,47 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Lets a player connect their own Strava account so the running they do outside training shows up on their record."
+msgstr ""
+"Laat een speler het eigen Strava-account koppelen, zodat het hardlopen "
+"buiten de training op het spelersdossier terechtkomt."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Reusable session plans built from the exercise library, and a record of what each one actually trained."
+msgstr ""
+"Herbruikbare trainingsplannen uit de oefeningenbibliotheek, plus een "
+"vastlegging van wat er per keer daadwerkelijk getraind is."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Measurements & testing"
+msgstr "Metingen & testen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Dated physical test results per player — sprints, jumps, height and weight — so athletic development is comparable over seasons."
+msgstr ""
+"Fysieke testuitslagen met datum per speler — sprints, sprongen, lengte en "
+"gewicht — zodat de atletische ontwikkeling over seizoenen vergelijkbaar is."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Knowledge library"
+msgstr "Kennisbibliotheek"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Courses and reference material for the coaching staff's own development."
+msgstr ""
+"Cursussen en naslagmateriaal voor de eigen ontwikkeling van de trainersstaf."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Data browser"
+msgstr "Databrowser"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Read-only view of the raw academy tables, for an admin diagnosing where a number came from."
+msgstr ""
+"Alleen-lezen weergave van de ruwe academietabellen, voor een beheerder die "
+"uitzoekt waar een getal vandaan komt."
 #~ msgid "Save exercise"
 #~ msgstr "Oefening opslaan"
 

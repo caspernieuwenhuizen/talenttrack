@@ -96,7 +96,7 @@ if (-not (HavePhp)) {
 }
 
 # ---- Gate 3: PHP self-checks (release.yml lint job) -------------------------
-$selfChecks = @('bin/qr-selfcheck.php', 'bin/admin-center-self-check.php', 'bin/demo-coverage-selfcheck.php', 'tools/check-demo-coverage.php')
+$selfChecks = @('bin/qr-selfcheck.php', 'bin/admin-center-self-check.php', 'bin/demo-coverage-selfcheck.php', 'tools/check-demo-coverage.php', 'tools/check-module-toggles.php', 'bin/module-toggle-selfcheck.php')
 foreach ($sc in $selfChecks) {
     if (-not (HavePhp)) { Record "self-check: $sc" 'SKIP' 'no PHP found'; continue }
     if (-not (Test-Path $sc)) { Record "self-check: $sc" 'SKIP' 'file missing'; continue }
