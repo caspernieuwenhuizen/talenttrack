@@ -70,7 +70,27 @@ final class TrainingObservationsRepository {
             'author_user_id'     => get_current_user_id() ?: null,
         ] );
 
-        return $ok === false ? 0 : (int) $wpdb->insert_id;
+        if ( $ok === false ) return 0;
+
+        $observation_id = (int) $wpdb->insert_id;
+
+        /**
+         * Fires after an observation is recorded.
+         *
+         * The journey subscriber listens and writes the timeline entry in
+         * the same request, which is the acceptance criterion: a coach
+         * who notes something and opens the player file expects to see
+         * it, not to wait for a nightly pass. The action rather than a
+         * direct call keeps the Journey module's knowledge of Training at
+         * zero — the same shape every other timeline source uses.
+         *
+         * @param int $player_id
+         * @param int $observation_id
+         * @param int $run_id
+         */
+        do_action( 'tt_training_observation_saved', $player_id, $observation_id, $run_id );
+
+        return $observation_id;
     }
 
     /**
