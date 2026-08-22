@@ -57,7 +57,15 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Goal past its target date** | A development goal has passed the date it was aimed at and is still open. | *What does this player need next?* A goal past its date and still open is the one part of the record that claims to answer that and no longer does. Either the player got there and nobody said so, or the plan needs changing. |
 | **No PDP conversation this cycle** | A player's PDP file for this season is open but no conversation has actually been held. | *Where is this player going?* The PDP cycle is where the academy commits to sitting down with the player and agreeing that. A cycle whose conversations were all scheduled and none held looks complete on every list and has told the player nothing. |
 
-More alerts, covering measurements, player records and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### People
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Player turns 18 soon** | A player's eighteenth birthday is within the notice period. | *Where is this player going?* Turning eighteen changes the paperwork rather than the football — parental consent stops being the basis for holding their data, a youth agreement may need to become a contract, and the parent account's access becomes a decision rather than a default. Easy a month early, awkward a month late. |
+| **Parent invited but never activated** | A parent was invited, never created their account, and the player still has no parent linked at all. | *Where has this player come from, and who at home can see it?* A parent with no account cannot read the evaluations, cannot see the PDP conversations, and cannot answer the club about consent. |
+| **Certificate expiring** | One of your own certificates is about to expire, or has just expired. | *What does this player need next?* — answered from the other side. Every player in the squad needs the person running their session to be qualified to run it. |
+
+More alerts, covering measurements, data quality and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -72,6 +80,9 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_goal_overdue_grace_days` | 3 days | How long after a goal's target date before the alert appears. A goal reviewed on Monday for a Sunday deadline is normal practice. |
 | `alerts_goal_overdue_lookback_days` | 365 days | How far past its date a goal is still worth chasing. Beyond that it is abandoned rather than overdue, and the fix is a tidy-up, not an alert. |
 | `alerts_pdp_no_conversation_days` | 45 days | How far into a PDP cycle before "no conversation held" becomes an alert. |
+| `alerts_player_turns_18_days` | 30 days | How much notice you get before a player's eighteenth birthday. The age itself is not a setting: it is a fact about the jurisdiction the academy operates in, not a preference. |
+| `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
+| `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
 
 ## New alerts arrive switched on
 
@@ -81,7 +92,9 @@ The safeguard is that new alerts arrive **one module at a time**, never the whol
 
 ## Who receives an alert
 
-The people who can actually fix it: the team's head coach, plus whoever else is directly involved — the coach assigned to the activity, or the coach who wrote the evaluation.
+The people who can actually fix it: the team's head coach, plus whoever else is directly involved — the coach assigned to the activity, the coach who wrote the evaluation, whoever set the goal, whoever sent the invitation.
+
+**Certificate alerts are the exception, and go only to the person whose certificate it is.** That is somebody's own professional record, not squad information. If a staff member has no account there is nobody to tell, and nothing is sent; the Head of Development's org-wide view of expiring certificates covers that case instead.
 
 Heads of Development and academy admins do **not** receive an alert for every team. Twenty teams' worth of alerts arriving at the person with the least time to read them is how a system gets ignored. An overview for that role is coming in a later release.
 
