@@ -147,6 +147,41 @@ iedereen verbergen.
 samen met anderen kunnen tonen, en zichtbaar kunnen zijn voor die andere gezinnen. Dit hoort geen ontdekking te zijn die een ouder doet bij het
 zien van een onverwachte foto.
 
+## Hoe lang media bewaard blijft
+
+Een academie die de vraag krijgt *"hoe lang bewaren jullie foto's van mijn kind?"* heeft een antwoord nodig. Dat van TalentTrack luidt: **een
+ingestelde periode nadat de speler weggaat**, en daarna kijkt er een mens naar.
+
+De periode stel je in onder **Configuratie → Media bewaren nadat een speler weggaat**. Standaard staat die op **drie jaar** en je kunt hem op alles
+tussen één en tien jaar zetten, of op **Onbeperkt bewaren** als je academie liever per geval beslist.
+
+Drie dingen zijn hierbij van belang, want die maken het veilig:
+
+**De klok begint als de speler weggaat, niet wanneer de foto gemaakt is.** Een speler die nog bij de academie zit, houdt zijn hele dossier, hoe oud
+ook. Dat verloop over de jaren — dezelfde speler op zijn 12e en op zijn 18e — is precies waar het product voor bestaat, en een termijn vanaf de
+opnamedatum zou daar stilletjes het begin van wissen.
+
+**Er wordt nooit automatisch iets verwijderd.** Als de periode verstreken is, verschijnt de media onder **Mediabewaring** zodat iemand kan
+beslissen. Daarom is een standaardperiode veilig: hij start een beoordeling, geen verwijderklok. Een academie die bijwerkt vindt een lijst, geen
+gaten in het dossier.
+
+**Het verlopen geldt de koppeling met één speler, niet de hele foto.** Een teamfoto met een vertrokken speler erop gaat van *diens* dossier af; hij
+blijft bij het team, bij de training waar hij vandaan komt, en bij de andere spelers erop. Pas als er niets meer naar een bestand verwijst, wordt
+het bestand zelf verwijderd.
+
+### Beoordelen
+
+**Mediabewaring** toont wat er klaarstaat, oudste vertrek eerst, met twee keuzes per item:
+
+- **Verwijderen** — haalt het van het dossier van die speler af. Hangt er verder niets meer aan, dan wordt het bestand definitief gewist; de pagina
+  vertelt je wat er gebeurd is.
+- **Bewaren** — houdt het vast, en vraagt waarom. Een zorgmelding, een lopend geschil, een bezwaar. Bewaarde items staan apart met hun reden erbij,
+  want een bewaarbeleid met een onzichtbare lijst uitzonderingen is niet te controleren. Je kunt een bewaard item later terugzetten in de wachtrij.
+
+Sommige regels staan als **geschat**. Dat betekent dat er geen vertrekdatum van de speler bekend is — meestal omdat hij wegging voordat TalentTrack
+die vastlegde — en dat de datum van de laatste wijziging aan zijn dossier is gebruikt. Dat bepaalt alleen wanneer het item ter beoordeling
+verschijnt; er wordt niets op besloten.
+
 ## Een speler verwijderen verwijdert de media
 
 Wordt een speler definitief verwijderd, dan gaan de mediakoppelingen mee. Elke foto of video die alléén aan die speler hing, wordt volledig

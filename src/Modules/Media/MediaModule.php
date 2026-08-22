@@ -10,6 +10,7 @@ use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Modules\Media\Storage\LocalPrivateStorage;
 use TT\Modules\Media\Wizard\NewMediaWizard;
+use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
 
 /**
@@ -91,6 +92,33 @@ class MediaModule implements ModuleInterface {
                 WizardRegistry::register( new NewMediaWizard() );
             }
         }, 20 );
+
+        add_action( 'init', [ self::class, 'registerTiles' ], 20 );
+    }
+
+    /**
+     * One tile, and only because retention has nowhere else to live.
+     *
+     * Media itself gets no tile: every other media surface is a tab or a
+     * section on a record that already has one, and media is reached
+     * *through* the thing it is about. The retention queue is the
+     * exception — it is about no single player, so there is nothing to
+     * reach it through.
+     */
+    public static function registerTiles(): void {
+        if ( ! \TT\Modules\Media\Retention\MediaRetentionService::isEnabled() ) return;
+
+        TileRegistry::register( [
+            'module_class' => self::class,
+            'view_slug'    => 'media-retention',
+            'group'        => __( 'Administration', 'talenttrack' ),
+            'kind'         => 'admin',
+            'order'        => 70,
+            'label'        => __( 'Media retention', 'talenttrack' ),
+            'description'  => __( 'Photos and video of players who have left, waiting for a decision. Nothing is deleted without one.', 'talenttrack' ),
+            'icon'         => 'clock',
+            'cap'          => 'tt_manage_media',
+        ] );
 
         // The private store's guards are written on first use rather than
         // on activation, so an install whose uploads directory only

@@ -542,6 +542,60 @@
 	touch-action: manipulation;
 }
 
+/* ── Retention review (#2666) ─────────────────────────────────────── */
+
+.tt-media-retention__intro {
+	max-width: 62ch;
+	color: var(--tt-ink-soft, #5b6470);
+}
+
+.tt-media-retention__title {
+	font-weight: 600;
+	color: var(--tt-ink, #1c2126);
+}
+
+.tt-media-retention__kind {
+	display: inline-block;
+	padding: 0 var(--tt-sp-2, 0.5rem);
+	border-radius: 999px;
+	background: var(--tt-bg-soft, #f7f8f9);
+	color: var(--tt-ink-soft, #5b6470);
+	font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+/*
+ * An estimated date is a weaker fact than a recorded one, and the row
+ * says so rather than presenting the guess as certain.
+ */
+.tt-media-retention__estimated {
+	display: inline-block;
+	padding: 0 var(--tt-sp-2, 0.5rem);
+	border: 1px dashed var(--tt-line, #d4d6db);
+	border-radius: 999px;
+	color: var(--tt-muted, #77808c);
+	font-size: var(--tt-fs-sm, 0.875rem);
+	cursor: help;
+}
+
+.tt-media-retention__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-media-retention__actions .tt-btn {
+	min-height: 48px;
+	touch-action: manipulation;
+}
+
+.tt-media-retention tr.is-decided {
+	color: var(--tt-muted, #77808c);
+}
+
+.tt-media-retention__held-title {
+	margin-top: var(--tt-sp-5, 1.25rem);
+}
+
 /* ── Motion ───────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
