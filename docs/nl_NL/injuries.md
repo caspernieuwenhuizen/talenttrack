@@ -47,6 +47,8 @@ Een regel krijgt het label **Verlopen** wanneer de verwachte terugkeer voorbij i
 
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 
+**Blessure vastleggen** staat bovenaan de pagina, zodat je er een kunt vastleggen zonder eerst het dossier van een speler te openen — de wizard vraagt als eerste stap om het team en de speler. De knop verschijnt alleen bij rollen die een blessure mogen vastleggen; voor de rest is het overzicht alleen-lezen.
+
 ## Privacy
 
 Blessures zijn medische gegevens over minderjarigen, dus gelden er twee dingen:
