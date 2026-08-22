@@ -5,6 +5,7 @@ use WP_REST_Request;
 use WP_UnitTestCase;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
+use TT\Modules\Knowledge\KnowledgeModule;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
 use TT\Modules\Knowledge\Repositories\QuizAttemptRepository;
@@ -32,6 +33,12 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         CourseRegistry::flushCache();
+
+        // The bootstrap runs migrations only, not the capability grants —
+        // and a grant made on `init` lands inside the test transaction and
+        // is rolled back before the next test. Idempotent, so calling it
+        // per test is correct rather than merely harmless.
+        KnowledgeModule::ensureCapabilities();
 
         $this->user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
 
