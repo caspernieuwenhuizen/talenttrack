@@ -22,6 +22,7 @@ use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
+use TT\Modules\DemoData\Generators\TrainingObservationGenerator;
 use TT\Modules\DemoData\Generators\TrainingPlanGenerator;
 use TT\Modules\DemoData\Generators\TrainingRunGenerator;
 use TT\Modules\DemoData\Generators\TournamentGenerator;
@@ -628,6 +629,24 @@ class DemoCoverage {
             'written_by'  => TrainingRunGenerator::class,
             'depends_on'  => [ 'tt_training_plan_runs' ],
         ],
+        // #2500 (D18) — observations make the module look *used* rather
+        // than merely furnished: someone's words about a named player,
+        // from a Tuesday in August. That is what the module is for.
+        'tt_training_observations' => [
+            'entity_type' => 'training_observation',
+            'category'    => 'training_observations',
+            'written_by'  => TrainingObservationGenerator::class,
+            'depends_on'  => [ 'tt_training_plan_runs', 'tt_players' ],
+        ],
+        // Derived, not authored: the nightly workflow job rebuilds this
+        // from runs, attendance and exercise principles. Generating it
+        // would write rows that disagree with their own source the first
+        // time that job runs — and a wipe does not need to reach them,
+        // because the next rebuild after the source is gone produces
+        // nothing. (D18 states this explicitly.)
+        'tt_player_principle_exposure' => [
+            'exempt' => 'Derived aggregate. PlayerExposureAggregationTaskTemplate rebuilds it nightly from runs + attendance + exercise principles; generating it would create rows that contradict their own source.',
+        ],
 
         // Media (#2590, epic #2589). Generated in #2596, once the surfaces
         // exist to show it — a demo academy whose media tab is empty does
@@ -863,6 +882,12 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 200,
             'cascade'   => [ 'training_plan_run_block', 'training_plan_run' ],
+        ],
+        // #2500 — after the runs, because an observation is about one.
+        'training_observations' => [
+            'tier'      => 'dependent',
+            'run_order' => 210,
+            'cascade'   => [ 'training_observation' ],
         ],
     ];
 

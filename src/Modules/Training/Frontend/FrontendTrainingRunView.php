@@ -241,6 +241,169 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         echo '<p class="tt-run__msg" data-tt-run-msg role="status" aria-live="polite"></p>';
 
         echo '</div>';
+
+        self::renderObservationSheet( $run );
+    }
+
+    /**
+     * The observation sheet (#2500) — one row per player who is here,
+     * with the scale under their name.
+     *
+     * ## Why two stacked rows per player rather than one
+     *
+     * At 360px a name, an avatar and five tappable targets do not fit on
+     * one line without shrinking the targets below 48px, and this is a
+     * screen used one-handed outdoors. So identity goes above and the
+     * scale gets the full width beneath it (D7). An academy on a 1–10
+     * scale gets ten segments that wrap to two rows rather than ten
+     * targets too small to hit.
+     *
+     * ## The segments come from the install's own scale
+     *
+     * Generated from `rating_min` / `rating_max` / `rating_step` in
+     * `tt_config`, never hard-coded, so an operator changing the scale
+     * changes this control rather than creating a screen that writes
+     * numbers the rest of the product will not accept.
+     *
+     * ## A note with no score is the common case
+     *
+     * There is a note field per player and no requirement to touch the
+     * scale. On a wet Tuesday a coach writes two words about one player
+     * and nothing else, and that is a complete observation.
+     */
+    private static function renderObservationSheet( object $run ): void {
+        $players = self::squadFor( $run );
+        if ( $players === [] ) return;
+
+        echo '<section class="tt-obs" data-tt-obs="' . esc_attr( (string) $run->id ) . '">';
+
+        echo '<h2 class="tt-obs__title">' . esc_html__( 'Notes on players', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-obs__hint tt-small">'
+            . esc_html__( 'Optional, and you do not have to score anyone. A note on its own is a complete observation — tap a number again to clear it.', 'talenttrack' )
+            . '</p>';
+
+        echo '<ul class="tt-obs__list">';
+        foreach ( $players as $player ) {
+            self::renderObservationRow( $player );
+        }
+        echo '</ul>';
+
+        echo '<p class="tt-obs__msg" data-tt-obs-msg role="status" aria-live="polite"></p>';
+
+        echo '</section>';
+    }
+
+    /**
+     * @param array{id:int, name:string} $player
+     */
+    private static function renderObservationRow( array $player ): void {
+        $id = (int) $player['id'];
+
+        echo '<li class="tt-obs__row" data-tt-obs-player="' . esc_attr( (string) $id ) . '">';
+
+        echo '<div class="tt-obs__who">';
+        echo '<span class="tt-obs__avatar" aria-hidden="true">' . esc_html( self::initials( $player['name'] ) ) . '</span>';
+        echo '<span class="tt-obs__name">' . esc_html( $player['name'] ) . '</span>';
+        echo '</div>';
+
+        $label = sprintf(
+            /* translators: %s is the player's name. */
+            __( 'Score for %s', 'talenttrack' ),
+            $player['name']
+        );
+
+        echo '<div class="tt-obs__scale" role="group" aria-label="' . esc_attr( $label ) . '">';
+        foreach ( self::scaleSteps() as $step ) {
+            $shown = rtrim( rtrim( number_format( $step, 1, '.', '' ), '0' ), '.' );
+            echo '<button type="button" class="tt-obs__step" data-tt-obs-value="' . esc_attr( (string) $step ) . '"'
+                . ' aria-pressed="false">' . esc_html( $shown ) . '</button>';
+        }
+        echo '</div>';
+
+        echo '<label class="tt-obs__note"><span class="tt-sr-only">'
+            . esc_html( sprintf(
+                /* translators: %s is the player's name. */
+                __( 'Note about %s', 'talenttrack' ),
+                $player['name']
+            ) )
+            . '</span>'
+            . '<input type="text" data-tt-obs-note placeholder="' . esc_attr__( 'What you saw', 'talenttrack' ) . '"></label>';
+
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-obs__save" data-tt-obs-save>'
+            . esc_html__( 'Save note', 'talenttrack' ) . '</button>';
+
+        echo '</li>';
+    }
+
+    /**
+     * The install's configured scale as a list of values.
+     *
+     * Clamped to 20 steps: a scale with more points than that is a
+     * misconfiguration, and rendering 200 buttons would take the screen
+     * down rather than report it.
+     *
+     * @return list<float>
+     */
+    private static function scaleSteps(): array {
+        $min  = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
+        $max  = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '9' );
+        $step = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_step', '1' );
+
+        if ( $step <= 0 ) $step = 1.0;
+        if ( $max < $min ) [ $min, $max ] = [ $max, $min ];
+
+        $out   = [];
+        $value = $min;
+        while ( $value <= $max + 0.0001 && count( $out ) < 20 ) {
+            $out[] = round( $value, 1 );
+            $value += $step;
+        }
+
+        return $out;
+    }
+
+    /**
+     * Who is on the pitch, for the observation sheet.
+     *
+     * Present and late only — a coach does not write an observation
+     * about a player who was not there, and offering the row invites it.
+     *
+     * @return list<array{id:int, name:string}>
+     */
+    private static function squadFor( object $run ): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT p.id, p.first_name, p.last_name
+               FROM {$wpdb->prefix}tt_attendance att
+               JOIN {$wpdb->prefix}tt_players p
+                 ON p.id = COALESCE( att.guest_player_id, att.player_id )
+              WHERE att.activity_id = %d
+                AND att.record_type = 'actual'
+                AND att.status IN ( 'present', 'late' )
+           ORDER BY p.last_name ASC, p.first_name ASC",
+            (int) $run->activity_id
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            $out[] = [
+                'id'   => (int) $row->id,
+                'name' => trim( (string) $row->first_name . ' ' . (string) $row->last_name ),
+            ];
+        }
+
+        return $out;
+    }
+
+    private static function initials( string $name ): string {
+        $parts = preg_split( '/\s+/', trim( $name ) ) ?: [];
+        $out   = '';
+        foreach ( array_slice( $parts, 0, 2 ) as $part ) {
+            $out .= mb_strtoupper( mb_substr( $part, 0, 1 ) );
+        }
+
+        return $out !== '' ? $out : '?';
     }
 
     /**
@@ -376,6 +539,9 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             'skippedNote'  => __( 'Skipped blocks are recorded here, not removed from the plan.', 'talenttrack' ),
             'backToPlan'   => __( 'Back to the plan', 'talenttrack' ),
             'confirmEnd'   => __( 'Finish the training? Any blocks you have not run are recorded as skipped.', 'talenttrack' ),
+            'obsSaved'     => __( 'Noted.', 'talenttrack' ),
+            'obsEmpty'     => __( 'Add a score or a note first.', 'talenttrack' ),
+            'obsFailed'    => __( 'That note did not save. Try again.', 'talenttrack' ),
             'attaching'    => __( 'Attaching…', 'talenttrack' ),
             'attachFailed' => __( 'The plan could not be attached. Check your connection and try again.', 'talenttrack' ),
             'alreadyOne'   => __( 'This training already had a plan attached — opening it.', 'talenttrack' ),
