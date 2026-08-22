@@ -20060,13 +20060,21 @@ msgstr "Nu uit"
 msgid "Recovered"
 msgstr "Hersteld"
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
-msgid "Nobody is currently out injured. That is the answer, not missing data."
-msgstr ""
-"Er ligt op dit moment niemand geblesseerd uit. Dat is het antwoord, geen "
-"ontbrekende gegevens."
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:143
+msgid "Nobody is currently out injured"
+msgstr "Er ligt op dit moment niemand geblesseerd uit"
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:121
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:144
+msgid ""
+"That is the answer, not missing data. Recording an injury here puts it on "
+"the player's journey, so next season a coach can see what they came back "
+"from."
+msgstr ""
+"Dat is het antwoord, geen ontbrekende gegevens. Een blessure die je hier "
+"vastlegt komt op het speelverloop van de speler te staan, zodat een trainer "
+"volgend seizoen ziet waar die van teruggekomen is."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:151
 msgid "No injuries match your filters."
 msgstr "Geen blessures die aan je filters voldoen."
 
