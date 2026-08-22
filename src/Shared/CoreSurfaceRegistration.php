@@ -60,6 +60,7 @@ final class CoreSurfaceRegistration {
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
     private const M_VCT           = 'TT\\Modules\\Vct\\VctModule';
     private const M_JOURNEY       = 'TT\\Modules\\Journey\\JourneyModule';
+    private const M_DATABROWSER   = 'TT\\Modules\\DataBrowser\\DataBrowserModule';
 
     /**
      * Run all registrations. Idempotent — call once during boot.
@@ -1238,8 +1239,13 @@ final class CoreSurfaceRegistration {
         // matrix/academy-admin only. Pure cap-gated (no matrix entity) on the
         // dedicated tt_view_data_browser cap so only administrator + Club Admin
         // see the tile.
+        //
+        // #2599 follow-up — the tile used to declare `null`, so switching the
+        // Data browser module off took its REST routes down but left the tile
+        // on the dashboard, pointing at a view that no longer answered. Naming
+        // the owning module makes the toggle mean what it says.
         TileRegistry::register([
-            'module_class' => null,
+            'module_class' => self::M_DATABROWSER,
             'view_slug'    => 'data-browser',
             'group'        => $admin_group,
             'kind'         => 'setup',

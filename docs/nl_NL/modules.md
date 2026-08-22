@@ -155,7 +155,10 @@ Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanne
 
 1. **Elke moduleklasse op schijf staat in `config/modules.php`.** Een module die er wel is maar niet aangemeld, start nooit op en is voor geen enkele beheerder aan te zetten.
 2. **Elke aangemelde module heeft een `ModuleMetadata`-vermelding.** Zonder die vermelding toont de modulepagina een geslugificeerde klassenaam waar een label hoort. Deze controle vond op de dag dat ze geschreven werd vijf modules zonder metadata.
-3. **Elke `?tt_view=`-slug van een tegel wordt geclaimd door een `FeatureRegistry`-vermelding, of staat in `config/always_on_surfaces.php` mét reden.** Dít is de controle die daadwerkelijk voorkomt dat een niet-uitschakelbare functie meegaat.
+3. **Elke `?tt_view=`-slug van een tegel heeft een uitschakelaar.** Dat kan op drie manieren, en alleen de derde vraagt om het manifest:
+   1. een `FeatureRegistry`-vermelding claimt de slug in haar `view_slugs`;
+   2. de tegel noemt een `module_class` die een academie kan uitzetten — de moduleschakelaar verbergt hem dan al;
+   3. hij staat in `config/always_on_surfaces.php`, mét reden.
 4. **Geen matrix-entiteit wordt door twee functies geclaimd.** De docblock van de catalogus zegt dit al altijd; niets controleerde het, en een dubbele claim gate't stilletjes ook het scherm van de buur.
 5. **Elke `module_class` van een functie verwijst naar een aangemelde module.** Een functie die een niet-aangemelde klasse noemt, gate't stilletjes niets.
 
@@ -167,9 +170,11 @@ Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanne
 
 ### Wanneer een scherm altijd aan moet staan
 
-Zet het in `config/always_on_surfaces.php` met een zin over wat er stukgaat als het uitgezet kan worden. Vier vermeldingen daar zijn echte keuzes — de instellingenpagina, de functieschakelpagina zelf, migraties en het auditlogboek: stuk voor stuk dingen die, als je ze uit kon zetten, de weg terug zouden afsnijden.
+Controleer eerst of hij écht niet uit te zetten is: **een tegel die zijn eigen module noemt, is al gedekt**, want de moduleschakelaar verbergt hem. Dat is het normale geval, en de module benoemen is bijna altijd de juiste oplossing in plaats van er iets aan toe te voegen.
 
-De overige 54 staan als `grandfathered`: ze bestonden al vóór de gate en **niemand heeft er een beslissing over genomen**. Dat is dus geen oordeel dat ze altijd aan moeten staan. Er één vervangen door een echte reden, of de slug verplaatsen naar de `view_slugs` van een functie, is een kleine en welkome verbetering als je toch in de buurt bent.
+Heeft hij werkelijk geen uitschakelaar, zet hem dan in `config/always_on_surfaces.php` met een zin over wat er stukgaat als hij uit kan. Er staan zes vermeldingen, allemaal echte keuzes: de instellingenpagina, de functieschakelpagina zelf, migraties en het auditlogboek snijden elk de weg terug af; functionele rollen zijn de manier waarop iemand überhaupt rechten krijgt; en `open-wp-admin` is een link búiten het product, dus die mag niet afhangen van of het product het doet.
+
+Het manifest bevatte kort ook 54 andere, als `grandfathered`. Bijna allemaal waren ze een bijproduct van de eerste versie van de gate, die alleen route (1) kende en dus een functieschakelaar eiste voor schermen waarvan de module allang uitschakelbaar was. Route (2) toevoegen liet er in één klap 47 verdwijnen — en bracht één echte bug aan het licht: een tegel voor de databrowser die geen module noemde en dus bleef staan terwijl zijn eigen module uitstond.
 
 ### De gate wordt zelf getest
 

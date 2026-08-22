@@ -100,6 +100,30 @@ function tt_expect_failure( string $root, string $label, string $needle, callabl
     echo "PASS  {$label}\n";
 }
 
+/**
+ * The other direction: a mutation the gate should be relaxed about.
+ *
+ * A gate that fails on everything is as useless as one that passes on
+ * everything, and the first version of this one did fail on 47 surfaces
+ * that were switchable all along.
+ *
+ * @param callable(string):void $mutate
+ */
+function tt_expect_success( string $root, string $label, callable $mutate ): void {
+    global $failures;
+
+    [ $code, $output ] = tt_run_against( $root, $mutate );
+
+    if ( $code !== 0 ) {
+        echo "FAIL  {$label} — the gate failed on a tree that should pass\n";
+        echo "      " . trim( $output ) . "\n";
+        $failures++;
+        return;
+    }
+
+    echo "PASS  {$label}\n";
+}
+
 // ── the gate is clean on the real tree ─────────────────────────────────
 
 $output = [];
@@ -143,15 +167,62 @@ tt_expect_failure(
 tt_expect_failure(
     $root,
     'an un-switchable new surface is caught',
-    'is not switchable',
+    'has no off-switch',
     static function ( string $scratch ): void {
-        // A brand-new tile slug, claimed by no feature and absent from
-        // the manifest — exactly the shape this gate exists to stop.
+        // A brand-new slug on a tile owned by an ALWAYS-ON module, claimed
+        // by no feature and absent from the manifest — the exact shape
+        // this gate exists to stop. `functional-roles` belongs to
+        // Authorization, which cannot be switched off.
         $file = $scratch . '/src/Shared/CoreSurfaceRegistration.php';
         $src  = (string) file_get_contents( $file );
         $src  = preg_replace(
-            "/'view_slug'(\s*)=>(\s*)'teams'/",
+            "/'view_slug'(\s*)=>(\s*)'functional-roles'/",
             "'view_slug'\$1=>\$2'brand-new-unswitchable-surface'",
+            $src,
+            1
+        );
+        file_put_contents( $file, (string) $src );
+    }
+);
+
+/**
+ * The rule the first version of this gate was missing.
+ *
+ * A tile owned by a module an academy can switch off is already
+ * switchable — demanding a feature toggle for it is noise, and 47 of the
+ * 54 entries this manifest once held were exactly that noise.
+ */
+tt_expect_success(
+    $root,
+    'a new surface on a switchable module needs no feature entry',
+    static function ( string $scratch ): void {
+        $file = $scratch . '/src/Shared/CoreSurfaceRegistration.php';
+        $src  = (string) file_get_contents( $file );
+        // `teams` belongs to TeamsModule, which is switchable.
+        $src  = preg_replace(
+            "/'view_slug'(\s*)=>(\s*)'teams'/",
+            "'view_slug'\$1=>\$2'brand-new-but-module-owned'",
+            $src,
+            1
+        );
+        file_put_contents( $file, (string) $src );
+    }
+);
+
+/**
+ * And the bug the new rule turned up: a tile that names no module has no
+ * off-switch at all, however switchable the code behind it happens to be.
+ */
+tt_expect_failure(
+    $root,
+    'a tile naming no module is caught',
+    'declares no module_class',
+    static function ( string $scratch ): void {
+        $file = $scratch . '/src/Shared/CoreSurfaceRegistration.php';
+        $src  = (string) file_get_contents( $file );
+        $src  = preg_replace(
+            "/'module_class'(\s*)=>(\s*)self::M_TEAMS,(\s*)'view_slug'(\s*)=>(\s*)'teams'/",
+            "'module_class'\$1=>\$2null,\$3'view_slug'\$4=>\$5'teams'",
             $src,
             1
         );

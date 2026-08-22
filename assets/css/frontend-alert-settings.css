@@ -1,0 +1,163 @@
+/**
+ * frontend-alert-settings.css — the alert preference and policy matrices
+ * (#2632, epic #2629).
+ *
+ * Mobile-first per CLAUDE.md §2. The "matrix" is only a matrix on a wide
+ * screen: at 360px each alert is a stacked card with its toggles beneath the
+ * label. A settings grid that scrolls sideways on a phone is one nobody ever
+ * adjusts, which would defeat the point of shipping preferences at all.
+ *
+ * Tokens only, no raw hex.
+ */
+
+.tt-alert-settings {
+  max-width: 60rem;
+}
+
+.tt-alert-settings-group {
+  margin: 0 0 2rem;
+}
+
+.tt-alert-settings-group h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--tt-color-text-muted, #5b6e75);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tt-alert-settings-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--tt-color-border, #d7dde0);
+}
+
+.tt-alert-settings-row:last-child {
+  border-bottom: 0;
+}
+
+.tt-alert-settings-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tt-alert-settings-name {
+  font-weight: 600;
+  color: var(--tt-color-text, #1d2327);
+}
+
+.tt-alert-settings-desc {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+/* A locked row stays visible and readable — dimming it to the point of
+   illegibility would be the same as hiding it, which is exactly what the
+   design refuses to do. */
+.tt-alert-settings-lock {
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+.tt-alert-settings-locked .tt-alert-settings-toggles {
+  opacity: 0.6;
+}
+
+.tt-alert-settings-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+/* 48px minimum target with 8px spacing, per §2. Padding rather than a fixed
+   height so a long surface label can wrap without clipping. */
+.tt-alert-settings-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.tt-alert-settings-toggle input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 auto;
+}
+
+.tt-alert-settings-toggle input:focus-visible {
+  outline: 2px solid var(--tt-color-focus, #2271b1);
+  outline-offset: 2px;
+}
+
+.tt-alert-settings-toggle input:disabled + span {
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+.tt-alert-settings-crosslink {
+  margin: 0 0 1.5rem;
+  padding: 0.75rem;
+  border-radius: var(--tt-radius-md, 8px);
+  background: var(--tt-color-surface-alt, #f5f7f8);
+  font-size: 0.9375rem;
+}
+
+.tt-alert-policy-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tt-alert-policy-controls fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.tt-alert-policy-controls .tt-field-label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tt-color-text-muted, #5b6e75);
+}
+
+/* 16px minimum so iOS does not zoom the viewport on focus (§2). */
+.tt-alert-policy-controls select,
+.tt-alert-policy-controls input[type="number"] {
+  min-height: 48px;
+  font-size: 1rem;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .tt-alert-settings-row {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .tt-alert-settings-meta {
+    flex: 1 1 auto;
+    max-width: 32rem;
+  }
+
+  .tt-alert-settings-toggles {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    max-width: 24rem;
+  }
+
+  .tt-alert-policy-controls {
+    flex: 0 0 22rem;
+  }
+}

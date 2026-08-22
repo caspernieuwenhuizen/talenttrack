@@ -83,12 +83,41 @@ TalentTrack controleert elke situatie één keer per uur, op de achtergrond. Dat
 
 Rond je om 10:15 een activiteit af, dan kan de melding er tot de volgende controle nog staan. Hij verdwijnt vanzelf. Je hoeft niets te doen, en je kunt het ook niet versnellen.
 
-## Meldingen uitzetten
+## Kiezen welke meldingen je ziet
 
-Nog niet. Instellingen per persoon en per club — kiezen welke meldingen je ziet en waar — komen in een latere release. Tot die tijd krijgt iedereen die iets kan oplossen daar bericht over.
+**Account → Meldingsinstellingen** toont elke melding, gegroepeerd per onderdeel van het systeem, met een vinkje per plek waar hij kan verschijnen:
+
+- **In de bel** — meegeteld in het getal rechtsboven.
+- **Balk op het dashboard** — een balk bovenaan de pagina.
+
+Vink alles uit en je ziet die melding niet meer. Meldingen die je niet kunt wijzigen staan grijs met de reden erbij — je academie heeft het voor iedereen bepaald, of de melding gaat over de veiligheid van een kind en staat altijd aan. Ze blijven bewust zichtbaar: een instellingenlijst die stilletjes weglaat wat je niet kunt wijzigen, laat je denken dat de lijst compleet is terwijl dat niet zo is.
+
+Berichten die de academie je *stuurt* — e-mails, pushberichten — staan apart, onder **Account → Instellingen → Berichten die je ontvangt**. Beide schermen verwijzen naar elkaar.
+
+### Eén melding tijdelijk uitstellen
+
+Heb je op dit moment niets aan een melding, stel hem dan een dag, een week of een maand uit. Hij verdwijnt en komt daarna terug, als het probleem dan nog bestaat.
+
+### Eén melding wegklikken
+
+Wegklikken verwijdert hem definitief — maar **alleen die ene keer**. Wordt hetzelfde probleem opgelost en gebeurt het daarna opnieuw, dan krijg je een nieuwe melding, want dat is echt nieuwe informatie. Wil je een *soort* melding permanent stoppen, vink hem dan uit bij Meldingsinstellingen.
 
 ## Voor beheerders
 
+**Meldingsbeleid** (Instellingen → Meldingsbeleid) bepaalt wie welke melding beheert:
+
+- **Iedereen kiest zelf** — de standaard, en voor bijna alles de juiste keuze.
+- **Altijd aan voor iedereen** — niemand kan hem uitzetten. Gebruik dit als een melding te belangrijk is om optioneel te zijn.
+- **Uit voor de hele club** — niemand ziet hem en er worden geen gegevens bewaard. Gebruik dit voor onderdelen die jullie academie niet gebruikt. Meldingen over de veiligheid van een kind kunnen niet uit.
+
+Twee instellingen die alleen een beheerder kan zetten:
+
+- **Mensen moeten dit eerst bevestigen** — de melding blokkeert de pagina tot iemand bevestigt dat hij hem gezien heeft. Reserveer dit voor echt ernstige gevallen; een onderbreking die mensen dagelijks zien wordt weggeklikt zonder gelezen te worden.
+- **Omzetten in een taak na (dagen)** — hoe lang een genegeerde melding wacht voordat er een echte toegewezen taak van wordt. Laat leeg voor de ingebouwde standaard. Dit werkt zodra taakescalatie beschikbaar is.
+
+Verder:
+
 - Meldingen worden bijgewerkt door een achtergrondtaak die elk uur draait. Verschijnt er nooit iets, controleer dan of de geplande taken van WordPress op deze site werken.
 - Bij een nieuwe installatie draait de controle direct bij activering, zodat het dashboard meteen een kloppend beeld toont.
-- Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`.
+- Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
+- Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
