@@ -1,14 +1,14 @@
 ---
 title: Meldingen
 group: performance
-summary: Situaties in je gegevens die aandacht vragen — niet afgeronde trainingen, ontbrekende aanwezigheid, sessies zonder trainer — automatisch zichtbaar en opgelost zodra je ze aanpakt.
+summary: Situaties in je gegevens die aandacht vragen — niet afgeronde activiteiten, ontbrekende aanwezigheid, activiteiten zonder trainer — automatisch zichtbaar en opgelost zodra je ze aanpakt.
 audience: [user, admin]
 order: 35
 ---
 
 # Meldingen
 
-Een **melding** wijst je op iets in je gegevens dat op dit moment waar is en aandacht vraagt. Een training van vorige dinsdag die nog op gepland staat. Een afgeronde training waarvan niemand de aanwezigheid heeft ingevuld. Een sessie donderdag zonder trainer.
+Een **melding** wijst je op iets in je gegevens dat op dit moment waar is en aandacht vraagt. Een training van vorige dinsdag die nog op gepland staat. Een afgeronde training waarvan niemand de aanwezigheid heeft ingevuld. Een activiteit donderdag zonder trainer.
 
 Je vinkt een melding nooit af. Je lost op waar de melding over gaat, en de melding verdwijnt vanzelf.
 
@@ -23,7 +23,7 @@ TalentTrack kent twee dingen die op je kunnen wachten, en ze gedragen zich bewus
 | Wie het krijgt | één persoon | iedereen die het kan oplossen |
 | Waar je het oplost | in de taak zelf | in het gewone scherm van dat record |
 
-Een taak is "schrijf de wedstrijdevaluatie voor Daan". Een melding is "deze training staat nog op gepland". Als meldingen taken waren, zou je de training in het activiteitenoverzicht afronden en daarna nog steeds een taak in je inbox hebben die zegt dat je dat moet doen.
+Een taak is "schrijf de wedstrijdevaluatie voor Daan". Een melding is "deze activiteit staat nog op gepland". Als meldingen taken waren, zou je de activiteit in het activiteitenoverzicht afronden en daarna nog steeds een taak in je inbox hebben die zegt dat je dat moet doen.
 
 ## Waar je meldingen ziet
 
@@ -38,7 +38,7 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | --- | --- |
 | **Activiteit uit het verleden staat nog op gepland** | De datum is voorbij, maar niemand heeft de activiteit afgerond of geannuleerd. Zolang dat niet gebeurt, ontbreken de aanwezigheid en de speelminuten in elk rapport. |
 | **Aanwezigheid niet geregistreerd** | De activiteit staat op afgerond, maar niemand heeft ingevuld wie erbij was. Overal lijkt het klaar, behalve in de rapportages. |
-| **Aankomende sessie zonder trainer** | Voor een sessie binnen een week is niemand ingedeeld. Sessies zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment. |
+| **Aankomende activiteit zonder trainer** | Voor een activiteit binnen een week is niemand ingedeeld. Activiteiten zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment. |
 
 Meer meldingen — over evaluaties, doelen, PDP-cycli en spelersdossiers — volgen in latere releases.
 
@@ -54,7 +54,7 @@ Je krijgt bovendien alleen meldingen over records die je mag zien. Dat wordt elk
 
 TalentTrack controleert elke situatie één keer per uur, op de achtergrond. Dat is een bewuste keuze: alles controleren tijdens het laden van je dashboard zou inloggen voor iedereen trager maken, en bij elk nieuw meldingstype nog trager.
 
-Rond je om 10:15 een training af, dan kan de melding er tot de volgende controle nog staan. Hij verdwijnt vanzelf. Je hoeft niets te doen, en je kunt het ook niet versnellen.
+Rond je om 10:15 een activiteit af, dan kan de melding er tot de volgende controle nog staan. Hij verdwijnt vanzelf. Je hoeft niets te doen, en je kunt het ook niet versnellen.
 
 ## Meldingen uitzetten
 

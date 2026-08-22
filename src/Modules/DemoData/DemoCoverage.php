@@ -560,6 +560,14 @@ class DemoCoverage {
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
         'tt_error_log'   => [ 'exempt' => 'Error log. Synthetic errors would send operators chasing bugs that never happened.' ],
+        // #2631 — derived state, not content. Rows are written only by the
+        // hourly sweep from conditions already true in other tables, so
+        // seeding them would mean fabricating an alert about data that does
+        // not say what the alert claims. Demo activities that meet a
+        // condition produce real occurrences on the next sweep, which is the
+        // honest demonstration. Wiping demo data leaves occurrences behind
+        // only until that sweep resolves them.
+        'tt_alert_occurrences' => [ 'exempt' => 'Derived alert state, recomputed hourly from other tables. Seeded rows would assert conditions the underlying data does not hold.' ],
         'tt_usage_events' => [ 'exempt' => 'Telemetry of real usage. Seeded rows would skew the adoption stats the academy reads.' ],
         'tt_module_state' => [ 'exempt' => 'Per-club module enable/disable state. Operator configuration.' ],
         'tt_feature_state' => [ 'exempt' => 'Per-feature under-development flags. Operator configuration.' ],

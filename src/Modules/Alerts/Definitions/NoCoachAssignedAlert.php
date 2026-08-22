@@ -7,39 +7,39 @@ use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
 /**
- * SessionWithoutCoachAlert (#2631, epic #2629).
+ * NoCoachAssignedAlert (#2631, epic #2629).
  *
- * A session in the next week with nobody assigned to run it. The only one
+ * An activity in the next week with nobody assigned to run it. The only one
  * of the three wave 1 definitions that looks forwards — it is a chance to
  * prevent a problem rather than a report of one that already happened.
  *
- * Which player question does this answer? *Is this player's next session
- * actually going to happen?* An unstaffed session is one that gets
- * cancelled at short notice, and cancelled sessions are missing development
+ * Which player question does this answer? *Is this player's next activity
+ * actually going to happen?* An unstaffed activity is one that gets
+ * cancelled at short notice, and a cancelled activity is missing development
  * time for every player in the squad.
  *
  * Audience note: `coach_id` is empty by definition here, so the recipient
- * is always the team's head coach, via `AbstractActivityAlert`. A session
+ * is always the team's head coach, via `AbstractActivityAlert`. An activity
  * with neither an assigned coach nor a team head coach produces no
  * occurrence — there is genuinely nobody to tell, and inventing a
  * recipient would mean routing a squad's problem to an administrator who
  * cannot fix it. Surfacing those is the roll-up's job in #2633.
  */
-final class SessionWithoutCoachAlert extends AbstractActivityAlert {
+final class NoCoachAssignedAlert extends AbstractActivityAlert {
 
     private const LOOKAHEAD_DAYS = 7;
     private const URGENT_WITHIN_DAYS = 2;
 
     public function key(): string {
-        return 'activities.session_without_coach';
+        return 'activities.no_coach_assigned';
     }
 
     public function label(): string {
-        return __( 'Upcoming session has no coach', 'talenttrack' );
+        return __( 'Upcoming activity has no coach', 'talenttrack' );
     }
 
     public function description(): string {
-        return __( 'A session in the next week has nobody assigned to run it. Unstaffed sessions tend to be cancelled late, which costs every player in the squad a training slot.', 'talenttrack' );
+        return __( 'An activity in the next week has nobody assigned to run it. Unstaffed activities tend to be cancelled late, which costs every player in the squad a training slot.', 'talenttrack' );
     }
 
     /** Urgent inside 48 hours — past that there is no time to arrange cover. */

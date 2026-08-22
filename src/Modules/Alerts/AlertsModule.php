@@ -8,7 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
-use TT\Modules\Alerts\Definitions\SessionWithoutCoachAlert;
+use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
@@ -73,7 +73,7 @@ final class AlertsModule implements ModuleInterface {
     public static function registerCoreAlerts( array $alerts ): array {
         $alerts[] = new PastStillPlannedAlert();
         $alerts[] = new AttendanceUnrecordedAlert();
-        $alerts[] = new SessionWithoutCoachAlert();
+        $alerts[] = new NoCoachAssignedAlert();
         return $alerts;
     }
 

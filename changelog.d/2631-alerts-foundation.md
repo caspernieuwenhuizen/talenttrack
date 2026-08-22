@@ -3,16 +3,16 @@
 Bump: minor
 
 A new Alerts engine surfaces conditions that are true right now and need
-someone to act — a session whose date has passed but is still marked as
-planned, a completed activity with nobody's attendance recorded, a session
+someone to act — an activity whose date has passed but is still marked as
+planned, a completed activity with nobody's attendance recorded, an activity
 next week with no coach assigned. Alerts appear in a banner at the top of
 the dashboard and are counted by the notification bell alongside open tasks.
 
 Alerts are deliberately not tasks. You never mark one as done: you fix the
 thing it points at and it clears itself on the next background check. That
-is the whole reason for a separate engine — modelling "this session is still
+is the whole reason for a separate engine — modelling "this activity is still
 planned" as a task would leave a stale task in someone's inbox every time a
-coach fixed the session in the activities list.
+coach fixed the activity in the activities list.
 
 Alerts go to the people who can fix them: the coach assigned to the activity
 and the team's head coach. Heads of Development do not receive one per team;

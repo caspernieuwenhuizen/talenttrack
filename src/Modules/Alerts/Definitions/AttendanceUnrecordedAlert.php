@@ -15,7 +15,7 @@ use TT\Modules\Alerts\Domain\Severity;
  * finished on every screen, and only the reports know it is empty.
  *
  * Which player question does this answer? *Where was this player, and did
- * they train?* A completed session with no attendance silently drops every
+ * they train?* A completed activity with no attendance silently drops every
  * player's participation for that date.
  *
  * 48 hours of grace before the alert appears: recording attendance the next
@@ -36,12 +36,12 @@ final class AttendanceUnrecordedAlert extends AbstractActivityAlert {
     }
 
     public function description(): string {
-        return __( 'An activity is marked completed but nobody recorded who was there. The session counts as finished while every player\'s attendance for that date is missing.', 'talenttrack' );
+        return __( 'An activity is marked completed but nobody recorded who was there. It counts as finished while every player\'s attendance for that date is missing.', 'talenttrack' );
     }
 
     /**
      * Ages up after a fortnight — past that, nobody reliably remembers who
-     * was at a training session, and the record is effectively unrecoverable.
+     * was at a training, and the record is effectively unrecoverable.
      */
     protected function severityFor( object $row ): string {
         $days = $this->daysSince( (string) ( $row->session_date ?? '' ) );
@@ -66,10 +66,10 @@ final class AttendanceUnrecordedAlert extends AbstractActivityAlert {
 
         // NOT EXISTS rather than a LEFT JOIN + HAVING COUNT(*) = 0: it stops
         // at the first attendance row instead of aggregating all of them,
-        // which matters on a table with one row per player per session.
+        // which matters on a table with one row per player per activity.
         //
         // The status check is deliberate. A row with an empty status is a
-        // roster placeholder, not a recorded observation, so a session full
+        // roster placeholder, not a recorded observation, so an activity full
         // of blank rows still counts as unrecorded.
         $sql = $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.team_id, a.coach_id

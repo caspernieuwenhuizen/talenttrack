@@ -1,14 +1,14 @@
 ---
 title: Alerts
 group: performance
-summary: Conditions in your data that need attention — unmarked sessions, missing attendance, unstaffed training — surfaced automatically and cleared by fixing them.
+summary: Conditions in your data that need attention — unmarked activities, missing attendance, unstaffed training — surfaced automatically and cleared by fixing them.
 audience: [user, admin]
 order: 35
 ---
 
 # Alerts
 
-An **alert** tells you about something in your data that is true right now and needs attention. A session last Tuesday still marked as planned. A completed training with nobody's attendance recorded. A session on Thursday with no coach assigned.
+An **alert** tells you about something in your data that is true right now and needs attention. A training last Tuesday still marked as planned. A completed training with nobody's attendance recorded. An activity on Thursday with no coach assigned.
 
 You never mark an alert as done. You fix the thing it points at, and the alert disappears on its own.
 
@@ -23,7 +23,7 @@ TalentTrack has two different things that can be waiting for you, and they behav
 | Who gets it | one person | everyone who could fix it |
 | Where you fix it | in the task itself | in the normal screen for that record |
 
-A task is "write the post-match evaluation for Daan". An alert is "this session is still marked as planned". If alerts were tasks, you would fix the session in the activities list and then still have a task sitting in your inbox telling you to fix it.
+A task is "write the post-match evaluation for Daan". An alert is "this activity is still marked as planned". If alerts were tasks, you would fix the activity in the activities list and then still have a task sitting in your inbox telling you to fix it.
 
 ## Where alerts appear
 
@@ -38,7 +38,7 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | --- | --- |
 | **Past activity still planned** | The activity's date has passed but nobody marked it completed or cancelled. Until they do, its attendance and minutes are missing from every report. |
 | **Attendance not recorded** | The activity is marked completed but nobody recorded who was there. It looks finished everywhere except in the reports. |
-| **Upcoming session has no coach** | A session in the next week has nobody assigned to run it. Unstaffed sessions tend to get cancelled late, which costs every player in the squad a training slot. |
+| **Upcoming activity has no coach** | An activity in the next week has nobody assigned to run it. Unstaffed activities tend to get cancelled late, which costs every player in the squad a training slot. |
 
 More alerts, covering evaluations, goals, PDP cycles and player records, arrive in later releases.
 
@@ -54,7 +54,7 @@ You also only ever receive an alert about a record you have permission to see. T
 
 TalentTrack re-checks every condition once an hour, in the background. This is deliberate: checking them all while your dashboard loads would make signing in slower for everyone, and slower every time a new alert type is added.
 
-So if you mark a session completed at 10:15, the alert may still be there until the next check. It will clear itself. There is nothing you need to do, and nothing you can do to hurry it.
+So if you mark an activity completed at 10:15, the alert may still be there until the next check. It will clear itself. There is nothing you need to do, and nothing you can do to hurry it.
 
 ## Turning alerts off
 

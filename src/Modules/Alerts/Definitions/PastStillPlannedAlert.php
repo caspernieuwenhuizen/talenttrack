@@ -17,7 +17,7 @@ use TT\Modules\Alerts\Domain\Severity;
  * this is the same gap seen from the data-entry side).
  *
  * Which player question does this answer? *What is missing from this
- * player's record right now?* An unmarked session is a hole in every
+ * player's record right now?* An unmarked activity is a hole in every
  * player who attended it, and nobody currently gets told about it.
  *
  * Self-resolving: the coach opens the activity, marks it completed, and the
@@ -25,7 +25,7 @@ use TT\Modules\Alerts\Domain\Severity;
  */
 final class PastStillPlannedAlert extends AbstractActivityAlert {
 
-    /** Days after which an unmarked session stops being a nudge. */
+    /** Days after which an unmarked activity stops being a nudge. */
     private const URGENT_AFTER_DAYS = 7;
 
     public function key(): string {
@@ -41,7 +41,7 @@ final class PastStillPlannedAlert extends AbstractActivityAlert {
     }
 
     /**
-     * Ages up after a week. A session unmarked overnight is an oversight; one
+     * Ages up after a week. An activity unmarked overnight is an oversight; one
      * unmarked for a fortnight is a hole in the record that is only getting
      * harder to fill from memory.
      */
@@ -75,7 +75,7 @@ final class PastStillPlannedAlert extends AbstractActivityAlert {
 
         // `session_date < CURDATE()` rather than `<=`: an activity happening
         // today has not finished yet, and telling a coach at 09:00 that
-        // tonight's session is unmarked would train them to ignore this.
+        // tonight's activity is unmarked would train them to ignore this.
         $sql = "SELECT a.id, a.title, a.session_date, a.team_id, a.coach_id
                   FROM {$p}tt_activities a
                  WHERE " . $this->baseWhere( 'a' ) . "

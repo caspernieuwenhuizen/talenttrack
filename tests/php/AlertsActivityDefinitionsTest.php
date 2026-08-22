@@ -4,7 +4,7 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
-use TT\Modules\Alerts\Definitions\SessionWithoutCoachAlert;
+use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
@@ -67,7 +67,7 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
     }
 
     /**
-     * A session happening tonight has not finished yet. Telling a coach at
+     * An activity happening tonight has not finished yet. Telling a coach at
      * 09:00 that it is unmarked is the kind of wrongness that teaches people
      * to ignore the whole feature.
      */
@@ -150,7 +150,7 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
 
     /**
      * A roster row with no status is a placeholder, not an observation. A
-     * session full of blanks is still an unrecorded session.
+     * activity full of blanks is still an unrecorded activity.
      */
     public function test_blank_attendance_rows_do_not_count_as_recorded(): void {
         $team   = $this->insertTeam( 'U14 alerts' );
@@ -168,34 +168,34 @@ final class AlertsActivityDefinitionsTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new AttendanceUnrecordedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
-    // ── activities.session_without_coach ───────────────────────────────
+    // ── activities.no_coach_assigned ───────────────────────────────────
 
-    public function test_upcoming_session_without_a_coach_alerts_the_team_head_coach(): void {
+    public function test_upcoming_activity_without_a_coach_alerts_the_team_head_coach(): void {
         $head = self::factory()->user->create( [ 'role' => 'administrator' ] );
         $team = $this->insertTeam( 'U14 alerts' );
         $this->assignHeadCoach( $team, $head );
         $this->insertActivity( $team, $this->daysAhead( 3 ), 'planned', 0 );
 
-        $out = ( new SessionWithoutCoachAlert() )->evaluate( new AlertContext( $this->club ) );
+        $out = ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) );
 
         $this->assertCount( 1, $out );
         $this->assertSame( $head, $out[0]->recipientUserId );
     }
 
-    public function test_upcoming_session_with_a_coach_produces_nothing(): void {
+    public function test_upcoming_activity_with_a_coach_produces_nothing(): void {
         $team = $this->insertTeam( 'U14 alerts' );
         $this->assignHeadCoach( $team, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $this->insertActivity( $team, $this->daysAhead( 3 ), 'planned', $this->coach );
 
-        $this->assertSame( [], ( new SessionWithoutCoachAlert() )->evaluate( new AlertContext( $this->club ) ) );
+        $this->assertSame( [], ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
-    public function test_session_beyond_the_lookahead_produces_nothing(): void {
+    public function test_activity_beyond_the_lookahead_produces_nothing(): void {
         $team = $this->insertTeam( 'U14 alerts' );
         $this->assignHeadCoach( $team, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $this->insertActivity( $team, $this->daysAhead( 30 ), 'planned', 0 );
 
-        $this->assertSame( [], ( new SessionWithoutCoachAlert() )->evaluate( new AlertContext( $this->club ) ) );
+        $this->assertSame( [], ( new NoCoachAssignedAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
     // ── fixtures ───────────────────────────────────────────────────────

@@ -51039,7 +51039,7 @@ msgstr "Een activiteit waarvan de datum voorbij is, staat nog op gepland. Zolang
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:56
 #: src/Modules/Alerts/Definitions/PastStillPlannedAlert.php:56
-#: src/Modules/Alerts/Definitions/SessionWithoutCoachAlert.php:57
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:57
 msgid "Untitled activity"
 msgstr "Naamloze activiteit"
 
@@ -51054,26 +51054,26 @@ msgid "Attendance not recorded"
 msgstr "Aanwezigheid niet geregistreerd"
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:41
-msgid "An activity is marked completed but nobody recorded who was there. The session counts as finished while every player's attendance for that date is missing."
-msgstr "Een activiteit staat op afgerond, maar niemand heeft geregistreerd wie erbij was. De sessie telt als klaar terwijl de aanwezigheid van elke speler voor die datum ontbreekt."
+msgid "An activity is marked completed but nobody recorded who was there. It counts as finished while every player's attendance for that date is missing."
+msgstr "Een activiteit staat op afgerond, maar niemand heeft geregistreerd wie erbij was. De activiteit telt als klaar terwijl de aanwezigheid van elke speler voor die datum ontbreekt."
 
 #: src/Modules/Alerts/Definitions/AttendanceUnrecordedAlert.php:60
 msgid "No attendance was recorded for %s."
 msgstr "Er is geen aanwezigheid geregistreerd voor %s."
 
-#: src/Modules/Alerts/Definitions/SessionWithoutCoachAlert.php:39
-msgid "Upcoming session has no coach"
-msgstr "Aankomende sessie zonder trainer"
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:39
+msgid "Upcoming activity has no coach"
+msgstr "Aankomende activiteit zonder trainer"
 
-#: src/Modules/Alerts/Definitions/SessionWithoutCoachAlert.php:43
-msgid "A session in the next week has nobody assigned to run it. Unstaffed sessions tend to be cancelled late, which costs every player in the squad a training slot."
-msgstr "Voor een sessie binnen een week is niemand ingedeeld. Sessies zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment."
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:43
+msgid "An activity in the next week has nobody assigned to run it. Unstaffed activities tend to be cancelled late, which costs every player in the squad a training slot."
+msgstr "Voor een activiteit binnen een week is niemand ingedeeld. Activiteiten zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment."
 
-#: src/Modules/Alerts/Definitions/SessionWithoutCoachAlert.php:63
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:63
 msgid "%s is today and has no coach assigned."
 msgstr "%s is vandaag en heeft geen trainer toegewezen."
 
-#: src/Modules/Alerts/Definitions/SessionWithoutCoachAlert.php:72
+#: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:72
 msgid "%1$s is in %2$d day and has no coach assigned."
 msgid_plural "%1$s is in %2$d days and has no coach assigned."
 msgstr[0] "%1$s is over %2$d dag en heeft geen trainer toegewezen."
