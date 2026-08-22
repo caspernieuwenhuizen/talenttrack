@@ -811,15 +811,15 @@
         el.inspector.appendChild( node( 'p', 'tt-small tt-muted', i18n.dragHint || '' ) );
 
         var actions = node( 'div', 'tt-form-actions tt-sced__actor-actions' );
-        actions.appendChild( button( i18n.addKeyframe, 'tt-btn tt-btn-secondary tt-btn-sm', addKeyframeHere ) );
-        actions.appendChild( button( i18n.removeKeyframe, 'tt-btn tt-btn-secondary tt-btn-sm', removeKeyframeHere ) );
+        actions.appendChild( button( i18n.addKeyframe, 'tt-btn tt-btn-secondary', addKeyframeHere ) );
+        actions.appendChild( button( i18n.removeKeyframe, 'tt-btn tt-btn-secondary', removeKeyframeHere ) );
         el.inspector.appendChild( actions );
 
         var manage = node( 'div', 'tt-form-actions tt-sced__actor-actions' );
-        manage.appendChild( button( i18n.duplicate, 'tt-btn tt-btn-secondary tt-btn-sm', function () {
+        manage.appendChild( button( i18n.duplicate, 'tt-btn tt-btn-secondary', function () {
             duplicateActor( actor.id );
         } ) );
-        manage.appendChild( button( i18n.removeMarker, 'tt-btn tt-btn-secondary tt-btn-sm', function () {
+        manage.appendChild( button( i18n.removeMarker, 'tt-btn tt-btn-secondary', function () {
             removeActor( actor.id );
         } ) );
         el.inspector.appendChild( manage );
@@ -871,7 +871,7 @@
         ] ) ) );
 
         item.appendChild( node( 'span', 'tt-sced__link-time', seconds( link.t ) ) );
-        item.appendChild( button( i18n.removeLink, 'tt-btn tt-btn-secondary tt-btn-sm', function () {
+        item.appendChild( button( i18n.removeLink, 'tt-btn tt-btn-secondary', function () {
             removeLink( index );
         } ) );
 

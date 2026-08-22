@@ -64,6 +64,56 @@ rewriting your own history.
 Exercises marked **Built in** or **From VCT** cannot be edited in place. Copy
 one to make a version of your own.
 
+## Drawing a scene
+
+A **scene** is a small animated diagram of the drill: players, opponents, the
+ball, cones and goals on a pitch, with the movements you want them to make.
+Open an exercise and press **Draw a scene**.
+
+The one gesture the editor is built around is this: **drag a marker on the
+pitch and it records where that marker is at the moment the playhead is on.**
+Scrub to two seconds, move the left-back forward, and the left-back now runs
+forward over those two seconds. Nothing else is needed to make a scene move.
+
+The rest of the surface is there for the times dragging is not what you want:
+
+- **Add a marker** — pick a player, opponent, keeper, ball, cone or goal on
+  the left, then tap the pitch. The tool stays selected, so you can place a
+  whole team without going back to the palette.
+- **Lines** — pick a line type (pass, dribble, run, shot, press), then tap two
+  markers. The line is drawn between where those two markers *are* at that
+  moment, so it stays right when you reposition either of them later.
+- **The timeline** — one row per marker, one diamond per recorded position.
+  Tap a diamond to travel to that moment; drag it sideways to change when it
+  happens.
+- **Selected marker** — the shirt number, the exact position, and buttons to
+  duplicate or remove.
+- **Undo** takes back the last change, up to forty of them. Ctrl+Z works too.
+
+Arrow keys move the selected marker a step at a time, so a scene can be built
+without a mouse. Nothing is saved until you press **Save**.
+
+**Pitch** and **Length** decide what the scene is drawn on and how long it
+runs. A rondo drawn on a full pitch is six players in a corner, so pick the
+half pitch or the grid square when that is what you actually set up.
+
+### Where a scene shows up
+
+Once saved, the same scene appears in three places, drawn by the same code, so
+it always looks the same:
+
+- on the **exercise page**, with play controls;
+- in the **sideline view** while you are running the training;
+- on the **printed A4 sheet** — as a still picture, since paper cannot animate.
+  The still is the scene's final frame.
+
+An exercise can hold more than one scene, which is how you show a drill that
+has phases. The first one you draw is the one the three surfaces show; press
+**Add a scene** for the next.
+
+Drawing works best on a tablet or a desktop. On a phone you can watch a scene
+and move a marker, but the timeline wants more room than a phone has.
+
 ## Who can do what
 
 | | View | Add and edit | Make club-wide |
