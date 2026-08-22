@@ -12,6 +12,7 @@ use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
+use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
@@ -119,6 +120,9 @@ final class AlertsModule implements ModuleInterface {
         // #2636 instalment 5 — data quality.
         $alerts[] = new PlayerWithoutTeamAlert();
         $alerts[] = new TeamWithoutHeadCoachAlert();
+
+        // #2636 instalment 6 — Onboarding. Completes the wave 6 catalogue.
+        $alerts[] = new InvitationStaleAlert();
 
         return $alerts;
     }

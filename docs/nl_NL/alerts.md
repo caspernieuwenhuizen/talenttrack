@@ -80,7 +80,15 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 
 Deze twee gaan naar wie de administratie beheert in plaats van naar een trainer, want er ís geen trainer om ze naartoe te sturen — dat is nu juist de situatie. Ze zijn stiller dan de rest van de catalogus: **Speler zonder team** verschijnt alleen bij de bel, niet als balk.
 
-Meer meldingen — over aanmeldingen — volgen in een latere release. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+### Aanmeldingen
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Uitnodiging nooit geaccepteerd** | Een uitnodiging voor een speler of staflid is twee weken geleden verstuurd en nooit geaccepteerd. | *Waar komt deze speler vandaan?* Een uitnodiging is de eerste stap in de reis van een speler door de systemen van de academie, en een uitnodiging die nooit is geaccepteerd is een reis die nooit begon — geen account, geen zicht op de eigen evaluaties, geen feedback van de trainer om te lezen. |
+
+Ouderuitnodigingen hebben hun eigen melding (**Ouder uitgenodigd maar nooit geactiveerd**), omdat de vraag daar anders ligt: een ouderuitnodiging die nooit is geaccepteerd kan prima zijn als het gezin op een andere manier gekoppeld is. Gescheiden houden maakt elke boodschap concreter.
+
+Daarmee is de catalogus voorlopig compleet. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
 
@@ -100,6 +108,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
 | `alerts_measurement_grace_days` | 60 dagen | Hoe ver in een seizoen voordat "nog geen meting" een melding wordt. In week één zou hij voor elke speler in de academie tegelijk afgaan, en dat komt op hetzelfde neer als niets zeggen. |
 | `alerts_player_without_team_grace_days` | 7 dagen | Hoe lang een nieuw toegevoegde speler zonder team mag blijven voordat de melding verschijnt. Het team toewijzen is vaak de volgende stap in dezelfde sessie. |
+| `alerts_invitation_stale_days` | 14 dagen | Hoe lang een uitnodiging voor een speler of staflid ongeaccepteerd mag blijven voordat de melding verschijnt. |
 
 ## Nieuwe meldingen staan meteen aan
 
