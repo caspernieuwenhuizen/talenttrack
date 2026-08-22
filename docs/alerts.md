@@ -65,7 +65,13 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Parent invited but never activated** | A parent was invited, never created their account, and the player still has no parent linked at all. | *Where has this player come from, and who at home can see it?* A parent with no account cannot read the evaluations, cannot see the PDP conversations, and cannot answer the club about consent. |
 | **Certificate expiring** | One of your own certificates is about to expire, or has just expired. | *What does this player need next?* — answered from the other side. Every player in the squad needs the person running their session to be qualified to run it. |
 
-More alerts, covering measurements, data quality and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### Measurements
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **No measurement this season** | A player has no measurement recorded in the current season. | *Where has this player come from?* — physically. Growth data is the only part of a player's record that is not somebody's opinion, and a season with no measurement leaves a permanent hole in the curve. You cannot fill it later: the player has already grown. |
+
+More alerts, covering data quality and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -83,6 +89,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_player_turns_18_days` | 30 days | How much notice you get before a player's eighteenth birthday. The age itself is not a setting: it is a fact about the jurisdiction the academy operates in, not a preference. |
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
+| `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
 
 ## New alerts arrive switched on
 

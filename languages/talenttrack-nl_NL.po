@@ -51609,6 +51609,26 @@ msgid_plural "Your %1$s certificate expires in %2$d days."
 msgstr[0] "Je certificaat %1$s verloopt over %2$d dag."
 msgstr[1] "Je certificaat %1$s verloopt over %2$d dagen."
 
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:63
+msgid "No measurement this season"
+msgstr "Geen meting dit seizoen"
+
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:67
+msgid "A player has no measurement recorded this season. Growth data is the one part of the record that is not an opinion, and a missed season leaves a hole in the curve that cannot be filled later."
+msgstr "Voor een speler is dit seizoen geen enkele meting vastgelegd. Groeidata is het enige deel van het dossier dat geen mening is, en een gemist seizoen laat een gat in de curve dat je later niet meer kunt vullen."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:90
+#, php-format
+msgid "%s has no measurement recorded this season."
+msgstr "Voor %s is dit seizoen geen meting vastgelegd."
+
+#. translators: 1: player name, 2: season name
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:98
+#, php-format
+msgid "%1$s has no measurement recorded in %2$s."
+msgstr "Voor %1$s is in %2$s geen meting vastgelegd."
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"

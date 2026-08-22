@@ -65,7 +65,13 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Ouder uitgenodigd maar nooit geactiveerd** | Een ouder is uitgenodigd, heeft nooit een account aangemaakt, en aan de speler hangt nog helemaal geen ouder. | *Waar komt deze speler vandaan, en wie thuis kan meekijken?* Een ouder zonder account kan de evaluaties niet lezen, de PDP-gesprekken niet zien en de club niets bevestigen over toestemming. |
 | **Certificaat verloopt** | Een van je eigen certificaten verloopt binnenkort, of is net verlopen. | *Wat heeft deze speler nu nodig?* — van de andere kant bekeken. Elke speler in de selectie heeft er belang bij dat wie zijn training geeft daarvoor gekwalificeerd is. |
 
-Meer meldingen — over metingen, datakwaliteit en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+### Metingen
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Geen meting dit seizoen** | Voor een speler is dit seizoen nog geen enkele meting vastgelegd. | *Waar komt deze speler vandaan?* — lichamelijk. Groeidata is het enige deel van het dossier dat geen mening is, en een seizoen zonder meting laat een blijvend gat in de curve. Achteraf invullen kan niet: de speler is al gegroeid. |
+
+Meer meldingen — over datakwaliteit en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
 
@@ -83,6 +89,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_player_turns_18_days` | 30 dagen | Hoeveel dagen van tevoren je hoort dat een speler achttien wordt. De leeftijd zelf is geen instelling: dat is een gegeven van het rechtsgebied waarin de academie werkt, geen voorkeur. |
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
+| `alerts_measurement_grace_days` | 60 dagen | Hoe ver in een seizoen voordat "nog geen meting" een melding wordt. In week één zou hij voor elke speler in de academie tegelijk afgaan, en dat komt op hetzelfde neer als niets zeggen. |
 
 ## Nieuwe meldingen staan meteen aan
 
