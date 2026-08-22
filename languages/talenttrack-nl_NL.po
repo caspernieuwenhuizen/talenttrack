@@ -51171,6 +51171,15 @@ msgstr "Waargenomen tijdens training"
 msgid "Training history"
 msgstr "Trainingsgeschiedenis"
 
+
+#: src/Modules/Training/Workflow/PlayerExposureAggregationTaskTemplate.php:53
+msgid "Player training exposure aggregation"
+msgstr "Aggregatie van trainingsblootstelling per speler"
+
+#: src/Modules/Training/Workflow/PlayerExposureAggregationTaskTemplate.php:58
+msgid "Nightly job that rebuilds how many minutes each player has trained each principle, from completed training runs and the attendance recorded against them. Creates no tasks."
+msgstr "Nachtelijke taak die opnieuw berekent hoeveel minuten elke speler aan elk principe heeft getraind, op basis van afgeronde trainingen en de aanwezigheid die daarbij is vastgelegd. Maakt geen taken aan."
+
 #~ msgid "Save exercise"
 #~ msgstr "Oefening opslaan"
 
