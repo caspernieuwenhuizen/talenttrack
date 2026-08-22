@@ -50,7 +50,14 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Evaluation window closing** | An evaluation window is about to close and players in your team have no evaluation in it. | *Where is this player now, according to the review the academy promised to do?* Once the window closes the gap is permanent: that period has no record for them. |
 | **Evaluation not shared with the player** | An evaluation was recorded but nothing was written in the player-facing feedback field. | *What does this player need next?* An evaluation the player never sees cannot answer that for them. The ratings and internal notes stay with staff, so from the player's side nothing happened. |
 
-More alerts, covering goals, PDP cycles, measurements and player records, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### Goals and PDP
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Goal past its target date** | A development goal has passed the date it was aimed at and is still open. | *What does this player need next?* A goal past its date and still open is the one part of the record that claims to answer that and no longer does. Either the player got there and nobody said so, or the plan needs changing. |
+| **No PDP conversation this cycle** | A player's PDP file for this season is open but no conversation has actually been held. | *Where is this player going?* The PDP cycle is where the academy commits to sitting down with the player and agreeing that. A cycle whose conversations were all scheduled and none held looks complete on every list and has told the player nothing. |
+
+More alerts, covering measurements, player records and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -62,6 +69,9 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_eval_window_closing_days` | 3 days | How much warning you get before an evaluation window closes. |
 | `alerts_eval_share_grace_days` | 7 days | How long after an evaluation is recorded before the "not shared" alert appears. |
 | `alerts_eval_share_lookback_days` | 60 days | How far back the "not shared" alert still looks. Older evaluations are left alone: telling you in April what you should have written in September is a backlog, not an action. |
+| `alerts_goal_overdue_grace_days` | 3 days | How long after a goal's target date before the alert appears. A goal reviewed on Monday for a Sunday deadline is normal practice. |
+| `alerts_goal_overdue_lookback_days` | 365 days | How far past its date a goal is still worth chasing. Beyond that it is abandoned rather than overdue, and the fix is a tidy-up, not an alert. |
+| `alerts_pdp_no_conversation_days` | 45 days | How far into a PDP cycle before "no conversation held" becomes an alert. |
 
 ## New alerts arrive switched on
 
