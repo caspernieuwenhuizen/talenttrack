@@ -7,6 +7,8 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Knowledge\CourseAccessResolver;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
+use TT\Modules\Knowledge\KnowledgePerson;
+use TT\Modules\Knowledge\LessonRenderer;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
 use WP_REST_Request;
@@ -52,6 +54,12 @@ final class KnowledgeRestController {
         register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)', [
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'get_course' ],
+            'permission_callback' => [ __CLASS__, 'can_view' ],
+        ] );
+
+        register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/lessons/(?P<lesson>[a-z0-9-]+)', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'get_lesson' ],
             'permission_callback' => [ __CLASS__, 'can_view' ],
         ] );
 
@@ -199,6 +207,58 @@ final class KnowledgeRestController {
                 ? $service->progressFor( (int) $enrolment->id, $slug )
                 : [ 'completed' => 0, 'total' => count( $manifest->lessonSlugs() ), 'percent' => 0 ],
             'next_lesson' => $enrolment !== null ? $service->nextLesson( (int) $enrolment->id, $slug ) : null,
+        ] );
+    }
+
+    /**
+     * One lesson: its rendered body, its state and its gate verdict.
+     *
+     * The §4 test — a non-WordPress front end asking for this gets the
+     * same HTML the rendered page shows, because both go through
+     * `LessonRenderer`.
+     *
+     * A locked lesson returns 403 with the verdict rather than the body.
+     * Locked is not absent: the reader is allowed to know the lesson
+     * exists and what opens it, which is why this is not a 404 the way an
+     * unavailable course is.
+     */
+    public static function get_lesson( WP_REST_Request $r ) {
+        $slug   = (string) $r['slug'];
+        $lesson = (string) $r['lesson'];
+
+        $entry     = CourseRegistry::lesson( $slug, $lesson );
+        $person_id = self::currentPersonId();
+        $verdict   = ( new CourseAccessResolver() )->forLesson( $slug, $lesson, $person_id, get_current_user_id() );
+
+        if ( $entry === null || $verdict->isUnavailable() || $verdict->isDenied() ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        if ( $verdict->isLocked() ) {
+            return RestResponse::error(
+                'lesson_locked',
+                __( 'Finish the previous lesson first.', 'talenttrack' ),
+                403,
+                $verdict->toArray()
+            );
+        }
+
+        $rendered = LessonRenderer::render( $entry->body() );
+
+        $enrolment = $person_id > 0
+            ? ( new EnrolmentRepository() )->findFor( $person_id, $slug )
+            : null;
+
+        $progress = new ProgressRepository();
+        $row      = $enrolment !== null ? $progress->find( (int) $enrolment->id, $lesson ) : null;
+
+        return RestResponse::success( [
+            'lesson'      => $entry->toArray(),
+            'html'        => $rendered['html'],
+            'interactive' => $rendered['interactive'],
+            'access'      => $verdict->toArray(),
+            'read_at'     => $row->read_at ?? null,
+            'tool_state'  => $progress->toolState( $row ),
         ] );
     }
 
@@ -386,19 +446,15 @@ final class KnowledgeRestController {
         ];
     }
 
-    /** The `tt_people` row for the logged-in user, or 0. */
+    /**
+     * The `tt_people` row for the logged-in user, or 0.
+     *
+     * #2646 moved the lookup into `KnowledgePerson` so the three views and
+     * this controller share one implementation — and one answer about
+     * whether an archived person still counts.
+     */
     private static function currentPersonId(): int {
-        $user_id = get_current_user_id();
-        if ( $user_id <= 0 ) {
-            return 0;
-        }
-
-        global $wpdb;
-
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
-            $user_id
-        ) );
+        return KnowledgePerson::current();
     }
 
     private static function isSelf( int $person_id ): bool {

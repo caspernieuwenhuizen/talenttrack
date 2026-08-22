@@ -56,6 +56,7 @@ final class CoreSurfaceRegistration {
     private const M_PROSPECTS     = 'TT\\Modules\\Prospects\\ProspectsModule';
     private const M_PLANNING      = 'TT\\Modules\\Planning\\PlanningModule';
     private const M_STAFF_DEV     = 'TT\\Modules\\StaffDevelopment\\StaffDevelopmentModule';
+    private const M_KNOWLEDGE     = 'TT\\Modules\\Knowledge\\KnowledgeModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
     private const M_VCT           = 'TT\\Modules\\Vct\\VctModule';
@@ -92,6 +93,14 @@ final class CoreSurfaceRegistration {
     private static function registerCrossViewLinkGates(): void {
         $reg = '\\TT\\Shared\\Frontend\\Components\\CrossViewLinkRegistry';
         if ( ! class_exists( $reg ) ) return;
+
+        // #2633 — the alerts inbox. Its guard is "signed in", because the
+        // list is scoped to `recipient_user_id = me` in SQL and the
+        // capability question was answered when the evaluator decided
+        // whether to write the row. Registered explicitly rather than left
+        // to the permissive fallback so the chip's gate is stated, and so a
+        // future capability on that view has one place to land.
+        $reg::register( 'alerts', static fn( int $uid ): bool => $uid > 0 );
 
         // team-planner view guard: tt_view_plan.
         $reg::register( 'team-planner', 'tt_view_plan' );
@@ -139,6 +148,18 @@ final class CoreSurfaceRegistration {
         };
         $reg::register( 'team-chemistry', $chem_gate );
         $reg::register( 'team-blueprints', $chem_gate );
+
+        // #2646 — knowledge-library surfaces. All four guard on the same
+        // capability, and the courses a reader may open are filtered by
+        // CourseAccessResolver inside the views; this gate only has to
+        // mirror the views' own early return, which is the capability.
+        $knowledge_gate = static function ( int $uid ): bool {
+            return $uid > 0 && user_can( $uid, 'tt_view_knowledge' );
+        };
+        $reg::register( 'knowledge', $knowledge_gate );
+        $reg::register( 'course', $knowledge_gate );
+        $reg::register( 'lesson', $knowledge_gate );
+        $reg::register( 'my-learning', $knowledge_gate );
 
         // Measurements execution surfaces — matrix entity/activity pairs
         // mirroring each view's own MatrixGate guard.
@@ -1383,6 +1404,52 @@ final class CoreSurfaceRegistration {
             // group, i.e. for a user holding both the staff and player sets.
             'label_qualifier' => __( 'staff', 'talenttrack' ),
         ]);
+        // #2646 (epic #2641) — a coach's own learning sits in "Me" beside
+        // their PDP and certifications, because that is what it is: the
+        // training half of their own development. The library itself is a
+        // destination rather than a personal record, so it gets its own
+        // group below.
+        // No `entity`: these surfaces are capability-gated, not matrix
+        // entities. Declaring one the seed does not define makes
+        // `tileVisibleFor()` ask the matrix about an entity nobody
+        // granted, and the tile disappears on every matrix-active
+        // install. An empty entity falls through to the `cap` rung,
+        // which is the gate these views actually use.
+        TileRegistry::register([
+            'module_class' => self::M_KNOWLEDGE,
+            'view_slug'    => 'my-learning',
+            'group'        => $me_group,
+            'kind'         => 'work',
+            'order'        => 110,
+            'label'        => __( 'My learning', 'talenttrack' ),
+            'description'  => __( 'Courses you are on, and how far you have got.', 'talenttrack' ),
+            'icon'         => 'methodology',
+            'color'        => '#1b5c6b',
+            'cap'          => 'tt_view_knowledge',
+            'feature'      => 'knowledge_courses',
+        ]);
+
+        // #2646 — the library is its own group rather than joining
+        // "Development", which holds player-development surfaces (PDP,
+        // goals). Coach education and player development are different
+        // subjects, and a coach looking for a course should not have to
+        // read past a player's PDP to find it.
+        $learning_group = __( 'Learning', 'talenttrack' );
+
+        TileRegistry::register([
+            'module_class' => self::M_KNOWLEDGE,
+            'view_slug'    => 'knowledge',
+            'group'        => $learning_group,
+            'kind'         => 'work',
+            'order'        => 10,
+            'label'        => __( 'Knowledge library', 'talenttrack' ),
+            'description'  => __( 'Courses for coaches: methodology, periodisation, and how this academy works.', 'talenttrack' ),
+            'icon'         => 'methodology',
+            'color'        => '#1b5c6b',
+            'cap'          => 'tt_view_knowledge',
+            'feature'      => 'knowledge_courses',
+        ]);
+
         // #1540 — "Staff overview" is the academy-wide HoD lens (open
         // goals, overdue reviews, expiring certs), not a personal tile.
         // Re-homed to the People group alongside the other academy-people

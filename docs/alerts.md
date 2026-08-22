@@ -92,5 +92,68 @@ Other notes:
 
 - Alerts are re-checked on an hourly background job. If nothing ever appears, check that WordPress scheduled tasks are running on this site.
 - A fresh installation runs one check immediately on activation, so the dashboard shows a true picture without waiting an hour.
+- Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`.
+
+## Alerts on the record itself
+
+An alert is now also shown **on the thing it is about**, as a small coloured chip: a number, a word, and a link.
+
+- **The activities list** — a chip on any activity that has something open.
+- **An activity's own page** — the same chip, in the header.
+- **A team's page** — anything open about that team.
+- **A player's page** — anything open about that player, at the top of the left-hand column.
+
+The chip says how many and how urgent, in words. It is never colour alone, and it never needs a hover or a tooltip to be understood — which matters because on a phone there is no hover.
+
+Two things about the chip are deliberate, and worth knowing:
+
+**You cannot turn it off.** Every other alert surface — the bell, the banner, the digest — will be yours to control once the settings arrive. The chip is not, because it is not a notification. It is the record's own current state, drawn next to the record. Hiding it would mean hiding a row's real condition from the person looking straight at that row.
+
+**It only ever shows what is still open.** Once you have fixed the thing, the chip goes. Nothing is kept. On a player's page in particular, alerts that have been dealt with are simply gone, and **nothing about an alert is ever written into the player's journey**. The journey is the record of what happened to the player; an alert is a record of what a grown-up did not get round to typing in. They are different things, and mixing them would put "attendance was never recorded" into a child's development history where it does not belong.
+
+## The alerts list
+
+Everything open, in one place, at **Alerts** (`?tt_view=alerts`). Filter by:
+
+- **Area** — Activities, Evaluations, and so on as more arrive.
+- **Severity** — urgent, needs attention, for information.
+- **State** — open, unread, or recently resolved.
+
+Clicking a chip brings you here already narrowed to that one record; "Show all alerts" widens it back out.
+
+## The overview for Heads of Development and admins
+
+This is the overview earlier releases promised. If you oversee more than one team, the top of the alerts list shows a per-team summary: *"4 teams have records that need attention"*, then a line per team with a count. Each team name opens that team.
+
+You still do not receive an alert per team, and that is on purpose. Twenty teams' worth of alerts arriving at the person with the least time to read them is how a system gets ignored. What you get instead is the shape of the problem — which teams, how many, how urgent — and a way into whichever one you want to look at.
+
+The summary only ever counts teams you already oversee. It counts each affected record once, even when two coaches were both told about it, so the number is "three unmarked activities", never "six".
+
+## For administrators (alerts on records)
+
+- Rendering chips on a list costs **one** database query for the whole page, regardless of how many rows carry a chip. Anything that surfaces alerts on a list must read them in one batch; a per-row read is a bug, not a slow version of the same thing.
+- The per-team summary is a grouped read over the alerts that already exist. It creates nothing, which is what lets the "no alert per team for Heads of Development" rule hold.
+- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, and `GET /alerts/rollup` for the per-team summary.
 - Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.
+
+## Getting alerts by email
+
+If you do not open TalentTrack often, you can have your open alerts sent to you as a summary email.
+
+It is **off until you turn it on**. Nobody is signed up automatically — the app will show you alerts in the bell and on the dashboard, but it will not email you until you ask.
+
+To turn it on, tick **In the summary email** for the alerts you care about in **Account → Alert settings**.
+
+What you can rely on:
+
+- You are never sent the same alert twice. An alert stays open until the underlying thing is fixed, and without this you would get the same three items every morning.
+- Nothing is emailed that you have already read, snoozed or dismissed in the app.
+- If there is nothing to report, no email is sent at all.
+- Each line links straight to the record that needs attention, not to a list.
+
+## How long alerts are kept
+
+Once an alert has cleared, it is kept for **90 days** and then deleted. Alerts that are still open are never deleted, however old they are — an alert nobody has dealt with for a year is worth seeing, not tidying away.
+
+This means the alerts system cannot answer questions spanning more than about a quarter. For season-long patterns, use Reports, which reads the underlying records rather than the alerts about them.

@@ -38,6 +38,25 @@
         return format(template, Array.prototype.slice.call(arguments, 1));
     }
 
+    /**
+     * State the reader saved for this lesson last time (#2646).
+     *
+     * Read lazily rather than captured at parse time: knowledge-reader.js
+     * is enqueued as a dependent of this file, so it assigns these after
+     * this script parses but before either boots on DOMContentLoaded.
+     */
+    function savedState(key) {
+        var all = (window.TTKnowledge && window.TTKnowledge.savedState) || {};
+        return all[key] || null;
+    }
+
+    /** Hand state to the reader to persist. No-op when it is not loaded. */
+    function persist(key, state) {
+        if (window.TTKnowledge && typeof window.TTKnowledge.persist === 'function') {
+            window.TTKnowledge.persist(key, state);
+        }
+    }
+
     function el(tag, className, text) {
         var node = document.createElement(tag);
         if (className) {
@@ -84,7 +103,19 @@
             return;
         }
 
-        function update() {
+        // Rehydrate before the first render, so a coach returning to the
+        // lesson sees the measurement they took rather than an empty box.
+        var saved = savedState('zeropoint');
+        if (saved) {
+            if (saved.method) {
+                methodEl.value = saved.method;
+            }
+            if (saved.minutes) {
+                minutesEl.value = saved.minutes;
+            }
+        }
+
+        function update(save) {
             var minutes = parseFloat(minutesEl.value);
 
             if (isNaN(minutes) || minutes <= 0) {
@@ -103,11 +134,23 @@
             root.dataset.ttZeropointStep = String(step.step);
             root.dataset.ttZeropointMethod = methodEl.value;
             root.dataset.ttZeropointMinutes = String(minutes);
+
+            if (save) {
+                persist('zeropoint', {
+                    method: methodEl.value,
+                    minutes: minutes,
+                    step: step.step
+                });
+            }
         }
 
-        methodEl.addEventListener('change', update);
-        minutesEl.addEventListener('input', update);
-        update();
+        methodEl.addEventListener('change', function () { update(true); });
+        minutesEl.addEventListener('input', function () { update(true); });
+
+        // First paint does not save: rendering what was already stored is
+        // not a change, and writing it back would touch the record on
+        // every page view.
+        update(false);
     }
 
     /* ── week planner ───────────────────────────────────────────────── */
@@ -185,10 +228,23 @@
             return label ? label.textContent : '';
         });
 
-        function update() {
+        var savedPlan = savedState('weekplan');
+        if (savedPlan && Array.isArray(savedPlan.plan)) {
+            savedPlan.plan.forEach(function (value, index) {
+                if (selects[index] && value) {
+                    selects[index].value = value;
+                }
+            });
+        }
+
+        function update(save) {
             var plan = selects.map(function (select) {
                 return select.value;
             });
+
+            if (save) {
+                persist('weekplan', { plan: plan });
+            }
 
             var hasMatch = plan.indexOf('match') !== -1;
             var hasSession = plan.some(function (key) {
@@ -223,10 +279,10 @@
         }
 
         selects.forEach(function (select) {
-            select.addEventListener('change', update);
+            select.addEventListener('change', function () { update(true); });
         });
 
-        update();
+        update(false);
     }
 
     /* ── pitch size ─────────────────────────────────────────────────── */

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Alerts\Cron\AlertDigestCron;
+use TT\Modules\Alerts\Cron\AlertRetentionCron;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
@@ -62,6 +64,12 @@ final class AlertsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         AlertSweepCron::init();
+        // #2634 — both ride the same engine heartbeat as the sweep, ordered
+        // after it: sweep (25) -> digest (30) -> retention purge (35), so a
+        // digest reflects the newest reconcile and the purge never deletes a
+        // row the digest was about to mention.
+        AlertDigestCron::init();
+        AlertRetentionCron::init();
         AlertBanner::init();
         AlertBellCount::init();
     }

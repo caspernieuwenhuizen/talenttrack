@@ -92,5 +92,68 @@ Verder:
 
 - Meldingen worden bijgewerkt door een achtergrondtaak die elk uur draait. Verschijnt er nooit iets, controleer dan of de geplande taken van WordPress op deze site werken.
 - Bij een nieuwe installatie draait de controle direct bij activering, zodat het dashboard meteen een kloppend beeld toont.
+- Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`.
+
+## Meldingen op het record zelf
+
+Een melding staat nu ook **bij het onderdeel waar hij over gaat**, als een klein gekleurd label: een aantal, een woord en een link.
+
+- **De activiteitenlijst** — een label bij elke activiteit waar iets open staat.
+- **De activiteit zelf** — hetzelfde label, in de kop.
+- **De teampagina** — alles wat over dat team open staat.
+- **De spelerspagina** — alles wat over die speler open staat, bovenaan de linkerkolom.
+
+Het label vertelt in woorden hoeveel en hoe dringend. Nooit alleen met kleur, en nooit met een tooltip die je pas ziet als je er met de muis overheen gaat — op een telefoon bestaat dat niet.
+
+Twee dingen zijn bewust zo gemaakt:
+
+**Je kunt dit label niet uitzetten.** Elke andere plek waar meldingen verschijnen — de bel, de banner, de samenvatting per mail — komt straks onder je eigen instellingen te vallen. Dit label niet, want het is geen melding: het is de actuele toestand van het record, getekend naast dat record. Het verbergen zou betekenen dat je iemand de werkelijke staat van een regel onthoudt terwijl hij er recht naar kijkt.
+
+**Je ziet alleen wat nog open staat.** Zodra je het opgelost hebt, verdwijnt het label. Er blijft niets bewaard. Op de spelerspagina in het bijzonder: afgehandelde meldingen zijn er gewoon niet meer, en **er wordt nooit iets van een melding in de tijdlijn van de speler gezet**. De tijdlijn is het verhaal van wat de speler is overkomen; een melding is een aantekening over wat een volwassene niet heeft ingevuld. Dat zijn twee verschillende dingen, en ze door elkaar halen zou "aanwezigheid is nooit ingevuld" in de ontwikkelgeschiedenis van een kind zetten, waar het niet thuishoort.
+
+## De meldingenlijst
+
+Alles wat open staat, op één plek, onder **Meldingen** (`?tt_view=alerts`). Filter op:
+
+- **Onderdeel** — Activiteiten, Evaluaties, en wat er later bij komt.
+- **Urgentie** — dringend, vraagt aandacht, ter informatie.
+- **Status** — open, ongelezen, of recent opgelost.
+
+Klik je op een label bij een record, dan land je hier meteen toegespitst op dat ene record; met "Alle meldingen tonen" zet je dat weer open.
+
+## Het overzicht voor Hoofd Opleiding en beheerders
+
+Dit is het overzicht dat eerdere releases aankondigden. Ben je verantwoordelijk voor meer dan één team, dan staat bovenaan de meldingenlijst een samenvatting per team: *"4 teams hebben records die aandacht vragen"*, met daaronder een regel per team met een aantal. Elke teamnaam opent dat team.
+
+Je krijgt nog steeds niet per team een eigen melding, en dat is met opzet. Meldingen van twintig teams bij de persoon met de minste tijd om ze te lezen is precies hoe een systeem genegeerd raakt. Wat je in plaats daarvan krijgt is de vorm van het probleem — welke teams, hoeveel, hoe dringend — en een ingang naar het team dat je wilt bekijken.
+
+De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk betrokken record telt één keer mee, ook als twee trainers er allebei bericht over kregen: er staat dus "drie niet-afgeronde activiteiten", nooit "zes".
+
+## Voor beheerders (meldingen op records)
+
+- Labels tonen op een lijst kost **één** databasequery voor de hele pagina, hoeveel regels er ook een label dragen. Elke plek die meldingen op een lijst toont moet ze in één keer ophalen; per regel ophalen is een fout, geen langzamere variant van hetzelfde.
+- De samenvatting per team is een gegroepeerde leesactie over de meldingen die er al zijn. Er wordt niets aangemaakt, en juist dat maakt de regel "geen eigen melding per team voor het Hoofd Opleiding" houdbaar.
+- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, en `GET /alerts/rollup` voor de samenvatting per team.
 - Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
+
+## Meldingen per e-mail ontvangen
+
+Open je TalentTrack niet vaak, dan kun je je openstaande meldingen als samenvattingsmail laten sturen.
+
+Dit staat **uit tot je het zelf aanzet**. Niemand wordt automatisch aangemeld — de app toont je meldingen in de bel en op het dashboard, maar mailt je pas als je erom vraagt.
+
+Aanzetten doe je door bij **Account → Meldingsinstellingen** per melding **In de samenvattingsmail** aan te vinken.
+
+Waar je op kunt rekenen:
+
+- Je krijgt dezelfde melding nooit twee keer. Een melding blijft open tot het onderliggende is opgelost, en zonder dit zou je elke ochtend dezelfde drie punten krijgen.
+- Er wordt niets gemaild dat je in de app al gelezen, uitgesteld of weggeklikt hebt.
+- Is er niets te melden, dan wordt er geen mail verstuurd.
+- Elke regel linkt rechtstreeks naar het record dat aandacht vraagt, niet naar een lijst.
+
+## Hoe lang meldingen bewaard blijven
+
+Een melding die is opgelost blijft **90 dagen** bewaard en wordt daarna verwijderd. Meldingen die nog openstaan worden nooit verwijderd, hoe oud ook — een melding waar een jaar lang niets mee gedaan is, wil je juist zien.
+
+Dat betekent dat het meldingssysteem geen vragen kan beantwoorden die verder terugkijken dan ongeveer een kwartaal. Gebruik voor patronen over een heel seizoen de rapportages; die lezen de onderliggende gegevens in plaats van de meldingen erover.

@@ -47,6 +47,14 @@ class DashboardShortcode {
         // worth a per-view conditional enqueue, and the settings screens are
         // reachable from more than one entry point.
         wp_enqueue_style( 'tt-frontend-alert-settings', TT_PLUGIN_URL . 'assets/css/frontend-alert-settings.css', [ 'tt-public' ], TT_VERSION );
+        // #2633 — the inline alert chip. Enqueued here rather than lazily
+        // from AlertChip itself: a chip is frequently built into a markup
+        // STRING (the activity card is assembled and returned, not echoed),
+        // which can happen long after wp_enqueue_scripts has run. A
+        // stylesheet that arrives after the head is written is a stylesheet
+        // that never applies, so the sheet loads with the rest of the
+        // dashboard chrome and the component stays a pure renderer.
+        \TT\Shared\Frontend\Components\AlertChip::enqueue();
         // #2035 — branded 404 layout, used by the in-app "?tt_view=<unknown>"
         // fallback (and shared with the standalone WP-404 takeover).
         wp_enqueue_style( 'tt-frontend-404', TT_PLUGIN_URL . 'assets/css/frontend-404.css', [ 'tt-public' ], TT_VERSION );
@@ -859,6 +867,20 @@ class DashboardShortcode {
                 // gate above already enforces.
                 FrontendMySessionsView::render();
                 return true;
+            // #2633 (epic #2629) — the alerts inbox. Account-group rather
+            // than a group of its own: an occurrence is written per
+            // recipient, so this list is scoped to "me" in SQL exactly like
+            // my-sessions is. No capability beyond being signed in — the
+            // capability question was already answered when the evaluator
+            // decided whether to write the row.
+            //
+            // Not routed through `renderSignInRequired()`: that helper's copy
+            // is about managing settings, and the view already emits the
+            // breadcrumb chain on its signed-out path (§5 — every path,
+            // including the refusals).
+            case 'alerts':
+                \TT\Modules\Alerts\Frontend\FrontendAlertsInboxView::render( $user_id );
+                return true;
             default:
                 return false;
         }
@@ -1529,6 +1551,32 @@ class DashboardShortcode {
     }
 
     /**
+     * #2646 (epic #2641) — knowledge library.
+     *
+     * `course` and `lesson` read their target from the query string
+     * rather than the slug, because a course is addressed by its corpus
+     * slug and there is no numeric id to put in the route.
+     */
+    private static function dispatchKnowledgeView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'knowledge':
+                \TT\Modules\Knowledge\Frontend\FrontendKnowledgeLibraryView::render( $user_id, $is_admin );
+                return true;
+            case 'course':
+                \TT\Modules\Knowledge\Frontend\FrontendCourseView::render( $user_id, $is_admin );
+                return true;
+            case 'lesson':
+                \TT\Modules\Knowledge\Frontend\FrontendLessonView::render( $user_id, $is_admin );
+                return true;
+            case 'my-learning':
+                \TT\Modules\Knowledge\Frontend\FrontendMyLearningView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * #0055 — record-creation wizards. `wizard` is the user-facing
      * slug; `wizards-admin` is the configuration + analytics surface.
      */
@@ -1814,6 +1862,7 @@ class DashboardShortcode {
             || self::dispatchReportView( $view, $user_id, $is_admin )
             || self::dispatchTrialView( $view, $user_id, $is_admin )
             || self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin )
+            || self::dispatchKnowledgeView( $view, $user_id, $is_admin )
             || self::dispatchWizardView( $view, $user_id, $is_admin )
             || self::dispatchMobileView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )
