@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T12:57:14+00:00\n"
+"POT-Creation-Date: 2026-08-22T13:07:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -5663,6 +5663,29 @@ msgid "%1$s is in %2$d day and has no coach assigned."
 msgid_plural "%1$s is in %2$d days and has no coach assigned."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:63
+msgid "No measurement this season"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:67
+msgid ""
+"A player has no measurement recorded this season. Growth data is the one "
+"part of the record that is not an opinion, and a missed season leaves a hole "
+"in the curve that cannot be filled later."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:91
+#, php-format
+msgid "%s has no measurement recorded this season."
+msgstr ""
+
+#. translators: 1: player name, 2: season name
+#: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:98
+#, php-format
+msgid "%1$s has no measurement recorded in %2$s."
+msgstr ""
 
 #: src/Modules/Alerts/Definitions/ParentNeverActivatedAlert.php:60
 msgid "Parent invited but never activated"
