@@ -51363,6 +51363,51 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Je MFA-setup is niet compleet. Log uit, log opnieuw in en meld je zo "
 #~ "nodig opnieuw aan."
 
+#: src/Modules/DemoData/DemoCoverage.php
+msgid "Knowledge library"
+msgstr "Kennisbank"
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid ""
+"Staff enrolled on the shipped courses, with a mixed spread: some finished, "
+"some mid-course, one overdue and one assignment awaiting review. The courses "
+"themselves ship with the plugin and are never generated."
+msgstr ""
+"Medewerkers ingeschreven op de meegeleverde cursussen, met een gemengde "
+"spreiding: sommigen klaar, sommigen halverwege, één te laat en één opdracht "
+"die op beoordeling wacht. De cursussen zelf worden met de plug-in "
+"meegeleverd en nooit gegenereerd."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "That course is not in this library."
+msgstr "Die cursus zit niet in deze kennisbank."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "That lesson is not part of this course."
+msgstr "Die les hoort niet bij deze cursus."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "That enrolment does not exist."
+msgstr "Die inschrijving bestaat niet."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "Could not enrol on that course."
+msgstr "Inschrijven op die cursus is niet gelukt."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "Could not record progress."
+msgstr "Voortgang vastleggen is niet gelukt."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "This login is not linked to a staff record, so it cannot be enrolled."
+msgstr ""
+"Dit account is niet gekoppeld aan een medewerkersdossier en kan daarom niet "
+"worden ingeschreven."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "This login is not linked to a staff record."
+msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
+
 #~ msgid "Save exercise"
 #~ msgstr "Oefening opslaan"
 
