@@ -51430,9 +51430,7 @@ msgid "Read-only view of the raw academy tables, for an admin diagnosing where a
 msgstr ""
 "Alleen-lezen weergave van de ruwe academietabellen, voor een beheerder die "
 "uitzoekt waar een getal vandaan komt."
-#: src/Modules/Alerts/Domain/Severity.php:52
-msgid "Urgent"
-msgstr "Urgent"
+
 #, php-format
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
