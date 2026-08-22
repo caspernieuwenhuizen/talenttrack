@@ -244,8 +244,73 @@ papier vasthoudt is degene die er iets mee moet.
 Het blad is het plan, niet de registratie. Wat je werkelijk doet wordt
 vastgelegd bij de training.
 
+## Wat een speler werkelijk heeft geleerd
+
+Hier werkt de rest van de module naartoe.
+
+### Op het spelersdossier
+
+Open een speler en kies het tabblad **Training**.
+
+- **De kerngetallen** — getrainde minuten, hoeveel principes uit de methodiek
+  zijn geraakt van het totaal, en wanneer er voor het laatst is getraind.
+- **Minuten per principe** — elk principe uit je methodiek, met wat deze
+  speler eraan heeft besteed. **De principes die nooit zijn getraind staan er
+  ook bij, bovenaan, gemarkeerd.** Dat is met opzet: een lege regel is het
+  nuttigste op de pagina, en een lijst die ze stilletjes zou weglaten ziet er
+  compleet uit terwijl hij verbergt waarvoor je het tabblad opende.
+- **Recente waarnemingen** — wat trainers tijdens trainingen over deze speler
+  hebben genoteerd.
+
+De minuten komen uit trainingen waar de speler ook echt bij was. Aanwezig en
+te laat tellen mee; afgemeld, afwezig en geblesseerd niet. Een overgeslagen
+blok telt niet mee, en een blok dat zevenentwintig minuten duurde telt voor
+zevenentwintig — niet voor de tweeëntwintig die iemand in het plan zette.
+
+Speelde een speler mee met een ander team, dan staan die minuten ook op zijn
+of haar eigen dossier.
+
+### Wie het kan zien
+
+Trainers zien het voor spelers van hun eigen teams. De hoofd opleidingen en
+academiebeheerders zien het voor iedereen. **Een ouder ziet alleen het eigen
+kind** — en een speler kan het voor de ouder helemaal uitzetten, bij
+*Mijn instellingen → wat je ouder kan zien*, naast evaluaties, doelen,
+metingen en het PDP.
+
+### Academiebreed: de dekkingsmatrix
+
+Hoofd opleidingen en academiebeheerders krijgen op de Training-pagina de knop
+**Dekking**: elk principe langs de zijkant, elk team bovenaan, en hoeveel
+trainingen dat team eraan heeft besteed.
+
+Alleen "nooit" is gemarkeerd. Vier tinten van bijna-goed verbergen juist het
+enige waar je iets mee moet.
+
+### Een waarneming vastleggen
+
+Tijdens een training toont de weergave langs de lijn iedereen die er is, met
+een schaal onder de naam en een veld voor een notitie.
+
+- Je hoeft niemand een cijfer te geven. Een notitie alleen is een volledige
+  waarneming, en op een natte dinsdag is dat de normale gang van zaken.
+- Tik nogmaals op een cijfer om het te wissen.
+- De schaal is die van je eigen academie — het bereik en de stapgrootte die je
+  voor evaluaties hebt ingesteld.
+- Een cijfer buiten dat bereik wordt geweigerd, niet naar binnen afgerond.
+
+Elke waarneming verschijnt meteen op de **Reis** van de speler, met de datum
+van de training en niet van het moment waarop je het intypte.
+
+### Wanneer de getallen bijwerken
+
+Direct als je een training afrondt, voor de spelers die erbij waren. En elke
+nacht volledig, wat een later aangepast plan opvangt, een oefening die een
+ander principe kreeg, of aanwezigheid die de volgende ochtend is gecorrigeerd.
+
 ## Wat er nog niet is
 
 Wat nog volgt:
 
-- de trainingsgeschiedenis per speler waar dit alles naartoe werkt
+- de tekentool voor oefeningsdiagrammen
+- een foto van een whiteboardplan laten uitlezen

@@ -5,10 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\TrainingExposureRestController;
 use TT\Infrastructure\REST\TrainingPlansRestController;
 use TT\Infrastructure\REST\TrainingRunsRestController;
 use TT\Modules\Training\Print\TrainingPlanPrintRouter;
 use TT\Modules\Training\Wizard\NewTrainingPlanWizard;
+use TT\Modules\Training\Workflow\PlayerExposureAggregationTaskTemplate;
+use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -54,12 +57,25 @@ class TrainingModule implements ModuleInterface {
         TrainingPlansRestController::init();
         TrainingRunsRestController::init();
 
+        // #2500 — the exposure read API. A separate controller because it
+        // is player data with a different audience (D16): a parent may
+        // read their own child's, a coach who can plan a training may not
+        // automatically read a player's history. Sharing a controller
+        // would have meant sharing a permission_callback, which is how
+        // two different rights quietly become one.
+        TrainingExposureRestController::init();
+
         // #2499 — the A4 clipboard sheet. Hooks `template_redirect` at
         // priority 1 so it emits a standalone document before the theme
         // shell renders anything onto paper.
         TrainingPlanPrintRouter::init();
 
         add_action( 'init', [ self::class, 'registerTiles' ], 20 );
+
+        // #2500 — the nightly exposure rebuild. Priority 5, matching VCT
+        // and PDP, so the dispatchers at priority 20 find the template
+        // already registered.
+        add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
 
         // #2497 — the generator's wizard. Registered on `init` so the
         // registry is populated before any request resolves
@@ -69,6 +85,17 @@ class TrainingModule implements ModuleInterface {
                 WizardRegistry::register( new NewTrainingPlanWizard() );
             }
         }, 20 );
+    }
+
+    /**
+     * #2500 — register the exposure aggregation with the Workflow
+     * registry. The scheduler is the SaaS-port chokepoint (CLAUDE.md §4),
+     * so this job goes through it rather than `wp_schedule_event`.
+     */
+    public static function registerWorkflowTemplates(): void {
+        if ( ! class_exists( WorkflowModule::class ) ) return;
+
+        WorkflowModule::registry()->register( new PlayerExposureAggregationTaskTemplate() );
     }
 
     /**

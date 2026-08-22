@@ -47,6 +47,8 @@ A row is flagged **Overdue** when the expected return has passed and no actual r
 
 Filter by team, and switch between **Currently out**, **Recovered** and **All**.
 
+**Record injury** sits at the top of the page, so you can log one without going through a player's file first — the wizard asks which team and which player as its first step. The button only appears for roles that may record an injury; everyone else sees the overview read-only.
+
 ## Privacy
 
 Injuries are medical data about minors, so two things hold:

@@ -329,6 +329,144 @@
     font-size: 1rem;
 }
 
+/* ---- observation sheet ---- */
+
+/* Sits under the sideline card, on the same dark ground. It is the same
+   screen and the same evening, so it should not look like a form that
+   arrived from somewhere else. */
+.tt-obs {
+    background: var(--run-ground, #12161a);
+    color: var(--run-ink, #f2f5f7);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-obs__title {
+    margin: 0 0 4px;
+    font-size: 1.0625rem;
+    font-weight: 800;
+}
+
+.tt-obs__hint {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--run-soft, #9aa6b1);
+    line-height: 1.5;
+}
+
+.tt-obs__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-obs__row {
+    background: var(--run-panel, #1b2127);
+    border: 1px solid var(--run-line, #2b333b);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+}
+
+.tt-obs__row.is-saved { border-color: #2f9e5e; }
+
+/* Identity above, scale below — five 48px targets and a name do not fit
+   on one line at 360px without shrinking the targets, and this is used
+   one-handed outdoors. */
+.tt-obs__who {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-obs__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+    border-radius: 50%;
+    background: var(--run-ground, #12161a);
+    font-size: 0.6875rem;
+    font-weight: 800;
+}
+
+.tt-obs__name { font-weight: 700; }
+
+/* The scale takes the full width and wraps: an academy on 1-10 gets ten
+   segments over two rows rather than ten targets too small to hit. */
+.tt-obs__scale {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-obs__step {
+    flex: 1 1 3rem;
+    min-width: 3rem;
+    min-height: 48px;
+    border: 1px solid var(--run-line, #2b333b);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--run-ground, #12161a);
+    color: var(--run-ink, #f2f5f7);
+    font-size: 1rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-obs__step:active { filter: brightness(1.3); }
+
+.tt-obs__step[aria-pressed="true"] {
+    background: var(--run-go, #e8b624);
+    border-color: var(--run-go, #e8b624);
+    color: #241f00;
+}
+
+.tt-obs__note { display: block; margin-bottom: var(--tt-sp-2, 8px); }
+
+.tt-obs__note input {
+    width: 100%;
+    min-height: 48px;
+    /* 16px floor stops iOS zooming the page on focus. */
+    font-size: 1rem;
+    border: 1px solid var(--run-line, #2b333b);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--run-ground, #12161a);
+    color: var(--run-ink, #f2f5f7);
+    padding: 0 var(--tt-sp-2, 8px);
+}
+
+.tt-obs__note input::placeholder { color: var(--run-soft, #9aa6b1); }
+
+.tt-obs .tt-obs__save {
+    min-height: 48px;
+    width: 100%;
+    touch-action: manipulation;
+}
+
+.tt-obs__msg {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    min-height: 1.2em;
+    color: var(--run-soft, #9aa6b1);
+}
+
+.tt-obs button:focus-visible {
+    outline: 3px solid var(--run-go, #e8b624);
+    outline-offset: 2px;
+}
+
+/* On a desktop the sheet does not need the fixed-bar clearance. */
+@media (min-width: 1024px) {
+    .tt-obs { padding-bottom: var(--tt-sp-4, 16px); }
+}
+
 /* ---- motion ---- */
 
 @media (prefers-reduced-motion: reduce) {

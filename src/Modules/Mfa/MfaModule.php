@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Mfa\Admin\MfaActionHandlers;
+use TT\Modules\Mfa\Auth\MfaChallengeHandler;
 use TT\Modules\Mfa\Auth\MfaLoginGuard;
 use TT\Modules\Mfa\Wizards\MfaEnrollmentWizard;
 use TT\Shared\Wizards\WizardRegistry;
@@ -56,6 +57,11 @@ class MfaModule implements ModuleInterface {
         WizardRegistry::register( new MfaEnrollmentWizard() );
         MfaActionHandlers::init();
         MfaLoginGuard::init();
+        // #2668 — the challenge page's POST and its bounce-outs resolve on
+        // `init`, after the guard (priority 5) has cleared the request to
+        // stay on the prompt. Handling them any later means redirecting
+        // after the headers have gone out, which blanks the page.
+        MfaChallengeHandler::init();
 
         // #1392 — break-glass recovery surfaces.
         // wp-cli command group (`wp tt mfa status|disable|reset`);

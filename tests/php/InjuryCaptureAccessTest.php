@@ -126,6 +126,35 @@ final class InjuryCaptureAccessTest extends WP_UnitTestCase {
         $this->assertCount( 1, $recovered );
     }
 
+    /**
+     * #2671 — the overview shipped read-only: the wizard existed and was
+     * registered, but nothing on the squad page linked to it, so the only
+     * way to record an injury was through a player's file. Lock the entry
+     * point, and lock that it stays invisible to a role without the cap.
+     */
+    public function test_the_overview_offers_a_way_to_record_an_injury(): void {
+        \TT\Shared\Wizards\WizardRegistry::register( new \TT\Modules\Journey\Wizards\NewInjuryWizard() );
+
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $admin );
+
+        ob_start();
+        \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $admin, true );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'tt_wizard=injury', $html, 'the overview must link the injury wizard' );
+        $this->assertStringContainsString( 'Record injury', $html );
+
+        $reader = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        wp_set_current_user( $reader );
+
+        ob_start();
+        \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $reader, false );
+        $html_reader = (string) ob_get_clean();
+
+        $this->assertStringNotContainsString( 'tt_wizard=injury', $html_reader, 'no cap, no button — there is no flat form to fall back on' );
+    }
+
     public function test_the_overview_is_scoped_to_the_teams_asked_for(): void {
         $repo = new InjuryRepository();
         $repo->create( [ 'player_id' => $this->playerId, 'started_on' => '2026-03-01' ] );

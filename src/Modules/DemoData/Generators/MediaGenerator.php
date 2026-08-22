@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Generators;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\Media\Ingest\MediaIngestService;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
@@ -182,8 +183,11 @@ class MediaGenerator implements DependentGeneratorInterface {
         $ink = imagecolorallocate( $image, 255, 255, 255 );
         imagestring( $image, 5, 24, 220, self::initials( $subject ), $ink );
 
-        $path = wp_tempnam( 'tt-demo-media' );
-        if ( ! $path ) {
+        // Through the shared helper: demo generation runs in admin today,
+        // but it is reachable from WP-CLI and REST too, where
+        // `wp_tempnam()` is not loaded (#2674).
+        $path = MediaIngestService::tempFile( 'tt-demo-media' );
+        if ( $path === '' ) {
             imagedestroy( $image );
             return '';
         }

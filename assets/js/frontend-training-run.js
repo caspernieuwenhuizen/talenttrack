@@ -31,7 +31,79 @@
         var root = document.querySelector('[data-tt-run]');
         if (!root) return;
         bindRun(root);
+        bindObservations();
     });
+
+    // ---- observations -----------------------------------------------------
+
+    /**
+     * The observation sheet under the sideline view.
+     *
+     * Two rules worth stating, both from #2500 D7:
+     *   - Tapping the selected number again clears it. A coach who taps 7
+     *     by mistake needs a way back that is not "reload the page", and
+     *     a segmented control with no deselect is a trap.
+     *   - A note with no score saves. The server refuses only the case
+     *     where both are empty.
+     */
+    function bindObservations() {
+        var sheet = document.querySelector('[data-tt-obs]');
+        if (!sheet) return;
+
+        var runId = parseInt(sheet.getAttribute('data-tt-obs'), 10);
+        if (!runId) return;
+
+        sheet.addEventListener('click', function (e) {
+            var step = e.target.closest && e.target.closest('[data-tt-obs-value]');
+            if (step) { toggleStep(step); return; }
+
+            var save = e.target.closest && e.target.closest('[data-tt-obs-save]');
+            if (save) { saveRow(save.closest('[data-tt-obs-player]'), runId); }
+        });
+    }
+
+    function toggleStep(step) {
+        var group = step.parentNode;
+        var was = step.getAttribute('aria-pressed') === 'true';
+
+        Array.prototype.forEach.call(group.querySelectorAll('[data-tt-obs-value]'), function (b) {
+            b.setAttribute('aria-pressed', 'false');
+        });
+
+        // Tapping the active one again leaves everything unpressed, which
+        // is how a mis-tap is undone.
+        if (!was) step.setAttribute('aria-pressed', 'true');
+    }
+
+    function saveRow(row, runId) {
+        if (!row) return;
+
+        var playerId = parseInt(row.getAttribute('data-tt-obs-player'), 10);
+        var noteEl = row.querySelector('[data-tt-obs-note]');
+        var note = noteEl ? noteEl.value.trim() : '';
+        var pressed = row.querySelector('[data-tt-obs-value][aria-pressed="true"]');
+        var rating = pressed ? pressed.getAttribute('data-tt-obs-value') : null;
+
+        if (!note && rating === null) { obsSay(i18n.obsEmpty); return; }
+
+        var body = { player_id: playerId };
+        if (note) body.note = note;
+        if (rating !== null) body.rating = rating;
+
+        request('POST', cfg.restBase + '/training/runs/' + runId + '/observations', body)
+            .then(function () {
+                obsSay(i18n.obsSaved);
+                if (noteEl) noteEl.value = '';
+                if (pressed) pressed.setAttribute('aria-pressed', 'false');
+                row.classList.add('is-saved');
+            })
+            .catch(function () { obsSay(i18n.obsFailed); });
+    }
+
+    function obsSay(text) {
+        var msg = document.querySelector('[data-tt-obs-msg]');
+        if (msg) msg.textContent = text || '';
+    }
 
     // ---- attach -----------------------------------------------------------
 

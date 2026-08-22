@@ -239,8 +239,72 @@ person who has to act on it.
 The sheet is the plan, not the record. What you actually run is recorded on
 the training.
 
+## What a player has actually been taught
+
+This is the part the rest of the module exists for.
+
+### On the player's file
+
+Open a player and choose the **Training** tab.
+
+- **The headline numbers** — minutes trained, how many of the club's
+  principles have been touched out of the total, and when they last trained.
+- **Minutes per principle** — every principle in your methodology, with what
+  this player has spent on it. **The principles they have never trained are
+  listed too, at the top, marked.** That is deliberate: an empty row is the
+  most useful thing on the page, and a list that quietly dropped them would
+  look complete while hiding what you opened the tab to find.
+- **Recent observations** — what coaches noted about them during trainings.
+
+The minutes come from trainings the player actually attended. Present and late
+count; excused, absent and injured do not. A skipped block contributes nothing,
+and a block that ran twenty-seven minutes contributes twenty-seven rather than
+the twenty-two someone typed into the plan.
+
+If a player guested for another team, those minutes are on their own file too.
+
+### Who can see it
+
+Coaches see it for players on their own teams. The head of development and
+academy admins see it for everyone. **A parent sees it for their own child
+only** — and a player can switch it off for their parent entirely, under
+*My settings → what your parent can see*, alongside evaluations, goals,
+measurements and their PDP.
+
+### Academy-wide: the coverage matrix
+
+Head of development and academy admins get a **Coverage** action on the
+Training page: every principle down the side, every team across the top, and
+how many trainings that team has spent on each.
+
+Only "never" is marked. Four shades of nearly-fine would bury the one thing
+worth acting on.
+
+### Recording an observation
+
+During a training, the sideline view lists everyone who is there with a scale
+under their name and a box for a note.
+
+- You do not have to score anyone. A note on its own is a complete
+  observation, and on a wet Tuesday it is the usual one.
+- Tap a number again to clear it.
+- The scale is your academy's own — whatever range and step you have
+  configured for evaluations.
+- A score outside that range is refused rather than rounded into it.
+
+Each observation appears on the player's **Journey** timeline straight away,
+dated to the training rather than to when you typed it up.
+
+### When the numbers update
+
+Immediately when you finish a training, for the players who were there. And
+fully every night, which is what picks up a plan edited after the fact, an
+exercise re-tagged with a different principle, or attendance corrected the
+next morning.
+
 ## What is not here yet
 
 Still to come:
 
-- the per-player training history that all of it feeds
+- the drawing tool for exercise diagrams
+- photographing a whiteboard plan and having it read back
