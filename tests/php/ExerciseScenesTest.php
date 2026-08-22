@@ -455,6 +455,70 @@ final class ExerciseScenesTest extends WP_UnitTestCase {
      * not shows as an empty button with no error anywhere — the cheapest
      * possible check for the most invisible possible failure.
      */
+    /**
+     * The diagram vocabulary must be translated with a context (#2687).
+     *
+     * `Pass` and `Run` shipped as plain `__()` calls and resolved to
+     * translations of an entirely different sense — a pass/fail result
+     * and "run this job". Nothing caught it: the msgid resolved, the
+     * English read fine, and the untranslated-string gate saw a full
+     * catalogue.
+     *
+     * So this asserts the shape rather than any particular translation.
+     * A future `__( 'Cross' )` added to `linkKinds()` fails here, which
+     * is the only moment anyone would think about it.
+     */
+    public function test_the_diagram_vocabulary_is_translated_with_a_context(): void {
+        $source = (string) file_get_contents(
+            TT_PLUGIN_DIR . 'src/Modules/Exercises/Frontend/SceneEditorRenderer.php'
+        );
+
+        foreach ( [ 'actorTools', 'linkKinds', 'pitchOptions' ] as $method ) {
+            $body = self::methodBody( $source, $method );
+            $this->assertNotSame( '', $body, "could not read {$method}()" );
+
+            $this->assertStringNotContainsString(
+                "__( '",
+                $body,
+                "{$method}() has a label on a plain __() — a one-word msgid in a catalogue this "
+                    . 'size will inherit whatever sense was registered first. Use _x() with the '
+                    . 'diagram context.'
+            );
+
+            preg_match_all( "/_x\(\s*'[^']+',\s*'([^']+)'/", $body, $contexts );
+            $this->assertNotEmpty( $contexts[1], "{$method}() has no _x() labels at all" );
+
+            foreach ( $contexts[1] as $context ) {
+                $this->assertSame(
+                    'line or marker in a drill diagram',
+                    $context,
+                    "{$method}() uses a different context — the vocabulary has to share one, or "
+                        . 'two words in the same picker end up in different catalogue neighbourhoods.'
+                );
+            }
+        }
+    }
+
+    /** The text between a method's opening and closing brace. */
+    private static function methodBody( string $source, string $method ): string {
+        $at = strpos( $source, "function {$method}(" );
+        if ( $at === false ) return '';
+
+        $open = strpos( $source, '{', $at );
+        if ( $open === false ) return '';
+
+        $depth = 0;
+        for ( $i = $open; $i < strlen( $source ); $i++ ) {
+            if ( $source[ $i ] === '{' ) $depth++;
+            if ( $source[ $i ] === '}' ) {
+                $depth--;
+                if ( $depth === 0 ) return substr( $source, $open, $i - $open + 1 );
+            }
+        }
+
+        return '';
+    }
+
     public function test_every_string_the_editor_reads_is_sent(): void {
         $this->author();
         $repo        = new ExerciseScenesRepository();
