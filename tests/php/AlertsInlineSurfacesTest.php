@@ -75,10 +75,12 @@ final class AlertsInlineSurfacesTest extends WP_UnitTestCase {
             $this->seed( 'activity', $id );
         }
 
-        // Warm the table-existence check first. It is cached per request in
-        // production, so counting it here would measure a cost the real
-        // page never pays twice.
+        // Warm the two per-request lookups a prime performs before its read:
+        // the table-existence check and the module off-switch. Both are
+        // cached for the life of the request in production, so counting them
+        // here would measure a cost the real page never pays per list.
         $this->repo->tableExists();
+        AlertChip::moduleEnabled();
         AlertChip::flush();
 
         $before = $wpdb->num_queries;
@@ -112,6 +114,7 @@ final class AlertsInlineSurfacesTest extends WP_UnitTestCase {
         global $wpdb;
 
         $this->repo->tableExists();
+        AlertChip::moduleEnabled();
         // Warm the per-request lookups a chip performs (dashboard URL,
         // cross-view gate) on a subject that HAS one, so what the counter
         // sees below is only the cost of the clean-record answer.

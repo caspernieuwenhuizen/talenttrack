@@ -68,7 +68,10 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         echo '<h1 class="tt-fview-title">' . esc_html( $title ) . '</h1>';
 
         $repo = new AlertOccurrencesRepository();
-        if ( ! $repo->tableExists() ) {
+        // Same off-switch the chips honour (#2599): an operator who turned
+        // the module off gets the "not available" notice rather than a list
+        // of alerts the module is no longer maintaining.
+        if ( ! AlertChip::moduleEnabled() || ! $repo->tableExists() ) {
             // The migration has not run on this install yet. Say so plainly
             // rather than rendering an empty list that reads as "you are all
             // caught up" when the truth is "nothing has been checked".

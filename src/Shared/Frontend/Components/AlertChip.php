@@ -106,7 +106,20 @@ final class AlertChip {
         if ( empty( $wanted ) ) return;
 
         $wanted = array_keys( $wanted );
-        $found  = $subjectType === self::SUBJECT_PLAYER
+
+        // An operator who switched the Alerts module off must stop seeing
+        // alerts, including the ones already in the table. The guard lives
+        // here rather than in each call site because `prime()` is the single
+        // door every read goes through — a placement added later inherits
+        // the off-switch without knowing it exists (#2599).
+        if ( ! self::moduleEnabled() ) {
+            foreach ( $wanted as $id ) {
+                self::$cache[ $subjectType . ':' . $id ] = [];
+            }
+            return;
+        }
+
+        $found = $subjectType === self::SUBJECT_PLAYER
             ? ( new AlertOccurrencesRepository() )->openByPlayers( $wanted )
             : ( new AlertOccurrencesRepository() )->openBySubjects( $subjectType, $wanted );
 
@@ -198,6 +211,29 @@ final class AlertChip {
     /** Player-record variant. */
     public static function playerHtml( int $playerId, array $opts = [] ): string {
         return self::html( self::SUBJECT_PLAYER, $playerId, $opts );
+    }
+
+    /**
+     * Whether the Alerts module is switched on for this install.
+     *
+     * Resolved once per request: the state cache behind `isEnabled()` is
+     * cheap, but a fifty-row list would still consult it fifty times for an
+     * answer that cannot change mid-request.
+     */
+    public static function moduleEnabled(): bool {
+        static $enabled = null;
+        if ( $enabled !== null ) return $enabled;
+
+        if ( ! class_exists( '\\TT\\Core\\ModuleRegistry' ) ) {
+            $enabled = true;
+            return $enabled;
+        }
+        // Keyed exactly as `config/modules.php` declares it — no leading
+        // backslash. `isEnabled()` defaults an unknown key to true, so a
+        // mismatch here would silently disable the off-switch rather than
+        // failing.
+        $enabled = \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Alerts\\AlertsModule' );
+        return $enabled;
     }
 
     /** Echo helper for view files that are already emitting markup. */
