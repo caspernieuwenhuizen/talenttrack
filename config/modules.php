@@ -71,6 +71,14 @@ return [
     // Email adapter + template registry + opt-out + quiet-hours +
     // rate-limit + audit). Use cases register their own templates.
     TT\Modules\Comms\CommsModule::class                          => true,
+    // #2629 wave 1 (#2631) — Alerts: state-derived, self-resolving
+    // notifications. Registered after Workflow and Comms because it
+    // subscribes to Workflow's cron heartbeat and will route its digests
+    // through Comms in #2634. Ships the engine + three Activities
+    // definitions; preferences (#2632), inline surfaces (#2633), delivery
+    // (#2634), Workflow interop (#2635) and the rest of the catalogue
+    // (#2636) build on top.
+    TT\Modules\Alerts\AlertsModule::class                        => true,
     // #0078 Phase 1 — custom widget builder data layer. Feature-flag-
     // gated via `tt_custom_widgets_enabled` (default off; beta installs
     // opt in). Owns CustomDataSource interface + registry + 5 reference

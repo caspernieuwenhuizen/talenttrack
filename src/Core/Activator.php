@@ -105,6 +105,11 @@ class Activator {
         // [talenttrack_dashboard] shortcode.
         self::seedDashboardPageIfMissing();
 
+        // #2631 — prime the alerts engine so a fresh install's dashboard has
+        // truthful state on its first render rather than an empty banner
+        // waiting on the hourly heartbeat. Self-guarding and non-fatal.
+        \TT\Modules\Alerts\AlertsModule::primeAfterActivation();
+
         if ( $failures === [] ) {
             update_option( 'tt_installed_version', TT_VERSION );
         }

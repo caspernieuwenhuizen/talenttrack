@@ -35,9 +35,17 @@ class NotificationBell {
 
     public static function inject( string $html, int $user_id ): string {
         if ( $user_id <= 0 ) return $html;
-        if ( ! user_can( $user_id, 'tt_view_own_tasks' ) ) return $html;
 
-        $count = FrontendMyTasksView::openCountForUser( $user_id );
+        // #2631 — the cap gate now lets a user through when something is
+        // actually waiting for them. `tt_view_own_tasks` is the right gate
+        // for the tasks half, but the count also carries alerts, and a coach
+        // who can edit activities without holding the tasks cap would
+        // otherwise have alerts raised about them and no bell to show it.
+        // Each contributing source gates its own occurrences on its own
+        // capability, so a non-zero count here is already authorised.
+        $count = self::countFor( $user_id );
+        if ( $count <= 0 && ! user_can( $user_id, 'tt_view_own_tasks' ) ) return $html;
+
         $on_inbox = isset( $_GET['tt_view'] ) && $_GET['tt_view'] === 'my-tasks';
         if ( $count <= 0 && ! $on_inbox ) return $html;
 
@@ -52,13 +60,17 @@ class NotificationBell {
         // visible chrome is just the bell (no parenthesised 0).
         // #1365 — the bell is an inline SVG (was a bell emoji).
         $count_visual = $count > 0 ? '(' . (int) $count . ')' : '';
+        // #2631 — the count is no longer tasks alone (see countFor), so the
+        // announced label can no longer say "open tasks". A screen reader
+        // hearing "3 open tasks" and finding one task and two alerts is
+        // worse served than by the neutral wording.
         $aria_label   = $count > 0
             ? sprintf(
-                /* translators: %d: number of open tasks */
-                _n( '%d open task', '%d open tasks', $count, 'talenttrack' ),
+                /* translators: %d: number of items waiting for the user */
+                _n( '%d item needs your attention', '%d items need your attention', $count, 'talenttrack' ),
                 $count
             )
-            : __( 'No open tasks', 'talenttrack' );
+            : __( 'Nothing needs your attention', 'talenttrack' );
 
         $count_html = $count_visual !== ''
             ? '<span class="tt-dash-bell-count">' . esc_html( $count_visual ) . '</span>'
@@ -89,13 +101,15 @@ class NotificationBell {
     public static function injectAdminBar( \WP_Admin_Bar $wp_admin_bar ): void {
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) return;
-        if ( ! user_can( $user_id, 'tt_view_own_tasks' ) ) return;
-        $count = FrontendMyTasksView::openCountForUser( $user_id );
+        // #2631 — see inject(): a non-zero count is already capability-gated
+        // by whichever source contributed it, so the bell shows for anyone
+        // who has something waiting.
+        $count = self::countFor( $user_id );
         if ( $count <= 0 ) return;
 
         $aria_label = sprintf(
-            /* translators: %d: number of open tasks */
-            _n( '%d open task', '%d open tasks', $count, 'talenttrack' ),
+            /* translators: %d: number of items waiting for the user */
+            _n( '%d item needs your attention', '%d items need your attention', $count, 'talenttrack' ),
             $count
         );
 
@@ -115,6 +129,24 @@ class NotificationBell {
                 'class' => 'tt-admin-bar-bell',
             ],
         ] );
+    }
+
+    /**
+     * The bell's number.
+     *
+     * #2631 — was `FrontendMyTasksView::openCountForUser()` read directly at
+     * both injection points. It now routes through a filter so other sources
+     * of "things waiting for you" can contribute: the alerts engine is the
+     * first, and a bell that counted only workflow tasks while the dashboard
+     * showed three alert banners would be lying about what is waiting.
+     *
+     * Wave 5 (#2635) inverts this — the bell becomes an alerts surface and
+     * tasks become one definition feeding it. This filter is the seam that
+     * makes that a move rather than a rewrite.
+     */
+    public static function countFor( int $user_id ): int {
+        $count = FrontendMyTasksView::openCountForUser( $user_id );
+        return max( 0, (int) apply_filters( 'tt_notification_bell_count', $count, $user_id ) );
     }
 
     /**
