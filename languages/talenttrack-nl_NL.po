@@ -52367,6 +52367,144 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Media retention"
+msgstr "Mediabewaring"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "You do not have permission to review media retention."
+msgstr "Je hebt geen rechten om mediabewaring te beoordelen."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Nothing is waiting for review."
+msgstr "Er staat niets klaar om te beoordelen."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Left"
+msgstr "Vertrokken"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Keep"
+msgstr "Bewaren"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Kept on purpose"
+msgstr "Bewust bewaard"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Put back in the queue"
+msgstr "Terug in de wachtrij"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "estimated"
+msgstr "geschat"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "This player has no recorded leaving date, so the date their record last changed is used instead."
+msgstr ""
+"Van deze speler is geen vertrekdatum vastgelegd; daarom wordt de datum "
+"gebruikt waarop zijn dossier voor het laatst is gewijzigd."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "These are past their retention date and are being kept anyway. A policy with an invisible list of exceptions is not one anybody can check, so they are listed here with the reason given."
+msgstr ""
+"Deze zijn hun bewaartermijn voorbij en worden toch bewaard. Een beleid met "
+"een onzichtbare lijst uitzonderingen is niet te controleren, dus staan ze "
+"hier met de opgegeven reden erbij."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Remove this from the player's file? If nothing else is attached to it, the file is deleted for good."
+msgstr ""
+"Dit van het dossier van de speler halen? Hangt er verder niets meer aan, dan "
+"wordt het bestand definitief gewist."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Why is this being kept? (Required — it is what makes the exception auditable.)"
+msgstr ""
+"Waarom wordt dit bewaard? (Verplicht — daarmee is de uitzondering "
+"controleerbaar.)"
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Removed from this player. The file is still attached elsewhere."
+msgstr "Van deze speler gehaald. Het bestand hangt nog elders."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Removed, and the file was deleted."
+msgstr "Gehaald, en het bestand is verwijderd."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "Unnamed player"
+msgstr "Naamloze speler"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Keep media after a player leaves"
+msgstr "Media bewaren nadat een speler weggaat"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Keep indefinitely"
+msgstr "Onbeperkt bewaren"
+
+#. translators: %d is a number of years.
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#, php-format
+msgid "%d year after they leave"
+msgid_plural "%d years after they leave"
+msgstr[0] "%d jaar nadat ze weggaan"
+msgstr[1] "%d jaar nadat ze weggaan"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Photos and video of a player who has left are listed for review once this period has passed — they are never deleted automatically. Review them under Media retention. This does not affect players who are still at the academy, however old their photos are."
+msgstr ""
+"Foto's en video's van een vertrokken speler komen ter beoordeling te staan "
+"zodra deze periode verstreken is — ze worden nooit automatisch verwijderd. "
+"Beoordeel ze onder Mediabewaring. Dit raakt spelers die nog bij de academie "
+"zitten niet, hoe oud hun foto's ook zijn."
+
+#: src/Modules/Media/MediaModule.php
+msgid "Photos and video of players who have left, waiting for a decision. Nothing is deleted without one."
+msgstr ""
+"Foto's en video's van vertrokken spelers, in afwachting van een beslissing. "
+"Er wordt niets verwijderd zonder."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Give a reason for keeping this. Without one the exception cannot be audited."
+msgstr ""
+"Geef een reden om dit te bewaren. Zonder reden is de uitzondering niet te "
+"controleren."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "Provide decision=keep or decision=release."
+msgstr "Geef decision=keep of decision=release op."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "That could not be put back in the queue."
+msgstr "Dat kon niet terug in de wachtrij worden gezet."
+
+#: src/Infrastructure/REST/MediaRestController.php
+msgid "That could not be saved."
+msgstr "Dat kon niet worden opgeslagen."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "This academy keeps media indefinitely. Set a retention period under Configuration to have photos and video surface here for review after a player leaves."
+msgstr ""
+"Deze academie bewaart media onbeperkt. Stel onder Configuratie een "
+"bewaartermijn in om foto's en video's hier ter beoordeling te laten "
+"verschijnen nadat een speler weggaat."
+
+#. translators: %d is the configured retention period in years.
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+#, php-format
+msgid "This academy keeps a player's photos and video for %d year after they leave. Nothing below has been deleted — each one is waiting for you to decide."
+msgid_plural "This academy keeps a player's photos and video for %d years after they leave. Nothing below has been deleted — each one is waiting for you to decide."
+msgstr[0] ""
+"Deze academie bewaart de foto's en video's van een speler %d jaar nadat die "
+"weggaat. Hieronder is nog niets verwijderd — alles wacht op jouw "
+"beslissing."
+msgstr[1] ""
+"Deze academie bewaart de foto's en video's van een speler %d jaar nadat die "
+"weggaat. Hieronder is nog niets verwijderd — alles wacht op jouw "
+"beslissing."
 #~ msgid "Ball"
 #~ msgstr "Bal"
 

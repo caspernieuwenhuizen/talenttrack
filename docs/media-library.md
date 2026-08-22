@@ -117,8 +117,7 @@ smaller than a minute of phone video. The upload screen shows your server's actu
 `upload_max_filesize` and `post_max_size`, or use video links instead.
 
 Uploaded video also uses real disk space, and nothing reclaims it automatically. Once an academy has media stored, the total appears as **Media
-stored** on the academy admin's system-health strip, so it is visible in the place you already check rather than behind a settings tab. There is
-no automatic clean-up and no retention rule yet: deciding when old media should go is a policy question, and TalentTrack does not guess at it.
+stored** on the academy admin's system-health strip, so it is visible in the place you already check rather than behind a settings tab.
 
 An academy uploading match clips every week should watch that number against whatever their hosting actually provides — TalentTrack has no way to
 know the disk size it is running on.
@@ -138,6 +137,37 @@ alternative — only ever showing a family a picture in which their child appear
 **Make sure your consent wording matches this.** Families should be told, when they join, that photographs and video taken at the academy may show
 their child alongside others and may be visible to those other families. This should not be something a parent discovers by seeing a photo they
 did not expect.
+
+## How long media is kept
+
+An academy asked *"how long do you keep photos of my child?"* needs an answer. TalentTrack's is: **for a set period after the player leaves**, and
+then a person reviews it.
+
+The period is set under **Configuration → Keep media after a player leaves**. It ships at **three years** and can be anything from one year to ten,
+or **Keep indefinitely** if your academy would rather decide case by case.
+
+Three things about it are worth being precise on, because they are what make it safe:
+
+**The clock starts when the player leaves, not when the photo was taken.** A player who is still at the academy keeps their whole file, however
+old. That longitudinal record — the same player at 12 and at 18 — is the point of the product, and a period measured from the photo's own date
+would quietly delete the start of it.
+
+**Nothing is ever deleted automatically.** When the period passes, the media appears under **Media retention** for someone to decide. That is why
+shipping a default period is safe: it starts a review, not a deletion clock. An academy that upgrades finds a list waiting, not gaps in its records.
+
+**Expiry applies to one player's link, not the whole photo.** A team photo showing a player who left is removed from *their* file; it stays on the
+team, on the training it came from, and on the other players in it. Only when nothing is left pointing at a file is the file itself deleted.
+
+### Reviewing
+
+**Media retention** lists what is waiting, oldest departure first, with two choices per item:
+
+- **Remove** — takes it off that player's file. If nothing else is attached to it, the file is deleted for good; the page tells you which happened.
+- **Keep** — holds it, and asks why. A safeguarding matter, an open dispute, an appeal. Held items are listed separately with their reasons, because
+  a retention policy with an invisible list of exceptions is not one anybody can check. You can put a held item back in the queue later.
+
+Some rows are marked **estimated**. That means the player has no recorded leaving date — usually because they left before TalentTrack was recording
+those — so the date their record last changed is used instead. It only affects when the item appears for review; nothing is decided on it.
 
 ## Deleting a player deletes their media
 

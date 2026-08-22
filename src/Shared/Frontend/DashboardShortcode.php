@@ -1397,6 +1397,13 @@ class DashboardShortcode {
                 // (RecycleBinRestController).
                 \TT\Shared\Frontend\FrontendRecycleBinView::render( $user_id, $is_admin );
                 return true;
+            case 'media-retention':
+                // #2666 (epic #2589) — media past its retention date,
+                // waiting for a person to decide. Gates on tt_manage_media
+                // internally; every mutation re-checks global create_delete
+                // authority at the REST layer.
+                \TT\Shared\Frontend\FrontendMediaRetentionView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

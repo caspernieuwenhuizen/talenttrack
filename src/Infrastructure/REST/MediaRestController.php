@@ -11,6 +11,7 @@ use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
+use TT\Modules\Media\Retention\MediaRetentionService;
 
 /**
  * MediaRestController — /wp-json/talenttrack/v1/media (#2592, epic #2589).
@@ -63,6 +64,24 @@ final class MediaRestController {
 
     private static function canUpload(): bool {
         return MediaVisibilityService::hasUploadAuthority( get_current_user_id() );
+    }
+
+    /**
+     * #2666 — retention review authority.
+     *
+     * Deliberately **global** `create_delete`, not the any-scope check the
+     * other write routes use. A coach with team-scoped delete may curate
+     * their own squad's media; deciding what leaves the academy's records
+     * permanently, across every player who has ever left, is a different
+     * act and belongs to an academy admin.
+     */
+    private static function canAdminRetention(): bool {
+        return \TT\Modules\Authorization\MatrixGate::can(
+            get_current_user_id(),
+            MediaVisibilityService::ENTITY,
+            \TT\Modules\Authorization\MatrixGate::CREATE_DELETE,
+            \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL
+        );
     }
 
     public static function register(): void {
@@ -126,6 +145,30 @@ final class MediaRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'serve_thumb' ],
                 'permission_callback' => static fn() => self::canRead(),
+            ],
+        ] );
+
+        // #2666 — retention review. Global `create_delete` authority, not
+        // per-record: this surface exists to remove other people's media
+        // wholesale, which is an academy-admin act rather than a coach's.
+        register_rest_route( self::NS, '/media/retention', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'retention_queue' ],
+                'permission_callback' => static fn() => self::canAdminRetention(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/media/retention/(?P<link_id>\d+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'retention_remove' ],
+                'permission_callback' => static fn() => self::canAdminRetention(),
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'retention_decide' ],
+                'permission_callback' => static fn() => self::canAdminRetention(),
             ],
         ] );
 
@@ -382,6 +425,65 @@ final class MediaRestController {
         // Ends the request — the REST server would otherwise append a JSON
         // envelope to the bytes we just wrote.
         MediaDelivery::stream( $plan );
+    }
+
+    // Retention (#2666)
+
+    public static function retention_queue( \WP_REST_Request $request ): \WP_REST_Response {
+        $service = new MediaRetentionService();
+
+        return RestResponse::success( [
+            'enabled' => MediaRetentionService::isEnabled(),
+            'years'   => MediaRetentionService::years(),
+            'items'   => $service->candidates( (int) ( $request->get_param( 'limit' ) ?: 200 ) ),
+            'held'    => $service->held(),
+        ] );
+    }
+
+    /**
+     * Act on one expired attachment: remove it, or keep it with a reason.
+     *
+     * `POST` with `decision=keep` holds it; `decision=release` puts a held
+     * one back in the queue. Removal is a `DELETE` on the same route
+     * because it is the destructive verb and should read as one.
+     */
+    public static function retention_decide( \WP_REST_Request $request ): \WP_REST_Response {
+        $link_id  = (int) $request->get_param( 'link_id' );
+        $decision = (string) $request->get_param( 'decision' );
+        $service  = new MediaRetentionService();
+
+        if ( $decision === 'release' ) {
+            return $service->releaseHold( $link_id )
+                ? RestResponse::success( [ 'held' => false ] )
+                : RestResponse::error( 'release_failed', __( 'That could not be put back in the queue.', 'talenttrack' ), 500 );
+        }
+
+        if ( $decision !== 'keep' ) {
+            return RestResponse::error( 'bad_decision', __( 'Provide decision=keep or decision=release.', 'talenttrack' ), 400 );
+        }
+
+        $reason = trim( (string) $request->get_param( 'reason' ) );
+        if ( $reason === '' ) {
+            return RestResponse::error(
+                'reason_required',
+                __( 'Give a reason for keeping this. Without one the exception cannot be audited.', 'talenttrack' ),
+                400
+            );
+        }
+
+        return $service->hold( $link_id, sanitize_text_field( $reason ) )
+            ? RestResponse::success( [ 'held' => true ] )
+            : RestResponse::error( 'hold_failed', __( 'That could not be saved.', 'talenttrack' ), 500 );
+    }
+
+    public static function retention_remove( \WP_REST_Request $request ): \WP_REST_Response {
+        $result = ( new MediaRetentionService() )->removeAttachment( (int) $request->get_param( 'link_id' ) );
+
+        if ( ! $result['removed'] ) {
+            return RestResponse::error( 'not_found', __( 'That attachment was not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( $result );
     }
 
     // Payload builders

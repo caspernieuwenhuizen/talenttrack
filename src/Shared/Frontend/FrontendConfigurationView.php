@@ -2131,6 +2131,30 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
 
+                <?php // #2666 (epic #2589) — how long a departed player's media is kept. ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-media-retention"><?php esc_html_e( 'Keep media after a player leaves', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-media-retention" class="tt-input"
+                        name="config[<?php echo esc_attr( \TT\Modules\Media\Retention\MediaRetentionService::CONFIG_KEY ); ?>]">
+                        <?php
+                        $tt_retention_now = \TT\Modules\Media\Retention\MediaRetentionService::years();
+                        foreach ( [ 0, 1, 2, 3, 5, 7, 10 ] as $tt_years ) :
+                            $tt_label = $tt_years === 0
+                                ? __( 'Keep indefinitely', 'talenttrack' )
+                                : sprintf(
+                                    /* translators: %d is a number of years. */
+                                    _n( '%d year after they leave', '%d years after they leave', $tt_years, 'talenttrack' ),
+                                    $tt_years
+                                );
+                            ?>
+                            <option value="<?php echo esc_attr( (string) $tt_years ); ?>" <?php selected( $tt_retention_now, $tt_years ); ?>><?php echo esc_html( $tt_label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'Photos and video of a player who has left are listed for review once this period has passed — they are never deleted automatically. Review them under Media retention. This does not affect players who are still at the academy, however old their photos are.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
                 <?php // #1994 — academy-wide opt-out for the install-on-mobile banner. ?>
                 <div class="tt-field">
                     <input type="hidden" name="config[install_banner.enabled]" value="0" />

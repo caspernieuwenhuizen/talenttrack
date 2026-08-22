@@ -228,13 +228,16 @@ class FeatureRegistry {
             // operator find a toggle before the feature exists is a support
             // ticket, not a safeguard — the safeguard is the module switch.
             //
-            // `view_slugs` is empty until #2593 ships the first route.
+            // `view_slugs` carries the media surfaces that are routes of
+            // their own. The tabs and sections on players, teams and
+            // activities are not — they live on views the media feature
+            // does not own, and are gated by the `media` entity instead.
             'media' => [
                 'label'           => __( 'Media library', 'talenttrack' ),
                 'description'     => __( 'Photos and video attached to players, teams and activities. Turn off to hide the media tabs and uploads across the academy; stored files are kept and reappear if it is switched back on.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Media\\MediaModule',
                 'default_enabled' => true,
-                'view_slugs'      => [],
+                'view_slugs'      => [ 'media-retention' ],
                 'entities'        => [ 'media' ],
             ],
             // #2382 (epic #2381) — the desktop attendance-entry grid, the

@@ -123,6 +123,11 @@ class ConfigRestController {
         // KEY_AREA_MAP → resolves to the tt_edit_settings umbrella, like the
         // other General settings it sits beside.
         'install_banner.enabled',
+        // #2666 (epic #2589) — years a departed player's media is kept
+        // before it is listed for review. `0` means keep indefinitely.
+        // Nothing is deleted on this value alone; it only decides when an
+        // attachment appears in the retention queue.
+        'tt_media_retention_years',
         // #2157 — academy-managed email sender identity (From name +
         // address) applied to every plugin email via the wp_mail_from /
         // wp_mail_from_name filters in CommsModule::boot(). Empty = inherit

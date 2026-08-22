@@ -658,6 +658,11 @@ paths:
     get: { tags: [media], summary: Stream the bytes (Range supported), parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }, { in: header, name: Range, schema: { type: string } }], responses: { '200': { description: Whole file }, '206': { description: Partial content }, '404': { description: 'Not found, or not visible to this caller' }, '409': { description: The item is a link to video hosted elsewhere }, '416': { description: Range outside the file } } }
   /media/{uuid}/thumb:
     get: { tags: [media], summary: Stream the thumbnail, parameters: [{ in: path, name: uuid, required: true, schema: { type: string, format: uuid } }], responses: { '200': { description: OK }, '404': { description: 'No thumbnail, or not visible to this caller' } } }
+  /media/retention:
+    get: { tags: [media], summary: Media past its retention date awaiting review, responses: { '200': { description: OK }, '403': { description: Requires global media create_delete } } }
+  /media/retention/{link_id}:
+    post: { tags: [media], summary: 'Keep an expired attachment with a reason, or put a held one back', parameters: [{ in: path, name: link_id, required: true, schema: { type: integer } }], responses: { '200': { description: OK }, '400': { description: 'Unknown decision, or a keep with no reason' }, '403': { description: Not permitted } } }
+    delete: { tags: [media], summary: Remove one expired attachment, parameters: [{ in: path, name: link_id, required: true, schema: { type: integer } }], responses: { '200': { description: 'Removed; media_deleted says whether the file itself went' }, '403': { description: Not permitted }, '404': { description: Not found } } }
   /players/{id}/media:
     get: { tags: [media], summary: Media attached to one player, parameters: [{ in: path, name: id, required: true, schema: { type: integer } }], responses: { '200': { description: OK } } }
 
