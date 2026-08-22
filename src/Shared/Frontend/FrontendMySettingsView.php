@@ -406,6 +406,9 @@ class FrontendMySettingsView extends FrontendViewBase {
             'journey'      => __( 'Journey', 'talenttrack' ),
             'measurements' => __( 'Measurements', 'talenttrack' ),
             'pdp'          => __( 'Development plan (PDP)', 'talenttrack' ),
+            // #2500 — minutes trained per principle, and which ones have
+            // never been trained.
+            'training'     => __( 'Training history', 'talenttrack' ),
         ];
     }
 

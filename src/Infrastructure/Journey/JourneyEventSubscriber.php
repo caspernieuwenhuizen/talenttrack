@@ -29,6 +29,8 @@ final class JourneyEventSubscriber {
         add_action( 'tt_player_save_diff',          [ __CLASS__, 'on_player_save_diff' ], 10, 3 );
         add_action( 'tt_trial_started',             [ __CLASS__, 'on_trial_started' ], 10, 2 );
         add_action( 'tt_trial_decision_recorded',   [ __CLASS__, 'on_trial_decision_recorded' ], 10, 4 );
+        // #2500 (epic #2493) — a coach's observation during a training.
+        add_action( 'tt_training_observation_saved', [ __CLASS__, 'on_training_observation_saved' ], 10, 3 );
     }
 
     public static function on_evaluation_saved( int $player_id, int $evaluation_id ): void {
@@ -53,6 +55,57 @@ final class JourneyEventSubscriber {
             'Evaluations',
             'evaluation',
             $evaluation_id
+        );
+    }
+
+    /**
+     * #2500 — an observation lands on the player's timeline in the same
+     * request it was written, because a coach who notes something and
+     * opens the player file expects to find it there.
+     *
+     * The summary carries the note, truncated, rather than a bare
+     * "Observation recorded" — a timeline entry a coach has to click to
+     * discover the content of is one they will stop clicking.
+     */
+    public static function on_training_observation_saved( int $player_id, int $observation_id, int $run_id ): void {
+        global $wpdb;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT o.rating, o.note, o.created_at, r.run_date
+               FROM {$wpdb->prefix}tt_training_observations o
+          LEFT JOIN {$wpdb->prefix}tt_training_plan_runs r
+                 ON r.id = o.run_id AND r.club_id = o.club_id
+              WHERE o.id = %d AND o.club_id = %d",
+            $observation_id,
+            CurrentClub::id()
+        ) );
+        if ( ! $row ) return;
+
+        // Date the entry to the training, not to when it was typed: a
+        // coach writing up Tuesday on Wednesday morning should not put a
+        // Wednesday event on the child's timeline.
+        $when = (string) ( $row->run_date ?? '' );
+        if ( strlen( $when ) === 10 ) $when .= ' 00:00:00';
+        if ( $when === '' ) $when = (string) $row->created_at;
+
+        $note    = trim( (string) ( $row->note ?? '' ) );
+        $summary = $note !== ''
+            ? ( mb_strlen( $note ) > 90 ? mb_substr( $note, 0, 89 ) . '…' : $note )
+            : __( 'Observed in training', 'talenttrack' );
+
+        EventEmitter::emit(
+            $player_id,
+            JourneyEventType::TRAINING_OBSERVED,
+            $when,
+            $summary,
+            [
+                'observation_id' => $observation_id,
+                'run_id'         => $run_id,
+                'rating'         => $row->rating === null ? null : (float) $row->rating,
+            ],
+            'Training',
+            'training_observation',
+            $observation_id
         );
     }
 

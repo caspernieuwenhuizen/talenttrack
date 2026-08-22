@@ -112,6 +112,22 @@ final class CoreSurfaceRegistration {
         // scope is what actually decides which trainings they reach.
         $reg::register( 'training-run', 'tt_training_plan' );
 
+        // #2500 — the coverage matrix. Registered against the exposure
+        // cap rather than the plan cap, and the view itself additionally
+        // requires GLOBAL scope: a coach holding team-scoped exposure
+        // would pass this gate but be refused inside, so the affordance
+        // is hidden for them too via the closure below.
+        $reg::register( 'training-coverage', static function ( int $uid ): bool {
+            if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+            return \TT\Modules\Authorization\MatrixGate::can(
+                $uid,
+                'training_exposure',
+                \TT\Modules\Authorization\MatrixGate::READ,
+                \TT\Modules\Authorization\MatrixGate::SCOPE_GLOBAL
+            );
+        } );
+
         // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
         $chem_gate = static function ( int $uid ): bool {
             if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )

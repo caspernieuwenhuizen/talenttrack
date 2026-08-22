@@ -394,6 +394,15 @@ final class LegacyCapMapper {
         // which teams' plans a coach can reach, not whether they may edit.
         'tt_training_plan'               => [ 'training_plan',        'read' ],
 
+        // #2500 — reading a player's training exposure. Deliberately NOT
+        // `tt_training_plan`: that cap is about planning a training, and
+        // a scout or team manager could reasonably be trusted to read a
+        // player's training history without being able to plan one (D16).
+        // Folding the two would also hand every plan-writing coach a
+        // player-data read they were never granted — the same mistake
+        // #2495 nearly made with `tt_vct_admin_library`.
+        'tt_training_view_exposure'      => [ 'training_exposure',    'read' ],
+
         // #1943 — Tournaments fair-share planner. Admin-only in v1 (#0093).
         // `tt_view_tournaments` → read; `tt_edit_tournaments` → change. The
         // single `tt_edit_tournaments` cap historically gated edit AND

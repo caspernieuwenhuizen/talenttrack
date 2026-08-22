@@ -1225,6 +1225,15 @@ class DashboardShortcode {
             case 'training-run':
                 \TT\Modules\Training\Frontend\FrontendTrainingRunView::render( $user_id, $is_admin );
                 return true;
+            // #2500 — the head-of-development coverage matrix: principle
+            // by team, and the players whose own goals sit on a principle
+            // their team barely trains. Gated inside the view on
+            // `training_exposure` at GLOBAL scope, so a coach (who holds
+            // it at team scope) is refused here and reads the same
+            // question per player instead.
+            case 'training-coverage':
+                \TT\Modules\Training\Frontend\FrontendTrainingCoverageView::render( $user_id, $is_admin );
+                return true;
             // #2495 — the one exercise library (club drills + the VCT
             // catalogue merged in by migration 0212). `?id=` opens a
             // single exercise.
@@ -1537,11 +1546,18 @@ class DashboardShortcode {
 
         if ( $view === \TT\Modules\Mfa\Auth\MfaLoginGuard::PROMPT_VIEW ) {
             if ( ! \TT\Modules\Mfa\Auth\MfaLoginGuard::isPending( $user_id ) ) {
-                // No challenge outstanding — someone hand-typed the URL.
-                // Send them where they meant to go rather than rendering a
-                // code field with nothing behind it.
-                wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
-                exit;
+                // No challenge outstanding — someone hand-typed the URL, or
+                // reloaded a page whose challenge has since been cleared.
+                // `MfaChallengeHandler` redirects them at `init`; by the
+                // time the shortcode runs the headers are out and a second
+                // attempt here would only truncate the page (#2668), so
+                // hand them a link instead of a blank screen.
+                self::enqueuePreAuthMfaStyle();
+                ob_start();
+                \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::renderContinue(
+                    \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
+                );
+                return (string) ob_get_clean();
             }
             self::enqueuePreAuthMfaStyle();
             ob_start();

@@ -1,0 +1,230 @@
+/**
+ * Player training exposure (#2500) — the training tab on a player file,
+ * and the head-of-development coverage matrix.
+ *
+ * Mobile-first per CLAUDE.md §2: base rules target ~360px, min-width
+ * queries scale up. Colours come from tokens.css.
+ *
+ * The one visual decision worth stating: **only "never trained" is
+ * coloured.** Every other row is plain ink on paper. A heat map with
+ * five shades of green looks analytical and tells a coach nothing they
+ * can act on; one red marker on the principles this player has never
+ * been taught is the entire finding, and it should be the only thing on
+ * the screen competing for attention.
+ */
+
+/* ---- headline facts ---- */
+
+.tt-exposure__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-exposure__fact {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+}
+
+.tt-exposure__fact-value {
+    display: block;
+    font-size: 1.375rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+
+.tt-exposure__fact-label {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-exposure__fact-sub {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- section headings ---- */
+
+.tt-exposure__title {
+    margin: var(--tt-sp-5, 20px) 0 var(--tt-sp-2, 8px);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+/* ---- the principle list ---- */
+
+.tt-exposure__list {
+    list-style: none;
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-exposure__row {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-paper, #fff);
+}
+
+/* The only coloured state on the surface. A principle this player has
+   never trained is the row someone opened the tab to find. */
+.tt-exposure__row.is-never {
+    border-color: #b3452c;
+    background: rgba(179, 69, 44, 0.05);
+}
+
+.tt-exposure__row-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+}
+
+.tt-exposure__code {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--tt-wash, #f3f5f2);
+    color: var(--tt-ink-soft, #6a6d66);
+    white-space: nowrap;
+}
+
+.tt-exposure__name {
+    font-weight: 700;
+    min-width: 0;
+}
+
+.tt-exposure__bar {
+    height: 6px;
+    margin: var(--tt-sp-2, 8px) 0 6px;
+    border-radius: 3px;
+    background: var(--tt-wash, #f3f5f2);
+    overflow: hidden;
+}
+
+.tt-exposure__bar i {
+    display: block;
+    height: 100%;
+    background: var(--tt-primary, #2f9e5e);
+}
+
+.tt-exposure__row.is-never .tt-exposure__bar { display: none; }
+
+.tt-exposure__row-meta { color: var(--tt-ink-soft, #6a6d66); }
+
+.tt-exposure__row.is-never .tt-exposure__row-meta { color: #b3452c; }
+
+/* ---- observations ---- */
+
+.tt-exposure__observations {
+    list-style: none;
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-exposure__observation {
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+    padding: 0 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-exposure__observation-head {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-exposure__observation-date {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 700;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-exposure__observation-rating {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 4px;
+    background: var(--tt-primary, #2f9e5e);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-exposure__observation-note {
+    margin: 4px 0 0;
+    line-height: 1.5;
+}
+
+/* ---- coverage matrix ---- */
+
+/* A wide table on a narrow screen: scroll the table, never the page
+   (CLAUDE.md §2 — the body must not scroll horizontally). */
+.tt-coverage__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-coverage__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-coverage__table th,
+.tt-coverage__table td {
+    padding: var(--tt-sp-2, 8px);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    white-space: nowrap;
+}
+
+/* The principle column stays put while the teams scroll past it —
+   otherwise a coach scrolling right loses which row they are reading. */
+.tt-coverage__table th[scope="row"] {
+    position: sticky;
+    left: 0;
+    background: var(--tt-paper, #fff);
+    z-index: 1;
+    white-space: normal;
+    min-width: 12rem;
+}
+
+.tt-coverage__cell {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Again: only "never" is coloured. */
+.tt-coverage__cell.is-never {
+    background: rgba(179, 69, 44, 0.12);
+    color: #b3452c;
+    font-weight: 800;
+}
+
+.tt-coverage__legend {
+    margin: var(--tt-sp-2, 8px) 0 0;
+    color: var(--tt-ink-soft, #6a6d66);
+}

@@ -3,8 +3,10 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Training\Repositories\TrainingObservationsRepository;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
+use TT\Modules\Training\Services\PlayerExposureAggregator;
 
 /**
  * TrainingRunsRestController — /wp-json/talenttrack/v1/training/runs (#2496).
@@ -75,6 +77,30 @@ final class TrainingRunsRestController {
             [
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'update_block' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        // #2500 — observations recorded during a run. Same cap as the
+        // run itself: a coach running the training is the person who
+        // writes them, and the sideline view is where it happens.
+        register_rest_route( self::NS, '/training/runs/(?P<id>\d+)/observations', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_observations' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_observation' ],
+                'permission_callback' => static fn() => self::can(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/training/observations/(?P<observation>\d+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_observation' ],
                 'permission_callback' => static fn() => self::can(),
             ],
         ] );
@@ -156,7 +182,102 @@ final class TrainingRunsRestController {
 
         $repo->setStatus( $id, (string) $status );
 
+        // #2500 (D17) — a coach who finishes a session and opens the
+        // player file has to see the minutes there, not tomorrow. The
+        // nightly rebuild still runs and still owns correctness; this is
+        // the same aggregator narrowed to the players who were present,
+        // recomputing them in full, so the two paths cannot disagree.
+        if ( (string) $status === 'completed' ) {
+            ( new PlayerExposureAggregator() )->rebuildForRun( $id );
+        }
+
         return RestResponse::success( [ 'run' => self::shapeRun( $repo, $id ) ] );
+    }
+
+    /**
+     * What has been noted during this run so far — the sideline view's
+     * own list, so a coach can see what they have already written.
+     */
+    public static function list_observations( \WP_REST_Request $r ): \WP_REST_Response {
+        $repo = new TrainingPlanRunsRepository();
+        $id   = (int) $r['id'];
+        if ( ! $repo->findById( $id ) ) return self::notFound();
+
+        return RestResponse::success( [
+            'observations' => array_map(
+                [ __CLASS__, 'shapeObservation' ],
+                ( new TrainingObservationsRepository() )->listForRun( $id )
+            ),
+        ] );
+    }
+
+    /**
+     * Record one observation about one player.
+     *
+     * A rating-free note is valid and is the common case on a wet
+     * Tuesday; an observation carrying neither a rating nor a note is
+     * not, and the repository refuses it — a blank entry on a child's
+     * timeline is worse than no entry.
+     */
+    public static function create_observation( \WP_REST_Request $r ): \WP_REST_Response {
+        $runs = new TrainingPlanRunsRepository();
+        $id   = (int) $r['id'];
+        if ( ! $runs->findById( $id ) ) return self::notFound();
+
+        $player_id = (int) $r->get_param( 'player_id' );
+        if ( $player_id <= 0 ) {
+            return RestResponse::error(
+                'player_id_required',
+                __( 'An observation is about a player, so it needs one.', 'talenttrack' ),
+                400
+            );
+        }
+
+        $observation_id = ( new TrainingObservationsRepository() )->create( [
+            'run_id'             => $id,
+            'run_block_id'       => (int) $r->get_param( 'run_block_id' ) ?: null,
+            'player_id'          => $player_id,
+            'principle_id'       => (int) $r->get_param( 'principle_id' ) ?: null,
+            'football_action_id' => (int) $r->get_param( 'football_action_id' ) ?: null,
+            'rating'             => $r->get_param( 'rating' ),
+            'note'               => $r->get_param( 'note' ),
+        ] );
+
+        if ( $observation_id <= 0 ) {
+            return RestResponse::error(
+                'empty_observation',
+                __( 'An observation needs a rating, a note, or both. A rating outside the configured scale is refused rather than rounded.', 'talenttrack' ),
+                400
+            );
+        }
+
+        return RestResponse::success( [ 'observation_id' => $observation_id ], 201 );
+    }
+
+    public static function delete_observation( \WP_REST_Request $r ): \WP_REST_Response {
+        $observation_id = (int) $r['observation'];
+
+        $ok = ( new TrainingObservationsRepository() )->delete( $observation_id );
+        if ( ! $ok ) {
+            return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [ 'deleted' => true ] );
+    }
+
+    /** @return array<string,mixed> */
+    private static function shapeObservation( object $o ): array {
+        return [
+            'id'           => (int) ( $o->id ?? 0 ),
+            'uuid'         => (string) ( $o->uuid ?? '' ),
+            'run_id'       => (int) ( $o->run_id ?? 0 ),
+            'run_block_id' => isset( $o->run_block_id ) ? (int) $o->run_block_id : null,
+            'player_id'    => (int) ( $o->player_id ?? 0 ),
+            'principle_id' => isset( $o->principle_id ) ? (int) $o->principle_id : null,
+            'rating'       => $o->rating === null ? null : (float) $o->rating,
+            'note'         => $o->note ?? null,
+            'created_at'   => (string) ( $o->created_at ?? '' ),
+        ];
     }
 
     public static function update_block( \WP_REST_Request $r ): \WP_REST_Response {

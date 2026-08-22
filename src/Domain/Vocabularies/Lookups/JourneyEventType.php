@@ -46,6 +46,15 @@ final class JourneyEventType {
     public const PDP_VERDICT_RECORDED = 'pdp_verdict_recorded';
     public const NOTE_ADDED           = 'note_added';
     public const GOAL_SET             = 'goal_set';
+    /**
+     * #2500 — a coach's observation of a player during a training.
+     * Distinct from NOTE_ADDED, which is the staff running log on the
+     * player file: a different feature, audience and retention story,
+     * and the timeline should be able to answer "what did a coach see on
+     * the pitch" separately from "what did someone write in Notes".
+     * Seeded as a lookup row by migration 0224.
+     */
+    public const TRAINING_OBSERVED    = 'training_observed';
 
     /** @var list<string> */
     public const ALL = [
@@ -64,6 +73,7 @@ final class JourneyEventType {
         self::PDP_VERDICT_RECORDED,
         self::NOTE_ADDED,
         self::GOAL_SET,
+        self::TRAINING_OBSERVED,
     ];
 
     public static function isValid( string $value ): bool {

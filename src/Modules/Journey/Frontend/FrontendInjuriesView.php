@@ -9,8 +9,10 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Frontend\Components\EmptyStateCard;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * FrontendInjuriesView (#2609) — who is out right now, across the teams
@@ -40,7 +42,25 @@ final class FrontendInjuriesView extends FrontendViewBase {
         $teams   = $see_all ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
 
         self::enqueueAssets();
-        self::renderHeader( $title );
+
+        // #2671 — the way in. Empty fallback on purpose, the same
+        // reasoning the player file uses: there is no flat-form path
+        // for an injury, so when the wizard is unavailable the button
+        // hides rather than pointing somewhere that cannot record one.
+        // `urlFor()` already checks registration, `tt_wizards_enabled`
+        // and the wizard's `tt_edit_player_medical` cap, so the
+        // callsite needs no gate of its own. No `player_id` here — the
+        // wizard opens on its team → player step, itself scoped to the
+        // squads the coach holds.
+        $add_url = WizardEntryPoint::urlFor( 'injury', '' );
+        $actions = $add_url === '' ? '' : self::pageActionsHtml( [ [
+            'label'   => __( 'Record injury', 'talenttrack' ),
+            'href'    => $add_url,
+            'primary' => true,
+            'icon'    => '+',
+        ] ] );
+
+        self::renderHeader( $title, $actions );
 
         if ( empty( $teams ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams are available to you yet.', 'talenttrack' ) . '</p>';
@@ -72,7 +92,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
         }
 
         self::renderFilters( $teams, $team_id, $status );
-        self::renderTable( $rows, $status );
+        self::renderTable( $rows, $status, $add_url );
     }
 
     /** @param array<int, object> $teams */
@@ -113,13 +133,22 @@ final class FrontendInjuriesView extends FrontendViewBase {
     }
 
     /** @param list<object> $rows */
-    private static function renderTable( array $rows, string $status ): void {
+    private static function renderTable( array $rows, string $status, string $add_url = '' ): void {
         if ( empty( $rows ) ) {
-            echo '<p class="tt-notice">';
-            echo $status === 'open'
-                ? esc_html__( 'Nobody is currently out injured. That is the answer, not missing data.', 'talenttrack' )
-                : esc_html__( 'No injuries match your filters.', 'talenttrack' );
-            echo '</p>';
+            // An empty "currently out" list is a real answer, so it keeps
+            // its framing and carries the same way in as the header. A
+            // filtered list that matched nothing is not — no card, no CTA.
+            if ( $status === 'open' ) {
+                EmptyStateCard::render( array_filter( [
+                    'headline'  => __( 'Nobody is currently out injured', 'talenttrack' ),
+                    'explainer' => __( 'That is the answer, not missing data. Recording an injury here puts it on the player\'s journey, so next season a coach can see what they came back from.', 'talenttrack' ),
+                    'cta_label' => $add_url !== '' ? __( 'Record injury', 'talenttrack' ) : null,
+                    'cta_url'   => $add_url !== '' ? $add_url : null,
+                ] ) );
+                return;
+            }
+
+            echo '<p class="tt-notice">' . esc_html__( 'No injuries match your filters.', 'talenttrack' ) . '</p>';
             return;
         }
 
