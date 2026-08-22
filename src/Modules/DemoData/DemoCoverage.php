@@ -558,6 +558,12 @@ class DemoCoverage {
         // ===== Exempt — plugin infrastructure =====
 
         'tt_migrations'  => [ 'exempt' => 'Migration ledger. Schema bookkeeping, not club content.' ],
+        // #2638 — a real person's choice about what reaches them. A seeded
+        // opt-out would silently suppress demo messages the operator expects
+        // to see, and an opt-out is meaningless on an account nobody signs
+        // into. Absence of a row is the default (opted in), so an empty
+        // table is already the correct demo state.
+        'tt_comms_optouts' => [ 'exempt' => 'A real recipient\'s own choice about what reaches them. Seeding one would suppress demo messages the operator expects to see.' ],
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
         'tt_error_log'   => [ 'exempt' => 'Error log. Synthetic errors would send operators chasing bugs that never happened.' ],
