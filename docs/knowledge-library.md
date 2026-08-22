@@ -243,6 +243,52 @@ Two hooks fire on the transition, once each:
 The certification bridge and the methodology binding (#2649) hang off the
 first, so the completion service does not have to know what happens next.
 
+### Gating
+
+Six gates, resolved in one pass. The first four are shared with the help
+corpus and live in `TT\Shared\Content\ContentGate`; the last two are about
+what the learner has done and live in `CourseAccessResolver`.
+
+| Gate | Source | Verdict kind |
+| --- | --- | --- |
+| `module` | `ModuleRegistry::isEnabled()` | unavailable |
+| `feature` | `FeatureRegistry::isEnabled()` | unavailable |
+| `tier` | `LicenseGate::effectiveTier()` | unavailable |
+| `capability` | `current_user_can()` / `user_can()` | denied |
+| `requires:` | prerequisite course not completed | locked |
+| `sequential:` | previous lesson not complete | locked |
+
+The three kinds are not interchangeable. **Unavailable** means this install
+does not have it and no permission changes that. **Denied** means it is here
+and someone else can see it. **Locked** means you will be able to, once you
+have done something first. Rendering the same message for all three is how a
+product tells a head of academy to ask their administrator about a feature
+their licence does not include.
+
+Consequences:
+
+- Unavailable and denied courses are **absent** from the library and return
+  **404**, not 403 — a 403 confirms the course exists here, which is what
+  hiding it was for.
+- Locked courses and lessons stay **listed**, with their verdict. Hiding a
+  locked lesson makes a course look shorter than it is.
+- The gate is enforced on the **write path**, not only in the reader. Hiding
+  a locked lesson means nothing if `PATCH …/progress/{lesson}` marks it read;
+  that route returns 403 with the verdict attached.
+
+Two conventions inherited deliberately from the registries:
+
+**An absent key is not a gate.** Content with no `module:` is never
+module-gated.
+
+**An unknown key value leaves content visible.** A typo in
+`feature: knowlege_courses` must not silently hide a course — that is a bug
+found months later, if ever. The corpus lint is what catches the typo.
+
+Nothing in the gate is cached: module and feature state are mutable at
+runtime and capability is per-user, so a cached verdict would mean a module
+toggle does not take effect until the next plugin update.
+
 ### Capabilities
 
 | Capability | Grants |
