@@ -3,6 +3,8 @@ namespace TT\Modules\Training\Print;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Exercises\ExerciseScenesRepository;
+use TT\Modules\Exercises\Frontend\SceneRenderer;
 use TT\Modules\Training\Repositories\TrainingPlanBlocksRepository;
 use TT\Modules\Training\Repositories\TrainingPlansRepository;
 
@@ -77,6 +79,12 @@ final class TrainingPlanPrintable {
         // — otherwise the coach is doing arithmetic on the touchline.
         $elapsed = 0;
 
+        // #2501 — one query for every block's diagram, rather than one
+        // per row of a sheet that is already three joins deep.
+        $scenes = ( new ExerciseScenesRepository() )->primaryForExercises(
+            array_map( static fn( object $b ): int => (int) ( $b->exercise_id ?? 0 ), $blocks )
+        );
+
         $out .= '<table class="tt-tp__blocks"><tbody>';
         foreach ( $blocks as $index => $block ) {
             $minutes = (int) $block->duration_minutes;
@@ -108,6 +116,14 @@ final class TrainingPlanPrintable {
             }
             if ( ! empty( $block->coaching_points ) ) {
                 $out .= '<p class="tt-tp__points">' . esc_html( (string) $block->coaching_points ) . '</p>';
+            }
+
+            // The drill's diagram, as its final frame. Paper cannot play
+            // an animation, and the finished picture is what a coach
+            // glances at between blocks anyway.
+            $scene = $scenes[ (int) ( $block->exercise_id ?? 0 ) ] ?? null;
+            if ( $scene !== null ) {
+                $out .= '<div class="tt-tp__scene">' . SceneRenderer::staticMarkup( $scene ) . '</div>';
             }
 
             $out .= '</td>';
@@ -209,8 +225,19 @@ final class TrainingPlanPrintable {
      * every other stylesheet instead of being a PHP heredoc.
      */
     private static function style(): string {
-        $path = TT_PLUGIN_DIR . 'assets/css/frontend-training-print.css';
-        $css  = is_readable( $path ) ? (string) file_get_contents( $path ) : '';
+        // The two scene sheets come along because the sheet now carries
+        // diagrams. Concatenated rather than copied: a scene on paper is
+        // meant to look like the same scene on screen, and that is only
+        // true for as long as both are reading the same rules.
+        $css = '';
+        foreach ( [
+            'assets/css/frontend-methodology-scene.css',
+            'assets/css/frontend-training-scene.css',
+            'assets/css/frontend-training-print.css',
+        ] as $relative ) {
+            $path = TT_PLUGIN_DIR . $relative;
+            if ( is_readable( $path ) ) $css .= (string) file_get_contents( $path ) . "\n";
+        }
 
         return $css;
     }

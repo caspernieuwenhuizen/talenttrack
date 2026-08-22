@@ -51683,6 +51683,172 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Je MFA-setup is niet compleet. Log uit, log opnieuw in en meld je zo "
 #~ "nodig opnieuw aan."
 
+msgid "Drawing works best on a tablet or a desktop. On a phone you can watch the scene and move a marker, but the timeline needs more room than a phone has."
+msgstr "Tekenen gaat het best op een tablet of desktop. Op een telefoon kun je de scène bekijken en een markering verplaatsen, maar de tijdlijn heeft meer ruimte nodig dan een telefoon biedt."
+
+msgid "The scene editor needs JavaScript. The scene itself still shows on the exercise page without it."
+msgstr "De scène-editor heeft JavaScript nodig. De scène zelf is ook zonder JavaScript te zien op de oefeningpagina."
+
+msgid "Ball"
+msgstr "Bal"
+
+msgid "Cone"
+msgstr "Pion"
+
+msgid "Dribble"
+msgstr "Dribbel"
+
+msgid "Shot"
+msgstr "Schot"
+
+msgid "Press"
+msgstr "Druk zetten"
+
+msgid "Full pitch"
+msgstr "Heel veld"
+
+msgid "Half pitch"
+msgstr "Halve veld"
+
+msgid "Grid square"
+msgstr "Vierkant"
+
+msgid "No markings"
+msgstr "Zonder lijnen"
+
+msgid "Add a marker"
+msgstr "Markering toevoegen"
+
+msgid "The scene"
+msgstr "De scène"
+
+msgid "Length"
+msgstr "Duur"
+
+msgid "Time in the scene"
+msgstr "Tijd in de scène"
+
+msgid "Selected marker"
+msgstr "Geselecteerde markering"
+
+msgid "Lines"
+msgstr "Lijnen"
+
+msgid "Shirt number"
+msgstr "Rugnummer"
+
+msgid "Across"
+msgstr "Breedte"
+
+msgid "Along"
+msgstr "Diepte"
+
+msgid "Mark position"
+msgstr "Positie vastleggen"
+
+msgid "Clear position"
+msgstr "Positie wissen"
+
+msgid "Drag a marker on the pitch to record where it is at this moment. Arrow keys move it a step at a time."
+msgstr "Sleep een markering over het veld om vast te leggen waar die op dit moment staat. Met de pijltjestoetsen verplaats je hem stap voor stap."
+
+msgid "Pick a marker on the pitch to edit it."
+msgstr "Kies een markering op het veld om die te bewerken."
+
+msgid "Nothing on the pitch yet. Choose a marker on the left, then tap the pitch to place it."
+msgstr "Nog niets op het veld. Kies links een markering en tik op het veld om die te plaatsen."
+
+msgid "No lines yet. Pick a line type on the left, then tap two markers."
+msgstr "Nog geen lijnen. Kies links een lijnsoort en tik daarna op twee markeringen."
+
+msgid "Pick a marker first."
+msgstr "Kies eerst een markering."
+
+msgid "A marker needs at least one position, so this one cannot be cleared."
+msgstr "Een markering heeft minstens één positie nodig, dus deze kun je niet wissen."
+
+msgid "This marker has no position recorded at this moment."
+msgstr "Deze markering heeft op dit moment geen vastgelegde positie."
+
+msgid "Marker %s"
+msgstr "Markering %s"
+
+msgid "Edit marker %s"
+msgstr "Markering %s bewerken"
+
+msgid "Added %s."
+msgstr "%s toegevoegd."
+
+msgid "Removed %s."
+msgstr "%s verwijderd."
+
+msgid "Line starts at %s. Now tap where it ends."
+msgstr "De lijn begint bij %s. Tik nu waar die eindigt."
+
+msgid "%1$s from %2$s to %3$s"
+msgstr "%1$s van %2$s naar %3$s"
+
+msgid "Position at %s"
+msgstr "Positie op %s"
+
+msgid "Moved to %s"
+msgstr "Verplaatst naar %s"
+
+msgid "%s s"
+msgstr "%s s"
+
+msgid "Line added."
+msgstr "Lijn toegevoegd."
+
+msgid "Tap the pitch to place it."
+msgstr "Tik op het veld om te plaatsen."
+
+msgid "Back to selecting."
+msgstr "Terug naar selecteren."
+
+msgid "Undone."
+msgstr "Ongedaan gemaakt."
+
+msgid "Scene saved."
+msgstr "Scène opgeslagen."
+
+msgid "The scene could not be saved. Check your connection and try again."
+msgstr "De scène kon niet worden opgeslagen. Controleer je verbinding en probeer het opnieuw."
+
+msgid "The scene could not be saved."
+msgstr "De scène kon niet worden opgeslagen."
+
+msgid "That scene no longer exists."
+msgstr "Die scène bestaat niet meer."
+
+msgid "Draw a scene"
+msgstr "Scène tekenen"
+
+msgid "Edit scene"
+msgstr "Scène bewerken"
+
+msgid "Add a scene"
+msgstr "Scène toevoegen"
+
+msgid "Scene %d"
+msgstr "Scène %d"
+
+msgid "You do not have permission to draw scenes for this exercise."
+msgstr "Je hebt geen rechten om scènes voor deze oefening te tekenen."
+
+msgid "Diagram for this drill"
+msgstr "Diagram bij deze oefening"
+
+msgid "%d second"
+msgid_plural "%d seconds"
+msgstr[0] "%d seconde"
+msgstr[1] "%d seconden"
+
+msgid "Animated drill diagram: %1$d marker, %2$d of which moves."
+msgid_plural "Animated drill diagram: %1$d markers, %2$d of which move."
+msgstr[0] "Bewegend oefendiagram: %1$d markering, waarvan %2$d beweegt."
+msgstr[1] "Bewegend oefendiagram: %1$d markeringen, waarvan %2$d bewegen."
+
 #~ msgid "Save exercise"
 #~ msgstr "Oefening opslaan"
 

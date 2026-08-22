@@ -467,6 +467,30 @@
     .tt-obs { padding-bottom: var(--tt-sp-4, 16px); }
 }
 
+/* ---- the drill's diagram (#2501) ----
+   The scene renders on its own light pitch, which is right: at the
+   sideline the diagram is the one thing that should read like paper.
+   The pitch markings are drawn with `currentColor`, so the colour has
+   to be re-stated here — inherited from this dark card they would be
+   light lines on a light pitch, which is no lines at all. */
+
+.tt-run__scene {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    max-width: 18rem;
+    color: #12212b;
+}
+
+.tt-run__scene .tt-tsc-stage {
+    max-width: 100%;
+}
+
+/* The control bar sits on the dark card, not on the pitch, so it keeps
+   the card's own colours and the 48px targets the sideline uses. */
+.tt-run__scene .tt-tsc-btn {
+    min-height: 48px;
+    color: var(--run-ink, #f5f7fa);
+}
+
 /* ---- motion ---- */
 
 @media (prefers-reduced-motion: reduce) {

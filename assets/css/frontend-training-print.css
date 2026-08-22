@@ -188,6 +188,31 @@ body {
     color: #666;
 }
 
+/* ---- the drill's diagram (#2501) ----
+   The scene's own rules come from frontend-methodology-scene.css +
+   frontend-training-scene.css, which the sheet concatenates ahead of
+   this file. What is left to say here is how big it may be on paper and
+   that it must not be cut in half by a page break. */
+
+.tt-tp__scene {
+    margin-top: 2mm;
+    max-width: 38mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.tt-tp__scene .tt-training-scene {
+    margin: 0;
+}
+
+.tt-tp__scene .tt-tsc-svg {
+    width: 100%;
+    height: auto;
+    /* The screen renderer paints the pitch on the page's own ground.
+       On paper the ground is white, so state it. */
+    color: #333;
+}
+
 /* ---- print ---- */
 
 @page {
