@@ -52155,6 +52155,21 @@ msgid_plural "%d hours"
 msgstr[0] "%d uur"
 msgstr[1] "%d uur"
 
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Learning"
+msgstr "Leren"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Courses you are on, and how far you have got."
+msgstr "Cursussen die je volgt, en hoe ver je bent."
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Courses for coaches: methodology, periodisation, and how this academy works."
+msgstr ""
+"Cursussen voor trainers: methodiek, periodisering en hoe deze academie "
+"werkt."
+
 #~ msgid "Ball"
 #~ msgstr "Bal"
 
