@@ -153,19 +153,52 @@ foreach ( $dynamic as $where ) {
     $notes[] = "Tile slug at {$where} is computed at runtime, so this gate cannot check it. Register it in a feature's view_slugs by hand if it should be switchable.";
 }
 
-foreach ( $tile_slugs as $slug => $where ) {
+foreach ( $tile_slugs as $slug => $tile ) {
+    [ $where, $owner ] = $tile;
+
+    // A feature claims it outright.
     if ( isset( $feature_slugs[ $slug ] ) ) continue;
+
+    // Or its owning module can be switched off — in which case the
+    // surface already has an off-switch and needs no feature of its own.
+    // Missing this is what made the first version of this gate demand a
+    // feature toggle for surfaces that were switchable all along.
+    if ( $owner !== '' && in_array( $owner, $declared_classes, true ) && ! in_array( $owner, $always_on, true ) ) {
+        continue;
+    }
+
+    // Or somebody wrote down why it must always be on.
     if ( array_key_exists( $slug, $always_on_surfaces ) ) continue;
 
-    $errors[] = "Tile surface `?tt_view={$slug}` ({$where}) is not switchable: no FeatureRegistry entry claims it, and it is not in "
-        . "config/always_on_surfaces.php. Add it to a feature's `view_slugs`, or list it in the manifest with the reason it must always be on.";
+    $reason = $owner === ''
+        ? 'its tile declares no module_class, so nothing owns it'
+        : ( in_array( $owner, $always_on, true )
+            ? "its owning module `{$owner}` is always-on"
+            : "its module_class `{$owner}` is not declared in config/modules.php" );
+
+    $errors[] = "Tile surface `?tt_view={$slug}` ({$where}) has no off-switch — {$reason}, and no FeatureRegistry entry claims it. "
+        . 'Add it to a feature\'s `view_slugs`, or list it in config/always_on_surfaces.php with the reason it must always be on.';
 }
 
-// A manifest entry for a slug no tile registers any more is dead weight
-// that makes the next reader trust the file less.
+// A manifest entry that is no longer doing any work is dead weight, and
+// makes the next reader trust the file less. Two ways that happens: the
+// tile is gone, or the surface became switchable by another route.
 foreach ( array_keys( $always_on_surfaces ) as $slug ) {
-    if ( isset( $tile_slugs[ $slug ] ) ) continue;
-    $notes[] = "config/always_on_surfaces.php lists `{$slug}`, which no tile registers any more. Remove it.";
+    if ( ! isset( $tile_slugs[ $slug ] ) ) {
+        $notes[] = "config/always_on_surfaces.php lists `{$slug}`, which no tile registers any more. Remove it.";
+        continue;
+    }
+
+    $owner = $tile_slugs[ $slug ][1];
+
+    if ( isset( $feature_slugs[ $slug ] ) ) {
+        $notes[] = "config/always_on_surfaces.php lists `{$slug}`, but a feature now claims it. Remove the manifest entry.";
+        continue;
+    }
+
+    if ( $owner !== '' && in_array( $owner, $declared_classes, true ) && ! in_array( $owner, $always_on, true ) ) {
+        $notes[] = "config/always_on_surfaces.php lists `{$slug}`, but its module `{$owner}` is switchable, so the surface already has an off-switch. Remove the manifest entry.";
+    }
 }
 
 // ---------------------------------------------------------------
@@ -310,15 +343,18 @@ function tt_prev_significant( array $tokens, int $i ) {
 }
 
 /**
- * Slugs registered as tiles, by static read of the `TileRegistry::register`
- * call sites.
+ * Slugs registered as tiles, with the module that registers each.
  *
  * Tiles are registered at runtime by each module, so there is no list to
  * load — this walks the calls instead. A slug built from a variable is
  * reported separately rather than guessed at: a gate that silently skips
  * what it cannot read is worse than one that says so.
  *
- * @return array{0: array<string,string>, 1: list<string>} [ slug => where, dynamic call sites ]
+ * The owning module matters as much as the slug: a tile registered by a
+ * module an academy can switch off is already switchable.
+ *
+ * @return array{0: array<string,array{0:string,1:string}>, 1: list<string>}
+ *         [ slug => [ where, module class ], dynamic call sites ]
  */
 function tt_tile_slugs( string $root ): array {
     $slugs   = [];
@@ -335,7 +371,8 @@ function tt_tile_slugs( string $root ): array {
         $src = (string) file_get_contents( $file );
         if ( strpos( $src, 'TileRegistry::register' ) === false ) continue;
 
-        $rel = ltrim( str_replace( [ $root, '\\' ], [ '', '/' ], $file ), '/' );
+        $rel    = ltrim( str_replace( [ $root, '\\' ], [ '', '/' ], $file ), '/' );
+        $consts = tt_class_string_consts( $src );
 
         $offset = 0;
         while ( ( $pos = strpos( $src, 'TileRegistry::register', $offset ) ) !== false ) {
@@ -343,13 +380,16 @@ function tt_tile_slugs( string $root ): array {
 
             // The argument array of one call. Bounded rather than balanced:
             // a tile definition is a flat array of ~12 keys, and reading a
-            // fixed window keeps this a lint rather than a parser.
+            // fixed window keeps this a lint rather than a parser. Both
+            // `] );` and `]);` close one in this codebase.
             $window = substr( $src, $pos, 1600 );
-            $end    = strpos( $window, '] );' );
-            if ( $end !== false ) $window = substr( $window, 0, $end );
+            foreach ( [ '] );', ']);' ] as $close ) {
+                $end = strpos( $window, $close );
+                if ( $end !== false ) $window = substr( $window, 0, $end );
+            }
 
             if ( preg_match( "/'(?:view_slug|slug)'\s*=>\s*'([a-z0-9_-]+)'/", $window, $m ) ) {
-                $slugs[ $m[1] ] = $rel;
+                $slugs[ $m[1] ] = [ $rel, tt_tile_owner( $window, $consts, $file ) ];
                 continue;
             }
 
@@ -362,4 +402,48 @@ function tt_tile_slugs( string $root ): array {
 
     ksort( $slugs );
     return [ $slugs, $dynamic ];
+}
+
+/**
+ * The module class a tile registration names, in whichever of the three
+ * shapes this codebase uses: a `self::CONST` holding the FQN, a
+ * `Foo::class`, or a quoted literal.
+ *
+ * @param array<string,string> $consts class constants of the enclosing file
+ */
+function tt_tile_owner( string $window, array $consts, string $file ): string {
+    if ( preg_match( "/'module_class'\s*=>\s*self::([A-Z_][A-Z0-9_]*)/", $window, $m ) ) {
+        return $consts[ $m[1] ] ?? '';
+    }
+
+    if ( preg_match( "/'module_class'\s*=>\s*self::class/", $window ) ) {
+        // A module registering its own tile.
+        return tt_module_class_in( (string) file_get_contents( $file ) );
+    }
+
+    if ( preg_match( "/'module_class'\s*=>\s*\\\\?([A-Za-z_][A-Za-z0-9_\\\\]*)::class/", $window, $m ) ) {
+        return ltrim( $m[1], '\\' );
+    }
+
+    if ( preg_match( "/'module_class'\s*=>\s*'((?:[^'\\\\]|\\\\.)*)'/", $window, $m ) ) {
+        // Source-level escapes: 'TT\\Modules\\X' is the string TT\Modules\X.
+        return ltrim( stripcslashes( $m[1] ), '\\' );
+    }
+
+    return '';
+}
+
+/**
+ * `const NAME = 'string';` pairs in a file, so `self::NAME` resolves.
+ *
+ * @return array<string,string>
+ */
+function tt_class_string_consts( string $src ): array {
+    $out = [];
+    if ( preg_match_all( "/const\s+([A-Z_][A-Z0-9_]*)\s*=\s*'((?:[^'\\\\]|\\\\.)*)'\s*;/", $src, $m, PREG_SET_ORDER ) ) {
+        foreach ( $m as $set ) {
+            $out[ $set[1] ] = ltrim( stripcslashes( $set[2] ), '\\' );
+        }
+    }
+    return $out;
 }
