@@ -267,6 +267,20 @@ final class TrainingPlanRunsRepository {
             $club
         ) );
 
+        // #2500 — the run's observations go with it. An observation is a
+        // coach's words about a named child during a training that
+        // happened; if the record of that training is removed, the note
+        // has nothing left to be about and would sit orphaned on a
+        // minor's file with no context and no way to reach it.
+        $observations = $wpdb->prefix . 'tt_training_observations';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $observations ) ) === $observations ) {
+            $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$observations} WHERE run_id = %d AND club_id = %d",
+                $run_id,
+                $club
+            ) );
+        }
+
         return $wpdb->delete( $this->table(), [ 'id' => $run_id, 'club_id' => $club ] ) !== false;
     }
 

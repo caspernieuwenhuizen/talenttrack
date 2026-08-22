@@ -23,6 +23,7 @@ use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
+use TT\Modules\DemoData\Generators\TrainingObservationGenerator;
 use TT\Modules\DemoData\Generators\TrainingPlanGenerator;
 use TT\Modules\DemoData\Generators\TrainingRunGenerator;
 use TT\Modules\DemoData\Generators\TournamentGenerator;
@@ -629,6 +630,24 @@ class DemoCoverage {
             'written_by'  => TrainingRunGenerator::class,
             'depends_on'  => [ 'tt_training_plan_runs' ],
         ],
+        // #2500 (D18) — observations make the module look *used* rather
+        // than merely furnished: someone's words about a named player,
+        // from a Tuesday in August. That is what the module is for.
+        'tt_training_observations' => [
+            'entity_type' => 'training_observation',
+            'category'    => 'training_observations',
+            'written_by'  => TrainingObservationGenerator::class,
+            'depends_on'  => [ 'tt_training_plan_runs', 'tt_players' ],
+        ],
+        // Derived, not authored: the nightly workflow job rebuilds this
+        // from runs, attendance and exercise principles. Generating it
+        // would write rows that disagree with their own source the first
+        // time that job runs — and a wipe does not need to reach them,
+        // because the next rebuild after the source is gone produces
+        // nothing. (D18 states this explicitly.)
+        'tt_player_principle_exposure' => [
+            'exempt' => 'Derived aggregate. PlayerExposureAggregationTaskTemplate rebuilds it nightly from runs + attendance + exercise principles; generating it would create rows that contradict their own source.',
+        ],
 
         // Media (#2596, epic #2589). A demo academy whose media tab is
         // empty does not demo the feature, so the generator writes a squad
@@ -885,6 +904,15 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 210,
             'cascade'   => [ 'media_link', 'media' ],
+        ],
+        // #2500 — after the runs, because an observation is about one.
+        // 220 rather than 210: #2596 took that number first, and the rule
+        // is to append rather than insert so every generator before this
+        // one keeps drawing the same values from the seeded stream.
+        'training_observations' => [
+            'tier'      => 'dependent',
+            'run_order' => 220,
+            'cascade'   => [ 'training_observation' ],
         ],
     ];
 

@@ -1215,6 +1215,15 @@ class DashboardShortcode {
             case 'training-run':
                 \TT\Modules\Training\Frontend\FrontendTrainingRunView::render( $user_id, $is_admin );
                 return true;
+            // #2500 — the head-of-development coverage matrix: principle
+            // by team, and the players whose own goals sit on a principle
+            // their team barely trains. Gated inside the view on
+            // `training_exposure` at GLOBAL scope, so a coach (who holds
+            // it at team scope) is refused here and reads the same
+            // question per player instead.
+            case 'training-coverage':
+                \TT\Modules\Training\Frontend\FrontendTrainingCoverageView::render( $user_id, $is_admin );
+                return true;
             // #2495 — the one exercise library (club drills + the VCT
             // catalogue merged in by migration 0212). `?id=` opens a
             // single exercise.

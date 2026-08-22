@@ -100,6 +100,16 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
             ];
         }
+
+        // #2500 — the coverage matrix, reached from inside this page like
+        // the library (D10), and hidden for anyone whose exposure access
+        // is team-scoped rather than academy-wide.
+        if ( CrossViewLink::allows( 'training-coverage' ) ) {
+            $actions[] = [
+                'label' => __( 'Coverage', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'training-coverage' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
+            ];
+        }
         self::renderHeader( __( 'Training plans', 'talenttrack' ), self::pageActionsHtml( $actions ) );
 
         echo '<p class="tt-muted tt-training-intro">'
