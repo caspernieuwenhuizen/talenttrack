@@ -50,7 +50,14 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Evaluatieperiode sluit bijna** | Een evaluatieperiode loopt bijna af en spelers in je team hebben daarin nog geen evaluatie. | *Waar staat deze speler nu, volgens de beoordeling die de academie beloofd heeft?* Zodra de periode sluit is het gat definitief: voor die periode is er simpelweg niets vastgelegd. |
 | **Evaluatie niet gedeeld met de speler** | Er is een evaluatie vastgelegd, maar er is niets ingevuld in het veld dat de speler te zien krijgt. | *Wat heeft deze speler nu nodig?* Een evaluatie die de speler nooit ziet, kan die vraag voor hem niet beantwoorden. De scores en de interne notities blijven bij de staf, dus voor de speler is er niets gebeurd. |
 
-Meer meldingen — over doelen, PDP-cycli, metingen en spelersdossiers — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+### Doelen en PDP
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Doel over de streefdatum** | Een ontwikkeldoel is voorbij de datum waarop het gehaald zou zijn en staat nog open. | *Wat heeft deze speler nu nodig?* Een doel over de datum dat nog openstaat is precies het onderdeel van het dossier dat die vraag zou moeten beantwoorden en dat niet meer doet. Of de speler is er, en niemand heeft het vastgelegd, of het plan moet worden bijgesteld. |
+| **Geen PDP-gesprek deze cyclus** | Het PDP-dossier van een speler voor dit seizoen staat open, maar er is nog geen gesprek gevoerd. | *Waar gaat deze speler naartoe?* De PDP-cyclus is waar de academie belooft met de speler om tafel te gaan en dat samen vast te leggen. Een cyclus waarin alle gesprekken zijn ingepland en geen enkel gesprek is gevoerd, ziet er in elke lijst compleet uit en heeft de speler niets verteld. |
+
+Meer meldingen — over metingen, spelersdossiers en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
 
@@ -62,6 +69,9 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_eval_window_closing_days` | 3 dagen | Hoeveel dagen van tevoren je hoort dat een evaluatieperiode sluit. |
 | `alerts_eval_share_grace_days` | 7 dagen | Hoe lang na het vastleggen van een evaluatie de melding "niet gedeeld" verschijnt. |
 | `alerts_eval_share_lookback_days` | 60 dagen | Hoe ver terug die melding nog kijkt. Oudere evaluaties blijven met rust: in april horen wat je in september had moeten schrijven is een achterstand, geen actie. |
+| `alerts_goal_overdue_grace_days` | 3 dagen | Hoeveel dagen na de streefdatum van een doel de melding verschijnt. Een doel dat je maandag bespreekt voor een deadline van zondag is normale praktijk. |
+| `alerts_goal_overdue_lookback_days` | 365 dagen | Hoe lang na de streefdatum een doel nog de moeite waard is om achteraan te gaan. Daarna is het niet te laat maar opgegeven, en is opruimen de oplossing, geen melding. |
+| `alerts_pdp_no_conversation_days` | 45 dagen | Hoe ver in een PDP-cyclus voordat "nog geen gesprek gevoerd" een melding wordt. |
 
 ## Nieuwe meldingen staan meteen aan
 

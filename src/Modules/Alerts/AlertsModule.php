@@ -9,7 +9,9 @@ use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
+use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
+use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
 use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
 use TT\Modules\Alerts\Definitions\PlayerNotEvaluatedAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
@@ -87,6 +89,10 @@ final class AlertsModule implements ModuleInterface {
         $alerts[] = new PlayerNotEvaluatedAlert();
         $alerts[] = new EvaluationWindowClosingAlert();
         $alerts[] = new EvaluationNotSharedAlert();
+
+        // #2636 instalment 2 — Goals and PDP.
+        $alerts[] = new GoalPastTargetDateAlert();
+        $alerts[] = new PdpNoConversationAlert();
 
         return $alerts;
     }
