@@ -365,6 +365,12 @@ class ModuleMetadata {
             ],
 
             // — Advanced / developer —
+            'TT\\Modules\\Alerts\\AlertsModule' => [
+                'label'       => __( 'Alerts', 'talenttrack' ),
+                'description' => __( 'Flags things that need attention right now — an unrecorded attendance, a team without a coach — and clears them by itself once the data is put right.', 'talenttrack' ),
+                'icon'        => 'bell',
+                'category'    => self::CAT_ADVANCED,
+            ],
             'TT\\Modules\\Workflow\\WorkflowModule' => [
                 'label'       => __( 'Workflow', 'talenttrack' ),
                 'description' => __( 'Automated task templates and scheduled background work across the academy.', 'talenttrack' ),

@@ -51369,6 +51369,12 @@ msgstr "Niets vraagt je aandacht"
 #: src/Modules/Alerts/Rest/AlertsRestController.php:132
 msgid "Alert not found."
 msgstr "Melding niet gevonden."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Flags things that need attention right now — an unrecorded attendance, a team without a coach — and clears them by itself once the data is put right."
+msgstr ""
+"Signaleert wat nú aandacht nodig heeft — een niet-geregistreerde presentie, "
+"een team zonder trainer — en lost dat vanzelf op zodra de gegevens kloppen."
 #~ msgid ""
 #~ "Your MFA setup is incomplete. Sign out and back in, then re-enroll if "
 #~ "needed."
