@@ -194,10 +194,16 @@ final class MfaChallengeHandler {
      * Redirect and stop. Only ever called from `init`, where nothing has
      * been echoed yet — the `headers_sent()` check is a tripwire for a
      * future caller that moves this back into a render path, not an
-     * expected branch.
+     * expected branch. Returning rather than redirecting leaves the page
+     * to render, and every render path now ends in a card with a link
+     * out rather than a blank screen.
+     *
+     * The SAPI test is not belt-and-braces: under CLI, `headers_sent()`
+     * is true from the first line of the script, because the concept
+     * doesn't apply there. Only a web request can be too late.
      */
     private static function bounce( string $url ): void {
-        if ( headers_sent() ) return;
+        if ( PHP_SAPI !== 'cli' && headers_sent() ) return;
         wp_safe_redirect( $url );
         exit;
     }
