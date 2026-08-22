@@ -17,7 +17,7 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * Which player question does this answer? *What does this player need
  * next?* — answered from the other side. Every player in the squad needs
- * the person running their session to be qualified to run it, and a lapsed
+ * the person running their training to be qualified to run it, and a lapsed
  * safeguarding certificate is a player-protection problem wearing an
  * administrative disguise. It is the one alert in this wave whose subject
  * is not a player and whose justification still is one.
@@ -74,7 +74,7 @@ final class StaffCertificateExpiringAlert implements AlertInterface {
     }
 
     public function description(): string {
-        return __( 'One of your certificates is about to expire or has just expired. Every player in the squad needs the person running their session to be qualified to run it.', 'talenttrack' );
+        return __( 'One of your certificates is about to expire or has just expired. Every player in the squad needs the person running their training to be qualified to run it.', 'talenttrack' );
     }
 
     public function defaultSeverity(): string {
