@@ -56,12 +56,41 @@ TalentTrack re-checks every condition once an hour, in the background. This is d
 
 So if you mark an activity completed at 10:15, the alert may still be there until the next check. It will clear itself. There is nothing you need to do, and nothing you can do to hurry it.
 
-## Turning alerts off
+## Choosing which alerts you see
 
-Not yet. Per-person and per-club settings — choosing which alerts you see and where — arrive in a later release. Until then, everyone who can fix a thing is told about it.
+**Account → Alert settings** lists every alert, grouped by the part of the system it comes from, with a tick per place it can appear:
+
+- **In the bell** — counted in the number top right.
+- **Banner on the dashboard** — a bar at the top of the page.
+
+Untick everything for an alert and you stop seeing it. Alerts you cannot change appear greyed out with the reason — either your academy has decided for everyone, or the alert concerns a child's safety and is always on. They stay visible on purpose: a settings list that quietly hides what you cannot change makes you think the list is complete when it is not.
+
+Messages the academy *sends* you — emails, push notifications — are separate, under **Account → Settings → Messages you receive**. Each screen links to the other.
+
+### Snoozing one alert
+
+If a single alert is not useful right now, snooze it for a day, a week or a month. It disappears and comes back when the snooze runs out, provided the thing is still unfixed.
+
+### Dismissing one alert
+
+Dismissing removes it for good — but **only that occurrence**. If the same problem is fixed and then happens again, you get a new alert, because it is genuinely new information. To stop a *kind* of alert permanently, untick it in Alert settings instead.
 
 ## For administrators
 
+**Alert policy** (Settings → Alert policy) decides who controls each alert:
+
+- **Each person chooses** — the default, and right for almost everything.
+- **Always on for everyone** — nobody can mute it. Use it when an alert matters too much to be optional.
+- **Off for the whole club** — nobody sees it and no records are kept. Use it for parts of the system your academy does not use. Alerts concerning a child's safety cannot be switched off.
+
+Two settings only an administrator can set:
+
+- **Require people to acknowledge this before continuing** — the alert blocks the page until the person confirms they have seen it. Reserve it for genuinely serious cases; an interruption people see every day gets clicked away without being read.
+- **Turn into a task after (days)** — how long an ignored alert waits before becoming a real assigned task. Leave it empty to use the built-in default. This takes effect once task escalation ships.
+
+Other notes:
+
 - Alerts are re-checked on an hourly background job. If nothing ever appears, check that WordPress scheduled tasks are running on this site.
 - A fresh installation runs one check immediately on activation, so the dashboard shows a true picture without waiting an hour.
-- Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`.
+- Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
+- Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.

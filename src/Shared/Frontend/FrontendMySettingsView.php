@@ -205,6 +205,27 @@ class FrontendMySettingsView extends FrontendViewBase {
                 <?php esc_html_e( 'Safeguarding messages, and messages about getting back into your account, are always sent. They cannot be switched off.', 'talenttrack' ); ?>
             </p>
 
+            <?php
+            // #2632 — the other half of "what reaches me". Alerts are things
+            // the app surfaces to you about your own data; this card is about
+            // what the academy sends you. Two screens was a deliberate choice
+            // (epic #2629 decision 11), and this link is what stops that
+            // choice stranding someone who only knows they want less noise.
+            $tt_alert_settings_url = add_query_arg(
+                [ 'tt_view' => \TT\Modules\Alerts\Frontend\FrontendAlertSettingsView::SLUG ],
+                \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
+            );
+            ?>
+            <p class="tt-field-hint">
+                <?php
+                printf(
+                    /* translators: %s: link to the alert settings screen */
+                    esc_html__( 'Alerts about your own data — unmarked activities, missing attendance — are set separately under %s.', 'talenttrack' ),
+                    '<a href="' . esc_url( $tt_alert_settings_url ) . '">' . esc_html__( 'alert settings', 'talenttrack' ) . '</a>'
+                );
+                ?>
+            </p>
+
             <div class="tt-form-actions">
                 <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save message preferences', 'talenttrack' ); ?></button>
             </div>
