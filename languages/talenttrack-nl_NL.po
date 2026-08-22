@@ -52540,6 +52540,63 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:46
+msgid "Player not evaluated recently"
+msgstr "Speler recent niet geëvalueerd"
+
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:50
+msgid "No evaluation has been recorded for a player for longer than the academy's threshold. Nothing on any screen shows the gap, because a missing record renders as nothing."
+msgstr "Er is voor een speler langer geen evaluatie vastgelegd dan de drempel van de academie. Op geen enkel scherm is dat gat te zien, want een ontbrekende registratie toont zich als niets."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:73
+#, php-format
+msgid "%s has never been evaluated."
+msgstr "%s is nog nooit geëvalueerd."
+
+#. translators: 1: player name, 2: number of weeks since the last evaluation
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:82
+#, php-format
+msgid "%1$s has not been evaluated for %2$d week."
+msgid_plural "%1$s has not been evaluated for %2$d weeks."
+msgstr[0] "%1$s is al %2$d week niet geëvalueerd."
+msgstr[1] "%1$s is al %2$d weken niet geëvalueerd."
+
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:60
+msgid "Evaluation window closing"
+msgstr "Evaluatieperiode sluit bijna"
+
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:64
+msgid "An evaluation window is about to close and some players in your team have not been evaluated in it. After it closes the gap is permanent — that period simply has no record for them."
+msgstr "Een evaluatieperiode loopt bijna af en sommige spelers in je team zijn daarin nog niet geëvalueerd. Zodra de periode sluit is het gat definitief — voor die periode is er simpelweg niets vastgelegd."
+
+#. translators: 1: player name, 2: evaluation window name
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:84
+#, php-format
+msgid "%1$s has no evaluation in %2$s, which closes today."
+msgstr "%1$s heeft geen evaluatie in %2$s, en die periode sluit vandaag."
+
+#. translators: 1: player name, 2: evaluation window name, 3: number of days until it closes
+#: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:94
+#, php-format
+msgid "%1$s has no evaluation in %2$s, which closes in %3$d day."
+msgid_plural "%1$s has no evaluation in %2$s, which closes in %3$d days."
+msgstr[0] "%1$s heeft geen evaluatie in %2$s, en die periode sluit over %3$d dag."
+msgstr[1] "%1$s heeft geen evaluatie in %2$s, en die periode sluit over %3$d dagen."
+
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:63
+msgid "Evaluation not shared with the player"
+msgstr "Evaluatie niet gedeeld met de speler"
+
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:67
+msgid "An evaluation was recorded but nothing was written for the player to read. The ratings and the internal notes stay with staff, so from the player's side nothing happened at all."
+msgstr "Er is een evaluatie vastgelegd, maar er is niets geschreven dat de speler kan lezen. De scores en de interne notities blijven bij de staf, dus vanuit de speler bezien is er helemaal niets gebeurd."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:97
+#, php-format
+msgid "The evaluation recorded for %s has no feedback for the player."
+msgstr "De evaluatie die voor %s is vastgelegd bevat geen feedback voor de speler."
 #~ msgid "Ball"
 #~ msgstr "Bal"
 

@@ -1,7 +1,7 @@
 ---
 title: Meldingen
 group: performance
-summary: Situaties in je gegevens die aandacht vragen — niet afgeronde activiteiten, ontbrekende aanwezigheid, activiteiten zonder trainer — automatisch zichtbaar en opgelost zodra je ze aanpakt.
+summary: Situaties in je gegevens die aandacht vragen — niet afgeronde activiteiten, ontbrekende aanwezigheid, spelers zonder evaluatie — automatisch zichtbaar en opgelost zodra je ze aanpakt.
 audience: [user, admin]
 order: 35
 ---
@@ -34,17 +34,44 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 
 ## Waar TalentTrack nu op meldt
 
+### Activiteiten
+
 | Melding | Wat het betekent |
 | --- | --- |
 | **Activiteit uit het verleden staat nog op gepland** | De datum is voorbij, maar niemand heeft de activiteit afgerond of geannuleerd. Zolang dat niet gebeurt, ontbreken de aanwezigheid en de speelminuten in elk rapport. |
 | **Aanwezigheid niet geregistreerd** | De activiteit staat op afgerond, maar niemand heeft ingevuld wie erbij was. Overal lijkt het klaar, behalve in de rapportages. |
 | **Aankomende activiteit zonder trainer** | Voor een activiteit binnen een week is niemand ingedeeld. Activiteiten zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment. |
 
-Meer meldingen — over evaluaties, doelen, PDP-cycli en spelersdossiers — volgen in latere releases.
+### Evaluaties
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Speler recent niet geëvalueerd** | Er is voor een speler langer geen evaluatie vastgelegd dan de drempel van je academie. | *Waar staat deze speler nu?* Een academie die twee maanden niets over een speler heeft vastgelegd, kan die vraag niet beantwoorden — niet in een selectieoverleg, niet richting ouders, niet richting de speler zelf. |
+| **Evaluatieperiode sluit bijna** | Een evaluatieperiode loopt bijna af en spelers in je team hebben daarin nog geen evaluatie. | *Waar staat deze speler nu, volgens de beoordeling die de academie beloofd heeft?* Zodra de periode sluit is het gat definitief: voor die periode is er simpelweg niets vastgelegd. |
+| **Evaluatie niet gedeeld met de speler** | Er is een evaluatie vastgelegd, maar er is niets ingevuld in het veld dat de speler te zien krijgt. | *Wat heeft deze speler nu nodig?* Een evaluatie die de speler nooit ziet, kan die vraag voor hem niet beantwoorden. De scores en de interne notities blijven bij de staf, dus voor de speler is er niets gebeurd. |
+
+Meer meldingen — over doelen, PDP-cycli, metingen en spelersdossiers — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+
+### Instellingen die bepalen wanneer deze meldingen verschijnen
+
+Deze staan in de academie-instellingen en niet in de code, omdat academies echt verschillen over wat "recent" betekent. Wie de verkeerde drempel heeft, gaat de melding niet meer vertrouwen.
+
+| Instelling | Standaard | Wat het regelt |
+| --- | --- | --- |
+| `alerts_eval_stale_weeks` | 8 weken | Hoe lang een speler zonder evaluatie mag blijven voordat de melding verschijnt. Bij een speler die nog nooit geëvalueerd is, telt de teldatum vanaf de dag dat hij binnenkwam. |
+| `alerts_eval_window_closing_days` | 3 dagen | Hoeveel dagen van tevoren je hoort dat een evaluatieperiode sluit. |
+| `alerts_eval_share_grace_days` | 7 dagen | Hoe lang na het vastleggen van een evaluatie de melding "niet gedeeld" verschijnt. |
+| `alerts_eval_share_lookback_days` | 60 dagen | Hoe ver terug die melding nog kijkt. Oudere evaluaties blijven met rust: in april horen wat je in september had moeten schrijven is een achterstand, geen actie. |
+
+## Nieuwe meldingen staan meteen aan
+
+Als een release een melding toevoegt, geldt die direct voor iedereen die er iets aan kan doen — je hoeft hem niet zelf aan te zetten. Dat is bewust: een melding die niemand aanzet, is een melding die niemand ziet.
+
+De rem zit erin dat nieuwe meldingen **module voor module** komen, nooit de hele catalogus in één keer, en dat de releasenotities steeds benoemen welke meldingen erbij komen en wat je ervan gaat zien. Twee nieuwe meldingen mét uitleg is informeren; twaalf zonder uitleg is spam van je eigen systeem.
 
 ## Wie een melding krijgt
 
-De mensen die het daadwerkelijk kunnen oplossen: de trainer die aan de activiteit is gekoppeld, en de hoofdtrainer van het team.
+De mensen die het daadwerkelijk kunnen oplossen: de hoofdtrainer van het team, plus wie er verder direct bij betrokken is — de trainer die aan de activiteit is gekoppeld, of de trainer die de evaluatie schreef.
 
 Hoofden Opleiding en beheerders krijgen **niet** voor elk team een melding. Meldingen van twintig teams bij de persoon met de minste tijd om ze te lezen is precies hoe een systeem genegeerd raakt. Een overzicht voor die rol volgt in een latere release.
 
