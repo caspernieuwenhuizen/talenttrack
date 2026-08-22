@@ -52112,6 +52112,27 @@ msgstr "Dat kon niet terug in de wachtrij worden gezet."
 #: src/Infrastructure/REST/MediaRestController.php
 msgid "That could not be saved."
 msgstr "Dat kon niet worden opgeslagen."
+
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+msgid "This academy keeps media indefinitely. Set a retention period under Configuration to have photos and video surface here for review after a player leaves."
+msgstr ""
+"Deze academie bewaart media onbeperkt. Stel onder Configuratie een "
+"bewaartermijn in om foto's en video's hier ter beoordeling te laten "
+"verschijnen nadat een speler weggaat."
+
+#. translators: %d is the configured retention period in years.
+#: src/Shared/Frontend/FrontendMediaRetentionView.php
+#, php-format
+msgid "This academy keeps a player's photos and video for %d year after they leave. Nothing below has been deleted — each one is waiting for you to decide."
+msgid_plural "This academy keeps a player's photos and video for %d years after they leave. Nothing below has been deleted — each one is waiting for you to decide."
+msgstr[0] ""
+"Deze academie bewaart de foto's en video's van een speler %d jaar nadat die "
+"weggaat. Hieronder is nog niets verwijderd — alles wacht op jouw "
+"beslissing."
+msgstr[1] ""
+"Deze academie bewaart de foto's en video's van een speler %d jaar nadat die "
+"weggaat. Hieronder is nog niets verwijderd — alles wacht op jouw "
+"beslissing."
 #~ msgid "Ball"
 #~ msgstr "Bal"
 
