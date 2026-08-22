@@ -517,7 +517,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             $filters['archived'] = [
                 'type'    => 'select',
                 'render'  => 'status',
-                'label'   => __( 'Status', 'talenttrack' ),
+                'label'   => __( 'Archive', 'talenttrack' ),
                 'options' => [
                     'active'   => __( 'Active',   'talenttrack' ),
                     'archived' => __( 'Archived', 'talenttrack' ),

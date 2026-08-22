@@ -40,12 +40,18 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                 sheet, expands to a one-tap segmented track. Options are
  *                 links (no JS dependency for navigation).
  *   - `status`  — one-tap status pills (`tt-statpill`), link-based.
+ *   - `menu`    — an icon-only `⋯` overflow menu (#2622) holding the same
+ *                 link-based options as `status`, for a filter that is set
+ *                 rarely and would otherwise cost a pill row on every list.
+ *                 Renders no visible group label; the label is the trigger's
+ *                 accessible name. Announces itself with a chip + accent when
+ *                 the selection is off-default.
  *   - `toggle`  — a boolean switch (`tt-switch`) backed by a checkbox
  *                 that auto-submits.
  *
  * Each group is an array:
  *   [
- *     'type'  => 'select'|'text'|'date_range'|'period'|'status'|'toggle',
+ *     'type'  => 'select'|'text'|'date_range'|'period'|'status'|'menu'|'toggle',
  *     'label' => 'Team',            // small-caps group label
  *     'key'   => 'team',            // stable id for the group (CSS hook)
  *     // type-specific keys, see below
@@ -61,6 +67,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *         'label_from', 'label_to' (per-input labels).
  * period/status: 'options' => [ ['value','label','url','active', 'dot'?] ],
  *         'active_label' (text shown on the period pill trigger).
+ * menu:   'options' as above, plus 'default_value' — the option that needs no
+ *         announcing. Any other active option raises the chip + accent.
  * toggle: 'name', 'on' (bool), 'on_label' (the "Tonen" text),
  *         'value' (submitted value when checked, default '1'),
  *         'off_value' (optional — when set, a hidden companion input
@@ -162,6 +170,7 @@ final class FilterBar {
 
 				case 'period':
 				case 'status':
+				case 'menu':
 					$add( $group['param'] ?? ( $group['key'] ?? $type ) );
 					break;
 			}
@@ -305,8 +314,9 @@ final class FilterBar {
 			$out .= self::renderGroup( $group, false );
 			// Suppress the divider immediately before the right-aligned status
 			// group — the auto-margin gap replaces it.
+			$next_type      = (string) ( $inline_groups[ $i + 1 ]['type'] ?? '' );
 			$next_is_status = isset( $inline_groups[ $i + 1 ] )
-				&& (string) ( $inline_groups[ $i + 1 ]['type'] ?? '' ) === 'status';
+				&& ( $next_type === 'status' || $next_type === 'menu' );
 			if ( $i < $last && ! $next_is_status ) {
 				$out .= '<div class="tt-filterbar__div" aria-hidden="true"></div>';
 			}
@@ -389,7 +399,8 @@ final class FilterBar {
 		$rest   = [];
 		$status = [];
 		foreach ( $groups as $group ) {
-			if ( (string) ( $group['type'] ?? '' ) === 'status' ) {
+			$t = (string) ( $group['type'] ?? '' );
+			if ( $t === 'status' || $t === 'menu' ) {
 				$status[] = $group;
 			} else {
 				$rest[] = $group;
@@ -412,11 +423,18 @@ final class FilterBar {
 		$key   = sanitize_key( (string) ( $group['key'] ?? $type ) );
 
 		$out  = '<div class="tt-filterbar__group tt-filterbar__group--' . esc_attr( $key ) . '">';
-		if ( $label !== '' ) {
+		// #2622 — a `menu` group renders no visible small-caps label. Its
+		// trigger is icon-only and carries the label as its accessible name;
+		// printing the label above it would give back exactly the vertical
+		// space collapsing the control set out to reclaim.
+		if ( $label !== '' && $type !== 'menu' ) {
 			$out .= '<span class="tt-filter__glabel">' . esc_html( $label ) . '</span>';
 		}
 
 		switch ( $type ) {
+			case 'menu':
+				$out .= self::renderMenu( $group );
+				break;
 			case 'select':
 				$out .= self::renderSelect( $group );
 				break;
@@ -605,6 +623,83 @@ final class FilterBar {
 		}
 		$out .= '</div>';
 		$out .= '</details>';
+		return $out;
+	}
+
+	/**
+	 * `menu` — an icon-only overflow menu (#2622).
+	 *
+	 * For a filter that is set once in a blue moon and otherwise costs a whole
+	 * 48px pill row on every list in the app. Same link-based options as
+	 * `status`, collapsed behind a `⋯` trigger, built on the `tt-perdrop`
+	 * <details> pattern so it stays keyboard-operable and functional with JS
+	 * off (filter-bar.js only adds outside-click-to-close).
+	 *
+	 * The closed state still has to say when the list is NOT in its default
+	 * state — an icon alone would make an archived list indistinguishable from
+	 * a short active one. Two cues, both only when off-default: the trigger
+	 * takes the accent treatment, and a clearable chip renders beside it.
+	 *
+	 * @param array<string,mixed> $group
+	 */
+	private static function renderMenu( array $group ): string {
+		$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
+		$label   = (string) ( $group['label'] ?? __( 'More filters', 'talenttrack' ) );
+
+		// The active option, and whether it is the default one. `default_value`
+		// names the option that needs no announcing.
+		$default = (string) ( $group['default_value'] ?? '' );
+		$active  = null;
+		foreach ( $options as $opt ) {
+			if ( ! empty( $opt['active'] ) ) { $active = $opt; break; }
+		}
+		$is_default = $active === null || (string) ( $active['value'] ?? '' ) === $default;
+
+		// The URL that clears back to the default — the chip's ✕ target.
+		$clear_url = '';
+		foreach ( $options as $opt ) {
+			if ( (string) ( $opt['value'] ?? '' ) === $default ) {
+				$clear_url = (string) ( $opt['url'] ?? '' );
+				break;
+			}
+		}
+
+		$out = '<div class="tt-ovmenu-wrap">';
+
+		// Off-default cue #1 — a chip naming the state, with a clear action.
+		if ( ! $is_default && $active !== null ) {
+			$out .= '<span class="tt-ovmenu__chip">'
+				. esc_html( $label . ': ' . (string) ( $active['label'] ?? '' ) );
+			if ( $clear_url !== '' ) {
+				$out .= '<a class="tt-ovmenu__clear" href="' . esc_url( $clear_url ) . '"'
+					. ' aria-label="' . esc_attr(
+						/* translators: %s: the filter's name, e.g. "Archive". */
+						sprintf( __( 'Clear the %s filter', 'talenttrack' ), $label )
+					) . '">&#10005;</a>';
+			}
+			$out .= '</span>';
+		}
+
+		$out .= '<details class="tt-ovmenu" data-tt-perdrop>';
+		// Off-default cue #2 — the trigger itself carries the accent.
+		$out .= '<summary class="tt-ovmenu__btn' . ( $is_default ? '' : ' tt-ovmenu__btn--on' ) . '"'
+			. ' aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '">'
+			. '<span aria-hidden="true">&#8943;</span></summary>';
+		$out .= '<div class="tt-ovmenu__menu" role="menu">';
+		$out .= '<p class="tt-ovmenu__head">' . esc_html( $label ) . '</p>';
+		foreach ( $options as $opt ) {
+			$url   = (string) ( $opt['url'] ?? '' );
+			$lbl   = (string) ( $opt['label'] ?? '' );
+			$is_on = ! empty( $opt['active'] );
+			$out  .= '<a class="tt-ovmenu__opt' . ( $is_on ? ' tt-ovmenu__opt--on' : '' ) . '"'
+				. ' role="menuitem" href="' . esc_url( $url ) . '"'
+				. ( $is_on ? ' aria-current="true"' : '' ) . '>'
+				. esc_html( $lbl ) . '</a>';
+		}
+		$out .= '</div>';
+		$out .= '</details>';
+		$out .= '</div>';
+
 		return $out;
 	}
 

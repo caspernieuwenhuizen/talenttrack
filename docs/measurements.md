@@ -291,10 +291,30 @@ own test:
   with one line per player over the shared date axis, plus a heavier dashed
   **squad-average** line so the aggregate never reads as another player.
   Under it: **Most improved** and **Fallen back**, then a table with each
-  player's first value, latest value, **change** and a verdict.
-- **A test with no direction** (height, weight) gets the readings per date
-  and nothing else — no chart, no ranking, no verdict, because there is no
-  better or worse to rank.
+  player's first value, latest value and **change**.
+- **A test with no direction** (height, weight) gets the readings per date —
+  no chart and no ranking, because there is no better or worse to rank. The
+  change is still shown, with a grey ▲ or ▼ saying only which way the value
+  moved.
+
+**Reading the change column.** Every change carries an indicator, not just a
+colour, so the report stays readable in black and white and for a
+colour-blind reader:
+
+| Indicator | Meaning |
+| --- | --- |
+| green ▲ | improved, in the terms of this test |
+| red ▼ | fallen back |
+| grey ▬ | unchanged (less than 2% either way) |
+| grey ▲ / ▼ | the value rose or fell on a test with no better or worse |
+| — | no earlier reading to compare against |
+
+The arrow follows the **verdict**, never the sign of the number. On a test
+where lower is better, a change of −0,08 s is progress and shows a green ▲.
+Hovering the indicator (or reading it with a screen reader) gives the word.
+
+Player names in every table and in the two ranking lists link through to the
+player's record, and show a summary card on hover.
 - **A status test** gets a player × date matrix of levels in their own
   colours. No lines: levels are named states, not distances.
 - **Pass / fail** gets a tick or cross per date, each player's tally, and

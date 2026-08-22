@@ -28,6 +28,65 @@ Een media-item hangt aan één of meer records — een speler, een team, of een 
 worden gekoppeld **én** aan elke speler die erop staat, zodat één upload op elk bijbehorend record verschijnt in plaats van vier keer geüpload te
 moeten worden.
 
+## Waar je het ziet
+
+De foto's en video's van een speler staan op een tabblad **Media** op het spelersprofiel, naast Beoordelingen en Blessures. Het tabblad verschijnt
+alleen voor wie met zijn rechten bij de media van die speler kan; een trainer zonder toegang tot een selectie ziet het simpelweg niet.
+
+Media staat gesorteerd op **wanneer het gemaakt is**, nieuwste eerst — niet op het moment van uploaden. Daardoor leest het tabblad als een deel van
+het verhaal van de speler in plaats van als een map: een camerarol die je in november leegmaakt, duwt augustus niet naar beneden.
+
+Tik op een foto om hem groot te zien, of op een video om af te spelen. Met de pijltjestoetsen ga je heen en weer, met Escape sluit je de weergave.
+Video's beginnen pas te laden zodra je er een afspeelt, dus het openen van het tabblad op een telefoon kost geen data aan beeld waar je niet om
+hebt gevraagd.
+
+**Verwijderen** wist definitief — het bestand zelf, niet alleen de vermelding. Het wordt alleen aangeboden aan wie de media van die speler mag
+bewerken.
+
+### Teams en trainingen
+
+Een team heeft een sectie **Media** op de teampagina, onder de selectie en de wedstrijden — selectiefoto's, toernooidagen, momenten aan het eind
+van het seizoen. Er staat alleen in wat aan het team zelf hangt; media van een individuele speler blijft op diens profiel, zodat je bij het
+bekijken van een team niet door het dossier van elke speler scrolt. Net als de andere secties op die pagina kun je hem voor je eigen weergave
+uitzetten.
+
+Een training of wedstrijd heeft een eigen sectie **Media**, en daar gebeurt het taggen.
+
+### De spelers op een foto taggen
+
+Bij een training of wedstrijd biedt elke foto **Spelers taggen**, met de selectie van dat team. Vink de spelers aan die erop staan en de foto
+verschijnt ook op hun profiel — één upload, hoeveel records het ook betreft. Geen opslaanknop: elk vinkje wordt meteen bewaard, en gaat terug als
+dat niet lukt.
+
+Een speler untaggen haalt de foto alleen bij die speler weg. De foto blijft bij de training staan en bij iedereen die je verder getagd hebt.
+
+Dit maakt het punt over gedeelde zichtbaarheid hierboven ook concreet: een foto die aan drie spelers hangt, is voor alle drie de gezinnen
+zichtbaar.
+
+## Media toevoegen
+
+Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft vier stappen:
+
+1. **Voor wie** — al ingevuld als je vanaf een record begon, dus er valt niets te kiezen.
+2. **Bestanden** — kies foto's of video, of plak een link naar video die ergens anders staat. Op een telefoon zit de camera één tik verderop.
+3. **Details** — een titel, eventueel een omschrijving, en de datum waarop het gemaakt is.
+4. **Bevestigen** — wat er wordt opgeslagen, en waar het verschijnt.
+
+**Uploads worden bewaard zodra ze klaar zijn**, dus vóór je de laatste stap bereikt. Dat is een bewuste keuze: een wegvallende verbinding of een
+gesloten tabblad kost je nooit een bestand waar je al op hebt staan wachten. Stop je halverwege, dan staan de foto's al bij het record — alleen
+zonder titel, die je later vanaf het record zelf kunt toevoegen.
+
+De datum in stap 3 bepaalt waar de media op de tijdlijn van de speler staat, dus dat is de dag van de training of wedstrijd, niet de dag waarop je
+hebt geüpload. Draagt een foto zijn eigen datum, dan wordt die alvast ingevuld.
+
+Van elk bestand zie je de voortgang tijdens het uploaden, en je kunt er één annuleren die te lang duurt zonder de rest kwijt te raken.
+
+### Videolinks
+
+Plak het webadres van een video en TalentTrack bepaalt waar die gehost wordt. Veo, Hudl, YouTube en Vimeo worden herkend; bij YouTube en Vimeo
+worden de titel en een miniatuur automatisch opgehaald. Al het andere wordt bewaard als gewone link met een titel die jij typt — TalentTrack neemt
+nooit contact op met een adres dat het niet herkent.
+
 ## Waar de bestanden staan
 
 Geüploade bestanden komen **niet** in de WordPress-mediabibliotheek. Een bestand daarin heeft een openbaar webadres: wie het adres kent of raadt,
@@ -63,8 +122,13 @@ Hoe groot een bestand mag zijn, bepaalt je webserver — niet TalentTrack. Veel 
 een minuut telefoonvideo. Het uploadscherm toont de werkelijke limiet van jouw server. Is die te klein, vraag je host dan om `upload_max_filesize`
 en `post_max_size` te verhogen, of gebruik videolinks.
 
-Geüploade video kost ook echte schijfruimte, en niets ruimt die automatisch op. Een academie die wekelijks wedstrijdfragmenten uploadt, moet de
-opslag van de hosting in de gaten houden.
+Geüploade video kost ook echte schijfruimte, en niets ruimt die automatisch op. Zodra een academie media heeft opgeslagen, verschijnt het totaal
+als **Media opgeslagen** op de systeemstatusbalk van de academiebeheerder — dus op de plek waar je toch al kijkt, en niet achter een instellingen-
+tabblad. Er is nog geen automatische opschoning en geen bewaartermijn: wanneer oude media weg mag, is een beleidskeuze, en die verzint TalentTrack
+niet voor je.
+
+Een academie die wekelijks wedstrijdfragmenten uploadt, moet dat getal afzetten tegen wat de hosting daadwerkelijk biedt — TalentTrack kan niet
+zien hoe groot de schijf is waarop het draait.
 
 ## Wie de media van een speler mag zien
 

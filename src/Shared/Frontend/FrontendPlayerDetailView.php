@@ -11,8 +11,11 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Media\Authorization\MediaVisibilityService;
+use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Players\Services\ProfileCardsConfig;
 use TT\Shared\Frontend\Components\EmptyStateCard;
+use TT\Shared\Frontend\Components\MediaGallery;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -176,6 +179,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // never sees the tab, let alone its contents.
         if ( MatrixGate::canAnyScope( $user_id, 'player_injuries', MatrixGate::READ ) ) {
             $tabs['injuries'] = __( 'Injuries', 'talenttrack' );
+        }
+        // #2594 (epic #2589) — photos and video in context. Gated on the
+        // `media` entity, which `canAnyScope()` also runs the feature
+        // toggle against, so switching media off takes the tab with it.
+        if ( MatrixGate::canAnyScope( $user_id, MediaVisibilityService::ENTITY, MatrixGate::READ ) ) {
+            $tabs['media'] = __( 'Media', 'talenttrack' );
         }
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
@@ -371,6 +380,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'injuries':    self::renderInjuriesTab( $player_id, $user_id ); break;
+                        case 'media':       self::renderMediaTab( $player_id, $user_id ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                         case 'card':        self::renderCardTab( $player ); break;
                         case 'profile':
@@ -1897,6 +1907,35 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * emits the `injury_ended` journey event and drops the player out of
      * the squad overview. Without it every injury stays open forever.
      */
+    /**
+     * #2594 (epic #2589) — photos and video for this player.
+     *
+     * The tab exists because a rating is a number and the clip behind it
+     * is the evidence. Sorting is by when the media was taken rather than
+     * when it was uploaded, which is what makes the gallery read as part
+     * of the player's story instead of as a file listing — see
+     * `MediaRepository`.
+     *
+     * The gate is deliberately per-player rather than the coarse "has a
+     * media grant anywhere" the tab strip uses: reaching this player's
+     * page does not by itself entitle a user to their photographs. In
+     * practice `MediaGallery` filters every item again through
+     * `MediaVisibilityService`, so this is defence in depth rather than
+     * the only check.
+     */
+    private static function renderMediaTab( int $player_id, int $user_id ): void {
+        $can_upload = ( new MediaVisibilityService() )
+            ->canAttachTo( $user_id, MediaEntityType::PLAYER, $player_id );
+
+        MediaGallery::render( [
+            'entity_type'     => MediaEntityType::PLAYER,
+            'entity_id'       => $player_id,
+            'can_edit'        => $can_upload,
+            'empty_headline'  => __( 'No photos or video yet', 'talenttrack' ),
+            'empty_explainer' => __( 'A clip of a moment in training says more about how a player is developing than a score does. Anything added here sits on their timeline under the day it was taken.', 'talenttrack' ),
+        ] );
+    }
+
     private static function renderInjuriesTab( int $player_id, int $user_id ): void {
         if ( ! \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::READ ) ) {
             EmptyStateCard::render( [

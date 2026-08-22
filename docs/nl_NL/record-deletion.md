@@ -9,8 +9,8 @@ onomkeerbare **definitieve verwijdering** vereist `tt_edit_settings`.
 
 - **Lijstweergaven** (spelers, teams, beoordelingen, doelen, toernooien,
   vakanties): de actie **Definitief verwijderen** verschijnt op
-  gearchiveerde rijen (gebruik het tabblad/filter Gearchiveerd), naast
-  Herstellen.
+  gearchiveerde rijen — schakel daarnaartoe met de **⋯**-knop aan het eind
+  van de filterrij — naast Herstellen.
 - **Detail- / bewerkpagina's** (proefdossier, proeftraject, VCT-oefening):
   een knop **Definitief verwijderen** staat naast de archiveerknop.
 

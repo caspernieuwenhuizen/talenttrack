@@ -64,6 +64,34 @@ final class MediaVisibilityService {
      */
     private static $grantCache = [];
 
+    /**
+     * Coarse authority: does this user have a media grant *anywhere*?
+     *
+     * This is what a REST `permission_callback` asks, and it is the only
+     * question answerable before the request has been routed to a record.
+     * It resolves through `MatrixGate` directly rather than through
+     * `current_user_can()`, for the same reason `TeamChemistryAccess` does
+     * (#1922): the `user_has_cap` bridge is dormant unless an admin has
+     * switched the matrix on, and a family's access lives only in a matrix
+     * row — parent and player roles hold no raw `tt_*` media capability.
+     * Going through the cap would silently deny every family on a
+     * dormant-matrix install.
+     *
+     * It is a gate, never the decision. Every callback that reaches a
+     * record still asks `canView()` / `canEdit()` / `canDelete()`.
+     */
+    public static function hasReadAuthority( int $user_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::READ );
+    }
+
+    public static function hasEditAuthority( int $user_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CHANGE );
+    }
+
+    public static function hasUploadAuthority( int $user_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE );
+    }
+
     public function canView( int $user_id, object $media ): bool {
         return $this->can( $user_id, $media, MatrixGate::READ );
     }

@@ -125,9 +125,16 @@ final class HolidaysRestController {
 
     public static function list_holidays( WP_REST_Request $req ): WP_REST_Response {
         // #1784 — honour the FrontendListTable status filter (active/archived/all).
+        // #2625 — `filter[archived]` is the canonical param; `filter[status]`
+        // is a deprecated alias kept for one release so bookmarked URLs and
+        // saved views created before the rename keep resolving. The fallback
+        // is deliberately inline rather than shared: on goals and activities
+        // `filter[status]` is a domain filter and must never be read as
+        // archive state.
         $filter = is_array( $req['filter'] ?? null ) ? $req['filter'] : [];
-        $status = isset( $filter['status'] )
-            ? \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( (string) $filter['status'] )
+        $raw    = $filter['archived'] ?? ( $filter['status'] ?? null );
+        $status = $raw !== null
+            ? \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( (string) $raw )
             : 'active';
         $rows = ( new HolidaysRepository() )->list(
             (string) $req->get_param( 'from' ),

@@ -28,7 +28,7 @@ De Teams-lijst (de frontend **Teams**-weergave) toont je teams als een raster va
 
 De hele kaart is een link — tik of klik er ergens op om de teampagina te openen. De kaarten worden op telefoons in één kolom gestapeld en stromen op bredere schermen in meerdere kolommen.
 
-Boven het raster heb je nog steeds **zoeken**, het filter **Leeftijdscategorie** en het filter **Status** (Actief / Gearchiveerd / Alle) — gearchiveerde teams blijven bereikbaar door Status te wijzigen. Sorteren gebeurt via één **Sorteren op**-dropdown (naam, leeftijdscategorie of aantal spelers), omdat kaarten geen kolommen hebben.
+Boven het raster heb je nog steeds **zoeken** en het filter **Leeftijdscategorie**. De lijst toont actieve teams; gearchiveerde blijven bereikbaar via de **⋯**-knop aan het eind van de filterrij, die wisselt tussen Actief en Gearchiveerd. Zolang je naar gearchiveerde teams kijkt staat er een label naast die knop, met een ✕ om terug te gaan. Sorteren gebeurt via één **Sorteren op**-dropdown (naam, leeftijdscategorie of aantal spelers), omdat kaarten geen kolommen hebben.
 
 ### De teampagina
 

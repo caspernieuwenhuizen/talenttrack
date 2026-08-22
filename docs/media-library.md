@@ -27,6 +27,61 @@ Three kinds:
 A media item is attached to one or more records — a player, a team, or a training or match activity. One photo taken at a training can be attached
 to that activity **and** to each player in the frame, so a single upload appears on every record it belongs to instead of being uploaded four times.
 
+## Where you see it
+
+A player's photos and video live on a **Media** tab on their profile, beside Evaluations and Injuries. The tab appears only for people whose
+permissions reach that player's media, so a coach without access to a squad never sees it at all.
+
+Media is ordered by **when it was taken**, newest first — not by when it was uploaded. That is what makes the tab read as part of the player's
+story rather than as a folder: emptying a camera roll in November does not push August's training above it.
+
+Tap a photo to see it full size, or a video to play it. Arrow keys move between items and Escape closes the viewer. Videos only start loading when
+you actually play one, so opening the tab on a phone does not spend your data on footage you have not asked for.
+
+**Remove** deletes permanently — the file itself, not just the entry. It is only offered to people who may edit that player's media.
+
+### Teams and trainings
+
+A team has a **Media** section on its page, below the roster and fixtures — squad photos, tournament days, end-of-season moments. It shows only
+what is attached to the team itself; media of an individual player stays on their profile, so browsing a team does not scroll through every
+player's file. Like the other sections on that page, you can switch it off for your own view.
+
+A training or match has its own **Media** section, and that is where tagging happens.
+
+### Tagging the players in a photo
+
+On a training or match, each photo offers **Tag players**, listing that team's squad. Tick the players who are in the picture and it appears on
+their profiles too — one upload, however many records it belongs to. No Save button: each tick is stored as you make it, and reverts if it cannot
+be.
+
+Untagging one player removes it from that player only. The photo stays on the training and on everyone else you tagged.
+
+This is also what makes the shared-visibility point earlier concrete: a photo tagged to three players is visible to all three families.
+
+## Adding media
+
+Use **Add media** from a player, team or training. The wizard has four steps:
+
+1. **Who for** — prefilled when you started from a record, so there is nothing to pick.
+2. **Files** — choose photos or video, or paste a link to video hosted elsewhere. On a phone the camera is one tap away.
+3. **Details** — a title, an optional description, and the date it was taken.
+4. **Confirm** — what will be saved, and where it will appear.
+
+**Uploads are saved as soon as they finish**, before you reach the last step. That is deliberate: it means a dropped connection or a closed tab
+never loses a file you have already waited for. If you leave halfway through, the photos are on the record already — just without a title, which
+you can add later from the record itself.
+
+The date in step 3 decides where the media sits on the player's timeline, so it should be the day of the training or match rather than the day you
+uploaded it. When a photo carries its own date, that date is filled in for you.
+
+Each file's progress is shown while it uploads, and you can cancel one that is taking too long without losing the others.
+
+### Video links
+
+Paste the web address of a video and TalentTrack works out where it is hosted. Veo, Hudl, YouTube and Vimeo are recognised; for YouTube and Vimeo
+the title and a thumbnail are fetched automatically. Anything else is saved as a plain link with a title you type — TalentTrack never contacts an
+address it does not recognise.
+
 ## Where the files are kept
 
 Uploaded files are **not** put in the WordPress media library. A file in the WordPress media library has a public web address: anyone who knows or
@@ -61,8 +116,12 @@ The largest file you can upload is set by your web server, not by TalentTrack. M
 smaller than a minute of phone video. The upload screen shows your server's actual limit. If it is too small, ask your host to raise
 `upload_max_filesize` and `post_max_size`, or use video links instead.
 
-Uploaded video also uses real disk space, and nothing reclaims it automatically. An academy uploading match clips every week should keep an eye on
-its hosting storage.
+Uploaded video also uses real disk space, and nothing reclaims it automatically. Once an academy has media stored, the total appears as **Media
+stored** on the academy admin's system-health strip, so it is visible in the place you already check rather than behind a settings tab. There is
+no automatic clean-up and no retention rule yet: deciding when old media should go is a policy question, and TalentTrack does not guess at it.
+
+An academy uploading match clips every week should watch that number against whatever their hosting actually provides — TalentTrack has no way to
+know the disk size it is running on.
 
 ## Who can see a player's media
 

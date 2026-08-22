@@ -651,6 +651,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</div>'; // .tt-act-detail__grid
 
+        // #2595 (epic #2589) — photos and video from this activity, plus
+        // the control that tags the players in them. Outside the cards
+        // grid because a gallery needs the full width; a two-column card
+        // would give it three tiles a row on a desktop and one on a phone.
+        self::renderMediaSection( $session );
+
         // v3.110.138 — evaluation-skipped notice (conditional). Kept as a
         // notice rather than a card so it reads as an inline status, per
         // the issue ("evaluation_skipped stays a conditional notice").
@@ -770,6 +776,65 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * are derived in the repository (CLAUDE.md §4); the view only lays
      * out the cells and skips any that have no value.
      */
+    /**
+     * #2595 (epic #2589) — media from this activity.
+     *
+     * This is where the polymorphic link table earns its keep. A coach
+     * uploads three photos on the session and tags the players in frame
+     * from the roster that is already on this page — one upload, four
+     * records. Without it every photo would have to be uploaded once per
+     * player, and the co-depiction model from D5 would have nothing to
+     * describe.
+     *
+     * The roster comes from the activity's team, so the picker offers the
+     * players who were plausibly there rather than the whole academy.
+     */
+    private static function renderMediaSection( object $session ): void {
+        $activity_id = (int) $session->id;
+        $user        = get_current_user_id();
+
+        if ( ! \TT\Modules\Authorization\MatrixGate::canAnyScope(
+            $user,
+            \TT\Modules\Media\Authorization\MediaVisibilityService::ENTITY,
+            \TT\Modules\Authorization\MatrixGate::READ
+        ) ) {
+            return;
+        }
+
+        $can_edit = ( new \TT\Modules\Media\Authorization\MediaVisibilityService() )
+            ->canAttachTo( $user, \TT\Modules\Media\MediaEntityType::ACTIVITY, $activity_id );
+
+        echo '<section class="tt-act-detail__media">';
+        echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Media', 'talenttrack' ) . '</h3>';
+
+        \TT\Shared\Frontend\Components\MediaGallery::render( [
+            'entity_type'     => \TT\Modules\Media\MediaEntityType::ACTIVITY,
+            'entity_id'       => $activity_id,
+            'can_edit'        => $can_edit,
+            'tag_players'     => $can_edit ? self::rosterForTagging( $session ) : [],
+            'empty_headline'  => __( 'No photos or video from this activity', 'talenttrack' ),
+            'empty_explainer' => __( 'Add a photo here and you can tag the players in it, so it appears on their profiles too without uploading it again.', 'talenttrack' ),
+        ] );
+
+        echo '</section>';
+    }
+
+    /**
+     * Players the tag control offers: this activity's team roster.
+     *
+     * @return array<int, string> player id => display name
+     */
+    private static function rosterForTagging( object $session ): array {
+        $team_id = (int) ( $session->team_id ?? 0 );
+        if ( $team_id <= 0 ) return [];
+
+        $out = [];
+        foreach ( QueryHelpers::get_players( $team_id ) as $player ) {
+            $out[ (int) $player->id ] = QueryHelpers::player_display_name( $player );
+        }
+        return $out;
+    }
+
     private static function renderDetailStatStrip( object $session, string $type_key, string $status_key, bool $is_match ): void {
         $activity_id = (int) ( $session->id ?? 0 );
         $team_id     = (int) ( $session->team_id ?? 0 );
@@ -1758,11 +1823,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'active_label' => (string) ( $period_labels[ $period_filter ] ?? $period_labels[''] ),
                     'options'      => $period_options,
                 ],
+                // #2622 — the archive state collapses to the icon overflow
+                // menu here too. This view builds its group by hand (its list
+                // is server-rendered in date buckets, not a FrontendListTable),
+                // so it opts in explicitly rather than through the shared
+                // builder.
                 [
-                    'type'    => 'status',
-                    'key'     => 'status',
-                    'label'   => __( 'Status', 'talenttrack' ),
-                    'options' => $status_options,
+                    'type'          => 'menu',
+                    'key'           => 'archived',
+                    'label'         => __( 'Archive', 'talenttrack' ),
+                    'default_value' => 'active',
+                    'options'       => $status_options,
                 ],
                 [
                     'type'      => 'toggle',

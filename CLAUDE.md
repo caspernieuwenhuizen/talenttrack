@@ -699,6 +699,7 @@ duplicate their content here.
 | New record-creation flow        | `docs/wizards.md` (framework, registry, entry-point gating) |
 | Driving the workflow            | `AGENTS.md` (one agent vs. two, parallel sessions, decision tree) |
 | Frontend nav / new view         | `docs/back-navigation.md` (two-affordance contract, `tt_back` mechanism, label resolver) |
+| Button label / UI copy          | `docs/ui-copy.md` (sentence case, one verb per action, length limit, English msgids) |
 
 If a doc you'd expect doesn't exist, **say so before writing code** — don't
 guess at conventions. The lead developer would rather add a doc than have

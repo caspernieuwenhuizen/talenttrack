@@ -43,6 +43,18 @@ TalentTrack's built-in Backup module exports the plugin's own tables on a schedu
 - Every coach has an account with the right role, linked to the right teams — spot-check one coach can see their roster and not another age group's medical data.
 - The persona dashboard page exists and is reachable (Setup wizard normally created it).
 
+## 5b. Media, if the academy will upload photos or video
+
+- **Check the media folder is not served directly.** Try opening `wp-content/uploads/tt-media/` in a browser. It should refuse. TalentTrack writes
+  a deny-all rule there, but **that rule only works on Apache** — on nginx it does nothing, and the only thing protecting a child's photograph is
+  TalentTrack's own permission check on every file request. That check always runs, on every server; the folder rule is a second layer where the
+  server honours it. If you run nginx and want the second layer too, add a `location` block denying `/wp-content/uploads/tt-media/`.
+- **Agree the consent wording before the first upload.** A photo attached to several players is visible to all of their families — see
+  [Media library](media-library.md). Families should be told that at registration, not discover it.
+- **Know your disk.** Uploaded video is not small and nothing reclaims it. The academy admin's system-health strip shows **Media stored** once
+  there is anything to report; check it against what the hosting actually provides.
+- If the academy will not use media at all, switch the module off under Modules rather than leaving it available and unused.
+
 ## 6. Day-one support plan
 
 - Who do coaches message when something breaks during the first week, and who escalates to the developer/host?

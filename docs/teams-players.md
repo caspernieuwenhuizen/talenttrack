@@ -28,7 +28,7 @@ The Teams list (the frontend **Teams** view) shows your teams as a grid of click
 
 The whole card is a link — tap or click anywhere on it to open the team page. The cards stack to a single column on phones and flow into multiple columns on wider screens.
 
-Above the grid you still have **search**, the **Age group** filter, and the **Status** filter (Active / Archived / All) — archived teams remain reachable by switching Status. Sorting moves to a single **Sort by** dropdown (name, age group, or player count) since cards aren't columnar.
+Above the grid you still have **search** and the **Age group** filter. The list shows active teams; archived ones stay reachable through the **⋯** button at the end of the filter row, which switches between Active and Archived. While you are looking at archived teams a chip beside that button says so, with a ✕ to go back. Sorting moves to a single **Sort by** dropdown (name, age group, or player count) since cards aren't columnar.
 
 ### The team page
 

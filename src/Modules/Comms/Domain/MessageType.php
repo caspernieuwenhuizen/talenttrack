@@ -40,6 +40,18 @@ final class MessageType {
     public const LETTER_DELIVERY             = 'letter_delivery';
     public const MASS_ANNOUNCEMENT           = 'mass_announcement';
 
+    /**
+     * #2604 — in-product notifications routed through the Push module's
+     * dispatcher chain: workflow task assignments, thread replies, trial
+     * reminders. Their copy is composed by the calling module rather than
+     * by a template, so they share one passthrough template and are told
+     * apart in the audit log by the `event` payload key.
+     *
+     * Deliberately not operational: a coach may reasonably mute these,
+     * and they have no business arriving at 23:00.
+     */
+    public const NOTIFICATION                = 'notification';
+
     // Operational — opt-out forbidden.
     public const SAFEGUARDING_BROADCAST      = 'safeguarding_broadcast_OPERATIONAL';
     public const ACCOUNT_RECOVERY            = 'account_recovery_OPERATIONAL';

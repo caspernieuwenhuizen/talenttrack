@@ -1,0 +1,59 @@
+{
+  "pass_mark": 4,
+  "questions": [
+    {
+      "id": "q1",
+      "type": "single",
+      "prompt": "In week 1 en 2 staat 11v11/8v8 in overload. Welke vorm speel je die weken in underload?",
+      "options": ["4v4 – 3v3", "7v7 – 5v5", "2v2 – 1v1", "Geen enkele"],
+      "answer": 1,
+      "explanation": "7v7/5v5 in underload bereidt voor op de overload van diezelfde vorm in week 3 en 4."
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "prompt": "Je overload op 7v7 is 4 × 6 minuten. Wat is de underload?",
+      "options": ["2 × 6 minuten", "4 × 3 minuten", "2 × 3 minuten", "4 × 6 minuten op een groter veld"],
+      "answer": 1,
+      "explanation": "Bij grote en middelgrote partijen halveer je de minuten, niet het aantal partijen. Vier blokken van drie minuten geven meer handelingen op een hoger tempo met minder vermoeidheid."
+    },
+    {
+      "id": "q3",
+      "type": "single",
+      "prompt": "Je overload op 4v4 is 2 series × 6 partijen van 1 minuut. Wat is de underload?",
+      "options": [
+        "2 series × 6 partijen van 30 seconden",
+        "1 serie × 6 partijen van 1 minuut",
+        "2 series × 3 partijen van 1 minuut",
+        "2 series × 6 partijen met dubbele rust"
+      ],
+      "answer": 1,
+      "explanation": "Bij kleine partijen halveer je juist het aantal partijen. De werk-rustverhouding halveren maakt de partijen te kort of de pauzes te lang en het spelbeeld verdwijnt."
+    },
+    {
+      "id": "q4",
+      "type": "single",
+      "prompt": "Wat gebeurt er met de cyclus in een week met een midweekse wedstrijd?",
+      "options": [
+        "De conditietraining wordt ingekort",
+        "De week is neutraal: de conditietraining schuift een week op, de underload gaat door",
+        "De cyclus begint opnieuw bij week 1",
+        "De underload vervalt en de overload blijft staan"
+      ],
+      "answer": 1,
+      "explanation": "Alle tijd gaat naar herstel en voorbereiding. Een cyclus van zes weken duurt daardoor soms zeven of acht weken."
+    },
+    {
+      "id": "q5",
+      "type": "order",
+      "prompt": "Zet de fases die elke oefenvorm doorloopt in de juiste volgorde.",
+      "options": [
+        "Twee weken underload (50%)",
+        "Twee weken overload (100%)",
+        "Twee weken afbouw (0%)"
+      ],
+      "answer": [0, 1, 2],
+      "explanation": "Voorbereiden, belasten, laten ontwikkelen. Zo gaat niemand van niets naar alles."
+    }
+  ]
+}
