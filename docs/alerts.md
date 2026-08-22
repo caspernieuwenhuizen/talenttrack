@@ -94,3 +94,24 @@ Other notes:
 - A fresh installation runs one check immediately on activation, so the dashboard shows a true picture without waiting an hour.
 - Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.
+
+## Getting alerts by email
+
+If you do not open TalentTrack often, you can have your open alerts sent to you as a summary email.
+
+It is **off until you turn it on**. Nobody is signed up automatically — the app will show you alerts in the bell and on the dashboard, but it will not email you until you ask.
+
+To turn it on, tick **In the summary email** for the alerts you care about in **Account → Alert settings**.
+
+What you can rely on:
+
+- You are never sent the same alert twice. An alert stays open until the underlying thing is fixed, and without this you would get the same three items every morning.
+- Nothing is emailed that you have already read, snoozed or dismissed in the app.
+- If there is nothing to report, no email is sent at all.
+- Each line links straight to the record that needs attention, not to a list.
+
+## How long alerts are kept
+
+Once an alert has cleared, it is kept for **90 days** and then deleted. Alerts that are still open are never deleted, however old they are — an alert nobody has dealt with for a year is worth seeing, not tidying away.
+
+This means the alerts system cannot answer questions spanning more than about a quarter. For season-long patterns, use Reports, which reads the underlying records rather than the alerts about them.

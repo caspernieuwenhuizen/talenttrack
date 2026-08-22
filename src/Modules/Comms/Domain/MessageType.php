@@ -57,6 +57,18 @@ final class MessageType {
      */
     public const NOTIFICATION                = 'notification';
 
+    /**
+     * #2634 — the periodic roll-up of a user's open alerts.
+     *
+     * Deliberately ONE type for every alert, not one per alert key. A
+     * per-key explosion would duplicate `tt_alert_preferences`, which is
+     * already the right place to mute a specific alert, and would leave two
+     * systems disagreeing about what "muted" means. The division of labour:
+     * Comms opt-out governs "do I want digest email at all", the alert
+     * matrix governs "which alerts feed it".
+     */
+    public const ALERT_DIGEST                = 'alert_digest';
+
     // Operational — opt-out forbidden.
     public const SAFEGUARDING_BROADCAST      = 'safeguarding_broadcast_OPERATIONAL';
     public const ACCOUNT_RECOVERY            = 'account_recovery_OPERATIONAL';
