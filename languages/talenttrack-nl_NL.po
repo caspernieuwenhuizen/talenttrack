@@ -51130,6 +51130,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php
+msgid "Media stored"
+msgstr "Media opgeslagen"
 #~ msgid "improved"
 #~ msgstr "verbeterd"
 

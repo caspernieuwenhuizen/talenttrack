@@ -109,6 +109,21 @@ class MediaModule implements ModuleInterface {
         add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
     }
 
+    /**
+     * **No tile, deliberately** (#2596).
+     *
+     * `TileRegistry` entries are destinations on the shell's primary
+     * navigation, and media has none: every surface it owns is a tab or a
+     * section on a record that already has its own tile — a player, a
+     * team, an activity. Media is reached *through* the thing it is
+     * about, which is the point of a player-centric system.
+     *
+     * A tile would need a standalone browse-all-media view behind it. That
+     * is a real feature with real questions (what does an academy-wide
+     * gallery of children's photographs mean, and who should have it?),
+     * not a box to tick for completeness. Registering a tile pointing at
+     * a view that does not exist would be worse than having neither.
+     */
     public static function ensureStorage(): void {
         LocalPrivateStorage::ensureRoot();
     }
