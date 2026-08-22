@@ -1,3 +1,473 @@
+# TalentTrack v4.95.0 — Draw an animated scene for a drill (#2501)
+
+An exercise can now carry a **scene** — a small animated diagram of the drill,
+with players, opponents, the ball, cones and goals on a pitch, and the
+movements you want them to make. Open an exercise and press **Draw a scene**.
+
+The editor is built around one gesture: drag a marker on the pitch and it
+records where that marker is at the moment the playhead is on. Scrub to two
+seconds, move the left-back forward, and the left-back now runs forward over
+those two seconds. A timeline, a marker palette, a line tool (pass, dribble,
+run, shot, press) and forty steps of undo are there for everything the drag
+does not cover, and the arrow keys move a marker without a mouse.
+
+A saved scene shows up in three places — the exercise page, the sideline view
+while the training runs, and the printed A4 sheet. All three draw it with the
+same code, so they cannot drift apart; on paper it becomes a still picture of
+the scene's final frame, which is also what a reader who prefers reduced motion
+sees on screen.
+
+Scenes are stored per exercise and validated on the way in, so a diagram that
+reaches the database is always one that renders. Coordinates off the pitch are
+pulled back onto it, keyframes are sorted, and a line drawn to a player who has
+since been deleted is dropped rather than left pointing at nothing.
+
+Drawing works best on a tablet or a desktop. On a phone you can watch a scene
+and move a marker, but the timeline wants more room than a phone has.
+
+# TalentTrack v4.95.0 — Fixed: the Data browser tile stayed on the dashboard after switching the module off (#2599)
+
+Switching the **Data browser** module off hid what it does but left its tile on the dashboard, pointing at a screen that no longer answered. The
+tile now disappears with the module, as every other module's does.
+
+Behind that, the switchability check that shipped alongside it has been taught something it was missing: a screen belonging to a module you can
+already switch off does not also need a separate feature toggle. That removed 47 entries from the list of screens marked as needing a decision —
+they never needed one — and left six that genuinely must always be on, each with the reason written down.
+
+# TalentTrack v4.95.0 — Five modules now show their real names on the Modules page (#2599)
+
+Strava, Training plans, Measurements & testing, Data browser and Knowledge library were listed on the Modules page under a slugified class
+name instead of a proper label and description. They now read like the other modules do.
+
+The rest of this change is a build-time check with no visible effect: TalentTrack now refuses to ship a module or a screen that an academy cannot
+switch off, unless somebody has written down why it must always be on. The switching itself has always worked — what was missing was anything that
+noticed when a new one arrived without a toggle.
+
+# TalentTrack v4.95.0 — Alerts: TalentTrack now tells you when your data needs attention (#2631)
+
+A new Alerts engine surfaces conditions that are true right now and need
+someone to act — an activity whose date has passed but is still marked as
+planned, a completed activity with nobody's attendance recorded, an activity
+next week with no coach assigned. Alerts appear in a banner at the top of
+the dashboard and are counted by the notification bell alongside open tasks.
+
+Alerts are deliberately not tasks. You never mark one as done: you fix the
+thing it points at and it clears itself on the next background check. That
+is the whole reason for a separate engine — modelling "this activity is still
+planned" as a task would leave a stale task in someone's inbox every time a
+coach fixed the activity in the activities list.
+
+Alerts go to the people who can fix them: the coach assigned to the activity
+and the team's head coach. Heads of Development do not receive one per team;
+an aggregate view for that role comes later. Whether a recipient may see an
+alert is re-checked on every sweep, so a coach who moves off a team stops
+receiving that team's alerts without anyone having to remember.
+
+Conditions are re-checked hourly in the background rather than while your
+dashboard loads, so adding alert types can never slow down signing in. The
+trade-off is that an alert can linger for up to an hour after you fix the
+underlying thing. A fresh install runs one check on activation so the first
+dashboard load shows a true picture.
+
+This is the foundation only. Per-person and per-club settings for which
+alerts you see and where, contextual chips on list and detail views, email
+digests, and the rest of the alert catalogue all build on top of it.
+
+# TalentTrack v4.95.0 — Alerts: choose which ones you see, and where (#2632)
+
+Alerts now have settings. **Account → Alert settings** lists every alert with
+a tick per place it can appear — in the bell, as a banner on the dashboard —
+so a coach who wants unmarked activities counted but not announced can have
+exactly that.
+
+Alerts you cannot change are shown greyed out with the reason rather than
+hidden. A settings list that quietly omits what you cannot change teaches you
+the list is complete when it is not.
+
+Two new controls for administrators, under **Settings → Alert policy**. Each
+alert can be left to the individual (the default), forced on for everyone, or
+switched off for the whole club — except alerts concerning a child's safety,
+which cannot be switched off at all. Switching one off also clears the alerts
+it has already raised, rather than leaving rows stored where nobody can see
+them. Administrators can also require an alert to be acknowledged before the
+page continues, and set how long an ignored alert waits before it becomes a
+real assigned task.
+
+Individual alerts can now be snoozed for a day, a week or a month, or
+dismissed outright. Dismissing removes that occurrence only: if the same
+problem is fixed and then happens again, the alert comes back, because that
+is genuinely new information. To stop a whole category, untick it in Alert
+settings.
+
+Message preferences — what the academy emails or pushes to you — stay on
+their own screen under Account → Settings, and the two screens link to each
+other. They govern different things: one is what gets sent to you, the other
+is what the app surfaces about your own data.
+
+# TalentTrack v4.95.0 — Alerts wave 3: alerts appear on the records they are about (#2633)
+
+Alerts now surface where the fix happens, not only in a banner. A compact
+severity chip appears on any activity in the activities list, on the
+activity's own page, on a team's page, and on a player's record — a count,
+a word, and a link into the new alerts list scoped to that record. The chip
+carries its meaning in text as well as colour, works without hover, and
+stays a 48x48 target on a phone.
+
+Two rules hold the design together. The chip is the one alert surface a
+person cannot mute: it is not a notification, it is the record's own current
+state drawn next to the record, and hiding it would hide a row's real
+condition from whoever is looking straight at that row. And on a player's
+record only OPEN alerts are ever shown — resolved ones are gone, and nothing
+about an alert is written into the player's journey. The journey records
+what happened to the player; an alert records what staff did not get round
+to entering, and at a 90-day retention a journey entry would vanish
+retroactively anyway.
+
+A new **Alerts** list at `?tt_view=alerts` carries the whole set with
+area / severity / state filters, and is where every chip deep-links to.
+
+Heads of Development and academy admins get the counterpart they were
+promised: a per-team summary at the top of that list ("4 teams have records
+that need attention"), read as a grouped query over the alerts that already
+exist. No occurrence is written for oversight users, so the "no alert per
+team for the person with the least time to read them" rule stays intact.
+The summary is scoped to the teams the viewer already oversees and counts
+each affected record once, even when two coaches were both told about it.
+
+Rendering chips on a fifty-row list costs one database query for the whole
+page. `GET /alerts` gained `subject_type` / `subject_id` / `player_id` /
+`state` filters and `GET /alerts/rollup` returns the per-team summary, so a
+non-WordPress front end can draw the same chip.
+
+# TalentTrack v4.95.0 — Alerts: optional summary email, and a 90-day retention window (#2634)
+
+Alerts can now reach you by email. If you do not open TalentTrack often, tick
+**In the summary email** against the alerts you care about in Account → Alert
+settings and your open ones arrive as a single message.
+
+It is off until you turn it on. Nobody is signed up by this release: the app
+will show you alerts in the bell and on the dashboard, but it will not put
+mail in your inbox until you ask it to.
+
+The summary will not repeat itself. An alert stays open until the underlying
+thing is fixed, so without this you would receive the same items every
+morning; anything already mailed, read, snoozed or dismissed is left out, and
+when there is nothing to report no email is sent at all. Each line links
+straight to the record that needs attention rather than to a list.
+
+Cleared alerts are now kept for 90 days and then deleted. Alerts still open
+are never deleted however old they are — one nobody has dealt with for a year
+is worth seeing, not tidying away. The trade-off is that the alerts system
+cannot answer questions spanning more than about a quarter; for season-long
+patterns use Reports, which reads the underlying records.
+
+# TalentTrack v4.95.0 — Alerts: three new Evaluations alerts (#2636)
+
+This release adds three alerts about evaluations. They are switched on from
+the moment you update, for everyone who can act on them, so here is exactly
+what you will start seeing:
+
+- **Player not evaluated recently** — nobody has recorded an evaluation for a
+  player for longer than your academy's threshold (eight weeks out of the box).
+  Goes to the head coach of that player's team. A player who has never been
+  evaluated is counted from the day they joined, so a trialist who arrived on
+  Tuesday will not appear.
+- **Evaluation window closing** — an evaluation window is within three days of
+  closing and players in your team have no evaluation in it. Goes to the head
+  coach. It stops the moment the window closes: a gap nobody can still fill is
+  not something worth nagging about.
+- **Evaluation not shared with the player** — an evaluation was recorded but
+  the player-facing feedback field was left empty, so the player and their
+  parents see nothing. Goes to the coach who wrote it and to the team's head
+  coach, from a week after the evaluation until sixty days after it.
+
+All four thresholds are academy settings rather than fixed numbers, because
+an academy that evaluates every block and one that evaluates twice a season
+disagree about what "recently" means: `alerts_eval_stale_weeks`,
+`alerts_eval_window_closing_days`, `alerts_eval_share_grace_days` and
+`alerts_eval_share_lookback_days`.
+
+As with every alert, you never mark these done. Record the evaluation, or add
+the feedback, and the alert clears itself at the next hourly check. You only
+receive one about a player you already have permission to see.
+
+This is the first of several instalments that fill out the alert catalogue.
+They ship one module at a time, and each release names the alerts it adds —
+a release that quietly changed twelve things the app nags about would be an
+ambush rather than an improvement.
+
+# TalentTrack v4.95.0 — Alerts: two new Goals and PDP alerts (#2636)
+
+This release adds two alerts about a player's development plan. They are
+switched on from the moment you update, for everyone who can act on them, so
+here is exactly what you will start seeing:
+
+- **Goal past its target date** — a development goal has passed the date it
+  was aimed at and is still open. Goes to whoever set the goal and to the head
+  coach of the player's team, from three days after the date until a year
+  after it. Either the player got there and nobody recorded it, or the plan
+  needs changing; both are answers, leaving the goal untouched is not.
+- **No PDP conversation this cycle** — a player's PDP file for this season is
+  open but no conversation has actually been held. Goes to the coach who owns
+  the file and to the team's head coach, from 45 days after the file was
+  opened. Conversations that were scheduled but never held do not count: a
+  cycle is created with all of its conversation rows already written, so
+  counting rows would mean the alert could never appear.
+
+Both thresholds are academy settings rather than fixed numbers:
+`alerts_goal_overdue_grace_days`, `alerts_goal_overdue_lookback_days` and
+`alerts_pdp_no_conversation_days`.
+
+Only the current season's PDP cycles are considered. Last season's untouched
+cycle is history, not a gap anyone can still close.
+
+This is the second instalment filling out the alert catalogue, after the
+Evaluations alerts. They ship one module at a time so that every release can
+tell you what it added.
+
+# TalentTrack v4.95.0 — Alerts: a new Measurements alert (#2636)
+
+This release adds one alert about the testing battery. It is switched on from
+the moment you update, for everyone who can act on it, so here is exactly
+what you will start seeing:
+
+- **No measurement this season** — a player has nothing recorded in the
+  current season's testing battery. Goes to the head coach of their team,
+  from 60 days into the season. Growth data is the only part of a player's
+  record that is not somebody's opinion, and a season with no measurement
+  leaves a permanent hole in the curve: you cannot fill it later, because the
+  player has already grown.
+
+The question is "this season", not "recently": a measurement taken before the
+current season started does not count, because the academy's testing battery
+runs on a season rhythm. The current season is the one marked as current in
+your season settings; if none is marked, the alert stays quiet.
+
+The threshold is an academy setting, `alerts_measurement_grace_days`. In week
+one of a season this alert would fire for every player in the academy at once,
+which is indistinguishable from saying nothing.
+
+You only receive it if you already have access to measurements — the alert
+names a player and says what is missing from their record, so it is gated the
+same way the measurement screens are.
+
+This is the fourth instalment filling out the alert catalogue.
+
+# TalentTrack v4.95.0 — Alerts: three new People alerts (#2636)
+
+This release adds three alerts about the people around a player. They are
+switched on from the moment you update, for everyone who can act on them, so
+here is exactly what you will start seeing:
+
+- **Player turns 18 soon** — a player's eighteenth birthday is within 30 days.
+  Goes to the head coach of their team. Turning eighteen changes the paperwork
+  rather than the football: parental consent stops being the basis for holding
+  their data, a youth agreement may need to become a contract, and the parent
+  account's access becomes a decision rather than a default.
+- **Parent invited but never activated** — a parent was invited more than a
+  fortnight ago, never created their account, and the player still has no
+  parent linked at all. Goes to whoever sent the invitation and to the head
+  coach. A parent who was invited twice and accepted the other invitation, or
+  who an admin linked directly, does not trigger it.
+- **Certificate expiring** — one of your own certificates is within 60 days of
+  expiring, or expired inside the last 60 days. This one goes **only to the
+  person whose certificate it is**: that is somebody's professional record,
+  not squad information. Already-expired certificates are included on purpose;
+  dropping them would make the alert vanish exactly when the problem becomes
+  real.
+
+Thresholds are academy settings: `alerts_player_turns_18_days`,
+`alerts_parent_invite_stale_days` and `alerts_staff_cert_expiring_days`. The
+age of majority itself is not a setting — it is a fact about the jurisdiction
+the academy operates in, not a preference.
+
+Parent invitations are covered here; player and staff invitations get their
+own alert in a later instalment, so nobody is told the same thing twice.
+
+This is the third instalment filling out the alert catalogue, after
+Evaluations and Goals/PDP.
+
+# TalentTrack v4.95.0 — Knowledge library: the system now remembers where you got to (#2644)
+
+Courses have shipped as files since #2642 and been readable since #2643. This
+adds the half a file cannot carry: who is on which course, how far they got,
+and what they still owe.
+
+Four tables behind one rule. A lesson is finished when everything its front
+matter asks for has happened — read it, pass the quiz if it has one, get the
+assignment approved if it has one — and a course is finished when all its
+lessons are. That rule lives in one service, because the reader, the
+lesson-unlock gate and the completion report all have to give the same answer
+and there is no version of this where they may disagree.
+
+Two consequences worth knowing. Requirements are read from the course files
+every time rather than frozen at enrolment, so revising a course to add a
+lesson reopens the people who finished the old version instead of leaving
+them certified for work they have not done. And completion is reversible: a
+reviewer who withdraws an approval drops the enrolment back to in-progress,
+because a certification standing on a verdict that no longer stands is worse
+than no certification.
+
+Quiz attempts are kept in full, not collapsed to the latest. A coach who
+passed on the fourth attempt has a different development record than one who
+passed first time, and that is exactly what a head of academy reading the
+record wants to see.
+
+Three capabilities rather than the usual two: a coach can see their own
+progress without seeing their colleagues', because the roll-up is a separate
+grant. Assignment attachments ride the media library rather than growing a
+second upload path.
+
+Demo data covers all four tables with a deliberately mixed cohort — some
+finished, some mid-course, one overdue, one assignment waiting in the review
+queue — so the completion report has something real to render before anyone
+has used the feature.
+
+Still not readable in the app: the reader view is #2646.
+
+# TalentTrack v4.95.0 — One gate for what an install can show you (#2645)
+
+Two corpora in the plugin carry the same four keys — `module`, `feature`,
+`tier`, `capability` — and both need the same question answered: can this
+install, and this reader, have this? The help topics under `docs/` and the
+courses under `courses/` were about to grow two separate answers to that,
+which would have drifted the first time anyone added a fifth gate or fixed a
+bug in one of them.
+
+`ContentGate` is now the single resolver, in shared space so neither module
+owns it. Courses consume it today; the help corpus consumes it when its own
+gating work lands.
+
+The verdict it returns is not a boolean, because the three ways content can
+be out of reach are not interchangeable to the person in front of it.
+**Unavailable** means this install does not have it and no permission changes
+that. **Denied** means it is here and somebody else can see it. **Locked**
+means you will be able to, once you have done something first. Showing the
+same message for all three is how a product ends up telling a head of academy
+to ask their administrator about a feature their licence does not include.
+
+On top of that, courses gain the two gates that are about the learner rather
+than the install: a course can require another course first, and a sequential
+course opens one lesson at a time.
+
+Two decisions worth knowing. Content this install cannot have is **absent**
+and returns a 404, not a 403 — a 403 confirms the thing exists here, which is
+what hiding it was for. And locked content stays **listed**, because hiding a
+locked lesson makes a course look shorter than it is and nobody can work
+towards something they cannot see.
+
+The gate is enforced where it can actually be walked around: submitting
+progress for a locked lesson is refused, not just hidden in the reader.
+
+An unknown key value leaves content visible rather than hiding it. A typo in a
+feature name silently removing a topic is a bug found months later, if ever;
+the corpus lints are what catch the typo.
+
+# TalentTrack v4.95.0 — The knowledge library is now something you can actually open (#2646)
+
+Three ships have built a course library nobody could read: the corpus, the
+interactive blocks, the progress tables and the gating. This is the front of
+it.
+
+Four surfaces. A **library** listing the courses this reader may see, ordered
+so the work in front of them comes first — in progress, then not started, then
+locked, then finished, because a library that sorts alphabetically makes a
+coach hunt for the course they are halfway through. A **course page** with the
+lesson list, what finishing asks of them, and one button back to wherever they
+stopped. The **reader** itself. And **My learning**, which sits beside My PDP
+and My certifications because that is what it is: the training half of a
+coach's own development.
+
+Opening a course goes to the first lesson you have not finished, not lesson
+one. Opening a lesson enrols you — a separate "enrol" step before you can read
+lesson one is a step nobody would understand.
+
+Marking a lesson read is a button, never a scroll measurement. A coach who
+skims and clicks it has made a claim; a scroll listener has only measured a
+thumb. It posts a real form, so the lesson still completes with JavaScript
+switched off. The end of each lesson also says what it still wants — a passed
+check, an approved assignment — because someone who marks a lesson read and
+sees the course percentage refuse to move needs to know it is the quiz and not
+a bug.
+
+The zero-point measurement a coach takes in module 4 is still there in module
+11, where the final assignment asks for it. Same for a week plan: the tools
+now remember what you put in them.
+
+Locked lessons stay in the list with the reason attached, rather than being
+hidden. Hiding them would make a course look shorter than it is, and nobody
+can work towards something they cannot see.
+
+Everything here is switchable: all four routes belong to the courses feature,
+so turning it off takes the URLs down as well as the tiles rather than leaving
+a bookmarked lesson rendering a surface the academy switched off.
+
+# TalentTrack v4.95.0 — How long a player's photos are kept, and who decides (#2666)
+
+An academy asked "how long do you keep photos of my child?" now has an answer the product supports.
+
+Media belonging to a player who has left is kept for a set period — **three years by default**, adjustable from one to ten years under
+Configuration, or **Keep indefinitely** if you would rather decide case by case. When the period passes, the media appears under the new **Media
+retention** screen.
+
+**Nothing is ever deleted automatically.** The period starts a review, not a deletion. That is why a default could be shipped safely: upgrading
+finds you a list to work through, never gaps in your records.
+
+Two details worth knowing:
+
+The clock starts when the player leaves, not when the photo was taken. A player still at the academy keeps their whole file however old — the
+picture of the same player at 12 and at 18 is the point, and a period measured from the photo's own date would quietly delete the beginning of it.
+
+Expiry applies to one player's link rather than the whole photo. A team photo showing someone who left comes off *their* file and stays on the
+team, on the training, and on the other players in it. Only when nothing is left pointing at a file is the file itself deleted — and the screen
+tells you which of the two just happened.
+
+Each item can be **Kept** instead, with a reason: a safeguarding matter, an open dispute. Those are listed separately with their reasons, because a
+retention policy with an invisible list of exceptions is not one anyone can check.
+
+# TalentTrack v4.95.0 — Scene editor: correct Dutch for the line types (#2687)
+
+The scene editor's line picker offered a Dutch coach **Geslaagd** for *Pass* and
+**Uitvoeren** for *Run* — "passed" as in a test result, and "execute" as in
+running a program. Both are now right: **Pass** and **Loopactie**.
+
+`Pass` and `Run` are single English words, and the catalogue already held them
+from unrelated parts of the product. Gettext returns whichever translation was
+registered first, so the picker inherited a meaning from somewhere else entirely
+with nothing to show for it — the English read fine and the catalogue looked
+complete.
+
+The whole diagram vocabulary — the six markers, the five line types and the four
+pitch presets — is now translated under its own context, so none of these words
+can pick up a sense from elsewhere, and a word added to the set later cannot
+either.
+
+# TalentTrack v4.95.0 — Photo-capture DPIA corrected against the code (#2695)
+
+`docs/photo-capture-dpia.md` is the document an academy signs before photographs
+taken at a youth academy are sent to a vision model. An audit against the shipped
+code found that several of its technical assertions described safeguards that do
+not exist, so the document has been rewritten to describe what the code actually
+does, and now carries a prominent **not ready for signature** banner listing what
+must be settled first.
+
+The correction that matters most: the feature does **not** route to an EU-resident
+endpoint by default. The document previously said it did, and that breaking that
+required a deliberate opt-out. In fact the default is Anthropic's direct API,
+there is no AWS Bedrock code path at all, and an operator-supplied endpoint
+override is not validated.
+
+Corrected in the safer direction: the uploaded photograph is never written to
+disk. The document described a seven-day retention and a cron sweep; neither
+exists, because there is nothing stored to sweep.
+
+Also corrected: the structured extraction is **not** currently included in the
+GDPR subject-access export, contrary to what the document claimed.
+
+No behaviour changed in this release — the feature remains off by default behind
+the `exercises_vision_extraction` flag. If you have already signed a copy of this
+DPIA, re-read it: the version you signed misdescribed where photographs go.
+
 # TalentTrack v4.94.1 — Test trends: numbers first, and a colour per player (#2670)
 
 The Test trends report led with a chart in which every player's line was
