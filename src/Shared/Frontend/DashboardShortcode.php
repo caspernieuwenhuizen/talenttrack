@@ -1544,6 +1544,32 @@ class DashboardShortcode {
     }
 
     /**
+     * #2646 (epic #2641) — knowledge library.
+     *
+     * `course` and `lesson` read their target from the query string
+     * rather than the slug, because a course is addressed by its corpus
+     * slug and there is no numeric id to put in the route.
+     */
+    private static function dispatchKnowledgeView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'knowledge':
+                \TT\Modules\Knowledge\Frontend\FrontendKnowledgeLibraryView::render( $user_id, $is_admin );
+                return true;
+            case 'course':
+                \TT\Modules\Knowledge\Frontend\FrontendCourseView::render( $user_id, $is_admin );
+                return true;
+            case 'lesson':
+                \TT\Modules\Knowledge\Frontend\FrontendLessonView::render( $user_id, $is_admin );
+                return true;
+            case 'my-learning':
+                \TT\Modules\Knowledge\Frontend\FrontendMyLearningView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * #0055 — record-creation wizards. `wizard` is the user-facing
      * slug; `wizards-admin` is the configuration + analytics surface.
      */
@@ -1829,6 +1855,7 @@ class DashboardShortcode {
             || self::dispatchReportView( $view, $user_id, $is_admin )
             || self::dispatchTrialView( $view, $user_id, $is_admin )
             || self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin )
+            || self::dispatchKnowledgeView( $view, $user_id, $is_admin )
             || self::dispatchWizardView( $view, $user_id, $is_admin )
             || self::dispatchMobileView( $view, $user_id, $is_admin )
             || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )

@@ -52168,6 +52168,146 @@ msgstr ""
 #~ msgstr "Zonder lijnen"
 
 #, php-format
+#: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php
+msgid "No courses are available on this academy yet."
+msgstr "Er zijn nog geen cursussen beschikbaar op deze academie."
+
+#: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php
+msgid ""
+"Your login is not linked to a staff record, so progress cannot be saved. You "
+"can still read every course."
+msgstr ""
+"Je account is niet gekoppeld aan een medewerkersdossier, dus voortgang wordt "
+"niet bewaard. Je kunt elke cursus wel lezen."
+
+#: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php
+msgid "Start the course"
+msgstr "Start de cursus"
+
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+msgid "Course not found"
+msgstr "Cursus niet gevonden"
+
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+msgid "Continue where you left off"
+msgstr "Ga verder waar je gebleven was"
+
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+msgid "You have completed every lesson in this course."
+msgstr "Je hebt alle lessen van deze cursus afgerond."
+
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+msgid ""
+"Lessons open one at a time. A lesson counts as finished when you have read "
+"it, passed its check and had its assignment approved."
+msgstr ""
+"Lessen komen één voor één vrij. Een les telt als afgerond wanneer je hem "
+"gelezen hebt, de toets behaald hebt en de opdracht is goedgekeurd."
+
+#: src/Modules/Knowledge/Frontend/FrontendCourseView.php
+msgid ""
+"A lesson counts as finished when you have read it, passed its check and had "
+"its assignment approved."
+msgstr ""
+"Een les telt als afgerond wanneer je hem gelezen hebt, de toets behaald hebt "
+"en de opdracht is goedgekeurd."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Lesson not found"
+msgstr "Les niet gevonden"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Lesson %1$d of %2$d"
+msgstr "Les %1$d van %2$d"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Mark as read"
+msgstr "Markeer als gelezen"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Marked as read."
+msgstr "Gemarkeerd als gelezen."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "You have marked this lesson as read."
+msgstr "Je hebt deze les als gelezen gemarkeerd."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Your login is not linked to a staff record, so progress is not saved for this lesson."
+msgstr ""
+"Je account is niet gekoppeld aan een medewerkersdossier, dus voortgang voor "
+"deze les wordt niet bewaard."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "This lesson also needs %s before it counts as finished."
+msgstr "Deze les vraagt daarnaast %s voordat hij als afgerond telt."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "passing the check for this module"
+msgstr "dat je de toets van deze module haalt"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "having its assignment approved"
+msgstr "dat de opdracht wordt goedgekeurd"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Next: %s"
+msgstr "Volgende: %s"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "%1$s and %2$s"
+msgstr "%1$s en %2$s"
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "My learning"
+msgstr "Mijn leren"
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "This section is only available for people linked to a staff record."
+msgstr ""
+"Dit onderdeel is alleen beschikbaar voor mensen met een gekoppeld "
+"medewerkersdossier."
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "You are not on any course yet."
+msgstr "Je volgt nog geen cursus."
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "Browse the library"
+msgstr "Bekijk de kennisbank"
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "Course"
+msgstr "Cursus"
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "Retired"
+msgstr "Teruggetrokken"
+
+#: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php
+msgid "Not counted"
+msgstr "Telt niet mee"
+
+#: src/Modules/Knowledge/Frontend/KnowledgeChrome.php
+msgid "%1$d of %2$d lessons · %3$d%%"
+msgstr "%1$d van %2$d lessen · %3$d%%"
+
+#: src/Modules/Knowledge/Frontend/KnowledgeChrome.php
+msgid "Finish %s first."
+msgstr "Rond eerst %s af."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeChrome.php
+msgid "Another course has to be completed first."
+msgstr "Een andere cursus moet eerst afgerond worden."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeChrome.php
+msgid "Not available yet."
+msgstr "Nog niet beschikbaar."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
+msgid "Could not save. Your work is still on screen; try again."
+msgstr "Opslaan is niet gelukt. Je werk staat nog op het scherm; probeer opnieuw."
+
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
 #~ msgstr[0] "%d openstaande taak"

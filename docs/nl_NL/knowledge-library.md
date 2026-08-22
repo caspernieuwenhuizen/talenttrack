@@ -251,6 +251,73 @@ Twee hooks vuren op de overgang, elk één keer:
 De certificeringsbrug en de methodiekkoppeling (#2649) hangen aan de eerste,
 zodat de completion-service niet hoeft te weten wat er daarna gebeurt.
 
+## De lezer
+
+Vier routes, alle vier eigendom van de deelfunctie `knowledge_courses` — de
+functie uitzetten haalt dus ook de routes weg, niet alleen de tegels, en een
+opgeslagen les-URL houdt op te werken in plaats van een scherm te tonen dat de
+academie heeft uitgezet.
+
+| Slug | Scherm |
+| --- | --- |
+| `knowledge` | Bibliotheek. Tegel in de groep **Leren** |
+| `course` | Eén cursus: status, voortgang, lessenlijst. `?slug=` |
+| `lesson` | De lezer. `?slug=&lesson=` |
+| `my-learning` | Het eigen dossier. Tegel in de groep **Mij** |
+
+### Navigatie (CLAUDE.md §5)
+
+De keten is `Dashboard › Kennisbank › Cursus › Les`. De cursuskruimel is de weg
+terug naar de cursus en de kennisbankkruimel de weg terug naar de bibliotheek —
+er is geen aparte terugknop, want dat zou de derde affordance zijn die §5a
+verbiedt.
+
+`RecordSpine` zet de cursusnaam vast op het cursus- en lesscherm, zodat een
+trainer elf lessen ver niet omhoog hoeft te scrollen om te zien waar hij zit.
+**Geen tabbladen**: een cursus heeft één weergave, geen alternatieve
+weergaven van hetzelfde record, en de tabsleuf van de spine gebruiken om hem
+te gebruiken zou decoratie zijn.
+
+Elke link tussen deze schermen loopt via `CrossViewLink::render()` met een
+poort geregistreerd in `CoreSurfaceRegistration`, zodat een link naar een
+scherm dat de lezer niet kan openen helemaal niet wordt getoond (§7 / #2304).
+`KnowledgeLinks` bouwt de URL's en hangt er altijd de `tt_back`-hint aan; het
+bepaalt bewust niet de zichtbaarheid.
+
+### Verdergaan, en een les als gelezen markeren
+
+Een cursus openen gaat naar de **eerste onafgeronde les**, niet naar les één.
+Een les openen schrijft de lezer bij de eerste aanraking in — een aparte
+inschrijfstap voordat je les één kunt lezen is een stap die niemand zou
+begrijpen.
+
+Een les als gelezen markeren is een **expliciete handeling**, nooit een
+scrollmeting. Wie doorbladert en klikt, doet een uitspraak; een scrollmeting
+meet alleen een duim. Het is een echte formulierpost, dus de les kan ook
+zonder JavaScript worden afgerond; `knowledge-reader.js` maakt er een
+opslag-zonder-herladen van.
+
+Het slotblok noemt ook wat de les nog vraagt — een behaalde toets, een
+goedgekeurde opdracht — want wie een les als gelezen markeert en het
+cursuspercentage niet ziet bewegen, moet weten dat het de quiz is en geen
+storing.
+
+### Status van de interactieve blokken
+
+`tt-zeropoint` en `tt-weekplanner` bewaren hun status in
+`tt_course_progress.tool_state` via
+`PATCH /courses/{slug}/progress/{lesson}`, met vertraging gebundeld. De
+nulpuntmeting uit module 4 staat er in module 11 nog, waar de eindopdracht
+erom vraagt.
+
+Daarom is `knowledge-reader.js` als *afhankelijke* van
+`knowledge-blocks.js` ingeladen: het zet `window.TTKnowledge.savedState` bij
+het parsen, dus vóór beide scripts opstarten op `DOMContentLoaded`, zodat de
+blokken hun bewaarde status tijdens hun eigen init lezen in plaats van er
+achteraf opnieuw mee te worden opgestart. De eerste weergave slaat bewust
+niets op — tonen wat er al stond is geen wijziging, en terugschrijven zou het
+dossier bij elke paginaweergave aanraken.
+
 ### Vergrendeling
 
 Zes poorten, in één doorloop opgelost. De eerste vier zijn gedeeld met het
