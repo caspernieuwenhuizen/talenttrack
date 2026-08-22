@@ -16,6 +16,7 @@ use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
 use TT\Modules\Alerts\Definitions\NoCoachAssignedAlert;
+use TT\Modules\Alerts\Definitions\NoMeasurementThisSeasonAlert;
 use TT\Modules\Alerts\Definitions\PlayerNotEvaluatedAlert;
 use TT\Modules\Alerts\Definitions\PlayerTurns18Alert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
@@ -109,6 +110,9 @@ final class AlertsModule implements ModuleInterface {
         $alerts[] = new PlayerTurns18Alert();
         $alerts[] = new ParentNeverActivatedAlert();
         $alerts[] = new StaffCertificateExpiringAlert();
+
+        // #2636 instalment 4 — Measurements.
+        $alerts[] = new NoMeasurementThisSeasonAlert();
 
         return $alerts;
     }
