@@ -65,6 +65,61 @@ eigen geschiedenis te herschrijven.
 Oefeningen met het label **Meegeleverd** of **Uit VCT** kun je hier niet
 bewerken. Maak er een kopie van om een eigen versie te krijgen.
 
+## Een scène tekenen
+
+Een **scène** is een klein bewegend diagram van de oefening: spelers,
+tegenstanders, de bal, pionnen en doelen op een veld, met de bewegingen die je
+ze wilt laten maken. Open een oefening en druk op **Scène tekenen**.
+
+De editor is om één handeling heen gebouwd: **sleep een markering over het veld
+en er wordt vastgelegd waar die markering op dat moment staat.** Spoel door
+naar twee seconden, zet de linksback naar voren, en de linksback loopt nu in
+die twee seconden naar voren. Meer is er niet nodig om een scène te laten
+bewegen.
+
+De rest van het scherm is er voor de momenten dat slepen niet is wat je wilt:
+
+- **Markering toevoegen** — kies links een speler, tegenstander, keeper, bal,
+  pion of doel en tik daarna op het veld. Het gereedschap blijft geselecteerd,
+  dus je zet een heel elftal neer zonder telkens terug te gaan.
+- **Lijnen** — kies een lijnsoort (pass, dribbel, loopactie, schot, druk
+  zetten) en tik daarna op twee markeringen. De lijn wordt getrokken tussen de
+  plek waar die twee markeringen op dat moment *staan*, dus hij klopt nog
+  steeds als je er later één verplaatst.
+- **De tijdlijn** — één rij per markering, één ruitje per vastgelegde positie.
+  Tik op een ruitje om naar dat moment te springen; sleep het opzij om te
+  veranderen wanneer het gebeurt.
+- **Geselecteerde markering** — het rugnummer, de precieze positie, en knoppen
+  om te dupliceren of te verwijderen.
+- **Ongedaan maken** neemt de laatste wijziging terug, tot veertig stappen ver.
+  Ctrl+Z werkt ook.
+
+Met de pijltjestoetsen verplaats je de geselecteerde markering stap voor stap,
+dus je kunt een scène ook zonder muis opbouwen. Er wordt niets bewaard tot je
+op **Opslaan** drukt.
+
+**Veld** en **Duur** bepalen waarop de scène wordt getekend en hoe lang die
+loopt. Een rondo op een heel veld is zes spelers in een hoekje, dus kies het
+halve veld of het vierkant als dat is wat je daadwerkelijk uitzet.
+
+### Waar een scène terugkomt
+
+Zodra de scène is opgeslagen, verschijnt dezelfde scène op drie plekken,
+getekend door dezelfde code, zodat hij er altijd hetzelfde uitziet:
+
+- op de **oefeningpagina**, met afspeelknoppen;
+- in het **veldscherm** terwijl je de training draait;
+- op het **geprinte A4** — als stilstaand beeld, want papier kan niet
+  animeren. Dat beeld is het laatste frame van de scène.
+
+Een oefening kan meer dan één scène bevatten; zo laat je een oefening met
+fases zien. De eerste die je tekent is de scène die op die drie plekken
+verschijnt; druk op **Scène toevoegen** voor de volgende.
+
+Tekenen gaat het best op een tablet of desktop. Op een telefoon kun je een
+scène bekijken en een markering verplaatsen, maar de tijdlijn wil meer ruimte
+dan een telefoon biedt.
+
 ## Wie mag wat
 
 | | Bekijken | Toevoegen en bewerken | Clubbreed maken |

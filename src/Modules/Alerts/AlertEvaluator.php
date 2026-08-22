@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Alerts\Contracts\AlertInterface;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
+use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
 
 /**
@@ -43,8 +44,12 @@ final class AlertEvaluator {
     /** @var AlertOccurrencesRepository */
     private $repo;
 
-    public function __construct( ?AlertOccurrencesRepository $repo = null ) {
-        $this->repo = $repo ?? new AlertOccurrencesRepository();
+    /** @var AlertPolicyResolver */
+    private $policy;
+
+    public function __construct( ?AlertOccurrencesRepository $repo = null, ?AlertPolicyResolver $policy = null ) {
+        $this->repo   = $repo ?? new AlertOccurrencesRepository();
+        $this->policy = $policy ?? new AlertPolicyResolver();
     }
 
     /**
@@ -55,6 +60,26 @@ final class AlertEvaluator {
     public function run( AlertInterface $alert, AlertContext $context ): array {
         $now  = current_time( 'mysql' );
         $stat = [ 'created' => 0, 'bumped' => 0, 'resolved' => 0, 'skipped' => 0, 'truncated' => false ];
+
+        // #2632 — a club that has switched this alert off gets no rows at
+        // all, not rows nobody can see. Checked once per definition rather
+        // than per recipient: it is a single config read, and it also means
+        // `evaluate()` is never called, so a force-off costs nothing on a
+        // sweep instead of running its query and discarding the result.
+        //
+        // Resolving still runs below, so switching an alert off clears the
+        // backlog it already produced rather than stranding it. That matters
+        // — those rows would otherwise sit unreachable until the retention
+        // purge, invisible to the user and still counted by nothing.
+        if ( $this->policy->isForcedOff( $alert->key() ) ) {
+            $stat['resolved'] = $this->repo->resolveMissing(
+                $alert->key(),
+                [],
+                $now,
+                $context->isFullSweep() ? [] : $context->subjectIds
+            );
+            return $stat;
+        }
 
         $occurrences = $alert->evaluate( $context );
         if ( ! is_array( $occurrences ) ) $occurrences = [];
@@ -79,6 +104,16 @@ final class AlertEvaluator {
             // sweeps; a coach who moved teams last week must stop receiving
             // this at the next tick, not at the next release.
             if ( ! $this->recipientMayReceive( $occ->recipientUserId, $alert->capRequired() ) ) {
+                $stat['skipped']++;
+                continue;
+            }
+
+            // #2632 — and a recipient who has muted this alert everywhere
+            // gets no row either. Same reasoning as the club-level check,
+            // one layer down: storing an occurrence that resolves to no
+            // surface is storage and retention cost for something that can
+            // never be shown.
+            if ( ! $this->policy->isEnabledForDefinition( $occ->recipientUserId, $alert ) ) {
                 $stat['skipped']++;
                 continue;
             }

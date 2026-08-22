@@ -1,0 +1,80 @@
+/**
+ * Training scenes (#2501) — the marks the shared Speelwijze stylesheet
+ * does not have.
+ *
+ * Loaded ON TOP of `frontend-methodology-scene.css`, never instead of
+ * it. The pitch, the player and opponent tokens, the ball, the arrow
+ * kinds it knows, and the whole control bar all come from there — which
+ * is what makes an authored scene look like a shipped one without either
+ * renderer knowing about the other.
+ *
+ * What is here is only what the authored contract adds: cones, goals, a
+ * shot arrow, and the invisible hit target every actor carries.
+ */
+
+/* ---- the marks the shared sheet has no class for ---- */
+
+.tt-tsc-svg .tt-scene-cone {
+    fill: #e08a2e;
+    stroke: #8a4f10;
+    stroke-width: 0.3;
+}
+
+.tt-tsc-svg .tt-scene-goal {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.8;
+}
+
+/* A keeper is a player in a different shirt, so it inherits the token
+   shape and only changes colour. */
+.tt-tsc-svg .tt-scene-actor--keeper circle { fill: #7c3aed; stroke: #7c3aed; }
+.tt-tsc-svg .tt-scene-actor--keeper text   { fill: #fff; }
+
+/* The shared sheet styles run / pass / dribble / press but not shot. */
+.tt-tsc-svg .tt-tsc-arrow--shot {
+    stroke: var(--tt-warning, #e8b624);
+    stroke-width: 0.9;
+}
+
+/* ---- touch ---- */
+
+/*
+ * Every actor carries an invisible circle far larger than its visible
+ * token. A 3.2-unit token is roughly 11px at 360px wide — below any
+ * usable touch target — and the editor drags by these same nodes. The
+ * circle is transparent rather than `fill: none` because `none` is not
+ * hit-testable.
+ */
+.tt-tsc-svg .tt-scene-hit {
+    fill: transparent;
+    cursor: grab;
+}
+
+.tt-tsc-svg .tt-scene-actor:active .tt-scene-hit { cursor: grabbing; }
+
+/* Keyboard focus has to be visible on a canvas too. */
+.tt-tsc-svg .tt-scene-actor:focus-visible {
+    outline: none;
+}
+
+.tt-tsc-svg .tt-scene-actor:focus-visible circle:first-of-type {
+    stroke: var(--tt-focus, #2f6fed);
+    stroke-width: 1.2;
+}
+
+/* ---- links revealed over time ---- */
+
+/*
+ * A link is hidden until its moment arrives. Transitioning the opacity
+ * rather than snapping it stops a pass from flickering into existence
+ * mid-playback — but the transition is dropped under reduced motion,
+ * where the scene is a static final frame and nothing should move at all.
+ */
+.tt-tsc-svg .tt-tsc-arrow {
+    transition: opacity 120ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-tsc-svg .tt-tsc-arrow { transition: none; }
+}

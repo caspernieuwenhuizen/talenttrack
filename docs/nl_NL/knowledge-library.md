@@ -251,6 +251,55 @@ Twee hooks vuren op de overgang, elk één keer:
 De certificeringsbrug en de methodiekkoppeling (#2649) hangen aan de eerste,
 zodat de completion-service niet hoeft te weten wat er daarna gebeurt.
 
+### Vergrendeling
+
+Zes poorten, in één doorloop opgelost. De eerste vier zijn gedeeld met het
+helpcorpus en staan in `TT\Shared\Content\ContentGate`; de laatste twee gaan
+over wat de cursist gedaan heeft en staan in `CourseAccessResolver`.
+
+| Poort | Bron | Soort oordeel |
+| --- | --- | --- |
+| `module` | `ModuleRegistry::isEnabled()` | niet beschikbaar |
+| `feature` | `FeatureRegistry::isEnabled()` | niet beschikbaar |
+| `tier` | `LicenseGate::effectiveTier()` | niet beschikbaar |
+| `capability` | `current_user_can()` / `user_can()` | geweigerd |
+| `requires:` | vereiste cursus niet afgerond | vergrendeld |
+| `sequential:` | vorige les niet afgerond | vergrendeld |
+
+De drie soorten zijn niet uitwisselbaar. **Niet beschikbaar** betekent dat
+deze installatie het niet heeft, en geen enkel recht verandert daar iets aan.
+**Geweigerd** betekent dat het er wel is en dat iemand anders het wel ziet.
+**Vergrendeld** betekent dat je het straks kunt zien, zodra je eerst iets
+gedaan hebt. Voor alle drie dezelfde melding tonen is hoe een product een
+hoofd opleiding naar de beheerder stuurt voor een functie die niet in hun
+licentie zit.
+
+Gevolgen:
+
+- Niet-beschikbare en geweigerde cursussen zijn **afwezig** in de kennisbank
+  en geven **404**, geen 403 — een 403 bevestigt dat de cursus hier bestaat,
+  en dat is precies wat verbergen moest voorkomen.
+- Vergrendelde cursussen en lessen blijven **zichtbaar**, met hun oordeel. Een
+  vergrendelde les verbergen laat een cursus korter lijken dan hij is.
+- De vergrendeling wordt op het **schrijfpad** afgedwongen, niet alleen in de
+  lezer. Een les verbergen heeft geen zin als
+  `PATCH …/progress/{lesson}` hem alsnog als gelezen markeert; die route geeft
+  403 met het oordeel erbij.
+
+Twee conventies bewust overgenomen van de registers:
+
+**Een ontbrekende sleutel is geen poort.** Inhoud zonder `module:` wordt nooit
+op module afgeschermd.
+
+**Een onbekende waarde laat de inhoud zichtbaar.** Een typefout in
+`feature: knowlege_courses` mag een cursus niet stilletjes verbergen — dat is
+een fout die je maanden later ontdekt, of nooit. De corpus-lint vangt de
+typefout.
+
+Niets in de vergrendeling wordt gecachet: module- en functiestatus zijn tijdens
+runtime aanpasbaar en rechten zijn per gebruiker, dus een gecachet oordeel zou
+betekenen dat een moduleschakelaar pas werkt na de volgende plug-in-update.
+
 ### Rechten
 
 | Recht | Geeft toegang tot |

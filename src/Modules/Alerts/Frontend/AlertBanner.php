@@ -4,6 +4,8 @@ namespace TT\Modules\Alerts\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Alerts\Domain\Severity;
+use TT\Modules\Alerts\Domain\Surface;
+use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
 
 /**
@@ -44,13 +46,28 @@ final class AlertBanner {
         $repo = new AlertOccurrencesRepository();
         if ( ! $repo->tableExists() ) return;
 
-        $visible = $repo->openForUser( $user_id, self::MAX_VISIBLE );
-        if ( empty( $visible ) ) return;
+        // #2632 — only occurrences whose alert may use the banner surface
+        // for this user. Filtering here rather than in SQL keeps the
+        // precedence rules in one place (`AlertPolicyResolver`) instead of
+        // half in a query; the row count per user is small enough that the
+        // cost is a few array lookups.
+        //
+        // Over-fetched because the filter runs after the query: asking for
+        // exactly MAX_VISIBLE would show fewer than that whenever the top
+        // rows happen to be badge-only.
+        $policy = new AlertPolicyResolver();
+        $rows   = $repo->openForUser( $user_id, self::MAX_VISIBLE + 20 );
 
-        // Counted rather than inferred from an over-fetch: a coach with
-        // fifty open alerts should be told fifty, not "twenty more", which
-        // is what a fetch-a-few-extra approach silently caps it at.
-        $remaining = max( 0, $repo->openCountForUser( $user_id ) - count( $visible ) );
+        $eligible = [];
+        foreach ( $rows as $row ) {
+            if ( $policy->allows( $user_id, (string) ( $row->alert_key ?? '' ), Surface::BANNER ) ) {
+                $eligible[] = $row;
+            }
+        }
+        if ( empty( $eligible ) ) return;
+
+        $visible   = array_slice( $eligible, 0, self::MAX_VISIBLE );
+        $remaining = max( 0, count( $eligible ) - count( $visible ) );
 
         echo '<div class="tt-alert-bar" role="region" aria-label="' . esc_attr__( 'Alerts', 'talenttrack' ) . '">';
 

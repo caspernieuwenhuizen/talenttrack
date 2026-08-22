@@ -43,6 +43,10 @@ class DashboardShortcode {
         // the landing page: the banner renders above the body of whatever
         // the coach opened, so its styles must be present there too.
         wp_enqueue_style( 'tt-frontend-alerts', TT_PLUGIN_URL . 'assets/css/frontend-alerts.css', [ 'tt-public' ], TT_VERSION );
+        // #2632 — the preference + policy matrices. Small enough not to be
+        // worth a per-view conditional enqueue, and the settings screens are
+        // reachable from more than one entry point.
+        wp_enqueue_style( 'tt-frontend-alert-settings', TT_PLUGIN_URL . 'assets/css/frontend-alert-settings.css', [ 'tt-public' ], TT_VERSION );
         // #2633 — the inline alert chip. Enqueued here rather than lazily
         // from AlertChip itself: a chip is frequently built into a markup
         // STRING (the activity card is assembled and returned, not echoed),
@@ -842,6 +846,18 @@ class DashboardShortcode {
             case 'my-settings':
                 if ( $user_id <= 0 ) return self::renderSignInRequired();
                 FrontendMySettingsView::render();
+                return true;
+            // #2632 — alert preferences are their own screen, separate from
+            // the message opt-outs on my-settings (epic #2629 decision 11).
+            // Each links to the other; this one needs no capability beyond
+            // being logged in, since it only changes what the user sees.
+            case \TT\Modules\Alerts\Frontend\FrontendAlertSettingsView::SLUG:
+                if ( $user_id <= 0 ) return self::renderSignInRequired();
+                \TT\Modules\Alerts\Frontend\FrontendAlertSettingsView::render();
+                return true;
+            case \TT\Modules\Alerts\Frontend\FrontendAlertPolicyView::SLUG:
+                if ( $user_id <= 0 ) return self::renderSignInRequired();
+                \TT\Modules\Alerts\Frontend\FrontendAlertPolicyView::render();
                 return true;
             case 'my-sessions':
                 if ( $user_id <= 0 ) return self::renderSignInRequired();

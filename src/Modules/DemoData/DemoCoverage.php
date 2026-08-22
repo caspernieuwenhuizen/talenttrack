@@ -564,6 +564,11 @@ class DemoCoverage {
         // to see, and an opt-out is meaningless on an account nobody signs
         // into. Absence of a row is the default (opted in), so an empty
         // table is already the correct demo state.
+        // #2632 — a real person's own settings. Same reasoning as the comms
+        // opt-outs below: seeding one would silence demo alerts the operator
+        // expects to see, and absence of a row already means "use the
+        // shipped default", which is the correct demo state.
+        'tt_alert_preferences' => [ 'exempt' => 'A real person\'s own alert settings. Absence of a row already means "use the default", so an empty table is the correct state.' ],
         'tt_comms_optouts' => [ 'exempt' => 'A real recipient\'s own choice about what reaches them. Seeding one would suppress demo messages the operator expects to see.' ],
         'tt_demo_tags'   => [ 'exempt' => 'The demo registry itself. Tagging the tags would recurse.' ],
         'tt_audit_log'   => [ 'exempt' => 'Audit trail of real operator actions. Fabricating entries would corrupt the record a real audit reads.' ],
@@ -728,6 +733,14 @@ class DemoCoverage {
         'tt_exercises'            => [ 'exempt' => 'The exercise library is seeded by migration 0090; #2465 attaches those exercises to trainings rather than building a second library.' ],
         'tt_exercise_categories'  => [ 'exempt' => 'Exercise category vocabulary, seeded by migrations.' ],
         'tt_exercise_principles'  => [ 'exempt' => 'Exercise/principle reference mapping, seeded by migrations.' ],
+        // #2501 — a scene is authored content: a coach draws it on a
+        // canvas for their own drill. Generating one would mean inventing
+        // a tactical pattern and presenting it as an academy's own
+        // coaching, which is a different thing from generating a
+        // plausible attendance row. The library the demo installs is
+        // itself seeded rather than generated (see tt_exercises above),
+        // so there is nothing here a demo run would attach a scene to.
+        'tt_exercise_scenes'      => [ 'exempt' => 'Authored diagrams. Generating one would mean inventing a tactical pattern and presenting it as the academy\'s own coaching; the demo library is seeded rather than generated, so there is nothing to attach one to.' ],
         'tt_football_actions'     => [ 'exempt' => 'Football-action vocabulary, seeded by migrations.' ],
         'tt_principles'           => [ 'exempt' => 'Methodology principles, seeded by migrations (JO13 set in 0206).' ],
         'tt_methodologies'                    => [ 'exempt' => 'Methodology sets, seeded by migrations.' ],

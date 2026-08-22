@@ -44,30 +44,45 @@ final class AlertOccurrencesRepository {
         $club   = CurrentClub::id();
         $dedupe = $occ->dedupeKey();
 
-        $existing_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$table} WHERE club_id = %d AND dedupe_key = %s LIMIT 1",
+        $existing = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, resolved_at FROM {$table} WHERE club_id = %d AND dedupe_key = %s LIMIT 1",
             $club,
             $dedupe
         ) );
+        $existing_id = $existing !== null ? (int) $existing->id : 0;
 
         $payload_json = ! empty( $occ->payload )
             ? wp_json_encode( $occ->payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
             : null;
 
         if ( $existing_id > 0 ) {
-            $wpdb->update(
-                $table,
-                [
-                    'last_seen_at' => $now,
-                    'severity'     => Severity::normalise( $occ->severity ),
-                    'payload_json' => $payload_json,
-                    'player_id'    => $occ->playerId,
-                    'resolved_at'  => null,
-                ],
-                [ 'id' => $existing_id ],
-                [ '%s', '%s', '%s', '%d', '%s' ],
-                [ '%d' ]
-            );
+            $data = [
+                'last_seen_at' => $now,
+                'severity'     => Severity::normalise( $occ->severity ),
+                'payload_json' => $payload_json,
+                'player_id'    => $occ->playerId,
+                'resolved_at'  => null,
+            ];
+            $format = [ '%s', '%s', '%s', '%d', '%s' ];
+
+            // #2632 — a row that had resolved and is now true again is a
+            // RECURRENCE, and the user's dismissal of the previous episode
+            // does not carry over: they dismissed a thing that then got
+            // fixed, and it has since come back. Clearing here is what makes
+            // "dismiss is not a permanent mute" true.
+            //
+            // A plain bump (never resolved, still true) must NOT clear it —
+            // that would resurrect an alert the user dismissed an hour ago,
+            // every hour, which is how a feature earns being muted outright.
+            $was_resolved = $existing !== null && $existing->resolved_at !== null;
+            if ( $was_resolved ) {
+                $data['dismissed_at']  = null;
+                $data['snoozed_until'] = null;
+                $format[] = '%s';
+                $format[] = '%s';
+            }
+
+            $wpdb->update( $table, $data, [ 'id' => $existing_id ], $format, [ '%d' ] );
             return false;
         }
 
@@ -495,6 +510,58 @@ final class AlertOccurrencesRepository {
         return (bool) $wpdb->update(
             $this->table(),
             [ 'read_at' => $now ],
+            [ 'id' => (int) $row->id ],
+            [ '%s' ],
+            [ '%d' ]
+        );
+    }
+
+    /**
+     * Silence one occurrence until a moment in time.
+     *
+     * Deliberately per-occurrence, not per-alert: "not this activity, I know
+     * about it" is a different request from "not this kind of alert, ever",
+     * and the second is what the preference matrix is for. Snoozing here
+     * leaves the row being reconciled, so it reappears on its own if the
+     * condition is still true when the snooze lapses — and disappears for
+     * good, unsnoozed, the moment someone fixes it.
+     *
+     * #2632 — `POST /alerts/{uuid}/snooze`.
+     */
+    public function snooze( string $uuid, int $userId, string $until ): bool {
+        global $wpdb;
+        $row = $this->findForUser( $uuid, $userId );
+        if ( $row === null ) return false;
+
+        return (bool) $wpdb->update(
+            $this->table(),
+            [ 'snoozed_until' => $until ],
+            [ 'id' => (int) $row->id ],
+            [ '%s' ],
+            [ '%d' ]
+        );
+    }
+
+    /**
+     * Dismiss one occurrence.
+     *
+     * Dismiss is **not** a permanent mute. A dismissed occurrence that later
+     * resolves and then recurs produces a fresh row and reappears, because
+     * the condition became true again and that is new information. Users
+     * will ask about this; the docs say it explicitly.
+     *
+     * The reconcile clears `dismissed_at` when a row is reopened — see
+     * `upsert()` — so the "recurs and reappears" behaviour is a property of
+     * the reconcile rather than something this method has to arrange.
+     */
+    public function dismiss( string $uuid, int $userId, string $now ): bool {
+        global $wpdb;
+        $row = $this->findForUser( $uuid, $userId );
+        if ( $row === null ) return false;
+
+        return (bool) $wpdb->update(
+            $this->table(),
+            [ 'dismissed_at' => $now ],
             [ 'id' => (int) $row->id ],
             [ '%s' ],
             [ '%d' ]

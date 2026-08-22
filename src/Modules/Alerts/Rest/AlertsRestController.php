@@ -8,7 +8,10 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Domain\Severity;
+use TT\Modules\Alerts\Policy\AlertPolicyResolver;
+use TT\Modules\Alerts\Policy\ClubAlertPolicy;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
+use TT\Modules\Alerts\Repositories\AlertPreferencesRepository;
 use TT\Modules\Alerts\Services\AlertOversight;
 use WP_REST_Request;
 
@@ -109,6 +112,198 @@ final class AlertsRestController extends BaseController {
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
             ],
         ] );
+
+        register_rest_route( self::NS, '/alerts/(?P<uuid>[a-f0-9\-]{36})/snooze', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'snooze' ],
+                'permission_callback' => [ self::class, 'permLoggedIn' ],
+                'args'                => [
+                    'duration' => [ 'sanitize_callback' => 'sanitize_key', 'default' => 'day' ],
+                ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/alerts/(?P<uuid>[a-f0-9\-]{36})/dismiss', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'dismiss' ],
+                'permission_callback' => [ self::class, 'permLoggedIn' ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/alerts/preferences', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'getPreferences' ],
+                'permission_callback' => [ self::class, 'permLoggedIn' ],
+            ],
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ self::class, 'putPreferences' ],
+                'permission_callback' => [ self::class, 'permLoggedIn' ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/alerts/policy', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'getPolicy' ],
+                'permission_callback' => self::permCan( 'tt_edit_settings' ),
+            ],
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ self::class, 'putPolicy' ],
+                'permission_callback' => self::permCan( 'tt_edit_settings' ),
+            ],
+        ] );
+    }
+
+    /** Snooze durations the API accepts, as strtotime modifiers. */
+    private const SNOOZE_DURATIONS = [
+        'day'   => '+1 day',
+        'week'  => '+1 week',
+        'month' => '+1 month',
+    ];
+
+    public static function snooze( WP_REST_Request $req ): \WP_REST_Response {
+        $repo = new AlertOccurrencesRepository();
+        if ( ! $repo->tableExists() ) return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
+
+        $duration = (string) $req->get_param( 'duration' );
+        if ( ! isset( self::SNOOZE_DURATIONS[ $duration ] ) ) {
+            return RestResponse::error(
+                'invalid_duration',
+                __( 'Choose how long to snooze this alert: a day, a week, or a month.', 'talenttrack' ),
+                400
+            );
+        }
+
+        $until = gmdate(
+            'Y-m-d H:i:s',
+            (int) strtotime( self::SNOOZE_DURATIONS[ $duration ], current_time( 'timestamp' ) )
+        );
+
+        $ok = $repo->snooze( (string) $req->get_param( 'uuid' ), get_current_user_id(), $until );
+        if ( ! $ok ) {
+            return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'snoozed_until' => $until ] );
+    }
+
+    public static function dismiss( WP_REST_Request $req ): \WP_REST_Response {
+        $repo = new AlertOccurrencesRepository();
+        if ( ! $repo->tableExists() ) return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
+
+        $ok = $repo->dismiss( (string) $req->get_param( 'uuid' ), get_current_user_id(), current_time( 'mysql' ) );
+        if ( ! $ok ) {
+            return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'dismissed' => true ] );
+    }
+
+    /** The current user's effective settings, one entry per definition. */
+    public static function getPreferences(): \WP_REST_Response {
+        $user_id  = get_current_user_id();
+        $resolver = new AlertPolicyResolver();
+
+        $out = [];
+        foreach ( $resolver->matrixFor( $user_id ) as $key => $entry ) {
+            $out[] = [
+                'alert_key'  => $key,
+                'module'     => $entry['definition']->module(),
+                'label'      => $entry['definition']->label(),
+                'surfaces'   => $entry['surfaces'],
+                'choosable'  => $entry['choosable'],
+                'locked'     => $entry['locked'],
+            ];
+        }
+        return RestResponse::success( $out );
+    }
+
+    /**
+     * Replace the current user's preferences.
+     *
+     * Body: `{"preferences": {"activities.past_still_planned": ["badge"]}}`.
+     * Only keys present are written, so a partial payload is a partial
+     * update rather than an accidental reset of everything omitted.
+     */
+    public static function putPreferences( WP_REST_Request $req ): \WP_REST_Response {
+        $user_id = get_current_user_id();
+        $raw     = $req->get_param( 'preferences' );
+        if ( ! is_array( $raw ) ) {
+            return RestResponse::error( 'invalid_payload', __( 'Expected a preferences object.', 'talenttrack' ), 400 );
+        }
+
+        $repo     = new AlertPreferencesRepository();
+        $resolver = new AlertPolicyResolver();
+
+        foreach ( $raw as $alert_key => $surfaces ) {
+            $alert_key = sanitize_text_field( (string) $alert_key );
+            if ( AlertRegistry::find( $alert_key ) === null ) continue;
+            // A locked alert is not the user's to change. Skipping rather
+            // than erroring keeps a bulk save from failing wholesale because
+            // one row happened to be club-forced between render and submit.
+            if ( $resolver->lockReason( $alert_key ) !== null ) continue;
+
+            $repo->save(
+                $user_id,
+                $alert_key,
+                is_array( $surfaces ) ? array_map( 'sanitize_key', $surfaces ) : []
+            );
+        }
+
+        $resolver->flush();
+        return RestResponse::success( [ 'saved' => true ] );
+    }
+
+    public static function getPolicy(): \WP_REST_Response {
+        $policy = new ClubAlertPolicy();
+
+        $out = [];
+        foreach ( AlertRegistry::all() as $key => $definition ) {
+            $out[] = [
+                'alert_key'           => $key,
+                'module'              => $definition->module(),
+                'label'               => $definition->label(),
+                'operational'         => $definition->isOperational(),
+                'mode'                => $policy->modeFor( $key ),
+                'surfaces'            => $policy->forcedSurfacesFor( $key ),
+                'interrupt'           => $policy->interruptEnabled( $key ),
+                'escalate_after_days' => $policy->escalateAfterDays( $key ),
+            ];
+        }
+        return RestResponse::success( $out );
+    }
+
+    public static function putPolicy( WP_REST_Request $req ): \WP_REST_Response {
+        $raw = $req->get_param( 'policy' );
+        if ( ! is_array( $raw ) ) {
+            return RestResponse::error( 'invalid_payload', __( 'Expected a policy object.', 'talenttrack' ), 400 );
+        }
+
+        $policy = new ClubAlertPolicy();
+        $errors = [];
+
+        foreach ( $raw as $alert_key => $entry ) {
+            $alert_key = sanitize_text_field( (string) $alert_key );
+            if ( AlertRegistry::find( $alert_key ) === null ) continue;
+            if ( ! is_array( $entry ) ) continue;
+
+            $error = $policy->set(
+                $alert_key,
+                isset( $entry['mode'] ) ? sanitize_key( (string) $entry['mode'] ) : ClubAlertPolicy::MODE_USER_CHOICE,
+                isset( $entry['surfaces'] ) && is_array( $entry['surfaces'] ) ? array_map( 'sanitize_key', $entry['surfaces'] ) : [],
+                ! empty( $entry['interrupt'] ),
+                isset( $entry['escalate_after_days'] ) ? (int) $entry['escalate_after_days'] : null
+            );
+            if ( $error !== null ) $errors[] = $error;
+        }
+
+        if ( ! empty( $errors ) ) {
+            return RestResponse::error( 'policy_refused', implode( ' ', $errors ), 422 );
+        }
+        return RestResponse::success( [ 'saved' => true ] );
     }
 
     public static function listMine( WP_REST_Request $req ): \WP_REST_Response {
