@@ -58,9 +58,17 @@ final class AlertChip {
     /** @var bool */
     private static $css_enqueued = false;
 
-    /** Reset the per-request cache. Tests only. */
+    /**
+     * Reset the per-request caches. Tests only.
+     *
+     * Clears the memoised gate and dashboard URL too: a test that switches
+     * user or capability between cases would otherwise inherit the previous
+     * case's answer and pass for the wrong reason.
+     */
     public static function flush(): void {
-        self::$cache = [];
+        self::$cache          = [];
+        self::$inboxReachable = null;
+        self::$dashboardBase  = null;
     }
 
     /**
@@ -163,7 +171,7 @@ final class AlertChip {
         // gate passes for anyone who has a chip at all — but routing the
         // decision through the shared registry is what keeps it true if the
         // inbox ever grows a capability of its own (CLAUDE.md §7).
-        if ( ! CrossViewLink::allows( 'alerts' ) ) return '';
+        if ( ! self::inboxReachable() ) return '';
 
         $count = count( $rows );
         // Loudest first out of the repository, so row zero is the severity
@@ -173,7 +181,7 @@ final class AlertChip {
         $args = $subjectType === self::SUBJECT_PLAYER
             ? [ 'tt_view' => 'alerts', 'player_id' => $subjectId ]
             : [ 'tt_view' => 'alerts', 'subject_type' => $subjectType, 'subject_id' => $subjectId ];
-        $url = BackLink::appendTo( (string) add_query_arg( $args, RecordLink::dashboardUrl() ) ); /* tt-xview-ok */
+        $url = BackLink::appendTo( (string) add_query_arg( $args, self::dashboardBase() ) ); /* tt-xview-ok */
 
         $label = Severity::label( $severity );
         $aria  = sprintf(
@@ -211,6 +219,37 @@ final class AlertChip {
     /** Player-record variant. */
     public static function playerHtml( int $playerId, array $opts = [] ): string {
         return self::html( self::SUBJECT_PLAYER, $playerId, $opts );
+    }
+
+    /** @var bool|null per-request memo */
+    private static $inboxReachable = null;
+
+    /**
+     * Whether this user can open the alerts inbox.
+     *
+     * Memoised per request, and that is not an optimisation detail — it is
+     * what makes the batching claim true. `prime()` removes the per-row
+     * occurrence read, but the gate and the dashboard-page lookup below were
+     * still resolved inside every `html()` call, so a fifty-row list paid
+     * forty-nine queries that had nothing to do with alerts. Neither answer
+     * can change within a request.
+     */
+    private static function inboxReachable(): bool {
+        if ( self::$inboxReachable === null ) {
+            self::$inboxReachable = CrossViewLink::allows( 'alerts' );
+        }
+        return self::$inboxReachable;
+    }
+
+    /** @var string|null per-request memo */
+    private static $dashboardBase = null;
+
+    /** The dashboard page URL. Resolved once; see `inboxReachable()`. */
+    private static function dashboardBase(): string {
+        if ( self::$dashboardBase === null ) {
+            self::$dashboardBase = RecordLink::dashboardUrl();
+        }
+        return self::$dashboardBase;
     }
 
     /**
