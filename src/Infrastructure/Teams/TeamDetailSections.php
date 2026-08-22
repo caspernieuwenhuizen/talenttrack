@@ -41,6 +41,10 @@ class TeamDetailSections {
         'team_info',
         'trial_roster',
         'upcoming_activities',
+        // #2595 (epic #2589) — the team's photos and video. Last in
+        // render order: it is the section a coach browses, not one they
+        // work from, so it sits below the roster and the fixtures.
+        'media',
     ];
 
     /**
@@ -58,6 +62,7 @@ class TeamDetailSections {
             'team_info'           => __( 'Team info', 'talenttrack' ),
             'trial_roster'        => __( 'Trial roster', 'talenttrack' ),
             'upcoming_activities' => __( 'Upcoming activities', 'talenttrack' ),
+            'media'               => __( 'Media', 'talenttrack' ),
         ];
     }
 

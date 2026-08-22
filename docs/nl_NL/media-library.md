@@ -43,6 +43,26 @@ hebt gevraagd.
 **Verwijderen** wist definitief — het bestand zelf, niet alleen de vermelding. Het wordt alleen aangeboden aan wie de media van die speler mag
 bewerken.
 
+### Teams en trainingen
+
+Een team heeft een sectie **Media** op de teampagina, onder de selectie en de wedstrijden — selectiefoto's, toernooidagen, momenten aan het eind
+van het seizoen. Er staat alleen in wat aan het team zelf hangt; media van een individuele speler blijft op diens profiel, zodat je bij het
+bekijken van een team niet door het dossier van elke speler scrolt. Net als de andere secties op die pagina kun je hem voor je eigen weergave
+uitzetten.
+
+Een training of wedstrijd heeft een eigen sectie **Media**, en daar gebeurt het taggen.
+
+### De spelers op een foto taggen
+
+Bij een training of wedstrijd biedt elke foto **Spelers taggen**, met de selectie van dat team. Vink de spelers aan die erop staan en de foto
+verschijnt ook op hun profiel — één upload, hoeveel records het ook betreft. Geen opslaanknop: elk vinkje wordt meteen bewaard, en gaat terug als
+dat niet lukt.
+
+Een speler untaggen haalt de foto alleen bij die speler weg. De foto blijft bij de training staan en bij iedereen die je verder getagd hebt.
+
+Dit maakt het punt over gedeelde zichtbaarheid hierboven ook concreet: een foto die aan drie spelers hangt, is voor alle drie de gezinnen
+zichtbaar.
+
 ## Media toevoegen
 
 Gebruik **Media toevoegen** vanaf een speler, team of training. De wizard heeft vier stappen:
