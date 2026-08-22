@@ -57,7 +57,15 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Doel over de streefdatum** | Een ontwikkeldoel is voorbij de datum waarop het gehaald zou zijn en staat nog open. | *Wat heeft deze speler nu nodig?* Een doel over de datum dat nog openstaat is precies het onderdeel van het dossier dat die vraag zou moeten beantwoorden en dat niet meer doet. Of de speler is er, en niemand heeft het vastgelegd, of het plan moet worden bijgesteld. |
 | **Geen PDP-gesprek deze cyclus** | Het PDP-dossier van een speler voor dit seizoen staat open, maar er is nog geen gesprek gevoerd. | *Waar gaat deze speler naartoe?* De PDP-cyclus is waar de academie belooft met de speler om tafel te gaan en dat samen vast te leggen. Een cyclus waarin alle gesprekken zijn ingepland en geen enkel gesprek is gevoerd, ziet er in elke lijst compleet uit en heeft de speler niets verteld. |
 
-Meer meldingen — over metingen, spelersdossiers en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+### Mensen
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Speler wordt binnenkort 18** | De achttiende verjaardag van een speler valt binnen de aankondigingstermijn. | *Waar gaat deze speler naartoe?* Achttien worden verandert het papierwerk, niet het voetbal — toestemming van ouders is niet langer de grondslag om zijn gegevens te bewaren, een jeugdovereenkomst wordt misschien een contract, en de toegang van het ouderaccount wordt een keuze in plaats van vanzelfsprekend. Een maand te vroeg is makkelijk, een maand te laat is lastig. |
+| **Ouder uitgenodigd maar nooit geactiveerd** | Een ouder is uitgenodigd, heeft nooit een account aangemaakt, en aan de speler hangt nog helemaal geen ouder. | *Waar komt deze speler vandaan, en wie thuis kan meekijken?* Een ouder zonder account kan de evaluaties niet lezen, de PDP-gesprekken niet zien en de club niets bevestigen over toestemming. |
+| **Certificaat verloopt** | Een van je eigen certificaten verloopt binnenkort, of is net verlopen. | *Wat heeft deze speler nu nodig?* — van de andere kant bekeken. Elke speler in de selectie heeft er belang bij dat wie zijn training geeft daarvoor gekwalificeerd is. |
+
+Meer meldingen — over metingen, datakwaliteit en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
 
@@ -72,6 +80,9 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_goal_overdue_grace_days` | 3 dagen | Hoeveel dagen na de streefdatum van een doel de melding verschijnt. Een doel dat je maandag bespreekt voor een deadline van zondag is normale praktijk. |
 | `alerts_goal_overdue_lookback_days` | 365 dagen | Hoe lang na de streefdatum een doel nog de moeite waard is om achteraan te gaan. Daarna is het niet te laat maar opgegeven, en is opruimen de oplossing, geen melding. |
 | `alerts_pdp_no_conversation_days` | 45 dagen | Hoe ver in een PDP-cyclus voordat "nog geen gesprek gevoerd" een melding wordt. |
+| `alerts_player_turns_18_days` | 30 dagen | Hoeveel dagen van tevoren je hoort dat een speler achttien wordt. De leeftijd zelf is geen instelling: dat is een gegeven van het rechtsgebied waarin de academie werkt, geen voorkeur. |
+| `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
+| `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
 
 ## Nieuwe meldingen staan meteen aan
 
@@ -81,7 +92,9 @@ De rem zit erin dat nieuwe meldingen **module voor module** komen, nooit de hele
 
 ## Wie een melding krijgt
 
-De mensen die het daadwerkelijk kunnen oplossen: de hoofdtrainer van het team, plus wie er verder direct bij betrokken is — de trainer die aan de activiteit is gekoppeld, of de trainer die de evaluatie schreef.
+De mensen die het daadwerkelijk kunnen oplossen: de hoofdtrainer van het team, plus wie er verder direct bij betrokken is — de trainer die aan de activiteit is gekoppeld, de trainer die de evaluatie schreef, wie het doel heeft gesteld, wie de uitnodiging heeft verstuurd.
+
+**Certificaatmeldingen zijn de uitzondering en gaan alleen naar degene van wie het certificaat is.** Dat is iemands eigen beroepsdossier, geen selectie-informatie. Heeft een staflid geen account, dan is er niemand om het aan te melden en gaat er niets uit; daarvoor is het clubbrede overzicht van verlopende certificaten van het Hoofd Opleiding.
 
 Hoofden Opleiding en beheerders krijgen **niet** voor elk team een melding. Meldingen van twintig teams bij de persoon met de minste tijd om ze te lezen is precies hoe een systeem genegeerd raakt. Een overzicht voor die rol volgt in een latere release.
 
