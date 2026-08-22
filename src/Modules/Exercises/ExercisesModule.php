@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\ActivityExercisesRestController;
+use TT\Infrastructure\REST\ExerciseScenesRestController;
 use TT\Infrastructure\REST\ExercisesRestController;
 use TT\Infrastructure\REST\VisionExtractRestController;
 use TT\Modules\Exercises\Vision\ClaudeSonnetProvider;
@@ -60,6 +61,10 @@ class ExercisesModule implements ModuleInterface {
         // routes on `rest_api_init`.
         ExercisesRestController::init();
         ActivityExercisesRestController::init();
+        // #2501 — animated scenes attached to an exercise. Same gates as
+        // the library itself: a scene is a field of the exercise (D6),
+        // not a separate record with its own audience.
+        ExerciseScenesRestController::init();
 
         // #0016 Sprints 3-6 — vision extraction REST endpoint.
         // POST /vision/extract orchestrates the photo-to-session
