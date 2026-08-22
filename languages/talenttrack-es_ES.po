@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T07:55:06+00:00\n"
+"POT-Creation-Date: 2026-08-22T07:56:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -121,7 +121,7 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:134
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:134
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:129
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:158
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:24
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:976
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:247
@@ -2245,8 +2245,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:45
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:132
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:371
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:88
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:130
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:108
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:159
 #: src/Modules/Journey/Wizards/InjuryPlayerStep.php:62
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:87
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:240
@@ -2439,7 +2439,7 @@ msgid "Custom widget"
 msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:56
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:131
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:160
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2004
 msgid "Injury"
 msgstr ""
@@ -2724,7 +2724,7 @@ msgstr ""
 #: src/Infrastructure/REST/MeasurementsRestController.php:177
 #: src/Infrastructure/REST/MinutesRestController.php:71
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:87
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:54
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:74
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:55
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:67
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:81
@@ -3372,7 +3372,7 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:103
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:123
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:742
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:823
@@ -6191,7 +6191,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:282
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:365
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:90
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:173
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:456
@@ -6225,7 +6225,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:383
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:100
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1478
@@ -6386,7 +6386,7 @@ msgid "— Select a team —"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:120
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:110
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:130
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:121
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:201
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:477
@@ -14674,7 +14674,7 @@ msgstr ""
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
 #: src/Modules/DemoData/DemoCoverage.php:1146
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:30
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:189
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1986
@@ -18630,54 +18630,69 @@ msgstr[1] "%d matches."
 msgid "Open journey"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:35
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:37
 msgid "You do not have permission to view injuries."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:46
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:57
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:145
+#: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1976
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1989
+msgid "Record injury"
+msgstr ""
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:66
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:48
 #: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php:48
 msgid "No teams are available to you yet."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:98
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:118
 msgid "Currently out"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:99
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:172
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:119
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:201
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2015
 msgid "Recovered"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:120
-msgid "Nobody is currently out injured. That is the answer, not missing data."
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:143
+msgid "Nobody is currently out injured"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:121
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:144
+msgid ""
+"That is the answer, not missing data. Recording an injury here puts it on "
+"the player's journey, so next season a coach can see what they came back "
+"from."
+msgstr ""
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:151
 msgid "No injuries match your filters."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:132
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:161
 #: src/Modules/Journey/Wizards/InjuryDetailsStep.php:43
 msgid "Severity"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:133
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:162
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 msgid "Since"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:134
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:163
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:38
 msgid "Expected back"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:135
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:164
 msgid "Days out"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:176
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:205
 #: src/Modules/Measurements/Frontend/FrontendMeasurementCoverageView.php:178
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
@@ -18686,7 +18701,7 @@ msgstr ""
 msgid "Overdue"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:179
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php:208
 msgid "Not set"
 msgstr ""
 
@@ -18843,12 +18858,6 @@ msgstr ""
 
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:96
 msgid "Could not record the injury."
-msgstr ""
-
-#: src/Modules/Journey/Wizards/NewInjuryWizard.php:31
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1976
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1989
-msgid "Record injury"
 msgstr ""
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:36
