@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T08:05:53+00:00\n"
+"POT-Creation-Date: 2026-08-22T08:09:13+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2295,7 +2295,7 @@ msgid "Mixed"
 msgstr "Gemengd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
-#: src/Modules/DemoData/DemoCoverage.php:1160
+#: src/Modules/DemoData/DemoCoverage.php:1211
 msgid "Match day"
 msgstr "Wedstrijddag"
 
@@ -3696,7 +3696,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1147
+#: src/Modules/DemoData/DemoCoverage.php:1198
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
@@ -4559,7 +4559,7 @@ msgstr "Alle types"
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1148
+#: src/Modules/DemoData/DemoCoverage.php:1199
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
@@ -5951,7 +5951,7 @@ msgstr "Totaal minuten"
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1149
+#: src/Modules/DemoData/DemoCoverage.php:1200
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
 #: src/Modules/License/Admin/AccountPage.php:804
@@ -6009,7 +6009,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1150
+#: src/Modules/DemoData/DemoCoverage.php:1201
 #: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:147
@@ -6119,7 +6119,7 @@ msgid "Promoted"
 msgstr "Gepromoveerd"
 
 #: src/Modules/Analytics/AnalyticsModule.php:230
-#: src/Modules/DemoData/DemoCoverage.php:1151
+#: src/Modules/DemoData/DemoCoverage.php:1202
 msgid "Journey events"
 msgstr "Reisgebeurtenissen"
 
@@ -6414,7 +6414,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
-#: src/Modules/DemoData/DemoCoverage.php:1145
+#: src/Modules/DemoData/DemoCoverage.php:1196
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
 #: src/Modules/License/Admin/AccountPage.php:626
@@ -8628,7 +8628,7 @@ msgstr "Imitatie starten"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
-#: src/Modules/DemoData/DemoCoverage.php:1146
+#: src/Modules/DemoData/DemoCoverage.php:1197
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:139
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -8822,7 +8822,7 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1152
+#: src/Modules/DemoData/DemoCoverage.php:1203
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:793
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
@@ -8844,7 +8844,7 @@ msgstr "Stage-samenvatting"
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1165
+#: src/Modules/DemoData/DemoCoverage.php:1216
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -8959,7 +8959,7 @@ msgid "Impersonation"
 msgstr "Impersonatie"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1161
+#: src/Modules/DemoData/DemoCoverage.php:1212
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr "Proeftrainingen"
@@ -15878,7 +15878,7 @@ msgid "The kind of transition."
 msgstr "Het soort overgang."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1154
+#: src/Modules/DemoData/DemoCoverage.php:1205
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:32
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:189
@@ -16835,21 +16835,21 @@ msgstr "Geen batches geselecteerd."
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1153
+#: src/Modules/DemoData/DemoCoverage.php:1204
 msgid "Guardians"
 msgstr "Verzorgers"
 
-#: src/Modules/DemoData/DemoCoverage.php:1155
+#: src/Modules/DemoData/DemoCoverage.php:1206
 #: src/Shared/Frontend/FrontendTrialCaseView.php:238
 msgid "Player profile"
 msgstr "Spelersprofiel"
 
-#: src/Modules/DemoData/DemoCoverage.php:1156
+#: src/Modules/DemoData/DemoCoverage.php:1207
 msgid "Player reports"
 msgstr "Spelersrapporten"
 
 #. translators: %s: player name
-#: src/Modules/DemoData/DemoCoverage.php:1157
+#: src/Modules/DemoData/DemoCoverage.php:1208
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:30
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:34
 #: src/Shared/Frontend/DashboardShortcode.php:759
@@ -16859,27 +16859,27 @@ msgstr "Spelersrapporten"
 msgid "Measurements"
 msgstr "Metingen"
 
-#: src/Modules/DemoData/DemoCoverage.php:1158
+#: src/Modules/DemoData/DemoCoverage.php:1209
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:180
 msgid "PDP cycle"
 msgstr "PDP-cyclus"
 
-#: src/Modules/DemoData/DemoCoverage.php:1159
+#: src/Modules/DemoData/DemoCoverage.php:1210
 msgid "Training content"
 msgstr "Trainingsinhoud"
 
-#: src/Modules/DemoData/DemoCoverage.php:1162
+#: src/Modules/DemoData/DemoCoverage.php:1213
 #: src/Shared/Frontend/FrontendTeamsManageView.php:516
 #: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Team development"
 msgstr "Teamontwikkeling"
 
-#: src/Modules/DemoData/DemoCoverage.php:1163
+#: src/Modules/DemoData/DemoCoverage.php:1214
 msgid "Scouting pipeline"
 msgstr "Scoutingpijplijn"
 
 # v3.110.131+ — #0093 Tournament planner
-#: src/Modules/DemoData/DemoCoverage.php:1164
+#: src/Modules/DemoData/DemoCoverage.php:1215
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:92
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:99
@@ -16887,11 +16887,15 @@ msgstr "Scoutingpijplijn"
 msgid "Tournaments"
 msgstr "Toernooien"
 
-#: src/Modules/DemoData/DemoCoverage.php:1166
+#: src/Modules/DemoData/DemoCoverage.php:1217
 msgid "Messages and operator records"
 msgstr "Berichten en beheerdersgegevens"
 
-#: src/Modules/DemoData/DemoCoverage.php:1174
+#: src/Modules/DemoData/DemoCoverage.php:1218
+msgid "Knowledge library"
+msgstr "Kennisbank"
+
+#: src/Modules/DemoData/DemoCoverage.php:1226
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
@@ -16899,7 +16903,7 @@ msgstr ""
 "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en "
 "beoordelingen van die teams."
 
-#: src/Modules/DemoData/DemoCoverage.php:1175
+#: src/Modules/DemoData/DemoCoverage.php:1227
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
@@ -16907,7 +16911,7 @@ msgstr ""
 "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven "
 "staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
 
-#: src/Modules/DemoData/DemoCoverage.php:1176
+#: src/Modules/DemoData/DemoCoverage.php:1228
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
@@ -16915,25 +16919,25 @@ msgstr ""
 "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, "
 "tijdlijngebeurtenissen en proefdossiers van die spelers."
 
-#: src/Modules/DemoData/DemoCoverage.php:1177
+#: src/Modules/DemoData/DemoCoverage.php:1229
 msgid "Also wipes attendance for those activities."
 msgstr "Wist ook de aanwezigheid bij die activiteiten."
 
-#: src/Modules/DemoData/DemoCoverage.php:1178
+#: src/Modules/DemoData/DemoCoverage.php:1230
 msgid "Also wipes per-category eval_ratings."
 msgstr "Wist ook de beoordelingen per categorie."
 
-#: src/Modules/DemoData/DemoCoverage.php:1179
+#: src/Modules/DemoData/DemoCoverage.php:1231
 msgid "Per-player development goals."
 msgstr "Ontwikkeldoelen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1180
+#: src/Modules/DemoData/DemoCoverage.php:1232
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber "
 "zijn geschreven."
 
-#: src/Modules/DemoData/DemoCoverage.php:1181
+#: src/Modules/DemoData/DemoCoverage.php:1233
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
@@ -16941,12 +16945,12 @@ msgstr ""
 "Historische proefdossiers van bestaande spelers plus enkele lopende "
 "dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1182
+#: src/Modules/DemoData/DemoCoverage.php:1234
 msgid "Scouting visits across the window and the prospects found on them."
 msgstr ""
 "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1183
+#: src/Modules/DemoData/DemoCoverage.php:1235
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
@@ -16954,7 +16958,7 @@ msgstr ""
 "Een toernooi per team met selectie, streefminuten, wedstrijden en "
 "opstellingen per periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1184
+#: src/Modules/DemoData/DemoCoverage.php:1236
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
@@ -16962,7 +16966,7 @@ msgstr ""
 "Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, en "
 "mentorkoppels voor de staf van de club."
 
-#: src/Modules/DemoData/DemoCoverage.php:1185
+#: src/Modules/DemoData/DemoCoverage.php:1237
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
@@ -16970,7 +16974,7 @@ msgstr ""
 "Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, "
 "workflowtaken en uitnodigingen. Er wordt nooit e-mail verstuurd."
 
-#: src/Modules/DemoData/DemoCoverage.php:1186
+#: src/Modules/DemoData/DemoCoverage.php:1238
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
@@ -16978,7 +16982,7 @@ msgstr ""
 "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de "
 "zichtbaarheidsinstellingen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1187
+#: src/Modules/DemoData/DemoCoverage.php:1239
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
@@ -16986,7 +16990,7 @@ msgstr ""
 "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit "
 "volgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1188
+#: src/Modules/DemoData/DemoCoverage.php:1240
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
@@ -16994,13 +16998,13 @@ msgstr ""
 "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club "
 "met hun waarden, en koppelingen tussen doelen en evaluaties."
 
-#: src/Modules/DemoData/DemoCoverage.php:1189
+#: src/Modules/DemoData/DemoCoverage.php:1241
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers "
 "aangemaakt."
 
-#: src/Modules/DemoData/DemoCoverage.php:1190
+#: src/Modules/DemoData/DemoCoverage.php:1242
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
@@ -17008,7 +17012,7 @@ msgstr ""
 "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team "
 "en één resultaat per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1191
+#: src/Modules/DemoData/DemoCoverage.php:1243
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
@@ -17016,7 +17020,7 @@ msgstr ""
 "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, "
 "agendakoppelingen en eindoordelen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1192
+#: src/Modules/DemoData/DemoCoverage.php:1244
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
@@ -17024,7 +17028,7 @@ msgstr ""
 "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per "
 "team, en de vakantieperiodes van het seizoen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1193
+#: src/Modules/DemoData/DemoCoverage.php:1245
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals and substitutions for the ones already played."
@@ -17033,14 +17037,14 @@ msgstr ""
 "rollen, aandachtspunten per speler — plus uitslagen, doelpunten en wissels "
 "voor de gespeelde wedstrijden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1194
+#: src/Modules/DemoData/DemoCoverage.php:1246
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend "
 "per leeftijdsgroep."
 
-#: src/Modules/DemoData/DemoCoverage.php:1195
+#: src/Modules/DemoData/DemoCoverage.php:1247
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
@@ -17048,6 +17052,17 @@ msgstr ""
 "Een formatie en speelstijlverdeling per team, een wedstrijdblauwdruk met "
 "opstelling, door de trainer gemarkeerde koppels, en een chemiereeks over de "
 "periode."
+
+#: src/Modules/DemoData/DemoCoverage.php:1248
+msgid ""
+"Staff enrolled on the shipped courses, with a mixed spread: some finished, "
+"some mid-course, one overdue and one assignment awaiting review. The courses "
+"themselves ship with the plugin and are never generated."
+msgstr ""
+"Medewerkers ingeschreven op de meegeleverde cursussen, met een gemengde "
+"spreiding: sommigen klaar, sommigen halverwege, één te laat en één opdracht "
+"die op beoordeling wacht. De cursussen zelf worden met de plug-in "
+"meegeleverd en nooit gegenereerd."
 
 # v3.52.0 — Excel-driven demo data (#0059)
 #: src/Modules/DemoData/Excel/ExcelImporter.php:42
@@ -20789,6 +20804,37 @@ msgstr "Sprints met maximale rust"
 #: src/Modules/Knowledge/Periodisation.php:234
 msgid "Day off"
 msgstr "Vrije dag"
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:153
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:183
+msgid "That course is not in this library."
+msgstr "Die cursus zit niet in deze kennisbank."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:194
+msgid "This login is not linked to a staff record, so it cannot be enrolled."
+msgstr ""
+"Dit account is niet gekoppeld aan een medewerkersdossier en kan daarom niet "
+"worden ingeschreven."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:206
+msgid "Could not enrol on that course."
+msgstr "Inschrijven op die cursus is niet gelukt."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:223
+msgid "That lesson is not part of this course."
+msgstr "Die les hoort niet bij deze cursus."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:230
+msgid "This login is not linked to a staff record."
+msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:246
+msgid "Could not record progress."
+msgstr "Voortgang vastleggen is niet gelukt."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:285
+msgid "That enrolment does not exist."
+msgstr "Die inschrijving bestaat niet."
 
 #: src/Modules/License/Admin/AccountPage.php:90
 msgid "TalentTrack — Account"
@@ -51362,51 +51408,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgstr ""
 #~ "Je MFA-setup is niet compleet. Log uit, log opnieuw in en meld je zo "
 #~ "nodig opnieuw aan."
-
-#: src/Modules/DemoData/DemoCoverage.php
-msgid "Knowledge library"
-msgstr "Kennisbank"
-
-#: src/Modules/DemoData/DemoCoverage.php
-msgid ""
-"Staff enrolled on the shipped courses, with a mixed spread: some finished, "
-"some mid-course, one overdue and one assignment awaiting review. The courses "
-"themselves ship with the plugin and are never generated."
-msgstr ""
-"Medewerkers ingeschreven op de meegeleverde cursussen, met een gemengde "
-"spreiding: sommigen klaar, sommigen halverwege, één te laat en één opdracht "
-"die op beoordeling wacht. De cursussen zelf worden met de plug-in "
-"meegeleverd en nooit gegenereerd."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "That course is not in this library."
-msgstr "Die cursus zit niet in deze kennisbank."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "That lesson is not part of this course."
-msgstr "Die les hoort niet bij deze cursus."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "That enrolment does not exist."
-msgstr "Die inschrijving bestaat niet."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "Could not enrol on that course."
-msgstr "Inschrijven op die cursus is niet gelukt."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "Could not record progress."
-msgstr "Voortgang vastleggen is niet gelukt."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "This login is not linked to a staff record, so it cannot be enrolled."
-msgstr ""
-"Dit account is niet gekoppeld aan een medewerkersdossier en kan daarom niet "
-"worden ingeschreven."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "This login is not linked to a staff record."
-msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
 
 #~ msgid "Save exercise"
 #~ msgstr "Oefening opslaan"
