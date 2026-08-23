@@ -70,8 +70,14 @@ jobs:
       #
       # Read the error count this run prints. That number is what step 2
       # baselines, and it is only meaningful now that the stubs resolve.
+      # 1G is not enough once the WordPress stubs are loaded: PHPStan's
+      # parallel workers crash with "reached configured PHP memory limit"
+      # and the run reports a single error that is the crash itself, not a
+      # finding. That was invisible before, because without the stubs the
+      # analysis was small enough to finish - and `|| true` made a crash and
+      # a clean run look identical either way.
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
+        run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress || true
 
   admin-center-self-check:
     name: Admin Center payload self-check (#0065)
