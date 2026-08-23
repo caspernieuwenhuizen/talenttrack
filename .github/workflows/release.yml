@@ -78,6 +78,18 @@ jobs:
       # a clean run look identical either way.
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress || true
+      # TEMPORARY (#2103 step 2) — emit a real baseline so it can be committed,
+      # replacing the `#.*#` blanket ignore. Removed in the same PR that drops
+      # `|| true`. Cannot be generated on the maintainer's machine: PHPStan
+      # exceeds its memory there once the stubs are loaded.
+      - name: Generate PHPStan baseline
+        run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress --generate-baseline=phpstan-baseline.generated.neon || true
+      - name: Upload generated baseline
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-baseline
+          path: phpstan-baseline.generated.neon
+          if-no-files-found: warn
 
   admin-center-self-check:
     name: Admin Center payload self-check (#0065)
