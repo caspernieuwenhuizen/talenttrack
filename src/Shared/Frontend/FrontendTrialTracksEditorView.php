@@ -168,7 +168,10 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
 
         if ( $act === 'archive' && $id > 0 ) {
             $repo->archive( $id );
-            wp_safe_redirect( add_query_arg( [ 'tt_view' => 'trial-tracks-editor' ], home_url( '/' ) ) );
+            wp_safe_redirect( add_query_arg(
+                [ 'tt_view' => 'trial-tracks-editor' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            ) );
             exit;
         }
 
@@ -184,7 +187,10 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
             } else {
                 $repo->create( $payload );
             }
-            wp_safe_redirect( add_query_arg( [ 'tt_view' => 'trial-tracks-editor' ], home_url( '/' ) ) );
+            wp_safe_redirect( add_query_arg(
+                [ 'tt_view' => 'trial-tracks-editor' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            ) );
             exit;
         }
     }

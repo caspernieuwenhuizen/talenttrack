@@ -119,7 +119,7 @@ final class ReviewStep implements WizardStepInterface {
         return [
             'redirect_url' => add_query_arg(
                 [ 'tt_view' => 'onboarding-pipeline' ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             ),
         ];
     }

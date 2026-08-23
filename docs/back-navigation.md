@@ -138,6 +138,41 @@ Per-entity labels:
 | `evaluations` | "Back to Evaluation: <Player> (<date>)" |
 | `people` | "Back to <First Last>" |
 
+## Never build a `tt_view` URL on `home_url()`
+
+<!-- audience: developer -->
+
+`tt_view` is read only where the `[talenttrack_dashboard]` shortcode runs.
+That shortcode usually lives on its own page, so `home_url( '/' )` — the
+site's front page — is the one base that is reliably **wrong**:
+
+```php
+// Wrong. Lands the user on the theme's homepage, silently.
+add_query_arg( [ 'tt_view' => 'players', 'id' => $id ], home_url( '/' ) );
+
+// Right.
+RecordLink::detailUrlFor( 'players', $id );          // a record
+add_query_arg( [ 'tt_view' => 'docs' ], RecordLink::dashboardUrl() );  // a view
+```
+
+`RecordLink::dashboardUrl()` resolves the configured page, ignores it when
+it has been trashed, self-heals by scanning published pages for the
+shortcode, and only then falls back. In cron and CLI it skips the
+request-based fallback entirely, so a link in a notification email cannot
+end up pointing at `/wp-cron.php`.
+
+A base that merely *falls back* to `home_url()` is fine, because it starts
+from the current request — already the right page:
+
+```php
+$base = remove_query_arg( [ 'tt_view', 'id' ] );
+$url  = add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) );
+```
+
+Enforced by `tools/check-dashboard-urls.php` (the **Dashboard URL lint**
+gate). To grandfather a genuine exception, put `tt-dashboard-url-ok` in a
+comment inside the call.
+
 ## Wiring on the developer side
 
 PHP frontend views emit cross-entity links via:

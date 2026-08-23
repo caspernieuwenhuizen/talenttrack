@@ -1,0 +1,51 @@
+name: Dashboard URL lint
+
+# Fails a PR that builds a `tt_view` URL on the site root (#2720).
+#
+# `tt_view` is only read where the [talenttrack_dashboard] shortcode runs.
+# That shortcode usually lives on its own page, so a link built on
+# `home_url( '/' )` drops the user on the theme's homepage with no error and
+# no clue — the coach just wonders where the record went.
+#
+# `RecordLink::dashboardUrl()` resolves the hosting page, self-heals when the
+# configured id points at a trashed page, and falls back to `home_url()` only
+# when the install genuinely has no dashboard. It has existed since v3.70.1.
+#
+# The reason this is a gate rather than a note: the same bug was fixed by
+# hand in v3.70.1, again in #2716, and the sweep for #2720 found it in
+# eighteen more places. Convention was not holding.
+#
+# `bin/dashboard-url-selfcheck.php` proves the checker still bites, including
+# the multi-line call shape that made the first triage undercount by half.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tools/check-dashboard-urls.php'
+      - 'bin/dashboard-url-selfcheck.php'
+      - '.github/workflows/dashboard-url-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dashboard-urls:
+    name: tt_view URLs resolve the dashboard page
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: No tt_view URL is built on home_url()
+        run: php tools/check-dashboard-urls.php
+
+      # A gate that passes is not evidence that it works.
+      - name: The gate still bites
+        run: php bin/dashboard-url-selfcheck.php

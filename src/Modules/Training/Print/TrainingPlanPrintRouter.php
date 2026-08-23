@@ -66,7 +66,7 @@ final class TrainingPlanPrintRouter {
     private static function document( array $parts, int $plan_id ): string {
         $close_url = add_query_arg(
             [ 'tt_view' => 'training-plan', 'id' => $plan_id ], /* tt-xview-ok — returns to the plan this sheet was printed from */
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
         // Browsers default the Save-as-PDF filename to document.title, so

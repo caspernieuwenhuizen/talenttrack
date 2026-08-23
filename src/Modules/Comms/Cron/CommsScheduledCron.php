@@ -411,7 +411,7 @@ final class CommsScheduledCron {
     private static function deepLink( string $tt_view, int $id ): string {
         return add_query_arg(
             [ 'tt_view' => $tt_view, 'id' => $id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
     }
 

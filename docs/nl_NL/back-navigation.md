@@ -196,6 +196,42 @@ gevonden kan worden (verwijderd, andere club, ontbrekende id) valt
 het terug op het lijstniveau "Terug naar Spelers". Wanneer `tt_view`
 helemaal ontbreekt geeft het "Terug naar Dashboard" terug.
 
+## Bouw een `tt_view`-URL nooit op `home_url()`
+
+<!-- audience: developer -->
+
+`tt_view` wordt alleen gelezen waar de shortcode `[talenttrack_dashboard]`
+draait. Die shortcode staat meestal op een eigen pagina, dus
+`home_url( '/' )` — de voorpagina van de site — is juist de basis die
+gegarandeerd **fout** is:
+
+```php
+// Fout. Zet de gebruiker zonder melding op de homepage van het thema.
+add_query_arg( [ 'tt_view' => 'players', 'id' => $id ], home_url( '/' ) );
+
+// Goed.
+RecordLink::detailUrlFor( 'players', $id );          // een record
+add_query_arg( [ 'tt_view' => 'docs' ], RecordLink::dashboardUrl() );  // een view
+```
+
+`RecordLink::dashboardUrl()` zoekt de ingestelde pagina op, negeert die als
+hij in de prullenbak ligt, herstelt zichzelf door gepubliceerde pagina's op
+de shortcode te scannen, en valt pas daarna terug. In cron en CLI slaat hij
+de terugval op basis van het huidige verzoek helemaal over, zodat een link
+in een notificatiemail niet op `/wp-cron.php` kan uitkomen.
+
+Een basis die alleen *terugvalt* op `home_url()` is prima: die begint bij
+het huidige verzoek — al de juiste pagina:
+
+```php
+$base = remove_query_arg( [ 'tt_view', 'id' ] );
+$url  = add_query_arg( 'tt_view', $view, $base ?: home_url( '/' ) );
+```
+
+Afgedwongen door `tools/check-dashboard-urls.php` (de gate **Dashboard URL
+lint**). Zet `tt-dashboard-url-ok` in een commentaar binnen de aanroep om
+een echte uitzondering te markeren.
+
 ## Bedrading
 
 PHP-frontend-views emitteren kruisentiteits-links via:

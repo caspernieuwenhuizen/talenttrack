@@ -213,7 +213,7 @@ class PeoplePage {
                             if ( $p->email ) {
                                 $compose = add_query_arg(
                                     [ 'tt_view' => 'mail-compose', 'person_id' => (int) $p->id ],
-                                    home_url( '/' )
+                                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                                 );
                                 echo \TT\Shared\Frontend\Components\RecordLink::inline( (string) $p->email, $compose );
                             } else {

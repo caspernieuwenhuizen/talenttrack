@@ -46,7 +46,7 @@ final class HelpDrawer {
         if ( ! self::docsEnabled() ) {
             return;
         }
-        $help_url = add_query_arg( [ 'tt_view' => 'docs' ], home_url( '/' ) );
+        $help_url = add_query_arg( [ 'tt_view' => 'docs' ], RecordLink::dashboardUrl() );
         if ( $topic_slug ) {
             $help_url = add_query_arg( [ 'topic' => $topic_slug ], $help_url );
         }

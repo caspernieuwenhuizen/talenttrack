@@ -8,6 +8,7 @@ use TT\Modules\Push\DispatcherChain;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
 use TT\Modules\Workflow\WorkflowModule;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * TaskMailer — listens on `tt_workflow_task_created` and dispatches
@@ -135,12 +136,13 @@ class TaskMailer {
      * Best-effort URL to the dashboard's My Tasks view. Reads the
      * configured dashboard page; if none, falls back to home_url.
      */
+    /**
+     * RecordLink adds the published-page check and the self-heal scan this
+     * used to lack, and its request-based last resort is disabled in cron —
+     * so mail sent from wp-cron falls back to the home page rather than
+     * linking the reader at `/wp-cron.php` (#2720).
+     */
     private static function inboxUrl(): string {
-        $page_id = (int) QueryHelpers::get_config( 'dashboard_page_id', '0' );
-        if ( $page_id > 0 ) {
-            $url = get_permalink( $page_id );
-            if ( $url ) return add_query_arg( 'tt_view', 'my-tasks', $url );
-        }
-        return add_query_arg( 'tt_view', 'my-tasks', home_url( '/' ) );
+        return add_query_arg( 'tt_view', 'my-tasks', RecordLink::dashboardUrl() );
     }
 }

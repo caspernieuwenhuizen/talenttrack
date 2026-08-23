@@ -83,7 +83,7 @@ final class RecentScoutReportsSource implements TableRowSource {
     private static function reportUrl( object $r ): string {
         return add_query_arg(
             [ 'tt_view' => 'scout-history', 'report_id' => (int) ( $r->id ?? 0 ) ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
     }
 }

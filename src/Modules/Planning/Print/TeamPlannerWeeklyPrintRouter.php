@@ -71,7 +71,7 @@ class TeamPlannerWeeklyPrintRouter {
     private static function document( array $parts, int $team_id, string $from, string $to ): string {
         $close_url = add_query_arg(
             [ 'tt_view' => 'team-planner', 'week_start' => $from, 'teams' => $team_id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         // Browsers default the Save-as-PDF filename to document.title, so the
         // page <title> carries the proposed name (no app-name suffix, which
