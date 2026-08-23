@@ -1,3 +1,121 @@
+# TalentTrack v4.100.0 — Exports read in Dutch, values as well as headers (#2012)
+
+The column titles were
+already translated; the cells under them were not, so a squad list opened in
+Excel showed *Status* over `active`, *Rol* over `coach`, and
+`["CB","LB"]` where the player's profile says *Centrale verdediger /
+Linksback*. Since the export is usually the file that leaves the academy — to a
+parent, a federation desk or the board — that was the most visible place for a
+raw database code to surface.
+
+Players list, team roster and season stats, attendance register, staff directory
+and the goals export all now carry the same labels as the screen. A position
+code an academy added itself, with no label yet, still shows as the code rather
+than disappearing. The demo-data round-trip, the full backup and the
+subject-access export keep their raw values on purpose — something reads those
+back.
+
+# TalentTrack v4.100.0 — "Review" on an old PDP verdict reads as a state, not an instruction (#2696)
+
+The
+word was translated once for the whole product, and the sense that won was the
+wizard's — *check what you entered before saving*. On a PDP verdict carried by
+an older plan it means something else: the plan still has to be looked at. It
+now reads **Te beoordelen** there, alongside *In behandeling*, while every
+wizard review step keeps the sense it needs. The periodic conversation about a
+player is unaffected — the product already calls that a PDP-gesprek, and always
+did.
+
+# TalentTrack v4.100.0 — Match prep PDF: dark block over the second-half pitch (#2756)
+
+Exporting the match-preparation PDF while the page was scrolled — which it
+always is, since the grid is taller than the window — painted a hard-edged
+dark block over part of a half-pitch, usually the second half. The pitch
+colours themselves were never wrong: the image capture was given the wrong
+scroll offsets, so the pitch's drop shadow landed inside the pitch instead
+of around it, and the pitch clipped it into a block over the line-up. The
+capture now uses the page's real scroll position, and the pitch joins the
+other surfaces whose shadow is dropped for the export. Both half-pitches
+come out the same light blue again; the on-screen view is unchanged.
+
+# TalentTrack v4.100.0 — A privacy registration that quietly covered nothing (#2758)
+
+The PII registry listed
+evaluation ratings against a player column that table does not have — a rating
+reaches a player through its evaluation, not directly. The registration was
+therefore doing nothing, while the registry reported it as covered. Ratings were
+never missing from an erasure or a subject-access export, because both already
+follow the parent evaluation, but the registry now says so honestly. A test
+checks every registration against its table, so the next one fails the build
+instead of going quiet.
+
+# TalentTrack v4.100.0 — A translation can no longer silently revert to English after a merge (#2765)
+
+The translation catalogues carry git's union merge driver so parallel branches
+stop conflicting on them; the cost is that a union merge takes both sides. Once
+the i18n sync has relocated a branch's appended entries into their sorted
+position on main, merging main back leaves the branch holding both copies — and
+git reports no conflict, because nothing disagreed. It happened four times in
+one day on four separate branches.
+
+Duplicate entries are what the compiler refuses, so one reaching main can break
+the compiled translations for every language. The quieter case is worse: when
+the two copies disagree, one translated and one emptied, gettext takes the first
+and the Dutch string reverts to English with no error anywhere.
+
+A new check fails any pull request that duplicates an entry the base branch does
+not, and names the strings. It runs as pure PHP so it can be reproduced on any
+machine, understands translation contexts (a contextual entry sharing a string
+with its plain twin is not a duplicate), and ignores obsolete blocks the way
+gettext does.
+
+# TalentTrack v4.100.0 — One intensity scale across the product, 1 to 7 (#2767)
+
+Three parts of the product
+disagreed about it: the exercise form offered ten levels, the handbook said
+five, and the engine, the shipped drills and the age profiles all used seven.
+That is not a cosmetic difference — intensity is the number the age-safe ceiling
+is compared against, so a coach rating a hard drill against a documented 1–5
+marked it a 5 when the shipped equivalent was a 6 or 7, and a session that
+should have raised a warning for a player raised none.
+
+The form, the VCT library and the age-profile editor now all read one scale, so
+a band no age group can accommodate cannot be chosen at all. The handbook now
+also says what the bands *mean* — 5 is a normal training block, 7 is as hard as
+any age group should ever go — because a range on its own does not tell a coach
+how to rate consistently.
+
+# TalentTrack v4.100.0 — The match day team sheet has its own switch (#2769)
+
+One setting used to gate
+both match-prep exports, so an academy that files match forms digitally could
+only hide the **Wedstrijdformulier afdrukken** button by also losing **PDF
+exporteren** — the sheet the coach actually takes to the touchline. They are two
+documents for two readers: the coach's carries the plan, the referee's carries
+identity and eligibility.
+
+**Match day team sheet** is a new feature under Match prep, on by default, so
+nothing changes for an academy that still hands paper to the referee. Switch it
+off and the button leaves the toolbar, the print URL refuses, and the
+server-side export on the Exports page stops offering it — while the coach's own
+PDF is untouched. That last part is new too: the server-side team-sheet export
+previously ran whatever the toggle said.
+
+# TalentTrack v4.100.0 — Saving an activity no longer empties its Line-up card (#2771)
+
+A match prep writes
+its Starting XI and bench through onto the activity's attendance rows, and the
+activity detail's Line-up card — and the match-day team sheet's fallback — read
+nothing else. Saving the activity rewrote those rows to store status and notes
+and silently dropped the two line-up columns along the way, so the card went
+blank while the prep itself was untouched. Re-opening the prep still showed the
+line-up, which is why this read as a card that disappeared rather than as data
+that was lost.
+
+The rewrite now carries the line-up across on both paths, planned and completed.
+An explicit starter tick on the completion form still wins: the coach who ticked
+the box on this save meant it.
+
 # TalentTrack v4.99.1 — Confirm dialogs say what they do, tournaments stop offering match prep, and the line-up card fits (#2684, #2686, #2763)
 
 **Confirm dialogs finally carry their own words.** Reopening a completed
