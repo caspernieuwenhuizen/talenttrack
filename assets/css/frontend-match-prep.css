@@ -351,29 +351,30 @@
     box-shadow: none !important;
 }
 
-/* #2198 — the image-capture export paints exactly what's on screen, so
-   empty-field placeholders ("Goal 1…", the "…" hints, "— Pick player —")
-   land in the PDF as if they were real content. html2canvas ignores
-   @media print, so suppress them here in the capture clone instead:
-   empty goal / attention inputs and unassigned set-piece roles print
-   blank. On-screen editing is untouched (this scope only exists in the
-   cloned node). */
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::placeholder,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::placeholder {
-    color: transparent !important;
-    opacity: 0 !important;
-}
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::-webkit-input-placeholder,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::-webkit-input-placeholder {
-    color: transparent !important;
-}
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-gbox-lines input::-moz-placeholder,
-.tt-mp-grid.tt-image-pdf-capture .tt-mp-dps input::-moz-placeholder {
-    color: transparent !important;
-    opacity: 0 !important;
-}
+/* #2198 — the image-capture export paints exactly what's on screen, so an
+   unassigned set-piece role would land in the PDF as a literal
+   "— Pick player —". html2canvas ignores @media print, so suppress it here
+   in the capture clone instead. On-screen editing is untouched (this scope
+   only exists in the cloned node).
+
+   Note: the sibling problem — empty goal / attention inputs printing their
+   "Goal 1…" / "…" placeholders — is NOT solvable from CSS. html2canvas
+   ignores ::placeholder and paints the `placeholder` attribute as ordinary
+   text whenever the value is empty. #2755 strips the attribute from the
+   clone in tt-image-pdf.js instead; don't reintroduce ::placeholder rules
+   here, they have no effect on this path. */
 .tt-mp-grid.tt-image-pdf-capture .tt-mp-sp-pick:not(.tt-mp-filled) .tt-mp-sp-name {
     visibility: hidden !important;
+}
+
+/* #2755 — interactive-only controls inside the captured grid. Both are
+   already hidden in @media print; html2canvas doesn't read that block, so
+   they need saying again in the capture scope. The set-piece clear button
+   prints as a dark filled circle next to a player's name, and the
+   copy-1st-half-to-2nd-half arrow prints as a button nobody can press. */
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-sp-clear,
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-copy-col {
+    display: none !important;
 }
 
 .tt-mp-copy-col {

@@ -141,6 +141,15 @@ gedownload. Omdat de pagina als afbeelding wordt vastgelegd is het
 resultaat pixelgetrouw aan wat je ziet — het nadeel is dat de tekst in
 de PDF niet selecteerbaar is.
 
+Twee dingen blijven er bewust af. **Lege velden komen leeg op papier**:
+een doelstelling of spelersnotitie die je niet hebt ingevuld wordt een
+lege schrijfregel, niet de grijze hint ("Doelstelling 2…", "…"), en een
+standaardsituatie zonder speler blijft leeg in plaats van
+"— Kies speler —". En **de knoppen printen niet**: het `×` waarmee je
+een speler bij een standaardsituatie wist en de `→` waarmee je de
+opstelling van de eerste helft naar de tweede kopieert, zijn knoppen op
+het scherm en hebben op een geprint blad niets te zoeken.
+
 De afbeeldingsmotor laadt pas wanneer je voor het eerst op Exporteren
 klikt (hij wordt niet eerder gedownload), zodat de match-prep-pagina
 zelf niet zwaarder wordt. Lukt het vastleggen niet op je apparaat, dan

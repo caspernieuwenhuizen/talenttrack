@@ -132,6 +132,15 @@ downloads straight to your device. Because it captures the page as an
 image, the result is pixel-faithful to what you see — the trade-off is
 that the text in the PDF is not selectable.
 
+Two things are deliberately left off the paper. **Empty fields print
+blank**: a goal line or a player note you haven't filled in comes out as
+an empty ruled line, not as its grey hint text ("Doelstelling 2…", "…"),
+and a set-piece role with nobody assigned prints blank rather than
+"— Pick player —". And **the buttons don't print**: the `×` that clears
+a set-piece player, and the `→` that copies the first half's line-up to
+the second, are on-screen controls with nothing to do on a printed
+sheet.
+
 The capture engine loads on demand the first time you click Export (it
 isn't downloaded until then), so nothing extra weighs on the match-prep
 page itself. If the capture can't run on your device a short notice
