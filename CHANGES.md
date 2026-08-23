@@ -1,3 +1,241 @@
+# TalentTrack v4.96.0 — Alerts: the bell now takes you where the number came from, and long-ignored alerts become tasks (#2635)
+
+The notification bell counts your alerts as well as your tasks — it has done
+since alerts shipped — but clicking it always landed on the task list. A coach
+whose bell read "3" because of three unmarked activities arrived at an empty
+inbox and reasonably concluded the bell was broken. It now takes you to
+whichever list the count actually came from, and to the alerts list when it
+is a tie, because that is the one that can show you everything.
+
+Alerts that nobody deals with can now turn into real, assigned tasks. Set a
+threshold per alert under Settings → Alert policy ("Turn into a task after
+(days)"); leave it empty and nothing escalates, which is the default.
+
+Two deliberate properties, because both are the sort of thing people expect
+to work the other way:
+
+- It happens **once**. An alert becomes a task one time, not once a day until
+  somebody acts.
+- It is **one-way**. Fixing the underlying thing clears the alert but does not
+  close the task. A task carries somebody's name and a record of what
+  happened; closing it behind their back would defeat the point of having
+  made it a task. Close it from the task itself.
+
+The bell's styling also moved out of the code and into the stylesheet, so it
+follows your academy's theme instead of being hard-coded red.
+
+# TalentTrack v4.96.0 — Alerts: two new data-quality alerts (#2636)
+
+This release adds two alerts about records that are simply incomplete. They
+are switched on from the moment you update, for everyone who can act on them,
+so here is exactly what you will start seeing:
+
+- **Player has no team** — an active player belongs to no team, a week or more
+  after being added. A player with no team has no attendance, no minutes, no
+  evaluation-coverage row, and no head coach receiving any of the other alerts
+  about them; TalentTrack genuinely cannot say where they are. This one is
+  quiet: it appears on the bell, not as a banner.
+- **Team has no head coach** — a team with players has nobody assigned as head
+  coach. Most alerts go to the head coach, so a team without one quietly stops
+  receiving any of them. A coach whose assignment has an end date in the past
+  does not count. Teams with no players are ignored, and so are trial groups.
+
+Both go to whoever looks after the records rather than to a coach, because
+there is no coach to send them to — that is the condition. And both are
+treated as player data: an alert that names a child is only shown to someone
+already allowed to see that child's record.
+
+The one threshold is an academy setting,
+`alerts_player_without_team_grace_days`. Assigning a squad is usually the next
+step in the same sitting as adding the player, so a brand-new record does not
+appear immediately.
+
+This is the fifth instalment filling out the alert catalogue.
+
+# TalentTrack v4.96.0 — Alerts: a new Onboarding alert (#2636)
+
+This release adds one alert about invitations. It is switched on from the
+moment you update, for everyone who can act on it, so here is exactly what you
+will start seeing:
+
+- **Invitation never accepted** — a player or staff invitation was sent a
+  fortnight ago and nobody ever accepted it. Goes to whoever sent it, and for
+  a player invitation also to the head coach of their team. Usually the email
+  went to spam or to a mistyped address, and until now nothing anywhere said
+  so: TalentTrack recorded the send and the acceptance, and the gap between
+  them was invisible unless somebody thought to open the invitations list.
+
+It does not fire for an invitation the system has already made redundant — a
+player or staff member whose account was created directly by an admin leaves a
+pending invitation behind, and chasing it would be chasing something already
+done. Nor for parent invitations, which have their own alert.
+
+The threshold is an academy setting, `alerts_invitation_stale_days`.
+
+This completes the alert catalogue for now: activities, evaluations, goals and
+PDP, people, measurements, data quality and onboarding.
+
+# TalentTrack v4.96.0 — Lesson checks that actually check something (#2647)
+
+Every module of the periodisation course has had five questions written for
+it since the corpus shipped. None of them appeared anywhere. The payloads were
+valid, the lessons declared they had a check, and there was no block on any
+page to render one — so the sequential unlock waited on a quiz nobody could
+take. The corpus lint now fails a PR where those two halves disagree, in
+either direction.
+
+The questions are live now, in four shapes: pick one, pick several, put a
+sequence in order, and match two lists. Ordering uses a position box per item
+rather than drag-and-drop — dragging is nicer with a mouse and unusable with a
+keyboard, and typing a number is a real answer rather than a fallback bolted
+beside a nicer one.
+
+Marking happens on the server. That is not caution for its own sake: the file
+that holds the questions also holds the answers, so anything that marked in
+the browser would have to be given the answers first. The page a coach sees
+with developer tools open is the page they see without them.
+
+Options are shuffled every time a lesson is opened, which matters more than it
+sounds. Every ordering and matching question in the course happens to be
+stored in its correct sequence, so showing the options as filed would have
+handed over the answer to all nine of them.
+
+There is no partial credit and a skipped question counts as wrong. Half an
+ordering is not half an understanding of a sequence, and a check you can pass
+by answering only the questions you were sure of is not checking anything.
+
+Every attempt is kept, passed or not — a coach who got there on the fourth try
+has a different development record than one who got it first time, and the
+head of academy reading that record should see both. Retakes are unlimited,
+and the reason behind each answer is shown whether you got it right or wrong.
+
+The whole thing is a plain form, so it still works with JavaScript switched
+off; the script just saves you losing your place in a long lesson.
+
+# TalentTrack v4.96.0 — Photo-capture DPIA: precise subject-access position (#2695)
+
+Follow-up to the DPIA correction. The previous pass called the subject-access
+position a "gap — either register the tables or state the limitation", which
+offered an option that does not exist: `tt_activity_exercises` carries no player
+identifier, and the export mechanism can only follow a column that joins to a
+player.
+
+The document now states the position exactly. Who attended a session **is**
+covered, through `tt_attendance`. The extraction is not, and cannot be by that
+mechanism. The real residual risk is narrower and sharper than "a gap": a player
+name transcribed into the free-text `notes` column is reachable by neither a
+subject-access export nor an erasure request, because erasing one player does not
+delete a session that belongs to a whole team.
+
+That is now prerequisite 7 in "Before this can be signed", with three ways to
+close it: instruct the model not to transcribe names, strip them before save, or
+accept and document the limitation.
+
+# TalentTrack v4.96.0 — Photo capture will not send anything until you say where (#2695)
+
+Photo-to-plan capture used to have a working default endpoint. An install that
+had merely switched the feature on was already able to send photographs taken at
+a youth academy to a destination nobody had consciously chosen — and the DPIA
+said the opposite, that EU residency was enforced and that leaving it took a
+deliberate opt-out.
+
+**The default is gone.** Two settings are now required in `wp-config.php`, and
+until both are present the feature reports itself unconfigured and nothing is
+sent:
+
+```php
+define( 'TT_VISION_ENDPOINT',    'https://…' );          // where requests go
+define( 'TT_VISION_DATA_REGION', 'EU (Frankfurt)' );     // where that processes them
+```
+
+Switching the feature on without declaring a destination now answers plainly that
+nothing was sent and what an administrator needs to set, rather than reporting
+that the photo could not be read.
+
+This cannot verify a declaration — no plugin can tell whether an endpoint really
+processes data where its operator says it does. What it guarantees is that the
+destination is always a choice somebody made, which is the thing a DPIA can
+honestly record. The declared region belongs in the signed document.
+
+Two related corrections: the extraction prompt now tells the model to keep player
+names in the structured attendance field rather than in free-text notes, where
+neither a subject-access export nor an erasure request could reach them; and the
+`TT_VISION_BEDROCK_*` settings, which were documented but never read by any code,
+have been removed so nobody configures them believing they do something.
+
+**If you already use this feature, it will stop working until you add the two
+settings.** That is deliberate.
+
+# TalentTrack v4.96.0 — Match analysis: write up a game per team function, and per player (#2704)
+
+A match can now be reviewed in the app, not only planned and measured.
+**Write the match analysis** appears on a match activity once it has been
+played, and on the post-match sideline screen where the detail is still
+fresh.
+
+The review is structured in the academy's own methodology vocabulary: an
+overall read, then a rating (Went well / Mixed / Needs work) plus up to four
+short points for each of *Aanvallen*, *Omschakelen naar aanvallen*,
+*Verdedigen*, *Omschakelen naar verdedigen* and set pieces. Where the match
+plan asked for something in a phase, it is shown next to it — so the review
+answers what was asked rather than what is remembered. An unrated section is
+a valid answer and stays out of the record entirely.
+
+Below the phases sits the roster: everyone who played, with their minutes.
+Each row optionally takes a marker (Stood out / As expected / Below par), one
+specific line about what the player did, and the phase it belongs to. Rows
+left untouched persist nothing. Every note also lands on that player's own
+timeline as *Observed in a match*, dated to the match and visible to staff —
+which is what makes it a development record rather than a per-match document.
+Rewriting a note updates the timeline entry; clearing it removes the entry
+too.
+
+The first draft is written through a five-step wizard; re-opening an existing
+analysis goes straight to the page, because changing one line should not mean
+walking five steps. Output is an A4 print (real text, so the PDF stays
+selectable) and a signed staff share link that can be revoked and reissued in
+one click, shutting every URL handed out before it.
+
+Works with or without a match plan and with or without the live-match screen
+— a game run off a paper team sheet gets the same analysis, with nothing to
+pre-fill. Match-type activities only for now: a tournament day is several
+games, and one analysis cannot say which of them it is about.
+
+Both the module and its two outputs are switchable: an academy can keep the
+review surface while turning the PDF export or the share links off.
+
+# TalentTrack v4.96.0 — Photos and video now load, count and land where you expect (#2715, #2716, #2717)
+
+Three defects found in the first live test of the media library, all fixed
+together.
+
+**Photos and video would not display (#2715).** Every thumbnail rendered as a
+broken image. The files themselves were fine — stored, thumbnailed and stripped
+of EXIF exactly as intended — but the browser was turned away at the door.
+An `<img>` tag cannot send the `X-WP-Nonce` header the REST API expects, so
+WordPress treated the request as coming from nobody at all and answered 401.
+Media URLs now carry the nonce in the query string, which WordPress accepts as
+equivalent. The session cookie is still required: a URL copied out of a page and
+opened elsewhere is refused, so this does not turn a player's photo into a link
+anyone can follow.
+
+**Finishing the wizard dropped you on the site's front page (#2716).** The
+"Add photos or video" wizard built its closing redirect on the site root rather
+than the page that hosts the dashboard, so on any install where the dashboard is
+not the front page the coach landed on the theme's homepage instead of the player
+they had just added a photo to. The same three lines also pointed activity media
+at a view that does not exist. Both now route through the shared link helper.
+
+**The Media tab never showed a count (#2717).** Goals, Evaluations, Activities
+and the rest all carry a number; Media was added to the tab strip without being
+added to the counter behind it, so a player with photos showed a bare tab. The
+badge now counts the same media the tab lists — club-scoped, archived items
+excluded — so the two cannot disagree.
+
+One limitation worth knowing: a nonce is valid for roughly a day. A gallery left
+open in a tab longer than that will show broken thumbnails until the page is
+reloaded.
+
 # TalentTrack v4.95.0 — Draw an animated scene for a drill (#2501)
 
 An exercise can now carry a **scene** — a small animated diagram of the drill,
