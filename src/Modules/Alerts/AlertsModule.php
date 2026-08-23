@@ -6,12 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Alerts\Cron\AlertDigestCron;
+use TT\Modules\Alerts\Cron\AlertEscalationCron;
 use TT\Modules\Alerts\Cron\AlertRetentionCron;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
+use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
 use TT\Modules\Alerts\Definitions\PdpNoConversationAlert;
@@ -23,6 +25,7 @@ use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
 use TT\Modules\Alerts\Definitions\TeamWithoutHeadCoachAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
+use TT\Modules\Alerts\Frontend\AlertBell;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
@@ -82,7 +85,13 @@ final class AlertsModule implements ModuleInterface {
         AlertDigestCron::init();
         AlertRetentionCron::init();
         AlertBanner::init();
+        // #2631 — contributes the alert half of the bell's number through
+        // the `tt_notification_bell_count` filter. Still the counter.
         AlertBellCount::init();
+        // #2635 — and this now renders the bell, replacing the Workflow one,
+        // so the destination can follow where the count came from.
+        AlertBell::init();
+        AlertEscalationCron::init();
     }
 
     /**
@@ -119,6 +128,9 @@ final class AlertsModule implements ModuleInterface {
         // #2636 instalment 5 — data quality.
         $alerts[] = new PlayerWithoutTeamAlert();
         $alerts[] = new TeamWithoutHeadCoachAlert();
+
+        // #2636 instalment 6 — Onboarding. Completes the wave 6 catalogue.
+        $alerts[] = new InvitationStaleAlert();
 
         return $alerts;
     }

@@ -104,6 +104,15 @@ Twee beveiligingen, en het is goed om te weten welke het echte werk doet:
 
 De tweede is de echte grens. De eerste is een nuttige extra waar de server hem respecteert.
 
+### Adressen van media verlopen
+
+Het adres waarvandaan een foto of video laadt, hoort bij jouw sessie en werkt na ongeveer een dag niet meer. Dat is met opzet: een adres dat uit een
+pagina wordt gekopieerd — geplakt in een chat, vastgelegd in een serverlog, meegestuurd in een referrer-header — is daardoor voor niemand anders
+bruikbaar. Wie zo'n link volgt zonder ingelogd te zijn in TalentTrack, krijgt geen toegang.
+
+Het praktische gevolg is klein maar goed om te weten: een galerij die 's nachts in een browsertabblad open blijft staan, toont de volgende ochtend
+gebroken afbeeldingen. De pagina herladen lost dat op.
+
 ### Locatiegegevens worden uit foto's verwijderd
 
 Een foto die met een telefoon is gemaakt, legt meestal vast waar hij gemaakt is. Bij een trainingsfoto is dat de locatie van een veld vol kinderen,

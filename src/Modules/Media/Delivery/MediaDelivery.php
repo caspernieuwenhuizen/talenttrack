@@ -52,6 +52,33 @@ final class MediaDelivery {
     ];
 
     /**
+     * Build the URL an <img> or <video> loads media bytes from.
+     *
+     * These tags cannot send an X-WP-Nonce header, and WordPress refuses to
+     * authenticate a cookie-bearing REST request that carries no nonce — so
+     * a bare rest_url() here is answered with 401 and the browser paints a
+     * broken image (#2715). The nonce therefore rides in the query string,
+     * which WordPress accepts as equivalent.
+     *
+     * This is not a bearer token: the request still needs the user's session
+     * cookie, so a URL leaked through a referrer header or an access log is
+     * answered with 403 rather than a minor's photo. MediaDeliveryTest pins
+     * that property.
+     *
+     * The nonce is also the one WordPress-ism in a media URL. When media
+     * moves to object storage, this method becomes the presigned-URL mint
+     * and nothing above it has to change.
+     *
+     * @param string $uuid    Media uuid.
+     * @param string $variant self::VARIANT_*.
+     */
+    public static function url( string $uuid, string $variant = self::VARIANT_FILE ): string {
+        $url = rest_url( 'talenttrack/v1/media/' . $uuid . '/' . $variant );
+
+        return (string) add_query_arg( '_wpnonce', wp_create_nonce( 'wp_rest' ), $url );
+    }
+
+    /**
      * Decide the response. Returns a plan, or a WP_Error naming what is
      * wrong — never a partial plan.
      *

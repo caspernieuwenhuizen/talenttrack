@@ -25,12 +25,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class NotificationBell {
 
+    /**
+     * #2635 — this class no longer renders the bell.
+     *
+     * `Alerts\Frontend\AlertBell` does, because the count now includes
+     * alerts and the destination has to follow it: a coach whose bell read
+     * "3" because of three unmarked activities used to land on an empty task
+     * list and conclude the bell was broken.
+     *
+     * What stays is `countFor()` and its `tt_notification_bell_count`
+     * filter — Workflow contributes the task half of the number through
+     * exactly the same seam every other source uses. Registering nothing
+     * here is the whole migration; the class is now a counter, not chrome.
+     *
+     * Deliberately not deleted: `countFor()` is the API the new bell calls,
+     * and removing the class would mean touching every workflow surface that
+     * references it for no user-visible gain.
+     */
     public static function init(): void {
-        add_filter( 'tt_dashboard_actions_html', [ self::class, 'inject' ], 10, 2 );
-        // v3.110.144 — site-wide admin-bar injection. Priority 100
-        // pushes the node toward the right side of the bar (after
-        // most plugin / theme nodes but before the user menu at 9999).
-        add_action( 'admin_bar_menu', [ self::class, 'injectAdminBar' ], 100 );
     }
 
     public static function inject( string $html, int $user_id ): string {

@@ -8,8 +8,12 @@ use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgePerson;
 use TT\Modules\Knowledge\LessonRenderer;
+use TT\Modules\Knowledge\Quiz\QuizPayload;
+use TT\Modules\Knowledge\Quiz\QuizScorer;
+use TT\Modules\Knowledge\Quiz\QuizSubmission;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
+use TT\Modules\Knowledge\Repositories\QuizAttemptRepository;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordSpine;
@@ -32,6 +36,9 @@ class FrontendLessonView extends FrontendViewBase {
 
     /** Hidden field marking our own POST. */
     private const ACTION = 'tt_knowledge_mark_read';
+
+    /** The quiz form's action, scored by #2647's no-JavaScript path. */
+    private const QUIZ_ACTION = 'tt_knowledge_quiz';
 
     public static function render( int $user_id, bool $is_admin ): void {
         $library = __( 'Knowledge library', 'talenttrack' );
@@ -75,6 +82,7 @@ class FrontendLessonView extends FrontendViewBase {
 
         $enrolment_id = self::ensureEnrolment( $enrolments, $person_id, $course_slug );
         $notice       = self::handlePost( $enrolment_id, $course_slug, $lesson_slug, $progress, $completion );
+        $quiz_result  = self::handleQuizPost( $enrolment_id, $course_slug, $lesson_slug, $progress, $completion );
 
         $row        = $enrolment_id > 0 ? $progress->find( $enrolment_id, $lesson_slug ) : null;
         $tool_state = $progress->toolState( $row );
@@ -101,8 +109,14 @@ class FrontendLessonView extends FrontendViewBase {
 
         self::renderObjectives( $lesson->objectives() );
 
+        if ( $quiz_result !== null ) {
+            self::renderQuizResult( $quiz_result );
+        }
+
         echo '<article class="tt-lesson-body">';
-        echo LessonRenderer::renderAndEnqueue( $lesson->body() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes; see LessonMarkdown.
+        // The course and lesson are passed so `tt-quiz` can find its
+        // payload; every other block ignores them.
+        echo LessonRenderer::renderAndEnqueue( $lesson->body(), $course_slug, $lesson_slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes; see LessonMarkdown.
         echo '</article>';
 
         self::renderCompletion( $enrolment_id, $course_slug, $lesson_slug, $is_read, $lesson->hasQuiz(), $lesson->hasAssignment(), $completion );
@@ -236,6 +250,130 @@ class FrontendLessonView extends FrontendViewBase {
         $completion->recalculate( $enrolment_id );
 
         return __( 'Marked as read.', 'talenttrack' );
+    }
+
+    /**
+     * Score a quiz posted without JavaScript.
+     *
+     * The reader script submits through the REST route instead; this is
+     * the path that still works with it blocked, and it is the reason the
+     * quiz is a real `<form>` rather than a div full of listeners.
+     *
+     * @return array<string, mixed>|null the scored result, or null
+     */
+    private static function handleQuizPost(
+        int $enrolment_id,
+        string $course_slug,
+        string $lesson_slug,
+        ProgressRepository $progress,
+        CourseCompletionService $completion
+    ): ?array {
+        if ( $enrolment_id <= 0 ) {
+            return null;
+        }
+
+        if ( ( $_POST['tt_knowledge_action'] ?? '' ) !== self::QUIZ_ACTION ) {
+            return null;
+        }
+
+        if ( ! isset( $_POST['_tt_quiz_nonce'] )
+            || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_tt_quiz_nonce'] ) ), self::QUIZ_ACTION )
+        ) {
+            return null;
+        }
+
+        $payload = QuizPayload::forLesson( $course_slug, $lesson_slug );
+        if ( $payload === null || $payload->count() === 0 ) {
+            return null;
+        }
+
+        // Option labels arrive as submitted text. They are compared against
+        // the payload rather than echoed, and the feedback panel escapes
+        // everything it prints.
+        $raw = isset( $_POST['q'] ) && is_array( $_POST['q'] )
+            ? wp_unslash( $_POST['q'] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- matched against the payload, never echoed raw.
+            : [];
+
+        $submitted = QuizSubmission::normalise( $payload, (array) $raw );
+        $result    = QuizScorer::score( $payload, $submitted );
+
+        ( new QuizAttemptRepository() )->record(
+            $enrolment_id,
+            $lesson_slug,
+            $submitted,
+            $result['score'],
+            $result['max'],
+            $result['passed']
+        );
+
+        if ( $result['passed'] ) {
+            $progress->markQuizPassed( $enrolment_id, $lesson_slug );
+            $completion->recalculate( $enrolment_id );
+        }
+
+        return $result;
+    }
+
+    /**
+     * The scored result, above the lesson body.
+     *
+     * Explanations show for wrong and right answers alike: a coach who
+     * guessed correctly learns as much from the reason as one who did not.
+     *
+     * @param array<string, mixed> $result
+     */
+    private static function renderQuizResult( array $result ): void {
+        $passed = (bool) $result['passed'];
+
+        printf(
+            '<section class="tt-quiz-result %1$s"><h2 class="tt-quiz-result__headline">%2$s</h2>',
+            $passed ? 'tt-quiz-result--passed' : 'tt-quiz-result--failed',
+            esc_html( sprintf(
+                /* translators: 1: correct answers, 2: total questions */
+                __( 'You answered %1$d of %2$d correctly.', 'talenttrack' ),
+                (int) $result['score'],
+                (int) $result['max']
+            ) )
+        );
+
+        echo '<p class="tt-quiz-result__verdict">' . esc_html(
+            $passed
+                ? __( 'That is a pass — this lesson\'s check is done.', 'talenttrack' )
+                : sprintf(
+                    /* translators: %d: the number of correct answers needed */
+                    __( 'You need %d correct to pass. Read back over the parts below and try again.', 'talenttrack' ),
+                    (int) $result['pass_mark']
+                )
+        ) . '</p>';
+
+        echo '<ol class="tt-quiz-result__list">';
+        foreach ( $result['questions'] as $question ) {
+            printf(
+                '<li class="tt-quiz-result__item tt-quiz-result__item--%1$s">',
+                $question['correct'] ? 'correct' : 'wrong'
+            );
+            echo '<span class="tt-quiz-result__mark">'
+                . ( $question['correct']
+                    ? '<span aria-hidden="true">✓</span><span class="tt-visually-hidden">' . esc_html__( 'Correct', 'talenttrack' ) . '</span>'
+                    : '<span aria-hidden="true">✕</span><span class="tt-visually-hidden">' . esc_html__( 'Wrong', 'talenttrack' ) . '</span>' )
+                . '</span>';
+
+            if ( ! $question['correct'] && $question['expected'] !== [] ) {
+                echo '<span class="tt-quiz-result__expected">' . esc_html( sprintf(
+                    /* translators: %s: the correct answer */
+                    __( 'Answer: %s', 'talenttrack' ),
+                    implode( ' → ', $question['expected'] )
+                ) ) . '</span>';
+            }
+
+            if ( $question['explanation'] !== '' ) {
+                echo '<span class="tt-quiz-result__why">' . esc_html( $question['explanation'] ) . '</span>';
+            }
+
+            echo '</li>';
+        }
+        echo '</ol>';
+        echo '</section>';
     }
 
     /**

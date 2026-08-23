@@ -93,6 +93,9 @@ beide. Principe 1 verschuift naar maandag, waar het als lichte technische
 training alsnog zijn werk doet — dag 2 na de wedstrijd, lage belasting.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="08-week"
 **Praktijkopdracht 8**
 

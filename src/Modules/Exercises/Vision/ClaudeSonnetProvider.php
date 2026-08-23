@@ -3,37 +3,41 @@ namespace TT\Modules\Exercises\Vision;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
+
 /**
  * ClaudeSonnetProvider (#0016 Sprint 4) — vision extraction via
  * Anthropic's Claude Sonnet 4.x model.
  *
- * Production endpoint default: AWS Bedrock `eu-central-1` for EU
- * data residency (DPIA hard requirement — minor athletes' data
- * cannot leave the EU). Per the DPIA scope: photos are passed to
- * the provider, the model is asked to extract structured fields,
- * the response is returned and the source photo is deleted from
- * server storage within 7 days (no persistence at the provider
- * side per Anthropic's Bedrock terms).
+ * Speaks the Anthropic Messages API: the photo as an `image/jpeg`
+ * content block plus a structured-extraction prompt.
  *
- * Configuration via wp-config.php:
+ * ## There is no endpoint default (#2695)
  *
- *     define( 'TT_VISION_PROVIDER', 'claude_sonnet' );
- *     define( 'TT_VISION_API_KEY', 'sk-ant-...' );           // direct API
- *     define( 'TT_VISION_ENDPOINT', '...' );                  // override
- *     // OR for Bedrock:
- *     define( 'TT_VISION_BEDROCK_REGION', 'eu-central-1' );
- *     define( 'TT_VISION_BEDROCK_ACCESS_KEY', '...' );
- *     define( 'TT_VISION_BEDROCK_SECRET_KEY', '...' );
+ * An earlier version of this docblock described a Bedrock
+ * `eu-central-1` default and three `TT_VISION_BEDROCK_*` constants.
+ * None of that was ever real — Bedrock needs SigV4 request signing,
+ * which this class does not do, and no code has ever read those
+ * constants. What existed instead was a silent fallback to Anthropic's
+ * direct API, so an install that had merely switched the feature on
+ * was already sending photographs somewhere nobody had chosen.
  *
- * **Status (v3.110.40 / Sprint 4 ship)**: this implementation calls
- * the Anthropic Messages API with the photo as a `image/jpeg`
- * content block + a structured-extraction prompt. The wp-config
- * indirection means the same code routes to Bedrock or direct
- * Anthropic depending on which constants are set. The shootout
- * (calendar-time, requires real coach photos) has not happened
- * yet, so the prompt + the matcher tuning are first-pass best-
- * effort — operator review of extraction quality across 10-15
- * real photos must validate before broad deployment per the spec.
+ * The fallback is gone. The operator states the destination and what
+ * it means, and nothing is sent until they have:
+ *
+ *     define( 'TT_VISION_PROVIDER',    'claude_sonnet' );
+ *     define( 'TT_VISION_API_KEY',     'sk-ant-...' );
+ *     define( 'TT_VISION_ENDPOINT',    'https://…' );          // required
+ *     define( 'TT_VISION_DATA_REGION', 'EU (Frankfurt)' );     // required
+ *
+ * Routing to Bedrock would still need SigV4 and is not supported;
+ * point `TT_VISION_ENDPOINT` at something that speaks the Messages
+ * API.
+ *
+ * **Extraction quality is unvalidated.** The provider shootout
+ * (calendar-time, needs real coach photos) has not happened, so the
+ * prompt and the matcher tuning are first-pass. Operator review across
+ * 10–15 real photos is required before broad deployment.
  */
 final class ClaudeSonnetProvider extends AbstractStubProvider {
 
@@ -41,16 +45,26 @@ final class ClaudeSonnetProvider extends AbstractStubProvider {
         return 'claude_sonnet';
     }
 
+    /**
+     * No region in the label. It used to say "via Bedrock, EU-Central",
+     * which was not true of any code path and is exactly the kind of
+     * reassurance an operator would reasonably rely on.
+     */
     public function label(): string {
-        return __( 'Claude Sonnet (via Bedrock, EU-Central)', 'talenttrack' );
+        return __( 'Claude Sonnet', 'talenttrack' );
     }
 
     public function extractSessionFromImage( string $image_bytes, array $context = [] ): ExtractedSession {
         if ( $image_bytes === '' ) {
             throw new \RuntimeException( 'Empty image payload — nothing to extract.' );
         }
+        // Region first: an install with a key but no declared
+        // destination should be told what is actually missing, not
+        // handed a generic "not configured".
+        VisionDataRegion::assertDeclared();
+
         if ( ! $this->isConfigured() ) {
-            throw new \RuntimeException( 'Claude Sonnet provider is not configured. Set TT_VISION_API_KEY in wp-config.php (or the Bedrock equivalent).' );
+            throw new \RuntimeException( 'Claude Sonnet provider is not configured. Set TT_VISION_PROVIDER and TT_VISION_API_KEY in wp-config.php.' );
         }
 
         // Defensive size cap — Anthropic's Messages API rejects
@@ -96,9 +110,11 @@ final class ClaudeSonnetProvider extends AbstractStubProvider {
             ],
         ];
 
-        $endpoint = defined( 'TT_VISION_ENDPOINT' ) && constant( 'TT_VISION_ENDPOINT' ) !== ''
-            ? (string) constant( 'TT_VISION_ENDPOINT' )
-            : 'https://api.anthropic.com/v1/messages';
+        // #2695 — the declared endpoint, or nothing. `assertDeclared()`
+        // in the caller has already refused an undeclared install, so
+        // reaching here without one is impossible rather than defaulted.
+        VisionDataRegion::assertDeclared();
+        $endpoint = (string) VisionDataRegion::endpoint();
 
         $resp = wp_remote_post( $endpoint, [
             'timeout' => 30,
@@ -116,7 +132,20 @@ final class ClaudeSonnetProvider extends AbstractStubProvider {
         $code = wp_remote_retrieve_response_code( $resp );
         $raw  = (string) wp_remote_retrieve_body( $resp );
         if ( $code < 200 || $code >= 300 ) {
-            throw new \RuntimeException( sprintf( 'Vision provider returned HTTP %d: %s', $code, substr( $raw, 0, 200 ) ) );
+            // The upstream body goes to the log, not into the exception
+            // message. `VisionExtractRestController` puts that message
+            // in the response's `detail` field, so interpolating a
+            // third party's error body here would echo it to whoever
+            // called the endpoint — and this is the request that just
+            // carried a photograph of a child. The status code is
+            // enough for the caller; the body is for whoever is
+            // debugging, in the place debugging output belongs.
+            Logger::error( 'vision.provider_http_error', [
+                'status' => $code,
+                'body'   => substr( $raw, 0, 200 ),
+            ] );
+
+            throw new \RuntimeException( 'The vision provider rejected the request. See the error log for its response.' );
         }
 
         $decoded = json_decode( $raw, true );
@@ -173,6 +202,7 @@ Rules:
 - Order the exercises in the sequence they appear on the plan.
 - If a duration is missing or illegible, set duration_minutes to 0.
 - If you can't read part of an exercise name confidently, set confidence < 0.6.
+- Player names belong ONLY in the "attendance" array. Never write a player's name into any "notes" field or into an exercise name, even if the coach wrote it there. If a note is about a specific player, describe it without the name — "one player working separately" rather than "Sem working separately". A name in the attendance array is attached to that player's record and can be found again; a name in free text cannot, so it can be neither exported nor erased when the player asks.
 - attendance is optional — if no player names are visible, return an empty array.
 - DO NOT invent exercises. DO NOT invent player names. Only extract what's actually on the photo.
 - DO NOT wrap the JSON in any prose, markdown fences, or explanation.

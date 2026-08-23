@@ -80,7 +80,15 @@ Each alert links straight to the record it is about, so fixing it is one click a
 
 These two go to whoever looks after the records rather than to a coach, because there is no coach to send them to — that is the condition. They are quieter than the rest of the catalogue: **Player has no team** appears on the bell only, not as a banner.
 
-More alerts, covering onboarding, arrive in a later release. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### Onboarding
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Invitation never accepted** | A player or staff invitation was sent a fortnight ago and never accepted. | *Where has this player come from?* An invitation is the first step of a player's journey through the academy's own systems, and an unaccepted one is a journey that never started — no account, no sight of their own evaluations, no reading the feedback their coach wrote for them. |
+
+Parent invitations have their own alert (**Parent invited but never activated**), because the question they raise is different: a parent invitation that was never accepted may still be fine if the family is linked another way. Splitting them keeps each message specific.
+
+That completes the alert catalogue for now. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -100,6 +108,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
 | `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
 | `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
+| `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted before the alert appears. |
 
 ## New alerts arrive switched on
 
@@ -224,3 +233,14 @@ What you can rely on:
 Once an alert has cleared, it is kept for **90 days** and then deleted. Alerts that are still open are never deleted, however old they are — an alert nobody has dealt with for a year is worth seeing, not tidying away.
 
 This means the alerts system cannot answer questions spanning more than about a quarter. For season-long patterns, use Reports, which reads the underlying records rather than the alerts about them.
+
+## When an alert becomes a task
+
+An alert that nobody deals with does not stay a nudge forever. If your academy has set a threshold for it (Settings → Alert policy → **Turn into a task after (days)**), the alert is turned into a real, assigned task once it has been open that long.
+
+Two things to know about how that works:
+
+- **It happens once.** An alert becomes a task one time, not once a day until somebody acts.
+- **It is one-way.** Fixing the underlying thing clears the alert, but it does **not** close the task. A task has somebody's name on it and a record of what happened, and closing that behind their back would defeat the point. Close the task from the task itself.
+
+The alerts list shows which alerts have become tasks, and links to them.

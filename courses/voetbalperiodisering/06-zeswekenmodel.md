@@ -96,6 +96,9 @@ speelstijl. Een ploeg die minder conditietraining deed maar wel compleet
 trainde, is beter voorbereid op wedstrijd 1 — niet slechter.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="06-cyclus"
 **Praktijkopdracht 6**
 

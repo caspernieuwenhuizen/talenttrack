@@ -9,8 +9,12 @@ use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgePerson;
 use TT\Modules\Knowledge\LessonRenderer;
+use TT\Modules\Knowledge\Quiz\QuizPayload;
+use TT\Modules\Knowledge\Quiz\QuizScorer;
+use TT\Modules\Knowledge\Quiz\QuizSubmission;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
+use TT\Modules\Knowledge\Repositories\QuizAttemptRepository;
 use WP_REST_Request;
 
 /**
@@ -61,6 +65,11 @@ final class KnowledgeRestController {
             'methods'             => 'GET',
             'callback'            => [ __CLASS__, 'get_lesson' ],
             'permission_callback' => [ __CLASS__, 'can_view' ],
+        ] );
+
+        register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/quiz/(?P<lesson>[a-z0-9-]+)', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'submit_quiz' ],  'permission_callback' => [ __CLASS__, 'can_view' ] ],
+            [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'quiz_attempts' ], 'permission_callback' => [ __CLASS__, 'can_view' ] ],
         ] );
 
         register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/enrolments', [
@@ -260,6 +269,161 @@ final class KnowledgeRestController {
             'read_at'     => $row->read_at ?? null,
             'tool_state'  => $progress->toolState( $row ),
         ] );
+    }
+
+    /**
+     * Mark a quiz attempt.
+     *
+     * Scoring is here rather than in the browser because the payload
+     * carries the answer key: a client-side scorer would have to be handed
+     * the answers to do its job.
+     *
+     * Every attempt is recorded, passed or not. A coach who passed on the
+     * fourth try has a different development record than one who passed
+     * first time, and that is what a head of academy reading the record
+     * wants to see.
+     */
+    public static function submit_quiz( WP_REST_Request $r ) {
+        $slug   = (string) $r['slug'];
+        $lesson = (string) $r['lesson'];
+
+        $gate = self::lessonGate( $slug, $lesson );
+        if ( $gate !== null ) {
+            return $gate;
+        }
+
+        $payload = QuizPayload::forLesson( $slug, $lesson );
+        if ( $payload === null || $payload->count() === 0 ) {
+            return RestResponse::notFound( 'quiz_not_found', __( 'This lesson has no check.', 'talenttrack' ) );
+        }
+
+        $person_id = self::currentPersonId();
+        if ( $person_id <= 0 ) {
+            return RestResponse::error(
+                'no_person_record',
+                __( 'This login is not linked to a staff record.', 'talenttrack' ),
+                400
+            );
+        }
+
+        $raw = $r->get_param( 'q' );
+        if ( ! is_array( $raw ) ) {
+            $raw = [];
+        }
+
+        $submitted = QuizSubmission::normalise( $payload, $raw );
+        $result    = QuizScorer::score( $payload, $submitted );
+
+        $enrolments = new EnrolmentRepository();
+        $enrolment  = $enrolments->findFor( $person_id, $slug );
+        if ( $enrolment === null ) {
+            $enrolments->enrol( $person_id, $slug );
+            $enrolment = $enrolments->findFor( $person_id, $slug );
+        }
+
+        if ( $enrolment === null ) {
+            return RestResponse::error( 'enrolment_failed', __( 'Could not record the attempt.', 'talenttrack' ), 400 );
+        }
+
+        $enrolment_id = (int) $enrolment->id;
+
+        ( new QuizAttemptRepository() )->record(
+            $enrolment_id,
+            $lesson,
+            $submitted,
+            $result['score'],
+            $result['max'],
+            $result['passed']
+        );
+
+        $service = new CourseCompletionService();
+
+        if ( $result['passed'] ) {
+            ( new ProgressRepository() )->markQuizPassed( $enrolment_id, $lesson );
+            $service->recalculate( $enrolment_id );
+        }
+
+        return RestResponse::success( $result + [
+            'attempts'    => ( new QuizAttemptRepository() )->countFor( $enrolment_id, $lesson ),
+            'progress'    => $service->progressFor( $enrolment_id, $slug ),
+            'next_lesson' => $service->nextLesson( $enrolment_id, $slug ),
+        ] );
+    }
+
+    /**
+     * This reader's attempts at one lesson's quiz.
+     *
+     * Their own only — a coach's attempt history is part of their
+     * development record, and the roll-up that shows anyone else's is
+     * #2650 behind its own capability.
+     */
+    public static function quiz_attempts( WP_REST_Request $r ) {
+        $slug   = (string) $r['slug'];
+        $lesson = (string) $r['lesson'];
+
+        $gate = self::lessonGate( $slug, $lesson );
+        if ( $gate !== null ) {
+            return $gate;
+        }
+
+        $person_id = self::currentPersonId();
+        $enrolment = $person_id > 0
+            ? ( new EnrolmentRepository() )->findFor( $person_id, $slug )
+            : null;
+
+        if ( $enrolment === null ) {
+            return RestResponse::success( [ 'attempts' => [] ] );
+        }
+
+        $attempts = [];
+        foreach ( ( new QuizAttemptRepository() )->listFor( (int) $enrolment->id, $lesson ) as $attempt ) {
+            // The stored answers are not returned: they are the reader's
+            // own working, and echoing them back adds nothing the score
+            // does not already say.
+            $attempts[] = [
+                'score'      => (int) $attempt->score,
+                'max_score'  => (int) $attempt->max_score,
+                'passed'     => (bool) $attempt->passed,
+                'created_at' => $attempt->created_at,
+            ];
+        }
+
+        return RestResponse::success( [ 'attempts' => $attempts ] );
+    }
+
+    /**
+     * Shared gate for the two quiz routes: the lesson must exist and be
+     * open to this reader. Returns null when it is, or the response to
+     * send when it is not.
+     *
+     * @return \WP_REST_Response|null
+     */
+    private static function lessonGate( string $slug, string $lesson ) {
+        if ( CourseRegistry::lesson( $slug, $lesson ) === null ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        $verdict = ( new CourseAccessResolver() )->forLesson(
+            $slug,
+            $lesson,
+            self::currentPersonId(),
+            get_current_user_id()
+        );
+
+        if ( $verdict->isUnavailable() || $verdict->isDenied() ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        if ( $verdict->isLocked() ) {
+            return RestResponse::error(
+                'lesson_locked',
+                __( 'Finish the previous lesson first.', 'talenttrack' ),
+                403,
+                $verdict->toArray()
+            );
+        }
+
+        return null;
     }
 
     public static function enrol( WP_REST_Request $r ) {
