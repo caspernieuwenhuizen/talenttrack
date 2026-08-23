@@ -494,6 +494,7 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
+        $data = self::stampConsent( $data, null );
         $data['club_id'] = CurrentClub::id();
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
         if ( $ok === false ) {
@@ -531,6 +532,7 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
+        $data = self::stampConsent( $data, $existing );
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.player.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
@@ -639,6 +641,41 @@ class PlayersRestController {
         }
     }
 
+    /**
+     * Stamp who recorded media consent and when (#2744).
+     *
+     * The date and the recorder are the whole point of the record: a bare
+     * boolean is an assertion, a boolean with provenance is evidence, and
+     * evidence is what a consent record exists to be.
+     *
+     * Only a *change* re-stamps. Re-saving an unrelated field on a player
+     * whose consent was recorded last season must not silently move the
+     * date to today and put the current user's name against a decision
+     * they did not take.
+     *
+     * @param array<string, mixed> $data
+     * @param object|null          $existing null on create.
+     * @return array<string, mixed>
+     */
+    private static function stampConsent( array $data, ?object $existing ): array {
+        $now  = (int) ( $data['media_consent'] ?? 0 );
+        $was  = $existing ? (int) ( $existing->media_consent ?? 0 ) : 0;
+
+        if ( $now === $was && $existing ) return $data;
+
+        if ( $now === 1 ) {
+            $data['media_consent_at'] = current_time( 'mysql' );
+            $data['media_consent_by'] = get_current_user_id();
+        } else {
+            // Withdrawn, or never given. The provenance of a consent that
+            // no longer stands would only be misleading.
+            $data['media_consent_at'] = null;
+            $data['media_consent_by'] = null;
+        }
+
+        return $data;
+    }
+
     private static function extract( \WP_REST_Request $r ): array {
         return [
             'first_name'          => sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
@@ -657,6 +694,10 @@ class PlayersRestController {
             'team_id'             => absint( $r['team_id'] ?? 0 ),
             'date_joined'         => sanitize_text_field( (string) ( $r['date_joined'] ?? '' ) ),
             'photo_url'           => esc_url_raw( (string) ( $r['photo_url'] ?? '' ) ),
+            // #2744 — a record of what the family agreed to, not a gate.
+            // An unchecked box sends nothing, so absence means "no", which
+            // is the honest reading for a consent record.
+            'media_consent'       => ! empty( $r['media_consent'] ) ? 1 : 0,
             'guardian_name'       => sanitize_text_field( (string) ( $r['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $r['guardian_email'] ?? '' ) ),
             'guardian_phone'      => sanitize_text_field( (string) ( $r['guardian_phone'] ?? '' ) ),
@@ -683,6 +724,13 @@ class PlayersRestController {
             'height_cm'           => $pl->height_cm !== null ? (int) $pl->height_cm : null,
             'weight_kg'           => $pl->weight_kg !== null ? (int) $pl->weight_kg : null,
             'preferred_foot'      => $pl->preferred_foot ?: null,
+            // #2744 — under the existing player permissions, like every
+            // other field here. Safeguarding-adjacent, so it follows the
+            // same rules as the fields beside it rather than gaining a
+            // capability of its own.
+            'media_consent'       => ! empty( $pl->media_consent ),
+            'media_consent_at'    => $pl->media_consent_at ?: null,
+            'media_consent_by'    => $pl->media_consent_by !== null ? (int) $pl->media_consent_by : null,
             'preferred_positions' => json_decode( (string) $pl->preferred_positions, true ) ?: [],
             'jersey_number'       => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
             'team_id'             => (int) $pl->team_id,

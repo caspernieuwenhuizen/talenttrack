@@ -420,6 +420,39 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 <button type="button" class="tt-btn tt-btn-secondary" id="tt-player-photo-clear" style="margin-left:6px;"><?php esc_html_e( 'Remove', 'talenttrack' ); ?></button>
             </div>
 
+            <?php
+            // #2744 — consent for photos and video. A record, not a gate:
+            // nothing in the upload path reads it. Placed beside Photo
+            // because it is about the child's likeness, not about media
+            // the academy happens to hold.
+            $consent_at = (string) ( $player->media_consent_at ?? '' );
+            $consent_by = (int) ( $player->media_consent_by ?? 0 );
+            ?>
+            <div class="tt-field tt-player-consent">
+                <label class="tt-checkbox-label">
+                    <input type="checkbox" name="media_consent" value="1" <?php checked( ! empty( $player->media_consent ) ); ?> />
+                    <?php esc_html_e( 'Consent on record for photos and video', 'talenttrack' ); ?>
+                </label>
+                <p class="tt-field-hint">
+                    <?php esc_html_e( 'Records what the parent or guardian agreed to on paper. It does not restrict who can add photos — it is here so the academy can answer who it may photograph.', 'talenttrack' ); ?>
+                </p>
+                <?php if ( $consent_at !== '' ) : ?>
+                    <p class="tt-field-hint">
+                        <?php
+                        $recorder  = $consent_by > 0 ? get_userdata( $consent_by ) : null;
+                        $date_fmt  = (string) QueryHelpers::get_config( 'date_format', 'Y-m-d' );
+                        $stamp     = strtotime( $consent_at );
+                        printf(
+                            /* translators: 1: date the consent was recorded, 2: name of the staff member who recorded it. */
+                            esc_html__( 'Recorded %1$s by %2$s', 'talenttrack' ),
+                            esc_html( $stamp ? wp_date( $date_fmt, $stamp ) : $consent_at ),
+                            esc_html( $recorder ? $recorder->display_name : __( 'an unknown user', 'talenttrack' ) )
+                        );
+                        ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+
             <?php self::renderCustomFields( (int) ( $player->id ?? 0 ) ); ?>
 
             <h4 style="margin: 18px 0 6px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tt-muted);">

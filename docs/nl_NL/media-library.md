@@ -150,6 +150,24 @@ niet voor je.
 Een academie die wekelijks wedstrijdfragmenten uploadt, moet dat getal afzetten tegen wat de hosting daadwerkelijk biedt — TalentTrack kan niet
 zien hoe groot de schijf is waarop het draait.
 
+## Toestemming voor foto en video vastleggen
+
+Elk spelersrecord heeft een vinkje **Toestemming foto & video**, op het bewerkformulier naast de foto. Aanvinken legt de datum vast en de naam van de
+medewerker die het registreerde, zodat de vermelding bewijs is en geen bewering. Uitvinken haalt beide weg, want de herkomst van een toestemming die
+niet meer geldt, zou alleen maar misleiden.
+
+Het profiel van de speler toont het antwoord aan de staf — óók als het antwoord nee is, want een leeg veld leest als "er is niet naar gevraagd".
+
+**Het legt vast, het beperkt niet.** Bij het toevoegen van een foto wordt dit vinkje nergens gecontroleerd. Een trainer kan media toevoegen bij een
+speler zonder vastgelegde toestemming, en de academie wordt daarin niet tegengehouden. Dat is bewust. De echte beheersmaatregel is het gesprek en het
+formulier dat het gezin heeft getekend; een harde blokkade langs de lijn wordt in de praktijk omzeild door met een privételefoon te fotograferen, en
+daar is het kind slechter mee af dan met een vastgelegd hiaat.
+
+Waar het veld wél voor is: de vraag beantwoorden — *wie mogen we fotograferen?* — vóór een wedstrijddag, en kunnen laten zien dát de vraag gesteld is.
+
+Intrekken gebeurt door het vinkje weg te halen. Dat werkt niet met terugwerkende kracht op al opgeslagen foto's; wil een gezin bestaande media
+verwijderd hebben, dan gebeurt dat via het tabblad Media van de speler.
+
 ## Wie de media van een speler mag zien
 
 - **Staf** — trainers, scouts en beheerders — ziet de media van de spelers waar zij verantwoordelijk voor zijn, volgens dezelfde rechten die voor
