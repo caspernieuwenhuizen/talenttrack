@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T14:47:16+00:00\n"
+"POT-Creation-Date: 2026-08-23T15:40:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -6715,7 +6715,7 @@ msgstr ""
 #: src/Modules/Analytics/CohortBoardService.php:112
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:339
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:345
 #: src/Shared/Frontend/FrontendExportsView.php:121
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
@@ -20739,7 +20739,6 @@ msgstr[1] ""
 
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:183
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:26
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:338
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:20
 #: src/Modules/Training/Wizard/ReviewStep.php:25
 #: src/Modules/Vct/Wizard/ReviewStep.php:41
@@ -28943,6 +28942,11 @@ msgstr ""
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:321
 msgid "Closed"
+msgstr ""
+
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:344
+msgctxt "a PDP verdict decision on a historical row"
+msgid "Review"
 msgstr ""
 
 #: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:33

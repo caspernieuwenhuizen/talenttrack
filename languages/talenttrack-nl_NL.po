@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T14:47:16+00:00\n"
+"POT-Creation-Date: 2026-08-23T15:40:31+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -7076,7 +7076,7 @@ msgstr "Prospects per scout vastgelegd"
 #: src/Modules/Analytics/CohortBoardService.php:112
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:61
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:339
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:345
 #: src/Shared/Frontend/FrontendExportsView.php:121
 #: src/Shared/Frontend/FrontendWizardView.php:817
 msgid "Pending"
@@ -22366,7 +22366,6 @@ msgstr[1] "%d uur"
 
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:183
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:26
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:338
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:20
 #: src/Modules/Training/Wizard/ReviewStep.php:25
 #: src/Modules/Vct/Wizard/ReviewStep.php:41
@@ -31083,6 +31082,11 @@ msgstr "Geen aanwezigheidsregistraties."
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:321
 msgid "Closed"
 msgstr "Gesloten"
+
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:344
+msgctxt "a PDP verdict decision on a historical row"
+msgid "Review"
+msgstr "Te beoordelen"
 
 #: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:33
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:378
@@ -54623,12 +54627,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:343
-msgctxt "a PDP verdict decision on a historical row"
-msgid "Review"
-msgstr "Te beoordelen"
-
 
 #~ msgid "Open staff share link"
 #~ msgstr "Stafdeellink openen"
