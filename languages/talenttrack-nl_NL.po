@@ -52940,6 +52940,7 @@ msgstr "Een uitnodiging is verstuurd en nooit geaccepteerd. Meestal is de e-mail
 #, php-format
 msgid "%s was invited but has never accepted."
 msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
+
 #~ msgid ""
 #~ "The questions for this module open once progress tracking is switched on."
 #~ msgstr ""
