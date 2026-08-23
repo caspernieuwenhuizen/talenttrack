@@ -8,9 +8,11 @@
 >
 > **Do not sign this document, and do not enable photo capture on any install, until [#2695](https://github.com/caspernieuwenhuizen/talenttrack/issues/2695) is closed.**
 >
-> An audit of this document against the shipped code (2026-08-22) found that several of its technical assertions described safeguards that do not exist. Those sections have been rewritten below to describe what the code actually does, and the gaps are listed in **§ 0. Before this can be signed**.
+> An audit of this document against the shipped code (2026-08-22) found that several of its technical assertions described safeguards that do not exist. Those sections have been rewritten to describe what the code actually does, and the remaining gaps are listed in **§ 0. Before this can be signed** — prerequisites 2 through 6 are open, and most of them need a DPO or a data controller rather than a commit.
 >
-> The most important correction: **this feature does not route to an EU-resident endpoint by default.** The previous version of this document said it did, and that breaking it required a deliberate opt-out. The opposite is true.
+> **Two have since been closed in code** (2026-08-23): there is no longer a default endpoint — nothing is sent until this install declares where photographs go — and the extraction prompt now keeps player names out of free-text fields. Prerequisite 7 is only *partly* closed; read its residual risk before signing.
+>
+> The correction that prompted all of this: the previous version said photographs routed to an EU-resident endpoint by default and that leaving EU residency required a deliberate opt-out. Neither was true.
 
 This template captures the Data Protection Impact Assessment for the photo-capture flow. Each section has space for the deploying academy's specifics; the technical defaults actually shipped are pre-filled where applicable. Print, complete, sign, retain — that's the operator's record of due diligence.
 
@@ -20,17 +22,17 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 
 | # | What is missing | Who closes it |
 | --- | --- | --- |
-| 1 | **EU residency is not enforced.** The default endpoint is Anthropic's direct API, not an EU-resident one, and nothing validates an operator-supplied override. Either implement an enforced EU path, or accept and document that residency is the operator's unchecked responsibility. | Product decision, then engineering — see #2695 |
+| 1 | ✅ **Closed.** There is no longer a default endpoint. The feature refuses to send anything until the operator declares both `TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION`; until they do, it reports itself unconfigured and callers fall back to manual entry. **What this does not do is verify the declaration** — no plugin can tell whether an endpoint really processes data where its operator says it does. What it guarantees is that the destination is always a choice somebody made, which is the thing a DPIA can honestly record. The declared region string belongs in § 2 below. | Done — the operator still owns the accuracy of the declaration |
 | 2 | **Retention of the offline queue.** Wave 9 (#2502) holds photographs in IndexedDB on the coach's device until reconnect. That is a processing location this document does not yet describe, and it needs a retention answer. | Engineering + DPO |
 | 3 | **Lawful basis** — § 4 is still unticked. | Data controller |
 | 4 | **Consent surface** — whether a coach must acknowledge something in-product before the first upload is a legal answer, not a product one (#2502). | DPO |
 | 5 | **Provider terms validation** — confirm the current contract's non-retention and non-training clauses as at the signing date. | Data controller |
 | 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting (#0016). Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
-| 7 | **Player names in free text.** The extraction can write a player's name into `tt_activity_exercises.notes`, which has no player identifier, so that name is reachable by neither the subject-access export nor an erasure request. Either instruct the model not to transcribe names into the notes, strip them before save, or accept and document the limitation. | Product decision, then engineering |
+| 7 | ⚠️ **Partly closed — read the residual risk.** The extraction prompt now instructs the model to keep player names in the structured `attendance` array and never to write one into any free-text `notes` field or exercise name. **A prompt is a request, not a guarantee**, and a server-side strip against the squad list was considered and deliberately not built. So a name the model transcribes anyway still lands somewhere neither a subject-access export nor an erasure request can reach. Sign only if the DPO accepts that residual risk knowingly. | Instruction shipped; accepting the remainder is a DPO decision |
 
 ## 1. Processing description
 
-**What the feature does**: A coach photographs their hand-written training plan with a phone camera. The image is sent to a vision-capable LLM — Claude Sonnet by default, via **Anthropic's direct API** unless the operator overrides the endpoint; Gemini Pro is a configured alternate. The model extracts a structured list of exercises + durations + (optionally) attendance markings. The coach reviews the extraction, edits as needed, and saves the session.
+**What the feature does**: A coach photographs their hand-written training plan with a phone camera. The image is sent to a vision-capable LLM — Claude Sonnet by default, at **whatever endpoint this install has declared** (§ 2; there is no default, and nothing is sent until one is declared). The model extracts a structured list of exercises + durations + (optionally) attendance markings. The coach reviews the extraction, edits as needed, and saves the session.
 
 **Personal data potentially in scope**:
 
@@ -74,11 +76,24 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 
 **Access gate**: the endpoint refuses every request unless the `exercises_vision_extraction` feature flag is switched on **and** the caller holds `tt_edit_activities`. On a default install the flag is off, so the feature cannot process anything until an operator deliberately enables it. (`VisionExtractRestController::register()`)
 
-**EU residency — read this carefully.** The default endpoint is `https://api.anthropic.com/v1/messages`, Anthropic's direct API. It is **not** AWS Bedrock, and there is no Bedrock code path: Bedrock requires SigV4 request signing, which is not implemented, and the `TT_VISION_BEDROCK_*` constants named in older versions of this document are not read by any code.
+**Data residency — the operator declares it, and nothing is sent until they do.**
 
-An operator who requires an EU-resident endpoint must set `TT_VISION_ENDPOINT` themselves. **Nothing validates that value.** A typo, an omission, or a later edit silently sends photographs to whatever endpoint is configured, with no warning and no log entry distinguishing the two cases.
+There is no default endpoint. The feature will not send a photograph anywhere until this install has stated, in `wp-config.php`, both where requests go and what that means:
 
-This is prerequisite 1 in § 0 and must be resolved before signature.
+```php
+define( 'TT_VISION_ENDPOINT',    'https://…' );          // where requests go
+define( 'TT_VISION_DATA_REGION', 'EU (Frankfurt)' );     // where that processes data
+```
+
+Until both are present the provider reports itself unconfigured, exactly as it would with no API key, and callers fall back to manual entry. The REST endpoint answers `503 destination_not_declared` and says so in as many words.
+
+**Write the declared region here, verbatim, as part of completing this document:**
+
+> `TT_VISION_DATA_REGION` on this install: `________________________________`
+
+**What this does not do.** It cannot verify the declaration. No plugin can tell whether an endpoint really processes data where its operator says it does — that is a contractual fact, not a network one. Confirming it is prerequisite 5, and it stays the operator's responsibility. What the code now guarantees is narrower and worth more: **the destination is always a choice somebody made.** A DPIA can honestly record a declaration; it could not honestly record a default nobody read.
+
+There is still no AWS Bedrock code path — Bedrock requires SigV4 request signing, which is not implemented, and the `TT_VISION_BEDROCK_*` constants named in older versions of this document have been removed from the codebase because nothing ever read them. Point `TT_VISION_ENDPOINT` at something that speaks the Anthropic Messages API.
 
 The OpenAI provider is shipped as a stub and flagged DPIA-incompatible for EU clubs in its own label, because OpenAI's vision endpoint is US-routed only — do not enable it on a club whose data subjects include minors.
 
@@ -118,7 +133,7 @@ Pick at most two; document why.
 
 | Right | How TalentTrack supports it |
 |---|---|
-| Access (Art. 15) | **Partly.** Who attended a session is covered — `tt_attendance` is registered in `PlayerDataMap` and appears in the export. The extraction itself is not: it lands in `tt_activity_exercises`, which records *which drills a session contained* and carries **no player identifier at all**, so it is not player-keyed data and cannot be registered (`PlayerDataMap::register()` requires a column joining to player identity). ⚠️ **The residual risk is the free-text `notes` column.** § 1 of this document notes that the extraction echoes any player names visible on the photo, and a name written into free text is not reachable by a table-and-column export mechanism — so it would be neither exported nor erased on request. See § 0 prerequisite 7. An earlier version of this document claimed both tables were included in the export; they are not. |
+| Access (Art. 15) | **Partly.** Who attended a session is covered — `tt_attendance` is registered in `PlayerDataMap` and appears in the export. The extraction itself is not: it lands in `tt_activity_exercises`, which records *which drills a session contained* and carries **no player identifier at all**, so it is not player-keyed data and cannot be registered (`PlayerDataMap::register()` requires a column joining to player identity). ⚠️ **The residual risk is the free-text `notes` column.** The extraction can echo player names visible on the photo, and a name written into free text is not reachable by a table-and-column export mechanism — so it would be neither exported nor erased on request. The prompt now instructs the model to keep names in the structured `attendance` array instead, where they stay attached to a player; that reduces the risk without removing it, because an instruction is not an enforcement. See § 0 prerequisite 7. An earlier version of this document claimed both tables were included in the export; they are not. |
 | Rectification (Art. 16) | The session edit form lets a coach correct any extracted exercise / attendance. Sprint 4's review wizard makes this the default path before save. |
 | Erasure (Art. 17) | Deleting the **activity** cascades to `tt_activity_exercises` (`CascadeRegistry`), and `tt_activities.archived_at` soft-deletes. But erasing **one player** does not delete the session — the session belongs to a team and the other players' records depend on it — so anything about that player sitting in `tt_activity_exercises.notes` survives their erasure request. Same root cause as the Access row; § 0 prerequisite 7. |
 | Restriction (Art. 18) | Operator can flag an activity as `is_draft` to prevent it from rolling into reports. |
@@ -129,11 +144,11 @@ Pick at most two; document why.
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| Photo of a minor is sent to a non-EU-resident endpoint | **High while prerequisite 1 is open** — this is the default behaviour, not a misconfiguration | High | **Currently unmitigated.** EU residency is opt-in via `TT_VISION_ENDPOINT` and unvalidated. The only real mitigations today are that the feature is off by default and that the OpenAI adapter's label flags its own incompatibility. See § 0 prerequisite 1. |
+| Photo of a minor is sent to a non-EU-resident endpoint | Low — it can no longer happen by default, only by a wrong declaration | High | The feature refuses to send anything until the operator declares an endpoint and a region; there is no default to fall through to. The residual risk is a declaration that is mistaken or out of date, which prerequisite 5 and the annual review address. The OpenAI adapter additionally flags its own EU incompatibility in its label. |
 | Provider trains on input data | Depends on the operator's contract | Very high | Validate the configured provider's data-processing terms at signing and at every annual refresh. This document makes no claim on the operator's behalf. |
 | Extracted text contains incorrect attendance attribution | Medium | Medium | Review wizard requires explicit coach approval before save; fuzzy-matcher confidence < 0.6 surfaces the row as "manual review needed" (`ExerciseFuzzyMatcher::DEFAULT_MIN_SIMILARITY`). |
 | A queued photo lingers on a lost or shared device | Unknown until #2502 lands | Medium | Prerequisite 2 — the offline queue's retention is undecided. |
-| A player's name is transcribed into free-text notes and then cannot be found | Medium — the plan and the attendance markings are often the same sheet | Medium | **Currently unmitigated.** `tt_activity_exercises.notes` has no player identifier, so such a name is invisible to both the subject-access export and an erasure request. Prerequisite 7. |
+| A player's name is transcribed into free-text notes and then cannot be found | Reduced but not removed — the plan and the attendance markings are often the same sheet | Medium | The extraction prompt instructs the model to keep names in the structured `attendance` array, where they stay attached to a player, and out of every free-text field. **This is an instruction to a model, not an enforcement**: a server-side strip against the squad was considered and not built, so a transcribed name still reaches a column no export or erasure can see. Prerequisite 7 — accept knowingly or revisit. |
 | API key leak | Low (constant in wp-config) | High | Document key rotation procedure; never commit `wp-config.php` to git. |
 | The feature is enabled before this document is signed | Low | High | The `exercises_vision_extraction` feature flag is off on a default install and the endpoint returns 403 until it is switched on. Treat switching it on as the act this signature authorises. |
 
@@ -165,20 +180,21 @@ Retain one copy in the academy's DPIA register; keep one in the wp-config-adjace
 Default configuration (TalentTrack v3.110.40+):
 
 ```php
-// wp-config.php — constants the code actually reads
-define( 'TT_VISION_PROVIDER', 'claude_sonnet' );  // '' disables the feature entirely
-define( 'TT_VISION_API_KEY',  'sk-ant-...' );     // sent as the x-api-key header
-define( 'TT_VISION_ENDPOINT', '...' );            // overrides the default endpoint
+// wp-config.php — all four are required; there is no working default
+define( 'TT_VISION_PROVIDER',    'claude_sonnet' );      // '' disables the feature entirely
+define( 'TT_VISION_API_KEY',     'sk-ant-...' );         // sent as the x-api-key header
+define( 'TT_VISION_ENDPOINT',    'https://…' );          // where photographs are sent
+define( 'TT_VISION_DATA_REGION', 'EU (Frankfurt)' );     // where that endpoint processes them
 ```
 
-The feature also requires the `exercises_vision_extraction` flag to be switched on; it is off by default.
+The feature also requires the `exercises_vision_extraction` flag to be switched on; it is off by default. **Both gates must be passed deliberately**: switching the flag on without declaring a destination sends nothing and answers `503 destination_not_declared`.
 
-**Constants that do NOT exist**, despite appearing in earlier versions of this document and in `ClaudeSonnetProvider`'s docblock — setting any of them has no effect whatsoever:
+`TT_VISION_DATA_REGION` is free text on purpose. A dropdown would invite picking the nearest-looking option; writing the words out is a small act of attention, and the string is what § 2 of this document records.
+
+**Constants that do NOT exist.** Setting any of these has no effect whatsoever; they appeared in earlier versions of this document and have been removed from the codebase:
 
 - `TT_VISION_BEDROCK_REGION`, `TT_VISION_BEDROCK_ACCESS_KEY`, `TT_VISION_BEDROCK_SECRET_KEY` — there is no Bedrock code path.
 - `TT_VISION_PHOTO_RETENTION_DAYS` — there is no stored photo to retain.
-
-Without `TT_VISION_ENDPOINT`, requests go to `https://api.anthropic.com/v1/messages`.
 
 To disable photo capture entirely:
 
