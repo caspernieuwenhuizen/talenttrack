@@ -116,7 +116,8 @@ final class MatchAnalysisTest extends WP_UnitTestCase {
         $this->assertNotNull( $payload );
         $this->assertFalse( $payload['has_prep'] );
         $this->assertFalse( $payload['has_exec'] );
-        $this->assertCount( 6, $payload['sections'] );
+        // The overall read plus the two chains of three.
+        $this->assertCount( 7, $payload['sections'] );
         $this->assertSame( 0, $payload['analysis_id'], 'reading a match must not create the record' );
     }
 
