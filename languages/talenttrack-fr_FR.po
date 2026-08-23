@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T10:40:26+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:03:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -21860,6 +21860,28 @@ msgid ""
 "This feature is part of the %s plan. Upgrade your TalentTrack license to "
 "enable it."
 msgstr ""
+
+#: src/Modules/MatchAnalysis/Alerts/MatchAnalysisMissingAlert.php:72
+msgid "Match played, no analysis"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Alerts/MatchAnalysisMissingAlert.php:76
+msgid ""
+"A match was played in the last two weeks and has no analysis written. The "
+"review is worth most while the game is still fresh."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Alerts/MatchAnalysisMissingAlert.php:91
+msgid "Untitled match"
+msgstr ""
+
+#. translators: 1: match name, 2: number of days since it was played
+#: src/Modules/MatchAnalysis/Alerts/MatchAnalysisMissingAlert.php:95
+#, php-format
+msgid "%1$s was played %2$d day ago and has no analysis yet."
+msgid_plural "%1$s was played %2$d days ago and has no analysis yet."
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:46
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:190
