@@ -139,11 +139,25 @@
 
 /* ---- Rating + marker chips ---------------------------------- */
 
+/*
+ * A grid, not a wrapping flex row. Four chips carrying Dutch labels
+ * ("Niet beoordeeld", "Moet beter") measure well over 360px together, and
+ * as flex children with padding they refused to break where the words
+ * allowed — the row ran off the side of the phone. Two columns at 360px
+ * and four from tablet up makes the fit arithmetic rather than hopeful.
+ */
 .tt-ma__ratings,
 .tt-ma__markers {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--tt-sp-2);
+}
+
+@media (min-width: 600px) {
+    .tt-ma__ratings,
+    .tt-ma__markers {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }
 
 .tt-ma__rating-input,
@@ -161,11 +175,14 @@
 
 .tt-ma__rating,
 .tt-ma__marker {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--tt-sp-1);
     min-height: 48px;
-    padding: 0 var(--tt-sp-4);
+    padding: 0 var(--tt-sp-2);
+    text-align: center;
+    overflow-wrap: anywhere;
     border: 1px solid var(--tt-line);
     border-radius: 999px;
     background: var(--tt-paper);
@@ -279,6 +296,172 @@
     line-height: var(--tt-lh-body);
 }
 
+/* ---- Roster: tally grid (#2726) ----------------------------- */
+
+/*
+ * Two presentations of one set of inputs. The plain form below is what
+ * PHP renders and what posts; `.tt-ma__roster--tally` is added by
+ * match-analysis-tally.js once it has built the grid, and swaps the
+ * presentation. Without the script none of these rules apply and the
+ * coach gets the plain form.
+ */
+
+.tt-ma__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-2);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-ma__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1);
+}
+
+.tt-ma__glyph {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.tt-ma__glyph[data-marker="stood_out"]   { color: var(--tt-success); }
+.tt-ma__glyph[data-marker="as_expected"] { color: var(--tt-info); }
+.tt-ma__glyph[data-marker="below_par"]   { color: var(--tt-warning); }
+
+.tt-ma__tally {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-4);
+    padding: 0;
+    list-style: none;
+}
+
+.tt-ma__tally > li { position: relative; }
+
+.tt-dashboard .tt-ma__tag-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    font: inherit;
+    font-size: var(--tt-fs-sm);
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-ma__tag-btn:active { background: var(--tt-bg-soft); }
+.tt-dashboard .tt-ma__tag-btn:focus-visible { outline: 2px solid var(--tt-info); outline-offset: 2px; }
+
+.tt-ma__tag-btn[data-marker="stood_out"]   { background: var(--tt-success-subtle); border-color: var(--tt-success); }
+.tt-ma__tag-btn[data-marker="as_expected"] { background: var(--tt-info-subtle);    border-color: var(--tt-info); }
+.tt-ma__tag-btn[data-marker="below_par"]   { background: var(--tt-warning-subtle); border-color: var(--tt-warning); }
+
+.tt-ma__tag-name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-ma__tag-mark {
+    font-size: 1.05rem;
+    line-height: 1;
+    color: var(--tt-muted);
+}
+
+.tt-ma__tag-btn[data-marker="stood_out"]   .tt-ma__tag-mark { color: var(--tt-success); }
+.tt-ma__tag-btn[data-marker="as_expected"] .tt-ma__tag-mark { color: var(--tt-info); }
+.tt-ma__tag-btn[data-marker="below_par"]   .tt-ma__tag-mark { color: var(--tt-warning); }
+
+/* The picker. Anchored under its button, full width of the cell so the
+ * targets stay finger-sized at 360px. */
+.tt-ma__picker {
+    position: absolute;
+    z-index: 5;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--tt-sp-1);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-ma__picker button {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 44px;
+    padding: 0 var(--tt-sp-2);
+    border: 0;
+    border-radius: var(--tt-radius);
+    background: none;
+    color: var(--tt-ink);
+    font: inherit;
+    font-size: var(--tt-fs-sm);
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-ma__picker button:focus-visible { outline: 2px solid var(--tt-info); outline-offset: -2px; }
+.tt-dashboard .tt-ma__picker button:active { background: var(--tt-bg-soft); }
+
+.tt-ma__picker button[data-marker="stood_out"]   .tt-ma__glyph { color: var(--tt-success); }
+.tt-ma__picker button[data-marker="as_expected"] .tt-ma__glyph { color: var(--tt-info); }
+.tt-ma__picker button[data-marker="below_par"]   .tt-ma__glyph { color: var(--tt-warning); }
+
+.tt-dashboard .tt-ma__picker-clear {
+    color: var(--tt-muted);
+    border-top: 1px solid var(--tt-line-soft);
+    border-radius: 0;
+}
+
+.tt-ma__tagged-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-2);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-ma__tagged-head strong { color: var(--tt-ink); }
+
+/* Enhanced mode: the radio groups become the state rather than the
+ * control, and a player nobody marked has nothing to show. */
+.tt-ma__roster--tally .tt-ma__markers { display: none; }
+.tt-ma__roster--tally .tt-ma__player[data-marker=""] { display: none; }
+.tt-ma__roster--tally .tt-ma__roster-intro { display: none; }
+
+.tt-ma__roster--tally .tt-ma__player {
+    border-left: 4px solid var(--tt-line);
+}
+
+.tt-ma__roster--tally .tt-ma__player[data-marker="stood_out"]   { border-left-color: var(--tt-success); }
+.tt-ma__roster--tally .tt-ma__player[data-marker="as_expected"] { border-left-color: var(--tt-info); }
+.tt-ma__roster--tally .tt-ma__player[data-marker="below_par"]   { border-left-color: var(--tt-warning); }
+
+@media (min-width: 768px) {
+    .tt-ma__tally { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
 /* ---- Actions ------------------------------------------------ */
 
 .tt-ma__actions {
@@ -367,7 +550,11 @@
         gap: var(--tt-sp-2);
     }
 
-    .tt-ma__player {
+    /* Fallback presentation only. In tally mode a rendered player is a
+     * note card, not a row of controls, so it stays a simple stack —
+     * two columns there would put the note beside the name it belongs
+     * to and read as a table. */
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__player {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
         grid-template-areas:
@@ -378,11 +565,11 @@
         column-gap: var(--tt-sp-3);
     }
 
-    .tt-ma__player-head { grid-area: head; }
-    .tt-ma__player-plan { grid-area: plan; }
-    .tt-ma__markers     { grid-area: markers; }
-    .tt-ma__player-note { grid-area: note; }
-    .tt-ma__player-tag  { grid-area: tag; }
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__player-head { grid-area: head; }
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__player-plan { grid-area: plan; }
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__markers     { grid-area: markers; }
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__player-note { grid-area: note; }
+    .tt-ma__roster:not(.tt-ma__roster--tally) .tt-ma__player-tag  { grid-area: tag; }
 
     .tt-ma__actions {
         flex-direction: row;

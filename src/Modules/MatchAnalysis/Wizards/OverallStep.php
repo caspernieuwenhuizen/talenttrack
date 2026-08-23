@@ -3,6 +3,7 @@ namespace TT\Modules\MatchAnalysis\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\MatchAnalysis\Frontend\MatchAnalysisAssets;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -38,12 +39,7 @@ final class OverallStep implements WizardStepInterface {
             return;
         }
 
-        wp_enqueue_style(
-            'tt-frontend-match-analysis',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-analysis.css',
-            [],
-            TT_VERSION
-        );
+        MatchAnalysisAssets::enqueue();
 
         echo '<input type="hidden" name="activity_id" value="' . esc_attr( (string) $activity_id ) . '" />';
 
