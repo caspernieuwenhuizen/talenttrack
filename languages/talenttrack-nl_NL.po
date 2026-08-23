@@ -23273,6 +23273,15 @@ msgstr "Wedstrijdanalyse"
 msgid "Match analysis is switched off for this academy."
 msgstr "Wedstrijdanalyse staat uit voor deze academie."
 
+msgid "Everyone who played is listed. Mark the players worth a word — the rest stay untouched, which is the normal case."
+msgstr "Iedereen die gespeeld heeft staat in de lijst. Markeer de spelers die een opmerking waard zijn — de rest blijft ongemoeid, en dat is het normale geval."
+
+msgid "%1$d of %2$d marked"
+msgstr "%1$d van %2$d gemarkeerd"
+
+msgid "Nobody marked yet — that is a valid answer."
+msgstr "Nog niemand gemarkeerd — dat is een geldig antwoord."
+
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
 msgid "Match analysis is restricted to coaches and admins."
 msgstr "Wedstrijdanalyse is alleen voor trainers en beheerders."

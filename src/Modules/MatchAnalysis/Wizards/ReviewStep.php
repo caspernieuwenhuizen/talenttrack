@@ -26,6 +26,8 @@ final class ReviewStep implements WizardStepInterface {
     public function label(): string { return __( 'Review', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        \TT\Modules\MatchAnalysis\Frontend\MatchAnalysisAssets::enqueue();
+
         $summary  = trim( (string) ( $state['summary'] ?? '' ) );
         $sections = isset( $state['sections'] ) && is_array( $state['sections'] ) ? $state['sections'] : [];
         $items    = isset( $state['players'] ) && is_array( $state['players'] ) ? $state['players'] : [];

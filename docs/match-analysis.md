@@ -59,14 +59,27 @@ match-prep screen, so they never show a planned line.
 
 ### Players
 
-Everyone who played is listed with their minutes. Each row is optional and
-starts at **Not mentioned** — most rows usually stay that way. Per player
-you can set:
+Everyone who played is listed — as a **grid of names**, not a stack of
+forms. Tap a name and pick one of three:
 
-- a **marker** — Stood out / As expected / Below par;
-- a **note** — the specific thing they did ("kept taking the ball in the
-  half-turn under pressure"), not a verdict;
-- the **phase** the note belongs to, if it belongs to one.
+- **▲ Stood out**
+- **● As expected**
+- **Below par ▼**
+
+The name then takes that colour and glyph, and the player appears below
+under **Notes**, where you write the specific thing they did ("kept taking
+the ball in the half-turn under pressure" — not a verdict) and, if it
+belongs to one, the **phase** it belongs to. Tap the name again to change
+your mind, or choose **Clear** to take the mark off.
+
+Only the players you marked get a note field, so a squad of fourteen fits
+on one phone screen and an analysis you have not started yet has no text
+boxes on it at all.
+
+Leaving a player untouched is the normal case and says nothing about them.
+**As expected** is different: it says you looked and were satisfied, which
+is worth recording for a player whose parents ask why they are never
+mentioned.
 
 If you flagged a player on the match plan — a specific goal, or an
 attention note — that line shows on their row, so you can answer the thing
