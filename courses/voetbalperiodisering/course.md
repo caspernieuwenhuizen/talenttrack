@@ -8,6 +8,7 @@ feature: knowledge_courses
 tier: standard
 requires: []
 methodology_principles: [conditie-periodisering]
+certification_name: Football periodisation
 estimated_hours: 36
 sequential: true
 lessons: [01-voetbaltaal, 02-vier-kenmerken, 03-oefenvormen, 04-trainingsmethoden, 05-supercompensatie, 06-zeswekenmodel, 07-underload, 08-weekplanning, 09-groeispurt, 10-warming-up, 11-eindopdracht]

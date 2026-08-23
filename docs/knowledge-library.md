@@ -79,7 +79,9 @@ course needs a richer structure, the answer is fewer keys, not a bigger parser.
 | `feature` | no | Sub-feature key that switches the course off |
 | `tier` | no | Licence tier. Defaults to `standard` |
 | `requires` | no | Course slugs that must be completed first |
-| `methodology_principles` | no | Principles this course teaches |
+| `methodology_principles` | no | Topics this course teaches. Descriptive only — see below |
+| `certification_name` | no | Name of the certificate completion issues. Defaults to the title |
+| `valid_for_months` | no | How long that certificate stays valid. Absent means it never expires |
 | `estimated_hours` | no | Study load |
 | `sequential` | no | Whether lessons unlock in order. Defaults to `true` |
 
@@ -630,6 +632,79 @@ module or `DocFrontMatter`. It fails on:
 
 Run it locally with `php tools/check-courses.php`. It needs no WordPress and
 requires the real parsers, so the gate cannot drift from the runtime it guards.
+
+## Completion becomes a certification
+
+Finishing a course writes a row to `tt_staff_certifications` — the table
+StaffDevelopment already owns (#2649). That one row is what stops the library
+being an island: the completion appears on the coach's staff record and their
+PDP, the org-wide expiry roll-up picks it up, and the certificate-expiring
+alert can nudge for a refresher, all without the knowledge module knowing any
+of those surfaces exist.
+
+It is also where CLAUDE.md §1 is satisfied rather than exempted. The player
+question is the one `StaffCertificateExpiringAlert` already answers from the
+other side: *every player in the squad needs the person running their training
+to be qualified to run it.*
+
+**Both transitions.** `tt_knowledge_course_completed` issues;
+`tt_knowledge_course_reopened` archives. The second matters because #2648 made
+approval reversible — a reviewer who withdraws an approval un-completes the
+course, and a certificate left standing would be a qualification resting on
+retracted work, sitting in the club's expiry roll-up. Archived rather than
+deleted: a certificate issued and then withdrawn is a fact about the coaching.
+
+**Idempotent.** `tt_course_enrolments.certification_id` remembers which row a
+completion produced, so completing twice refreshes rather than duplicates, and
+a complete → reopen → complete cycle reuses one row instead of leaving a trail
+of archived duplicates on somebody's record.
+
+**The lookup row.** Migration 0231 seeds the `cert_type` for the shipped
+course, with its Dutch label in **`tt_translations`** — `tt_lookups.translations`
+was dropped in migration 0087, so a seed that writes there loses the label
+silently. Any other course resolves-or-creates its type at completion time, so
+adding a course never needs a migration. `KnowledgeCertificationTest` asserts
+the seeded name and the manifest's `certification_name` still match, because
+a drift there creates a second untranslated row and orphans the seeded label
+without anything failing.
+
+### Is the staff around this squad trained?
+
+`TeamCourseCoverage::forTeam( $team_id, $course_slug )` answers it in one
+query, joining `tt_user_role_scopes` (staff assigned to the team) to
+`tt_course_enrolments`. A `LEFT JOIN`, deliberately: somebody who never
+started the course is the answer to the question, not a row to omit.
+
+**This does not join on methodology, and the epic said it would.** Building it
+showed why it cannot. `tt_principles` holds tactical game principles keyed
+`AO-01`; `tt_methodologies` holds *playing* methodologies — formations,
+principles, set pieces — and the shipped default is `jo14-1-hedel`. The
+periodisation course teaches physical periodisation, which is a training
+methodology and belongs to neither. Binding it to a playing methodology would
+assert a relationship that is not there.
+
+`methodology_principles` therefore stays descriptive: a statement of what the
+course covers, read from the corpus when something wants to show it. It is not
+copied into the database, because the corpus is versioned with the plugin and
+a copy would only go stale.
+
+## Assigning a course
+
+`?tt_view=wizard&tt_wizard=assign-course` — course → people → deadline →
+confirm. Requires `tt_manage_knowledge`.
+
+The people step filters staff to the personas in the course's `audience`, and
+falls back to the full staff list *with a visible explanation* when nobody
+matches — which happens on any install where staff records exist but accounts
+are not linked yet. An administrator who can see why the list is unfiltered
+can act on it; one staring at an empty step can only guess.
+
+Re-assigning is a no-op. `EnrolmentRepository::enrol()` is keyed on
+`(club_id, course_slug, person_id)`, and the confirm step reports how many
+people are actually new, so re-running the wizard over a squad shows "3 new,
+12 already enrolled" rather than a silent success. An existing enrolment is
+left exactly as it was, deadline included — changing somebody's deadline is a
+different decision from assigning them a course.
 
 ## Page width
 

@@ -81,7 +81,9 @@ parser.
 | `feature` | nee | Deelfunctie waarmee de cursus uitgezet wordt |
 | `tier` | nee | Licentieniveau. Standaard `standard` |
 | `requires` | nee | Cursussen die eerst afgerond moeten zijn |
-| `methodology_principles` | nee | Methodiekprincipes die de cursus behandelt |
+| `methodology_principles` | nee | Onderwerpen die de cursus behandelt. Alleen beschrijvend — zie hieronder |
+| `certification_name` | nee | Naam van het certificaat dat afronding oplevert. Standaard de titel |
+| `valid_for_months` | nee | Hoe lang dat certificaat geldig blijft. Afwezig betekent: verloopt niet |
 | `estimated_hours` | nee | Studielast |
 | `sequential` | nee | Of lessen op volgorde vrijkomen. Standaard `true` |
 
@@ -651,6 +653,83 @@ of `DocFrontMatter` raakt. De gate faalt bij:
 Lokaal draaien: `php tools/check-courses.php`. De gate heeft geen WordPress
 nodig en gebruikt de echte parsers, zodat hij niet uit de pas kan lopen met wat
 hij bewaakt.
+
+## Afronding wordt een certificaat
+
+Een cursus afronden schrijft een rij in `tt_staff_certifications` — de tabel
+die StaffDevelopment al beheert (#2649). Die ene rij is wat de kennisbank
+uit haar isolement haalt: de afronding verschijnt op het stafdossier en in het
+PDP van de trainer, de clubbrede vervalrapportage pikt hem op, en de melding
+over verlopende certificaten kan om een opfrisser vragen — zonder dat de
+kennisbank van die schermen af hoeft te weten.
+
+Hier wordt CLAUDE.md §1 ook echt ingevuld in plaats van uitgezonderd. De
+spelersvraag is dezelfde die `StaffCertificateExpiringAlert` van de andere kant
+beantwoordt: *elke speler in de selectie heeft er belang bij dat degene die de
+training geeft daarvoor gekwalificeerd is.*
+
+**Beide overgangen.** `tt_knowledge_course_completed` verstrekt;
+`tt_knowledge_course_reopened` archiveert. Dat tweede is belangrijker dan het
+klinkt, want #2648 maakte goedkeuring terugdraaibaar — een beoordelaar die een
+goedkeuring intrekt maakt de cursus onafgerond, en een certificaat dat dan
+blijft staan is een kwalificatie op ingetrokken werk, middenin de
+vervalrapportage van de club. Archiveren en niet verwijderen: een verstrekt en
+weer ingetrokken certificaat is een feit over de begeleiding.
+
+**Idempotent.** `tt_course_enrolments.certification_id` onthoudt welke rij een
+afronding opleverde, dus twee keer afronden ververst in plaats van te
+verdubbelen, en een cyclus afronden → heropenen → afronden hergebruikt één rij
+in plaats van een spoor van gearchiveerde duplicaten achter te laten.
+
+**De lookup-rij.** Migratie 0231 seedt het `cert_type` voor de meegeleverde
+cursus, met het Nederlandse label in **`tt_translations`** —
+`tt_lookups.translations` is in migratie 0087 verwijderd, dus een seed die
+daarheen schrijft verliest het label geruisloos. Elke andere cursus zoekt of
+maakt zijn type bij afronding, zodat een nieuwe cursus nooit een migratie
+nodig heeft. `KnowledgeCertificationTest` bewaakt dat de geseedde naam en de
+`certification_name` uit het manifest gelijk blijven: lopen ze uiteen, dan
+ontstaat er een tweede, onvertaalde rij en raakt het geseedde label wees —
+zonder dat er iets faalt.
+
+### Is de staf rond deze selectie opgeleid?
+
+`TeamCourseCoverage::forTeam( $team_id, $course_slug )` beantwoordt het in één
+query, met `tt_user_role_scopes` (staf gekoppeld aan het team) tegen
+`tt_course_enrolments`. Bewust een `LEFT JOIN`: wie nooit begonnen is, ís het
+antwoord op de vraag en geen rij om weg te laten.
+
+**Dit koppelt niet op methodiek, en het epic zei van wel.** Bij het bouwen
+bleek waarom dat niet kan. `tt_principles` bevat tactische spelprincipes met
+codes als `AO-01`; `tt_methodologies` bevat *speel*methodieken — formaties,
+principes, standaardsituaties — en de meegeleverde standaard is
+`jo14-1-hedel`. De periodiseringscursus gaat over fysieke periodisering, een
+trainingsmethodiek, en hoort bij geen van beide. Hem aan een speelmethodiek
+koppelen zou een verband claimen dat er niet is.
+
+`methodology_principles` blijft daarom beschrijvend: een aanduiding van wat de
+cursus behandelt, gelezen uit het corpus wanneer iets het wil tonen. Het wordt
+niet in de database gekopieerd, want het corpus is met de plug-in
+meegeversioneerd en een kopie kan alleen maar verouderen.
+
+## Een cursus toewijzen
+
+`?tt_view=wizard&tt_wizard=assign-course` — cursus → personen → deadline →
+bevestigen. Vereist `tt_manage_knowledge`.
+
+De personenstap filtert de staf op de persona's uit de `audience` van de
+cursus, en valt terug op de volledige staflijst **met zichtbare uitleg** als
+niemand matcht — wat gebeurt op elke installatie waar stafdossiers wel
+bestaan maar accounts nog niet gekoppeld zijn. Een beheerder die ziet waaróm
+de lijst ongefilterd is kan daar iets aan doen; wie naar een lege stap staart
+kan alleen gissen.
+
+Opnieuw toewijzen doet niets. `EnrolmentRepository::enrol()` is gesleuteld op
+`(club_id, course_slug, person_id)`, en de bevestigingsstap meldt hoeveel
+personen echt nieuw zijn, zodat de wizard over een selectie draaien "3 nieuw,
+12 al ingeschreven" toont in plaats van een stille succesmelding. Een
+bestaande inschrijving blijft precies zoals hij was, deadline inbegrepen —
+iemands deadline wijzigen is een andere beslissing dan iemand een cursus
+toewijzen.
 
 ## Paginabreedte
 

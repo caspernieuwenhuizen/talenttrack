@@ -170,6 +170,39 @@ final class CourseManifest {
     }
 
     /**
+     * The name of the certificate this course issues.
+     *
+     * `certification_name:` when the manifest sets one, otherwise the course
+     * title. They are usually different sentences: a title sells the course
+     * ("Periodiseren in voetbaltaal"), a certificate names a qualification on
+     * somebody's staff record ("Voetbalperiodisering"). Falling back to the
+     * title keeps a course that has not thought about it working.
+     */
+    public function certificationName(): string {
+        $declared = DocFrontMatter::string( $this->data, 'certification_name' );
+
+        return $declared !== '' ? $declared : $this->title();
+    }
+
+    /**
+     * How long the certification this course issues stays valid, in months.
+     *
+     * Zero means it never expires, which is the default and the right one:
+     * a course that teaches a stable body of knowledge does not go stale on
+     * a timer, and an expiry nobody chose would put every coach on the
+     * expiring-certifications roll-up a year after they finished.
+     *
+     * When set, `CourseCertificationService` stamps `expires_on`, and the
+     * existing roll-up and the certificate-expiring alert pick it up with no
+     * further work — that is the whole reason completion writes into
+     * `tt_staff_certifications` rather than a table of its own (#2649).
+     */
+    public function validForMonths(): int {
+        $raw = DocFrontMatter::string( $this->data, 'valid_for_months' );
+        return is_numeric( $raw ) && (int) $raw > 0 ? (int) $raw : 0;
+    }
+
+    /**
      * Study load in hours. Zero when the course does not estimate one, so
      * a caller can distinguish "not stated" from "very short".
      */

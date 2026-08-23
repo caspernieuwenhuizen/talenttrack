@@ -203,6 +203,25 @@ class EnrolmentRepository {
     }
 
     /**
+     * Remember which certificate this completion produced (#2649).
+     *
+     * Kept even when the course is reopened and the certificate archived, so
+     * re-completing reuses the row instead of leaving a trail of archived
+     * duplicates on the coach's record.
+     */
+    public function setCertification( int $id, int $certification_id ): void {
+        if ( $id <= 0 ) {
+            return;
+        }
+
+        $this->wpdb->update(
+            $this->table,
+            [ 'certification_id' => $certification_id > 0 ? $certification_id : null ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+    }
+
+    /**
      * Drop back to in-progress.
      *
      * Needed because completion is not permanent: a reviewer can reopen an
