@@ -15478,7 +15478,7 @@ parameters:
 			path: src/Shared/CoreSurfaceRegistration.php
 
 		-
-			message: "#^Parameter \\#1 \\$tile of static method TT\\\\Shared\\\\Tiles\\\\TileRegistry\\:\\:register\\(\\) expects array\\{slug\\: string, entity\\?\\: string, kind\\: string, labels\\: array\\<string, string\\>, icon\\?\\: string, color\\?\\: string, url\\: \\(callable\\(\\)\\: mixed\\)\\|string, description\\?\\: string, \\.\\.\\.\\}, array\\{module_class\\: 'TT\\\\\\\\Modules\\\\\\\\Holidays…', view_slug\\: 'holidays', entity\\: 'holidays', group\\: string, kind\\: 'setup', order\\: 15, label\\: string, description\\: string, \\.\\.\\.\\} given\\.$#"
+			message: "#^Parameter \\#1 \\$tile of static method TT\\\\Shared\\\\Tiles\\\\TileRegistry\\:\\:register\\(\\) expects array\\{slug\\: string, entity\\?\\: string, kind\\: string, labels\\: array\\<string, string\\>, icon\\?\\: string, color\\?\\: string, url\\: \\(callable\\(\\)\\: mixed\\)\\|string, description\\?\\: string, \\.\\.\\.\\}, array\\{module_class\\: 'TT\\\\\\\\Modules\\\\\\\\Holidays…', view_slug\\: 'holidays', entity\\: 'holidays_panel', group\\: string, kind\\: 'setup', order\\: 15, label\\: string, description\\: string, \\.\\.\\.\\} given\\.$#"
 			count: 1
 			path: src/Shared/CoreSurfaceRegistration.php
 

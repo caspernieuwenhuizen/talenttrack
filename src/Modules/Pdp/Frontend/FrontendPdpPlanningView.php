@@ -16,16 +16,23 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * link into the existing filtered PDP file list (`?tt_view=pdp&filter[team_id]=N`)
  * for drill-down to specific files.
  *
- * Cap-gated on `tt_edit_pdp` (HoD / coach / admin). Players + parents
- * hold `tt_view_pdp` for their own self-scope per #0033 — that's
- * insufficient for cross-team planning, so the planning matrix
- * checks the edit cap as the chokepoint. Read-only — all writes
- * happen on the per-file detail view via the existing PDP REST surface.
+ * Cap-gated on `tt_view_pdp_planning`, which bridges to
+ * `pdp_planning:read`. Players + parents hold `tt_view_pdp` for their own
+ * self-scope per #0033, which is insufficient for a cross-team matrix — but
+ * gating on `tt_edit_pdp` to exclude them overshot the other way (#2788):
+ * the dashboard admits on `pdp_planning:read` while this refused anything
+ * short of `pdp_file:change`, so a team_manager, seeded exactly that read,
+ * saw the tile and was turned away here.
+ *
+ * Entering on read costs nothing, because this surface **is** read-only —
+ * every write happens on the per-file detail view through the existing PDP
+ * REST surface, which gates itself. There are no mutating controls here to
+ * re-gate on the finer cap.
  */
 final class FrontendPdpPlanningView {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_edit_pdp' ) ) {
+        if ( ! current_user_can( 'tt_view_pdp_planning' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP planning.', 'talenttrack' ) . '</p>';
             return;
         }

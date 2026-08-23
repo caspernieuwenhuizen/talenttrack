@@ -38,13 +38,18 @@ final class TileGateDivergenceTest extends WP_UnitTestCase {
     /**
      * Divergences that exist today, as `view_slug => [personas]`.
      * Every one is a persona that sees the tile and is refused by the view.
+     *
+     * Empty since #2788, which resolved the four this gate was introduced
+     * with — three different ways, because they were three different problems:
+     * `holidays` moved tile visibility to its own entity (the coaches' read is
+     * load-bearing for the planner and could not be dropped), `pdp-planning`
+     * moved entry to the read cap that already existed, and the two HoD
+     * configuration reads were removed because nothing else read those
+     * entities.
+     *
+     * Keep it empty. An entry here is a known hole, not a resolution.
      */
-    private const KNOWN = [
-        'workflow-config'     => [ 'head_of_development' ],
-        'pdp-planning'        => [ 'team_manager' ],
-        'holidays'            => [ 'assistant_coach', 'head_coach' ],
-        'invitations-config'  => [ 'head_of_development' ],
-    ];
+    private const KNOWN = [];
 
     private const RANK = [ 'read' => 0, 'change' => 1, 'create_delete' => 2 ];
 
