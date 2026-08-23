@@ -57,6 +57,9 @@ final class MatrixEditServiceTest extends WP_UnitTestCase {
         [ 'head_coach',    self::PROTECTED,'TT\\Modules\\Authorization\\AuthorizationModule' ],
     ];
 
+    /** The module that owns the entity governing the matrix itself. */
+    private const AUTH_MODULE = 'TT\\Modules\\Authorization\\AuthorizationModule';
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
@@ -67,6 +70,15 @@ final class MatrixEditServiceTest extends WP_UnitTestCase {
         foreach ( self::SKELETON as [ $persona, $entity, $module ] ) {
             $repo->setRow( $persona, $entity, 'read', 'global', $module );
         }
+        // With the bridge active, `tt_manage_authorization` resolves through
+        // `authorization_matrix:change` rather than through the role — which
+        // is the point of the mapping. The shipped seed grants academy_admin
+        // exactly this; a test database may not have run it, and without the
+        // row a club admin is refused by the bridge before any of these
+        // assertions get a chance to mean anything.
+        $repo->setRow( 'academy_admin', 'authorization_matrix', 'read', 'global', self::AUTH_MODULE );
+        $repo->setRow( 'academy_admin', 'authorization_matrix', 'change', 'global', self::AUTH_MODULE );
+
         $this->clearWorkingPairs();
     }
 
@@ -77,6 +89,8 @@ final class MatrixEditServiceTest extends WP_UnitTestCase {
         foreach ( self::SKELETON as [ $persona, $entity ] ) {
             $repo->removeRow( $persona, $entity, 'read', 'global' );
         }
+        $repo->removeRow( 'academy_admin', 'authorization_matrix', 'read', 'global' );
+        $repo->removeRow( 'academy_admin', 'authorization_matrix', 'change', 'global' );
 
         MatrixRepository::clearCache();
         wp_set_current_user( 0 );

@@ -23,6 +23,7 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
     private const ENTITY    = 'players';
     private const PROTECTED = 'authorization_matrix';
     private const PERSONA   = 'scout';
+    private const AUTH_MODULE = 'TT\\Modules\\Authorization\\AuthorizationModule';
 
     public function set_up(): void {
         parent::set_up();
@@ -35,10 +36,17 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
         $repo = new MatrixRepository();
         $repo->setRow( self::PERSONA, 'teams', 'read', 'global', 'TT\\Modules\\Teams\\TeamsModule' );
         $repo->setRow( 'head_coach', self::ENTITY, 'read', 'global', 'TT\\Modules\\Players\\PlayersModule' );
-        $repo->setRow( 'head_coach', self::PROTECTED, 'read', 'global', 'TT\\Modules\\Authorization\\AuthorizationModule' );
+        $repo->setRow( 'head_coach', self::PROTECTED, 'read', 'global', self::AUTH_MODULE );
+        // With the bridge active the capability resolves through the matrix
+        // rather than the role, so the club admin needs the grant the
+        // shipped seed gives them. See MatrixEditServiceTest for the why.
+        $repo->setRow( 'academy_admin', self::PROTECTED, 'read', 'global', self::AUTH_MODULE );
+        $repo->setRow( 'academy_admin', self::PROTECTED, 'change', 'global', self::AUTH_MODULE );
         $this->clearWorkingRows();
 
-        MatrixRestController::register();
+        // Routes must be registered on their own action, or WordPress
+        // raises an incorrect-usage notice that fails the test.
+        do_action( 'rest_api_init' );
     }
 
     public function tear_down(): void {
@@ -48,6 +56,8 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
         $repo->removeRow( self::PERSONA, 'teams', 'read', 'global' );
         $repo->removeRow( 'head_coach', self::ENTITY, 'read', 'global' );
         $repo->removeRow( 'head_coach', self::PROTECTED, 'read', 'global' );
+        $repo->removeRow( 'academy_admin', self::PROTECTED, 'read', 'global' );
+        $repo->removeRow( 'academy_admin', self::PROTECTED, 'change', 'global' );
 
         MatrixRepository::clearCache();
         wp_set_current_user( 0 );
