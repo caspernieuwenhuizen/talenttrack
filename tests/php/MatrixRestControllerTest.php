@@ -83,6 +83,23 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
         return $uid;
     }
 
+    /**
+     * A club admin: holds the capability, not `manage_options`. Granted on
+     * the user rather than left to the role — how the role acquires it is
+     * production wiring with its own test in MatrixEditServiceTest, and a
+     * 403 here should mean the guardrail refused, not that a role definition
+     * did not survive a test-database rollback.
+     */
+    private function asClubAdmin(): int {
+        $uid  = $this->asRole( 'tt_club_admin' );
+        $user = new \WP_User( $uid );
+        $user->add_cap( 'tt_manage_authorization' );
+
+        $this->assertFalse( user_can( $uid, 'manage_options' ), 'precondition: a club admin is not an administrator' );
+
+        return $uid;
+    }
+
     /** @return \WP_REST_Response */
     private function call( string $method, string $route, array $body = [] ) {
         $request = new WP_REST_Request( $method, $route );
@@ -107,7 +124,7 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
     }
 
     public function test_a_club_admin_may_read_the_grid(): void {
-        $this->asRole( 'tt_club_admin' );
+        $this->asClubAdmin();
 
         $response = $this->call( 'GET', self::ROUTE );
         $this->assertSame( 200, $response->get_status() );
@@ -129,7 +146,7 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
      * that proves it, because REST never saw the markup.
      */
     public function test_a_club_admin_cannot_escalate_through_rest(): void {
-        $this->asRole( 'tt_club_admin' );
+        $this->asClubAdmin();
 
         $response = $this->call( 'PUT', self::ROUTE, [
             'cells'  => [ self::PERSONA . '|' . self::PROTECTED . '|change' => true ],
@@ -149,7 +166,7 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
     }
 
     public function test_a_club_admin_can_change_an_ordinary_cell_through_rest(): void {
-        $this->asRole( 'tt_club_admin' );
+        $this->asClubAdmin();
 
         $response = $this->call( 'PUT', self::ROUTE, [
             'cells'  => [ self::PERSONA . '|' . self::ENTITY . '|change' => true ],
@@ -182,7 +199,7 @@ final class MatrixRestControllerTest extends WP_UnitTestCase {
     // ---- reset stays with the administrator --------------------------------
 
     public function test_reset_is_refused_to_a_club_admin(): void {
-        $this->asRole( 'tt_club_admin' );
+        $this->asClubAdmin();
 
         $this->assertSame(
             403,

@@ -113,8 +113,25 @@ final class MatrixEditServiceTest extends WP_UnitTestCase {
         return self::factory()->user->create( [ 'role' => 'administrator' ] );
     }
 
+    /**
+     * A club admin: holds the capability, does NOT hold `manage_options`.
+     * That second half is what makes them restricted, so it is asserted
+     * here rather than assumed.
+     *
+     * The capability is granted on the user rather than left to the role,
+     * because how a role acquires it is production wiring with its own test
+     * below — and a behavioural test that fails because a role definition
+     * did not survive a test-database rollback tells you nothing about the
+     * guardrail it was written to check.
+     */
     private function clubAdmin(): int {
-        return self::factory()->user->create( [ 'role' => 'tt_club_admin' ] );
+        $uid  = self::factory()->user->create( [ 'role' => 'tt_club_admin' ] );
+        $user = new \WP_User( $uid );
+        $user->add_cap( FrontendMatrixView::CAP );
+
+        $this->assertFalse( user_can( $uid, 'manage_options' ), 'precondition: a club admin is not an administrator' );
+
+        return $uid;
     }
 
     private function changelogCount(): int {
@@ -326,11 +343,27 @@ final class MatrixEditServiceTest extends WP_UnitTestCase {
 
     // ---- the capability ----------------------------------------------------
 
-    public function test_the_capability_reaches_the_club_admin_role(): void {
-        $this->assertTrue( user_can( $this->clubAdmin(), FrontendMatrixView::CAP ) );
-        $this->assertTrue( user_can( $this->administrator(), FrontendMatrixView::CAP ) );
+    /**
+     * The production wiring: the capability is granted to the two roles that
+     * should hold it, and to nothing else. Asserted on the role objects
+     * rather than through a user, so it tests the grant rather than a
+     * particular user's cap resolution.
+     */
+    public function test_the_capability_is_granted_to_the_right_roles(): void {
+        FrontendMatrixView::ensureCapabilities();
+
+        $administrator = get_role( 'administrator' );
+        $this->assertNotNull( $administrator );
+        $this->assertTrue( $administrator->has_cap( FrontendMatrixView::CAP ) );
+
+        $club_admin = get_role( 'tt_club_admin' );
+        $this->assertNotNull( $club_admin, 'the club-admin role is what this issue delegates to' );
+        $this->assertTrue( $club_admin->has_cap( FrontendMatrixView::CAP ) );
+
+        $coach = get_role( 'tt_coach' );
+        $this->assertNotNull( $coach );
         $this->assertFalse(
-            user_can( self::factory()->user->create( [ 'role' => 'tt_coach' ] ), FrontendMatrixView::CAP ),
+            $coach->has_cap( FrontendMatrixView::CAP ),
             'a coach must not be able to redefine what every persona can do'
         );
     }
