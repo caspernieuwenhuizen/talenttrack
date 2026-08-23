@@ -78,6 +78,23 @@ final class ExercisesRestController {
                 'permission_callback' => static fn() => current_user_can( 'tt_view_activities' ),
             ],
         ] );
+        // #2753 — tag many exercises with many principles in one call.
+        // Placed before the `(?P<id>\d+)` routes so a literal path
+        // segment is never read as an id.
+        register_rest_route( self::NS, '/exercises/principles/bulk', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'bulk_tag_principles' ],
+                'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+            ],
+        ] );
+        register_rest_route( self::NS, '/exercises/awaiting-review', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'awaiting_review' ],
+                'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+            ],
+        ] );
         register_rest_route( self::NS, '/exercises/promotion-queue', [
             [
                 'methods'             => 'GET',
@@ -178,6 +195,70 @@ final class ExercisesRestController {
      * The head-of-development promotion queue (#2493 D9) — team-scoped
      * exercises awaiting a decision on whether the whole club gets them.
      */
+    /**
+     * Tag many exercises with many principles at once (#2753).
+     *
+     * The library's classification step cannot be done one exercise at a
+     * time: a tagged exercise carries 7.8 principles on average, so the
+     * 69 unclassified rows on a pilot install are ~550 interactions
+     * through a form that saves once per exercise. This is the endpoint
+     * that makes it a couple of dozen instead.
+     *
+     * `principle_ids` may be empty. That is not a no-op — it is a coach
+     * saying "I looked, none apply", which is exactly what a warm-up
+     * needs, and it marks the exercise reviewed so it leaves the list.
+     */
+    public static function bulk_tag_principles( \WP_REST_Request $r ): \WP_REST_Response {
+        $exercise_ids = $r->get_param( 'exercise_ids' );
+        if ( ! is_array( $exercise_ids ) || $exercise_ids === [] ) {
+            return RestResponse::error(
+                'exercise_ids_required',
+                __( 'Choose at least one exercise to tag.', 'talenttrack' ),
+                400
+            );
+        }
+
+        $mode = (string) ( $r->get_param( 'mode' ) ?? 'add' );
+        if ( ! in_array( $mode, [ 'add', 'replace' ], true ) ) $mode = 'add';
+
+        $repo = new ExercisesRepository();
+
+        $changed = $repo->tagMany(
+            (array) $exercise_ids,
+            (array) ( $r->get_param( 'principle_ids' ) ?? [] ),
+            $mode,
+            $r->get_param( 'mark_reviewed' ) === null ? true : (bool) $r->get_param( 'mark_reviewed' )
+        );
+
+        return RestResponse::success( [
+            'changed'  => $changed,
+            'progress' => $repo->reviewProgress(),
+        ] );
+    }
+
+    /** The exercises nobody has classified yet (#2753). */
+    public static function awaiting_review( \WP_REST_Request $r ): \WP_REST_Response {
+        $repo = new ExercisesRepository();
+
+        $rows = [];
+        foreach ( $repo->listAwaitingReview( (int) ( $r->get_param( 'limit' ) ?? 200 ) ) as $row ) {
+            $rows[] = [
+                'id'             => (int) $row->id,
+                'name'           => (string) $row->name,
+                'description'    => (string) ( $row->description ?? '' ),
+                'category_label' => (string) ( $row->category_label ?? '' ),
+                'source'         => (string) ( $row->source ?? 'club' ),
+                'intensity_band' => isset( $row->intensity_band ) ? (int) $row->intensity_band : null,
+                'principle_ids'  => array_map( 'intval', $repo->principleIdsFor( (int) $row->id ) ),
+            ];
+        }
+
+        return RestResponse::success( [
+            'rows'     => $rows,
+            'progress' => $repo->reviewProgress(),
+        ] );
+    }
+
     public static function list_promotion_queue( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new ExercisesRepository();
 
