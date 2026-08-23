@@ -54649,6 +54649,68 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+msgid "A photo is waiting to be read"
+msgstr "Er wacht een foto om gelezen te worden"
+
+#. translators: %d is how many photographs are waiting to be read.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+#, php-format
+msgid "%d photos are waiting to be read"
+msgstr "Er wachten %d foto's om gelezen te worden"
+
+#. translators: %d is the number of days a photo is kept on the phone.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+#, php-format
+msgid ""
+"No connection, so the photo is waiting on this phone. It is read as soon as "
+"you have signal, and is deleted after %d days whether or not it has been "
+"read."
+msgstr ""
+"Geen verbinding, dus de foto wacht op deze telefoon. Hij wordt gelezen zodra "
+"je bereik hebt, en wordt na %d dagen verwijderd of hij nu gelezen is of niet."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+msgid ""
+"Still no connection. The photo is safe on this phone and will be read when "
+"you have signal."
+msgstr ""
+"Nog steeds geen verbinding. De foto staat veilig op deze telefoon en wordt "
+"gelezen zodra je bereik hebt."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+msgid "Reading the photo that was waiting…"
+msgstr "De foto die stond te wachten wordt gelezen…"
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+msgid "A photo is waiting to be read. It goes as soon as you have signal."
+msgstr ""
+"Er wacht een foto om gelezen te worden. Hij gaat weg zodra je bereik hebt."
+
+#. translators: %d is how many photographs are waiting to be read.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+#, php-format
+msgid "%d photos are waiting to be read. They go as soon as you have signal."
+msgstr ""
+"Er wachten %d foto's om gelezen te worden. Ze gaan weg zodra je bereik hebt."
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+msgid ""
+"A photo waited too long and has been deleted. It was never read, so nothing "
+"was saved — take it again if you still need it."
+msgstr ""
+"Een foto heeft te lang gewacht en is verwijderd. Hij is nooit gelezen, dus "
+"er is niets opgeslagen — maak hem opnieuw als je hem nog nodig hebt."
+
+#. translators: %d is how many photographs were deleted.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php
+#, php-format
+msgid ""
+"%d photos waited too long and have been deleted. They were never read, so "
+"nothing was saved — take them again if you still need them."
+msgstr ""
+"%d foto's hebben te lang gewacht en zijn verwijderd. Ze zijn nooit gelezen, "
+"dus er is niets opgeslagen — maak ze opnieuw als je ze nog nodig hebt."
 #~ msgid "Intensity band max (1-10)"
 #~ msgstr "Maximaal intensiteitsniveau (1-10)"
 
