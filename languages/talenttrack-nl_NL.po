@@ -54843,6 +54843,9 @@ msgid ""
 msgstr ""
 "Stuur minstens één persona|entiteit-paar mee in scopes — dat bepaalt over "
 "welke cellen dit verzoek gaat."
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Scouting visits (tile)"
+msgstr "Scoutbezoeken (tegel)"
 
 #~ msgid "Intensity band max (1-10)"
 #~ msgstr "Maximaal intensiteitsniveau (1-10)"
