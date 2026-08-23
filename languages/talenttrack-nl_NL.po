@@ -54624,6 +54624,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:343
+msgctxt "a PDP verdict decision on a historical row"
+msgid "Review"
+msgstr "Te beoordelen"
+
+
 #~ msgid "Open staff share link"
 #~ msgstr "Stafdeellink openen"
 
