@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T11:28:17+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:55:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -19484,6 +19484,8 @@ msgid "Browse the library"
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:73
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:23
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:36
 msgid "Course"
 msgstr ""
 
@@ -19848,6 +19850,88 @@ msgstr ""
 msgid "Document"
 msgstr ""
 
+#: src/Modules/Knowledge/TeamCourseCoverage.php:94
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:80
+msgid "A staff member"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:30
+msgid "Check and assign"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:38
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:97
+msgid "Go back and choose a course and at least one person."
+msgstr ""
+
+#. translators: %s: the course title
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:46
+#, php-format
+msgid "Assigning %s."
+msgstr ""
+
+#. translators: %d: how many people will be newly enrolled
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:54
+#, php-format
+msgid "%d person will be enrolled."
+msgid_plural "%d people will be enrolled."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: how many people were already on the course
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:61
+#, php-format
+msgid "%d person is already on this course and will be left as they are."
+msgid_plural "%d people are already on this course and will be left as they are."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:74
+msgid "No deadline."
+msgstr ""
+
+#. translators: %s: the deadline date
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:77
+#, php-format
+msgid "Deadline: %s."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:29
+msgid "This install has no courses."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:38
+msgid "Choose a course"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:57
+msgid "Choose a course to assign."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignCourseWizard.php:44
+msgid "Assign a course"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:22
+msgid "Deadline"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:28
+msgid "Finish by"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:30
+msgid "Optional. Leave empty for no deadline."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:48
+msgid "That date could not be understood."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:54
+msgid "That deadline has already passed. Pick a date in the future."
+msgstr ""
+
 #: src/Modules/Knowledge/Wizards/AssignmentAttachStep.php:31
 msgid "Documents"
 msgstr ""
@@ -19928,6 +20012,41 @@ msgstr ""
 
 #: src/Modules/Knowledge/Wizards/AssignmentWriteStep.php:116
 msgid "Your answer could not be saved."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:34
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
+msgid "Who"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:41
+msgid "Go back and choose a course first."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:48
+msgid "This academy has no staff records to assign a course to."
+msgstr ""
+
+#. translators: %s: a comma-separated list of personas, e.g. "coach, head coach"
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:55
+#, php-format
+msgid "Staff matching this course's audience: %s."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:60
+msgid "Showing all staff. Nobody matched this course's audience, which usually means staff records are not linked to accounts yet."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:67
+msgid "Who takes this course"
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:95
+msgid "Choose at least one person."
+msgstr ""
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:115
+msgid "Those people could not be found. Choose again."
 msgstr ""
 
 #: src/Modules/Knowledge/Wizards/SubmitAssignmentWizard.php:51
@@ -28176,10 +28295,6 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:112
 msgid "You have not logged any prospects yet. Use the “+ New prospect” hero above to start."
-msgstr ""
-
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
-msgid "Who"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
