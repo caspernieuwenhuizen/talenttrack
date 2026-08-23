@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T09:36:50+00:00\n"
+"POT-Creation-Date: 2026-08-23T09:45:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2054,7 +2054,7 @@ msgstr "Mittelstürmer"
 
 #: src/Infrastructure/Query/LabelTranslator.php:341
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:423
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:546
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:562
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:330
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:210
 msgid "Warm-up"
@@ -2076,7 +2076,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:345
 #: src/Infrastructure/Query/LabelTranslator.php:387
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:426
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:550
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:566
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:334
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:213
 msgid "Finishing"
@@ -2084,7 +2084,7 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:346
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:427
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:551
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:567
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:335
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:214
 msgid "Cool-down"
@@ -4278,17 +4278,17 @@ msgstr ""
 msgid "An observation is about a player, so it needs one."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:249
+#: src/Infrastructure/REST/TrainingRunsRestController.php:260
 msgid ""
 "An observation needs a rating, a note, or both. A rating outside the "
 "configured scale is refused rather than rounded."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:262
+#: src/Infrastructure/REST/TrainingRunsRestController.php:279
 msgid "That observation no longer exists."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:296
+#: src/Infrastructure/REST/TrainingRunsRestController.php:313
 msgid "That block does not belong to this training run."
 msgstr ""
 
@@ -5065,7 +5065,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1320
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:576
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
 #: src/Shared/Frontend/FrontendBackupsView.php:249
@@ -5190,7 +5190,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:175
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:159
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:585
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:611
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:449
 msgid "Minutes"
 msgstr ""
@@ -7869,7 +7869,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:425
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:549
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:565
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:333
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:212
 msgid "Game"
@@ -8084,7 +8084,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:45
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1153
 #: src/Modules/Methodology/Frontend/MethodologyView.php:884
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:567
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:593
 msgid "Pause"
 msgstr ""
 
@@ -18116,7 +18116,7 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:238
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:44
 #: src/Modules/Methodology/Frontend/MethodologyView.php:883
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:566
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:592
 msgid "Play"
 msgstr ""
 
@@ -18293,7 +18293,7 @@ msgstr ""
 
 #: src/Modules/Exercises/Frontend/SceneRenderer.php:46
 #: src/Modules/Methodology/Frontend/MethodologyView.php:885
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:568
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:594
 msgid "Restart"
 msgstr ""
 
@@ -21698,7 +21698,7 @@ msgstr ""
 #. translators: %s is the player's name.
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:423
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:108
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:327
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:333
 #, php-format
 msgid "Note about %s"
 msgstr ""
@@ -35379,7 +35379,7 @@ msgid "This plan has no blocks yet."
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:361
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:575
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:601
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:93
 msgid "Untitled block"
 msgstr ""
@@ -35401,21 +35401,21 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:424
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:547
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:563
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:331
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:211
 msgid "Rondo"
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:428
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:552
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:568
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:336
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:215
 msgid "Team talk"
 msgstr ""
 
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:430
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:548
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:564
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:332
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:217
 msgid "Main"
@@ -35467,164 +35467,179 @@ msgstr ""
 msgid "Attach plan"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:236
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:242
 msgid "How far through the training you are"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:281
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:287
 msgid "Notes on players"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:283
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:289
 msgid ""
 "Optional, and you do not have to score anyone. A note on its own is a "
 "complete observation — tap a number again to clear it."
 msgstr ""
 
 #. translators: %s is the player's name.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:312
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:318
 #, php-format
 msgid "Score for %s"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:331
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:337
 msgid "What you saw"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:334
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:340
 msgid "Save note"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:559
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:575
 msgid "Ready to start"
 msgstr ""
 
 #. translators: 1: number of blocks, 2: total minutes.
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:560
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:576
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:66
 #, php-format
 msgid "%1$d blocks · %2$d minutes"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:561
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:577
 msgid "Start the training"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:562
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:578
 #, php-format
 msgid "Block %1$d of %2$d · %3$s"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:563
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:579
 #, php-format
 msgid "of %s"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:564
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:580
 msgid "Organisation"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:565
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:581
 msgid "Coaching points"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:569
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:587
+msgid "Saved on this phone. It will sync when you have signal."
+msgstr ""
+
+#. translators: %d is always 1 here.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:589
+msgid "1 change is waiting for signal."
+msgstr ""
+
+#. translators: %d is a number of unsaved changes, always 2 or more.
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:591
+#, php-format
+msgid "%d changes are waiting for signal."
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:595
 msgid "Diagram for this drill"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:570
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:596
 msgid "Previous block"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:571
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:597
 msgid "Next block"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:572
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:598
 msgid "Finish this block"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:573
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:599
 msgid "Skip this block"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:574
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:600
 msgid "Finish the training"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:577
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:603
 msgid ""
 "That did not save — you are offline or the connection dropped. Note the time "
 "and try again; nothing is recorded until it saves."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:578
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:587
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:604
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:613
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:179
 #: src/Modules/Workflow/TaskStatus.php:68
 msgid "Skipped"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:582
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:608
 #, php-format
 msgid ""
 "You are %1$s over. Finish now and this block is recorded as %2$d minutes."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:583
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:609
 #, php-format
 msgid "%d minutes trained"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:584
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:610
 #, php-format
 msgid "planned %d"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:586
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:612
 msgid "Blocks run"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:588
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:614
 msgid ""
 "Recorded against this training. The plan itself is unchanged, so the next "
 "team to use it starts from the same place you did."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:589
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:615
 msgid "Skipped blocks are recorded here, not removed from the plan."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:590
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:616
 msgid "Back to the plan"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:591
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:617
 msgid ""
 "Finish the training? Any blocks you have not run are recorded as skipped."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:592
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:618
 msgid "Noted."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:593
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:619
 msgid "Add a score or a note first."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:594
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:620
 msgid "That note did not save. Try again."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:595
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:621
 msgid "Attaching…"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:596
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:622
 msgid "The plan could not be attached. Check your connection and try again."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:597
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:623
 msgid "This training already had a plan attached — opening it."
 msgstr ""
 
