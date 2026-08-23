@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:29:18+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:37:34+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4496,7 +4496,17 @@ msgstr ""
 msgid "Translation settings could not be saved."
 msgstr "Vertaalinstellingen konden niet worden opgeslagen."
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:82
+#: src/Infrastructure/REST/VisionExtractRestController.php:94
+msgid ""
+"Photo capture is switched on but this site has not said where the "
+"photographs would be sent, so nothing was sent. An administrator needs to "
+"set TT_VISION_ENDPOINT and TT_VISION_DATA_REGION before this can be used."
+msgstr ""
+"Fotovastlegging staat aan, maar deze site heeft niet vastgelegd waar de "
+"foto's naartoe zouden gaan, dus er is niets verstuurd. Een beheerder moet "
+"eerst TT_VISION_ENDPOINT en TT_VISION_DATA_REGION instellen."
+
+#: src/Infrastructure/REST/VisionExtractRestController.php:103
 msgid ""
 "No image was uploaded. Attach a photo via the `photo` file field or "
 "`photo_base64` body field."
@@ -4504,7 +4514,7 @@ msgstr ""
 "Er is geen afbeelding geüpload. Voeg een foto toe via het `photo`-"
 "bestandsveld of het `photo_base64`-bodyveld."
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:99
+#: src/Infrastructure/REST/VisionExtractRestController.php:120
 msgid ""
 "The vision provider could not read this photo. Use the manual flow instead."
 msgstr ""
@@ -19710,9 +19720,9 @@ msgid_plural "Animated drill diagram: %1$d markers, %2$d of which move."
 msgstr[0] "Bewegend oefendiagram: %1$d markering, waarvan %2$d beweegt."
 msgstr[1] "Bewegend oefendiagram: %1$d markeringen, waarvan %2$d bewegen."
 
-#: src/Modules/Exercises/Vision/ClaudeSonnetProvider.php:45
-msgid "Claude Sonnet (via Bedrock, EU-Central)"
-msgstr "Claude Sonnet (via Bedrock, EU-Central)"
+#: src/Modules/Exercises/Vision/ClaudeSonnetProvider.php:54
+msgid "Claude Sonnet"
+msgstr "Claude Sonnet"
 
 #: src/Modules/Exercises/Vision/GeminiProProvider.php:23
 msgid "Gemini Pro (via Vertex AI, EU-West)"
@@ -52949,11 +52959,8 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-msgid "Photo capture is switched on but this site has not said where the photographs would be sent, so nothing was sent. An administrator needs to set TT_VISION_ENDPOINT and TT_VISION_DATA_REGION before this can be used."
-msgstr "Fotovastlegging staat aan, maar deze site heeft niet vastgelegd waar de foto's naartoe zouden gaan, dus er is niets verstuurd. Een beheerder moet eerst TT_VISION_ENDPOINT en TT_VISION_DATA_REGION instellen."
-
-msgid "Claude Sonnet"
-msgstr "Claude Sonnet"
+#~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
+#~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
 
 #~ msgid ""
 #~ "The questions for this module open once progress tracking is switched on."

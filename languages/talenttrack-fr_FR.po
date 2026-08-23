@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:29:18+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:37:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -4279,13 +4279,20 @@ msgstr ""
 msgid "Translation settings could not be saved."
 msgstr ""
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:82
+#: src/Infrastructure/REST/VisionExtractRestController.php:94
+msgid ""
+"Photo capture is switched on but this site has not said where the "
+"photographs would be sent, so nothing was sent. An administrator needs to "
+"set TT_VISION_ENDPOINT and TT_VISION_DATA_REGION before this can be used."
+msgstr ""
+
+#: src/Infrastructure/REST/VisionExtractRestController.php:103
 msgid ""
 "No image was uploaded. Attach a photo via the `photo` file field or "
 "`photo_base64` body field."
 msgstr ""
 
-#: src/Infrastructure/REST/VisionExtractRestController.php:99
+#: src/Infrastructure/REST/VisionExtractRestController.php:120
 msgid ""
 "The vision provider could not read this photo. Use the manual flow instead."
 msgstr ""
@@ -18209,8 +18216,8 @@ msgid_plural "Animated drill diagram: %1$d markers, %2$d of which move."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Exercises/Vision/ClaudeSonnetProvider.php:45
-msgid "Claude Sonnet (via Bedrock, EU-Central)"
+#: src/Modules/Exercises/Vision/ClaudeSonnetProvider.php:54
+msgid "Claude Sonnet"
 msgstr ""
 
 #: src/Modules/Exercises/Vision/GeminiProProvider.php:23
