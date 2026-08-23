@@ -52,11 +52,10 @@ jobs:
           # name WP::parse_request() reads from $_POST before $_GET).
           RESERVED='m|p|posts|w|cat|withcomments|withoutcomments|s|search|exact|sentence|calendar|page|paged|more|tb|pb|author|order|orderby|name|feed|tag|taxonomy|term|cpage|attachment|attachment_id|year|monthnum|day|hour|minute|second|comments_popup|custom'
 
-          # Wizard step files live under three known roots; future
-          # additions should be added here. The lint runs on every
-          # *Step.php anywhere under src/Modules/Wizards/, the
-          # tournaments wizard folder, the MatchPrep wizards folder,
-          # and the VCT wizard folder.
+          # Wizard step files live under a handful of known roots; a new
+          # wizard MUST add its own here, or this scan silently skips it
+          # and the 404 it guards against comes back. The lint runs on
+          # every *Step.php anywhere under each root.
           WIZARD_GLOBS=(
             "src/Modules/Wizards"
             "src/Modules/Tournaments/Wizard"
@@ -64,6 +63,7 @@ jobs:
             "src/Modules/MatchAnalysis/Wizards"
             "src/Modules/Vct/Wizard"
             "src/Modules/Media/Wizard"
+            "src/Modules/Knowledge/Wizards"
           )
 
           FAIL=0

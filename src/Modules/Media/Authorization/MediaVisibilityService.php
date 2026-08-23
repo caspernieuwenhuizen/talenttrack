@@ -32,6 +32,10 @@ use TT\Modules\Media\Repositories\MediaLinksRepository;
  *     photographs, because they are neither the player nor its parent.
  *   - an **activity** link resolves to the activity's `team_id`, for the
  *     same reason.
+ *   - a **course submission** link (#2648) is not a matrix scope at all.
+ *     A submission is a coach's own coursework, with no player and no team
+ *     behind it, so the participants are named directly: the author, the
+ *     reviewer it is routed to, and holders of `tt_manage_knowledge`.
  *
  * **Co-depiction is allowed** (epic #2589 decision D5). A clip linked to
  * players A, B and C is visible to all three families. This falls out of
@@ -49,6 +53,9 @@ final class MediaVisibilityService {
 
     /** @var array<string, int> per-request record → team_id memo */
     private static $teamCache = [];
+
+    /** @var array<int, int> per-request wp_user_id → person_id memo */
+    private static $personCache = [];
 
     /**
      * Per-request memo of decided grants, keyed by
@@ -88,8 +95,25 @@ final class MediaVisibilityService {
         return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CHANGE );
     }
 
+    /**
+     * The upload gate has a second arm, for targets that grant by
+     * ownership instead of by scope.
+     *
+     * Every original target — player, team, activity — is reached through
+     * a matrix scope, so any-scope was the whole question. A course
+     * submission is not: it is the author's own coursework, and the author
+     * may be a staff member with no team assignment and therefore no media
+     * scope anywhere. Asking only the matrix would refuse them the
+     * attachment on their own assignment while `canAttachTo()` was ready
+     * to allow it — a denial from the gate that the decision disagrees
+     * with.
+     *
+     * Widening it costs nothing: this is explicitly not the decision, and
+     * `canAttachTo()` still establishes that the submission is theirs.
+     */
     public static function hasUploadAuthority( int $user_id ): bool {
-        return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE );
+        return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE )
+            || user_can( $user_id, 'tt_view_knowledge' );
     }
 
     public function canView( int $user_id, object $media ): bool {
@@ -160,8 +184,9 @@ final class MediaVisibilityService {
 
     /** Drop the per-request memos. Test seam. */
     public static function flush(): void {
-        self::$teamCache  = [];
-        self::$grantCache = [];
+        self::$teamCache   = [];
+        self::$grantCache  = [];
+        self::$personCache = [];
     }
 
     // Internals
@@ -214,6 +239,9 @@ final class MediaVisibilityService {
                 return $team_id > 0
                     && MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $team_id );
 
+            case MediaEntityType::COURSE_SUBMISSION:
+                return $this->submissionGrants( $user_id, $entity_id );
+
             case MediaEntityType::PLAYER:
             default:
                 if ( MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_PLAYER, $entity_id ) ) {
@@ -223,6 +251,68 @@ final class MediaVisibilityService {
                 return $team_id > 0
                     && MatrixGate::can( $user_id, self::ENTITY, $activity, MatrixGate::SCOPE_TEAM, $team_id );
         }
+    }
+
+    /**
+     * A course submission's attachments: the coach who handed it in, the
+     * reviewer it is routed to, and whoever may review generally.
+     *
+     * The only branch here that is not a matrix scope, because a submission
+     * has no team and no player behind it — it is somebody's own coursework.
+     * Running it through `SCOPE_PLAYER` (which is where the `default:` arm
+     * would have sent it) would compare a submission id against player ids
+     * and answer a question nobody asked.
+     *
+     * The assigned reviewer is checked as well as the capability because
+     * mentorship and `tt_manage_knowledge` do not overlap: a coach
+     * mentoring a colleague is routed their submission without holding the
+     * management capability, and refusing them the attachment would leave
+     * them reviewing a plan they cannot open.
+     *
+     * Read and write are not distinguished. Both mean "take part in this
+     * review", the participants are the same two people either way, and a
+     * split would only invite a later widening of one of them.
+     */
+    private function submissionGrants( int $user_id, int $submission_id ): bool {
+        if ( user_can( $user_id, 'tt_manage_knowledge' ) ) return true;
+
+        $person_id = $this->personForUser( $user_id );
+        if ( $person_id <= 0 ) return false;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT s.reviewer_person_id, e.person_id AS author_person_id
+               FROM {$p}tt_course_submissions s
+         INNER JOIN {$p}tt_course_enrolments e
+                 ON e.id = s.enrolment_id AND e.club_id = s.club_id
+              WHERE s.id = %d AND s.club_id = %d",
+            $submission_id,
+            CurrentClub::id()
+        ) );
+
+        if ( ! $row ) return false;
+
+        return (int) $row->author_person_id === $person_id
+            || (int) $row->reviewer_person_id === $person_id;
+    }
+
+    /** Per-request memo; the same user is asked about repeatedly. */
+    private function personForUser( int $user_id ): int {
+        if ( isset( self::$personCache[ $user_id ] ) ) return self::$personCache[ $user_id ];
+
+        global $wpdb;
+
+        $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id = %d AND club_id = %d AND archived_at IS NULL
+              LIMIT 1",
+            $user_id,
+            CurrentClub::id()
+        ) );
+
+        return self::$personCache[ $user_id ] = $person_id;
     }
 
     private function teamForPlayer( int $player_id ): int {

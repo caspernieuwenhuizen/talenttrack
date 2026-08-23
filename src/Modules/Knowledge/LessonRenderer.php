@@ -24,15 +24,19 @@ final class LessonRenderer {
      * Render a lesson body.
      *
      * The course and lesson slugs are optional because most blocks do not
-     * need them; `tt-quiz` does, to find its payload. Set around the
-     * render and cleared in a `finally`, so a block that throws cannot
-     * leave the next lesson rendering under this one's identity.
+     * need them; `tt-quiz` does, to find its payload. The enrolment is
+     * optional for that reason and one more: a render with no reader behind
+     * it is a legitimate case, and `tt-assignment` then shows the
+     * assignment text on its own rather than a form nobody could submit.
+     * Set around the render and cleared in a `finally`, so a block that
+     * throws cannot leave the next lesson rendering under this one's
+     * identity.
      *
      * @return array{html: string, interactive: bool}
      */
-    public static function render( string $markdown, string $course_slug = '', string $lesson_slug = '' ): array {
+    public static function render( string $markdown, string $course_slug = '', string $lesson_slug = '', int $enrolment_id = 0 ): array {
         if ( $course_slug !== '' && $lesson_slug !== '' ) {
-            LessonContext::set( $course_slug, $lesson_slug );
+            LessonContext::set( $course_slug, $lesson_slug, $enrolment_id );
         }
 
         try {
@@ -47,8 +51,8 @@ final class LessonRenderer {
      *
      * @return string HTML
      */
-    public static function renderAndEnqueue( string $markdown, string $course_slug = '', string $lesson_slug = '' ): string {
-        $rendered = self::render( $markdown, $course_slug, $lesson_slug );
+    public static function renderAndEnqueue( string $markdown, string $course_slug = '', string $lesson_slug = '', int $enrolment_id = 0 ): string {
+        $rendered = self::render( $markdown, $course_slug, $lesson_slug, $enrolment_id );
 
         self::enqueueStyle();
         if ( $rendered['interactive'] ) {

@@ -5,7 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Knowledge\Alerts\SubmissionsAwaitingReviewAlert;
 use TT\Modules\Knowledge\Rest\KnowledgeRestController;
+use TT\Modules\Knowledge\Wizards\SubmitAssignmentWizard;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * KnowledgeModule (#2642, epic #2641) — the knowledge library.
@@ -44,6 +47,26 @@ class KnowledgeModule implements ModuleInterface {
         add_action( 'wp_enqueue_scripts', [ LessonRenderer::class, 'registerAssets' ] );
 
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+
+        // The review queue as a state-derived alert (#2648). Registered
+        // from here rather than in `AlertsModule::registerCoreAlerts()`,
+        // because the definition reads this module's tables and belongs
+        // with them; `tt_register_alerts` is the seam for exactly that.
+        add_filter( 'tt_register_alerts', static function ( array $alerts ): array {
+            $alerts[] = new SubmissionsAwaitingReviewAlert();
+            return $alerts;
+        } );
+
+        // #2648 — the guided hand-in path (CLAUDE.md §3). No `view_slugs`
+        // entry accompanies it: every wizard is reached through the shared
+        // `wizard` aggregator slug, which this feature does not own and
+        // must not gate. Turning `knowledge_courses` off removes the entry
+        // points that link here; turning the module off unregisters it.
+        add_action( 'init', static function (): void {
+            if ( class_exists( WizardRegistry::class ) ) {
+                WizardRegistry::register( new SubmitAssignmentWizard() );
+            }
+        }, 20 );
 
         KnowledgeRestController::init();
     }

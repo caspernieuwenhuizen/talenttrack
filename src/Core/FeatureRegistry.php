@@ -454,11 +454,12 @@ class FeatureRegistry {
                 'description'     => __( 'The coach-development courses shipped with the plugin: the library, the reader and each person\'s learning record. Turn off for an academy that runs its coach education elsewhere. Progress already recorded is kept.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Knowledge\\KnowledgeModule',
                 'default_enabled' => true,
-                // #2646 — all four reader surfaces. Switching the feature
-                // off takes the routes down as well as the tiles, so a
-                // bookmarked lesson URL stops resolving rather than
-                // rendering a surface the academy turned off.
-                'view_slugs'      => [ 'knowledge', 'course', 'lesson', 'my-learning' ],
+                // #2646 — the four reader surfaces, plus the review queue
+                // from #2648. Switching the feature off takes the routes
+                // down as well as the tiles, so a bookmarked lesson URL
+                // stops resolving rather than rendering a surface the
+                // academy turned off.
+                'view_slugs'      => [ 'knowledge', 'course', 'lesson', 'my-learning', 'submission-review' ],
                 'entities'        => [],
             ],
         ];

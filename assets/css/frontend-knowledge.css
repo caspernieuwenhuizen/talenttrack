@@ -348,6 +348,117 @@
     color: var(--tt-danger, #d8453b);
 }
 
+/* ── the review queue (#2648) ───────────────────────────────────────── */
+
+.tt-knowledge-review__intro {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-review-card {
+    padding: var(--tt-sp-4, 16px);
+    margin-bottom: var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-review-card__header { margin-bottom: var(--tt-sp-3, 12px); }
+
+.tt-review-card__title {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.1rem);
+}
+
+.tt-review-card__meta {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-review-card__subhead {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* The brief is `open` by default and collapsible rather than absent: a
+   reviewer working through a batch of the same assignment wants it out of
+   the way by the third one, and a reviewer seeing it for the first time
+   must not have to go looking. */
+.tt-review-card__brief {
+    margin-bottom: var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface-2, #f7f8f5);
+}
+
+.tt-review-card__brief summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-review-card__brief-body > * + * { margin-top: var(--tt-sp-2, 8px); }
+
+.tt-review-card__answer { margin-bottom: var(--tt-sp-4, 16px); }
+
+.tt-review-card__outcomes {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: 0;
+    border: 0;
+}
+
+.tt-review-card__outcomes legend {
+    padding: 0;
+    margin-bottom: var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-review-card__outcome-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+/* Full-width rows rather than a horizontal radio strip: three options side
+   by side at 360px would each be under the 48px minimum. */
+.tt-review-card__outcome {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    padding: 0 var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-review-card__outcome input { min-width: 20px; min-height: 20px; }
+
+.tt-review-card__form textarea {
+    width: 100%;
+    /* 16px floor keeps iOS from zooming the page on focus (CLAUDE.md §2). */
+    font-size: max(1rem, 16px);
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .tt-review-card__outcome-list {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .tt-review-card__outcome { flex: 1 1 12rem; }
+}
+
 /* ── notices ────────────────────────────────────────────────────────── */
 
 .tt-notice--locked {

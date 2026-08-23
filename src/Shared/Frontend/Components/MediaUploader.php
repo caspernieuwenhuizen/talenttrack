@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend\Components;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Media\Ingest\MediaIngestService;
+use TT\Modules\Media\MediaAttachmentPolicy;
 use TT\Modules\Media\MediaEntityType;
 
 /**
@@ -23,6 +24,13 @@ use TT\Modules\Media\MediaEntityType;
  * tap away pitch-side, targets clear 48px, and the effective server limit
  * is shown **before** a coach picks a 300MB file rather than after the
  * upload fails.
+ *
+ * What it offers is narrowed by `MediaAttachmentPolicy` (#2648) rather than
+ * by the caller: the `accept` list, the link box, the camera hint and the
+ * copy all follow from the target's kinds. A documents-only target such as
+ * a course submission therefore drops `capture` — asking a phone for the
+ * camera when only a written plan is accepted is a dead end — and says so
+ * in the drop zone. The server re-checks; `accept` only steers the picker.
  */
 final class MediaUploader {
 
@@ -43,11 +51,21 @@ final class MediaUploader {
 
         self::enqueue();
 
-        $allow_link  = ! isset( $args['allow_link'] ) || (bool) $args['allow_link'];
+        // What this target accepts is the policy's call, not the caller's.
+        // A caller may still switch the link box off, but may not switch it
+        // on where the policy refuses external links — otherwise the
+        // control would offer a field whose every value is rejected.
+        $documents_only = MediaAttachmentPolicy::isDocumentsOnly( $entity_type );
+        $allow_link     = ! isset( $args['allow_link'] ) || (bool) $args['allow_link'];
+        $allow_link     = $allow_link && MediaAttachmentPolicy::allowsExternalLink( $entity_type );
+
         $state_field = (string) ( $args['state_field'] ?? '' );
         $limit       = MediaIngestService::maxUploadBytes();
 
-        $accept = implode( ',', array_keys( MediaIngestService::allowedTypes() ) );
+        $accept = implode( ',', MediaAttachmentPolicy::acceptMimes(
+            $entity_type,
+            MediaIngestService::allowedTypes()
+        ) );
 
         echo '<div class="tt-media-uploader"'
             . ' data-entity-type="' . esc_attr( $entity_type ) . '"'
@@ -61,7 +79,13 @@ final class MediaUploader {
         // works if the script fails to load.
         echo '<label class="tt-media-dropzone" data-role="dropzone">';
         echo '<span class="tt-media-dropzone__icon" aria-hidden="true">+</span>';
-        echo '<span class="tt-media-dropzone__label">' . esc_html__( 'Choose photos or video', 'talenttrack' ) . '</span>';
+        echo '<span class="tt-media-dropzone__label">'
+            . esc_html(
+                $documents_only
+                    ? __( 'Choose a document', 'talenttrack' )
+                    : __( 'Choose photos or video', 'talenttrack' )
+            )
+            . '</span>';
         echo '<span class="tt-media-dropzone__hint">'
             . esc_html(
                 sprintf(
@@ -71,9 +95,18 @@ final class MediaUploader {
                 )
             )
             . '</span>';
+        if ( $documents_only ) {
+            echo '<span class="tt-media-dropzone__hint">'
+                . esc_html__( 'PDF, Word, spreadsheet or plain text. Photos and video are not accepted here.', 'talenttrack' )
+                . '</span>';
+        }
+        // `capture` asks for the camera, which is right for a photograph and
+        // wrong for a document — on a phone it would open the lens for a
+        // file that can only be a written plan.
         printf(
-            '<input type="file" class="tt-media-file-input" data-role="file" accept="%1$s" capture="environment" multiple />',
-            esc_attr( $accept )
+            '<input type="file" class="tt-media-file-input" data-role="file" accept="%1$s"%2$s multiple />',
+            esc_attr( $accept ),
+            $documents_only ? '' : ' capture="environment"'
         );
         echo '</label>';
 

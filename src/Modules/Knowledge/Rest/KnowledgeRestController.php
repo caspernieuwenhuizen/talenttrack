@@ -15,6 +15,10 @@ use TT\Modules\Knowledge\Quiz\QuizSubmission;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
 use TT\Modules\Knowledge\Repositories\QuizAttemptRepository;
+use TT\Modules\Knowledge\Repositories\SubmissionRepository;
+use TT\Modules\Knowledge\ReviewerResolver;
+use TT\Modules\Knowledge\SubmissionAttachments;
+use TT\Modules\Knowledge\SubmissionService;
 use WP_REST_Request;
 
 /**
@@ -95,6 +99,28 @@ final class KnowledgeRestController {
             'callback'            => [ __CLASS__, 'person_learning' ],
             'permission_callback' => [ __CLASS__, 'can_view_person' ],
         ] );
+
+        // #2648 — assignments and their review. Resource-oriented: a
+        // submission is created under the lesson it answers, and the
+        // verdict is a PATCH on the submission rather than an
+        // `/approve` verb (CLAUDE.md §4).
+        register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/submissions/(?P<lesson>[a-z0-9-]+)', [
+            'methods'             => 'POST',
+            'callback'            => [ __CLASS__, 'submit_assignment' ],
+            'permission_callback' => [ __CLASS__, 'can_view' ],
+        ] );
+
+        register_rest_route( self::NS, '/submissions', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'pending_submissions' ],
+            'permission_callback' => [ __CLASS__, 'can_review' ],
+        ] );
+
+        register_rest_route( self::NS, '/submissions/(?P<id>\d+)', [
+            'methods'             => 'PATCH',
+            'callback'            => [ __CLASS__, 'review_submission' ],
+            'permission_callback' => [ __CLASS__, 'can_review' ],
+        ] );
     }
 
     /* ===== permission gates ===== */
@@ -105,6 +131,24 @@ final class KnowledgeRestController {
 
     public static function can_manage(): bool {
         return current_user_can( 'tt_manage_knowledge' );
+    }
+
+    /**
+     * The coarse gate on the review routes (#2648).
+     *
+     * `can_manage()` would be wrong: work is routed to mentors, who hold
+     * no management capability, and gating on one would lock them out of
+     * the queue their own mentees' coursework lands in. This asks whether
+     * the caller is a reviewer of anybody; whether they may rule on a
+     * *particular* submission is re-checked per row in
+     * `review_submission()`, because that is not a question a
+     * `permission_callback` can answer before it has seen the id.
+     */
+    public static function can_review(): bool {
+        $user_id = get_current_user_id();
+
+        return self::can_view()
+            && ReviewerResolver::isReviewer( $user_id, KnowledgePerson::forUser( $user_id ) );
     }
 
     /**
@@ -623,5 +667,181 @@ final class KnowledgeRestController {
 
     private static function isSelf( int $person_id ): bool {
         return $person_id > 0 && $person_id === self::currentPersonId();
+    }
+
+    /* ===== assignments and review (#2648) ===== */
+
+    /**
+     * Hand in an assignment.
+     *
+     * The one-shot path: body in, submission out. The wizard's draft flow
+     * is a frontend affordance built on the same service, not a second API
+     * — a consumer with a written answer has no reason to make three calls
+     * to deliver it.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function submit_assignment( WP_REST_Request $r ) {
+        $slug   = (string) $r['slug'];
+        $lesson = (string) $r['lesson'];
+
+        $lesson_obj = CourseRegistry::lesson( $slug, $lesson );
+        if ( $lesson_obj === null ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        $person_id = self::currentPersonId();
+        if ( $person_id <= 0 ) {
+            return RestResponse::error(
+                'no_person_record',
+                __( 'This login is not linked to a staff record.', 'talenttrack' ),
+                400
+            );
+        }
+
+        // Same reasoning as `update_progress()`: hiding a locked lesson in
+        // the reader means nothing if its assignment can be submitted, and
+        // approved, over the API.
+        $verdict = ( new CourseAccessResolver() )->forLesson( $slug, $lesson, $person_id, get_current_user_id() );
+
+        if ( $verdict->isUnavailable() || $verdict->isDenied() ) {
+            return RestResponse::notFound( 'lesson_not_found', __( 'That lesson is not part of this course.', 'talenttrack' ) );
+        }
+
+        if ( $verdict->isLocked() ) {
+            return RestResponse::error( 'lesson_locked', __( 'Finish the previous lesson first.', 'talenttrack' ), 403 );
+        }
+
+        $enrolment = ( new EnrolmentRepository() )->findFor( $person_id, $slug );
+        if ( $enrolment === null ) {
+            return RestResponse::error( 'not_enrolled', __( 'You are not on this course.', 'talenttrack' ), 400 );
+        }
+
+        $body   = sanitize_textarea_field( (string) $r->get_param( 'body' ) );
+        $result = ( new SubmissionService() )->submit( (int) $enrolment->id, $slug, $lesson, $body );
+
+        switch ( $result['status'] ) {
+            case SubmissionService::OK:
+                return RestResponse::success(
+                    self::shapeSubmission( ( new SubmissionRepository() )->find( $result['id'] ) ),
+                    201
+                );
+
+            case SubmissionService::ERR_EMPTY:
+                return RestResponse::error( 'empty_body', __( 'Write your answer before handing it in.', 'talenttrack' ), 400 );
+
+            case SubmissionService::ERR_ALREADY:
+                return RestResponse::error( 'already_submitted', __( 'This assignment is already with a reviewer.', 'talenttrack' ), 409 );
+
+            case SubmissionService::ERR_NO_ASSIGNMENT:
+                return RestResponse::error( 'no_assignment', __( 'That lesson has no assignment to hand in.', 'talenttrack' ), 400 );
+
+            default:
+                return RestResponse::error( 'submit_failed', __( 'That could not be handed in.', 'talenttrack' ), 500 );
+        }
+    }
+
+    /**
+     * The caller's review queue, oldest first.
+     *
+     * Narrowed to their own routed work plus everything unrouted, unless
+     * they hold the management capability — the same rule the queue view
+     * applies, because it is the repository's, not the surface's.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function pending_submissions( WP_REST_Request $r ) {
+        $person_id = self::currentPersonId();
+
+        $rows = ( new SubmissionRepository() )->listPending(
+            current_user_can( ReviewerResolver::REVIEW_CAP ) ? 0 : $person_id
+        );
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $out[] = self::shapeSubmission( $row );
+        }
+
+        return RestResponse::success( [ 'submissions' => $out ] );
+    }
+
+    /**
+     * Record a verdict.
+     *
+     * The per-row authorisation lives here rather than in the
+     * `permission_callback`, which runs before the id is known: reaching
+     * the queue does not entitle a mentor to rule on work routed to
+     * somebody else.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function review_submission( WP_REST_Request $r ) {
+        $id         = (int) $r['id'];
+        $repository = new SubmissionRepository();
+        $submission = $repository->find( $id );
+
+        if ( $submission === null ) {
+            return RestResponse::notFound( 'submission_not_found', __( 'That submission does not exist.', 'talenttrack' ) );
+        }
+
+        $person_id = self::currentPersonId();
+        $routed_to = $submission->reviewer_person_id === null ? null : (int) $submission->reviewer_person_id;
+
+        if ( ! ReviewerResolver::canReview( get_current_user_id(), $person_id, $routed_to ) ) {
+            return RestResponse::error( 'not_your_review', __( 'That submission is not yours to review.', 'talenttrack' ), 403 );
+        }
+
+        $outcome  = sanitize_key( (string) $r->get_param( 'outcome' ) );
+        $feedback = sanitize_textarea_field( (string) $r->get_param( 'feedback' ) );
+
+        $result = ( new SubmissionService() )->review( $id, $outcome, $feedback, $person_id );
+
+        switch ( $result['status'] ) {
+            case SubmissionService::OK:
+                return RestResponse::success( [
+                    'submission' => self::shapeSubmission( $repository->find( $id ) ),
+                    'completed'  => $result['completed'],
+                ] );
+
+            case SubmissionService::ERR_NO_FEEDBACK:
+                return RestResponse::error( 'feedback_required', __( 'Say why before asking for changes or turning it down.', 'talenttrack' ), 400 );
+
+            case SubmissionService::ERR_BAD_OUTCOME:
+                return RestResponse::error( 'bad_outcome', __( 'That is not a decision this review can take.', 'talenttrack' ), 400 );
+
+            default:
+                return RestResponse::error( 'review_failed', __( 'That decision could not be recorded.', 'talenttrack' ), 500 );
+        }
+    }
+
+    /**
+     * The payload shape for a submission.
+     *
+     * `body` and `feedback` are the substance, so both are returned in
+     * full. Attachments are counted rather than expanded: a consumer that
+     * wants the documents asks the media endpoint for
+     * `entity_type=course_submission`, which is where their visibility
+     * rules are applied.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function shapeSubmission( ?object $submission ): ?array {
+        if ( $submission === null ) {
+            return null;
+        }
+
+        return [
+            'id'            => (int) $submission->id,
+            'uuid'          => (string) $submission->uuid,
+            'enrolment_id'  => (int) $submission->enrolment_id,
+            'lesson_slug'   => (string) $submission->lesson_slug,
+            'body'          => (string) ( $submission->body ?? '' ),
+            'submitted_at'  => $submission->submitted_at,
+            'outcome'       => (string) $submission->outcome,
+            'feedback'      => (string) ( $submission->feedback ?? '' ),
+            'reviewed_at'   => $submission->reviewed_at,
+            'reviewer_id'   => $submission->reviewer_person_id === null ? null : (int) $submission->reviewer_person_id,
+            'attachments'   => SubmissionAttachments::countFor( (int) $submission->id ),
+        ];
     }
 }

@@ -570,6 +570,99 @@
 
 .tt-lesson-assignment__body > * + * { margin-top: var(--tt-sp-2, 8px); }
 
+/* ── handing an assignment in (#2648) ───────────────────────────────── */
+
+.tt-lesson-assignment__submission,
+.tt-lesson-assignment__form {
+    margin-top: var(--tt-sp-4, 16px);
+    padding-top: var(--tt-sp-4, 16px);
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-lesson-assignment__subhead {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-assignment__quote {
+    margin: 0;
+    padding-left: var(--tt-sp-3, 12px);
+    border-left: 2px solid var(--tt-line, #e3e6e1);
+    color: var(--tt-ink, #23261f);
+}
+
+.tt-lesson-assignment__quote p { margin: 0 0 var(--tt-sp-2, 8px); }
+
+.tt-lesson-assignment__status {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+}
+
+/* The verdict carries in the colour as well as the words: a coach
+   scanning a course for what still needs doing should not have to read
+   every status line to find the one asking for work. */
+[data-tt-submission-state="approved"]          .tt-lesson-assignment__status { color: var(--tt-success, #2f7d4f); }
+[data-tt-submission-state="changes_requested"] .tt-lesson-assignment__status { color: #8a5a12; }
+[data-tt-submission-state="rejected"]          .tt-lesson-assignment__status { color: var(--tt-danger, #b3261e); }
+[data-tt-submission-state="pending"]           .tt-lesson-assignment__status { color: var(--tt-muted, #6a6d66); }
+
+.tt-lesson-assignment__feedback {
+    margin-top: var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface-2, #f7f8f5);
+}
+
+.tt-lesson-assignment__feedback p:last-child { margin-bottom: 0; }
+
+.tt-lesson-assignment__form .tt-field { display: block; }
+
+.tt-lesson-assignment__form textarea {
+    width: 100%;
+    /* 16px floor keeps iOS from zooming the page on focus (CLAUDE.md §2). */
+    font-size: max(1rem, 16px);
+    line-height: 1.5;
+}
+
+/* ── attached documents ─────────────────────────────────────────────── */
+
+.tt-submission-files { margin-top: var(--tt-sp-3, 12px); }
+
+.tt-submission-files__label {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-submission-files__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+/* 48px tall so a download is a comfortable tap target on a phone, and the
+   8px gap keeps the wrong one hard to hit (CLAUDE.md §2). */
+.tt-submission-files__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) 0;
+    font-weight: 600;
+    touch-action: manipulation;
+}
+
+.tt-submission-files__meta {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
 /* ── motion ─────────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

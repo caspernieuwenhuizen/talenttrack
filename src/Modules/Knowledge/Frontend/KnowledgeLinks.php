@@ -41,9 +41,30 @@ final class KnowledgeLinks {
     }
 
     /**
+     * The review queue.
+     *
+     * Built without a `tt_back` hint, unlike the others: this is Cancel's
+     * target on the verdict form, and a Cancel that carried the reviewer's
+     * own arrival hint forward would send them out of the queue instead of
+     * back to the top of it.
+     */
+    public static function submissionReview(): string {
+        return self::plain( [ 'tt_view' => FrontendSubmissionReviewView::SLUG ] );
+    }
+
+    /**
      * @param array<string, string> $args
      */
     private static function to( array $args ): string {
-        return BackLink::appendTo( add_query_arg( $args, get_permalink() ) );
+        return BackLink::appendTo( self::plain( $args ) );
+    }
+
+    /**
+     * The URL without a `tt_back` hint attached.
+     *
+     * @param array<string, string> $args
+     */
+    private static function plain( array $args ): string {
+        return (string) add_query_arg( $args, get_permalink() );
     }
 }

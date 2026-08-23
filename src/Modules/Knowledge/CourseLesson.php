@@ -4,6 +4,7 @@ namespace TT\Modules\Knowledge;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Documentation\DocFrontMatter;
+use TT\Modules\Knowledge\Blocks\BlockRegistry;
 
 /**
  * CourseLesson — one lesson file: its front matter and its body.
@@ -92,6 +93,32 @@ final class CourseLesson {
     /** Whether completing this lesson requires an approved assignment. */
     public function hasAssignment(): bool {
         return self::truthy( DocFrontMatter::string( $this->data, 'assignment' ) );
+    }
+
+    /**
+     * The `id` on the lesson's `tt-assignment` block, which is the key a
+     * submission is stored against (#2648).
+     *
+     * It lives in the block rather than the front matter because the block
+     * is where an author writing the assignment already is, and a second
+     * declaration would be a second thing to keep in step. Empty when the
+     * lesson has no assignment or the block omits an id; `SubmissionService`
+     * falls back to the lesson slug, and `course-lint` is what keeps a
+     * declared assignment and its block together in the first place.
+     *
+     * Not memoised. The one caller is a submit, which happens once per
+     * assignment per coach — caching a scan of a body already held in
+     * memory would trade a real footprint for an imaginary saving.
+     */
+    public function assignmentKey(): string {
+        if ( ! $this->hasAssignment() ) return '';
+
+        if ( ! preg_match( '/^```[ \t]*(tt-assignment[^\n]*)$/m', $this->body, $match ) ) {
+            return '';
+        }
+
+        $attrs = BlockRegistry::parseAttributes( $match[1] );
+        return trim( $attrs['id'] ?? '' );
     }
 
     /** Whether completing this lesson requires a passed quiz. */

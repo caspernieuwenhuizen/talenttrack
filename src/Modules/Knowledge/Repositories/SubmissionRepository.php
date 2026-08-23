@@ -69,11 +69,17 @@ class SubmissionRepository {
     }
 
     /**
-     * The latest submission for one lesson.
+     * The latest *handed-in* submission for one lesson.
      *
      * A lesson can be submitted more than once — that is what
      * changes-requested means — so "the submission" is always the most
      * recent one.
+     *
+     * Drafts are excluded (#2648). A wizard part-way through has written a
+     * row with a null `submitted_at` so that documents have something to
+     * attach to, and that row is not a submission until the coach says so.
+     * Returning it here would show them "waiting for review" for work they
+     * have not handed in.
      */
     public function latestFor( int $enrolment_id, string $lesson_slug ): ?object {
         if ( $enrolment_id <= 0 || $lesson_slug === '' ) {
@@ -83,6 +89,30 @@ class SubmissionRepository {
         return $this->wpdb->get_row( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
               WHERE enrolment_id = %d AND lesson_slug = %s AND club_id = %d
+                AND submitted_at IS NOT NULL
+              ORDER BY id DESC LIMIT 1",
+            $enrolment_id,
+            $lesson_slug,
+            CurrentClub::id()
+        ) ) ?: null;
+    }
+
+    /**
+     * The open draft for one lesson, if the coach has one.
+     *
+     * Reused rather than added to, so a coach who starts the wizard three
+     * times ends up with one draft rather than three abandoned rows and
+     * three sets of attachments.
+     */
+    public function draftFor( int $enrolment_id, string $lesson_slug ): ?object {
+        if ( $enrolment_id <= 0 || $lesson_slug === '' ) {
+            return null;
+        }
+
+        return $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->table}
+              WHERE enrolment_id = %d AND lesson_slug = %s AND club_id = %d
+                AND submitted_at IS NULL
               ORDER BY id DESC LIMIT 1",
             $enrolment_id,
             $lesson_slug,
@@ -167,6 +197,77 @@ class SubmissionRepository {
         ] );
 
         return (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Open a draft — a submission that exists but has not been handed in.
+     *
+     * The wizard needs one before its attach step, because a
+     * `tt_media_links` row has to point at something and a file cannot
+     * survive a step boundary (see `NewMediaWizard` for the same
+     * constraint). A null `submitted_at` is what keeps it out of the queue,
+     * out of `latestFor()` and therefore off the reviewer's and the coach's
+     * "handed in" surfaces until `handIn()` runs.
+     */
+    public function createDraft( int $enrolment_id, string $lesson_slug, string $assignment_key, string $body ): int {
+        if ( $enrolment_id <= 0 || $lesson_slug === '' ) {
+            return 0;
+        }
+
+        $this->wpdb->insert( $this->table, [
+            'uuid'           => wp_generate_uuid4(),
+            'club_id'        => CurrentClub::id(),
+            'enrolment_id'   => $enrolment_id,
+            'lesson_slug'    => $lesson_slug,
+            'assignment_key' => $assignment_key,
+            'body'           => $body,
+            'submitted_at'   => null,
+            'outcome'        => self::OUTCOME_PENDING,
+        ] );
+
+        return (int) $this->wpdb->insert_id;
+    }
+
+    /** Rewrite a draft's answer. No effect once it has been handed in. */
+    public function updateDraft( int $id, string $body ): bool {
+        if ( $id <= 0 ) {
+            return false;
+        }
+
+        $updated = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->table}
+                SET body = %s
+              WHERE id = %d AND club_id = %d AND submitted_at IS NULL",
+            $body,
+            $id,
+            CurrentClub::id()
+        ) );
+
+        return $updated !== false && $updated > 0;
+    }
+
+    /**
+     * Hand a draft in.
+     *
+     * Guarded on `submitted_at IS NULL`, so a double-posted confirm step
+     * stamps the time once and the second attempt reports failure rather
+     * than quietly resetting the clock a reviewer's queue is ordered by.
+     */
+    public function handIn( int $id ): bool {
+        if ( $id <= 0 ) {
+            return false;
+        }
+
+        $updated = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->table}
+                SET submitted_at = %s
+              WHERE id = %d AND club_id = %d AND submitted_at IS NULL",
+            current_time( 'mysql' ),
+            $id,
+            CurrentClub::id()
+        ) );
+
+        return $updated !== false && $updated > 0;
     }
 
     /** Route a pending submission to a named reviewer. */

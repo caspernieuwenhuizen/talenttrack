@@ -1592,6 +1592,9 @@ class DashboardShortcode {
             case 'my-learning':
                 \TT\Modules\Knowledge\Frontend\FrontendMyLearningView::render( $user_id, $is_admin );
                 return true;
+            case 'submission-review':
+                \TT\Modules\Knowledge\Frontend\FrontendSubmissionReviewView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }
