@@ -526,13 +526,27 @@ final class ActivitiesRepository {
      * ReviewStep::insertExpectedAttendance shape).
      *
      * @param array<int, array{status:string, notes:string, is_guest?:int}> $rows keyed by player id
+     * @param array<int, array{lineup_role:string, position_played:string}>|null $preserve_lineup
+     *        A projection snapshot taken before an earlier delete in the same
+     *        request. Null means "read it here", which is right for every
+     *        caller that has not already emptied the table.
      */
-    public function replacePlannedAttendance( int $activity_id, array $rows ): void {
+    public function replacePlannedAttendance( int $activity_id, array $rows, ?array $preserve_lineup = null ): void {
         if ( $activity_id <= 0 ) return;
 
         global $wpdb;
         $p    = $wpdb->prefix;
         $club = CurrentClub::id();
+
+        // #2771 — the match prep writes its Starting XI through onto these
+        // same rows (`lineup_role` / `position_played`), and the activity
+        // detail's Line-up card reads nothing else. This rewrite is about
+        // status and notes; it has no opinion about the line-up, so it
+        // snapshots those two columns and carries them back rather than
+        // silently discarding columns it does not own. Without this, saving
+        // an activity emptied the Line-up card and the team-sheet PDF's
+        // partition until somebody re-saved the prep.
+        $lineup = $preserve_lineup ?? $this->lineupProjectionFor( $activity_id );
 
         // Wipe only the expected rows for this activity; actual + guest
         // actual rows are on other record_type / managed separately.
@@ -558,8 +572,60 @@ final class ActivitiesRepository {
             if ( $is_guest ) {
                 $insert['guest_player_id'] = $pid;
             }
+            if ( ! $is_guest && isset( $lineup[ $pid ] ) ) {
+                $insert['lineup_role']     = $lineup[ $pid ]['lineup_role'];
+                $insert['position_played'] = $lineup[ $pid ]['position_played'];
+            }
             $wpdb->insert( "{$p}tt_attendance", $insert );
         }
+    }
+
+    /**
+     * #2771 — the line-up projection currently on an activity's attendance
+     * rows, keyed by player id.
+     *
+     * Roster rows only: a guest has no `player_id` to key on, and match
+     * prep never puts one in a Starting XI.
+     *
+     * `$record_type` must match the rows the caller is about to delete.
+     * Snapshotting more widely than that duplicates a player across an
+     * `expected` and an `actual` row, and `lineupForActivity()` reads both
+     * — the Starting XI would list them twice.
+     *
+     * @param string|null $record_type 'expected', 'actual', or null for any.
+     * @return array<int, array{lineup_role:string, position_played:string}>
+     */
+    public function lineupProjectionFor( int $activity_id, ?string $record_type = 'expected' ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+
+        $sql = "SELECT player_id, lineup_role, position_played
+                  FROM {$p}tt_attendance
+                 WHERE activity_id = %d AND club_id = %d
+                   AND is_guest = 0 AND lineup_role IS NOT NULL AND lineup_role <> ''";
+        $args = [ $activity_id, $club ];
+        if ( $record_type !== null ) {
+            $sql   .= ' AND record_type = %s';
+            $args[] = $record_type;
+        }
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, $args ) );
+        if ( ! is_array( $rows ) ) return [];
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $pid = (int) $row->player_id;
+            if ( $pid <= 0 ) continue;
+            $out[ $pid ] = [
+                'lineup_role'     => (string) $row->lineup_role,
+                'position_played' => (string) ( $row->position_played ?? '' ),
+            ];
+        }
+
+        return $out;
     }
 
     /**

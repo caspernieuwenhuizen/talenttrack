@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
 
 /**
  * AttendanceRegisterCsvExporter (#0063 use case 5) — attendance
@@ -133,7 +134,7 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
                 (int)    $r->player_id,
                 (string) ( $r->first_name ?? '' ),
                 (string) ( $r->last_name ?? '' ),
-                (string) ( $r->attendance_status ?? '' ),
+                ExportValueFormatter::attendanceStatus( $r->attendance_status ?? '' ),
                 (string) ( $r->attendance_notes ?? '' ),
             ];
         }

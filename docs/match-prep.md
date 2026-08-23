@@ -154,6 +154,21 @@ print page in a new tab, with its own **Export as PDF (A4 landscape)** /
 server-side match-prep / team-sheet PDF exporter as a fallback for
 anyone who prefers to drive the export from there.
 
+### Two sheets, two switches
+
+They are two documents for two readers, and your academy switches them
+on and off separately (**Configuration → Modules**, under Match prep):
+
+| Feature | What it controls | Who reads it |
+| - | - | - |
+| **Match prep PDF export** | The **Export as PDF** button, and the print page behind it | The coach — it carries the plan: minutes, per-player instructions, goals |
+| **Match day team sheet** | The **Print team sheet** button, its print page, and the server-side exporter on `?tt_view=exports` | The referee and the opposition — it carries identity and eligibility |
+
+Both ship on. Switch the team sheet off if your competition files match
+forms digitally: the button leaves the toolbar and the print URL refuses,
+while the coach's own export is untouched. Turning either off leaves the
+match-prep screen itself fully usable.
+
 ## What you can't do here
 
 - Edit the roster (add / remove players from the team) — that's the

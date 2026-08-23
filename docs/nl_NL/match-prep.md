@@ -165,6 +165,22 @@ op een schone afdrukpagina in een nieuw tabblad, met een eigen keuze
 teamblad PDF-exporter als terugvaloptie voor wie liever vandaaruit
 werkt.
 
+### Twee formulieren, twee schakelaars
+
+Het zijn twee documenten voor twee lezers, en je academie zet ze los van
+elkaar aan of uit (**Configuratie → Modules**, onder Match prep):
+
+| Functie | Wat het regelt | Wie het leest |
+| - | - | - |
+| **Match prep PDF-export** | De knop **Exporteren als PDF** en de afdrukpagina erachter | De trainer — hierop staat het plan: minuten, afspraken per speler, doelen |
+| **Wedstrijdformulier** | De knop **Wedstrijdformulier afdrukken**, de afdrukpagina ervan en de server-side export op `?tt_view=exports` | De scheidsrechter en de tegenstander — hierop staan identiteit en speelgerechtigdheid |
+
+Beide staan standaard aan. Zet het wedstrijdformulier uit als jullie
+competitie de formulieren digitaal indient: de knop verdwijnt uit de
+werkbalk en de afdruk-URL weigert, terwijl de export van de trainer
+gewoon blijft. Zet je er één uit, dan blijft het match-prep-scherm zelf
+volledig bruikbaar.
+
 ## Wat hier niet kan
 
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe
