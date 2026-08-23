@@ -165,15 +165,21 @@
         flex-direction: column;
         gap: 10px;
     }
+    /* #2796 — the `min-height` declarations that used to sit here (44px on
+       .tt-btn, 32px on .tt-btn-sm) predate the #0056 tap-target floor and
+       were never reconciled with it. public.css sets 48px under
+       `@media (pointer: coarse)`; these matched its specificity, came later
+       in source order, and this sheet is enqueued with no dependency array
+       so it always loads afterwards. The stylesheet whose whole job is the
+       phone was the one cancelling the phone floor — guaranteed on every
+       handset, not an edge case. Height now comes from the floor. */
     .tt-btn,
     .tt-btn-primary {
         width: 100%;
         padding: 12px;
         font-size: 15px;
-        min-height: 44px;
     }
     .tt-btn-sm {
-        min-height: 32px;
         padding: 4px 10px;
     }
 }
