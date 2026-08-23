@@ -82,8 +82,26 @@ jobs:
       # replacing the `#.*#` blanket ignore. Removed in the same PR that drops
       # `|| true`. Cannot be generated on the maintainer's machine: PHPStan
       # exceeds its memory there once the stubs are loaded.
+      # Generated from a config that does NOT include the current baseline.
+      # Generating with it in place produces a baseline with zero entries under
+      # src/Modules, because the blanket `#.*#` ignore suppresses that whole
+      # tree first — `src/Modules/*/*.php` matches at every depth, not one
+      # level. Committing that baseline would leave the module tree
+      # unbaselined and unanalysed, which is the state being fixed.
       - name: Generate PHPStan baseline
-        run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress --generate-baseline=phpstan-baseline.generated.neon || true
+        run: |
+          printf '%s\n' \
+            'includes:' \
+            '    - vendor/szepeviktor/phpstan-wordpress/extension.neon' \
+            'parameters:' \
+            '    level: 8' \
+            '    paths:' \
+            '        - src' \
+            '    bootstrapFiles:' \
+            '        - vendor/szepeviktor/phpstan-wordpress/bootstrap.php' \
+            '    ignoreErrors: []' > phpstan-generate.neon
+          vendor/bin/phpstan analyse -c phpstan-generate.neon --memory-limit=3G --no-progress --generate-baseline=phpstan-baseline.generated.neon || true
+          echo "baseline entries: $(grep -c 'message:' phpstan-baseline.generated.neon || echo 0)"
       - name: Upload generated baseline
         uses: actions/upload-artifact@v4
         with:
