@@ -20,10 +20,13 @@ final class TrainingPhotoHoldTest extends WP_UnitTestCase {
     private function config(): array {
         FrontendTrainingPhotoView::enqueuePhotoHold();
 
-        $inline = (string) wp_scripts()->get_data( 'tt-photo-hold', 'before' );
-        $this->assertNotSame( '', $inline, 'the hold script was enqueued without its config' );
+        // `before` data is a LIST of inline chunks, not a string — WordPress
+        // lets several callers stack scripts ahead of one handle.
+        $chunks = wp_scripts()->get_data( 'tt-photo-hold', 'before' );
+        $inline = is_array( $chunks ) ? implode( "\n", array_filter( $chunks, 'is_string' ) ) : (string) $chunks;
+        $this->assertNotSame( '', trim( $inline ), 'the hold script was enqueued without its config' );
 
-        preg_match( '/var TT_PHOTO_HOLD = (.*);$/s', trim( $inline ), $m );
+        preg_match( '/TT_PHOTO_HOLD\s*=\s*(\{.*\})\s*;/s', $inline, $m );
         $this->assertNotEmpty( $m, 'the config is not in the shape the script reads' );
 
         return (array) json_decode( $m[1], true );
