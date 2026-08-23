@@ -490,6 +490,17 @@ class DashboardShortcode {
             // off (parent module still on). Same friendly notice as a
             // disabled module; the surface didn't register its data.
             self::renderModuleDisabledNotice();
+        } elseif ( ! self::tileCapAllows( $view, $user_id ) ) {
+            // #2570 — the tile registration already declares who may open a
+            // surface (`cap`, `cap_callback`, `hide_for_personas`), and that
+            // declaration governed the nav only. A view the nav hid was still
+            // reachable by typing its URL, because dispatch consulted a
+            // different rung entirely. Asking the registry the same question
+            // the nav asks is what makes the two impossible to drift apart.
+            // Views keep their own render() guards — this is a second
+            // barrier, not a replacement.
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
         } elseif ( ! self::matrixDispatchAllows( $view, $user_id ) ) {
             // #0079 — when the view's tile declares a matrix entity AND
             // the matrix is active, MatrixGate is the sole authority for
@@ -592,6 +603,36 @@ class DashboardShortcode {
      *  - `MatrixGate::canAnyScope($user_id, $entity, 'read')` returns
      *    true.
      */
+    /**
+     * #2570 — enforce the capability the tile registration already declares.
+     *
+     * `matrixDispatchAllows()` below answers the matrix half of "may this user
+     * open this view". It returns true for a slug whose tile declares no
+     * entity, and for every slug when the matrix is dormant — which left the
+     * `cap` / `cap_callback` / `hide_for_personas` a tile declares governing
+     * the nav and nothing else. #2569 documents seven views and two REST
+     * routes that drifted through that gap.
+     *
+     * Unregistered slugs fail **open**: sub-views, wizard steps and record
+     * detail pages route without a tile of their own, and failing closed would
+     * deny every one of them. Their own `render()` guards remain the gate, as
+     * they always were.
+     *
+     * WordPress administrators bypass, mirroring every other matrix consumer.
+     */
+    private static function tileCapAllows( string $view, int $user_id ): bool {
+        if ( $view === '' ) return true;
+        if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return true;
+        if ( $user_id <= 0 ) return false;
+
+        $user = get_user_by( 'id', $user_id );
+        if ( $user instanceof \WP_User && in_array( 'administrator', (array) $user->roles, true ) ) {
+            return true;
+        }
+
+        return \TT\Shared\Tiles\TileRegistry::canAccessViewSlug( $view, $user_id );
+    }
+
     private static function matrixDispatchAllows( string $view, int $user_id ): bool {
         if ( $view === '' ) return true;
         if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return true;
