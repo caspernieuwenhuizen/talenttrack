@@ -53359,6 +53359,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:172
+msgid "Engine health"
+msgstr "Status van het systeem"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:178
+msgid "Alerts have never been checked on this site. Scheduled tasks are probably not running — until they do, every alert screen will show an empty picture, which looks the same as having nothing to report."
+msgstr "Meldingen zijn op deze site nog nooit gecontroleerd. Waarschijnlijk draaien de geplande taken niet — tot dat gebeurt, tonen alle meldingsschermen een leeg beeld, en dat ziet er hetzelfde uit als niets te melden hebben."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:179
+msgid "Alerts were last checked more than three hours ago. Scheduled tasks have probably stopped; the alerts you see are frozen at that moment."
+msgstr "Meldingen zijn meer dan drie uur geleden voor het laatst gecontroleerd. Waarschijnlijk zijn de geplande taken gestopt; wat je ziet is bevroren op dat moment."
+
+#. translators: %s: human-readable time difference, e.g. "12 minutes"
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:187
+#, php-format
+msgid "Last checked %s ago."
+msgstr "Laatst gecontroleerd %s geleden."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:206
+msgid "Dismissed"
+msgstr "Weggeklikt"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:207
+msgid "Check time"
+msgstr "Controletijd"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:221
+msgid "Mostly dismissed — worth reviewing"
+msgstr "Meestal weggeklikt — het bekijken waard"
+
+#. translators: %d: milliseconds the check took
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:228
+#, php-format
+msgid "%d ms"
+msgstr "%d ms"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:237
+msgid "An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts, and the useful ones go with it. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation."
+msgstr "Een melding die de meeste mensen wegklikken informeert niemand — hij leert mensen meldingen weg te klikken, en de nuttige gaan mee. Er wordt niets automatisch uitgezet: of een melding zijn plek verdient is een afweging over jullie academie, geen rekensom."
+
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
 
