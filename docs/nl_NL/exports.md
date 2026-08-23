@@ -19,6 +19,14 @@ De ingeklapte kop van elk blok toont de exporttitel plus een format-badge per on
 
 Elk blok is afgeschermd op rechten: je ziet alleen de exporteurs die je rol toestaat, en een sectie zonder toegestane exporteur toont geen kop. Een export uitvoeren is ongewijzigd — hij post naar de export-handler met een nonce en streamt het bestand.
 
+## Hoe de waarden eruitzien
+
+Exports die voor mensen bedoeld zijn bevatten dezelfde labels als op het scherm, in de taal waarin de academie werkt. De status van een speler staat er als *Actief* en niet als `active`, de rol van een trainer als *Trainer* en niet als `coach`, en voorkeursposities als *Centrale verdediger / Linksback* in plaats van `["CB","LB"]`. Dit is meestal het bestand dat de academie verlaat — naar een ouder, een bondsbureau of het bestuur — dus degene die het opent zou het niet hoeven ontcijferen.
+
+Een positiecode die de academie zelf heeft toegevoegd en nog geen label heeft, verschijnt als de code zelf. Hij verdwijnt nooit.
+
+Drie exports houden bewust de ruwe waarden aan, omdat er iets is dat ze terugleest: **Demodata-rondgang** (wordt opnieuw geïmporteerd, dus codes moeten ongewijzigd blijven), **Volledige clubdata-back-up** (een exacte kopie) en de **inzageverzoek-export** (het record zoals het is opgeslagen).
+
 ## Losse export-tegels uitschakelen (beheer)
 
 Een academiebeheerder kan **losse export-tegels** uitschakelen — bijvoorbeeld om het Auditlog, de Volledige clubgegevens-back-up of de Bondsregistratie te verbergen — zonder bestandsformaten of het hele Exports-scherm uit te zetten. De schakelaars staan op de beheerpagina **Modules**, onder de module **Export**: één schakelaar per tegel (`Export: Spelerslijst`, `Export: Auditlog`, …), gegroepeerd bij de overige per-academie functieschakelaars.

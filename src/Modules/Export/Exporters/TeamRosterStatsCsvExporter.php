@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
 
 /**
  * TeamRosterStatsCsvExporter (#865) — one row per player for a team,
@@ -144,10 +145,10 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface {
                 (string) ( $r->last_name ?? '' ),
                 (string) ( $r->date_of_birth ?? '' ),
                 $r->jersey_number !== null ? (int) $r->jersey_number : '',
-                (string) ( $r->preferred_foot ?? '' ),
-                (string) ( $r->preferred_positions ?? '' ),
+                ExportValueFormatter::preferredFoot( $r->preferred_foot ?? '' ),
+                ExportValueFormatter::positions( $r->preferred_positions ?? '' ),
                 (string) ( $r->team_name ?? '' ),
-                (string) ( $r->status ?? '' ),
+                ExportValueFormatter::playerStatus( $r->status ?? '' ),
                 (int)    ( $r->attendance_count ?? 0 ),
                 (int)    ( $r->minutes_total ?? 0 ),
                 $r->rating_avg !== null ? (float) $r->rating_avg : '',
