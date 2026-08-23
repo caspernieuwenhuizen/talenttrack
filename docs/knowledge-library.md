@@ -12,20 +12,30 @@ order: 75
 # Knowledge library
 
 The knowledge library holds courses for coach development. A course ships with
-the plugin as markdown, is read in the app, and — once the later waves of
+the plugin as markdown, is read in the app, tracks progress, gates lessons and
+— once the last wave of
 [epic #2641](https://github.com/caspernieuwenhuizen/talenttrack/issues/2641)
-land — tracks progress, gates lessons and rolls completion up per team.
+lands — rolls completion up per team.
 
-This page documents the corpus: what a course is on disk, and what the CI gate
-checks. The reader, the schema and the statistics are documented separately as
-they ship.
+This page documents the whole feature: what a course is on disk, how the reader
+gates it, how a lesson is checked, and how a practical assignment is handed in
+and reviewed.
 
 ## What ships today
 
-The content spine only: the corpus format, the parsers and the registry. There
-is no reader view, no progress tracking and no gating yet. The first course —
-*Periodiseren in voetbaltaal*, a Dutch trainerscursus on football
-periodisation — is in the tree and registers.
+Everything except the statistics roll-up (#2650):
+
+- the corpus format, the parsers and the registry
+- the ten interactive blocks
+- enrolment, progress and completion
+- the four gates — module, feature, licence tier, capability — plus sequential
+  unlock and course prerequisites
+- the reader: library, course, lesson and *My learning*
+- per-lesson quizzes, scored server-side
+- practical assignments, with a submission flow and a reviewer's queue
+
+The first course — *Periodiseren in voetbaltaal*, a Dutch trainerscursus on
+football periodisation — is in the tree and registers.
 
 ## The corpus
 
@@ -425,21 +435,135 @@ standing between a coach and their peers' completion rates.
 ### REST
 
 ```
-GET    /talenttrack/v1/courses                            catalogue + your state
-GET    /talenttrack/v1/courses/{slug}                      manifest + per-lesson state
-POST   /talenttrack/v1/courses/{slug}/enrolments           enrol self, or assign
-PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}    mark read, persist tool state
-DELETE /talenttrack/v1/enrolments/{id}                     withdraw
-GET    /talenttrack/v1/people/{id}/learning                one person's record
+GET    /talenttrack/v1/courses                              catalogue + your state
+GET    /talenttrack/v1/courses/{slug}                       manifest + per-lesson state
+POST   /talenttrack/v1/courses/{slug}/enrolments            enrol self, or assign
+PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     mark read, persist tool state
+POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  hand in an assignment
+GET    /talenttrack/v1/submissions                          your review queue
+PATCH  /talenttrack/v1/submissions/{id}                     record a verdict
+DELETE /talenttrack/v1/enrolments/{id}                      withdraw
+GET    /talenttrack/v1/people/{id}/learning                 one person's record
 ```
 
 Marking a lesson read enrols the reader on first touch — a separate enrol step
 before you can open lesson one is a step nobody would understand.
 
-Lesson bodies are deliberately not served yet. `/courses/{slug}/lessons/{lesson}`
-arrives with the reader (#2646), once the gate (#2645) can decide whether a
-given lesson is open; serving bodies before then would ship the unlocked
-version of a sequential course.
+A verdict is a `PATCH` on the submission rather than an `/approve` verb: the
+outcome is a field on a record, and modelling it as an action would need a
+second endpoint the day "unapprove" is wanted.
+
+## Assignments and review
+
+Every module of the periodisation course ends in a *praktijkopdracht* the coach
+runs with their own team. A quiz can establish that a coach knows 4v4 needs
+seventy-two hours; only a mentor reading a submitted twelve-week plan can
+establish that they built one. That is why completion needs a human, and why
+the review queue exists.
+
+### Handing in
+
+The lesson's `tt-assignment` block renders the assignment and, below it, the
+state of the coach's own work — nothing, awaiting review, changes requested, or
+the final verdict. It is a plain `<form method="post">`, so handing work in
+never depends on JavaScript.
+
+There is also a guided path at
+`?tt_view=wizard&tt_wizard=submit-assignment&slug={course}&lesson={lesson}`:
+write → attach → confirm. Both end in the same `SubmissionService` call.
+
+A resubmission is always a **new row**. The earlier attempt and the feedback on
+it stay intact — that history is the record of the coaching, and overwriting it
+would erase the reviewer's side of the conversation.
+
+### The four states
+
+| State | What the coach sees | Can they submit? |
+| --- | --- | --- |
+| nothing handed in | the assignment and a form | yes |
+| awaiting review | what they wrote, and that it is with a reviewer | no |
+| changes requested | the feedback, and the form again | yes |
+| approved / rejected | the verdict | no |
+
+A rejection does not reopen the form. Asking for changes is how a reviewer
+invites another attempt; collapsing the two would leave no way to say no and
+mean it.
+
+### Who reviews
+
+Mentorship first, capability second:
+
+1. the learner's mentor from `tt_staff_mentorships`, if they have one
+2. otherwise nobody — the submission stays unrouted and is visible to
+   **every** holder of `tt_manage_knowledge`
+
+Unrouted is a state, not a failure. Picking an arbitrary capability holder at
+submit time would look tidier in the column and would quietly make one person
+responsible for a queue nobody told them about.
+
+The reviewer is resolved **when the work is handed in** and written onto the
+row, never recomputed on read. A mentorship that ends mid-review must not make
+a submission vanish from the queue of the person already reading it.
+
+A holder of `tt_manage_knowledge` can rule on anything, including routed work —
+somebody has to be able to clear the queue when a mentor is away, and the row
+records who actually decided it.
+
+Note that a mentor holds no management capability. Gating the queue on one
+would hide it from exactly the people work is routed to, so the review surfaces
+gate on `ReviewerResolver::isReviewer()` instead — tile, cross-view link, view
+and REST route alike.
+
+### Feedback is mandatory unless you are approving
+
+Approving needs no justification. Asking for changes or turning work down does,
+and an empty one is refused rather than stored — an outcome without a reason is
+not review. Enforced in `SubmissionService`, so the form and the API agree.
+
+### What approval does
+
+Approval stamps `tt_course_progress.assignment_approved_at` and re-runs
+`CourseCompletionService::recalculate()`. Withdrawing an approval clears it and
+recalculates again, which can un-complete the course. Leaving the stamp in
+place would leave a certificate standing on work a reviewer has since retracted.
+
+### Attachments
+
+Documents only — PDF, Word, spreadsheet, OpenDocument or plain text. No
+photographs and no video.
+
+This is a safeguarding boundary rather than a preference. Attachments ride the
+media library (`tt_media_links` with `entity_type = 'course_submission'`), and
+a submission hangs off no player and no team — so an image attached to one
+would sit outside the consent, visibility and retention rules that govern
+player media, and a photograph taken at a training can hold minors. The
+assignments ask for written plans, so the narrow lane costs nothing.
+
+`MediaAttachmentPolicy` owns the decision. The uploader reads it — which is why
+it offers no camera here — and `create_media` re-checks the sniffed kind before
+anything is written, because `accept` is a hint to a file picker and not a gate.
+
+Who can open an attachment: the coach who handed it in, the reviewer it is
+routed to, and holders of `tt_manage_knowledge`. That is the one branch in
+`MediaVisibilityService` that is not a matrix scope, because a submission has
+no team behind it to scope against.
+
+### The review queue
+
+`?tt_view=submission-review`, oldest first — a queue ordered newest-first
+starves whoever handed in on a busy week. Each card shows the assignment text
+from the corpus above the submission, so a reviewer reading "I measured 4v4 at
+eleven minutes" knows what was asked.
+
+### The alert
+
+`knowledge.submission_awaiting_review` is a state-derived alert, not an event
+mail. The queue is a *state*: an alert says what is waiting now and resolves
+itself when the queue empties, where a "submission arrived" mail gives one
+notification per submission and no way to tell what is still outstanding.
+
+One occurrence per submission, so a five-deep queue reads as five things to do.
+`info` on arrival, ageing to `attention` after a week.
 
 ## The CI gate
 

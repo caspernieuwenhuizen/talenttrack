@@ -12,21 +12,29 @@ order: 75
 # Kennisbank
 
 De kennisbank bevat cursussen voor trainersontwikkeling. Een cursus wordt met
-de plug-in meegeleverd als markdown, wordt in de app gelezen en houdt — zodra
-de latere fases van
+de plug-in meegeleverd als markdown, wordt in de app gelezen, houdt voortgang
+bij, vergrendelt lessen en telt — zodra de laatste fase van
 [epic #2641](https://github.com/caspernieuwenhuizen/talenttrack/issues/2641)
-zijn opgeleverd — voortgang bij, vergrendelt lessen en telt afronding per team
-op.
+is opgeleverd — afronding per team op.
 
-Deze pagina beschrijft het corpus: wat een cursus op schijf is, en waar de
-CI-gate op controleert. De lezer, het schema en de statistieken worden
-gedocumenteerd zodra ze worden opgeleverd.
+Deze pagina beschrijft het geheel: wat een cursus op schijf is, hoe de lezer
+hem vergrendelt, hoe een les wordt getoetst, en hoe een praktijkopdracht wordt
+ingeleverd en beoordeeld.
 
 ## Wat er nu is
 
-Alleen de inhoudelijke basis: het corpusformaat, de parsers en het register. Er
-is nog geen leesweergave, geen voortgangsregistratie en geen vergrendeling. De
-eerste cursus — *Periodiseren in voetbaltaal*, een Nederlandstalige
+Alles behalve de statistiekrapportage (#2650):
+
+- het corpusformaat, de parsers en het register
+- de tien interactieve blokken
+- inschrijving, voortgang en afronding
+- de vier gates — module, functie, licentieniveau, rechten — plus opeenvolgende
+  ontgrendeling en cursusvereisten
+- de lezer: bibliotheek, cursus, les en *Mijn leerlijn*
+- toetsen per les, nagekeken op de server
+- praktijkopdrachten, met een inleverstroom en een beoordelingswachtrij
+
+De eerste cursus — *Periodiseren in voetbaltaal*, een Nederlandstalige
 trainerscursus over voetbalperiodisering — staat in de repository en
 registreert zich.
 
@@ -439,22 +447,144 @@ enige maken tussen een trainer en de cijfers van zijn collega's.
 ### REST
 
 ```
-GET    /talenttrack/v1/courses                            catalogus + jouw status
-GET    /talenttrack/v1/courses/{slug}                      manifest + status per les
-POST   /talenttrack/v1/courses/{slug}/enrolments           zelf inschrijven, of toewijzen
-PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}    gelezen markeren, tool-state bewaren
-DELETE /talenttrack/v1/enrolments/{id}                     uitschrijven
-GET    /talenttrack/v1/people/{id}/learning                het dossier van één persoon
+GET    /talenttrack/v1/courses                              catalogus + jouw status
+GET    /talenttrack/v1/courses/{slug}                       manifest + status per les
+POST   /talenttrack/v1/courses/{slug}/enrolments            zelf inschrijven, of toewijzen
+PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     gelezen markeren, tool-state bewaren
+POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  een opdracht inleveren
+GET    /talenttrack/v1/submissions                          jouw beoordelingswachtrij
+PATCH  /talenttrack/v1/submissions/{id}                     een oordeel vastleggen
+DELETE /talenttrack/v1/enrolments/{id}                      uitschrijven
+GET    /talenttrack/v1/people/{id}/learning                 het dossier van één persoon
 ```
 
 Een les als gelezen markeren schrijft de lezer bij de eerste aanraking in — een
 aparte inschrijfstap voordat je les één kunt openen is een stap die niemand zou
 begrijpen.
 
-Lesinhoud wordt bewust nog niet geserveerd.
-`/courses/{slug}/lessons/{lesson}` komt met de lezer (#2646), zodra de
-vergrendeling (#2645) kan bepalen of een les open is; inhoud daarvóór serveren
-zou de ontgrendelde versie van een opeenvolgende cursus opleveren.
+Een oordeel is een `PATCH` op de inzending en geen `/approve`-werkwoord: de
+uitkomst is een veld op een record, en het als actie modelleren zou een tweede
+endpoint vragen zodra iemand een goedkeuring wil intrekken.
+
+## Praktijkopdrachten en beoordeling
+
+Elke module van de periodiseringscursus eindigt in een praktijkopdracht die de
+trainer met zijn eigen team uitvoert. Een toets kan vaststellen dat een trainer
+wéét dat 4v4 tweeënzeventig uur nodig heeft; alleen een mentor die een
+ingeleverd twaalfwekenplan leest, kan vaststellen dat hij er één gemaakt heeft.
+Daarom heeft afronding een mens nodig, en daarom bestaat de wachtrij.
+
+### Inleveren
+
+Het `tt-assignment`-blok in de les toont de opdracht en daaronder de stand van
+het eigen werk — niets, in beoordeling, wijzigingen gevraagd, of het eindoordeel.
+Het is een gewoon `<form method="post">`, dus inleveren hangt nooit van
+JavaScript af.
+
+Er is ook een begeleide route op
+`?tt_view=wizard&tt_wizard=submit-assignment&slug={cursus}&lesson={les}`:
+schrijven → bijlagen → bevestigen. Beide eindigen in dezelfde aanroep van
+`SubmissionService`.
+
+Opnieuw inleveren maakt altijd een **nieuwe rij**. De eerdere poging en de
+feedback erop blijven staan — die geschiedenis ís het verslag van de
+begeleiding, en overschrijven zou de kant van de beoordelaar wissen.
+
+### De vier toestanden
+
+| Toestand | Wat de trainer ziet | Kan hij inleveren? |
+| --- | --- | --- |
+| niets ingeleverd | de opdracht en een formulier | ja |
+| in beoordeling | wat hij schreef, en dat het bij een beoordelaar ligt | nee |
+| wijzigingen gevraagd | de feedback, en opnieuw het formulier | ja |
+| goedgekeurd / afgewezen | het oordeel | nee |
+
+Een afwijzing opent het formulier niet opnieuw. Wijzigingen vragen is hoe een
+beoordelaar om een nieuwe poging vraagt; die twee samenvoegen zou geen manier
+overlaten om nee te zeggen en het te menen.
+
+### Wie beoordeelt
+
+Eerst mentorschap, dan rechten:
+
+1. de mentor van de leerling uit `tt_staff_mentorships`, als die er is
+2. anders niemand — de inzending blijft ongerouteerd en is zichtbaar voor
+   **iedere** houder van `tt_manage_knowledge`
+
+Ongerouteerd is een toestand, geen fout. Bij het inleveren willekeurig een
+rechthebbende aanwijzen ziet er in de kolom netter uit en maakt stilzwijgend
+iemand verantwoordelijk voor een wachtrij waarover niemand hem heeft
+ingelicht.
+
+De beoordelaar wordt bepaald **op het moment van inleveren** en op de rij
+vastgelegd, nooit opnieuw berekend bij het lezen. Een mentorschap dat halverwege
+eindigt mag een inzending niet laten verdwijnen uit de wachtrij van degene die
+hem al aan het lezen is.
+
+Een houder van `tt_manage_knowledge` mag over alles oordelen, ook over
+gerouteerd werk — iemand moet de wachtrij kunnen leegmaken als een mentor
+afwezig is, en de rij legt vast wie feitelijk besliste.
+
+Let op: een mentor heeft geen beheerrecht. De wachtrij op zo'n recht
+vergrendelen zou hem verbergen voor precies de mensen naar wie werk gerouteerd
+wordt, dus alle beoordelingsoppervlakken vergrendelen op
+`ReviewerResolver::isReviewer()` — tegel, doorverwijzing, weergave en
+REST-route.
+
+### Feedback is verplicht, behalve bij goedkeuren
+
+Goedkeuren hoeft niet onderbouwd. Wijzigingen vragen of werk afwijzen wél, en
+een lege onderbouwing wordt geweigerd in plaats van opgeslagen — een oordeel
+zonder reden is geen beoordeling. Afgedwongen in `SubmissionService`, zodat het
+formulier en de API hetzelfde zeggen.
+
+### Wat goedkeuren doet
+
+Goedkeuren zet `tt_course_progress.assignment_approved_at` en draait
+`CourseCompletionService::recalculate()` opnieuw. Een goedkeuring intrekken wist
+het veld en herberekent opnieuw, wat de cursus kan terugzetten naar onafgerond.
+Het veld laten staan zou een certificaat overeind laten op werk dat een
+beoordelaar inmiddels heeft ingetrokken.
+
+### Bijlagen
+
+Alleen documenten — PDF, Word, spreadsheet, OpenDocument of platte tekst. Geen
+foto's en geen video.
+
+Dat is een veiligheidsgrens en geen voorkeur. Bijlagen liften mee op de
+mediabibliotheek (`tt_media_links` met `entity_type = 'course_submission'`), en
+een inzending hangt aan geen enkele speler en geen enkel team — een afbeelding
+zou daardoor buiten de toestemmings-, zichtbaarheids- en bewaarregels vallen die
+spelermedia beheersen, en op een trainingsfoto kunnen minderjarigen staan. De
+opdrachten vragen om geschreven plannen, dus de smalle route kost niets.
+
+`MediaAttachmentPolicy` neemt die beslissing. De uploader leest hem — daarom
+biedt hij hier geen camera — en `create_media` controleert de vastgestelde soort
+opnieuw voordat er iets wordt weggeschreven, want `accept` is een hint aan een
+bestandskiezer en geen slot.
+
+Wie een bijlage mag openen: de trainer die hem inleverde, de beoordelaar naar
+wie hij gerouteerd is, en houders van `tt_manage_knowledge`. Dat is de enige tak
+in `MediaVisibilityService` die geen matrixbereik is, omdat een inzending geen
+team heeft om op te scopen.
+
+### De beoordelingswachtrij
+
+`?tt_view=submission-review`, oudste eerst — een wachtrij met de nieuwste
+bovenaan laat wie in een drukke week inleverde verhongeren. Elke kaart toont de
+opdrachttekst uit het corpus boven de inzending, zodat een beoordelaar die "ik
+mat 4v4 op elf minuten" leest weet wat er gevraagd was.
+
+### De melding
+
+`knowledge.submission_awaiting_review` is een toestandsmelding, geen
+gebeurtenismail. De wachtrij ís een *toestand*: een melding vertelt wat er nú
+ligt en lost zichzelf op zodra de wachtrij leeg is, waar een "er is iets
+ingeleverd"-mail één bericht per inzending geeft en geen beeld van wat er nog
+open staat.
+
+Eén melding per inzending, zodat een wachtrij van vijf ook als vijf dingen
+leest. `info` bij binnenkomst, oplopend naar `attention` na een week.
 
 ## De CI-gate
 
