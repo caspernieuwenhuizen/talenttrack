@@ -55,6 +55,15 @@ final class JourneyEventType {
      * Seeded as a lookup row by migration 0224.
      */
     public const TRAINING_OBSERVED    = 'training_observed';
+    /**
+     * #2707 — a coach's observation of a player in a match, written on the
+     * match analysis. The counterpart of TRAINING_OBSERVED, and separate
+     * from it on purpose: a player who is excellent on Tuesday and
+     * invisible on Saturday is exactly the pattern this system exists to
+     * surface, and one shared type would hide it.
+     * Seeded as a lookup row by migration 0230.
+     */
+    public const MATCH_OBSERVED       = 'match_observed';
 
     /** @var list<string> */
     public const ALL = [
@@ -74,6 +83,7 @@ final class JourneyEventType {
         self::NOTE_ADDED,
         self::GOAL_SET,
         self::TRAINING_OBSERVED,
+        self::MATCH_OBSERVED,
     ];
 
     public static function isValid( string $value ): bool {

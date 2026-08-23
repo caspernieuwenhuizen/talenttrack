@@ -289,6 +289,11 @@ final class CascadeRegistry {
                 [ 'tt_match_prep_player_goals', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_match_prep_roles', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_training_plan_run_blocks', 'run_id', 'tt_training_plan_runs', 'id', 'activity_id' ],
+                // #2704 — the analysis's sections and player items hang
+                // off the analysis by `analysis_id`, so they are removed
+                // ahead of it exactly like the match-prep children above.
+                [ 'tt_match_analysis_sections', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
+                [ 'tt_match_analysis_players', 'analysis_id', 'tt_match_analyses', 'id', 'activity_id' ],
             ],
             'cascade'      => [
                 [ 'tt_attendance', 'activity_id' ],
@@ -296,6 +301,7 @@ final class CascadeRegistry {
                 [ 'tt_activity_principles', 'activity_id' ],
                 [ 'tt_match_prep', 'activity_id' ],
                 [ 'tt_match_execution', 'activity_id' ],
+                [ 'tt_match_analyses', 'activity_id' ],
                 // A run means "this plan was executed at this activity" and
                 // is one-per-activity, so it cannot outlive it. Attendance
                 // cascades here too, which is what the training-exposure

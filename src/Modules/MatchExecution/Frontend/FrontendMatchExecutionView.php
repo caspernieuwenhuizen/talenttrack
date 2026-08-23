@@ -859,6 +859,28 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             <?php esc_html_e( 'Re-opening lets you correct the score, subs, goals or minutes. The change is logged.', 'talenttrack' ); ?>
                         </p>
                     <?php endif; ?>
+                    <?php
+                    // #2704 — the moment to write the match up is the moment
+                    // it ends, while the detail is still in mind. Offered in
+                    // both post-match states: a coach reviewing before
+                    // finalizing is already remembering the game.
+                    $analysis_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                        add_query_arg(
+                            [ 'tt_view' => 'match-analysis', 'activity_id' => $activity_id ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        )
+                    );
+                    \TT\Shared\Frontend\Components\CrossViewLink::render(
+                        'match-analysis',
+                        static function () use ( $analysis_url ) {
+                            printf(
+                                '<a class="tt-btn tt-btn-secondary tt-mexec-analysis-link" href="%s">%s</a>',
+                                esc_url( $analysis_url ),
+                                esc_html__( 'Write the match analysis', 'talenttrack' )
+                            );
+                        }
+                    );
+                    ?>
                 </section>
             <?php endif; ?>
 

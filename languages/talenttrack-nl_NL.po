@@ -52959,6 +52959,209 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Match analysis"
+msgstr "Wedstrijdanalyse"
+
+msgid "Back to Match analysis"
+msgstr "Terug naar Wedstrijdanalyse"
+
+msgid "Match analysis is restricted to coaches and admins."
+msgstr "Wedstrijdanalyse is alleen voor trainers en beheerders."
+
+msgid "Match analysis is switched off for this academy."
+msgstr "Wedstrijdanalyse staat uit voor deze academie."
+
+msgid "Open Match analysis from a match activity's detail page."
+msgstr "Open de wedstrijdanalyse vanaf de detailpagina van een wedstrijdactiviteit."
+
+msgid "A match analysis can only be written for a match activity."
+msgstr "Een wedstrijdanalyse kun je alleen schrijven bij een wedstrijdactiviteit."
+
+msgid "This match has not been played yet. The analysis opens once it has."
+msgstr "Deze wedstrijd is nog niet gespeeld. De analyse gaat daarna open."
+
+msgid "Shared staff document. It names players and what they were told; please do not forward it outside the staff."
+msgstr "Gedeeld stafdocument. Er staan namen van spelers in en wat hun is gezegd; stuur het niet buiten de staf door."
+
+msgid "This link is no longer valid"
+msgstr "Deze link is niet meer geldig"
+
+msgid "The analysis may have been removed, or the link may have been reissued. Ask the coach who shared it for a new one."
+msgstr "De analyse is misschien verwijderd, of de link is opnieuw uitgegeven. Vraag de trainer die hem deelde om een nieuwe."
+
+msgid "Away at %s"
+msgstr "Uit bij %s"
+
+msgid "Against %s"
+msgstr "Tegen %s"
+
+msgid "This match was not prepped or run in the app, so there is nothing to pre-fill. Write it from what you saw."
+msgstr "Deze wedstrijd is niet in de app voorbereid of gevolgd, dus er valt niets vooraf in te vullen. Schrijf op wat je zag."
+
+msgid "How did the match go, in a few sentences?"
+msgstr "Hoe ging de wedstrijd, in een paar zinnen?"
+
+msgid "Save analysis"
+msgstr "Analyse opslaan"
+
+msgid "Rating — %s"
+msgstr "Oordeel — %s"
+
+msgid "One short point…"
+msgstr "Eén kort punt…"
+
+msgid "%1$s — point %2$d"
+msgstr "%1$s — punt %2$d"
+
+msgid "Nobody is recorded as having played this match, so there is no roster to mark up. Record attendance or minutes first."
+msgstr "Er staat niemand geregistreerd als speler in deze wedstrijd, dus er is geen selectie om in te vullen. Leg eerst de aanwezigheid of de speelminuten vast."
+
+msgid "Everyone who played is listed. Leave a player untouched to say nothing about them — most rows usually stay empty."
+msgstr "Iedereen die gespeeld heeft staat in de lijst. Laat een speler ongemoeid om niets over hem te zeggen — de meeste regels blijven meestal leeg."
+
+msgid "%d'"
+msgstr "%d'"
+
+msgid "Asked to: %s"
+msgstr "Gevraagd om: %s"
+
+msgid "How did %s do?"
+msgstr "Hoe deed %s het?"
+
+msgid "Not mentioned"
+msgstr "Niet genoemd"
+
+msgid "What exactly did they do?"
+msgstr "Wat deed hij precies?"
+
+msgid "Which part of the game — %s"
+msgstr "Welk deel van het spel — %s"
+
+msgid "No particular phase"
+msgstr "Geen specifieke fase"
+
+msgid "Print or save as PDF"
+msgstr "Printen of opslaan als PDF"
+
+msgid "Open staff share link"
+msgstr "Stafdeellink openen"
+
+msgid "Revoke and reissue link"
+msgstr "Link intrekken en opnieuw uitgeven"
+
+msgid "The share link is for staff. It shows the player notes in full, and anyone holding it can read them until you reissue it."
+msgstr "De deellink is voor de staf. De spelersnotities staan er volledig in, en iedereen die de link heeft kan ze lezen totdat je hem opnieuw uitgeeft."
+
+msgid "Nothing has been written for this match yet."
+msgstr "Er is nog niets geschreven over deze wedstrijd."
+
+msgid "Reissue the share link? Everyone holding the current link loses access immediately."
+msgstr "De deellink opnieuw uitgeven? Iedereen die de huidige link heeft verliest direct de toegang."
+
+msgid "A new link has been issued. The previous one no longer works."
+msgstr "Er is een nieuwe link uitgegeven. De vorige werkt niet meer."
+
+msgid "The link could not be reissued. Try again."
+msgstr "De link kon niet opnieuw worden uitgegeven. Probeer het nog eens."
+
+msgid "Went well"
+msgstr "Ging goed"
+
+msgctxt "match analysis rating"
+msgid "Mixed"
+msgstr "Wisselend"
+
+msgid "Needs work"
+msgstr "Moet beter"
+
+msgctxt "match analysis section"
+msgid "Overall"
+msgstr "Algemeen"
+
+msgid "Stood out"
+msgstr "Sprong eruit"
+
+msgid "As expected"
+msgstr "Zoals verwacht"
+
+msgid "Below par"
+msgstr "Kwam tekort"
+
+msgid "Observed in a match"
+msgstr "Waargenomen in een wedstrijd"
+
+msgctxt "match observation timeline entry"
+msgid "%1$s — %2$s"
+msgstr "%1$s — %2$s"
+
+msgid "Log in to print this match analysis."
+msgstr "Log in om deze wedstrijdanalyse te printen."
+
+msgid "You do not have access to print this match analysis."
+msgstr "Je hebt geen toegang om deze wedstrijdanalyse te printen."
+
+msgid "Match analysis — print"
+msgstr "Wedstrijdanalyse — printen"
+
+msgid "The analysis could not be created."
+msgstr "De analyse kon niet worden aangemaakt."
+
+msgid "That is not a section of a match analysis."
+msgstr "Dat is geen onderdeel van een wedstrijdanalyse."
+
+msgid "Write the match analysis"
+msgstr "Wedstrijdanalyse schrijven"
+
+msgid "Open the match analysis"
+msgstr "Wedstrijdanalyse openen"
+
+msgid "The match"
+msgstr "De wedstrijd"
+
+msgid "Open the match analysis from a match activity's detail page."
+msgstr "Open de wedstrijdanalyse vanaf de detailpagina van een wedstrijdactiviteit."
+
+msgid "Skip anything you have nothing to say about — an empty section is a valid answer."
+msgstr "Sla over waar je niets over te zeggen hebt — een leeg onderdeel is een geldig antwoord."
+
+msgid "This analysis is not attached to a match. Open it from the match activity."
+msgstr "Deze analyse hangt niet aan een wedstrijd. Open hem vanaf de wedstrijdactiviteit."
+
+msgid "Leave a player untouched to say nothing about them — most rows usually stay empty."
+msgstr "Laat een speler ongemoeid om niets over hem te zeggen — de meeste regels blijven meestal leeg."
+
+msgid "Each of these lands on that player's own timeline, visible to staff."
+msgstr "Elk hiervan komt op de eigen tijdlijn van die speler te staan, zichtbaar voor de staf."
+
+msgid "Nothing has been written yet. Step back if you meant to say something; saving an empty analysis is allowed."
+msgstr "Er is nog niets geschreven. Ga terug als je toch iets wilde zeggen; een lege analyse opslaan mag."
+
+msgid "The analysis could not be saved. Open the match and try again."
+msgstr "De analyse kon niet worden opgeslagen. Open de wedstrijd en probeer het nog eens."
+
+msgid "Ours and theirs. If nothing came of them, leave it unrated and move on."
+msgstr "Die van ons en die van hen. Kwam er niets uit, laat het dan onbeoordeeld en ga door."
+
+msgid "Team functions"
+msgstr "Teamfuncties"
+
+msgid "Rate what you saw per phase and add the points worth remembering. Leave a phase unrated if there is nothing to say."
+msgstr "Beoordeel per fase wat je zag en noteer de punten die het onthouden waard zijn. Laat een fase onbeoordeeld als er niets over te zeggen valt."
+
+msgid "Post-match review per team function, plus who stood out and who fell short — on each player's timeline."
+msgstr "Nabespreking per teamfunctie, plus wie eruit sprong en wie tekortkwam — op de tijdlijn van elke speler."
+
+msgid "Match analysis share links"
+msgstr "Deellinks wedstrijdanalyse"
+
+msgid "Signed staff-only links to a match analysis. Writing and printing the analysis stay available when this is off."
+msgstr "Ondertekende links naar een wedstrijdanalyse, alleen voor de staf. De analyse schrijven en printen blijft mogelijk als dit uitstaat."
+
+msgid "Match analysis PDF export"
+msgstr "PDF-export wedstrijdanalyse"
+
+msgid "Allow a match analysis to be printed or saved as an A4 PDF. The analysis screen stays available when this is off."
+msgstr "Sta toe dat een wedstrijdanalyse als A4-PDF wordt geprint of opgeslagen. Het analysescherm blijft beschikbaar als dit uitstaat."
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
 

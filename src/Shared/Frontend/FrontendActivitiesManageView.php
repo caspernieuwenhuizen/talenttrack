@@ -228,6 +228,44 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             'href'  => $exec_url,
                         ];
                     }
+
+                    // #2704 — writing the match up. Only once it has been
+                    // played: an analysis before kick-off is a prediction.
+                    // Tournaments are excluded by the composer's own type
+                    // gate (a tournament day is several games, and one
+                    // analysis row per activity cannot say which), so the
+                    // action does not render there rather than rendering
+                    // and dead-ending — the failure #2686 describes.
+                    if ( \TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer::isReviewable( $session )
+                        && \TT\Shared\Frontend\Components\CrossViewLink::allows( 'match-analysis' ) ) {
+                        $has_analysis = ( new \TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository() )
+                            ->findByActivity( (int) $session->id );
+
+                        // An analysis that exists is edited in place; only
+                        // a first draft goes through the wizard.
+                        $flat_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                            add_query_arg(
+                                [
+                                    'tt_view'     => 'match-analysis',
+                                    'activity_id' => (int) $session->id,
+                                ],
+                                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                            )
+                        );
+
+                        $detail_actions[] = [
+                            'label' => $has_analysis
+                                ? __( 'Open the match analysis', 'talenttrack' )
+                                : __( 'Write the match analysis', 'talenttrack' ),
+                            'href'  => $has_analysis
+                                ? $flat_url
+                                : \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                                    'match-analysis',
+                                    $flat_url,
+                                    [ 'activity_id' => (int) $session->id ]
+                                ),
+                        ];
+                    }
                 }
                 // #2499 (epic #2493) — running a training plan. Trainings
                 // only: a match has match prep and the live-match surface,

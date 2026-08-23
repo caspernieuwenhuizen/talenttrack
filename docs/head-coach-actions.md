@@ -587,6 +587,29 @@ Each action lists:
 - **Surface today:** match activity edit → attendance + per-player minutes
 - **Player-centric framing:** *where now* + *where from* (cumulative load)
 - **Polish notes:**
+- **Shipped:**
+  - **v4.96.0** — the match itself can now be written up, not only
+    measured. **Write the match analysis** appears on a played match's
+    detail page and on the post-match sideline screen: an overall read,
+    then a rating plus short points per methodology team function
+    (Aanvallen / Omschakelen naar aanvallen / Verdedigen / Omschakelen
+    naar verdedigen) and set pieces, with what the match plan asked for
+    shown next to the matching phase. Below it the roster of everyone who
+    played, each optionally getting a marker (Stood out / As expected /
+    Below par) and one specific line — which lands on that player's own
+    timeline as *Observed in a match*. Print to A4, or hand the staff a
+    signed share link you can revoke at any time.
+    *How to test:* open a match activity whose date has passed →
+    **Write the match analysis** → walk the five wizard steps, rating two
+    phases and leaving the rest unrated, and marking two players →
+    Save. You land on the analysis page; reopen it from the activity and
+    confirm your text is there and that re-opening goes straight to the
+    page rather than back into the wizard. Open one marked player's
+    profile → the timeline shows your note, dated to the match. Clear
+    that note on the analysis and save → the timeline entry is gone.
+    Then **Open staff share link** in a private window (no login) → the
+    analysis reads back; **Revoke and reissue link** → reload the old
+    window and confirm it now says the link is no longer valid.
 
 ### 7. Update a player's PDP or close a goal
 

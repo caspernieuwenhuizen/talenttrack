@@ -11,6 +11,7 @@ use TT\Modules\DemoData\Generators\GoalGenerator;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\InjuryGenerator;
 use TT\Modules\DemoData\Generators\KnowledgeGenerator;
+use TT\Modules\DemoData\Generators\MatchAnalysisGenerator;
 use TT\Modules\DemoData\Generators\MatchDayGenerator;
 use TT\Modules\DemoData\Generators\MeasurementGenerator;
 use TT\Modules\DemoData\Generators\MediaGenerator;
@@ -368,6 +369,28 @@ class DemoCoverage {
             'category'    => 'match_day',
             'written_by'  => MatchDayGenerator::class,
             'depends_on'  => [ 'activity', 'match_prep' ],
+        ],
+        // #2704 — the post-match review. Its own category rather than part
+        // of `match_day`, because it runs after attendance and minutes
+        // exist: the roster it marks up is "who actually played", which the
+        // match-day generator has not finished writing when it runs.
+        'tt_match_analyses' => [
+            'entity_type' => 'match_analysis',
+            'category'    => 'match_analyses',
+            'written_by'  => MatchAnalysisGenerator::class,
+            'depends_on'  => [ 'activity' ],
+        ],
+        'tt_match_analysis_sections' => [
+            'entity_type' => 'match_analysis_section',
+            'category'    => 'match_analyses',
+            'written_by'  => MatchAnalysisGenerator::class,
+            'depends_on'  => [ 'match_analysis' ],
+        ],
+        'tt_match_analysis_players' => [
+            'entity_type' => 'match_analysis_player',
+            'category'    => 'match_analyses',
+            'written_by'  => MatchAnalysisGenerator::class,
+            'depends_on'  => [ 'match_analysis', 'player' ],
         ],
         'tt_match_execution_goal_events' => [
             'entity_type' => 'match_goal_event',
@@ -984,6 +1007,18 @@ class DemoCoverage {
         // the enrolment they hang off — progress, attempts and
         // submissions all key on `enrolment_id`, so deleting the
         // enrolment first would strand them.
+        // #2704 — 240, appended rather than inserted for the same reason
+        // every category above it was: the (seed, preset) fingerprint only
+        // reproduces while the generators ahead of a new one keep drawing
+        // the same values from the seeded stream. Runs late because it
+        // marks up who actually played, which needs attendance and minutes
+        // already written. Cascade removes the children first — a section
+        // or player item whose analysis is gone is unreachable.
+        'match_analyses' => [
+            'tier'      => 'dependent',
+            'run_order' => 240,
+            'cascade'   => [ 'match_analysis_player', 'match_analysis_section', 'match_analysis' ],
+        ],
         'knowledge' => [
             'tier'      => 'dependent',
             'run_order' => 230,

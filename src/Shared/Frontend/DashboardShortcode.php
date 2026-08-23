@@ -273,6 +273,21 @@ class DashboardShortcode {
             return (string) ob_get_clean();
         }
 
+        // #2709 — the match-analysis share link renders before the login
+        // guard for the same reason the invitation does: the signed token
+        // IS the credential, and the assistant coach it was sent to may
+        // have no account on this install. The view verifies the HMAC,
+        // honours the `match_analysis_sharing` feature toggle, and marks
+        // the page noindex; the coach can revoke every issued link from
+        // the analysis at any time.
+        if ( $tt_view_param === \TT\Modules\MatchAnalysis\Services\MatchAnalysisShareLink::VIEW_SLUG ) {
+            ob_start();
+            echo '<div class="tt-dashboard">';
+            \TT\Modules\MatchAnalysis\Frontend\FrontendMatchAnalysisView::renderShared();
+            echo '</div>';
+            return (string) ob_get_clean();
+        }
+
         // #1866 — branded password reset flow renders before the login
         // guard: a logged-out visitor resetting their password must reach
         // these screens. The secure key mechanics live in
@@ -1148,6 +1163,12 @@ class DashboardShortcode {
             // v3.110.216 (#847) — assistant coach live-match surface.
             case 'match-execution':
                 \TT\Modules\MatchExecution\Frontend\FrontendMatchExecutionView::render( $user_id, $is_admin );
+                return true;
+            // #2704 — the post-match analysis surface. Reachable for any
+            // match activity, prepped or not; the view itself refuses
+            // non-match types and matches that have not been played.
+            case 'match-analysis':
+                \TT\Modules\MatchAnalysis\Frontend\FrontendMatchAnalysisView::render( $user_id, $is_admin );
                 return true;
             // #1047 — listing surface for past match executions.
             case 'match-executions':

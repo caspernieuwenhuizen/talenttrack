@@ -61,6 +61,7 @@ jobs:
             "src/Modules/Wizards"
             "src/Modules/Tournaments/Wizard"
             "src/Modules/MatchPrep/Wizards"
+            "src/Modules/MatchAnalysis/Wizards"
             "src/Modules/Vct/Wizard"
             "src/Modules/Media/Wizard"
           )

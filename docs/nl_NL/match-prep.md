@@ -166,6 +166,10 @@ werkt.
   maar uitgeschakeld, met een tooltip die de datum noemt waarop hij
   vrijkomt ("Beschikbaar op wedstrijddag (14 jun)"). Zo wordt een
   wedstrijd niet per ongeluk te vroeg gestart.
-- Analist-feedback vastleggen — de camera-vlag markeert alleen wie er
-  is aangewezen; het vastleggen van de feedback zelf is een aparte
-  workflow.
+- De wedstrijd achteraf bespreken — dat is de **wedstrijdanalyse**, die
+  je vanaf dezelfde activiteit opent zodra de wedstrijd gespeeld is. Wat
+  je hier plant staat daar naast de bijbehorende fase, en de spelers die
+  je gemarkeerd hebt staan er met hun aandachtspunt bij, zodat de
+  bespreking antwoord geeft op wat je gevraagd hebt. De camera-vlag
+  markeert nog steeds alleen wie er als analist is aangewezen; wat die
+  analist zag hoort in de analyse.
