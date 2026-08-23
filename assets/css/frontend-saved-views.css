@@ -129,8 +129,14 @@
     gap: var(--tt-sp-2, 8px);
 }
 
-.tt-saved-views__save-form {
+/* #2793 — `:not([hidden])` because the browser's own `[hidden] { display:
+   none }` lives in the UA stylesheet, the weakest origin there is: a bare
+   `display: flex` here silently beat it, so the form SavedViews renders
+   collapsed was open on every list view. `flex-wrap` lets the row break
+   inside the viewport once it is open, rather than running off the side. */
+.tt-saved-views__save-form:not([hidden]) {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--tt-sp-2, 8px);
 }
