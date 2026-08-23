@@ -17,8 +17,16 @@ class DashboardUrlResolutionTest extends WP_UnitTestCase {
     /** @var int */
     private $page = 0;
 
+    /** @var string|null */
+    private $request_uri = null;
+
     public function set_up(): void {
         parent::set_up();
+
+        // Saved, not unset later: WordPress reads REQUEST_URI from
+        // add_query_arg()/remove_query_arg() and errors when it is absent,
+        // so leaving it missing breaks whichever test runs next.
+        $this->request_uri = $_SERVER['REQUEST_URI'] ?? null;
 
         $this->page = self::factory()->post->create( [
             'post_type'    => 'page',
@@ -28,6 +36,18 @@ class DashboardUrlResolutionTest extends WP_UnitTestCase {
         ] );
 
         QueryHelpers::set_config( 'dashboard_page_id', (string) $this->page );
+    }
+
+    public function tear_down(): void {
+        if ( $this->request_uri === null ) {
+            unset( $_SERVER['REQUEST_URI'] );
+        } else {
+            $_SERVER['REQUEST_URI'] = $this->request_uri;
+        }
+
+        remove_filter( 'wp_doing_cron', '__return_true' );
+
+        parent::tear_down();
     }
 
     public function test_the_dashboard_page_wins_over_the_site_root(): void {
@@ -94,7 +114,5 @@ class DashboardUrlResolutionTest extends WP_UnitTestCase {
         // that behaviour predates this change and is not being removed.
         $web_url = RecordLink::dashboardUrl();
         $this->assertStringContainsString( 'wp-cron.php', $web_url );
-
-        unset( $_SERVER['REQUEST_URI'] );
     }
 }
