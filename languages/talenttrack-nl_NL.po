@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T13:07:52+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:00:42+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6103,6 +6103,29 @@ msgstr[1] ""
 "%1$s wordt over %2$d dagen 18. De vastlegging van toestemming en "
 "overeenkomst moet worden bijgewerkt."
 
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:51
+msgid "Player has no team"
+msgstr "Speler zonder team"
+
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:55
+msgid ""
+"An active player belongs to no team. They have no attendance, no minutes, no "
+"coverage row and no head coach — the system cannot say where they are."
+msgstr ""
+"Een actieve speler hoort bij geen enkel team. Er is geen aanwezigheid, geen "
+"speelminuten, geen regel in de dekkingsrapportage en geen hoofdtrainer — het "
+"systeem kan niet zeggen waar hij staat."
+
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:68
+msgid "A player"
+msgstr "Een speler"
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:72
+#, php-format
+msgid "%s is active but belongs to no team."
+msgstr "%s is actief maar hoort bij geen enkel team."
+
 #: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:73
 msgid "Certificate expiring"
 msgstr "Certificaat verloopt"
@@ -6134,6 +6157,31 @@ msgid "Your %1$s certificate expires in %2$d day."
 msgid_plural "Your %1$s certificate expires in %2$d days."
 msgstr[0] "Je certificaat %1$s verloopt over %2$d dag."
 msgstr[1] "Je certificaat %1$s verloopt over %2$d dagen."
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:58
+msgid "Team has no head coach"
+msgstr "Team zonder hoofdtrainer"
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:62
+msgid ""
+"A team with players has nobody assigned as head coach. Most alerts go to the "
+"head coach, so a team without one quietly stops receiving any of them."
+msgstr ""
+"Een team met spelers heeft niemand als hoofdtrainer. De meeste meldingen "
+"gaan naar de hoofdtrainer, dus een team zonder hoofdtrainer krijgt er "
+"ongemerkt geen enkele meer."
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:89
+msgid "A team"
+msgstr "Een team"
+
+#. translators: 1: team name, 2: number of players in the squad
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:94
+#, php-format
+msgid "%1$s has %2$d player and no head coach."
+msgid_plural "%1$s has %2$d players and no head coach."
+msgstr[0] "%1$s heeft %2$d speler en geen hoofdtrainer."
+msgstr[1] "%1$s heeft %2$d spelers en geen hoofdtrainer."
 
 #: src/Modules/Alerts/Domain/Severity.php:51
 msgid "Urgent"
