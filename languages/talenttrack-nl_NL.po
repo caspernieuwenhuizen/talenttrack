@@ -54329,6 +54329,30 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php
+msgid ""
+"The academy holds the photographs and video listed below. The files "
+"themselves are not included in this export — ask the academy for them."
+msgstr ""
+"De academie bewaart de hieronder genoemde foto's en video's. De bestanden "
+"zelf zitten niet in deze export — vraag ze op bij de academie."
+
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php
+msgid ""
+"media.json lists the photographs and video held of this player. The files "
+"themselves are not included — request them from the academy."
+msgstr ""
+"media.json somt de foto's en video's op die van deze speler worden bewaard. "
+"De bestanden zelf zitten er niet bij — vraag ze op bij de academie."
+
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php
+msgid ""
+"Photographs and video are listed in media.json but are not included in this "
+"archive. Ask the academy for the files themselves."
+msgstr ""
+"Foto's en video's staan vermeld in media.json, maar zitten niet in dit "
+"archief. Vraag de bestanden zelf op bij de academie."
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 

@@ -37,7 +37,8 @@ final class PlayerDataMap {
      *   table: string,
      *   player_id_column: string,
      *   purpose: string,
-     *   owner_module: string
+     *   owner_module: string,
+     *   match: array<string, scalar>
      * }>
      *   Keyed by `table` so re-registration replaces (idempotent).
      */
@@ -57,12 +58,27 @@ final class PlayerDataMap {
      * @param string $owner_module     fully-qualified module class. Helps
      *                                 the audit log explain which
      *                                 sub-system added the registration.
+     * @param array<string, scalar> $match
+     *     Extra equality conditions narrowing the table to rows that are
+     *     really about a player, as `column => value`.
+     *
+     *     Needed by polymorphic tables (#2743). `tt_media_links` reaches a
+     *     player through `entity_id`, but that column is only a player id
+     *     when `entity_type = 'player'` — without the condition, counting
+     *     it would sweep in team and activity media belonging to entirely
+     *     different records.
+     *
+     *     Deliberately an array of equalities rather than a SQL fragment:
+     *     a fragment would be a string concatenated into a query by a
+     *     registry any module can call. Values are bound; column names are
+     *     whitelisted to `[a-z0-9_]`.
      */
     public static function register(
         string $table,
         string $player_id_column,
         string $purpose,
-        string $owner_module
+        string $owner_module,
+        array $match = []
     ): void {
         if ( $table === '' ) return;
         self::$registrations[ $table ] = [
@@ -70,11 +86,12 @@ final class PlayerDataMap {
             'player_id_column' => $player_id_column,
             'purpose'          => $purpose,
             'owner_module'     => $owner_module,
+            'match'            => $match,
         ];
     }
 
     /**
-     * @return array<int, array{table:string,player_id_column:string,purpose:string,owner_module:string}>
+     * @return array<int, array{table:string,player_id_column:string,purpose:string,owner_module:string,match:array<string,scalar>}>
      */
     public static function all(): array {
         return array_values( self::$registrations );
@@ -121,11 +138,39 @@ final class PlayerDataMap {
             $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
             if ( $exists !== $table ) continue;
 
+            // Same tolerance for the column. A registration naming a column
+            // the table does not have is a bug in the registration, but it
+            // is not this method's to raise: without the check it emits a
+            // WordPress database error on every call instead.
+            //
+            // `tt_eval_ratings` is registered against `player_id` and has
+            // no such column — it reaches a player through
+            // `tt_evaluations.player_id`. Tracked separately; the registry
+            // cannot express a join, so fixing it is a decision rather than
+            // a typo. (#2743 surfaced it: nothing called this before.)
             // safe: $table + $column whitelisted to [a-z0-9_]
-            $count = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = %d",
-                $player_id
+            $has_column = $wpdb->get_var( $wpdb->prepare(
+                "SHOW COLUMNS FROM `{$table}` LIKE %s",
+                $column
             ) );
+            if ( $has_column !== $column ) continue;
+
+            // A polymorphic table needs narrowing before its FK means what
+            // it looks like it means (#2743). Column names are whitelisted
+            // to [a-z0-9_]; values are bound.
+            $sql    = "SELECT COUNT(*) FROM `{$table}` WHERE `{$column}` = %d";
+            $params = [ $player_id ];
+
+            foreach ( (array) ( $reg['match'] ?? [] ) as $match_col => $match_val ) {
+                $match_col = preg_replace( '/[^a-z0-9_]/i', '', (string) $match_col );
+                if ( $match_col === '' || ! is_scalar( $match_val ) ) continue;
+
+                $sql     .= " AND `{$match_col}` = %s";
+                $params[] = (string) $match_val;
+            }
+
+            // safe: $table + every column whitelisted to [a-z0-9_]
+            $count = (int) $wpdb->get_var( $wpdb->prepare( $sql, $params ) );
 
             $out[] = [
                 'table'   => (string) $reg['table'],
