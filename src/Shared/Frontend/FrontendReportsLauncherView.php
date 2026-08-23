@@ -151,6 +151,29 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-player average rating and evaluation count over the last 6 months.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-squad-evaluation-summary' ], $base_url ),
             ],
+            // #2650 — the knowledge library's roll-up. Three lenses on one
+            // dataset rather than one page with tabs: a head of development
+            // chasing overdue courses and one asking whether the U13 staff
+            // are trained are doing different jobs, and a launcher tile each
+            // is how they find the right one.
+            [
+                'slug'  => 'learning-courses',
+                'label' => __( 'Learning · Course completion', 'talenttrack' ),
+                'desc'  => __( 'Per course: enrolled, in progress, completed, overdue, and the lesson readers stop at.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-courses' ], $base_url ),
+            ],
+            [
+                'slug'  => 'learning-people',
+                'label' => __( 'Learning · Per person', 'talenttrack' ),
+                'desc'  => __( 'Who is on what, how far they have got, and what is waiting on a reviewer.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-people' ], $base_url ),
+            ],
+            [
+                'slug'  => 'learning-teams',
+                'label' => __( 'Learning · Staff coverage per team', 'talenttrack' ),
+                'desc'  => __( 'How much of the staff around each squad has finished each course.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-teams' ], $base_url ),
+            ],
             [
                 'slug'  => 'season-summary',
                 'label' => __( 'Season summary — annual review', 'talenttrack' ),

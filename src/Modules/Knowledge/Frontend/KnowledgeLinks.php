@@ -40,6 +40,11 @@ final class KnowledgeLinks {
         ] );
     }
 
+    /** A coach's own learning record. */
+    public static function myLearning(): string {
+        return self::to( [ 'tt_view' => 'my-learning' ] );
+    }
+
     /**
      * The review queue.
      *

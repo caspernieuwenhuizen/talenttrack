@@ -8,6 +8,7 @@ use TT\Modules\Knowledge\CourseAccessResolver;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgePerson;
+use TT\Modules\Knowledge\LearningStatisticsService;
 use TT\Modules\Knowledge\LessonRenderer;
 use TT\Modules\Knowledge\Quiz\QuizPayload;
 use TT\Modules\Knowledge\Quiz\QuizScorer;
@@ -19,6 +20,7 @@ use TT\Modules\Knowledge\Repositories\SubmissionRepository;
 use TT\Modules\Knowledge\ReviewerResolver;
 use TT\Modules\Knowledge\SubmissionAttachments;
 use TT\Modules\Knowledge\SubmissionService;
+use TT\Modules\Knowledge\TeamCourseCoverage;
 use WP_REST_Request;
 
 /**
@@ -121,6 +123,28 @@ final class KnowledgeRestController {
             'callback'            => [ __CLASS__, 'review_submission' ],
             'permission_callback' => [ __CLASS__, 'can_review' ],
         ] );
+
+        // #2650 — the roll-up. Gated on the statistics capability, never on
+        // `tt_view_knowledge`: a coach reading their own progress is a
+        // different question, and `/people/{id}/learning` above already
+        // answers it for them.
+        register_rest_route( self::NS, '/knowledge/statistics', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'statistics' ],
+            'permission_callback' => [ __CLASS__, 'can_view_statistics' ],
+        ] );
+
+        register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/statistics', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'course_statistics' ],
+            'permission_callback' => [ __CLASS__, 'can_view_statistics' ],
+        ] );
+
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/learning', [
+            'methods'             => 'GET',
+            'callback'            => [ __CLASS__, 'team_learning' ],
+            'permission_callback' => [ __CLASS__, 'can_view_statistics' ],
+        ] );
     }
 
     /* ===== permission gates ===== */
@@ -131,6 +155,18 @@ final class KnowledgeRestController {
 
     public static function can_manage(): bool {
         return current_user_can( 'tt_manage_knowledge' );
+    }
+
+    /**
+     * The roll-up gate (#2650).
+     *
+     * The middle of the three visibility levels, and the one that has to
+     * hold in the API rather than only in the UI: a coach who may see their
+     * own record must not be able to read the academy's completion rates by
+     * calling the endpoint the report calls.
+     */
+    public static function can_view_statistics(): bool {
+        return current_user_can( 'tt_view_knowledge_statistics' );
     }
 
     /**
@@ -812,6 +848,91 @@ final class KnowledgeRestController {
             default:
                 return RestResponse::error( 'review_failed', __( 'That decision could not be recorded.', 'talenttrack' ), 500 );
         }
+    }
+
+    /* ===== statistics (#2650) ===== */
+
+    /**
+     * Every course's roll-up, plus the per-person table.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function statistics( WP_REST_Request $r ) {
+        $service = new LearningStatisticsService();
+
+        return RestResponse::success( [
+            'courses' => $service->forAllCourses(),
+            'people'  => $service->forEveryone(),
+        ] );
+    }
+
+    /**
+     * One course, with its drop-off and its per-team coverage.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function course_statistics( WP_REST_Request $r ) {
+        $slug = (string) $r['slug'];
+
+        if ( CourseRegistry::get( $slug ) === null ) {
+            return RestResponse::notFound( 'course_not_found', __( 'That course does not exist.', 'talenttrack' ) );
+        }
+
+        $service = new LearningStatisticsService();
+
+        return RestResponse::success( array_merge(
+            $service->forCourse( $slug ),
+            [
+                'drop_off' => $service->dropOffFor( $slug ),
+                'teams'    => $service->forTeams( $slug ),
+            ]
+        ) );
+    }
+
+    /**
+     * One team's staff, and whether they have finished a course.
+     *
+     * `course` narrows to one; without it every course this install ships is
+     * reported, because "is my staff trained" is rarely about one course when
+     * a club runs several.
+     *
+     * @return \WP_REST_Response
+     */
+    public static function team_learning( WP_REST_Request $r ) {
+        $team_id = (int) $r['id'];
+        $slug    = sanitize_key( (string) $r->get_param( 'course' ) );
+
+        if ( $slug !== '' ) {
+            if ( CourseRegistry::get( $slug ) === null ) {
+                return RestResponse::notFound( 'course_not_found', __( 'That course does not exist.', 'talenttrack' ) );
+            }
+
+            return RestResponse::success( [
+                'team_id' => $team_id,
+                'courses' => [ self::shapeTeamCourse( $team_id, $slug ) ],
+            ] );
+        }
+
+        $out = [];
+        foreach ( CourseRegistry::all() as $course_slug => $manifest ) {
+            $out[] = self::shapeTeamCourse( $team_id, (string) $course_slug );
+        }
+
+        return RestResponse::success( [ 'team_id' => $team_id, 'courses' => $out ] );
+    }
+
+    /** @return array<string, mixed> */
+    private static function shapeTeamCourse( int $team_id, string $slug ): array {
+        $manifest = CourseRegistry::get( $slug );
+        $summary  = TeamCourseCoverage::summaryFor( $team_id, $slug );
+
+        return [
+            'course_slug' => $slug,
+            'title'       => $manifest !== null ? $manifest->title() : $slug,
+            'done'        => $summary['done'],
+            'total'       => $summary['total'],
+            'staff'       => TeamCourseCoverage::forTeam( $team_id, $slug ),
+        ];
     }
 
     /**

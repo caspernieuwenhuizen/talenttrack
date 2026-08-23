@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\ExplorerUrl;
+use TT\Modules\Knowledge\Frontend\LearningReports;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\MinutesBreakdown;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -45,6 +46,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         'coach-evaluation-quality'     => 'Coach · Evaluation quality',
         // #1369 — wp-admin "Player Progress & Radar" ported native.
         'player-progress-radar'        => 'Player · Progress & radar',
+        // #2650 — knowledge-library completion. Three lenses on one dataset;
+        // the aggregation is LearningStatisticsService's, the tables are
+        // Knowledge\Frontend\LearningReports'.
+        'learning-courses'             => 'Learning · Course completion',
+        'learning-people'              => 'Learning · Per person',
+        'learning-teams'               => 'Learning · Staff coverage per team',
     ];
 
     /**
@@ -118,6 +125,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( $slug === 'coach-evaluation-quality' && $action === 'export_csv' ) {
             self::streamCoachEvalQualityCsv();
         }
+        if ( $slug === 'learning-courses' && $action === 'export_csv' ) {
+            self::streamLearningCoursesCsv();
+        }
         if ( ! array_key_exists( $slug, self::REPORTS ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Standard report', 'talenttrack' ),
@@ -141,7 +151,91 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'scout-report-card':            self::renderScoutReportCard(); break;
             case 'coach-evaluation-quality':     self::renderCoachEvaluationQuality(); break;
             case 'player-progress-radar':        self::renderPlayerProgressRadar(); break;
+            case 'learning-courses':             self::renderLearningCourses(); break;
+            case 'learning-people':              self::renderLearningPeople(); break;
+            case 'learning-teams':               self::renderLearningTeams(); break;
         }
+    }
+
+    /* ===== learning reports (#2650) ===== */
+
+    /**
+     * The three learning lenses.
+     *
+     * Chrome here, body in `Knowledge\Frontend\LearningReports` — the surface
+     * stays consistent with its siblings without this file growing another
+     * four hundred lines of a module's markup.
+     *
+     * No Explore link: the dimension explorer has no learning dimensions, and
+     * an action that opens an explorer which cannot answer the question is
+     * worse than no action.
+     */
+    private static function renderLearningCourses(): void {
+        self::renderPageHead(
+            __( 'Learning · Course completion', 'talenttrack' ),
+            __( 'Where each course stands, and the lesson readers stop at.', 'talenttrack' ),
+            '',
+            add_query_arg(
+                [ 'tt_view' => 'standard-report', 'slug' => 'learning-courses', 'action' => 'export_csv' ],
+                RecordLink::dashboardUrl()
+            )
+        );
+
+        LearningReports::renderCourseOverview( get_current_user_id() );
+    }
+
+    private static function renderLearningPeople(): void {
+        self::renderPageHead(
+            __( 'Learning · Per person', 'talenttrack' ),
+            __( 'Who is on what, how far they have got, and what is waiting on a reviewer.', 'talenttrack' ),
+            ''
+        );
+
+        LearningReports::renderPeople( get_current_user_id() );
+    }
+
+    private static function renderLearningTeams(): void {
+        self::renderPageHead(
+            __( 'Learning · Staff coverage per team', 'talenttrack' ),
+            __( 'How much of the staff around each squad has finished each course.', 'talenttrack' ),
+            ''
+        );
+
+        LearningReports::renderTeams( get_current_user_id() );
+    }
+
+    /**
+     * CSV of the per-course roll-up.
+     *
+     * Gated on the statistics capability, not on `tt_view_reports`: the
+     * export is the same data as the table, and a coach who may only see
+     * their own record must not be able to download everyone's by adding a
+     * query argument.
+     */
+    private static function streamLearningCoursesCsv(): void {
+        if ( ! LearningReports::canSeeEveryone( get_current_user_id() ) ) {
+            wp_die(
+                esc_html__( 'You do not have permission to export learning statistics.', 'talenttrack' ),
+                '',
+                [ 'response' => 403 ]
+            );
+        }
+
+        [ $header, $rows ] = LearningReports::exportCourseRows();
+
+        nocache_headers();
+        header( 'Content-Type: text/csv; charset=utf-8' );
+        header( 'Content-Disposition: attachment; filename="learning-courses.csv"' );
+
+        $out = fopen( 'php://output', 'w' );
+        if ( $out === false ) exit;
+
+        fputcsv( $out, $header );
+        foreach ( $rows as $row ) {
+            fputcsv( $out, $row );
+        }
+        fclose( $out );
+        exit;
     }
 
     /**

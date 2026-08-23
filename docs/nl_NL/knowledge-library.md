@@ -731,6 +731,79 @@ bestaande inschrijving blijft precies zoals hij was, deadline inbegrepen —
 iemands deadline wijzigen is een andere beslissing dan iemand een cursus
 toewijzen.
 
+## De statistiekrapportage
+
+Drie invalshoeken in de Reports-module (#2650), bereikbaar via de
+rapportagelauncher en `?tt_view=standard-report&slug=learning-…`:
+
+| Slug | Beantwoordt |
+| --- | --- |
+| `learning-courses` | Per cursus: ingeschreven, niet begonnen, bezig, afgerond, te laat, mediaan aantal dagen, en de les waar lezers stoppen |
+| `learning-people` | Per persoon: cursussen, percentage afgerond, te laat, in beoordeling, laatste activiteit |
+| `learning-teams` | Per team, per cursus: hoeveel van de staf rond die selectie klaar is |
+
+Gebouwd als standaardrapportages en niet als eigen pagina, zodat ze de
+launcher, de aan/uit-schakelaar per rapportage, de paginakop en de
+`.tt-rep-*`-stijlen erven. De chrome zit in `FrontendStandardReportsView`; de
+tabellen in `Knowledge\Frontend\LearningReports`, wat de opmaak van een module
+buiten een gedeeld bestand van 1.500 regels houdt zonder dat het oppervlak
+afwijkt.
+
+Alle aggregatie zit in `LearningStatisticsService` (§4) — één gegroepeerde
+query per vraag, nooit één per rij. Rapportage en REST kunnen het daardoor
+niet oneens zijn over wat "afgerond" betekent.
+
+### Waar lezers vastlopen
+
+`dropOffFor()` zoekt de les met de grootste terugval in lezers ten opzichte van
+de vorige. Het is het enige getal op de rapportage dat iets zegt over de
+**cursus** in plaats van over de mensen die hem volgen: een les waar de helft
+van de groep stopt is meestal slecht geschreven, verkeerd geplaatst, of vraagt
+iets wat de lezer nog niet kan. Afrondingspercentages laten dat nooit zien, en
+daarom heeft het een eigen kolom met uitleg eronder.
+
+### Drie niveaus van zichtbaarheid
+
+| Ziet | Recht |
+| --- | --- |
+| Alleen het eigen dossier | `tt_view_knowledge` |
+| Dat van iedereen | `tt_view_knowledge_statistics` |
+| Toewijzen en achter mensen aan | `tt_manage_knowledge` |
+
+Afgedwongen in de REST-`permission_callback` en niet door een kolom te
+verbergen — een trainer die zijn eigen voortgang mag zien, mag de
+afrondingscijfers van de academie niet kunnen ophalen via hetzelfde endpoint
+dat de rapportage gebruikt. De CSV-export hangt op hetzelfde recht.
+
+Een trainer zonder het statistiekrecht krijgt **zijn eigen dossier te zien**,
+geen weigering. Eigen inzage is een niveau, geen gebrek eraan.
+
+### REST
+
+```
+GET /talenttrack/v1/knowledge/statistics         alle cursussen + de tabel per persoon
+GET /talenttrack/v1/courses/{slug}/statistics    één cursus, terugval en teamdekking
+GET /talenttrack/v1/teams/{id}/learning          de staf van één team, per cursus
+```
+
+`/teams/{id}/learning` accepteert een optionele `course` om tot één cursus te
+beperken; zonder die parameter worden alle meegeleverde cursussen
+gerapporteerd, want "is mijn staf opgeleid" gaat zelden over één cursus zodra
+een club er meerdere draait.
+
+### Presentatie
+
+Status is een chip met een **woord** naast een kleur — "3 te laat", "Allemaal
+opgeleid", "nog 2" — zodat de tabel leesbaar blijft voor wie rood en groen niet
+uit elkaar houdt. Alleen semantische kleuren, los van het moduleaccent. Een
+schone rij toont een gedempte nul in plaats van een groene chip, zodat de rij
+die aandacht vraagt ook de rij is die opvalt. Getalkolommen staan op
+`tabular-nums`; tabellen scrollen binnen `.tt-table-wrap`, zodat de pagina zelf
+nooit zijwaarts schuift.
+
+De export vertaalt waarden naar mensentaal (#2012): "Nog niemand afgerond" in
+plaats van een lege cel, lestitels in plaats van slugs.
+
 ## Paginabreedte
 
 De lezer is een grid van drie kolommen (#2737). Lopende tekst staat in de
