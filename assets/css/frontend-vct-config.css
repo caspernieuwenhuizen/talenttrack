@@ -254,11 +254,14 @@
     border-top: 1px dashed #e5e7ea;
     padding-top: 8px;
 }
+/* #2801 — 48px, not 36. This selector outranks the shared
+   `.tt-dashboard summary` floor in public.css, so the component has to
+   carry the floor itself rather than have it applied from outside. */
 .tt-dashboard .tt-vct-block-advanced summary {
     cursor: pointer;
     font-size: 0.85rem;
     color: #5b6e75;
-    min-height: 36px;
+    min-height: 48px;
     display: flex;
     align-items: center;
     touch-action: manipulation;

@@ -1047,6 +1047,17 @@ input[type="checkbox"], input[type="radio"] {
         height: 24px;
     }
     .tt-checkbox-label { min-height: 48px; }
+
+    /* #2801 — a `summary` is the control that opens its `details`, and no
+       rule in assets/css sized one: they measured 19.5-36px tall across
+       nine surfaces, the dashboard's own tile-group headers among them.
+       Height comes from padding rather than `display: flex` so the
+       browser keeps rendering the disclosure triangle — changing `display`
+       away from `list-item` drops the marker. */
+    .tt-dashboard summary {
+        min-height: 48px;
+        padding-block: 12px;
+    }
 }
 
 /* #0056 — Safe-area insets on fixed surfaces (iOS notch / home bar). */
