@@ -12,6 +12,8 @@
 >
 > **Two have since been closed in code** (2026-08-23): there is no longer a default endpoint — nothing is sent until this install declares where photographs go — and the extraction prompt now keeps player names out of free-text fields. Prerequisite 7 is only *partly* closed; read its residual risk before signing.
 >
+> **Corrected 2026-08-23, second pass:** this document briefly claimed the `exercises_vision_extraction` feature flag was off on a default install and leaned on that as a safeguard. It is **on** by default. The claim was wrong, it was written here during the audit that was supposed to remove exactly this kind of error, and it also reached the v4.96.0 release notes. Nothing about the install's actual safety changed — a fresh install still sends nothing, because it has declared no destination — but the reason is the destination gate, not the flag.
+>
 > The correction that prompted all of this: the previous version said photographs routed to an EU-resident endpoint by default and that leaving EU residency required a deliberate opt-out. Neither was true.
 
 This template captures the Data Protection Impact Assessment for the photo-capture flow. Each section has space for the deploying academy's specifics; the technical defaults actually shipped are pre-filled where applicable. Print, complete, sign, retain — that's the operator's record of due diligence.
@@ -74,7 +76,9 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 [Saved session — tt_activities + tt_activity_exercises]
 ```
 
-**Access gate**: the endpoint refuses every request unless the `exercises_vision_extraction` feature flag is switched on **and** the caller holds `tt_edit_activities`. On a default install the flag is off, so the feature cannot process anything until an operator deliberately enables it. (`VisionExtractRestController::register()`)
+**Access gate**: the endpoint refuses every request unless the `exercises_vision_extraction` feature flag is on **and** the caller holds `tt_edit_activities` (`VisionExtractRestController::register()`).
+
+⚠️ **That flag is on by default** (`FeatureRegistry`: `'default_enabled' => true`). An earlier version of this document said the opposite and treated the flag as the thing standing between a fresh install and processing. It is not. **The gate that actually stops a default install from sending anything is the destination declaration below** — no endpoint and no region means nothing leaves, whatever the flag says. An academy that wants a second, deliberate switch should turn the feature off explicitly rather than assume it starts that way.
 
 **Data residency — the operator declares it, and nothing is sent until they do.**
 
@@ -108,7 +112,7 @@ The OpenAI provider is shipped as a stub and flagged DPIA-incompatible for EU cl
 | Structured extraction text | Indefinite (joined to the saved session) | Persists in `tt_activity_exercises` as part of the session record. Subject to the academy's overall retention policy. |
 | Provider-side input data | Per the operator's contract with the provider | Validate against the current contract; see § 2. |
 
-Operator can disable photo capture entirely via `define( 'TT_VISION_PROVIDER', '' );` in `wp-config.php`, or by switching off the `exercises_vision_extraction` feature — which is the state a default install is already in. The manual session-edit flow is unaffected either way.
+Operator can disable photo capture entirely via `define( 'TT_VISION_PROVIDER', '' );` in `wp-config.php`, or by switching off the `exercises_vision_extraction` feature — which is **on** by default, so switching it off is an action to take rather than a state to rely on. Simply not configuring the two destination constants already means nothing is sent. The manual session-edit flow is unaffected either way.
 
 ## 4. Lawful basis
 
@@ -150,7 +154,7 @@ Pick at most two; document why.
 | A queued photo lingers on a lost or shared device | Unknown until #2502 lands | Medium | Prerequisite 2 — the offline queue's retention is undecided. |
 | A player's name is transcribed into free-text notes and then cannot be found | Reduced but not removed — the plan and the attendance markings are often the same sheet | Medium | The extraction prompt instructs the model to keep names in the structured `attendance` array, where they stay attached to a player, and out of every free-text field. **This is an instruction to a model, not an enforcement**: a server-side strip against the squad was considered and not built, so a transcribed name still reaches a column no export or erasure can see. Prerequisite 7 — accept knowingly or revisit. |
 | API key leak | Low (constant in wp-config) | High | Document key rotation procedure; never commit `wp-config.php` to git. |
-| The feature is enabled before this document is signed | Low | High | The `exercises_vision_extraction` feature flag is off on a default install and the endpoint returns 403 until it is switched on. Treat switching it on as the act this signature authorises. |
+| The feature is used before this document is signed | Low | High | **Not** because the feature flag is off — it is on by default. Because a fresh install has declared no destination, so the endpoint answers `503` and sends nothing. Treat *declaring the destination* as the act this signature authorises, and switch `exercises_vision_extraction` off explicitly if you want a second lock. |
 
 ## 8. Annual review
 
@@ -187,7 +191,7 @@ define( 'TT_VISION_ENDPOINT',    'https://…' );          // where photographs 
 define( 'TT_VISION_DATA_REGION', 'EU (Frankfurt)' );     // where that endpoint processes them
 ```
 
-The feature also requires the `exercises_vision_extraction` flag to be switched on; it is off by default. **Both gates must be passed deliberately**: switching the flag on without declaring a destination sends nothing and answers `503 destination_not_declared`.
+The feature also requires the `exercises_vision_extraction` flag to be on — **and it is on by default**, so it is not a barrier a fresh install has to cross. The barrier is the pair of constants above: without them the endpoint answers `503 destination_not_declared` and nothing is sent, whatever the flag says.
 
 `TT_VISION_DATA_REGION` is free text on purpose. A dropdown would invite picking the nearest-looking option; writing the words out is a small act of attention, and the string is what § 2 of this document records.
 
