@@ -44,6 +44,39 @@ het hoofd opleidingen. Jouw team gebruikt hem hoe dan ook.
 
 Je kunt een oefening ook op **Alleen ikzelf** zetten zolang je er nog aan werkt.
 
+## De bibliotheek classificeren
+
+Een oefening zonder principes wordt **nooit voorgesteld door de generator**, en
+de tijd die eraan besteed wordt **telt niet mee voor wat je spelers geleerd
+hebben**. Allebei die gevolgen zijn onzichtbaar vanuit de lijst, en juist daarom
+blijft een ongeclassificeerde bibliotheek dat meestal.
+
+Zodra er oefeningen wachten, zegt de bibliotheek hoeveel het er zijn en biedt
+**Classificeren** aan. Dat scherm draait om één handeling: **vink meerdere
+oefeningen aan, kies de principes die ze trainen, pas in één keer toe.** Een
+geclassificeerde oefening heeft er ongeveer acht, dus dit één voor één doen zijn
+honderden losse keren opslaan — een hele categorie selecteren en in één keer
+toepassen is het verschil tussen een middag en veertien dagen.
+
+Het scherm is gegroepeerd op categorie, omdat oefeningen van dezelfde soort
+meestal dezelfde principes trainen. Met **Alles hierboven selecteren** pak je een
+hele groep tegelijk.
+
+| Keuze | Wat het doet |
+| --- | --- |
+| Toevoegen aan wat ze al hebben | Laat bestaande principes staan. De veilige standaard voor bulk. |
+| Vervangen wat ze hebben | Wist en zet opnieuw. Alleen voor de methodiek waarin je werkt — principes van een andere methodiek blijven onaangeroerd. |
+| Geen van toepassing | Markeert de oefening als bekeken, zonder principes. |
+
+**"Geen van toepassing" is wat je in staat stelt klaar te komen.** Warming-ups,
+cooling-downs en conditieoefeningen horen meestal geen tactisch principe te
+dragen — een warming-up traint niet het opbouwen vanaf de keeper. Door ze te
+markeren blijven ze uit de lijst, zodat de teller echt naar nul gaat in plaats
+van je eeuwig dezelfde warming-ups te laten zien.
+
+Het scherm noemt de methodiek waaraan het koppelt. Heeft jouw academie er
+meerdere, dan worden principes aan de actieve gekoppeld.
+
 ## Een oefening clubbreed maken
 
 Ben je hoofd opleidingen of academy-beheerder, dan toont de bibliotheek het

@@ -44,6 +44,38 @@ of development. Your team keeps using it either way.
 
 You can also mark a drill **Only me** if it is a work in progress.
 
+## Classifying the library
+
+An exercise with no principles is **never suggested by the generator**, and time
+spent on it **does not count towards what your players have been taught**. Both
+consequences are invisible from the library list, which is why an unclassified
+library tends to stay that way.
+
+When exercises are waiting, the library says how many and offers **Classify
+them**. That screen is built around one action: **tick several exercises, choose
+the principles they train, apply once.** A classified exercise carries around
+eight principles, so doing this one at a time is hundreds of separate saves —
+selecting a whole category and applying in one go is the difference between an
+afternoon and a fortnight.
+
+The screen is grouped by category, because exercises of a kind usually train the
+same principles. **Select all shown** takes a whole group at once.
+
+| Choice | What it does |
+| --- | --- |
+| Add to what they already have | Leaves existing principles alone. The safe default for bulk. |
+| Replace what they have | Clears and sets. Only for the methodology you are working in — another methodology's principles are never touched. |
+| None apply | Marks the exercise as looked at, with no principles. |
+
+**"None apply" is the one that lets you finish.** Warm-ups, cool-downs and
+conditioning drills mostly should not carry a tactical principle — a warm-up
+does not train building up from the goalkeeper. Marking them keeps them out of
+the list, so the count actually reaches zero instead of showing the same
+warm-ups forever.
+
+The screen names the methodology it is writing to. If your academy has more than
+one, principles are tagged against the active one.
+
 ## Making an exercise club-wide
 
 If you are the head of development or an academy admin, the library shows an
