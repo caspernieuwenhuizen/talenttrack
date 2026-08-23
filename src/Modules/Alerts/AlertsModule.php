@@ -25,6 +25,7 @@ use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
 use TT\Modules\Alerts\Definitions\TeamWithoutHeadCoachAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
+use TT\Modules\Alerts\Invalidation\AlertInvalidationBuffer;
 use TT\Modules\Alerts\Frontend\AlertBell;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
@@ -92,6 +93,11 @@ final class AlertsModule implements ModuleInterface {
         // so the destination can follow where the count came from.
         AlertBell::init();
         AlertEscalationCron::init();
+        // #2731 — the sweep is no longer the only thing that reconciles.
+        // Domain events name what changed, and the narrowed re-evaluation
+        // runs on `shutdown`, so a fixed condition clears on the render the
+        // user is already about to see rather than within the hour.
+        AlertInvalidationBuffer::init();
     }
 
     /**

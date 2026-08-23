@@ -99,6 +99,18 @@ final class EvaluationInserter {
             ] );
         }
 
+        /**
+         * #2731 — the wizard's writer never fired this, so an evaluation
+         * created here was invisible to everything listening: the workflow
+         * templates subscribed to it, and now the alerts engine. Same class
+         * of gap as the REST activity path that #24 fixed — one writer
+         * announcing itself and its sibling staying quiet.
+         *
+         * Documented in `docs/hooks-and-filters.md`; args match the REST
+         * controller's (player first, evaluation second).
+         */
+        do_action( 'tt_evaluation_saved', $player_id, $eval_id );
+
         return $eval_id;
     }
 
@@ -174,6 +186,9 @@ final class EvaluationInserter {
                 ] );
             }
         }
+
+        /** This event documented on {@see self::insert()}. */
+        do_action( 'tt_evaluation_saved', $player_id, $eval_id );
 
         return $eval_id;
     }

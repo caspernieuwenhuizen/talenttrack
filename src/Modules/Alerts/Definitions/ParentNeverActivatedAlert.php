@@ -72,7 +72,7 @@ final class ParentNeverActivatedAlert extends AbstractPlayerAlert {
         return 'tt_send_invitation';
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 

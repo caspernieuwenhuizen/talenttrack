@@ -40,6 +40,10 @@ abstract class AbstractActivityAlert implements AlertInterface {
         return 'activities';
     }
 
+    public function subjectType(): string {
+        return static::SUBJECT_TYPE;
+    }
+
     /**
      * Fixing any of these means editing the activity, so that is the
      * capability that gates receipt.

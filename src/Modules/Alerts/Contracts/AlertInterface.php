@@ -68,6 +68,21 @@ interface AlertInterface {
     public function description(): string;
 
     /**
+     * The kind of record this alert's occurrences are about — `activity`,
+     * `player`, `evaluation`, `team`, and so on. Written to `subject_type`
+     * on every occurrence the definition produces.
+     *
+     * #2731 promoted this from a per-definition convention to part of the
+     * contract. Event-driven invalidation dispatches on it: a save that
+     * touched activity 41 re-runs the definitions whose subject is an
+     * activity and leaves the rest alone. A definition whose evaluate()
+     * writes one type here and another into its occurrences would have its
+     * rows resolved by a run that never looked at them, so the two must
+     * agree — see `AlertEvaluator::runForSubject()`.
+     */
+    public function subjectType(): string;
+
+    /**
      * Severity when the condition first appears. A definition may return a
      * higher severity per occurrence from `evaluate()` — typically ageing
      * an occurrence up — and the reconcile recomputes it every run.

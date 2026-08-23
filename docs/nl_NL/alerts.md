@@ -127,11 +127,13 @@ Hoofden Opleiding en beheerders krijgen **niet** voor elk team een melding. Meld
 
 Je krijgt bovendien alleen meldingen over records die je mag zien. Dat wordt elk uur opnieuw gecontroleerd, dus een trainer die van team wisselt krijgt de meldingen van dat team vanzelf niet meer.
 
-## Waarom een melding soms een uur blijft staan
+## Wanneer een melding verdwijnt
 
-TalentTrack controleert elke situatie één keer per uur, op de achtergrond. Dat is een bewuste keuze: alles controleren tijdens het laden van je dashboard zou inloggen voor iedereen trager maken, en bij elk nieuw meldingstype nog trager.
+Los je op waar de melding over gaat, dan is hij weg zodra je opslaat. Rond de activiteit af, noteer de aanwezigheid, koppel de hoofdtrainer — op het volgende scherm staat hij er niet meer. Je hoeft niets te bevestigen en er is geen knop "afgehandeld": de melding was alleen een beschrijving van je gegevens, en die beschrijving klopt niet meer.
 
-Rond je om 10:15 een activiteit af, dan kan de melding er tot de volgende controle nog staan. Hij verdwijnt vanzelf. Je hoeft niets te doen, en je kunt het ook niet versnellen.
+Daarnaast draait er elk uur een controle op de achtergrond. Dat is het vangnet, en het is het enige dat merkt dat een situatie is ontstaan doordat er tijd verstreken is in plaats van doordat iemand iets opsloeg — een certificaat dat zijn vervaldatum nadert, een uitnodiging waar twee weken niets mee gebeurt, een training waarvan de aanwezigheid te lang openstaat. Die verschijnen binnen het uur, niet direct.
+
+Alleen bij een grote wijziging in één keer — spelers importeren, een seizoen omzetten — laat TalentTrack het opnieuw tellen bewust aan die uurcontrole over, in plaats van er honderden uit te voeren terwijl jij op de pagina wacht.
 
 ## Kiezen welke meldingen je ziet
 
@@ -167,7 +169,7 @@ Twee instellingen die alleen een beheerder kan zetten:
 
 Verder:
 
-- Meldingen worden bijgewerkt door een achtergrondtaak die elk uur draait. Verschijnt er nooit iets, controleer dan of de geplande taken van WordPress op deze site werken.
+- Meldingen worden bijgewerkt zodra het onderliggende record wordt opgeslagen, en daarnaast door een achtergrondtaak die elk uur draait. Verschijnt er nooit iets, controleer dan of de geplande taken van WordPress op deze site werken — die uurtaak vangt alles op wat waar wordt doordat er tijd verstrijkt.
 - Bij een nieuwe installatie draait de controle direct bij activering, zodat het dashboard meteen een kloppend beeld toont.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`.
 

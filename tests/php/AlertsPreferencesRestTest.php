@@ -260,6 +260,7 @@ final class AlertsPreferencesRestTest extends WP_UnitTestCase {
             public function __construct( array $occ ) { $this->occ = $occ; }
             public function key(): string { return AlertsPreferencesRestTest::KEY; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'REST stub'; }
             public function description(): string { return 'Stub for REST tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }
