@@ -73,7 +73,7 @@ Boven het raster staan drie exportknoppen:
 - **Toon per dag** — Tijd · Locatie · Duur · Wedstrijddetails · Thema/titel · Principes · Notities · Rustdagen tonen. Duur en Principes staan standaard **uit**; Notities staat **aan**. Vink ze per afdruk aan of uit.
 - **Kop** — Academienaam · Genereerdatum.
 
-Met **Pdf openen** opent het afdrukklare overzicht in een nieuw tabblad; gebruik **Opslaan als pdf** (of Afdrukken) van je browser om het te downloaden. Zet "Achtergrondafbeeldingen" aan in het afdrukvenster zodat de groene dagkaarten en gekleurde labels meekomen. De voorgestelde bestandsnaam volgt de titel — `Weekplan - {team} - Week {n} - {jaar}`.
+Met **Pdf openen** opent het afdrukklare overzicht in een nieuw tabblad; gebruik **Opslaan als pdf** (of Afdrukken) van je browser om het te downloaden. Zet "Achtergrondafbeeldingen" aan in het afdrukvenster zodat de groene dagkaarten en gekleurde labels meekomen. De voorgestelde bestandsnaam volgt de titel — `Weekplan - {team} - Week {n} - {jaar}`. Het overzicht bepaalt zelf de paginamarges, dus je browser zet er geen eigen kop- of voetregel meer bij: geen webadres onderaan en geen titel-/datumregel bovenaan. Laat **Marges** in het afdrukvenster op *Standaard* staan voor de exacte indeling.
 
 De PDF gebruikt het **huidige datumbereik** van de planner (stel dit eerst in met de vensterkiezer). De branding komt uit **Configuratie → branding** (primaire/secundaire kleur, academienaam, logo) — geen hardgecodeerde kleuren.
 
