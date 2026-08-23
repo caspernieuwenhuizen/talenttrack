@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T12:48:16+00:00\n"
+"POT-Creation-Date: 2026-08-23T13:18:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -3298,88 +3298,88 @@ msgid "Could not schedule the test."
 msgstr ""
 
 #: src/Infrastructure/REST/MediaRestController.php:197
-#: src/Infrastructure/REST/MediaRestController.php:424
+#: src/Infrastructure/REST/MediaRestController.php:466
 msgid "Provide a valid entity_type and entity_id."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:250
+#: src/Infrastructure/REST/MediaRestController.php:284
 msgid "Provide a valid entity_type and entity_id to attach the media to."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:303
+#: src/Infrastructure/REST/MediaRestController.php:337
 msgid "The media item could not be saved."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:374
+#: src/Infrastructure/REST/MediaRestController.php:416
 msgid "The capture date could not be understood."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:383
+#: src/Infrastructure/REST/MediaRestController.php:425
 msgid "No editable fields were provided."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:408
+#: src/Infrastructure/REST/MediaRestController.php:450
 msgid "The media item could not be removed."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:442
+#: src/Infrastructure/REST/MediaRestController.php:484
 msgid "The media item could not be attached."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:456
-#: src/Infrastructure/REST/MediaRestController.php:558
+#: src/Infrastructure/REST/MediaRestController.php:498
+#: src/Infrastructure/REST/MediaRestController.php:600
 msgid "That attachment was not found."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:533
+#: src/Infrastructure/REST/MediaRestController.php:575
 msgid "That could not be put back in the queue."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:537
+#: src/Infrastructure/REST/MediaRestController.php:579
 msgid "Provide decision=keep or decision=release."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:544
+#: src/Infrastructure/REST/MediaRestController.php:586
 msgid ""
 "Give a reason for keeping this. Without one the exception cannot be audited."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:551
+#: src/Infrastructure/REST/MediaRestController.php:593
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:192
 msgid "That could not be saved."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:571
+#: src/Infrastructure/REST/MediaRestController.php:613
 msgid ""
 "That does not look like a video address. Paste the web address of the video "
 "as it appears in your browser."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:604
+#: src/Infrastructure/REST/MediaRestController.php:646
 msgid ""
 "No file was received. Attach a file, or provide external_url for a video "
 "hosted elsewhere."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:670
+#: src/Infrastructure/REST/MediaRestController.php:712
 msgid "Media item not found."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:674
+#: src/Infrastructure/REST/MediaRestController.php:716
 msgid "You do not have permission to do that."
 msgstr ""
 
 #. translators: %s is the server's maximum upload size.
-#: src/Infrastructure/REST/MediaRestController.php:732
+#: src/Infrastructure/REST/MediaRestController.php:774
 #, php-format
 msgid "That file is larger than this server accepts (%s)."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:737
+#: src/Infrastructure/REST/MediaRestController.php:779
 msgid "The upload did not finish. Check your connection and try again."
 msgstr ""
 
-#: src/Infrastructure/REST/MediaRestController.php:739
+#: src/Infrastructure/REST/MediaRestController.php:781
 msgid "The file could not be uploaded."
 msgstr ""
 
@@ -15120,7 +15120,7 @@ msgid "Name and save"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/Components/MediaGallery.php:288
+#: src/Shared/Frontend/Components/MediaGallery.php:325
 #: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr "Siguiente"
@@ -18265,7 +18265,7 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:238
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
-#: src/Shared/Frontend/Components/MediaGallery.php:194
+#: src/Shared/Frontend/Components/MediaGallery.php:231
 #: src/Shared/Frontend/Components/MediaUploader.php:171
 #: src/Shared/Frontend/DashboardShortcode.php:243
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3426
@@ -19130,7 +19130,7 @@ msgstr "Imprimir"
 #: src/Shared/Frontend/Components/FilterBar.php:119
 #: src/Shared/Frontend/Components/FilterBar.php:358
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/Components/MediaGallery.php:289
+#: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:208
 #: src/Shared/Frontend/DashboardShortcode.php:2134
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:119
@@ -24611,7 +24611,7 @@ msgid "this training"
 msgstr ""
 
 #: src/Modules/Media/Wizard/NewMediaWizard.php:49
-#: src/Shared/Frontend/Components/MediaGallery.php:79
+#: src/Shared/Frontend/Components/MediaGallery.php:99
 msgid "Add media"
 msgstr ""
 
@@ -31426,7 +31426,7 @@ msgid "WordPress user to link"
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:291
-#: src/Shared/Frontend/Components/MediaGallery.php:338
+#: src/Shared/Frontend/Components/MediaGallery.php:375
 msgid "Link"
 msgstr ""
 
@@ -33919,6 +33919,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:191
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
+#: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:172
 #: src/Shared/Frontend/DashboardShortcode.php:206
 #: src/Shared/Frontend/DashboardShortcode.php:2139
@@ -35882,7 +35883,7 @@ msgstr ""
 
 #. translators: %s is the title of the photo or video.
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:41
-#: src/Shared/Frontend/Components/MediaGallery.php:190
+#: src/Shared/Frontend/Components/MediaGallery.php:227
 #, php-format
 msgid "Remove %s"
 msgstr ""
@@ -41761,56 +41762,68 @@ msgid ""
 "against this activity only."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:77
+#: src/Shared/Frontend/Components/MediaGallery.php:97
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1977
 msgid "No photos or video yet"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:226
-#: src/Shared/Frontend/Components/MediaGallery.php:367
+#: src/Shared/Frontend/Components/MediaGallery.php:121
+msgid "Show more"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaGallery.php:263
+#: src/Shared/Frontend/Components/MediaGallery.php:404
 msgid "Tag players"
 msgstr ""
 
 #. translators: %d is how many players are tagged in this photo or video.
-#: src/Shared/Frontend/Components/MediaGallery.php:229
+#: src/Shared/Frontend/Components/MediaGallery.php:266
 #, php-format
 msgid "%d player tagged"
 msgid_plural "%d players tagged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:283
+#: src/Shared/Frontend/Components/MediaGallery.php:320
 msgid "Media viewer"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:286
+#: src/Shared/Frontend/Components/MediaGallery.php:323
 msgid "Previous"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:296
+#: src/Shared/Frontend/Components/MediaGallery.php:333
 msgid "Add photos or video"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:364
+#: src/Shared/Frontend/Components/MediaGallery.php:401
 msgid "Remove this permanently? The file is deleted, not archived."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:365
+#: src/Shared/Frontend/Components/MediaGallery.php:402
 msgid "It could not be removed."
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:366
+#: src/Shared/Frontend/Components/MediaGallery.php:403
 msgid "That tag could not be saved."
 msgstr ""
 
 #. translators: %d is how many players are tagged.
-#: src/Shared/Frontend/Components/MediaGallery.php:369
+#: src/Shared/Frontend/Components/MediaGallery.php:406
 #, php-format
 msgid "%d players tagged"
 msgstr ""
 
-#: src/Shared/Frontend/Components/MediaGallery.php:370
+#: src/Shared/Frontend/Components/MediaGallery.php:407
 msgid "1 player tagged"
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaGallery.php:409
+msgid "More photos and video loaded."
+msgstr ""
+
+#: src/Shared/Frontend/Components/MediaGallery.php:410
+msgid "Could not load more. Try again."
 msgstr ""
 
 #: src/Shared/Frontend/Components/MediaUploader.php:85

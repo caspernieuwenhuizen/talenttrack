@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T12:48:16+00:00\n"
+"POT-Creation-Date: 2026-08-23T13:18:25+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3491,61 +3491,61 @@ msgid "Could not schedule the test."
 msgstr "De test kon niet worden ingepland."
 
 #: src/Infrastructure/REST/MediaRestController.php:197
-#: src/Infrastructure/REST/MediaRestController.php:424
+#: src/Infrastructure/REST/MediaRestController.php:466
 msgid "Provide a valid entity_type and entity_id."
 msgstr "Geef een geldige entity_type en entity_id op."
 
-#: src/Infrastructure/REST/MediaRestController.php:250
+#: src/Infrastructure/REST/MediaRestController.php:284
 msgid "Provide a valid entity_type and entity_id to attach the media to."
 msgstr ""
 "Geef een geldige entity_type en entity_id op om het bestand aan te koppelen."
 
-#: src/Infrastructure/REST/MediaRestController.php:303
+#: src/Infrastructure/REST/MediaRestController.php:337
 msgid "The media item could not be saved."
 msgstr "Het media-item kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MediaRestController.php:374
+#: src/Infrastructure/REST/MediaRestController.php:416
 msgid "The capture date could not be understood."
 msgstr "De opnamedatum kon niet worden gelezen."
 
-#: src/Infrastructure/REST/MediaRestController.php:383
+#: src/Infrastructure/REST/MediaRestController.php:425
 msgid "No editable fields were provided."
 msgstr "Er zijn geen te wijzigen velden meegegeven."
 
-#: src/Infrastructure/REST/MediaRestController.php:408
+#: src/Infrastructure/REST/MediaRestController.php:450
 msgid "The media item could not be removed."
 msgstr "Het media-item kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/MediaRestController.php:442
+#: src/Infrastructure/REST/MediaRestController.php:484
 msgid "The media item could not be attached."
 msgstr "Het media-item kon niet worden gekoppeld."
 
-#: src/Infrastructure/REST/MediaRestController.php:456
-#: src/Infrastructure/REST/MediaRestController.php:558
+#: src/Infrastructure/REST/MediaRestController.php:498
+#: src/Infrastructure/REST/MediaRestController.php:600
 msgid "That attachment was not found."
 msgstr "Die koppeling is niet gevonden."
 
-#: src/Infrastructure/REST/MediaRestController.php:533
+#: src/Infrastructure/REST/MediaRestController.php:575
 msgid "That could not be put back in the queue."
 msgstr "Dat kon niet terug in de wachtrij worden gezet."
 
-#: src/Infrastructure/REST/MediaRestController.php:537
+#: src/Infrastructure/REST/MediaRestController.php:579
 msgid "Provide decision=keep or decision=release."
 msgstr "Geef decision=keep of decision=release op."
 
-#: src/Infrastructure/REST/MediaRestController.php:544
+#: src/Infrastructure/REST/MediaRestController.php:586
 msgid ""
 "Give a reason for keeping this. Without one the exception cannot be audited."
 msgstr ""
 "Geef een reden om dit te bewaren. Zonder reden is de uitzondering niet te "
 "controleren."
 
-#: src/Infrastructure/REST/MediaRestController.php:551
+#: src/Infrastructure/REST/MediaRestController.php:593
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:192
 msgid "That could not be saved."
 msgstr "Dat kon niet worden opgeslagen."
 
-#: src/Infrastructure/REST/MediaRestController.php:571
+#: src/Infrastructure/REST/MediaRestController.php:613
 msgid ""
 "That does not look like a video address. Paste the web address of the video "
 "as it appears in your browser."
@@ -3553,7 +3553,7 @@ msgstr ""
 "Dat lijkt geen videoadres. Plak het webadres van de video zoals het in je "
 "browser staat."
 
-#: src/Infrastructure/REST/MediaRestController.php:604
+#: src/Infrastructure/REST/MediaRestController.php:646
 msgid ""
 "No file was received. Attach a file, or provide external_url for a video "
 "hosted elsewhere."
@@ -3561,26 +3561,26 @@ msgstr ""
 "Er is geen bestand ontvangen. Voeg een bestand toe, of geef external_url op "
 "voor video die ergens anders staat."
 
-#: src/Infrastructure/REST/MediaRestController.php:670
+#: src/Infrastructure/REST/MediaRestController.php:712
 msgid "Media item not found."
 msgstr "Media-item niet gevonden."
 
-#: src/Infrastructure/REST/MediaRestController.php:674
+#: src/Infrastructure/REST/MediaRestController.php:716
 msgid "You do not have permission to do that."
 msgstr "Je hebt geen rechten om dat te doen."
 
 #. translators: %s is the server's maximum upload size.
-#: src/Infrastructure/REST/MediaRestController.php:732
+#: src/Infrastructure/REST/MediaRestController.php:774
 #, php-format
 msgid "That file is larger than this server accepts (%s)."
 msgstr "Dat bestand is groter dan deze server accepteert (%s)."
 
-#: src/Infrastructure/REST/MediaRestController.php:737
+#: src/Infrastructure/REST/MediaRestController.php:779
 msgid "The upload did not finish. Check your connection and try again."
 msgstr ""
 "De upload is niet afgerond. Controleer je verbinding en probeer het opnieuw."
 
-#: src/Infrastructure/REST/MediaRestController.php:739
+#: src/Infrastructure/REST/MediaRestController.php:781
 msgid "The file could not be uploaded."
 msgstr "Het bestand kon niet worden geüpload."
 
@@ -16318,7 +16318,7 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/Components/MediaGallery.php:288
+#: src/Shared/Frontend/Components/MediaGallery.php:325
 #: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr "Volgende"
@@ -19774,7 +19774,7 @@ msgstr "Dupliceren"
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:238
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
-#: src/Shared/Frontend/Components/MediaGallery.php:194
+#: src/Shared/Frontend/Components/MediaGallery.php:231
 #: src/Shared/Frontend/Components/MediaUploader.php:171
 #: src/Shared/Frontend/DashboardShortcode.php:243
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3426
@@ -20662,7 +20662,7 @@ msgstr "Printen"
 #: src/Shared/Frontend/Components/FilterBar.php:119
 #: src/Shared/Frontend/Components/FilterBar.php:358
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/Components/MediaGallery.php:289
+#: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:208
 #: src/Shared/Frontend/DashboardShortcode.php:2134
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:119
@@ -26475,7 +26475,7 @@ msgid "this training"
 msgstr "deze training"
 
 #: src/Modules/Media/Wizard/NewMediaWizard.php:49
-#: src/Shared/Frontend/Components/MediaGallery.php:79
+#: src/Shared/Frontend/Components/MediaGallery.php:99
 msgid "Add media"
 msgstr "Media toevoegen"
 
@@ -33782,7 +33782,7 @@ msgid "WordPress user to link"
 msgstr "Te koppelen WordPress-gebruiker"
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:291
-#: src/Shared/Frontend/Components/MediaGallery.php:338
+#: src/Shared/Frontend/Components/MediaGallery.php:375
 msgid "Link"
 msgstr "Koppelen"
 
@@ -36408,6 +36408,7 @@ msgstr "Gekoppelde spelers"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:191
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:67
 #: src/Shared/Frontend/Components/FrontendListTable.php:177
+#: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:172
 #: src/Shared/Frontend/DashboardShortcode.php:206
 #: src/Shared/Frontend/DashboardShortcode.php:2139
@@ -38502,7 +38503,7 @@ msgstr "Kies minstens één speler voor de selectie."
 
 #. translators: %s is the title of the photo or video.
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:41
-#: src/Shared/Frontend/Components/MediaGallery.php:190
+#: src/Shared/Frontend/Components/MediaGallery.php:227
 #, php-format
 msgid "Remove %s"
 msgstr "%s verwijderen"
@@ -44898,57 +44899,69 @@ msgstr ""
 "Geen TalentTrack-record nodig. Vul de basisgegevens in; de gast wordt alleen "
 "bij deze activiteit geregistreerd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:77
+#: src/Shared/Frontend/Components/MediaGallery.php:97
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1977
 msgid "No photos or video yet"
 msgstr "Nog geen foto's of video"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:226
-#: src/Shared/Frontend/Components/MediaGallery.php:367
+#: src/Shared/Frontend/Components/MediaGallery.php:121
+msgid "Show more"
+msgstr "Meer tonen"
+
+#: src/Shared/Frontend/Components/MediaGallery.php:263
+#: src/Shared/Frontend/Components/MediaGallery.php:404
 msgid "Tag players"
 msgstr "Spelers taggen"
 
 #. translators: %d is how many players are tagged in this photo or video.
-#: src/Shared/Frontend/Components/MediaGallery.php:229
+#: src/Shared/Frontend/Components/MediaGallery.php:266
 #, php-format
 msgid "%d player tagged"
 msgid_plural "%d players tagged"
 msgstr[0] "%d speler getagd"
 msgstr[1] "%d spelers getagd"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:283
+#: src/Shared/Frontend/Components/MediaGallery.php:320
 msgid "Media viewer"
 msgstr "Mediaweergave"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:286
+#: src/Shared/Frontend/Components/MediaGallery.php:323
 msgid "Previous"
 msgstr "Vorige"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:296
+#: src/Shared/Frontend/Components/MediaGallery.php:333
 msgid "Add photos or video"
 msgstr "Foto's of video toevoegen"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:364
+#: src/Shared/Frontend/Components/MediaGallery.php:401
 msgid "Remove this permanently? The file is deleted, not archived."
 msgstr "Definitief verwijderen? Het bestand wordt gewist, niet gearchiveerd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:365
+#: src/Shared/Frontend/Components/MediaGallery.php:402
 msgid "It could not be removed."
 msgstr "Het kon niet worden verwijderd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:366
+#: src/Shared/Frontend/Components/MediaGallery.php:403
 msgid "That tag could not be saved."
 msgstr "Die tag kon niet worden opgeslagen."
 
 #. translators: %d is how many players are tagged.
-#: src/Shared/Frontend/Components/MediaGallery.php:369
+#: src/Shared/Frontend/Components/MediaGallery.php:406
 #, php-format
 msgid "%d players tagged"
 msgstr "%d spelers getagd"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:370
+#: src/Shared/Frontend/Components/MediaGallery.php:407
 msgid "1 player tagged"
 msgstr "1 speler getagd"
+
+#: src/Shared/Frontend/Components/MediaGallery.php:409
+msgid "More photos and video loaded."
+msgstr "Meer foto's en video's geladen."
+
+#: src/Shared/Frontend/Components/MediaGallery.php:410
+msgid "Could not load more. Try again."
+msgstr "Meer laden lukte niet. Probeer het opnieuw."
 
 #: src/Shared/Frontend/Components/MediaUploader.php:85
 msgid "Choose a document"
@@ -54354,18 +54367,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "Show more"
-msgstr "Meer tonen"
-
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "More photos and video loaded."
-msgstr "Meer foto's en video's geladen."
-
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "Could not load more. Try again."
-msgstr "Meer laden lukte niet. Probeer het opnieuw."
 
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
