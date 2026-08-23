@@ -357,14 +357,32 @@ administrator decides where photographs are sent to be read, and that choice is
 written into the setup rather than assumed — until it has been made, this screen
 refuses to open and says so. Player names are not copied into notes.
 
-If you have no signal, nothing is sent and the screen says so. Try again when
-you are back in range.
+If you have no signal, nothing is sent and the screen says so.
+
+### Out of range
+
+The photo is kept on your phone and read as soon as you are back in range —
+you do not have to retake it. It waits through a reload and a browser restart,
+and the screen tells you how many are waiting. So does the training plans page,
+if you have walked away from the camera in the meantime.
+
+When the connection returns, the photo is read and you land on the same
+checking step as always. **No plan is ever created without you** — the promise
+that nothing is saved until you press **Concept aanmaken** holds for a photo
+that waited exactly as it does for one taken with full signal.
+
+A photo that waits stays on the phone and nowhere else. It is deleted as soon
+as it has been read and checked, and **after seven days it is deleted whether
+or not it was read** — the screen tells you when that has happened, so you know
+to photograph the sheet again rather than discovering the training missing weeks
+later.
+
+Opening the page still needs signal. It is the photograph that can wait, not
+the app.
 
 ## What is not here yet
 
 Still to come:
 
-- holding a photograph on the phone while you are out of range, so it reads
-  itself when you get back — today you retake it
 - photographing a whiteboard rather than a sheet of paper, which needs a
   different kind of reading

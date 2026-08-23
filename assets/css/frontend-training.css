@@ -218,3 +218,15 @@
     margin-top: var(--tt-sp-3, 12px);
     font-size: var(--tt-fs-sm, 0.85rem);
 }
+
+/* #2735 — a photo held on this phone, surfaced on the list because that is
+   where a coach who walked away from the camera comes back to. The whole
+   banner is the link: a coach reading "a photo is waiting" wants to get to
+   it, not to hunt for a word inside the sentence that happens to be one. */
+.tt-training-photo-pending {
+    display: block;
+    min-height: 48px;
+    text-decoration: none;
+}
+
+.tt-training-photo-pending[hidden] { display: none; }
