@@ -69,6 +69,10 @@ final class GenericCascadeDeleter {
             $n = $this->countPoly( $table, $type_col, $id_col, $type_val, $ids );
             if ( $n > 0 ) $removals[] = [ 'table' => $table, 'count' => $n ];
         }
+        foreach ( (array) ( $plan['cascade_poly_via'] ?? [] ) as [ $table, $type_col, $id_col, $type_val, $owner, $opk, $ofk, $parent, $ppk, $pref ] ) {
+            $n = $this->countPolyVia( $table, $type_col, $id_col, $type_val, $owner, $opk, $ofk, $parent, $ppk, $pref, $ids );
+            if ( $n > 0 ) $removals[] = [ 'table' => $table, 'count' => $n ];
+        }
         if ( ! empty( $plan['threads'] ) ) {
             $n = $this->countThreads( (string) $plan['threads'], $ids );
             if ( $n > 0 ) $removals[] = [ 'table' => 'tt_thread_messages', 'count' => $n ];
@@ -136,6 +140,23 @@ final class GenericCascadeDeleter {
                     $this->guard( $n, $tt );
                     if ( (int) $n > 0 ) $per_table[ $tt ] = (int) $n;
                 }
+            }
+
+            // 3a) Polymorphic rows reached THROUGH an owned child (#2723).
+            // Runs before 3b, because the join it needs is to the very rows
+            // 3b is about to delete. A journey event keyed on an
+            // observation's id is unreachable from the activity's id
+            // directly, which is how `cascade_poly` missed it and left the
+            // event standing after its observation was gone.
+            foreach ( (array) ( $plan['cascade_poly_via'] ?? [] ) as [ $table, $type_col, $id_col, $type_val, $owner, $opk, $ofk, $parent, $ppk, $pref ] ) {
+                if ( ! $this->tableExists( $table ) || ! $this->tableExists( $owner ) || ! $this->tableExists( $parent ) ) continue;
+                $sql = "DELETE e FROM {$p}{$table} e
+                         INNER JOIN {$p}{$owner} o ON o.{$opk} = e.{$id_col}
+                         INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = o.{$ofk}
+                         WHERE e.{$type_col} = %s AND pa.{$pref} IN ({$ph})";
+                $n   = $wpdb->query( $wpdb->prepare( $sql, ...array_merge( [ $type_val ], $ids ) ) );
+                $this->guard( $n, $table );
+                if ( (int) $n > 0 ) $per_table[ $table ] = ( $per_table[ $table ] ?? 0 ) + (int) $n;
             }
 
             // 3b) Parent-keyed children — rows that hang off a child table
@@ -301,6 +322,40 @@ final class GenericCascadeDeleter {
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}{$table} WHERE {$type_col} = %s AND {$id_col} IN ({$ph})",
+            ...array_merge( [ $type_val ], $ids )
+        ) );
+    }
+
+    /**
+     * Count polymorphic rows reached through an owned child (#2723) — the
+     * preview counterpart of step 3a. Counted here, before anything is
+     * deleted, so the cascade-preview dialog tells the operator these rows
+     * are going rather than removing them silently.
+     *
+     * @param int[] $ids
+     */
+    private function countPolyVia(
+        string $table,
+        string $type_col,
+        string $id_col,
+        string $type_val,
+        string $owner,
+        string $opk,
+        string $ofk,
+        string $parent,
+        string $ppk,
+        string $pref,
+        array $ids
+    ): int {
+        global $wpdb;
+        if ( ! $this->tableExists( $table ) || ! $this->tableExists( $owner ) || ! $this->tableExists( $parent ) ) return 0;
+        $p  = $wpdb->prefix;
+        $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}{$table} e
+              INNER JOIN {$p}{$owner} o ON o.{$opk} = e.{$id_col}
+              INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = o.{$ofk}
+              WHERE e.{$type_col} = %s AND pa.{$pref} IN ({$ph})",
             ...array_merge( [ $type_val ], $ids )
         ) );
     }

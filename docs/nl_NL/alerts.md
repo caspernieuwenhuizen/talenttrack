@@ -41,6 +41,7 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Activiteit uit het verleden staat nog op gepland** | De datum is voorbij, maar niemand heeft de activiteit afgerond of geannuleerd. Zolang dat niet gebeurt, ontbreken de aanwezigheid en de speelminuten in elk rapport. |
 | **Aanwezigheid niet geregistreerd** | De activiteit staat op afgerond, maar niemand heeft ingevuld wie erbij was. Overal lijkt het klaar, behalve in de rapportages. |
 | **Aankomende activiteit zonder trainer** | Voor een activiteit binnen een week is niemand ingedeeld. Activiteiten zonder trainer worden vaak laat afgezegd, en dat kost elke speler in de selectie een trainingsmoment. |
+| **Wedstrijd gespeeld, geen analyse** | Er is tussen twee dagen en twee weken geleden een wedstrijd gespeeld die nog niemand heeft nabesproken. De melding staat alleen op de bel, nooit als banner, en stopt na twee weken — dan zijn de details toch weg en blijft er alleen een schuldgevoel over. Toernooien vallen erbuiten (die kunnen nog geen analyse dragen), net als wedstrijden waarvan de aanwezigheid helemaal niet is vastgelegd; daar gaat de aanwezigheidsmelding al over. |
 
 ### Evaluaties
 
