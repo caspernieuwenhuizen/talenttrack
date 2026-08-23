@@ -272,9 +272,9 @@ final class ExerciseLibraryRestTest extends WP_UnitTestCase {
 
         $row = ( new ExercisesRepository() )->findById( (int) $data['id'] );
         $this->assertSame(
-            10,
+            ExercisesRepository::INTENSITY_BAND_MAX,
             (int) $row->intensity_band,
-            'the band scale runs 1-10: ten seeded vct_intensity_band rows, and U13/U14 profiles cap at 7'
+            'an out-of-range band clamps to the top of the scale (#2767 settled that at 7: the catalogue runs 1-7 and no age profile caps above it)'
         );
         $this->assertSame( 1, (int) $row->players_min );
     }
