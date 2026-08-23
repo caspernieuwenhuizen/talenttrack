@@ -44,6 +44,13 @@ are never placed there — they are not what anyone reaches for one-handed.
 The slide-out menu is still there and still carries everything, so the bar never
 hides anything. It is a shortcut, not a filter.
 
+### The academy crest goes home
+
+The crest and academy name in the top-left corner are a link back to the
+dashboard, in both layouts. In the app shell the crest at the head of the
+sidebar does the same, including when the sidebar is collapsed to icons. If no
+logo is configured, the gold initials mark stands in and behaves identically.
+
 ## Choosing a layout
 
 **As an academy admin**, set the default under *Configuration → General →

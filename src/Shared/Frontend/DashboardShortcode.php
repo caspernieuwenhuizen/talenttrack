@@ -1950,6 +1950,12 @@ class DashboardShortcode {
         if ( ShellPreference::isApp( (int) $user->ID ) ) {
             \TT\Shared\Frontend\Components\FrontendAppNav::renderDrawerToggle();
         }
+        // #2764 — crest + academy name are the route home. The drawer toggle
+        // stays outside the link: it is a separate control, not part of the
+        // brand. The logo keeps alt="" because the academy name beside it is
+        // the link's accessible name.
+        echo '<a class="tt-dash-home" href="'
+            . esc_url( \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) . '">';
         if ( $show_logo && $logo ) {
             echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
         } else {
@@ -1959,6 +1965,7 @@ class DashboardShortcode {
                 . '</span>';
         }
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
+        echo '</a>';
         echo '</div>';
 
         echo '<div class="tt-dash-actions">';
