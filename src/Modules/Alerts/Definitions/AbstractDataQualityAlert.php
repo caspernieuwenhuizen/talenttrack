@@ -46,6 +46,17 @@ abstract class AbstractDataQualityAlert implements AlertInterface {
     /** Maximum recipients one data-quality occurrence fans out to. */
     protected const MAX_CUSTODIANS = 20;
 
+    /**
+     * Accounts examined while looking for custodians.
+     *
+     * `user_can()` has to be asked per account (see `custodians()`), so this
+     * is what stops a very large install turning one definition into a scan
+     * of every user. Generous relative to an academy's staff count: if the
+     * first thousand accounts by ID contain no custodian, the install has a
+     * configuration problem that an alert cannot fix.
+     */
+    private const SCAN_CEILING = 1000;
+
     /** @var ConfigService|null */
     private $config = null;
 
@@ -137,15 +148,39 @@ abstract class AbstractDataQualityAlert implements AlertInterface {
     protected function custodians(): array {
         if ( ! function_exists( 'get_users' ) ) return [];
 
+        // NOT `get_users( [ 'capability' => … ] )`, which is what this used
+        // to do and why it found nobody.
+        //
+        // That query inspects the capabilities stored on a user's roles. Most
+        // TalentTrack caps are not stored there: they are matrix-derived and
+        // bridged at runtime by `Authorization\LegacyCapMapper` through the
+        // `user_has_cap` filter — `tt_manage_teams` maps to
+        // `team:create_delete`. A meta query never runs that filter, so it
+        // returns an empty set on an install where the capability is very
+        // much held, and the alert silently reaches nobody.
+        //
+        // `user_can()` does run the filter, so the shape has to be
+        // enumerate-then-ask. Bounded twice over: stop once enough custodians
+        // are found, and never scan past SCAN_CEILING accounts, so a large
+        // install cannot turn one definition into an unbounded sweep.
         $ids = get_users( [
-            'capability' => $this->capRequired(),
-            'fields'     => 'ID',
-            'number'     => static::MAX_CUSTODIANS,
-            'orderby'    => 'ID',
-            'order'      => 'ASC',
+            'fields'  => 'ID',
+            'number'  => self::SCAN_CEILING,
+            'orderby' => 'ID',
+            'order'   => 'ASC',
         ] );
 
-        return array_values( array_filter( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
+        $cap = $this->capRequired();
+        $out = [];
+        foreach ( is_array( $ids ) ? $ids : [] as $id ) {
+            $id = (int) $id;
+            if ( $id <= 0 ) continue;
+            if ( ! user_can( $id, $cap ) ) continue;
+            $out[] = $id;
+            if ( count( $out ) >= static::MAX_CUSTODIANS ) break;
+        }
+
+        return $out;
     }
 
     /**
