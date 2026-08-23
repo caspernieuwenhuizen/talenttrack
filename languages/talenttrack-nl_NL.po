@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T09:45:25+00:00\n"
+"POT-Creation-Date: 2026-08-23T09:51:25+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -280,8 +280,8 @@ msgstr "Staf"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:142
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:326
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:328
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:587
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:805
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:590
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:808
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:804
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:204
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:227
@@ -1149,10 +1149,10 @@ msgstr "Detail"
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:27
 #: src/Modules/Activities/Admin/ActivitiesPage.php:142
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:293
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:585
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:602
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:762
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:805
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:588
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:605
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:765
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:808
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:128
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:98
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:99
@@ -1792,7 +1792,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:254
 #: src/Shared/Frontend/FrontendTeamsManageView.php:188
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:218
-#: src/Shared/Frontend/FrontendTrialCaseView.php:730
+#: src/Shared/Frontend/FrontendTrialCaseView.php:733
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
 msgstr "Actief"
@@ -3702,7 +3702,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendTeamDetailView.php:851
 #: src/Shared/Frontend/FrontendTrialCaseView.php:350
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
-#: src/Shared/Frontend/FrontendTrialCaseView.php:728
+#: src/Shared/Frontend/FrontendTrialCaseView.php:731
 #: src/Shared/Frontend/FrontendTrialsManageView.php:316
 #: src/Shared/Frontend/FrontendTrialsManageView.php:412
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -4678,8 +4678,8 @@ msgid "Activities"
 msgstr "Activiteiten"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:552
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:783
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:555
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:786
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:73
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
@@ -4721,7 +4721,7 @@ msgid "Type:"
 msgstr "Type:"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:82
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:506
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:509
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:84
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:134
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:221
@@ -4799,8 +4799,8 @@ msgstr "Bron"
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:299
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:563
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:795
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:566
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:798
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:101
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:73
 #: src/Modules/Configuration/Admin/MigrationsPage.php:91
@@ -5099,8 +5099,8 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1194
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:619
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:776
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:622
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:779
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Goals/Admin/GoalsPage.php:207
 #: src/Shared/Frontend/FrontendBackupsView.php:443
@@ -5112,8 +5112,8 @@ msgstr "Bijwerken"
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:245
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:152
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:256
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:864
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1006
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:867
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
@@ -5194,10 +5194,10 @@ msgstr "Opslaan"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1295
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1351
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1380
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1017
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1033
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1049
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1142
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1020
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1036
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1052
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1145
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:43
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:336
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:414
@@ -6696,7 +6696,7 @@ msgstr "Elke urgentie"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:206
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:209
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:395
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:398
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:74
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:90
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:261
@@ -7738,10 +7738,10 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:141
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:116
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:171
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:561
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:611
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:771
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:792
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:564
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:614
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:774
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:795
 #: src/Modules/Configuration/Admin/FormSlugContract.php:85
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:72
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:34
@@ -7927,8 +7927,8 @@ msgid "The KPI references a fact that is no longer registered."
 msgstr "Deze KPI verwijst naar een fact die niet meer geregistreerd is."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:97
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:603
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:763
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:606
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:766
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:167
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:157
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:200
@@ -8645,7 +8645,7 @@ msgstr "[%s] Stel je wachtwoord opnieuw in"
 #. translators: %s: user display/login name
 #. translators: %s: assignee display name
 #: src/Modules/Auth/PasswordResetHandler.php:137
-#: src/Modules/Workflow/Notifications/TaskMailer.php:60
+#: src/Modules/Workflow/Notifications/TaskMailer.php:61
 #, php-format
 msgid "Hi %s,"
 msgstr "Hallo %s,"
@@ -8952,7 +8952,7 @@ msgstr "Persona"
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:321
 #: src/Modules/Authorization/Admin/MatrixPage.php:116
 #: src/Modules/Authorization/Admin/MatrixPage.php:557
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:515
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:518
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:70
 #: src/Shared/Frontend/FrontendAuditLogView.php:353
 #: src/Shared/Frontend/FrontendAuditLogView.php:413
@@ -8972,7 +8972,7 @@ msgid "Scope"
 msgstr "Bereik"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:325
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:916
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:919
 #: src/Shared/Frontend/FrontendConfigurationView.php:1840
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:453
 msgid "Default"
@@ -9232,11 +9232,11 @@ msgstr "Sleutel"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:83
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:179
 #: src/Modules/Authorization/Admin/RolesPage.php:82
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:397
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:562
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:612
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:772
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:793
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:400
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:565
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:615
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:775
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:796
 #: src/Modules/Configuration/Admin/FormSlugContract.php:111
 #: src/Modules/DataBrowser/SemanticRegistry.php:138
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:276
@@ -9493,7 +9493,7 @@ msgstr "Lookuplijsten"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:119
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:61
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:280
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:873
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:876
 msgid "Branding"
 msgstr "Huisstijl"
 
@@ -9510,7 +9510,7 @@ msgstr "Modulebeheer"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:181
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:65
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:286
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:720
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:723
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:1030
 #: src/Shared/Frontend/FrontendConfigurationView.php:1595
@@ -9540,7 +9540,7 @@ msgstr "Migraties"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:127
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:64
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:325
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:441
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:444
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:45
 msgid "Setup wizard"
 msgstr "Installatiewizard"
@@ -9984,7 +9984,7 @@ msgid "No matrix changes yet."
 msgstr "Nog geen matrix-wijzigingen."
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:554
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:512
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:515
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:776
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:26
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
@@ -10612,7 +10612,7 @@ msgid "No TT-role users found."
 msgstr "Geen gebruikers met TT-rol gevonden."
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:101
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:513
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:516
 #: src/Modules/Documentation/AudienceResolver.php:44
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:119
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:219
@@ -13408,7 +13408,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:51
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:239
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:783
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:786
 msgid "Evaluation Types"
 msgstr "Evaluatietypes"
 
@@ -13462,19 +13462,19 @@ msgstr "Aanwezigheidsstatussen"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:60
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:266
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:816
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:819
 msgid "Rating Scale"
 msgstr "Beoordelingsschaal"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:62
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:283
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:387
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:390
 msgid "Feature Toggles"
 msgstr "Functietoggles"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:66
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:328
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:493
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:496
 msgid "Audit Log"
 msgstr "Audit-log"
 
@@ -13753,30 +13753,30 @@ msgstr "Bulk spelerimport"
 msgid "Upload a CSV to create players in bulk."
 msgstr "Upload een CSV om in één keer meerdere spelers aan te maken."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:373
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:376
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:570
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:448
 msgid "Label is required."
 msgstr "Label is verplicht."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:374
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:377
 msgid "Field type is invalid."
 msgstr "Veldtype is ongeldig."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:375
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:378
 msgid "Select-type fields require at least one option."
 msgstr "Velden van het type selecteren vereisen minstens één optie."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:376
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:379
 msgid "An error occurred."
 msgstr "Er is een fout opgetreden."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:388
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:391
 msgid "Enable or disable specific TalentTrack features without code changes."
 msgstr ""
 "Specifieke TalentTrack-functies in- of uitschakelen zonder codewijzigingen."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:396
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:399
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:768
 #: src/Shared/Frontend/FrontendModulesView.php:359
@@ -13784,22 +13784,22 @@ msgstr ""
 msgid "Feature"
 msgstr "Functie"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:408
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:411
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:114
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:408
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:411
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:255
 #: src/Shared/Frontend/FrontendSpondView.php:278
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:418
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:421
 msgid "Save Toggles"
 msgstr "Toggles opslaan"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:433
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:436
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1564
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:115
@@ -13807,7 +13807,7 @@ msgstr "Toggles opslaan"
 msgid "Welcome"
 msgstr "Welkom"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:434
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:437
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:109
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:369
 #: src/Shared/Frontend/FrontendSetupView.php:126
@@ -13815,7 +13815,7 @@ msgstr "Welkom"
 msgid "Academy basics"
 msgstr "Basisgegevens academie"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:435
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:438
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:165
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:370
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:253
@@ -13824,7 +13824,7 @@ msgstr "Basisgegevens academie"
 msgid "First team"
 msgstr "Eerste team"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:436
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:439
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:215
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:371
 #: src/Shared/Frontend/FrontendSetupView.php:224
@@ -13832,7 +13832,7 @@ msgstr "Eerste team"
 msgid "First admin"
 msgstr "Eerste beheerder"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:437
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:440
 #: src/Modules/Development/IdeaStatus.php:102
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:761
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:373
@@ -13841,7 +13841,7 @@ msgstr "Eerste beheerder"
 msgid "Done"
 msgstr "Klaar"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:443
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:446
 msgid ""
 "The setup wizard walks you through naming your academy, picking a primary "
 "colour, creating your first team, and registering your first administrator. "
@@ -13852,11 +13852,11 @@ msgstr ""
 "registreren van je eerste beheerder. Je kunt op elk moment stoppen en "
 "hervatten — je voortgang wordt automatisch opgeslagen."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:449
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:452
 msgid "Wizard completed."
 msgstr "Wizard afgerond."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:450
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:453
 msgid ""
 "You can run it again any time — restarting won't delete the data you already "
 "entered."
@@ -13864,32 +13864,32 @@ msgstr ""
 "Je kunt hem altijd opnieuw uitvoeren — opnieuw starten verwijdert geen "
 "gegevens die je al hebt ingevuld."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:454
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:457
 msgid "Run wizard again"
 msgstr "Wizard opnieuw uitvoeren"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:459
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:462
 msgid "In progress."
 msgstr "Bezig."
 
 #. translators: %s is the current wizard step label.
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:463
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:466
 #, php-format
 msgid "Last step you were on: %s."
 msgstr "Laatste stap waar je was: %s."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:470
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:473
 #: src/Modules/License/Admin/AccountPage.php:487
 msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:471
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:474
 #: src/Shared/Frontend/FrontendSetupView.php:90
 #: src/Shared/Frontend/FrontendWizardView.php:611
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:496
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:499
 msgid ""
 "Audit logging is currently disabled. Enable it under Feature Toggles to "
 "start recording entries."
@@ -13897,11 +13897,11 @@ msgstr ""
 "Audit-logging is momenteel uitgeschakeld. Schakel dit in onder "
 "Functietoggles om vermeldingen vast te leggen."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:503
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:506
 msgid "Action (e.g. player.saved)"
 msgstr "Actie (bijv. player.saved)"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:504
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:507
 #: src/Modules/DemoData/Admin/DemoDataPage.php:262
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:40
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:111
@@ -13909,13 +13909,13 @@ msgstr "Actie (bijv. player.saved)"
 msgid "Entity type"
 msgstr "Entiteitstype"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:505
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:508
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:37
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:108
 msgid "User ID"
 msgstr "Gebruikers-ID"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:507
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:510
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:857
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
@@ -13925,7 +13925,7 @@ msgstr "Gebruikers-ID"
 msgid "Clear"
 msgstr "Wissen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:514
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:517
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:39
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:110
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:219
@@ -13937,44 +13937,44 @@ msgstr "Wissen"
 msgid "Action"
 msgstr "Actie"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:516
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:519
 #: src/Shared/Frontend/FrontendAuditLogView.php:414
 msgid "IP"
 msgstr "IP"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:517
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:520
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:43
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:114
 #: src/Shared/Frontend/FrontendAuditLogView.php:415
 msgid "Payload"
 msgstr "Payload"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:521
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:524
 #: src/Shared/Frontend/FrontendAuditLogView.php:389
 msgid "No audit entries match your filters."
 msgstr "Geen audit-vermeldingen voldoen aan uw filters."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:555
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:786
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:558
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:789
 msgid ""
 "Drag rows by the handle on the left to reorder. Order is saved automatically."
 msgstr ""
 "Sleep rijen met de greep aan de linkerkant om ze opnieuw te sorteren. De "
 "volgorde wordt automatisch opgeslagen."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:560
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:791
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:563
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:794
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:85
 msgid "Order"
 msgstr "Volgorde"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:566
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:569
 msgid "No items."
 msgstr "Geen items."
 
 # ===== v2.19.0 — Lookup drag, back button, clickable KPIs, delta stats =====
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:575
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:800
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:578
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:363
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:352
 #: src/Shared/Frontend/FrontendConfigurationView.php:586
@@ -13982,14 +13982,14 @@ msgstr "Geen items."
 msgid "Drag to reorder"
 msgstr "Sleep om te sorteren"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:580
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:583
 msgid "Locked — cannot be deleted because workflow rules depend on it."
 msgstr ""
 "Vergrendeld — kan niet verwijderd worden omdat workflow-regels ervan "
 "afhankelijk zijn."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:587
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:805
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:590
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:808
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
 #: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Players/Admin/PlayersPage.php:184
@@ -13997,10 +13997,10 @@ msgstr ""
 msgid "Delete?"
 msgstr "Verwijderen?"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:602
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:619
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:762
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:776
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:605
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:622
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:765
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:779
 #: src/Modules/Goals/Admin/GoalsPage.php:207
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:604
@@ -14009,20 +14009,20 @@ msgstr "Verwijderen?"
 msgid "Add"
 msgstr "Toevoegen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:613
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:774
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:616
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:777
 msgid "Sort Order"
 msgstr "Sorteervolgorde"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:643
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:646
 msgid "Workflow template on save"
 msgstr "Workflow-sjabloon bij opslaan"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:646
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:649
 msgid "— No automatic task —"
 msgstr "— Geen automatische taak —"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:652
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:655
 msgid ""
 "When an activity of this type is saved, the picked template fires for every "
 "player on the team. Leave empty for no automatic task."
@@ -14030,15 +14030,15 @@ msgstr ""
 "Als een activiteit van dit type wordt opgeslagen, gaat het gekozen sjabloon "
 "af voor elke speler in het team. Laat leeg voor geen automatische taak."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:673
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:676
 msgid "Rateable"
 msgstr "Beoordeelbaar"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:677
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:680
 msgid "Coaches can create player evaluations on activities of this type."
 msgstr "Coaches kunnen spelerevaluaties aanmaken op activiteiten van dit type."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:680
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:683
 msgid ""
 "When unchecked, activities of this type vanish from the new-evaluation "
 "wizard's activity picker. They remain visible everywhere else (the activity "
@@ -14050,7 +14050,7 @@ msgstr ""
 "zichtbaar (de activiteit zelf, statistieken, rapporten). Handig voor "
 "clinics, methodology-lectures en team-meetings."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:722
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:725
 msgid ""
 "Override the display name (and optionally description) per installed site "
 "locale. Leave a field empty to fall back to the canonical Name above and any "
@@ -14060,62 +14060,62 @@ msgstr ""
 "geïnstalleerde sitetaal. Laat een veld leeg om terug te vallen op de Naam "
 "hierboven en een eventuele meegeleverde vertaling."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:737
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:740
 #: src/Shared/Frontend/FrontendConfigurationView.php:1059
 msgid "Translated name"
 msgstr "Vertaalde naam"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:744
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:747
 #: src/Shared/Frontend/FrontendConfigurationView.php:1067
 msgid "Translated description"
 msgstr "Vertaalde omschrijving"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:762
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:765
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:202
 #: src/Shared/Frontend/FrontendComparisonView.php:283
 msgid "Evaluation Type"
 msgstr "Evaluatietype"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:773
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:776
 msgid "Requires Match Details"
 msgstr "Vereist wedstrijddetails"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:773
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:776
 msgid "Prompts for opponent, competition, result, home/away, minutes played"
 msgstr ""
 "Vraagt om tegenstander, competitie, uitslag, thuis/uit, gespeelde minuten"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:794
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:797
 msgid "Match Details?"
 msgstr "Wedstrijddetails?"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:797
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:800
 msgid "No evaluation types."
 msgstr "Geen evaluatietypes."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:821
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:824
 msgid "Minimum"
 msgstr "Minimum"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:822
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:825
 msgid "Maximum"
 msgstr "Maximum"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:823
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:826
 #: src/Shared/Frontend/FrontendConfigurationView.php:2239
 msgid "Step"
 msgstr "Stap"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:825
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:828
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:47
 msgid "Evaluation display"
 msgstr "Weergave evaluaties"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:830
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:833
 msgid "Detailed — show every subcategory rating."
 msgstr "Gedetailleerd — toon elke subcategorie-beoordeling."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:834
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:837
 msgid ""
 "Summary — show only the four main categories (Technical, Tactical, Physical, "
 "Mental)."
@@ -14123,7 +14123,7 @@ msgstr ""
 "Samenvatting — toon alleen de vier hoofdcategorieën (Technisch, Tactisch, "
 "Fysiek, Mentaal)."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:837
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:840
 msgid ""
 "Club-wide default. Each coach can override their own preference under "
 "Profile."
@@ -14131,15 +14131,15 @@ msgstr ""
 "Standaardinstelling voor de hele club. Elke coach kan deze voor zichzelf "
 "overschrijven onder Profiel."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:842
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:845
 msgid "Low-rating comment"
 msgstr "Toelichting bij lage beoordeling"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:847
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:850
 msgid "Threshold:"
 msgstr "Drempelwaarde:"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:851
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:854
 msgid ""
 "Ratings at or below this value trigger a \"consider adding a comment\" "
 "prompt."
@@ -14147,34 +14147,34 @@ msgstr ""
 "Beoordelingen op of onder deze waarde activeren een melding om een "
 "toelichting toe te voegen."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:855
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:858
 msgid "Soft — show a warning but allow saving without a comment."
 msgstr "Zacht — toon een waarschuwing maar sta opslaan zonder toelichting toe."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:859
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:862
 msgid "Hard — block save until a comment is provided."
 msgstr "Hard — blokkeer opslaan totdat een toelichting is ingevuld."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:878
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:881
 msgid "Academy Name"
 msgstr "Naam academie"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:879
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:882
 #: src/Shared/Frontend/FrontendConfigurationView.php:1866
 msgid "Logo"
 msgstr "Logo"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:882
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:885
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:731
 #: src/Modules/Players/Admin/PlayersPage.php:378
 msgid "Upload"
 msgstr "Uploaden"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:885
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:888
 msgid "Show logo on dashboard"
 msgstr "Logo tonen op dashboard"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:889
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:892
 msgid ""
 "Render the logo image in the dashboard header. Off by default — the academy "
 "name is the primary brand mark."
@@ -14182,20 +14182,20 @@ msgstr ""
 "Toon het logo in de dashboardkop. Standaard uit — de naam van de academie is "
 "het primaire merkonderdeel."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:892
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:895
 msgid "Primary Color"
 msgstr "Primaire kleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:893
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:896
 msgid "Secondary Color"
 msgstr "Secundaire kleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:895
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:898
 #: src/Shared/Frontend/FrontendConfigurationView.php:1979
 msgid "Tile size"
 msgstr "Tegelgrootte"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:897
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:900
 msgid ""
 "Scales padding, icons, and typography of the dashboard tiles. 50–150%, "
 "default 100%."
@@ -14203,11 +14203,11 @@ msgstr ""
 "Schaalt de marges, iconen en typografie van de dashboardtegels. 50–150%, "
 "standaard 100%."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:901
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:904
 msgid "Tile width (px)"
 msgstr "Tegelbreedte (px)"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:903
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:906
 msgid ""
 "Exact tile column width in pixels (140–400). Overrides the size preset and "
 "the % scale for width. Leave blank to use the preset."
@@ -14215,11 +14215,11 @@ msgstr ""
 "Exacte tegelkolombreedte in pixels (140–400). Overschrijft het grootte-"
 "preset en de %-schaal voor de breedte. Laat leeg om het preset te gebruiken."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:906
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:909
 msgid "Tile icon size (px)"
 msgstr "Tegelpictogram-grootte (px)"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:908
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:911
 msgid ""
 "Exact tile icon glyph size in pixels (14–64). Leave blank to use the "
 "preset / % scale sizing."
@@ -14227,42 +14227,42 @@ msgstr ""
 "Exacte grootte van het tegelpictogram in pixels (14–64). Laat leeg om de "
 "preset-/%-schaalgrootte te gebruiken."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:917
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:920
 #: src/Shared/Frontend/FrontendConfigurationView.php:1841
 msgid "Brand border"
 msgstr "Merkrand"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:918
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:921
 #: src/Shared/Frontend/FrontendConfigurationView.php:1842
 msgid "Gold-topped"
 msgstr "Gouden bovenrand"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:919
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:922
 #: src/Shared/Frontend/FrontendConfigurationView.php:1843
 msgid "Soft green fill"
 msgstr "Zachte groene vulling"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:920
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:923
 #: src/Shared/Frontend/FrontendConfigurationView.php:1844
 msgid "Solid green"
 msgstr "Effen groen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:921
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:924
 #: src/Shared/Frontend/FrontendConfigurationView.php:1845
 msgid "Left accent"
 msgstr "Linker accent"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:922
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:925
 #: src/Shared/Frontend/FrontendConfigurationView.php:1846
 msgid "Federation — top edge, one chip colour"
 msgstr "Federation — bovenrand, één kleur voor het icoonvlak"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:925
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:928
 #: src/Shared/Frontend/FrontendConfigurationView.php:1998
 msgid "Tile colour scheme"
 msgstr "Tegelkleurschema"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:931
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:934
 msgid ""
 "Recolours the dashboard tiles — border, fill and accent — without changing "
 "their size or layout. Default Gold-topped."
@@ -14270,11 +14270,11 @@ msgstr ""
 "Verkleurt de dashboardtegels — rand, vulling en accent — zonder de grootte "
 "of indeling te wijzigen. Standaard Gouden bovenrand."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:939
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:942
 msgid "Legacy wp-admin menus"
 msgstr "Oude wp-admin menu's"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:941
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:944
 msgid ""
 "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-"
 "admin menu entries (Players, Teams, Configuration, etc.) are hidden by "
@@ -14286,16 +14286,16 @@ msgstr ""
 "verborgen. Directe URL's werken gewoon — deze schakelaar regelt alleen de "
 "zichtbaarheid van het menu."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:945
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:948
 #: src/Shared/Frontend/FrontendConfigurationView.php:2412
 msgid "Show legacy wp-admin menus"
 msgstr "Oude wp-admin menu's tonen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:950
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:953
 msgid "Re-expose the legacy menu entries."
 msgstr "Maak de oude menu-items opnieuw zichtbaar."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:952
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:955
 msgid ""
 "Per-site setting. The frontend admin tier remains primary; this is for users "
 "who prefer the wp-admin path while the frontend continues to mature."
@@ -14303,41 +14303,41 @@ msgstr ""
 "Instelling per site. De frontend-beheertools blijven primair; dit is voor "
 "gebruikers die de wp-admin-route prefereren zolang de frontend verder rijpt."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:963
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:966
 #: src/Shared/Frontend/FrontendConfigurationView.php:1934
 msgid "Accent color"
 msgstr "Accentkleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:964
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:967
 #: src/Shared/Frontend/FrontendConfigurationView.php:1935
 msgid "Danger color"
 msgstr "Gevarenkleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:965
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:968
 #: src/Shared/Frontend/FrontendConfigurationView.php:1936
 msgid "Warning color"
 msgstr "Waarschuwingskleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:966
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:969
 #: src/Shared/Frontend/FrontendConfigurationView.php:1937
 msgid "Success color"
 msgstr "Succeskleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:967
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:970
 #: src/Shared/Frontend/FrontendConfigurationView.php:1938
 msgid "Info color"
 msgstr "Infokleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:968
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:971
 #: src/Shared/Frontend/FrontendConfigurationView.php:1939
 msgid "Focus ring color"
 msgstr "Focus-ringkleur"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:971
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:974
 msgid "Curated styling"
 msgstr "Gecureerde stijlen"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:973
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:976
 msgid ""
 "TalentTrack renders in full isolation from the active WordPress theme. Pick "
 "fonts and accent colors below — fields left as “(System default)” or empty "
@@ -14348,30 +14348,30 @@ msgstr ""
 "“(Systeemstandaard)” of leeg blijven, vallen terug op de standaardwaarden "
 "van TalentTrack."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:977
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:980
 #: src/Shared/Frontend/FrontendConfigurationView.php:1955
 msgid "Display font"
 msgstr "Display-lettertype"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:984
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:987
 msgid "Used for headings, tile titles, and player card numbers."
 msgstr "Gebruikt voor koppen, tegeltitels en de nummers op spelerkaarten."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:988
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:991
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:125
 #: src/Shared/Frontend/FrontendConfigurationView.php:1963
 msgid "Body font"
 msgstr "Body-lettertype"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:995
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:998
 msgid "Used for paragraphs, tables, and form fields."
 msgstr "Gebruikt voor paragrafen, tabellen en formuliervelden."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1012
 msgid "Select Logo"
 msgstr "Logo selecteren"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1009
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1012
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:83
 #: src/Modules/Players/Admin/PlayersPage.php:422
 #: src/Shared/Frontend/FrontendConfigurationView.php:2938
@@ -14379,13 +14379,13 @@ msgstr "Logo selecteren"
 msgid "Use"
 msgstr "Gebruik"
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1155
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1158
 msgid "This row is locked and cannot be deleted. Workflow rules depend on it."
 msgstr ""
 "Deze rij is vergrendeld en kan niet verwijderd worden. Workflow-regels zijn "
 "ervan afhankelijk."
 
-#: src/Modules/Configuration/Admin/ConfigurationPage.php:1156
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:1159
 msgid "Deletion blocked"
 msgstr "Verwijdering geblokkeerd"
 
@@ -19990,7 +19990,7 @@ msgid "Snapshot range to"
 msgstr "Momentopname-bereik tot"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:141
-#: src/Shared/Frontend/FrontendTrialCaseView.php:728
+#: src/Shared/Frontend/FrontendTrialCaseView.php:731
 msgid "Generated at"
 msgstr "Gegenereerd op"
 
@@ -21349,7 +21349,7 @@ msgstr "Verlopen"
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:69
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:149
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:730
+#: src/Shared/Frontend/FrontendTrialCaseView.php:733
 msgid "Revoked"
 msgstr "Ingetrokken"
 
@@ -34132,7 +34132,7 @@ msgid "Recipient"
 msgstr "Ontvanger"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
-#: src/Shared/Frontend/FrontendTrialCaseView.php:728
+#: src/Shared/Frontend/FrontendTrialCaseView.php:731
 msgid "Audience"
 msgstr "Doelgroep"
 
@@ -42417,34 +42417,34 @@ msgid ""
 msgstr ""
 "Speler met ouderzicht — taak voor de speler; ouder heeft alleen leestoegang."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:52
+#: src/Modules/Workflow/Notifications/TaskMailer.php:53
 #, php-format
 msgid "[%1$s] New task: %2$s"
 msgstr "[%1$s] Nieuwe taak: %2$s"
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:66
+#: src/Modules/Workflow/Notifications/TaskMailer.php:67
 #, php-format
 msgid "A new task has been assigned to you: %1$s. Deadline: %2$s."
 msgstr "Er is een nieuwe taak aan je toegewezen: %1$s. Deadline: %2$s."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:72
+#: src/Modules/Workflow/Notifications/TaskMailer.php:73
 msgid "Open your task inbox:"
 msgstr "Open je takeninbox:"
 
 #. translators: %s: site name
-#: src/Modules/Workflow/Notifications/TaskMailer.php:78
+#: src/Modules/Workflow/Notifications/TaskMailer.php:79
 #, php-format
 msgid "— %s"
 msgstr "— %s"
 
 #. translators: 1: task name, 2: deadline
-#: src/Modules/Workflow/Notifications/TaskMailer.php:108
+#: src/Modules/Workflow/Notifications/TaskMailer.php:109
 #, php-format
 msgid "New task: %1$s. Deadline: %2$s."
 msgstr "Nieuwe taak: %1$s. Deadline: %2$s."
 
-#: src/Modules/Workflow/Notifications/TaskMailer.php:127
+#: src/Modules/Workflow/Notifications/TaskMailer.php:128
 msgid "no deadline"
 msgstr "geen deadline"
 
@@ -52117,19 +52117,19 @@ msgstr ""
 "Nog geen brief gegenereerd. Leg een beslissing vast op het tabblad "
 "Beslissing om er een te maken."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:717
+#: src/Shared/Frontend/FrontendTrialCaseView.php:720
 msgid "Print view"
 msgstr "Afdrukweergave openen"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:726
+#: src/Shared/Frontend/FrontendTrialCaseView.php:729
 msgid "Letter history"
 msgstr "Briefgeschiedenis"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:743
+#: src/Shared/Frontend/FrontendTrialCaseView.php:746
 msgid "Parent meeting mode"
 msgstr "Oudergesprek-modus"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:744
+#: src/Shared/Frontend/FrontendTrialCaseView.php:747
 msgid ""
 "A sanitized fullscreen view for the conversation with the parents. No "
 "internal data is shown — only the decision, the player photo and basics, and "
@@ -52139,7 +52139,7 @@ msgstr ""
 "wordt geen interne data getoond — alleen de beslissing, de foto en "
 "basisgegevens van de speler, en de brief."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:745
+#: src/Shared/Frontend/FrontendTrialCaseView.php:748
 msgid "Open meeting"
 msgstr "Gespreksweergave openen"
 
@@ -52348,7 +52348,7 @@ msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:80
 #: src/Shared/Frontend/FrontendTrialsManageView.php:83
 #: src/Shared/Frontend/FrontendTrialsManageView.php:256
-#: src/Shared/Frontend/FrontendTrialsManageView.php:493
+#: src/Shared/Frontend/FrontendTrialsManageView.php:496
 msgid "Add case"
 msgstr "Nieuw stagedossier"
 
