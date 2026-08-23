@@ -244,3 +244,13 @@ Two things to know about how that works:
 - **It is one-way.** Fixing the underlying thing clears the alert, but it does **not** close the task. A task has somebody's name on it and a record of what happened, and closing that behind their back would defeat the point. Close the task from the task itself.
 
 The alerts list shows which alerts have become tasks, and links to them.
+
+### Checking the alerts engine is working
+
+The **Alert policy** screen opens with an **Engine health** panel.
+
+It answers the one question the rest of the system cannot: a background job that has stopped produces exactly the same screens as an academy with nothing wrong — empty ones. If the panel says alerts have not been checked recently, WordPress scheduled tasks are not running on your site, and every alert screen is frozen at whenever they last did.
+
+The table below it shows, for each alert, how many are open, how many were cleared, and what share of them people simply dismissed.
+
+That last figure is the useful one. **An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts**, and the useful ones go with it. Anything above about 60% (over enough occurrences to mean something) is flagged for review. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation. A safeguarding alert being dismissed often is a training problem, not a definition to delete.

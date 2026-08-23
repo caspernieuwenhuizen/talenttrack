@@ -262,7 +262,10 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         }
 
         // --- Players -------------------------------------------------
-        self::renderPlayerFields( $players );
+        echo '<section class="tt-ma__section tt-ma__section--players">';
+        echo '<h2 class="tt-ma__section-title">' . esc_html__( 'Players', 'talenttrack' ) . '</h2>';
+        PlayerTallyRoster::render( $players, 'ma' );
+        echo '</section>';
 
         // --- Save ----------------------------------------------------
         echo '<div class="tt-ma__actions">';
@@ -332,124 +335,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
                     $i + 1
                 ) )
             );
-        }
-        echo '</ul>';
-        echo '</section>';
-    }
-
-    /**
-     * @param list<array<string,mixed>> $players
-     */
-    private static function renderPlayerFields( array $players ): void {
-        echo '<section class="tt-ma__section tt-ma__section--players">';
-        echo '<h2 class="tt-ma__section-title">' . esc_html__( 'Players', 'talenttrack' ) . '</h2>';
-
-        if ( empty( $players ) ) {
-            echo '<p class="tt-ma__hint">'
-                . esc_html__( 'Nobody is recorded as having played this match, so there is no roster to mark up. Record attendance or minutes first.', 'talenttrack' )
-                . '</p></section>';
-            return;
-        }
-
-        echo '<p class="tt-ma__hint">'
-            . esc_html__( 'Everyone who played is listed. Leave a player untouched to say nothing about them — most rows usually stay empty.', 'talenttrack' )
-            . '</p>';
-
-        $markers = MatchAnalysisEnums::markers();
-        $tags    = MatchAnalysisEnums::playerItemTags();
-
-        echo '<ul class="tt-ma__players">';
-        foreach ( $players as $player ) {
-            $pid     = (int) $player['player_id'];
-            $marker  = (string) $player['marker'];
-            $minutes = $player['minutes'];
-
-            echo '<li class="tt-ma__player">';
-            echo '<div class="tt-ma__player-head">';
-            echo '<span class="tt-ma__player-name">' . esc_html( (string) $player['name'] ) . '</span>';
-            if ( $minutes !== null ) {
-                printf(
-                    '<span class="tt-ma__player-min">%s</span>',
-                    esc_html( sprintf(
-                        /* translators: %d: minutes played */
-                        __( "%d'", 'talenttrack' ),
-                        (int) $minutes
-                    ) )
-                );
-            }
-            echo '</div>';
-
-            if ( (string) $player['prep_focus'] !== '' ) {
-                echo '<p class="tt-ma__player-plan">'
-                    . esc_html( sprintf(
-                        /* translators: %s: the attention note written on the match plan */
-                        __( 'Asked to: %s', 'talenttrack' ),
-                        (string) $player['prep_focus']
-                    ) )
-                    . '</p>';
-            }
-
-            printf(
-                '<div class="tt-ma__markers" role="radiogroup" aria-label="%s">',
-                esc_attr( sprintf(
-                    /* translators: %s: player name */
-                    __( 'How did %s do?', 'talenttrack' ),
-                    (string) $player['name']
-                ) )
-            );
-
-            $options = [ '' => __( 'Not mentioned', 'talenttrack' ) ] + $markers;
-            foreach ( $options as $value => $label ) {
-                $id = 'tt-ma-p' . $pid . '-' . ( $value === '' ? 'none' : sanitize_key( (string) $value ) );
-                printf(
-                    '<input type="radio" class="tt-ma__marker-input" id="%1$s" name="players[%2$d][marker]" value="%3$s"%4$s />'
-                    . '<label class="tt-ma__marker" for="%1$s" data-marker="%3$s">%5$s</label>',
-                    esc_attr( $id ),
-                    $pid,
-                    esc_attr( (string) $value ),
-                    checked( $marker, (string) $value, false ),
-                    esc_html( (string) $label )
-                );
-            }
-            echo '</div>';
-
-            printf(
-                '<input type="text" class="tt-input tt-ma__player-note" name="players[%1$d][note]" value="%2$s" maxlength="240" placeholder="%3$s" aria-label="%4$s" />',
-                $pid,
-                esc_attr( (string) $player['note'] ),
-                esc_attr__( 'What exactly did they do?', 'talenttrack' ),
-                esc_attr( sprintf(
-                    /* translators: %s: player name */
-                    __( 'Note about %s', 'talenttrack' ),
-                    (string) $player['name']
-                ) )
-            );
-
-            printf(
-                '<select class="tt-input tt-ma__player-tag" name="players[%1$d][team_function]" aria-label="%2$s">',
-                $pid,
-                esc_attr( sprintf(
-                    /* translators: %s: player name */
-                    __( 'Which part of the game — %s', 'talenttrack' ),
-                    (string) $player['name']
-                ) )
-            );
-            printf(
-                '<option value=""%s>%s</option>',
-                selected( (string) ( $player['team_function'] ?? '' ), '', false ),
-                esc_html__( 'No particular phase', 'talenttrack' )
-            );
-            foreach ( $tags as $tag_key => $tag_label ) {
-                printf(
-                    '<option value="%s"%s>%s</option>',
-                    esc_attr( (string) $tag_key ),
-                    selected( (string) ( $player['team_function'] ?? '' ), (string) $tag_key, false ),
-                    esc_html( (string) $tag_label )
-                );
-            }
-            echo '</select>';
-
-            echo '</li>';
         }
         echo '</ul>';
         echo '</section>';
@@ -639,23 +524,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
     }
 
     private static function enqueueStyles(): void {
-        wp_enqueue_style(
-            'tt-frontend-match-analysis',
-            TT_PLUGIN_URL . 'assets/css/frontend-match-analysis.css',
-            [],
-            TT_VERSION
-        );
-        wp_enqueue_script(
-            'tt-match-analysis',
-            TT_PLUGIN_URL . 'assets/js/match-analysis.js',
-            [ 'tt-public' ],
-            TT_VERSION,
-            true
-        );
-        wp_localize_script( 'tt-match-analysis', 'TT_MatchAnalysis', [
-            'confirmRotate' => __( 'Reissue the share link? Everyone holding the current link loses access immediately.', 'talenttrack' ),
-            'rotated'       => __( 'A new link has been issued. The previous one no longer works.', 'talenttrack' ),
-            'failed'        => __( 'The link could not be reissued. Try again.', 'talenttrack' ),
-        ] );
+        MatchAnalysisAssets::enqueue();
     }
 }

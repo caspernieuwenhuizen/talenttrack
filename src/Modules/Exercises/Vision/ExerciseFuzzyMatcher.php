@@ -27,7 +27,13 @@ use TT\Modules\Exercises\ExercisesRepository;
  */
 final class ExerciseFuzzyMatcher {
 
-    private const DEFAULT_MIN_SIMILARITY = 0.6;
+    /**
+     * Public since #2502: the photo review grid tints a row by how
+     * confident this matcher was, and a copy of the number over there
+     * would drift the day someone tunes it here. Consumers read it
+     * rather than restating it.
+     */
+    public const DEFAULT_MIN_SIMILARITY = 0.6;
 
     private ExercisesRepository $repo;
 

@@ -239,6 +239,30 @@ person who has to act on it.
 The sheet is the plan, not the record. What you actually run is recorded on
 the training.
 
+### When the signal drops
+
+Pitches are where signal is worst, so the sideline view keeps working without
+it. Tap a block done, skip one, or write an observation with no bars, and it is
+stored on the phone instead of being lost. A line at the top of the screen says
+how many changes are waiting — *"2 wijzigingen wachten op bereik"* — and they
+send themselves the moment you have a connection again.
+
+It survives locking the phone, switching apps and reloading the page. Nothing
+is lost by walking inside.
+
+Two things worth knowing:
+
+- **Opening the page still needs signal.** What is protected is a session
+  already underway; you cannot start one from nothing with no connection.
+- **Nothing is recorded twice.** If a change is sent and the reply never comes
+  back, the phone tries again — and the second attempt lands on the same
+  record rather than creating a duplicate. That matters because these numbers
+  become each player's training minutes.
+
+If a change still cannot be saved after you reconnect — because you were away
+so long that your login expired — it stays queued rather than being thrown
+away. Reload the page and it will go.
+
 ## What a player has actually been taught
 
 This is the part the rest of the module exists for.
@@ -302,9 +326,45 @@ fully every night, which is what picks up a plan edited after the fact, an
 exercise re-tagged with a different principle, or attendance corrected the
 next morning.
 
+## Photographing a plan you wrote out
+
+If your academy has this switched on, **From a photo** on the training plans
+page turns a hand-written sheet into a draft. Photograph the sheet, check what
+was read, and press **Concept aanmaken**. Nothing is saved until you do — close
+the page at the checking step and there is no plan and no photo anywhere.
+
+The checking step is the point of the screen, so it shows you how sure it is
+about each line:
+
+| | What it means |
+| --- | --- |
+| Green | Matched an exercise in your library with confidence. |
+| Amber | Close to more than one exercise. Worth a look. |
+| Red | Not recognised at all. |
+
+An unrecognised line stays as a loose block if you leave it — and **then it does
+not count towards what your players have been taught**, because that count is
+built from matched exercises. Linking it, or adding it to the library, is what
+makes the minutes land on the players' records.
+
+You can change any name or duration before creating the draft, and remove a line
+that was never really there.
+
+### Where the photo goes
+
+The screen tells you, next to the shutter, before you take it. Your academy's
+administrator decides where photographs are sent to be read, and that choice is
+written into the setup rather than assumed — until it has been made, this screen
+refuses to open and says so. Player names are not copied into notes.
+
+If you have no signal, nothing is sent and the screen says so. Try again when
+you are back in range.
+
 ## What is not here yet
 
 Still to come:
 
-- the drawing tool for exercise diagrams
-- photographing a whiteboard plan and having it read back
+- holding a photograph on the phone while you are out of range, so it reads
+  itself when you get back — today you retake it
+- photographing a whiteboard rather than a sheet of paper, which needs a
+  different kind of reading

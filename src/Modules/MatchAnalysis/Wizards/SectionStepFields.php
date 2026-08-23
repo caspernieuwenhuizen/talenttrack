@@ -25,6 +25,11 @@ final class SectionStepFields {
      * @param array<string,mixed> $state
      */
     public static function render( string $section_key, array $state, ?object $prep ): void {
+        // Every wizard step is its own request, so the stylesheet has to be
+        // asked for on each one — #2726 was exactly this being done only on
+        // step 1, which left steps 2-5 rendering raw radio buttons.
+        \TT\Modules\MatchAnalysis\Frontend\MatchAnalysisAssets::enqueue();
+
         $label   = MatchAnalysisEnums::sectionLabel( $section_key );
         $saved   = self::savedFor( $section_key, $state );
         $planned = MatchAnalysisComposer::plannedTextFor( $section_key, $prep );

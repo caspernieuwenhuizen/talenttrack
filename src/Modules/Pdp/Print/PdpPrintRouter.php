@@ -164,7 +164,7 @@ class PdpPrintRouter {
         // computed server-side, which always works.
         $close_url = add_query_arg(
             [ 'tt_view' => 'pdp', 'id' => (int) $file->id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         ?>
         <a href="<?php echo esc_url( $close_url ); ?>"

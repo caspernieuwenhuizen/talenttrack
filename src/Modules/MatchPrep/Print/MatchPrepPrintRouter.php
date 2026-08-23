@@ -82,7 +82,7 @@ class MatchPrepPrintRouter {
         $styles    = MatchPrepPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         $filename  = 'match-prep-' . $activity_id . '.pdf';
 
@@ -123,7 +123,7 @@ class MatchPrepPrintRouter {
         $parts     = MatchDayTeamSheetPdfExporter::documentParts( $activity_id, $club_id );
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         $filename  = 'team-sheet-' . $activity_id . '.pdf';
 

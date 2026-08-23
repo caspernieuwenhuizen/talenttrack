@@ -244,7 +244,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         // Help link below.
         $help_url = add_query_arg(
             [ 'tt_view' => 'docs', 'topic' => 'team-chemistry' ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         echo '<p class="tt-tc-help-row">';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $help_url ) . '">'

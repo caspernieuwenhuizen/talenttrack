@@ -145,27 +145,46 @@ final class RecordLink {
      * and admin renderers can build tt_view URLs without instantiating
      * the access control wiring.
      */
-    public static function dashboardUrl(): string {
-        // 1. Configured page (the happy path).
+    /** Cron and CLI have no meaningful "current request" to build a URL on. */
+    private static function isBackgroundContext(): bool {
+        if ( function_exists( 'wp_doing_cron' ) && wp_doing_cron() ) return true;
+        if ( defined( 'DOING_CRON' ) && DOING_CRON ) return true;
+        if ( defined( 'WP_CLI' ) && WP_CLI ) return true;
+
+        return false;
+    }
+
+    /**
+     * The published page hosting `[talenttrack_dashboard]`, or 0 when the
+     * install genuinely has none.
+     *
+     * 1. The configured id, trusted only while the page is actually
+     *    published. #1462 — a trashed dashboard left a stale id pointing
+     *    every link at a dead page, so falling through lets the scan below
+     *    adopt the live one.
+     * 2. Self-heal: scan published pages for the shortcode and re-cache
+     *    what it finds, mirroring `Activator::seedDashboardPageIfMissing()`.
+     *    Covers an id cleared by post deletion or a manual config edit.
+     */
+    public static function dashboardPageId(): int {
         $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
-        // #1462 — only trust the configured page when it's actually
-        // published. A trashed/deleted dashboard page left the stale id
-        // pointing every link at a dead page; falling through lets the
-        // self-heal scan below adopt the live page and re-cache its id.
         if ( $page_id > 0 && get_post_status( $page_id ) === 'publish' ) {
-            return self::permalinkOrHome( $page_id );
+            return $page_id;
         }
 
-        // 2. Self-heal: scan published pages for the [talenttrack_dashboard]
-        //    shortcode. Caches the discovered id back into tt_config so
-        //    subsequent calls hit the fast path. Mirrors Activator's
-        //    seedDashboardPageIfMissing adoption logic — the user's
-        //    dashboard might exist already even though the option got
-        //    cleared somehow (post deletion, manual config edit, etc.).
         $found = self::discoverDashboardPageId();
         if ( $found > 0 ) {
             \TT\Infrastructure\Query\QueryHelpers::set_config( 'dashboard_page_id', (string) $found );
-            return self::permalinkOrHome( $found );
+            return $found;
+        }
+
+        return 0;
+    }
+
+    public static function dashboardUrl(): string {
+        $page_id = self::dashboardPageId();
+        if ( $page_id > 0 ) {
+            return self::permalinkOrHome( $page_id );
         }
 
         // 3. Last-resort: REQUEST_URI's path wrapped via `home_url($path)`
@@ -179,7 +198,11 @@ final class RecordLink {
         //    path manually (no esc_url_raw round-trip per v3.110.180's
         //    diagnosis) and let `home_url()` canonicalise to the right
         //    scheme + host.
-        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+        // #2720 — but never in cron or CLI. There REQUEST_URI is either
+        // absent or `/wp-cron.php`, and a link to the cron endpoint in a
+        // notification email is worse than a plain home-page link: the
+        // reader cannot tell it is broken until they click it.
+        if ( isset( $_SERVER['REQUEST_URI'] ) && ! self::isBackgroundContext() ) {
             $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
             $q_pos = strpos( $raw, '?' );
             $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );

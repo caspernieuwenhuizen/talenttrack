@@ -244,6 +244,31 @@ papier vasthoudt is degene die er iets mee moet.
 Het blad is het plan, niet de registratie. Wat je werkelijk doet wordt
 vastgelegd bij de training.
 
+### Als het bereik wegvalt
+
+Juist op het veld is het bereik het slechtst, dus het veldscherm werkt door
+zonder. Tik een blok af, sla er een over of schrijf een observatie zonder
+streepjes: het wordt op de telefoon bewaard in plaats van verloren te gaan.
+Bovenin staat hoeveel wijzigingen wachten — *"2 wijzigingen wachten op
+bereik"* — en ze versturen zichzelf zodra je weer verbinding hebt.
+
+Het overleeft het vergrendelen van de telefoon, wisselen van app en het
+herladen van de pagina. Naar binnen lopen kost je niets.
+
+Twee dingen om te weten:
+
+- **De pagina openen kost nog steeds bereik.** Beschermd is een training die
+  al loopt; je kunt er niet vanaf nul een starten zonder verbinding.
+- **Niets wordt dubbel vastgelegd.** Als een wijziging wel verstuurd is maar
+  het antwoord nooit terugkomt, probeert de telefoon het opnieuw — en die
+  tweede poging komt op dezelfde registratie terecht in plaats van een
+  duplicaat te maken. Dat is belangrijk, want deze getallen worden de
+  trainingsminuten van elke speler.
+
+Lukt het na het herverbinden nog steeds niet — omdat je zo lang weg bent
+geweest dat je login is verlopen — dan blijft de wijziging in de wachtrij in
+plaats van weggegooid te worden. Herlaad de pagina en hij gaat alsnog.
+
 ## Wat een speler werkelijk heeft geleerd
 
 Hier werkt de rest van de module naartoe.
@@ -308,9 +333,47 @@ Direct als je een training afrondt, voor de spelers die erbij waren. En elke
 nacht volledig, wat een later aangepast plan opvangt, een oefening die een
 ander principe kreeg, of aanwezigheid die de volgende ochtend is gecorrigeerd.
 
+## Een uitgeschreven plan fotograferen
+
+Staat dit aan bij jouw academie, dan maakt **Vanaf een foto** op de pagina met
+trainingsplannen van een uitgeschreven blad een concept. Fotografeer het blad,
+controleer wat er gelezen is, en druk op **Concept aanmaken**. Er wordt niets
+opgeslagen tot je dat doet — sluit je de pagina tijdens het controleren, dan is
+er geen plan en staat er nergens een foto.
+
+Het controleren is waar dit scherm om draait, dus je ziet per regel hoe zeker
+het is:
+
+| | Wat het betekent |
+| --- | --- |
+| Groen | Met vertrouwen gekoppeld aan een oefening uit je bibliotheek. |
+| Oranje | Lijkt op meer dan één oefening. Even naar kijken. |
+| Rood | Helemaal niet herkend. |
+
+Een niet-herkende regel blijft als los blok staan als je niets doet — en **dan
+telt hij niet mee voor wat je spelers geleerd hebben**, want die telling wordt
+opgebouwd uit gekoppelde oefeningen. Koppelen, of toevoegen aan de bibliotheek,
+is wat de minuten op het spelersdossier laat landen.
+
+Je kunt elke naam en duur aanpassen voordat je het concept aanmaakt, en een
+regel weghalen die er eigenlijk niet stond.
+
+### Waar de foto naartoe gaat
+
+Dat staat op het scherm, naast de sluiterknop, vóórdat je hem maakt. De beheerder
+van jouw academie bepaalt waar foto's naartoe gaan om gelezen te worden, en die
+keuze wordt vastgelegd in de installatie in plaats van aangenomen — zolang die
+keuze niet gemaakt is, gaat dit scherm niet open en zegt het dat ook. Namen van
+spelers worden niet overgenomen in notities.
+
+Heb je geen bereik, dan wordt er niets verstuurd en zegt het scherm dat. Probeer
+het opnieuw zodra je weer bereik hebt.
+
 ## Wat er nog niet is
 
 Wat nog volgt:
 
-- de tekentool voor oefeningsdiagrammen
-- een foto van een whiteboardplan laten uitlezen
+- een foto op de telefoon bewaren terwijl je buiten bereik bent, zodat hij
+  zichzelf laat lezen zodra je terug bent — nu maak je hem opnieuw
+- een whiteboard fotograferen in plaats van een blad papier, wat een ander
+  soort uitlezen vraagt

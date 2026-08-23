@@ -713,7 +713,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $letter ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
         } else {
-            $print_url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'letter', 'print' => 1 ], home_url( '/' ) );
+            $print_url = add_query_arg(
+                [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'letter', 'print' => 1 ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
             echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Print view', 'talenttrack' ) . '</a></p>';
             echo '<div class="tt-trial-letter-preview">' . wp_kses_post( (string) $letter->rendered_html ) . '</div>';
         }
@@ -739,7 +742,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
     /* ===== Parent meeting tab — preview link to fullscreen ===== */
 
     private static function renderMeetingTab( object $case ): void {
-        $url = add_query_arg( [ 'tt_view' => 'trial-parent-meeting', 'id' => (int) $case->id ], home_url( '/' ) );
+        $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-parent-meeting', (int) $case->id );
         self::cardOpen( __( 'Parent meeting mode', 'talenttrack' ) );
         echo '<p>' . esc_html__( 'A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter.', 'talenttrack' ) . '</p>';
         echo '<p><a class="tt-btn tt-btn-primary" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open meeting', 'talenttrack' ) . '</a></p>';

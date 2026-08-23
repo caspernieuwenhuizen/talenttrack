@@ -72,7 +72,7 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
         if ( $letter ) {
             $letter_url = add_query_arg( [
                 'tt_view' => 'trial-case', 'id' => $case_id, 'tab' => 'letter', 'print' => 1,
-            ], home_url( '/' ) );
+            ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         }
 
         $headline_class = 'tt-meeting-decision';

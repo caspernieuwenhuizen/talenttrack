@@ -90,9 +90,15 @@
         if (note) body.note = note;
         if (rating !== null) body.rating = rating;
 
+        // #2552 — stamped once, here, before the write is attempted, so
+        // the same key travels with it however many times the queue has
+        // to replay it. Generating it at send time would defeat the
+        // whole point.
+        if (queue()) { body.client_uuid = queue().uuid(); }
+
         request('POST', cfg.restBase + '/training/runs/' + runId + '/observations', body)
-            .then(function () {
-                obsSay(i18n.obsSaved);
+            .then(function (result) {
+                obsSay(result && result.queued ? i18n.obsQueued : i18n.obsSaved);
                 if (noteEl) noteEl.value = '';
                 if (pressed) pressed.setAttribute('aria-pressed', 'false');
                 row.classList.add('is-saved');
@@ -160,10 +166,40 @@
         var el = {
             progress: root.querySelector('[data-tt-run-progress]'),
             card: root.querySelector('[data-tt-run-card]'),
-            controls: root.querySelector('[data-tt-run-controls]')
+            controls: root.querySelector('[data-tt-run-controls]'),
+            offline: root.querySelector('[data-tt-run-offline]')
         };
 
+        setUpQueue();
         render();
+
+        /**
+         * The pending banner (#2552).
+         *
+         * A count a coach cannot see is a promise they have no reason to
+         * believe. Standing on a pitch having tapped "done" four times
+         * with no signal, the only thing that distinguishes "saved" from
+         * "lost" is this line.
+         */
+        function setUpQueue() {
+            var q = queue();
+            if (!q || !el.offline) { return; }
+
+            q.nonce = cfg.nonce;
+
+            q.onChange(function (count) {
+                if (!count) {
+                    el.offline.hidden = true;
+                    el.offline.textContent = '';
+                    return;
+                }
+                el.offline.hidden = false;
+                el.offline.textContent = fmt(
+                    count === 1 ? i18n.pendingOne : i18n.pendingMany,
+                    count
+                );
+            });
+        }
 
         function render() {
             renderProgress();
@@ -512,6 +548,16 @@
         if (msg) msg.textContent = text || '';
     }
 
+    /**
+     * Every write the sideline makes goes through here, which is what
+     * lets #2552 add offline behaviour in one place rather than at four
+     * call sites.
+     *
+     * A write that fails because the network is gone is queued and
+     * reported as saved, because it will be. A write that fails because
+     * the server said no is a real failure and is reported as one —
+     * queueing a rejected write would replay it forever.
+     */
     function request(method, url, body) {
         var init = {
             method: method,
@@ -526,7 +572,27 @@
                 if (envelope && envelope.success === false) throw new Error('rest');
                 return { status: response.status, data: envelope ? envelope.data : null };
             });
+        }).catch(function (error) {
+            // A rejected fetch means the request never reached the
+            // server: offline, DNS, connection dropped mid-flight.
+            // An Error carrying a status means it arrived and was
+            // refused, which the queue must not retry.
+            var neverArrived = !/^\d{3}$/.test(String(error && error.message));
+            if (!neverArrived || !queue()) { throw error; }
+
+            return queue().enqueue({ method: method, url: url, body: body || null })
+                .then(function (key) {
+                    if (key === null) { throw error; }
+                    return { status: 0, data: null, queued: true };
+                });
         });
+    }
+
+    /** The queue, or null on a browser without IndexedDB. */
+    function queue() {
+        return (window.TTOfflineQueue && window.TTOfflineQueue.supported)
+            ? window.TTOfflineQueue
+            : null;
     }
 
     function fmt(template, a) {

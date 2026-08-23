@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Alerts\AlertRegistry;
+use TT\Modules\Alerts\Diagnostics\AlertDiagnostics;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Policy\ClubAlertPolicy;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -52,6 +53,12 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
         echo '<p class="tt-field-hint">'
             . esc_html__( 'Decide which alerts your academy uses and who controls them. "Each person chooses" is the default and suits almost everything — reach for the others when an alert matters too much to be optional, or when your academy does not use that part of the system at all.', 'talenttrack' )
             . '</p>';
+
+        // #2634 — health first, settings second. An admin who arrives here
+        // because "alerts have stopped working" needs the cron answer before
+        // they start changing policy, and an admin about to switch something
+        // off should see its dismiss rate while deciding.
+        self::renderDiagnostics();
 
         if ( empty( $definitions ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No alerts are available on this installation yet.', 'talenttrack' ) . '</p>';
@@ -154,6 +161,86 @@ final class FrontendAlertPolicyView extends FrontendViewBase {
 
         echo '</div>';
         echo '</div>';
+    }
+
+    /**
+     * Engine health and per-definition noise (#2634).
+     *
+     * Deliberately on this screen rather than one of its own. The two
+     * questions an admin brings here — "is this working?" and "should this
+     * alert exist?" — are answered by the same numbers as the settings they
+     * are about to change, and a diagnostic on a separate page is one nobody
+     * looks at until something is already wrong.
+     */
+    private static function renderDiagnostics(): void {
+        $diag = new AlertDiagnostics();
+
+        echo '<section class="tt-alert-diagnostics">';
+        echo '<h3>' . esc_html__( 'Engine health', 'talenttrack' ) . '</h3>';
+
+        $last = $diag->lastSweepAt();
+        if ( $diag->sweepLooksStale() ) {
+            echo '<p class="tt-notice tt-notice-warning">';
+            echo esc_html(
+                $last === null
+                    ? __( 'Alerts have never been checked on this site. Scheduled tasks are probably not running — until they do, every alert screen will show an empty picture, which looks the same as having nothing to report.', 'talenttrack' )
+                    : __( 'Alerts were last checked more than three hours ago. Scheduled tasks have probably stopped; the alerts you see are frozen at that moment.', 'talenttrack' )
+            );
+            echo '</p>';
+        }
+
+        if ( $last !== null ) {
+            echo '<p class="tt-field-hint">' . esc_html( sprintf(
+                /* translators: %s: human-readable time difference, e.g. "12 minutes" */
+                __( 'Last checked %s ago.', 'talenttrack' ),
+                human_time_diff( $last, time() )
+            ) ) . '</p>';
+        }
+
+        $rows = $diag->perDefinition();
+        if ( empty( $rows ) ) {
+            echo '</section>';
+            return;
+        }
+
+        echo '<div class="tt-table-scroll">';
+        echo '<table class="tt-table tt-alert-diagnostics-table">';
+        echo '<thead><tr>'
+            . '<th>' . esc_html__( 'Alert', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Open', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Cleared', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Dismissed', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Check time', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+
+        foreach ( $rows as $row ) {
+            $dismissed = $row['dismiss_rate'] !== null
+                ? sprintf( '%d%%', (int) round( $row['dismiss_rate'] * 100 ) )
+                : '—';
+
+            printf(
+                '<tr%1$s><td>%2$s%3$s</td><td>%4$s</td><td>%5$s</td><td>%6$s</td><td>%7$s</td></tr>',
+                $row['noisy'] ? ' class="tt-alert-diagnostics-noisy"' : '',
+                esc_html( $row['label'] ),
+                $row['noisy']
+                    ? '<span class="tt-alert-diagnostics-flag">' . esc_html__( 'Mostly dismissed — worth reviewing', 'talenttrack' ) . '</span>'
+                    : '',
+                esc_html( (string) $row['open'] ),
+                esc_html( (string) $row['resolved'] ),
+                esc_html( $dismissed ),
+                esc_html( sprintf(
+                    /* translators: %d: milliseconds the check took */
+                    __( '%d ms', 'talenttrack' ),
+                    $row['ms']
+                ) )
+            );
+        }
+
+        echo '</tbody></table></div>';
+        echo '<p class="tt-field-hint">'
+            . esc_html__( 'An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts, and the useful ones go with it. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation.', 'talenttrack' )
+            . '</p>';
+        echo '</section>';
     }
 
     private static function handleSave(): void {

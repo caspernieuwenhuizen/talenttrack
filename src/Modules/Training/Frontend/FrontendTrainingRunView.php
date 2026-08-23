@@ -232,6 +232,12 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         // in the dashboard inherits a pitch-side treatment.
         echo '<div class="tt-run" data-tt-run>';
 
+        // #2552 — how many writes are waiting for signal. Hidden while
+        // the queue is empty, which is almost always. `role="status"`
+        // rather than `alert`: it is reassurance, not an emergency, and
+        // it must not interrupt a coach mid-tap.
+        echo '<p class="tt-run__offline" data-tt-run-offline role="status" aria-live="polite" hidden></p>';
+
         echo '<div class="tt-run__progress" data-tt-run-progress role="img" aria-label="'
             . esc_attr__( 'How far through the training you are', 'talenttrack' ) . '"></div>';
 
@@ -452,10 +458,20 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #2552 — the write queue. A dependency, not merely loaded
+        // first: the run view reads `window.TTOfflineQueue` while
+        // wiring its own writes, so it has to exist by then.
+        wp_enqueue_script(
+            'tt-offline-queue',
+            TT_PLUGIN_URL . 'assets/js/tt-offline-queue.js',
+            [],
+            TT_VERSION,
+            true
+        );
         wp_enqueue_script(
             'tt-frontend-training-run',
             TT_PLUGIN_URL . 'assets/js/frontend-training-run.js',
-            [ 'tt-frontend-training-scene' ],
+            [ 'tt-frontend-training-scene', 'tt-offline-queue' ],
             TT_VERSION,
             true
         );
@@ -563,6 +579,16 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             'of'           => __( 'of %s', 'talenttrack' ),
             'organisation' => __( 'Organisation', 'talenttrack' ),
             'coachingPts'  => __( 'Coaching points', 'talenttrack' ),
+            // #2552 — the pending count, and what a queued write is
+            // called. "Saved on this phone" rather than "saved": the
+            // difference matters to a coach deciding whether they can
+            // close the tab, and claiming more than is true is how a
+            // session gets lost.
+            'obsQueued'    => __( 'Saved on this phone. It will sync when you have signal.', 'talenttrack' ),
+            /* translators: %d is always 1 here. */
+            'pendingOne'   => __( '1 change is waiting for signal.', 'talenttrack' ),
+            /* translators: %d is a number of unsaved changes, always 2 or more. */
+            'pendingMany'  => __( '%d changes are waiting for signal.', 'talenttrack' ),
             'scenePlay'    => __( 'Play', 'talenttrack' ),
             'scenePause'   => __( 'Pause', 'talenttrack' ),
             'sceneRestart' => __( 'Restart', 'talenttrack' ),

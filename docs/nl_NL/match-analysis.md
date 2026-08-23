@@ -59,14 +59,28 @@ voorbereidingsscherm en tonen daarom nooit een geplande regel.
 
 ### Spelers
 
-Iedereen die gespeeld heeft staat in de lijst, met zijn speelminuten. Elke
-regel is optioneel en begint op **Niet genoemd** — de meeste regels blijven
-dat ook. Per speler kun je invullen:
+Iedereen die gespeeld heeft staat in de lijst — als een **raster met
+namen**, niet als een stapel formulieren. Tik op een naam en kies er één
+van drie:
 
-- een **markering** — Sprong eruit / Zoals verwacht / Kwam tekort;
-- een **notitie** — het concrete dat hij deed ("bleef de bal onder druk in
-  de draai aannemen"), geen eindoordeel;
-- de **fase** waar de notitie bij hoort, als hij ergens bij hoort.
+- **▲ Sprong eruit**
+- **● Zoals verwacht**
+- **Kwam tekort ▼**
+
+De naam krijgt die kleur en dat teken, en de speler verschijnt eronder bij
+**Notities**. Daar schrijf je het concrete dat hij deed ("bleef de bal onder
+druk in de draai aannemen" — geen eindoordeel) en, als het ergens bij hoort,
+de **fase**. Tik nog eens op de naam om het te wijzigen, of kies **Wissen**
+om de markering eraf te halen.
+
+Alleen de spelers die je markeert krijgen een notitieveld, dus een selectie
+van veertien past op één telefoonscherm en een analyse waar je nog niet aan
+begonnen bent bevat helemaal geen tekstvakken.
+
+Een speler ongemoeid laten is het normale geval en zegt niets over hem.
+**Zoals verwacht** is iets anders: dat zegt dat je gekeken hebt en tevreden
+was — het vastleggen waard bij een speler van wie de ouders vragen waarom
+hij nooit genoemd wordt.
 
 Heb je een speler op het wedstrijdplan gemarkeerd — een specifiek doel of
 een aandachtspunt — dan staat die regel op zijn rij, zodat je antwoord geeft

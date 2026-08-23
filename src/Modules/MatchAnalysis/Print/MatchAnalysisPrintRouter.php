@@ -58,7 +58,7 @@ class MatchAnalysisPrintRouter {
         $styles    = MatchAnalysisPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-analysis', 'activity_id' => $activity_id ],
-            home_url( '/' )
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
         ob_start();

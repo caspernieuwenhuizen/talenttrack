@@ -231,7 +231,7 @@ class ProspectsRestController {
                     'tt_view'  => 'my-tasks',
                     'task_id'  => $task_id,
                 ],
-                home_url( '/' )
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
             ),
         ], 201 );
     }

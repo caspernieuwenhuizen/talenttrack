@@ -7,6 +7,7 @@ use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
+use TT\Modules\Alerts\Diagnostics\AlertDiagnostics;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Policy\ClubAlertPolicy;
@@ -76,6 +77,15 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'rollup' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+            ],
+        ] );
+
+        // #2634 — before the uuid pattern, same as the other literal routes.
+        register_rest_route( self::NS, '/alerts/diagnostics', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'diagnostics' ],
+                'permission_callback' => self::permCan( 'tt_edit_settings' ),
             ],
         ] );
 
@@ -255,6 +265,32 @@ final class AlertsRestController extends BaseController {
 
         $resolver->flush();
         return RestResponse::success( [ 'saved' => true ] );
+    }
+
+    /**
+     * Engine health and per-definition noise (#2634).
+     *
+     * The same numbers the policy screen renders, so a non-WordPress front
+     * end or an uptime check can ask "is the alerts engine actually running"
+     * without scraping HTML. `stale` is the one field worth alerting on
+     * externally: a frozen sweep looks identical to a healthy quiet system
+     * from every other angle.
+     */
+    public static function diagnostics(): \WP_REST_Response {
+        $diag = new AlertDiagnostics();
+        $last = $diag->lastSweepAt();
+
+        return RestResponse::success( [
+            'last_sweep_at' => $last !== null ? gmdate( 'c', $last ) : null,
+            'stale'         => $diag->sweepLooksStale(),
+            'definitions'   => array_values( array_map(
+                static function ( array $row, string $key ): array {
+                    return array_merge( [ 'alert_key' => $key ], $row );
+                },
+                $rows = $diag->perDefinition(),
+                array_keys( $rows )
+            ) ),
+        ] );
     }
 
     public static function getPolicy(): \WP_REST_Response {
