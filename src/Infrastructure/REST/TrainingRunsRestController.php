@@ -233,7 +233,17 @@ final class TrainingRunsRestController {
             );
         }
 
-        $observation_id = ( new TrainingObservationsRepository() )->create( [
+        $repo = new TrainingObservationsRepository();
+
+        // #2552 — a replay from the offline queue must not become a
+        // second observation. The client stamps `client_uuid` once, when
+        // the coach saves; the repository returns the row that already
+        // carries it. Whether this is a first save or a replay is
+        // decided by asking, not by trusting the client's opinion.
+        $client_uuid = (string) ( $r->get_param( 'client_uuid' ) ?? '' );
+        $replayed    = $client_uuid !== '' && $repo->findByUuid( $client_uuid ) !== null;
+
+        $observation_id = $repo->create( [
             'run_id'             => $id,
             'run_block_id'       => (int) $r->get_param( 'run_block_id' ) ?: null,
             'player_id'          => $player_id,
@@ -241,6 +251,7 @@ final class TrainingRunsRestController {
             'football_action_id' => (int) $r->get_param( 'football_action_id' ) ?: null,
             'rating'             => $r->get_param( 'rating' ),
             'note'               => $r->get_param( 'note' ),
+            'client_uuid'        => $client_uuid,
         ] );
 
         if ( $observation_id <= 0 ) {
@@ -251,7 +262,13 @@ final class TrainingRunsRestController {
             );
         }
 
-        return RestResponse::success( [ 'observation_id' => $observation_id ], 201 );
+        // 200 for a replay, 201 for a new row — the same distinction
+        // `POST /training/runs` already makes when a plan is re-attached,
+        // so a client can tell "this landed twice" from "this is new".
+        return RestResponse::success(
+            [ 'observation_id' => $observation_id, 'replayed' => $replayed ],
+            $replayed ? 200 : 201
+        );
     }
 
     public static function delete_observation( \WP_REST_Request $r ): \WP_REST_Response {

@@ -239,6 +239,30 @@ person who has to act on it.
 The sheet is the plan, not the record. What you actually run is recorded on
 the training.
 
+### When the signal drops
+
+Pitches are where signal is worst, so the sideline view keeps working without
+it. Tap a block done, skip one, or write an observation with no bars, and it is
+stored on the phone instead of being lost. A line at the top of the screen says
+how many changes are waiting — *"2 wijzigingen wachten op bereik"* — and they
+send themselves the moment you have a connection again.
+
+It survives locking the phone, switching apps and reloading the page. Nothing
+is lost by walking inside.
+
+Two things worth knowing:
+
+- **Opening the page still needs signal.** What is protected is a session
+  already underway; you cannot start one from nothing with no connection.
+- **Nothing is recorded twice.** If a change is sent and the reply never comes
+  back, the phone tries again — and the second attempt lands on the same
+  record rather than creating a duplicate. That matters because these numbers
+  become each player's training minutes.
+
+If a change still cannot be saved after you reconnect — because you were away
+so long that your login expired — it stays queued rather than being thrown
+away. Reload the page and it will go.
+
 ## What a player has actually been taught
 
 This is the part the rest of the module exists for.
