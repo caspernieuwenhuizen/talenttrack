@@ -154,13 +154,54 @@ with the Play control still available. Matches the shipped Speelwijze scenes.
 - The PHV warning repeats on the print, because the person holding the paper
   is the person who has to act on it.
 
-### Wave 9 — no dedicated mockup
-The photo-capture backend from #0016 is already shipped. The review wizard
-reuses the generator's step-4 block cards with a confidence tint per row
-(green ≥0.85, amber 0.6–0.85, red below, matching
-`ExerciseFuzzyMatcher`'s 0.6 threshold). The capture screen is a camera
-viewfinder with a single shutter. Neither warrants its own design pass until
-the DPIA closes.
+### Wave 9 — `photo-capture.html`
+
+This section used to say wave 9 needed no mockup, because the review wizard
+could reuse the generator's step-4 block cards and the capture screen was "a
+viewfinder with a single shutter". Building it showed both halves were wrong.
+
+**The review step is a different reading task from the generator's.** In the
+generator, the system proposes blocks it chose from the library, and the coach
+is deciding whether they *like* them. Here the coach is checking whether a
+machine read their handwriting correctly — deciding whether each row is *true*.
+Those need different affordances: every row carries a confidence, a match that
+can be wrong in a way the coach must be able to see, and an editable name and
+duration. Reusing step-4's cards would have hidden the one thing that matters.
+
+**Confidence tint**, matching `ExerciseFuzzyMatcher`'s own 0.6 threshold so the
+colour and the code cannot disagree: green ≥ 0.85, amber 0.6–0.85, red below.
+Amber and red also carry a sentence saying *why*, because a colour alone tells
+a coach something is wrong without telling them what to do.
+
+**An unmatched row stays as a free-text block** and says what that costs: it
+will not count towards what the players have been taught, since exposure is
+computed from matched exercises. That consequence is invisible otherwise, and
+it is the difference between a coach linking the row and shrugging past it.
+
+**The capture screen is not just a shutter.** It carries two things the DPIA
+forced into the design:
+
+- **Where the photo goes**, in the coach's own words, on the screen where they
+  decide to take it — not buried in a settings page. It names the declared
+  region from `TT_VISION_DATA_REGION`, so what an operator wrote in
+  `wp-config.php` is what a coach reads.
+- **A placeholder for the consent surface** (DPIA prerequisite 4, still open).
+  Whether a coach must acknowledge something before their first upload is a
+  legal answer, not a product one — so the mockup shows where it would sit
+  rather than inventing the wording.
+
+**Offline is its own state, and it behaves differently from the sideline's.**
+The sideline queues a write and forgets it: nobody needs to see the result. A
+photo produces an extraction somebody has to *review*, so it cannot be
+fire-and-forget. The photo is held on the phone, the screen says so, and the
+reading happens when there is signal — at which point the coach comes back to
+a concept waiting for them. The retention of that held photo is DPIA
+prerequisite 2 and is still open; the mockup says so on the screen rather than
+picking a number.
+
+**Still to settle before this is built:** whether "Zelf typen" (the escape to
+manual entry) belongs on the capture screen at all, or whether reaching this
+screen already means the coach chose photo over typing.
 
 ## Still to test on a real device
 
