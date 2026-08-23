@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T11:28:17+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:55:42+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -22268,6 +22268,8 @@ msgid "Browse the library"
 msgstr "Bekijk de kennisbank"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:73
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:23
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:36
 msgid "Course"
 msgstr "Cursus"
 
@@ -22636,6 +22638,89 @@ msgstr "Toegevoegde documenten"
 msgid "Document"
 msgstr "Document"
 
+#: src/Modules/Knowledge/TeamCourseCoverage.php:94
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:80
+msgid "A staff member"
+msgstr "Een stafmedewerker"
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:30
+msgid "Check and assign"
+msgstr "Controleren en toewijzen"
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:38
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:97
+msgid "Go back and choose a course and at least one person."
+msgstr "Ga terug en kies een cursus en minstens één persoon."
+
+#. translators: %s: the course title
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:46
+#, php-format
+msgid "Assigning %s."
+msgstr "Je wijst %s toe."
+
+#. translators: %d: how many people will be newly enrolled
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:54
+#, php-format
+msgid "%d person will be enrolled."
+msgid_plural "%d people will be enrolled."
+msgstr[0] "%d persoon wordt ingeschreven."
+msgstr[1] "%d personen worden ingeschreven."
+
+#. translators: %d: how many people were already on the course
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:61
+#, php-format
+msgid "%d person is already on this course and will be left as they are."
+msgid_plural ""
+"%d people are already on this course and will be left as they are."
+msgstr[0] "%d persoon volgt deze cursus al en blijft ongewijzigd."
+msgstr[1] "%d personen volgen deze cursus al en blijven ongewijzigd."
+
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:74
+msgid "No deadline."
+msgstr "Geen deadline."
+
+#. translators: %s: the deadline date
+#: src/Modules/Knowledge/Wizards/AssignConfirmStep.php:77
+#, php-format
+msgid "Deadline: %s."
+msgstr "Deadline: %s."
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:29
+msgid "This install has no courses."
+msgstr "Deze installatie heeft geen cursussen."
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:38
+msgid "Choose a course"
+msgstr "Kies een cursus"
+
+#: src/Modules/Knowledge/Wizards/AssignCourseStep.php:57
+msgid "Choose a course to assign."
+msgstr "Kies een cursus om toe te wijzen."
+
+#: src/Modules/Knowledge/Wizards/AssignCourseWizard.php:44
+msgid "Assign a course"
+msgstr "Een cursus toewijzen"
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:22
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:28
+msgid "Finish by"
+msgstr "Afronden vóór"
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:30
+msgid "Optional. Leave empty for no deadline."
+msgstr "Optioneel. Laat leeg voor geen deadline."
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:48
+msgid "That date could not be understood."
+msgstr "Die datum kon niet worden gelezen."
+
+#: src/Modules/Knowledge/Wizards/AssignDueDateStep.php:54
+msgid "That deadline has already passed. Pick a date in the future."
+msgstr "Die deadline ligt in het verleden. Kies een datum in de toekomst."
+
 #: src/Modules/Knowledge/Wizards/AssignmentAttachStep.php:31
 msgid "Documents"
 msgstr "Documenten"
@@ -22733,6 +22818,45 @@ msgstr "Die opdracht kon niet worden gestart."
 #: src/Modules/Knowledge/Wizards/AssignmentWriteStep.php:116
 msgid "Your answer could not be saved."
 msgstr "Je antwoord kon niet worden opgeslagen."
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:34
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
+msgid "Who"
+msgstr "Wie"
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:41
+msgid "Go back and choose a course first."
+msgstr "Ga eerst terug en kies een cursus."
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:48
+msgid "This academy has no staff records to assign a course to."
+msgstr "Deze academie heeft geen stafdossiers om een cursus aan toe te wijzen."
+
+#. translators: %s: a comma-separated list of personas, e.g. "coach, head coach"
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:55
+#, php-format
+msgid "Staff matching this course's audience: %s."
+msgstr "Staf die past bij de doelgroep van deze cursus: %s."
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:60
+msgid ""
+"Showing all staff. Nobody matched this course's audience, which usually "
+"means staff records are not linked to accounts yet."
+msgstr ""
+"Alle staf wordt getoond. Niemand matchte de doelgroep van deze cursus, "
+"meestal omdat stafdossiers nog niet aan accounts gekoppeld zijn."
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:67
+msgid "Who takes this course"
+msgstr "Wie volgt deze cursus"
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:95
+msgid "Choose at least one person."
+msgstr "Kies minstens één persoon."
+
+#: src/Modules/Knowledge/Wizards/AssignPeopleStep.php:115
+msgid "Those people could not be found. Choose again."
+msgstr "Die personen konden niet worden gevonden. Kies opnieuw."
 
 #: src/Modules/Knowledge/Wizards/SubmitAssignmentWizard.php:51
 msgid "Hand in an assignment"
@@ -32035,10 +32159,6 @@ msgid ""
 msgstr ""
 "Je hebt nog geen prospects vastgelegd. Gebruik de \"+ Nieuwe prospect\"-knop "
 "hierboven om te starten."
-
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
-msgid "Who"
-msgstr "Wie"
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
 msgid "What"
@@ -54004,82 +54124,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-msgid "A staff member"
-msgstr "Een stafmedewerker"
-
-msgid "Assign a course"
-msgstr "Een cursus toewijzen"
-
-msgid "Assigning %s."
-msgstr "Je wijst %s toe."
-
-msgid "Check and assign"
-msgstr "Controleren en toewijzen"
-
-msgid "Choose a course"
-msgstr "Kies een cursus"
-
-msgid "Choose a course to assign."
-msgstr "Kies een cursus om toe te wijzen."
-
-msgid "Choose at least one person."
-msgstr "Kies minstens één persoon."
-
-msgid "Deadline"
-msgstr "Deadline"
-
-msgid "Deadline: %s."
-msgstr "Deadline: %s."
-
-msgid "Finish by"
-msgstr "Afronden vóór"
-
-msgid "Go back and choose a course and at least one person."
-msgstr "Ga terug en kies een cursus en minstens één persoon."
-
-msgid "Go back and choose a course first."
-msgstr "Ga eerst terug en kies een cursus."
-
-msgid "No deadline."
-msgstr "Geen deadline."
-
-msgid "Optional. Leave empty for no deadline."
-msgstr "Optioneel. Laat leeg voor geen deadline."
-
-msgid "Showing all staff. Nobody matched this course's audience, which usually means staff records are not linked to accounts yet."
-msgstr "Alle staf wordt getoond. Niemand matchte de doelgroep van deze cursus, meestal omdat stafdossiers nog niet aan accounts gekoppeld zijn."
-
-msgid "Staff matching this course's audience: %s."
-msgstr "Staf die past bij de doelgroep van deze cursus: %s."
-
-msgid "That date could not be understood."
-msgstr "Die datum kon niet worden gelezen."
-
-msgid "That deadline has already passed. Pick a date in the future."
-msgstr "Die deadline ligt in het verleden. Kies een datum in de toekomst."
-
-msgid "This academy has no staff records to assign a course to."
-msgstr "Deze academie heeft geen stafdossiers om een cursus aan toe te wijzen."
-
-msgid "This install has no courses."
-msgstr "Deze installatie heeft geen cursussen."
-
-msgid "Those people could not be found. Choose again."
-msgstr "Die personen konden niet worden gevonden. Kies opnieuw."
-
-msgid "Who takes this course"
-msgstr "Wie volgt deze cursus"
-
-msgid "%d person will be enrolled."
-msgid_plural "%d people will be enrolled."
-msgstr[0] "%d persoon wordt ingeschreven."
-msgstr[1] "%d personen worden ingeschreven."
-
-msgid "%d person is already on this course and will be left as they are."
-msgid_plural "%d people are already on this course and will be left as they are."
-msgstr[0] "%d persoon volgt deze cursus al en blijft ongewijzigd."
-msgstr[1] "%d personen volgen deze cursus al en blijven ongewijzigd."
 
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
