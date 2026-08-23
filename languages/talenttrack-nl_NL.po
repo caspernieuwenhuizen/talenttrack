@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T11:03:53+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:12:12+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4374,11 +4374,11 @@ msgstr "De wedstrijdactiviteit kon niet worden aangemaakt."
 msgid "Could not promote match to activity."
 msgstr "De wedstrijd kon niet worden gepromoveerd tot activiteit."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:942
+#: src/Infrastructure/REST/TournamentsRestController.php:949
 msgid "Cannot auto-plan a completed match."
 msgstr "Een afgeronde wedstrijd kan niet automatisch worden gepland."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:950
+#: src/Infrastructure/REST/TournamentsRestController.php:957
 msgid ""
 "Match has no formation. Set a formation on the match or tournament before "
 "auto-planning."
@@ -4386,23 +4386,23 @@ msgstr ""
 "Wedstrijd heeft geen opstelling. Stel een opstelling in op de wedstrijd of "
 "het toernooi voordat je automatisch plant."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:955
+#: src/Infrastructure/REST/TournamentsRestController.php:962
 msgid "Add players to the squad before auto-planning."
 msgstr "Voeg spelers toe aan de selectie voordat je automatisch plant."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1204
+#: src/Infrastructure/REST/TournamentsRestController.php:1211
 msgid "The match could not be updated."
 msgstr "De wedstrijd kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1225
+#: src/Infrastructure/REST/TournamentsRestController.php:1232
 msgid "The match could not be deleted."
 msgstr "De wedstrijd kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1245
+#: src/Infrastructure/REST/TournamentsRestController.php:1252
 msgid "Squad payload must be an array."
 msgstr "Selectie-payload moet een array zijn."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1311
+#: src/Infrastructure/REST/TournamentsRestController.php:1318
 msgid "The squad member could not be removed."
 msgstr "Het selectielid kon niet worden verwijderd."
 
@@ -6193,11 +6193,11 @@ msgstr "Een speler"
 msgid "%s is active but belongs to no team."
 msgstr "%s is actief maar hoort bij geen enkel team."
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:73
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:77
 msgid "Certificate expiring"
 msgstr "Certificaat verloopt"
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:77
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:81
 msgid ""
 "One of your certificates is about to expire or has just expired. Every "
 "player in the squad needs the person running their training to be qualified "
@@ -6207,18 +6207,18 @@ msgstr ""
 "in de selectie heeft er belang bij dat wie zijn training geeft daarvoor "
 "gekwalificeerd is."
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:191
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:195
 msgid "A certificate"
 msgstr "Een certificaat"
 
 #. translators: %s: certificate name
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:197
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:201
 #, php-format
 msgid "Your %s certificate has expired."
 msgstr "Je certificaat %s is verlopen."
 
 #. translators: 1: certificate name, 2: number of days until it expires
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:207
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:211
 #, php-format
 msgid "Your %1$s certificate expires in %2$d day."
 msgid_plural "Your %1$s certificate expires in %2$d days."
@@ -21667,11 +21667,11 @@ msgstr ""
 "Een speler in jouw team is bijna terug van blessure. Bevestig dat ze op "
 "schema liggen of werk de verwachte terugkeer bij."
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:70
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
 msgid "Assignment waiting for review"
 msgstr "Opdracht wacht op beoordeling"
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:78
 msgid ""
 "A coach has handed in a practical assignment and is waiting on your "
 "decision. Their course cannot finish until you make one."
@@ -21679,14 +21679,14 @@ msgstr ""
 "Een trainer heeft een praktijkopdracht ingeleverd en wacht op jouw oordeel. "
 "De cursus kan pas worden afgerond als je er een geeft."
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:278
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:125
 #: src/Modules/Knowledge/SubmissionQueue.php:67
 msgid "A coach"
 msgstr "Een trainer"
 
 #. translators: %s: the coach who handed the assignment in
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:286
 #, php-format
 msgid "%s is waiting on your review of their assignment."
 msgstr "%s wacht op jouw beoordeling van de opdracht."
@@ -41459,7 +41459,7 @@ msgid "Optional one-liner"
 msgstr "Optionele toelichting"
 
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:38
-#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:125
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:137
 msgid "No player id supplied."
 msgstr "Geen speler-id meegegeven."
 
@@ -41468,7 +41468,7 @@ msgstr "Geen speler-id meegegeven."
 msgid "Could not write evaluation row."
 msgstr "Kon evaluatie-rij niet wegschrijven."
 
-#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:128
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:140
 msgid "No activity id supplied."
 msgstr "Geen activiteit-id meegegeven."
 

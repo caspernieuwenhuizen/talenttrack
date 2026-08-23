@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T11:03:53+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:12:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -4161,33 +4161,33 @@ msgstr ""
 msgid "Could not promote match to activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:942
+#: src/Infrastructure/REST/TournamentsRestController.php:949
 msgid "Cannot auto-plan a completed match."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:950
+#: src/Infrastructure/REST/TournamentsRestController.php:957
 msgid ""
 "Match has no formation. Set a formation on the match or tournament before "
 "auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:955
+#: src/Infrastructure/REST/TournamentsRestController.php:962
 msgid "Add players to the squad before auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1204
+#: src/Infrastructure/REST/TournamentsRestController.php:1211
 msgid "The match could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1225
+#: src/Infrastructure/REST/TournamentsRestController.php:1232
 msgid "The match could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1245
+#: src/Infrastructure/REST/TournamentsRestController.php:1252
 msgid "Squad payload must be an array."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1311
+#: src/Infrastructure/REST/TournamentsRestController.php:1318
 msgid "The squad member could not be removed."
 msgstr ""
 
@@ -5869,29 +5869,29 @@ msgstr ""
 msgid "%s is active but belongs to no team."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:73
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:77
 msgid "Certificate expiring"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:77
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:81
 msgid ""
 "One of your certificates is about to expire or has just expired. Every "
 "player in the squad needs the person running their training to be qualified "
 "to run it."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:191
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:195
 msgid "A certificate"
 msgstr ""
 
 #. translators: %s: certificate name
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:197
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:201
 #, php-format
 msgid "Your %s certificate has expired."
 msgstr ""
 
 #. translators: 1: certificate name, 2: number of days until it expires
-#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:207
+#: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:211
 #, php-format
 msgid "Your %1$s certificate expires in %2$d day."
 msgid_plural "Your %1$s certificate expires in %2$d days."
@@ -20085,24 +20085,24 @@ msgid ""
 "track or update the expected return date."
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:70
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
 msgid "Assignment waiting for review"
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:74
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:78
 msgid ""
 "A coach has handed in a practical assignment and is waiting on your "
 "decision. Their course cannot finish until you make one."
 msgstr ""
 
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:278
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:125
 #: src/Modules/Knowledge/SubmissionQueue.php:67
 msgid "A coach"
 msgstr ""
 
 #. translators: %s: the coach who handed the assignment in
-#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:282
+#: src/Modules/Knowledge/Alerts/SubmissionsAwaitingReviewAlert.php:286
 #, php-format
 msgid "%s is waiting on your review of their assignment."
 msgstr ""
@@ -38525,7 +38525,7 @@ msgid "Optional one-liner"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/EvaluationInserter.php:38
-#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:125
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:137
 msgid "No player id supplied."
 msgstr ""
 
@@ -38534,7 +38534,7 @@ msgstr ""
 msgid "Could not write evaluation row."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:128
+#: src/Modules/Wizards/Evaluation/EvaluationInserter.php:140
 msgid "No activity id supplied."
 msgstr ""
 
