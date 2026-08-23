@@ -116,6 +116,16 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             return;
         }
 
+        // #2753 — classifying the library, a mode of the library rather
+        // than a view of its own: the subject is still the exercise list,
+        // so § 5's two affordances are unchanged and the chain simply
+        // gains a crumb.
+        $mode = isset( $_GET['mode'] ) ? sanitize_key( wp_unslash( $_GET['mode'] ) ) : '';
+        if ( $mode === 'tag' ) {
+            self::renderTagging( $user_id );
+            return;
+        }
+
         self::renderList( $user_id );
     }
 
@@ -139,6 +149,10 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         echo '<p class="tt-muted tt-ex-intro">'
             . esc_html__( 'Every drill the club can build a training from — your own and the conditioning exercises that ship with VCT. Add one and it is yours to use straight away.', 'talenttrack' )
             . '</p>';
+
+        if ( self::canWrite( $user_id ) ) {
+            self::renderClassifyPrompt();
+        }
 
         if ( self::canPromote( $user_id ) ) {
             self::renderPromotionQueue();
@@ -557,6 +571,222 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
                 . esc_html__( 'This exercise ships with TalentTrack, so it cannot be edited here. Duplicate it to make a version of your own.', 'talenttrack' )
                 . '</p>';
         }
+    }
+
+    /**
+     * `?tt_view=exercises&mode=tag` — classify the library (#2753).
+     *
+     * An exercise with no principle is invisible to the generator and
+     * contributes nothing to player training exposure, which is the
+     * thing the training module exists to measure. On the pilot install
+     * that is 69 of 123 exercises.
+     *
+     * It cannot be fixed one exercise at a time. A tagged exercise
+     * carries 7.8 principles on average, so the 69 are roughly 550
+     * interactions through a form that opens and saves once per row —
+     * which is precisely why nobody has done it. So the surface is built
+     * around selecting many and applying once, and everything else is
+     * secondary to that.
+     */
+    /**
+     * The way in to classifying, shown only while there is work (#2753).
+     *
+     * It states the consequence rather than the count alone. "69 not
+     * classified" is a number a coach can ignore; "these are never
+     * suggested, and time spent on them counts towards nothing" is the
+     * reason to care, and it is invisible everywhere else in the
+     * product.
+     *
+     * Disappears entirely at zero. A permanent banner reporting that
+     * everything is fine is how people learn to stop reading banners.
+     */
+    private static function renderClassifyPrompt(): void {
+        $progress = ( new ExercisesRepository() )->reviewProgress();
+        $waiting  = max( 0, (int) $progress['total'] - (int) $progress['reviewed'] );
+        if ( $waiting === 0 ) return;
+
+        echo '<div class="tt-notice tt-ex-classify">';
+        echo '<p>' . esc_html( sprintf(
+            /* translators: %d is how many exercises have not been classified. */
+            _n(
+                '%d exercise has no principles yet, so it is never suggested by the generator and time spent on it does not count towards what your players have been taught.',
+                '%d exercises have no principles yet, so they are never suggested by the generator and time spent on them does not count towards what your players have been taught.',
+                $waiting,
+                'talenttrack'
+            ),
+            $waiting
+        ) ) . '</p>';
+
+        printf(
+            '<p><a class="tt-btn tt-btn-secondary" href="%s">%s</a></p>',
+            esc_url( add_query_arg( /* tt-xview-ok — same view, a mode of it */
+                [ 'tt_view' => 'exercises', 'mode' => 'tag' ],
+                RecordLink::dashboardUrl()
+            ) ),
+            esc_html__( 'Classify them', 'talenttrack' )
+        );
+        echo '</div>';
+    }
+
+    private static function renderTagging( int $user_id ): void {
+        FrontendBreadcrumbs::fromDashboard(
+            __( 'Classify exercises', 'talenttrack' ),
+            [ FrontendBreadcrumbs::viewCrumb( 'exercises', __( 'Exercises', 'talenttrack' ) ) ]
+        );
+
+        if ( ! self::canWrite( $user_id ) ) {
+            echo '<p class="tt-notice">'
+                . esc_html__( 'You do not have permission to classify exercises.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        self::renderHeader( __( 'Classify exercises', 'talenttrack' ) );
+
+        echo '<p class="tt-muted tt-ex-intro">'
+            . esc_html__( 'An exercise with no principle is never suggested by the generator, and time spent on it does not count towards what your players have been taught. Pick several at once and give them the principles they train.', 'talenttrack' )
+            . '</p>';
+
+        self::enqueueTagging();
+
+        echo '<div class="tt-extag" data-tt-extag></div>';
+
+        echo '<noscript><p class="tt-notice">'
+            . esc_html__( 'Classifying in bulk needs JavaScript. You can still set principles on each exercise individually.', 'talenttrack' )
+            . '</p></noscript>';
+    }
+
+    private static function enqueueTagging(): void {
+        wp_enqueue_style(
+            'tt-frontend-exercise-tagging',
+            TT_PLUGIN_URL . 'assets/css/frontend-exercise-tagging.css',
+            [ 'tt-frontend-exercises' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-frontend-exercise-tagging',
+            TT_PLUGIN_URL . 'assets/js/frontend-exercise-tagging.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        wp_add_inline_script(
+            'tt-frontend-exercise-tagging',
+            'var TT_EXERCISE_TAGGING = ' . wp_json_encode( [
+                'restBase'    => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+                'nonce'       => wp_create_nonce( 'wp_rest' ),
+                'groups'      => self::principleGroups(),
+                'methodology' => self::activeMethodologyName(),
+                'i18n'        => self::taggingStrings(),
+            ] ) . ';',
+            'before'
+        );
+    }
+
+    /**
+     * The principles to choose from, grouped by phase of play.
+     *
+     * Only the **active** methodology's. An exercise can carry
+     * principles from several sets — on the pilot install the same 54
+     * are tagged against two — and offering a coach both lists at once
+     * would invite tagging against a methodology their academy no longer
+     * plays.
+     *
+     * @return list<array{label:string, principles:list<array{id:int,code:string,title:string}>}>
+     */
+    private static function principleGroups(): array {
+        $active = \TT\Modules\Methodology\ActiveMethodologyResolver::forInstall();
+
+        $grouped = [];
+        foreach ( ( new ExercisesRepository() )->listPrinciples() as $principle ) {
+            if ( (int) ( $principle->methodology_id ?? 0 ) !== $active ) continue;
+
+            $label = self::phaseLabel(
+                (string) ( $principle->team_function_key ?? '' ),
+                (string) ( $principle->team_task_key ?? '' )
+            );
+
+            $grouped[ $label ][] = [
+                'id'    => (int) $principle->id,
+                'code'  => (string) ( $principle->code ?? '' ),
+                'title' => self::principleTitle( $principle ),
+            ];
+        }
+
+        $out = [];
+        foreach ( $grouped as $label => $principles ) {
+            $out[] = [ 'label' => (string) $label, 'principles' => $principles ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * The active methodology's name, for the screen to say what it is
+     * writing to.
+     *
+     * `name_json`, not `name` — and its keys are short (`nl`, `en`)
+     * where `tt_principles.title_json` uses full locales (`nl_NL`).
+     * Two conventions in two tables, so this accepts both rather than
+     * guessing: reading the wrong column returned an empty string
+     * silently, and a screen that cannot name the methodology it is
+     * about to write to is worse than one that does not mention it.
+     */
+    private static function activeMethodologyName(): string {
+        global $wpdb;
+
+        $json = $wpdb->get_var( $wpdb->prepare(
+            "SELECT name_json FROM {$wpdb->prefix}tt_methodologies WHERE id = %d",
+            \TT\Modules\Methodology\ActiveMethodologyResolver::forInstall()
+        ) );
+
+        $decoded = json_decode( (string) $json, true );
+        if ( ! is_array( $decoded ) || $decoded === [] ) return '';
+
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : 'nl_NL';
+        $short  = substr( $locale, 0, 2 );
+
+        $name = $decoded[ $locale ]
+            ?? $decoded[ $short ]
+            ?? $decoded['nl_NL']
+            ?? $decoded['nl']
+            ?? $decoded['en_US']
+            ?? $decoded['en']
+            ?? reset( $decoded );
+
+        return is_string( $name ) ? $name : '';
+    }
+
+    /** @return array<string,string> */
+    private static function taggingStrings(): array {
+        return [
+            /* translators: 1: how many exercises are classified, 2: how many there are. */
+            'progress'      => __( '%1$d of %2$d classified', 'talenttrack' ),
+            'allDone'       => __( 'Every exercise has been looked at. Nothing left to classify.', 'talenttrack' ),
+            /* translators: %s is the name of the academy's methodology. */
+            'writingTo'     => __( 'Tagging against %s', 'talenttrack' ),
+            'selectAll'     => __( 'Select all shown', 'talenttrack' ),
+            'clearSelection' => __( 'Clear selection', 'talenttrack' ),
+            /* translators: %d is how many exercises are selected. */
+            'selected'      => __( '%d selected', 'talenttrack' ),
+            'choosePrinciples' => __( 'Principles to apply', 'talenttrack' ),
+            'apply'         => __( 'Apply to selected', 'talenttrack' ),
+            'noneApply'     => __( 'None apply — mark as looked at', 'talenttrack' ),
+            'modeAdd'       => __( 'Add to what they already have', 'talenttrack' ),
+            'modeReplace'   => __( 'Replace what they have', 'talenttrack' ),
+            /* translators: %d is how many principles the exercise already has. */
+            'alreadyTagged' => __( 'Already has %d principles', 'talenttrack' ),
+            'untagged'      => __( 'No principles yet', 'talenttrack' ),
+            'pickSome'      => __( 'Choose at least one exercise.', 'talenttrack' ),
+            'pickPrinciples' => __( 'Choose principles, or use "None apply".', 'talenttrack' ),
+            'saving'        => __( 'Saving…', 'talenttrack' ),
+            /* translators: %d is how many exercises were changed. */
+            'saved'         => __( '%d exercises classified.', 'talenttrack' ),
+            'saveFailed'    => __( 'That did not save. Nothing was changed; try again.', 'talenttrack' ),
+            'loadFailed'    => __( 'The list could not be loaded.', 'talenttrack' ),
+            'replaceWarn'   => __( 'Replace removes the principles these exercises already have, for this methodology only. Continue?', 'talenttrack' ),
+        ];
     }
 
     /** This exercise's own page. */

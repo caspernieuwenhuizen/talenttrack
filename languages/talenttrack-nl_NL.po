@@ -54401,6 +54401,83 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Classify them"
+msgstr "Classificeren"
+
+msgid "Classify exercises"
+msgstr "Oefeningen classificeren"
+
+msgid "You do not have permission to classify exercises."
+msgstr "Je hebt geen rechten om oefeningen te classificeren."
+
+msgid "An exercise with no principle is never suggested by the generator, and time spent on it does not count towards what your players have been taught. Pick several at once and give them the principles they train."
+msgstr "Een oefening zonder principe wordt nooit voorgesteld door de generator, en de tijd die eraan besteed wordt telt niet mee voor wat je spelers geleerd hebben. Selecteer er meerdere tegelijk en geef ze de principes die ze trainen."
+
+msgid "Classifying in bulk needs JavaScript. You can still set principles on each exercise individually."
+msgstr "In bulk classificeren heeft JavaScript nodig. Per oefening principes instellen kan nog steeds."
+
+msgid "Tagging against %s"
+msgstr "Wordt gekoppeld aan %s"
+
+msgid "Select all shown"
+msgstr "Alles hierboven selecteren"
+
+msgid "Principles to apply"
+msgstr "Toe te passen principes"
+
+msgid "Apply to selected"
+msgstr "Toepassen op selectie"
+
+msgid "None apply — mark as looked at"
+msgstr "Geen van toepassing — als bekeken markeren"
+
+msgid "Add to what they already have"
+msgstr "Toevoegen aan wat ze al hebben"
+
+msgid "Replace what they have"
+msgstr "Vervangen wat ze hebben"
+
+msgid "No principles yet"
+msgstr "Nog geen principes"
+
+msgid "Choose at least one exercise."
+msgstr "Kies minstens één oefening."
+
+msgid "Choose principles, or use \"None apply\"."
+msgstr "Kies principes, of gebruik \"Geen van toepassing\"."
+
+msgid "That did not save. Nothing was changed; try again."
+msgstr "Dat is niet opgeslagen. Er is niets gewijzigd; probeer het opnieuw."
+
+msgid "The list could not be loaded."
+msgstr "De lijst kon niet geladen worden."
+
+msgid "Replace removes the principles these exercises already have, for this methodology only. Continue?"
+msgstr "Vervangen verwijdert de principes die deze oefeningen al hebben, alleen voor deze methodiek. Doorgaan?"
+
+msgid "Choose at least one exercise to tag."
+msgstr "Kies minstens één oefening om te koppelen."
+
+msgid "Every exercise has been looked at. Nothing left to classify."
+msgstr "Alle oefeningen zijn bekeken. Er is niets meer te classificeren."
+
+msgid "%1$d of %2$d classified"
+msgstr "%1$d van %2$d geclassificeerd"
+
+msgid "%d selected"
+msgstr "%d geselecteerd"
+
+msgid "Already has %d principles"
+msgstr "Heeft al %d principes"
+
+msgid "%d exercises classified."
+msgstr "%d oefeningen geclassificeerd."
+
+msgid "%d exercise has no principles yet, so it is never suggested by the generator and time spent on it does not count towards what your players have been taught."
+msgid_plural "%d exercises have no principles yet, so they are never suggested by the generator and time spent on them does not count towards what your players have been taught."
+msgstr[0] "%d oefening heeft nog geen principes, dus die wordt nooit voorgesteld door de generator en de tijd die eraan besteed wordt telt niet mee voor wat je spelers geleerd hebben."
+msgstr[1] "%d oefeningen hebben nog geen principes, dus die worden nooit voorgesteld door de generator en de tijd die eraan besteed wordt telt niet mee voor wat je spelers geleerd hebben."
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 

@@ -1,0 +1,268 @@
+/**
+ * Classify exercises (#2753) — `?tt_view=exercises&mode=tag`.
+ *
+ * The screen is one interaction: select many, apply once. Everything
+ * here is arranged so that neither half ever leaves the screen — the
+ * list scrolls, the picker stays put, and on a phone the picker becomes
+ * a sticky panel rather than something you scroll past and lose.
+ *
+ * Mobile-first per CLAUDE.md §2. This is realistically a desk task, but
+ * a head of development going through warm-ups on a train should not be
+ * given a broken page for it.
+ */
+
+.tt-extag {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 1024px) {
+    /* Side by side, list left, picker right — so a selection made on the
+       left is applied without either scrolling out of view. */
+    .tt-extag {
+        grid-template-columns: minmax(0, 1fr) 21rem;
+        align-items: start;
+    }
+
+    .tt-extag__head { grid-column: 1 / -1; }
+    .tt-extag__msg  { grid-column: 1 / -1; }
+}
+
+/* ---- head ---- */
+
+.tt-extag__progress {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 700;
+}
+
+.tt-extag__method {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: var(--tt-fs-sm, 0.8125rem);
+}
+
+/* ---- the list ---- */
+
+.tt-extag__rows {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    min-width: 0;
+}
+
+.tt-extag__group {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin-top: var(--tt-sp-3, 12px);
+    padding-bottom: var(--tt-sp-1, 4px);
+    border-bottom: 1px solid var(--tt-line, #d4dbe0);
+}
+
+.tt-extag__group-title {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 700;
+}
+
+.tt-extag__group-all {
+    margin-left: auto;
+    min-height: 40px;
+    font-size: var(--tt-fs-sm, 0.8125rem);
+}
+
+/* The whole row is the label, so the tap target is the row rather than
+   a 16px checkbox — this screen is hundreds of taps and each one being
+   easy is the difference between finishing and abandoning. */
+.tt-extag__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-extag__row--on {
+    border-color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-success-subtle, #e8f3ec);
+}
+
+.tt-extag__check {
+    width: 22px;
+    height: 22px;
+    margin-top: 2px;
+    flex: 0 0 auto;
+}
+
+.tt-extag__body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.tt-extag__name {
+    font-weight: 700;
+}
+
+.tt-extag__desc {
+    font-size: var(--tt-fs-sm, 0.8125rem);
+    color: var(--tt-muted, #5b6470);
+    /* Two lines is enough to recognise a drill; more turns the list into
+       a wall and the selection task into reading. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tt-extag__tags {
+    font-size: var(--tt-fs-sm, 0.75rem);
+    color: var(--tt-muted, #5b6470);
+}
+
+.tt-extag__tags--none {
+    color: var(--tt-danger, #b32d2e);
+    font-weight: 600;
+}
+
+.tt-extag__done {
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    border: 1px dashed var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius, 8px);
+    text-align: center;
+    color: var(--tt-muted, #5b6470);
+}
+
+/* ---- the picker ---- */
+
+.tt-extag__panel {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #d4dbe0);
+    border-radius: var(--tt-radius-lg, 12px);
+    padding: var(--tt-sp-3, 12px);
+    min-width: 0;
+}
+
+@media (min-width: 1024px) {
+    /* Follows the list down, so a selection at the bottom of 123 rows is
+       still one tap from being applied. */
+    .tt-extag__panel {
+        position: sticky;
+        top: var(--tt-sp-4, 16px);
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+}
+
+.tt-extag__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    padding-bottom: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef1f5);
+}
+
+.tt-extag__count {
+    font-weight: 700;
+}
+
+.tt-extag__bar .tt-btn {
+    margin-left: auto;
+    min-height: 40px;
+    font-size: var(--tt-fs-sm, 0.8125rem);
+}
+
+.tt-extag__panel-title {
+    margin: var(--tt-sp-3, 12px) 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 700;
+}
+
+.tt-extag__picker {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    max-height: 22rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.tt-extag__pgroup-title {
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted, #5b6470);
+}
+
+.tt-extag__principle {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 44px;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+    border-radius: var(--tt-radius, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-extag__principle--on {
+    background: var(--tt-success-subtle, #e8f3ec);
+}
+
+.tt-extag__pcode {
+    font-weight: 700;
+    font-size: var(--tt-fs-sm, 0.8125rem);
+    flex: 0 0 auto;
+}
+
+.tt-extag__ptitle {
+    font-size: var(--tt-fs-sm, 0.8125rem);
+    color: var(--tt-muted, #5b6470);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.tt-extag__modes {
+    display: grid;
+    gap: var(--tt-sp-1, 4px);
+    margin: var(--tt-sp-3, 12px) 0;
+}
+
+.tt-extag__mode {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 44px;
+    font-size: var(--tt-fs-sm, 0.8125rem);
+    cursor: pointer;
+}
+
+.tt-extag__actions {
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-extag__actions .tt-btn {
+    min-height: 48px;
+}
+
+.tt-extag__msg {
+    margin: 0;
+    min-height: 1.4em;
+    font-size: var(--tt-fs-sm, 0.875rem);
+}
+
+/* ---- the prompt on the library list ---- */
+
+.tt-ex-classify p:last-child {
+    margin-bottom: 0;
+}

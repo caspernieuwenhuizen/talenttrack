@@ -206,6 +206,144 @@ final class ExercisesRepository {
     }
 
     /**
+     * Tag many exercises at once (#2753).
+     *
+     * The whole reason the tagging surface exists. A tagged exercise
+     * carries 7.8 principles on average and up to 13, so doing this one
+     * exercise at a time is roughly 550 interactions for the 69 that
+     * need it — which is why 69 of them are still untagged.
+     *
+     * `add` never removes what an exercise already had: applying
+     * "possession" to twelve rondos must not wipe the two that were
+     * already tagged properly. `replace` is the correcting path and is
+     * scoped to ONE methodology — an exercise can carry principles from
+     * several sets, and replacing a club's active-methodology tags must
+     * not silently delete the ones belonging to another.
+     *
+     * @param list<int> $exercise_ids
+     * @param list<int> $principle_ids
+     * @return int how many exercises were changed
+     */
+    public function tagMany(
+        array $exercise_ids,
+        array $principle_ids,
+        string $mode = 'add',
+        bool $mark_reviewed = true
+    ): int {
+        $exercises  = array_values( array_unique( array_filter( array_map( 'intval', $exercise_ids ) ) ) );
+        $principles = array_values( array_unique( array_filter( array_map( 'intval', $principle_ids ) ) ) );
+        if ( $exercises === [] ) return 0;
+
+        global $wpdb;
+
+        $club  = CurrentClub::id();
+        $table = $wpdb->prefix . 'tt_exercise_principles';
+        $now   = current_time( 'mysql' );
+
+        // Which methodology these principles belong to, so `replace`
+        // only clears within it.
+        $methodologies = [];
+        if ( $principles !== [] ) {
+            $in = implode( ',', array_fill( 0, count( $principles ), '%d' ) );
+            $methodologies = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
+                "SELECT DISTINCT methodology_id FROM {$wpdb->prefix}tt_principles WHERE id IN ( {$in} )",
+                $principles
+            ) ) );
+        }
+
+        $changed = 0;
+
+        foreach ( $exercises as $exercise_id ) {
+            if ( $mode === 'replace' && $methodologies !== [] ) {
+                $in = implode( ',', array_fill( 0, count( $methodologies ), '%d' ) );
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE ep FROM {$table} ep
+                       JOIN {$wpdb->prefix}tt_principles pr ON pr.id = ep.principle_id
+                      WHERE ep.exercise_id = %d AND ep.club_id = %d
+                        AND pr.methodology_id IN ( {$in} )",
+                    array_merge( [ $exercise_id, $club ], $methodologies )
+                ) );
+            }
+
+            $existing = $this->principleIdsFor( $exercise_id );
+
+            foreach ( array_diff( $principles, $mode === 'replace' ? [] : $existing ) as $principle_id ) {
+                $wpdb->insert( $table, [
+                    'club_id'      => $club,
+                    'exercise_id'  => $exercise_id,
+                    'principle_id' => $principle_id,
+                    'created_at'   => $now,
+                ] );
+            }
+
+            // Marked reviewed even when no principles were applied —
+            // that is the case this column exists for. A warm-up nobody
+            // will ever tag has to be able to leave the work list.
+            if ( $mark_reviewed ) {
+                $wpdb->update(
+                    $this->table(),
+                    [ 'principles_reviewed_at' => $now ],
+                    [ 'id' => $exercise_id, 'club_id' => $club ]
+                );
+            }
+
+            $changed++;
+        }
+
+        return $changed;
+    }
+
+    /**
+     * The exercises still waiting to be looked at (#2753).
+     *
+     * "Not reviewed", deliberately, rather than "not tagged". Nearly
+     * half the untagged rows on the pilot install are warm-ups,
+     * cool-downs and conditioning work that should never carry a
+     * tactical principle; keying the list on the join table would leave
+     * them in it forever and the count would never reach zero.
+     *
+     * @return list<object>
+     */
+    public function listAwaitingReview( int $limit = 200 ): array {
+        global $wpdb;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.id, e.name, e.description, e.category_id, e.source, e.intensity_band,
+                    c.label AS category_label
+               FROM {$this->table()} e
+          LEFT JOIN {$wpdb->prefix}tt_exercise_categories c ON c.id = e.category_id
+              WHERE e.archived_at IS NULL
+                AND e.club_id = %d
+                AND e.principles_reviewed_at IS NULL
+           ORDER BY c.sort_order ASC, e.name ASC
+              LIMIT %d",
+            CurrentClub::id(),
+            max( 1, $limit )
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /** How many exercises are reviewed, and how many there are. */
+    public function reviewProgress(): array {
+        global $wpdb;
+
+        $club = CurrentClub::id();
+
+        return [
+            'reviewed' => (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->table()}
+                  WHERE archived_at IS NULL AND club_id = %d AND principles_reviewed_at IS NOT NULL",
+                $club
+            ) ),
+            'total'    => (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$this->table()} WHERE archived_at IS NULL AND club_id = %d",
+                $club
+            ) ),
+        ];
+    }
+
+    /**
      * The methodology principles an academy can tag against, newest
      * methodology first. Small enough to load whole for a select.
      *
