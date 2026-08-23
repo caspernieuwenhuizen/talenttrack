@@ -23,6 +23,15 @@ Onder elk kenmerk ligt een conditiekenmerk dat het mogelijk maakt. Dat is de
 hele brug tussen voetbal en conditie — en het is de brug die de rest van deze
 cursus draagt.
 
+```tt-check answer="C" prompt="Waar komen de vier kenmerken vandaan? Twee dingen, plus één toevoeging."
+- A. Kracht en snelheid, plus techniek
+- B. Aeroob en anaeroob, plus herstel
+- C. Betere handelingen en meer handelingen, plus ze negentig minuten volhouden
+> Beter voetballen is in de kern kwaliteit en kwantiteit van handelingen. Omdat
+> een wedstrijd negentig minuten duurt, telt elk van die twee twee keer: kun je
+> het, en kun je het volhouden. Vier kenmerken, geen willekeurige lijst.
+```
+
 | Voetbalprestatie | Ondersteunend conditiekenmerk | Wat je ziet |
 | --- | --- | --- |
 | Betere handeling | Maximaal explosieve handeling | De speler wint het duel, komt net wel bij de bal, zet de tegenstander vast |
@@ -49,6 +58,16 @@ Lager niveau | 70  | 45
 Wat er werkelijk gebeurt is dat de speler de positie, het moment, de richting
 of de snelheid van zijn handeling niet meer op orde krijgt.
 
+```tt-check answer="A" prompt="Twee teams, zelfde aantal sprints per wedstrijd. Bij het ene duren de pauzes ertussen gemiddeld 15 seconden, bij het andere 45. Wat zegt dat?"
+- A. Het tweede team herstelt trager tussen handelingen; het eerste kan daardoor vaker in dezelfde minuut ingrijpen
+- B. Het eerste team sprint harder
+- C. Niets — het aantal sprints is gelijk, dus de belasting is gelijk
+> Gelijke aantallen over een hele wedstrijd verbergen het verschil dat telt.
+> Wie na vijftien seconden weer op scherp staat, kan drie keer ingrijpen in de
+> tijd die de ander voor één herstel nodig heeft. Dat is het tweede kenmerk:
+> sneller herstel tussen handelingen.
+```
+
 ## Waarom dit vier doelen oplevert en geen één
 
 Elk kenmerk vraagt een eigen prikkel, een eigen oefenvorm en een eigen
@@ -60,6 +79,16 @@ verbetert er weinig.
 De volgende modules gaan één voor één langs de oefenvormen en methoden die bij
 elk kenmerk horen. Houd deze tabel bij de hand; hij komt in module 4, 5 en 6
 terug.
+
+```tt-check answer="C" prompt="Team A komt het hele duel te traag in de duels. Team B wint zijn duels maar zakt na minuut 70 weg. Hebben ze hetzelfde probleem?"
+- A. Ja — beide teams zijn niet fit genoeg
+- B. Ja, maar team B heeft het in lichtere mate
+- C. Nee. Bij A zakt de kwaliteit van de handeling, bij B het volhouden ervan — twee kenmerken, twee prikkels, twee hersteltijden
+> Dit is waarom het er vier zijn en geen één. Team A heeft explosieve
+> handelingen nodig, team B moet die handelingen langer vasthouden. Behandel je
+> beide met dezelfde training, dan krijgt één van de twee de verkeerde prikkel
+> — en verbetert er bij allebei weinig.
+```
 
 ```tt-reveal question="Je team tikt in de eerste helft prima rond maar zakt na rust weg in het aantal keren dat het druk zet. Welk conditiekenmerk is onvoldoende ontwikkeld?"
 Snel herstel tussen handelingen volhouden. De kwaliteit van de individuele

@@ -41,8 +41,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once $root . '/src/Modules/Documentation/DocFrontMatter.php';
 require_once $root . '/src/Modules/Knowledge/CourseManifest.php';
 require_once $root . '/src/Modules/Knowledge/CourseLesson.php';
+require_once $root . '/src/Modules/Knowledge/Blocks/BlockRenderer.php';
+require_once $root . '/src/Modules/Knowledge/Blocks/BlockRegistry.php';
+require_once $root . '/src/Modules/Knowledge/Blocks/CheckBlock.php';
 
 use TT\Modules\Documentation\DocFrontMatter;
+use TT\Modules\Knowledge\Blocks\BlockRegistry;
+use TT\Modules\Knowledge\Blocks\CheckBlock;
 use TT\Modules\Knowledge\CourseLesson;
 use TT\Modules\Knowledge\CourseManifest;
 
@@ -171,6 +176,8 @@ foreach ( $slugs as $slug ) {
         if ( $lesson->hasAssignment() && strpos( $lesson->body(), '```tt-assignment' ) === false ) {
             $fail( $rel . '/' . $lesson_slug . '.md', 'Declares assignment: true but the body has no ```tt-assignment block.' );
         }
+
+        checkInlineChecks( $rel, $lesson_slug, $lesson->body(), $fail );
     }
 
     // Orphan lesson files — on disk but not in the manifest.
@@ -243,6 +250,77 @@ if ( $errors !== [] ) {
 
 printf( "check-courses: OK — %d course(s), all lessons and quizzes resolve.\n", count( $manifests ) );
 exit( 0 );
+
+/**
+ * Validate every `tt-check` in a lesson body (#2738).
+ *
+ * A check is scored in the browser from the `answer` attribute, so a typo
+ * there is not a rendering bug — it is a lesson that confidently tells a
+ * coach the wrong thing. Nothing at runtime can catch that, which is
+ * exactly the sort of thing this gate is for.
+ *
+ * The body grammar is read through `CheckBlock::inspect()` rather than
+ * re-parsed here, so the lint and the renderer cannot disagree about what
+ * counts as an option.
+ *
+ * @param callable(string, string): void $fail
+ */
+function checkInlineChecks( string $rel, string $lesson_slug, string $body, callable $fail ): void {
+    $where = $rel . '/' . $lesson_slug . '.md';
+    $lines = preg_split( '/\R/', $body ) ?: [];
+    $count = count( $lines );
+
+    $index = 0;
+    for ( $i = 0; $i < $count; $i++ ) {
+        if ( ! preg_match( '/^```(.*)$/', $lines[ $i ], $match ) ) {
+            continue;
+        }
+        if ( BlockRegistry::parseName( $match[1] ) !== 'tt-check' ) {
+            continue;
+        }
+
+        $index++;
+        $attrs = BlockRegistry::parseAttributes( $match[1] );
+
+        $inner = [];
+        for ( $j = $i + 1; $j < $count; $j++ ) {
+            if ( preg_match( '/^```\s*$/', $lines[ $j ] ) ) {
+                break;
+            }
+            $inner[] = $lines[ $j ];
+        }
+
+        $check = CheckBlock::inspect( $attrs, implode( "\n", $inner ) );
+        $label = sprintf( 'tt-check #%d', $index );
+
+        if ( $check['prompt'] === '' ) {
+            $fail( $where, $label . ' has no prompt="…" — there is no question to answer.' );
+        }
+
+        if ( count( $check['options'] ) < 2 ) {
+            $fail( $where, $label . ' has fewer than two options; write them as "- A. text" list items.' );
+            continue;
+        }
+
+        if ( $check['answer'] === '' ) {
+            $fail( $where, $label . ' has no answer="…", so every response scores as wrong.' );
+            continue;
+        }
+
+        if ( ! in_array( $check['answer'], $check['options'], true ) ) {
+            $fail( $where, sprintf(
+                '%s declares answer="%s" but its options are %s — the check can never be answered correctly.',
+                $label,
+                $check['answer'],
+                implode( ', ', $check['options'] )
+            ) );
+        }
+
+        if ( $check['explanation'] === '' ) {
+            $fail( $where, $label . ' has no explanation; add it as a "> …" blockquote. A verdict without a reason teaches nothing.' );
+        }
+    }
+}
 
 /**
  * Validate one lesson's quiz payload.

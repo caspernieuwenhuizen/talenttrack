@@ -405,13 +405,92 @@
         });
     }
 
+    /* ── inline check (#2738) ───────────────────────────────────────── */
+
+    /**
+     * The mid-lesson check: pick an option, get told immediately.
+     *
+     * Scored here rather than on the server, unlike the end-of-lesson quiz.
+     * Nothing is recorded, nothing unlocks and nothing reports, so there is
+     * no result to protect — and what this needs instead is a verdict with
+     * no round trip, which is what makes it usable on a phone with one bar.
+     *
+     * Answering is one-way. Once a reader has committed, the options lock:
+     * letting them retry until it goes green turns retrieval practice into
+     * a guessing game, and there is no score here to salvage by guessing.
+     */
+    function initCheck(root) {
+        var answer = (root.dataset.ttAnswer || '').toUpperCase();
+        var verdict = root.querySelector('[data-tt-check-verdict]');
+        var why = root.querySelector('[data-tt-check-why]');
+        var options = Array.prototype.slice.call(
+            root.querySelectorAll('.tt-lesson-check__option')
+        );
+
+        if (!answer || !options.length) {
+            return;
+        }
+
+        // The disclosure is the no-JS fallback. With the script running the
+        // explanation is opened at the moment it becomes useful, so it stops
+        // being something the reader has to notice and click.
+        if (why) {
+            why.hidden = true;
+        }
+
+        function settle(chosen) {
+            if (root.dataset.ttAnswered === '1') {
+                return;
+            }
+            root.dataset.ttAnswered = '1';
+
+            var correct = chosen === answer;
+            root.dataset.ttResult = correct ? 'correct' : 'wrong';
+
+            options.forEach(function (option) {
+                var key = (option.dataset.ttOption || '').toUpperCase();
+                var input = option.querySelector('input');
+                if (input) {
+                    input.disabled = true;
+                }
+                if (key === answer) {
+                    option.dataset.ttState = 'answer';
+                } else if (key === chosen) {
+                    option.dataset.ttState = 'chosen-wrong';
+                }
+            });
+
+            if (verdict) {
+                verdict.textContent = correct
+                    ? (I18N.checkCorrect || '')
+                    : (I18N.checkWrong || '');
+            }
+
+            if (why) {
+                why.hidden = false;
+                why.open = true;
+            }
+        }
+
+        options.forEach(function (option) {
+            var input = option.querySelector('input');
+            if (!input) {
+                return;
+            }
+            input.addEventListener('change', function () {
+                settle((input.value || '').toUpperCase());
+            });
+        });
+    }
+
     /* ── boot ───────────────────────────────────────────────────────── */
 
     var INITIALISERS = {
         zeropoint: initZeroPoint,
         weekplanner: initWeekPlanner,
         pitchsize: initPitchSize,
-        loadmatrix: initLoadMatrix
+        loadmatrix: initLoadMatrix,
+        check: initCheck
     };
 
     function boot() {

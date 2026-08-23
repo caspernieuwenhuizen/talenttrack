@@ -27,6 +27,16 @@ intensiever het spel.
 | 7v7 – 5v5 | 4–8 minuten | Zelfde kenmerk, hogere intensiteit. Minder spelers, meer handelingen per minuut. |
 | 4v4 – 3v3 | 1–3 minuten | Sneller herstel tussen handelingen. Zeer veel handelingen in korte tijd. |
 
+```tt-check answer="A" prompt="Waarom is 4v4 intensiever dan 8v8, ook als beide ploegen even hard lopen?"
+- A. Omdat er minder tijd tussen twee handelingen zit, dus meer handelingen per minuut
+- B. Omdat het veld absoluut kleiner is en er dus vaker gesprint wordt
+- C. Omdat er minder spelers zijn om het werk over te verdelen
+> Het gaat om de tijd tússen handelingen, niet om hoe hard er gelopen wordt. In
+> een kleine vorm is de bal steeds dichtbij, dus de speler is vrijwel
+> onafgebroken betrokken. Precies daarom belast 4v4 het herstel tussen
+> handelingen, en 8v8 het volhouden daarvan.
+```
+
 ## De rekenregel voor de veldmaat
 
 De veldmaat bepaalt het aantal handelingen per minuut en dus de intensiteit.
@@ -57,6 +67,17 @@ Een te klein veld levert veel meer handelingen op dan bedoeld, waardoor je
 ongemerkt een andere trainingsmethode traint dan je gepland had.
 ```
 
+```tt-check answer="C" prompt="Je zet 5v5 uit volgens de rekenregel: 40 × 24 meter. Wat gebeurt er in de training?"
+- A. Precies wat je plande — de rekenregel klopt
+- B. Het spel wordt rustiger dan bedoeld, want 24 meter is smal
+- C. Het spel wordt intensiever dan bedoeld; 24 meter is smaller dan een strafschopgebied, dus je traint feitelijk een zwaardere methode
+> De rekenregel geeft de verhouding, niet altijd een bruikbaar veld. Onder de
+> 7v7 zakt de berekende breedte door de praktische ondergrens heen: bij 5v5 is
+> dat 30 meter. Speel je toch op 24, dan schieten de handelingen per minuut
+> omhoog en train je een andere methode dan in je weekplanning staat — zonder
+> dat je het merkt.
+```
+
 ## Waarom voetbalsprints en geen pionsprints
 
 In een duel om de bal loopt een speler echt honderd procent: er is een
@@ -77,6 +98,16 @@ Om dit te kunnen doseren wordt 11v11 vereenvoudigd tot een
 1-tegen-1-situatie. Alleen zo bepaal jij het aantal explosieve handelingen en
 de rust ertussen, in plaats van het spel.
 
+```tt-check answer="B" prompt="Je wilt de explosiviteit zélf verhogen — niet het volhouden ervan. Welke rust neem je tussen de sprints?"
+- A. Tien seconden, zodat de speler moet vechten om zijn snelheid vast te houden
+- B. Maximale rust, zodat elke herhaling weer op honderd procent begint
+- C. Geen vaste rust; laat het spel het bepalen
+> Je kunt alleen verleggen wat je eerst bereikt. Wil je de grens van
+> explosiviteit omhoog, dan moet elke herhaling op honderd procent zijn — en
+> dus lang rusten. Tien seconden rust is het spiegelbeeld: dan is honderd
+> procent juist níet het doel, en train je het volhouden.
+```
+
 ## Explosiviteitsvoorbereidende oefeningen
 
 Voordat je spelers meerdere sprints achter elkaar laat maken, moet het lichaam
@@ -90,6 +121,17 @@ Neem het afremmen expliciet mee. Aan het eind van een versnellingsloop moet de
 speler tot stilstand komen; afremmen is voor de spieren zwaarder dan
 versnellen en wordt vrijwel nooit getraind. Begin met uitlopen over zes meter
 en bouw af naar twee meter.
+
+```tt-check answer="C" prompt="Waarom bouw je de versnellingslopen op van 60 meter op 60% naar 20 meter op 100%, en niet andersom?"
+- A. Omdat lange loopjes het uithoudingsvermogen leggen waar de korte op voortbouwen
+- B. Omdat spelers aan het begin van de voorbereiding nog niet lang kunnen sprinten
+- C. Omdat het lichaam op maximale versnelling én afremmen voorbereid moet zijn voordat je die belasting vraagt
+> De opbouw is een voorbereiding, geen conditieprikkel. Elke sessie schuift de
+> afstand omlaag en de snelheid omhoog, zodat pezen en spieren wennen aan de
+> piek die een echte voetbalsprint vraagt. Pas aan het eind van die reeks zijn
+> sprints met minimale rust veilig — en het afremmen is daarin het zwaarste
+> deel, niet het versnellen.
+```
 
 ```tt-reveal question="Je hebt een half veld van 50 bij 45 meter beschikbaar en wilt 6v6 spelen. Wat doe je?"
 De rekenregel geeft 50 × 30 m, maar de ondergrens voor 6v6 is 40 meter breed.

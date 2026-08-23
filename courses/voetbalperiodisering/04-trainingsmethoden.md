@@ -39,6 +39,25 @@ tactische training, in underload, met een werk-rustverhouding die je bewust
 laag houdt.
 ```
 
+```tt-check answer="B" prompt="Je plant 6 × 10 minuten 9v9. Welke methode is dat, en welk kenmerk belast je?"
+- A. Intensieve duurmethode — sneller herstel tussen handelingen
+- B. Extensieve duurmethode — snel herstel volhouden
+- C. Extensieve intervalmethode — sneller herstel tussen handelingen
+> 9v9 valt in de reeks 11v11–8v8, en blokken van 10–15 minuten met 2 minuten
+> rust is de extensieve duurmethode. Die belast het vólhouden van snel herstel.
+> De oefenvorm kiest de methode; de werk-rustverhouding bepaalt het effect.
+```
+
+```tt-check answer="C" prompt="Waarom valt de intensieve intervalmethode (2v2, 1v1) buiten het model?"
+- A. Omdat 2v2 te weinig spelers heeft om een echte partijvorm te zijn
+- B. Omdat jonge spelers die vormen niet aankunnen
+- C. Omdat de melkzuuropeenhoping in overload zo groot is dat de hersteltijd onvoorspelbaar wordt
+> De vorm bestaat en heeft nut — in de technische en tactische training, in
+> underload. Wat hem buiten het periodiseringsmodel houdt is dat je de
+> hersteltijd niet kunt plannen, en een model dat op hersteltijden is gebouwd
+> kan met een onvoorspelbare prikkel niets beginnen.
+```
+
 ## De wet van duurzaamheid
 
 Conditie die je snel opbouwt, verlies je snel. Conditie die je in kleine
@@ -60,6 +79,16 @@ minuten, 4 × 4,5, 4 × 5 — tot 4 × 8, en daarna 5 × 7.
 Bij de extensieve intervalmethode verlaag je juist eerst de rust: van 2 × 6
 partijen van 1 minuut met 3 minuten rust, via 2,5 en 2 minuten, naar 1 minuut
 rust; pas daarna verhoog je het aantal partijen of de speelduur.
+
+```tt-check answer="A" prompt="Je zit op 2 × 12 minuten extensieve duur en het gaat goed. Wat is de volgende stap?"
+- A. 2 × 13 minuten — eerst de duur omhoog, tot 2 × 15
+- B. 3 × 12 minuten — eerst een partij erbij
+- C. 3 × 10 minuten — meer partijen, kortere blokken
+> Binnen elke methode geldt dezelfde volgorde: eerst duur of herhalingen, dán
+> pas het aantal partijen of series. Dus doorbouwen naar 2 × 15 en pas daarna
+> naar 3 × 11. Sla je die volgorde over, dan bouw je snel op — en wat snel komt,
+> gaat volgens de wet van duurzaamheid net zo snel weer weg.
+```
 
 ## De nulpuntmeting
 
@@ -99,6 +128,16 @@ je op de meerderheid. Dat is **individuele periodisering binnen de
 teamperiodisering** — een zeventienjarige verdraagt minder dan een
 vierentwintigjarige, en een speler die terugkomt van een blessure verdraagt
 niet alles direct.
+
+```tt-check answer="B" prompt="In de eerste serie 4v4 maken je spelers in partij 5 en 6 nog net zoveel handelingen als in partij 1. Wat doe je in de tweede serie?"
+- A. Dezelfde stap herhalen — het ging immers goed
+- B. Eén of twee stappen omhoog; deze prikkel was te licht
+- C. Een stap terug, want ze sparen zich duidelijk
+> Als de laatste partijen er net zo uitzien als de eerste, was er geen prikkel:
+> het lichaam moest niets doen wat het niet gewend was. De tweede serie is
+> precies bedoeld om dat nog binnen dezelfde sessie te corrigeren. "Precies
+> goed" ziet er anders uit — de meerderheid komt er nét doorheen.
+```
 
 ```tt-reveal question="Je meet op 11v11 een nulpunt van 24 minuten. Twee weken later plan je dezelfde vorm. Ga je naar 2 × 13 minuten?"
 Nee — nog niet. De wet van duurzaamheid vraagt eerst een herhaling van de

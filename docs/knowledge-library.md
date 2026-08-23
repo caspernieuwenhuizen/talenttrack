@@ -142,18 +142,61 @@ the whole lesson.
 | --- | --- | --- |
 | `tt-callout` | `type` — `objectives`, `key`, `warning`, `note` | no |
 | `tt-reveal` | `question` | no |
+| `tt-check` | `prompt`, `answer` | yes |
 | `tt-actionline` | body rows: `label \| quality% \| seconds` | no |
 | `tt-model` | — | no |
 | `tt-pitchsize` | `format` | yes |
 | `tt-zeropoint` | `method` | yes |
 | `tt-weekplanner` | — | yes |
 | `tt-loadmatrix` | `cycle`, `cycles` | yes |
-| `tt-quiz` | — | placeholder until #2647 |
-| `tt-assignment` | `id` | placeholder until #2648 |
+| `tt-quiz` | — | yes |
+| `tt-assignment` | `id` | yes |
 
 Every block renders a usable state server-side. The script upgrades that
 state; it never creates it. A reader with JavaScript blocked still gets the
 pitch table, the model and the default load matrix.
+
+### The inline check (#2738)
+
+```
+```tt-check answer="B" prompt="Ajax speelde zaterdag. Kan 4v4 op dinsdag?"
+- A. Ja, twee dagen is genoeg
+- B. Nee, 4v4 vraagt 72 uur herstel
+- C. Alleen als de wedstrijd kort was
+> 4v4 is de meest intensieve vorm en vraagt drie dagen.
+```
+```
+
+Options are `- A. text` list items; the explanation is the blockquote that
+follows. Both are ordinary markdown, so a check reads as a question with an
+answer even in a raw diff — which is the point of keeping the corpus in
+markdown at all.
+
+**Why it exists next to `tt-quiz` and `tt-reveal`.** The quiz sits at the end
+of the lesson, which is the wrong place to discover you misread paragraph two.
+`tt-reveal` sits in the right place but asks for nothing — a `<details>` opens
+whether or not the reader thought about it. Committing to an answer *before*
+seeing the right one is the mechanism that makes retrieval practice work, and
+only `tt-check` makes the reader commit.
+
+**Scored in the browser, and that is not a hole in the quiz's rule.**
+`tt-quiz` keeps its answer key server-side because a score is at stake: it
+gates the next lesson and lands in a coach's development record. A check
+records nothing, unlocks nothing and appears in no report, so there is no
+result to protect — and what it needs instead is a verdict with no network
+round trip. A reader who digs the answer out of the DOM has skipped an
+exercise they could have skipped by scrolling. The graded quiz is unaffected.
+
+**Without JavaScript** the options are radio inputs inside a `<details>`: pick
+one, open the disclosure, read the answer. That is the `tt-reveal` behaviour,
+which is the right degradation. The script upgrades it to an instant verdict
+and locks the options — answering is one-way, because retrying until it goes
+green turns retrieval practice into guessing.
+
+`course-lint` fails a check with no prompt, fewer than two options, no answer,
+an answer naming an option that does not exist, or no explanation. The answer
+is compared through `CheckBlock::inspect()` rather than a second parser in the
+gate, so the lint and the renderer cannot drift.
 
 ### One source for the numbers
 
@@ -581,10 +624,34 @@ module or `DocFrontMatter`. It fails on:
   a `pass_mark` that is missing or higher than the question count, a duplicate
   question id, an unknown question type, fewer than two options, or an answer
   index out of range
+- a `tt-check` with no prompt, fewer than two options, no answer, an answer
+  naming an option that does not exist, or no explanation
 - a translated lesson with no canonical counterpart
 
 Run it locally with `php tools/check-courses.php`. It needs no WordPress and
 requires the real parsers, so the gate cannot drift from the runtime it guards.
+
+## Page width
+
+The reader is a three-column grid (#2737). Prose sits in the middle track at a
+readable measure (`--tt-lesson-measure`, 76ch); anything that is a figure
+rather than a sentence spans all three:
+
+- the four calculators, by their shared `.tt-lesson-tool` class
+- tables, via `.tt-lesson-table-scroll`
+- `.tt-lesson-actionline`, `.tt-lesson-model`, the quiz and the assignment
+- anything else that opts in with `.tt-lesson-wide`
+
+A course is worked through at a desk, and the tools are what the reader came
+for. Capping a seven-day planner at a paperback column while 700px of window
+sits unused beside it was the problem this solves; unclamping the prose as well
+would have traded it for 140-character lines. Below the breakpoint `min()`
+collapses the middle track to 100%, the outer tracks become zero, and mobile
+renders exactly as before.
+
+The objectives and completion panels that bracket the lesson body dropped their
+cap entirely — a capped panel above and below a full-width body reads as an
+indent nobody asked for.
 
 ## Switching it off
 

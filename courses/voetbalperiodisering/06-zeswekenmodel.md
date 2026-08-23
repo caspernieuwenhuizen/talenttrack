@@ -24,12 +24,15 @@ conditiekenmerken worden belast.
 
 ## Waarom deze volgorde
 
-Stel dat je team het gewenste speeltempo nu 45 minuten volhoudt. Wat is dan
-het eerste doel: dat tempo negentig minuten volhouden, of dat tempo verhogen?
-
-Het antwoord is het eerste. Ga je meteen op tempo trainen, dan speelt je team
-dertig minuten goed voetbal en zestig minuten iets anders. **Eerst het volume,
-dan de intensiteit.**
+```tt-check answer="A" prompt="Je team houdt het gewenste speeltempo nu 45 minuten vol. Wat is het eerste doel?"
+- A. Dat tempo langer volhouden — eerst het volume
+- B. Dat tempo verhogen — eerst de intensiteit
+- C. Allebei tegelijk; dan ben je sneller klaar
+> Verhoog je eerst het tempo, dan houdt je team dat nieuwe tempo nog kórter vol
+> dan de 45 minuten van nu: dertig minuten goed voetbal en zestig minuten iets
+> anders. **Eerst het volume, dan de intensiteit.** Allebei tegelijk is geen
+> versnelling maar een prikkel die nergens scherp genoeg is.
+```
 
 Dezelfde logica zit in de explosieve lijn. In week 1 en 2 zijn overloadsprints
 te riskant — spelers komen net terug van vakantie of van een rustige periode.
@@ -37,6 +40,17 @@ Daarom eerst versnellingslopen met lage intensiteit. In week 3 en 4 volgen de
 sprints met minimale rust: veel explosieve handelingen, dus volume. In week 5
 en 6 de sprints met maximale rust: elke herhaling weer op honderd procent, dus
 kwaliteit.
+
+```tt-check answer="C" prompt="Waarom komen de sprints met maximale rust pas in week 5 en 6, en niet meteen in week 1?"
+- A. Omdat ze het zwaarst zijn en spelers daar het langst naartoe moeten groeien
+- B. Omdat er in week 1 en 2 geen tijd voor is
+- C. Omdat ook hier eerst het volume komt: week 3 en 4 leveren véél explosieve handelingen, week 5 en 6 de kwaliteit ervan
+> Dezelfde volgorde als bij de partijvormen, één laag dieper. Week 1 en 2 zijn
+> voorbereidend, week 3 en 4 bouwen het volume aan explosieve handelingen op, en
+> pas dan is het zinvol om per herhaling honderd procent te vragen. Sprints met
+> maximale rust zijn niet het zwaarst — ze zijn het scherpst, en scherpte komt
+> na volume.
+```
 
 ## Waarom zes weken en niet drie
 
@@ -64,6 +78,16 @@ terug. Dat is geen gemis maar de bedoeling: in die vier weken ontstaat het
 trainingseffect. Wie week na week dezelfde favoriete oefenvorm plant, stapelt
 vermoeidheid, overbelasting en uiteindelijk blessures.
 
+```tt-check answer="B" prompt="Een speler is in week 3 niet fit en slaat de 4v4-week over. Hoeveel effect verliest hij in het zeswekenmodel?"
+- A. Alles — hij mist die prikkel en komt hem pas over zes weken weer tegen
+- B. Weinig — dezelfde vorm staat in week 4 opnieuw op het programma
+- C. Niets, want hij haalt het in met een individuele sessie
+> Dit is een van de vier redenen dat het zes weken zijn en geen drie. Omdat elke
+> vorm twee weken achter elkaar terugkomt, kost een gemiste week één herhaling
+> in plaats van een hele cyclus. In een driewekenmodel valt er direct een gat
+> van zes weken — precies voor de spelers die het minst verdragen.
+```
+
 ## Geleidelijk versus snel opbouwen
 
 De klassieke voorbereiding perst de conditie in twee of drie weken, vaak met
@@ -86,6 +110,17 @@ absoluut conditieniveau hebben maar zoveel vermoeidheid meedragen dat er
 weinig van op het veld komt. Zijn teamgenoot met een lager niveau maar meer
 frisheid presteert dan beter — en oogt van buiten ook fitter. Conditieniveau
 is potentie; frisheid bepaalt hoeveel daarvan zichtbaar wordt.
+```
+
+```tt-check answer="C" prompt="Twee spelers. A heeft een hoger conditieniveau maar draagt veel vermoeidheid mee. B zit lager maar is fris. Wie oogt op zaterdag fitter?"
+- A. A — het conditieniveau is nu eenmaal hoger
+- B. Geen van beide; dat hangt van de tegenstander af
+- C. B — conditieniveau is potentie, frisheid bepaalt hoeveel daarvan zichtbaar wordt
+> Dit is de val onder de hele snelle-opbouwdiscussie. Een voorbereiding die het
+> absolute niveau in drie weken haalt, levert dat niveau in met opgestapelde
+> vermoeidheid — en op het veld zie je niet de potentie maar wat ervan
+> overblijft. Daarom is "gelijk eindniveau" in de tabel hierboven geen argument
+> vóór de snelle route.
 ```
 
 ```tt-reveal question="Een collega zegt: 'Met zes weken opbouw zijn we niet klaar voor de eerste competitiewedstrijd.' Wat is je antwoord?"

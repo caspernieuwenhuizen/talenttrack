@@ -32,6 +32,16 @@ taal niet sprak, huurde iemand in die hem wel sprak. Zo raakte conditie
 losgekoppeld van het spel — en daarmee van de trainer die het spel het beste
 kent.
 
+```tt-check answer="B" prompt="Waarom helpt de term 'aeroob uithoudingsvermogen' een voetbaltrainer niet?"
+- A. Omdat de fysiologie erachter inmiddels achterhaald is
+- B. Omdat de term niet zegt wát een speler op het veld anders moet doen
+- C. Omdat voetballers hun aerobe systeem nauwelijks gebruiken
+> De fysiologie klopt prima — daar ligt het probleem niet. De term komt uit
+> sporten waarin de beweging vastligt, en laat zich niet vertalen naar een
+> handeling die je op het veld kunt zien, benoemen en trainen. Daarom kun je
+> er als trainer niets mee sturen.
+```
+
 ## Specificiteit: je verbetert wat je traint
 
 Een speler die rondjes om het veld loopt, wordt beter in rondjes om het veld
@@ -45,6 +55,17 @@ tweede spits blijft staan bij een terugspeelbal, dat de backs de lijn niet
 meer halen. Wie dat ziet, kan de belasting sturen. Wie dat niet ziet, heeft
 geen alternatief dan geïsoleerde conditietraining — met een stopwatch in
 plaats van een spelbeeld.
+
+```tt-check answer="B" prompt="Je wilt dat je team in de laatste twintig minuten nog druk kan zetten. Wat traint dat het beste?"
+- A. Twee keer per week een duurloop van twintig minuten
+- B. Partijvormen waarin je team vaker en langer druk zet dan het nu volhoudt
+- C. Intervaltraining zonder bal, op een hogere hartslag dan in de wedstrijd
+> Specificiteit: je verbetert wat je traint. Een duurloop maakt je beter in
+> duurlopen, en een hoge hartslag zonder bal traint niet het doorschuiven, het
+> knijpen en het herstellen dat druk zetten écht is. Wil je druk zetten in
+> minuut 80, dan moet je druk zetten trainen — net iets voorbij wat het team
+> nu aankan.
+```
 
 ## De volgorde die niet omgedraaid mag worden
 
@@ -66,6 +87,16 @@ speelstijl die niet af is als de competitie begint. Wie blessures oploopt,
 traint minder vaak met zijn sterkste elftal — en dat is precies de ploeg die
 de afspraken moet inslijpen.
 
+```tt-check answer="B" prompt="Een trainer besteedt de eerste drie weken van de voorbereiding aan 'eerst de conditie op orde brengen'. Wat kost dat hem?"
+- A. Niets wezenlijks; het is een kwestie van smaak
+- B. Twee dingen: de speelstijl is niet af bij de competitiestart, én de blessures kosten hem juist de trainingen met zijn sterkste elftal
+- C. Alleen wat motivatie, omdat spelers liever met bal werken
+> De volgorde is niet willekeurig. Conditie ondersteunt de speelstijl en
+> vervangt hem niet, dus drie weken zonder speelstijl zijn drie weken die je
+> in september terugbetaalt. En de blessures die geïsoleerde belasting oplevert
+> treffen het hardst de spelers die de afspraken moeten inslijpen.
+```
+
 ```tt-callout type="key"
 De beste trainers hebben de fitste spelers. Als de trainer het spel leest en
 direct ziet dat een speler minder handelingen maakt, kan niemand zich
@@ -86,6 +117,16 @@ gaan:
 Als een speler in minuut 85 te laat doorschuift, is dat geen "vermoeidheid".
 Het is een handeling waarvan het moment niet meer klopt. Dat is te zien, te
 benoemen en te trainen.
+
+```tt-check answer="B" prompt="Je middenvelder vertrekt in minuut 85 te laat bij het doorschuiven. Welke component van de handeling klopt niet?"
+- A. De richting
+- B. Het moment
+- C. De snelheid
+> Hij vertrekt te laat, dus het moment klopt niet. Let op het verschil: was hij
+> op tijd vertrokken en tóch te laat aangekomen, dan was het de snelheid
+> geweest. Dat onderscheid is het hele punt — "vermoeid" kun je niet trainen,
+> "te laat vertrekken" wel.
+```
 
 ```tt-reveal question="Waarom is 'de speler moet fitter worden' geen bruikbare trainingsdoelstelling?"
 Omdat het niet zegt wát er op het veld moet veranderen. Fitter waarin — de

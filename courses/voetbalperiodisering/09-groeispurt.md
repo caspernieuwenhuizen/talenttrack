@@ -33,6 +33,28 @@ verschil in biologische ontwikkeling. Dat maakt individuele periodisering in
 de jeugd geen luxe maar noodzaak.
 ```
 
+```tt-check answer="B" prompt="Waarom levert overload vóór de groeispurt weinig op?"
+- A. Omdat jonge spelers de oefenvormen technisch nog niet aankunnen
+- B. Omdat er te weinig testosteron is om bovenop het herstel iets extra's te bouwen — je beschadigt wel, maar wint niets
+- C. Omdat hart en longen nog niet volgroeid zijn
+> De schade komt er gewoon; het rendement niet. Dat is de ongemakkelijke kant
+> van deze grens: een JO12 die zware partijen speelt oogt hard trainend en houdt
+> alleen de belasting over. Vandaar dat de teamperiodisering vóór de groeispurt
+> uit techniek en tactiek bestaat — partijvormen mogen, maar niet om
+> conditiegrenzen te verleggen.
+```
+
+```tt-check answer="A" prompt="Twee spelers in JO14, allebei dertien jaar. Eén zit duidelijk in de groeispurt, de ander nog niet. Wat doe je?"
+- A. Verschillend belasten; de biologische ontwikkeling bepaalt wat zinvol is, niet het geboortejaar
+- B. Hetzelfde programma; anders krijg je gedoe in de groep
+- C. Allebei nog geen overload, tot de hele lichting zover is
+> Binnen één jaargang zit vaak twee jaar verschil in biologische ontwikkeling.
+> Wachten tot de laatste zover is kost de vroege ontwikkelaars een jaar aan
+> rendement; iedereen gelijk belasten geeft de late ontwikkelaars schade zonder
+> opbrengst. Individuele periodisering binnen de teamplanning is hier geen
+> verfijning maar het minimum.
+```
+
 ## De 10.000-uur illusie
 
 Het idee dat een talent tienduizend uur moet trainen om profvoetballer te
@@ -44,6 +66,16 @@ Twee veldtrainingen op één dag levert meer trainingsuren op, maar minder uren
 op honderd procent. Eén training per dag, volledig hersteld ingegaan, levert
 per seizoen meer kwaliteitsuren op.
 
+```tt-check answer="C" prompt="Waarom telt het 10.000-uur-argument zwaarder buiten het voetbal dan erbinnen?"
+- A. Omdat voetballers jonger beginnen
+- B. Omdat voetbal een teamsport is en je dus van elkaar leert
+- C. Omdat voetbal een intensiteitssport is: de snelheid van handelingen is bepalend, dus telt de kwaliteit van de uren zwaarder dan het aantal
+> Bij een sport waarin de beweging vastligt, brengt herhaling je verder. In
+> voetbal gaat het om handelen onder tijdsdruk in weinig ruimte, en een uur op
+> tachtig procent traint dat niet — het went eraan. Twee sessies op één dag
+> leveren dus wel uren op, maar minder van de enige soort die telt.
+```
+
 Bovendien is de wedstrijd het belangrijkste leermoment van de week: wie er
 vermoeid in gaat, leert minder en loopt meer risico.
 
@@ -51,6 +83,17 @@ Aan het eind van het seizoen moet je een eerlijk beeld hebben van wat elke
 speler kan. Een selectie die in maart al vermoeid en geblesseerd is, geeft dat
 beeld niet — en dan neem je selectiebeslissingen op basis van vermoeidheid in
 plaats van talent.
+
+```tt-check answer="B" prompt="Wat is het duurste gevolg van een selectie die in maart vermoeid en geblesseerd is?"
+- A. De resultaten in de laatste competitiewedstrijden
+- B. De selectiebeslissingen: je beoordeelt dan vermoeidheid in plaats van talent, en dat kost spelers hun plek
+- C. De conditie moet in de zomer opnieuw worden opgebouwd
+> Punten raak je dit seizoen kwijt; een verkeerde selectiebeslissing raakt de
+> loopbaan van een speler. Aan het eind van het jaar moet je kunnen zien wat
+> iemand kán, en een vermoeide speler laat dat niet zien. Daarmee is
+> belastingsturing in de jeugd niet alleen blessurepreventie maar ook een
+> voorwaarde voor een eerlijke beoordeling.
+```
 
 ```tt-callout type="key"
 Beter trainen in plaats van meer trainen. Een jeugdopleiding heeft trainers

@@ -53841,6 +53841,15 @@ msgid "%d assignment is waiting, oldest first."
 msgid_plural "%d assignments are waiting, oldest first."
 msgstr[0] "%d opdracht wacht, oudste eerst."
 msgstr[1] "%d opdrachten wachten, oudste eerst."
+msgid "Quick check"
+msgstr "Even checken"
+
+msgid "Not quite — read on."
+msgstr "Net niet — lees verder."
+
+msgid "Why?"
+msgstr "Waarom?"
+
 #~ msgid ""
 #~ "Everyone who played is listed. Leave a player untouched to say nothing "
 #~ "about them — most rows usually stay empty."
