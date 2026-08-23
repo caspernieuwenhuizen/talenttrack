@@ -52826,6 +52826,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:72
+msgid "Invitation never accepted"
+msgstr "Uitnodiging nooit geaccepteerd"
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:76
+msgid "An invitation was sent and never accepted. Usually the email went to spam or to a mistyped address, and nothing anywhere says so."
+msgstr "Een uitnodiging is verstuurd en nooit geaccepteerd. Meestal is de e-mail in de spam beland of naar een verkeerd getypt adres gegaan, en nergens is dat te zien."
+
+#. translators: %s: name or email address of the person who was invited
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:128
+#, php-format
+msgid "%s was invited but has never accepted."
+msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
+
 #~ msgid "Ball"
 #~ msgstr "Bal"
 
@@ -52852,58 +52866,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "No markings"
 #~ msgstr "Zonder lijnen"
-
-#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:52
-msgid "Player has no team"
-msgstr "Speler zonder team"
-
-#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:56
-msgid "An active player belongs to no team. They have no attendance, no minutes, no coverage row and no head coach — the system cannot say where they are."
-msgstr "Een actieve speler hoort bij geen enkel team. Er is geen aanwezigheid, geen speelminuten, geen regel in de dekkingsrapportage en geen hoofdtrainer — het systeem kan niet zeggen waar hij staat."
-
-#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:69
-msgid "A player"
-msgstr "Een speler"
-
-#. translators: %s: player name
-#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:73
-#, php-format
-msgid "%s is active but belongs to no team."
-msgstr "%s is actief maar hoort bij geen enkel team."
-
-#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:56
-msgid "Team has no head coach"
-msgstr "Team zonder hoofdtrainer"
-
-#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:60
-msgid "A team with players has nobody assigned as head coach. Most alerts go to the head coach, so a team without one quietly stops receiving any of them."
-msgstr "Een team met spelers heeft niemand als hoofdtrainer. De meeste meldingen gaan naar de hoofdtrainer, dus een team zonder hoofdtrainer krijgt er ongemerkt geen enkele meer."
-
-#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:88
-msgid "A team"
-msgstr "Een team"
-
-#. translators: 1: team name, 2: number of players in the squad
-#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:93
-#, php-format
-msgid "%1$s has %2$d player and no head coach."
-msgid_plural "%1$s has %2$d players and no head coach."
-msgstr[0] "%1$s heeft %2$d speler en geen hoofdtrainer."
-msgstr[1] "%1$s heeft %2$d spelers en geen hoofdtrainer."
-
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:72
-msgid "Invitation never accepted"
-msgstr "Uitnodiging nooit geaccepteerd"
-
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:76
-msgid "An invitation was sent and never accepted. Usually the email went to spam or to a mistyped address, and nothing anywhere says so."
-msgstr "Een uitnodiging is verstuurd en nooit geaccepteerd. Meestal is de e-mail in de spam beland of naar een verkeerd getypt adres gegaan, en nergens is dat te zien."
-
-#. translators: %s: name or email address of the person who was invited
-#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:128
-#, php-format
-msgid "%s was invited but has never accepted."
-msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
 
 #~ msgid "%d open task"
 #~ msgid_plural "%d open tasks"
