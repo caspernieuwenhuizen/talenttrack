@@ -254,3 +254,59 @@
 .tt-dashboard .tt-rep-bar-breakdown { padding: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px); }
 .tt-dashboard .tt-rep-bar-breakdown table { width: 100%; }
 .tt-dashboard .tt-rep-bar-breakdown__total td { font-weight: 600; }
+
+/* ── learning reports (#2650) ───────────────────────────────────────── */
+
+.tt-dashboard .tt-learning-report { font-variant-numeric: tabular-nums; }
+
+/*
+ * Status chips. Named `tt-learning-chip` rather than reusing `tt-chip`,
+ * which the filter bar already owns as a scrollable summary pill — sharing
+ * the class would inherit its scroll and spacing behaviour inside a table
+ * cell.
+ *
+ * Each variant carries a word, so the state is readable without the colour.
+ * Semantic hues only, kept away from the module accent (#2342).
+ */
+.tt-dashboard .tt-learning-chip {
+    display: inline-block;
+    padding: 2px var(--tt-sp-2, 8px);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-learning-chip--overdue {
+    background: var(--tt-danger-subtle, #fbeae9);
+    color: var(--tt-danger, #b3261e);
+}
+
+.tt-dashboard .tt-learning-chip--complete {
+    background: var(--tt-success-subtle, #e8f4ec);
+    color: var(--tt-success, #2f7d4f);
+}
+
+.tt-dashboard .tt-learning-chip--partial {
+    background: var(--tt-warning-subtle, #fdf1e0);
+    color: #8a5a12;
+}
+
+.tt-dashboard .tt-learning-chip--none {
+    background: var(--tt-surface-2, #f7f8f5);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* A clean row should not shout as loudly as one that needs chasing. */
+.tt-dashboard .tt-learning-report__zero { color: var(--tt-muted, #6a6d66); }
+
+.tt-dashboard .tt-rep-subhead {
+    margin: var(--tt-sp-5, 20px) 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-lg, 1.1rem);
+}
+
+.tt-dashboard .tt-rep-note {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}

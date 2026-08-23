@@ -54125,6 +54125,91 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "\"Stalls at\" is the lesson the most readers stop before finishing. A high number usually says something about the lesson, not about the coaches."
+msgstr "\"Stopt bij\" is de les waar de meeste lezers voortijdig afhaken. Een hoog getal zegt meestal iets over de les, niet over de trainers."
+
+msgid "%1$s (−%2$d)"
+msgstr "%1$s (−%2$d)"
+
+msgid "All trained"
+msgstr "Allemaal opgeleid"
+
+msgid "Awaiting review"
+msgstr "In beoordeling"
+
+msgid "Enrolled"
+msgstr "Ingeschreven"
+
+msgid "How much of the staff around each squad has finished each course."
+msgstr "Hoeveel van de staf rond elke selectie elke cursus heeft afgerond."
+
+msgid "Learning · Course completion"
+msgstr "Leren · Cursusafronding"
+
+msgid "Learning · Per person"
+msgstr "Leren · Per persoon"
+
+msgid "Learning · Staff coverage per team"
+msgstr "Leren · Stafdekking per team"
+
+msgid "Median days"
+msgstr "Mediaan dagen"
+
+msgid "No drop-off yet"
+msgstr "Nog geen terugval"
+
+msgid "No team has staff assigned to it yet, so there is nothing to measure coverage against."
+msgstr "Er is nog aan geen enkel team staf gekoppeld, dus er is niets om dekking tegen af te zetten."
+
+msgid "Nobody has finished yet"
+msgstr "Nog niemand afgerond"
+
+msgid "Nobody is on a course yet."
+msgstr "Er volgt nog niemand een cursus."
+
+msgid "None trained"
+msgstr "Niemand opgeleid"
+
+msgid "Open my learning"
+msgstr "Mijn leerlijn openen"
+
+msgid "Per course: enrolled, in progress, completed, overdue, and the lesson readers stop at."
+msgstr "Per cursus: ingeschreven, bezig, afgerond, te laat, en de les waar lezers stoppen."
+
+msgid "Showing your own record. Seeing everyone's needs the learning-statistics permission."
+msgstr "Je ziet je eigen dossier. Voor dat van iedereen is het recht op leerstatistieken nodig."
+
+msgid "Staff trained"
+msgstr "Staf opgeleid"
+
+msgid "Stalls at"
+msgstr "Stopt bij"
+
+msgid "That course does not exist."
+msgstr "Die cursus bestaat niet."
+
+msgid "Where each course stands, and the lesson readers stop at."
+msgstr "Hoe elke cursus ervoor staat, en bij welke les lezers stoppen."
+
+msgid "Who is on what, how far they have got, and what is waiting on a reviewer."
+msgstr "Wie welke cursus volgt, hoe ver ze zijn, en wat bij een beoordelaar ligt."
+
+msgid "You do not have permission to export learning statistics."
+msgstr "Je hebt geen rechten om leerstatistieken te exporteren."
+
+msgid "Your login is not linked to a staff record, so there is no learning history to show."
+msgstr "Je login is niet gekoppeld aan een stafdossier, dus er is geen leergeschiedenis om te tonen."
+
+msgid "%d overdue"
+msgid_plural "%d overdue"
+msgstr[0] "%d te laat"
+msgstr[1] "%d te laat"
+
+msgid "%d to go"
+msgid_plural "%d to go"
+msgstr[0] "nog %d"
+msgstr[1] "nog %d"
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 

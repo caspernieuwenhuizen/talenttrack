@@ -706,6 +706,77 @@ people are actually new, so re-running the wizard over a squad shows "3 new,
 left exactly as it was, deadline included — changing somebody's deadline is a
 different decision from assigning them a course.
 
+## The statistics report
+
+Three lenses in the Reports module (#2650), reached from the reports launcher
+and dispatched through `?tt_view=standard-report&slug=learning-…`:
+
+| Slug | Answers |
+| --- | --- |
+| `learning-courses` | Per course: enrolled, not started, in progress, completed, overdue, median days, and the lesson readers stop at |
+| `learning-people` | Per person: courses, percent complete, overdue, awaiting review, last activity |
+| `learning-teams` | Per team, per course: how much of the staff around that squad has finished |
+
+Built as standard reports rather than as a page of their own, so they inherit
+the launcher, the per-report toggle, the page head and the `.tt-rep-*`
+stylesheet. Chrome lives in `FrontendStandardReportsView`; the tables live in
+`Knowledge\Frontend\LearningReports`, which keeps a module's markup out of a
+shared 1,500-line file while still using its surface.
+
+All aggregation is `LearningStatisticsService` (§4) — one grouped query per
+question, never one per row. The report and the REST endpoints therefore
+cannot disagree about what "complete" means.
+
+### Where learners stall
+
+`dropOffFor()` finds the lesson with the largest fall in readers against the
+one before it. It is the only figure on the report that says something about
+the **course** rather than about the people taking it: a lesson half the
+cohort stops at is usually badly written, badly placed, or asking for
+something the reader cannot do yet. Completion percentages never surface
+that, which is why it has its own column and a note under the table saying
+how to read it.
+
+### Three visibility levels
+
+| Sees | Capability |
+| --- | --- |
+| Own record only | `tt_view_knowledge` |
+| Everyone's | `tt_view_knowledge_statistics` |
+| Assign and chase | `tt_manage_knowledge` |
+
+Enforced in the REST `permission_callback`, not by hiding a column — a coach
+who may see their own progress must not be able to read the academy's
+completion rates by calling the endpoint the report calls. The CSV export is
+gated on the same capability for the same reason.
+
+A coach without the statistics capability is **shown their own record**, not
+refused the page. Own-record access is a level, not an absence of one.
+
+### REST
+
+```
+GET /talenttrack/v1/knowledge/statistics         every course + the per-person table
+GET /talenttrack/v1/courses/{slug}/statistics    one course, its drop-off and team coverage
+GET /talenttrack/v1/teams/{id}/learning          one team's staff, per course
+```
+
+`/teams/{id}/learning` takes an optional `course` to narrow to one; without it
+every shipped course is reported, because "is my staff trained" is rarely
+about a single course once a club runs several.
+
+### Presentation
+
+Status is a chip carrying a **word** as well as a hue — "3 overdue", "All
+trained", "2 to go" — so the table survives a reader who cannot separate red
+from green. Semantic colours only, kept off the module accent. A clean row
+shows a muted zero rather than a green chip, so the row that needs chasing is
+the one that shouts. Numeric columns are `tabular-nums`; tables scroll inside
+`.tt-table-wrap` so the page body never scrolls sideways.
+
+The export humanises on the way out (#2012): "Nobody has finished yet" rather
+than a blank cell, lesson titles rather than slugs.
+
 ## Page width
 
 The reader is a three-column grid (#2737). Prose sits in the middle track at a
