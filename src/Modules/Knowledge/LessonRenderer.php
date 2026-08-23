@@ -23,10 +23,23 @@ final class LessonRenderer {
     /**
      * Render a lesson body.
      *
+     * The course and lesson slugs are optional because most blocks do not
+     * need them; `tt-quiz` does, to find its payload. Set around the
+     * render and cleared in a `finally`, so a block that throws cannot
+     * leave the next lesson rendering under this one's identity.
+     *
      * @return array{html: string, interactive: bool}
      */
-    public static function render( string $markdown ): array {
-        return LessonMarkdown::render( $markdown );
+    public static function render( string $markdown, string $course_slug = '', string $lesson_slug = '' ): array {
+        if ( $course_slug !== '' && $lesson_slug !== '' ) {
+            LessonContext::set( $course_slug, $lesson_slug );
+        }
+
+        try {
+            return LessonMarkdown::render( $markdown );
+        } finally {
+            LessonContext::clear();
+        }
     }
 
     /**
@@ -34,8 +47,8 @@ final class LessonRenderer {
      *
      * @return string HTML
      */
-    public static function renderAndEnqueue( string $markdown ): string {
-        $rendered = self::render( $markdown );
+    public static function renderAndEnqueue( string $markdown, string $course_slug = '', string $lesson_slug = '' ): string {
+        $rendered = self::render( $markdown, $course_slug, $lesson_slug );
 
         self::enqueueStyle();
         if ( $rendered['interactive'] ) {

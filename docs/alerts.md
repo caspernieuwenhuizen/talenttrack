@@ -233,3 +233,14 @@ What you can rely on:
 Once an alert has cleared, it is kept for **90 days** and then deleted. Alerts that are still open are never deleted, however old they are — an alert nobody has dealt with for a year is worth seeing, not tidying away.
 
 This means the alerts system cannot answer questions spanning more than about a quarter. For season-long patterns, use Reports, which reads the underlying records rather than the alerts about them.
+
+## When an alert becomes a task
+
+An alert that nobody deals with does not stay a nudge forever. If your academy has set a threshold for it (Settings → Alert policy → **Turn into a task after (days)**), the alert is turned into a real, assigned task once it has been open that long.
+
+Two things to know about how that works:
+
+- **It happens once.** An alert becomes a task one time, not once a day until somebody acts.
+- **It is one-way.** Fixing the underlying thing clears the alert, but it does **not** close the task. A task has somebody's name on it and a record of what happened, and closing that behind their back would defeat the point. Close the task from the task itself.
+
+The alerts list shows which alerts have become tasks, and links to them.
