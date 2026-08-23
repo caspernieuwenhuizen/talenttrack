@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T11:12:12+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:28:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -20185,6 +20185,14 @@ msgstr ""
 msgid "Watch out"
 msgstr ""
 
+#: src/Modules/Knowledge/Blocks/CheckBlock.php:82
+msgid "Quick check"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/CheckBlock.php:109
+msgid "Why?"
+msgstr ""
+
 #: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:55
 msgid "Load pattern"
 msgstr ""
@@ -20248,13 +20256,13 @@ msgid "Derived from %1$d by %2$d metres per outfield player."
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
-#: src/Modules/Knowledge/LessonRenderer.php:128
+#: src/Modules/Knowledge/LessonRenderer.php:130
 msgid "The rule of thumb works at this format."
 msgstr ""
 
 #. translators: 1: computed width in metres, 2: minimum usable width in metres
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
-#: src/Modules/Knowledge/LessonRenderer.php:130
+#: src/Modules/Knowledge/LessonRenderer.php:132
 #, php-format
 msgid ""
 "The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
@@ -20775,6 +20783,7 @@ msgid "Could not save. Your work is still on screen; try again."
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:89
+#: src/Modules/Knowledge/LessonRenderer.php:128
 msgid "Correct."
 msgstr ""
 
@@ -20838,6 +20847,10 @@ msgstr ""
 #: src/Modules/Knowledge/LessonRenderer.php:127
 #, php-format
 msgid "%d problem(s) with this week:"
+msgstr ""
+
+#: src/Modules/Knowledge/LessonRenderer.php:129
+msgid "Not quite — read on."
 msgstr ""
 
 #: src/Modules/Knowledge/Periodisation.php:37
