@@ -1,3 +1,247 @@
+# TalentTrack v4.97.0 — Photograph a hand-written training and get a draft back (#2502)
+
+The last wave of the training module. If your academy has photo reading switched
+on, **From a photo** on the training plans page turns a sheet you wrote out by
+hand into a draft plan: photograph it, check what was read, create it.
+
+**Nothing is saved until you press the button that says so.** Close the page at
+the checking step and there is no plan, no blocks and no photograph anywhere.
+
+The checking step shows how sure it is about each line — green for a confident
+match, amber for one worth a second look, red for a line it did not recognise.
+An unrecognised line stays as a loose block, and the screen says what that costs:
+it will not count towards what your players have been taught, because that count
+is built from matched exercises. Names and durations can be changed before the
+draft is created, and a line that was never really there can be removed.
+
+**Where the photo goes is on the screen, beside the shutter, before you take it.**
+Your administrator decides where photographs are sent to be read; until that
+choice has been made this screen refuses to open and says so, rather than sending
+anything. If you have no signal nothing is sent, and the screen tells you that
+too.
+
+Everything the wave needed on the server was already built and had never had a
+screen — the extraction, the matching against your library, and the draft-plan
+write. This is that screen.
+
+**Not yet:** holding a photograph on the phone while you are out of range so it
+reads itself on your way back. Today you retake it.
+
+# TalentTrack v4.97.0 — The sideline view keeps working when the signal drops (#2552)
+
+Pitches are where signal is worst, and until now a coach who lost it mid-session
+lost that session: block timings and observations typed into a form that then
+failed to save. That is the exact failure that sends people back to paper.
+
+Now those writes are kept on the phone and sent as soon as there is a connection
+again. A line at the top of the sideline view says how many are waiting —
+*"2 wijzigingen wachten op bereik"* — and it survives locking the phone,
+switching apps and reloading the page.
+
+**Nothing is recorded twice.** If a change reaches the server but the reply is
+lost on the way back, the phone tries again, and the second attempt lands on the
+same record instead of creating a duplicate. That matters more than it sounds:
+these numbers become each player's training minutes, so a change applied twice
+would put a wrong figure on a child's development record.
+
+A change that still cannot be saved after reconnecting — because you were away
+long enough for your login to expire — stays queued rather than being discarded.
+Reload the page and it goes.
+
+**Opening the page still needs signal.** What this protects is a session already
+underway; starting one from nothing with no connection is a separate thing and
+is not covered.
+
+# TalentTrack v4.97.0 — Alerts: see whether the engine is running, and which alerts people ignore (#2634)
+
+The **Alert policy** screen now opens with an engine-health panel.
+
+It answers the question nothing else can: a background job that has stopped
+produces exactly the same screens as an academy with nothing wrong — empty
+ones. If alerts have not been checked recently, scheduled tasks are not
+running on the site and every alert screen is frozen at whenever they last
+did.
+
+Underneath it, a table per alert: how many are open, how many were cleared,
+and what share people simply dismissed.
+
+That last figure is the point. An alert most people dismiss is not informing
+anyone — it is teaching them to dismiss alerts, and the useful ones go with
+it. Anything above about 60%, over enough occurrences to mean something, is
+flagged for review. Nothing is switched off automatically: whether an alert
+earns its place is a judgement about your academy, not a calculation.
+
+Also available through the API at `/alerts/diagnostics` for anyone wanting to
+monitor the engine externally.
+
+# TalentTrack v4.97.0 — Knowledge library: hand in a practical assignment, and review one (#2648)
+
+Every module of the periodisation course ends in a practical assignment the
+coach runs with their own team. Until now those were something to read. They
+can now be handed in, and somebody reviews them.
+
+At the bottom of a lesson's assignment there is a box to write your answer in
+and a button to hand it in. If you prefer to be walked through it, "Hand in an
+assignment" does the same thing in three steps — write, attach, confirm. Either
+way you see afterwards exactly where the work stands.
+
+Your submission goes to your mentor if you have one. If you do not, it goes to
+a shared queue that anyone who manages the knowledge library can pick up, so it
+never sits waiting on one specific person who happens to be on holiday.
+
+Reviewers get a new **Assignments to review** page, oldest first, with the
+original assignment shown above each answer so there is no need to go and look
+up what was asked. Three decisions are available: approve, ask for changes, or
+do not approve. Asking for changes sends it back and lets the coach revise and
+hand in again — the earlier version and your feedback both stay on the record.
+A reason is required for anything other than approval.
+
+Approving is what completes the lesson. Withdrawing an approval un-completes
+it again, so a course cannot stay finished on work that was later retracted.
+
+**Attachments are documents only** — PDF, Word, spreadsheet, OpenDocument or
+plain text. Photos and video are deliberately not accepted on an assignment: a
+submission is attached to no player and no team, so a photograph handed in here
+would sit outside the consent and visibility rules that protect players in the
+rest of the system. What the assignments ask for is written work.
+
+A new alert tells reviewers what is waiting. It is not an email per submission
+— it shows what is in your queue right now and disappears by itself when you
+have cleared it. Anything left for more than a week is flagged more prominently.
+
+# TalentTrack v4.97.0 — Correction: photo capture is not off by default (#2695)
+
+The v4.96.0 notes and the photo-capture DPIA both said the
+`exercises_vision_extraction` feature was off on a default install, and the DPIA
+leaned on that as a safeguard. **It is on by default.** That statement was wrong
+and has been corrected.
+
+Nothing about your install's actual safety changes. A site that has not set
+`TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION` still sends nothing — the
+endpoint answers `503` and no photograph leaves the server. The protection is
+real; it just comes from the destination declaration rather than from the
+feature flag.
+
+What this means in practice: if you were relying on the feature being off, it is
+not, and you should switch it off explicitly. Simply leaving the two destination
+settings unset already prevents anything being sent, and remains the thing the
+DPIA treats as the deliberate act a signature authorises.
+
+A test now compares the document against the code's actual default, so the two
+cannot drift apart again.
+
+# TalentTrack v4.97.0 — Photo-capture DPIA: the legal decisions are recorded (#2695)
+
+Legal clearance for photo-to-plan capture was given on 2026-08-23, and the DPIA
+now records what was decided rather than listing what was outstanding:
+
+- **Lawful basis: consent** (Art. 6(1)(a)), given by the parent or guardian,
+  with the reasoning written down — the data subjects are children, and
+  legitimate interest would have the academy weighing its own convenience
+  against a child's privacy and marking its own homework.
+- **No in-product consent step.** Consent is captured at registration. An extra
+  tap on the capture screen would look like consent while collecting it from the
+  wrong person: the coach is not the data subject.
+- **A photo held on a phone lives at most 7 days.** Nothing is held today —
+  capture shipped online-only — so this is the number the feature will be built
+  to when holding lands.
+- **Provider terms confirmed** by the data controller.
+
+Two blanks remain for the academy to complete at signing: where consent is
+captured, and how it is withdrawn. The product cannot know either.
+
+The feature still cannot send anything until an administrator sets
+`TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION`.
+
+# TalentTrack v4.97.0 — Links across the app now land on the right page (#2720)
+
+On academies whose dashboard is not the site's front page, a scattering of
+links quietly went to the wrong place — the theme's homepage, with no error
+and nothing to explain it. The destination only ever reads its instructions
+on the page that hosts the dashboard, and these links were pointing at the
+site root instead.
+
+Twenty-nine places were affected. Among the ones most likely to have been
+noticed:
+
+- the **"my tasks" link in task notification emails**
+- **Print view** close buttons on match prep, match analysis, PDP files,
+  training plans and the weekly team planner
+- **Help and documentation** links throughout the app, including the help
+  drawer
+- the **trial** surfaces — case details from the dashboard widget, the
+  parent-meeting screen, the printed letter, reminder emails, and the two
+  redirects after saving a trial track
+- scout report links on the dashboard, the mail-compose shortcut on the
+  People admin page, and the closing step of the person and prospect wizards
+
+All of them now resolve the dashboard page properly. That resolution also
+copes with the page having been renamed or moved to the trash: it finds the
+live one and remembers it. Links generated by scheduled background work —
+reminder and notification emails in particular — no longer risk pointing at
+an internal maintenance address.
+
+A new automated check refuses any future link built the wrong way, so this
+particular mistake cannot come back a third time.
+
+# TalentTrack v4.97.0 — A nudge when a match goes unreviewed, and observations that no longer outlive their match (#2723, #2724)
+
+**A new alert: "Match played, no analysis".** A match played between two
+days and two weeks ago with nobody's write-up on it now shows on the bell.
+It appears on the badge only — never as a banner — because a missing
+analysis is a prompt, not a problem with your data, and it stops after a
+fortnight: by then the detail is gone and a reminder is only guilt. Writing
+the analysis clears it; there is nothing to dismiss.
+
+It deliberately stays quiet about two things. Tournaments, which cannot
+carry an analysis yet, because telling a coach to do something the product
+refuses to let them do is worse than saying nothing. And matches where no
+attendance was recorded at all — that academy is already getting the
+attendance alert, and two nudges about one match is how an inbox becomes
+noise. An academy that switches Match analysis off stops being asked for
+analyses entirely.
+
+**Deleting an activity no longer leaves observations behind.** A coach's
+note about a named player — from a match analysis or from a training —
+emits an entry on that player's timeline. Deleting the activity removed the
+note but left the timeline entry standing: a sentence about a child,
+pointing at a match or training that no longer exists. Both kinds are now
+removed with their activity, and the delete-preview counts them, so the
+number you are shown before confirming is the number that goes.
+
+The same fix reaches training observations themselves, which were not being
+removed with their activity either.
+
+# TalentTrack v4.97.0 — Match analysis: the roster is a tally sheet, and the wizard is styled again (#2726)
+
+Two fixes to the match analysis that shipped in v4.96.0, one of them
+visible the moment you opened the wizard.
+
+**The wizard steps rendered unstyled.** The stylesheet was enqueued on the
+first step only, and every wizard step is its own page load — so steps two
+to five arrived with no CSS. That is worse than it sounds for this screen:
+the marker chips are a hidden radio plus a styled label, so losing the
+stylesheet turned them back into raw browser radio buttons stacked down the
+page. Assets are now asked for once per step, from one place.
+
+**Marking players is a tally sheet now, not fourteen forms.** The squad
+renders as a grid of names; tap one and pick ▲ Stood out, ● As expected or
+▼ Below par. The name takes that colour and the player drops into a Notes
+list underneath, where the note and phase fields live. Only the players you
+marked have a note field, so a squad of fourteen fits on one phone screen
+and an analysis you have not started has no text boxes on it at all.
+
+Nothing about what gets stored has changed, and the whole squad is still
+listed — that is what stops the quiet players being skipped. What changed is
+that the page no longer asks fourteen questions to collect two answers.
+
+The section ratings (Went well / Mixed / Needs work) also moved from a
+wrapping row to a two-column grid on phones, where the Dutch labels no
+longer fit on one line.
+
+Without JavaScript the roster falls back to the plain form — every player,
+every field — so nothing is lost, it is just longer.
+
 # TalentTrack v4.96.0 — Alerts: the bell now takes you where the number came from, and long-ignored alerts become tasks (#2635)
 
 The notification bell counts your alerts as well as your tasks — it has done
