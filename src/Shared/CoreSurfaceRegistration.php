@@ -792,11 +792,20 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Planned vs held talks, per team and block.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
-            // Players + parents hold tt_view_pdp for their own self-scope
-            // per #0033, but the planning matrix is the HoD/coach cross-
-            // team surface. Gate on the edit cap so the tile + view render
-            // only for roles that legitimately plan.
-            'cap'          => 'tt_edit_pdp',
+            // Players + parents hold tt_view_pdp for their own self-scope per
+            // #0033, so this cannot gate on that cap — the planning matrix is
+            // the cross-team staff surface, not a personal one. It used to
+            // gate on `tt_edit_pdp` for that reason, which overshot: the
+            // dispatcher admits on `pdp_planning:read` while the view then
+            // demanded `pdp_file:change`, so a team_manager — seeded exactly
+            // that read — saw the tile and was refused by the view (#2788).
+            //
+            // `tt_view_pdp_planning` is the cap that already models "may look
+            // at the planning matrix", bridging to `pdp_planning:read`. Entry
+            // rides on it; every mutating control inside the view, and the
+            // handlers behind them, stay on `tt_edit_pdp`. Entry-on-read with
+            // writes gated finer is the shape #2005 established.
+            'cap'          => 'tt_view_pdp_planning',
         ]);
         // #1548 — Player status methodology is configuration (it defines
         // how the traffic-light status is computed), not a dashboard work
@@ -1244,10 +1253,21 @@ final class CoreSurfaceRegistration {
         // #1480 — academy-wide holiday management. Visible to managers /
         // admins (the `tt_manage_holidays` create-delete cap). Coaches see
         // holidays as planner banners without the management tile.
+        //
+        // #2788 — that last sentence was the intent and not the behaviour.
+        // The tile declared the `holidays` entity, and coaches hold
+        // `holidays:read` because the team planner needs it for the "this is
+        // a holiday" confirm (#1480). So the dispatcher admitted them on read,
+        // the tile rendered, and `tt_manage_holidays` then refused them at the
+        // door. Dropping the coaches' read was not an option — it would take
+        // the planner warning with it — so tile visibility moves to its own
+        // entity, the #0079 pattern (`holidays_panel`, seeded to the personas
+        // who hold `holidays:rcd`). The view keeps gating on
+        // `tt_manage_holidays`, because managing is what it does.
         TileRegistry::register([
             'module_class' => 'TT\\Modules\\Holidays\\HolidaysModule',
             'view_slug'    => 'holidays',
-            'entity'       => 'holidays',
+            'entity'       => 'holidays_panel',
             'group'        => $admin_group,
             'kind'         => 'setup',
             'order'        => 15,

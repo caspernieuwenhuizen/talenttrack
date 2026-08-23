@@ -488,6 +488,10 @@ return array_merge(
     // ─── TEAM MANAGER ───────────────────────────────────────────────
     $expand( 'team_manager', [
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
+        // #2788 — tile-visibility entity for the Holidays management tile,
+        // separate from `holidays` because coaches hold that read for the
+        // team planner's holiday banners and must keep it.
+        'holidays_panel'          => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'r',   'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
@@ -635,6 +639,8 @@ return array_merge(
     // usage_stats remain R for governance visibility.
     $expand( 'head_of_development', [
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
+        // #2788 — see the team_manager block.
+        'holidays_panel'          => [ 'r',   'global', $mod_holidays ],
         'team'                          => [ 'rcd', 'global', $mod_teams ],
         'players'                       => [ 'rcd', 'global', $mod_players ],
         'people'                        => [ 'rcd', 'global', $mod_people ],
@@ -695,7 +701,12 @@ return array_merge(
         'functional_role_assignments'   => [ 'rc',  'global', $mod_authorization ],
         'functional_role_definitions'   => [ 'r',   'global', $mod_authorization ],
         'invitations'                   => [ 'c',   'global', $mod_invitations ],
-        'invitations_config'            => [ 'r',   'global', $mod_invitations ],
+        // #2788 — `invitations_config: r` removed. The Invitations tile gates
+        // entry on `tt_manage_invite_messages`, which bridges to
+        // `invitations_config:change`, so this read only ever produced a tile
+        // the HoD could not open. Nothing else reads the entity — it backs one
+        // configuration surface — so there is no read-only view to grant
+        // instead. Invitation message templates stay admin configuration.
         // narrowed to R ↓
         'documentation'                 => [ 'r',   'global', $mod_documentation ],
         // ── kept full RCD ──
@@ -718,7 +729,12 @@ return array_merge(
         'frontend_admin'                => [ 'r',   'global', $mod_authorization ],
         'workflow_tasks'                => [ 'r',   'self',   $mod_workflow ],
         'tasks_dashboard'               => [ 'r',   'global', $mod_workflow ],
-        'workflow_templates'            => [ 'r',   'global', $mod_workflow ],
+        // #2788 — `workflow_templates: r` removed, same reasoning as
+        // `invitations_config` above. The Workflow templates tile gates entry
+        // on `tt_configure_workflow_templates` → `workflow_templates:change`,
+        // so the read produced a tile the HoD was refused at. The entity backs
+        // only that configuration surface; `tasks_dashboard` and
+        // `workflow_tasks` above are what the HoD actually reads day to day.
         'task_completion'               => [ 'rc',  'self',   $mod_workflow ],
         'thread_messages'               => [ 'rcd', 'global', $mod_threads ],
         'staff_overview'                => [ 'r',   'global', $mod_staff_dev ],
@@ -796,6 +812,8 @@ return array_merge(
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
     $expand( 'academy_admin', [
         'holidays'                => [ 'rcd', 'global', $mod_holidays ],
+        // #2788 — see the team_manager block.
+        'holidays_panel'          => [ 'r',   'global', $mod_holidays ],
         'team'                          => [ 'rcd', 'global', $mod_teams ],
         'players'                       => [ 'rcd', 'global', $mod_players ],
         'people'                        => [ 'rcd', 'global', $mod_people ],
