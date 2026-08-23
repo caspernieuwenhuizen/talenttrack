@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T10:11:20+00:00\n"
+"POT-Creation-Date: 2026-08-23T10:28:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2543,7 +2543,7 @@ msgstr "Evaluatie"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:569
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:633
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:518
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:181
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -3769,11 +3769,11 @@ msgstr "Geboortedatum"
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:345
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:558
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:266
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:443
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:100
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:23
-#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:78
+#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:25
+#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:355
 #: src/Modules/Players/Admin/PlayersPage.php:77
@@ -4648,7 +4648,7 @@ msgstr "Alle types"
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1253
 #: src/Modules/License/Admin/AccountPage.php:805
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:628
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:513
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
@@ -4974,6 +4974,7 @@ msgstr "— Alle —"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:47
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:239
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/Manage/VisionManageTab.php:98
 #: src/Modules/Methodology/Frontend/MethodologyView.php:787
@@ -7039,9 +7040,9 @@ msgid "Cancelled"
 msgstr "Geannuleerd"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:612
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:497
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:79
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:37
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:42
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:397
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:287
@@ -13921,6 +13922,7 @@ msgstr "Gebruikers-ID"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:510
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:238
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:857
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:945
@@ -23263,7 +23265,7 @@ msgstr ""
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:46
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:190
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:638
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:523
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:38
 #: src/Shared/Modules/ModuleMetadata.php:301
 msgid "Match analysis"
@@ -23272,15 +23274,6 @@ msgstr "Wedstrijdanalyse"
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
 msgid "Match analysis is switched off for this academy."
 msgstr "Wedstrijdanalyse staat uit voor deze academie."
-
-msgid "Everyone who played is listed. Mark the players worth a word — the rest stay untouched, which is the normal case."
-msgstr "Iedereen die gespeeld heeft staat in de lijst. Markeer de spelers die een opmerking waard zijn — de rest blijft ongemoeid, en dat is het normale geval."
-
-msgid "%1$d of %2$d marked"
-msgstr "%1$d van %2$d gemarkeerd"
-
-msgid "Nobody marked yet — that is a valid answer."
-msgstr "Nog niemand gemarkeerd — dat is een geldig antwoord."
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
 msgid "Match analysis is restricted to coaches and admins."
@@ -23293,8 +23286,8 @@ msgstr ""
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:69
 #: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:284
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:36
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:95
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:37
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:91
 msgid "A match analysis can only be written for a match activity."
 msgstr ""
 "Een wedstrijdanalyse kun je alleen schrijven bij een wedstrijdactiviteit."
@@ -23344,124 +23337,55 @@ msgstr ""
 "vooraf in te vullen. Schrijf op wat je zag."
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:251
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:71
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:67
 msgid "How did the match go, in a few sentences?"
 msgstr "Hoe ging de wedstrijd, in een paar zinnen?"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:270
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:273
 msgid "Save analysis"
 msgstr "Analyse opslaan"
 
 #. translators: %s: section name, e.g. Aanvallen
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:296
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:46
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:299
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:51
 #, php-format
 msgid "Rating — %s"
 msgstr "Oordeel — %s"
 
 # v3.110.75 — #0092 RateActorsStep collapsed-roster + status pill + sticky progress.
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:304
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:51
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:307
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:56
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:99
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:176
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:195
 msgid "Not rated"
 msgstr "Niet beoordeeld"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:327
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:75
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:330
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:80
 msgid "One short point…"
 msgstr "Eén kort punt…"
 
 #. translators: 1: section name, 2: bullet number
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:330
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:78
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:333
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:83
 #, php-format
 msgid "%1$s — point %2$d"
 msgstr "%1$s — punt %2$d"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:349
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:30
-msgid ""
-"Nobody is recorded as having played this match, so there is no roster to "
-"mark up. Record attendance or minutes first."
-msgstr ""
-"Er staat niemand geregistreerd als speler in deze wedstrijd, dus er is geen "
-"selectie om in te vullen. Leg eerst de aanwezigheid of de speelminuten vast."
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:355
-msgid ""
-"Everyone who played is listed. Leave a player untouched to say nothing about "
-"them — most rows usually stay empty."
-msgstr ""
-"Iedereen die gespeeld heeft staat in de lijst. Laat een speler ongemoeid om "
-"niets over hem te zeggen — de meeste regels blijven meestal leeg."
-
-#. translators: %d: minutes played
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:375
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:60
-#, php-format
-msgid "%d'"
-msgstr "%d'"
-
-#. translators: %s: the attention note written on the match plan
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:386
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:71
-#, php-format
-msgid "Asked to: %s"
-msgstr "Gevraagd om: %s"
-
-#. translators: %s: player name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:396
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:81
-#, php-format
-msgid "How did %s do?"
-msgstr "Hoe deed %s het?"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:401
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:86
-msgid "Not mentioned"
-msgstr "Niet genoemd"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:420
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:105
-msgid "What exactly did they do?"
-msgstr "Wat deed hij precies?"
-
-#. translators: %s: player name
-#. translators: %s is the player's name.
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:423
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:108
-#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:333
-#, php-format
-msgid "Note about %s"
-msgstr "Notitie over %s"
-
-#. translators: %s: player name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:433
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:118
-#, php-format
-msgid "Which part of the game — %s"
-msgstr "Welk deel van het spel — %s"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:440
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:126
-msgid "No particular phase"
-msgstr "Geen specifieke fase"
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:476
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:361
 msgid "Print or save as PDF"
 msgstr "Printen of opslaan als PDF"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:486
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:371
 msgid "Open staff share link"
 msgstr "Stafdeellink openen"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:491
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:376
 msgid "Revoke and reissue link"
 msgstr "Link intrekken en opnieuw uitgeven"
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:498
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:383
 msgid ""
 "The share link is for staff. It shows the player notes in full, and anyone "
 "holding it can read them until you reissue it."
@@ -23469,12 +23393,12 @@ msgstr ""
 "De deellink is voor de staf. De spelersnotities staan er volledig in, en "
 "iedereen die de link heeft kan ze lezen totdat je hem opnieuw uitgeeft."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:583
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:468
 #: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:89
 msgid "Nothing has been written for this match yet."
 msgstr "Er is nog niets geschreven over deze wedstrijd."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:656
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:41
 msgid ""
 "Reissue the share link? Everyone holding the current link loses access "
 "immediately."
@@ -23482,13 +23406,84 @@ msgstr ""
 "De deellink opnieuw uitgeven? Iedereen die de huidige link heeft verliest "
 "direct de toegang."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:657
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:42
 msgid "A new link has been issued. The previous one no longer works."
 msgstr "Er is een nieuwe link uitgegeven. De vorige werkt niet meer."
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:658
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:43
 msgid "The link could not be reissued. Try again."
 msgstr "De link kon niet opnieuw worden uitgegeven. Probeer het nog eens."
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:49
+msgid ""
+"Nobody is recorded as having played this match, so there is no roster to "
+"mark up. Record attendance or minutes first."
+msgstr ""
+"Er staat niemand geregistreerd als speler in deze wedstrijd, dus er is geen "
+"selectie om in te vullen. Leg eerst de aanwezigheid of de speelminuten vast."
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:62
+msgid ""
+"Everyone who played is listed. Mark the players worth a word — the rest stay "
+"untouched, which is the normal case."
+msgstr ""
+"Iedereen die gespeeld heeft staat in de lijst. Markeer de spelers die een "
+"opmerking waard zijn — de rest blijft ongemoeid, en dat is het normale geval."
+
+#. translators: %d: minutes played
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:119
+#, php-format
+msgid "%d'"
+msgstr "%d'"
+
+#. translators: %s: the attention note written on the match plan
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:130
+#, php-format
+msgid "Asked to: %s"
+msgstr "Gevraagd om: %s"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:142
+msgid "What exactly did they do?"
+msgstr "Wat deed hij precies?"
+
+#. translators: %s: player name
+#. translators: %s is the player's name.
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:145
+#: src/Modules/Training/Frontend/FrontendTrainingRunView.php:333
+#, php-format
+msgid "Note about %s"
+msgstr "Notitie over %s"
+
+#. translators: %s: player name
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:155
+#, php-format
+msgid "Which part of the game — %s"
+msgstr "Welk deel van het spel — %s"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:162
+msgid "No particular phase"
+msgstr "Geen specifieke fase"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:185
+msgid "Not mentioned"
+msgstr "Niet genoemd"
+
+#. translators: %s: player name
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:191
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:237
+#, php-format
+msgid "How did %s do?"
+msgstr "Hoe deed %s het?"
+
+#. translators: 1: how many players were marked, 2: squad size
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:241
+#, php-format
+msgid "%1$d of %2$d marked"
+msgstr "%1$d van %2$d gemarkeerd"
+
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:242
+msgid "Nobody marked yet — that is a valid answer."
+msgstr "Nog niemand gemarkeerd — dat is een geldig antwoord."
 
 #: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:98
 msgctxt "match analysis section"
@@ -23557,16 +23552,16 @@ msgstr "%1$s — %2$s"
 msgid "Write the match analysis"
 msgstr "Wedstrijdanalyse schrijven"
 
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:21
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:22
 msgid "The match"
 msgstr "De wedstrijd"
 
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:28
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:29
 msgid "Open the match analysis from a match activity's detail page."
 msgstr ""
 "Open de wedstrijdanalyse vanaf de detailpagina van een wedstrijdactiviteit."
 
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:77
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:73
 msgid ""
 "Skip anything you have nothing to say about — an empty section is a valid "
 "answer."
@@ -23574,28 +23569,20 @@ msgstr ""
 "Sla over waar je niets over te zeggen hebt — een leeg onderdeel is een "
 "geldig antwoord."
 
-#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:87
+#: src/Modules/MatchAnalysis/Wizards/OverallStep.php:83
 msgid ""
 "This analysis is not attached to a match. Open it from the match activity."
 msgstr ""
 "Deze analyse hangt niet aan een wedstrijd. Open hem vanaf de "
 "wedstrijdactiviteit."
 
-#: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:40
-msgid ""
-"Leave a player untouched to say nothing about them — most rows usually stay "
-"empty."
-msgstr ""
-"Laat een speler ongemoeid om niets over hem te zeggen — de meeste regels "
-"blijven meestal leeg."
-
-#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
+#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:82
 msgid "Each of these lands on that player's own timeline, visible to staff."
 msgstr ""
 "Elk hiervan komt op de eigen tijdlijn van die speler te staan, zichtbaar "
 "voor de staf."
 
-#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:108
+#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:110
 msgid ""
 "Nothing has been written yet. Step back if you meant to say something; "
 "saving an empty analysis is allowed."
@@ -23603,7 +23590,7 @@ msgstr ""
 "Er is nog niets geschreven. Ga terug als je toch iets wilde zeggen; een lege "
 "analyse opslaan mag."
 
-#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:131
+#: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:133
 msgid "The analysis could not be saved. Open the match and try again."
 msgstr ""
 "De analyse kon niet worden opgeslagen. Open de wedstrijd en probeer het nog "
@@ -53648,6 +53635,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid ""
+#~ "Everyone who played is listed. Leave a player untouched to say nothing "
+#~ "about them — most rows usually stay empty."
+#~ msgstr ""
+#~ "Iedereen die gespeeld heeft staat in de lijst. Laat een speler ongemoeid "
+#~ "om niets over hem te zeggen — de meeste regels blijven meestal leeg."
+
+#~ msgid ""
+#~ "Leave a player untouched to say nothing about them — most rows usually "
+#~ "stay empty."
+#~ msgstr ""
+#~ "Laat een speler ongemoeid om niets over hem te zeggen — de meeste regels "
+#~ "blijven meestal leeg."
 
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
