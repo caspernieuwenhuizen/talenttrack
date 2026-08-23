@@ -492,8 +492,15 @@ final class TeamPlannerWeeklyPrintable {
         }
         @media print {
             html, body { background: #fff; }
-            .tt-wp-page { box-shadow: none; margin: 0; width: auto; min-height: 0; padding: 0; }
-            @page { size: A4 portrait; margin: 14mm; }
+            /* The sheet carries the paper margin as its own padding and the
+               page box takes none. A non-zero @page margin is the band the
+               browser draws its header and footer into — document title and
+               date on top, page URL and page number at the bottom — and no
+               stylesheet can switch those off. Leaving no margin box leaves
+               them nowhere to print. Same trade as PlayerGoalIntakePrintRouter
+               and MethodologyReferencePrintRouter. */
+            .tt-wp-page { box-shadow: none; margin: 0; width: auto; min-height: 0; padding: 14mm; }
+            @page { size: A4 portrait; margin: 0; }
         }
         CSS;
     }
