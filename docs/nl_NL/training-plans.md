@@ -366,14 +366,33 @@ keuze wordt vastgelegd in de installatie in plaats van aangenomen — zolang die
 keuze niet gemaakt is, gaat dit scherm niet open en zegt het dat ook. Namen van
 spelers worden niet overgenomen in notities.
 
-Heb je geen bereik, dan wordt er niets verstuurd en zegt het scherm dat. Probeer
-het opnieuw zodra je weer bereik hebt.
+Heb je geen bereik, dan wordt er niets verstuurd en zegt het scherm dat.
+
+### Buiten bereik
+
+De foto blijft op je telefoon staan en wordt gelezen zodra je weer bereik hebt —
+je hoeft hem niet opnieuw te maken. Hij blijft staan als je de pagina herlaadt
+en als je je browser afsluit, en het scherm laat zien hoeveel er wachten. De
+pagina met trainingsplannen doet dat ook, voor als je intussen bij de camera bent
+weggelopen.
+
+Zodra je weer verbinding hebt wordt de foto gelezen en kom je op hetzelfde
+controlescherm als altijd. **Er wordt nooit een plan zonder jou aangemaakt** —
+dat er niets wordt opgeslagen tot jij op **Concept aanmaken** drukt, geldt voor
+een foto die heeft gewacht net zo goed als voor een foto met vol bereik.
+
+Een wachtende foto staat op de telefoon en nergens anders. Hij wordt verwijderd
+zodra hij gelezen en gecontroleerd is, en **na zeven dagen wordt hij verwijderd
+of hij nu gelezen is of niet** — het scherm zegt het je als dat gebeurd is, zodat
+je het blad opnieuw fotografeert in plaats van weken later te ontdekken dat de
+training ontbreekt.
+
+De pagina openen vraagt nog wel bereik. Het is de foto die kan wachten, niet de
+app.
 
 ## Wat er nog niet is
 
 Wat nog volgt:
 
-- een foto op de telefoon bewaren terwijl je buiten bereik bent, zodat hij
-  zichzelf laat lezen zodra je terug bent — nu maak je hem opnieuw
 - een whiteboard fotograferen in plaats van een blad papier, wat een ander
   soort uitlezen vraagt

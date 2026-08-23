@@ -94,6 +94,14 @@
     function renderCapture() {
         var wrap = node( 'div', 'tt-photo__capture' );
 
+        // #2735 — what is waiting, if anything. Rendered before the camera
+        // so a coach who came back for a held photo sees it immediately
+        // rather than after scrolling past a viewfinder.
+        var pending = node( 'p', 'tt-photo__pending' );
+        pending.setAttribute( 'data-tt-photo-pending', '' );
+        pending.hidden = true;
+        wrap.appendChild( pending );
+
         // Team first. Asking after the extraction, with the coach already
         // reading rows, would be a question in the wrong place.
         var teams = cfg.teams || [];
@@ -219,7 +227,13 @@
 
     // ── read ────────────────────────────────────────────────────────
 
-    function extract( base64 ) {
+    /**
+     * @param base64 the image
+     * @param heldId when the photo came out of the hold store, its key —
+     *               so a successful read can drop it and a failed one can
+     *               leave it exactly where it was
+     */
+    function extract( base64, heldId ) {
         if ( !base64 ) { say( i18n.readFailed ); return; }
 
         // Roughly: base64 inflates by a third. Checking here rather than
@@ -252,14 +266,106 @@
                 return;
             }
 
+            // Read and about to be reviewed: the hold has done its job, and
+            // the retention window is a ceiling rather than a target.
+            dropHeld( heldId );
             go( 'review' );
         } )[ 'catch' ]( function () {
-            // A rejected fetch is "never reached the server", which for
-            // this screen means offline. Nothing was sent, and saying so
-            // matters more than the retry.
+            // A rejected fetch is "never reached the server". For this
+            // screen that means no signal — so rather than asking the coach
+            // to take the photograph again later, hold it and read it when
+            // there is a connection (#2735).
+            if ( navigator.onLine === false ) {
+                holdPhoto( base64, heldId );
+                return;
+            }
+
             go( 'capture' );
-            say( navigator.onLine === false ? i18n.offline : i18n.readFailed );
+            say( i18n.readFailed );
         } );
+    }
+
+    // ── holding, for when there is no signal ────────────────────────
+
+    function hold() {
+        return ( window.TT && window.TT.photoHold ) || null;
+    }
+
+    /**
+     * Keep the photograph on the phone. A photo already in the store is
+     * left where it is: re-adding it on every failed retry would give one
+     * capture several copies and several expiry dates.
+     */
+    function holdPhoto( base64, heldId ) {
+        var store = hold();
+
+        if ( !store ) {
+            // No IndexedDB (private mode, ancient browser). Say what wave 9
+            // said: nothing was sent, and nothing is being kept either.
+            go( 'capture' );
+            say( i18n.offline );
+            return;
+        }
+
+        if ( heldId ) {
+            go( 'capture' );
+            say( i18n.heldStill );
+            refreshPending();
+            return;
+        }
+
+        store.put( base64, state.teamId ).then( function () {
+            go( 'capture' );
+            say( fmt( i18n.held, cfg.holdDays || 7 ) );
+            refreshPending();
+        } )[ 'catch' ]( function () {
+            go( 'capture' );
+            say( i18n.offline );
+        } );
+    }
+
+    function dropHeld( heldId ) {
+        var store = hold();
+        if ( !store || !heldId ) { return; }
+
+        store.remove( heldId ).then( refreshPending )[ 'catch' ]( function () {} );
+    }
+
+    function refreshPending() {
+        var store = hold();
+        if ( !store ) { return; }
+
+        store.paint();
+        store.count().then( function ( n ) {
+            var el = root && root.querySelector( '[data-tt-photo-pending]' );
+            if ( !el ) { return; }
+            el.textContent = n ? fmt( n === 1 ? i18n.pendingOne : i18n.pendingMany, n ) : '';
+            el.hidden = !n;
+        } )[ 'catch' ]( function () {} );
+    }
+
+    /**
+     * Read the oldest held photograph now that there is a connection.
+     *
+     * Deliberately does not create anything: the coach lands on the review
+     * grid and decides, which is wave 9's promise that nothing is persisted
+     * before they confirm — a promise that would be quietly broken by a
+     * background job that made a plan while they were away.
+     */
+    function resumeHeld() {
+        var store = hold();
+        if ( !store || state.step !== 'capture' || state.busy ) { return; }
+        if ( navigator.onLine === false ) { return; }
+
+        store.list().then( function ( rows ) {
+            if ( !rows.length ) { return; }
+
+            var row = rows[ 0 ];
+            if ( row.teamId ) { state.teamId = row.teamId; }
+
+            say( i18n.resuming );
+            extract( row.base64, row.id );
+        } )[ 'catch' ]( function () {} );
     }
 
     function renderReading() {
@@ -477,6 +583,10 @@
         else if ( state.step === 'reading' ) { renderReading(); }
         else { renderReview(); }
 
+        // The capture screen is rebuilt on every step change, so the
+        // pending line has to be refilled rather than merely set once.
+        if ( state.step === 'capture' ) { refreshPending(); }
+
         var live = node( 'p', 'tt-photo__msg tt-muted' );
         live.setAttribute( 'data-tt-photo-msg', '' );
         live.setAttribute( 'role', 'status' );
@@ -493,6 +603,22 @@
         // A camera left running because someone navigated away is a light
         // on a phone in a coach's pocket.
         window.addEventListener( 'pagehide', stopCamera );
+
+        // #2735 — anything held is swept first, and what the sweep took is
+        // said out loud: a photograph that disappears without a word leaves
+        // a coach believing their session is safe.
+        var store = hold();
+        if ( !store ) { return; }
+
+        store.sweep().then( function ( dropped ) {
+            if ( dropped ) {
+                say( fmt( dropped === 1 ? i18n.expiredOne : i18n.expiredMany, dropped ) );
+            }
+            refreshPending();
+            resumeHeld();
+        } )[ 'catch' ]( function () {} );
+
+        window.addEventListener( 'online', resumeHeld );
     }
 
     if ( document.readyState === 'loading' ) {

@@ -31,7 +31,7 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 | # | What is missing | Who closes it |
 | --- | --- | --- |
 | 1 | ✅ **Closed.** There is no longer a default endpoint. The feature refuses to send anything until the operator declares both `TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION`; until they do, it reports itself unconfigured and callers fall back to manual entry. **What this does not do is verify the declaration** — no plugin can tell whether an endpoint really processes data where its operator says it does. What it guarantees is that the destination is always a choice somebody made, which is the thing a DPIA can honestly record. The declared region string belongs in § 2 below. | Done — the operator still owns the accuracy of the declaration |
-| 2 | ✅ **Decided 2026-08-23: 7 days.** A photograph held on a coach's phone while they are out of range is dropped after seven days, whether or not it has been reviewed. **The holding itself is not built yet** (#2735) — wave 9 shipped online-only, so today no photograph is ever held and this prerequisite has no subject. The number is recorded now so the feature is built to it rather than the other way round. | Decided; build tracked in #2735 |
+| 2 | ✅ **Closed 2026-08-23: 7 days, and now enforced.** A photograph held on a coach's phone while they are out of range is dropped after seven days, whether or not it has been reviewed (#2735). The window is swept on every load of the capture screen and hourly while it is open, so a phone that was closed for a fortnight drops what it was holding before it can offer it back. The coach is told the photograph expired rather than finding it silently absent. | Done |
 | 3 | ✅ **Decided 2026-08-23: consent, Art. 6(1)(a)**, given by the parent or guardian since minors are in scope. § 4 records it. The controller must still name **where** that consent is captured and how it is withdrawn — see the two blanks in § 4. | Decided; two blanks to complete at signing |
 | 4 | ✅ **Decided 2026-08-23: no in-product acknowledgement.** Consent is handled at registration, outside the product. The capture screen states where the photograph goes and nothing more; the placeholder for a first-use panel has been removed from the design rather than left implying something is coming. | Decided — nothing to build |
 | 5 | ✅ **Confirmed 2026-08-23** by the data controller as part of the legal clearance. Re-confirm at each annual refresh and whenever the destination changes. | Done |
@@ -55,6 +55,13 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 
 ```
 [Phone camera]
+     │
+     │ ── out of range? ──▶ [Held on the device: IndexedDB `tt_photo_hold`]
+     │                            │  Never leaves the phone. Dropped after
+     │                            │  7 days, or the moment the extraction
+     │                            │  has been reviewed. Resumes here when
+     │                            │  the connection returns.
+     │       ◀────────────────────┘
      │
      │ HTTP POST multipart/form-data (or JSON photo_base64)
      ▼
@@ -114,7 +121,7 @@ The OpenAI provider is shipped as a stub and flagged DPIA-incompatible for EU cl
 | Data | Retention | Mechanism |
 |---|---|---|
 | Source photograph (raw bytes), server-side | **Duration of the HTTP request only** | The bytes are read from PHP's temporary upload location into memory and passed to the provider. Nothing writes them to disk, so there is no upload directory and no sweep. PHP removes its own temp file when the request ends. Earlier versions of this document described a 7-day retention with a cron sweep and a `TT_VISION_PHOTO_RETENTION_DAYS` constant; **neither exists**, and the actual behaviour is stricter. |
-| Source photograph, **on the coach's device** | **7 days** — decided 2026-08-23 | **Not built yet.** Wave 9 shipped online-only: out of range the screen says nothing was sent and the coach retakes the photograph, so today nothing is ever held on a device. When holding is built (#2735) a held photograph is dropped after seven days whether or not it has been reviewed, and the coach is told it has gone rather than finding it silently absent. |
+| Source photograph, **on the coach's device** | **7 days** — decided 2026-08-23, enforced since #2735 | A photograph taken out of range is held in the browser's IndexedDB (`tt_photo_hold`) on that device only, and sent when the connection returns. It is deleted the moment its extraction has been reviewed, and dropped unconditionally seven days after it was taken — swept on load and hourly, so a phone closed across the expiry drops it before offering it back. The coach is told a photo expired; a photograph that vanishes without a word is worse than one that expires loudly. The seven days are the ceiling, not the target. |
 | Structured extraction text | Indefinite (joined to the saved session) | Persists in `tt_activity_exercises` as part of the session record. Subject to the academy's overall retention policy. |
 | Provider-side input data | Per the operator's contract with the provider | Validate against the current contract; see § 2. |
 

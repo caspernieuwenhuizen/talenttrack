@@ -121,9 +121,26 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'label' => __( 'From a photo', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'training-photo' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — same module, gated above */
             ];
+
+            // #2735 — a photo held on this phone is waiting somewhere the
+            // coach may not be. The count is client-side (the photo never
+            // left the device), so PHP renders the slot and the hold script
+            // fills it, or leaves it hidden when there is nothing waiting.
+            FrontendTrainingPhotoView::enqueuePhotoHold();
         }
 
         self::renderHeader( __( 'Training plans', 'talenttrack' ), self::pageActionsHtml( $actions ) );
+
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'exercises_vision_extraction' )
+            && \TT\Modules\Exercises\Vision\VisionDataRegion::isDeclared() ) {
+            // The link IS the slot: the script writes the count into it and
+            // unhides it. A wrapper would render an empty notice box on
+            // every load where nothing is waiting, which is most of them.
+            printf(
+                '<a class="tt-notice tt-notice-info tt-training-photo-pending" href="%s" data-tt-photo-hold hidden></a>',
+                esc_url( add_query_arg( [ 'tt_view' => 'training-photo' ], RecordLink::dashboardUrl() ) ) /* tt-xview-ok — same module, gated above */
+            );
+        }
 
         echo '<p class="tt-muted tt-training-intro">'
             . esc_html__( 'Your training plans and the club templates you can build from. A plan you attach to a training records what was actually trained, so it lands on the player record.', 'talenttrack' )
