@@ -118,14 +118,21 @@ final class AlertOccurrencesRepository {
      * `$scopeSubjectIds`, when given, limits the resolution to those
      * subjects. That is what keeps a narrowed (event-driven) run from
      * resolving the whole club's backlog just because it only looked at one
-     * activity. Nothing populates it in wave 1; it exists so #2633's
-     * invalidation cannot get this wrong later.
+     * activity. #2731 is what populates it.
+     *
+     * `$scopeSubjectType` must be given with it. An id list on its own is
+     * ambiguous — `subject_id` 41 is an activity to one definition and a
+     * player to another, and a run narrowed to activity 41 would otherwise
+     * stamp `resolved_at` on an alert about player 41 that nobody has
+     * fixed. `AlertEvaluator::runForSubject()` already filters definitions
+     * by subject type, which makes the collision unreachable from the
+     * shipped call path; this makes it unreachable from any other.
      *
      * @param list<string> $seen
      * @param list<int>    $scopeSubjectIds
      * @return int Rows resolved.
      */
-    public function resolveMissing( string $alertKey, array $seen, string $now, array $scopeSubjectIds = [] ): int {
+    public function resolveMissing( string $alertKey, array $seen, string $now, array $scopeSubjectIds = [], string $scopeSubjectType = '' ): int {
         global $wpdb;
         $table = $this->table();
 
@@ -143,6 +150,11 @@ final class AlertOccurrencesRepository {
         if ( ! empty( $scopeSubjectIds ) ) {
             $ids  = implode( ',', array_map( 'intval', $scopeSubjectIds ) );
             $sql .= " AND subject_id IN ({$ids})";
+
+            if ( $scopeSubjectType !== '' ) {
+                $sql     .= ' AND subject_type = %s';
+                $params[] = $scopeSubjectType;
+            }
         }
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

@@ -66,6 +66,10 @@ final class SubmissionsAwaitingReviewAlert implements AlertInterface {
         return 'knowledge';
     }
 
+    public function subjectType(): string {
+        return self::SUBJECT_TYPE;
+    }
+
     public function label(): string {
         return __( 'Assignment waiting for review', 'talenttrack' );
     }

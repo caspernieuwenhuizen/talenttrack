@@ -336,6 +336,7 @@ final class AlertPolicyResolverTest extends WP_UnitTestCase {
 
             public function key(): string { return $this->k; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Policy stub'; }
             public function description(): string { return 'Stub for policy tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }

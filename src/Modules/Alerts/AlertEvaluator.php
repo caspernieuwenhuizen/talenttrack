@@ -76,7 +76,8 @@ final class AlertEvaluator {
                 $alert->key(),
                 [],
                 $now,
-                $context->isFullSweep() ? [] : $context->subjectIds
+                $context->isFullSweep() ? [] : $context->subjectIds,
+                $context->isFullSweep() ? '' : $context->subjectType
             );
             return $stat;
         }
@@ -136,7 +137,8 @@ final class AlertEvaluator {
                 $alert->key(),
                 $seen,
                 $now,
-                $context->isFullSweep() ? [] : $context->subjectIds
+                $context->isFullSweep() ? [] : $context->subjectIds,
+                $context->isFullSweep() ? '' : $context->subjectType
             );
         }
 
@@ -161,6 +163,48 @@ final class AlertEvaluator {
             } catch ( \Throwable $e ) {
                 error_log( sprintf(
                     '[TalentTrack alerts] definition "%s" failed: %s',
+                    $key,
+                    $e->getMessage()
+                ) );
+                continue;
+            }
+            $stat['ms'] = (int) round( ( microtime( true ) - $started ) * 1000 );
+            $out[ $key ] = $stat;
+        }
+        return $out;
+    }
+
+    /**
+     * #2731 — run only the definitions whose subject is what just changed.
+     *
+     * The narrowed counterpart of `runAll()`, and the reason it exists
+     * rather than being folded into it: a `player`-typed definition asked
+     * to run inside an `activity`-scoped context does the wrong thing
+     * twice over. Its `applyScope()` correctly no-ops, so it returns the
+     * whole club's truth — and then `resolveMissing()` narrows anyway, to a
+     * list of activity ids being read as player ids. Filtering by subject
+     * type is what keeps a narrowed run to definitions that understand the
+     * narrowing.
+     *
+     * `$context` must be narrowed. A full sweep passed here would run a
+     * subset of the catalogue and report it as if it were the whole thing,
+     * so it is refused rather than quietly downgraded.
+     *
+     * @return array<string,array{created:int,bumped:int,resolved:int,skipped:int,truncated:bool,ms:int}>
+     */
+    public function runForSubject( AlertContext $context ): array {
+        if ( $context->isFullSweep() ) return [];
+
+        $out = [];
+        foreach ( AlertRegistry::all() as $key => $alert ) {
+            if ( $alert->subjectType() !== $context->subjectType ) continue;
+
+            $started = microtime( true );
+            try {
+                $stat = $this->run( $alert, $context );
+            } catch ( \Throwable $e ) {
+                error_log( sprintf(
+                    '[TalentTrack alerts] definition "%s" failed during invalidation: %s',
                     $key,
                     $e->getMessage()
                 ) );

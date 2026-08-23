@@ -4,13 +4,19 @@
 
 > Required by EU GDPR Art. 35 before broad deployment of #0016 (photo-to-session capture) to any club whose photographs may include minor athletes.
 
-> ## ⚠️ Not ready for signature
+> ## Nearly ready for signature
 >
-> **Do not sign this document, and do not enable photo capture on any install, until [#2695](https://github.com/caspernieuwenhuizen/talenttrack/issues/2695) is closed.**
+> **Legal clearance was given on 2026-08-23.** Prerequisites 2 through 5 are decided and recorded below; 7 is a residual risk for the DPO to accept knowingly rather than a gap. What remains before a signature is honest:
 >
-> An audit of this document against the shipped code (2026-08-22) found that several of its technical assertions described safeguards that do not exist. Those sections have been rewritten to describe what the code actually does, and the remaining gaps are listed in **§ 0. Before this can be signed** — prerequisites 2 through 6 are open, and most of them need a DPO or a data controller rather than a commit.
+> 1. **Two blanks in § 4** — where consent is captured and how it is withdrawn. The product cannot know these.
+> 2. **The destination in § 2** — the endpoint and region this install will declare. Until they are set in `wp-config.php`, nothing can be sent at all.
+> 3. **Prerequisite 6**, the provider shootout. Not a legal blocker, but a signature implies the extraction is fit for the purpose § 5 describes, and it has never been tried against real coach handwriting.
 >
-> **Two have since been closed in code** (2026-08-23): there is no longer a default endpoint — nothing is sent until this install declares where photographs go — and the extraction prompt now keeps player names out of free-text fields. Prerequisite 7 is only *partly* closed; read its residual risk before signing.
+### How this document got here
+>
+> An audit against the shipped code (2026-08-22) found that several of its technical assertions described safeguards that did not exist. Those sections were rewritten to describe what the code actually does, and **§ 0** tracks every prerequisite that came out of it.
+>
+> **Two were then closed in code** (2026-08-23): there is no longer a default endpoint — nothing is sent until this install declares where photographs go — and the extraction prompt now keeps player names out of free-text fields. Prerequisite 7 is only *partly* closed; read its residual risk before signing.
 >
 > **Corrected 2026-08-23, second pass:** this document briefly claimed the `exercises_vision_extraction` feature flag was off on a default install and leaned on that as a safeguard. It is **on** by default. The claim was wrong, it was written here during the audit that was supposed to remove exactly this kind of error, and it also reached the v4.96.0 release notes. Nothing about the install's actual safety changed — a fresh install still sends nothing, because it has declared no destination — but the reason is the destination gate, not the flag.
 >
@@ -25,10 +31,10 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 | # | What is missing | Who closes it |
 | --- | --- | --- |
 | 1 | ✅ **Closed.** There is no longer a default endpoint. The feature refuses to send anything until the operator declares both `TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION`; until they do, it reports itself unconfigured and callers fall back to manual entry. **What this does not do is verify the declaration** — no plugin can tell whether an endpoint really processes data where its operator says it does. What it guarantees is that the destination is always a choice somebody made, which is the thing a DPIA can honestly record. The declared region string belongs in § 2 below. | Done — the operator still owns the accuracy of the declaration |
-| 2 | **Retention of the offline queue.** Wave 9 (#2502) holds photographs in IndexedDB on the coach's device until reconnect. That is a processing location this document does not yet describe, and it needs a retention answer. | Engineering + DPO |
-| 3 | **Lawful basis** — § 4 is still unticked. | Data controller |
-| 4 | **Consent surface** — whether a coach must acknowledge something in-product before the first upload is a legal answer, not a product one (#2502). | DPO |
-| 5 | **Provider terms validation** — confirm the current contract's non-retention and non-training clauses as at the signing date. | Data controller |
+| 2 | ✅ **Decided 2026-08-23: 7 days.** A photograph held on a coach's phone while they are out of range is dropped after seven days, whether or not it has been reviewed. **The holding itself is not built yet** (#2735) — wave 9 shipped online-only, so today no photograph is ever held and this prerequisite has no subject. The number is recorded now so the feature is built to it rather than the other way round. | Decided; build tracked in #2735 |
+| 3 | ✅ **Decided 2026-08-23: consent, Art. 6(1)(a)**, given by the parent or guardian since minors are in scope. § 4 records it. The controller must still name **where** that consent is captured and how it is withdrawn — see the two blanks in § 4. | Decided; two blanks to complete at signing |
+| 4 | ✅ **Decided 2026-08-23: no in-product acknowledgement.** Consent is handled at registration, outside the product. The capture screen states where the photograph goes and nothing more; the placeholder for a first-use panel has been removed from the design rather than left implying something is coming. | Decided — nothing to build |
+| 5 | ✅ **Confirmed 2026-08-23** by the data controller as part of the legal clearance. Re-confirm at each annual refresh and whenever the destination changes. | Done |
 | 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting (#0016). Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
 | 7 | ⚠️ **Partly closed — read the residual risk.** The extraction prompt now instructs the model to keep player names in the structured `attendance` array and never to write one into any free-text `notes` field or exercise name. **A prompt is a request, not a guarantee**, and a server-side strip against the squad list was considered and deliberately not built. So a name the model transcribes anyway still lands somewhere neither a subject-access export nor an erasure request can reach. Sign only if the DPO accepts that residual risk knowingly. | Instruction shipped; accepting the remainder is a DPO decision |
 
@@ -108,7 +114,7 @@ The OpenAI provider is shipped as a stub and flagged DPIA-incompatible for EU cl
 | Data | Retention | Mechanism |
 |---|---|---|
 | Source photograph (raw bytes), server-side | **Duration of the HTTP request only** | The bytes are read from PHP's temporary upload location into memory and passed to the provider. Nothing writes them to disk, so there is no upload directory and no sweep. PHP removes its own temp file when the request ends. Earlier versions of this document described a 7-day retention with a cron sweep and a `TT_VISION_PHOTO_RETENTION_DAYS` constant; **neither exists**, and the actual behaviour is stricter. |
-| Source photograph, **on the coach's device** | **Not yet decided** | Wave 9 (#2502) queues photographs in IndexedDB when the phone is offline and uploads them on reconnect. Retention there is prerequisite 2 in § 0 and must be answered before this document is signed. |
+| Source photograph, **on the coach's device** | **7 days** — decided 2026-08-23 | **Not built yet.** Wave 9 shipped online-only: out of range the screen says nothing was sent and the coach retakes the photograph, so today nothing is ever held on a device. When holding is built (#2735) a held photograph is dropped after seven days whether or not it has been reviewed, and the coach is told it has gone rather than finding it silently absent. |
 | Structured extraction text | Indefinite (joined to the saved session) | Persists in `tt_activity_exercises` as part of the session record. Subject to the academy's overall retention policy. |
 | Provider-side input data | Per the operator's contract with the provider | Validate against the current contract; see § 2. |
 
@@ -119,10 +125,22 @@ Operator can disable photo capture entirely via `define( 'TT_VISION_PROVIDER', '
 Document the academy's chosen lawful basis under GDPR Art. 6:
 
 - [ ] **Legitimate interest** (Art. 6(1)(f)) — the academy has a legitimate interest in efficient training-data capture. Operator must complete a Legitimate Interests Assessment.
-- [ ] **Consent** (Art. 6(1)(a)) — when minors are in scope, consent is given by the parent/guardian. Document where consent is captured (registration form, annual renewal, etc.) and how it can be withdrawn.
+- [x] **Consent** (Art. 6(1)(a)) — when minors are in scope, consent is given by the parent/guardian. **Chosen 2026-08-23.**
 - [ ] **Performance of contract** (Art. 6(1)(b)) — the academy has a service contract with the family that includes training-data capture as a deliverable.
 
 Pick at most two; document why.
+
+**Why consent.** The data subjects are children, and the processing sends their likeness — or their names, where the coach wrote attendance on the same sheet — to a third party that the academy chose. Legitimate interest would put the academy in the position of weighing its own convenience against a child's privacy and marking its own homework; consent puts the decision with the parent, which is where it belongs for this kind of processing.
+
+Two things the controller must still complete, because the product cannot know them:
+
+> Where consent is captured: `________________________________________`
+>
+> How it is withdrawn: `________________________________________`
+
+**Consent is captured outside the product** (prerequisite 4). There is deliberately no in-product acknowledgement before a coach's first upload: an extra tap on the capture screen would look like consent while collecting it from the wrong person — the coach is not the data subject, and not their guardian.
+
+**What withdrawal means here.** Because the server never stores the photograph, withdrawing consent does not require deleting one — there is none to delete. What it reaches is the structured extraction joined to the saved session. See § 6 for what is and is not reachable by an erasure request, including the free-text limitation in prerequisite 7.
 
 ## 5. Necessity + proportionality
 
@@ -151,7 +169,7 @@ Pick at most two; document why.
 | Photo of a minor is sent to a non-EU-resident endpoint | Low — it can no longer happen by default, only by a wrong declaration | High | The feature refuses to send anything until the operator declares an endpoint and a region; there is no default to fall through to. The residual risk is a declaration that is mistaken or out of date, which prerequisite 5 and the annual review address. The OpenAI adapter additionally flags its own EU incompatibility in its label. |
 | Provider trains on input data | Depends on the operator's contract | Very high | Validate the configured provider's data-processing terms at signing and at every annual refresh. This document makes no claim on the operator's behalf. |
 | Extracted text contains incorrect attendance attribution | Medium | Medium | Review wizard requires explicit coach approval before save; fuzzy-matcher confidence < 0.6 surfaces the row as "manual review needed" (`ExerciseFuzzyMatcher::DEFAULT_MIN_SIMILARITY`). |
-| A queued photo lingers on a lost or shared device | Unknown until #2502 lands | Medium | Prerequisite 2 — the offline queue's retention is undecided. |
+| A held photo lingers on a lost or shared device | None today — nothing is held; Medium once #2735 lands | Medium | Wave 9 is online-only, so no photograph currently sits on any device. When holding is built, seven days is the ceiling (§ 3). Seven is the most permissive of the options considered and was chosen knowingly: it is the window in which a coach who photographs on a Friday evening and looks on the following weekend still has their session. The shorter alternatives lose that coach's work silently. |
 | A player's name is transcribed into free-text notes and then cannot be found | Reduced but not removed — the plan and the attendance markings are often the same sheet | Medium | The extraction prompt instructs the model to keep names in the structured `attendance` array, where they stay attached to a player, and out of every free-text field. **This is an instruction to a model, not an enforcement**: a server-side strip against the squad was considered and not built, so a transcribed name still reaches a column no export or erasure can see. Prerequisite 7 — accept knowingly or revisit. |
 | API key leak | Low (constant in wp-config) | High | Document key rotation procedure; never commit `wp-config.php` to git. |
 | The feature is used before this document is signed | Low | High | **Not** because the feature flag is off — it is on by default. Because a fresh install has declared no destination, so the endpoint answers `503` and sends nothing. Treat *declaring the destination* as the act this signature authorises, and switch `exercises_vision_extraction` off explicitly if you want a second lock. |

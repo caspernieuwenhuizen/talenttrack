@@ -252,6 +252,7 @@ final class AlertDigestAndRetentionTest extends WP_UnitTestCase {
         return new class implements AlertInterface {
             public function key(): string { return AlertDigestAndRetentionTest::KEY; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Digest stub'; }
             public function description(): string { return 'Stub for digest tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }

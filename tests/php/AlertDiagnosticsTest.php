@@ -223,6 +223,7 @@ final class AlertDiagnosticsTest extends WP_UnitTestCase {
 
             public function key(): string { return AlertDiagnosticsTest::KEY; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Diagnostic stub'; }
             public function description(): string { return 'Stub for diagnostics tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }

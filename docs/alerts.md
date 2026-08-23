@@ -41,6 +41,7 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Past activity still planned** | The activity's date has passed but nobody marked it completed or cancelled. Until they do, its attendance and minutes are missing from every report. |
 | **Attendance not recorded** | The activity is marked completed but nobody recorded who was there. It looks finished everywhere except in the reports. |
 | **Upcoming activity has no coach** | An activity in the next week has nobody assigned to run it. Unstaffed activities tend to get cancelled late, which costs every player in the squad a training slot. |
+| **Match played, no analysis** | A match was played between two days and two weeks ago and nobody has written it up. It appears on the bell only, never as a banner, and it stops after a fortnight — by then the detail is gone and the reminder is only guilt. Tournaments are left out (they cannot carry an analysis yet), as are matches with no attendance recorded at all, which are already covered by the attendance alert. |
 
 ### Evaluations
 
@@ -126,11 +127,13 @@ Heads of Development and academy admins do **not** receive an alert for every te
 
 You also only ever receive an alert about a record you have permission to see. This is re-checked every hour, so a coach who moves off a team stops receiving that team's alerts without anyone having to remember to remove them.
 
-## Why an alert can take an hour to disappear
+## When an alert disappears
 
-TalentTrack re-checks every condition once an hour, in the background. This is deliberate: checking them all while your dashboard loads would make signing in slower for everyone, and slower every time a new alert type is added.
+Fix the thing an alert is about and the alert goes as soon as you save. Mark the activity completed, record the attendance, assign the head coach — the next screen you land on no longer shows it. You do not confirm anything and there is no "done" button; the alert was only ever a description of your data, and the description stopped being true.
 
-So if you mark an activity completed at 10:15, the alert may still be there until the next check. It will clear itself. There is nothing you need to do, and nothing you can do to hurry it.
+A background check also runs once an hour. It is the safety net, and it is the only thing that can notice a condition that became true because time passed rather than because someone saved something — a certificate reaching its expiry date, an invitation going unanswered for a fortnight, a session slipping past the point where its attendance is overdue. Those appear within the hour rather than instantly.
+
+The one case where you may still wait is a bulk change — importing players, rolling over a season — where TalentTrack deliberately leaves the recount to the hourly check rather than doing hundreds of them while you wait for the page.
 
 ## Choosing which alerts you see
 
@@ -166,7 +169,7 @@ Two settings only an administrator can set:
 
 Other notes:
 
-- Alerts are re-checked on an hourly background job. If nothing ever appears, check that WordPress scheduled tasks are running on this site.
+- Alerts are re-checked when the underlying record is saved, and again on an hourly background job. If nothing ever appears, check that WordPress scheduled tasks are running on this site — the hourly job is what catches everything that becomes true through the passage of time.
 - A fresh installation runs one check immediately on activation, so the dashboard shows a true picture without waiting an hour.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`.
 

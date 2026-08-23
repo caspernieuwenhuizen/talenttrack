@@ -10,12 +10,12 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * Carries the club being swept and, optionally, a narrowed subject scope.
  *
- * **The scope is a seam, not a feature.** Epic decision 6 defers
- * event-driven invalidation: wave 1 is cron-only and nothing populates
- * `subjectIds`. It exists so a later wave can re-evaluate one activity
- * after `tt_activity_completed` fires, instead of sweeping the club, and
- * can do so without reshaping `AlertInterface::evaluate()` and every
- * definition that implements it.
+ * The scope was a seam before it was a feature: wave 1 shipped it unused so
+ * that event-driven invalidation could arrive without reshaping
+ * `AlertInterface::evaluate()` and every definition implementing it. #2731
+ * is what populates it — `Invalidation\AlertInvalidationBuffer` turns a
+ * domain event into a narrowed context and re-runs only the definitions
+ * whose subject matches, instead of sweeping the club.
  *
  * A definition MUST honour the scope when it is set — returning the full
  * club's occurrences from a narrowed run would make the reconcile resolve

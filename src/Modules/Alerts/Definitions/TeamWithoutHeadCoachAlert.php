@@ -66,7 +66,7 @@ final class TeamWithoutHeadCoachAlert extends AbstractDataQualityAlert {
         return 'tt_manage_teams';
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 

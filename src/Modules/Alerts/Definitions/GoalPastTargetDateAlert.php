@@ -82,7 +82,7 @@ final class GoalPastTargetDateAlert extends AbstractPlayerAlert {
             : Severity::ATTENTION;
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 

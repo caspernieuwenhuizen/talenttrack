@@ -883,6 +883,13 @@ class TournamentsRestController {
             ] );
         }
 
+        /**
+         * #2731 — this path writes `tt_attendance` directly rather than
+         * through `ActivitiesRepository`, so it has to say so itself.
+         * Documented on `ActivitiesRepository::announceAttendanceChange()`.
+         */
+        do_action( 'tt_activity_attendance_changed', $activity_id );
+
         $wpdb->update(
             "{$p}tt_tournament_matches",
             [ 'completed_at' => current_time( 'mysql' ) ],

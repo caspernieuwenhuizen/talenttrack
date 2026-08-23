@@ -40,6 +40,10 @@ abstract class AbstractActivityAlert implements AlertInterface {
         return 'activities';
     }
 
+    public function subjectType(): string {
+        return static::SUBJECT_TYPE;
+    }
+
     /**
      * Fixing any of these means editing the activity, so that is the
      * capability that gates receipt.
@@ -85,6 +89,20 @@ abstract class AbstractActivityAlert implements AlertInterface {
     }
 
     /**
+     * Where the occurrence sends the recipient. The activity's own detail
+     * page by default, which is where all three wave 1 definitions are
+     * fixed.
+     *
+     * A definition whose fix lives on another screen overrides this
+     * (#2724 sends the coach to the match analysis): a link that lands
+     * someone one click short of the thing being asked of them is a link
+     * they stop following.
+     */
+    protected function urlFor( int $activity_id ): string {
+        return RecordLink::detailUrlFor( 'activities', $activity_id );
+    }
+
+    /**
      * @return list<AlertOccurrence>
      */
     public function evaluate( AlertContext $context ): array {
@@ -118,7 +136,7 @@ abstract class AbstractActivityAlert implements AlertInterface {
 
             $payload = [
                 'title'         => $this->titleFor( $row ),
-                'url'           => RecordLink::detailUrlFor( 'activities', $activity_id ),
+                'url'           => $this->urlFor( $activity_id ),
                 'activity_name' => (string) ( $row->title ?? '' ),
                 'session_date'  => (string) ( $row->session_date ?? '' ),
             ];

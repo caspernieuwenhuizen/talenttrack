@@ -70,7 +70,7 @@ final class PdpNoConversationAlert extends AbstractPlayerAlert {
         return 'tt_edit_pdp';
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 
