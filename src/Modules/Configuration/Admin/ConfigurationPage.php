@@ -346,7 +346,10 @@ class ConfigurationPage {
                 'tiles' => [
                     [ 'label' => __( 'Bulk player import', 'talenttrack' ),
                       'description' => __( 'Upload a CSV to create players in bulk.', 'talenttrack' ),
-                      'icon' => '📥', 'url' => home_url( '/?tt_view=players-import' ) ],
+                      'icon' => '📥', 'url' => add_query_arg(
+                          [ 'tt_view' => 'players-import' ],
+                          \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                      ) ],
                 ],
             ],
         ];

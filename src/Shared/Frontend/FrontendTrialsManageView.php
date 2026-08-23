@@ -209,8 +209,8 @@ class FrontendTrialsManageView extends FrontendViewBase {
             $staff_repo->assign( $case_id, $u, $label ?: null );
         }
 
-        $detail_url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => $case_id ], home_url( '/' ) );
-        wp_safe_redirect( $detail_url );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', $case_id );
+        wp_safe_redirect( $detail_url ?: \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
         exit;
     }
 
@@ -488,7 +488,10 @@ class FrontendTrialsManageView extends FrontendViewBase {
         // Save + Cancel (CLAUDE.md §6). Create-mode cancel target is the
         // trials list; an inbound tt_back hint overrides it.
         $back = \TT\Shared\Frontend\Components\BackLink::resolve();
-        $cancel_url = $back['url'] ?? add_query_arg( [ 'tt_view' => 'trials' ], home_url( '/' ) );
+        $cancel_url = $back['url'] ?? add_query_arg(
+            [ 'tt_view' => 'trials' ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
         echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
             'label'      => __( 'Add case', 'talenttrack' ),
             'cancel_url' => $cancel_url,

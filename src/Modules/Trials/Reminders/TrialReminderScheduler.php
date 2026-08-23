@@ -82,7 +82,7 @@ final class TrialReminderScheduler {
 
         $case_url = add_query_arg( [
             'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'inputs',
-        ], home_url( '/' ) );
+        ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
 
         $subject = sprintf(
             /* translators: 1: player name, 2: days remaining (negative if past) */

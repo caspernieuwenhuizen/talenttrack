@@ -84,7 +84,10 @@ final class DocLinkResolver {
         if ( is_admin() ) {
             return admin_url( 'admin.php?page=tt-docs&topic=' . rawurlencode( $slug ) );
         }
-        return add_query_arg( [ 'tt_view' => 'docs', 'topic' => $slug ], home_url( '/' ) );
+        return add_query_arg(
+            [ 'tt_view' => 'docs', 'topic' => $slug ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
     }
 
     /**

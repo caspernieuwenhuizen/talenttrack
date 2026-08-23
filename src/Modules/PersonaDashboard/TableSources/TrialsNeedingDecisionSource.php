@@ -54,7 +54,7 @@ final class TrialsNeedingDecisionSource implements TableRowSource {
                     $when = (string) $r->end_date;
                 }
             }
-            $detail = esc_url( add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $r->id ], home_url( '/' ) ) );
+            $detail = esc_url( \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'trial-case', (int) $r->id ) );
             return [
                 esc_html( $name !== '' ? $name : '—' ),
                 esc_html( (string) $r->team_name !== '' ? (string) $r->team_name : '—' ),
