@@ -71,7 +71,16 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | --- | --- | --- |
 | **No measurement this season** | A player has no measurement recorded in the current season. | *Where has this player come from?* — physically. Growth data is the only part of a player's record that is not somebody's opinion, and a season with no measurement leaves a permanent hole in the curve. You cannot fill it later: the player has already grown. |
 
-More alerts, covering data quality and onboarding, arrive in later releases. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
+### Data quality
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Player has no team** | An active player belongs to no team. | *Where is this player now?* — and the honest answer is that TalentTrack does not know. A player with no team has no attendance, no minutes, no coverage row, and no head coach receiving any of the other alerts about them. |
+| **Team has no head coach** | A team with players has nobody assigned as head coach. | *What does this player need next?* — for the whole squad at once, because the person whose job it is to answer that does not exist. It is also why a team can go quiet: almost every other alert goes to the head coach. |
+
+These two go to whoever looks after the records rather than to a coach, because there is no coach to send them to — that is the condition. They are quieter than the rest of the catalogue: **Player has no team** appears on the bell only, not as a banner.
+
+More alerts, covering onboarding, arrive in a later release. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
 
@@ -90,6 +99,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
 | `alerts_measurement_grace_days` | 60 days | How far into a season before "no measurement yet" becomes an alert. In week one it would fire for every player in the academy at once, which is indistinguishable from saying nothing. |
+| `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
 
 ## New alerts arrive switched on
 
