@@ -1020,6 +1020,33 @@ input[type="checkbox"], input[type="radio"] {
     .tt-tab { min-height: 48px; }
     .tt-pager-link { min-width: 48px; min-height: 48px; }
     .tt-list-row-action { min-height: 48px; min-width: 48px; }
+
+    /* #2800 — the record link is how you open a player, team or activity
+       from any list in the product, and it was the most-missed target in
+       the audit: 760 rows across 27 surfaces, measuring about 115x19px.
+       inline-flex so the min-height applies to an inline element without
+       taking it out of the text flow of the cell it sits in. */
+    .tt-record-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        /* Some record links carry very short text — a shirt number, an
+           initial — and measured 18px wide once the height was right. The
+           floor is both dimensions, not just the tall one. */
+        min-width: 48px;
+    }
+
+    /* #2800 — checkboxes and radios sat at the 13x13 user-agent default;
+       `touch-action` was set on them above but nothing ever sized them.
+       24px is the visual control; the 48px band comes from the label,
+       which is the real target wherever one wraps or is `for`-linked. */
+    input[type="checkbox"],
+    input[type="radio"] {
+        width: 24px;
+        height: 24px;
+    }
+    .tt-checkbox-label { min-height: 48px; }
 }
 
 /* #0056 — Safe-area insets on fixed surfaces (iOS notch / home bar). */
