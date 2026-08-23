@@ -126,13 +126,15 @@ final class MatchAnalysisComposer {
     }
 
     /**
-     * The six sections, each carrying its label, what the coach wrote, and
-     * what the plan asked for.
+     * Every section, each carrying its label, what the coach wrote, and
+     * what the plan asked for: the overall read plus the two chains of
+     * three.
      *
-     * Both match-prep set-piece boxes fold into the one Set pieces section,
-     * joined rather than picked: a coach who planned "second ball on our
-     * corners" and "no short corners against" planned both, and showing one
-     * would quietly drop half the plan.
+     * A row still stored under the pre-split `set_pieces` key is appended
+     * as well, so an analysis written before the vocabulary changed keeps
+     * its words even where migration 0231 could not move it. It is never
+     * offered for writing — `ratedSectionKeys()` does not contain it — so
+     * only the read-back ever sees it.
      *
      * @return array<string, array{key:string, label:string, rating:?string, notes:string, planned:string, rated:bool}>
      */
@@ -152,6 +154,18 @@ final class MatchAnalysisComposer {
             ];
         }
 
+        $legacy = MatchAnalysisEnums::SECTION_SET_PIECES_LEGACY;
+        if ( isset( $saved[ $legacy ] ) ) {
+            $out[ $legacy ] = [
+                'key'     => $legacy,
+                'label'   => MatchAnalysisEnums::sectionLabel( $legacy ),
+                'rating'  => $saved[ $legacy ]['rating'] ?? null,
+                'notes'   => (string) ( $saved[ $legacy ]['notes'] ?? '' ),
+                'planned' => '',
+                'rated'   => false,
+            ];
+        }
+
         return $out;
     }
 
@@ -161,14 +175,9 @@ final class MatchAnalysisComposer {
     public static function plannedTextFor( string $section_key, ?object $prep ): string {
         if ( ! $prep ) return '';
 
-        if ( $section_key === MatchAnalysisEnums::SECTION_SET_PIECES ) {
-            $parts = array_filter( [
-                trim( (string) ( $prep->goals_attack_setpiece ?? '' ) ),
-                trim( (string) ( $prep->goals_defend_setpiece ?? '' ) ),
-            ] );
-            return implode( "\n", $parts );
-        }
-
+        // Since the set-piece split each section maps onto at most one goal
+        // box, so there is nothing left to merge — the plan's own attacking
+        // and defending set-piece lines land beside the matching phase.
         $column = MatchAnalysisEnums::prepGoalColumnFor( $section_key );
         if ( $column === null ) return '';
 

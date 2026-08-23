@@ -146,7 +146,84 @@
  * allowed — the row ran off the side of the phone. Two columns at 360px
  * and four from tablet up makes the fit arithmetic rather than hopeful.
  */
-.tt-ma__ratings,
+/*
+ * The rating sits on the phase's own heading line and is sized to its
+ * words (#2748). It shipped as four full-width pills in the same
+ * white-on-outline as the bullet inputs below them, which read as a row of
+ * empty fields rather than as a choice.
+ *
+ * The markers keep the grid: they are the fallback presentation of the
+ * roster, where the four options DO belong under the player's name.
+ */
+.tt-ma__section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+}
+
+/* The editing surface follows the same two chains the finished document
+ * reads back in, so a coach fills in the shape they will later see. */
+.tt-ma__chains {
+    display: grid;
+    gap: var(--tt-sp-4);
+}
+
+.tt-ma__chain {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    align-content: start;
+}
+
+.tt-ma__chain-head {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+@media (min-width: 900px) {
+    .tt-ma__chains { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+
+/* Inside a chain the card is half the page, so the bullets stay in one
+ * column at every width — two would cut every point off mid-word. */
+.tt-ma__chains .tt-ma__bullets { grid-template-columns: minmax(0, 1fr); }
+
+/* Clear is the way out, not a fourth choice: it sits apart from the three
+ * ratings rather than queueing up next to them, and reads as a link. It is
+ * a label for a real radio, so it still needs a finger-sized target. */
+.tt-ma__rating-clear {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    margin-left: auto;
+    padding: 0 var(--tt-sp-2);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    text-decoration: underline;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-ma__rating-input--none:checked + .tt-ma__rating-clear { display: none; }
+.tt-ma__rating-input--none:focus-visible + .tt-ma__rating-clear { outline: 2px solid var(--tt-info); outline-offset: 2px; }
+
+/* A textarea does not inherit the UI font on its own, and the coach's
+ * summary rendering in monospace made it read like a code field. */
+.tt-dashboard .tt-ma__summary { font-family: inherit; }
+
+.tt-ma__ratings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-1);
+}
+
 .tt-ma__markers {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -154,7 +231,6 @@
 }
 
 @media (min-width: 600px) {
-    .tt-ma__ratings,
     .tt-ma__markers {
         grid-template-columns: repeat(4, minmax(0, 1fr));
     }
@@ -478,6 +554,62 @@
 .tt-dashboard .tt-ma__outputs .tt-btn {
     min-height: 48px;
 }
+
+/* ---- Share link (#2749) ------------------------------------- */
+
+.tt-ma__share {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper);
+}
+
+.tt-ma__share-title {
+    margin: 0;
+    font-size: var(--tt-fs-lg);
+    line-height: 1.3;
+}
+
+.tt-ma__share-empty,
+.tt-ma__share-live {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    align-items: flex-start;
+}
+
+.tt-ma__share-empty[hidden],
+.tt-ma__share-live[hidden] { display: none; }
+
+/* The URL and Copy sit together: the link is the thing, the button is
+ * what you do with it. */
+.tt-ma__share-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    width: 100%;
+}
+
+.tt-dashboard .tt-ma__share-url {
+    flex: 1 1 16rem;
+    min-width: 0;
+    min-height: 48px;
+    font-size: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--tt-ink-soft);
+}
+
+.tt-dashboard .tt-ma__share-copy,
+.tt-dashboard .tt-ma__share-create,
+.tt-dashboard .tt-ma__share-rotate {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-ma__share-rotate-hint { display: block; }
 
 /* ---- Read-only ---------------------------------------------- */
 

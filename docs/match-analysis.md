@@ -37,25 +37,37 @@ pre-fill.
 A few sentences on how the match went. This is the part people read first,
 so write the thing you would say in the dressing room.
 
-### The four team functions, and set pieces
+### The two chains
 
-Five sections, in the academy's own methodology vocabulary:
+Six phases in the academy's own methodology vocabulary, in two columns that
+each read top to bottom as a chain:
+
+**With the ball**
 
 - **Aanvallen**
-- **Omschakelen naar aanvallen**
+- **Omschakelen naar verdedigen** — the instant we lose it
+- **Set pieces — ours**
+
+**Without the ball**
+
 - **Verdedigen**
-- **Omschakelen naar verdedigen**
-- **Set pieces**
+- **Omschakelen naar aanvallen** — the instant we win it
+- **Set pieces — theirs**
 
-Each carries a rating — **Went well**, **Mixed** or **Needs work** — and up
-to four short points. Both are optional: **Not rated** is a real answer, and
-a section you leave empty stays empty rather than counting as a
-middling score.
+A transition only means something read next to the phase it comes out of,
+which is why these are two chains rather than one list of six.
 
-Where the match plan asked for something in that phase, it appears above the
-inputs as **Planned**, so you are reviewing against what you asked for
-rather than against memory. The two transitions have no counterpart on the
-match-prep screen, so they never show a planned line.
+Each phase carries a rating — **Went well**, **Mixed** or **Needs work** —
+beside its name, and up to four short points beneath it. Both are optional:
+a phase you leave alone simply shows as *Not rated* and counts as nothing,
+rather than as a middling score. Once you have set a rating, a small
+**Clear** appears next to it.
+
+Where the match plan asked for something in that phase, it appears as
+**Planned**, so you are reviewing against what you asked for rather than
+against memory. Each of the plan's four goal boxes lands beside its own
+phase; the two transitions have no counterpart on the match-prep screen, so
+they never show a planned line.
 
 ### Players
 
@@ -102,11 +114,23 @@ Deciding what the player is told is a separate, deliberate act.
 Clear a note and the timeline entry goes with it. Rewrite it and the entry
 is rewritten, not duplicated.
 
+## Reading it back
+
+Once written, the analysis reads as one page: the match and the score
+across the top, your overall read beneath it, then the two chains side by
+side and the players you mentioned in a column of their own. It is the same
+page whether you open it, print it, or send someone the link — so what you
+see is what they get.
+
+Phases you left unrated still appear, marked as such. The page should show
+what you said and, just as plainly, what you did not.
+
 ## Print, or save as PDF
 
-**Print or save as PDF** opens the analysis as a clean A4 page in a new
-tab — no menus, no navigation — and your browser's own print dialog turns
-it into a PDF. The text stays selectable and searchable.
+**Print or save as PDF** opens the analysis as a clean **landscape A4** in
+a new tab — no menus, no navigation — and your browser's own print dialog
+turns it into a PDF. It is built to fit one sheet, and the text stays
+selectable and searchable.
 
 Players you did not mention are left off the printed sheet. The roster on
 screen is there so nobody is forgotten; a printed list of names with
@@ -114,22 +138,29 @@ nothing beside them says something you did not mean.
 
 ## The staff share link
 
-**Open staff share link** gives you a URL that opens the analysis
-read-only, without a login. Send it to an assistant coach, a scout, or
-whoever else on the staff needs to read it.
+A share link does not exist until you ask for one. **Create share link**
+makes it; until then the analysis cannot be opened by anyone outside the
+app, however hard they guess.
+
+Once it exists you get the URL itself with **Copy link** beside it — send
+it to an assistant coach, a scout, or whoever else on the staff needs to
+read it. It opens the analysis read-only, without a login.
 
 Two things to know before you send one:
 
 - It shows the **player notes in full**, including who fell short. It is a
   staff document, and the page says so on its face. It is not indexed by
   search engines.
-- **Anyone holding the link can read it** until you reissue it.
-  **Revoke and reissue link** mints a new URL and shuts every previous one
+- **Anyone holding the link can read it** until you replace it.
+  **Replace link** mints a new URL and shuts every previous one
   immediately — use it when a link has travelled further than you meant, or
   after someone leaves the staff.
 
-An analysis you have never shared has no working link at all, so nothing is
-readable by guesswork.
+## Saving
+
+**Save analysis** leaves you exactly where you were, with everything you
+typed still on screen. Nothing navigates away, and the print and share
+actions stay where they are.
 
 ## What you can't do here
 

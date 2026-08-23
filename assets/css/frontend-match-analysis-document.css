@@ -1,0 +1,320 @@
+/*
+ * frontend-match-analysis-document.css — the finished analysis (#2748).
+ *
+ * One stylesheet for the read-only view, the staff share page and the print
+ * sheet, because they are one document. Authored mobile-first per
+ * CLAUDE.md §2: the base is a single column at 360px and the two chains
+ * become columns from 900px, which is also the shape that prints as one
+ * landscape A4.
+ *
+ * Class contract — owned by MatchAnalysisDocument:
+ *
+ *   .tt-mad                  — the document
+ *   .tt-mad--print           — the standalone print route's variant
+ *   .tt-mad__head/__id/__eyebrow/__title/__vs/__facts/__score
+ *   .tt-mad__summary         — the coach's overall read, boxed
+ *   .tt-mad__body            — chains + players
+ *   .tt-mad__chain/__chain-head
+ *   .tt-mad__tile[data-rating]/__tile-head/__tile-name/__tile-rating
+ *   .tt-mad__points          — the phase's own points
+ *   .tt-mad__players/__player[data-marker]/__player-line/-name/-mark/-min/-note
+ *   .tt-mad__legacy          — pre-split set-piece section, if any survived
+ *   .tt-mad__foot            — print-only footer
+ */
+
+.tt-mad {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+    color: var(--tt-ink);
+}
+
+/* ---- Head --------------------------------------------------- */
+
+.tt-mad__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    padding-bottom: var(--tt-sp-2);
+    border-bottom: 2px solid var(--tt-ink);
+}
+
+.tt-mad__eyebrow {
+    margin: 0 0 2px;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.tt-mad__title {
+    margin: 0;
+    font-size: var(--tt-fs-h2);
+    line-height: 1.15;
+}
+
+.tt-mad__vs {
+    color: var(--tt-muted);
+    font-weight: 400;
+}
+
+.tt-mad__facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--tt-sp-3);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-mad__score {
+    font-size: var(--tt-fs-h3);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink);
+}
+
+/* ---- Overall ------------------------------------------------ */
+
+/* The same box as a phase tile, in neutral grey: it belongs to the
+ * family, but it carries no rating so it takes none of the colours. */
+.tt-mad__summary {
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-mad__summary-label {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+/* ---- Body --------------------------------------------------- */
+
+.tt-mad__body {
+    display: grid;
+    gap: var(--tt-sp-4);
+}
+
+.tt-mad__chain {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    align-content: start;
+}
+
+.tt-mad__chain-head {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+/* ---- Phase tiles -------------------------------------------- */
+
+.tt-mad__tile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-mad__tile[data-rating="went_well"]  { background: var(--tt-success-subtle); border-color: var(--tt-success-subtle); }
+.tt-mad__tile[data-rating="mixed"]      { background: var(--tt-info-subtle);    border-color: var(--tt-info-subtle); }
+.tt-mad__tile[data-rating="needs_work"] { background: var(--tt-warning-subtle); border-color: var(--tt-warning-subtle); }
+
+/* Unrated: present, but visibly nothing. A dashed outline says "this was
+ * left blank" where an identical filled card would say "this is content". */
+.tt-mad__tile[data-rating=""] {
+    background: var(--tt-bg-soft);
+    border-style: dashed;
+}
+
+.tt-mad__tile-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mad__tile-name {
+    margin: 0;
+    font-size: var(--tt-fs-body);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.tt-mad__tile-rating {
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tt-mad__tile[data-rating="went_well"]  .tt-mad__tile-rating { color: var(--tt-success); }
+.tt-mad__tile[data-rating="mixed"]      .tt-mad__tile-rating { color: var(--tt-info); }
+.tt-mad__tile[data-rating="needs_work"] .tt-mad__tile-rating { color: var(--tt-warning); }
+
+.tt-mad__tile[data-rating=""] .tt-mad__tile-rating { color: var(--tt-muted); font-weight: 400; }
+.tt-mad__tile[data-rating=""] .tt-mad__tile-name   { color: var(--tt-ink-soft); }
+
+.tt-mad__glyph { font-size: .95em; line-height: 1; }
+
+.tt-mad__points {
+    margin: var(--tt-sp-1) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* A chevron rather than a disc: it leans into the next word and reads as
+ * a point being made, not as an inventory. */
+.tt-mad__points li {
+    position: relative;
+    margin: 2px 0;
+    padding-left: 14px;
+    line-height: var(--tt-lh-body);
+}
+
+.tt-mad__points li::before {
+    content: "›";
+    position: absolute;
+    left: 2px;
+    top: -1px;
+    color: var(--tt-muted);
+    font-size: 1.05em;
+    font-weight: 700;
+}
+
+.tt-mad__legacy { margin-top: var(--tt-sp-2); }
+
+/* ---- Players ------------------------------------------------ */
+
+.tt-mad__players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mad__player {
+    padding: 1px 0 2px var(--tt-sp-3);
+    border-left: 3px solid var(--tt-line);
+}
+
+.tt-mad__player[data-marker="stood_out"]   { border-left-color: var(--tt-success); }
+.tt-mad__player[data-marker="as_expected"] { border-left-color: var(--tt-info); }
+.tt-mad__player[data-marker="below_par"]   { border-left-color: var(--tt-warning); }
+
+.tt-mad__player-line {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mad__player-name { font-weight: 700; }
+
+.tt-mad__player-mark { font-size: var(--tt-fs-sm); font-weight: 700; }
+
+.tt-mad__player[data-marker="stood_out"]   .tt-mad__player-mark { color: var(--tt-success); }
+.tt-mad__player[data-marker="as_expected"] .tt-mad__player-mark { color: var(--tt-info); }
+.tt-mad__player[data-marker="below_par"]   .tt-mad__player-mark { color: var(--tt-warning); }
+
+.tt-mad__player-min {
+    margin-left: auto;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mad__player-note {
+    margin: 0;
+    color: var(--tt-ink-soft);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-mad__none { margin: 0; color: var(--tt-muted); font-size: var(--tt-fs-sm); }
+
+/* ---- Tablet: the two chains become two columns --------------- */
+
+@media (min-width: 768px) {
+    .tt-mad__body { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tt-mad__players { grid-column: 1 / -1; }
+}
+
+/* ---- Desktop: chains + a wide players column ----------------- */
+
+@media (min-width: 1100px) {
+    .tt-mad__body {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+        align-items: start;
+    }
+
+    .tt-mad__players { grid-column: auto; }
+
+    .tt-mad__head {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    .tt-mad__facts { justify-content: flex-end; }
+}
+
+/* ---- Print: one landscape A4 --------------------------------- */
+
+@media print {
+    .tt-mad {
+        gap: 4mm;
+        font-size: 9.5pt;
+        line-height: 1.4;
+    }
+
+    .tt-mad__head { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+    .tt-mad__title { font-size: 15pt; }
+    .tt-mad__score { font-size: 15pt; }
+    .tt-mad__eyebrow, .tt-mad__facts, .tt-mad__chain-head { font-size: 7.5pt; }
+
+    .tt-mad__body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 78mm;
+        gap: 4mm;
+        align-items: start;
+    }
+
+    .tt-mad__players { grid-column: auto; }
+
+    /* Nothing may break across a page: the sheet is meant to be one. */
+    .tt-mad__tile, .tt-mad__player, .tt-mad__summary { break-inside: avoid; }
+
+    .tt-mad__foot {
+        display: flex;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 2mm;
+        border-top: 1px solid var(--tt-line);
+        color: var(--tt-muted);
+        font-size: 7pt;
+    }
+}
+
+.tt-mad__foot { display: none; }
+.tt-mad--print .tt-mad__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-4);
+    padding-top: var(--tt-sp-2);
+    border-top: 1px solid var(--tt-line);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}

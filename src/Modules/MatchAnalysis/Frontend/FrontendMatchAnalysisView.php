@@ -4,6 +4,7 @@ namespace TT\Modules\MatchAnalysis\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
+use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisShareLink;
 use TT\Shared\Frontend\Components\BackLink;
@@ -87,9 +88,11 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         self::enqueueStyles();
 
         echo '<div class="tt-ma">';
-        self::renderMatchHeader( $activity, (array) $payload['result'], (array) $payload );
 
         if ( $can_edit ) {
+            // The editing surface keeps its own header; the document
+            // renders its own, so only one of the two draws it.
+            self::renderMatchHeader( $activity, (array) $payload['result'], (array) $payload );
             self::renderForm( $activity_id, $payload );
         } else {
             self::renderReadOnly( $payload );
@@ -148,7 +151,6 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         echo '<p class="tt-ma__share-note">'
             . esc_html__( 'Shared staff document. It names players and what they were told; please do not forward it outside the staff.', 'talenttrack' )
             . '</p>';
-        self::renderMatchHeader( $payload['activity'], (array) $payload['result'], (array) $payload );
         self::renderReadOnly( $payload );
         echo '</div>';
 
@@ -238,7 +240,11 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         $players  = (array) $payload['players'];
 
         printf(
-            '<form class="tt-ajax-form tt-ma__form" data-rest-path="activities/%d/analysis" data-rest-method="PUT" data-redirect-after-save="reload">',
+            // `stay` rather than `reload`: saving must not move the coach.
+            // Reloading jumped the scroll to the top, which reads as having
+            // been taken off the page, and put the print and share actions
+            // out of reach for a beat (#2749).
+            '<form class="tt-ajax-form tt-ma__form" data-rest-path="activities/%d/analysis" data-rest-method="PUT" data-redirect-after-save="stay">',
             $activity_id
         );
 
@@ -255,11 +261,24 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             . '</textarea>';
         echo '</section>';
 
-        // --- Team functions + set pieces ----------------------------
-        foreach ( $sections as $key => $section ) {
-            if ( ! $section['rated'] ) continue;
-            self::renderSectionFields( (string) $key, $section );
+        // --- The two chains -----------------------------------------
+        // Written in the order they are read back: with the ball, then
+        // without it. A transition only means something next to the phase
+        // it comes out of, which is why these are two columns and not one
+        // list of six.
+        $chain_labels = MatchAnalysisEnums::chainLabels();
+
+        echo '<div class="tt-ma__chains">';
+        foreach ( MatchAnalysisEnums::chains() as $chain => $keys ) {
+            echo '<div class="tt-ma__chain">';
+            echo '<p class="tt-ma__chain-head">' . esc_html( $chain_labels[ $chain ] ?? '' ) . '</p>';
+            foreach ( $keys as $key ) {
+                if ( ! isset( $sections[ $key ] ) ) continue;
+                self::renderSectionFields( (string) $key, (array) $sections[ $key ] );
+            }
+            echo '</div>';
         }
+        echo '</div>';
 
         // --- Players -------------------------------------------------
         echo '<section class="tt-ma__section tt-ma__section--players">';
@@ -284,40 +303,20 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
      * @param array<string,mixed> $section
      */
     private static function renderSectionFields( string $key, array $section ): void {
-        $ratings = MatchAnalysisEnums::ratings();
         $current = (string) ( $section['rating'] ?? '' );
         $lines   = self::bulletLines( (string) $section['notes'] );
 
         echo '<section class="tt-ma__section">';
+
+        // Title and rating share a line: the rating is a one-word judgement
+        // and the bullets below are where the thinking goes, so giving it
+        // an equal-weight row of its own said the opposite (#2748).
+        echo '<div class="tt-ma__section-head">';
         echo '<h2 class="tt-ma__section-title">' . esc_html( (string) $section['label'] ) . '</h2>';
-        self::renderPlanned( (string) $section['planned'] );
-
-        printf(
-            '<div class="tt-ma__ratings" role="radiogroup" aria-label="%s">',
-            esc_attr( sprintf(
-                /* translators: %s: section name, e.g. Aanvallen */
-                __( 'Rating — %s', 'talenttrack' ),
-                (string) $section['label']
-            ) )
-        );
-
-        // "Not rated" is a real option, not the absence of one: a coach
-        // must be able to take a rating back off, and a radio group with
-        // no un-check is otherwise a one-way door.
-        $options = [ '' => __( 'Not rated', 'talenttrack' ) ] + $ratings;
-        foreach ( $options as $value => $label ) {
-            $id = 'tt-ma-' . sanitize_key( $key ) . '-' . ( $value === '' ? 'none' : sanitize_key( (string) $value ) );
-            printf(
-                '<input type="radio" class="tt-ma__rating-input" id="%1$s" name="sections[%2$s][rating]" value="%3$s"%4$s />'
-                . '<label class="tt-ma__rating" for="%1$s" data-rating="%3$s">%5$s</label>',
-                esc_attr( $id ),
-                esc_attr( $key ),
-                esc_attr( (string) $value ),
-                checked( $current, (string) $value, false ),
-                esc_html( (string) $label )
-            );
-        }
+        SectionRatingControl::render( $key, (string) $section['label'], $current, 'ma' );
         echo '</div>';
+
+        self::renderPlanned( (string) $section['planned'] );
 
         echo '<ul class="tt-ma__bullets">';
         for ( $i = 0; $i < self::BULLETS; $i++ ) {
@@ -362,26 +361,71 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             );
         }
 
-        if ( \TT\Core\FeatureRegistry::isEnabled( 'match_analysis_sharing' ) ) {
-            $share_url = MatchAnalysisShareLink::urlFor( $analysis_id );
-            if ( $share_url !== '' ) {
-                printf(
-                    '<a class="tt-btn tt-btn-secondary" href="%s" target="_blank" rel="noopener">%s</a>',
-                    esc_url( $share_url ),
-                    esc_html__( 'Open staff share link', 'talenttrack' )
-                );
-                printf(
-                    '<button type="button" class="tt-btn tt-btn-secondary tt-ma__rotate" data-rest-path="activities/%d/analysis/share/rotate">%s</button>',
-                    $activity_id,
-                    esc_html__( 'Revoke and reissue link', 'talenttrack' )
-                );
-            }
-        }
+        echo '</div>';
 
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'match_analysis_sharing' ) ) {
+            self::renderShareBlock( $activity_id, $analysis_id );
+        }
+    }
+
+    /**
+     * The share link.
+     *
+     * Two states, because minting one is a decision and not a side effect
+     * of opening the page (#2749). Before: a single Create button. After:
+     * the URL itself with Copy as the primary action — what a coach wants
+     * to do with a link is send it — plus a quiet reissue that says what it
+     * costs the people already holding one.
+     *
+     * The URL is never built on render unless a seed already exists, so
+     * merely looking at an analysis leaves it unshared.
+     */
+    private static function renderShareBlock( int $activity_id, int $analysis_id ): void {
+        $seed      = ( new MatchAnalysisRepository() )->shareTokenSeed( $analysis_id );
+        $share_url = $seed !== '' ? MatchAnalysisShareLink::urlFor( $analysis_id ) : '';
+
+        printf( '<div class="tt-ma__share" data-activity-id="%d">', $activity_id );
+
+        echo '<h2 class="tt-ma__share-title">' . esc_html__( 'Share with the staff', 'talenttrack' ) . '</h2>';
+
+        printf(
+            '<div class="tt-ma__share-empty"%s>',
+            $share_url === '' ? '' : ' hidden'
+        );
+        echo '<p class="tt-ma__hint">'
+            . esc_html__( 'No link exists yet, so this analysis cannot be opened by anyone outside the app.', 'talenttrack' )
+            . '</p>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-ma__share-create">'
+            . esc_html__( 'Create share link', 'talenttrack' )
+            . '</button>';
+        echo '</div>';
+
+        printf(
+            '<div class="tt-ma__share-live"%s>',
+            $share_url === '' ? ' hidden' : ''
+        );
+        echo '<div class="tt-ma__share-row">';
+        printf(
+            '<input type="text" class="tt-input tt-ma__share-url" value="%s" readonly aria-label="%s" />',
+            esc_attr( $share_url ),
+            esc_attr__( 'Staff share link', 'talenttrack' )
+        );
+        echo '<button type="button" class="tt-btn tt-btn-primary tt-ma__share-copy">'
+            . esc_html__( 'Copy link', 'talenttrack' )
+            . '</button>';
         echo '</div>';
         echo '<p class="tt-ma__hint">'
-            . esc_html__( 'The share link is for staff. It shows the player notes in full, and anyone holding it can read them until you reissue it.', 'talenttrack' )
+            . esc_html__( 'Anyone holding this link can read the analysis, including the player notes. It keeps working until you replace it.', 'talenttrack' )
             . '</p>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-ma__share-rotate">'
+            . esc_html__( 'Replace link', 'talenttrack' )
+            . '</button>';
+        echo '<span class="tt-ma__hint tt-ma__share-rotate-hint">'
+            . esc_html__( 'The current link stops working immediately.', 'talenttrack' )
+            . '</span>';
+        echo '</div>';
+
+        echo '</div>';
     }
 
     // -----------------------------------------------------------------
@@ -389,84 +433,15 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
     // -----------------------------------------------------------------
 
     /**
+     * The finished analysis. Rendered by `MatchAnalysisDocument` so this
+     * view, the share page and the print sheet cannot grow three different
+     * ideas of what a finished analysis looks like — and so the one people
+     * forward to each other is the one that gets the attention.
+     *
      * @param array<string,mixed> $payload
      */
     public static function renderReadOnly( array $payload ): void {
-        $sections = (array) $payload['sections'];
-        $players  = (array) $payload['players'];
-
-        $summary = trim( (string) $payload['summary'] );
-        if ( $summary !== '' ) {
-            echo '<section class="tt-ma__section">';
-            echo '<h2 class="tt-ma__section-title">'
-                . esc_html( MatchAnalysisEnums::sectionLabel( MatchAnalysisEnums::SECTION_GENERAL ) )
-                . '</h2>';
-            echo '<p class="tt-ma__read-summary">' . nl2br( esc_html( $summary ) ) . '</p>';
-            echo '</section>';
-        }
-
-        $written = 0;
-        foreach ( $sections as $section ) {
-            if ( ! $section['rated'] ) continue;
-            if ( ( $section['rating'] ?? null ) === null && trim( (string) $section['notes'] ) === '' ) continue;
-            $written++;
-
-            echo '<section class="tt-ma__section">';
-            echo '<h2 class="tt-ma__section-title">' . esc_html( (string) $section['label'] );
-            if ( $section['rating'] !== null ) {
-                printf(
-                    ' <span class="tt-ma__rating-pill" data-rating="%s">%s</span>',
-                    esc_attr( (string) $section['rating'] ),
-                    esc_html( MatchAnalysisEnums::ratings()[ $section['rating'] ] ?? '' )
-                );
-            }
-            echo '</h2>';
-
-            $lines = self::bulletLines( (string) $section['notes'] );
-            if ( $lines ) {
-                echo '<ul class="tt-ma__read-bullets">';
-                foreach ( $lines as $line ) {
-                    echo '<li>' . esc_html( $line ) . '</li>';
-                }
-                echo '</ul>';
-            }
-            echo '</section>';
-        }
-
-        $mentioned = array_values( array_filter(
-            $players,
-            static fn( array $p ): bool => (string) $p['marker'] !== '' || trim( (string) $p['note'] ) !== ''
-        ) );
-
-        if ( $mentioned ) {
-            echo '<section class="tt-ma__section tt-ma__section--players">';
-            echo '<h2 class="tt-ma__section-title">' . esc_html__( 'Players', 'talenttrack' ) . '</h2>';
-            echo '<ul class="tt-ma__read-players">';
-            foreach ( $mentioned as $player ) {
-                echo '<li class="tt-ma__read-player">';
-                printf(
-                    '<span class="tt-ma__player-name">%s</span>',
-                    esc_html( (string) $player['name'] )
-                );
-                if ( (string) $player['marker'] !== '' ) {
-                    printf(
-                        ' <span class="tt-ma__marker-pill" data-marker="%s">%s</span>',
-                        esc_attr( (string) $player['marker'] ),
-                        esc_html( MatchAnalysisEnums::markerLabel( (string) $player['marker'] ) )
-                    );
-                }
-                if ( trim( (string) $player['note'] ) !== '' ) {
-                    echo '<p class="tt-ma__read-note">' . esc_html( (string) $player['note'] ) . '</p>';
-                }
-                echo '</li>';
-            }
-            echo '</ul>';
-            echo '</section>';
-        }
-
-        if ( $written === 0 && $summary === '' && ! $mentioned ) {
-            echo '<p class="tt-notice">' . esc_html__( 'Nothing has been written for this match yet.', 'talenttrack' ) . '</p>';
-        }
+        MatchAnalysisDocument::render( $payload );
     }
 
     // -----------------------------------------------------------------

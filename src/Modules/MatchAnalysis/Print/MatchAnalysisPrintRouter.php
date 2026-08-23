@@ -69,13 +69,13 @@ class MatchAnalysisPrintRouter {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title><?php echo esc_html__( 'Match analysis — print', 'talenttrack' ); ?></title>
+    <?php echo MatchAnalysisPrintableRenderer::styleLinks(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — link tags built with esc_url ?>
     <style><?php /* tt-inline-ok — a standalone print document renders outside the WP shell, where wp_enqueue_style never runs; the same constraint MatchPrepPrintRouter has. */ ?>
-        @page { size: A4 portrait; margin: 14mm; }
         <?php echo $styles; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — controlled CSS string from MatchAnalysisPrintableRenderer ?>
         <?php echo self::toolbarStyles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — controlled CSS string ?>
     </style>
 </head>
-<body>
+<body class="tt-root tt-dashboard">
     <div class="tt-map-toolbar">
         <button type="button" class="primary" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
         <a href="<?php echo esc_url( $close_url ); ?>"

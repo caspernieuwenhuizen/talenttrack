@@ -116,7 +116,8 @@ final class MatchAnalysisTest extends WP_UnitTestCase {
         $this->assertNotNull( $payload );
         $this->assertFalse( $payload['has_prep'] );
         $this->assertFalse( $payload['has_exec'] );
-        $this->assertCount( 6, $payload['sections'] );
+        // The overall read plus the two chains of three.
+        $this->assertCount( 7, $payload['sections'] );
         $this->assertSame( 0, $payload['analysis_id'], 'reading a match must not create the record' );
     }
 
@@ -432,10 +433,15 @@ final class MatchAnalysisTest extends WP_UnitTestCase {
             'Press on their goal kick',
             $sections[ MethodologyEnums::FUNCTION_AANVALLEN ]['planned']
         );
+        // Since the split, each side of the plan lands beside its own
+        // phase instead of both being crammed into one line.
         $this->assertSame(
-            "Second ball on our corners\nNo short corners against",
-            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES ]['planned'],
-            'both set-piece boxes belong to the one set-piece section'
+            'Second ball on our corners',
+            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK ]['planned']
+        );
+        $this->assertSame(
+            'No short corners against',
+            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND ]['planned']
         );
         $this->assertSame(
             '',

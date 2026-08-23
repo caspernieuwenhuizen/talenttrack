@@ -30,6 +30,16 @@ final class MatchAnalysisAssets {
             TT_VERSION
         );
 
+        // The finished document has its own sheet, shared with the share
+        // page and the print route, so the read-back cannot drift from what
+        // the coach hands round the staff room.
+        wp_enqueue_style(
+            'tt-frontend-match-analysis-document',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-analysis-document.css',
+            [],
+            TT_VERSION
+        );
+
         wp_enqueue_script(
             'tt-match-analysis',
             TT_PLUGIN_URL . 'assets/js/match-analysis.js',
@@ -38,9 +48,11 @@ final class MatchAnalysisAssets {
             true
         );
         wp_localize_script( 'tt-match-analysis', 'TT_MatchAnalysis', [
-            'confirmRotate' => __( 'Reissue the share link? Everyone holding the current link loses access immediately.', 'talenttrack' ),
+            'confirmRotate' => __( 'Replace the share link? The current one stops working immediately.', 'talenttrack' ),
+            'created'       => __( 'Share link created.', 'talenttrack' ),
+            'copied'        => __( 'Link copied.', 'talenttrack' ),
             'rotated'       => __( 'A new link has been issued. The previous one no longer works.', 'talenttrack' ),
-            'failed'        => __( 'The link could not be reissued. Try again.', 'talenttrack' ),
+            'failed'        => __( 'That did not work. Try again.', 'talenttrack' ),
         ] );
 
         wp_enqueue_script(

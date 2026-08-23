@@ -76,6 +76,14 @@ class MatchAnalysisRestController {
             ],
         ] );
 
+        register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_share' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/analysis/share/rotate', [
             [
                 'methods'             => 'POST',
@@ -195,6 +203,29 @@ class MatchAnalysisRestController {
         }
 
         return RestResponse::success( [ 'player_id' => $player_id ] );
+    }
+
+    /**
+     * Mint the share link. Separate from rendering the surface on purpose
+     * (#2749): opening an analysis used to write a seed as a side effect,
+     * so every analysis anyone merely looked at ended up with a live,
+     * working URL nobody had asked for. Sharing is a decision.
+     *
+     * Idempotent — calling it twice returns the same link rather than
+     * quietly invalidating the one already handed out. Replacing a link is
+     * what `share/rotate` is for, and it says so in the UI.
+     */
+    public static function create_share( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+
+        $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
+        if ( $payload === null ) return self::not_a_match();
+
+        $analysis_id = (int) $payload['analysis_id'];
+
+        return RestResponse::success( [
+            'share_url' => MatchAnalysisShareLink::urlFor( $analysis_id ),
+        ] );
     }
 
     public static function rotate_share( \WP_REST_Request $r ): \WP_REST_Response {

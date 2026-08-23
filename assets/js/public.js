@@ -7,6 +7,17 @@
  * `/wp-json/talenttrack/v1/`) plus optional `data-rest-method`
  * (default POST). Inline goal status / delete handlers hit
  * `/goals/{id}/status` (PATCH) and `/goals/{id}` (DELETE).
+ *
+ * `data-redirect-after-save` decides what happens once a save succeeds:
+ *
+ *   list / list:<slug>     — back to the list view
+ *   detail:<entity>:<id>   — to that record's detail page
+ *   reload                 — re-render this URL
+ *   stay                   — nothing moves; the form keeps what was typed
+ *   <a URL via data-redirect-after-save-url>
+ *
+ * With none of them the form is reset, which is right for an "add another"
+ * form and wrong for one that edits a record in place — use `stay` there.
  */
 (function(){
     'use strict';
@@ -311,6 +322,14 @@
                         // the same page as the data it edits (e.g. PDP
                         // conversation save/sign cards on the file view).
                         setTimeout(function() { window.location.reload(); }, 1200);
+                    } else if (redirect === 'stay') {
+                        // #2749 — stay exactly where we are: no reload, no
+                        // reset, scroll position untouched. For long forms
+                        // whose values ARE the server state after a save,
+                        // where reloading reads as having been taken off
+                        // the page and reset() would silently revert every
+                        // field to its pre-save value.
+                        setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);
                     } else if (redirectUrl) {
                         // v3.92.5 — explicit URL redirect. Used by the
                         // coach-side PDP conversation form to land back on
