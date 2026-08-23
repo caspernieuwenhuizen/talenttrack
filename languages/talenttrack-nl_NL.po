@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:37:34+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:40:44+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -16120,7 +16120,7 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/Components/MediaGallery.php:260
+#: src/Shared/Frontend/Components/MediaGallery.php:264
 #: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr "Volgende"
@@ -19575,7 +19575,7 @@ msgstr "Dupliceren"
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Admin/OptionSetEditor.php:135
-#: src/Shared/Frontend/Components/MediaGallery.php:166
+#: src/Shared/Frontend/Components/MediaGallery.php:170
 #: src/Shared/Frontend/Components/MediaUploader.php:138
 #: src/Shared/Frontend/DashboardShortcode.php:243
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3340
@@ -20437,7 +20437,7 @@ msgstr "Printen"
 #: src/Shared/Frontend/Components/FilterBar.php:119
 #: src/Shared/Frontend/Components/FilterBar.php:358
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/Components/MediaGallery.php:261
+#: src/Shared/Frontend/Components/MediaGallery.php:265
 #: src/Shared/Frontend/DashboardShortcode.php:208
 #: src/Shared/Frontend/DashboardShortcode.php:2102
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:119
@@ -25075,30 +25075,30 @@ msgstr "De test kon niet worden aangemaakt."
 msgid "New test"
 msgstr "Nieuwe test"
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:69
+#: src/Modules/Media/Delivery/MediaDelivery.php:96
 msgid ""
 "That item is a link to video hosted elsewhere; there is no file to download."
 msgstr ""
 "Dit item is een link naar video die ergens anders staat; er is geen bestand "
 "om te downloaden."
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:81
+#: src/Modules/Media/Delivery/MediaDelivery.php:108
 msgid "That item has no thumbnail."
 msgstr "Dit item heeft geen miniatuur."
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:82
+#: src/Modules/Media/Delivery/MediaDelivery.php:109
 msgid "That item has no stored file."
 msgstr "Dit item heeft geen opgeslagen bestand."
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:93
+#: src/Modules/Media/Delivery/MediaDelivery.php:120
 msgid "The stored file could not be found."
 msgstr "Het opgeslagen bestand kon niet worden gevonden."
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:100
+#: src/Modules/Media/Delivery/MediaDelivery.php:127
 msgid "The stored file is empty."
 msgstr "Het opgeslagen bestand is leeg."
 
-#: src/Modules/Media/Delivery/MediaDelivery.php:120
+#: src/Modules/Media/Delivery/MediaDelivery.php:147
 msgid "The requested byte range is outside the file."
 msgstr "Het opgevraagde bytebereik valt buiten het bestand."
 
@@ -25170,27 +25170,27 @@ msgstr ""
 msgid "Unnamed player"
 msgstr "Naamloze speler"
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:28
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:29
 msgid "Confirm"
 msgstr "Bevestigen"
 
 #. translators: %s is the player, team or training the media was added to.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:41
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:42
 #, php-format
 msgid "This will appear on %s."
 msgstr "Dit verschijnt bij %s."
 
 #. translators: %s is a date.
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:66
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:67
 #, php-format
 msgid "Filed under %s on the timeline."
 msgstr "Op de tijdlijn geplaatst onder %s."
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:82
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:83
 msgid "Nothing was added."
 msgstr "Er is niets toegevoegd."
 
-#: src/Modules/Media/Wizard/MediaConfirmStep.php:109
+#: src/Modules/Media/Wizard/MediaConfirmStep.php:110
 msgid "The uploads could not be updated. They are still saved on the record."
 msgstr ""
 "De uploads konden niet worden bijgewerkt. Ze staan wel gewoon bij het record."
@@ -25298,7 +25298,7 @@ msgid "this training"
 msgstr "deze training"
 
 #: src/Modules/Media/Wizard/NewMediaWizard.php:49
-#: src/Shared/Frontend/Components/MediaGallery.php:67
+#: src/Shared/Frontend/Components/MediaGallery.php:68
 msgid "Add media"
 msgstr "Media toevoegen"
 
@@ -32614,7 +32614,7 @@ msgid "WordPress user to link"
 msgstr "Te koppelen WordPress-gebruiker"
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:291
-#: src/Shared/Frontend/Components/MediaGallery.php:310
+#: src/Shared/Frontend/Components/MediaGallery.php:314
 msgid "Link"
 msgstr "Koppelen"
 
@@ -37338,7 +37338,7 @@ msgstr "Kies minstens één speler voor de selectie."
 
 #. translators: %s is the title of the photo or video.
 #: src/Modules/Tournaments/Wizard/WizardAssets.php:41
-#: src/Shared/Frontend/Components/MediaGallery.php:162
+#: src/Shared/Frontend/Components/MediaGallery.php:166
 #, php-format
 msgid "Remove %s"
 msgstr "%s verwijderen"
@@ -43519,55 +43519,55 @@ msgstr ""
 "Geen TalentTrack-record nodig. Vul de basisgegevens in; de gast wordt alleen "
 "bij deze activiteit geregistreerd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:65
+#: src/Shared/Frontend/Components/MediaGallery.php:66
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1977
 msgid "No photos or video yet"
 msgstr "Nog geen foto's of video"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:198
-#: src/Shared/Frontend/Components/MediaGallery.php:339
+#: src/Shared/Frontend/Components/MediaGallery.php:202
+#: src/Shared/Frontend/Components/MediaGallery.php:343
 msgid "Tag players"
 msgstr "Spelers taggen"
 
 #. translators: %d is how many players are tagged in this photo or video.
-#: src/Shared/Frontend/Components/MediaGallery.php:201
+#: src/Shared/Frontend/Components/MediaGallery.php:205
 #, php-format
 msgid "%d player tagged"
 msgid_plural "%d players tagged"
 msgstr[0] "%d speler getagd"
 msgstr[1] "%d spelers getagd"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:255
+#: src/Shared/Frontend/Components/MediaGallery.php:259
 msgid "Media viewer"
 msgstr "Mediaweergave"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:258
+#: src/Shared/Frontend/Components/MediaGallery.php:262
 msgid "Previous"
 msgstr "Vorige"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:268
+#: src/Shared/Frontend/Components/MediaGallery.php:272
 msgid "Add photos or video"
 msgstr "Foto's of video toevoegen"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:336
+#: src/Shared/Frontend/Components/MediaGallery.php:340
 msgid "Remove this permanently? The file is deleted, not archived."
 msgstr "Definitief verwijderen? Het bestand wordt gewist, niet gearchiveerd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:337
+#: src/Shared/Frontend/Components/MediaGallery.php:341
 msgid "It could not be removed."
 msgstr "Het kon niet worden verwijderd."
 
-#: src/Shared/Frontend/Components/MediaGallery.php:338
+#: src/Shared/Frontend/Components/MediaGallery.php:342
 msgid "That tag could not be saved."
 msgstr "Die tag kon niet worden opgeslagen."
 
 #. translators: %d is how many players are tagged.
-#: src/Shared/Frontend/Components/MediaGallery.php:341
+#: src/Shared/Frontend/Components/MediaGallery.php:345
 #, php-format
 msgid "%d players tagged"
 msgstr "%d spelers getagd"
 
-#: src/Shared/Frontend/Components/MediaGallery.php:342
+#: src/Shared/Frontend/Components/MediaGallery.php:346
 msgid "1 player tagged"
 msgstr "1 speler getagd"
 
