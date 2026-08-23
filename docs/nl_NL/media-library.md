@@ -87,6 +87,17 @@ Plak het webadres van een video en TalentTrack bepaalt waar die gehost wordt. Ve
 worden de titel en een miniatuur automatisch opgehaald. Al het andere wordt bewaard als gewone link met een titel die jij typt — TalentTrack neemt
 nooit contact op met een adres dat het niet herkent.
 
+### Lange galerijen laden per pagina
+
+Een record met veel media toont de 24 meest recente items en daaronder een knop **Meer tonen**. Elke druk voegt de volgende 24 toe, steeds verder
+terug in de tijd, tot er niets meer te laden valt en de knop verdwijnt.
+
+Bewust een knop en geen bijladen tijdens het scrollen: zo blijft de oudste foto bereikbaar, blijft de terugknop van de browser werken, en is er niets
+kleins dat je met een duim moet raken.
+
+Het getal op het tabblad Media telt alles wat van die speler bewaard wordt, niet wat er op dat moment op het scherm staat — bij 24 tegels en een
+badge van 31 wachten er dus nog zeven achter de knop.
+
 ## Waar de bestanden staan
 
 Geüploade bestanden komen **niet** in de WordPress-mediabibliotheek. Een bestand daarin heeft een openbaar webadres: wie het adres kent of raadt,

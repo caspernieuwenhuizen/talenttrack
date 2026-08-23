@@ -48,6 +48,13 @@
 			if ( del ) {
 				e.preventDefault();
 				self.remove( del );
+				return;
+			}
+
+			var more = e.target.closest( '[data-role="more"]' );
+			if ( more ) {
+				e.preventDefault();
+				self.loadMore( more );
 			}
 		} );
 
@@ -260,6 +267,93 @@
 		} else {
 			summary.textContent = ( t( 'tagCount', '%d players tagged' ) ).replace( '%d', checked );
 		}
+	};
+
+	/**
+	 * Fetch the next page and append it (#2745).
+	 *
+	 * The offset counts rows the server has already handed out, not tiles
+	 * on screen: permission filtering can drop items from a page, and an
+	 * offset advanced by what is visible would step straight over them.
+	 * The server returns the number to use next, so the client never has
+	 * to work it out.
+	 */
+	Gallery.prototype.loadMore = function ( button ) {
+		var self = this;
+
+		if ( button.disabled ) return;
+
+		var grid = this.root.querySelector( '[data-role="grid"]' );
+		if ( ! grid ) return;
+
+		var type = this.root.getAttribute( 'data-entity-type' );
+		var id = this.root.getAttribute( 'data-entity-id' );
+		var offset = parseInt( button.getAttribute( 'data-offset' ), 10 ) || 0;
+		var limit = parseInt( button.getAttribute( 'data-limit' ), 10 ) || 24;
+
+		var label = button.textContent;
+		button.disabled = true;
+		button.textContent = t( 'loading', 'Loading…' );
+
+		var url = CFG.root + '/media?entity_type=' + encodeURIComponent( type )
+			+ '&entity_id=' + encodeURIComponent( id )
+			+ '&limit=' + limit + '&offset=' + offset
+			+ '&with_tiles=1';
+
+		var xhr = new XMLHttpRequest();
+		xhr.open( 'GET', url, true );
+		xhr.setRequestHeader( 'X-WP-Nonce', CFG.nonce );
+
+		xhr.addEventListener( 'load', function () {
+			var body = null;
+			try { body = JSON.parse( xhr.responseText ); } catch ( err ) { body = null; }
+
+			var data = body && body.data;
+			if ( xhr.status < 200 || xhr.status >= 300 || ! data ) {
+				button.disabled = false;
+				button.textContent = t( 'moreFailed', 'Could not load more. Try again.' );
+				return;
+			}
+
+			// Remember where focus should land before the DOM grows, so a
+			// keyboard user continues from the first new tile rather than
+			// being dropped back at the top of the page.
+			var firstNew = null;
+
+			( data.items || [] ).forEach( function ( item ) {
+				if ( ! item.tile_html ) return;
+				grid.insertAdjacentHTML( 'beforeend', item.tile_html );
+				if ( ! firstNew ) firstNew = grid.lastElementChild;
+			} );
+
+			if ( data.has_more ) {
+				button.disabled = false;
+				button.textContent = label;
+				button.setAttribute( 'data-offset', String( data.next_offset ) );
+			} else {
+				button.remove();
+			}
+
+			if ( firstNew ) {
+				var opener = firstNew.querySelector( '[data-role="open"]' );
+				if ( opener ) opener.focus();
+			}
+
+			self.say( t( 'moreLoaded', 'More loaded.' ) );
+		} );
+
+		xhr.addEventListener( 'error', function () {
+			button.disabled = false;
+			button.textContent = t( 'moreFailed', 'Could not load more. Try again.' );
+		} );
+
+		xhr.send();
+	};
+
+	/** Announce to a screen reader without moving anything visible. */
+	Gallery.prototype.say = function ( message ) {
+		var live = this.root.querySelector( '[data-role="status"]' );
+		if ( live ) live.textContent = message;
 	};
 
 	/**

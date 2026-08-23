@@ -67,23 +67,43 @@ final class MediaRepository {
      *
      * @return object[]
      */
-    public function listForEntity( string $entity_type, int $entity_id, bool $include_archived = false ): array {
+    /**
+     * @param int $limit  0 for every row; otherwise the page size.
+     * @param int $offset Rows to skip. Counted in **stored** rows, not in
+     *                    rows the viewer can see — callers filter for
+     *                    visibility after this returns, so an offset based
+     *                    on the filtered count would step over whatever the
+     *                    filter removed and lose items entirely (#2745).
+     */
+    public function listForEntity(
+        string $entity_type,
+        int $entity_id,
+        bool $include_archived = false,
+        int $limit = 0,
+        int $offset = 0
+    ): array {
         global $wpdb;
         if ( ! MediaEntityType::isValid( $entity_type ) || $entity_id <= 0 ) return [];
 
         $archived = $include_archived ? '' : ' AND m.archived_at IS NULL';
 
-        return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT m.*, l.id AS link_id, l.is_primary, l.sort_order
+        $sql = "SELECT m.*, l.id AS link_id, l.is_primary, l.sort_order
                FROM {$this->table()} m
                INNER JOIN {$this->linksTable()} l ON l.media_id = m.id
               WHERE l.entity_type = %s
                 AND l.entity_id = %d
                 AND " . QueryHelpers::clubScopeWhere( 'm' ) . "
-                AND " . QueryHelpers::clubScopeWhere( 'l' ) . $archived . self::ORDER,
-            $entity_type,
-            $entity_id
-        ) );
+                AND " . QueryHelpers::clubScopeWhere( 'l' ) . $archived . self::ORDER;
+
+        $params = [ $entity_type, $entity_id ];
+
+        if ( $limit > 0 ) {
+            $sql     .= ' LIMIT %d OFFSET %d';
+            $params[] = $limit;
+            $params[] = max( 0, $offset );
+        }
+
+        return (array) $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
     }
 
     /** The item marked primary for a record, or the most recent one. */
