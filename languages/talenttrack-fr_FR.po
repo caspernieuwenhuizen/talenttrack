@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T12:46:37+00:00\n"
+"POT-Creation-Date: 2026-08-23T12:48:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -18506,35 +18506,53 @@ msgstr ""
 msgid "Player not found or not accessible in this club."
 msgstr ""
 
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:178
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:182
+msgid ""
+"The academy holds the photographs and video listed below. The files "
+"themselves are not included in this export — ask the academy for them."
+msgstr ""
+
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:211
+msgid ""
+"media.json lists the photographs and video held of this player. The files "
+"themselves are not included — request them from the academy."
+msgstr ""
+
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:212
 msgid ""
 "comms_log rows with empty address_blob and subject reflect GDPR retention "
 "tombstoning (#0066) — the audit fact is preserved without the PII payload."
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:227
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:261
 #, php-format
 msgid "GDPR subject-access export — %s"
 msgstr ""
 
 #. translators: %s = ISO 8601 date-time
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:233
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:267
 #, php-format
 msgid "Generated: %s"
 msgstr ""
 
 #. translators: %d = WP user id
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:238
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:272
 #, php-format
 msgid "Requested by user id: %d"
 msgstr ""
 
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:242
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:276
 msgid "Files in this archive:"
 msgstr ""
 
-#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:251
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:288
+msgid ""
+"Photographs and video are listed in media.json but are not included in this "
+"archive. Ask the academy for the files themselves."
+msgstr ""
+
+#: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:290
 msgid ""
 "This export was produced under GDPR Article 15 (Right of access by the data "
 "subject)."
