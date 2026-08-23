@@ -205,7 +205,11 @@ final class MediaDeliveryTest extends WP_UnitTestCase {
                 $query['_wpnonce'] ?? null,
                 $variant . ' URL must carry a wp_rest nonce'
             );
-            $this->assertStringContainsString( 'talenttrack/v1/media/' . $uuid . '/' . $variant, $url );
+            $this->assertStringContainsString(
+                'talenttrack/v1/media/' . $uuid . '/' . $variant,
+                rawurldecode( $url ),
+                'decoded, because plain permalinks carry the route inside ?rest_route='
+            );
         }
     }
 

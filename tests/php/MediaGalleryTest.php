@@ -124,7 +124,11 @@ final class MediaGalleryTest extends WP_UnitTestCase {
 
         $this->assertStringNotContainsString( 'wp-content/uploads', $html );
         $this->assertStringNotContainsString( 'tt-media/', $html );
-        $this->assertStringContainsString( '/talenttrack/v1/media/', $html );
+
+        // Decoded first: with plain permalinks the route rides inside a
+        // ?rest_route= parameter, where add_query_arg percent-encodes the
+        // slashes. Same endpoint, different spelling.
+        $this->assertStringContainsString( '/talenttrack/v1/media/', $this->decoded( $html ) );
     }
 
     /**
@@ -164,7 +168,7 @@ final class MediaGalleryTest extends WP_UnitTestCase {
      * builder was right and the view was bypassing it.
      */
     public function test_tile_image_urls_carry_the_nonce(): void {
-        $html = $this->renderWithOneItem( MediaKind::IMAGE );
+        $html = $this->decoded( $this->renderWithOneItem( MediaKind::IMAGE ) );
 
         $this->assertMatchesRegularExpression(
             '#<img[^>]+src="[^"]*/talenttrack/v1/media/[^"]+_wpnonce=[a-z0-9]+#i',
@@ -172,10 +176,19 @@ final class MediaGalleryTest extends WP_UnitTestCase {
             'thumbnail <img> must carry a nonce or the browser gets a 401'
         );
         $this->assertMatchesRegularExpression(
-            '#data-src="[^"]*_wpnonce=[a-z0-9]+#i',
+            '#data-src="[^"]*/talenttrack/v1/media/[^"]+_wpnonce=[a-z0-9]+#i',
             $html,
             'the lightbox / video source must carry one too'
         );
+    }
+
+    /**
+     * Rendered URLs are HTML-escaped, and under plain permalinks the route
+     * is percent-encoded inside ?rest_route=. Normalise both so assertions
+     * describe the endpoint rather than the install's permalink setting.
+     */
+    private function decoded( string $html ): string {
+        return rawurldecode( html_entity_decode( $html, ENT_QUOTES ) );
     }
 
     /**
