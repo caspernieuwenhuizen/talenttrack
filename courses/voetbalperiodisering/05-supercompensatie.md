@@ -27,6 +27,26 @@ heet de supercompensatietijd, en die verschilt sterk per oefenvorm.
 | Voetbalsprints met minimale rust | 72 uur | Sprintschade én melkzuurschade |
 | Partijen 4v4 – 3v3 | 72 uur | Fosfaatsysteem raakt uitgeput, veel melkzuur |
 
+```tt-check answer="C" prompt="Wanneer ontstaat het trainingseffect?"
+- A. Tijdens de prikkel zelf
+- B. Direct erna, zolang de spieren nog warm zijn
+- C. Ná het herstel — het lichaam bouwt bij het repareren iets extra op
+> De prikkel beschadigt; het effect komt uit het herstel dat erop volgt. Daarom
+> is hersteltijd geen verloren tijd maar het moment waarop de training pas
+> rendeert — en daarom haalt een tweede prikkel die te vroeg komt het effect
+> van de eerste onderuit in plaats van er bovenop te komen.
+```
+
+```tt-check answer="A" prompt="Waarom vraagt 4v4 (72 uur) meer herstel dan 11v11 (24–48 uur), terwijl 11v11 veel langer duurt?"
+- A. Omdat de intensiteit per handeling telt, niet het volume: 4v4 put het fosfaatsysteem uit en levert veel melkzuur op
+- B. Omdat spelers in 4v4 meer kilometers maken
+- C. Omdat 4v4 op een kleiner veld meer botsingen geeft
+> Volume en intensiteit zijn twee verschillende dingen, en herstel volgt de
+> intensiteit. Een groot veld geeft veel handelingen met veel tijd ertussen —
+> laag per handeling. 4v4 geeft handeling na handeling zonder pauze, en dát is
+> wat drie dagen kost.
+```
+
 ## Drie regels die hieruit volgen
 
 1. **Tussen twee gelijksoortige prikkels ligt minimaal de
@@ -44,12 +64,32 @@ heet de supercompensatietijd, en die verschilt sterk per oefenvorm.
    supercompensatietijd en kan bijna dagelijks — dat is precies waarom het
    underloadmodel in module 7 werkt.
 
+```tt-check answer="B" prompt="Je hebt dinsdag 4v4 gedaan. Mag je woensdag iets zwaars plannen?"
+- A. Nee, woensdag moet vrij zijn — 4v4 vraagt 72 uur
+- B. Ja, mits het een ánder kenmerk belast; die 72 uur geldt tussen twee gelijksoortige prikkels
+- C. Ja, alles mag, zolang de wedstrijd maar ver genoeg weg is
+> De hersteltijd bindt gelijksoortige prikkels aan elkaar. Terwijl het ene
+> proces herstelt kan een ander geprikkeld worden — dat is wat een week vol
+> maakt zonder dat er iets overtreden wordt. Maar willekeurig is het niet:
+> regel 2 (niets zwaars binnen de hersteltijd vóór de wedstrijd) blijft
+> gewoon staan.
+```
+
 ## Herstel na de wedstrijd
 
 De dag na de wedstrijd verhoogt een extensieve hersteltraining de doorbloeding:
 afvalstoffen worden sneller afgevoerd, bouwstoffen sneller aangevoerd. De
 tweede dag is beter helemaal vrij, zodat alle energie naar herstel gaat. Op de
 derde dag staat het lichaam klaar voor een echte prikkel.
+
+```tt-check answer="A" prompt="Waarom is dag 1 na de wedstrijd een lichte training en dag 2 juist helemaal vrij, en niet andersom?"
+- A. Dag 1 versnelt de afvoer van afvalstoffen door de doorbloeding; op dag 2 gaat alle energie naar de opbouw zelf
+- B. Omdat spelers op dag 1 nog gemotiveerd zijn en op dag 2 niet
+- C. Het maakt niet uit, zolang er maar twee rustige dagen zijn
+> De twee dagen doen verschillend werk. Bewegen helpt vlak na de wedstrijd bij
+> het opruimen; daarna helpt het niet meer en kost het alleen energie die naar
+> het herstel had gemoeten. Omdraaien maakt dag 1 verspild en dag 2 storend.
+```
 
 ## Toets je eigen week
 

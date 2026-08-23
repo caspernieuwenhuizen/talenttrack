@@ -146,18 +146,61 @@ verliest één element in plaats van de hele les.
 | --- | --- | --- |
 | `tt-callout` | `type` — `objectives`, `key`, `warning`, `note` | nee |
 | `tt-reveal` | `question` | nee |
+| `tt-check` | `prompt`, `answer` | ja |
 | `tt-actionline` | regels: `label \| kwaliteit% \| seconden` | nee |
 | `tt-model` | — | nee |
 | `tt-pitchsize` | `format` | ja |
 | `tt-zeropoint` | `method` | ja |
 | `tt-weekplanner` | — | ja |
 | `tt-loadmatrix` | `cycle`, `cycles` | ja |
-| `tt-quiz` | — | plaatshouder tot #2647 |
-| `tt-assignment` | `id` | plaatshouder tot #2648 |
+| `tt-quiz` | — | ja |
+| `tt-assignment` | `id` | ja |
 
 Elk blok rendert server-side een bruikbare weergave. Het script verbetert die
 weergave; het maakt hem nooit. Een lezer met geblokkeerde JavaScript krijgt
 nog steeds de veldmatentabel, het model en de standaardbelastingmatrix.
+
+### De tussentijdse check (#2738)
+
+```
+```tt-check answer="B" prompt="Ajax speelde zaterdag. Kan 4v4 op dinsdag?"
+- A. Ja, twee dagen is genoeg
+- B. Nee, 4v4 vraagt 72 uur herstel
+- C. Alleen als de wedstrijd kort was
+> 4v4 is de meest intensieve vorm en vraagt drie dagen.
+```
+```
+
+De antwoorden zijn `- A. tekst`-lijstregels; de uitleg is het blockquote dat
+erop volgt. Allebei gewone markdown, zodat een check ook in een ruwe diff
+leest als een vraag met een antwoord — precies waarvoor het corpus in markdown
+staat.
+
+**Waarom hij naast `tt-quiz` en `tt-reveal` bestaat.** De toets staat aan het
+eind van de les, en dat is de verkeerde plek om te ontdekken dat je alinea twee
+verkeerd las. `tt-reveal` staat op de goede plek maar vraagt niets — een
+`<details>` gaat open of je nu nagedacht hebt of niet. Je antwoord vastleggen
+vóórdat je het juiste ziet is het mechanisme waar ophaaloefening op draait, en
+alleen `tt-check` dwingt dat af.
+
+**Nagekeken in de browser, en dat is geen gat in de regel van de toets.**
+`tt-quiz` houdt zijn antwoordsleutel op de server omdat er een score op het
+spel staat: die ontgrendelt de volgende les en belandt in het dossier van een
+trainer. Een check legt niets vast, ontgrendelt niets en komt in geen enkel
+rapport, dus er is geen resultaat om te beschermen — en wat hij wél nodig heeft
+is een oordeel zonder netwerkverkeer. Wie het antwoord uit de DOM vist, slaat
+een oefening over die hij ook had kunnen overslaan door door te scrollen.
+
+**Zonder JavaScript** zijn de opties radioknoppen in een `<details>`: kies er
+een, klap open, lees het antwoord. Dat is het gedrag van `tt-reveal`, en dat is
+de juiste terugval. Het script maakt er een direct oordeel van en zet de opties
+vast — antwoorden kan één keer, want net zo lang proberen tot het groen wordt
+maakt van ophalen gokken.
+
+`course-lint` faalt op een check zonder prompt, met minder dan twee opties,
+zonder antwoord, met een antwoord dat geen bestaande optie noemt, of zonder
+uitleg. De gate leest de body via `CheckBlock::inspect()` en niet met een eigen
+parser, zodat lint en renderer niet uit elkaar kunnen lopen.
 
 ### Eén bron voor de getallen
 
@@ -601,11 +644,35 @@ of `DocFrontMatter` raakt. De gate faalt bij:
 - een les met `quiz: true` zonder inhoud, ongeldige JSON, geen vragen, een
   ontbrekende of onhaalbare `pass_mark`, een dubbel vraag-id, een onbekend
   vraagtype, minder dan twee opties, of een antwoordindex buiten bereik
+- een `tt-check` zonder prompt, met minder dan twee opties, zonder antwoord,
+  met een antwoord dat geen bestaande optie noemt, of zonder uitleg
 - een vertaalde les zonder canonieke tegenhanger
 
 Lokaal draaien: `php tools/check-courses.php`. De gate heeft geen WordPress
 nodig en gebruikt de echte parsers, zodat hij niet uit de pas kan lopen met wat
 hij bewaakt.
+
+## Paginabreedte
+
+De lezer is een grid van drie kolommen (#2737). Lopende tekst staat in de
+middelste baan op een leesbare maat (`--tt-lesson-measure`, 76ch); alles wat
+eerder een figuur dan een zin is, beslaat alle drie:
+
+- de vier rekenhulpen, via hun gedeelde klasse `.tt-lesson-tool`
+- tabellen, via `.tt-lesson-table-scroll`
+- `.tt-lesson-actionline`, `.tt-lesson-model`, de toets en de opdracht
+- al het andere dat zich met `.tt-lesson-wide` aanmeldt
+
+Een cursus wordt aan een bureau doorgewerkt, en de rekenhulpen zijn waarvoor de
+lezer komt. Een weekplanner van zeven dagen in een pocketkolom persen terwijl er
+700 pixels venster naast ongebruikt bleef, was het probleem dat dit oplost; ook
+de tekst losmaken zou het hebben ingeruild voor regels van 140 tekens. Onder het
+breekpunt klapt `min()` de middelste baan naar 100%, worden de buitenste banen
+nul, en rendert mobiel precies zoals eerst.
+
+De doelstellingen- en afrondingspanelen die de les omlijsten hebben hun maximum
+helemaal laten vallen — een smal paneel boven en onder een breed lesblok leest
+als een inspringing waar niemand om vroeg.
 
 ## Uitzetten
 

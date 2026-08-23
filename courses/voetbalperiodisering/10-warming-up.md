@@ -34,6 +34,26 @@ doel, en stem je de laatste fase af op het type training dat volgt.
    en daarmee de maximale explosiviteit. Altijd in underload — spelers moeten
    fris de training in, niet moe.
 
+```tt-check answer="C" prompt="Wat is het bezwaar tegen statisch rekken in de warming-up?"
+- A. Het kost te veel tijd
+- B. Het helpt niet, maar het schaadt ook niet
+- C. Het verlaagt de spierspanning, en dus precies de explosiviteit die je die avond wilt verleggen
+> Drie decennia onderzoek laat geen blessurepreventief effect zien — dat is het
+> "helpt niet"-deel. Maar er is meer aan de hand: de verlaagde spierspanning
+> raakt de twee explosieve kenmerken uit module 2 rechtstreeks. Statisch rekken
+> vóór een sprinttraining werkt je eigen trainingsdoel tegen.
+```
+
+```tt-check answer="A" prompt="Waarom staan de versnellingslopen in de warming-up altijd in underload?"
+- A. Omdat de spelers fris aan de training moeten beginnen; de warming-up bereidt de prikkel voor en ís de prikkel niet
+- B. Omdat versnellingslopen anders te veel spierschade geven
+- C. Omdat er in de warming-up geen tijd is voor meer
+> Het onderdeel verhoogt de spierspanning en daarmee de maximale explosiviteit
+> — dat is een voorbereiding op wat volgt. Wie hem tot overload uitbouwt, komt
+> vermoeid aan de eigenlijke training en verlaagt precies het niveau dat hij
+> wilde verleggen.
+```
+
 ## Vraag je spelers waarom
 
 De antwoorden die je in module 1 verzamelde, laten meestal hetzelfde zien:
@@ -42,6 +62,16 @@ op tachtig procent, want in hun beleving is het een gewoonte en geen oefening.
 
 Leg uit waar het onderdeel voor dient, en de uitvoering verandert direct — en
 daarmee het effect.
+
+```tt-check answer="B" prompt="Je spelers doen kniehefjes op tachtig procent, uit gewoonte. Wat helpt het meest?"
+- A. Strenger toezien en corrigeren tot het goed gaat
+- B. Uitleggen waar het onderdeel voor dient; de uitvoering volgt de bedoeling
+- C. Het onderdeel schrappen, want op tachtig procent doet het toch niets
+> Op tachtig procent is een oefening een gewoonte geworden en geen oefening
+> meer. Corrigeren werkt zolang je erbij staat; uitleg werkt ook als je bij een
+> andere groep staat. En schrappen kost je een onderdeel dat op honderd procent
+> wél iets doet.
+```
 
 ## Afstemmen op de sessie
 
@@ -52,10 +82,15 @@ versnellingen; voor de tweede blijft het bij activeren en balgevoel.
 De warming-up is daarmee onderdeel van de periodisering, niet iets wat eraan
 voorafgaat.
 
-```tt-reveal question="Je hebt vanavond voetbalsprints met maximale rust op het programma. Wat mag er beslist niet in de warming-up?"
-Statisch rekken. Het verlaagt de spierspanning en daarmee precies de
-eigenschap die je die avond wilt verleggen. Sluit in plaats daarvan af met
-versnellingslopen in underload, zodat de spierspanning juist omhoog gaat.
+```tt-check answer="A" prompt="Vanavond staan voetbalsprints met maximale rust op het programma. Waarmee sluit je de warming-up af?"
+- A. Versnellingslopen in underload, zodat de spierspanning omhoog gaat
+- B. Statisch rekken, om de hamstrings los te maken vóór het sprinten
+- C. Rustig overspelen, om de spelers fris te houden
+> Statisch rekken verlaagt precies de eigenschap die je die avond wilt
+> verleggen — het is het slechtst denkbare laatste onderdeel voor een
+> sprinttraining. Alleen overspelen is niet fout maar wel gemist: de laatste
+> fase van de warming-up hoort af te stemmen op wat volgt, en dat is hier
+> spierspanning opbouwen.
 ```
 
 ```tt-quiz

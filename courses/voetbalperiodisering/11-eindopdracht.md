@@ -34,6 +34,42 @@ uitvoeren.
 | Underload | Ontbreekt of 50%-regel verkeerd toegepast | Aanwezig en correct berekend | Aanwezig, correct, en ingezet als voorbereiding op de overload |
 | Weekplanning | Sessies zonder motivatie | Elke sessie gekoppeld aan een principe | Principes toegepast én afwegingen benoemd waar ze botsen |
 
+## Eerst zelf nakijken
+
+Drie situaties uit echte plannen. Beantwoord ze voordat je de lijst hieronder
+leest — heb je ze alle drie meteen goed, dan is die lijst een afvinklijst in
+plaats van leerstof.
+
+```tt-check answer="B" prompt="In week 4 staat op donderdagavond 4v4 in overload. De wedstrijd is zaterdag om 14:30. Klopt dat?"
+- A. Ja — donderdagavond tot zaterdagmiddag is bijna 48 uur, ruim voldoende
+- B. Nee — 4v4 vraagt 72 uur, dus deze prikkel moet uiterlijk woensdag
+- C. Ja, mits je het aantal partijen halveert
+> Van donderdagavond tot zaterdagmiddag zit ongeveer 42 uur, en 4v4 vraagt er
+> 72. Je spelers beginnen dus beschadigd aan de wedstrijd. Halveren lost dat
+> niet op maar maakt er underload van — dan had je de geplande prikkel net zo
+> goed kunnen verzetten naar een dag waar hij wél past.
+```
+
+```tt-check answer="C" prompt="Je nulpuntmeting gaf stap 3 (2 × 12 min). In cyclus 2 wil je verder. Wat zet je neer?"
+- A. Stap 8 (3 × 12) — na zes weken mag er een flinke stap bij
+- B. Stap 3, en daarna niet meer verhogen
+- C. Eerst stap 3 herhalen, en pas in de cyclus daarna stap 4
+> Nulpunt – progressie – herhalen – progressie. Je herhaalt de belasting van de
+> vorige cyclus voordat je omhoog gaat; dat is de wet van duurzaamheid, en
+> precies de reden dat het model zes weken duurt en geen drie. Een sprong naar
+> stap 8 bouwt snel op — en wat snel komt, gaat net zo snel weer weg.
+```
+
+```tt-check answer="A" prompt="Je JO14 heeft twaalf spelers die de groeispurt gehad hebben en zes die er nog vóór zitten. Wat zet je in je plan?"
+- A. Het model voor de twaalf, techniek en tactiek voor de zes — met per naam vastgelegd wie na één serie uit de oefening gaat
+- B. Het model voor de hele groep; die zes doen gewoon mee
+- C. Voor niemand overload, tot de hele lichting zover is
+> Meedoen kost die zes spelers schade zonder opbrengst. Wachten kost de twaalf
+> een half seizoen aan rendement. Het beoordelingscriterium hierboven vraagt
+> daarom niet om een keuze tussen die twee uitersten, maar om namen: wie doet
+> wat, en wie haal je wanneer uit de oefening.
+```
+
 ## Acht valkuilen
 
 Loop deze lijst langs voordat je inlevert.

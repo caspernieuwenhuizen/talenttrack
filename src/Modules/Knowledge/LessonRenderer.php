@@ -125,6 +125,8 @@ final class LessonRenderer {
             'weekPrompt'       => __( 'Add a match and at least one training to check the week.', 'talenttrack' ),
             /* translators: %d: number of problems found */
             'weekProblems'     => __( '%d problem(s) with this week:', 'talenttrack' ),
+            'checkCorrect'     => __( 'Correct.', 'talenttrack' ),
+            'checkWrong'       => __( 'Not quite — read on.', 'talenttrack' ),
             'pitchRuleWorks'   => __( 'The rule of thumb works at this format.', 'talenttrack' ),
             /* translators: 1: computed width in metres, 2: minimum usable width in metres */
             'pitchTooNarrow'   => __( 'The computed width of %1$d m is narrower than a penalty area. Widen to %2$d m, or the game turns into a more intensive method than you planned.', 'talenttrack' ),

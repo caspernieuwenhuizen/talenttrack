@@ -10,13 +10,55 @@
  * because BrandStyles owns those and an academy re-themes them.
  */
 
-/* ── prose ──────────────────────────────────────────────────────────── */
+/* ── the measure, and breaking out of it (#2737) ─────────────────────── */
 
+/*
+ * A lesson holds two kinds of thing and they want opposite widths.
+ *
+ * Prose wants a measure — long lines are genuinely harder to read, and the
+ * eye loses the start of the next one. Tools do not: a seven-day planner,
+ * a load matrix or a pitch calculator squeezed into a paperback column is
+ * the reason this reader felt cramped on a laptop, where it was using less
+ * than half the window while its widest tables scrolled sideways.
+ *
+ * So the body is a three-column grid: prose sits in the middle track at a
+ * readable measure, and anything carrying `tt-lesson-wide` spans all three.
+ * Below the breakpoint `min()` collapses the middle track to 100%, both
+ * outer tracks become zero, and mobile renders exactly as it did before.
+ */
 .tt-lesson-body {
-    max-width: 68ch;
+    --tt-lesson-measure: 76ch;
+
+    display: grid;
+    grid-template-columns:
+        1fr
+        min(var(--tt-lesson-measure), 100%)
+        1fr;
+
     color: var(--tt-ink, #0e1a14);
     font-size: var(--tt-fs-body, 1rem);
     line-height: var(--tt-lh-body, 1.5);
+}
+
+.tt-lesson-body > * {
+    grid-column: 2;
+    min-width: 0; /* grid items default to min-content; without this a wide table stretches the track */
+}
+
+/*
+ * What breaks out. The four calculators already share `.tt-lesson-tool`,
+ * so they are named by that rather than one by one; the rest are the
+ * things that are visibly a figure or a grid rather than a sentence.
+ * `.tt-lesson-wide` is the opt-in for anything added later.
+ */
+.tt-lesson-body > .tt-lesson-wide,
+.tt-lesson-body > .tt-lesson-tool,
+.tt-lesson-body > .tt-lesson-table-scroll,
+.tt-lesson-body > .tt-lesson-actionline,
+.tt-lesson-body > .tt-lesson-model,
+.tt-lesson-body > .tt-quiz,
+.tt-lesson-body > .tt-lesson-assignment {
+    grid-column: 1 / -1;
 }
 
 .tt-lesson-body > * + * {
@@ -204,6 +246,135 @@
     padding: 0 var(--tt-sp-4, 16px) var(--tt-sp-4, 16px);
     border-top: 1px solid var(--tt-line-soft, #eef0ec);
     padding-top: var(--tt-sp-3, 12px);
+}
+
+/* ── inline check (#2738) ───────────────────────────────────────────── */
+
+.tt-lesson-check {
+    padding: var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    border-radius: 0 var(--tt-radius, 8px) var(--tt-radius, 8px) 0;
+    background: var(--tt-paper, #fff);
+}
+
+.tt-lesson-check__label {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-lesson-check__prompt {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-weight: 600;
+}
+
+.tt-lesson-check__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+/*
+ * Full-width rows, 48px tall, 8px apart (CLAUDE.md §2). Not a horizontal
+ * strip: four options side by side at 360px would each be well under the
+ * minimum target, and these are read as sentences rather than scanned.
+ */
+.tt-lesson-check__option {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface, #fbfcfa);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-lesson-check__option:active { background: var(--tt-surface-2, #f7f8f5); }
+
+.tt-lesson-check__option input { min-width: 20px; min-height: 20px; }
+
+.tt-lesson-check__key {
+    flex: 0 0 auto;
+    font-weight: 700;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/*
+ * The verdict is carried by more than colour: the right answer gains a ✓
+ * and the chosen wrong one a ✗, so a reader who cannot separate the green
+ * from the red still gets the answer.
+ */
+.tt-lesson-check__option[data-tt-state="answer"] {
+    border-color: var(--tt-success, #2f7d4f);
+    background: var(--tt-success-subtle, #e8f4ec);
+}
+
+.tt-lesson-check__option[data-tt-state="answer"] .tt-lesson-check__key::after {
+    content: " ✓";
+    color: var(--tt-success, #2f7d4f);
+}
+
+.tt-lesson-check__option[data-tt-state="chosen-wrong"] {
+    border-color: var(--tt-danger, #b3261e);
+    background: var(--tt-danger-subtle, #fbeae9);
+}
+
+.tt-lesson-check__option[data-tt-state="chosen-wrong"] .tt-lesson-check__key::after {
+    content: " ✗";
+    color: var(--tt-danger, #b3261e);
+}
+
+/* Answered: the pointer affordance goes, the text stays legible. */
+.tt-lesson-check[data-tt-answered="1"] .tt-lesson-check__option {
+    cursor: default;
+}
+
+.tt-lesson-check[data-tt-answered="1"] .tt-lesson-check__option input {
+    opacity: 0.6;
+}
+
+.tt-lesson-check__verdict {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-weight: 600;
+    min-height: 1.4em;
+}
+
+.tt-lesson-check[data-tt-result="correct"] .tt-lesson-check__verdict {
+    color: var(--tt-success, #2f7d4f);
+}
+
+.tt-lesson-check[data-tt-result="wrong"] .tt-lesson-check__verdict {
+    color: var(--tt-danger, #b3261e);
+}
+
+.tt-lesson-check__why {
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+.tt-lesson-check__why summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-lesson-check__explanation > * + * { margin-top: var(--tt-sp-2, 8px); }
+
+/* A check whose corpus entry did not parse degrades to its own prose. */
+.tt-lesson-check--malformed {
+    padding: var(--tt-sp-3, 12px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
 }
 
 /* ── action line ────────────────────────────────────────────────────── */

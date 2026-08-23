@@ -24,8 +24,9 @@
     border: 0;
 }
 
+/* Prose keeps a measure, matching the lesson body's (#2737). */
 .tt-knowledge-lede {
-    max-width: 68ch;
+    max-width: 76ch;
     color: var(--tt-ink-soft, #6a6d66);
     font-size: var(--tt-fs-lg, 1.125rem);
     line-height: 1.5;
@@ -192,7 +193,7 @@
 }
 
 .tt-knowledge-course__requirements {
-    max-width: 68ch;
+    max-width: 76ch;
     margin: 0 0 var(--tt-sp-5, 20px);
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);
@@ -283,8 +284,13 @@
     color: var(--tt-muted, #6a6d66);
 }
 
+/*
+ * Panels, not prose (#2737). These bracket the lesson body, and the body
+ * now lets its tools span the full content column — so a capped panel
+ * above and below would read as an indent nobody asked for. Their own
+ * contents are short lines, so the measure buys nothing here anyway.
+ */
 .tt-knowledge-lesson__objectives {
-    max-width: 68ch;
     margin: 0 0 var(--tt-sp-5, 20px);
     padding: var(--tt-sp-4, 16px);
     background: var(--tt-info-subtle, #e6f0fa);
@@ -306,7 +312,6 @@
 }
 
 .tt-knowledge-lesson__completion {
-    max-width: 68ch;
     margin: var(--tt-sp-6, 24px) 0 0;
     padding: var(--tt-sp-4, 16px);
     border-top: 2px solid var(--tt-line, #e3e6e1);

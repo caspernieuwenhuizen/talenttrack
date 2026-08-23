@@ -34,6 +34,7 @@ final class BlockRegistry {
         $classes = [
             CalloutBlock::class,
             RevealBlock::class,
+            CheckBlock::class,
             ActionLineBlock::class,
             ModelBlock::class,
             PitchSizeBlock::class,

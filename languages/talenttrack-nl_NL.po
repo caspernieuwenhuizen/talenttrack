@@ -53992,6 +53992,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Quick check"
+msgstr "Even checken"
+
+msgid "Not quite — read on."
+msgstr "Net niet — lees verder."
+
+msgid "Why?"
+msgstr "Waarom?"
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 
