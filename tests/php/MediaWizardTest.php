@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
@@ -232,6 +233,66 @@ final class MediaWizardTest extends WP_UnitTestCase {
         $this->assertIsArray( $result );
         $this->assertStringContainsString( 'tt_view=teams', $result['redirect_url'] );
         $this->assertStringContainsString( 'id=' . $team, $result['redirect_url'] );
+    }
+
+    /**
+     * #2716 — the finished wizard has to land on the page that hosts the
+     * dashboard shortcode. Built on home_url() it lands on the site's front
+     * page instead, where tt_view is never read, and the coach is left
+     * staring at the theme's blog roll wondering where the photo went.
+     *
+     * Asserting the query args alone is not enough: those were already
+     * correct while the bug was live. The base is the whole defect.
+     */
+    public function test_the_redirect_targets_the_dashboard_page_not_the_site_root(): void {
+        $page = self::factory()->post->create( [ 'post_type' => 'page', 'post_title' => 'Dashboard' ] );
+        QueryHelpers::set_config( 'dashboard_page_id', (string) $page );
+
+        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'head_coach', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
+
+        $team = 8302;
+        wp_set_current_user( $this->makeCoachScopedToTeam( $team ) );
+        $media = $this->makeMedia( MediaEntityType::TEAM, $team );
+
+        $result = ( new MediaConfirmStep() )->submit( [
+            'entity_type' => MediaEntityType::TEAM,
+            'entity_id'   => $team,
+            'media_uuids' => [ $media->uuid ],
+        ] );
+
+        $this->assertStringStartsWith( get_permalink( $page ), $result['redirect_url'] );
+        $this->assertNotSame( home_url( '/' ), get_permalink( $page ), 'fixture must make the two differ' );
+    }
+
+    /**
+     * #2716 — activity media used `tt_view=activities-manage`, which is not
+     * a route. The dispatcher case is `activities`.
+     */
+    public function test_every_entity_type_maps_to_a_slug_the_dispatcher_answers(): void {
+        // The mapping is a pure function; reaching it through submit() would
+        // need a full authority fixture per entity type to assert one string.
+        $method = new \ReflectionMethod( MediaConfirmStep::class, 'recordUrl' );
+        $method->setAccessible( true );
+
+        $expected = [
+            MediaEntityType::PLAYER   => 'tt_view=players',
+            MediaEntityType::TEAM     => 'tt_view=teams',
+            MediaEntityType::ACTIVITY => 'tt_view=activities',
+        ];
+
+        foreach ( $expected as $type => $needle ) {
+            $url = (string) $method->invoke( null, $type, 42 );
+
+            $this->assertStringContainsString( $needle, $url, $type . ' routes to the wrong view' );
+            $this->assertStringContainsString( 'id=42', $url );
+        }
+
+        // `activities-manage` is not a dispatcher case — it was a dead slug.
+        $this->assertStringNotContainsString(
+            'activities-manage',
+            (string) $method->invoke( null, MediaEntityType::ACTIVITY, 42 )
+        );
     }
 
     // ── helpers ────────────────────────────────────────────────────────

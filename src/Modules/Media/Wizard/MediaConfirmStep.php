@@ -7,6 +7,7 @@ use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
 use TT\Modules\Media\Repositories\MediaRepository;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -120,11 +121,13 @@ final class MediaConfirmStep implements WizardStepInterface {
     private static function recordUrl( string $type, int $id ): string {
         $slug = 'players';
         if ( $type === MediaEntityType::TEAM )     $slug = 'teams';
-        if ( $type === MediaEntityType::ACTIVITY ) $slug = 'activities-manage';
+        if ( $type === MediaEntityType::ACTIVITY ) $slug = 'activities';
 
-        return add_query_arg(
-            [ 'tt_view' => $slug, 'id' => $id ],
-            home_url( '/' )
-        );
+        // RecordLink resolves the page hosting the dashboard shortcode.
+        // Building on home_url() instead lands the coach on the site's
+        // front page, where tt_view is never read (#2716).
+        $url = RecordLink::detailUrlFor( $slug, $id );
+
+        return $url !== '' ? $url : RecordLink::dashboardUrl();
     }
 }
