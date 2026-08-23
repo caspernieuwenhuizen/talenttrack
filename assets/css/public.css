@@ -343,7 +343,19 @@
     margin: 0;
 }
 .tt-page-actions {
-    flex: 0 0 auto;
+    /* #2789 — was `flex: 0 0 auto`, which forbids shrinking, so the slot
+       resolved to max-content. Below 639px every label-only action asks
+       for `width: 100%` (frontend-admin.css), making max-content the sum
+       of every label: an activity detail page laid its nine actions out
+       at 1473px inside a 390px screen and put eight of them, match
+       execution among them, off the right edge.
+
+       `flex-shrink: 1` plus `min-width: 0` lets the slot take only the
+       room it has; the actions then wrap and stack. Still `flex-grow: 0`,
+       so the desktop layout is unchanged — the slot keeps hugging its
+       content beside the title. */
+    flex: 0 1 auto;
+    min-width: 0;
     display: flex;
     gap: 8px;
     align-items: center;
