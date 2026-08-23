@@ -95,6 +95,16 @@ De activiteit gaat pas op **Voltooid** als de flow is afgerond (de laatste stap 
 
 Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit) en **Heropenen** (bij een voltooide of geannuleerde) — directe, bevestigde statuswijzigingen.
 
+**De knoppen in de kop volgen de status.** Alleen een geplande activiteit kun je nog wijzigen, dus alleen daar staan **Bewerken** en de uitvoerknoppen. Zodra een activiteit voltooid of geannuleerd is, schakelt de kop over op teruglezen wat er gebeurd is:
+
+- **Bewerken** verdwijnt. **Heropenen** is de weg terug naar een bewerkbaar record — de activiteit gaat terug naar *Gepland* en Bewerken komt daarmee terug.
+- De wedstrijdvoorbereiding heet dan **Wedstrijdvoorbereiding bekijken** en opent de opstelling die je had voorbereid. Bij een geplande wedstrijd zegt het label al of er een voorbereiding is: **Wedstrijdvoorbereiding plannen** als die er nog niet is, **Wedstrijdvoorbereiding** zodra die er wel is.
+- De wedstrijddagknop biedt op een afgeronde activiteit geen **Wedstrijd starten** of **Wedstrijd hervatten** meer. **Wedstrijd bekijken** blijft als enige over, en alleen als de wedstrijd ook echt live gevolgd is.
+- Een training leest **Deze training bekijken** en opent het plan dat is uitgevoerd. Bij een afgeronde training zonder gekoppeld plan staat er helemaal geen uitvoerknop — er valt niets te bekijken, en anders zou de knop je uitnodigen er alsnog een te starten.
+- De beoordelingsknop vertelt wat er nog te doen is: **Spelers beoordelen** als er nog niemand beoordeeld is, **Doorgaan met beoordelen** als een deel al klaar is, en hij verdwijnt zodra elke aanwezige speler een beoordeling heeft. Een activiteit afronden beoordeelt op zichzelf niemand — de beoordeelstap is over te slaan en een wedstrijd afronden schrijft alleen speelminuten — dus de knop blijft na afronden beschikbaar tot het werk echt gedaan is. De knop **Beoordelingsraster** ernaast blijft er in alle gevallen, om bestaande beoordelingen na te lezen of te corrigeren.
+
+Een **gearchiveerde** activiteit is nog strenger: alles wat wijzigt is verborgen en alleen **Herstellen** blijft over.
+
 **Staan de begeleide wizards uit**, dan heet de knop **Aanwezigheid registreren** en opent hij het [aanwezigheidsraster](attendance-grid.md) op de kolom van die activiteit — op dezelfde plek op de lijstkaart en het detailscherm, en ook de hero **Aanwezigheid registreren** op je dashboard gaat daarheen. Een wedstrijd die je wél live volgt, gaat nog steeds naar Hervatten / Afronden. Omdat één keer opslaan in het raster weken aan sessies kan omvatten, rondt aanwezigheid registreren daar bewust niets af: een geplande activiteit krijgt daarvoor de knop **Markeren als afgerond**, naast Annuleren. Vul eerst de aanwezigheid in en markeer de activiteit daarna als afgerond — met **Heropenen** draai je dat terug.
 
 ### Speelminuten (papieren wedstrijden)
