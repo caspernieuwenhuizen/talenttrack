@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:17:52+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:21:15+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6257,6 +6257,21 @@ msgstr[1] "Nog %d meldingen vragen je aandacht."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:425
 msgid "Open"
 msgstr "Openen"
+
+#: src/Modules/Alerts/Frontend/AlertBell.php:137
+#: src/Modules/Workflow/Frontend/NotificationBell.php:85
+msgid "Nothing needs your attention"
+msgstr "Niets vraagt je aandacht"
+
+#. translators: %d: number of items waiting for the user
+#: src/Modules/Alerts/Frontend/AlertBell.php:140
+#: src/Modules/Workflow/Frontend/NotificationBell.php:82
+#: src/Modules/Workflow/Frontend/NotificationBell.php:124
+#, php-format
+msgid "%d item needs your attention"
+msgid_plural "%d items need your attention"
+msgstr[0] "%d item vraagt je aandacht"
+msgstr[1] "%d items vragen je aandacht"
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:38
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:51
@@ -41905,19 +41920,6 @@ msgid ""
 "view."
 msgstr ""
 "Speler met ouderzicht — taak voor de speler; ouder heeft alleen leestoegang."
-
-#. translators: %d: number of items waiting for the user
-#: src/Modules/Workflow/Frontend/NotificationBell.php:70
-#: src/Modules/Workflow/Frontend/NotificationBell.php:112
-#, php-format
-msgid "%d item needs your attention"
-msgid_plural "%d items need your attention"
-msgstr[0] "%d item vraagt je aandacht"
-msgstr[1] "%d items vragen je aandacht"
-
-#: src/Modules/Workflow/Frontend/NotificationBell.php:73
-msgid "Nothing needs your attention"
-msgstr "Niets vraagt je aandacht"
 
 #: src/Modules/Workflow/Notifications/TaskMailer.php:52
 #, php-format

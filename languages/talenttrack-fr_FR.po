@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:17:52+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:21:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5936,6 +5936,21 @@ msgstr[1] ""
 #: src/Shared/Frontend/FrontendTrialsManageView.php:425
 msgid "Open"
 msgstr "Ouvert"
+
+#: src/Modules/Alerts/Frontend/AlertBell.php:137
+#: src/Modules/Workflow/Frontend/NotificationBell.php:85
+msgid "Nothing needs your attention"
+msgstr ""
+
+#. translators: %d: number of items waiting for the user
+#: src/Modules/Alerts/Frontend/AlertBell.php:140
+#: src/Modules/Workflow/Frontend/NotificationBell.php:82
+#: src/Modules/Workflow/Frontend/NotificationBell.php:124
+#, php-format
+msgid "%d item needs your attention"
+msgid_plural "%d items need your attention"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:38
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:51
@@ -38957,19 +38972,6 @@ msgstr ""
 msgid ""
 "Player with parent visibility — task to the player; parent has read-only "
 "view."
-msgstr ""
-
-#. translators: %d: number of items waiting for the user
-#: src/Modules/Workflow/Frontend/NotificationBell.php:70
-#: src/Modules/Workflow/Frontend/NotificationBell.php:112
-#, php-format
-msgid "%d item needs your attention"
-msgid_plural "%d items need your attention"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Modules/Workflow/Frontend/NotificationBell.php:73
-msgid "Nothing needs your attention"
 msgstr ""
 
 #: src/Modules/Workflow/Notifications/TaskMailer.php:52
