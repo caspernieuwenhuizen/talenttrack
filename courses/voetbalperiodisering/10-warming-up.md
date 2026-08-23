@@ -58,6 +58,9 @@ eigenschap die je die avond wilt verleggen. Sluit in plaats daarvan af met
 versnellingslopen in underload, zodat de spierspanning juist omhoog gaat.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="10-warming-ups"
 **Praktijkopdracht 10**
 

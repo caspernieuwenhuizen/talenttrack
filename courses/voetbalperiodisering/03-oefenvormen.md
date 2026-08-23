@@ -98,6 +98,9 @@ Op 50 × 45 m past dat ruim. Speel 50 × 40 en houd de rest als uitloop — niet
 bedoelt en train je feitelijk een extensieve intervalprikkel.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="03-veldmaten"
 **Praktijkopdracht 3**
 
