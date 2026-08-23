@@ -175,6 +175,44 @@ final class MediaRestTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #2742 — a create response carries the rendered tile, so the grid can
+     * show the upload without a reload.
+     *
+     * The nonce assertion is the load-bearing one: the payload's `_links`
+     * deliberately carry none, so a tile assembled on the client would be
+     * answered 401 and re-create #2715.
+     */
+    public function test_a_created_item_comes_back_with_a_tile_ready_to_insert(): void {
+        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'head_coach', MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_TEAM );
+        $this->grant( 'head_coach', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM );
+
+        $team = 7702;
+        wp_set_current_user( $this->makeCoachScopedToTeam( $team ) );
+
+        $request = new WP_REST_Request( 'POST', '/talenttrack/v1/media' );
+        $request->set_param( 'entity_type', MediaEntityType::TEAM );
+        $request->set_param( 'entity_id', $team );
+        // Veo, not YouTube: Veo is stored without an oEmbed fetch, so the
+        // test makes no outbound request.
+        $request->set_param( 'external_url', 'https://app.veo.co/matches/test/' );
+        $request->set_param( 'title', 'A clip' );
+
+        $response = rest_do_request( $request );
+        $this->assertSame( 201, $response->get_status() );
+
+        $data = $response->get_data()['data'] ?? [];
+
+        $this->assertArrayHasKey( 'tile_html', $data );
+        $this->assertStringContainsString( 'tt-media-tile', (string) $data['tile_html'] );
+        $this->assertStringContainsString( (string) $data['uuid'], (string) $data['tile_html'] );
+
+        // The JSON links stay nonce-free — that is deliberate, and it is
+        // exactly why the tile has to be rendered server-side.
+        $this->assertStringNotContainsString( '_wpnonce', (string) ( $data['_links']['file'] ?? '' ) );
+    }
+
     // ── helpers ────────────────────────────────────────────────────────
 
     private function grant( string $persona, string $activity, string $scope ): void {

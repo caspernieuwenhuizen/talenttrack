@@ -860,17 +860,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     /**
      * Players the tag control offers: this activity's team roster.
      *
+     * The answer itself lives in `MediaTagRoster` — REST needs the same
+     * one, because an upload returns its rendered tile (#2742) and that
+     * tile carries the tag control.
+     *
      * @return array<int, string> player id => display name
      */
     private static function rosterForTagging( object $session ): array {
-        $team_id = (int) ( $session->team_id ?? 0 );
-        if ( $team_id <= 0 ) return [];
-
-        $out = [];
-        foreach ( QueryHelpers::get_players( $team_id ) as $player ) {
-            $out[ (int) $player->id ] = QueryHelpers::player_display_name( $player );
-        }
-        return $out;
+        return \TT\Modules\Media\MediaTagRoster::forActivity( $session );
     }
 
     private static function renderDetailStatStrip( object $session, string $type_key, string $status_key, bool $is_match ): void {
