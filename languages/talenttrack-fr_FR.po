@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T15:40:31+00:00\n"
+"POT-Creation-Date: 2026-08-23T16:05:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1095,7 +1095,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:54
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:62
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:73
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:253
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FrontendThreadView.php:171
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:173
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1515
@@ -1641,7 +1641,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:226
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:150
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:241
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:244
 #: src/Modules/Wizards/Prospect/IdentityStep.php:122
 #: src/Shared/Admin/BulkActionsHelper.php:100
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1862
@@ -1806,7 +1806,7 @@ msgstr "Recruteur"
 #: src/Modules/Authorization/Admin/MatrixPage.php:727
 #: src/Modules/Authorization/Admin/MatrixPage.php:743
 #: src/Modules/Authorization/Admin/ModulesPage.php:95
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:450
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:451
 #: src/Modules/People/Admin/PeoplePage.php:506
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:317
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:508
@@ -1843,7 +1843,7 @@ msgstr "Autre"
 #: src/Modules/Teams/Admin/TeamsPage.php:107
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:151
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:241
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:244
 #: src/Shared/Admin/BulkActionsHelper.php:101
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1863
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2181
@@ -2197,7 +2197,7 @@ msgstr ""
 #. translators: %d is the band number (1-10).
 #. translators: %d = intensity band 1-10
 #: src/Infrastructure/Query/LabelTranslator.php:426
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:234
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:237
 #, php-format
 msgid "Intensity band %d"
 msgstr ""
@@ -2327,7 +2327,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:279
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:364
 #: src/Modules/Training/Wizard/WhenStep.php:34
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:153
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:154
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
 #: src/Modules/Vct/Wizard/WhenStep.php:52
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
@@ -2950,7 +2950,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ExerciseScenesRestController.php:111
 #: src/Infrastructure/REST/ExerciseScenesRestController.php:127
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:505
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:506
 msgid "That exercise no longer exists."
 msgstr ""
 
@@ -3009,7 +3009,7 @@ msgstr ""
 
 #. translators: 1: smallest group size, 2: largest group size.
 #: src/Infrastructure/REST/ExercisesRestController.php:467
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:536
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:537
 #, php-format
 msgid "%1$d–%2$d players"
 msgstr ""
@@ -3040,21 +3040,21 @@ msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:488
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:199
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:928
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:929
 msgid "One team"
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:489
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:200
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:362
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:929
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:363
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:930
 msgid "Only me"
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:491
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:198
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:364
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:931
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:365
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:932
 msgid "Whole club"
 msgstr ""
 
@@ -3485,7 +3485,7 @@ msgstr ""
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:146
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:630
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:213
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:216
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:175
 #: src/Modules/Wizards/Activity/ReviewStep.php:61
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
@@ -3630,8 +3630,8 @@ msgstr "Joueurs"
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:22
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:31
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:150
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:373
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:151
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:380
 #: src/Shared/Frontend/FrontendConfigurationView.php:2728
 #: src/Shared/Frontend/FrontendSeasonsView.php:77
 msgid "Season"
@@ -4251,7 +4251,7 @@ msgstr ""
 
 #. translators: %d is a number of minutes.
 #: src/Infrastructure/REST/TrainingPlansRestController.php:528
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:529
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:530
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:304
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:384
 #, php-format
@@ -4262,7 +4262,7 @@ msgstr[1] ""
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:533
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:854
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:173
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:174
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:69
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:133
@@ -4904,7 +4904,7 @@ msgstr "Mettre à jour"
 #: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:376
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:377
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:252
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
@@ -4919,10 +4919,10 @@ msgstr "Mettre à jour"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:131
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:119
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:492
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:435
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:368
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:354
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:442
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:374
 #: src/Shared/Frontend/CoachDashboardView.php:230
 #: src/Shared/Frontend/CoachDashboardView.php:272
 #: src/Shared/Frontend/CoachForms.php:127
@@ -5084,7 +5084,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:72
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:783
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:784
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:285
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:81
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:851
@@ -5093,7 +5093,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1320
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:602
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:363
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:288
 #: src/Shared/Frontend/FrontendBackupsView.php:249
 #: src/Shared/Frontend/FrontendConfigurationView.php:503
 #: src/Shared/Frontend/FrontendConfigurationView.php:892
@@ -5314,7 +5314,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:384
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:392
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:769
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:367
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:373
 #: src/Shared/Frontend/Components/FormSaveButton.php:63
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
@@ -5400,7 +5400,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:53
 #: src/Modules/Reports/PlayerReportRenderer.php:690
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:269
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
 #: src/Shared/Frontend/Components/FilterBar.php:554
 #: src/Shared/Frontend/Components/FrontendListTable.php:426
 #: src/Shared/Frontend/FrontendAuditLogView.php:372
@@ -5426,7 +5426,7 @@ msgstr "De"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:196
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:504
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:273
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:274
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
 #: src/Shared/Frontend/Components/FilterBar.php:555
 #: src/Shared/Frontend/Components/FrontendListTable.php:427
 #: src/Shared/Frontend/FrontendAuditLogView.php:373
@@ -6854,8 +6854,8 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:53
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:46
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:58
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:44
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:39
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:45
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:40
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:65
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
@@ -7473,10 +7473,10 @@ msgstr ""
 #: src/Modules/Teams/Admin/TeamsPage.php:142
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:46
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:230
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:272
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:162
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:208
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:310
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:163
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:313
 #: src/Modules/Wizards/Person/ReviewStep.php:33
 #: src/Modules/Wizards/Player/ReviewStep.php:31
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
@@ -8190,7 +8190,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:223
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:571
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:272
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:275
 #: src/Shared/Admin/BulkActionsHelper.php:173
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:217
 #: src/Shared/Frontend/Components/ArchivedDetailCard.php:218
@@ -8221,7 +8221,7 @@ msgstr ""
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:581
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:148
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:166
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:261
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:264
 #: src/Shared/Admin/BulkActionsHelper.php:170
 #: src/Shared/Frontend/Components/FrontendListTable.php:546
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:533
@@ -9371,9 +9371,9 @@ msgid "VCT sessions"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:184
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:40
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:60
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:41
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:61
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:62
 msgid "VCT exercise library"
 msgstr ""
 
@@ -15371,7 +15371,7 @@ msgid "Active players"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:36
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:212
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:215
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:171
 #: src/Modules/Vct/Wizard/ReviewStep.php:57
 #: src/Shared/Frontend/Components/GuestAddModal.php:90
@@ -15544,9 +15544,9 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:240
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:403
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:350
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:163
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:209
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:318
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:164
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:212
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:321
 #: src/Shared/Frontend/FrontendComparisonView.php:651
 #: src/Shared/Frontend/FrontendEvaluationsView.php:502
 msgid "Category"
@@ -17822,10 +17822,10 @@ msgid "You do not have permission to view the exercise library."
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:146
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:503
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:521
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:634
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:892
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:504
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:522
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:635
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:893
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:99
 #: src/Shared/Modules/ModuleMetadata.php:239
 msgid "Exercises"
@@ -17854,13 +17854,13 @@ msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:172
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:195
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:359
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:544
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:360
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:545
 msgid "Visible to"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:174
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:534
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:535
 msgid "Group size"
 msgstr ""
 
@@ -17870,8 +17870,8 @@ msgid "Anyone"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:205
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:333
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:542
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:334
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:543
 msgid "Intensity"
 msgstr ""
 
@@ -17932,8 +17932,8 @@ msgid "Working…"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:307
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:157
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:199
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:158
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:202
 msgid "Add exercise"
 msgstr ""
 
@@ -17953,32 +17953,32 @@ msgstr ""
 msgid "Largest group"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:335
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:336
 msgid "— not set —"
 msgstr ""
 
-#. translators: %d is an intensity level from 1 to 10.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:341
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:480
+#. translators: %d is an intensity level on the exercise intensity scale.
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:342
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:481
 #, php-format
 msgid "Level %d"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:346
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:347
 msgid ""
 "Higher is harder. Each age group has its own ceiling, and the generator "
 "never proposes an exercise above it."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:350
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:351
 msgid "Description and organisation"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:353
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:354
 msgid "Diagram image URL (optional)"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:361
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:362
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:48
 #: src/Shared/CoreSurfaceRegistration.php:394
 #: src/Shared/Frontend/FrontendMyTeamView.php:38
@@ -17987,62 +17987,62 @@ msgstr ""
 msgid "My team"
 msgstr "Mon équipe"
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:368
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:369
 msgid ""
 "A new exercise stays with your team and is usable in your plans right away. "
 "The head of development decides what becomes club-wide."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:399
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:400
 msgid "Trains which principles"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:425
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:426
 msgid ""
 "Hold Ctrl or Cmd to pick more than one. An exercise with no principle never "
 "gets suggested by the generator, and the time spent on it does not count "
 "towards what your players have been taught."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:443
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:444
 msgid "Attacking — build-up"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:444
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:445
 msgid "Attacking — finishing"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:445
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:446
 msgid "Defending — pressing"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:446
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:447
 msgid "Defending — preventing goals"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:447
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:448
 msgid "Transition — winning the ball"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:448
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:449
 msgid "Transition — losing the ball"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:477
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:478
 msgid "Any intensity"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:489
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:490
 msgid "Any category"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:502
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:503
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:191
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:101
 msgid "Not found"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:527
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:528
 #: src/Modules/License/Admin/AccountPage.php:921
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:138
@@ -18055,18 +18055,18 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:561
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:562
 msgid "Diagram for this exercise"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:571
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:572
 msgid ""
 "This exercise ships with TalentTrack, so it cannot be edited here. Duplicate "
 "it to make a version of your own."
 msgstr ""
 
 #. translators: %d is how many exercises have not been classified.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:611
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:612
 #, php-format
 msgid ""
 "%d exercise has no principles yet, so it is never suggested by the generator "
@@ -18079,53 +18079,53 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:626
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:627
 msgid "Classify them"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:633
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:644
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:634
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:645
 msgid "Classify exercises"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:639
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:640
 msgid "You do not have permission to classify exercises."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:647
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:648
 msgid ""
 "An exercise with no principle is never suggested by the generator, and time "
 "spent on it does not count towards what your players have been taught. Pick "
 "several at once and give them the principles they train."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:655
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:656
 msgid ""
 "Classifying in bulk needs JavaScript. You can still set principles on each "
 "exercise individually."
 msgstr ""
 
 #. translators: 1: how many exercises are classified, 2: how many there are.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:765
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:766
 #, php-format
 msgid "%1$d of %2$d classified"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:766
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:767
 msgid "Every exercise has been looked at. Nothing left to classify."
 msgstr ""
 
 #. translators: %s is the name of the academy's methodology.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:768
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:769
 #, php-format
 msgid "Tagging against %s"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:769
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:770
 msgid "Select all shown"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:770
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:771
 #: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:100
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:129
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:87
@@ -18133,89 +18133,89 @@ msgid "Clear selection"
 msgstr ""
 
 #. translators: %d is how many exercises are selected.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:772
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:773
 #, php-format
 msgid "%d selected"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:773
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:774
 msgid "Principles to apply"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:774
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:775
 msgid "Apply to selected"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:775
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:776
 msgid "None apply — mark as looked at"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:776
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:777
 msgid "Add to what they already have"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:777
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:778
 msgid "Replace what they have"
 msgstr ""
 
 #. translators: %d is how many principles the exercise already has.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:779
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:780
 #, php-format
 msgid "Already has %d principles"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:780
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:781
 msgid "No principles yet"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:781
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:782
 msgid "Choose at least one exercise."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:782
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:783
 msgid "Choose principles, or use \"None apply\"."
 msgstr ""
 
 #. translators: %d is how many exercises were changed.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:785
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:786
 #, php-format
 msgid "%d exercises classified."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:786
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:787
 msgid "That did not save. Nothing was changed; try again."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:787
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:788
 msgid "The list could not be loaded."
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:788
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:789
 msgid ""
 "Replace removes the principles these exercises already have, for this "
 "methodology only. Continue?"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:828
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:829
 msgid "Draw a scene"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:843
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:890
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:844
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:891
 msgid "Edit scene"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:848
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:849
 msgid "Add a scene"
 msgstr ""
 
 #. translators: %d is the position of a scene within an exercise.
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:862
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:863
 #, php-format
 msgid "Scene %d"
 msgstr ""
 
-#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:899
+#: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:900
 msgid "You do not have permission to draw scenes for this exercise."
 msgstr ""
 
@@ -18399,7 +18399,7 @@ msgstr ""
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:238
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:275
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/Components/MediaGallery.php:231
 #: src/Shared/Frontend/Components/MediaUploader.php:171
@@ -19262,7 +19262,7 @@ msgstr "Imprimer"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:755
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:220
 #: src/Modules/Training/Print/TrainingPlanPrintRouter.php:95
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:253
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:256
 #: src/Shared/Frontend/Components/FilterBar.php:119
 #: src/Shared/Frontend/Components/FilterBar.php:358
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
@@ -26626,7 +26626,7 @@ msgid "Week"
 msgstr ""
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:213
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:282
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
 msgid "Speelwijze-thema"
 msgstr ""
 
@@ -28777,7 +28777,7 @@ msgstr ""
 
 #. translators: %d = block number, 1-indexed
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:107
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:271
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:272
 #: src/Shared/Frontend/FrontendConfigurationView.php:2791
 #, php-format
 msgid "Block %d"
@@ -29000,7 +29000,7 @@ msgstr ""
 
 #. translators: %d = block number
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:153
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:298
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:299
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:79
 #: src/Shared/Frontend/FrontendConfigurationView.php:2804
 #, php-format
@@ -36357,7 +36357,7 @@ msgstr ""
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:313
 #: src/Modules/Training/Wizard/ThemeStep.php:20
 #: src/Modules/Training/Wizard/ThemeStep.php:34
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:210
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:213
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:178
 #: src/Modules/Vct/Wizard/ReviewStep.php:59
 #: src/Modules/Vct/Wizard/ThemeStep.php:20
@@ -36784,12 +36784,12 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:350
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
 msgid "Move up"
 msgstr ""
 
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:351
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:277
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
 msgid "Move down"
 msgstr ""
 
@@ -37853,190 +37853,190 @@ msgstr ""
 msgid "Trial group %s"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:45
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:61
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:46
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:62
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:63
 #: src/Shared/Frontend/FrontendConfigurationView.php:1768
 msgid "VCT configuration"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:46
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:47
 msgid "You do not have access to the VCT configuration tile."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:76
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:77
 msgid "Macro-blocks"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:77
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:78
 msgid "Age profiles"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:78
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:79
 msgid "Team schedules"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:80
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:81
 msgid "VCT configuration sections"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:107
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:108
 #: src/Shared/Frontend/FrontendConfigurationView.php:2734
 msgid "current"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:119
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:120
 msgid ""
 "No seasons configured yet. Add a season under Configuration → Seasons first, "
 "then come back here."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:120
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:121
 #: src/Shared/Frontend/FrontendConfigurationView.php:2700
 msgid "Manage seasons"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:129
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:130
 msgid ""
 "Define the macro-block calendar for a season. The club default applies to "
 "every team; pick a team to set an override."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:144
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:145
 msgid ""
 "Define the macro-block calendar for a season. The club default applies to "
 "every team; pick a team to set an override just for them."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:155
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:156
 msgid "Club default (all teams)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:167
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:374
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:168
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:381
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:174
 msgid "Load"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:172
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:173
 msgid "Reference phase profiles"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:173
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:174
 msgid "Weeks"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:205
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:206
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:92
 msgid "Club default"
 msgstr ""
 
 #. translators: %s = the scope being edited (a team name or "Club default")
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:210
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:211
 #, php-format
 msgid "Macro-blocks — %s"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:217
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:218
 msgid "Add block"
 msgstr ""
 
 #. translators: %d = team id for a team no longer in the list
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:245
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:246
 #, php-format
 msgid "Team #%d"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:278
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:279
 msgid "Advanced: weekly phase profile (JSON)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:279
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:280
 msgid ""
 "Optional. Array of { week, phase, multiplier, tactical_theme } objects. "
 "Leave blank for the default profile."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:280
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:281
 msgid "Speelwijze-thema per week"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:281
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:282
 msgid ""
 "Optionally tag each week with a playing-style theme. Weeks come from the "
 "phase profile above."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:283
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:284
 msgid "— geen —"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:284
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:285
 #, php-format
 msgid "Week %d"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:285
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:286
 msgid "Add weeks to the phase profile above to tag themes."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:286
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:287
 msgid "e.g. Build-up block"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:288
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:289
 msgid "Block set saved."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:289
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:290
 #: src/Shared/Frontend/FrontendConfigurationView.php:2796
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:137
 #: src/Shared/Frontend/FrontendTeamDetailView.php:466
 msgid "Could not save. Try again."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:290
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:291
 msgid "No macro-blocks yet. Add the first block to start the season calendar."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:291
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:292
 msgid "Add at least one block before saving."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:292
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:293
 #, php-format
 msgid "The advanced phase profile for block %d is not valid JSON."
 msgstr ""
 
 #. translators: %d = block number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:294
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:295
 #: src/Modules/Vct/Validation/VctMacroBlockValidator.php:64
 #, php-format
 msgid "Block %d needs a name."
 msgstr ""
 
 #. translators: %d = block number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:296
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:297
 #, php-format
 msgid "Block %d needs a start and end date."
 msgstr ""
 
 #. translators: 1: block A number, 2: block B number
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:300
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:301
 #: src/Shared/Frontend/FrontendConfigurationView.php:2800
 #, php-format
 msgid "Block %1$d overlaps with block %2$d."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:301
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:302
 msgid "Looks good — no overlaps, all dates valid."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:312
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:313
 msgid "No age profiles are set up yet."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:313
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:314
 msgid ""
 "Age profiles cap how long and how intensely each team can train safely, by "
 "age group. Until they exist, the VCT planner can't build a training. Ask "
@@ -38044,7 +38044,7 @@ msgid ""
 "setup for your club."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:318
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:319
 msgid ""
 "Tune the per-age workload envelope. Coaches see the resulting ceiling on the "
 "wizard's Duration step + the engine enforces it everywhere."
@@ -38052,259 +38052,263 @@ msgstr ""
 
 #. translators: 1: minutes max, 2: intensity ceiling
 #. translators: 1: minutes, 2: intensity band
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:326
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:327
 #: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:90
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:223
 #, php-format
 msgid "%1$d min · band %2$d"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:334
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:335
 msgid "Minutes per training (max)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:335
-msgid "Intensity band max (1-10)"
+#. translators: 1: lowest intensity band, 2: highest intensity band.
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:337
+#, php-format
+msgid "Intensity band max (%1$d-%2$d)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:336
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:343
 msgid "Min recovery hours between high"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:337
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:344
 msgid "PHV load reduction %"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:338
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:345
 msgid "Weekly load envelope"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:340
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:347
 msgid "Match load multiplier per minute"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:344
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:351
 msgid "MD logic enabled (off for U10/U11 per Appendix A)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:358
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:365
 msgid ""
 "Set per-team weekly VCT training days. Drives the wizard's date-default to "
 "the next configured weekday."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:385
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:392
 msgid ""
 "No teams yet. Create your teams under Teams first, then come back here to "
 "set their training days."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:985
 msgid "Mon"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:986
 msgid "Tue"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:987
 msgid "Wed"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:988
 msgid "Thu"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:989
 msgid "Fri"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:990
 msgid "Sat"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:389
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:396
 #: src/Shared/Frontend/FrontendTeamDetailView.php:991
 msgid "Sun"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:414
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:421
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1004
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1005
 msgid "Training days"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:425
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:432
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1020
 msgid "Default start time"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:429
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:436
 msgid "Default duration (minutes)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:470
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:494
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:477
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:501
 msgid "Save failed: your form expired. Please reload."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:485
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
 msgid "Age profile updated."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:485
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:511
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:454
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:492
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2386
 #: src/Shared/Frontend/FrontendTeamDetailView.php:1098
 msgid "Save failed: database error."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:511
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:518
 msgid "Team schedule saved."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:41
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:42
 msgid "You do not have access to the VCT exercise library."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:80
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:81
 msgid "No exercises match these filters."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:95
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:96
 msgid "Search by name, code or keyword"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:97
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:98
 msgid "e.g. 4 vs 2, rondo, header duel…"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:133
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:134
 msgid "All categories"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:147
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:148
 msgid "Hiding archived"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:147
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:148
 msgid "Show archived"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:161
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:314
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:162
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:317
 msgid "Code (unique slug)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:166
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:329
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:167
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:332
 msgid "Theme (optional)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:169
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:341
-msgid "Intensity band (1-10)"
-msgstr ""
-
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:170
-msgid "Age min"
-msgstr ""
-
+#. translators: 1: lowest intensity band, 2: highest intensity band.
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:171
-msgid "Age max"
-msgstr ""
-
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:172
-msgid "Duration min (minutes)"
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:346
+#, php-format
+msgid "Intensity band (%1$d-%2$d)"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:173
-msgid "Duration max (minutes)"
+msgid "Age min"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:174
-msgid "Players min"
+msgid "Age max"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:175
-msgid "Players max"
+msgid "Duration min (minutes)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:176
+msgid "Duration max (minutes)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:177
+msgid "Players min"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:178
+msgid "Players max"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:181
 msgid "MD contexts (tick all that apply)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:214
 #: src/Modules/Vct/Wizard/PreviewStep.php:86
 msgid "Band"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:260
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:263
 msgid ""
 "Archive this exercise? It stays in history but drops out of new session "
 "candidates."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:270
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:273
 msgid "Permanently delete this exercise? This cannot be undone."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:345
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:351
 msgid "Age range (min–max)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:352
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:358
 msgid "Duration (min–max minutes)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:359
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:365
 msgid "Group size (min–max players)"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:395
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:401
 msgid "Add failed: session expired. Please reload and try again."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:416
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:422
 msgid "Add failed: code, name, and category are required."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:421
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:427
 msgid "Add failed: database error. The code may already exist."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:424
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:430
 msgid "Exercise added."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:431
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:437
 msgid "Save failed: session expired. Please reload and try again."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:448
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:454
 msgid "Save failed: code, name, and category are required."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:454
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:460
 msgid "Exercise updated."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:462
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:468
 msgid "Archive failed: session expired. Please reload and try again."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:468
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:474
 msgid "Exercise archived."
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:468
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:474
 msgid "Archive failed."
 msgstr ""
 
