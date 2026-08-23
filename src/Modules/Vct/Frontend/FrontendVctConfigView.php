@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Exercises\ExercisesRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
 use TT\Modules\Vct\Repositories\VctMacroBlocksRepository;
@@ -332,7 +333,13 @@ class FrontendVctConfigView extends FrontendViewBase {
             echo '<input type="hidden" name="_tt_action" value="save_age_profile">';
             echo '<input type="hidden" name="id"         value="' . esc_attr( (string) $p['id'] ) . '">';
             self::renderNumberInput( 'session_minutes_max',             __( 'Minutes per training (max)',      'talenttrack' ), (int) $p['session_minutes_max'],             30, 180 );
-            self::renderNumberInput( 'intensity_band_max',              __( 'Intensity band max (1-10)',       'talenttrack' ), (int) $p['intensity_band_max'],              1, 10 );
+            /* translators: 1: lowest intensity band, 2: highest intensity band. */
+            $band_max_label = sprintf( __( 'Intensity band max (%1$d-%2$d)', 'talenttrack' ), ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
+            // The ceiling an age profile can carry is bounded by the scale
+            // itself (#2767): a profile capping at 9 could never be met by
+            // content that stops at 7, and the age-safe check silently never
+            // fires for it.
+            self::renderNumberInput( 'intensity_band_max',              $band_max_label,                                        (int) $p['intensity_band_max'],              ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
             self::renderNumberInput( 'min_recovery_hours_between_high', __( 'Min recovery hours between high', 'talenttrack' ), (int) $p['min_recovery_hours_between_high'], 12, 168 );
             self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'PHV load reduction %',            'talenttrack' ), (int) $p['growth_spurt_load_reduction_pct'], 0, 50 );
             self::renderNumberInput( 'weekly_load_envelope',            __( 'Weekly load envelope',            'talenttrack' ), (int) $p['weekly_load_envelope'],            50, 10000 );

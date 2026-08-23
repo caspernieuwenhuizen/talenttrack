@@ -16,8 +16,7 @@ Zoek op naam, code of omschrijving, en verfijn met de filters:
 
 - **Categorie** — warming-up, rondo, positiespel, partijvorm, enzovoort.
 - **Zichtbaar voor** — hele club, één team, of alleen jij.
-- **Intensiteit** — 1 (herstel) tot en met 5 (maximaal), voor de oefeningen
-  die een band hebben.
+- **Intensiteit** — 1 tot en met 7, voor de oefeningen die een band hebben.
 - **Status** — actief of gearchiveerd.
 
 ## Zelf een oefening toevoegen
@@ -30,9 +29,27 @@ generator later een goede keuze te maken, dus vul in wat je weet:
 | Categorie | Groepeert de oefening en vertelt de generator in welk blok hij past. |
 | Gebruikelijke duur | De standaardlengte zodra hij in een plan komt. |
 | Kleinste / grootste groep | Filtert de oefening weg bij een verkeerde groepsgrootte. |
-| Intensiteit | 1–5. Wordt gebruikt om een training binnen het leeftijdsplafond te houden. |
+| Intensiteit | 1–7. Wordt gebruikt om een training binnen het leeftijdsplafond te houden. |
 | Omschrijving | Organisatie, regels, scoreafspraken. |
 | URL van diagramafbeelding | Een afbeelding van de opstelling. |
+
+### Wat de intensiteitsbanden betekenen
+
+De schaal loopt van **1 tot en met 7**. Het loont om consequent te scoren: dit
+getal wordt vergeleken met het leeftijdsplafond, dus een oefening die te laag
+staat glipt langs een waarschuwing die had moeten afgaan.
+
+| Band | Waar het voor staat |
+| --- | --- |
+| 1–2 | Herstel en techniek. Nauwelijks fysieke belasting. |
+| 3–4 | Rustig doorwerken. Een rondo of positiespel op een behapbaar tempo. |
+| 5 | Een normaal trainingsblok — de intensiteit waar het grootste deel van een training op zit. |
+| 6 | Echt veeleisend. Pressingvormen, herhaalde sprints, partijspel op vol tempo. |
+| 7 | Zo zwaar als een leeftijdsgroep in de academie ooit zou moeten gaan. |
+
+Hoger dan 7 bestaat niet. Het hoogste plafond dat een leeftijdsprofiel kent is 7
+(JO13 en JO14; JO10 stopt bij 3), dus een hoger getal zou een training
+beschrijven die geen enkele groep mag doen.
 
 ### Wie ziet wat je toevoegt
 

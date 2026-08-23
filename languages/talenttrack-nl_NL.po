@@ -54628,6 +54628,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: 1: lowest intensity band, 2: highest intensity band.
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:170
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:344
+#, php-format
+msgid "Intensity band (%1$d-%2$d)"
+msgstr "Intensiteitsniveau (%1$d-%2$d)"
+
+#. translators: 1: lowest intensity band, 2: highest intensity band.
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:336
+#, php-format
+msgid "Intensity band max (%1$d-%2$d)"
+msgstr "Maximaal intensiteitsniveau (%1$d-%2$d)"
+
+
 #~ msgid "Open staff share link"
 #~ msgstr "Stafdeellink openen"
 
