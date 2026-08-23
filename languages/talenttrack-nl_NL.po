@@ -54802,9 +54802,6 @@ msgstr[1] "%d opdrachten wachten, oudste eerst."
 #~ "Je profiel staat al ingesteld als %s. Je kunt je foto + geboortedatum "
 #~ "bewerken na het inloggen."
 
-#~ msgid "Document"
-#~ msgstr "Document"
-
 #~ msgid "open"
 #~ msgstr "openen"
 

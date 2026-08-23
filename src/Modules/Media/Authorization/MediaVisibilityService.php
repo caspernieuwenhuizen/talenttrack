@@ -108,12 +108,44 @@ final class MediaVisibilityService {
      * to allow it — a denial from the gate that the decision disagrees
      * with.
      *
-     * Widening it costs nothing: this is explicitly not the decision, and
-     * `canAttachTo()` still establishes that the submission is theirs.
+     * Widening it costs nothing against the matrix: this is explicitly not
+     * the decision, and `canAttachTo()` still establishes that the
+     * submission is theirs.
+     *
+     * It does have to respect the switches, though. `canAnyScope()`
+     * short-circuits on the owning module and the owning feature, so a
+     * second arm that skipped them would make "module off" stop meaning
+     * off — which is what `MediaToggleTest` exists to prevent. Hence the
+     * explicit guard rather than the bare capability.
      */
     public static function hasUploadAuthority( int $user_id ): bool {
         return MatrixGate::canAnyScope( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE )
-            || user_can( $user_id, 'tt_view_knowledge' );
+            || ( self::mediaSwitchedOn() && user_can( $user_id, 'tt_view_knowledge' ) );
+    }
+
+    /**
+     * Is the media feature available at all on this install?
+     *
+     * The two switches the matrix path consults for itself: the owning
+     * module, and the sub-feature that owns the `media` entity. Both are
+     * `class_exists`-guarded for the same reason `MatrixGate` guards them
+     * — the registries may not have loaded on an install mid-upgrade.
+     */
+    private static function mediaSwitchedOn(): bool {
+        // `MediaModule::class` rather than a string literal: the registry
+        // keys on the unprefixed FQCN, and a hand-written one with a
+        // leading backslash would silently never match.
+        if ( class_exists( '\\TT\\Core\\ModuleRegistry' )
+            && ! \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Media\MediaModule::class ) ) {
+            return false;
+        }
+
+        if ( class_exists( '\\TT\\Core\\FeatureRegistry' )
+            && \TT\Core\FeatureRegistry::entityDisabled( self::ENTITY ) ) {
+            return false;
+        }
+
+        return true;
     }
 
     public function canView( int $user_id, object $media ): bool {
