@@ -160,19 +160,22 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'slug'  => 'learning-courses',
                 'label' => __( 'Learning · Course completion', 'talenttrack' ),
                 'desc'  => __( 'Per course: enrolled, in progress, completed, overdue, and the lesson readers stop at.', 'talenttrack' ),
-                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-courses' ], $base_url ),
+                'cap'   => 'tt_view_knowledge_statistics',
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-courses' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own cap (§7) */
             ],
             [
                 'slug'  => 'learning-people',
                 'label' => __( 'Learning · Per person', 'talenttrack' ),
                 'desc'  => __( 'Who is on what, how far they have got, and what is waiting on a reviewer.', 'talenttrack' ),
-                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-people' ], $base_url ),
+                'cap'   => 'tt_view_knowledge_statistics',
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-people' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own cap (§7) */
             ],
             [
                 'slug'  => 'learning-teams',
                 'label' => __( 'Learning · Staff coverage per team', 'talenttrack' ),
                 'desc'  => __( 'How much of the staff around each squad has finished each course.', 'talenttrack' ),
-                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-teams' ], $base_url ),
+                'cap'   => 'tt_view_knowledge_statistics',
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'learning-teams' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own cap (§7) */
             ],
             [
                 'slug'  => 'season-summary',
@@ -253,6 +256,17 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             static fn( array $t ): bool => \TT\Core\FeatureRegistry::isEnabled(
                 'report_' . str_replace( '-', '_', (string) ( $t['slug'] ?? '' ) )
             )
+        ) );
+
+        // #2650 — a tile may name a capability of its own, on top of the
+        // `tt_view_reports` gate at the top of this view. The learning
+        // reports are the first to need it: the surface answers a question
+        // about everybody, so a coach who may only see their own record
+        // should not find a tile promising the academy's numbers. Tiles
+        // without a `cap` are unaffected.
+        $tiles = array_values( array_filter(
+            $tiles,
+            static fn( array $t ): bool => empty( $t['cap'] ) || current_user_can( (string) $t['cap'] )
         ) );
 
         // #2357 — honest empty state. When every tile has been filtered

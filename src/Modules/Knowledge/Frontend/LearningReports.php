@@ -208,10 +208,16 @@ final class LearningReports {
     /**
      * A coach's own record, for anyone without the statistics capability.
      *
-     * Rendered rather than refused. A coach reaching a learning report should
-     * see their own progress — hiding the page entirely would make the
-     * capability feel like a punishment, and the spec is explicit that own-
-     * record access is a level, not an absence of one.
+     * A safety net rather than a designed route. The launcher hides these
+     * tiles from anyone without the capability, and *My learning* is the
+     * proper home for a coach's own progress — so the people who land here
+     * arrived by a bookmark, a shared link, or after losing a capability
+     * they used to hold.
+     *
+     * Rendered rather than refused all the same. The spec is explicit that
+     * own-record access is a level and not an absence of one, and a coach
+     * who followed a colleague's link should learn what the page is, not
+     * that the module has decided they are not welcome.
      */
     private static function renderOwnRecordOnly( int $user_id ): void {
         $person_id = KnowledgePerson::forUser( $user_id );
