@@ -95,6 +95,16 @@ The activity flips to **Completed** only when the flow finishes (the wizard's fi
 
 The detail view also carries **Cancel activity** (on a planned activity) and **Reopen** (on a completed or cancelled one) — direct, confirmed status changes.
 
+**The header actions follow the status.** A planned activity is the only one you can change, so it is the only one that offers **Edit** and the run actions. Once an activity is completed or cancelled the header switches to reading what happened:
+
+- **Edit** disappears. **Reopen** is the way back to an editable record — it returns the activity to *Planned* and Edit comes back with it.
+- **Match prep** reads **View match prep** and opens the line-up that was prepared. On a planned match the label already tells you whether a prep exists: **Plan match prep** when there is none yet, **Match prep** once there is.
+- The match-day button no longer offers **Start match** or **Resume match** on a finished activity. **View match** is the only execution label left, and only when the match was actually tracked.
+- A training reads **View this training** and opens the plan that was run. A finished training with no plan attached shows no run button at all — there is nothing to look at, and the button would otherwise invite you to start one.
+- The rating button says what is left to do: **Rate players** when nobody has been rated, **Continue rating** when some have, and it disappears once every attending player carries a rating. Completing an activity does not rate anyone by itself — the rate step is skippable and a match finalize writes minutes only — so the button stays available after completion until the work is genuinely done. The **Ratings grid** button next to it stays put either way, for reviewing or correcting ratings that are already in.
+
+An **archived** activity is stricter still: everything mutating is hidden and only **Restore** remains.
+
 **With the guided wizards switched off** the button reads **Mark attendance** instead and opens the [attendance grid](attendance-grid.md) on that activity's own column — same place on the list card and the detail view, and the dashboard's **Mark attendance** hero goes there too. A match that *is* live-tracked still routes to Resume / Finalize. Because a single grid save can cover weeks of sessions, recording attendance there deliberately doesn't complete anything: a planned activity gains a **Mark completed** button for that, next to Cancel. Record attendance first, then mark it completed — **Reopen** undoes it.
 
 ### Match minutes (paper matches)

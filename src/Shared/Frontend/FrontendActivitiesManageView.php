@@ -154,17 +154,28 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // the mutating header actions (Edit / match prep / live match /
                 // Continue rating) are suppressed, leaving only Restore.
                 $is_archived = ! empty( $session->archived_at );
+                // #2685 — status is read before the action list is built,
+                // not halfway down it. Everything above used to be
+                // status-blind, so a completed activity offered Edit, "Start
+                // match" and "Continue rating" alongside Reopen. Planned is
+                // the only status that may mutate the record; the rest get
+                // read affordances, and Reopen is the single way back.
+                $status_now   = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
+                $is_planned   = ( $status_now === ActivityStatusKey::PLANNED );
+                $is_completed = ( $status_now === ActivityStatusKey::COMPLETED );
                 if ( ! $is_archived && $can_edit_acts ) {
-                $edit_url = add_query_arg(
-                    [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
-                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                );
-                $detail_actions[] = [
-                    'label'   => __( 'Edit', 'talenttrack' ),
-                    'href'    => $edit_url,
-                    'primary' => true,
-                    'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
-                ];
+                if ( $is_planned ) {
+                    $edit_url = add_query_arg(
+                        [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    $detail_actions[] = [
+                        'label'   => __( 'Edit', 'talenttrack' ),
+                        'href'    => $edit_url,
+                        'primary' => true,
+                        'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
+                    ];
+                }
                 // v3.110.214 (#838) — match preparation surface.
                 // Only on match-type activities; jumps to the wizard if
                 // no prep row exists, or directly to the form when it
@@ -186,8 +197,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                         )
                     );
+                    // #2685 — the label said "Plan match prep" whether or not
+                    // a prep row existed, and kept saying it after the match
+                    // was played. The destination was already right
+                    // (FrontendMatchPrepView renders the filled form or its
+                    // own empty state); only the copy lied. Same pattern as
+                    // the training-run action below: ask the repository, then
+                    // branch.
+                    $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )
+                        ->findByActivity( (int) $session->id );
                     $detail_actions[] = [
-                        'label' => __( 'Plan match prep', 'talenttrack' ),
+                        'label' => \TT\Modules\Activities\Services\ActivityHeaderActions::matchPrepLabel(
+                            $is_planned,
+                            (bool) $prep_row
+                        ),
                         'href'  => $prep_url,
                     ];
                     // v3.110.216 (#847) — assistant coach live-match
@@ -206,16 +229,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     $exec_state = $exec_row->state ?? \TT\Domain\Vocabularies\Enums\MatchExecutionState::NOT_STARTED;
                     $is_match_day = \TT\Domain\Vocabularies\Enums\MatchExecutionState::isMatchDay( (string) ( $session->session_date ?? '' ) );
 
-                    $exec_label = '';
-                    if ( \TT\Domain\Vocabularies\Enums\MatchExecutionState::isLive( (string) $exec_state ) ) {
-                        $exec_label = __( 'Resume match', 'talenttrack' );
-                    } elseif ( \TT\Domain\Vocabularies\Enums\MatchExecutionState::isPostLive( (string) $exec_state ) ) {
-                        $exec_label = __( 'View match', 'talenttrack' );
-                    } elseif ( $is_match_day ) {
-                        $exec_label = __( 'Start match', 'talenttrack' );
-                    }
+                    // #2685 — the state machine above answers "how far has
+                    // the match got", which on a completed or cancelled
+                    // activity is no longer the question: "Start match" fell
+                    // through whenever the date matched, so a finished match
+                    // invited a second kick-off. The status branch lives in
+                    // the resolver with the rest of them.
+                    $exec_label = \TT\Modules\Activities\Services\ActivityHeaderActions::matchExecutionLabel(
+                        $is_planned,
+                        (string) $exec_state,
+                        $is_match_day
+                    );
 
-                    if ( $exec_label !== '' ) {
+                    if ( $exec_label !== null ) {
                         $exec_url = add_query_arg(
                             [
                                 'tt_view'     => 'match-execution',
@@ -279,6 +305,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     $run = ( new \TT\Modules\Training\Repositories\TrainingPlanRunsRepository() )
                         ->findForActivity( (int) $session->id );
 
+                    // #2685 — a training that is over is read, not run. With
+                    // a plan attached the button opens it; with none there is
+                    // no plan to look at, and `?activity_id=` lands on the
+                    // attach form — an invitation to start work on a finished
+                    // record — so the resolver returns null and the action
+                    // does not render at all.
+                    $run_label = \TT\Modules\Activities\Services\ActivityHeaderActions::trainingRunLabel(
+                        $is_planned,
+                        (bool) $run
+                    );
+                    if ( $run_label !== null ) {
                     $run_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
                         add_query_arg(
                             $run
@@ -289,11 +326,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     );
 
                     $detail_actions[] = [
-                        'label' => $run
-                            ? __( 'Continue this training', 'talenttrack' )
-                            : __( 'Run this training', 'talenttrack' ),
+                        'label' => $run_label,
                         'href'  => $run_url,
                     ];
+                    } // end $run_label !== null
                 }
                 // #2245 — status transition buttons replace the status
                 // dropdown on the edit form. The type-branch decision
@@ -301,8 +337,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // resolver; the detail button and the list-card button
                 // both use it. Cancel / Reopen are direct, confirmed
                 // status changes via POST /activities/{id}/status.
-                $status_now  = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
-                $is_completed = ( $status_now === ActivityStatusKey::COMPLETED );
+                // $status_now / $is_planned / $is_completed are computed
+                // above the action list (#2685).
                 $detail_back  = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', (int) $session->id );
                 $status_rest  = 'activities/' . (int) $session->id . '/status';
 
@@ -316,7 +352,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 );
                 $wizard_on = \TT\Modules\Activities\Services\ActivityCompletionResolver::wizardAvailable( get_current_user_id() );
 
-                if ( $status_now === ActivityStatusKey::PLANNED ) {
+                if ( $is_planned ) {
                     // §7 (#2325) — only surface "Complete activity" when the
                     // user can actually reach the completion flow; otherwise
                     // completionUrl() resolves to an empty href and the button
@@ -400,23 +436,38 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     ];
                 }
 
-                // v3.110.97 — Continue rating. Only on completed
-                // activities (attendance + rating only make sense
-                // after the session happened). Cap-gated on the
-                // evaluation wizard's `tt_edit_evaluations`.
+                // v3.110.97 — rating. Only on completed activities
+                // (attendance + rating only make sense after the session
+                // happened). Cap-gated on the evaluation wizard's
+                // `tt_edit_evaluations`.
+                //
+                // #2685 — the label used to be a fixed "Continue rating" on
+                // every completed activity, including ones where nobody had
+                // been rated yet, and it stayed there once everybody had.
+                // `completed` says nothing about ratings: the wizard's rate
+                // step is per-player skippable, match finalize writes minutes
+                // only, and the wizard-off "Mark completed" path is a bare
+                // status flip. The progress service answers the three states;
+                // a fully-rated activity drops the CTA and keeps the
+                // "Ratings grid" button below for review.
                 if ( $is_completed && current_user_can( 'tt_edit_evaluations' ) ) {
-                    $rate_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl(
-                        'new-evaluation',
-                        [
-                            'mode'        => 'activity',
-                            'activity_id' => (int) $session->id,
-                            'restart'     => 1,
-                        ]
+                    $rate_label = \TT\Modules\Activities\Services\ActivityHeaderActions::ratingLabel(
+                        \TT\Modules\Activities\Services\ActivityRatingProgress::state( (int) $session->id )
                     );
-                    $detail_actions[] = [
-                        'label' => __( 'Continue rating', 'talenttrack' ),
-                        'href'  => $rate_url,
-                    ];
+                    if ( $rate_label !== null ) {
+                        $rate_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl(
+                            'new-evaluation',
+                            [
+                                'mode'        => 'activity',
+                                'activity_id' => (int) $session->id,
+                                'restart'     => 1,
+                            ]
+                        );
+                        $detail_actions[] = [
+                            'label' => $rate_label,
+                            'href'  => $rate_url,
+                        ];
+                    }
                 }
 
                 // #2386 (epic #2381) — jump into the desktop grids for this

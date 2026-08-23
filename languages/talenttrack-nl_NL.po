@@ -45536,6 +45536,14 @@ msgstr "Wedstrijd bekijken"
 msgid "Open the match analysis"
 msgstr "Wedstrijdanalyse openen"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:186
+msgid "View match prep"
+msgstr "Wedstrijdvoorbereiding bekijken"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:330
+msgid "View this training"
+msgstr "Deze training bekijken"
+
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:293
 msgid "Continue this training"
 msgstr "Ga verder met deze training"
