@@ -52929,6 +52929,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:72
+msgid "Invitation never accepted"
+msgstr "Uitnodiging nooit geaccepteerd"
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:76
+msgid "An invitation was sent and never accepted. Usually the email went to spam or to a mistyped address, and nothing anywhere says so."
+msgstr "Een uitnodiging is verstuurd en nooit geaccepteerd. Meestal is de e-mail in de spam beland of naar een verkeerd getypt adres gegaan, en nergens is dat te zien."
+
+#. translators: %s: name or email address of the person who was invited
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:128
+#, php-format
+msgid "%s was invited but has never accepted."
+msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
+
 #~ msgid ""
 #~ "The questions for this module open once progress tracking is switched on."
 #~ msgstr ""
