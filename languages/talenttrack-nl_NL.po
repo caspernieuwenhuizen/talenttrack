@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T16:05:46+00:00\n"
+"POT-Creation-Date: 2026-08-23T16:08:06+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -820,13 +820,13 @@ msgstr ""
 "vastgelegde voortgang blijft bewaard."
 
 #: src/Core/FeatureRegistry.php:479
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:86
 msgid "Players list"
 msgstr "Spelerslijst"
 
 #: src/Core/FeatureRegistry.php:480
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:30
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:155
 msgid "Team roster + season stats"
 msgstr "Teamselectie + seizoensstatistieken"
@@ -837,7 +837,7 @@ msgid "Federation registration (JSON)"
 msgstr "Bondsregistratie (JSON)"
 
 #: src/Core/FeatureRegistry.php:482
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:32
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:33
 #: src/Shared/Frontend/FrontendExportsView.php:102
 msgid "Attendance register"
 msgstr "Aanwezigheidsregister"
@@ -866,7 +866,7 @@ msgid "Player evaluations (flat)"
 msgstr "Spelerevaluaties (plat)"
 
 #: src/Core/FeatureRegistry.php:487
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:30
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:114
 msgid "Goals list"
 msgstr "Doelenlijst"
@@ -878,7 +878,7 @@ msgid "KPI snapshot"
 msgstr "KPI-momentopname"
 
 #: src/Core/FeatureRegistry.php:489
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:30
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:31
 #: src/Shared/Frontend/FrontendExportsView.php:190
 msgid "Coach / staff directory"
 msgstr "Trainers- en stafoverzicht"
@@ -2438,21 +2438,21 @@ msgstr "Radarkaarten"
 #: src/Modules/DataBrowser/SemanticRegistry.php:68
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:147
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:116
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:42
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:119
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:47
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:108
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:43
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:120
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:239
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:197
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:443
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:51
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:153
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:45
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:104
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:46
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:105
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:115
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:45
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:132
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:371
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:108
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:159
@@ -2563,8 +2563,8 @@ msgstr "Evaluatie"
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:322
 #: src/Modules/Authorization/Admin/MatrixPage.php:558
 #: src/Modules/DataBrowser/SemanticRegistry.php:105
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:41
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:42
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:119
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:569
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:493
@@ -2696,11 +2696,11 @@ msgid "No changes supplied."
 msgstr "Geen wijzigingen ontvangen."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:310
-#: src/Infrastructure/REST/ActivitiesRestController.php:1105
-#: src/Infrastructure/REST/ActivitiesRestController.php:1122
-#: src/Infrastructure/REST/ActivitiesRestController.php:1152
-#: src/Infrastructure/REST/ActivitiesRestController.php:1524
-#: src/Infrastructure/REST/ActivitiesRestController.php:1693
+#: src/Infrastructure/REST/ActivitiesRestController.php:1121
+#: src/Infrastructure/REST/ActivitiesRestController.php:1138
+#: src/Infrastructure/REST/ActivitiesRestController.php:1168
+#: src/Infrastructure/REST/ActivitiesRestController.php:1573
+#: src/Infrastructure/REST/ActivitiesRestController.php:1742
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:99
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
@@ -2747,13 +2747,13 @@ msgstr ""
 "worden bewaard."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:986
-#: src/Infrastructure/REST/ActivitiesRestController.php:1099
-#: src/Infrastructure/REST/ActivitiesRestController.php:1117
-#: src/Infrastructure/REST/ActivitiesRestController.php:1142
-#: src/Infrastructure/REST/ActivitiesRestController.php:1520
-#: src/Infrastructure/REST/ActivitiesRestController.php:1630
-#: src/Infrastructure/REST/ActivitiesRestController.php:1671
-#: src/Infrastructure/REST/ActivitiesRestController.php:1689
+#: src/Infrastructure/REST/ActivitiesRestController.php:1115
+#: src/Infrastructure/REST/ActivitiesRestController.php:1133
+#: src/Infrastructure/REST/ActivitiesRestController.php:1158
+#: src/Infrastructure/REST/ActivitiesRestController.php:1569
+#: src/Infrastructure/REST/ActivitiesRestController.php:1679
+#: src/Infrastructure/REST/ActivitiesRestController.php:1720
+#: src/Infrastructure/REST/ActivitiesRestController.php:1738
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:162
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:179
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1010
@@ -2767,39 +2767,39 @@ msgstr ""
 "De activiteit kon niet worden bijgewerkt. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1026
+#: src/Infrastructure/REST/ActivitiesRestController.php:1038
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is bijgewerkt, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1281
+#: src/Infrastructure/REST/ActivitiesRestController.php:1297
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:1545
+#: src/Infrastructure/REST/ActivitiesRestController.php:1594
 msgid "A guest is either linked OR anonymous, not both."
 msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1549
+#: src/Infrastructure/REST/ActivitiesRestController.php:1598
 msgid "Pick a player or enter a guest name."
 msgstr "Kies een speler of vul een gastnaam in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1552
+#: src/Infrastructure/REST/ActivitiesRestController.php:1601
 msgid "Linked player does not exist."
 msgstr "Gekoppelde speler bestaat niet."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1612
+#: src/Infrastructure/REST/ActivitiesRestController.php:1661
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1613
+#: src/Infrastructure/REST/ActivitiesRestController.php:1662
 msgid "The guest could not be added."
 msgstr "De gast kon niet worden toegevoegd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1651
+#: src/Infrastructure/REST/ActivitiesRestController.php:1700
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
@@ -2807,28 +2807,28 @@ msgstr ""
 "Hier zijn alleen Annuleren en Heropenen toegestaan. Een activiteit voltooien "
 "verloopt via de evaluatieflow."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1652
+#: src/Infrastructure/REST/ActivitiesRestController.php:1701
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr "Alleen Afronden, Annuleren en Heropenen zijn hier toegestaan."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1658
+#: src/Infrastructure/REST/ActivitiesRestController.php:1707
 msgid "Could not update the activity status."
 msgstr "Kon de activiteitsstatus niet bijwerken."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1674
+#: src/Infrastructure/REST/ActivitiesRestController.php:1723
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1725
-#: src/Infrastructure/REST/ActivitiesRestController.php:1782
+#: src/Infrastructure/REST/ActivitiesRestController.php:1774
+#: src/Infrastructure/REST/ActivitiesRestController.php:1831
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1728
+#: src/Infrastructure/REST/ActivitiesRestController.php:1777
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1748
+#: src/Infrastructure/REST/ActivitiesRestController.php:1797
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
@@ -2836,11 +2836,11 @@ msgstr ""
 "De minuten voor deze wedstrijd worden beheerd op het "
 "wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1769
+#: src/Infrastructure/REST/ActivitiesRestController.php:1818
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1785
+#: src/Infrastructure/REST/ActivitiesRestController.php:1834
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
@@ -3644,18 +3644,18 @@ msgstr "Niet gevonden."
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:46
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:123
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:47
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:42
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:103
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:297
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:144
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:49
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:108
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:44
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:88
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:50
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:109
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:47
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
 #: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Goals/Admin/GoalsPage.php:145
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
@@ -3736,10 +3736,10 @@ msgstr "Status"
 
 #: src/Infrastructure/REST/PeekRestController.php:106
 #: src/Modules/Configuration/Admin/FormSlugContract.php:59
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:42
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:101
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:43
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:43
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
 #: src/Modules/Methodology/Admin/PositionEditPage.php:84
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:330
 #: src/Modules/Wizards/Player/ReviewStep.php:36
@@ -3753,10 +3753,10 @@ msgstr "Rugnummer"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:53
 #: src/Modules/DataBrowser/SemanticRegistry.php:48
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:140
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:41
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:42
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:101
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:150
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
@@ -3851,8 +3851,8 @@ msgstr "Seizoen"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:380
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:750
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:115
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:40
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:117
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:41
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:238
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:240
@@ -4763,8 +4763,8 @@ msgstr "Filteren"
 #: src/Modules/Development/Frontend/IdeasRefineView.php:78
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:62
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:107
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:39
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:100
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:40
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:101
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:401
@@ -4992,8 +4992,8 @@ msgstr "— Alle —"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:752
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:130
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:142
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:47
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:48
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:125
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:239
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
@@ -6938,8 +6938,8 @@ msgstr "Beoordelaar"
 
 #: src/Modules/Analytics/AnalyticsModule.php:177
 #: src/Modules/Configuration/Admin/FormSlugContract.php:113
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:42
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:103
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:142
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
@@ -7325,8 +7325,8 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/DemoCoverage.php:1250
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:89
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
 #: src/Modules/License/Admin/AccountPage.php:626
 #: src/Modules/License/Admin/AccountPage.php:753
 #: src/Modules/People/Admin/PeoplePage.php:175
@@ -9334,8 +9334,8 @@ msgstr "Sleutel"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:111
 #: src/Modules/DataBrowser/SemanticRegistry.php:138
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:276
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:40
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:101
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:102
 #: src/Modules/Goals/Admin/GoalsPage.php:140
 #: src/Modules/Media/Wizard/MediaDetailsStep.php:50
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
@@ -11650,8 +11650,8 @@ msgstr "Bestandsnaam"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:296
 #: src/Modules/DataBrowser/SemanticRegistry.php:205
 #: src/Modules/DemoData/Admin/DemoDataPage.php:825
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:49
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:140
@@ -12291,8 +12291,8 @@ msgstr ""
 #: src/Modules/Backup/Destinations/EmailDestination.php:31
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:489
 #: src/Modules/Configuration/Admin/FormSlugContract.php:75
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:41
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:85
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:86
 #: src/Modules/Invitations/Frontend/InviteButton.php:133
 #: src/Modules/People/Admin/PeoplePage.php:173
 #: src/Modules/People/Admin/PeoplePage.php:312
@@ -14706,8 +14706,8 @@ msgstr "URL"
 
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:490
 #: src/Modules/Configuration/Admin/FormSlugContract.php:76
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:42
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:86
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:43
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:87
 #: src/Modules/People/Admin/PeoplePage.php:174
 #: src/Modules/People/Admin/PeoplePage.php:317
 #: src/Modules/Wizards/Person/BasicsStep.php:38
@@ -14908,18 +14908,18 @@ msgstr "Toon details"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:51
 #: src/Modules/Configuration/Admin/FormSlugContract.php:73
 #: src/Modules/DataBrowser/SemanticRegistry.php:46
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:44
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:121
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:45
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:106
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:45
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:122
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:46
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:107
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:49
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:151
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:39
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:98
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:39
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:83
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:39
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:126
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:40
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:99
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:40
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:84
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:140
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:230
 #: src/Modules/People/Admin/PeoplePage.php:302
@@ -14943,18 +14943,18 @@ msgstr "Voornaam"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:52
 #: src/Modules/Configuration/Admin/FormSlugContract.php:74
 #: src/Modules/DataBrowser/SemanticRegistry.php:47
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:45
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:122
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:46
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:107
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:46
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:123
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:47
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:108
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:50
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:152
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:40
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:99
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:40
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:84
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:41
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:41
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:85
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:144
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:234
 #: src/Modules/People/Admin/PeoplePage.php:307
@@ -14995,10 +14995,10 @@ msgstr "Gewicht (kg)"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:57
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:142
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:43
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:43
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:44
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:103
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:44
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:154
 #: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
@@ -15013,17 +15013,17 @@ msgstr "Voorkeursvoet"
 
 # Native field slug labels (for "Insert after" dropdown)
 #: src/Modules/Configuration/Admin/FormSlugContract.php:58
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:44
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:103
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:44
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:45
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:104
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:45
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:132
 #: src/Shared/Frontend/FrontendPlayersManageView.php:397
 msgid "Preferred positions"
 msgstr "Voorkeursposities"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:61
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:50
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:109
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:51
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:110
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1203
 msgid "Date joined"
 msgstr "Toegetreden op"
@@ -15033,22 +15033,22 @@ msgid "Photo URL"
 msgstr "Foto-URL"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:63
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:46
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:105
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:47
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:106
 #: src/Shared/Frontend/FrontendPlayersManageView.php:523
 msgid "Guardian name"
 msgstr "Naam ouder/voogd"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:64
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:47
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:106
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:48
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:107
 #: src/Shared/Frontend/FrontendPlayersManageView.php:527
 msgid "Guardian email"
 msgstr "E-mail ouder/voogd"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:65
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:48
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:107
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:49
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:108
 #: src/Shared/Frontend/FrontendPlayersManageView.php:531
 msgid "Guardian phone"
 msgstr "Telefoon ouder/voogd"
@@ -15060,8 +15060,8 @@ msgid "WordPress user"
 msgstr "WordPress-gebruiker"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:77
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:43
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:87
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:44
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:88
 #: src/Shared/Frontend/FrontendExportsView.php:195
 msgid "Role type"
 msgstr "Roltype"
@@ -15100,8 +15100,8 @@ msgstr "Activiteitdatum"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:114
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:26
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:44
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:122
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
 #: src/Shared/Frontend/FrontendGoalsManageView.php:492
@@ -15160,8 +15160,8 @@ msgstr "Thuis/Uit"
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:56
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:158
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:48
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:135
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:49
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:136
 #: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:79
 msgid "Minutes played"
 msgstr "Gespeelde minuten"
@@ -16262,8 +16262,8 @@ msgstr "Grafiektype"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:75
 #: src/Modules/DataBrowser/SemanticRegistry.php:206
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:50
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:51
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:112
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:147
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
 msgid "Updated"
@@ -20102,16 +20102,16 @@ msgstr "Geen aanwezigheid geregistreerd."
 msgid "Jersey"
 msgstr "Rugnummer"
 
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:43
-#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:120
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:44
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:44
+#: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:121
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:45
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:106
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:48
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:150
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:38
-#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:97
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:38
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:125
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:39
+#: src/Modules/Export/Exporters/PlayersListCsvExporter.php:98
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:39
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:126
 msgid "Player ID"
 msgstr "Speler-ID"
 
@@ -20236,13 +20236,13 @@ msgstr ""
 "Deze export is opgesteld op grond van AVG-artikel 15 (Recht van inzage van "
 "de betrokkene)."
 
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:38
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:99
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:39
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:100
 msgid "Goal ID"
 msgstr "Doel-ID"
 
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:48
-#: src/Modules/Export/Exporters/GoalsCsvExporter.php:109
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:49
+#: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
 msgid "Owner"
 msgstr "Eigenaar"
 
@@ -20527,8 +20527,8 @@ msgstr "Onder contract"
 msgid "Scouting report (PDF)"
 msgstr "Scoutingrapport (PDF)"
 
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:38
-#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:82
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:39
+#: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:83
 msgid "Person ID"
 msgstr "Persoon-ID"
 
@@ -20539,8 +20539,8 @@ msgstr "Activiteit-ID"
 
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:44
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:118
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:49
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:136
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:50
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:137
 msgid "Average rating"
 msgstr "Gemiddelde beoordeling"
 
@@ -20685,8 +20685,8 @@ msgstr "vs %s"
 msgid "%d min"
 msgstr "%d min"
 
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:47
-#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:48
+#: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:135
 msgid "Attendance count"
 msgstr "Aantal aanwezigheden"
 
