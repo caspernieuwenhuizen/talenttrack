@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
 
 /**
  * StaffDirectoryCsvExporter (#865) — coach / scout / staff contact list.
@@ -97,8 +98,8 @@ final class StaffDirectoryCsvExporter implements ExporterInterface {
                 (string) ( $r->last_name ?? '' ),
                 (string) ( $r->email ?? '' ),
                 (string) ( $r->phone ?? '' ),
-                (string) ( $r->role_type ?? '' ),
-                (string) ( $r->status ?? '' ),
+                ExportValueFormatter::roleType( $r->role_type ?? '' ),
+                ExportValueFormatter::personStatus( $r->status ?? '' ),
                 (string) ( $r->teams ?? '' ),
             ];
         }
