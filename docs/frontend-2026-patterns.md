@@ -39,6 +39,25 @@ can re-theme them — read them as `var(--tt-primary, #0b3d2e)`, don't redeclare
 - **Avatar disc** — initials in a coloured circle, ≥28px; `FrontendAppChrome` has an initials helper. Reference: scouting cards, my-team.
 - **Progress bar** — `height: 8px; border-radius: 999px`, fill colour by bucket (green/gold/red). Reference: attendance report, goals.
 
+## List rows — every row reveals its record
+
+A list row must let the viewer see what the record holds. Resolve it in this
+order (#1998):
+
+1. **Clickable → read-only detail**, when a detail view exists that *the viewing
+   persona* is authorised for. Pass `row_url_key` and a `detail_url` pointing at
+   the read-only detail; Edit is an action *inside* that detail, gated on the
+   manage cap.
+2. **Inline info, non-clickable**, when no permission-appropriate detail view
+   exists and building one would only duplicate the row. Surface the
+   persona-allowed fields in the row itself and do not stamp `data-row-href`.
+
+**Never emit a row link the viewer will 403 on.** Emit `detail_url` only for
+personas that can actually open the destination — a player surface inheriting a
+staff-only detail link is the shape this rule exists to stop (#1986). The
+opposite failure is just as bad: an inert row whose detail is unreachable from
+the list (#1997).
+
 ## Forms
 
 - Save + Cancel via `FormSaveButton::render()` with a `cancel_url` (CLAUDE.md §6).

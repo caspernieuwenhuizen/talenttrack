@@ -186,7 +186,20 @@ final class LegacyCapMapper {
         'tt_manage_authorization'        => [ 'authorization_matrix',   'change' ],
         'tt_view_audit_log'              => [ 'audit_log',              'read' ],
         'tt_view_translations'           => [ 'translations_config',    'read' ],
-        'tt_edit_translations'           => [ 'translations_config',    'change' ],
+        // `tt_edit_translations` was also declared here, as
+        // `translations_config:change`, and again further down as
+        // `translations:change` (#0090). The later declaration is the one PHP
+        // kept, so removing this one changes nothing at runtime — it only
+        // stops the file claiming two different answers. The live mapping is
+        // also the correct one: head_of_development holds `translations:rc`
+        // but only `translations_config:r`, so bridging to the config entity
+        // would have taken translation editing away from the persona #0090
+        // granted it to.
+        //
+        // Worth knowing: the view/edit pair straddles two entities —
+        // `tt_view_translations` reads `translations_config` while
+        // `tt_edit_translations` writes `translations`. That is a smell, but
+        // reconciling it is an access change, not a duplicate-key cleanup.
         'tt_view_custom_fields'          => [ 'custom_field_definitions','read' ],
         'tt_edit_custom_fields'          => [ 'custom_field_definitions','change' ],
         'tt_view_evaluation_categories'  => [ 'evaluation_categories',  'read' ],
@@ -201,7 +214,13 @@ final class LegacyCapMapper {
         'tt_edit_seasons'                => [ 'seasons',                'change' ],
         'tt_view_setup_wizard'           => [ 'setup_wizard',           'read' ],
         'tt_edit_setup_wizard'           => [ 'setup_wizard',           'change' ],
-        'tt_manage_authorization'        => [ 'authorization_matrix',   'create_delete' ],
+        // `tt_manage_authorization` was declared a second time here, mapping
+        // to `create_delete`. PHP keeps the last of a duplicated array key,
+        // so it silently overrode the `change` mapping #2654 added 18 lines
+        // above — and academy_admin is seeded `rc`, so the cap resolved to an
+        // activity they do not hold and the matrix editor refused them. Reset
+        // is not affected: `MatrixRestController::canReset()` gates on
+        // `manage_options`, not on this cap.
 
         // #0071 — Round-2 coverage caps. Bridges threads / spond /
         // journey / player-status / pdp-evidence to dedicated entities.
