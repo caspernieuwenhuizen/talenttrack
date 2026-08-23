@@ -1188,12 +1188,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     /**
-     * #1618 — Match-day line-up card: Starting XI + Bench, each player
-     * decorated with jersey + position played (preferred fallback).
-     * Grouping happens in ActivitiesRepository (CLAUDE.md §4). Renders
-     * nothing when no line-up has been captured yet.
-     */
-    /**
      * Does this activity type get the per-FIXTURE surfaces — match
      * preparation and the live-match screen?
      *
@@ -1216,6 +1210,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         );
     }
 
+    /**
+     * #1618 — Match-day line-up card: Starting XI + Bench, each player
+     * decorated with jersey + position played (preferred fallback).
+     * Grouping happens in ActivitiesRepository (CLAUDE.md §4). Renders
+     * nothing when no line-up has been captured yet.
+     */
     private static function renderLineupCard( object $session ): void {
         $lineup = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
             ->lineupForActivity( (int) ( $session->id ?? 0 ) );
