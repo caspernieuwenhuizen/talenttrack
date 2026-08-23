@@ -42,10 +42,6 @@ class MatchPrepPrintRouter {
 
     public static function maybeRender(): void {
         if ( empty( $_GET['tt_match_prep_print'] ) ) return;
-        // #1538 — the client-side print path bypasses ExportService, so it
-        // has to honour the `export_match_prep_pdf` toggle itself; without
-        // this the PDF export would still be reachable via the print URL.
-        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) return;
         $activity_id = isset( $_GET['activity_id'] ) ? absint( $_GET['activity_id'] ) : 0;
         if ( $activity_id <= 0 ) return;
 
@@ -53,6 +49,17 @@ class MatchPrepPrintRouter {
         if ( $mode !== 'team_sheet' ) {
             $mode = 'prep';
         }
+
+        // #1538 — this path bypasses ExportService, so it has to honour the
+        // toggle itself; without it the export stays reachable by URL after
+        // the button is hidden.
+        //
+        // #2769 — per mode, now that the coach's sheet and the referee's are
+        // separate decisions. Resolving the mode first is what makes that
+        // possible: the old check ran before it and could only ask one
+        // question for both.
+        $flag = $mode === 'team_sheet' ? 'export_match_day_team_sheet' : 'export_match_prep_pdf';
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( $flag ) ) return;
 
         if ( ! is_user_logged_in() ) {
             wp_die( esc_html__( 'Log in to print this match sheet.', 'talenttrack' ) );
