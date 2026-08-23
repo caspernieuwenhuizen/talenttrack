@@ -29,6 +29,25 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 final class ExercisesRepository {
 
+    /**
+     * The intensity scale, defined once (#2767).
+     *
+     * Three places used to state it independently and all three disagreed:
+     * the library form offered 1–10, the docs said 1–5, and the engine, the
+     * shipped catalogue and the age profiles used 1–7. A coach rating against
+     * a documented 1–5 under-rates every hard drill, and the age-safe ceiling
+     * is compared against exactly this number — so the disagreement lands on
+     * the safety check rather than on presentation.
+     *
+     * 1–7 is what the content and the age profiles already are: the catalogue
+     * runs bands 1–7, and the highest `intensity_band_max` any age profile
+     * carries is 7 (U13/U14; U10 caps at 3). Anything the form offered above
+     * that was a band no profile could accommodate and the generator had no
+     * definition for.
+     */
+    public const INTENSITY_BAND_MIN = 1;
+    public const INTENSITY_BAND_MAX = 7;
+
     private function table(): string {
         global $wpdb;
         return $wpdb->prefix . 'tt_exercises';
@@ -683,13 +702,14 @@ final class ExercisesRepository {
         // judged age-safe. Values are clamped rather than trusted so a
         // REST caller cannot store an intensity of 47.
         $ranges = [
-            // 1–10, not 1–5. VCT seeds ten `vct_intensity_band` lookup
-            // rows, the merged catalogue uses bands up to 7, and the U13
-            // and U14 age profiles cap at 7. Clamping to 5 here silently
-            // downgraded any band 6–7 exercise the moment it was saved
-            // through the library form (#2495 shipped that bug; caught
-            // while verifying the generator in #2497).
-            'intensity_band'       => [ 1, 10 ],
+            // Read from the constant, never a literal (#2767). Clamping
+            // this too low is not a cosmetic error: a 1–5 clamp here
+            // silently downgraded every band 6–7 exercise the moment it
+            // was saved through the library form (#2495 shipped that bug,
+            // caught while verifying the generator in #2497). 7 is the
+            // top of the scale the catalogue and the age profiles use, so
+            // nothing is downgraded by this bound.
+            'intensity_band'       => [ self::INTENSITY_BAND_MIN, self::INTENSITY_BAND_MAX ],
             'duration_minutes_min' => [ 0, 240 ],
             'duration_minutes_max' => [ 0, 240 ],
             'players_min'          => [ 1, 40 ],

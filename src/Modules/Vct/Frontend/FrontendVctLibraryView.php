@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Exercises\ExercisesRepository;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -166,7 +167,9 @@ class FrontendVctLibraryView extends FrontendViewBase {
         echo '<label><span>' . esc_html__( 'Theme (optional)', 'talenttrack' ) . '</span><select name="tactical_theme"><option value="">— —</option>';
         foreach ( $themes as $t ) echo '<option value="' . esc_attr( (string) $t ) . '">' . esc_html( LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $t ) ) . '</option>';
         echo '</select></label>';
-        echo '<label><span>' . esc_html__( 'Intensity band (1-10)', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="intensity_band" min="1" max="10" value="3" required></label>';
+        /* translators: 1: lowest intensity band, 2: highest intensity band. */
+        $band_label = sprintf( __( 'Intensity band (%1$d-%2$d)', 'talenttrack' ), ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
+        echo '<label><span>' . esc_html( $band_label ) . '</span><input type="number" inputmode="numeric" name="intensity_band" min="' . (int) ExercisesRepository::INTENSITY_BAND_MIN . '" max="' . (int) ExercisesRepository::INTENSITY_BAND_MAX . '" value="3" required></label>';
         echo '<label><span>' . esc_html__( 'Age min', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="age_min" min="6" max="19" value="9" required></label>';
         echo '<label><span>' . esc_html__( 'Age max', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="age_max" min="6" max="19" value="14" required></label>';
         echo '<label><span>' . esc_html__( 'Duration min (minutes)', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="duration_minutes_min" min="1" max="120" value="10" required></label>';
@@ -338,8 +341,11 @@ class FrontendVctLibraryView extends FrontendViewBase {
                         </select>
                     </label>
                     <label>
-                        <span><?php esc_html_e( 'Intensity band (1-10)', 'talenttrack' ); ?></span>
-                        <input type="number" inputmode="numeric" name="intensity_band" min="1" max="10" value="<?php echo (int) $row['intensity_band']; ?>" required>
+                        <span><?php
+                            /* translators: 1: lowest intensity band, 2: highest intensity band. */
+                            echo esc_html( sprintf( __( 'Intensity band (%1$d-%2$d)', 'talenttrack' ), ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX ) );
+                        ?></span>
+                        <input type="number" inputmode="numeric" name="intensity_band" min="<?php echo (int) ExercisesRepository::INTENSITY_BAND_MIN; ?>" max="<?php echo (int) ExercisesRepository::INTENSITY_BAND_MAX; ?>" value="<?php echo (int) $row['intensity_band']; ?>" required>
                     </label>
                     <label>
                         <span><?php esc_html_e( 'Age range (min–max)', 'talenttrack' ); ?></span>

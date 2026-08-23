@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
 
 /**
  * GoalsCsvExporter (#0063 use case 7) — every active goal across a
@@ -117,8 +118,8 @@ final class GoalsCsvExporter implements ExporterInterface {
                 (int)    $r->id,
                 (string) ( $r->title ?? '' ),
                 (string) ( $r->description ?? '' ),
-                (string) ( $r->status ?? '' ),
-                (string) ( $r->priority ?? '' ),
+                ExportValueFormatter::goalStatus( $r->status ?? '' ),
+                ExportValueFormatter::goalPriority( $r->priority ?? '' ),
                 (string) ( $r->due_date ?? '' ),
                 (int)    $r->player_id,
                 (string) ( $r->first_name ?? '' ),

@@ -351,6 +351,16 @@
     box-shadow: none !important;
 }
 
+/* #2756 — the pitch was the one shadowed surface left out of the reset
+   above, and it is the only one that clips its own children, so a shadow
+   html2canvas places wrongly ends up clipped inside the pitch as a dark
+   block over half the line-up. tt-image-pdf.js now passes the real scroll
+   offsets, which is what misplaced it; this keeps the pitch immune to the
+   whole class. The on-screen shadow is untouched. */
+.tt-mp-grid.tt-image-pdf-capture .tt-mp-pitch {
+    box-shadow: none !important;
+}
+
 /* #2198 — the image-capture export paints exactly what's on screen, so an
    unassigned set-piece role would land in the PDF as a literal
    "— Pick player —". html2canvas ignores @media print, so suppress it here

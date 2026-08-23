@@ -423,7 +423,28 @@ class FeatureRegistry {
             ],
             'export_match_prep_pdf' => [
                 'label'           => __( 'Match prep PDF export', 'talenttrack' ),
-                'description'     => __( 'Allow the A4 match-preparation sheet to be exported/printed as a PDF. The match-prep screen stays available when this is off.', 'talenttrack' ),
+                'description'     => __( 'Allow the A4 match-preparation sheet to be exported/printed as a PDF. The match-prep screen stays available when this is off. The referee\'s team sheet is a separate setting.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            // #2769 — the referee's team sheet, split off from the coach's
+            // own export above. One flag used to gate both, so an academy
+            // that files match forms digitally could only hide the referee
+            // sheet by also losing the sheet the coach takes to the
+            // touchline. Same split, and the same reasoning, as
+            // `match_analysis_sharing` versus `export_match_analysis_pdf`.
+            //
+            // The key is load-bearing: `ExportService::run()` gates on
+            // `export_<exporterKey>`, and MatchDayTeamSheetPdfExporter::key()
+            // is `match_day_team_sheet` — so naming it this way makes the
+            // server-side export on ?tt_view=exports honour the toggle with
+            // no code there. It ran ungated before, because an unknown key
+            // reads as enabled.
+            'export_match_day_team_sheet' => [
+                'label'           => __( 'Match day team sheet', 'talenttrack' ),
+                'description'     => __( 'The referee/opposition team sheet (Starting XI, Bench, Squad + signature lines). Switch off if match forms are filed digitally. The coach\'s own match-prep PDF is a separate setting.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
                 'default_enabled' => true,
                 'view_slugs'      => [],
