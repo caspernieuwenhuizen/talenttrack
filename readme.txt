@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.101.1
+Stable tag: 4.101.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.101.2 — Saved-views form stays collapsed until you ask for it (#2793) On thirteen list views — teams, players, people, goals, evaluations and the rest — the "save these filters" form was permanently expanded, pushing its name field and Save button off the side of a phone screen. Its label, meant only for screen readers, was rendering as ordinary visible text and wrapping across four lines.  The form now stays collapsed until "Save filters" is pressed, and wraps inside the screen when open. The visually-hidden label style is defined once for every dashboard surface rather than on one view, so labels intended for screen readers stop showing up as stray text elsewhere too. =
 
 = 4.101.1 — Tiles nobody can open are now caught before they ship (#2008) A dashboard tile is offered on one permission and the surface behind it sometimes demanded a stronger one, so a coach could be shown a tile that refused them the moment they clicked it. It had happened four times, each fixed individually, each time discovered by the person it happened to.  The check now runs on every change: it walks every registered tile, works out which roles are offered it and which of those the destination would turn away, and fails the build when a new mismatch appears. The four that exist today are recorded rather than silently allowed — each needs a decision about whether the surface should open read-only or the role should not be offered it at all, and that is a judgement per surface rather than a mechanical change. =
 
