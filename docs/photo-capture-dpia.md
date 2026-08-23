@@ -26,6 +26,7 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 | 4 | **Consent surface** — whether a coach must acknowledge something in-product before the first upload is a legal answer, not a product one (#2502). | DPO |
 | 5 | **Provider terms validation** — confirm the current contract's non-retention and non-training clauses as at the signing date. | Data controller |
 | 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting (#0016). Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
+| 7 | **Player names in free text.** The extraction can write a player's name into `tt_activity_exercises.notes`, which has no player identifier, so that name is reachable by neither the subject-access export nor an erasure request. Either instruct the model not to transcribe names into the notes, strip them before save, or accept and document the limitation. | Product decision, then engineering |
 
 ## 1. Processing description
 
@@ -117,11 +118,11 @@ Pick at most two; document why.
 
 | Right | How TalentTrack supports it |
 |---|---|
-| Access (Art. 15) | ⚠️ **Gap.** The structured extraction lives in `tt_activity_exercises` joined to `tt_activities`. Neither table is registered in `PlayerDataMap`, so **neither is included in the subject-access export** — `CorePiiRegistrations` covers 13 tables and these are not among them. An earlier version of this document claimed both were included. Either register them or state the limitation; tracked in #2695. |
+| Access (Art. 15) | **Partly.** Who attended a session is covered — `tt_attendance` is registered in `PlayerDataMap` and appears in the export. The extraction itself is not: it lands in `tt_activity_exercises`, which records *which drills a session contained* and carries **no player identifier at all**, so it is not player-keyed data and cannot be registered (`PlayerDataMap::register()` requires a column joining to player identity). ⚠️ **The residual risk is the free-text `notes` column.** § 1 of this document notes that the extraction echoes any player names visible on the photo, and a name written into free text is not reachable by a table-and-column export mechanism — so it would be neither exported nor erased on request. See § 0 prerequisite 7. An earlier version of this document claimed both tables were included in the export; they are not. |
 | Rectification (Art. 16) | The session edit form lets a coach correct any extracted exercise / attendance. Sprint 4's review wizard makes this the default path before save. |
-| Erasure (Art. 17) | Deleting the activity cascades to `tt_activity_exercises`. The `tt_activities.archived_at` flag soft-deletes; the GDPR erasure follow-up spec hard-deletes. |
+| Erasure (Art. 17) | Deleting the **activity** cascades to `tt_activity_exercises` (`CascadeRegistry`), and `tt_activities.archived_at` soft-deletes. But erasing **one player** does not delete the session — the session belongs to a team and the other players' records depend on it — so anything about that player sitting in `tt_activity_exercises.notes` survives their erasure request. Same root cause as the Access row; § 0 prerequisite 7. |
 | Restriction (Art. 18) | Operator can flag an activity as `is_draft` to prevent it from rolling into reports. |
-| Portability (Art. 20) | Extracted data is part of the GDPR subject-access ZIP. |
+| Portability (Art. 20) | Whatever the subject-access export covers is portable, in the same ZIP — so the attendance record is, and the extraction is not. See the Access row. |
 | Object (Art. 21) | Disabling `TT_VISION_PROVIDER` immediately removes the provider's involvement. |
 
 ## 7. Risks + mitigations
@@ -132,6 +133,7 @@ Pick at most two; document why.
 | Provider trains on input data | Depends on the operator's contract | Very high | Validate the configured provider's data-processing terms at signing and at every annual refresh. This document makes no claim on the operator's behalf. |
 | Extracted text contains incorrect attendance attribution | Medium | Medium | Review wizard requires explicit coach approval before save; fuzzy-matcher confidence < 0.6 surfaces the row as "manual review needed" (`ExerciseFuzzyMatcher::DEFAULT_MIN_SIMILARITY`). |
 | A queued photo lingers on a lost or shared device | Unknown until #2502 lands | Medium | Prerequisite 2 — the offline queue's retention is undecided. |
+| A player's name is transcribed into free-text notes and then cannot be found | Medium — the plan and the attendance markings are often the same sheet | Medium | **Currently unmitigated.** `tt_activity_exercises.notes` has no player identifier, so such a name is invisible to both the subject-access export and an erasure request. Prerequisite 7. |
 | API key leak | Low (constant in wp-config) | High | Document key rotation procedure; never commit `wp-config.php` to git. |
 | The feature is enabled before this document is signed | Low | High | The `exercises_vision_extraction` feature flag is off on a default install and the endpoint returns 403 until it is switched on. Treat switching it on as the act this signature authorises. |
 
