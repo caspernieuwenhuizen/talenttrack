@@ -78,8 +78,15 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         // breaks again, the diagnostic page surfaces the failing layer
         // in one screen and the real fix lands on the matrix seed —
         // not on yet another bypass.
-        $can_enter = AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
-            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
+        // #2007 — the prospects caps say whether this user may read prospect
+        // data; the panel entity says whether the scout's visit planner is
+        // theirs. A head coach holds the former on purpose (#0081) and must
+        // not hold the latter. The dashboard's dispatch gate already asks
+        // this via the tile's entity; asking again here keeps the answer the
+        // same when the view is reached by URL.
+        $can_enter = ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
+            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) )
+            && \TT\Modules\Prospects\ScoutingVisitsAccess::allows( $user_id, $is_admin );
         if ( ! $can_enter && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'Scouting visits', 'talenttrack' ) );

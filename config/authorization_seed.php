@@ -607,6 +607,12 @@ return array_merge(
         // hasn't customised them.
         'prospects'                  => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'             => [ 'r',   'global', $mod_prospects ],
+        // #2007 — tile-visibility entity for Scouting visits (the #0079
+        // pattern). Outbound visits are the scout's own workflow; the
+        // tile hangs off this rather than off `prospects`, so a head
+        // coach can keep their funnel without also being handed the
+        // scout's visit planner.
+        'scouting_visits_panel'      => [ 'r',   'global', $mod_prospects ],
         // #0085 — scouts write notes about players they observe across
         // the academy (cross-team scouting workflow), so RC[global].
         'player_notes'               => [ 'rc',  'global', $mod_threads ],
@@ -728,6 +734,9 @@ return array_merge(
         // globally; lifecycle is workflow-task-driven, not status-on-row.
         'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
+        // #2007 — see the scout block. HoD oversees the funnel end to
+        // end, so they keep the visits tile.
+        'scouting_visits_panel'         => [ 'r',   'global', $mod_prospects ],
         // sensitive player data
         'player_status'                 => [ 'r',   'global', $mod_players ],
         'player_status_breakdown'       => [ 'r',   'global', $mod_players ],
@@ -949,6 +958,8 @@ return array_merge(
         // #0081 — Onboarding pipeline. Admin RCD global; same as HoD.
         'prospects'                     => [ 'rcd', 'global', $mod_prospects ],
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
+        // #2007 — see the scout block. Admin parity with HoD.
+        'scouting_visits_panel'         => [ 'r',   'global', $mod_prospects ],
         // #0085 — Admin reads + writes + deletes notes across the academy.
         'player_notes'                  => [ 'rcd', 'global', $mod_threads ],
         // #0095 — VCT module. Admin parity with HoD on VCT surfaces:

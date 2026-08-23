@@ -54628,6 +54628,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Scouting visits (tile)"
+msgstr "Scoutbezoeken (tegel)"
+
 #~ msgid "Open staff share link"
 #~ msgstr "Stafdeellink openen"
 

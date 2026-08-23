@@ -869,14 +869,21 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PROSPECTS,
             'view_slug'    => 'scouting-visits',
-            // v4.20.2 (#1143) — was 'scouting_visits' (phantom entity with no
-            // matrix seed for any persona, so the DashboardShortcode's
-            // matrix-dispatch gate denied every non-admin user before the
-            // view's own gate could pass). Aligned to 'prospects' to match
-            // the tile's declared cap (tt_view_prospects) and the view's
-            // own gate. Scouting visits authorization rides on prospects
-            // across every layer.
-            'entity'       => 'prospects',
+            // v4.20.2 (#1143) — was 'scouting_visits', a phantom entity with
+            // no matrix seed for any persona, so the dispatch gate denied
+            // every non-admin user before the view's own gate could pass.
+            // Aligning it to 'prospects' fixed that, and coupled this tile to
+            // the funnel: the two became inseparable at the matrix layer.
+            //
+            // #2007 — that coupling was the bug. A head coach reads prospects
+            // at team scope on purpose (#0081: their own age group's funnel),
+            // and was therefore handed the scout's outbound visit planner too.
+            // Removing the prospects grant would have taken the funnel with
+            // it, so the tile hangs off its own visibility entity instead —
+            // the #0079 pattern, seeded for scout / HoD / admin and not for
+            // head_coach. The VIEW still gates on prospects, because that is
+            // the data it reads; this entity only decides who is offered it.
+            'entity'       => 'scouting_visits_panel',
             'group'        => $trials_group,
             'kind'         => 'work',
             'order'        => 6,
