@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Exercises\ExercisesModule;
 use TT\Modules\Exercises\Vision\ExerciseFuzzyMatcher;
+use TT\Modules\Exercises\Vision\VisionDataRegion;
 
 /**
  * VisionExtractRestController (#0016 Sprint 3-6) — orchestrates the
@@ -75,6 +76,26 @@ final class VisionExtractRestController {
     }
 
     public static function extract( \WP_REST_Request $r ): \WP_REST_Response {
+        // #2695 — the destination check comes FIRST, before we even
+        // look for an image. It is a property of the install, not of
+        // the request: answering "no image" to a site that could not
+        // have sent one anyway points the operator at something they
+        // cannot fix by attaching a photo. Folding it into the generic
+        // "could not read this photo" below would be worse still — it
+        // would report a model failure when nothing was ever sent.
+        if ( ! VisionDataRegion::isDeclared() ) {
+            Logger::error( 'rest.vision_extract.undeclared_region', [
+                'endpoint_set' => VisionDataRegion::endpoint() !== null,
+                'region_set'   => VisionDataRegion::region() !== null,
+            ] );
+
+            return RestResponse::error(
+                'destination_not_declared',
+                __( 'Photo capture is switched on but this site has not said where the photographs would be sent, so nothing was sent. An administrator needs to set TT_VISION_ENDPOINT and TT_VISION_DATA_REGION before this can be used.', 'talenttrack' ),
+                503
+            );
+        }
+
         $bytes = self::extractImageBytes( $r );
         if ( $bytes === null ) {
             return RestResponse::error(

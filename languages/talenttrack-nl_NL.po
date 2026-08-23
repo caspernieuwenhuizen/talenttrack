@@ -52778,6 +52778,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Photo capture is switched on but this site has not said where the photographs would be sent, so nothing was sent. An administrator needs to set TT_VISION_ENDPOINT and TT_VISION_DATA_REGION before this can be used."
+msgstr "Fotovastlegging staat aan, maar deze site heeft niet vastgelegd waar de foto's naartoe zouden gaan, dus er is niets verstuurd. Een beheerder moet eerst TT_VISION_ENDPOINT en TT_VISION_DATA_REGION instellen."
+
+msgid "Claude Sonnet"
+msgstr "Claude Sonnet"
+
 #~ msgid "Ball"
 #~ msgstr "Bal"
 
