@@ -25,6 +25,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                     polymorphic owned children (e.g. goal_links rows
  *                     whose link_type='evaluation'); not discoverable by
  *                     the ref_columns scan, so declared explicitly.
+ *   'cascade_poly_via' => [[bare_table, type_col, id_col, type_value,
+ *                     owner_table, owner_pk, owner_fk,
+ *                     parent_table, parent_pk, parent_ref], ...]
+ *                     polymorphic children whose id points at an owned
+ *                     GRANDchild rather than at this entity — a journey
+ *                     event keyed on an observation's id, say. Reached by
+ *                     joining event → owner → parent → this entity, and
+ *                     removed before the owner is, since the join needs it
+ *                     (#2723). `cascade_poly` cannot express this: it can
+ *                     only match the entity's own id.
  *   'threads'      => thread_type value whose tt_thread_messages /
  *                     tt_thread_reads rows are owned by this entity, or null.
  *   'set_null'     => [[bare_table, column], ...] references cleared (not
@@ -289,6 +299,11 @@ final class CascadeRegistry {
                 [ 'tt_match_prep_player_goals', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_match_prep_roles', 'match_prep_id', 'tt_match_prep', 'id', 'activity_id' ],
                 [ 'tt_training_plan_run_blocks', 'run_id', 'tt_training_plan_runs', 'id', 'activity_id' ],
+                // #2723 — an observation is about a player at one training.
+                // It hangs off the run, so deleting the activity left it
+                // behind: unreachable, and still rendering on the player's
+                // timeline via its journey event.
+                [ 'tt_training_observations', 'run_id', 'tt_training_plan_runs', 'id', 'activity_id' ],
                 // #2704 — the analysis's sections and player items hang
                 // off the analysis by `analysis_id`, so they are removed
                 // ahead of it exactly like the match-prep children above.
@@ -311,6 +326,28 @@ final class CascadeRegistry {
                 [ 'tt_training_plan_runs', 'activity_id' ],
             ],
             'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'activity' ] ],
+            // #2723 — journey events whose `source_entity_id` is an
+            // observation's id, not the activity's. `cascade_poly` can only
+            // match on the activity's own id, so both of these outlived the
+            // rows they describe: a coach's words about a named child, still
+            // on that child's timeline, pointing at a match or training that
+            // no longer exists.
+            //
+            // Shape: [ table, type_col, id_col, type_val,
+            //          owner_table, owner_pk, owner_fk,
+            //          parent_table, parent_pk, parent_ref ]
+            'cascade_poly_via' => [
+                [
+                    'tt_player_events', 'source_entity_type', 'source_entity_id', 'match_analysis_player',
+                    'tt_match_analysis_players', 'id', 'analysis_id',
+                    'tt_match_analyses', 'id', 'activity_id',
+                ],
+                [
+                    'tt_player_events', 'source_entity_type', 'source_entity_id', 'training_observation',
+                    'tt_training_observations', 'id', 'run_id',
+                    'tt_training_plan_runs', 'id', 'activity_id',
+                ],
+            ],
             'threads'      => null,
             'set_null'     => [
                 [ 'tt_evaluations', 'activity_id' ],

@@ -41,6 +41,7 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Past activity still planned** | The activity's date has passed but nobody marked it completed or cancelled. Until they do, its attendance and minutes are missing from every report. |
 | **Attendance not recorded** | The activity is marked completed but nobody recorded who was there. It looks finished everywhere except in the reports. |
 | **Upcoming activity has no coach** | An activity in the next week has nobody assigned to run it. Unstaffed activities tend to get cancelled late, which costs every player in the squad a training slot. |
+| **Match played, no analysis** | A match was played between two days and two weeks ago and nobody has written it up. It appears on the bell only, never as a banner, and it stops after a fortnight — by then the detail is gone and the reminder is only guilt. Tournaments are left out (they cannot carry an analysis yet), as are matches with no attendance recorded at all, which are already covered by the attendance alert. |
 
 ### Evaluations
 

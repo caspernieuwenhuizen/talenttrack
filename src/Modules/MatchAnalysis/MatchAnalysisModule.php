@@ -53,6 +53,25 @@ class MatchAnalysisModule implements ModuleInterface {
         // the page renders — the view itself runs inside the_content,
         // long after wp_head has closed.
         add_action( 'template_redirect', [ __CLASS__, 'guardShareRequestIndexing' ], 5 );
+
+        // #2724 — "match played, no analysis". Registered here rather than
+        // in the Alerts module so an academy that switches match analysis
+        // off stops being asked for analyses by construction, with no
+        // second toggle to keep in step.
+        add_filter( 'tt_register_alerts', [ __CLASS__, 'registerAlerts' ] );
+    }
+
+    /**
+     * @param list<mixed> $alerts
+     * @return list<mixed>
+     */
+    public static function registerAlerts( array $alerts ): array {
+        if ( ! class_exists( \TT\Modules\Alerts\Definitions\AbstractActivityAlert::class ) ) {
+            return $alerts;
+        }
+
+        $alerts[] = new \TT\Modules\MatchAnalysis\Alerts\MatchAnalysisMissingAlert();
+        return $alerts;
     }
 
     public static function guardShareRequestIndexing(): void {

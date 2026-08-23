@@ -23592,6 +23592,21 @@ msgstr "Wedstrijdanalyse"
 msgid "Match analysis is switched off for this academy."
 msgstr "Wedstrijdanalyse staat uit voor deze academie."
 
+msgid "Match played, no analysis"
+msgstr "Wedstrijd gespeeld, geen analyse"
+
+msgid "A match was played in the last two weeks and has no analysis written. The review is worth most while the game is still fresh."
+msgstr "Er is de afgelopen twee weken een wedstrijd gespeeld waar nog geen analyse van geschreven is. De nabespreking is het meest waard zolang de wedstrijd nog vers is."
+
+msgid "Untitled match"
+msgstr "Naamloze wedstrijd"
+
+#, php-format
+msgid "%1$s was played %2$d day ago and has no analysis yet."
+msgid_plural "%1$s was played %2$d days ago and has no analysis yet."
+msgstr[0] "%1$s is %2$d dag geleden gespeeld en heeft nog geen analyse."
+msgstr[1] "%1$s is %2$d dagen geleden gespeeld en heeft nog geen analyse."
+
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
 msgid "Match analysis is restricted to coaches and admins."
 msgstr "Wedstrijdanalyse is alleen voor trainers en beheerders."
