@@ -35,6 +35,9 @@ locked and the Edit button disappears. (The server enforces the same lock,
 so a finalized match refuses score, goal, and substitution changes
 regardless of the screen.)
 
+The post-match screen also offers **Write the match analysis** — the moment
+the match ends is the moment you still remember it. See *Match analysis*.
+
 ### Re-opening a finalized match
 
 Finalizing is a deliberate lock, but never a dead-end. A finalized match

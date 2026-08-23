@@ -154,5 +154,9 @@ anyone who prefers to drive the export from there.
   active on match day itself — before then it's shown but disabled, with
   a tooltip naming the date it unlocks ("Available on match day (14
   Jun)"). This keeps a match from being started early by accident.
-- Capture analyst feedback — the camera flag only marks who's been
-  appointed; capturing their feedback is a separate workflow.
+- Review the match afterwards — that's **Match analysis**, which opens from
+  the same activity once the match has been played. It shows what you
+  planned here next to each phase, and lists the players you flagged with
+  their attention note, so the review answers what you asked for. The camera
+  flag still only marks who was appointed an analyst; what the analyst saw
+  goes in the analysis.

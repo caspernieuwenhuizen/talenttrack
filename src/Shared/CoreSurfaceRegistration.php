@@ -105,6 +105,20 @@ final class CoreSurfaceRegistration {
         // team-planner view guard: tt_view_plan.
         $reg::register( 'team-planner', 'tt_view_plan' );
 
+        // #2704 — the match analysis. Mirrors the view's own guard on both
+        // counts: the module has to be on, and the cap that lets someone
+        // plan and run a match is the cap that lets them write it up. An
+        // academy that switched the module off should not be shown an
+        // affordance pointing at a surface that will refuse it.
+        $reg::register( 'match-analysis', static function ( int $uid ): bool {
+            if ( ! class_exists( '\\TT\\Core\\ModuleRegistry' ) ) return false;
+            if ( ! \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\MatchAnalysis\MatchAnalysisModule::class ) ) {
+                return false;
+            }
+
+            return user_can( $uid, 'tt_edit_activities' );
+        } );
+
         // methodology view guard: tt_view_methodology.
         $reg::register( 'methodology', 'tt_view_methodology' );
 

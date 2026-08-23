@@ -130,6 +130,13 @@ return [
     // introduced in v3.110.216 (migration 0120). Hard-depends on
     // MatchPrep — refuses to launch without a prep row.
     TT\Modules\MatchExecution\MatchExecutionModule::class        => true,
+    // #2704 — Match analysis. The third side of a match: what the coach
+    // made of it. Structured per methodology team function, with a
+    // per-player half that lands on each player's timeline. Depends on
+    // neither match prep nor match execution — it pre-fills from both when
+    // they exist and works without either. Switchable: an academy that
+    // reviews its matches on a whiteboard turns this off.
+    TT\Modules\MatchAnalysis\MatchAnalysisModule::class           => true,
     // #0095 / epic #905 — VCT (Voetbal Conditionele Training) module.
     // U10-U14 age-aware conditioning-training planner. Phase 1 foundation
     // ships across v4.3.0 (schema) → v4.3.5: caps, lookups, seeds, rules

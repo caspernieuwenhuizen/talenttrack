@@ -1,0 +1,406 @@
+/*
+ * frontend-match-analysis.css — the post-match review surface (#2704).
+ *
+ * Authoring rule (CLAUDE.md §2): mobile-first. Base is the 360px viewport,
+ * everything scales up via `min-width`. No `max-width` queries, no fixed
+ * container widths, tokens only — never raw hex.
+ *
+ * Class contract — owned by FrontendMatchAnalysisView and
+ * MatchAnalysisPrintableRenderer:
+ *
+ *   .tt-ma                     — surface wrapper
+ *   .tt-ma--shared             — the staff share-link page variant
+ *   .tt-ma--gone               — the revoked/invalid share link page
+ *   .tt-ma__head/__title/__meta/__hint
+ *   .tt-ma__share-note         — "this is a staff document" banner
+ *   .tt-ma__section            — one section card (Overall, a team function, Players)
+ *   .tt-ma__section-title
+ *   .tt-ma__planned            — the read-only "Planned …" line from match prep
+ *   .tt-ma__ratings            — the rating radio group
+ *   .tt-ma__rating-input/.tt-ma__rating  — one rating chip (input is visually hidden)
+ *   .tt-ma__bullets/.tt-ma__bullet       — the four short-point inputs
+ *   .tt-ma__players/.tt-ma__player       — the roster panel
+ *   .tt-ma__markers/.tt-ma__marker-input/.tt-ma__marker — per-player marker chips
+ *   .tt-ma__player-note/.tt-ma__player-tag
+ *   .tt-ma__actions/.tt-ma__outputs      — save row / print + share row
+ *   .tt-ma__read-*             — read-only rendering (share page, viewers)
+ *
+ * Touch rules: every chip, input and button is ≥48px high with ≥8px
+ * between adjacent targets. The chips are label-for-radio pairs so they
+ * work with keyboard and screen readers without any JS.
+ */
+
+.tt-dashboard .tt-ma {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+    max-width: 100%;
+}
+
+/* ---- Header ------------------------------------------------- */
+
+.tt-ma__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+}
+
+.tt-ma__title {
+    margin: 0;
+    font-size: var(--tt-fs-h2);
+    line-height: 1.25;
+    color: var(--tt-ink);
+}
+
+.tt-ma__meta {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-ma__hint {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-ma__share-note {
+    margin: 0;
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-left: 4px solid var(--tt-warning);
+    border-radius: var(--tt-radius);
+    background: var(--tt-warning-subtle);
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-sm);
+}
+
+/* ---- Sections ----------------------------------------------- */
+
+.tt-ma__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+}
+
+.tt-ma__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper);
+}
+
+.tt-ma__section-title {
+    margin: 0;
+    font-size: var(--tt-fs-lg);
+    line-height: 1.3;
+    color: var(--tt-ink);
+}
+
+.tt-ma__label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-ma__planned {
+    margin: 0;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-ma__planned-label {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+/* 16px minimum so iOS does not zoom the page on focus. */
+.tt-dashboard .tt-ma__summary,
+.tt-dashboard .tt-ma__bullet,
+.tt-dashboard .tt-ma__player-note,
+.tt-dashboard .tt-ma__player-tag {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-ma__summary {
+    min-height: 96px;
+    line-height: var(--tt-lh-body);
+}
+
+/* ---- Rating + marker chips ---------------------------------- */
+
+.tt-ma__ratings,
+.tt-ma__markers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-ma__rating-input,
+.tt-ma__marker-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.tt-ma__rating,
+.tt-ma__marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    background: var(--tt-paper);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: 1.2;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background var(--tt-motion-duration) var(--tt-motion-easing),
+                border-color var(--tt-motion-duration) var(--tt-motion-easing);
+}
+
+.tt-ma__rating:active,
+.tt-ma__marker:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-ma__rating-input:focus-visible + .tt-ma__rating,
+.tt-ma__marker-input:focus-visible + .tt-ma__marker {
+    outline: 2px solid var(--tt-info);
+    outline-offset: 2px;
+}
+
+.tt-ma__rating-input:checked + .tt-ma__rating,
+.tt-ma__marker-input:checked + .tt-ma__marker {
+    border-color: currentColor;
+    font-weight: 600;
+}
+
+/* The three ratings read left-to-right as good → mixed → poor, and the
+ * markers the same way, so colour reinforces an order the words already
+ * carry rather than being the only signal. */
+.tt-ma__rating-input:checked + .tt-ma__rating[data-rating="went_well"],
+.tt-ma__marker-input:checked + .tt-ma__marker[data-marker="stood_out"] {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+
+.tt-ma__rating-input:checked + .tt-ma__rating[data-rating="mixed"],
+.tt-ma__marker-input:checked + .tt-ma__marker[data-marker="as_expected"] {
+    background: var(--tt-info-subtle);
+    color: var(--tt-info);
+}
+
+.tt-ma__rating-input:checked + .tt-ma__rating[data-rating="needs_work"],
+.tt-ma__marker-input:checked + .tt-ma__marker[data-marker="below_par"] {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+}
+
+.tt-ma__rating-input:checked + .tt-ma__rating[data-rating=""],
+.tt-ma__marker-input:checked + .tt-ma__marker[data-marker=""] {
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+}
+
+/* ---- Bullets ------------------------------------------------ */
+
+.tt-ma__bullets {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ---- Players ------------------------------------------------ */
+
+.tt-ma__players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-ma__player {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+}
+
+.tt-ma__player-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+}
+
+.tt-ma__player-name {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+.tt-ma__player-min {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-ma__player-plan {
+    margin: 0;
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+/* ---- Actions ------------------------------------------------ */
+
+.tt-ma__actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.tt-ma__outputs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-ma__outputs .tt-btn {
+    min-height: 48px;
+}
+
+/* ---- Read-only ---------------------------------------------- */
+
+.tt-ma__read-summary {
+    margin: 0;
+    color: var(--tt-ink);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-ma__read-bullets {
+    margin: 0;
+    padding-left: var(--tt-sp-5);
+    color: var(--tt-ink);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-ma__read-players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-ma__read-note {
+    margin: var(--tt-sp-1) 0 0;
+    color: var(--tt-ink);
+    line-height: var(--tt-lh-body);
+}
+
+.tt-ma__rating-pill,
+.tt-ma__marker-pill {
+    display: inline-block;
+    padding: 2px var(--tt-sp-2);
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.tt-ma__rating-pill[data-rating="went_well"],
+.tt-ma__marker-pill[data-marker="stood_out"] {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+
+.tt-ma__rating-pill[data-rating="mixed"],
+.tt-ma__marker-pill[data-marker="as_expected"] {
+    background: var(--tt-info-subtle);
+    color: var(--tt-info);
+}
+
+.tt-ma__rating-pill[data-rating="needs_work"],
+.tt-ma__marker-pill[data-marker="below_par"] {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+}
+
+/* ---- Tablet and up ------------------------------------------ */
+
+@media (min-width: 768px) {
+    /* The four bullets pair up two-by-two: at this width a single column
+     * of short inputs wastes most of the line. */
+    .tt-ma__bullets {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--tt-sp-2);
+    }
+
+    .tt-ma__player {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        grid-template-areas:
+            "head    markers"
+            "plan    note"
+            "plan    tag";
+        align-items: center;
+        column-gap: var(--tt-sp-3);
+    }
+
+    .tt-ma__player-head { grid-area: head; }
+    .tt-ma__player-plan { grid-area: plan; }
+    .tt-ma__markers     { grid-area: markers; }
+    .tt-ma__player-note { grid-area: note; }
+    .tt-ma__player-tag  { grid-area: tag; }
+
+    .tt-ma__actions {
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+}
+
+@media (min-width: 1024px) {
+    /* Set the reading measure on desktop — the sections are prose, and a
+     * 1400px-wide line of bullet text is unreadable. */
+    .tt-dashboard .tt-ma {
+        max-width: 68rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-ma__rating,
+    .tt-ma__marker {
+        transition: none;
+    }
+}

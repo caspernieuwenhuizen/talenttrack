@@ -57,6 +57,16 @@ The wizard then opens the existing evaluation form pre-filled with those choices
 
 The wizard creates the goal directly. If you picked a methodology link in step 2, a `tt_goal_links` row is added too.
 
+### Match analysis
+
+1. **The match** — the fixture and score, read-only, plus your overall read in a few sentences.
+2. **Team functions** — the four methodology phases, each with a rating and up to four short points.
+3. **Set pieces** — the same, for ours and theirs.
+4. **Players** — everyone who played, each optionally getting a marker and one specific line.
+5. **Review** — read it back, then save.
+
+Only the first draft goes through the wizard. Re-opening an analysis you already wrote takes you straight to the page, because changing one line should not mean walking five steps. Every step is skippable — an unrated phase and an unmentioned player are valid answers, not gaps.
+
 ## Toggling wizards on or off
 
 Site admins go to **Administration → Wizards**. Each registered wizard is shown as a tickbox card with its label and slug; the **Enable all wizards** master toggle at the top ticks or unticks the lot. Save the changes with the button at the bottom — there's nothing to type.

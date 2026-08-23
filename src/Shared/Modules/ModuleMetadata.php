@@ -297,6 +297,12 @@ class ModuleMetadata {
                 'icon'        => 'track',
                 'category'    => self::CAT_PLANNING,
             ],
+            'TT\\Modules\\MatchAnalysis\\MatchAnalysisModule' => [
+                'label'       => __( 'Match analysis', 'talenttrack' ),
+                'description' => __( 'Post-match review per team function, plus who stood out and who fell short — on each player\'s timeline.', 'talenttrack' ),
+                'icon'        => 'note',
+                'category'    => self::CAT_PLANNING,
+            ],
 
             // — Communication —
             'TT\\Modules\\Threads\\ThreadsModule' => [

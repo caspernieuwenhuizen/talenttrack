@@ -41,6 +41,10 @@ verdwijnt. (De server dwingt dezelfde vergrendeling af, dus een afgesloten
 wedstrijd weigert wijzigingen aan stand, doelpunten en wissels, ongeacht
 het scherm.)
 
+Op het scherm na de wedstrijd staat ook **Wedstrijdanalyse schrijven** — het
+moment waarop de wedstrijd eindigt is het moment waarop je hem nog scherp
+voor ogen hebt. Zie *Wedstrijdanalyse*.
+
 ### Een afgesloten wedstrijd heropenen
 
 Afsluiten is een bewuste vergrendeling, maar nooit een doodlopende weg. Een

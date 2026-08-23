@@ -395,6 +395,32 @@ class FeatureRegistry {
             // `export_<exporterKey>` gate matches the exporter key
             // `match_prep_pdf`. The print router is guarded in tandem so
             // the toggle isn't bypassed by the client-side print path.
+            // #2709 (epic #2704) — the staff share link for a match
+            // analysis. Gated separately from the module because the
+            // document and the link are different decisions: an academy
+            // may well want the review surface without URLs that name
+            // minors travelling outside the app. The dispatcher refuses
+            // the slug when off, and the view re-checks so a direct call
+            // cannot bypass it.
+            'match_analysis_sharing' => [
+                'label'           => __( 'Match analysis share links', 'talenttrack' ),
+                'description'     => __( 'Signed staff-only links to a match analysis. Writing and printing the analysis stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchAnalysis\\MatchAnalysisModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'match-analysis-share' ],
+                'entities'        => [],
+            ],
+            // #2709 — keyed `export_match_analysis_pdf` to match the
+            // `export_<key>` gate convention. The print router checks it
+            // in tandem so the toggle isn't bypassed by the print URL.
+            'export_match_analysis_pdf' => [
+                'label'           => __( 'Match analysis PDF export', 'talenttrack' ),
+                'description'     => __( 'Allow a match analysis to be printed or saved as an A4 PDF. The analysis screen stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\MatchAnalysis\\MatchAnalysisModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
             'export_match_prep_pdf' => [
                 'label'           => __( 'Match prep PDF export', 'talenttrack' ),
                 'description'     => __( 'Allow the A4 match-preparation sheet to be exported/printed as a PDF. The match-prep screen stays available when this is off.', 'talenttrack' ),
