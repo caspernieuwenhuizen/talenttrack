@@ -61,21 +61,27 @@ final class MediaGallery {
 
         self::enqueue();
 
+        $tag_players = (array) ( $args['tag_players'] ?? [] );
+
+        // The wrapper, the grid and the lightbox are emitted even when there
+        // is nothing to show. #2742 — an upload inserts its tile into this
+        // grid without a reload, and the empty gallery used to render no
+        // gallery at all, so there was nowhere to put it. An empty
+        // `.tt-media-grid` is display:grid with no children and paints
+        // nothing, so this costs the reader no whitespace.
+        echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
+
         if ( $items === [] ) {
+            echo '<div data-role="empty">';
             EmptyStateCard::render( array_filter( [
                 'headline'  => (string) ( $args['empty_headline'] ?? __( 'No photos or video yet', 'talenttrack' ) ),
                 'explainer' => (string) ( $args['empty_explainer'] ?? '' ),
                 'cta_label' => $can_edit ? __( 'Add media', 'talenttrack' ) : null,
                 'cta_url'   => $can_edit ? self::addUrl( $entity_type, $entity_id ) : null,
             ] ) );
-
-            if ( $can_edit ) self::renderInlineUploader( $entity_type, $entity_id );
-            return;
+            echo '</div>';
         }
 
-        $tag_players = (array) ( $args['tag_players'] ?? [] );
-
-        echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
         echo '<ul class="tt-media-grid" data-role="grid">';
 
         foreach ( $items as $item ) {
@@ -88,6 +94,24 @@ final class MediaGallery {
         self::renderLightbox();
 
         if ( $can_edit ) self::renderInlineUploader( $entity_type, $entity_id );
+    }
+
+    /**
+     * One tile as markup, for the REST layer to hand back after an upload.
+     *
+     * The alternative was building the tile in JavaScript from the JSON
+     * payload, which would mean two implementations of the same markup —
+     * and the JS one would have re-created #2715, because the payload's
+     * `_links` deliberately carry no nonce and an `<img src>` needs one.
+     * Rendering here keeps a single source and gets the tag control, the
+     * video badge and the external-link shape for free.
+     *
+     * @param array<int, string> $tag_players
+     */
+    public static function tileHtml( object $item, bool $can_edit, array $tag_players = [] ): string {
+        ob_start();
+        self::renderTile( $item, $can_edit, $tag_players );
+        return (string) ob_get_clean();
     }
 
     // Internals

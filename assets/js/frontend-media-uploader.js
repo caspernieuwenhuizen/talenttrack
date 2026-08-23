@@ -288,9 +288,16 @@
 		this.added.push( media.uuid );
 		this.sync();
 
+		// The target rides along because the uploader is a *sibling* of the
+		// gallery, not a child of it — the event bubbles past the grid, so
+		// the listener matches on these rather than on containment (#2742).
 		this.root.dispatchEvent( new CustomEvent( 'tt-media:added', {
 			bubbles: true,
-			detail: { media: media }
+			detail: {
+				media: media,
+				entityType: this.entityType,
+				entityId: this.entityId
+			}
 		} ) );
 	};
 

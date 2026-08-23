@@ -262,6 +262,49 @@
 		}
 	};
 
+	/**
+	 * Show an upload the moment it lands, instead of after a reload (#2742).
+	 *
+	 * The markup comes from the server as `tile_html`. Building it here from
+	 * the JSON payload was the obvious alternative and is a trap: the
+	 * payload's `_links` deliberately carry no nonce, so an `<img src>` set
+	 * from one is answered 401 — the very bug #2715 fixed.
+	 *
+	 * Listening on `document` rather than on the gallery: the uploader is
+	 * rendered as a sibling of `.tt-media-gallery`, so the event bubbles
+	 * past the grid and never reaches it. The target is matched from the
+	 * event instead.
+	 */
+	function insertAdded( e ) {
+		var detail = e.detail || {};
+		var media = detail.media;
+
+		if ( ! media || ! media.tile_html ) return;
+
+		// Both values are server-rendered data attributes, but they are
+		// going into a selector — keep them to the shapes we expect.
+		var type = String( detail.entityType || '' );
+		var id = parseInt( detail.entityId, 10 );
+
+		if ( ! /^[a-z_]+$/.test( type ) || ! ( id > 0 ) ) return;
+
+		var gallery = document.querySelector(
+			'.tt-media-gallery[data-entity-type="' + type + '"][data-entity-id="' + id + '"]'
+		);
+		if ( ! gallery ) return;
+
+		var grid = gallery.querySelector( '[data-role="grid"]' );
+		if ( ! grid ) return;
+
+		// Newest first, matching the server's ordering.
+		grid.insertAdjacentHTML( 'afterbegin', media.tile_html );
+
+		var empty = gallery.querySelector( '[data-role="empty"]' );
+		if ( empty ) empty.remove();
+	}
+
+	document.addEventListener( 'tt-media:added', insertAdded );
+
 	function init( scope ) {
 		var nodes = ( scope || document ).querySelectorAll( '.tt-media-gallery' );
 		Array.prototype.forEach.call( nodes, function ( node ) {

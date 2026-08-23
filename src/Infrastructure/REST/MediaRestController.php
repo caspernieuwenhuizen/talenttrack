@@ -10,6 +10,8 @@ use TT\Modules\Media\Links\VideoLinkResolver;
 use TT\Modules\Media\MediaAttachmentPolicy;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
+use TT\Modules\Media\MediaTagRoster;
+use TT\Shared\Frontend\Components\MediaGallery;
 use TT\Modules\Media\Storage\MediaStorage;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
@@ -308,7 +310,45 @@ final class MediaRestController {
             (bool) $request->get_param( 'is_primary' )
         );
 
-        return RestResponse::success( self::shape( $repo->find( $media_id ), true ), 201 );
+        $created = $repo->find( $media_id );
+
+        return RestResponse::success(
+            self::withTile( self::shape( $created, true ), $created, $entity_type, $entity_id ),
+            201
+        );
+    }
+
+    /**
+     * Attach the rendered gallery tile to a create response.
+     *
+     * #2742 — the uploader announced a new item and the grid ignored it, so
+     * nothing appeared until the page was reloaded. The tile is rendered
+     * here rather than assembled in JavaScript: the payload's `_links`
+     * carry no nonce by design, so a client-built `<img src>` would be
+     * answered 401 and re-create #2715 through a different door.
+     *
+     * Rendering is best-effort. A tile that cannot be produced must never
+     * turn a successful upload into a failed one — the file is already
+     * stored and linked by this point.
+     *
+     * @param array<string, mixed> $shaped
+     * @return array<string, mixed>
+     */
+    private static function withTile( array $shaped, ?object $media, string $entity_type, int $entity_id ): array {
+        if ( ! $media ) return $shaped;
+
+        try {
+            $shaped['tile_html'] = MediaGallery::tileHtml(
+                $media,
+                self::canEdit(),
+                MediaTagRoster::for( $entity_type, $entity_id )
+            );
+        } catch ( \Throwable $e ) {
+            // The client falls back to its own minimal row.
+            $shaped['tile_html'] = '';
+        }
+
+        return $shaped;
     }
 
     public static function update_media( \WP_REST_Request $request ): \WP_REST_Response {

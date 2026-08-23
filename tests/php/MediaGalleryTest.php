@@ -163,6 +163,50 @@ final class MediaGalleryTest extends WP_UnitTestCase {
     // ── helpers ────────────────────────────────────────────────────────
 
     /**
+     * #2742 — an upload used to be invisible until the page was reloaded,
+     * partly because an empty gallery rendered no gallery at all: there was
+     * no grid for the new tile to go into.
+     */
+    public function test_an_empty_gallery_still_has_a_grid_to_insert_into(): void {
+        $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+
+        $team  = 9801;
+        $coach = $this->makeCoachScopedToTeam( $team );
+        wp_set_current_user( $coach );
+
+        $html = $this->renderFor( MediaEntityType::PLAYER, $this->makePlayer( $team ), 'Nothing here', '', true );
+
+        $this->assertStringContainsString( 'Nothing here', $html, 'the empty state still explains itself' );
+        $this->assertStringContainsString( 'class="tt-media-gallery"', $html );
+        $this->assertStringContainsString( 'data-role="grid"', $html );
+        $this->assertStringContainsString( 'data-role="empty"', $html, 'JS needs a handle to remove it' );
+        $this->assertStringContainsString( 'data-role="lightbox"', $html, 'the first upload must be openable' );
+    }
+
+    /**
+     * #2742 — the tile is rendered server-side and handed back with the
+     * upload. Building it in JS from the payload would have re-created
+     * #2715, because `_links` carry no nonce.
+     */
+    public function test_a_tile_can_be_rendered_on_its_own_for_the_rest_layer(): void {
+        $media = $this->makeMedia( 'Fresh upload', MediaKind::IMAGE );
+
+        $html = MediaGallery::tileHtml( $media, true );
+
+        $this->assertStringContainsString( 'tt-media-tile', $html );
+        $this->assertStringContainsString( 'Fresh upload', $html );
+        $this->assertStringContainsString( 'data-role="open"', $html, 'must open in the lightbox like any other tile' );
+        $this->assertStringContainsString( 'data-role="delete"', $html, 'can_edit means a remove control' );
+        $this->assertStringContainsString( '_wpnonce=', $this->decoded( $html ), 'or the browser gets a 401' );
+    }
+
+    public function test_a_rendered_tile_omits_the_remove_control_for_a_reader(): void {
+        $html = MediaGallery::tileHtml( $this->makeMedia( 'Read only', MediaKind::IMAGE ), false );
+
+        $this->assertStringNotContainsString( 'data-role="delete"', $html );
+    }
+
+    /**
      * #2715 — the tile's <img> is the thing that was broken in the wild.
      * Assert the rendered markup, not just the URL builder, because the
      * builder was right and the view was bypassing it.
