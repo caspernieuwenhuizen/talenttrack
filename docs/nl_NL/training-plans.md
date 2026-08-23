@@ -333,9 +333,47 @@ Direct als je een training afrondt, voor de spelers die erbij waren. En elke
 nacht volledig, wat een later aangepast plan opvangt, een oefening die een
 ander principe kreeg, of aanwezigheid die de volgende ochtend is gecorrigeerd.
 
+## Een uitgeschreven plan fotograferen
+
+Staat dit aan bij jouw academie, dan maakt **Vanaf een foto** op de pagina met
+trainingsplannen van een uitgeschreven blad een concept. Fotografeer het blad,
+controleer wat er gelezen is, en druk op **Concept aanmaken**. Er wordt niets
+opgeslagen tot je dat doet — sluit je de pagina tijdens het controleren, dan is
+er geen plan en staat er nergens een foto.
+
+Het controleren is waar dit scherm om draait, dus je ziet per regel hoe zeker
+het is:
+
+| | Wat het betekent |
+| --- | --- |
+| Groen | Met vertrouwen gekoppeld aan een oefening uit je bibliotheek. |
+| Oranje | Lijkt op meer dan één oefening. Even naar kijken. |
+| Rood | Helemaal niet herkend. |
+
+Een niet-herkende regel blijft als los blok staan als je niets doet — en **dan
+telt hij niet mee voor wat je spelers geleerd hebben**, want die telling wordt
+opgebouwd uit gekoppelde oefeningen. Koppelen, of toevoegen aan de bibliotheek,
+is wat de minuten op het spelersdossier laat landen.
+
+Je kunt elke naam en duur aanpassen voordat je het concept aanmaakt, en een
+regel weghalen die er eigenlijk niet stond.
+
+### Waar de foto naartoe gaat
+
+Dat staat op het scherm, naast de sluiterknop, vóórdat je hem maakt. De beheerder
+van jouw academie bepaalt waar foto's naartoe gaan om gelezen te worden, en die
+keuze wordt vastgelegd in de installatie in plaats van aangenomen — zolang die
+keuze niet gemaakt is, gaat dit scherm niet open en zegt het dat ook. Namen van
+spelers worden niet overgenomen in notities.
+
+Heb je geen bereik, dan wordt er niets verstuurd en zegt het scherm dat. Probeer
+het opnieuw zodra je weer bereik hebt.
+
 ## Wat er nog niet is
 
 Wat nog volgt:
 
-- de tekentool voor oefeningsdiagrammen
-- een foto van een whiteboardplan laten uitlezen
+- een foto op de telefoon bewaren terwijl je buiten bereik bent, zodat hij
+  zichzelf laat lezen zodra je terug bent — nu maak je hem opnieuw
+- een whiteboard fotograferen in plaats van een blad papier, wat een ander
+  soort uitlezen vraagt

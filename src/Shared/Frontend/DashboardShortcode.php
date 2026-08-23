@@ -1284,6 +1284,14 @@ class DashboardShortcode {
             case 'training-run':
                 \TT\Modules\Training\Frontend\FrontendTrainingRunView::render( $user_id, $is_admin );
                 return true;
+            // #2502 — photograph a hand-written plan and get a draft back.
+            // Gated inside the view on `tt_training_plan`, then on the
+            // `exercises_vision_extraction` feature, then on whether this
+            // install has declared where photographs go: a coach is told
+            // before framing a picture rather than after taking one.
+            case 'training-photo':
+                \TT\Modules\Training\Frontend\FrontendTrainingPhotoView::render( $user_id, $is_admin );
+                return true;
             // #2500 — the head-of-development coverage matrix: principle
             // by team, and the players whose own goals sit on a principle
             // their team barely trains. Gated inside the view on

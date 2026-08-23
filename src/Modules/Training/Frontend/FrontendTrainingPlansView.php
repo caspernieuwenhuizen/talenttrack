@@ -110,6 +110,19 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'training-coverage' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
             ];
         }
+        // #2502 — the way in to photographing a hand-written plan. Shown
+        // only when the feature is on AND this install has declared where
+        // photographs would go, because an entry point that leads to a
+        // refusal is worse than no entry point: the coach has already
+        // decided to use it by the time they are told they cannot.
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'exercises_vision_extraction' )
+            && \TT\Modules\Exercises\Vision\VisionDataRegion::isDeclared() ) {
+            $actions[] = [
+                'label' => __( 'From a photo', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'training-photo' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — same module, gated above */
+            ];
+        }
+
         self::renderHeader( __( 'Training plans', 'talenttrack' ), self::pageActionsHtml( $actions ) );
 
         echo '<p class="tt-muted tt-training-intro">'
