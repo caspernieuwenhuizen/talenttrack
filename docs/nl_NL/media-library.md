@@ -199,6 +199,20 @@ naar verwijzen.
 
 Dat is van belang bij een verzoek om vergeten te worden: het wissen van een speler wist ook de foto's, niet alleen de regel met de naam erin.
 
+## Wat een inzageverzoek oplevert
+
+Doet iemand een beroep op het recht om te zien wat de academie over een speler bewaart, dan bevat de export een `media.json` met alle foto's en
+video's die van die speler worden bewaard: wat het is, wanneer het is gemaakt, waar het aan hangt en wie het heeft toegevoegd.
+
+**De bestanden zelf zitten niet in de export.** Een seizoen aan video loopt in de gigabytes, en een export die te groot is om te maken helpt niemand.
+De export zegt dat er met zoveel woorden bij en zwijgt er niet over, want een lijst zonder uitleg leest alsof de academie niets bewaart.
+
+Wil de verzoeker de bestanden wel, dan stuurt de academie ze apart na — op het tabblad Media van de speler staat alles, en elk item kan daar geopend
+en opgeslagen worden.
+
+Media van een team of een activiteit komt nooit in de export van één speler terecht, ook niet als die speler erbij was. Die hoort bij het team of bij
+de training, niet bij één kind.
+
 ## Uitzetten
 
 Er zijn twee schakelaars, met verschillende gevolgen.

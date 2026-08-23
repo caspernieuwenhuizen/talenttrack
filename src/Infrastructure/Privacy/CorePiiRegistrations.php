@@ -110,6 +110,22 @@ final class CorePiiRegistrations {
             'TT\\Modules\\Trials\\TrialsModule'
         );
 
+        // #2743 — photographs and video. The link table is polymorphic, so
+        // `entity_id` is a player id only where `entity_type = 'player'`;
+        // without the match condition this would count team and activity
+        // media belonging to other records entirely.
+        //
+        // Registered against the link table rather than `tt_media`, because
+        // `tt_media` holds no player column at all — the relationship is
+        // the link.
+        PlayerDataMap::register(
+            'tt_media_links',
+            'entity_id',
+            'Photographs and video the academy holds of this player.',
+            'TT\\Modules\\Media\\MediaModule',
+            [ 'entity_type' => 'player' ]
+        );
+
         // #0081 — Prospect promoted to a player carries their pre-
         // promotion identity row. The link column is `promoted_to_player_id`,
         // not `player_id`, because a prospect does not have a player

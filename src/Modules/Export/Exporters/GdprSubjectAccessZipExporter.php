@@ -134,6 +134,33 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             ), ARRAY_A )
             : [];
 
+        // #2743 — photographs and video, as a listing. The files
+        // themselves are deliberately NOT included: a season of video is
+        // gigabytes, and an export too large to generate is not compliance
+        // either. The README says so in as many words, because a silent
+        // omission would read as "we hold nothing", which is worse than a
+        // manifest that points at what exists.
+        //
+        // `entity_type = 'player'` is what keeps team and activity media —
+        // which belong to other records — out of an individual's export.
+        $media = self::tableExists( "{$p}tt_media_links" )
+            ? $wpdb->get_results( $wpdb->prepare(
+                "SELECT m.uuid, m.kind, m.title, m.mime_type, m.byte_size,
+                        m.duration_seconds, m.provider, m.external_url,
+                        m.captured_at, m.created_at,
+                        l.entity_type, l.entity_id, l.is_primary
+                    FROM {$p}tt_media_links l
+                    INNER JOIN {$p}tt_media m ON m.id = l.media_id
+                    WHERE l.entity_type = 'player'
+                      AND l.entity_id = %d
+                      AND m.archived_at IS NULL
+                      AND m.club_id = %d
+                      AND l.club_id = %d
+                    ORDER BY COALESCE(m.captured_at, m.created_at) ASC, m.id ASC",
+                $player_id, (int) $request->clubId, (int) $request->clubId
+            ), ARRAY_A )
+            : [];
+
         // Render the standard evaluation report PDF inline so the
         // recipient sees something human-readable alongside the JSON
         // dumps. We synthesise a sub-request that the v3.110.4 exporter
@@ -150,6 +177,11 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             'attendance.json'  => self::jsonPretty( $attendance ?: [] ),
             'comms_log.json'   => self::jsonPretty( $comms ?: [] ),
             'parents.json'     => self::jsonPretty( $parents ?: [] ),
+            'media.json'       => self::jsonPretty( [
+                'files_included' => false,
+                'note'           => __( 'The academy holds the photographs and video listed below. The files themselves are not included in this export — ask the academy for them.', 'talenttrack' ),
+                'items'          => $media ?: [],
+            ] ),
             'README.txt'       => self::readme( $player, $request ),
         ];
         if ( $pdf_bytes !== '' ) {
@@ -174,7 +206,9 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
                 'attendance'   => is_array( $attendance ) ? count( $attendance ) : 0,
                 'comms'        => is_array( $comms ) ? count( $comms ) : 0,
                 'parents'      => is_array( $parents ) ? count( $parents ) : 0,
+                'media'        => is_array( $media ) ? count( $media ) : 0,
             ],
+            'media_note' => __( 'media.json lists the photographs and video held of this player. The files themselves are not included — request them from the academy.', 'talenttrack' ),
             'tombstones_note' => __( 'comms_log rows with empty address_blob and subject reflect GDPR retention tombstoning (#0066) — the audit fact is preserved without the PII payload.', 'talenttrack' ),
         ];
 
@@ -246,7 +280,12 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             '  - attendance.json — every attendance row joined to the activity',
             '  - comms_log.json — outbound messages about this player (tombstoned rows excluded; see tombstones_note in MANIFEST.json)',
             '  - parents.json — linked parent user ids',
+            '  - media.json — photographs and video held of this player (a listing; the files are not in this archive)',
             '  - evaluation_report.pdf — rendered evaluation report (human-readable)',
+            '',
+            // Said plainly, because a listing without this reads as though
+            // the academy holds nothing (#2743).
+            __( 'Photographs and video are listed in media.json but are not included in this archive. Ask the academy for the files themselves.', 'talenttrack' ),
             '',
             __( 'This export was produced under GDPR Article 15 (Right of access by the data subject).', 'talenttrack' ),
         ];

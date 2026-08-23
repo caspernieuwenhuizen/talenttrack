@@ -186,6 +186,20 @@ it.
 
 This matters for a request to be forgotten: erasing a player erases their photographs, not just the row with their name in it.
 
+## What a subject-access request returns
+
+When someone exercises their right to see everything the academy holds on a player, the export includes a `media.json` listing every photograph and
+video held of them: what it is, when it was taken, what it was attached to, and who added it.
+
+**The files themselves are not in the export.** A season of video runs to gigabytes, and an export too large to produce is no use to anybody. The
+export says so plainly rather than staying silent, because a list with no explanation reads as though the academy holds nothing.
+
+If the person wants the files, the academy sends them separately — the player's Media tab has everything, and each item can be opened and saved from
+there.
+
+Team and activity media never appear in an individual's export, even where the player was present. Those belong to the team or the session, not to
+one child.
+
 ## Turning it off
 
 There are two switches, and they do different things.
