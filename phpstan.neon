@@ -1,4 +1,12 @@
 includes:
+    # phpstan-wordpress's extension. Without it PHPStan does not know a single
+    # WordPress symbol — `Function get_option not found`, `invalid return type
+    # WP_Error`, thousands of times — because there is no
+    # phpstan/extension-installer in composer.json to register it
+    # automatically, and `bootstrapFiles` alone does not (#2103). Drowning in
+    # that noise is almost certainly why the gate ended up silenced and the
+    # baseline blanket-ignoring a whole tree.
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
     # Baseline file grandfathers existing issues so CI can be green from day one.
     # New code must pass clean; existing issues are cleaned up incrementally.
     - phpstan-baseline.neon

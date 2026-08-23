@@ -59,6 +59,17 @@ jobs:
       # + stubs), which the committed vendor/ carries only partially.
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
+      # `|| true` means this job CANNOT FAIL. It is why #2097 - an undefined
+      # variable that fataled in production - shipped with a green level-8
+      # gate: every run is green, whatever PHPStan reports. Removing it is
+      # step 3 of #2103 and is deliberately not done in the same change as
+      # wiring up the WordPress stubs (step 1, this PR): until a real
+      # baseline replaces the blanket `#.*#` ignore in phpstan-baseline.neon
+      # (step 2), dropping `|| true` turns CI red on the pre-existing backlog
+      # rather than on anything the PR did.
+      #
+      # Read the error count this run prints. That number is what step 2
+      # baselines, and it is only meaningful now that the stubs resolve.
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
 
