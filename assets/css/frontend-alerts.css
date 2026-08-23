@@ -118,3 +118,42 @@
     transform: none;
   }
 }
+
+/* #2635 — the notification bell. Was inline-styled in two places by the
+   old Workflow bell, which the §2 rule forbids and which made the count
+   badge impossible to theme. */
+.tt-bell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 48px;
+  min-width: 48px;
+  justify-content: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: var(--tt-color-surface-alt, #f5f7f8);
+  color: var(--tt-color-text-muted, #5b6e75);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.tt-bell--active {
+  background: var(--tt-color-danger, #b32d2e);
+  color: var(--tt-color-on-primary, #fff);
+}
+
+.tt-bell:focus-visible {
+  outline: 2px solid var(--tt-color-focus, #2271b1);
+  outline-offset: 2px;
+}
+
+.tt-bell__icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.tt-bell__count {
+  font-variant-numeric: tabular-nums;
+}

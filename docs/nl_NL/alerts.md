@@ -224,3 +224,14 @@ Waar je op kunt rekenen:
 Een melding die is opgelost blijft **90 dagen** bewaard en wordt daarna verwijderd. Meldingen die nog openstaan worden nooit verwijderd, hoe oud ook — een melding waar een jaar lang niets mee gedaan is, wil je juist zien.
 
 Dat betekent dat het meldingssysteem geen vragen kan beantwoorden die verder terugkijken dan ongeveer een kwartaal. Gebruik voor patronen over een heel seizoen de rapportages; die lezen de onderliggende gegevens in plaats van de meldingen erover.
+
+## Wanneer een melding een taak wordt
+
+Een melding waar niemand iets mee doet blijft niet eeuwig een seintje. Heeft jullie academie er een termijn voor ingesteld (Instellingen → Meldingsbeleid → **Omzetten in een taak na (dagen)**), dan wordt de melding een echte, toegewezen taak zodra hij zo lang openstaat.
+
+Twee dingen om te weten:
+
+- **Het gebeurt één keer.** Een melding wordt eenmalig een taak, niet elke dag opnieuw tot iemand iets doet.
+- **Het werkt één kant op.** Los je het onderliggende op, dan verdwijnt de melding — maar de taak blijft staan. Op een taak staat iemands naam en een vastlegging van wat er gebeurd is; die achter hun rug om sluiten zou het doel ervan onderuithalen. Sluit de taak vanuit de taak zelf.
+
+In het meldingenoverzicht zie je welke meldingen een taak zijn geworden, met een link erheen.

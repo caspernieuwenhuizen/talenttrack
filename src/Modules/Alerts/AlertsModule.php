@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Alerts\Cron\AlertDigestCron;
+use TT\Modules\Alerts\Cron\AlertEscalationCron;
 use TT\Modules\Alerts\Cron\AlertRetentionCron;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
@@ -23,6 +24,7 @@ use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
 use TT\Modules\Alerts\Definitions\TeamWithoutHeadCoachAlert;
 use TT\Modules\Alerts\Frontend\AlertBanner;
+use TT\Modules\Alerts\Frontend\AlertBell;
 use TT\Modules\Alerts\Frontend\AlertBellCount;
 use TT\Modules\Alerts\Rest\AlertsRestController;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
@@ -82,7 +84,13 @@ final class AlertsModule implements ModuleInterface {
         AlertDigestCron::init();
         AlertRetentionCron::init();
         AlertBanner::init();
+        // #2631 — contributes the alert half of the bell's number through
+        // the `tt_notification_bell_count` filter. Still the counter.
         AlertBellCount::init();
+        // #2635 — and this now renders the bell, replacing the Workflow one,
+        // so the destination can follow where the count came from.
+        AlertBell::init();
+        AlertEscalationCron::init();
     }
 
     /**
