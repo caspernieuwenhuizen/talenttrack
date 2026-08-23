@@ -37,24 +37,36 @@ valt dan alleen niets vooraf in te vullen.
 Een paar zinnen over hoe de wedstrijd ging. Dit is wat mensen als eerste
 lezen, dus schrijf op wat je in de kleedkamer ook zou zeggen.
 
-### De vier teamfuncties, en standaardsituaties
+### De twee ketens
 
-Vijf onderdelen, in de eigen methodiektaal van de academie:
+Zes fases in de eigen methodiektaal van de academie, in twee kolommen die
+allebei van boven naar beneden als een keten lezen:
+
+**Met de bal**
 
 - **Aanvallen**
-- **Omschakelen naar aanvallen**
+- **Omschakelen naar verdedigen** — het moment dat we hem kwijtraken
+- **Spelhervattingen — van ons**
+
+**Zonder de bal**
+
 - **Verdedigen**
-- **Omschakelen naar verdedigen**
-- **Standaardsituaties**
+- **Omschakelen naar aanvallen** — het moment dat we hem veroveren
+- **Spelhervattingen — van hen**
 
-Elk onderdeel krijgt een oordeel — **Ging goed**, **Wisselend** of **Moet
-beter** — en maximaal vier korte punten. Beide zijn optioneel: **Niet
-beoordeeld** is een echt antwoord, en een onderdeel dat je leeg laat blijft
-leeg in plaats van als een middelmatige score te tellen.
+Een omschakelmoment zegt alleen iets naast de fase waar het uit voortkomt,
+en daarom zijn dit twee ketens en geen lijst van zes.
 
-Waar het wedstrijdplan iets vroeg in die fase, staat dat boven de velden als
-**Gepland**, zodat je terugkijkt op wat je gevraagd hebt en niet alleen op
-je geheugen. De twee omschakelmomenten hebben geen tegenhanger op het
+Elke fase krijgt een oordeel — **Ging goed**, **Wisselend** of **Moet
+beter** — naast de naam, en daaronder maximaal vier korte punten. Beide zijn
+optioneel: een fase die je ongemoeid laat toont simpelweg *Niet beoordeeld*
+en telt als niets, niet als een middelmatige score. Zodra je een oordeel
+hebt gegeven verschijnt er een kleine **Wissen** naast.
+
+Waar het wedstrijdplan iets vroeg in die fase, staat dat als **Gepland**,
+zodat je terugkijkt op wat je gevraagd hebt en niet alleen op je geheugen.
+Elk van de vier doelenvakken van het plan komt naast zijn eigen fase te
+staan; de twee omschakelmomenten hebben geen tegenhanger op het
 voorbereidingsscherm en tonen daarom nooit een geplande regel.
 
 ### Spelers
@@ -103,11 +115,23 @@ beoordeling. Wat de speler zelf te horen krijgt is een aparte, bewuste keuze.
 Verwijder je een notitie, dan verdwijnt de tijdlijnregel mee. Herschrijf je
 hem, dan wordt de regel bijgewerkt en niet verdubbeld.
 
+## Teruglezen
+
+Zodra hij geschreven is, leest de analyse als één pagina: de wedstrijd en de
+uitslag bovenaan, jouw algemene indruk daaronder, dan de twee ketens naast
+elkaar en de genoemde spelers in een eigen kolom. Het is dezelfde pagina of
+je hem nu opent, print of doorstuurt — wat jij ziet, ziet de ander ook.
+
+Fases die je niet beoordeeld hebt staan er nog steeds, als zodanig
+gemarkeerd. De pagina hoort te tonen wat je gezegd hebt en net zo duidelijk
+wat niet.
+
 ## Printen of opslaan als PDF
 
-**Printen of opslaan als PDF** opent de analyse als een schone A4-pagina in
-een nieuw tabblad — geen menu's, geen navigatie — en het printvenster van je
-browser maakt er een PDF van. De tekst blijft selecteerbaar en doorzoekbaar.
+**Printen of opslaan als PDF** opent de analyse als een schone **liggende
+A4** in een nieuw tabblad — geen menu's, geen navigatie — en het printvenster
+van je browser maakt er een PDF van. Hij is gemaakt om op één vel te passen,
+en de tekst blijft selecteerbaar en doorzoekbaar.
 
 Spelers die je niet genoemd hebt staan niet op het afdrukvel. De lijst op
 het scherm staat er zodat je niemand vergeet; een geprinte rij namen zonder
@@ -115,22 +139,29 @@ tekst erachter zegt iets wat je niet bedoelde.
 
 ## De stafdeellink
 
-Met **Stafdeellink openen** krijg je een URL waarmee de analyse alleen-lezen
-opent, zonder in te loggen. Stuur hem naar een assistent-trainer, een scout
-of wie er verder van de staf mee moet lezen.
+Een deellink bestaat pas als je erom vraagt. Met **Deellink aanmaken** maak
+je hem; tot die tijd kan niemand de analyse buiten de app openen, hoe goed
+hij ook gokt.
+
+Zodra hij bestaat zie je de URL zelf met **Link kopiëren** ernaast. Stuur hem
+naar een assistent-trainer, een scout of wie er verder van de staf mee moet
+lezen. De link opent de analyse alleen-lezen, zonder in te loggen.
 
 Twee dingen om te weten voordat je hem verstuurt:
 
 - Hij toont de **spelersnotities volledig**, inclusief wie tekortkwam. Het is
   een stafdocument en dat staat ook op de pagina zelf. De pagina wordt niet
   door zoekmachines geïndexeerd.
-- **Iedereen die de link heeft kan meelezen** totdat je hem opnieuw uitgeeft.
-  **Link intrekken en opnieuw uitgeven** maakt een nieuwe URL aan en sluit
-  alle eerdere direct af — gebruik dat als een link verder is gereisd dan de
-  bedoeling was, of als iemand de staf verlaat.
+- **Iedereen die de link heeft kan meelezen** totdat je hem vervangt.
+  **Link vervangen** maakt een nieuwe URL aan en sluit alle eerdere direct
+  af — gebruik dat als een link verder is gereisd dan de bedoeling was, of
+  als iemand de staf verlaat.
 
-Een analyse die je nooit gedeeld hebt heeft helemaal geen werkende link, dus
-met gokken kom je er niet in.
+## Opslaan
+
+**Analyse opslaan** laat je precies staan waar je stond, met alles wat je
+getypt hebt nog in beeld. Er navigeert niets weg, en de knoppen voor printen
+en delen blijven waar ze zijn.
 
 ## Wat hier niet kan
 

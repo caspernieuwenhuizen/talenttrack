@@ -3,6 +3,7 @@ namespace TT\Modules\MatchAnalysis\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\MatchAnalysis\Frontend\SectionRatingControl;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer;
 use TT\Modules\MatchAnalysis\Services\MatchAnalysisWriter;
@@ -35,7 +36,18 @@ final class SectionStepFields {
         $planned = MatchAnalysisComposer::plannedTextFor( $section_key, $prep );
 
         echo '<fieldset class="tt-ma-wz__section">';
-        echo '<legend class="tt-ma-wz__legend">' . esc_html( $label ) . '</legend>';
+
+        // Legend and rating on one line, the same shape the flat surface
+        // uses — one component, so the two cannot drift (#2748).
+        echo '<div class="tt-ma__section-head">';
+        echo '<legend class="tt-ma-wz__legend tt-ma__section-title">' . esc_html( $label ) . '</legend>';
+        SectionRatingControl::render(
+            $section_key,
+            $label,
+            isset( $saved['rating'] ) ? (string) $saved['rating'] : null,
+            'maw'
+        );
+        echo '</div>';
 
         if ( $planned !== '' ) {
             echo '<p class="tt-ma__planned"><span class="tt-ma__planned-label">'
@@ -43,30 +55,6 @@ final class SectionStepFields {
                 . esc_html( str_replace( "\n", ' · ', $planned ) )
                 . '</p>';
         }
-
-        printf(
-            '<div class="tt-ma__ratings" role="radiogroup" aria-label="%s">',
-            esc_attr( sprintf(
-                /* translators: %s: section name, e.g. Aanvallen */
-                __( 'Rating — %s', 'talenttrack' ),
-                $label
-            ) )
-        );
-
-        $options = [ '' => __( 'Not rated', 'talenttrack' ) ] + MatchAnalysisEnums::ratings();
-        foreach ( $options as $value => $option_label ) {
-            $id = 'tt-ma-wz-' . sanitize_key( $section_key ) . '-' . ( $value === '' ? 'none' : sanitize_key( (string) $value ) );
-            printf(
-                '<input type="radio" class="tt-ma__rating-input" id="%1$s" name="sections[%2$s][rating]" value="%3$s"%4$s />'
-                . '<label class="tt-ma__rating" for="%1$s" data-rating="%3$s">%5$s</label>',
-                esc_attr( $id ),
-                esc_attr( $section_key ),
-                esc_attr( (string) $value ),
-                checked( (string) ( $saved['rating'] ?? '' ), (string) $value, false ),
-                esc_html( (string) $option_label )
-            );
-        }
-        echo '</div>';
 
         $lines = is_array( $saved['notes'] ?? null ) ? array_values( $saved['notes'] ) : [];
 

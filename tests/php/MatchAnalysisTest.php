@@ -432,10 +432,15 @@ final class MatchAnalysisTest extends WP_UnitTestCase {
             'Press on their goal kick',
             $sections[ MethodologyEnums::FUNCTION_AANVALLEN ]['planned']
         );
+        // Since the split, each side of the plan lands beside its own
+        // phase instead of both being crammed into one line.
         $this->assertSame(
-            "Second ball on our corners\nNo short corners against",
-            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES ]['planned'],
-            'both set-piece boxes belong to the one set-piece section'
+            'Second ball on our corners',
+            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK ]['planned']
+        );
+        $this->assertSame(
+            'No short corners against',
+            $sections[ MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND ]['planned']
         );
         $this->assertSame(
             '',

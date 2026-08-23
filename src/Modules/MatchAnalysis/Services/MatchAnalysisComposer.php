@@ -161,14 +161,9 @@ final class MatchAnalysisComposer {
     public static function plannedTextFor( string $section_key, ?object $prep ): string {
         if ( ! $prep ) return '';
 
-        if ( $section_key === MatchAnalysisEnums::SECTION_SET_PIECES ) {
-            $parts = array_filter( [
-                trim( (string) ( $prep->goals_attack_setpiece ?? '' ) ),
-                trim( (string) ( $prep->goals_defend_setpiece ?? '' ) ),
-            ] );
-            return implode( "\n", $parts );
-        }
-
+        // Since the set-piece split each section maps onto at most one goal
+        // box, so there is nothing left to merge — the plan's own attacking
+        // and defending set-piece lines land beside the matching phase.
         $column = MatchAnalysisEnums::prepGoalColumnFor( $section_key );
         if ( $column === null ) return '';
 

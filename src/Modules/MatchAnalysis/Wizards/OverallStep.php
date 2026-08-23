@@ -123,9 +123,14 @@ final class OverallStep implements WizardStepInterface {
      * @return list<string>
      */
     public static function teamFunctionKeys(): array {
+        $set_pieces = [
+            MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK,
+            MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND,
+        ];
+
         return array_values( array_filter(
             MatchAnalysisEnums::ratedSectionKeys(),
-            static fn( string $key ): bool => $key !== MatchAnalysisEnums::SECTION_SET_PIECES
+            static fn( string $key ): bool => ! in_array( $key, $set_pieces, true )
         ) );
     }
 }

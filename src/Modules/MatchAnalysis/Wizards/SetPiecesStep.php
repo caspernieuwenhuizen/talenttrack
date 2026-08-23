@@ -25,11 +25,13 @@ final class SetPiecesStep implements WizardStepInterface {
             . esc_html__( 'Ours and theirs. If nothing came of them, leave it unrated and move on.', 'talenttrack' )
             . '</p>';
 
-        SectionStepFields::render( MatchAnalysisEnums::SECTION_SET_PIECES, $state, $prep );
+        foreach ( self::keys() as $key ) {
+            SectionStepFields::render( $key, $state, $prep );
+        }
     }
 
     public function validate( array $post, array $state ) {
-        return SectionStepFields::collect( $post, [ MatchAnalysisEnums::SECTION_SET_PIECES ], $state );
+        return SectionStepFields::collect( $post, self::keys(), $state );
     }
 
     public function nextStep( array $state ): ?string {
@@ -38,5 +40,17 @@ final class SetPiecesStep implements WizardStepInterface {
 
     public function submit( array $state ) {
         return null;
+    }
+
+    /**
+     * Both sides, ours first — the order the plan's own goal boxes use.
+     *
+     * @return list<string>
+     */
+    private static function keys(): array {
+        return [
+            MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK,
+            MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND,
+        ];
     }
 }

@@ -66,9 +66,13 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                 'Slow to close down after losing it. Costs us the first goal.',
                 'Better after half time — the nearest player pressed straight away.',
             ],
-            MatchAnalysisEnums::SECTION_SET_PIECES => [
+            MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK => [
                 'Our corners still land on the first defender.',
+                'The short free kick worked once and was read the second time.',
+            ],
+            MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND => [
                 'Defended their free kicks well; everyone picked a man.',
+                'Second ball after their corners went to them twice.',
             ],
         ],
         'nl_NL' => [
@@ -89,9 +93,13 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                 'Traag in het druk zetten na balverlies. Kost ons de eerste tegengoal.',
                 'Na rust beter — de dichtstbijzijnde speler ging er direct op.',
             ],
-            MatchAnalysisEnums::SECTION_SET_PIECES => [
+            MatchAnalysisEnums::SECTION_SET_PIECES_ATTACK => [
                 'Onze corners komen nog steeds op de eerste verdediger.',
+                'De korte vrije trap werkte één keer en werd de tweede keer gelezen.',
+            ],
+            MatchAnalysisEnums::SECTION_SET_PIECES_DEFEND => [
                 'Hun vrije trappen goed verdedigd; iedereen pakte een man.',
+                'De tweede bal na hun corners was twee keer voor hen.',
             ],
         ],
     ];

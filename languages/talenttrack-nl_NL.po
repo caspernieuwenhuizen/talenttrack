@@ -54368,6 +54368,75 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "With the ball"
+msgstr "Met de bal"
+
+msgid "Without the ball"
+msgstr "Zonder de bal"
+
+msgid "Set pieces — ours"
+msgstr "Spelhervattingen — van ons"
+
+msgid "Set pieces — theirs"
+msgstr "Spelhervattingen — van hen"
+
+msgid "— away at %s"
+msgstr "— uit tegen %s"
+
+msgid "— at home against %s"
+msgstr "— thuis tegen %s"
+
+msgid "Players · %1$d of %2$d mentioned"
+msgstr "Spelers · %1$d van %2$d genoemd"
+
+msgid "Nobody was singled out in this match."
+msgstr "Niemand is in deze wedstrijd apart genoemd."
+
+msgid "Staff document — please do not forward it outside the staff."
+msgstr "Stafdocument — niet verder verspreiden buiten de staf."
+
+msgid "TalentTrack · printed %s"
+msgstr "TalentTrack · geprint %s"
+
+msgid "Clear — not rated"
+msgstr "Wissen — niet beoordeeld"
+
+msgid "Share with the staff"
+msgstr "Delen met de staf"
+
+msgid "No link exists yet, so this analysis cannot be opened by anyone outside the app."
+msgstr "Er bestaat nog geen link, dus niemand kan deze analyse buiten de app openen."
+
+msgid "Create share link"
+msgstr "Deellink aanmaken"
+
+msgid "Staff share link"
+msgstr "Stafdeellink"
+
+msgid "Copy link"
+msgstr "Link kopiëren"
+
+msgid "Anyone holding this link can read the analysis, including the player notes. It keeps working until you replace it."
+msgstr "Iedereen met deze link kan de analyse lezen, inclusief de spelersnotities. Hij blijft werken totdat je hem vervangt."
+
+msgid "Replace link"
+msgstr "Link vervangen"
+
+msgid "The current link stops working immediately."
+msgstr "De huidige link werkt direct niet meer."
+
+msgid "Replace the share link? The current one stops working immediately."
+msgstr "De deellink vervangen? De huidige werkt dan direct niet meer."
+
+msgid "Share link created."
+msgstr "Deellink aangemaakt."
+
+msgid "Link copied."
+msgstr "Link gekopieerd."
+
+msgid "That did not work. Try again."
+msgstr "Dat is niet gelukt. Probeer het nog eens."
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 
