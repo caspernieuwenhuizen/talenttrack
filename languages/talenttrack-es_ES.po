@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T07:15:11+00:00\n"
+"POT-Creation-Date: 2026-08-23T09:36:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -5972,6 +5972,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Alerts/Frontend/AlertBanner.php:109
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:324
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
@@ -6009,16 +6010,16 @@ msgid_plural "%d items need your attention"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:38
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:51
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:39
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:52
 msgid "Alert policy"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:41
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:42
 msgid "You do not have permission to manage alert policy."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:53
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:54
 msgid ""
 "Decide which alerts your academy uses and who controls them. \"Each person "
 "chooses\" is the default and suits almost everything — reach for the others "
@@ -6026,47 +6027,106 @@ msgid ""
 "use that part of the system at all."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:57
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:64
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:63
 msgid "No alerts are available on this installation yet."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:70
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:77
 msgid "Save alert policy"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:88
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:95
 msgid "This alert concerns a child's safety and cannot be switched off."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:97
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:104
 msgid "Who decides"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:118
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:125
 msgid "When always on, show it"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:139
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:146
 msgid "Require people to acknowledge this before continuing"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:145
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:152
 msgid "Turn into a task after (days)"
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:152
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:159
 msgid ""
 "Leave empty to use the built-in default. Takes effect once task escalation "
 "ships."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:163
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:179
+msgid "Engine health"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:186
+msgid ""
+"Alerts have never been checked on this site. Scheduled tasks are probably "
+"not running — until they do, every alert screen will show an empty picture, "
+"which looks the same as having nothing to report."
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:187
+msgid ""
+"Alerts were last checked more than three hours ago. Scheduled tasks have "
+"probably stopped; the alerts you see are frozen at that moment."
+msgstr ""
+
+#. translators: %s: human-readable time difference, e.g. "12 minutes"
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:195
+#, php-format
+msgid "Last checked %s ago."
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
+msgid "Alert"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2300
+msgid "Cleared"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+msgid "Dismissed"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
+msgid "Check time"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:226
+msgid "Mostly dismissed — worth reviewing"
+msgstr ""
+
+#. translators: %d: milliseconds the check took
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:233
+#, php-format
+msgid "%d ms"
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:241
+msgid ""
+"An alert most people dismiss is not informing anyone — it is teaching them "
+"to dismiss alerts, and the useful ones go with it. Nothing is switched off "
+"automatically: whether an alert earns its place is a judgement about your "
+"academy, not a calculation."
+msgstr ""
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:184
 msgid "Security check failed. Reload the page and try again."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:196
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:283
 msgid "Alert policy saved."
 msgstr ""
 
@@ -6310,10 +6370,6 @@ msgid ""
 "not sent one alert per team."
 msgstr ""
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
-msgid "Alert"
-msgstr ""
-
 #. translators: %s: player name
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
 #: src/Modules/DemoData/DemoCoverage.php:1262
@@ -6357,26 +6413,26 @@ msgid ""
 "\"%s\" protects a child's safety and cannot be switched off for the club."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:171
-#: src/Modules/Alerts/Rest/AlertsRestController.php:189
-#: src/Modules/Alerts/Rest/AlertsRestController.php:196
-#: src/Modules/Alerts/Rest/AlertsRestController.php:200
-#: src/Modules/Alerts/Rest/AlertsRestController.php:370
-#: src/Modules/Alerts/Rest/AlertsRestController.php:374
-#: src/Modules/Alerts/Rest/AlertsRestController.php:381
-#: src/Modules/Alerts/Rest/AlertsRestController.php:389
+#: src/Modules/Alerts/Rest/AlertsRestController.php:181
+#: src/Modules/Alerts/Rest/AlertsRestController.php:199
+#: src/Modules/Alerts/Rest/AlertsRestController.php:206
+#: src/Modules/Alerts/Rest/AlertsRestController.php:210
+#: src/Modules/Alerts/Rest/AlertsRestController.php:406
+#: src/Modules/Alerts/Rest/AlertsRestController.php:410
+#: src/Modules/Alerts/Rest/AlertsRestController.php:417
+#: src/Modules/Alerts/Rest/AlertsRestController.php:425
 msgid "Alert not found."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:177
+#: src/Modules/Alerts/Rest/AlertsRestController.php:187
 msgid "Choose how long to snooze this alert: a day, a week, or a month."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:235
+#: src/Modules/Alerts/Rest/AlertsRestController.php:245
 msgid "Expected a preferences object."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:282
+#: src/Modules/Alerts/Rest/AlertsRestController.php:318
 msgid "Expected a policy object."
 msgstr ""
 
@@ -46106,10 +46162,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2287
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2300
-msgid "Cleared"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2306

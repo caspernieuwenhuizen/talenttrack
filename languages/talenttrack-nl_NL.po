@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T07:15:11+00:00\n"
+"POT-Creation-Date: 2026-08-23T09:36:50+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6303,6 +6303,7 @@ msgstr[0] "Nog %d melding vraagt je aandacht."
 msgstr[1] "Nog %d meldingen vragen je aandacht."
 
 #: src/Modules/Alerts/Frontend/AlertBanner.php:109
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:210
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:169
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:324
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
@@ -6340,16 +6341,16 @@ msgid_plural "%d items need your attention"
 msgstr[0] "%d item vraagt je aandacht"
 msgstr[1] "%d items vragen je aandacht"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:38
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:51
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:39
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:52
 msgid "Alert policy"
 msgstr "Meldingsbeleid"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:41
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:42
 msgid "You do not have permission to manage alert policy."
 msgstr "Je hebt geen rechten om het meldingsbeleid te beheren."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:53
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:54
 msgid ""
 "Decide which alerts your academy uses and who controls them. \"Each person "
 "chooses\" is the default and suits almost everything — reach for the others "
@@ -6361,38 +6362,38 @@ msgstr ""
 "iets anders als een melding te belangrijk is om optioneel te zijn, of als "
 "jullie dat onderdeel helemaal niet gebruiken."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:57
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:64
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:63
 msgid "No alerts are available on this installation yet."
 msgstr "Er zijn nog geen meldingen beschikbaar op deze installatie."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:70
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:77
 msgid "Save alert policy"
 msgstr "Meldingsbeleid opslaan"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:88
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:95
 msgid "This alert concerns a child's safety and cannot be switched off."
 msgstr ""
 "Deze melding gaat over de veiligheid van een kind en kan niet worden "
 "uitgezet."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:97
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:104
 msgid "Who decides"
 msgstr "Wie beslist"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:118
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:125
 msgid "When always on, show it"
 msgstr "Als hij altijd aan staat, toon hem"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:139
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:146
 msgid "Require people to acknowledge this before continuing"
 msgstr "Mensen moeten dit eerst bevestigen"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:145
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:152
 msgid "Turn into a task after (days)"
 msgstr "Omzetten in een taak na (dagen)"
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:152
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:159
 msgid ""
 "Leave empty to use the built-in default. Takes effect once task escalation "
 "ships."
@@ -6400,13 +6401,82 @@ msgstr ""
 "Laat leeg voor de ingebouwde standaard. Dit werkt zodra taakescalatie "
 "beschikbaar is."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:163
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:179
+msgid "Engine health"
+msgstr "Status van het systeem"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:186
+msgid ""
+"Alerts have never been checked on this site. Scheduled tasks are probably "
+"not running — until they do, every alert screen will show an empty picture, "
+"which looks the same as having nothing to report."
+msgstr ""
+"Meldingen zijn op deze site nog nooit gecontroleerd. Waarschijnlijk draaien "
+"de geplande taken niet — tot dat gebeurt, tonen alle meldingsschermen een "
+"leeg beeld, en dat ziet er hetzelfde uit als niets te melden hebben."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:187
+msgid ""
+"Alerts were last checked more than three hours ago. Scheduled tasks have "
+"probably stopped; the alerts you see are frozen at that moment."
+msgstr ""
+"Meldingen zijn meer dan drie uur geleden voor het laatst gecontroleerd. "
+"Waarschijnlijk zijn de geplande taken gestopt; wat je ziet is bevroren op "
+"dat moment."
+
+#. translators: %s: human-readable time difference, e.g. "12 minutes"
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:195
+#, php-format
+msgid "Last checked %s ago."
+msgstr "Laatst gecontroleerd %s geleden."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:209
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
+msgid "Alert"
+msgstr "Melding"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:211
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:2300
+msgid "Cleared"
+msgstr "Vrijgegeven"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:212
+msgid "Dismissed"
+msgstr "Weggeklikt"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:213
+msgid "Check time"
+msgstr "Controletijd"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:226
+msgid "Mostly dismissed — worth reviewing"
+msgstr "Meestal weggeklikt — het bekijken waard"
+
+#. translators: %d: milliseconds the check took
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:233
+#, php-format
+msgid "%d ms"
+msgstr "%d ms"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:241
+msgid ""
+"An alert most people dismiss is not informing anyone — it is teaching them "
+"to dismiss alerts, and the useful ones go with it. Nothing is switched off "
+"automatically: whether an alert earns its place is a judgement about your "
+"academy, not a calculation."
+msgstr ""
+"Een melding die de meeste mensen wegklikken informeert niemand — hij leert "
+"mensen meldingen weg te klikken, en de nuttige gaan mee. Er wordt niets "
+"automatisch uitgezet: of een melding zijn plek verdient is een afweging over "
+"jullie academie, geen rekensom."
+
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:250
 #: src/Modules/Alerts/Frontend/FrontendAlertSettingsView.php:184
 msgid "Security check failed. Reload the page and try again."
 msgstr ""
 "Beveiligingscontrole mislukt. Herlaad de pagina en probeer het opnieuw."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:196
+#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:283
 msgid "Alert policy saved."
 msgstr "Meldingsbeleid opgeslagen."
 
@@ -6657,10 +6727,6 @@ msgstr ""
 "Dit zijn de situaties waarvan de trainers van je teams bericht hebben "
 "gekregen. Je krijgt niet per team een eigen melding."
 
-#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:311
-msgid "Alert"
-msgstr "Melding"
-
 #. translators: %s: player name
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:352
 #: src/Modules/DemoData/DemoCoverage.php:1262
@@ -6706,28 +6772,28 @@ msgstr ""
 "\"%s\" gaat over de veiligheid van een kind en kan niet voor de club worden "
 "uitgezet."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:171
-#: src/Modules/Alerts/Rest/AlertsRestController.php:189
-#: src/Modules/Alerts/Rest/AlertsRestController.php:196
-#: src/Modules/Alerts/Rest/AlertsRestController.php:200
-#: src/Modules/Alerts/Rest/AlertsRestController.php:370
-#: src/Modules/Alerts/Rest/AlertsRestController.php:374
-#: src/Modules/Alerts/Rest/AlertsRestController.php:381
-#: src/Modules/Alerts/Rest/AlertsRestController.php:389
+#: src/Modules/Alerts/Rest/AlertsRestController.php:181
+#: src/Modules/Alerts/Rest/AlertsRestController.php:199
+#: src/Modules/Alerts/Rest/AlertsRestController.php:206
+#: src/Modules/Alerts/Rest/AlertsRestController.php:210
+#: src/Modules/Alerts/Rest/AlertsRestController.php:406
+#: src/Modules/Alerts/Rest/AlertsRestController.php:410
+#: src/Modules/Alerts/Rest/AlertsRestController.php:417
+#: src/Modules/Alerts/Rest/AlertsRestController.php:425
 msgid "Alert not found."
 msgstr "Melding niet gevonden."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:177
+#: src/Modules/Alerts/Rest/AlertsRestController.php:187
 msgid "Choose how long to snooze this alert: a day, a week, or a month."
 msgstr ""
 "Kies hoe lang je deze melding wilt uitstellen: een dag, een week of een "
 "maand."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:235
+#: src/Modules/Alerts/Rest/AlertsRestController.php:245
 msgid "Expected a preferences object."
 msgstr "Er werd een voorkeurenobject verwacht."
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:282
+#: src/Modules/Alerts/Rest/AlertsRestController.php:318
 msgid "Expected a policy object."
 msgstr "Er werd een beleidsobject verwacht."
 
@@ -49667,10 +49733,6 @@ msgstr "— Niet ingesteld —"
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:2300
-msgid "Cleared"
-msgstr "Vrijgegeven"
-
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2306
 msgid "Intensity ceiling"
 msgstr "Intensiteitsplafond"
@@ -53358,46 +53420,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:172
-msgid "Engine health"
-msgstr "Status van het systeem"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:178
-msgid "Alerts have never been checked on this site. Scheduled tasks are probably not running — until they do, every alert screen will show an empty picture, which looks the same as having nothing to report."
-msgstr "Meldingen zijn op deze site nog nooit gecontroleerd. Waarschijnlijk draaien de geplande taken niet — tot dat gebeurt, tonen alle meldingsschermen een leeg beeld, en dat ziet er hetzelfde uit als niets te melden hebben."
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:179
-msgid "Alerts were last checked more than three hours ago. Scheduled tasks have probably stopped; the alerts you see are frozen at that moment."
-msgstr "Meldingen zijn meer dan drie uur geleden voor het laatst gecontroleerd. Waarschijnlijk zijn de geplande taken gestopt; wat je ziet is bevroren op dat moment."
-
-#. translators: %s: human-readable time difference, e.g. "12 minutes"
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:187
-#, php-format
-msgid "Last checked %s ago."
-msgstr "Laatst gecontroleerd %s geleden."
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:206
-msgid "Dismissed"
-msgstr "Weggeklikt"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:207
-msgid "Check time"
-msgstr "Controletijd"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:221
-msgid "Mostly dismissed — worth reviewing"
-msgstr "Meestal weggeklikt — het bekijken waard"
-
-#. translators: %d: milliseconds the check took
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:228
-#, php-format
-msgid "%d ms"
-msgstr "%d ms"
-
-#: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:237
-msgid "An alert most people dismiss is not informing anyone — it is teaching them to dismiss alerts, and the useful ones go with it. Nothing is switched off automatically: whether an alert earns its place is a judgement about your academy, not a calculation."
-msgstr "Een melding die de meeste mensen wegklikken informeert niemand — hij leert mensen meldingen weg te klikken, en de nuttige gaan mee. Er wordt niets automatisch uitgezet: of een melding zijn plek verdient is een afweging over jullie academie, geen rekensom."
 
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
