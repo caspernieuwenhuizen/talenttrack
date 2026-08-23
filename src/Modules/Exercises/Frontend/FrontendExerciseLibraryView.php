@@ -325,19 +325,20 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
         self::field( 'players_min', __( 'Smallest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
         self::field( 'players_max', __( 'Largest group', 'talenttrack' ), 'number', [ 'inputmode' => 'numeric', 'min' => 1, 'max' => 40 ] );
 
-        // 1–10, matching the ten seeded `vct_intensity_band` lookup rows
-        // and the age profiles, which cap U13/U14 at 7. An earlier 1–5
-        // select here did not just mislabel: saving through it clamped a
-        // band 6–7 exercise down to 5.
+        // The scale comes from ExercisesRepository, never a literal (#2767).
+        // An earlier 1–5 select here did not just mislabel: saving through
+        // it clamped a band 6–7 exercise down to 5. A 1–10 select had the
+        // opposite fault — it offered bands no age profile can accommodate,
+        // and the age-safe ceiling is compared against this number.
         echo '<div class="tt-field">';
         echo '<label class="tt-field__label" for="tt-ex-band">' . esc_html__( 'Intensity', 'talenttrack' ) . '</label>';
         echo '<select id="tt-ex-band" name="intensity_band">';
         echo '<option value="">' . esc_html__( '— not set —', 'talenttrack' ) . '</option>';
-        for ( $band = 1; $band <= 10; $band++ ) {
+        for ( $band = ExercisesRepository::INTENSITY_BAND_MIN; $band <= ExercisesRepository::INTENSITY_BAND_MAX; $band++ ) {
             printf(
                 '<option value="%1$d">%2$s</option>',
                 $band,
-                /* translators: %d is an intensity level from 1 to 10. */
+                /* translators: %d is an intensity level on the exercise intensity scale. */
                 esc_html( sprintf( __( 'Level %d', 'talenttrack' ), $band ) )
             );
         }
@@ -475,8 +476,8 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
      */
     private static function intensityOptions(): array {
         $out = [ '' => __( 'Any intensity', 'talenttrack' ) ];
-        for ( $band = 1; $band <= 10; $band++ ) {
-            /* translators: %d is an intensity level from 1 to 10. */
+        for ( $band = ExercisesRepository::INTENSITY_BAND_MIN; $band <= ExercisesRepository::INTENSITY_BAND_MAX; $band++ ) {
+            /* translators: %d is an intensity level on the exercise intensity scale. */
             $out[ (string) $band ] = sprintf( __( 'Level %d', 'talenttrack' ), $band );
         }
         return $out;
