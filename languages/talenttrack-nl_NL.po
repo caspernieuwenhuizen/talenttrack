@@ -54368,18 +54368,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "Show more"
-msgstr "Meer tonen"
-
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "More photos and video loaded."
-msgstr "Meer foto's en video's geladen."
-
-#: src/Shared/Frontend/Components/MediaGallery.php
-msgid "Could not load more. Try again."
-msgstr "Meer laden lukte niet. Probeer het opnieuw."
-
 #: src/Shared/Frontend/FrontendPlayersManageView.php
 msgid "Consent on record for photos and video"
 msgstr "Toestemming vastgelegd voor foto's en video's"
