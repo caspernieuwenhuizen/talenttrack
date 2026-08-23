@@ -1,6 +1,8 @@
+# The match day team sheet has its own switch (#2769)
+
 Bump: minor
 
-**The referee's team sheet now has its own switch.** One setting used to gate
+One setting used to gate
 both match-prep exports, so an academy that files match forms digitally could
 only hide the **Wedstrijdformulier afdrukken** button by also losing **PDF
 exporteren** — the sheet the coach actually takes to the touchline. They are two

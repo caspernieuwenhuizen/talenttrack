@@ -1,6 +1,8 @@
+# Exports read in Dutch, values as well as headers (#2012)
+
 Bump: patch
 
-**Exports now read in Dutch, values as well as headers.** The column titles were
+The column titles were
 already translated; the cells under them were not, so a squad list opened in
 Excel showed *Status* over `active`, *Rol* over `coach`, and
 `["CB","LB"]` where the player's profile says *Centrale verdediger /

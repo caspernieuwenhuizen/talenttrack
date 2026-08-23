@@ -1,6 +1,8 @@
+# "Review" on an old PDP verdict reads as a state, not an instruction (#2696)
+
 Bump: patch
 
-**"Review" on an old PDP verdict now reads as a state, not an instruction.** The
+The
 word was translated once for the whole product, and the sense that won was the
 wizard's — *check what you entered before saving*. On a PDP verdict carried by
 an older plan it means something else: the plan still has to be looked at. It

@@ -1,6 +1,8 @@
+# Saving an activity no longer empties its Line-up card (#2771)
+
 Bump: patch
 
-**Saving an activity no longer empties its Line-up card.** A match prep writes
+A match prep writes
 its Starting XI and bench through onto the activity's attendance rows, and the
 activity detail's Line-up card — and the match-day team sheet's fallback — read
 nothing else. Saving the activity rewrote those rows to store status and notes

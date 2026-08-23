@@ -1,6 +1,8 @@
+# One intensity scale across the product, 1 to 7 (#2767)
+
 Bump: patch
 
-**The intensity scale is 1 to 7 everywhere.** Three parts of the product
+Three parts of the product
 disagreed about it: the exercise form offered ten levels, the handbook said
 five, and the engine, the shipped drills and the age profiles all used seven.
 That is not a cosmetic difference — intensity is the number the age-safe ceiling

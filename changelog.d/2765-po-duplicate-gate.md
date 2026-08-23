@@ -1,6 +1,7 @@
+# A translation can no longer silently revert to English after a merge (#2765)
+
 Bump: patch
 
-**A translation string can no longer silently revert to English after a merge.**
 The translation catalogues carry git's union merge driver so parallel branches
 stop conflicting on them; the cost is that a union merge takes both sides. Once
 the i18n sync has relocated a branch's appended entries into their sorted
