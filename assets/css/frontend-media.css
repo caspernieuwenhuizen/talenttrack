@@ -596,6 +596,49 @@
 	margin-top: var(--tt-sp-5, 1.25rem);
 }
 
+/* ── Paging (#2745) ───────────────────────────────────────────────── */
+
+/*
+ * "Show more" rather than infinite scroll: the oldest item stays
+ * reachable, the back button keeps working, and there are no small page
+ * targets to hit with a thumb.
+ */
+.tt-media-more {
+	display: block;
+	width: 100%;
+	margin-top: var(--tt-sp-3, 0.75rem);
+	min-height: 48px;
+}
+
+@media (min-width: 480px) {
+	.tt-media-more {
+		width: auto;
+		margin-inline: auto;
+	}
+}
+
+.tt-media-more[disabled] {
+	opacity: 0.6;
+	cursor: default;
+}
+
+/*
+ * Screen-reader-only. Defined here because the media surfaces enqueue
+ * this sheet alone — the copies in the knowledge and match-prep sheets
+ * are not loaded on a player's Media tab.
+ */
+.tt-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* ── Motion ───────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

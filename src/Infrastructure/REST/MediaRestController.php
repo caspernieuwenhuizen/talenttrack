@@ -207,11 +207,29 @@ final class MediaRestController {
     }
 
     private static function collection( string $entity_type, int $entity_id, \WP_REST_Request $request ): \WP_REST_Response {
+        // #2745 — the grid pages rather than rendering a season at once.
+        // `limit` absent means every row, which keeps every existing
+        // consumer of this endpoint behaving as it did.
+        $limit  = max( 0, (int) $request->get_param( 'limit' ) );
+        $offset = max( 0, (int) $request->get_param( 'offset' ) );
+
+        // One more than asked for, purely to answer "is there another
+        // page?" without a second COUNT(*) over the same join.
         $items = ( new MediaRepository() )->listForEntity(
             $entity_type,
             $entity_id,
-            (bool) $request->get_param( 'include_archived' )
+            (bool) $request->get_param( 'include_archived' ),
+            $limit > 0 ? $limit + 1 : 0,
+            $offset
         );
+
+        $has_more = $limit > 0 && count( $items ) > $limit;
+        if ( $has_more ) $items = array_slice( $items, 0, $limit );
+
+        // Rows consumed, not rows shown. `filterVisible()` below can drop
+        // items, and an offset advanced by the visible count would skip
+        // whatever it removed on the next page.
+        $next_offset = $offset + count( $items );
 
         $kind = (string) $request->get_param( 'kind' );
         if ( $kind !== '' && MediaKind::isValid( $kind ) ) {
@@ -225,9 +243,25 @@ final class MediaRestController {
         // item hanging off it.
         $visible = ( new MediaVisibilityService() )->filterVisible( get_current_user_id(), $items );
 
+        $shaped = array_map( [ __CLASS__, 'shape' ], $visible );
+
+        // Opt-in, so a data consumer is not made to carry markup it will
+        // never render. The gallery asks for it because assembling a tile
+        // client-side would need the nonce dance #2742 exists to avoid.
+        if ( (bool) $request->get_param( 'with_tiles' ) ) {
+            $roster   = MediaTagRoster::for( $entity_type, $entity_id );
+            $can_edit = self::canEdit();
+
+            foreach ( $visible as $i => $item ) {
+                $shaped[ $i ] = self::withTile( $shaped[ $i ], $item, $entity_type, $entity_id, $roster, $can_edit );
+            }
+        }
+
         return RestResponse::success( [
-            'items' => array_map( [ __CLASS__, 'shape' ], $visible ),
-            'total' => count( $visible ),
+            'items'       => $shaped,
+            'total'       => count( $shaped ),
+            'has_more'    => $has_more,
+            'next_offset' => $next_offset,
         ] );
     }
 
@@ -334,15 +368,23 @@ final class MediaRestController {
      * @param array<string, mixed> $shaped
      * @return array<string, mixed>
      */
-    private static function withTile( array $shaped, ?object $media, string $entity_type, int $entity_id ): array {
+    private static function withTile(
+        array $shaped,
+        ?object $media,
+        string $entity_type,
+        int $entity_id,
+        ?array $roster = null,
+        ?bool $can_edit = null
+    ): array {
         if ( ! $media ) return $shaped;
 
+        // Resolved once by a list caller and handed in — working it out per
+        // item would put a roster query behind every tile on the page.
+        if ( $roster === null )   $roster   = MediaTagRoster::for( $entity_type, $entity_id );
+        if ( $can_edit === null ) $can_edit = self::canEdit();
+
         try {
-            $shaped['tile_html'] = MediaGallery::tileHtml(
-                $media,
-                self::canEdit(),
-                MediaTagRoster::for( $entity_type, $entity_id )
-            );
+            $shaped['tile_html'] = MediaGallery::tileHtml( $media, $can_edit, $roster );
         } catch ( \Throwable $e ) {
             // The client falls back to its own minimal row.
             $shaped['tile_html'] = '';

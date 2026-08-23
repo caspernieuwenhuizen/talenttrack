@@ -82,6 +82,17 @@ Paste the web address of a video and TalentTrack works out where it is hosted. V
 the title and a thumbnail are fetched automatically. Anything else is saved as a plain link with a title you type — TalentTrack never contacts an
 address it does not recognise.
 
+### Long galleries load in pages
+
+A record with a lot of media shows the 24 most recent items and a **Show more** button underneath. Each press adds the next 24, oldest continuing
+downwards, until there is nothing left to load and the button disappears.
+
+This is deliberately a button rather than loading more as you scroll: the oldest photo stays reachable, the browser's back button keeps working, and
+there is nothing small to hit with a thumb.
+
+The number on the Media tab counts everything held for that player, not what is currently on screen — so a player showing 24 tiles and a badge
+reading 31 has seven more waiting behind the button.
+
 ## Where the files are kept
 
 Uploaded files are **not** put in the WordPress media library. A file in the WordPress media library has a public web address: anyone who knows or
