@@ -18,3 +18,16 @@ parameters:
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
     ignoreErrors: []
+    # A baseline entry that no longer matches must not fail the build.
+    #
+    # Baseline messages embed the code they describe, down to literal argument
+    # values — one of them contains `entity: 'holidays'`. Renaming that entity
+    # in #2788 left the entry unmatched, and with the default
+    # `reportUnmatchedIgnoredErrors: true` that alone turned CI red on a change
+    # that introduced no error whatsoever.
+    #
+    # Left on, any PR that fixes or edits a baselined line fails for having
+    # improved things. That makes the gate hostile, and a hostile gate gets
+    # silenced — which is the `|| true` #2103 just removed. A stale entry is
+    # harmless and disappears at the next `--generate-baseline`.
+    reportUnmatchedIgnoredErrors: false
