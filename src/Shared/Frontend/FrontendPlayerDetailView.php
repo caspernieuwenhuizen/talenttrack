@@ -1150,6 +1150,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! empty( $player->jersey_number ) ) {
             $identity_rows[] = [ __( 'Jersey number', 'talenttrack' ), (string) (int) $player->jersey_number ];
         }
+        // #2744 — shown to staff only, and always, including when the
+        // answer is no. A blank row would be read as "not asked", which is
+        // the one thing a consent record must never be ambiguous about.
+        if ( self::viewerIsStaffForPlayer( $player_id ) ) {
+            $identity_rows[] = [
+                __( 'Photo & video consent', 'talenttrack' ),
+                esc_html(
+                    ! empty( $player->media_consent )
+                        ? __( 'On record', 'talenttrack' )
+                        : __( 'Not recorded', 'talenttrack' )
+                ),
+            ];
+        }
         if ( $status_label !== '' ) {
             // #2107 — the status-history link goes to the staff-only
             // player-status-capture view; only show it to a staff viewer so

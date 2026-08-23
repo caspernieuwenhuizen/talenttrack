@@ -142,6 +142,24 @@ stored** on the academy admin's system-health strip, so it is visible in the pla
 An academy uploading match clips every week should watch that number against whatever their hosting actually provides — TalentTrack has no way to
 know the disk size it is running on.
 
+## Recording photo and video consent
+
+Each player record carries a **Photo & video consent** checkbox, on the player's edit form beside the photo. Ticking it stores the date and the name
+of the staff member who recorded it, so the entry is evidence rather than an assertion. Clearing it removes both, because the provenance of a consent
+that no longer stands would only mislead.
+
+The player's profile shows the answer to staff — including when the answer is no, since a blank would read as "nobody asked".
+
+**It records; it does not restrict.** Nothing about adding a photo checks this box. A coach can add media for a player with no consent on record, and
+the academy will not be stopped from doing so. That is deliberate. The real control is the conversation and the form the family signed; a hard block
+at the side of a pitch tends to be worked around by photographing on a personal phone instead, which leaves the child worse off than a recorded gap
+does.
+
+What the field is for is answering the question — *who may we photograph?* — before a matchday, and being able to show that the question was asked.
+
+Withdrawal is recorded by clearing the box. It does not reach back and remove photographs already stored; if a family withdraws consent and wants
+existing media removed, that is done from the player's Media tab.
+
 ## Who can see a player's media
 
 - **Staff** — coaches, scouts and administrators — see the media of the players they are responsible for, following the same permissions that

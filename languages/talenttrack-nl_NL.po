@@ -54368,6 +54368,38 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "Consent on record for photos and video"
+msgstr "Toestemming vastgelegd voor foto's en video's"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid ""
+"Records what the parent or guardian agreed to on paper. It does not "
+"restrict who can add photos — it is here so the academy can answer who it "
+"may photograph."
+msgstr ""
+"Legt vast waar de ouder of verzorger op papier mee akkoord is gegaan. Het "
+"beperkt niet wie foto's mag toevoegen — het staat hier zodat de academie "
+"kan beantwoorden wie ze mag fotograferen."
+
+#. translators: 1: date the consent was recorded, 2: name of the staff member who recorded it.
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+#, php-format
+msgid "Recorded %1$s by %2$s"
+msgstr "Vastgelegd op %1$s door %2$s"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "an unknown user"
+msgstr "een onbekende gebruiker"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Photo & video consent"
+msgstr "Toestemming foto & video"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "On record"
+msgstr "Vastgelegd"
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 
