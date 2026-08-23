@@ -326,6 +326,34 @@
 
 /* Tables (responsive) */
 .tt-dashboard .tt-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: var(--tt-sp-5); }
+
+/* #2799 — `.tt-table-scroll` is emitted by FrontendAlertPolicyView as a
+   scroll container but was never defined anywhere, so it scrolled nothing
+   and its table pushed the whole page sideways instead. */
+.tt-dashboard .tt-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* #2799 — four surfaces render a data table under a bespoke class rather
+   than `.tt-table`, so none of the shared responsive treatment reaches
+   them: no card reflow below 480px (frontend-mobile.css) and no scroll
+   container. Measured page-level overflow at 360px was 323px on spond,
+   127px on translations and strava-admin, 117px on season-rollover.
+
+   Containing the scroll in the table itself is the small fix; the correct
+   one is for these four to adopt `.tt-table` and inherit the reflow with
+   everything else, which is a visual change worth doing deliberately
+   rather than inside a defect sweep. Scoped below the desktop breakpoint
+   so wide-viewport layout is untouched. */
+@media (max-width: 1023px) {
+    .tt-dashboard .tt-spond__teams,
+    .tt-dashboard .tt-strava-admin__players,
+    .tt-dashboard .tt-translations__usage,
+    .tt-dashboard .tt-sr-table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
 .tt-dashboard .tt-table {
     width: 100%;
     border-collapse: collapse;
