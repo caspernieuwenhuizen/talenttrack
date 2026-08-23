@@ -61,6 +61,17 @@ final class FrontendTrainingPhotoView extends FrontendViewBase {
      */
     public const CONFIDENCE_SURE = 0.85;
 
+    /**
+     * How long a photograph held on a coach's phone survives (#2735).
+     *
+     * Seven days, decided 2026-08-23 and recorded in
+     * `docs/photo-capture-dpia.md` § 3: the window in which a coach who
+     * photographs on a Friday evening and looks the following weekend still
+     * has their session. It is a ceiling, not a target — a held photo is
+     * dropped the moment it has been read and reviewed.
+     */
+    public const HOLD_DAYS = 7;
+
     public static function render( int $user_id, bool $is_admin ): void {
         FrontendBreadcrumbs::fromDashboard(
             __( 'Photo to plan', 'talenttrack' ),
@@ -137,10 +148,14 @@ final class FrontendTrainingPhotoView extends FrontendViewBase {
             TT_VERSION
         );
 
+        // #2735 — the hold store, loaded first so the capture script can
+        // reach `TT.photoHold` on its own init.
+        self::enqueuePhotoHold();
+
         wp_enqueue_script(
             'tt-frontend-training-photo',
             TT_PLUGIN_URL . 'assets/js/frontend-training-photo.js',
-            [],
+            [ 'tt-photo-hold' ],
             TT_VERSION,
             true
         );
@@ -165,12 +180,43 @@ final class FrontendTrainingPhotoView extends FrontendViewBase {
                 [ 'tt_view' => 'training-plan' ],
                 RecordLink::dashboardUrl()
             ) ),
+            'holdDays'   => self::HOLD_DAYS,
             'i18n'       => self::strings(),
         ];
 
         wp_add_inline_script(
             'tt-frontend-training-photo',
             'var TT_TRAINING_PHOTO = ' . wp_json_encode( $config ) . ';',
+            'before'
+        );
+    }
+
+    /**
+     * The hold store, and the strings it renders on its own.
+     *
+     * Enqueued from here and from the plans list, because a coach who
+     * navigated away has to be able to find the photo that is waiting;
+     * `wp_enqueue_script` deduplicates.
+     */
+    public static function enqueuePhotoHold(): void {
+        wp_enqueue_script(
+            'tt-photo-hold',
+            TT_PLUGIN_URL . 'assets/js/tt-photo-hold.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        wp_add_inline_script(
+            'tt-photo-hold',
+            'var TT_PHOTO_HOLD = ' . wp_json_encode( [
+                'holdDays' => self::HOLD_DAYS,
+                'i18n'     => [
+                    'pendingOne'  => __( 'A photo is waiting to be read', 'talenttrack' ),
+                    /* translators: %d is how many photographs are waiting to be read. */
+                    'pendingMany' => __( '%d photos are waiting to be read', 'talenttrack' ),
+                ],
+            ] ) . ';',
             'before'
         );
     }
@@ -243,6 +289,18 @@ final class FrontendTrainingPhotoView extends FrontendViewBase {
             'createFailed'   => __( 'The draft could not be created. Nothing was saved; try again.', 'talenttrack' ),
             'readFailed'     => __( 'That photo could not be read. Try a clearer one, or build the plan by hand.', 'talenttrack' ),
             'offline'        => __( 'You have no connection, so the photo cannot be read yet. Try again when you have signal — nothing has been sent.', 'talenttrack' ),
+
+            // held (#2735)
+            /* translators: %d is the number of days a photo is kept on the phone. */
+            'held'           => __( 'No connection, so the photo is waiting on this phone. It is read as soon as you have signal, and is deleted after %d days whether or not it has been read.', 'talenttrack' ),
+            'heldStill'      => __( 'Still no connection. The photo is safe on this phone and will be read when you have signal.', 'talenttrack' ),
+            'resuming'       => __( 'Reading the photo that was waiting…', 'talenttrack' ),
+            'pendingOne'     => __( 'A photo is waiting to be read. It goes as soon as you have signal.', 'talenttrack' ),
+            /* translators: %d is how many photographs are waiting to be read. */
+            'pendingMany'    => __( '%d photos are waiting to be read. They go as soon as you have signal.', 'talenttrack' ),
+            'expiredOne'     => __( 'A photo waited too long and has been deleted. It was never read, so nothing was saved — take it again if you still need it.', 'talenttrack' ),
+            /* translators: %d is how many photographs were deleted. */
+            'expiredMany'    => __( '%d photos waited too long and have been deleted. They were never read, so nothing was saved — take them again if you still need them.', 'talenttrack' ),
             'tooBig'         => __( 'That photo is too large to send. Take another one, or choose a smaller file.', 'talenttrack' ),
             'nothingRead'    => __( 'Nothing could be read from that photo. Try again with the sheet flat and the whole page in frame.', 'talenttrack' ),
             'titleRequired'  => __( 'Give the training a title before creating it.', 'talenttrack' ),

@@ -19,6 +19,20 @@
     padding: var(--tt-sp-3, 12px);
 }
 
+/* #2735 — what is waiting on this phone. Sits above the viewfinder rather
+   than below it: a coach who came back for a held photo should not have to
+   scroll past a camera to learn that it is still there. Light-on-dark
+   rather than the page's `.tt-notice`, because the capture panel is the
+   sideline's dark ground. */
+.tt-photo__pending {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: var(--tt-fs-sm, 0.875rem);
+}
+
 .tt-photo__team {
     display: block;
     margin-bottom: var(--tt-sp-3, 12px);
