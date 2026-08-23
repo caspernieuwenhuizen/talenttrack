@@ -538,6 +538,42 @@ final class TileRegistry {
     }
 
     /**
+     * #2570 — may this user open this view slug?
+     *
+     * The registry already knows: `tileVisibleFor()` is what decides whether
+     * the tile appears in the nav, weighing module, sub-feature, matrix
+     * entity, `cap`, `cap_callback` and `hide_for_personas`. Until now the
+     * dispatcher asked only the matrix half of that question, so a surface
+     * the nav hid on a `cap` was still reachable by typing its URL — two
+     * sources of truth for the same question, free to drift.
+     *
+     * **Unregistered slugs fail open.** Component sub-views, wizard steps and
+     * record detail pages are routable without a tile of their own; failing
+     * closed here would deny them all. Those surfaces keep their own
+     * `render()` guards, which is what has always gated them.
+     *
+     * Where several tiles share a slug, any one granting access is enough —
+     * the same any-of semantics the nav shows, where the user sees the tile
+     * if any registration is visible to them.
+     *
+     * Deliberately *not* consulted: the persona label resolver's `HIDDEN`
+     * value. A tile hidden from a persona's nav for tidiness is still theirs
+     * to open; that is presentation, not authorization.
+     */
+    public static function canAccessViewSlug( string $slug, int $user_id ): bool {
+        if ( $slug === '' ) return true;
+
+        $registered = false;
+        foreach ( self::$tiles as $tile ) {
+            if ( (string) ( $tile['view_slug'] ?? '' ) !== $slug ) continue;
+            $registered = true;
+            if ( self::tileVisibleFor( $tile, $user_id ) ) return true;
+        }
+
+        return ! $registered;
+    }
+
+    /**
      * Convenience predicate: should this view slug be hidden because
      * its owning module is currently disabled? Returns false when no
      * single module owns the slug (cross-cutting / personal /
