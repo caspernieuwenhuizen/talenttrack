@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:21:15+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:29:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5637,6 +5637,27 @@ msgstr ""
 #: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:110
 #, php-format
 msgid "%1$s's goal \"%2$s\" is past its target date and still open."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:66
+msgid "Invitation never accepted"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:70
+msgid ""
+"An invitation was sent and never accepted. Usually the email went to spam or "
+"to a mistyped address, and nothing anywhere says so."
+msgstr ""
+
+#. translators: %s: name or email address of the person who was invited
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:121
+#, php-format
+msgid "%s was invited but has never accepted."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
+msgid "Someone"
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
@@ -34392,10 +34413,6 @@ msgstr ""
 #: src/Modules/Threads/Subscribers/GoalSystemMessageSubscriber.php:42
 #, php-format
 msgid "Goal created: %s"
-msgstr ""
-
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
-msgid "Someone"
 msgstr ""
 
 #. translators: %s is a label like "Marcus's goal: Improve first-touch under pressure"

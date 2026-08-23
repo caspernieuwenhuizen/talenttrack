@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:21:15+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:29:18+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5922,6 +5922,30 @@ msgstr "Naamloos doel"
 #, php-format
 msgid "%1$s's goal \"%2$s\" is past its target date and still open."
 msgstr "Het doel \"%2$s\" van %1$s is over de streefdatum en staat nog open."
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:66
+msgid "Invitation never accepted"
+msgstr "Uitnodiging nooit geaccepteerd"
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:70
+msgid ""
+"An invitation was sent and never accepted. Usually the email went to spam or "
+"to a mistyped address, and nothing anywhere says so."
+msgstr ""
+"Een uitnodiging is verstuurd en nooit geaccepteerd. Meestal is de e-mail in "
+"de spam beland of naar een verkeerd getypt adres gegaan, en nergens is dat "
+"te zien."
+
+#. translators: %s: name or email address of the person who was invited
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:121
+#, php-format
+msgid "%s was invited but has never accepted."
+msgstr "%s is uitgenodigd maar heeft nooit geaccepteerd."
+
+#: src/Modules/Alerts/Definitions/InvitationStaleAlert.php:158
+#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
+msgid "Someone"
+msgstr "Iemand"
 
 #: src/Modules/Alerts/Definitions/NoCoachAssignedAlert.php:38
 msgid "Upcoming activity has no coach"
@@ -36901,10 +36925,6 @@ msgstr "Status gewijzigd naar: %s"
 #, php-format
 msgid "Goal created: %s"
 msgstr "Doel aangemaakt: %s"
-
-#: src/Modules/Threads/Subscribers/NotificationSubscriber.php:50
-msgid "Someone"
-msgstr "Iemand"
 
 #. translators: %s is a label like "Marcus's goal: Improve first-touch under pressure"
 #: src/Modules/Threads/Subscribers/NotificationSubscriber.php:55
