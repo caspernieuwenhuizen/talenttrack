@@ -54081,6 +54081,9 @@ msgid_plural "%d people are already on this course and will be left as they are.
 msgstr[0] "%d persoon volgt deze cursus al en blijft ongewijzigd."
 msgstr[1] "%d personen volgen deze cursus al en blijven ongewijzigd."
 
+msgid "None of these blocks has an intensity recorded, so players with a growth-spurt ceiling could not be checked against this plan. Set an intensity on the exercises to get this warning."
+msgstr "Bij geen van deze blokken is een intensiteit vastgelegd, dus spelers met een groeispurtplafond konden niet tegen dit plan gecontroleerd worden. Leg een intensiteit vast bij de oefeningen om deze waarschuwing te krijgen."
+
 #~ msgid "Provide entity_type (player, team or activity) and entity_id."
 #~ msgstr "Geef entity_type (player, team of activity) en entity_id op."
 

@@ -177,6 +177,25 @@ body {
     color: #b3452c;
 }
 
+/* #2739 — "we could not check this", which is not a warning. Nothing is
+   known to be wrong; a check the reader might assume ran did not. Grey
+   rather than red, so a coach scanning the sheet does not read it as a
+   player needing an adapted role — but present, because an empty space
+   would read as an all-clear. */
+.tt-tp__warn--unknown {
+    border-color: #8a8f8b;
+}
+
+.tt-tp__warn--unknown h2 {
+    color: #5f6560;
+}
+
+.tt-tp__warn--unknown p {
+    margin: 0;
+    font-size: 9pt;
+    color: #444;
+}
+
 .tt-tp__warn ul {
     margin: 0;
     padding-left: 4mm;

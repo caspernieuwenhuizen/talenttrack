@@ -185,6 +185,7 @@ final class TrainingPlanBlocksRepository {
             $row['club_id']     = $club;
             $row['plan_id']     = $plan_id;
             $row['order_index'] = $index;
+            $row                = $this->inheritIntensity( $row );
 
             if ( $wpdb->insert( $this->table(), $row ) === false ) return false;
         }
@@ -255,6 +256,45 @@ final class TrainingPlanBlocksRepository {
         ) );
 
         return $ok !== false;
+    }
+
+    /**
+     * A block with no intensity of its own takes the exercise's (#2739).
+     *
+     * Only `TrainingExerciseSelectionPass` ever set this column, so every
+     * plan built any other way — the builder, the REST bulk replace, the
+     * photo flow — stored null. `phvWarning()` read that null as zero and
+     * suppressed the growth-spurt warning: not because the plan was easy,
+     * but because nobody had recorded how hard it was. Silence there is
+     * indistinguishable from an all-clear, on a sheet whose whole purpose
+     * is naming children who need an adapted role.
+     *
+     * Copied at write time rather than joined at read time, deliberately.
+     * A plan records what was agreed when it was made; re-rating an
+     * exercise next season should not retroactively change what a past
+     * plan is said to have been, and the run snapshot stores rather than
+     * joins for exactly the same reason.
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    private function inheritIntensity( array $row ): array {
+        if ( isset( $row['intensity_band'] ) && $row['intensity_band'] !== null ) return $row;
+
+        $exercise_id = (int) ( $row['exercise_id'] ?? 0 );
+        if ( $exercise_id <= 0 ) return $row;
+
+        global $wpdb;
+
+        $band = $wpdb->get_var( $wpdb->prepare(
+            "SELECT intensity_band FROM {$wpdb->prefix}tt_exercises WHERE id = %d AND club_id = %d",
+            $exercise_id,
+            CurrentClub::id()
+        ) );
+
+        if ( $band !== null ) $row['intensity_band'] = (int) $band;
+
+        return $row;
     }
 
     private function nextOrderIndex( int $plan_id ): int {

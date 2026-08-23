@@ -328,11 +328,30 @@ final class TrainingPlanRunsRepository {
                 'organisation'     => $b->organisation !== null ? (string) $b->organisation : null,
                 'coaching_points'  => $b->coaching_points !== null ? (string) $b->coaching_points : null,
                 'duration_minutes' => (int) $b->duration_minutes,
-                'intensity_band'   => $b->intensity_band !== null ? (int) $b->intensity_band : null,
+                // #2739 — same fallback the printed sheet makes. A
+                // snapshot taken from blocks written before the
+                // inheritance landed would otherwise freeze a null into
+                // the run's only history, and the sideline would carry
+                // that gap for the life of the record.
+                'intensity_band'   => self::bandOf( $b ),
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * A block's intensity, its own or the exercise's (#2739).
+     *
+     * `listForPlan()` joins the exercise and exposes its band as
+     * `exercise_intensity_band`. Reading only the block's own column is
+     * what made the growth-spurt warning silent on every plan the
+     * generator did not build.
+     */
+    private static function bandOf( object $block ): ?int {
+        $band = $block->intensity_band ?? $block->exercise_intensity_band ?? null;
+
+        return $band === null ? null : (int) $band;
     }
 
     /** @param list<object> $blocks */

@@ -155,10 +155,28 @@ final class TrainingPlanPrintable {
         $team_id = (int) ( $plan->team_id ?? 0 );
         if ( $team_id <= 0 ) return '';
 
-        $peak = 0;
+        // #2739 — fall back to the exercise's band. Only the generator
+        // ever wrote the block's own column, so every plan built by the
+        // builder, the REST bulk replace or the photo flow read as peak
+        // zero and lost this warning entirely. `listForPlan()` has always
+        // selected the exercise's band; it was fetched and not read.
+        $peak  = 0;
+        $known = false;
         foreach ( $blocks as $block ) {
-            $peak = max( $peak, (int) ( $block->intensity_band ?? 0 ) );
+            $band = $block->intensity_band ?? $block->exercise_intensity_band ?? null;
+            if ( $band === null ) continue;
+
+            $known = true;
+            $peak  = max( $peak, (int) $band );
         }
+
+        // Nothing anywhere records how hard this plan is, so the check
+        // cannot run. Saying so beats printing nothing: on a sheet whose
+        // job is naming children who need an adapted role, an empty space
+        // reads as an all-clear, and a coach has no way to tell the
+        // difference from outside.
+        if ( ! $known ) return self::phvUnknown();
+
         if ( $peak <= 0 ) return '';
 
         global $wpdb;
@@ -194,6 +212,22 @@ final class TrainingPlanPrintable {
         }
 
         return $out . '</ul></div>';
+    }
+
+    /**
+     * The check could not run (#2739).
+     *
+     * Deliberately not styled as a warning — nothing is known to be
+     * wrong. It is a statement that a check the reader might assume
+     * happened did not, which is the one thing an empty space cannot
+     * say.
+     */
+    private static function phvUnknown(): string {
+        return '<div class="tt-tp__warn tt-tp__warn--unknown"><h2>'
+            . esc_html__( 'Growth-spurt ceilings', 'talenttrack' )
+            . '</h2><p>'
+            . esc_html__( 'None of these blocks has an intensity recorded, so players with a growth-spurt ceiling could not be checked against this plan. Set an intensity on the exercises to get this warning.', 'talenttrack' )
+            . '</p></div>';
     }
 
     private static function clock( int $minutes ): string {
