@@ -142,6 +142,28 @@ foreach ( $slugs as $slug ) {
         );
     }
 
+    // #2649 — the certificate this course issues. A blank name would put an
+    // unnamed qualification on somebody's staff record, and a non-numeric
+    // validity would silently mean "never expires" when the author meant
+    // something.
+    if ( $manifest->certificationName() === '' ) {
+        $fail(
+            $rel . '/' . CourseManifest::FILENAME,
+            'No certification_name and no title to fall back on — completion would issue an unnamed certificate.'
+        );
+    }
+
+    // Read from the raw front matter, not through `validForMonths()` — that
+    // accessor coerces anything unparseable to 0, which is exactly the
+    // silent "never expires" this check exists to catch.
+    $raw_valid_for = DocFrontMatter::string( $data, 'valid_for_months' );
+    if ( $raw_valid_for !== '' && ! ctype_digit( $raw_valid_for ) ) {
+        $fail(
+            $rel . '/' . CourseManifest::FILENAME,
+            sprintf( 'valid_for_months must be a whole number of months, got "%s".', $raw_valid_for )
+        );
+    }
+
     // Declared lessons must exist and parse.
     $declared = $manifest->lessonSlugs();
     foreach ( $declared as $lesson_slug ) {

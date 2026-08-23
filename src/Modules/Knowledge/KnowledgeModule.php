@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Knowledge\Alerts\SubmissionsAwaitingReviewAlert;
 use TT\Modules\Knowledge\Rest\KnowledgeRestController;
+use TT\Modules\Knowledge\Wizards\AssignCourseWizard;
 use TT\Modules\Knowledge\Wizards\SubmitAssignmentWizard;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -48,6 +49,13 @@ class KnowledgeModule implements ModuleInterface {
 
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
+        // #2649 — completing a course puts a certificate on the coach's
+        // staff record, and reopening it takes the certificate back. Hooked
+        // rather than called from `CourseCompletionService`, so the library
+        // stays ignorant of StaffDevelopment and the binding is one line to
+        // find when somebody asks where the certificate came from.
+        CourseCertificationService::register();
+
         // The review queue as a state-derived alert (#2648). Registered
         // from here rather than in `AlertsModule::registerCoreAlerts()`,
         // because the definition reads this module's tables and belongs
@@ -65,6 +73,7 @@ class KnowledgeModule implements ModuleInterface {
         add_action( 'init', static function (): void {
             if ( class_exists( WizardRegistry::class ) ) {
                 WizardRegistry::register( new SubmitAssignmentWizard() );
+                WizardRegistry::register( new AssignCourseWizard() );
             }
         }, 20 );
 
