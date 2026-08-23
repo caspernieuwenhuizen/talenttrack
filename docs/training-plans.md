@@ -326,9 +326,45 @@ fully every night, which is what picks up a plan edited after the fact, an
 exercise re-tagged with a different principle, or attendance corrected the
 next morning.
 
+## Photographing a plan you wrote out
+
+If your academy has this switched on, **From a photo** on the training plans
+page turns a hand-written sheet into a draft. Photograph the sheet, check what
+was read, and press **Concept aanmaken**. Nothing is saved until you do — close
+the page at the checking step and there is no plan and no photo anywhere.
+
+The checking step is the point of the screen, so it shows you how sure it is
+about each line:
+
+| | What it means |
+| --- | --- |
+| Green | Matched an exercise in your library with confidence. |
+| Amber | Close to more than one exercise. Worth a look. |
+| Red | Not recognised at all. |
+
+An unrecognised line stays as a loose block if you leave it — and **then it does
+not count towards what your players have been taught**, because that count is
+built from matched exercises. Linking it, or adding it to the library, is what
+makes the minutes land on the players' records.
+
+You can change any name or duration before creating the draft, and remove a line
+that was never really there.
+
+### Where the photo goes
+
+The screen tells you, next to the shutter, before you take it. Your academy's
+administrator decides where photographs are sent to be read, and that choice is
+written into the setup rather than assumed — until it has been made, this screen
+refuses to open and says so. Player names are not copied into notes.
+
+If you have no signal, nothing is sent and the screen says so. Try again when
+you are back in range.
+
 ## What is not here yet
 
 Still to come:
 
-- the drawing tool for exercise diagrams
-- photographing a whiteboard plan and having it read back
+- holding a photograph on the phone while you are out of range, so it reads
+  itself when you get back — today you retake it
+- photographing a whiteboard rather than a sheet of paper, which needs a
+  different kind of reading

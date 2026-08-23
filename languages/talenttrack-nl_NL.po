@@ -53437,6 +53437,114 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Photo to plan"
+msgstr "Foto naar plan"
+
+msgid "You do not have permission to build training plans."
+msgstr "Je hebt geen rechten om trainingsplannen te maken."
+
+msgid "Reading a photographed plan is switched off for this academy. Build a plan by hand instead."
+msgstr "Een gefotografeerd plan laten lezen staat uit voor deze academie. Maak in plaats daarvan zelf een plan."
+
+msgid "This site has not said where photographs would be sent to be read, so this cannot be used yet. An administrator needs to set that up first. Nothing has been sent."
+msgstr "Deze site heeft niet vastgelegd waar foto's naartoe zouden gaan om gelezen te worden, dus dit kan nog niet gebruikt worden. Een beheerder moet dat eerst instellen. Er is niets verstuurd."
+
+msgid "Photograph the training you wrote out. You get a draft to check before anything is saved."
+msgstr "Fotografeer de training die je hebt uitgeschreven. Je krijgt een concept dat je nakijkt voordat er iets wordt opgeslagen."
+
+msgid "Reading a photograph needs JavaScript. You can still build a plan by hand."
+msgstr "Een foto laten lezen heeft JavaScript nodig. Zelf een plan maken kan nog steeds."
+
+msgid "Build a training plan by hand instead"
+msgstr "Zelf een trainingsplan maken"
+
+msgid "Lay the sheet flat and fill the frame"
+msgstr "Leg het blad plat en vul het kader"
+
+msgid "Take a photo"
+msgstr "Foto maken"
+
+msgid "From gallery"
+msgstr "Uit galerij"
+
+msgid "For team"
+msgstr "Voor team"
+
+msgid "No camera available on this device. Choose a photo instead."
+msgstr "Geen camera beschikbaar op dit apparaat. Kies in plaats daarvan een foto."
+
+msgid "This browser did not give access to the camera. Choose a photo from your gallery instead."
+msgstr "Deze browser gaf geen toegang tot de camera. Kies in plaats daarvan een foto uit je galerij."
+
+msgid "The photo is read by an AI service in %s and is not stored here. Player names are not copied into notes."
+msgstr "De foto wordt gelezen door een AI-dienst in %s en wordt hier niet opgeslagen. Namen van spelers worden niet overgenomen in notities."
+
+msgid "Reading…"
+msgstr "Bezig met lezen…"
+
+msgid "Usually a few seconds. You can change anything afterwards."
+msgstr "Meestal een paar seconden. Je kunt daarna alles nog aanpassen."
+
+msgid "Nothing has been saved yet."
+msgstr "Er is nog niets opgeslagen."
+
+msgid "Does this look right?"
+msgstr "Klopt dit?"
+
+msgid "%1$d exercises read · %2$d minutes. Change whatever is wrong."
+msgstr "%1$d oefeningen gelezen · %2$d minuten. Pas aan wat niet klopt."
+
+msgid "certain"
+msgstr "zeker"
+
+msgid "check this one"
+msgstr "controleer even"
+
+msgid "not recognised"
+msgstr "niet herkend"
+
+msgid "No match"
+msgstr "Geen koppeling"
+
+msgid "Close to more than one exercise. Check this is the right one."
+msgstr "Lijkt op meer dan één oefening. Controleer of dit de juiste is."
+
+msgid "Not recognised. It stays as a loose block if you leave it — and then it does not count towards what your players have been taught."
+msgstr "Niet herkend. Het blijft als los blok staan als je niets koppelt — en dan telt het niet mee voor wat je spelers geleerd hebben."
+
+msgid "Create draft"
+msgstr "Concept aanmaken"
+
+msgid "Creating the draft…"
+msgstr "Concept wordt aangemaakt…"
+
+msgid "Draft created. Opening it…"
+msgstr "Concept aangemaakt. Wordt geopend…"
+
+msgid "The draft could not be created. Nothing was saved; try again."
+msgstr "Het concept kon niet worden aangemaakt. Er is niets opgeslagen; probeer het opnieuw."
+
+msgid "That photo could not be read. Try a clearer one, or build the plan by hand."
+msgstr "Die foto kon niet gelezen worden. Probeer een scherpere, of maak het plan zelf."
+
+msgid "You have no connection, so the photo cannot be read yet. Try again when you have signal — nothing has been sent."
+msgstr "Je hebt geen verbinding, dus de foto kan nog niet gelezen worden. Probeer het opnieuw zodra je bereik hebt — er is niets verstuurd."
+
+msgid "That photo is too large to send. Take another one, or choose a smaller file."
+msgstr "Die foto is te groot om te versturen. Maak een nieuwe, of kies een kleiner bestand."
+
+msgid "Nothing could be read from that photo. Try again with the sheet flat and the whole page in frame."
+msgstr "Er kon niets uit die foto gelezen worden. Probeer het opnieuw met het blad plat en de hele pagina in beeld."
+
+msgid "Give the training a title before creating it."
+msgstr "Geef de training een titel voordat je hem aanmaakt."
+
+msgid "Choose which team this training is for."
+msgstr "Kies voor welk team deze training is."
+
+msgid "From a photo"
+msgstr "Vanaf een foto"
+
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
 
