@@ -232,12 +232,27 @@
 
 /* Breadcrumbs (#0077 F2) — replaces standalone back button on detail
    + edit views; list views still get the back button. */
-.tt-breadcrumbs { margin: 6px 0 12px; font-size: .875rem; color: var(--tt-muted, #5f6368); }
+/* #2798 — the chain is mandated on every routable view (CLAUDE.md §5a) and
+   doubles as the back-to-list affordance, so its links are load-bearing
+   navigation, not decoration. They measured 60×19px: the anchors carried no
+   padding and no height of their own. Each crumb is now its own 48px band,
+   with the top margin trimmed since the band supplies that breathing room
+   itself — net cost about 13px, not the full 29. */
+.tt-breadcrumbs { margin: 0 0 4px; font-size: .875rem; color: var(--tt-muted, #5f6368); }
 .tt-breadcrumbs ol { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
-.tt-breadcrumbs li { display: inline; }
-.tt-breadcrumbs a { color: var(--tt-primary, #0b3d2e); text-decoration: none; }
+.tt-breadcrumbs li { display: inline-flex; align-items: center; }
+.tt-breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 2px;
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+    touch-action: manipulation;
+}
 .tt-breadcrumbs a:hover, .tt-breadcrumbs a:focus { text-decoration: underline; }
-.tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; }
+.tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; min-height: 48px; }
+/* Keeps adjacent crumbs at least 8px apart now that each anchor is wider. */
 .tt-breadcrumbs__sep { margin: 0 6px; color: var(--tt-line, #d8dcde); }
 
 /* Back-link pill (v3.110.0) — URL-borne "Back to where you came from"
