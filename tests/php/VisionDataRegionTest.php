@@ -173,6 +173,48 @@ final class VisionDataRegionTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * The DPIA must not contradict the feature's actual default.
+     *
+     * It did. The document claimed `exercises_vision_extraction` was off
+     * on a fresh install and used that as a risk-table mitigation, while
+     * `FeatureRegistry` declares `'default_enabled' => true`. The claim
+     * was written during the audit meant to remove exactly this class of
+     * error, and it reached the release notes before anyone read the
+     * catalogue.
+     *
+     * So this compares the two rather than trusting either. Flipping the
+     * default later fails here, which is the moment to rewrite the
+     * paragraph — not months afterwards.
+     */
+    public function test_the_dpia_agrees_with_the_feature_default(): void {
+        $doc = (string) file_get_contents( TT_PLUGIN_DIR . 'docs/photo-capture-dpia.md' );
+        $on  = \TT\Core\FeatureRegistry::isEnabled( 'exercises_vision_extraction' );
+
+        if ( $on ) {
+            $this->assertStringContainsString(
+                'on by default',
+                $doc,
+                'the feature is on by default and the DPIA has to say so'
+            );
+
+            foreach ( [
+                'flag is off on a default install',
+                'the flag is off',
+                'it is off by default',
+            ] as $untrue ) {
+                $this->assertStringNotContainsString( $untrue, $doc, 'the DPIA states the opposite of the code' );
+            }
+            return;
+        }
+
+        $this->assertStringNotContainsString(
+            'on by default',
+            $doc,
+            'the default was turned off and the DPIA still claims otherwise'
+        );
+    }
+
     public function test_the_provider_label_promises_no_region(): void {
         $label = ( new ClaudeSonnetProvider() )->label();
 
