@@ -76,6 +76,34 @@ Translation drift is gated and reported automatically by two workflows under `.g
 
 Neither workflow commits anything — `i18n-sync.yml` (structural `.pot` regeneration + `msgmerge`) is the only workflow that writes to `languages/`.
 
+### The translation catalogue duplicates itself when you merge `main` (#2765)
+
+This one bites without warning, so read it before it does.
+
+`.gitattributes` gives `languages/*.po` the **union** merge driver. That is what stops parallel branches conflicting on the catalogue — and the cost is that a union merge takes **both** sides of every hunk. When `i18n-sync` has relocated and rewrapped your appended entries into their sorted position on `main`, merging `main` back into your branch leaves you holding the appended copy **and** the relocated one. **Git reports no conflict**, because as far as the driver is concerned nothing disagreed.
+
+It happened four times in one day, on four separate branches. The clean case is the tell: the damage depends on whether `main` has relocated an entry your branch also carries — timing, not anything you did.
+
+Why it matters: duplicate `msgid`s are what `msgfmt` refuses, so one reaching `main` can break the `.mo` compile for every locale. The quieter case is worse — when the two copies disagree, one translated and one emptied by a `msgmerge` that lost the string, gettext takes the first, and a Dutch string silently reverts to English with no error anywhere.
+
+**`po-duplicate-lint.yml` fails a PR that duplicates a msgid the base does not**, and names the strings. Run the same check locally:
+
+```
+php tools/check-po-duplicates.php
+```
+
+Pure PHP — no `msgfmt`, no `jq`, neither of which is installed on the maintainer's machine. It reads `msgctxt`, so a contextual entry sharing a `msgid` with its plain twin is not reported (a naive checker calls 21 of those a duplicate on `main` today), and it ignores obsolete `#~` blocks the way gettext does.
+
+**When it fires, rebuild rather than hand-delete:**
+
+```
+git checkout origin/main -- languages/talenttrack-nl_NL.po
+# re-add ONLY the strings this branch introduces, with their Dutch msgstr
+php tools/check-po-duplicates.php
+```
+
+Deleting one of each pair by hand also works, but the two copies can disagree and you cannot tell which one gettext would have taken. Rebuilding removes the coin flip.
+
 Dutch literals (`'Annuleren'`, `'Opslaan'`, `'Doelen…'`) as `msgid`s in PHP source are a bug — they sabotage `msgmerge` when the same literal also appears as an obsolete `#~` block in `nl_NL.po`. Always use English msgid + Dutch msgstr. The landmines on main as of v4.20.78 were cleaned up in #1339 and the PR-time gate added in #1338 prevents future regressions.
 
 ## Layout conventions

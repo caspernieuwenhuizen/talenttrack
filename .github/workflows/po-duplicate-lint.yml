@@ -1,0 +1,62 @@
+name: Translation catalogue duplicate lint
+
+# Fails a PR that duplicates a msgid the base branch does not (#2765).
+#
+# `.gitattributes` gives `languages/*.po` the union merge driver, which is
+# what stops parallel branches conflicting on the catalogue. The cost is that
+# a union merge takes BOTH sides. Once `i18n-sync` has relocated and rewrapped
+# a branch's appended entries into their sorted position on `main`, merging
+# `main` back gives the branch the appended copy AND the relocated one — and
+# git reports no conflict, because nothing disagreed.
+#
+# It happened four times in one day on four separate branches. Duplicate
+# msgids are what `msgfmt` refuses, so one reaching `main` can break the `.mo`
+# compile for every locale. The quieter case is worse: when the two copies
+# disagree, gettext takes the first, and a Dutch string silently reverts to
+# English with no error anywhere.
+#
+# This does not prevent the damage — it makes the damage impossible to merge
+# unnoticed, which is the actual problem.
+#
+# The checker is pure PHP: no `msgfmt`, no `jq`. Neither is installed on the
+# maintainer's machine, and a gate you cannot reproduce locally is a gate that
+# tells you to go and ask CI.
+
+on:
+  pull_request:
+    paths:
+      - 'languages/**'
+      - 'tools/check-po-duplicates.php'
+      - '.github/workflows/po-duplicate-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  duplicates:
+    name: No new duplicate msgids
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Fetch the base branch
+        run: git fetch origin "${{ github.base_ref }}":refs/remotes/origin/"${{ github.base_ref }}"
+
+      - name: Compare duplicate msgids against the base
+        run: php tools/check-po-duplicates.php --base="origin/${{ github.base_ref }}"
+
+      # A gate that passes is not evidence that it works. This runs the
+      # checker against catalogues built to break it, and asserts it fails
+      # on the two that should fail and stays quiet on the two that should
+      # not — a contextual twin and an obsolete block are not duplicates.
+      - name: The gate still bites
+        run: php bin/po-duplicate-selfcheck.php
