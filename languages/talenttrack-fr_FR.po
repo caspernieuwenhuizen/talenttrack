@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T13:48:39+00:00\n"
+"POT-Creation-Date: 2026-08-23T14:11:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2166,7 +2166,7 @@ msgid "Defending"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:388
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:103
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:167
 #: src/Modules/MatchAnalysis/Wizards/SetPiecesStep.php:19
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:635
 #: src/Modules/Training/Wizard/WizardContext.php:74
@@ -2408,7 +2408,7 @@ msgstr "Évaluation"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:569
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:518
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:493
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:181
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
@@ -3591,9 +3591,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:266
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:443
-#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:100
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:285
 #: src/Modules/MatchAnalysis/Wizards/PlayersStep.php:25
 #: src/Modules/MatchAnalysis/Wizards/ReviewStep.php:80
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
@@ -4444,7 +4442,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1253
 #: src/Modules/License/Admin/AccountPage.php:805
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:513
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:488
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:184
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:327
@@ -6763,9 +6761,8 @@ msgid "Cancelled"
 msgstr "Annulé"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:497
-#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:79
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:42
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:472
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:54
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:472
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:397
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:287
@@ -6833,7 +6830,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:49
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:63
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:53
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:42
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:208
@@ -12955,6 +12952,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:510
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
 #: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:238
+#: src/Modules/MatchAnalysis/Frontend/SectionRatingControl.php:86
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:857
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:945
@@ -22392,142 +22390,209 @@ msgid_plural "%1$s was played %2$d days ago and has no analysis yet."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:46
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:190
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:523
-#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintableRenderer.php:38
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:192
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:498
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:77
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:82
 #: src/Shared/Modules/ModuleMetadata.php:301
 msgid "Match analysis"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:47
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:48
 msgid "Match analysis is switched off for this academy."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:54
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:55
 msgid "Match analysis is restricted to coaches and admins."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:61
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:62
 msgid "Open Match analysis from a match activity's detail page."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:69
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:284
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:70
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:315
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:37
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:91
 msgid "A match analysis can only be written for a match activity."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:80
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:81
 msgid "This match has not been played yet. The analysis opens once it has."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:149
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:152
 msgid ""
 "Shared staff document. It names players and what they were told; please do "
 "not forward it outside the staff."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:173
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:175
 msgid "This link is no longer valid"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:175
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:177
 msgid ""
 "The analysis may have been removed, or the link may have been reissued. Ask "
 "the coach who shared it for a new one."
 msgstr ""
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:207
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:209
 #, php-format
 msgid "Away at %s"
 msgstr ""
 
 #. translators: %s: opponent name
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:209
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:211
 #, php-format
 msgid "Against %s"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:222
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:224
 msgid ""
 "This match was not prepped or run in the app, so there is nothing to pre-"
 "fill. Write it from what you saw."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:251
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:257
 #: src/Modules/MatchAnalysis/Wizards/OverallStep.php:67
 msgid "How did the match go, in a few sentences?"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:273
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:292
 msgid "Save analysis"
 msgstr ""
 
-#. translators: %s: section name, e.g. Aanvallen
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:299
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:51
-#, php-format
-msgid "Rating — %s"
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:329
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:68
+msgid "One short point…"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:307
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:56
+#. translators: 1: section name, 2: bullet number
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:332
+#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:71
+#, php-format
+msgid "%1$s — point %2$d"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:360
+msgid "Print or save as PDF"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:389
+msgid "Share with the staff"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:396
+msgid ""
+"No link exists yet, so this analysis cannot be opened by anyone outside the "
+"app."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:399
+msgid "Create share link"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:411
+msgid "Staff share link"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:414
+msgid "Copy link"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:418
+msgid ""
+"Anyone holding this link can read the analysis, including the player notes. "
+"It keeps working until you replace it."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:421
+msgid "Replace link"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:424
+msgid "The current link stops working immediately."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:51
+msgid "Replace the share link? The current one stops working immediately."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:52
+msgid "Share link created."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:53
+msgid "Link copied."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:54
+msgid "A new link has been issued. The previous one no longer works."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:55
+msgid "That did not work. Try again."
+msgstr ""
+
+#. translators: %s: opponent name
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:91
+#, php-format
+msgid "— away at %s"
+msgstr ""
+
+#. translators: %s: opponent name
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:93
+#, php-format
+msgid "— at home against %s"
+msgstr ""
+
+#. translators: %d: how many players took part
+#. translators: %d: number of players.
+#. translators: %d: number of players on the roster
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:110
+#: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:121
+#: src/Shared/Frontend/FrontendTeamDetailView.php:262
+#, php-format
+msgid "%d player"
+msgid_plural "%d players"
+msgstr[0] "%d speler"
+msgstr[1] "%d spelers"
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:178
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:99
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:176
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:195
 msgid "Not rated"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:330
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:80
-msgid "One short point…"
-msgstr ""
-
-#. translators: 1: section name, 2: bullet number
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:333
-#: src/Modules/MatchAnalysis/Wizards/SectionStepFields.php:83
+#. translators: 1: how many players were marked, 2: how many played
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:226
 #, php-format
-msgid "%1$s — point %2$d"
+msgid "Players · %1$d of %2$d mentioned"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:361
-msgid "Print or save as PDF"
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:233
+msgid "Nobody was singled out in this match."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:371
-msgid "Open staff share link"
+#. translators: %d: minutes played
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:268
+#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:119
+#, php-format
+msgid "%d'"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:376
-msgid "Revoke and reissue link"
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:286
+msgid "Staff document — please do not forward it outside the staff."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:383
-msgid ""
-"The share link is for staff. It shows the player notes in full, and anyone "
-"holding it can read them until you reissue it."
-msgstr ""
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:468
-#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:89
-msgid "Nothing has been written for this match yet."
-msgstr ""
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:41
-msgid ""
-"Reissue the share link? Everyone holding the current link loses access "
-"immediately."
-msgstr ""
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:42
-msgid "A new link has been issued. The previous one no longer works."
-msgstr ""
-
-#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisAssets.php:43
-msgid "The link could not be reissued. Try again."
+#. translators: %s: the date the sheet was printed
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:289
+#, php-format
+msgid "TalentTrack · printed %s"
 msgstr ""
 
 #: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:49
@@ -22540,12 +22605,6 @@ msgstr ""
 msgid ""
 "Everyone who played is listed. Mark the players worth a word — the rest stay "
 "untouched, which is the normal case."
-msgstr ""
-
-#. translators: %d: minutes played
-#: src/Modules/MatchAnalysis/Frontend/PlayerTallyRoster.php:119
-#, php-format
-msgid "%d'"
 msgstr ""
 
 #. translators: %s: the attention note written on the match plan
@@ -22597,33 +22656,59 @@ msgstr ""
 msgid "Nobody marked yet — that is a valid answer."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:98
+#. translators: %s: section name, e.g. Aanvallen
+#: src/Modules/MatchAnalysis/Frontend/SectionRatingControl.php:55
+#, php-format
+msgid "Rating — %s"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Frontend/SectionRatingControl.php:85
+msgid "Clear — not rated"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:116
+msgid "With the ball"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:117
+msgid "Without the ball"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:160
 msgctxt "match analysis section"
 msgid "Overall"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:139
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:165
+msgid "Set pieces — ours"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:166
+msgid "Set pieces — theirs"
+msgstr ""
+
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:206
 msgid "Went well"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:144
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:211
 msgctxt "match analysis rating"
 msgid "Mixed"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:145
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:212
 msgid "Needs work"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:156
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:223
 msgid "Stood out"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:157
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:224
 msgid "As expected"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:158
+#: src/Modules/MatchAnalysis/MatchAnalysisEnums.php:225
 msgid "Below par"
 msgstr ""
 
@@ -22639,11 +22724,15 @@ msgstr ""
 msgid "Match analysis — print"
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:126
+#: src/Modules/MatchAnalysis/Print/MatchAnalysisPrintRouter.php:89
+msgid "Nothing has been written for this match yet."
+msgstr ""
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:134
 msgid "The analysis could not be created."
 msgstr ""
 
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:147
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php:155
 msgid "That is not a section of a match analysis."
 msgstr ""
 
@@ -30909,16 +30998,6 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:74
 msgid "No teams with recent activity."
 msgstr ""
-
-#. translators: %d: number of players.
-#. translators: %d: number of players on the roster
-#: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:121
-#: src/Shared/Frontend/FrontendTeamDetailView.php:262
-#, php-format
-msgid "%d player"
-msgid_plural "%d players"
-msgstr[0] "%d speler"
-msgstr[1] "%d spelers"
 
 #. translators: %s: coach name or em-dash.
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:140
