@@ -1,3 +1,58 @@
+# TalentTrack v4.101.4 — Buttons on a phone are back to a full-size tap target (#2796)
+
+Buttons across the app were rendering 44px tall on a phone instead of the
+48px the design calls for, and the smaller variant only 32px — under a
+third of a fingertip. The rule setting the correct size was being undone
+further down by the very stylesheet meant to look after the phone layout.
+
+Buttons now meet the intended size on every handset. Desktop is unchanged.
+
+# TalentTrack v4.101.4 — Help and account buttons in the top bar are now full-size (#2797)
+
+The help button and the account chip in the dashboard top bar were slightly
+under the size a fingertip needs. Because both appear on every screen in the
+app, they were the most-missed targets in the product.
+
+Both now meet the intended size. The top bar itself is unchanged in height.
+
+# TalentTrack v4.101.4 — Breadcrumb links are now a proper tap target (#2798)
+
+The breadcrumb trail at the top of every screen had links only 19 pixels
+tall — hard to hit on a phone, and they are how you get back to a list.
+
+Each crumb is now a full-size target. The trail still reads as one line of
+text and takes only a little more room than before, because the extra
+height replaces the spacing that used to sit above it.
+
+# TalentTrack v4.101.4 — Wide tables scroll on their own instead of dragging the page sideways (#2799)
+
+Five screens — Spond, Strava admin, Translations, Season rollover and the
+alert policy diagnostics — had a table wide enough to push the whole page
+sideways on a phone, so the header and everything else slid off the screen
+with it.
+
+Those tables now scroll within themselves and the page stays put. Nothing
+changes on a desktop.
+
+# TalentTrack v4.101.4 — List controls and record links are now full-size tap targets (#2800)
+
+Opening a player, team or activity from a list meant hitting a link about
+19 pixels tall, and the pagination underneath every shared list was smaller
+still — 26-pixel page buttons and a per-page selector to match. Checkboxes
+sat at the browser's own 13-pixel default with nothing sizing them.
+
+All three now meet the intended size on touch devices. Desktop density is
+unchanged.
+
+# TalentTrack v4.101.4 — Expandable section headers are now a proper tap target (#2801)
+
+The headers you tap to expand a section — advanced options, permission
+groups, the dashboard's own tile groups — were as little as 19 pixels tall,
+because nothing in the stylesheets ever gave them a size.
+
+They now meet the intended size on touch devices, and keep their expand
+arrow. Desktop is unchanged.
+
 # TalentTrack v4.101.3 — The static-analysis gate can fail again (#2103)
 
 Nothing changes in the product. This is about the check that is supposed to
