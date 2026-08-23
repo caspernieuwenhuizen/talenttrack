@@ -610,6 +610,11 @@ return array_merge(
         // #0085 — scouts write notes about players they observe across
         // the academy (cross-team scouting workflow), so RC[global].
         'player_notes'               => [ 'rc',  'global', $mod_threads ],
+        // #2007 — tile-visibility entity for the Scouting visits tile,
+        // separated from `prospects` so a head coach can keep the
+        // onboarding funnel (#0081) without seeing the scout's outbound
+        // visits. Matrix-only, no cap bridge, same as the #0079 panels.
+        'scouting_visits_panel'      => [ 'r',   'global', $mod_prospects ],
     ] ),
 
     // ─── HEAD OF DEVELOPMENT (post-#0071 narrowing) ─────────────────
@@ -764,6 +769,10 @@ return array_merge(
         'activities_panel'              => [ 'r',   'global', $mod_activities ],
         'goals_panel'                   => [ 'r',   'global', $mod_goals ],
         'podium_panel'                  => [ 'r',   'global', $mod_stats ],
+        // #2007 — see the scout block. Separated from `prospects` so the
+        // head coach keeps the #0081 onboarding funnel without also
+        // getting the scout's outbound-visits tile.
+        'scouting_visits_panel'         => [ 'r',   'global', $mod_prospects ],
         'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
         // #0085 — HoD reads + writes + deletes notes across the academy.
@@ -927,6 +936,10 @@ return array_merge(
         'activities_panel'              => [ 'r',   'global', $mod_activities ],
         'goals_panel'                   => [ 'r',   'global', $mod_goals ],
         'podium_panel'                  => [ 'r',   'global', $mod_stats ],
+        // #2007 — see the scout block. Separated from `prospects` so the
+        // head coach keeps the #0081 onboarding funnel without also
+        // getting the scout's outbound-visits tile.
+        'scouting_visits_panel'         => [ 'r',   'global', $mod_prospects ],
         'team_chemistry_panel'          => [ 'r',   'global', $mod_team_dev ],
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
         'wp_admin_portal'               => [ 'r',   'global', $mod_authorization ],

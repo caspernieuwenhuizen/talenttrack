@@ -869,14 +869,29 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PROSPECTS,
             'view_slug'    => 'scouting-visits',
-            // v4.20.2 (#1143) — was 'scouting_visits' (phantom entity with no
-            // matrix seed for any persona, so the DashboardShortcode's
-            // matrix-dispatch gate denied every non-admin user before the
-            // view's own gate could pass). Aligned to 'prospects' to match
-            // the tile's declared cap (tt_view_prospects) and the view's
-            // own gate. Scouting visits authorization rides on prospects
-            // across every layer.
-            'entity'       => 'prospects',
+            // v4.20.2 (#1143) — was 'scouting_visits', a phantom entity with
+            // no matrix seed for any persona, so the matrix-dispatch gate
+            // denied every non-admin user before the view's own gate could
+            // pass. Aligned to 'prospects' to fix that.
+            //
+            // #2007 — now a tile-visibility entity (#0079 pattern), seeded
+            // for scout / HoD / admin but not head coach. The two tiles are
+            // not the same audience: #0081 deliberately gave the head coach
+            // `prospects:[r,team]` so they can read their own age group's
+            // onboarding funnel, while outbound visits are the scout's work.
+            // While both authorised on `prospects` they could not be
+            // separated — dropping the grant would have taken the funnel
+            // with it.
+            //
+            // Unlike the #1143 phantom this entity IS seeded (migration
+            // 0233), so the dispatch gate resolves it instead of denying
+            // everyone. That gate reads the tile's entity, which is also what
+            // denies a head coach a hand-typed `?tt_view=scouting-visits`:
+            // tile visibility and route access stay one decision.
+            //
+            // The view's own gate still checks `tt_view_prospects` — the data
+            // it renders is prospect data, and that has not changed.
+            'entity'       => 'scouting_visits_panel',
             'group'        => $trials_group,
             'kind'         => 'work',
             'order'        => 6,
