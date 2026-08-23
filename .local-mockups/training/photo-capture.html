@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foto naar plan — mockup #0096</title>
+<link rel="stylesheet" href="./_shared.css">
+<style>
+/* Wave 9. Same context as the sideline view — a phone, outdoors, held in
+   one hand — so it inherits that dark ground rather than inventing a
+   second look for the same moment. The review step goes back to paper
+   white, because that is a reading task at a table, not a doing task on
+   a pitch. */
+body { background:var(--tt-primary-deep); }
+.frame { max-width:480px; background:var(--tt-primary-deep); }
+.cap-head { padding:var(--sp-lg); color:#dfeee6; }
+.cap-head .crumb { color:#8fb8a5; } .cap-head .crumb a { color:#bfe0cf; }
+.cap-head h1 { color:#fff; font-size:20px; margin:0; }
+.cap-head p { color:#a9cfbc; font-size:13px; margin:4px 0 0; }
+
+/* ---- viewfinder ---- */
+.finder { position:relative; margin:0 var(--sp-lg); border-radius:18px; overflow:hidden; background:#0a1712; aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; }
+.finder__sim { position:absolute; inset:0; background:
+    repeating-linear-gradient(0deg,#25201a 0 2px,transparent 2px 26px),
+    repeating-linear-gradient(90deg,#231e18 0 2px,transparent 2px 40px),
+    linear-gradient(160deg,#4a4238,#2a2620); opacity:.9; }
+.finder__paper { position:absolute; inset:12% 8%; background:#efe9dc; border-radius:4px; transform:rotate(-1.5deg); box-shadow:0 8px 24px rgba(0,0,0,.5); }
+.finder__paper i { position:absolute; left:9%; right:9%; height:7px; background:#8d8474; border-radius:2px; opacity:.75; }
+.finder__guide { position:absolute; inset:6%; border:2px dashed rgba(232,182,36,.85); border-radius:12px; }
+.finder__hint { position:absolute; left:0; right:0; bottom:12px; text-align:center; color:#fff; font-size:13px; font-weight:600; text-shadow:0 1px 6px rgba(0,0,0,.8); }
+
+/* ---- shutter row ---- */
+.shutter-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; padding:16px var(--sp-lg); padding-bottom:calc(16px + env(safe-area-inset-bottom)); }
+.shutter { width:76px; height:76px; border-radius:50%; border:5px solid #fff; background:var(--tt-secondary); cursor:pointer; justify-self:center; }
+.shutter:active { transform:scale(.94); }
+.linkish { background:none; border:0; color:#bfe0cf; font-size:14px; font-weight:600; min-height:var(--tap); cursor:pointer; text-align:left; }
+.linkish.right { text-align:right; }
+
+/* ---- where it goes ---- */
+.destination { margin:0 var(--sp-lg) var(--sp-lg); background:#123f2f; border:1px solid #1d6b4f; border-radius:var(--tt-r); padding:11px 13px; color:#bfe6d1; font-size:12px; line-height:1.5; }
+.destination b { color:#fff; }
+.destination--pending { background:#3d3410; border-color:#6b5a1d; color:#f2e2b6; }
+
+/* ---- reading ---- */
+.reading { margin:0 var(--sp-lg) var(--sp-lg); background:var(--tt-paper); border-radius:18px; padding:28px var(--sp-lg); text-align:center; }
+.reading h2 { margin:0 0 6px; font-size:19px; }
+.reading p { margin:0; color:var(--tt-ink-soft); font-size:14px; }
+.spinner { width:44px; height:44px; margin:0 auto 16px; border-radius:50%; border:4px solid var(--tt-mute); border-top-color:var(--tt-primary); animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .spinner { animation:none; border-top-color:var(--tt-primary-soft); } }
+
+/* ---- review ---- */
+.review-wrap { background:var(--tt-bg); border-radius:18px 18px 0 0; padding:var(--sp-lg); }
+.review-wrap h2 { margin:0 0 4px; font-size:18px; }
+.review-wrap .sub { margin:0 0 14px; font-size:13px; color:var(--tt-ink-soft); }
+.thumb { float:right; width:64px; height:82px; margin:0 0 8px 12px; border-radius:6px; background:linear-gradient(160deg,#4a4238,#2a2620); border:2px solid var(--tt-line); }
+
+.row { background:var(--tt-paper); border:1px solid var(--tt-line); border-left-width:5px; border-radius:var(--tt-r); padding:12px; margin-bottom:10px; }
+.row--sure   { border-left-color:var(--tt-success); }
+.row--maybe  { border-left-color:var(--tt-warning); background:var(--tt-warning-subtle); }
+.row--unsure { border-left-color:var(--tt-danger); background:var(--tt-danger-subtle); }
+.row__top { display:flex; gap:10px; align-items:flex-start; }
+.row__name { flex:1; font-size:16px; font-weight:700; border:0; background:none; padding:4px 0; width:100%; }
+.row__mins { width:74px; }
+.row__mins input { width:100%; text-align:right; font-weight:700; }
+.row__match { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:8px; font-size:13px; }
+.chip { display:inline-flex; align-items:center; gap:6px; background:var(--tt-mute); border-radius:999px; padding:4px 10px; font-weight:600; }
+.chip--sure { background:var(--tt-success-subtle); color:#17512f; }
+.conf { font-variant-numeric:tabular-nums; color:var(--tt-ink-soft); font-size:12px; }
+.row__actions { margin-left:auto; display:flex; gap:6px; }
+.row__actions button { min-height:36px; font-size:13px; padding:0 10px; }
+.reason { margin:8px 0 0; font-size:12px; color:#8a3b34; }
+.row--maybe .reason { color:#7a5410; }
+
+.legend { display:flex; flex-wrap:wrap; gap:14px; margin:0 0 14px; font-size:12px; color:var(--tt-ink-soft); }
+.legend span { display:inline-flex; align-items:center; gap:6px; }
+.legend i { width:12px; height:12px; border-radius:3px; display:inline-block; }
+
+.commit { position:sticky; bottom:0; background:var(--tt-bg); padding:12px 0 calc(12px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.commit .btn { min-height:52px; }
+.nothing-saved { grid-column:1/-1; margin:0 0 4px; font-size:12px; color:var(--tt-ink-soft); text-align:center; }
+
+/* ---- offline ---- */
+.held { margin:0 var(--sp-lg) var(--sp-lg); background:var(--tt-paper); border-radius:18px; padding:var(--sp-lg); }
+.held h2 { margin:0 0 6px; font-size:18px; }
+.held p { margin:0 0 12px; font-size:14px; color:var(--tt-ink-soft); line-height:1.5; }
+.held__queue { display:flex; align-items:center; gap:10px; background:var(--tt-warning-subtle); border-radius:var(--tt-r); padding:11px 13px; font-size:13px; font-weight:600; }
+
+.state { display:none; } .state.on { display:block; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>#0096 · Golf 9 — Foto naar plan (#2502):</strong>
+    <code>?tt_view=training-photo</code> ·
+    telefoon-eerst · niets wordt bewaard vóór de coach bevestigt ·
+    <a href="./index.html">alle surfaces</a>
+</div>
+
+<div class="state-picker">
+    <button aria-pressed="true"  onclick="show('capture',this)">1 · Vastleggen</button>
+    <button aria-pressed="false" onclick="show('reading',this)">2 · Lezen</button>
+    <button aria-pressed="false" onclick="show('review',this)">3 · Nakijken</button>
+    <button aria-pressed="false" onclick="show('offline',this)">Zonder bereik</button>
+</div>
+
+<div class="frame">
+
+    <header class="cap-head">
+        <a class="back-pill" href="./plans-list.html">&larr; Terug naar Trainingen</a>
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; <a href="./plans-list.html">Training</a> &rsaquo; Foto naar plan</p>
+        <h1>Foto naar plan</h1>
+        <p>Fotografeer je uitgeschreven training. Je krijgt een concept dat je nakijkt voordat er iets wordt opgeslagen.</p>
+    </header>
+
+    <!-- ── 1. vastleggen ───────────────────────────────────────── -->
+    <div class="state on" id="s-capture">
+        <div class="finder">
+            <div class="finder__sim"></div>
+            <div class="finder__paper">
+                <i style="top:14%"></i><i style="top:26%;right:26%"></i><i style="top:38%"></i>
+                <i style="top:50%;right:34%"></i><i style="top:62%"></i><i style="top:74%;right:20%"></i>
+            </div>
+            <div class="finder__guide"></div>
+            <p class="finder__hint">Leg het blad plat en vul het kader</p>
+        </div>
+
+        <div class="shutter-row">
+            <button class="linkish">Uit galerij</button>
+            <button class="shutter" aria-label="Foto maken"></button>
+            <button class="linkish right">Zelf typen</button>
+        </div>
+
+        <div class="destination">
+            De foto wordt gelezen door een AI-dienst in <b>EU (Frankfurt)</b> en wordt
+            hier niet opgeslagen. Namen van spelers worden niet overgenomen in notities.
+        </div>
+
+        <div class="destination destination--pending">
+            <b>Nog te beslissen (DPIA-punt 4):</b> of een coach hier eenmalig akkoord
+            moet geven vóór de eerste upload. Dit blok is de plek waar dat zou staan.
+        </div>
+    </div>
+
+    <!-- ── 2. lezen ────────────────────────────────────────────── -->
+    <div class="state" id="s-reading">
+        <div class="reading">
+            <div class="spinner"></div>
+            <h2>Bezig met lezen…</h2>
+            <p>Meestal een paar seconden. Je kunt alles daarna nog aanpassen.</p>
+        </div>
+        <div class="destination">
+            Niets is opgeslagen. Sluit je dit scherm, dan is de foto weg.
+        </div>
+    </div>
+
+    <!-- ── 3. nakijken ─────────────────────────────────────────── -->
+    <div class="state" id="s-review">
+        <div class="review-wrap">
+            <div class="thumb" aria-hidden="true"></div>
+            <h2>Klopt dit?</h2>
+            <p class="sub">6 oefeningen gelezen · 52 minuten. Pas aan wat niet klopt.</p>
+
+            <div class="legend">
+                <span><i style="background:var(--tt-success)"></i> zeker</span>
+                <span><i style="background:var(--tt-warning)"></i> controleer even</span>
+                <span><i style="background:var(--tt-danger)"></i> niet herkend</span>
+            </div>
+
+            <div class="row row--sure">
+                <div class="row__top">
+                    <input class="row__name" value="Passing in vierkant" aria-label="Naam">
+                    <label class="row__mins"><input type="number" inputmode="numeric" value="12" aria-label="Minuten"></label>
+                </div>
+                <div class="row__match">
+                    <span class="chip chip--sure">✓ Rondo 4v2 · vierkant</span>
+                    <span class="conf">0,94</span>
+                    <span class="row__actions"><button class="btn btn-secondary btn-sm">Anders koppelen</button></span>
+                </div>
+            </div>
+
+            <div class="row row--sure">
+                <div class="row__top">
+                    <input class="row__name" value="Positiespel 6v4" aria-label="Naam">
+                    <label class="row__mins"><input type="number" inputmode="numeric" value="15" aria-label="Minuten"></label>
+                </div>
+                <div class="row__match">
+                    <span class="chip chip--sure">✓ Positiespel 6 tegen 4</span>
+                    <span class="conf">0,91</span>
+                    <span class="row__actions"><button class="btn btn-secondary btn-sm">Anders koppelen</button></span>
+                </div>
+            </div>
+
+            <div class="row row--maybe">
+                <div class="row__top">
+                    <input class="row__name" value="Afwerken na voorzet" aria-label="Naam">
+                    <label class="row__mins"><input type="number" inputmode="numeric" value="10" aria-label="Minuten"></label>
+                </div>
+                <div class="row__match">
+                    <span class="chip">Afwerkvorm met voorzet</span>
+                    <span class="conf">0,71</span>
+                    <span class="row__actions"><button class="btn btn-secondary btn-sm">Anders koppelen</button></span>
+                </div>
+                <p class="reason">Lijkt op twee oefeningen. Controleer of dit de juiste is.</p>
+            </div>
+
+            <div class="row row--unsure">
+                <div class="row__top">
+                    <input class="row__name" value="4 x 30m + rust" aria-label="Naam">
+                    <label class="row__mins"><input type="number" inputmode="numeric" value="8" aria-label="Minuten"></label>
+                </div>
+                <div class="row__match">
+                    <span class="chip">Geen koppeling</span>
+                    <span class="conf">0,38</span>
+                    <span class="row__actions">
+                        <button class="btn btn-secondary btn-sm">Zoek oefening</button>
+                        <button class="btn btn-secondary btn-sm">Aan bibliotheek toevoegen</button>
+                    </span>
+                </div>
+                <p class="reason">Niet herkend. Blijft als los blok staan als je niets koppelt — dan telt het niet mee voor wat je spelers geleerd hebben.</p>
+            </div>
+
+            <div class="commit">
+                <p class="nothing-saved">Er is nog niets opgeslagen.</p>
+                <a class="btn btn-secondary" href="./plans-list.html">Weggooien</a>
+                <button class="btn btn-primary">Concept aanmaken</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── zonder bereik ───────────────────────────────────────── -->
+    <div class="state" id="s-offline">
+        <div class="held">
+            <h2>Foto bewaard op deze telefoon</h2>
+            <p>
+                Er is nu geen bereik, dus de foto is nog niet gelezen. Hij staat op
+                deze telefoon en wordt gelezen zodra je verbinding hebt — dan kun je
+                het concept nakijken.
+            </p>
+            <div class="held__queue"><span>⏳</span> 1 foto wacht op bereik</div>
+        </div>
+        <div class="destination">
+            De foto blijft op de telefoon tot je hem hebt nagekeken of weggegooid.
+            <b>Bewaartermijn nog te bepalen (DPIA-punt 2).</b>
+        </div>
+        <div class="shutter-row">
+            <button class="linkish">Uit galerij</button>
+            <button class="shutter" aria-label="Nog een foto maken"></button>
+            <button class="linkish right">Zelf typen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function show(name, btn) {
+    document.querySelectorAll('.state').forEach(function (s) { s.classList.remove('on'); });
+    document.getElementById('s-' + name).classList.add('on');
+    document.querySelectorAll('.state-picker button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+    btn.setAttribute('aria-pressed', 'true');
+    document.body.style.background = (name === 'review') ? 'var(--tt-bg)' : 'var(--tt-primary-deep)';
+}
+</script>
+</body>
+</html>
