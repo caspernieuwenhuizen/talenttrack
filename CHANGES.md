@@ -1,3 +1,36 @@
+# TalentTrack v4.101.3 — The static-analysis gate can fail again (#2103)
+
+Nothing changes in the product. This is about the check that is supposed to
+catch a certain class of crash before it reaches an academy — the one that
+missed the undefined variable behind the activities-form fatal in v4.63.2, and
+reported success while doing so.
+
+It could not have caught it. The step was configured to report success
+whatever it found, it was never told what WordPress functions are so most of
+what it saw was noise, and two thirds of the codebase sat behind a rule that
+silenced every message from it. Each of those hid the next.
+
+All three are fixed. The 3820 problems it can now see are recorded as known, so
+the check passes today and fails on anything new — which is what it was always
+described as doing.
+
+# TalentTrack v4.101.3 — Four tiles that led nowhere are fixed (#2788)
+
+Four dashboard tiles were offered to people the surface behind them then turned
+away. They looked like one bug and were three.
+
+**Holidays** stays for the people who manage the academy calendar and stops
+appearing for coaches, who were only ever shown it because their planner needs
+to know when the holidays are — and it still does.
+
+**PDP planning** now opens for team managers. It is a read-only overview of
+planned versus held talks, so there was never a reason to require the right to
+edit a plan in order to look at it.
+
+**Workflow templates** and **Invitations** are administrator configuration and
+now say so. The head of development was being offered both and refused by both;
+neither shows anything they can act on, so neither is offered any more.
+
 # TalentTrack v4.101.2 — Saved-views form stays collapsed until you ask for it (#2793)
 
 On thirteen list views — teams, players, people, goals, evaluations and the
