@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 final class PlayerFileCounts {
 
     /**
-     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int}
+     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int, measurements:int, media:int}
      */
     public static function for( int $player_id ): array {
         global $wpdb;
@@ -83,6 +83,24 @@ final class PlayerFileCounts {
             $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
 
+        // #2717 — media badge. Mirrors MediaRepository::listForEntity()'s
+        // scope exactly (club on both tables, non-archived) so the badge
+        // and the tab's tile count cannot disagree. Joined through
+        // tt_media rather than counting link rows, because the link table
+        // is polymorphic and carries no archived state of its own.
+        $media = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_media m
+               INNER JOIN {$p}tt_media_links l ON l.media_id = m.id
+              WHERE l.entity_type = %s
+                AND l.entity_id = %d
+                AND m.archived_at IS NULL
+                AND " . QueryHelpers::clubScopeWhere( 'm' ) . "
+                AND " . QueryHelpers::clubScopeWhere( 'l' ),
+            \TT\Modules\Media\MediaEntityType::PLAYER,
+            $player_id
+        ) );
+
         return [
             'goals'        => $goals,
             'evaluations'  => $evaluations,
@@ -91,6 +109,7 @@ final class PlayerFileCounts {
             'trials'       => $trials,
             'notes'        => $notes,
             'measurements' => $measurements,
+            'media'        => $media,
         ];
     }
 }

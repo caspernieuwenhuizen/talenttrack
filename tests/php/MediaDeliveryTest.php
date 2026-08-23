@@ -184,6 +184,62 @@ final class MediaDeliveryTest extends WP_UnitTestCase {
         $this->assertSame( 409, $plan->get_error_data()['status'] );
     }
 
+    /**
+     * #2715 — <img> and <video> cannot send X-WP-Nonce, so byte URLs carry
+     * the nonce in the query string instead. Without it every thumbnail is
+     * answered with 401 and the tab is a wall of broken images.
+     */
+    public function test_byte_urls_carry_a_nonce(): void {
+        $uuid = 'a1b2c3d4-0000-4000-8000-000000000000';
+
+        foreach ( [ MediaDelivery::VARIANT_FILE, MediaDelivery::VARIANT_THUMB ] as $variant ) {
+            $url = MediaDelivery::url( $uuid, $variant );
+
+            // Parsed rather than pattern-matched: with plain permalinks
+            // rest_url() already carries ?rest_route=, so the nonce arrives
+            // as &_wpnonce and a suffix assertion would fail on correct code.
+            parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+            $this->assertSame(
+                wp_create_nonce( 'wp_rest' ),
+                $query['_wpnonce'] ?? null,
+                $variant . ' URL must carry a wp_rest nonce'
+            );
+            $this->assertStringContainsString( 'talenttrack/v1/media/' . $uuid . '/' . $variant, $url );
+        }
+    }
+
+    public function test_file_is_the_default_variant(): void {
+        $uuid = 'a1b2c3d4-0000-4000-8000-000000000000';
+
+        $this->assertSame(
+            MediaDelivery::url( $uuid, MediaDelivery::VARIANT_FILE ),
+            MediaDelivery::url( $uuid )
+        );
+    }
+
+    /**
+     * The nonce must never become a bearer token. A nonce is only accepted
+     * alongside the session cookie, so a URL leaked through a referrer or an
+     * access log is worthless — this pins the property the whole design
+     * rests on, since losing it would expose a minor's photograph.
+     */
+    public function test_a_nonce_alone_authenticates_nobody(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+
+        wp_set_current_user( $uid );
+        $nonce = wp_create_nonce( 'wp_rest' );
+        $this->assertNotFalse( wp_verify_nonce( $nonce, 'wp_rest' ) );
+
+        // Same nonce, no session behind it.
+        wp_set_current_user( 0 );
+
+        $this->assertFalse(
+            wp_verify_nonce( $nonce, 'wp_rest' ),
+            'A nonce minted for a logged-in user must not verify without that session.'
+        );
+    }
+
     public function test_missing_thumbnail_is_a_404_not_a_broken_stream(): void {
         $plan = MediaDelivery::plan( $this->storedImage( 'bytes' ), MediaDelivery::VARIANT_THUMB );
 

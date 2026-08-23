@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
@@ -156,6 +157,70 @@ final class MediaGalleryTest extends WP_UnitTestCase {
     }
 
     // ── helpers ────────────────────────────────────────────────────────
+
+    /**
+     * #2715 — the tile's <img> is the thing that was broken in the wild.
+     * Assert the rendered markup, not just the URL builder, because the
+     * builder was right and the view was bypassing it.
+     */
+    public function test_tile_image_urls_carry_the_nonce(): void {
+        $html = $this->renderWithOneItem( MediaKind::IMAGE );
+
+        $this->assertMatchesRegularExpression(
+            '#<img[^>]+src="[^"]*/talenttrack/v1/media/[^"]+_wpnonce=[a-z0-9]+#i',
+            $html,
+            'thumbnail <img> must carry a nonce or the browser gets a 401'
+        );
+        $this->assertMatchesRegularExpression(
+            '#data-src="[^"]*_wpnonce=[a-z0-9]+#i',
+            $html,
+            'the lightbox / video source must carry one too'
+        );
+    }
+
+    /**
+     * #2717 — the Media tab badge read a key PlayerFileCounts never set,
+     * so a player with photos showed a bare tab. Pinned against the same
+     * scope the gallery lists, so badge and tiles cannot disagree.
+     */
+    public function test_media_count_tracks_what_the_gallery_shows(): void {
+        $team   = 9701;
+        $player = $this->makePlayer( $team );
+        $links  = new MediaLinksRepository();
+
+        $this->assertSame( 0, PlayerFileCounts::for( $player )['media'] );
+
+        $a = $this->makeMedia( 'One' );
+        $b = $this->makeMedia( 'Two' );
+        $links->link( $a->id, MediaEntityType::PLAYER, $player );
+        $links->link( $b->id, MediaEntityType::PLAYER, $player );
+
+        $this->assertSame( 2, PlayerFileCounts::for( $player )['media'] );
+
+        // Media on somebody else must not leak into this player's badge.
+        $other = $this->makePlayer( $team );
+        $links->link( $this->makeMedia( 'Theirs' )->id, MediaEntityType::PLAYER, $other );
+
+        $this->assertSame( 2, PlayerFileCounts::for( $player )['media'] );
+    }
+
+    public function test_archived_media_is_not_counted(): void {
+        global $wpdb;
+
+        $player = $this->makePlayer( 9702 );
+        $media  = $this->makeMedia( 'Archived later' );
+        ( new MediaLinksRepository() )->link( $media->id, MediaEntityType::PLAYER, $player );
+
+        $this->assertSame( 1, PlayerFileCounts::for( $player )['media'] );
+
+        $wpdb->update(
+            $wpdb->prefix . 'tt_media',
+            [ 'archived_at' => current_time( 'mysql' ) ],
+            [ 'id' => $media->id ]
+        );
+
+        $this->assertSame( 0, PlayerFileCounts::for( $player )['media'] );
+    }
 
     private function renderWithOneItem( string $kind, bool $can_edit = false ): string {
         $this->grant( 'head_coach', MatrixGate::READ, MatrixGate::SCOPE_TEAM );

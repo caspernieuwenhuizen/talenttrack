@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend\Components;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Media\Authorization\MediaVisibilityService;
+use TT\Modules\Media\Delivery\MediaDelivery;
 use TT\Modules\Media\Links\VideoLinkResolver;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
@@ -95,7 +96,8 @@ final class MediaGallery {
     private static function renderTile( object $item, bool $can_edit, array $tag_players = [] ): void {
         $uuid = (string) $item->uuid;
         $kind = (string) $item->kind;
-        $base = rest_url( 'talenttrack/v1/media/' . $uuid );
+        // Nonce-bearing, because <img>/<video> cannot send the header (#2715).
+        $file_url = MediaDelivery::url( $uuid, MediaDelivery::VARIANT_FILE );
 
         $title = (string) $item->title;
         if ( $title === '' ) $title = MediaKind::label( $kind );
@@ -107,13 +109,15 @@ final class MediaGallery {
         if ( $kind === MediaKind::VIDEO_LINK ) {
             self::renderLinkTile( $item, $title, $when );
         } else {
-            $thumb = ! empty( $item->thumbnail_key ) ? $base . '/thumb' : $base . '/file';
+            $thumb = ! empty( $item->thumbnail_key )
+                ? MediaDelivery::url( $uuid, MediaDelivery::VARIANT_THUMB )
+                : $file_url;
 
             printf(
                 '<button type="button" class="tt-media-tile__open" data-role="open" data-uuid="%1$s" data-kind="%2$s" data-src="%3$s" data-title="%4$s" data-when="%5$s">',
                 esc_attr( $uuid ),
                 esc_attr( $kind ),
-                esc_url( $base . '/file' ),
+                esc_url( $file_url ),
                 esc_attr( $title ),
                 esc_attr( $when )
             );
@@ -234,7 +238,7 @@ final class MediaGallery {
         if ( ! empty( $item->thumbnail_key ) ) {
             printf(
                 '<img class="tt-media-tile__img" src="%1$s" alt="%2$s" loading="lazy" decoding="async" />',
-                esc_url( rest_url( 'talenttrack/v1/media/' . $item->uuid . '/thumb' ) ),
+                esc_url( MediaDelivery::url( (string) $item->uuid, MediaDelivery::VARIANT_THUMB ) ),
                 esc_attr( $title )
             );
         } else {

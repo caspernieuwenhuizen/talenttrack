@@ -98,6 +98,15 @@ Two guards, and it is worth knowing which one is doing the work:
 
 The second guard is the real boundary. The first is a helpful extra where the server honours it.
 
+### Media addresses expire
+
+The address a photo or video loads from is tied to your login session and stops working after about a day. This is deliberate: it means an address
+copied out of a page — pasted into a chat, caught in a server log, carried in a referrer header — cannot be used by anyone else to open the file.
+Someone who follows such a link without being logged in to TalentTrack is refused.
+
+The practical effect is small but worth recognising: a gallery left open in a browser tab overnight will show broken images the next morning.
+Reloading the page fixes it.
+
 ### Photo location data is removed
 
 A photo taken on a phone usually records where it was taken. For a photo taken at training, that is the location of a pitch full of children, and
