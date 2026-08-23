@@ -21,15 +21,22 @@ final class TrainingPhotoHoldTest extends WP_UnitTestCase {
         FrontendTrainingPhotoView::enqueuePhotoHold();
 
         // `before` data is a LIST of inline chunks, not a string — WordPress
-        // lets several callers stack scripts ahead of one handle.
+        // lets several callers stack scripts ahead of one handle, and this
+        // helper enqueues once per test, so by the third call there are
+        // three. Read them one at a time: joining them first and matching
+        // across the join spans two objects and decodes to nothing.
         $chunks = wp_scripts()->get_data( 'tt-photo-hold', 'before' );
-        $inline = is_array( $chunks ) ? implode( "\n", array_filter( $chunks, 'is_string' ) ) : (string) $chunks;
-        $this->assertNotSame( '', trim( $inline ), 'the hold script was enqueued without its config' );
+        $chunks = is_array( $chunks ) ? $chunks : [ $chunks ];
 
-        preg_match( '/TT_PHOTO_HOLD\s*=\s*(\{.*\})\s*;/s', $inline, $m );
-        $this->assertNotEmpty( $m, 'the config is not in the shape the script reads' );
+        foreach ( $chunks as $chunk ) {
+            if ( ! is_string( $chunk ) ) continue;
+            if ( ! preg_match( '/TT_PHOTO_HOLD\s*=\s*(\{.*\})\s*;/s', $chunk, $m ) ) continue;
 
-        return (array) json_decode( $m[1], true );
+            $decoded = json_decode( $m[1], true );
+            if ( is_array( $decoded ) ) return $decoded;
+        }
+
+        $this->fail( 'the hold script was enqueued without a config in the shape the script reads' );
     }
 
     /**
