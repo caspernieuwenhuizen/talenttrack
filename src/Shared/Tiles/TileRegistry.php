@@ -556,6 +556,7 @@ final class TileRegistry {
      */
     public static function isDesktopPreferred( string $slug ): bool {
         if ( $slug === '' ) return false;
+        if ( isset( self::$desktop_preferred_slugs[ $slug ] ) ) return true;
         foreach ( self::$tiles as $tile ) {
             if ( ( $tile['view_slug'] ?? '' ) === $slug ) {
                 return ! empty( $tile['desktop_preferred'] );
@@ -563,6 +564,23 @@ final class TileRegistry {
         }
         return false;
     }
+
+    /**
+     * Flag a TILE-LESS view slug as desktop-preferred (#2654).
+     *
+     * The flag used to live only on a tile, which left every surface
+     * reached from the Configuration landing unable to carry it — those
+     * slugs are registered with `registerSlugOwnership()` and have no tile
+     * to hang it on. A wide editing grid is a wide editing grid whether or
+     * not it earned a dashboard tile.
+     */
+    public static function registerDesktopPreferredSlug( string $view_slug ): void {
+        if ( $view_slug === '' ) return;
+        self::$desktop_preferred_slugs[ $view_slug ] = true;
+    }
+
+    /** @var array<string, bool> */
+    private static array $desktop_preferred_slugs = [];
 
     /**
      * Pick the right label for the persona. Falls back to '*' if the

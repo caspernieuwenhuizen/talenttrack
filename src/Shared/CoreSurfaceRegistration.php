@@ -152,6 +152,13 @@ final class CoreSurfaceRegistration {
             );
         } );
 
+        // #2654 — the frontend authorization matrix. Its own early return is
+        // the capability, so this mirrors it exactly; anything cleverer here
+        // would let the link and the view disagree about the same user.
+        $reg::register( 'matrix', static function ( int $uid ): bool {
+            return $uid > 0 && user_can( $uid, \TT\Shared\Frontend\FrontendMatrixView::CAP );
+        } );
+
         // team-chemistry / team-blueprints guard: TeamChemistryAccess::canRead.
         $chem_gate = static function ( int $uid ): bool {
             if ( ! class_exists( '\\TT\\Modules\\TeamDevelopment\\TeamChemistryAccess' )
@@ -291,6 +298,13 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'roles',              self::M_AUTHORIZATION );
+        // #2654 — the frontend authorization matrix, reached from the
+        // Configuration landing and from Roles & rights. A persona ×
+        // entity grid is honest work on a laptop and a squint on a phone,
+        // so it carries the desktop-preferred hint — non-blocking: a club
+        // admin fixing a wrong grant from the touchline still can.
+        TileRegistry::registerSlugOwnership( 'matrix',             self::M_AUTHORIZATION );
+        TileRegistry::registerDesktopPreferredSlug( 'matrix' );
         TileRegistry::registerSlugOwnership( 'usage-stats-details', self::M_STATS );
         TileRegistry::registerSlugOwnership( 'rate-cards',          self::M_STATS );
         TileRegistry::registerSlugOwnership( 'docs',               self::M_DOCUMENTATION );

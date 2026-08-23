@@ -212,6 +212,10 @@ unaffected by the player grant. See
 
 The advanced authorization pages — Authorization Matrix, Activate access control, Compare users, Permission Debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
 
+**The matrix editor is no longer one of those wp-admin links.** Since #2654 it has its own frontend surface at **Configuration → Authorization matrix** (`?tt_view=matrix`), gated on the `tt_manage_authorization` capability — granted to administrator and Club Admin — rather than on holding a WordPress administrator account. An academy with nobody in the WordPress admin can now correct an over-broad or too-narrow grant themselves, which matters because those grants decide who can open a player's evaluations, notes and medical fields.
+
+A Club Admin editing from the frontend cannot change their own persona row, nor the entities that govern the permission model, the schema or the backups; those cells are locked and stay administrator-only. The wp-admin page is unchanged and remains the recovery path if a matrix edit hides the frontend. `docs/authorization-matrix.md` has the full table of who may do what.
+
 ## Revoking a role assignment
 
 From **Access Control → Roles** (or the per-person edit panel) every assigned role has a **Revoke** action.

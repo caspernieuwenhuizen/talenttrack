@@ -216,8 +216,14 @@ class MatrixRepository {
     }
 
     /**
-     * @return array<string, array<string, array{scope_kind:string, is_default:int}>>
-     *         persona => entity => activity => details.
+     * persona => entity => activity => details.
+     *
+     * #2654 — the nesting is three levels deep, and the annotation used to
+     * declare two. Anything reading a cell got `int|string` back instead of
+     * the detail array, which is why callers were casting their way out of
+     * it rather than being type-checked.
+     *
+     * @return array<string, array<string, array<string, array{scope_kind:string, is_default:int}>>>
      */
     public function asGrid(): array {
         global $wpdb;

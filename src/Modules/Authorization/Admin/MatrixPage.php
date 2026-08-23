@@ -3,6 +3,7 @@ namespace TT\Modules\Authorization\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\Matrix\MatrixEditService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\Admin\MatrixEntityCatalog;
 
@@ -422,15 +423,19 @@ class MatrixPage {
         <?php
     }
 
+    /**
+     * #2654 — a thin wp-admin adapter over `MatrixEditService`.
+     *
+     * The diff-and-write loop used to live here. It moved so the frontend
+     * view and REST could reach the same writer; what stays is reading
+     * `$_POST` and redirecting, which is all a wp-admin handler should do.
+     * An administrator's save writes exactly what it wrote before — every
+     * cell the form submits is one they may edit.
+     */
     public static function handleSave(): void {
         if ( ! current_user_can( 'administrator' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_matrix_save', 'tt_nonce' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.save' );
-
-        $repo = new MatrixRepository();
-        $entities = $repo->entities();
-        $personas = $repo->personas();
-        $grid = $repo->asGrid();
 
         $cells = isset( $_POST['cell'] ) && is_array( $_POST['cell'] )
             ? array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['cell'] ) )
@@ -439,71 +444,7 @@ class MatrixPage {
             ? array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['scope'] ) )
             : [];
 
-        $entity_module = [];
-        foreach ( $entities as $e ) $entity_module[ $e['entity'] ] = $e['module_class'];
-
-        $activities = [ 'read', 'change', 'create_delete' ];
-        $scope_kinds = [ 'global', 'team', 'player', 'self' ];
-
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $now = current_time( 'mysql' );
-        $actor = get_current_user_id();
-
-        foreach ( $personas as $persona ) {
-            foreach ( $entities as $e ) {
-                $entity = $e['entity'];
-                $module = $e['module_class'];
-                $scope_key = $persona . '|' . $entity;
-                $scope_kind = isset( $scopes[ $scope_key ] ) && in_array( $scopes[ $scope_key ], $scope_kinds, true )
-                    ? $scopes[ $scope_key ]
-                    : 'global';
-                foreach ( $activities as $activity ) {
-                    $cell_key = $persona . '|' . $entity . '|' . $activity;
-                    $now_set = isset( $cells[ $cell_key ] );
-                    $was_details = $grid[ $persona ][ $entity ][ $activity ] ?? null;
-                    $was_set = (bool) $was_details;
-                    $was_scope = $was_details['scope_kind'] ?? 'global';
-
-                    if ( $now_set === $was_set && $was_scope === $scope_kind ) continue;
-
-                    if ( $now_set ) {
-                        // If the row exists with a different scope, remove + insert
-                        // (PRIMARY UNIQUE is on (persona, entity, activity, scope_kind)).
-                        if ( $was_set && $was_scope !== $scope_kind ) {
-                            $repo->removeRow( $persona, $entity, $activity, $was_scope );
-                        }
-                        $repo->setRow( $persona, $entity, $activity, $scope_kind, $module );
-                        $wpdb->insert( "{$p}tt_authorization_changelog", [
-                            'persona'      => $persona,
-                            'entity'       => $entity,
-                            'activity'     => $activity,
-                            'scope_kind'   => $scope_kind,
-                            'change_type'  => $was_set ? 'scope_change' : 'grant',
-                            'before_value' => $was_set ? 1 : 0,
-                            'after_value'  => 1,
-                            'actor_user_id'=> $actor,
-                            'note'         => $was_set ? "scope: {$was_scope} → {$scope_kind}" : null,
-                            'created_at'   => $now,
-                        ] );
-                    } elseif ( $was_set ) {
-                        $repo->removeRow( $persona, $entity, $activity, $was_scope );
-                        $wpdb->insert( "{$p}tt_authorization_changelog", [
-                            'persona'      => $persona,
-                            'entity'       => $entity,
-                            'activity'     => $activity,
-                            'scope_kind'   => $was_scope,
-                            'change_type'  => 'revoke',
-                            'before_value' => 1,
-                            'after_value'  => 0,
-                            'actor_user_id'=> $actor,
-                            'note'         => null,
-                            'created_at'   => $now,
-                        ] );
-                    }
-                }
-            }
-        }
+        ( new MatrixEditService() )->applyGrid( $cells, $scopes, get_current_user_id() );
 
         wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix', 'tt_msg' => 'saved' ], admin_url( 'admin.php' ) ) );
         exit;
@@ -514,21 +455,7 @@ class MatrixPage {
         check_admin_referer( 'tt_matrix_reset', 'tt_nonce' );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'matrix.reset' );
 
-        $repo = new MatrixRepository();
-        $repo->reseed();
-
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $wpdb->insert( "{$p}tt_authorization_changelog", [
-            'persona'      => '*',
-            'entity'       => '*',
-            'activity'     => '*',
-            'scope_kind'   => '*',
-            'change_type'  => 'reset',
-            'actor_user_id'=> get_current_user_id(),
-            'note'         => 'matrix reset to seed defaults',
-            'created_at'   => current_time( 'mysql' ),
-        ] );
+        ( new MatrixEditService() )->resetToDefaults( get_current_user_id() );
 
         wp_safe_redirect( add_query_arg( [ 'page' => 'tt-matrix', 'tt_msg' => 'reset' ], admin_url( 'admin.php' ) ) );
         exit;
@@ -582,17 +509,7 @@ class MatrixPage {
     }
 
     private static function personaLabel( string $persona ): string {
-        $map = [
-            'player'              => __( 'Player', 'talenttrack' ),
-            'parent'              => __( 'Parent', 'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant Coach', 'talenttrack' ),
-            'head_coach'          => __( 'Head Coach', 'talenttrack' ),
-            'head_of_development' => __( 'Head of Dev', 'talenttrack' ),
-            'scout'               => __( 'Scout', 'talenttrack' ),
-            'team_manager'        => __( 'Team Manager', 'talenttrack' ),
-            'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
-        ];
-        return $map[ $persona ] ?? $persona;
+        return MatrixEditService::personaLabel( $persona );
     }
 
     /**
@@ -666,91 +583,15 @@ class MatrixPage {
     }
 
     private static function shortModule( string $class ): string {
-        $parts = explode( '\\', $class );
-        return end( $parts );
+        return MatrixEntityCatalog::shortModule( $class );
     }
 
     /**
-     * Group the flat entity list under category headers.
-     *
-     * v3.87.0 — primary grouping is now derived from the frontend
-     * tile registry: an entity lives under whatever group its
-     * consuming tile sits in on the persona dashboard. This keeps
-     * the matrix admin and the frontend dashboard aligned in both
-     * structure AND locale, since tile groups are registered with
-     * `__()` and resolve to the operator's language at render time.
-     *
-     * Module-class fallback (the v3.0 behaviour) still kicks in for
-     * entities that no tile consumes — typical for back-office-only
-     * surfaces like `authorization_changelog` or `impersonation_log`.
-     *
-     * Group order respects whichever group label appears first when
-     * walking entities, then trails with the module-fallback "Other"
-     * bucket. This means the order matches the dashboard's natural
-     * reading order without an extra hard-coded list to maintain.
-     *
      * @param array<int, array{entity:string, module_class:string}> $entities
      * @return array<string, array<int, array{entity:string, module_class:string}>>
      */
     private static function groupEntitiesByCategory( array $entities ): array {
-        $module_to_category = [
-            'PlayersModule'         => __( 'Players', 'talenttrack' ),
-            'PeopleModule'          => __( 'Players', 'talenttrack' ),
-            'TeamsModule'           => __( 'Teams', 'talenttrack' ),
-            'ActivitiesModule'      => __( 'Activities', 'talenttrack' ),
-            'EvaluationsModule'     => __( 'Evaluations', 'talenttrack' ),
-            'GoalsModule'           => __( 'Development', 'talenttrack' ),
-            'PdpModule'             => __( 'Development', 'talenttrack' ),
-            'MethodologyModule'     => __( 'Development', 'talenttrack' ),
-            'TeamDevelopmentModule' => __( 'Development', 'talenttrack' ),
-            'DevelopmentModule'     => __( 'Development', 'talenttrack' ),
-            'ReportsModule'         => __( 'Insights', 'talenttrack' ),
-            'StatsModule'           => __( 'Insights', 'talenttrack' ),
-            'WorkflowModule'        => __( 'Operations', 'talenttrack' ),
-            'InvitationsModule'     => __( 'Operations', 'talenttrack' ),
-            'DocumentationModule'   => __( 'Operations', 'talenttrack' ),
-            'OnboardingModule'      => __( 'Operations', 'talenttrack' ),
-            'AuthorizationModule'   => __( 'Administration', 'talenttrack' ),
-            'ConfigurationModule'   => __( 'Administration', 'talenttrack' ),
-            'LicenseModule'         => __( 'Administration', 'talenttrack' ),
-            'BackupModule'          => __( 'Administration', 'talenttrack' ),
-            'DemoDataModule'        => __( 'Administration', 'talenttrack' ),
-        ];
-
-        $group_order = [];
-        $buckets     = [];
-        foreach ( $entities as $row ) {
-            $entity = (string) ( $row['entity'] ?? '' );
-            $cat    = MatrixEntityCatalog::groupForEntity( $entity );
-            if ( $cat === null || $cat === '' ) {
-                $short = self::shortModule( (string) $row['module_class'] );
-                $cat   = $module_to_category[ $short ] ?? __( 'Other', 'talenttrack' );
-            }
-            if ( ! isset( $buckets[ $cat ] ) ) {
-                $group_order[]   = $cat;
-                $buckets[ $cat ] = [];
-            }
-            $buckets[ $cat ][] = $row;
-        }
-        foreach ( $buckets as &$rows ) {
-            usort( $rows, static fn( $a, $b ) => strcmp( (string) $a['entity'], (string) $b['entity'] ) );
-        }
-        unset( $rows );
-
-        // Honour the order in which groups first appeared. Push the
-        // "Other" bucket to the end if it exists so back-office
-        // entities don't shove user-facing groups around.
-        $other = __( 'Other', 'talenttrack' );
-        if ( isset( $buckets[ $other ] ) ) {
-            $group_order = array_values( array_filter( $group_order, static fn( $g ) => $g !== $other ) );
-            $group_order[] = $other;
-        }
-
-        $ordered = [];
-        foreach ( $group_order as $cat ) {
-            $ordered[ $cat ] = $buckets[ $cat ];
-        }
-        return $ordered;
+        return MatrixEntityCatalog::groupByCategory( $entities );
     }
 
     private static function cellTitle( string $persona, string $entity, string $activity, bool $is_set, bool $is_default ): string {
