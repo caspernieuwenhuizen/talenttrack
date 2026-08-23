@@ -122,16 +122,32 @@ final class TileGateDivergenceTest extends WP_UnitTestCase {
     /**
      * The other direction: a divergence that has been fixed must not linger in
      * KNOWN, or the list rots into a place where real ones can hide.
+     *
+     * Only slugs whose tile is actually registered in this environment count.
+     * A tile whose module is switched off does not register, and "absent"
+     * is not "resolved" — reading it as resolved would make this assertion
+     * fail wherever the module set differs from the one the baseline was
+     * taken on, which is every environment sooner or later.
      */
     public function test_the_known_list_holds_no_resolved_entries(): void {
-        $found   = $this->divergences();
-        $stale   = array_diff_key( self::KNOWN, $found );
+        $found      = $this->divergences();
+        $registered = [];
+        foreach ( TileRegistry::allRegistered() as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? '' );
+            if ( $slug !== '' ) $registered[ $slug ] = true;
+        }
+
+        $stale = [];
+        foreach ( self::KNOWN as $slug => $personas ) {
+            if ( ! isset( $registered[ $slug ] ) ) continue;
+            if ( ! isset( $found[ $slug ] ) ) $stale[] = $slug;
+        }
 
         $this->assertSame(
             [],
             $stale,
-            'these are no longer divergent and should be removed from KNOWN: '
-            . implode( ', ', array_keys( $stale ) )
+            'these are registered and no longer divergent — remove them from KNOWN: '
+            . implode( ', ', $stale )
         );
     }
 
