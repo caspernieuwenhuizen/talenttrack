@@ -169,6 +169,9 @@ final class MatrixEntityCatalog {
             // #0081 — Onboarding pipeline.
             'prospects'                     => __( 'Prospects', 'talenttrack' ),
             'test_trainings'                => __( 'Test trainings', 'talenttrack' ),
+            // #2007 — tile visibility only: who is OFFERED the scout's visit
+            // planner. Reading the visits themselves is still `prospects`.
+            'scouting_visits_panel'         => __( 'Scouting visits (tile)', 'talenttrack' ),
             // #0085 — Player notes (staff-only running log).
             'player_notes'                  => __( 'Player notes', 'talenttrack' ),
             // #0083 Child 5 — central analytics surface.

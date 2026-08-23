@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
+use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -29,7 +30,17 @@ use TT\Shared\Wizards\WizardEntryPoint;
 class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! $is_admin ) {
+        // #2007 — two questions, and both have to pass. The cap decides
+        // whether this user may read prospect data at all; the panel entity
+        // decides whether the scout's visit surfaces are theirs. A head
+        // coach holds the first on purpose (their own age group's funnel,
+        // #0081) and must not hold the second. This view has no tile, so
+        // the dashboard's dispatch gate has no entity to read for it —
+        // without the check here it stays reachable by URL.
+        $allowed = AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
+            && ScoutingVisitsAccess::allows( $user_id, $is_admin );
+
+        if ( ! $allowed && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'Scouting visit', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to scouting visits.', 'talenttrack' ) . '</p>';
