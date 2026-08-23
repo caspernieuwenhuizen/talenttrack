@@ -59,7 +59,7 @@ final class PlayerWithoutTeamAlert extends AbstractDataQualityAlert {
         return 'tt_manage_players';
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 

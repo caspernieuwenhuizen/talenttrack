@@ -211,6 +211,7 @@ final class AlertEscalationTest extends WP_UnitTestCase {
 
             public function key(): string { return AlertEscalationTest::KEY; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Escalating stub'; }
             public function description(): string { return 'Stub for escalation tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }
@@ -277,6 +278,7 @@ final class AlertEscalationTest extends WP_UnitTestCase {
 
             public function key(): string { return AlertEscalationTest::KEY; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Escalating stub'; }
             public function description(): string { return 'Stub for escalation tests.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }

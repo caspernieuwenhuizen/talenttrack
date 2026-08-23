@@ -22,10 +22,16 @@ use TT\Modules\Workflow\Dispatchers\CronDispatcher;
  * exactly this; so does this class.
  *
  * Epic decision 2: the dashboard never evaluates. Surfaces read persisted
- * occurrences only, and this sweep is what keeps them true. The cost is up
- * to an hour of staleness after a coach fixes something, accepted for wave
- * 1 in exchange for a login that does no work. Event-driven invalidation
- * (decision 6) is deferred; `AlertContext` already carries the seam.
+ * occurrences only, and this sweep is what keeps them true.
+ *
+ * Since #2731 it is no longer the only thing that does. Event-driven
+ * invalidation (decision 6) reconciles the specific record a save touched,
+ * so a fixed condition clears on the next render rather than within the
+ * hour — see `Invalidation\AlertInvalidationBuffer`. This sweep stays as
+ * the backstop, and it is the only thing that can catch a condition that
+ * became true because time passed: a certificate expiring, a session
+ * falling past its grace period, an invitation going stale. Nothing fires
+ * an event for those.
  *
  * Per-club iteration, unauthenticated: the tick fires with no logged-in
  * user, so `CurrentClub::id()` cannot be trusted to resolve. Every club is

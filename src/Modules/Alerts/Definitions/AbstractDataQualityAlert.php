@@ -85,7 +85,7 @@ abstract class AbstractDataQualityAlert implements AlertInterface {
      */
     abstract protected function rows( AlertContext $context ): array;
 
-    abstract protected function subjectType(): string;
+    abstract public function subjectType(): string;
 
     abstract protected function titleFor( object $row ): string;
 

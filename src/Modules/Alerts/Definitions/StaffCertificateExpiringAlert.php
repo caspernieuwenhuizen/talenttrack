@@ -69,6 +69,10 @@ final class StaffCertificateExpiringAlert implements AlertInterface {
         return 'people';
     }
 
+    public function subjectType(): string {
+        return self::SUBJECT_TYPE;
+    }
+
     public function label(): string {
         return __( 'Certificate expiring', 'talenttrack' );
     }

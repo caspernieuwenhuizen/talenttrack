@@ -291,6 +291,7 @@ final class AlertsReconcileTest extends WP_UnitTestCase {
 
             public function key(): string { return $this->alertKey; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Test alert'; }
             public function description(): string { return 'Test alert.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }
@@ -308,6 +309,7 @@ final class AlertsReconcileTest extends WP_UnitTestCase {
             public function __construct( string $key ) { $this->alertKey = $key; }
             public function key(): string { return $this->alertKey; }
             public function module(): string { return 'test'; }
+            public function subjectType(): string { return 'activity'; }
             public function label(): string { return 'Broken alert'; }
             public function description(): string { return 'Throws.'; }
             public function defaultSeverity(): string { return Severity::ATTENTION; }

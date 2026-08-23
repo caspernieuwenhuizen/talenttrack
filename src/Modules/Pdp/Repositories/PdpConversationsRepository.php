@@ -189,7 +189,25 @@ class PdpConversationsRepository {
         if ( empty( $clean ) ) return false;
 
         $ok = $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        return $ok !== false;
+        if ( $ok === false ) return false;
+
+        /**
+         * #2731 — a conversation in a PDP cycle was updated. Stamping
+         * `conducted_at` is the interesting case, and the only one the
+         * alerts engine reacts to, but the event is not narrowed to it:
+         * a hook that fires for some updates and not others is the kind
+         * anyone integrating later gets wrong.
+         *
+         * @param int $conversation_id
+         * @param int $pdp_file_id
+         */
+        do_action(
+            'tt_pdp_conversation_saved',
+            $id,
+            (int) ( $this->find( $id )->pdp_file_id ?? 0 )
+        );
+
+        return true;
     }
 
     /**

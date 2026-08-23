@@ -287,7 +287,23 @@ class MeasurementResultsRepository {
             'recorded_by'   => get_current_user_id() ?: null,
             'created_at'    => current_time( 'mysql', true ),
         ] );
-        return (int) $wpdb->insert_id;
+
+        $id = (int) $wpdb->insert_id;
+
+        /**
+         * #2731 — a measurement result was recorded or changed.
+         *
+         * Carries the player as well as the result because that is the
+         * question listeners ask: "has this player been measured?" is a
+         * player-level condition, and resolving the id back to a player
+         * would otherwise be a query per listener.
+         *
+         * @param int $result_id
+         * @param int $player_id
+         */
+        do_action( 'tt_measurement_result_saved', $id, (int) ( $data['player_id'] ?? 0 ) );
+
+        return $id;
     }
 
     /**
@@ -303,11 +319,19 @@ class MeasurementResultsRepository {
         if ( array_key_exists( 'value_numeric', $data ) ) $fields['value_numeric'] = $data['value_numeric'] !== '' && $data['value_numeric'] !== null ? (float) $data['value_numeric'] : null;
         if ( array_key_exists( 'value_text', $data ) )    $fields['value_text']    = $data['value_text'] !== '' ? (string) $data['value_text'] : null;
 
-        return false !== $wpdb->update(
+        $ok = false !== $wpdb->update(
             "{$p}tt_measurement_results",
             $fields,
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
+
+        // Editing `recorded_date` can move a result out of the season it
+        // was counted in, so an edit is as much a change of state as an
+        // insert. The player is looked up rather than assumed: the patch
+        // shape here never carries one.
+        if ( $ok ) $this->announceResultSaved( $id );
+
+        return $ok;
     }
 
     /**
@@ -318,10 +342,32 @@ class MeasurementResultsRepository {
         if ( $id <= 0 ) return false;
         global $wpdb;
         $p = $wpdb->prefix;
-        return false !== $wpdb->update(
+
+        // Read first: `find()` filters archived rows out, so afterwards
+        // there is nothing to resolve the player from.
+        $player_id = (int) ( $this->find( $id )->player_id ?? 0 );
+
+        $ok = false !== $wpdb->update(
             "{$p}tt_measurement_results",
             [ 'archived_at' => current_time( 'mysql', true ), 'archived_by' => $by_user_id ?: null ],
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
+
+        if ( $ok ) $this->announceResultSaved( $id, $player_id );
+
+        return $ok;
+    }
+
+    /**
+     * #2731 — fire `tt_measurement_result_saved`, resolving the player when
+     * the caller does not already know it.
+     *
+     * Documented on {@see self::create()}.
+     */
+    private function announceResultSaved( int $id, int $player_id = 0 ): void {
+        if ( $player_id <= 0 ) {
+            $player_id = (int) ( $this->find( $id )->player_id ?? 0 );
+        }
+        do_action( 'tt_measurement_result_saved', $id, $player_id );
     }
 }

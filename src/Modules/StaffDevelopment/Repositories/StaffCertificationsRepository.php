@@ -63,7 +63,19 @@ class StaffCertificationsRepository {
             'document_url'        => (string) ( $data['document_url'] ?? '' ),
         ];
         $ok = $this->wpdb->insert( $this->table, $row );
-        return $ok ? (int) $this->wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+
+        $id = (int) $this->wpdb->insert_id;
+
+        /**
+         * #2731 — a staff certificate was recorded, renewed or archived.
+         *
+         * @param int $certification_id
+         * @param int $person_id
+         */
+        do_action( 'tt_staff_certification_saved', $id, (int) $row['person_id'] );
+
+        return $id;
     }
 
     public function update( int $id, array $data ): bool {
@@ -71,11 +83,18 @@ class StaffCertificationsRepository {
         $allowed = [ 'cert_type_lookup_id', 'issuer', 'issued_on', 'expires_on', 'document_url', 'archived_at' ];
         $row = array_intersect_key( $data, array_flip( $allowed ) );
         if ( ! $row ) return false;
-        return (bool) $this->wpdb->update(
+        $ok = (bool) $this->wpdb->update(
             $this->table,
             $row,
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
+
+        /** This event documented on {@see self::create()}. */
+        if ( $ok ) {
+            do_action( 'tt_staff_certification_saved', $id, (int) ( $this->find( $id )->person_id ?? 0 ) );
+        }
+
+        return $ok;
     }
 
     public function archive( int $id ): bool {

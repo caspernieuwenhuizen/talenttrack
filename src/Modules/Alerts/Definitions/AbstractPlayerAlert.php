@@ -90,7 +90,7 @@ abstract class AbstractPlayerAlert implements AlertInterface {
      * definition whose subject is a different record (an evaluation, a
      * goal) overrides this and `subjectIdFor()` together.
      */
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return static::SUBJECT_TYPE;
     }
 

@@ -73,7 +73,7 @@ final class EvaluationNotSharedAlert extends AbstractPlayerAlert {
         return 'tt_edit_evaluations';
     }
 
-    protected function subjectType(): string {
+    public function subjectType(): string {
         return self::SUBJECT_TYPE;
     }
 
