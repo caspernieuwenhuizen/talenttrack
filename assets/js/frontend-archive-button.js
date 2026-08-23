@@ -244,7 +244,14 @@
                         btn.disabled = false;
                         window.alert('Network error. Please try again.');
                     });
-                } );
+                    // #2684 — `opts` carries the per-action title, confirm
+                    // label, variant and opt-in checkbox. It was built above
+                    // and then never passed, so every action fell back to the
+                    // archive defaults: Reopen and Restore asked "Archive
+                    // record" behind a red button, and the team cascade
+                    // checkbox (#2411) could never be shown, which meant its
+                    // value went out as `false` on every team archive.
+                } , opts );
             });
         });
     }

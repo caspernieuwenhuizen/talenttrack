@@ -631,6 +631,14 @@
     .tt-dashboard .tt-act-detail__grid { grid-template-columns: 1fr 1fr; }
     .tt-dashboard .tt-act-card-d--span2 { grid-column: 1 / -1; }
 }
+
+/*
+ * #2763 — cards size to their own content. Grid's default `stretch` made
+ * every card as tall as the tallest one in its row, so Expected attendance
+ * ran to ~570px with five rows of chips in it and white space under them,
+ * purely because the line-up beside it was long.
+ */
+.tt-dashboard .tt-act-detail__grid { align-items: start; }
 .tt-dashboard .tt-act-card-d {
     background: #fff;
     border: 1px solid var(--tt-line, #e2e8f0);
@@ -807,6 +815,16 @@
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
+    /*
+     * #2763 — a chip carrying three positions ("CDM, CM, CAM") took
+     * whatever width it wanted and pushed the name into the ellipsis. The
+     * span2 card gives both room now, but cap the chip anyway so a
+     * pathological value can never again be the thing that eats the name.
+     */
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding: 2px 8px;
     border-radius: 999px;
     background: var(--tt-bg-soft, #eef1f0);

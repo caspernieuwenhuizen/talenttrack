@@ -181,11 +181,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // no prep row exists, or directly to the form when it
                 // does (FrontendMatchPrepView handles the redirect).
                 $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
-                // #2253 — tournaments are minutes-bearing too. A single-game
-                // tournament runs the same match-prep + execution surface as
-                // a match; a multi-game day records minutes via the manual
-                // per-player entry (#2159). Both write actual minutes.
-                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true ) && $can_edit_acts ) {
+                if ( self::offersFixtureSurfaces( $type_key ) && $can_edit_acts ) {
                     // #1479 — carry the back-target so match prep can
                     // render the "← Back to <activity>" pill (CLAUDE.md §5).
                     $prep_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
@@ -1197,12 +1193,40 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * Grouping happens in ActivitiesRepository (CLAUDE.md §4). Renders
      * nothing when no line-up has been captured yet.
      */
+    /**
+     * Does this activity type get the per-FIXTURE surfaces — match
+     * preparation and the live-match screen?
+     *
+     * Matches and games only. #2253 added tournaments on the assumption of a
+     * single-game day; #2686 took them back out, because multi-game days are
+     * the common case at the younger age groups and `tt_match_prep` holds one
+     * row per activity. A whole tournament would therefore get one
+     * availability list, one line-up and one set of player goals — not merely
+     * incomplete, but wrong, and silently so.
+     *
+     * Tournaments remain minutes-bearing: they use the minutes grid and the
+     * per-player entry (#2159), which model a multi-game day correctly
+     * because they are per player rather than per fixture.
+     */
+    private static function offersFixtureSurfaces( string $type_key ): bool {
+        return in_array(
+            strtolower( $type_key ),
+            [ 'match', ActivityTypeKey::GAME ],
+            true
+        );
+    }
+
     private static function renderLineupCard( object $session ): void {
         $lineup = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
             ->lineupForActivity( (int) ( $session->id ?? 0 ) );
         if ( $lineup->starting === [] && $lineup->bench === [] ) return;
 
-        echo '<div class="tt-act-card-d">';
+        // #2763 — the line-up spans the whole card grid. In a half-width
+        // card it splits again into Starting XI | Bench, leaving each player
+        // row a quarter of the page, and the name is what gives way: a bench
+        // row carrying "CDM, CM, CAM" truncated to "#4 M...", which answers
+        // nothing on the one screen a coach opens on match day.
+        echo '<div class="tt-act-card-d tt-act-card-d--span2">';
         echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
             . esc_html__( 'Line-up', 'talenttrack' ) . '</h3></div>';
         echo '<div class="tt-act-card-d__body">';
