@@ -308,6 +308,61 @@ re-initialised afterwards. The first paint deliberately does not save —
 rendering what was already stored is not a change, and writing it back would
 touch the record on every page view.
 
+### Quizzes
+
+A lesson declaring `quiz: true` must also carry a `tt-quiz` block, or the
+questions are scored by nothing and appear nowhere. The corpus lint fails a
+PR for either half being missing — a rule added after #2647 found ten lessons
+with valid payloads and no block.
+
+**Scoring is server-side, and that is not a preference.** The payload carries
+the answer key, so a client-side scorer would have to be handed the answers to
+do its job. `QuizScorer` marks the submission; the browser only sends what was
+filled in and renders what comes back.
+
+**Options are shuffled per render.** Every `order` and `match` answer in the
+shipped corpus is the identity permutation — the stored order *is* the correct
+sequence — so rendering options as stored would hand the reader the answer to
+every sequencing question in the course. `single` and `multiple` are shuffled
+too, so a corpus author who habitually writes the right answer first cannot
+leak a pattern across a course.
+
+Because the shuffle happens per render, the browser cannot submit indices:
+it would be naming positions the server has already forgotten. It submits
+**option labels**, which the reader can already see, and the server maps them
+back. No index and no answer key crosses the wire, and there is no per-render
+state to keep. The corpus lint guarantees no two options in a question share a
+label, which is what makes the mapping unambiguous.
+
+| Type | Control | Submits |
+| --- | --- | --- |
+| `single` | radio group | one label |
+| `multiple` | checkbox group | labels, order irrelevant |
+| `order` | a number box per option | `label => position`, sorted server-side |
+| `match` | a select per left-hand item | one label per pair, in pair order |
+
+Ordering uses position boxes rather than drag-and-drop. Dragging is nicer with
+a mouse and unusable with a keyboard, and §2 requires a non-gesture path
+anyway — typing a position *is* that path rather than a fallback bolted beside
+one.
+
+**No partial credit.** A multi-part answer is either the answer or it is not;
+half an ordering is not half an understanding of the sequence. A skipped
+question is wrong rather than ignored, because a quiz where skipping cannot
+hurt you is one a reader passes by answering only what they are sure of.
+
+**Every attempt is recorded**, passed or not, in `tt_course_quiz_attempts`.
+Retakes are unlimited. Passing writes `quiz_passed_at` on the lesson's
+progress row, which is what the sequential gate reads.
+
+Explanations come back for right answers as well as wrong ones: a coach who
+guessed correctly learns as much from the reason as one who did not.
+
+The quiz is a real `<form>`. With JavaScript unavailable it posts, is scored
+by the same `QuizScorer`, and re-renders with the result above the lesson;
+`knowledge-quiz.js` upgrades that to an in-place submission using the same
+field names, so the two paths are the same payload by construction.
+
 ### Gating
 
 Six gates, resolved in one pass. The first four are shared with the help

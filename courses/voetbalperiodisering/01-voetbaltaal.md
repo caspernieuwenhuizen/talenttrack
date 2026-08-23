@@ -95,6 +95,9 @@ oefenvorm, een andere werk-rustverhouding en een andere hersteltijd. Zonder
 dat onderscheid wordt elke conditietraining hetzelfde.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="01-herschrijven"
 **Praktijkopdracht 1**
 

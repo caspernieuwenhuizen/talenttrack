@@ -318,6 +318,62 @@ achteraf opnieuw mee te worden opgestart. De eerste weergave slaat bewust
 niets op — tonen wat er al stond is geen wijziging, en terugschrijven zou het
 dossier bij elke paginaweergave aanraken.
 
+### Toetsen
+
+Een les met `quiz: true` moet ook een `tt-quiz`-blok bevatten, anders worden de
+vragen door niets nagekeken en verschijnen ze nergens. De corpus-lint faalt als
+een van beide helften ontbreekt — een regel die is toegevoegd nadat #2647 tien
+lessen vond met geldige vragen en geen blok.
+
+**Nakijken gebeurt server-side, en dat is geen voorkeur.** De vragenlijst bevat
+de antwoordsleutel, dus een nakijker in de browser zou die sleutel moeten
+krijgen om zijn werk te doen. `QuizScorer` kijkt na; de browser stuurt alleen
+wat is ingevuld en toont wat terugkomt.
+
+**Opties worden per weergave geschud.** Elk `order`- en `match`-antwoord in het
+meegeleverde corpus is de identieke volgorde — de opgeslagen volgorde *is* het
+juiste antwoord — dus de opties tonen zoals ze zijn opgeslagen zou het antwoord
+op elke volgordevraag weggeven. `single` en `multiple` worden ook geschud,
+zodat een auteur die het juiste antwoord gewoontegetrouw vooraan zet geen
+patroon door de cursus heen lekt.
+
+Omdat er per weergave geschud wordt, kan de browser geen indexen insturen: die
+zouden posities benoemen die de server alweer vergeten is. Hij stuurt
+**optielabels**, die de lezer toch al ziet, en de server zoekt ze terug. Geen
+index en geen antwoordsleutel gaat over de lijn, en er hoeft geen status per
+weergave bewaard te worden. De corpus-lint garandeert dat geen twee opties in
+één vraag hetzelfde label hebben; dat maakt het terugzoeken eenduidig.
+
+| Type | Bediening | Verstuurt |
+| --- | --- | --- |
+| `single` | radiogroep | één label |
+| `multiple` | selectievakjes | labels, volgorde doet er niet toe |
+| `order` | een nummerveld per optie | `label => positie`, server-side gesorteerd |
+| `match` | een keuzelijst per linkeritem | één label per paar, in paarvolgorde |
+
+Volgordevragen werken met nummervelden, niet met slepen. Slepen is prettiger
+met een muis en onbruikbaar met een toetsenbord, en §2 vereist sowieso een
+niet-gebaarpad — een positie typen *is* dat pad, geen noodoplossing ernaast.
+
+**Geen deelpunten.** Een meerdelig antwoord is het antwoord of niet; een halve
+volgorde is geen half begrip van de reeks. Een overgeslagen vraag is fout en
+niet genegeerd, want een toets waarbij overslaan niets kost, haal je door
+alleen te beantwoorden waar je zeker van bent.
+
+**Elke poging wordt bewaard**, geslaagd of niet, in
+`tt_course_quiz_attempts`. Opnieuw proberen mag onbeperkt. Slagen schrijft
+`quiz_passed_at` op de voortgangsrij van de les; dat is wat de
+volgordevergrendeling leest.
+
+Toelichtingen komen terug bij goede én foute antwoorden: wie goed gokte leert
+evenveel van de reden als wie het fout had.
+
+De toets is een echt `<form>`. Zonder JavaScript wordt hij gepost, door
+dezelfde `QuizScorer` nagekeken en met het resultaat boven de les opnieuw
+weergegeven; `knowledge-quiz.js` maakt daar een verzending zonder herladen van
+met dezelfde veldnamen, zodat beide paden per constructie dezelfde inhoud
+versturen.
+
 ### Vergrendeling
 
 Zes poorten, in één doorloop opgelost. De eerste vier zijn gedeeld met het

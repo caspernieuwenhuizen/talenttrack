@@ -71,7 +71,16 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | --- | --- | --- |
 | **Geen meting dit seizoen** | Voor een speler is dit seizoen nog geen enkele meting vastgelegd. | *Waar komt deze speler vandaan?* — lichamelijk. Groeidata is het enige deel van het dossier dat geen mening is, en een seizoen zonder meting laat een blijvend gat in de curve. Achteraf invullen kan niet: de speler is al gegroeid. |
 
-Meer meldingen — over datakwaliteit en aanmeldingen — volgen in latere releases. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
+### Datakwaliteit
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Speler zonder team** | Een actieve speler hoort bij geen enkel team. | *Waar staat deze speler nu?* — en het eerlijke antwoord is dat TalentTrack het niet weet. Een speler zonder team heeft geen aanwezigheid, geen speelminuten, geen regel in de dekkingsrapportage, en geen hoofdtrainer die de andere meldingen over hem krijgt. |
+| **Team zonder hoofdtrainer** | Een team met spelers heeft niemand als hoofdtrainer. | *Wat heeft deze speler nu nodig?* — voor de hele selectie tegelijk, want degene wiens taak dat is bestaat niet. Het verklaart ook waarom een team stil kan vallen: bijna elke andere melding gaat naar de hoofdtrainer. |
+
+Deze twee gaan naar wie de administratie beheert in plaats van naar een trainer, want er ís geen trainer om ze naartoe te sturen — dat is nu juist de situatie. Ze zijn stiller dan de rest van de catalogus: **Speler zonder team** verschijnt alleen bij de bel, niet als balk.
+
+Meer meldingen — over aanmeldingen — volgen in een latere release. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
 
@@ -90,6 +99,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
 | `alerts_measurement_grace_days` | 60 dagen | Hoe ver in een seizoen voordat "nog geen meting" een melding wordt. In week één zou hij voor elke speler in de academie tegelijk afgaan, en dat komt op hetzelfde neer als niets zeggen. |
+| `alerts_player_without_team_grace_days` | 7 dagen | Hoe lang een nieuw toegevoegde speler zonder team mag blijven voordat de melding verschijnt. Het team toewijzen is vaak de volgende stap in dezelfde sessie. |
 
 ## Nieuwe meldingen staan meteen aan
 
@@ -214,3 +224,14 @@ Waar je op kunt rekenen:
 Een melding die is opgelost blijft **90 dagen** bewaard en wordt daarna verwijderd. Meldingen die nog openstaan worden nooit verwijderd, hoe oud ook — een melding waar een jaar lang niets mee gedaan is, wil je juist zien.
 
 Dat betekent dat het meldingssysteem geen vragen kan beantwoorden die verder terugkijken dan ongeveer een kwartaal. Gebruik voor patronen over een heel seizoen de rapportages; die lezen de onderliggende gegevens in plaats van de meldingen erover.
+
+## Wanneer een melding een taak wordt
+
+Een melding waar niemand iets mee doet blijft niet eeuwig een seintje. Heeft jullie academie er een termijn voor ingesteld (Instellingen → Meldingsbeleid → **Omzetten in een taak na (dagen)**), dan wordt de melding een echte, toegewezen taak zodra hij zo lang openstaat.
+
+Twee dingen om te weten:
+
+- **Het gebeurt één keer.** Een melding wordt eenmalig een taak, niet elke dag opnieuw tot iemand iets doet.
+- **Het werkt één kant op.** Los je het onderliggende op, dan verdwijnt de melding — maar de taak blijft staan. Op een taak staat iemands naam en een vastlegging van wat er gebeurd is; die achter hun rug om sluiten zou het doel ervan onderuithalen. Sluit de taak vanuit de taak zelf.
+
+In het meldingenoverzicht zie je welke meldingen een taak zijn geworden, met een link erheen.

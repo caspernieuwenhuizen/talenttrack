@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-22T13:07:52+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:21:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -5024,7 +5024,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:285
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:62
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:81
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:851
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
@@ -5791,6 +5791,26 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:51
+msgid "Player has no team"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:55
+msgid ""
+"An active player belongs to no team. They have no attendance, no minutes, no "
+"coverage row and no head coach — the system cannot say where they are."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:68
+msgid "A player"
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerWithoutTeamAlert.php:72
+#, php-format
+msgid "%s is active but belongs to no team."
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/StaffCertificateExpiringAlert.php:73
 msgid "Certificate expiring"
 msgstr ""
@@ -5817,6 +5837,28 @@ msgstr ""
 #, php-format
 msgid "Your %1$s certificate expires in %2$d day."
 msgid_plural "Your %1$s certificate expires in %2$d days."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:58
+msgid "Team has no head coach"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:62
+msgid ""
+"A team with players has nobody assigned as head coach. Most alerts go to the "
+"head coach, so a team without one quietly stops receiving any of them."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:89
+msgid "A team"
+msgstr ""
+
+#. translators: 1: team name, 2: number of players in the squad
+#: src/Modules/Alerts/Definitions/TeamWithoutHeadCoachAlert.php:94
+#, php-format
+msgid "%1$s has %2$d player and no head coach."
+msgid_plural "%1$s has %2$d players and no head coach."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -5894,6 +5936,21 @@ msgstr[1] ""
 #: src/Shared/Frontend/FrontendTrialsManageView.php:425
 msgid "Open"
 msgstr "Ouvert"
+
+#: src/Modules/Alerts/Frontend/AlertBell.php:137
+#: src/Modules/Workflow/Frontend/NotificationBell.php:85
+msgid "Nothing needs your attention"
+msgstr ""
+
+#. translators: %d: number of items waiting for the user
+#: src/Modules/Alerts/Frontend/AlertBell.php:140
+#: src/Modules/Workflow/Frontend/NotificationBell.php:82
+#: src/Modules/Workflow/Frontend/NotificationBell.php:124
+#, php-format
+msgid "%d item needs your attention"
+msgid_plural "%d items need your attention"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:38
 #: src/Modules/Alerts/Frontend/FrontendAlertPolicyView.php:51
@@ -6565,7 +6622,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:40
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:39
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:40
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:47
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:37
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:42
@@ -7536,7 +7593,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:73
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:258
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:63
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:82
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:133
 #: src/Shared/Frontend/Components/FormSaveButton.php:48
 #: src/Shared/Frontend/FrontendBackupsView.php:250
@@ -16227,7 +16284,7 @@ msgstr ""
 #: src/Modules/DemoData/DemoCoverage.php:1237
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:37
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:44
 #: src/Shared/CoreSurfaceRegistration.php:1445
 #: src/Shared/Modules/ModuleMetadata.php:251
 msgid "Knowledge library"
@@ -19920,7 +19977,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/CalloutBlock.php:35
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:118
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:132
 msgid "What you will learn"
 msgstr ""
 
@@ -19995,26 +20052,66 @@ msgid "Derived from %1$d by %2$d metres per outfield player."
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
-#: src/Modules/Knowledge/LessonRenderer.php:111
+#: src/Modules/Knowledge/LessonRenderer.php:124
 msgid "The rule of thumb works at this format."
 msgstr ""
 
 #. translators: 1: computed width in metres, 2: minimum usable width in metres
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
-#: src/Modules/Knowledge/LessonRenderer.php:113
+#: src/Modules/Knowledge/LessonRenderer.php:126
 #, php-format
 msgid ""
 "The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
 "m, or the game turns into a more intensive method than you planned."
 msgstr ""
 
-#: src/Modules/Knowledge/Blocks/QuizBlock.php:39
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:52
+msgid "The questions for this module open in the lesson itself."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:58
+msgid "This module has no check yet."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:66
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:234
 msgid "Check your understanding"
 msgstr ""
 
-#: src/Modules/Knowledge/Blocks/QuizBlock.php:40
+#. translators: 1: number of correct answers needed, 2: total questions
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:69
+#, php-format
 msgid ""
-"The questions for this module open once progress tracking is switched on."
+"Answer %1$d of %2$d correctly to pass. You can retake it as often as you "
+"like."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:84
+msgid "Check my answers"
+msgstr ""
+
+#. translators: 1: question number, 2: the question itself
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:102
+#, php-format
+msgid "%1$d. %2$s"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:112
+msgid "Select every answer that applies."
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:117
+msgid "Number them in the right order, starting at 1."
+msgstr ""
+
+#. translators: %s: the option being placed in order
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:188
+#, php-format
+msgid "Position of: %s"
+msgstr ""
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:216
+msgid "Choose…"
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/RevealBlock.php:38
@@ -20032,7 +20129,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:82
-#: src/Modules/Knowledge/LessonRenderer.php:108
+#: src/Modules/Knowledge/LessonRenderer.php:121
 msgid "Add a match and at least one training to check the week."
 msgstr ""
 
@@ -20095,13 +20192,13 @@ msgid "Training method"
 msgstr ""
 
 #: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:80
-#: src/Modules/Knowledge/LessonRenderer.php:105
+#: src/Modules/Knowledge/LessonRenderer.php:118
 msgid "Enter the minutes to see your starting step."
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:42
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:41
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:42
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:49
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:39
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:45
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:48
@@ -20117,9 +20214,9 @@ msgid "Course not found"
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:59
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:171
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:181
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:269
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:180
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:190
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:433
 msgid "That course is not in this library."
 msgstr ""
 
@@ -20213,64 +20310,101 @@ msgstr ""
 msgid "Continue"
 msgstr "Continuer"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:148
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:162
 msgid ""
 "Your login is not linked to a staff record, so progress is not saved for "
 "this lesson."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:156
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:170
 msgid "You have marked this lesson as read."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:163
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:177
 msgid "Mark as read"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:170
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:184
 msgid "passing the check for this module"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:173
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:187
 msgid "having its assignment approved"
 msgstr ""
 
 #. translators: %s: a list of outstanding requirements
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:179
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:193
 #, php-format
 msgid "This lesson also needs %s before it counts as finished."
 msgstr ""
 
 #. translators: %s: the title of the next lesson
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:193
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:207
 #, php-format
 msgid "Next: %s"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:238
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:252
 msgid "Marked as read."
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:268
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:271
+#. translators: 1: correct answers, 2: total questions
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:333
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:85
+#, php-format
+msgid "You answered %1$d of %2$d correctly."
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:341
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:86
+msgid "That is a pass — this lesson's check is done."
+msgstr ""
+
+#. translators: %d: the number of correct answers needed
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:344
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:88
+#, php-format
+msgid ""
+"You need %d correct to pass. Read back over the parts below and try again."
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:357
+msgid "Correct"
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:358
+msgid "Wrong"
+msgstr ""
+
+#. translators: %s: the correct answer
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:364
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:92
+#, php-format
+msgid "Answer: %s"
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:406
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:409
 msgid "Lesson not found"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:272
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:234
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:309
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:328
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:410
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:243
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:403
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:414
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:473
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:492
 msgid "That lesson is not part of this course."
 msgstr ""
 
 #. translators: 1: this lesson's number, 2: total lessons
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:300
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:438
 #, php-format
 msgid "Lesson %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: comma-separated list of items, 2: the final item
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:324
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:462
 #, php-format
 msgid "%1$s and %2$s"
 msgstr ""
@@ -20326,8 +20460,20 @@ msgstr ""
 msgid "Not counted"
 msgstr ""
 
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:64
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:83
 msgid "Could not save. Your work is still on screen; try again."
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:89
+msgid "Correct."
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:90
+msgid "Not quite."
+msgstr ""
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:93
+msgid "Updating your progress…"
 msgstr ""
 
 #. translators: 1: lessons completed, 2: total lessons, 3: percentage
@@ -20353,8 +20499,9 @@ msgid "Another course has to be completed first."
 msgstr ""
 
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:109
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:240
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:334
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:249
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:420
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:498
 msgid "Finish the previous lesson first."
 msgstr ""
 
@@ -20363,21 +20510,21 @@ msgid "Not available yet."
 msgstr ""
 
 #. translators: 1: step number, 2: number of games, 3: minutes per game
-#: src/Modules/Knowledge/LessonRenderer.php:104
+#: src/Modules/Knowledge/LessonRenderer.php:117
 #, php-format
 msgid "Start at step %1$d: %2$d games of %3$s minutes."
 msgstr ""
 
-#: src/Modules/Knowledge/LessonRenderer.php:106
+#: src/Modules/Knowledge/LessonRenderer.php:119
 msgid "That is below the lightest step. Start at step 1 and build from there."
 msgstr ""
 
-#: src/Modules/Knowledge/LessonRenderer.php:107
+#: src/Modules/Knowledge/LessonRenderer.php:120
 msgid "This week respects every recovery time."
 msgstr ""
 
 #. translators: %d: number of problems found
-#: src/Modules/Knowledge/LessonRenderer.php:110
+#: src/Modules/Knowledge/LessonRenderer.php:123
 #, php-format
 msgid "%d problem(s) with this week:"
 msgstr ""
@@ -20492,23 +20639,32 @@ msgstr ""
 msgid "Day off"
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:280
-msgid "This login is not linked to a staff record, so it cannot be enrolled."
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:297
+msgid "This lesson has no check."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:292
-msgid "Could not enrol on that course."
-msgstr ""
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:316
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:304
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:480
 msgid "This login is not linked to a staff record."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:351
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:325
+msgid "Could not record the attempt."
+msgstr ""
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:444
+msgid "This login is not linked to a staff record, so it cannot be enrolled."
+msgstr ""
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:456
+msgid "Could not enrol on that course."
+msgstr ""
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:515
 msgid "Could not record progress."
 msgstr ""
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:390
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:554
 msgid "That enrolment does not exist."
 msgstr ""
 
@@ -38816,19 +38972,6 @@ msgstr ""
 msgid ""
 "Player with parent visibility — task to the player; parent has read-only "
 "view."
-msgstr ""
-
-#. translators: %d: number of items waiting for the user
-#: src/Modules/Workflow/Frontend/NotificationBell.php:70
-#: src/Modules/Workflow/Frontend/NotificationBell.php:112
-#, php-format
-msgid "%d item needs your attention"
-msgid_plural "%d items need your attention"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Modules/Workflow/Frontend/NotificationBell.php:73
-msgid "Nothing needs your attention"
 msgstr ""
 
 #: src/Modules/Workflow/Notifications/TaskMailer.php:52

@@ -67,6 +67,9 @@ handelingen is er nog — het aantal per minuut zakt. Dat is het vierde
 kenmerk, en het wordt belast met grote en middelgrote partijvormen.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="02-observatie"
 **Praktijkopdracht 2**
 
