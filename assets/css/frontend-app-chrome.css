@@ -101,12 +101,15 @@
 .tt-dashboard .tt-dash-version {
     color: rgba(255, 255, 255, 0.6) !important;
 }
+/* #2797 — 48px, not 44. This button is emitted by the shell on every
+   surface, so a 4px shortfall missed the tap-target floor 150 times over
+   and was the single largest cause in the mobile audit. */
 .tt-dashboard .tt-dash-help {
     color: rgba(255, 255, 255, 0.85);
     display: inline-grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 8px;
     touch-action: manipulation;
 }
@@ -117,11 +120,13 @@
 }
 
 /* ---- Persona chip (doubles as the user-menu trigger) -------------- */
+/* #2797 — 48px for the same reason as .tt-dash-help above: the persona
+   chip ships on every surface, so it missed the floor everywhere. */
 .tt-dashboard .tt-user-menu-trigger {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    min-height: 44px;
+    min-height: 48px;
     padding: 0.25rem 0.8rem 0.25rem 0.3rem;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.16);
