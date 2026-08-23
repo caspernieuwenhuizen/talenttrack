@@ -189,8 +189,16 @@
                 scale: Math.min(2, window.devicePixelRatio || 1),
                 useCORS: true,
                 logging: false,
-                scrollX: 0,
-                scrollY: -window.scrollY,
+                // #2756 — the page's real scroll offsets. html2canvas paints
+                // against a viewport rectangle derived from these; a zero or
+                // negated offset shifts that rectangle, so every box-shadow in
+                // the capture lands somewhere other than around its element.
+                // On a surface that clips its children (.tt-mp-pitch is
+                // overflow:hidden) the misplaced shadow gets clipped INTO the
+                // element as a hard-edged dark block. These are html2canvas's
+                // own defaults; passed explicitly so the intent is visible.
+                scrollX: window.scrollX,
+                scrollY: window.scrollY,
                 // Prepare the cloned node: tag it so surfaces can supply
                 // capture-only CSS (e.g. force opaque fills where html2canvas
                 // can't resolve a nested CSS custom property), and drop the

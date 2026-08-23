@@ -17,3 +17,7 @@ ctemp*
 
 # Per-machine local dev notes (hardcodes one machine's XAMPP + account paths)
 /LOCAL-DEV.md
+
+# Scratch catalogues the duplicate-gate self-check builds and removes (#2765).
+# Ignored so a crashed run cannot leave one behind to be committed.
+/languages/.selfcheck/

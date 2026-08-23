@@ -1013,12 +1013,24 @@ class ActivitiesRestController {
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'location', (string) $data['location'] );
 
+        // #2771 — a match prep writes its Starting XI through onto this
+        // activity's attendance rows, and the Line-up card reads nothing
+        // else. Both blocks below delete rows before rewriting them, so the
+        // projection is snapshotted here, once, while it still exists.
+        // Taking it inside either block would leave the other one reading an
+        // already-emptied table.
+        $planned_lineup = $repo->lineupProjectionFor( $activity_id, 'expected' );
+        $roster_lineup  = $repo->lineupProjectionFor( $activity_id, null );
+
         if ( self::request_has_attendance( $r ) ) {
             // #0026 — only wipe the roster rows; guest rows are
             // managed via the dedicated guest endpoints and must
             // survive a session update.
             $repo->deleteRosterAttendance( $activity_id );
-            $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
+            $att_failures = self::write_attendance(
+                $activity_id,
+                self::withPreservedLineup( self::attendance_from_request( $r ), $roster_lineup )
+            );
             if ( $att_failures ) {
                 Logger::error( 'session.attendance.update.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
                 return RestResponse::error(
@@ -1045,7 +1057,11 @@ class ActivitiesRestController {
         // reports (which count `actual`) are unaffected. Gated on the same
         // `tt_edit_activities` cap as the whole PUT.
         if ( isset( $r['planned'] ) && is_array( $r['planned'] ) ) {
-            $repo->replacePlannedAttendance( $activity_id, self::planned_attendance_from_request( $r ) );
+            $repo->replacePlannedAttendance(
+                $activity_id,
+                self::planned_attendance_from_request( $r ),
+                $planned_lineup
+            );
         }
 
         // v3.71.6 — see create_session above. Frontend updates were
@@ -1319,6 +1335,34 @@ class ActivitiesRestController {
     }
 
     /**
+     * #2771 — carry a line-up projection back onto rows that are about to
+     * be rewritten.
+     *
+     * An explicit `starter` from the completion form wins: the coach who
+     * ticked a box on this save meant it, and a stale projection must not
+     * overrule them. A row that says nothing about the line-up keeps
+     * whatever the match prep put there.
+     *
+     * @param array<int, array<string, mixed>>                               $rows
+     * @param array<int, array{lineup_role:string, position_played:string}>  $lineup
+     * @return array<int, array<string, mixed>>
+     */
+    private static function withPreservedLineup( array $rows, array $lineup ): array {
+        if ( ! $lineup ) return $rows;
+
+        foreach ( $rows as $pid => $fields ) {
+            $pid = (int) $pid;
+            if ( ! isset( $lineup[ $pid ] ) ) continue;
+            if ( array_key_exists( 'lineup_role', $fields ) ) continue;
+
+            $rows[ $pid ]['lineup_role']     = $lineup[ $pid ]['lineup_role'];
+            $rows[ $pid ]['position_played'] = $lineup[ $pid ]['position_played'];
+        }
+
+        return $rows;
+    }
+
+    /**
      * #2248 — the plan-status keys the activity edit form submits, mapped
      * to the stored `attendance_status`. Expected → present, Not coming →
      * absent, Maybe → excused (reused so no lookup seed / migration is
@@ -1457,6 +1501,11 @@ class ActivitiesRestController {
             // activities; leave the columns at their default otherwise.
             if ( array_key_exists( 'lineup_role', $fields ) ) {
                 $insert['lineup_role'] = $fields['lineup_role'];
+            }
+            // #2771 — set alongside the role when a preserved projection
+            // carried one; the completion form never submits a position.
+            if ( array_key_exists( 'position_played', $fields ) ) {
+                $insert['position_played'] = $fields['position_played'];
             }
             if ( array_key_exists( 'minutes_played', $fields ) ) {
                 $insert['minutes_played'] = $fields['minutes_played'];

@@ -335,7 +335,13 @@ class PdpPrintRouter {
     private static function pdpVerdictDecisionLabel( string $code ): string {
         $code = strtolower( $code );
         switch ( $code ) {
-            case 'review':  return __( 'Review',  'talenttrack' );
+            // `Review` here is a verdict state — the plan still has to be
+            // looked at — not the periodic development conversation, which
+            // the catalogue already carries as "PDP-gesprek". The bare msgid
+            // is shared with six wizard review steps and takes the Dutch for
+            // "check what you entered", so this sense needs its own context.
+            // `Pending` beside it already resolves to the state sense.
+            case 'review':  return _x( 'Review', 'a PDP verdict decision on a historical row', 'talenttrack' );
             case 'pending': return __( 'Pending', 'talenttrack' );
         }
         $label = \TT\Modules\Pdp\Repositories\PdpVerdictsRepository::label( $code );

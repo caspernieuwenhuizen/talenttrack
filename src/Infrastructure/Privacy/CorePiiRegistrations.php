@@ -49,12 +49,13 @@ final class CorePiiRegistrations {
             'Coach evaluations of the player across categories.',
             'TT\\Modules\\Evaluations\\EvaluationsModule'
         );
-        PlayerDataMap::register(
-            'tt_eval_ratings',
-            'player_id',
-            'Per-category ratings produced by evaluations.',
-            'TT\\Modules\\Evaluations\\EvaluationsModule'
-        );
+        // `tt_eval_ratings` is deliberately absent. A rating carries no
+        // player column of its own — it reaches a player through
+        // `tt_evaluations.player_id`, registered directly above — so it
+        // falls under the two-hop policy in this class's docblock and the
+        // erasure code walks it via the parent, exactly as it does for
+        // `tt_pdp_conversations`. It was registered against a `player_id`
+        // column the table does not have until #2758.
         PlayerDataMap::register(
             'tt_goals',
             'player_id',

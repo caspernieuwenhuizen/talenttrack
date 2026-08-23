@@ -417,10 +417,15 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
                 <?php
-                // #1538 — the print / PDF buttons honour the
+                // #1538 — the coach's own export honours the
                 // export_match_prep_pdf sub-feature; when off, the match-prep
-                // screen stays but the PDF artefacts are hidden (the print
-                // router enforces the same toggle server-side).
+                // screen stays but this artefact is hidden (the print router
+                // enforces the same toggle server-side).
+                //
+                // #2769 — the referee's team sheet below is gated separately.
+                // One flag used to wrap both, so an academy that files match
+                // forms digitally could only hide the referee sheet by also
+                // losing the sheet the coach takes to the touchline.
                 if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_prep_pdf' ) ) :
                 // #2102 — Export captures the live on-screen match-prep grid
                 // (.tt-mp-grid) with html2canvas and lays it on a portrait-A4
@@ -439,7 +444,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
                         data-filename="<?php echo esc_attr( $export_filename ); ?>">
                     <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
                 </button>
+                <?php endif; // #1538 export_match_prep_pdf ?>
                 <?php
+                if ( \TT\Core\FeatureRegistry::isEnabled( 'export_match_day_team_sheet' ) ) :
                 // #1194, #1475 — pitch-side team-sheet (Starting XI / Bench
                 // / Squad partition + signature lines). Source of truth is
                 // this match-prep view. The print route renders the same
@@ -459,7 +466,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                    rel="noopener">
                     <?php esc_html_e( 'Print team sheet', 'talenttrack' ); ?>
                 </a>
-                <?php endif; // #1538 export_match_prep_pdf ?>
+                <?php endif; // #2769 export_match_day_team_sheet ?>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>

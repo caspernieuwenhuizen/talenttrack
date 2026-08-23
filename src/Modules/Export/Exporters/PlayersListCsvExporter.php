@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportValueFormatter;
 
 /**
  * PlayersListCsvExporter (#0063 use case 3) — squad-list CSV.
@@ -117,13 +118,13 @@ final class PlayersListCsvExporter implements ExporterInterface {
                 (string) $r->last_name,
                 (string) ( $r->date_of_birth ?? '' ),
                 $r->jersey_number !== null ? (int) $r->jersey_number : '',
-                (string) ( $r->preferred_foot ?? '' ),
-                (string) ( $r->preferred_positions ?? '' ),
+                ExportValueFormatter::preferredFoot( $r->preferred_foot ?? '' ),
+                ExportValueFormatter::positions( $r->preferred_positions ?? '' ),
                 (string) ( $r->team_name ?? '' ),
                 (string) ( $r->guardian_name ?? '' ),
                 (string) ( $r->guardian_email ?? '' ),
                 (string) ( $r->guardian_phone ?? '' ),
-                (string) ( $r->status ?? '' ),
+                ExportValueFormatter::playerStatus( $r->status ?? '' ),
                 (string) ( $r->date_joined ?? '' ),
             ];
         }

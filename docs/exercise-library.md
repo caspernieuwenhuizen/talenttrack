@@ -16,8 +16,7 @@ Search by name, code or description, and narrow with the filters:
 
 - **Category** — warm-up, rondo, positional play, small-sided game, and so on.
 - **Visible to** — whole club, one team, or only you.
-- **Intensity** — 1 (recovery) through 5 (maximum), for the exercises that
-  carry a band.
+- **Intensity** — 1 through 7, for the exercises that carry a band.
 - **Status** — active or archived.
 
 ## Adding your own
@@ -30,9 +29,27 @@ generator pick well later, so fill in what you know:
 | Category | Groups the drill and tells the generator which slot it fits. |
 | Typical duration | The default length when it goes into a plan. |
 | Smallest / largest group | Filters the drill out when the squad is the wrong size. |
-| Intensity | 1–5. Used to keep a session inside the age-safe ceiling. |
+| Intensity | 1–7. Used to keep a training inside the age-safe ceiling. |
 | Description | Organisation, rules, scoring. |
 | Diagram image URL | An image of the setup. |
+
+### What the intensity bands mean
+
+The scale runs **1 to 7**, and it is worth rating consistently: this number is
+what the age-safe ceiling is compared against, so a drill rated too low can slip
+past a warning it should have triggered.
+
+| Band | What it describes |
+| --- | --- |
+| 1–2 | Recovery and technique. Little or no physical load. |
+| 3–4 | Steady work. A rondo or a possession game at a comfortable tempo. |
+| 5 | A normal training block — the intensity most of a session sits at. |
+| 6 | Genuinely demanding. Pressing games, repeated sprints, small-sided at full tempo. |
+| 7 | As hard as any age group in the academy should ever go. |
+
+There is no band above 7. The highest ceiling any age profile carries is 7
+(U13 and U14; U10 stops at 3), so a higher number would describe a session no
+group is permitted to do.
 
 ### Who sees what you add
 
