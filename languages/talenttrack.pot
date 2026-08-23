@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T16:12:02+00:00\n"
+"POT-Creation-Date: 2026-08-23T16:13:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1529,7 +1529,7 @@ msgstr ""
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:226
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:150
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:167
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:244
 #: src/Modules/Wizards/Prospect/IdentityStep.php:122
 #: src/Shared/Admin/BulkActionsHelper.php:100
@@ -1730,7 +1730,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:252
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:180
 #: src/Modules/Teams/Admin/TeamsPage.php:107
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:151
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:244
 #: src/Shared/Admin/BulkActionsHelper.php:101
@@ -1798,10 +1798,10 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:217
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:237
 #: src/Modules/Training/Frontend/FrontendTrainingCoverageView.php:62
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:67
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:78
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:71
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:192
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:200
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:209
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:217
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:102
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:119
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:219
@@ -1961,7 +1961,7 @@ msgid "Centre forward"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:341
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:436
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:453
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:562
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:330
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:244
@@ -1983,7 +1983,7 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:345
 #: src/Infrastructure/Query/LabelTranslator.php:387
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:439
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:456
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:566
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:334
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:247
@@ -1991,7 +1991,7 @@ msgid "Finishing"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:346
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:440
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:457
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:567
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:335
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:248
@@ -2118,7 +2118,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:376
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:449
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:466
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:123
@@ -4103,8 +4103,8 @@ msgstr ""
 #. translators: %d is a number of minutes.
 #: src/Infrastructure/REST/TrainingPlansRestController.php:528
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:530
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:304
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:384
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:321
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:401
 #, php-format
 msgid "%d minute"
 msgid_plural "%d minutes"
@@ -4123,7 +4123,7 @@ msgid "Template"
 msgstr ""
 
 #: src/Infrastructure/REST/TrainingPlansRestController.php:534
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:136
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:153
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:161
 msgid "Plan"
 msgstr ""
@@ -4401,7 +4401,7 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/SubPrinciplesManageTab.php:174
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:194
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:235
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:281
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/CoachDashboardView.php:255
@@ -5035,7 +5035,7 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:175
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:173
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:231
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:277
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:611
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:449
 msgid "Minutes"
@@ -6483,7 +6483,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:331
 #: src/Modules/Knowledge/Frontend/LearningReports.php:367
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:269
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:448
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:465
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
 #: src/Modules/Workflow/TaskStatus.php:65
 #: src/Shared/Frontend/FrontendExportsView.php:122
@@ -6510,7 +6510,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:287
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:375
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:452
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:469
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1702
 msgid "Planned"
 msgstr ""
@@ -7193,7 +7193,7 @@ msgstr ""
 #: src/Modules/Teams/Admin/TeamsPage.php:49
 #: src/Modules/Teams/Admin/TeamsPage.php:142
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:46
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:230
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:276
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:273
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:163
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:211
@@ -7661,7 +7661,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:240
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:438
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:455
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:565
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:333
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:246
@@ -7912,8 +7912,8 @@ msgstr ""
 #: src/Modules/Methodology/Frontend/Manage/MethodologySetsManageTab.php:126
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:520
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:581
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:148
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:166
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:165
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:183
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:264
 #: src/Shared/Admin/BulkActionsHelper.php:170
 #: src/Shared/Frontend/Components/FrontendListTable.php:546
@@ -10449,7 +10449,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:111
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:273
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:140
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:157
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
 #: src/Shared/Frontend/FrontendBackupsView.php:271
 #: src/Shared/Frontend/FrontendBackupsView.php:289
@@ -14135,9 +14135,9 @@ msgstr ""
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
 #: src/Modules/Methodology/Frontend/Manage/SetPiecesManageTab.php:144
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:137
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:156
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:308
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:154
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:173
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:325
 msgid "Kind"
 msgstr ""
 
@@ -16968,7 +16968,7 @@ msgid "Any category"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:503
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:191
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:208
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:101
 msgid "Not found"
 msgstr ""
@@ -16976,8 +16976,8 @@ msgstr ""
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:528
 #: src/Modules/License/Admin/AccountPage.php:921
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:265
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:138
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:302
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:155
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:319
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:173
 #: src/Modules/Vct/Wizard/DurationStep.php:19
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
@@ -17310,7 +17310,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:109
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:238
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:284
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:276
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/Components/MediaGallery.php:231
@@ -18131,7 +18131,7 @@ msgstr ""
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php:106
 #: src/Modules/Reports/ScoutLinkRouter.php:97
 #: src/Modules/Stats/PrintRouter.php:201
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:290
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:307
 #: src/Shared/Frontend/CoachDashboardView.php:102
 #: src/Shared/Frontend/FrontendOverviewView.php:76
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1035
@@ -21562,7 +21562,7 @@ msgid "vs"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:294
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:270
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:287
 msgid "Done editing"
 msgstr ""
 
@@ -34189,155 +34189,199 @@ msgstr ""
 msgid "Each number is how many completed trainings included an exercise that trains that principle. Skipped blocks do not count, and editing a plan afterwards never changes what a training already recorded."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:66
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:81
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:90
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:99
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:77
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:92
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:101
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:110
 msgid "Photo to plan"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:72
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:83
 msgid "You do not have permission to build training plans."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:83
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:94
 msgid "Reading a photographed plan is switched off for this academy. Build a plan by hand instead."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:92
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:103
 msgid "This site has not said where photographs would be sent to be read, so this cannot be used yet. An administrator needs to set that up first. Nothing has been sent."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:102
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:113
 msgid "Photograph the training you wrote out. You get a draft to check before anything is saved."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:108
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:119
 msgid "Reading a photograph needs JavaScript. You can still build a plan by hand."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:128
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:139
 msgid "Build a training plan by hand instead"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:209
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:215
+msgid "A photo is waiting to be read"
+msgstr ""
+
+#. translators: %d is how many photographs are waiting to be read.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:217
+#, php-format
+msgid "%d photos are waiting to be read"
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:255
 msgid "Lay the sheet flat and fill the frame"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:210
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:256
 msgid "Take a photo"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:211
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:257
 msgid "From gallery"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:212
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:258
 msgid "For team"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:213
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:259
 msgid "No camera available on this device. Choose a photo instead."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:214
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:260
 msgid "This browser did not give access to the camera. Choose a photo from your gallery instead."
 msgstr ""
 
 #. translators: %s is where the photograph is processed, e.g. "EU (Frankfurt)".
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:216
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:262
 #, php-format
 msgid "The photo is read by an AI service in %s and is not stored here. Player names are not copied into notes."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:219
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:265
 msgid "Reading…"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:220
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:266
 msgid "Usually a few seconds. You can change anything afterwards."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:221
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:267
 msgid "Nothing has been saved yet."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:224
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:270
 msgid "Does this look right?"
 msgstr ""
 
 #. translators: 1: number of exercises read, 2: total minutes.
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:226
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:272
 #, php-format
 msgid "%1$d exercises read · %2$d minutes. Change whatever is wrong."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:227
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:273
 msgid "certain"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:228
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:274
 msgid "check this one"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:229
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:275
 msgid "not recognised"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:232
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:278
 msgid "No match"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:233
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:279
 msgid "Close to more than one exercise. Check this is the right one."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:234
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:280
 msgid "Not recognised. It stays as a loose block if you leave it — and then it does not count towards what your players have been taught."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:236
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:282
 #: src/Shared/Frontend/DashboardShortcode.php:220
 msgid "Discard"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:237
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:283
 msgid "Create draft"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:241
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:287
 msgid "Creating the draft…"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:242
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:288
 msgid "Draft created. Opening it…"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:243
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
 msgid "The draft could not be created. Nothing was saved; try again."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:244
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:290
 msgid "That photo could not be read. Try a clearer one, or build the plan by hand."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:245
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:291
 msgid "You have no connection, so the photo cannot be read yet. Try again when you have signal — nothing has been sent."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:246
+#. translators: %d is the number of days a photo is kept on the phone.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:295
+#, php-format
+msgid "No connection, so the photo is waiting on this phone. It is read as soon as you have signal, and is deleted after %d days whether or not it has been read."
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:296
+msgid "Still no connection. The photo is safe on this phone and will be read when you have signal."
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:297
+msgid "Reading the photo that was waiting…"
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:298
+msgid "A photo is waiting to be read. It goes as soon as you have signal."
+msgstr ""
+
+#. translators: %d is how many photographs are waiting to be read.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:300
+#, php-format
+msgid "%d photos are waiting to be read. They go as soon as you have signal."
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:301
+msgid "A photo waited too long and has been deleted. It was never read, so nothing was saved — take it again if you still need it."
+msgstr ""
+
+#. translators: %d is how many photographs were deleted.
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:303
+#, php-format
+msgid "%d photos waited too long and have been deleted. They were never read, so nothing was saved — take them again if you still need them."
+msgstr ""
+
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:304
 msgid "That photo is too large to send. Take another one, or choose a smaller file."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:247
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:305
 msgid "Nothing could be read from that photo. Try again with the sheet flat and the whole page in frame."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:248
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:306
 msgid "Give the training a title before creating it."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:249
+#: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:307
 msgid "Choose which team this training is for."
 msgstr ""
 
@@ -34353,17 +34397,17 @@ msgstr ""
 msgid "From a photo"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:126
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:132
 #: src/Shared/Modules/ModuleMetadata.php:265
 msgid "Training plans"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:129
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:146
 msgid "Your training plans and the club templates you can build from. A plan you attach to a training records what was actually trained, so it lands on the player record."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:139
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:313
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:156
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:330
 #: src/Modules/Training/Wizard/ThemeStep.php:20
 #: src/Modules/Training/Wizard/ThemeStep.php:34
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:213
@@ -34374,124 +34418,124 @@ msgstr ""
 msgid "Theme"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:158
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:175
 msgid "Plans and templates"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:159
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:176
 msgid "Plans only"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:160
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:177
 msgid "Templates only"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:169
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:186
 msgid "Archive this training plan? Trainings already run with it keep their record."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:174
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:191
 msgid "Search plans…"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:176
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:193
 msgid "No training plans match your search."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:179
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:196
 msgid "No training plans yet"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:180
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:197
 msgid "A training plan holds the blocks of one training. Attach it to a training in the calendar and what you trained lands on each player who was there."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:194
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:211
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:37
 msgid "That training plan no longer exists."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:246
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:309
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:263
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:326
 msgid "Club template"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:247
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:310
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:264
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:327
 msgid "Team plan"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:250
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:267
 #: src/Shared/Admin/Menu.php:463
 #: src/Shared/Frontend/FrontendTrialCaseView.php:198
 #: src/Shared/Frontend/PlayerDashboardView.php:45
 msgid "Overview"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:255
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:272
 msgid "Build"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:282
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:299
 msgid "Edit blocks"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:307
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:362
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:324
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:379
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:74
 msgid "Blocks"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:341
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:358
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:79
 msgid "How the training time is split across its blocks"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:365
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:382
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:73
 msgid "This plan has no blocks yet."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:374
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:391
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:601
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:93
 msgid "Untitled block"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:407
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:424
 msgid "Times this plan was run"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:411
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:428
 msgid "This plan has not been run yet. Attaching it to a training records what was actually trained."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:426
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:443
 msgid "Each run keeps its own copy of the blocks as they were on the day, so editing this plan never changes a training that already happened."
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:437
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:454
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:563
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:331
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:245
 msgid "Rondo"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:441
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:458
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:568
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:336
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:249
 msgid "Team talk"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:443
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:460
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:564
 #: src/Modules/Training/Frontend/PlanBuilderRenderer.php:332
 #: src/Modules/Training/Print/TrainingPlanPrintable.php:251
 msgid "Main"
 msgstr ""
 
-#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:450
+#: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:467
 msgid "Abandoned"
 msgstr ""
 
