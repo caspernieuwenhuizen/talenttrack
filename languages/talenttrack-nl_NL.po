@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T11:12:12+00:00\n"
+"POT-Creation-Date: 2026-08-23T11:28:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -21774,6 +21774,14 @@ msgstr "Waar het om gaat"
 msgid "Watch out"
 msgstr "Let op"
 
+#: src/Modules/Knowledge/Blocks/CheckBlock.php:82
+msgid "Quick check"
+msgstr "Even checken"
+
+#: src/Modules/Knowledge/Blocks/CheckBlock.php:109
+msgid "Why?"
+msgstr "Waarom?"
+
 #: src/Modules/Knowledge/Blocks/LoadMatrixBlock.php:55
 msgid "Load pattern"
 msgstr "Belastingpatroon"
@@ -21837,13 +21845,13 @@ msgid "Derived from %1$d by %2$d metres per outfield player."
 msgstr "Afgeleid van %1$d bij %2$d meter per veldspeler."
 
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
-#: src/Modules/Knowledge/LessonRenderer.php:128
+#: src/Modules/Knowledge/LessonRenderer.php:130
 msgid "The rule of thumb works at this format."
 msgstr "De vuistregel werkt bij deze spelvorm."
 
 #. translators: 1: computed width in metres, 2: minimum usable width in metres
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
-#: src/Modules/Knowledge/LessonRenderer.php:130
+#: src/Modules/Knowledge/LessonRenderer.php:132
 #, php-format
 msgid ""
 "The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
@@ -22389,6 +22397,7 @@ msgstr ""
 "Opslaan is niet gelukt. Je werk staat nog op het scherm; probeer opnieuw."
 
 #: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:89
+#: src/Modules/Knowledge/LessonRenderer.php:128
 msgid "Correct."
 msgstr "Goed."
 
@@ -22454,6 +22463,10 @@ msgstr "Deze week respecteert elke hersteltijd."
 #, php-format
 msgid "%d problem(s) with this week:"
 msgstr "%d probleem/problemen met deze week:"
+
+#: src/Modules/Knowledge/LessonRenderer.php:129
+msgid "Not quite — read on."
+msgstr "Net niet — lees verder."
 
 #: src/Modules/Knowledge/Periodisation.php:37
 #: src/Modules/Knowledge/Periodisation.php:85
