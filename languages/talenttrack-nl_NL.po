@@ -54005,15 +54005,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-msgid "Quick check"
-msgstr "Even checken"
-
-msgid "Not quite — read on."
-msgstr "Net niet — lees verder."
-
-msgid "Why?"
-msgstr "Waarom?"
-
 msgid "A staff member"
 msgstr "Een stafmedewerker"
 
