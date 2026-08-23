@@ -244,3 +244,13 @@ Twee dingen om te weten:
 - **Het werkt één kant op.** Los je het onderliggende op, dan verdwijnt de melding — maar de taak blijft staan. Op een taak staat iemands naam en een vastlegging van wat er gebeurd is; die achter hun rug om sluiten zou het doel ervan onderuithalen. Sluit de taak vanuit de taak zelf.
 
 In het meldingenoverzicht zie je welke meldingen een taak zijn geworden, met een link erheen.
+
+### Controleren of het meldingssysteem werkt
+
+Het scherm **Meldingsbeleid** begint met een blok **Status van het systeem**.
+
+Dat beantwoordt de vraag die de rest van het systeem niet kan beantwoorden: een achtergrondtaak die gestopt is, levert precies dezelfde schermen op als een academie waar niets aan de hand is — lege. Staat er dat meldingen niet recent zijn gecontroleerd, dan draaien de geplande taken van WordPress niet en is alles wat je ziet bevroren op het laatste moment dat ze wél draaiden.
+
+De tabel eronder toont per melding hoeveel er openstaan, hoeveel er zijn opgelost, en welk deel mensen simpelweg hebben weggeklikt.
+
+Dat laatste getal is het nuttigste. **Een melding die de meeste mensen wegklikken informeert niemand — hij leert mensen meldingen weg te klikken**, en de nuttige gaan mee. Boven ongeveer 60% (bij genoeg gevallen om iets te betekenen) wordt hij gemarkeerd. Er wordt niets automatisch uitgezet: of een melding zijn plek verdient is een afweging over jullie academie, geen rekensom. Een melding over veiligheid die vaak wordt weggeklikt is een trainingsprobleem, geen melding om te verwijderen.
