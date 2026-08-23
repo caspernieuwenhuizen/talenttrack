@@ -3,6 +3,8 @@ namespace TT\Modules\Exercises\Vision;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
+
 /**
  * ClaudeSonnetProvider (#0016 Sprint 4) — vision extraction via
  * Anthropic's Claude Sonnet 4.x model.
@@ -130,7 +132,20 @@ final class ClaudeSonnetProvider extends AbstractStubProvider {
         $code = wp_remote_retrieve_response_code( $resp );
         $raw  = (string) wp_remote_retrieve_body( $resp );
         if ( $code < 200 || $code >= 300 ) {
-            throw new \RuntimeException( sprintf( 'Vision provider returned HTTP %d: %s', $code, substr( $raw, 0, 200 ) ) );
+            // The upstream body goes to the log, not into the exception
+            // message. `VisionExtractRestController` puts that message
+            // in the response's `detail` field, so interpolating a
+            // third party's error body here would echo it to whoever
+            // called the endpoint — and this is the request that just
+            // carried a photograph of a child. The status code is
+            // enough for the caller; the body is for whoever is
+            // debugging, in the place debugging output belongs.
+            Logger::error( 'vision.provider_http_error', [
+                'status' => $code,
+                'body'   => substr( $raw, 0, 200 ),
+            ] );
+
+            throw new \RuntimeException( 'The vision provider rejected the request. See the error log for its response.' );
         }
 
         $decoded = json_decode( $raw, true );
