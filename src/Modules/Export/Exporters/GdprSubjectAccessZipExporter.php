@@ -145,9 +145,9 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
         // which belong to other records — out of an individual's export.
         $media = self::tableExists( "{$p}tt_media_links" )
             ? $wpdb->get_results( $wpdb->prepare(
-                "SELECT m.uuid, m.kind, m.title, m.mime_type, m.byte_size,
+                "SELECT m.uuid, m.kind, m.title, m.mime_type, m.file_size,
                         m.duration_seconds, m.provider, m.external_url,
-                        m.captured_at, m.created_at,
+                        m.captured_at, m.created_at, m.uploaded_by,
                         l.entity_type, l.entity_id, l.is_primary
                     FROM {$p}tt_media_links l
                     INNER JOIN {$p}tt_media m ON m.id = l.media_id

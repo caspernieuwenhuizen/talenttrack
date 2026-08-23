@@ -138,6 +138,23 @@ final class PlayerDataMap {
             $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
             if ( $exists !== $table ) continue;
 
+            // Same tolerance for the column. A registration naming a column
+            // the table does not have is a bug in the registration, but it
+            // is not this method's to raise: without the check it emits a
+            // WordPress database error on every call instead.
+            //
+            // `tt_eval_ratings` is registered against `player_id` and has
+            // no such column — it reaches a player through
+            // `tt_evaluations.player_id`. Tracked separately; the registry
+            // cannot express a join, so fixing it is a decision rather than
+            // a typo. (#2743 surfaced it: nothing called this before.)
+            // safe: $table + $column whitelisted to [a-z0-9_]
+            $has_column = $wpdb->get_var( $wpdb->prepare(
+                "SHOW COLUMNS FROM `{$table}` LIKE %s",
+                $column
+            ) );
+            if ( $has_column !== $column ) continue;
+
             // A polymorphic table needs narrowing before its FK means what
             // it looks like it means (#2743). Column names are whitelisted
             // to [a-z0-9_]; values are bound.
