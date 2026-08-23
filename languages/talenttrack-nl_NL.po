@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T06:00:42+00:00\n"
+"POT-Creation-Date: 2026-08-23T06:17:52+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5256,7 +5256,7 @@ msgstr "Onbekende databasefout."
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:257
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
 #: src/Modules/Exercises/Frontend/SceneEditorRenderer.php:285
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:62
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:81
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:851
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:132
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:218
@@ -6952,7 +6952,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:40
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:39
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:40
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:47
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:37
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:42
@@ -7955,7 +7955,7 @@ msgstr "%d rij(en) weergegeven."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:73
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:258
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:63
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:82
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:133
 #: src/Shared/Frontend/Components/FormSaveButton.php:48
 #: src/Shared/Frontend/FrontendBackupsView.php:250
@@ -17588,7 +17588,7 @@ msgstr "Berichten en beheerdersgegevens"
 #: src/Modules/DemoData/DemoCoverage.php:1237
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:37
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:44
 #: src/Shared/CoreSurfaceRegistration.php:1445
 #: src/Shared/Modules/ModuleMetadata.php:251
 msgid "Knowledge library"
@@ -21527,7 +21527,7 @@ msgstr ""
 "zodra voortgangsregistratie aanstaat."
 
 #: src/Modules/Knowledge/Blocks/CalloutBlock.php:35
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:118
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:132
 msgid "What you will learn"
 msgstr "Wat je gaat leren"
 
@@ -21602,13 +21602,13 @@ msgid "Derived from %1$d by %2$d metres per outfield player."
 msgstr "Afgeleid van %1$d bij %2$d meter per veldspeler."
 
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:111
-#: src/Modules/Knowledge/LessonRenderer.php:111
+#: src/Modules/Knowledge/LessonRenderer.php:124
 msgid "The rule of thumb works at this format."
 msgstr "De vuistregel werkt bij deze spelvorm."
 
 #. translators: 1: computed width in metres, 2: minimum usable width in metres
 #: src/Modules/Knowledge/Blocks/PitchSizeBlock.php:116
-#: src/Modules/Knowledge/LessonRenderer.php:113
+#: src/Modules/Knowledge/LessonRenderer.php:126
 #, php-format
 msgid ""
 "The computed width of %1$d m is narrower than a penalty area. Widen to %2$d "
@@ -21618,16 +21618,56 @@ msgstr ""
 "het veld %2$d m breed, anders wordt het spel een intensievere methode dan je "
 "gepland had."
 
-#: src/Modules/Knowledge/Blocks/QuizBlock.php:39
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:52
+msgid "The questions for this module open in the lesson itself."
+msgstr "De vragen bij deze module staan in de les zelf."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:58
+msgid "This module has no check yet."
+msgstr "Deze module heeft nog geen toets."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:66
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:234
 msgid "Check your understanding"
 msgstr "Toets jezelf"
 
-#: src/Modules/Knowledge/Blocks/QuizBlock.php:40
+#. translators: 1: number of correct answers needed, 2: total questions
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:69
+#, php-format
 msgid ""
-"The questions for this module open once progress tracking is switched on."
+"Answer %1$d of %2$d correctly to pass. You can retake it as often as you "
+"like."
 msgstr ""
-"De vragen bij deze module komen beschikbaar zodra voortgangsregistratie "
-"aanstaat."
+"Beantwoord %1$d van de %2$d goed om te slagen. Je mag de toets zo vaak "
+"opnieuw doen als je wilt."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:84
+msgid "Check my answers"
+msgstr "Controleer mijn antwoorden"
+
+#. translators: 1: question number, 2: the question itself
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:102
+#, php-format
+msgid "%1$d. %2$s"
+msgstr "%1$d. %2$s"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:112
+msgid "Select every answer that applies."
+msgstr "Selecteer elk antwoord dat van toepassing is."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:117
+msgid "Number them in the right order, starting at 1."
+msgstr "Nummer ze in de juiste volgorde, te beginnen bij 1."
+
+#. translators: %s: the option being placed in order
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:188
+#, php-format
+msgid "Position of: %s"
+msgstr "Positie van: %s"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php:216
+msgid "Choose…"
+msgstr "Kies…"
 
 #: src/Modules/Knowledge/Blocks/RevealBlock.php:38
 msgid "Think it through, then check"
@@ -21646,7 +21686,7 @@ msgstr ""
 "gecontroleerd op de hersteltijden."
 
 #: src/Modules/Knowledge/Blocks/WeekPlannerBlock.php:82
-#: src/Modules/Knowledge/LessonRenderer.php:108
+#: src/Modules/Knowledge/LessonRenderer.php:121
 msgid "Add a match and at least one training to check the week."
 msgstr ""
 "Voeg een wedstrijd en minstens één training toe om de week te controleren."
@@ -21714,13 +21754,13 @@ msgid "Training method"
 msgstr "Trainingsmethode"
 
 #: src/Modules/Knowledge/Blocks/ZeroPointBlock.php:80
-#: src/Modules/Knowledge/LessonRenderer.php:105
+#: src/Modules/Knowledge/LessonRenderer.php:118
 msgid "Enter the minutes to see your starting step."
 msgstr "Vul de minuten in om je startstap te zien."
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:42
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:41
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:42
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:49
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:39
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:45
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:48
@@ -21736,9 +21776,9 @@ msgid "Course not found"
 msgstr "Cursus niet gevonden"
 
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:59
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:171
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:181
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:269
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:180
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:190
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:433
 msgid "That course is not in this library."
 msgstr "Die cursus zit niet in deze kennisbank."
 
@@ -21838,7 +21878,7 @@ msgstr "Controleren"
 msgid "Continue"
 msgstr "Doorgaan"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:148
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:162
 msgid ""
 "Your login is not linked to a staff record, so progress is not saved for "
 "this lesson."
@@ -21846,58 +21886,97 @@ msgstr ""
 "Je account is niet gekoppeld aan een medewerkersdossier, dus voortgang voor "
 "deze les wordt niet bewaard."
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:156
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:170
 msgid "You have marked this lesson as read."
 msgstr "Je hebt deze les als gelezen gemarkeerd."
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:163
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:177
 msgid "Mark as read"
 msgstr "Markeer als gelezen"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:170
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:184
 msgid "passing the check for this module"
 msgstr "dat je de toets van deze module haalt"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:173
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:187
 msgid "having its assignment approved"
 msgstr "dat de opdracht wordt goedgekeurd"
 
 #. translators: %s: a list of outstanding requirements
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:179
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:193
 #, php-format
 msgid "This lesson also needs %s before it counts as finished."
 msgstr "Deze les vraagt daarnaast %s voordat hij als afgerond telt."
 
 #. translators: %s: the title of the next lesson
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:193
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:207
 #, php-format
 msgid "Next: %s"
 msgstr "Volgende: %s"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:238
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:252
 msgid "Marked as read."
 msgstr "Gemarkeerd als gelezen."
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:268
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:271
+#. translators: 1: correct answers, 2: total questions
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:333
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:85
+#, php-format
+msgid "You answered %1$d of %2$d correctly."
+msgstr "Je had er %1$d van de %2$d goed."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:341
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:86
+msgid "That is a pass — this lesson's check is done."
+msgstr "Dat is een voldoende — de toets van deze les is klaar."
+
+#. translators: %d: the number of correct answers needed
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:344
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:88
+#, php-format
+msgid ""
+"You need %d correct to pass. Read back over the parts below and try again."
+msgstr ""
+"Je hebt er %d goed nodig om te slagen. Lees de onderdelen hieronder nog eens "
+"door en probeer het opnieuw."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:357
+msgid "Correct"
+msgstr "Goed"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:358
+msgid "Wrong"
+msgstr "Fout"
+
+#. translators: %s: the correct answer
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:364
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:92
+#, php-format
+msgid "Answer: %s"
+msgstr "Antwoord: %s"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:406
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:409
 msgid "Lesson not found"
 msgstr "Les niet gevonden"
 
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:272
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:234
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:309
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:328
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:410
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:243
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:403
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:414
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:473
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:492
 msgid "That lesson is not part of this course."
 msgstr "Die les hoort niet bij deze cursus."
 
 #. translators: 1: this lesson's number, 2: total lessons
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:300
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:438
 #, php-format
 msgid "Lesson %1$d of %2$d"
 msgstr "Les %1$d van %2$d"
 
 #. translators: 1: comma-separated list of items, 2: the final item
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:324
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php:462
 #, php-format
 msgid "%1$s and %2$s"
 msgstr "%1$s en %2$s"
@@ -21955,10 +22034,22 @@ msgstr "Teruggetrokken"
 msgid "Not counted"
 msgstr "Telt niet mee"
 
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:64
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:83
 msgid "Could not save. Your work is still on screen; try again."
 msgstr ""
 "Opslaan is niet gelukt. Je werk staat nog op het scherm; probeer opnieuw."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:89
+msgid "Correct."
+msgstr "Goed."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:90
+msgid "Not quite."
+msgstr "Net niet."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php:93
+msgid "Updating your progress…"
+msgstr "Je voortgang wordt bijgewerkt…"
 
 #. translators: 1: lessons completed, 2: total lessons, 3: percentage
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:43
@@ -21983,8 +22074,9 @@ msgid "Another course has to be completed first."
 msgstr "Een andere cursus moet eerst afgerond worden."
 
 #: src/Modules/Knowledge/Frontend/KnowledgeChrome.php:109
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:240
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:334
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:249
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:420
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:498
 msgid "Finish the previous lesson first."
 msgstr "Rond eerst de vorige les af."
 
@@ -21993,22 +22085,22 @@ msgid "Not available yet."
 msgstr "Nog niet beschikbaar."
 
 #. translators: 1: step number, 2: number of games, 3: minutes per game
-#: src/Modules/Knowledge/LessonRenderer.php:104
+#: src/Modules/Knowledge/LessonRenderer.php:117
 #, php-format
 msgid "Start at step %1$d: %2$d games of %3$s minutes."
 msgstr "Begin bij stap %1$d: %2$d partijen van %3$s minuten."
 
-#: src/Modules/Knowledge/LessonRenderer.php:106
+#: src/Modules/Knowledge/LessonRenderer.php:119
 msgid "That is below the lightest step. Start at step 1 and build from there."
 msgstr ""
 "Dat ligt onder de lichtste stap. Begin bij stap 1 en bouw van daaruit op."
 
-#: src/Modules/Knowledge/LessonRenderer.php:107
+#: src/Modules/Knowledge/LessonRenderer.php:120
 msgid "This week respects every recovery time."
 msgstr "Deze week respecteert elke hersteltijd."
 
 #. translators: %d: number of problems found
-#: src/Modules/Knowledge/LessonRenderer.php:110
+#: src/Modules/Knowledge/LessonRenderer.php:123
 #, php-format
 msgid "%d problem(s) with this week:"
 msgstr "%d probleem/problemen met deze week:"
@@ -22123,25 +22215,34 @@ msgstr "Sprints met maximale rust"
 msgid "Day off"
 msgstr "Vrije dag"
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:280
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:297
+msgid "This lesson has no check."
+msgstr "Deze les heeft geen toets."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:304
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:480
+msgid "This login is not linked to a staff record."
+msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:325
+msgid "Could not record the attempt."
+msgstr "De poging kon niet worden vastgelegd."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:444
 msgid "This login is not linked to a staff record, so it cannot be enrolled."
 msgstr ""
 "Dit account is niet gekoppeld aan een medewerkersdossier en kan daarom niet "
 "worden ingeschreven."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:292
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:456
 msgid "Could not enrol on that course."
 msgstr "Inschrijven op die cursus is niet gelukt."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:316
-msgid "This login is not linked to a staff record."
-msgstr "Dit account is niet gekoppeld aan een medewerkersdossier."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:351
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:515
 msgid "Could not record progress."
 msgstr "Voortgang vastleggen is niet gelukt."
 
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:390
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:554
 msgid "That enrolment does not exist."
 msgstr "Die inschrijving bestaat niet."
 
@@ -52826,90 +52927,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "%1$d. %2$s"
-msgstr "%1$d. %2$s"
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Answer %1$d of %2$d correctly to pass. You can retake it as often as you like."
-msgstr ""
-"Beantwoord %1$d van de %2$d goed om te slagen. Je mag de toets zo vaak "
-"opnieuw doen als je wilt."
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Check my answers"
-msgstr "Controleer mijn antwoorden"
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Select every answer that applies."
-msgstr "Selecteer elk antwoord dat van toepassing is."
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Number them in the right order, starting at 1."
-msgstr "Nummer ze in de juiste volgorde, te beginnen bij 1."
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Position of: %s"
-msgstr "Positie van: %s"
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "Choose…"
-msgstr "Kies…"
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "The questions for this module open in the lesson itself."
-msgstr "De vragen bij deze module staan in de les zelf."
-
-#: src/Modules/Knowledge/Blocks/QuizBlock.php
-msgid "This module has no check yet."
-msgstr "Deze module heeft nog geen toets."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "This lesson has no check."
-msgstr "Deze les heeft geen toets."
-
-#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
-msgid "Could not record the attempt."
-msgstr "De poging kon niet worden vastgelegd."
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "You answered %1$d of %2$d correctly."
-msgstr "Je had er %1$d van de %2$d goed."
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "That is a pass — this lesson's check is done."
-msgstr "Dat is een voldoende — de toets van deze les is klaar."
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "You need %d correct to pass. Read back over the parts below and try again."
-msgstr ""
-"Je hebt er %d goed nodig om te slagen. Lees de onderdelen hieronder nog eens "
-"door en probeer het opnieuw."
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "Answer: %s"
-msgstr "Antwoord: %s"
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "Correct"
-msgstr "Goed"
-
-#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
-msgid "Wrong"
-msgstr "Fout"
-
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
-msgid "Correct."
-msgstr "Goed."
-
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
-msgid "Not quite."
-msgstr "Net niet."
-
-#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
-msgid "Updating your progress…"
-msgstr "Je voortgang wordt bijgewerkt…"
+#~ msgid ""
+#~ "The questions for this module open once progress tracking is switched on."
+#~ msgstr ""
+#~ "De vragen bij deze module komen beschikbaar zodra voortgangsregistratie "
+#~ "aanstaat."
 
 #~ msgid "Ball"
 #~ msgstr "Bal"
