@@ -632,6 +632,22 @@
 .tt-dashboard .tt-list-table-perpage select { width: auto; padding: 4px 6px; font-size: var(--tt-fs-xs); }
 .tt-dashboard .tt-list-table-pager { display: flex; align-items: center; gap: 6px; }
 .tt-dashboard .tt-list-table-pager .tt-btn { padding: 4px 10px; min-width: 36px; }
+
+/* #2800 — the shared list table reflows into stacked cards below 640px
+   (see the block further down) and then hands the reader 26px pagination.
+   Its own controls never met the tap-target floor: the row action measured
+   75x28, the per-page select 55x26, and the pager buttons were capped at
+   36px wide. Used by 37 views. Scoped to coarse pointers so desktop
+   density is unchanged. */
+@media (pointer: coarse) {
+    .tt-dashboard .tt-list-table-action {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+    }
+    .tt-dashboard .tt-list-table-perpage select { min-height: 48px; }
+    .tt-dashboard .tt-list-table-pager .tt-btn { min-width: 48px; }
+}
 .tt-dashboard .tt-list-table-page-label { font-size: var(--tt-fs-xs); }
 
 /* Mobile reflow: stacked cards. Each row becomes a card; <td>
