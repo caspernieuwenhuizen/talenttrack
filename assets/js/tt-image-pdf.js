@@ -154,6 +154,22 @@
         return pdf;
     }
 
+    // ---- capture-clone cleanup -------------------------------------------
+
+    // An empty field's placeholder is a hint, not content — it has no business
+    // on an exported page. CSS can't take it out: html2canvas ignores
+    // ::placeholder entirely and, when an input's value is empty, paints the
+    // `placeholder` attribute as ordinary text in the input's own ink colour
+    // (so it comes out DARKER on paper than it looks on screen). Removing the
+    // attribute in the clone leaves it nothing to substitute. The live DOM is
+    // untouched — this only ever runs on html2canvas's cloned node.
+    function stripPlaceholders(root) {
+        var fields = root.querySelectorAll('input[placeholder], textarea[placeholder]');
+        Array.prototype.forEach.call(fields, function (el) {
+            el.removeAttribute('placeholder');
+        });
+    }
+
     function capture(trigger) {
         var sel = trigger.getAttribute('data-target');
         var target = sel ? document.querySelector(sel) : null;
@@ -175,13 +191,16 @@
                 logging: false,
                 scrollX: 0,
                 scrollY: -window.scrollY,
-                // Tag the cloned node so surfaces can supply capture-only CSS
-                // (e.g. force opaque fills where html2canvas can't resolve a
-                // nested CSS custom property). Applied to the clone only, so
-                // the on-screen page never changes.
+                // Prepare the cloned node: tag it so surfaces can supply
+                // capture-only CSS (e.g. force opaque fills where html2canvas
+                // can't resolve a nested CSS custom property), and drop the
+                // placeholder hints that CSS alone can't suppress. Applied to
+                // the clone only, so the on-screen page never changes.
                 onclone: function (clonedDoc) {
                     var c = sel ? clonedDoc.querySelector(sel) : null;
-                    if (c) c.classList.add('tt-image-pdf-capture');
+                    if (!c) return;
+                    c.classList.add('tt-image-pdf-capture');
+                    stripPlaceholders(c);
                 }
             }).then(function (canvas) {
                 var pdf = buildPdf(libs.jsPDF, canvas, orientation);

@@ -82,6 +82,17 @@ Paste the web address of a video and TalentTrack works out where it is hosted. V
 the title and a thumbnail are fetched automatically. Anything else is saved as a plain link with a title you type — TalentTrack never contacts an
 address it does not recognise.
 
+### Long galleries load in pages
+
+A record with a lot of media shows the 24 most recent items and a **Show more** button underneath. Each press adds the next 24, oldest continuing
+downwards, until there is nothing left to load and the button disappears.
+
+This is deliberately a button rather than loading more as you scroll: the oldest photo stays reachable, the browser's back button keeps working, and
+there is nothing small to hit with a thumb.
+
+The number on the Media tab counts everything held for that player, not what is currently on screen — so a player showing 24 tiles and a badge
+reading 31 has seven more waiting behind the button.
+
 ## Where the files are kept
 
 Uploaded files are **not** put in the WordPress media library. A file in the WordPress media library has a public web address: anyone who knows or
@@ -130,6 +141,24 @@ stored** on the academy admin's system-health strip, so it is visible in the pla
 
 An academy uploading match clips every week should watch that number against whatever their hosting actually provides — TalentTrack has no way to
 know the disk size it is running on.
+
+## Recording photo and video consent
+
+Each player record carries a **Photo & video consent** checkbox, on the player's edit form beside the photo. Ticking it stores the date and the name
+of the staff member who recorded it, so the entry is evidence rather than an assertion. Clearing it removes both, because the provenance of a consent
+that no longer stands would only mislead.
+
+The player's profile shows the answer to staff — including when the answer is no, since a blank would read as "nobody asked".
+
+**It records; it does not restrict.** Nothing about adding a photo checks this box. A coach can add media for a player with no consent on record, and
+the academy will not be stopped from doing so. That is deliberate. The real control is the conversation and the form the family signed; a hard block
+at the side of a pitch tends to be worked around by photographing on a personal phone instead, which leaves the child worse off than a recorded gap
+does.
+
+What the field is for is answering the question — *who may we photograph?* — before a matchday, and being able to show that the question was asked.
+
+Withdrawal is recorded by clearing the box. It does not reach back and remove photographs already stored; if a family withdraws consent and wants
+existing media removed, that is done from the player's Media tab.
 
 ## Who can see a player's media
 

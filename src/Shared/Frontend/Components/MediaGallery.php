@@ -36,6 +36,16 @@ use TT\Modules\Media\Repositories\MediaRepository;
 final class MediaGallery {
 
     /**
+     * Tiles per page (#2745).
+     *
+     * Three rows of eight on a desktop grid, twelve rows of two at 360px.
+     * `loading="lazy"` already spares the bandwidth of what is below the
+     * fold; what a cap saves is DOM size and an unbounded query, both of
+     * which a season of media would otherwise grow without limit.
+     */
+    public const PAGE_SIZE = 24;
+
+    /**
      * @param array{
      *   entity_type: string,
      *   entity_id: int,
@@ -51,11 +61,19 @@ final class MediaGallery {
 
         if ( ! MediaEntityType::isValid( $entity_type ) || $entity_id <= 0 ) return;
 
-        $user  = get_current_user_id();
-        $items = ( new MediaVisibilityService() )->filterVisible(
-            $user,
-            ( new MediaRepository() )->listForEntity( $entity_type, $entity_id )
-        );
+        $user = get_current_user_id();
+
+        // #2745 — one page, plus a probe row so we know whether to offer
+        // "Show more" without counting the whole join again.
+        $rows     = ( new MediaRepository() )->listForEntity( $entity_type, $entity_id, false, self::PAGE_SIZE + 1 );
+        $has_more = count( $rows ) > self::PAGE_SIZE;
+        if ( $has_more ) $rows = array_slice( $rows, 0, self::PAGE_SIZE );
+
+        // Rows consumed, not rows shown: filterVisible can drop items, and
+        // an offset advanced by the visible count would step over them.
+        $next_offset = count( $rows );
+
+        $items = ( new MediaVisibilityService() )->filterVisible( $user, $rows );
 
         $can_edit = (bool) ( $args['can_edit'] ?? false );
 
@@ -71,7 +89,9 @@ final class MediaGallery {
         // nothing, so this costs the reader no whitespace.
         echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
 
-        if ( $items === [] ) {
+        // Only genuinely empty when there is no next page either — a first
+        // page whose items are all filtered out still has more to fetch.
+        if ( $items === [] && ! $has_more ) {
             echo '<div data-role="empty">';
             EmptyStateCard::render( array_filter( [
                 'headline'  => (string) ( $args['empty_headline'] ?? __( 'No photos or video yet', 'talenttrack' ) ),
@@ -89,6 +109,23 @@ final class MediaGallery {
         }
 
         echo '</ul>';
+
+        // #2745 — inside the gallery wrapper so the delegated click
+        // handler already bound there picks it up.
+        if ( $has_more ) {
+            printf(
+                '<button type="button" class="tt-btn tt-btn-secondary tt-media-more" data-role="more"'
+                    . ' data-offset="%1$d" data-limit="%2$d">%3$s</button>',
+                (int) $next_offset,
+                (int) self::PAGE_SIZE,
+                esc_html__( 'Show more', 'talenttrack' )
+            );
+        }
+
+        // Appending tiles is silent for anyone not watching the screen, so
+        // the count that arrived is announced here instead.
+        echo '<p class="tt-visually-hidden" data-role="status" role="status" aria-live="polite"></p>';
+
         echo '</div>';
 
         self::renderLightbox();
@@ -368,6 +405,9 @@ final class MediaGallery {
                 /* translators: %d is how many players are tagged. */
                 'tagCount'      => __( '%d players tagged', 'talenttrack' ),
                 'tagOne'        => __( '1 player tagged', 'talenttrack' ),
+                'loading'       => __( 'Loading…', 'talenttrack' ),
+                'moreLoaded'    => __( 'More photos and video loaded.', 'talenttrack' ),
+                'moreFailed'    => __( 'Could not load more. Try again.', 'talenttrack' ),
             ],
         ] );
     }

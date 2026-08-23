@@ -87,6 +87,17 @@ Plak het webadres van een video en TalentTrack bepaalt waar die gehost wordt. Ve
 worden de titel en een miniatuur automatisch opgehaald. Al het andere wordt bewaard als gewone link met een titel die jij typt — TalentTrack neemt
 nooit contact op met een adres dat het niet herkent.
 
+### Lange galerijen laden per pagina
+
+Een record met veel media toont de 24 meest recente items en daaronder een knop **Meer tonen**. Elke druk voegt de volgende 24 toe, steeds verder
+terug in de tijd, tot er niets meer te laden valt en de knop verdwijnt.
+
+Bewust een knop en geen bijladen tijdens het scrollen: zo blijft de oudste foto bereikbaar, blijft de terugknop van de browser werken, en is er niets
+kleins dat je met een duim moet raken.
+
+Het getal op het tabblad Media telt alles wat van die speler bewaard wordt, niet wat er op dat moment op het scherm staat — bij 24 tegels en een
+badge van 31 wachten er dus nog zeven achter de knop.
+
 ## Waar de bestanden staan
 
 Geüploade bestanden komen **niet** in de WordPress-mediabibliotheek. Een bestand daarin heeft een openbaar webadres: wie het adres kent of raadt,
@@ -138,6 +149,24 @@ niet voor je.
 
 Een academie die wekelijks wedstrijdfragmenten uploadt, moet dat getal afzetten tegen wat de hosting daadwerkelijk biedt — TalentTrack kan niet
 zien hoe groot de schijf is waarop het draait.
+
+## Toestemming voor foto en video vastleggen
+
+Elk spelersrecord heeft een vinkje **Toestemming foto & video**, op het bewerkformulier naast de foto. Aanvinken legt de datum vast en de naam van de
+medewerker die het registreerde, zodat de vermelding bewijs is en geen bewering. Uitvinken haalt beide weg, want de herkomst van een toestemming die
+niet meer geldt, zou alleen maar misleiden.
+
+Het profiel van de speler toont het antwoord aan de staf — óók als het antwoord nee is, want een leeg veld leest als "er is niet naar gevraagd".
+
+**Het legt vast, het beperkt niet.** Bij het toevoegen van een foto wordt dit vinkje nergens gecontroleerd. Een trainer kan media toevoegen bij een
+speler zonder vastgelegde toestemming, en de academie wordt daarin niet tegengehouden. Dat is bewust. De echte beheersmaatregel is het gesprek en het
+formulier dat het gezin heeft getekend; een harde blokkade langs de lijn wordt in de praktijk omzeild door met een privételefoon te fotograferen, en
+daar is het kind slechter mee af dan met een vastgelegd hiaat.
+
+Waar het veld wél voor is: de vraag beantwoorden — *wie mogen we fotograferen?* — vóór een wedstrijddag, en kunnen laten zien dát de vraag gesteld is.
+
+Intrekken gebeurt door het vinkje weg te halen. Dat werkt niet met terugwerkende kracht op al opgeslagen foto's; wil een gezin bestaande media
+verwijderd hebben, dan gebeurt dat via het tabblad Media van de speler.
 
 ## Wie de media van een speler mag zien
 
