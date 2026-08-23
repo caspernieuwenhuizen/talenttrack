@@ -90,7 +90,7 @@ final class MediaPagingTest extends WP_UnitTestCase {
 
         $this->assertSame(
             MediaGallery::PAGE_SIZE,
-            substr_count( $html, 'class="tt-media-tile' ),
+            substr_count( $html, '<li class="tt-media-tile' ),
             'a page is capped regardless of how much is stored'
         );
         $this->assertStringContainsString( 'data-role="more"', $html );
@@ -106,7 +106,7 @@ final class MediaPagingTest extends WP_UnitTestCase {
 
         $html = $this->render( $team );
 
-        $this->assertSame( 3, substr_count( $html, 'class="tt-media-tile' ) );
+        $this->assertSame( 3, substr_count( $html, '<li class="tt-media-tile' ) );
         $this->assertStringNotContainsString( 'data-role="more"', $html );
     }
 
