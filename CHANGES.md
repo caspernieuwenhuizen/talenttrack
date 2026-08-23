@@ -1,3 +1,68 @@
+# TalentTrack v4.101.1 — Tiles nobody can open are now caught before they ship (#2008)
+
+A dashboard tile is offered on one permission and the surface behind it
+sometimes demanded a stronger one, so a coach could be shown a tile that
+refused them the moment they clicked it. It had happened four times, each fixed
+individually, each time discovered by the person it happened to.
+
+The check now runs on every change: it walks every registered tile, works out
+which roles are offered it and which of those the destination would turn away,
+and fails the build when a new mismatch appears. The four that exist today are
+recorded rather than silently allowed — each needs a decision about whether the
+surface should open read-only or the role should not be offered it at all, and
+that is a judgement per surface rather than a mechanical change.
+
+# TalentTrack v4.101.1 — A hidden surface is no longer reachable by typing its address (#2570)
+
+The dashboard decides which surfaces to offer you from what each one declares
+it needs. That declaration governed the menu only — open the address directly
+and the check was never made, so a surface your role is not offered could still
+be opened by someone who knew or guessed its URL. Seven of those were closed one
+at a time; this closes the reason they kept appearing.
+
+The dashboard now asks the same question before opening a surface that it asks
+before listing it, so the two cannot answer differently again. Nothing changes
+for anyone opening surfaces they were already offered. Pages reached from inside
+another surface — a wizard step, a record's detail page — are unaffected: they
+have no menu entry of their own, and their own checks still apply.
+
+# TalentTrack v4.101.1 — The academy admin can open the authorization matrix again (#2776)
+
+The frontend matrix editor shipped refusing the very role it was built for. An
+academy admin opening it was told they did not have permission, and the same
+refusal came back through the API.
+
+The permission it needed had been described twice in the same list, once as
+"may edit" and once, further down, as "may reset". The second description won
+silently, so the editor asked for a privilege deliberately reserved for a
+WordPress administrator. Resetting the matrix is unaffected and stays where it
+was — it is checked separately, and was never part of this.
+
+# TalentTrack v4.101.1 — Page-header actions no longer run off the side of a phone screen (#2789)
+
+On narrow screens the action buttons beside a page title were laid out at
+their combined natural width instead of the width actually available. On an
+activity detail page that put eight of nine actions — including the one that
+opens match execution — more than a thousand pixels off the right edge, where
+a coach could only reach them by scrolling the whole page sideways.
+
+The action slot now shrinks to the room it has and the buttons stack, so
+every action is on screen at 360px and above. Desktop layout is unchanged.
+
+# TalentTrack v4.101.1 — Weekly planner PDF no longer carries the browser's URL footer (#2791)
+
+Saving the weekly planner sheet as a PDF put the browser's own header and
+footer on the paper — the page URL and page number along the bottom, the
+document title and date across the top. The sheet handed its whole paper
+margin to the page box, and that margin is exactly the band a browser prints
+those into.
+
+The sheet now carries the 14mm margin as its own padding and leaves the page
+box at zero, so there is nowhere for the band to print. Nothing on the sheet
+moves: the printed geometry is identical to before, minus the browser's
+additions. Same approach the goal-intake and methodology-reference print
+sheets already use.
+
 # TalentTrack v4.101.0 — A head coach no longer sees the Scouting visits tile (#2007)
 
 Planning and logging outbound scouting visits is the scout's work; a head coach
