@@ -124,6 +124,26 @@
     font-size: .85rem; color: var(--tt-muted); text-transform: none !important; letter-spacing: 0 !important; font-weight: 400 !important;
 }
 .tt-btn-block { display: block; width: 100%; }
+
+/* #2793 — visually-hidden label text, the frontend equivalent of WP's
+   .screen-reader-text. It lived only in frontend-modules.css (enqueued by
+   the Modules view alone) and, card-scoped, in frontend-eval-coverage.css,
+   so on every other surface the class resolved to nothing and text meant
+   for screen readers rendered as ordinary visible copy — most visibly the
+   saved-views name label, which wrapped to four lines beside its input.
+   Defined here because public.css loads on every dashboard surface. */
+.tt-dashboard .tt-screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 .tt-login-links { text-align: center; margin-top: 1rem; font-size: .85rem; }
 /* #0075 Sprint 2 PR 1 — link colour reads --tt-link-color (Links
  * category) with fallback to --tt-primary so existing installs
