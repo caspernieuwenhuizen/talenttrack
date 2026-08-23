@@ -172,9 +172,13 @@ final class AlertEscalationTest extends WP_UnitTestCase {
     // ── bounded per run ────────────────────────────────────────────────
 
     public function test_the_run_is_capped_so_a_shortened_threshold_does_not_flood(): void {
-        for ( $i = 0; $i < AlertEscalator::MAX_PER_RUN + 5; $i++ ) {
-            $this->seedSubject( 500 + $i );
-        }
+        // Seeded in ONE evaluation, not fifteen. Each `run()` is a full-truth
+        // sweep, so calling it once per subject would resolve the previous
+        // subject every time and leave exactly one open row — the reconcile
+        // working precisely as designed, and an easy way to write a fixture
+        // that quietly tests nothing.
+        $ids = range( 500, 500 + AlertEscalator::MAX_PER_RUN + 4 );
+        ( new AlertEvaluator() )->run( self::stubMany( $ids ), new AlertContext( 1 ) );
         $this->age( 30 );
 
         $this->assertSame(
@@ -195,8 +199,45 @@ final class AlertEscalationTest extends WP_UnitTestCase {
         ( new AlertEvaluator() )->run( self::stub(), new AlertContext( 1 ) );
     }
 
-    private function seedSubject( int $subjectId ): void {
-        ( new AlertEvaluator() )->run( self::stub( $subjectId ), new AlertContext( 1 ) );
+    /**
+     * A stub returning several subjects from a single evaluation.
+     *
+     * @param list<int> $subjectIds
+     */
+    private static function stubMany( array $subjectIds ): AlertInterface {
+        return new class( $subjectIds ) implements AlertInterface, EscalatingAlert {
+            /** @var list<int> */ private $ids;
+            public function __construct( array $ids ) { $this->ids = $ids; }
+
+            public function key(): string { return AlertEscalationTest::KEY; }
+            public function module(): string { return 'test'; }
+            public function label(): string { return 'Escalating stub'; }
+            public function description(): string { return 'Stub for escalation tests.'; }
+            public function defaultSeverity(): string { return Severity::ATTENTION; }
+            public function capRequired(): string { return ''; }
+            public function defaultSurfaces(): array { return [ Surface::BADGE ]; }
+            public function isOperational(): bool { return false; }
+
+            public function escalatesTo(): ?array {
+                return [ 'template_key' => 'test_never_registered_template', 'after_days' => 7 ];
+            }
+
+            public function evaluate( AlertContext $context ): array {
+                $user = get_current_user_id() ?: 1;
+                $out  = [];
+                foreach ( $this->ids as $id ) {
+                    $out[] = new AlertOccurrence(
+                        AlertEscalationTest::KEY,
+                        $user,
+                        'activity',
+                        (int) $id,
+                        Severity::ATTENTION,
+                        [ 'title' => 'Escalating stub alert', 'url' => 'https://example.test/' ]
+                    );
+                }
+                return $out;
+            }
+        };
     }
 
     private function age( int $days ): void {
