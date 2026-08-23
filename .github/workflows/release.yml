@@ -59,8 +59,16 @@ jobs:
       # + stubs), which the committed vendor/ carries only partially.
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
+      # No `|| true` (#2103). It used to be here, and it meant this job could
+      # not fail — which is why #2097, an undefined variable that fataled in
+      # production, shipped with a green level-8 gate. It also made a crashed
+      # run indistinguishable from a clean one.
+      #
+      # 3G, not 1G: with the WordPress stubs loaded the parallel workers
+      # exhaust 1G, and the run then reports a single "error" that is the
+      # crash rather than a finding.
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --memory-limit=1G --no-progress || true
+        run: vendor/bin/phpstan analyse --memory-limit=3G --no-progress
 
   admin-center-self-check:
     name: Admin Center payload self-check (#0065)
