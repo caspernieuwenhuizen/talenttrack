@@ -153,9 +153,23 @@ foreach ( $slugs as $slug ) {
             continue;
         }
 
-        // A lesson that requires a quiz must have one that works.
+        // A lesson that requires a quiz must have one that works, and must
+        // actually render it. #2647 found ten lessons declaring
+        // `quiz: true` with a valid payload and no `tt-quiz` block — the
+        // check existed, was scored, and appeared on no page.
         if ( $lesson->hasQuiz() ) {
             checkQuiz( $courses_dir, $rel, $slug, $lesson_slug, $fail );
+
+            if ( strpos( $lesson->body(), '```tt-quiz' ) === false ) {
+                $fail( $rel . '/' . $lesson_slug . '.md', 'Declares quiz: true but the body has no ```tt-quiz block, so the questions never render.' );
+            }
+        } elseif ( strpos( $lesson->body(), '```tt-quiz' ) !== false ) {
+            $fail( $rel . '/' . $lesson_slug . '.md', 'Has a ```tt-quiz block but does not declare quiz: true, so passing it would not count towards completion.' );
+        }
+
+        // Same trap in the other direction for assignments.
+        if ( $lesson->hasAssignment() && strpos( $lesson->body(), '```tt-assignment' ) === false ) {
+            $fail( $rel . '/' . $lesson_slug . '.md', 'Declares assignment: true but the body has no ```tt-assignment block.' );
         }
     }
 

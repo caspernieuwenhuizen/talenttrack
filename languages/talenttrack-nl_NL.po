@@ -52826,6 +52826,91 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "%1$d. %2$s"
+msgstr "%1$d. %2$s"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Answer %1$d of %2$d correctly to pass. You can retake it as often as you like."
+msgstr ""
+"Beantwoord %1$d van de %2$d goed om te slagen. Je mag de toets zo vaak "
+"opnieuw doen als je wilt."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Check my answers"
+msgstr "Controleer mijn antwoorden"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Select every answer that applies."
+msgstr "Selecteer elk antwoord dat van toepassing is."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Number them in the right order, starting at 1."
+msgstr "Nummer ze in de juiste volgorde, te beginnen bij 1."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Position of: %s"
+msgstr "Positie van: %s"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "Choose…"
+msgstr "Kies…"
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "The questions for this module open in the lesson itself."
+msgstr "De vragen bij deze module staan in de les zelf."
+
+#: src/Modules/Knowledge/Blocks/QuizBlock.php
+msgid "This module has no check yet."
+msgstr "Deze module heeft nog geen toets."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "This lesson has no check."
+msgstr "Deze les heeft geen toets."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php
+msgid "Could not record the attempt."
+msgstr "De poging kon niet worden vastgelegd."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "You answered %1$d of %2$d correctly."
+msgstr "Je had er %1$d van de %2$d goed."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "That is a pass — this lesson's check is done."
+msgstr "Dat is een voldoende — de toets van deze les is klaar."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "You need %d correct to pass. Read back over the parts below and try again."
+msgstr ""
+"Je hebt er %d goed nodig om te slagen. Lees de onderdelen hieronder nog eens "
+"door en probeer het opnieuw."
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Answer: %s"
+msgstr "Antwoord: %s"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Correct"
+msgstr "Goed"
+
+#: src/Modules/Knowledge/Frontend/FrontendLessonView.php
+msgid "Wrong"
+msgstr "Fout"
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
+msgid "Correct."
+msgstr "Goed."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
+msgid "Not quite."
+msgstr "Net niet."
+
+#: src/Modules/Knowledge/Frontend/KnowledgeAssets.php
+msgid "Updating your progress…"
+msgstr "Je voortgang wordt bijgewerkt…"
+
 #~ msgid "Ball"
 #~ msgstr "Bal"
 

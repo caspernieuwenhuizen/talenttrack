@@ -108,6 +108,9 @@ herhalen, progressie — is de reden dat het model zes weken duurt en niet drie
 (module 6).
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="04-nulpunt"
 **Praktijkopdracht 4**
 

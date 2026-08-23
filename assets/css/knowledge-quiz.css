@@ -1,0 +1,248 @@
+/**
+ * Lesson quiz (#2647).
+ *
+ * Mobile-first from ~360px. Every control is at least 48x48px with 8px
+ * between neighbours, inputs are 16px so iOS does not zoom on focus, and
+ * correctness is never carried by colour alone — a mark and a word go with
+ * every tint.
+ */
+
+.tt-quiz {
+    max-width: 68ch;
+    margin: var(--tt-sp-6, 24px) 0;
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+}
+
+.tt-quiz--pending {
+    border-style: dashed;
+}
+
+.tt-quiz__title {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 600;
+}
+
+.tt-quiz__intro,
+.tt-quiz__note,
+.tt-quiz__hint {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ── questions ──────────────────────────────────────────────────────── */
+
+.tt-quiz__question {
+    margin: 0 0 var(--tt-sp-5, 20px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left-width: 3px;
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-quiz__question--correct {
+    border-left-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+
+.tt-quiz__question--wrong {
+    border-left-color: var(--tt-danger, #d8453b);
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+
+.tt-quiz__prompt {
+    padding: 0;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.tt-quiz__options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-quiz__option {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    /* The whole row is the target, and 48px is the row. */
+    min-height: 48px;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-quiz__option input[type="radio"],
+.tt-quiz__option input[type="checkbox"] {
+    /* 24px control inside a 48px row keeps the tap area generous without
+       an oversized glyph. */
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    margin: 0;
+    touch-action: manipulation;
+}
+
+.tt-quiz__option label {
+    flex: 1 1 auto;
+    /* Padding rather than height so a wrapped label still fills the row. */
+    padding: var(--tt-sp-2, 8px) 0;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* ── ordering ───────────────────────────────────────────────────────── */
+
+.tt-quiz__option--order,
+.tt-quiz__option--match {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1, 4px);
+    align-items: center;
+}
+
+@media (min-width: 480px) {
+    .tt-quiz__option--order { grid-template-columns: 1fr 5rem; }
+    .tt-quiz__option--match { grid-template-columns: 1fr 1fr; gap: var(--tt-sp-3, 12px); }
+}
+
+.tt-quiz__order-label,
+.tt-quiz__match-label {
+    padding: var(--tt-sp-2, 8px) 0;
+    font-weight: 500;
+}
+
+.tt-quiz__order-input,
+.tt-quiz__match-select {
+    width: 100%;
+    min-height: 48px;
+    /* 16px stops iOS zooming the viewport on focus. */
+    font-size: 16px;
+    touch-action: manipulation;
+}
+
+.tt-quiz__order-input {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── feedback ───────────────────────────────────────────────────────── */
+
+.tt-quiz__feedback:empty { display: none; }
+
+.tt-quiz__feedback {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    line-height: 1.45;
+}
+
+.tt-quiz__actions {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-quiz__actions .tt-btn {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.tt-quiz__result:empty { display: none; }
+
+.tt-quiz__result {
+    margin-top: var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border-radius: var(--tt-radius, 8px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-quiz__result--passed {
+    border-left-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+
+.tt-quiz__result--failed {
+    border-left-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+
+.tt-quiz__score {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-quiz__verdict,
+.tt-quiz__reload,
+.tt-quiz__error {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-quiz__error { color: var(--tt-danger, #d8453b); }
+
+/* ── the no-JavaScript result panel ─────────────────────────────────── */
+
+.tt-quiz-result {
+    max-width: 68ch;
+    margin: 0 0 var(--tt-sp-5, 20px);
+    padding: var(--tt-sp-4, 16px);
+    border-radius: var(--tt-radius, 8px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+}
+
+.tt-quiz-result--passed {
+    border-left-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+
+.tt-quiz-result--failed {
+    border-left-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+
+.tt-quiz-result__headline {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-quiz-result__verdict {
+    margin: var(--tt-sp-1, 4px) 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-quiz-result__list {
+    margin: 0;
+    padding-left: 1.2rem;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-quiz-result__item {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    gap: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px);
+}
+
+.tt-quiz-result__mark { font-weight: 700; }
+.tt-quiz-result__item--correct .tt-quiz-result__mark { color: var(--tt-success, #2f9e5e); }
+.tt-quiz-result__item--wrong .tt-quiz-result__mark { color: var(--tt-danger, #d8453b); }
+
+.tt-quiz-result__expected,
+.tt-quiz-result__why {
+    grid-column: 2;
+}
+
+.tt-quiz-result__expected { font-weight: 600; }
+.tt-quiz-result__why { color: var(--tt-muted, #6a6d66); }

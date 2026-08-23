@@ -66,6 +66,9 @@ per speler naar de biologische ontwikkeling; voor wie de groeispurt al gehad
 heeft, kan het wel — dat is individuele periodisering binnen de teamplanning.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="09-indeling"
 **Praktijkopdracht 9**
 

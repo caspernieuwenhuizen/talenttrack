@@ -82,6 +82,9 @@ handelingen op een hoger tempo met minder vermoeidheid. Bij 4v4/3v3 is het
 precies andersom: daar halveer je wél het aantal partijen.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="07-matrix"
 **Praktijkopdracht 7**
 

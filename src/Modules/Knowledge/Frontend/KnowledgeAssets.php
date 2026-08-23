@@ -17,6 +17,7 @@ final class KnowledgeAssets {
 
     public const STYLE_HANDLE  = 'tt-frontend-knowledge';
     public const READER_HANDLE = 'tt-knowledge-reader';
+    public const QUIZ_HANDLE   = 'tt-knowledge-quiz';
 
     /** Chrome only — every knowledge surface. */
     public static function enqueue(): void {
@@ -42,10 +43,28 @@ final class KnowledgeAssets {
         LessonRenderer::enqueueStyle();
         LessonRenderer::enqueueScript();
 
+        wp_enqueue_style(
+            'tt-knowledge-quiz',
+            TT_PLUGIN_URL . 'assets/css/knowledge-quiz.css',
+            [ self::STYLE_HANDLE ],
+            TT_VERSION
+        );
+
         wp_enqueue_script(
             self::READER_HANDLE,
             TT_PLUGIN_URL . 'assets/js/knowledge-reader.js',
             [ LessonRenderer::SCRIPT_HANDLE ],
+            TT_VERSION,
+            true
+        );
+
+        // #2647 — the quiz submitter. A dependent of the reader script so
+        // it can read the same localised config rather than duplicating
+        // the REST root and nonce.
+        wp_enqueue_script(
+            self::QUIZ_HANDLE,
+            TT_PLUGIN_URL . 'assets/js/knowledge-quiz.js',
+            [ self::READER_HANDLE ],
             TT_VERSION,
             true
         );
@@ -62,6 +81,16 @@ final class KnowledgeAssets {
                 'saving' => __( 'Saving…', 'talenttrack' ),
                 'saved'  => __( 'Saved', 'talenttrack' ),
                 'failed' => __( 'Could not save. Your work is still on screen; try again.', 'talenttrack' ),
+                /* translators: 1: correct answers, 2: total questions */
+                'quizScore'     => __( 'You answered %1$d of %2$d correctly.', 'talenttrack' ),
+                'quizPassed'    => __( 'That is a pass — this lesson\'s check is done.', 'talenttrack' ),
+                /* translators: %d: the number of correct answers needed */
+                'quizFailed'    => __( 'You need %d correct to pass. Read back over the parts below and try again.', 'talenttrack' ),
+                'quizCorrect'   => __( 'Correct.', 'talenttrack' ),
+                'quizWrong'     => __( 'Not quite.', 'talenttrack' ),
+                /* translators: %s: the correct answer */
+                'quizAnswer'    => __( 'Answer: %s', 'talenttrack' ),
+                'quizReloading' => __( 'Updating your progress…', 'talenttrack' ),
             ],
         ] );
     }

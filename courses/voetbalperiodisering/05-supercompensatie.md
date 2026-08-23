@@ -66,6 +66,9 @@ en dan zou je uiterlijk woensdag moeten trainen, wat op zijn beurt weer met
 principe 2 uit module 8 kan botsen.
 ```
 
+```tt-quiz
+```
+
 ```tt-assignment id="05-toets-week"
 **Praktijkopdracht 5**
 
