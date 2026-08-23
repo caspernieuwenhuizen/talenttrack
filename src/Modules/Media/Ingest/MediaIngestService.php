@@ -35,6 +35,11 @@ final class MediaIngestService {
      * Content types we accept, mapped to the extension we store them as.
      * The extension comes from this table, never from the uploaded
      * filename, so a crafted name cannot pick what lands on disk.
+     *
+     * The document types arrived with course assignments (#2648). Being
+     * listed here makes a type ingestable; it does not make it attachable
+     * everywhere — `MediaAttachmentPolicy` decides which targets accept
+     * which kind, and a PDF on a player record is refused there, not here.
      */
     private const ALLOWED = [
         'image/jpeg'      => 'jpg',
@@ -42,6 +47,13 @@ final class MediaIngestService {
         'image/webp'      => 'webp',
         'video/mp4'       => 'mp4',
         'video/quicktime' => 'mov',
+
+        'application/pdf' => 'pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'       => 'xlsx',
+        'application/vnd.oasis.opendocument.text'        => 'odt',
+        'application/vnd.oasis.opendocument.spreadsheet' => 'ods',
+        'text/plain'      => 'txt',
     ];
 
     /** Longest edge of a generated thumbnail, in pixels. */

@@ -3,6 +3,7 @@ namespace TT\Modules\Knowledge\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Knowledge\Blocks\AssignmentBlock;
 use TT\Modules\Knowledge\CourseAccessResolver;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
@@ -14,6 +15,7 @@ use TT\Modules\Knowledge\Quiz\QuizSubmission;
 use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 use TT\Modules\Knowledge\Repositories\ProgressRepository;
 use TT\Modules\Knowledge\Repositories\QuizAttemptRepository;
+use TT\Modules\Knowledge\SubmissionService;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordSpine;
@@ -84,6 +86,11 @@ class FrontendLessonView extends FrontendViewBase {
         $notice       = self::handlePost( $enrolment_id, $course_slug, $lesson_slug, $progress, $completion );
         $quiz_result  = self::handleQuizPost( $enrolment_id, $course_slug, $lesson_slug, $progress, $completion );
 
+        $assignment_notice = self::handleAssignmentPost( $enrolment_id, $course_slug, $lesson_slug );
+        if ( $assignment_notice !== '' ) {
+            $notice = $assignment_notice;
+        }
+
         $row        = $enrolment_id > 0 ? $progress->find( $enrolment_id, $lesson_slug ) : null;
         $tool_state = $progress->toolState( $row );
         $is_read    = $row !== null && $row->read_at !== null;
@@ -115,8 +122,10 @@ class FrontendLessonView extends FrontendViewBase {
 
         echo '<article class="tt-lesson-body">';
         // The course and lesson are passed so `tt-quiz` can find its
-        // payload; every other block ignores them.
-        echo LessonRenderer::renderAndEnqueue( $lesson->body(), $course_slug, $lesson_slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes; see LessonMarkdown.
+        // payload, and the enrolment so `tt-assignment` can show this
+        // reader's submission and its verdict; the other blocks ignore all
+        // three.
+        echo LessonRenderer::renderAndEnqueue( $lesson->body(), $course_slug, $lesson_slug, $enrolment_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderer escapes; see LessonMarkdown.
         echo '</article>';
 
         self::renderCompletion( $enrolment_id, $course_slug, $lesson_slug, $is_read, $lesson->hasQuiz(), $lesson->hasAssignment(), $completion );
@@ -250,6 +259,61 @@ class FrontendLessonView extends FrontendViewBase {
         $completion->recalculate( $enrolment_id );
 
         return __( 'Marked as read.', 'talenttrack' );
+    }
+
+    /**
+     * Hand in an assignment posted from the lesson's `tt-assignment` block.
+     *
+     * The block renders a real form, so this is the whole path rather than
+     * a fallback: the written answer is what a submission is, and it never
+     * depends on JavaScript. Attachments are the part that does, and they
+     * upload separately against the submission this creates.
+     *
+     * Runs before the body is rendered so the block sees the row it just
+     * wrote and comes back showing "waiting for review" rather than an
+     * empty form the coach has already filled in.
+     */
+    private static function handleAssignmentPost(
+        int $enrolment_id,
+        string $course_slug,
+        string $lesson_slug
+    ): string {
+        if ( $enrolment_id <= 0 ) {
+            return '';
+        }
+
+        if ( ( $_POST['tt_knowledge_action'] ?? '' ) !== AssignmentBlock::ACTION ) {
+            return '';
+        }
+
+        if ( ! isset( $_POST['_tt_assignment_nonce'] )
+            || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_tt_assignment_nonce'] ) ), AssignmentBlock::ACTION )
+        ) {
+            return '';
+        }
+
+        // `sanitize_textarea_field` rather than `sanitize_text_field`: a
+        // twelve-week plan is written in paragraphs, and the single-line
+        // variant would flatten every one of them into a wall of text.
+        $body = isset( $_POST['assignment_body'] )
+            ? sanitize_textarea_field( wp_unslash( (string) $_POST['assignment_body'] ) )
+            : '';
+
+        $result = ( new SubmissionService() )->submit( $enrolment_id, $course_slug, $lesson_slug, $body );
+
+        switch ( $result['status'] ) {
+            case SubmissionService::OK:
+                return __( 'Handed in. Your reviewer will pick it up from here.', 'talenttrack' );
+
+            case SubmissionService::ERR_EMPTY:
+                return __( 'Write your answer before handing it in.', 'talenttrack' );
+
+            case SubmissionService::ERR_ALREADY:
+                return __( 'This assignment is already with a reviewer.', 'talenttrack' );
+
+            default:
+                return __( 'That could not be handed in.', 'talenttrack' );
+        }
     }
 
     /**

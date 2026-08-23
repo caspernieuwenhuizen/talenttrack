@@ -7,8 +7,10 @@ use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\Delivery\MediaDelivery;
 use TT\Modules\Media\Ingest\MediaIngestService;
 use TT\Modules\Media\Links\VideoLinkResolver;
+use TT\Modules\Media\MediaAttachmentPolicy;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\MediaKind;
+use TT\Modules\Media\Storage\MediaStorage;
 use TT\Modules\Media\Repositories\MediaLinksRepository;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Modules\Media\Retention\MediaRetentionService;
@@ -190,7 +192,7 @@ final class MediaRestController {
         if ( ! MediaEntityType::isValid( $entity_type ) || $entity_id <= 0 ) {
             return RestResponse::error(
                 'bad_target',
-                __( 'Provide entity_type (player, team or activity) and entity_id.', 'talenttrack' ),
+                __( 'Provide a valid entity_type and entity_id.', 'talenttrack' ),
                 400
             );
         }
@@ -243,7 +245,7 @@ final class MediaRestController {
         if ( ! MediaEntityType::isValid( $entity_type ) || $entity_id <= 0 ) {
             return RestResponse::error(
                 'bad_target',
-                __( 'Provide entity_type (player, team or activity) and entity_id to attach the media to.', 'talenttrack' ),
+                __( 'Provide a valid entity_type and entity_id to attach the media to.', 'talenttrack' ),
                 400
             );
         }
@@ -254,11 +256,44 @@ final class MediaRestController {
         }
 
         $external_url = trim( (string) $request->get_param( 'external_url' ) );
-        $payload      = $external_url !== ''
+
+        // Check the target's policy before ingest, not after. The uploader
+        // narrows its `accept` from the same policy, but `accept` is a hint
+        // to a file picker and this is the check that holds — and ingest
+        // writes the bytes to the store as it runs, so refusing on the far
+        // side of it would leave an orphaned object behind every rejected
+        // upload.
+        $intended = $external_url !== ''
+            ? MediaKind::VIDEO_LINK
+            : self::intendedKind( $request );
+
+        if ( $intended !== '' && ! MediaAttachmentPolicy::allows( $entity_type, $intended ) ) {
+            return RestResponse::error(
+                'kind_not_allowed',
+                MediaAttachmentPolicy::refusalMessage( $entity_type ),
+                415
+            );
+        }
+
+        $payload = $external_url !== ''
             ? self::linkPayload( $external_url, $request )
             : self::uploadPayload( $request );
 
         if ( $payload instanceof \WP_REST_Response ) return $payload;
+
+        // Backstop. The pre-check sniffs the temp file with `sniff()` while
+        // ingest re-detects with its own fallback chain, so the two can in
+        // principle disagree. If they do, the stored object is removed
+        // rather than left unreferenced.
+        $kind = (string) ( $payload['kind'] ?? '' );
+        if ( ! MediaAttachmentPolicy::allows( $entity_type, $kind ) ) {
+            self::discardStored( $payload );
+            return RestResponse::error(
+                'kind_not_allowed',
+                MediaAttachmentPolicy::refusalMessage( $entity_type ),
+                415
+            );
+        }
 
         $repo     = new MediaRepository();
         $media_id = $repo->insert( $payload );
@@ -613,6 +648,41 @@ final class MediaRestController {
         $mime = (string) finfo_file( $finfo, $path );
         finfo_close( $finfo );
         return strtolower( $mime );
+    }
+
+    /**
+     * The kind an uploaded file will land as, known before ingest runs.
+     *
+     * Empty when there is nothing to sniff — no file, or no `finfo` on the
+     * host. Both cases fall through to `uploadPayload()`, which raises the
+     * proper error for a missing file and whose own detection has a
+     * fallback for a host without `finfo`. Returning empty here means "no
+     * opinion", never "allowed".
+     */
+    private static function intendedKind( \WP_REST_Request $request ): string {
+        $files = $request->get_file_params();
+        $tmp   = (string) ( $files['file']['tmp_name'] ?? '' );
+        if ( $tmp === '' || ! is_file( $tmp ) ) return '';
+
+        $mime = self::sniff( $tmp );
+        return $mime === '' ? '' : MediaKind::forMime( $mime );
+    }
+
+    /**
+     * Drop bytes ingest already wrote for a payload that is not going to be
+     * inserted.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private static function discardStored( array $payload ): void {
+        $key = (string) ( $payload['storage_key'] ?? '' );
+        if ( $key === '' ) return;
+
+        $storage = MediaStorage::default();
+        $storage->delete( $key );
+
+        $thumb = (string) ( $payload['thumbnail_key'] ?? '' );
+        if ( $thumb !== '' ) $storage->delete( $thumb );
     }
 
     private static function uploadErrorMessage( int $code ): string {

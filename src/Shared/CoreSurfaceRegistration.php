@@ -175,6 +175,20 @@ final class CoreSurfaceRegistration {
         $reg::register( 'lesson', $knowledge_gate );
         $reg::register( 'my-learning', $knowledge_gate );
 
+        // #2648 — the review queue is the one knowledge surface a
+        // capability does not describe. Work is routed to mentors, who hold
+        // no management capability, so gating on one would hide the queue
+        // from the people it exists for. `isReviewer()` is the same question
+        // the view's own early return asks.
+        $reg::register( 'submission-review', static function ( int $uid ): bool {
+            if ( $uid <= 0 || ! user_can( $uid, 'tt_view_knowledge' ) ) return false;
+
+            return \TT\Modules\Knowledge\ReviewerResolver::isReviewer(
+                $uid,
+                \TT\Modules\Knowledge\KnowledgePerson::forUser( $uid )
+            );
+        } );
+
         // Measurements execution surfaces — matrix entity/activity pairs
         // mirroring each view's own MatrixGate guard.
         $reg::register( 'measurement-tests', [ 'measurement_definitions', 'change' ] );
@@ -1462,6 +1476,36 @@ final class CoreSurfaceRegistration {
             'color'        => '#1b5c6b',
             'cap'          => 'tt_view_knowledge',
             'feature'      => 'knowledge_courses',
+        ]);
+
+        // #2648 — the review queue, beside the library it draws from.
+        //
+        // `cap` alone would be wrong in both directions. A mentor is routed
+        // coursework while holding nothing but `tt_view_knowledge`, which
+        // every coach on the install also holds — so the capability is too
+        // narrow to describe a reviewer and too broad to exclude a
+        // non-reviewer. `cap_callback` asks the actual question, and it is
+        // the same one the view's early return and the cross-view gate ask,
+        // so a coach who is nobody's mentor never sees the tile rather than
+        // finding a "not authorized" page behind it.
+        TileRegistry::register([
+            'module_class'  => self::M_KNOWLEDGE,
+            'view_slug'     => 'submission-review',
+            'group'         => $learning_group,
+            'kind'          => 'work',
+            'order'         => 20,
+            'label'         => __( 'Assignments to review', 'talenttrack' ),
+            'description'   => __( 'Coursework your coaches have handed in and are waiting on.', 'talenttrack' ),
+            'icon'          => 'evaluations',
+            'color'         => '#1b5c6b',
+            'cap'           => 'tt_view_knowledge',
+            'cap_callback'  => static function ( int $uid ): bool {
+                return \TT\Modules\Knowledge\ReviewerResolver::isReviewer(
+                    $uid,
+                    \TT\Modules\Knowledge\KnowledgePerson::forUser( $uid )
+                );
+            },
+            'feature'       => 'knowledge_courses',
         ]);
 
         // #1540 — "Staff overview" is the academy-wide HoD lens (open
