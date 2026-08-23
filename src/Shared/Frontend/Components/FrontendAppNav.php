@@ -102,12 +102,18 @@ final class FrontendAppNav {
      * In the 60px rail the wordmark is clip-path-hidden rather than removed,
      * matching how nav labels behave there: the crest still shows, and a
      * screen reader still reads the academy name.
+     *
+     * The crest is the route home (#2764) — the top-left brand mark is where
+     * a web app puts the way back to the dashboard, so it links there. The
+     * academy name is the link text, which is why the crest keeps `alt=""`:
+     * one accessible name for the link, not two.
      */
     private static function renderBrand(): void {
         $name = (string) QueryHelpers::get_config( 'academy_name', 'TalentTrack' );
         $logo = (string) QueryHelpers::get_config( 'logo_url', '' );
 
         echo '<div class="tt-shell-nav__brand">';
+        echo '<a class="tt-shell-nav__home" href="' . esc_url( RecordLink::dashboardUrl() ) . '">';
         if ( $logo !== '' ) {
             echo '<img class="tt-shell-nav__logo" src="' . esc_url( $logo ) . '" alt="" width="32" height="32" />';
         } else {
@@ -116,6 +122,7 @@ final class FrontendAppNav {
                 . '</span>';
         }
         echo '<span class="tt-shell-nav__academy">' . esc_html( $name ) . '</span>';
+        echo '</a>';
         echo '</div>';
     }
 

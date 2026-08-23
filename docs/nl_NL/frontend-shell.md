@@ -45,6 +45,14 @@ opzoekt.
 Het uitschuifmenu blijft bestaan en bevat nog steeds alles, dus de balk verbergt
 niets. Het is een snelkoppeling, geen filter.
 
+### Het clublogo brengt je terug
+
+Het logo en de naam van de academie linksboven zijn een link terug naar het
+dashboard, in beide indelingen. In de app-shell doet het logo bovenaan de
+zijbalk hetzelfde, ook als die is ingeklapt tot iconen. Is er geen logo
+ingesteld, dan neemt het gouden initialenmerk die plaats in en werkt het
+precies zo.
+
 ## Een indeling kiezen
 
 **Als academiebeheerder** stel je de standaard in onder *Configuratie →
