@@ -1,0 +1,241 @@
+/**
+ * Authorization matrix (#2654) — `?tt_view=matrix`.
+ *
+ * Mobile-first per CLAUDE.md §2, with one honest concession: a persona ×
+ * entity grid cannot be made to fit a 360px screen, and shrinking it until
+ * it does produces a grid nobody can read. So the GRID scrolls sideways
+ * inside its own container and the PAGE does not — the rule the §2 budget
+ * actually cares about — and the phone gets the desktop-preferred banner
+ * saying this is easier on a laptop.
+ *
+ * The entity column is sticky, because a row of R/C/D toggles means nothing
+ * once the name it belongs to has scrolled off the left edge.
+ */
+
+.tt-matrix-intro {
+    max-width: 60ch;
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-matrix-dormant,
+.tt-matrix-guardrail,
+.tt-matrix-saved {
+    max-width: 70ch;
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+/* ---- search ---- */
+
+.tt-matrix-search {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-matrix-search-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 48px;
+    /* 16px, or iOS zooms the page the moment the field takes focus. */
+    font-size: 1rem;
+    padding: 0 var(--tt-sp-3, 12px);
+}
+
+.tt-matrix-search-count {
+    flex: 0 0 auto;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- the grid ---- */
+
+.tt-matrix-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e2e5df);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface, #ffffff);
+}
+
+/* The container is focusable so the grid can be scrolled by keyboard;
+   without a visible ring that focus is invisible. */
+.tt-matrix-scroll:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-matrix-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: max-content;
+    min-width: 100%;
+}
+
+.tt-matrix-table th,
+.tt-matrix-table td {
+    padding: var(--tt-sp-2, 8px);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--tt-line, #e2e5df);
+}
+
+.tt-matrix-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--tt-surface, #ffffff);
+    font-size: var(--tt-fs-sm, 0.875rem);
+    white-space: nowrap;
+}
+
+.tt-matrix-th-entity,
+.tt-matrix-entity {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 13rem;
+    max-width: 16rem;
+    background: var(--tt-surface, #ffffff);
+    border-right: 1px solid var(--tt-line, #e2e5df);
+}
+
+.tt-matrix-table thead .tt-matrix-th-entity { z-index: 3; }
+
+.tt-matrix-entity-label {
+    display: block;
+    font-weight: 600;
+}
+
+.tt-matrix-entity-slug {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 400;
+    color: var(--tt-ink-soft, #6a6d66);
+    word-break: break-all;
+}
+
+.tt-matrix-cat th {
+    position: sticky;
+    left: 0;
+    background: var(--tt-surface-sunken, #f2f4f0);
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- one cell ---- */
+
+.tt-matrix-toggles {
+    display: flex;
+    gap: 8px;
+}
+
+.tt-matrix-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* CLAUDE.md §2: 48×48 with 8px between adjacent targets. */
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-surface-sunken, #f2f4f0);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-family: var(--tt-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: var(--tt-fs-sm, 0.875rem);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-matrix-toggle input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* A shipped default reads quieter than a deliberate edit — the difference
+   between "this is how it came" and "somebody decided this". */
+.tt-matrix-toggle.is-on.is-default {
+    background: var(--tt-success-subtle, #d7ece0);
+    color: var(--tt-success-strong, #17603a);
+}
+
+.tt-matrix-toggle.is-on.is-edited {
+    background: var(--tt-success-strong, #17603a);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.tt-matrix-toggle:active { transform: scale(0.96); }
+
+.tt-matrix-toggle input:focus-visible + .tt-matrix-toggle-face {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 3px;
+    border-radius: var(--tt-radius-sm, 4px);
+}
+
+.tt-matrix-toggle input:disabled { cursor: not-allowed; }
+
+.tt-matrix-cell.is-locked .tt-matrix-toggle,
+.tt-matrix-cell.is-locked .tt-matrix-scope select {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.tt-matrix-scope {
+    display: block;
+    margin-top: 8px;
+}
+
+.tt-matrix-scope select {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+/* ---- actions ---- */
+
+.tt-matrix-empty {
+    margin: var(--tt-sp-3, 12px) 0;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-matrix-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-matrix-dirty {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf0d0);
+    color: var(--tt-warning-strong, #7a5300);
+    font-size: var(--tt-fs-xs, 0.75rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tt-matrix-dirty[hidden] { display: none; }
+
+@media (min-width: 768px) {
+    /* Room for the grid to breathe once there is any. */
+    .tt-matrix-scroll { max-height: 70vh; overflow-y: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-matrix-toggle:active { transform: none; }
+}

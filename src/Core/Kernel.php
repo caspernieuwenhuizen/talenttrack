@@ -151,6 +151,9 @@ class Kernel {
         \TT\Infrastructure\Archive\AutoPurgeCron::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();
+        // #2654 — frontend authorization matrix (cap-ensure + save handler
+        // + config tile + REST). wp-admin's page stays as it was.
+        \TT\Shared\Frontend\FrontendMatrixView::init();
         // #1486 — read-only Features status view (REST endpoint).
         \TT\Shared\Frontend\FrontendFeaturesView::init();
         // #1381 — season rollover (bulk cohort promotion): execute handler

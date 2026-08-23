@@ -8,9 +8,31 @@ order: 60
 
 # Authorisatie­matrix (beheerdersgids)
 
-**TalentTrack → Toegangsbeheer → Authorisatie­matrix**
+**Configuratie → Authorisatie­matrix** (`?tt_view=matrix`), of **TalentTrack → Toegangsbeheer → Authorisatie­matrix** in wp-admin.
 
 De authorisatie­matrix is de centrale bron voor "wat mag elke persona, op welke entiteit?". Acht persona's × ~30 entiteiten × drie acties (lezen / wijzigen / aanmaken-verwijderen) = enkele honderden cellen. De meegeleverde standaardwaarden komen overeen met wat elke rol vandaag al doet; beheerders kunnen per cel afwijken zonder code te schrijven.
+
+## Wie mag hem bewerken, en wat niet
+
+Sinds #2654 zijn er twee schermen voor hetzelfde raster, met dezelfde schrijver eronder:
+
+| | Frontend (`?tt_view=matrix`) | wp-admin (`admin.php?page=tt-matrix`) |
+| - | - | - |
+| Wie | Iedereen met `tt_manage_authorization` — toegekend aan **administrator** en **Clubbeheerder** | Alleen een WordPress-**administrator** |
+| Gewone cellen bewerken | Ja | Ja |
+| Beschermde cellen bewerken | Alleen administrator | Ja |
+| Terugzetten naar standaard | Nee | Ja |
+| Seed exporteren / importeren | Nee | Ja |
+| De matrix aan- of uitzetten | Nee | Ja |
+
+**De beschermde cellen.** Een clubbeheerder die zijn eigen persona `create_delete` op `authorization_matrix` zou kunnen geven, heeft zichzelf één opslagactie later alles gegeven. Daarom staan deze cellen voor iemand zonder administrator-account op slot, met de reden op de cel:
+
+- de eigen persona-rij — `academy_admin`;
+- de entiteiten die het rechtenmodel, het databaseschema en de back-ups bepalen: `authorization_matrix`, `authorization_changelog`, `settings`, `migrations`, `backup`, `module_management`, `feature_toggles`, `functional_role_definitions`.
+
+Het slot wordt afgedwongen bij het opslaan, niet alleen in de HTML: een zelfgemaakte formulierpost of een directe REST-aanroep op een beschermde cel wordt geteld als geweigerd en schrijft géén matrixregel en géén changelog-regel.
+
+**Waarom wp-admin blijft.** Een verkeerde matrixwijziging kan precies de frontend-schermen verbergen die naar de matrix leiden. De wp-admin-pagina hangt daar niet van af en is daarmee de weg terug — en dat is ook de reden dat terugzetten, de seed-export/import en de aan/uit-schakelaar niet zijn meegedelegeerd.
 
 ## Wanneer aanpassen
 

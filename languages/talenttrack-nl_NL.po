@@ -54624,6 +54624,138 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "You do not have permission to edit the authorization matrix."
+msgstr "Je hebt geen rechten om de authorisatiematrix te bewerken."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid ""
+"What each persona may do with each kind of record. R is read, C is change, D "
+"is create and delete. Scope narrows a grant: global applies everywhere, "
+"while team and player also require the user to hold that assignment."
+msgstr ""
+"Wat elke persona mag met elk soort gegeven. R is lezen, C is wijzigen, D is "
+"aanmaken en verwijderen. De scope beperkt een recht: global geldt overal, "
+"terwijl team en player ook vragen dat de gebruiker die toewijzing heeft."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "The matrix is dormant."
+msgstr "De matrix ligt stil."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid ""
+"Your edits are saved but decide nothing yet: WordPress capabilities are "
+"answering instead. A WordPress administrator switches the matrix on under "
+"Authorization in wp-admin."
+msgstr ""
+"Je wijzigingen worden opgeslagen maar bepalen nog niets: de WordPress-rechten "
+"geven het antwoord. Een WordPress-administrator zet de matrix aan onder "
+"Toegangsbeheer in wp-admin."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid ""
+"Some cells are locked: your own persona, and the settings that decide who may "
+"edit permissions, schema and backups. Everything else is yours to change. A "
+"WordPress administrator can edit the locked cells in wp-admin."
+msgstr ""
+"Sommige cellen staan op slot: je eigen persona, en de instellingen die "
+"bepalen wie rechten, databaseschema en back-ups mag wijzigen. Al het andere "
+"mag je aanpassen. Een WordPress-administrator kan de vergrendelde cellen in "
+"wp-admin bewerken."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "Matrix saved. Reload other open tabs to see the effect."
+msgstr "Matrix opgeslagen. Herlaad andere open tabbladen om het effect te zien."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "Search entities"
+msgstr "Entiteiten zoeken"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "Search entities…"
+msgstr "Entiteiten zoeken…"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "No entity matches your search."
+msgstr "Geen enkele entiteit komt overeen met je zoekopdracht."
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "Unsaved changes"
+msgstr "Niet-opgeslagen wijzigingen"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "Locked: only a WordPress administrator can change this."
+msgstr "Op slot: alleen een WordPress-administrator kan dit wijzigen."
+
+#. translators: 1: persona name, 2: entity name
+#: src/Shared/Frontend/FrontendMatrixView.php
+#, php-format
+msgid "Scope for %1$s on %2$s"
+msgstr "Scope voor %1$s op %2$s"
+
+#. translators: 1: persona name, 2: what they may do, 3: entity name
+#: src/Shared/Frontend/FrontendMatrixView.php
+#, php-format
+msgid "%1$s may %2$s %3$s"
+msgstr "%1$s mag %3$s %2$s"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix activity, as a verb"
+msgid "read"
+msgstr "lezen"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix activity, as a verb"
+msgid "change"
+msgstr "wijzigen"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix activity, as a verb"
+msgid "create and delete"
+msgstr "aanmaken en verwijderen"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix scope"
+msgid "global"
+msgstr "global"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix scope"
+msgid "team"
+msgstr "team"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix scope"
+msgid "player"
+msgstr "player"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgctxt "matrix scope"
+msgid "self"
+msgstr "self"
+
+#: src/Shared/Frontend/FrontendMatrixView.php
+msgid "What each persona may do with each kind of record."
+msgstr "Wat elke persona mag met elk soort gegeven."
+
+#: src/Shared/Frontend/FrontendRolesView.php
+msgid ""
+"Tools for inspecting and changing the authorization matrix. The matrix editor "
+"opens here; the rest open in wp-admin and need a WordPress administrator "
+"account."
+msgstr ""
+"Tools om de authorisatiematrix te bekijken en te wijzigen. De matrix-editor "
+"opent hier; de rest opent in wp-admin en vraagt een WordPress-"
+"administratoraccount."
+
+#: src/Modules/Authorization/Rest/MatrixRestController.php
+msgid ""
+"Send at least one persona|entity pair in scopes — that is what says which "
+"cells this request speaks for."
+msgstr ""
+"Stuur minstens één persona|entiteit-paar mee in scopes — dat bepaalt over "
+"welke cellen dit verzoek gaat."
+
 #~ msgid "Open staff share link"
 #~ msgstr "Stafdeellink openen"
 

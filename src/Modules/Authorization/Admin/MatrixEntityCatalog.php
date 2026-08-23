@@ -451,6 +451,101 @@ final class MatrixEntityCatalog {
         return null;
     }
 
+    /** Last segment of a module class — `TT\Modules\Teams\TeamsModule` → `TeamsModule`. */
+    public static function shortModule( string $class ): string {
+        $parts = explode( '\\', $class );
+
+        return (string) end( $parts );
+    }
+
+    /**
+     * Group the flat entity list under category headers.
+     *
+     * v3.87.0 — primary grouping is derived from the frontend tile
+     * registry: an entity lives under whatever group its consuming tile
+     * sits in on the persona dashboard. This keeps the matrix editor and
+     * the dashboard aligned in both structure AND locale, since tile
+     * groups are registered with `__()` and resolve to the operator's
+     * language at render time.
+     *
+     * Module-class fallback (the v3.0 behaviour) still kicks in for
+     * entities that no tile consumes — typical for back-office-only
+     * surfaces like `authorization_changelog` or `impersonation_log`.
+     *
+     * Group order respects whichever group label appears first when
+     * walking entities, then trails with the module-fallback "Other"
+     * bucket. This means the order matches the dashboard's natural
+     * reading order without an extra hard-coded list to maintain.
+     *
+     * #2654 — moved here from `MatrixPage` when the frontend editor
+     * landed. Two copies of this would have been two different reading
+     * orders for the same grid.
+     *
+     * @param array<int, array{entity:string, module_class:string}> $entities
+     * @return array<string, array<int, array{entity:string, module_class:string}>>
+     */
+    public static function groupByCategory( array $entities ): array {
+        $module_to_category = [
+            'PlayersModule'         => __( 'Players', 'talenttrack' ),
+            'PeopleModule'          => __( 'Players', 'talenttrack' ),
+            'TeamsModule'           => __( 'Teams', 'talenttrack' ),
+            'ActivitiesModule'      => __( 'Activities', 'talenttrack' ),
+            'EvaluationsModule'     => __( 'Evaluations', 'talenttrack' ),
+            'GoalsModule'           => __( 'Development', 'talenttrack' ),
+            'PdpModule'             => __( 'Development', 'talenttrack' ),
+            'MethodologyModule'     => __( 'Development', 'talenttrack' ),
+            'TeamDevelopmentModule' => __( 'Development', 'talenttrack' ),
+            'DevelopmentModule'     => __( 'Development', 'talenttrack' ),
+            'ReportsModule'         => __( 'Insights', 'talenttrack' ),
+            'StatsModule'           => __( 'Insights', 'talenttrack' ),
+            'WorkflowModule'        => __( 'Operations', 'talenttrack' ),
+            'InvitationsModule'     => __( 'Operations', 'talenttrack' ),
+            'DocumentationModule'   => __( 'Operations', 'talenttrack' ),
+            'OnboardingModule'      => __( 'Operations', 'talenttrack' ),
+            'AuthorizationModule'   => __( 'Administration', 'talenttrack' ),
+            'ConfigurationModule'   => __( 'Administration', 'talenttrack' ),
+            'LicenseModule'         => __( 'Administration', 'talenttrack' ),
+            'BackupModule'          => __( 'Administration', 'talenttrack' ),
+            'DemoDataModule'        => __( 'Administration', 'talenttrack' ),
+        ];
+
+        $group_order = [];
+        $buckets     = [];
+        foreach ( $entities as $row ) {
+            $entity = (string) ( $row['entity'] ?? '' );
+            $cat    = self::groupForEntity( $entity );
+            if ( $cat === null || $cat === '' ) {
+                $short = self::shortModule( (string) $row['module_class'] );
+                $cat   = $module_to_category[ $short ] ?? __( 'Other', 'talenttrack' );
+            }
+            if ( ! isset( $buckets[ $cat ] ) ) {
+                $group_order[]   = $cat;
+                $buckets[ $cat ] = [];
+            }
+            $buckets[ $cat ][] = $row;
+        }
+        foreach ( $buckets as &$rows ) {
+            usort( $rows, static fn( $a, $b ) => strcmp( (string) $a['entity'], (string) $b['entity'] ) );
+        }
+        unset( $rows );
+
+        // Honour the order in which groups first appeared. Push the
+        // "Other" bucket to the end if it exists so back-office
+        // entities don't shove user-facing groups around.
+        $other = __( 'Other', 'talenttrack' );
+        if ( isset( $buckets[ $other ] ) ) {
+            $group_order = array_values( array_filter( $group_order, static fn( $g ) => $g !== $other ) );
+            $group_order[] = $other;
+        }
+
+        $ordered = [];
+        foreach ( $group_order as $cat ) {
+            $ordered[ $cat ] = $buckets[ $cat ];
+        }
+
+        return $ordered;
+    }
+
     private static function resolveTileLabel( array $tile ): string {
         if ( ! empty( $tile['label'] ) ) return (string) $tile['label'];
         $labels = $tile['labels'] ?? [];

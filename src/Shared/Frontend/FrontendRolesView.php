@@ -110,8 +110,19 @@ class FrontendRolesView extends FrontendViewBase {
      * suppressed when the user holds none of the caps.
      */
     private static function renderAdvancedToolsSection(): void {
+        // #2654 — the matrix editor is no longer one of the wp-admin links.
+        // It has a frontend surface now, gated on the capability rather than
+        // on holding a WordPress administrator account, so the academy admin
+        // this section used to show nothing to can finally reach it.
+        $matrix_url = '';
+        if ( \TT\Shared\Frontend\Components\CrossViewLink::allows( FrontendMatrixView::SLUG ) ) {
+            $matrix_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => FrontendMatrixView::SLUG ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            ) ); /* tt-xview-ok — gated by CrossViewLink::allows above. */
+        }
+
         $tools = [
-            [ 'cap' => 'administrator',     'slug' => 'tt-matrix',          'label' => __( 'Authorization Matrix', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-matrix-preview',  'label' => __( 'Activate access control', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-user-compare',    'label' => __( 'Compare users', 'talenttrack' ) ],
             [ 'cap' => 'tt_view_settings',  'slug' => 'tt-roles-debug',     'label' => __( 'Permission Debug', 'talenttrack' ) ],
@@ -119,14 +130,19 @@ class FrontendRolesView extends FrontendViewBase {
         ];
 
         $visible = array_values( array_filter( $tools, static fn ( array $t ): bool => current_user_can( $t['cap'] ) ) );
-        if ( empty( $visible ) ) return;
+        if ( $matrix_url === '' && empty( $visible ) ) return;
 
         echo '<section class="tt-admin-tools">';
         echo '<h3 class="tt-admin-section-title">' . esc_html__( 'Advanced authorization tools', 'talenttrack' ) . '</h3>';
         echo '<p class="tt-admin-lead">'
-            . esc_html__( 'Administrator-level tools for inspecting and migrating the authorization matrix. These open in wp-admin.', 'talenttrack' )
+            . esc_html__( 'Tools for inspecting and changing the authorization matrix. The matrix editor opens here; the rest open in wp-admin and need a WordPress administrator account.', 'talenttrack' )
             . '</p>';
         echo '<ul class="tt-admin-tools-list">';
+        if ( $matrix_url !== '' ) {
+            echo '<li><a class="tt-btn tt-btn-secondary" href="' . esc_url( $matrix_url ) . '">'
+                . esc_html__( 'Authorization matrix', 'talenttrack' )
+                . '</a></li>';
+        }
         foreach ( $visible as $t ) {
             $url = admin_url( 'admin.php?page=' . $t['slug'] );
             echo '<li><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">' . esc_html( $t['label'] ) . '</a></li>';

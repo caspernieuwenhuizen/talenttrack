@@ -1323,6 +1323,12 @@ class DashboardShortcode {
                 // #1451 — frontend equivalent of the wp-admin Modules toggle.
                 FrontendModulesView::render( $user_id, $is_admin );
                 return true;
+            case 'matrix':
+                // #2654 — the authorization matrix, editable by an academy
+                // admin without a WordPress account. wp-admin keeps its own
+                // page as the administrator's recovery path.
+                FrontendMatrixView::render( $user_id, $is_admin );
+                return true;
             case 'features':
                 // #1486 — read-only "what's switched on" status, all personas.
                 \TT\Shared\Frontend\FrontendFeaturesView::render( $user_id, $is_admin );

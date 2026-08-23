@@ -209,6 +209,10 @@ Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een
 
 De geavanceerde autorisatiepagina's — Autorisatiematrix, Toegangsbeheer activeren, Gebruikers vergelijken, Permission Debug, Permission Chain Debug — staan onder de kop **Toegangsbeheer** in de TalentTrack-zijbalk in wp-admin. Ze verschijnen daar in zowel de oude als de moderne menu-indeling (elke vermelding is afgeschermd op de eigen capability, dus je ziet alleen wat je mag openen). Vanuit de frontend toont het scherm **Rollen & rechten** ze ook onder "Geavanceerde autorisatietools" voor snelle toegang.
 
+**De matrix-editor is geen wp-admin-link meer.** Sinds #2654 heeft die een eigen frontend-scherm onder **Configuratie → Authorisatiematrix** (`?tt_view=matrix`), afgeschermd op de capability `tt_manage_authorization` — toegekend aan administrator en Clubbeheerder — in plaats van op het hebben van een WordPress-administratoraccount. Een academie zonder iemand in wp-admin kan nu zelf een te ruime of te krappe toekenning corrigeren, en dat telt: die toekenningen bepalen wie de evaluaties, notities en medische velden van een speler mag openen.
+
+Een Clubbeheerder die vanaf de frontend werkt, kan de eigen persona-rij niet wijzigen, en ook niet de entiteiten die het rechtenmodel, het databaseschema of de back-ups bepalen; die cellen staan op slot en blijven voorbehouden aan een administrator. De wp-admin-pagina is ongewijzigd en blijft de weg terug als een matrixwijziging de frontend verbergt. In `docs/nl_NL/authorization-matrix.md` staat de volledige tabel met wie wat mag.
+
 ## Een rol-toewijzing intrekken
 
 Via **Toegangsbeheer → Rollen** (of het bewerkpaneel per persoon) heeft elke toegekende rol een **Intrekken**-actie.

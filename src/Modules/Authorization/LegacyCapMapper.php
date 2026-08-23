@@ -177,6 +177,13 @@ final class LegacyCapMapper {
         // the re-point is access-preserving. Migration 0194 top-ups existing
         // installs so they gain the `module_management` grant on upgrade.
         'tt_manage_modules'              => [ 'module_management',      'create_delete' ],
+        // #2654 — the cap behind the frontend matrix editor. Bridges to
+        // `authorization_matrix:change`, which the seed already grants
+        // academy_admin (`rc` global), so turning the matrix on does not
+        // take the surface away from the persona it was built for. `change`
+        // rather than `create_delete`: editing the grid is not the same
+        // privilege as resetting it, and reset stays administrator-only.
+        'tt_manage_authorization'        => [ 'authorization_matrix',   'change' ],
         'tt_view_audit_log'              => [ 'audit_log',              'read' ],
         'tt_view_translations'           => [ 'translations_config',    'read' ],
         'tt_edit_translations'           => [ 'translations_config',    'change' ],

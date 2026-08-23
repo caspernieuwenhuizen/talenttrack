@@ -8,9 +8,31 @@ order: 60
 
 # Authorization matrix (admin guide)
 
-**TalentTrack → Access Control → Authorization Matrix**
+**Configuration → Authorization matrix** (`?tt_view=matrix`), or **TalentTrack → Access Control → Authorization Matrix** in wp-admin.
 
 The authorization matrix is the single source of truth for "what can each persona do, on what?". Eight personas × ~30 entities × three activities (read / change / create_delete) = a few hundred cells. The shipped defaults match what each role does today; admins can edit per-cell to redefine the rules without writing code.
+
+## Who can edit it, and what they cannot
+
+Since #2654 there are two editors of the same grid, backed by the same writer:
+
+| | Frontend (`?tt_view=matrix`) | wp-admin (`admin.php?page=tt-matrix`) |
+| - | - | - |
+| Who | Anyone holding `tt_manage_authorization` — granted to **administrator** and **Club Admin** | WordPress **administrator** only |
+| Edit ordinary cells | Yes | Yes |
+| Edit protected cells | Administrator only | Yes |
+| Reset to defaults | No | Yes |
+| Export / import the seed | No | Yes |
+| Switch the matrix on or off | No | Yes |
+
+**The protected cells.** A club admin who could grant their own persona `create_delete` on `authorization_matrix` would have granted themselves everything, one save later. So for a non-administrator these render locked, with the reason on the cell:
+
+- their own persona row — `academy_admin`;
+- the entities that govern the permission model, the schema and the backups: `authorization_matrix`, `authorization_changelog`, `settings`, `migrations`, `backup`, `module_management`, `feature_toggles`, `functional_role_definitions`.
+
+The lock is enforced when the save is applied, not merely in the markup: a hand-crafted form post or a direct REST call against a protected cell is counted as rejected and writes neither a matrix row nor a changelog entry.
+
+**Why wp-admin stays.** A bad matrix edit can hide the frontend surfaces that lead back to the matrix. The wp-admin page does not depend on any of them, which makes it the recovery path — and is why reset, the seed round-trip and the on/off switch were not delegated with the rest.
 
 ## When to edit it
 
