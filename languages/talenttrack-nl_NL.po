@@ -782,11 +782,28 @@ msgstr "Wedstrijdvoorbereiding pdf-export"
 #: src/Core/FeatureRegistry.php:426
 msgid ""
 "Allow the A4 match-preparation sheet to be exported/printed as a PDF. The "
-"match-prep screen stays available when this is off."
+"match-prep screen stays available when this is off. The referee's team sheet "
+"is a separate setting."
 msgstr ""
 "Sta toe dat het A4-wedstrijdvoorbereidingsblad als pdf wordt geëxporteerd/"
 "afgedrukt. Het wedstrijdvoorbereidingsscherm blijft beschikbaar als dit uit "
-"staat."
+"staat. Het wedstrijdformulier voor de scheidsrechter is een aparte "
+"instelling."
+
+#: src/Core/FeatureRegistry.php
+msgid "Match day team sheet"
+msgstr "Wedstrijdformulier"
+
+#: src/Core/FeatureRegistry.php
+msgid ""
+"The referee/opposition team sheet (Starting XI, Bench, Squad + signature "
+"lines). Switch off if match forms are filed digitally. The coach's own "
+"match-prep PDF is a separate setting."
+msgstr ""
+"Het wedstrijdformulier voor scheidsrechter en tegenstander (basiself, bank, "
+"selectie + handtekeningregels). Zet dit uit als de wedstrijdformulieren "
+"digitaal worden ingediend. De pdf-export van de trainer zelf is een aparte "
+"instelling."
 
 #: src/Core/FeatureRegistry.php:438
 msgid "Tournament auto-balance"
