@@ -467,6 +467,25 @@
     .tt-obs { padding-bottom: var(--tt-sp-4, 16px); }
 }
 
+/* ---- waiting for signal (#2552) ----
+   Sits above everything, because it changes what every control below it
+   means. Amber rather than red: nothing is wrong, the work is safe, it
+   simply has not left the phone yet. */
+
+.tt-run__offline {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-warning-subtle, #4a3c10);
+    color: var(--run-ink, #f5f7fa);
+    font-size: var(--tt-fs-sm, 0.875rem);
+    font-weight: 600;
+}
+
+.tt-run__offline[hidden] {
+    display: none;
+}
+
 /* ---- the drill's diagram (#2501) ----
    The scene renders on its own light pitch, which is right: at the
    sideline the diagram is the one thing that should read like paper.

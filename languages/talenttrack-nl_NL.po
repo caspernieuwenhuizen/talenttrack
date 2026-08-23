@@ -53359,6 +53359,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Saved on this phone. It will sync when you have signal."
+msgstr "Opgeslagen op deze telefoon. Het wordt gesynchroniseerd zodra je bereik hebt."
+
+msgid "1 change is waiting for signal."
+msgstr "1 wijziging wacht op bereik."
+
+msgid "%d changes are waiting for signal."
+msgstr "%d wijzigingen wachten op bereik."
+
 #~ msgid "Claude Sonnet (via Bedrock, EU-Central)"
 #~ msgstr "Claude Sonnet (via Bedrock, EU-Central)"
 

@@ -244,6 +244,31 @@ papier vasthoudt is degene die er iets mee moet.
 Het blad is het plan, niet de registratie. Wat je werkelijk doet wordt
 vastgelegd bij de training.
 
+### Als het bereik wegvalt
+
+Juist op het veld is het bereik het slechtst, dus het veldscherm werkt door
+zonder. Tik een blok af, sla er een over of schrijf een observatie zonder
+streepjes: het wordt op de telefoon bewaard in plaats van verloren te gaan.
+Bovenin staat hoeveel wijzigingen wachten — *"2 wijzigingen wachten op
+bereik"* — en ze versturen zichzelf zodra je weer verbinding hebt.
+
+Het overleeft het vergrendelen van de telefoon, wisselen van app en het
+herladen van de pagina. Naar binnen lopen kost je niets.
+
+Twee dingen om te weten:
+
+- **De pagina openen kost nog steeds bereik.** Beschermd is een training die
+  al loopt; je kunt er niet vanaf nul een starten zonder verbinding.
+- **Niets wordt dubbel vastgelegd.** Als een wijziging wel verstuurd is maar
+  het antwoord nooit terugkomt, probeert de telefoon het opnieuw — en die
+  tweede poging komt op dezelfde registratie terecht in plaats van een
+  duplicaat te maken. Dat is belangrijk, want deze getallen worden de
+  trainingsminuten van elke speler.
+
+Lukt het na het herverbinden nog steeds niet — omdat je zo lang weg bent
+geweest dat je login is verlopen — dan blijft de wijziging in de wachtrij in
+plaats van weggegooid te worden. Herlaad de pagina en hij gaat alsnog.
+
 ## Wat een speler werkelijk heeft geleerd
 
 Hier werkt de rest van de module naartoe.

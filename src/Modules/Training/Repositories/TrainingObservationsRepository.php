@@ -57,8 +57,32 @@ final class TrainingObservationsRepository {
         $note   = $this->cleanNote( $data['note'] ?? null );
         if ( $rating === null && $note === null ) return 0;
 
+        // #2552 — the offline queue can only promise at-least-once
+        // delivery: a request whose response is lost in transit
+        // succeeded here and looks failed there, so it comes back. The
+        // client stamps a uuid once, when the coach saves, and a repeat
+        // returns the row that already exists rather than a second one.
+        //
+        // No migration needed: `uuid` has been NOT NULL with a UNIQUE
+        // key since 0221. It was there so a row could be identified
+        // across a future tenancy boundary (CLAUDE.md §4); it turns out
+        // to be exactly the idempotency key this needs.
+        $client_uuid = $this->cleanUuid( $data['client_uuid'] ?? null );
+        if ( $client_uuid !== null ) {
+            $existing = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$this->table()} WHERE uuid = %s AND club_id = %d",
+                $client_uuid,
+                CurrentClub::id()
+            ) );
+            // Returned, not re-inserted, and deliberately without
+            // re-firing the `tt_training_observation_saved` action —
+            // the journey entry and the exposure rebuild already
+            // happened the first time this landed.
+            if ( $existing > 0 ) return $existing;
+        }
+
         $ok = $wpdb->insert( $this->table(), [
-            'uuid'               => wp_generate_uuid4(),
+            'uuid'               => $client_uuid ?? wp_generate_uuid4(),
             'club_id'            => CurrentClub::id(),
             'run_id'             => $run_id,
             'run_block_id'       => (int) ( $data['run_block_id'] ?? 0 ) ?: null,
@@ -179,6 +203,44 @@ final class TrainingObservationsRepository {
      * install is a mistake, and silently storing 7 would put a number on
      * a child's record that nobody chose.
      */
+    /**
+     * The observation carrying a client-supplied idempotency key, if one
+     * has already landed. Used by the REST layer to tell a replay from a
+     * first save before writing.
+     */
+    public function findByUuid( string $uuid ): ?object {
+        $clean = $this->cleanUuid( $uuid );
+        if ( $clean === null ) return null;
+
+        global $wpdb;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE uuid = %s AND club_id = %d",
+            $clean,
+            CurrentClub::id()
+        ) );
+
+        return $row ?: null;
+    }
+
+    /**
+     * A client-supplied idempotency key, or null.
+     *
+     * Shape-checked rather than trusted: this value goes into a UNIQUE
+     * column, so accepting arbitrary text would let a caller collide
+     * with a row it does not own, or squat on a key. A v4 uuid is what
+     * the queue generates and all this needs to accept.
+     */
+    private function cleanUuid( $raw ): ?string {
+        if ( ! is_string( $raw ) ) return null;
+
+        $uuid = strtolower( trim( $raw ) );
+
+        return preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $uuid )
+            ? $uuid
+            : null;
+    }
+
     private function cleanRating( $raw ): ?string {
         if ( $raw === null || $raw === '' ) return null;
         if ( ! is_numeric( $raw ) ) return null;
