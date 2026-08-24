@@ -191,6 +191,16 @@
 	function fitGroups() {
 		if (userToggledGroups) return;
 		if (shell.classList.contains('is-rail')) return;
+		/*
+		 * #2803 — the sidebar is the only presentation that must not scroll.
+		 * Below 1024px the nav is an off-canvas drawer that already has
+		 * `overflow-y: auto`, and it is measured while still off-canvas at
+		 * full viewport height — so it always read as overflowing and this
+		 * closed every group. The drawer opened showing 14 headings and zero
+		 * destinations for an admin, and on a 360px phone a player's entire
+		 * navigation sat behind one collapsed "Ik".
+		 */
+		if (window.matchMedia && !window.matchMedia('(min-width: 1024px)').matches) return;
 
 		var scroll = nav.querySelector('.tt-shell-nav__scroll');
 		var groups = Array.prototype.slice.call(nav.querySelectorAll('.tt-shell-nav__group-wrap'));
