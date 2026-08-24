@@ -3,6 +3,7 @@ title: Migrations & updates
 group: configuration
 summary: What happens when you update the plugin, and how to run migrations manually.
 audience: [admin, dev]
+views: [migrations]
 order: 60
 ---
 

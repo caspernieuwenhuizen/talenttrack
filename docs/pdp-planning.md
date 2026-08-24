@@ -3,6 +3,7 @@ title: PDP planning
 group: performance
 summary: Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / coach surface.
 audience: [user]
+views: [pdp-planning]
 module: TT\Modules\Pdp\PdpModule
 capability: tt_view_pdp_planning
 order: 100

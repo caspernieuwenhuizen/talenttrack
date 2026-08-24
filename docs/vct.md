@@ -3,6 +3,7 @@ title: VCT — conditioning training
 group: performance
 summary: Age-safe conditioning planning for U10-U14, with workload tracking.
 audience: [admin]
+views: [vct-session, vct-library]
 module: TT\Modules\Vct\VctModule
 order: 105
 ---

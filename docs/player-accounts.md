@@ -3,6 +3,7 @@ title: Player accounts
 group: configuration
 summary: Link a player record to the login account that belongs to them.
 audience: [admin]
+views: [accounts, player-accounts, parent-accounts]
 order: 126
 ---
 

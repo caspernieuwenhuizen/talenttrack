@@ -3,6 +3,7 @@ title: Wedstrijdanalyse
 group: performance
 summary: Bespreek een wedstrijd per teamfunctie, benoem wie eruit sprong en wie tekortkwam, en print of deel het.
 audience: [user]
+views: [match-analysis]
 module: TT\Modules\MatchAnalysis\MatchAnalysisModule
 order: 40
 ---

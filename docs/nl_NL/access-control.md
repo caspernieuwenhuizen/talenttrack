@@ -3,6 +3,7 @@ title: Toegangsbeheer
 group: frontend
 summary: Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer.
 audience: [admin]
+views: [roles, matrix]
 order: 50
 ---
 

@@ -3,6 +3,7 @@ title: Training plans
 group: planning
 summary: Build a reusable training from blocks, then run it against an activity.
 audience: [user]
+views: [training-plan, training-plans, training-run, training-coverage, training-photo]
 module: TT\Modules\Training\TrainingModule
 order: 20
 ---

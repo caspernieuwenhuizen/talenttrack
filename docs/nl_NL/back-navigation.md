@@ -251,6 +251,49 @@ Ruwe URL-bouwers die `RecordLink` niet gebruiken pakken in met
 header (de pagina die de AJAX-call startte) in plaats van
 `REQUEST_URI` (dat naar het REST-eindpunt wijst).
 
+## Een nieuwe view legt ook zijn helponderwerp vast
+
+Een nieuwe `?tt_view=`-route toevoegen betekent bepalen welk helponderwerp
+het Help-icoon op dat scherm opent. Er zijn precies twee manieren, en de
+docs-lint laat een route die geen van beide heeft niet door:
+
+**Het scherm heeft een onderwerp** — zet de slug in de `views:` front matter
+van dat document:
+
+```markdown
+---
+title: Wedstrijdvoorbereiding
+group: match-day
+audience: [user]
+views: [match-prep]
+---
+```
+
+`HelpTopics::viewToTopic()` keert dat om tot de map die de helplade leest.
+Er verandert niets in PHP; er is geen lijst om bij te werken.
+
+**Het scherm hoort er bewust geen te hebben** — zet hem in
+`config/no_help_topic.php`, met een zin waarom:
+
+```php
+'docs' => 'The help surface itself. A topic pointing at the page you are already reading is a loop, not help.',
+```
+
+Allebei overslaan is precies hoe de situatie ontstond die dit vervangt: een
+handmatig bijgehouden map van 27 regels tegenover 144 routes, waardoor de
+meeste schermen "Aan de slag" openden zonder dat ergens werd vastgelegd dat
+er een koppeling ontbrak. Een ontbrekende regel is onzichtbaar juist omdát
+hij eruitziet als een bewuste keuze — vandaar de gate, en vandaar de melding
+die de helplade nu toont als hij terugvalt.
+
+Let op: de helplade verwacht een **onderwerp**-slug, geen view-slug, als een
+view het onderwerp overschrijft:
+
+```php
+HelpDrawer::button( 'pdp-cycle' );   // het document
+HelpDrawer::button( 'pdp' );         // de route — opent het verkeerde
+```
+
 ## Wat NIET wordt meegenomen
 
 - **Admin-pagina's** (`wp-admin/admin.php?page=…`). Bij klikken op een

@@ -3,6 +3,7 @@ title: Wedstrijduitvoering
 group: match-day
 summary: 'Het mobiele scherm tijdens de wedstrijd: opstelling, wissels en speelminuten terwijl je speelt.'
 audience: [user]
+views: [match-execution, match-executions]
 module: TT\Modules\MatchExecution\MatchExecutionModule
 order: 20
 ---

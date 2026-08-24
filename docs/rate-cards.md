@@ -3,6 +3,7 @@ title: Player rate cards
 group: analytics
 summary: Deep per-player dashboards with trends and charts.
 audience: [user, admin]
+views: [rate-cards]
 order: 40
 ---
 

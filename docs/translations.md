@@ -3,6 +3,7 @@ title: Auto-translation
 group: configuration
 summary: Opt-in DeepL / Google translation of user-entered free text.
 audience: [admin]
+views: [translations]
 module: TT\Modules\Translations\TranslationsModule
 capability: tt_view_translations
 order: 130

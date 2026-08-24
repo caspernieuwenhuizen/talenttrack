@@ -3,6 +3,7 @@ title: Minutenraster
 group: match-day
 summary: Leg per wedstrijd vast hoeveel minuten elke speler heeft gespeeld, in één raster.
 audience: [user]
+views: [minutes-grid]
 module: TT\Modules\Activities\ActivitiesModule
 feature: minutes_grid
 order: 30

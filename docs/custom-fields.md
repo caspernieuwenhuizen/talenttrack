@@ -3,6 +3,7 @@ title: Custom fields
 group: configuration
 summary: Add club-specific fields to players, teams, and evaluations.
 audience: [admin]
+views: [custom-fields]
 capability: tt_view_custom_fields
 order: 30
 ---

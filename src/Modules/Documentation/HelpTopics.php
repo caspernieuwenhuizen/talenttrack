@@ -113,6 +113,38 @@ class HelpTopics {
     }
 
     /**
+     * Which topic serves each screen, for one reader.
+     *
+     * The inversion of the `views:` front matter: a doc declares the
+     * screens it serves, and this turns that into `view slug => topic
+     * slug` for the help drawer to resolve against.
+     *
+     * Built from `visibleFor()` rather than `all()`, so the drawer can
+     * never resolve to a topic the reader is not allowed to open — a map
+     * entry pointing at a gated-away topic would produce a 403/404 round
+     * trip and a fallback, which is a slower way of showing the default
+     * than simply not listing it.
+     *
+     * When two topics claim the same view, the first wins on the
+     * registry's own ordering. That is a corpus bug rather than something
+     * to resolve at runtime, and the docs lint is where it surfaces.
+     *
+     * @return array<string, string>
+     */
+    public static function viewToTopic( int $user_id = 0 ): array {
+        $map = [];
+        foreach ( self::visibleFor( $user_id ) as $slug => $topic ) {
+            foreach ( $topic['views'] as $view ) {
+                if ( $view !== '' && ! isset( $map[ $view ] ) ) {
+                    $map[ $view ] = $slug;
+                }
+            }
+        }
+
+        return $map;
+    }
+
+    /**
      * Why a reader cannot open a topic, or that they can.
      *
      * Callers that need to distinguish "this install does not have it" from

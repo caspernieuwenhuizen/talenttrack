@@ -3,6 +3,7 @@ title: Match execution
 group: match-day
 summary: 'The phone-first live match surface: line-ups, substitutions and minutes as the game runs.'
 audience: [user]
+views: [match-execution, match-executions]
 module: TT\Modules\MatchExecution\MatchExecutionModule
 order: 20
 ---

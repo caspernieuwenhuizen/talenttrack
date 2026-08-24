@@ -3,6 +3,7 @@ title: Configuratie & branding
 group: configuration
 summary: Academie-naam, logo, beoordelingsschaal, kleurenpalet, referentietabellen.
 audience: [admin]
+views: [configuration]
 capability: tt_view_branding
 order: 20
 ---

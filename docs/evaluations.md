@@ -3,6 +3,7 @@ title: Evaluations
 group: performance
 summary: Record player ratings with scores, notes, and categories.
 audience: [user]
+views: [evaluations]
 module: TT\Modules\Evaluations\EvaluationsModule
 capability: tt_view_evaluations
 order: 10

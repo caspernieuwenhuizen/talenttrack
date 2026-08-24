@@ -3,6 +3,7 @@ title: Installatiewizard
 group: basics
 summary: De begeleide eerste-installatie die je TalentTrack inleidt.
 audience: [admin]
+views: [setup]
 module: TT\Modules\Onboarding\OnboardingModule
 capability: tt_view_setup_wizard
 order: 40

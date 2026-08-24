@@ -823,7 +823,10 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<span class="tt-pop-summary__label">' . esc_html__( 'Status', 'talenttrack' ) . '</span> '
             . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $file->status, self::statusLabel( (string) $file->status ) );
         // #0077 F1 — context-sensitive help drawer entry.
-        \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp' );
+        // The topic slug, not the view slug: `pdp` is a route, `pdp-cycle`
+        // is the doc. Passing the route opened the drawer on a topic that
+        // does not exist, which fell through to "Getting started".
+        \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp-cycle' );
         echo '</p>';
         echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Cycle size', 'talenttrack' ) . '</span> '
             . (int) $cycle_size;

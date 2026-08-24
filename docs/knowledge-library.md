@@ -3,6 +3,7 @@ title: Knowledge library
 group: development
 summary: Courses for coach development, shipped as markdown and read in the app.
 audience: [admin, dev]
+views: [knowledge, course, lesson, my-learning, submission-review]
 module: TT\Modules\Knowledge\KnowledgeModule
 feature: knowledge_courses
 tier: standard

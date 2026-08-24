@@ -3,6 +3,7 @@ title: Configuratie — Berichten
 group: configuration
 summary: Welke berichten jouw academie verstuurt, met een schakelaar per berichtsoort.
 audience: [admin]
+views: [mail-compose]
 module: TT\Modules\Comms\CommsModule
 order: 115
 ---

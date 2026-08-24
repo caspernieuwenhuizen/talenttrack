@@ -3,6 +3,7 @@ title: Strava integration
 group: performance
 summary: Connect a player's Strava account so their own training shows up on their record.
 audience: [user, admin]
+views: [strava, strava-admin]
 module: TT\Modules\Strava\StravaModule
 capability: tt_view_strava
 order: 100

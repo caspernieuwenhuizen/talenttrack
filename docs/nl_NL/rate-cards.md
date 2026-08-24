@@ -3,6 +3,7 @@ title: Speler-ratingkaarten
 group: analytics
 summary: Uitgebreide spelerdashboards met trends en grafieken.
 audience: [user, admin]
+views: [rate-cards]
 order: 40
 ---
 

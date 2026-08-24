@@ -3,6 +3,7 @@ title: Metingen & testen
 group: performance
 summary: Vastgelegde testwaarden per speler door de tijd heen, en de trends die daaruit volgen.
 audience: [user, admin]
+views: [measurements, measurements-entry, measurements-coverage, measurement-tests, test-results, test-trends]
 module: TT\Modules\Measurements\MeasurementsModule
 order: 80
 ---

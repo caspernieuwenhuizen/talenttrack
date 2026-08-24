@@ -3,6 +3,7 @@ title: Media library
 group: development
 summary: Photos and video attached to players, teams and activities — where files are stored, who can see them, and how to switch the whole thing off.
 audience: [admin, dev]
+views: [media-retention]
 module: TT\Modules\Media\MediaModule
 feature: media
 capability: tt_view_media

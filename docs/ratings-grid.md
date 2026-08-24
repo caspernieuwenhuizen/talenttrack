@@ -3,6 +3,7 @@ title: Ratings grid
 group: match-day
 summary: Rate a whole squad from one grid instead of opening each player.
 audience: [user]
+views: [ratings-grid]
 module: TT\Modules\Activities\ActivitiesModule
 feature: ratings_grid
 order: 50

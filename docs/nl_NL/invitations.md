@@ -3,6 +3,7 @@ title: Uitnodigingen
 group: configuration
 summary: Nodig spelers, ouders en staf uit via deelbare WhatsApp-links — wachtwoorden worden bij de eerste opvolging ingesteld.
 audience: [admin]
+views: [invitations-config]
 module: TT\Modules\Invitations\InvitationsModule
 order: 70
 ---

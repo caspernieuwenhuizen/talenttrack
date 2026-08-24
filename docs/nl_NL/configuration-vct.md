@@ -3,6 +3,7 @@ title: Configuratie — VCT
 group: configuration
 summary: Leeftijdsprofielen, belastingsplafonds en de regels die de VCT-planner toepast.
 audience: [admin]
+views: [vct-config]
 order: 120
 ---
 

@@ -3,6 +3,7 @@ title: Teamblauwdruk
 group: performance
 summary: Opgeslagen opstellingen op basis van een formatiesjabloon, met live chemie-score.
 audience: [user]
+views: [team-blueprints, team-blueprint-share]
 module: TT\Modules\TeamDevelopment\TeamDevelopmentModule
 order: 90
 ---

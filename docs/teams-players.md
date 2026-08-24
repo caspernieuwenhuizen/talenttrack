@@ -3,6 +3,7 @@ title: Teams & players
 group: basics
 summary: How to create teams, add players, and assign players to teams.
 audience: [admin]
+views: [players, players-import, teams, teammate, player-attributes]
 module: TT\Modules\Teams\TeamsModule
 capability: tt_view_players
 order: 20

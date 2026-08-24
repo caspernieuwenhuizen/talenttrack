@@ -3,6 +3,7 @@ title: Trial cases
 group: performance
 summary: 'Run a structured trial period: track templates, staff input, decision and the letter that goes to parents.'
 audience: [user]
+views: [trials, trial-case, trial-tracks-editor, trial-letter-templates-editor, trial-parent-meeting, test-trainings]
 module: TT\Modules\Trials\TrialsModule
 tier: pro
 order: 130

@@ -3,6 +3,7 @@ title: Notifications setup
 group: mobile
 summary: Turn on push notifications, understand what TalentTrack sends, and how phone verification works.
 audience: [player, parent]
+views: [mobile-settings]
 module: TT\Modules\Push\PushModule
 order: 30
 ---

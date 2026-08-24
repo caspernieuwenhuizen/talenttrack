@@ -3,6 +3,7 @@ title: Prullenbak
 group: frontend
 summary: 'Archiveren → prullenbak → opschonen: de bewaartermijn, wie definitief mag verwijderen en het AVG-pad voor het recht op vergetelheid.'
 audience: [admin]
+views: [recycle-bin]
 order: 70
 ---
 

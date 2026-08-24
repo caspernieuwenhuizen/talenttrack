@@ -3,6 +3,7 @@ title: Evaluatiecategorieën & gewichten
 group: performance
 summary: Hoofdcategorieën, subcategorieën en hoe de weging per leeftijdscategorie werkt.
 audience: [admin]
+views: [eval-categories]
 module: TT\Modules\Evaluations\EvaluationsModule
 capability: tt_view_category_weights
 order: 20

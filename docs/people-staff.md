@@ -3,6 +3,7 @@ title: People (staff)
 group: basics
 summary: Coaches, physios, and other staff — add them as people and link to teams.
 audience: [admin]
+views: [people, functional-roles]
 module: TT\Modules\People\PeopleModule
 capability: tt_view_people
 order: 30
