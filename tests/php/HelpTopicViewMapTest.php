@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Core\FeatureRegistry;
 use TT\Core\ModuleRegistry;
 use TT\Modules\Documentation\HelpTopics;
 
@@ -25,6 +26,9 @@ final class HelpTopicViewMapTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         ModuleRegistry::setEnabled( self::MODULE, true );
+        // Back to its catalogued default, so a later test file does not
+        // inherit a feature this one switched on.
+        FeatureRegistry::setEnabled( 'analytics_cohort_board', false );
         HelpTopics::flushCache();
         wp_set_current_user( 0 );
         parent::tear_down();
@@ -84,23 +88,57 @@ final class HelpTopicViewMapTest extends WP_UnitTestCase {
 
     // ── coverage ───────────────────────────────────────────────────────
 
+    /** Every view any topic claims, ignoring whether this install can open it. */
+    private function claimedByCorpus(): array {
+        $claimed = [];
+        foreach ( HelpTopics::all() as $topic_slug => $topic ) {
+            foreach ( $topic['views'] as $view ) {
+                if ( $view !== '' ) $claimed[ $view ] = $topic_slug;
+            }
+        }
+        return $claimed;
+    }
+
     /**
      * The rule the whole issue reduces to: two states, no third. A slug is
      * claimed by a `views:` entry, or it is on the allowlist with a
      * reason. Anything else is a screen whose help silently lies.
+     *
+     * Asserted against the corpus rather than against `viewToTopic()`,
+     * because coverage is a property of the documentation and gating is a
+     * property of one install. Four views — `team-chemistry`,
+     * `chemistry-config`, `cohort-board`, `eval-coverage` — belong to
+     * features that ship default-off, so a runtime map on a fresh install
+     * correctly omits them. Their screens are switched off too, so there
+     * is nothing to open help on; that is the gate working, not a gap.
      */
     public function test_every_dispatcher_slug_is_claimed_or_allowlisted(): void {
-        $map       = HelpTopics::viewToTopic( $this->admin() );
+        $claimed   = $this->claimedByCorpus();
         $allowed   = $this->allowlist();
         $unclaimed = [];
 
         foreach ( $this->dispatcherSlugs() as $slug ) {
-            if ( ! isset( $map[ $slug ] ) && ! isset( $allowed[ $slug ] ) ) {
+            if ( ! isset( $claimed[ $slug ] ) && ! isset( $allowed[ $slug ] ) ) {
                 $unclaimed[] = $slug;
             }
         }
 
         $this->assertSame( [], $unclaimed, "Slugs with neither a topic nor an allowlist entry:\n  " . implode( "\n  ", $unclaimed ) );
+    }
+
+    /**
+     * A default-off feature takes its help topic out of the runtime map,
+     * and switching it on puts it back. The companion to the test above:
+     * together they say coverage is complete *and* gating still applies.
+     */
+    public function test_a_default_off_feature_omits_its_views_until_enabled(): void {
+        $user = $this->admin();
+
+        FeatureRegistry::setEnabled( 'analytics_cohort_board', false );
+        $this->assertArrayNotHasKey( 'cohort-board', HelpTopics::viewToTopic( $user ) );
+
+        FeatureRegistry::setEnabled( 'analytics_cohort_board', true );
+        $this->assertSame( 'cohort-board', HelpTopics::viewToTopic( $user )['cohort-board'] ?? null );
     }
 
     /**
@@ -122,8 +160,7 @@ final class HelpTopicViewMapTest extends WP_UnitTestCase {
 
     /** An allowlist entry for a slug that is also claimed is a contradiction. */
     public function test_no_slug_is_both_claimed_and_allowlisted(): void {
-        $map  = HelpTopics::viewToTopic( $this->admin() );
-        $both = array_intersect( array_keys( $map ), array_keys( $this->allowlist() ) );
+        $both = array_intersect( array_keys( $this->claimedByCorpus() ), array_keys( $this->allowlist() ) );
 
         $this->assertSame( [], array_values( $both ) );
     }
