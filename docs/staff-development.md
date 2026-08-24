@@ -3,6 +3,8 @@ title: Staff development
 group: performance
 summary: Personal goals + evaluations + certifications + PDP for coaches and staff.
 audience: [user]
+module: TT\Modules\StaffDevelopment\StaffDevelopmentModule
+capability: tt_view_staff_development
 order: 120
 ---
 

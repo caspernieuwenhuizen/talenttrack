@@ -3,6 +3,8 @@ title: Auto-vertaling
 group: configuration
 summary: Opt-in DeepL / Google vertaling van gebruikersgegenereerde vrije tekst.
 audience: [admin]
+module: TT\Modules\Translations\TranslationsModule
+capability: tt_view_translations
 order: 130
 ---
 

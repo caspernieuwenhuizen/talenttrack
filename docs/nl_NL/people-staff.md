@@ -3,6 +3,8 @@ title: Mensen (staf)
 group: basics
 summary: Coaches, fysio's en andere staf — voeg ze toe als mensen en koppel aan teams.
 audience: [admin]
+module: TT\Modules\People\PeopleModule
+capability: tt_view_people
 order: 30
 ---
 

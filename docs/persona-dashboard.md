@@ -3,6 +3,7 @@ title: Persona dashboards
 group: frontend
 summary: Persona-aware landing pages with widget catalog, KPI catalog, role-switcher, and per-club override.
 audience: [user, admin]
+module: TT\Modules\PersonaDashboard\PersonaDashboardModule
 order: 30
 ---
 

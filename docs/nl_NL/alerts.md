@@ -3,6 +3,7 @@ title: Meldingen
 group: performance
 summary: Situaties in je gegevens die aandacht vragen — niet afgeronde activiteiten, ontbrekende aanwezigheid, spelers zonder evaluatie — automatisch zichtbaar en opgelost zodra je ze aanpakt.
 audience: [user, admin]
+module: TT\Modules\Alerts\AlertsModule
 order: 35
 ---
 

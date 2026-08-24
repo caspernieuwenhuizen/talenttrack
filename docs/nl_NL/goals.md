@@ -3,6 +3,8 @@ title: Doelen
 group: performance
 summary: Ontwikkelingsdoelen per speler met status en prioriteit.
 audience: [user]
+module: TT\Modules\Goals\GoalsModule
+capability: tt_view_goals
 order: 50
 ---
 

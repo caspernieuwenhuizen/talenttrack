@@ -3,6 +3,7 @@ title: Development management
 group: development
 summary: Submit, refine, and promote ideas straight to GitHub from the dashboard.
 audience: [admin, dev]
+module: TT\Modules\Development\DevelopmentModule
 order: 10
 ---
 

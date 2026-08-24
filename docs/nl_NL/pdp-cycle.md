@@ -3,6 +3,8 @@ title: Persoonlijk Ontwikkelingsplan (POP)
 group: performance
 summary: Seizoens­gebonden ontwikkeldossiers, gespreks­cadans, eindeseizoens­oordeel.
 audience: [user]
+module: TT\Modules\Pdp\PdpModule
+capability: tt_view_pdp
 order: 60
 ---
 

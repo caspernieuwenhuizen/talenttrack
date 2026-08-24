@@ -3,6 +3,8 @@ title: Goals
 group: performance
 summary: Development goals per player with status and priority.
 audience: [user]
+module: TT\Modules\Goals\GoalsModule
+capability: tt_view_goals
 order: 50
 ---
 

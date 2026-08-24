@@ -3,6 +3,9 @@ title: Spelervergelijking
 group: analytics
 summary: Vergelijk tot 4 spelers naast elkaar, team-overstijgend.
 audience: [user]
+module: TT\Modules\Stats\StatsModule
+feature: analytics_player_compare
+tier: standard
 order: 50
 ---
 

@@ -3,6 +3,7 @@ title: Eigen velden
 group: configuration
 summary: Voeg clubspecifieke velden toe aan spelers, teams en evaluaties.
 audience: [admin]
+capability: tt_view_custom_fields
 order: 30
 ---
 

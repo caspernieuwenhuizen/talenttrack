@@ -3,6 +3,7 @@ title: Workflow-motor — cron-instellingen
 group: configuration
 summary: Hoe WP-cron geplande taken op deze installatie aanstuurt, en hoe je het herstelt als het stopt met afvuren.
 audience: [admin, dev]
+module: TT\Modules\Workflow\WorkflowModule
 order: 90
 ---
 

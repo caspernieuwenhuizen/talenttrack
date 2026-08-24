@@ -162,16 +162,32 @@ final class ContentGate {
     /**
      * Capability check for a specific reader.
      *
-     * `user_can()` when a user is named, because the docs surface resolves
-     * visibility for an explicit user id rather than always for whoever is
-     * logged in.
+     * Routed through `AuthorizationService::userCanOrMatrix()` rather than
+     * `user_can()` directly. A cap granted through Functional Role
+     * assignment plus matrix scope-rows does not reach `user_can()` while
+     * `tt_authorization_active = 0` — the `user_has_cap` bridge is dormant
+     * on those installs. Checking the raw cap would hide content from a
+     * reader who can open the surface it documents, which is the failure
+     * this gate exists to prevent, inverted.
+     *
+     * This mirrors what the REST permission callbacks and
+     * `TileRegistry::userMayAccess()` already do, so the tile, the
+     * endpoint and the documentation agree on who may see a feature.
+     *
+     * Falls back to the plain check when the service is absent, so the
+     * gate stays usable outside a booted plugin (tests, tooling).
      */
     private static function userCan( string $capability, ?int $user_id ): bool {
-        if ( $user_id === null ) {
-            return current_user_can( $capability );
+        $user_id = $user_id ?? get_current_user_id();
+        if ( $user_id <= 0 ) {
+            return false;
         }
 
-        return $user_id > 0 && user_can( $user_id, $capability );
+        if ( class_exists( \TT\Infrastructure\Security\AuthorizationService::class ) ) {
+            return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, $capability );
+        }
+
+        return user_can( $user_id, $capability );
     }
 
     /**

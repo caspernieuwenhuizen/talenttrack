@@ -3,6 +3,8 @@ title: Evaluation categories & weights
 group: performance
 summary: Main categories, subcategories, and how per-age-group weighting works.
 audience: [admin]
+module: TT\Modules\Evaluations\EvaluationsModule
+capability: tt_view_category_weights
 order: 20
 ---
 

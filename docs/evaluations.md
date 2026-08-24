@@ -3,6 +3,8 @@ title: Evaluations
 group: performance
 summary: Record player ratings with scores, notes, and categories.
 audience: [user]
+module: TT\Modules\Evaluations\EvaluationsModule
+capability: tt_view_evaluations
 order: 10
 ---
 
@@ -16,7 +18,22 @@ An **evaluation** is your rating of a player on a specific date, across the cate
 2. Pick the player.
 3. Pick an evaluation type (e.g. Training, Match). When you pick **Training**, the **Mental** category moves to the top of the rating list and opens its detailed subcategories automatically â€” a prompt to look at mindset first. It is only a default: you can still rate every category and you are never required to enter a Mental rating to save.
 4. Pick the date.
-5. Give each main category a **star rating** from one to five. The stars carry qualitative labels â€” â˜… Insufficient, â˜…â˜… Poor, â˜…â˜…â˜… Average, â˜…â˜…â˜…â˜… Good, â˜…â˜…â˜…â˜…â˜… Excellent â€” and are stored on the academy's 5â€“9 scale.
+5. Give each main category a **star rating** from one to five. The stars carry qualitative labels â€” â˜
+ Insufficient, â˜
+â˜
+ Poor, â˜
+â˜
+â˜
+ Average, â˜
+â˜
+â˜
+â˜
+ Good, â˜
+â˜
+â˜
+â˜
+â˜
+ Excellent â€” and are stored on the academy's 5â€“9 scale.
 6. If you want to be more precise, drill into the subcategories â€” your main rating becomes the rounded average of the subcategory stars you set.
 7. Add a note about what you saw. This **Internal notes (staff only)** field is for staff only â€” the player never sees it.
 8. Optionally, add **Feedback for the player**. Unlike Notes, this field *is* shown to the player (and their parents) on their own evaluations screen â€” use it to tell them what they did well and what to work on next. Leave it blank if you have nothing to share.

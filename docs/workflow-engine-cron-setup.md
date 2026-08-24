@@ -3,6 +3,7 @@ title: Workflow engine — cron setup
 group: configuration
 summary: How WP-cron drives scheduled tasks on this install, and how to fix it when it stops firing.
 audience: [admin, dev]
+module: TT\Modules\Workflow\WorkflowModule
 order: 90
 ---
 

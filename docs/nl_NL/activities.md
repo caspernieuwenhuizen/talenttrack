@@ -3,6 +3,8 @@ title: Activiteiten
 group: performance
 summary: Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid en evaluaties na wedstrijden.
 audience: [user]
+module: TT\Modules\Activities\ActivitiesModule
+capability: tt_view_activities
 order: 30
 ---
 

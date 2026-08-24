@@ -3,6 +3,7 @@ title: Notificaties instellen
 group: mobile
 summary: Zet pushnotificaties aan, leer wat TalentTrack stuurt en hoe telefoonverificatie werkt.
 audience: [player, parent]
+module: TT\Modules\Push\PushModule
 order: 30
 ---
 

@@ -3,6 +3,7 @@ title: Licentie & account
 group: configuration
 summary: Tier, trial-status, gebruikslimieten, upgrade-flow.
 audience: [admin]
+module: TT\Modules\License\LicenseModule
 order: 100
 ---
 

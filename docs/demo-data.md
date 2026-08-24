@@ -3,6 +3,7 @@ title: Demo data
 group: configuration
 summary: Fill a club with a plausible academy for exploring or demonstrating TalentTrack, and wipe it again cleanly.
 audience: [admin, dev]
+module: TT\Modules\DemoData\DemoDataModule
 order: 150
 ---
 

@@ -3,6 +3,7 @@ title: Custom CSS
 group: configuration
 summary: Visual editor and hand-rolled CSS for academy-specific theming, with sanitisation and history.
 audience: [admin]
+module: TT\Modules\CustomCss\CustomCssModule
 order: 140
 ---
 

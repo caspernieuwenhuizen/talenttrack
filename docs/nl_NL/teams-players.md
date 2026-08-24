@@ -3,6 +3,8 @@ title: Teams & spelers
 group: basics
 summary: Teams aanmaken, spelers toevoegen en spelers aan teams toewijzen.
 audience: [admin]
+module: TT\Modules\Teams\TeamsModule
+capability: tt_view_players
 order: 20
 ---
 

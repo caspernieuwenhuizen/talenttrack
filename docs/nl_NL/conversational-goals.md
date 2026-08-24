@@ -3,6 +3,8 @@ title: Doelen als gesprek
 group: frontend
 summary: Chat-achtige gesprekken op elk spelersdoel — dialoog tussen trainer, speler en ouder met meldingen, bewerkvenster, soft-delete en audit-log.
 audience: [user, admin]
+module: TT\Modules\Goals\GoalsModule
+capability: tt_view_goals
 order: 40
 ---
 

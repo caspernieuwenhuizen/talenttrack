@@ -56,7 +56,41 @@ Wanneer een module wordt uitgeschakeld, **bij de volgende paginalaad**:
 - **Tegels + statkaarten op het wp-admin dashboard** voor de entiteit van de module verdwijnen.
 - Een gebruiker die op `?tt_view=<slug>` van een uitgeschakelde module landt (bookmark, oude tab) ziet een vriendelijke "dit onderdeel is momenteel niet beschikbaar"-melding met een terugknop — geen 404 of fatal.
 - `MatrixGate::can()` kortsluit elke matrixrij waarvan de `module_class` is uitgeschakeld — zelfs als een persona de toestemming heeft, is de entiteit onbereikbaar. Eén autorisatiecheck, geen parallel "staat dit aan?"-pad.
+- **Helponderwerpen** van de module verdwijnen uit Help & Docs — uit de zijbalk, het zoekveld, de helplade en de directe onderwerp-URL's. Zie hieronder.
 - Bestaande datarijen in de tabellen van de module zijn **onaangeroerd** — de module weer aanzetten herstelt toegang tot alle historische data.
+
+## Helponderwerpen volgen de schakelaars
+
+Een helponderwerp beschrijft een functie. Kan de installatie die functie niet
+draaien, dan is het onderwerp geen voorproefje van wat je mist — het is een
+uitleg bij een scherm dat er niet is. De documentatie leest daarom dezelfde
+vier schakelaars als de rest van het systeem:
+
+| Front-matter sleutel | Verborgen wanneer |
+| --- | --- |
+| `module:` | de module uit staat |
+| `feature:` | de functieschakelaar uit staat |
+| `tier:` | je licentie lager is dan het niveau dat het onderwerp noemt |
+| `capability:` | jij die capability zelf niet hebt |
+
+Een onderwerp zonder deze sleutels wordt hierdoor nooit verborgen — dat geldt
+voor de meeste onderwerpen, en die gedragen zich precies zoals altijd.
+
+**Verbergen is volledig, niet cosmetisch.** Een verborgen onderwerp staat niet
+in de inhoudsopgave, niet in het zoekveld, niet in de helplade, en is ook via
+de eigen URL onbereikbaar. Er is geen "upgrade om dit te lezen"-verleider: een
+academie op Free ziet Pro-documentatie helemaal niet. Wil je weten wat een
+hoger niveau je oplevert, dan hoort dat op de licentiepagina, niet in de
+helpindex.
+
+**Het is omkeerbaar en direct.** Zet je de module weer aan, dan staan de
+onderwerpen er bij de volgende paginalaad weer. Er wordt niets over de
+schakelaar heen gecachet en er wordt niets verwijderd.
+
+**Een typefout faalt open.** Een onderwerp dat een niet-bestaande module of
+functie noemt blijft zichtbaar in plaats van te verdwijnen — een document dat
+op andermans installatie stilletjes wegvalt is het lastigere probleem. De
+docs-lint vangt de typefout af vóór het meegaat in een release.
 
 ## Altijd-aan modules
 

@@ -3,6 +3,8 @@ title: Evaluaties
 group: performance
 summary: Leg spelerbeoordelingen vast met scores, notities en categorieën.
 audience: [user]
+module: TT\Modules\Evaluations\EvaluationsModule
+capability: tt_view_evaluations
 order: 10
 ---
 
@@ -16,7 +18,22 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 2. Kies de speler.
 3. Kies een type evaluatie (bijv. Training, Wedstrijd). Kies je **Training**, dan springt de categorie **Mentaal** naar boven in de ratinglijst en klappen de gedetailleerde subcategorieën automatisch open — een zetje om eerst naar de mentale kant te kijken. Het is alleen een standaard: je kunt nog steeds elke categorie beoordelen en bent nooit verplicht een Mentaal-score in te vullen om op te slaan.
 4. Kies de datum.
-5. Geef elke hoofdcategorie een **sterbeoordeling** van één tot vijf sterren. De sterren hebben labels — ★ Onvoldoende, ★★ Matig, ★★★ Gemiddeld, ★★★★ Goed, ★★★★★ Uitstekend — en worden opgeslagen op de 5–9-schaal van de academie.
+5. Geef elke hoofdcategorie een **sterbeoordeling** van één tot vijf sterren. De sterren hebben labels — �
+ Onvoldoende, �
+�
+ Matig, �
+�
+�
+ Gemiddeld, �
+�
+�
+�
+ Goed, �
+�
+�
+�
+�
+ Uitstekend — en worden opgeslagen op de 5–9-schaal van de academie.
 6. Wil je preciezer zijn? Duik in de subcategorieën — je hoofdcategorie wordt dan het afgeronde gemiddelde van de gezette substerren.
 7. Voeg een notitie toe over wat je hebt gezien. Dit veld **Interne notities (alleen staf)** is alleen voor stafleden — de speler ziet het nooit.
 8. Voeg optioneel **Feedback voor de speler** toe. Anders dan Notities is dit veld *wel* zichtbaar voor de speler (en de ouders) op hun eigen evaluatiescherm — gebruik het om te vertellen wat goed ging en waaraan nog gewerkt kan worden. Laat het leeg als je niets te delen hebt.

@@ -3,6 +3,8 @@ title: Spelerstatus
 group: performance
 summary: 'Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + potentieel-registratie.'
 audience: [user]
+module: TT\Modules\Players\PlayerStatusModule
+capability: tt_view_player_status
 order: 110
 ---
 

@@ -3,6 +3,7 @@ title: Workflow & tasks engine
 group: configuration
 summary: 'Scheduled tasks landing in the inbox: post-match evals, self-evals, goal-setting, HoD reviews.'
 audience: [admin, dev]
+module: TT\Modules\Workflow\WorkflowModule
 order: 80
 ---
 

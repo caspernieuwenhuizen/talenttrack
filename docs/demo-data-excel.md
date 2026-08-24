@@ -3,6 +3,7 @@ title: Demo data (Excel)
 group: configuration
 summary: Generate or import a demo dataset for sales / training. Excel template with auto_key cross-sheet links.
 audience: [user]
+module: TT\Modules\DemoData\DemoDataModule
 order: 160
 ---
 

@@ -3,6 +3,8 @@ title: Reports
 group: analytics
 summary: The tile launcher — progress charts, team ratings, coach activity.
 audience: [user, admin]
+module: TT\Modules\Reports\ReportsModule
+capability: tt_view_reports
 order: 10
 ---
 

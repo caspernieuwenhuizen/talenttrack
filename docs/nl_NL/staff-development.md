@@ -3,6 +3,8 @@ title: Stafontwikkeling
 group: performance
 summary: Persoonlijke doelen + evaluaties + certificeringen + POP voor coaches en staf.
 audience: [user]
+module: TT\Modules\StaffDevelopment\StaffDevelopmentModule
+capability: tt_view_staff_development
 order: 120
 ---
 
