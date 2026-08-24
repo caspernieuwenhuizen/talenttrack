@@ -3,6 +3,7 @@ title: Match analysis
 group: performance
 summary: Review a match per team function, name who stood out and who fell short, then print or share it.
 audience: [user]
+views: [match-analysis]
 module: TT\Modules\MatchAnalysis\MatchAnalysisModule
 order: 40
 ---

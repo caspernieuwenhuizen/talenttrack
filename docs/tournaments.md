@@ -3,6 +3,7 @@ title: Tournaments
 group: planning
 summary: 'Multi-game days: shared squad, shared playing-time goals, one planner.'
 audience: [user]
+views: [tournaments, tournament-match]
 module: TT\Modules\Tournaments\TournamentsModule
 order: 30
 ---

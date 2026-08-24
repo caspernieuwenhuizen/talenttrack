@@ -3,6 +3,7 @@ title: Invitations
 group: configuration
 summary: Invite players, parents, and staff via shareable WhatsApp links — set passwords on first follow-through.
 audience: [admin]
+views: [invitations-config]
 module: TT\Modules\Invitations\InvitationsModule
 order: 70
 ---

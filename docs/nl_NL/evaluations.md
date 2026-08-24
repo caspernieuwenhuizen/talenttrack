@@ -3,6 +3,7 @@ title: Evaluaties
 group: performance
 summary: Leg spelerbeoordelingen vast met scores, notities en categorieën.
 audience: [user]
+views: [evaluations]
 module: TT\Modules\Evaluations\EvaluationsModule
 capability: tt_view_evaluations
 order: 10

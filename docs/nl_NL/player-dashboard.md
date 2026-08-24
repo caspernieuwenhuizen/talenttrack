@@ -3,6 +3,7 @@ title: Spelerdashboard (frontend)
 group: frontend
 summary: Wat spelers zien wanneer ze inloggen op de frontend-shortcode.
 audience: [user]
+views: [overview, profile, my-development, my-team, my-evaluations, my-activities, my-goals]
 order: 10
 ---
 

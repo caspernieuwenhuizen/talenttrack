@@ -3,6 +3,7 @@ title: Teamchemie
 group: performance
 summary: Formatiebord met automatisch voorgestelde basiself, dieptestaat, koppel­overrides en traceerbare fit-scores.
 audience: [user]
+views: [team-chemistry, chemistry-config]
 module: TT\Modules\TeamDevelopment\TeamDevelopmentModule
 feature: team_chemistry
 tier: pro

@@ -3,6 +3,7 @@ title: Aanwezigheidsraster
 group: match-day
 summary: Leg de aanwezigheid van een hele periode vast in één overzichtelijk raster.
 audience: [user]
+views: [attendance-grid]
 module: TT\Modules\Activities\ActivitiesModule
 feature: attendance_grid
 order: 40

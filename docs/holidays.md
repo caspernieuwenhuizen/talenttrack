@@ -3,6 +3,7 @@ title: Holidays
 group: performance
 summary: Academy-wide holiday periods shown as banners on every team planner.
 audience: [user]
+views: [holidays]
 module: TT\Modules\Holidays\HolidaysModule
 capability: tt_view_holidays
 order: 40

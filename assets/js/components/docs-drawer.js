@@ -29,12 +29,25 @@
         return MAP[ view ] || DEFAULT;
     }
 
+    /* True when we are showing the default because nothing claimed this
+     * screen, rather than because the reader asked for the default. Worth
+     * saying out loud: a silently wrong topic is indistinguishable from a
+     * right one, so a gap nobody can see is a gap nobody reports. */
+    function isUnclaimedView() {
+        var view = currentView();
+        return !!view && ! MAP[ view ];
+    }
+
     function openDrawer( drawer, topicOverride ) {
         drawer.hidden = false;
         drawer.setAttribute( 'aria-hidden', 'false' );
         document.body.classList.add( 'tt-docs-drawer-open' );
-        var slug = ( topicOverride && String( topicOverride ).trim() ) || topicForCurrentView();
-        loadTopic( drawer, slug );
+        var override = topicOverride && String( topicOverride ).trim();
+        var slug = override || topicForCurrentView();
+        // A view the corpus does not claim gets the default topic plus a
+        // line saying so. An explicit override is the caller's choice, not
+        // a miss, so it never carries the notice.
+        loadTopic( drawer, slug, ! override && isUnclaimedView() );
     }
 
     function closeDrawer( drawer ) {
@@ -69,7 +82,14 @@
             .replace( />/g, '&gt;' ).replace( /"/g, '&quot;' );
     }
 
-    function loadTopic( drawer, slug ) {
+    function noticeHtml( show ) {
+        if ( ! show ) return '';
+        return '<p class="tt-docs-drawer__notice">'
+            + escapeHtml( I18N.no_topic || 'No matching topic for this section. Showing the default.' )
+            + '</p>';
+    }
+
+    function loadTopic( drawer, slug, showNotice ) {
         setBody( drawer, '<p class="tt-docs-drawer__loading">' + escapeHtml( I18N.loading || 'Loading…' ) + '</p>' );
         var url = REST_URL.replace( /\/$/, '' ) + '/' + encodeURIComponent( slug );
         fetch( url, {
@@ -82,8 +102,9 @@
                 // 404 — this install does not run what the topic describes,
                 //       or the slug names no topic at all.
                 // Either way the drawer has nothing useful to show for the
-                // requested slug, so fall back to the default topic once.
-                if ( slug !== DEFAULT ) return loadTopic( drawer, DEFAULT );
+                // requested slug, so fall back to the default topic once —
+                // and say so, for the same reason an unclaimed view does.
+                if ( slug !== DEFAULT ) return loadTopic( drawer, DEFAULT, true );
                 throw new Error( 'unavailable' );
             }
             if ( ! r.ok ) throw new Error( 'fetch failed: ' + r.status );
@@ -92,7 +113,7 @@
         .then( function ( data ) {
             if ( ! data || ! data.html ) return;
             setTitle( drawer, data.title || 'Help' );
-            setBody( drawer, data.html );
+            setBody( drawer, noticeHtml( showNotice ) + data.html );
             setExpand( drawer, data.slug || slug );
         } )
         .catch( function () {

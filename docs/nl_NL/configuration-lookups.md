@@ -3,6 +3,7 @@ title: Configuratie — Keuzelijsten
 group: configuration
 summary: 'De aanpasbare woordenlijsten: posities, evaluatietypes, blessuresoorten en de rest.'
 audience: [admin]
+views: [lookup-normalisation]
 order: 112
 ---
 

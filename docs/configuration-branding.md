@@ -3,6 +3,7 @@ title: Configuration & branding
 group: configuration
 summary: Academy name, logo, rating scale, color palette, lookup tables.
 audience: [admin]
+views: [configuration]
 capability: tt_view_branding
 order: 20
 ---

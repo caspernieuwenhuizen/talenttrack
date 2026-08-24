@@ -3,6 +3,7 @@ title: Usage statistics
 group: analytics
 summary: Logins, active users, DAU and evaluation trends.
 audience: [admin]
+views: [usage-stats, usage-stats-details]
 module: TT\Modules\Stats\StatsModule
 capability: tt_view_analytics
 order: 60

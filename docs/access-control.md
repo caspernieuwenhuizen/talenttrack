@@ -3,6 +3,7 @@ title: Access control
 group: frontend
 summary: Roles, permissions, functional roles, and the Read-Only Observer.
 audience: [admin]
+views: [roles, matrix]
 order: 50
 ---
 

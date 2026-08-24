@@ -3,6 +3,7 @@ title: Back-ups & disaster recovery
 group: configuration
 summary: Geplande exports, gedeeltelijk herstel, het 14-daagse undo-venster.
 audience: [admin]
+views: [backups]
 module: TT\Modules\Backup\BackupModule
 order: 110
 ---

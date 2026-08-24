@@ -3,6 +3,7 @@ title: Vakanties
 group: performance
 summary: Academiebrede vakantieperiodes die als banner op elke teamplanner worden getoond.
 audience: [user]
+views: [holidays]
 module: TT\Modules\Holidays\HolidaysModule
 capability: tt_view_holidays
 order: 40

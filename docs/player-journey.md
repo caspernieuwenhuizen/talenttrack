@@ -3,6 +3,7 @@ title: Player journey
 group: performance
 summary: A chronological view of every player's academy story — milestones, evaluations, injuries, transitions.
 audience: [user]
+views: [player-journey, my-journey, cohort-transitions]
 module: TT\Modules\Journey\JourneyModule
 capability: tt_view_player_timeline
 order: 80

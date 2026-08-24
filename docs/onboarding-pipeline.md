@@ -3,6 +3,7 @@ title: Onboarding pipeline
 group: configuration
 summary: The recruitment funnel every arriving player passes through.
 audience: [user]
+views: [onboarding-pipeline, prospects-overview]
 module: TT\Modules\Prospects\ProspectsModule
 order: 124
 ---

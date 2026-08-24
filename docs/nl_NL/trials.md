@@ -3,6 +3,7 @@ title: Stagedossiers
 group: performance
 summary: 'Voer een gestructureerde proefperiode uit: tracksjablonen, staf-input, besluit en de brief die naar ouders gaat.'
 audience: [user]
+views: [trials, trial-case, trial-tracks-editor, trial-letter-templates-editor, trial-parent-meeting, test-trainings]
 module: TT\Modules\Trials\TrialsModule
 tier: pro
 order: 130

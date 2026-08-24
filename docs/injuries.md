@@ -3,6 +3,7 @@ title: Injuries
 group: performance
 summary: Dated injury records on a player's journey, from onset to return to play.
 audience: [user]
+views: [injuries]
 module: TT\Modules\Journey\JourneyModule
 order: 85
 ---

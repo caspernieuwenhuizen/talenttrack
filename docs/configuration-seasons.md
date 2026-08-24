@@ -3,6 +3,7 @@ title: Configuration — Seasons
 group: configuration
 summary: Define the academy's seasons and pick the one that is current.
 audience: [admin]
+views: [seasons]
 order: 114
 ---
 

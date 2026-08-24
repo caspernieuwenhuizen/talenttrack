@@ -3,6 +3,7 @@ title: Trainingsplannen
 group: planning
 summary: Bouw een herbruikbare training uit blokken en draai die bij een activiteit.
 audience: [user]
+views: [training-plan, training-plans, training-run, training-coverage, training-photo]
 module: TT\Modules\Training\TrainingModule
 order: 20
 ---

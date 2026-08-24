@@ -199,6 +199,48 @@ context, `BackLink::captureCurrent()` reads the page URL from the
 HTTP `Referer` header (the page that initiated the AJAX call) instead
 of `REQUEST_URI` (which points at the REST endpoint).
 
+## A new view also declares its help topic
+
+Adding a `?tt_view=` route means deciding which help topic the Help icon
+should open on that screen. There are exactly two ways to do it, and the
+docs lint fails a route in neither:
+
+**The screen has a topic** — add the slug to that doc's `views:` front
+matter:
+
+```markdown
+---
+title: Match preparation
+group: match-day
+audience: [user]
+views: [match-prep]
+---
+```
+
+`HelpTopics::viewToTopic()` inverts that into the map the drawer reads.
+Nothing in PHP changes; there is no list to edit.
+
+**The screen deliberately has none** — add it to
+`config/no_help_topic.php` with a sentence saying why:
+
+```php
+'docs' => 'The help surface itself. A topic pointing at the page you are already reading is a loop, not help.',
+```
+
+Skipping both is what produced the state this replaced: a hand-maintained
+27-entry map against 144 routes, so most screens opened "Getting started"
+with nothing recording that a mapping was missing. A missing entry is
+invisible precisely because it looks like a deliberate one — hence the
+gate, and hence the notice the drawer now renders when it falls back.
+
+Note the drawer takes a **topic** slug, not a view slug, when a view
+overrides it:
+
+```php
+HelpDrawer::button( 'pdp-cycle' );   // the doc
+HelpDrawer::button( 'pdp' );         // the route — opens the wrong thing
+```
+
 ## What is NOT swept
 
 - **Admin pages** (`wp-admin/admin.php?page=…`). When clicking a

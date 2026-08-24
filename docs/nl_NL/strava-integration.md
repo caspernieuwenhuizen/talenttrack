@@ -3,6 +3,7 @@ title: Strava-koppeling
 group: performance
 summary: Koppel het Strava-account van een speler zodat eigen training op zijn dossier verschijnt.
 audience: [user, admin]
+views: [strava, strava-admin]
 module: TT\Modules\Strava\StravaModule
 capability: tt_view_strava
 order: 100

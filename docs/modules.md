@@ -3,6 +3,7 @@ title: Modules
 group: frontend
 summary: Per-install module toggles — disable Methodology, Workflow, License, etc. without touching code.
 audience: [admin]
+views: [modules, features]
 order: 80
 ---
 

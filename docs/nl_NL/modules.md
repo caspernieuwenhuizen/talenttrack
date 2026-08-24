@@ -3,6 +3,7 @@ title: Modules
 group: frontend
 summary: Module-toggles per installatie — schakel Methodology, Workflow, License, etc. uit zonder code aan te raken.
 audience: [admin]
+views: [modules, features]
 order: 80
 ---
 

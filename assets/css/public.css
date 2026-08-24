@@ -649,6 +649,17 @@ dialog.tt-modal::backdrop {
     text-align: center;
     padding: 20px 0;
 }
+/* Shown above the default topic when nothing claimed this screen. Reads as
+   an aside rather than an error — the help below it is still useful. */
+.tt-docs-drawer__notice {
+    color: var(--tt-muted, #6a6d66);
+    background: var(--tt-surface-2, #f4f4f5);
+    border-left: 3px solid var(--tt-line, #dcdcde);
+    border-radius: 3px;
+    font-size: 13px;
+    margin: 0 0 14px;
+    padding: 8px 10px;
+}
 body.tt-docs-drawer-open { overflow: hidden; }
 @media (max-width: 540px) {
     .tt-docs-drawer__panel { width: 100%; }

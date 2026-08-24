@@ -3,6 +3,7 @@ title: Configuration — Messages
 group: configuration
 summary: Which messages your academy sends, one switch per message type.
 audience: [admin]
+views: [mail-compose]
 module: TT\Modules\Comms\CommsModule
 order: 115
 ---

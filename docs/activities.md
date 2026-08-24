@@ -3,6 +3,7 @@ title: Activities
 group: performance
 summary: Games, trainings, and other activities — typing, attendance, and post-game evaluations.
 audience: [user]
+views: [activities, my-sessions]
 module: TT\Modules\Activities\ActivitiesModule
 capability: tt_view_activities
 order: 30

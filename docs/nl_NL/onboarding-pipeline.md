@@ -3,6 +3,7 @@ title: Instroompijplijn
 group: configuration
 summary: De wervingstrechter waar elke binnenkomende speler doorheen gaat.
 audience: [user]
+views: [onboarding-pipeline, prospects-overview]
 module: TT\Modules\Prospects\ProspectsModule
 order: 124
 ---

@@ -3,6 +3,7 @@ title: Recycle bin
 group: frontend
 summary: 'Archive → trash → purge: the retention window, who can permanently delete, and the GDPR right-to-erasure path.'
 audience: [admin]
+views: [recycle-bin]
 order: 70
 ---
 

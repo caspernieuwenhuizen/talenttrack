@@ -2296,40 +2296,26 @@ class DashboardShortcode {
 
     /**
      * tt_view slug → docs topic slug map for the context-aware help
-     * drawer (#0016 part B). Slugs missing from this map fall back to
-     * `default_slug` (getting-started) on the JS side. Add new
-     * mappings here whenever a new view ships with its own help topic.
+     * drawer (#0016 part B).
+     *
+     * This used to be a hand-maintained list. It covered 27 of the 144
+     * slugs the dispatcher routes, so most screens opened "Getting
+     * started" — silently, because a missing entry looks exactly like a
+     * deliberate one.
+     *
+     * The corpus owns the mapping now: a doc names the screens it serves
+     * in its `views:` front matter, and `HelpTopics::viewToTopic()`
+     * inverts that. Adding a view plus a `views:` line makes its help
+     * work with no change here. A slug with deliberately no topic goes in
+     * `config/no_help_topic.php`.
+     *
+     * Kept as a method rather than inlined at the call site: it is the
+     * localisation seam `wp_localize_script()` reads, and the drawer's
+     * config shape should not have to know where the map comes from.
      *
      * @return array<string, string>
      */
     private static function viewToTopicMap(): array {
-        return [
-            'players'             => 'teams-players',
-            'players-import'      => 'teams-players',
-            'teams'               => 'teams-players',
-            'people'              => 'people-staff',
-            'functional-roles'    => 'people-staff',
-            'evaluations'         => 'evaluations',
-            'eval-categories'     => 'eval-categories-weights',
-            'activities'          => 'activities',
-            'goals'               => 'goals',
-            'reports'             => 'reports',
-            'attendance-leaderboard' => 'reports',
-            'rate-cards'          => 'rate-cards',
-            'compare'             => 'player-comparison',
-            'methodology'         => 'methodology',
-            'configuration'       => 'configuration-branding',
-            'custom-fields'       => 'custom-fields',
-            'roles'               => 'access-control',
-            'overview'            => 'player-dashboard',
-            'my-team'             => 'player-dashboard',
-            'my-evaluations'      => 'player-dashboard',
-            'my-activities'       => 'player-dashboard',
-            'my-goals'            => 'player-dashboard',
-            'profile'             => 'player-dashboard',
-            'my-tasks'            => 'workflow-tasks',
-            'tasks-dashboard'     => 'workflow-tasks',
-            'workflow-config'     => 'workflow-tasks',
-        ];
+        return \TT\Modules\Documentation\HelpTopics::viewToTopic( get_current_user_id() );
     }
 }

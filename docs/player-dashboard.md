@@ -3,6 +3,7 @@ title: Player dashboard (frontend)
 group: frontend
 summary: What players see when they log into the frontend shortcode.
 audience: [user]
+views: [overview, profile, my-development, my-team, my-evaluations, my-activities, my-goals]
 order: 10
 ---
 

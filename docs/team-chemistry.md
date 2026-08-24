@@ -3,6 +3,7 @@ title: Team chemistry
 group: performance
 summary: Formation board with auto-suggested XI, depth chart, paired-player overrides, and traceable fit scores.
 audience: [user]
+views: [team-chemistry, chemistry-config]
 module: TT\Modules\TeamDevelopment\TeamDevelopmentModule
 feature: team_chemistry
 tier: pro

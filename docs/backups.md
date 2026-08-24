@@ -3,6 +3,7 @@ title: Backups & disaster recovery
 group: configuration
 summary: Scheduled exports, partial restore, the 14-day undo window.
 audience: [admin]
+views: [backups]
 module: TT\Modules\Backup\BackupModule
 order: 110
 ---

@@ -3,6 +3,7 @@ title: VCT — voetbalconditionele training
 group: performance
 summary: Leeftijdsveilige conditieplanning voor O10-O14, inclusief belastingsopbouw.
 audience: [admin]
+views: [vct-session, vct-library]
 module: TT\Modules\Vct\VctModule
 order: 105
 ---

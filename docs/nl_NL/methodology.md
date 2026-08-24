@@ -3,6 +3,7 @@ title: Methodologie
 group: performance
 summary: Voetbal-raamwerk introductie, spelprincipes, spelhervattingen, posities, voetbalhandelingen.
 audience: [user, admin]
+views: [methodology]
 module: TT\Modules\Methodology\MethodologyModule
 capability: tt_view_methodology
 order: 90

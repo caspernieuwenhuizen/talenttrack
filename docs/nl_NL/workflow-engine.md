@@ -3,6 +3,7 @@ title: Workflow- en takenmotor
 group: configuration
 summary: 'Ingeplande taken die in de inbox belanden: wedstrijdevaluaties, zelfevaluaties, doelen stellen, HoD-reviews.'
 audience: [admin, dev]
+views: [my-tasks, tasks-dashboard, workflow-config]
 module: TT\Modules\Workflow\WorkflowModule
 order: 80
 ---

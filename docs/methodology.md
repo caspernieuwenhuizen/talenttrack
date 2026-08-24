@@ -3,6 +3,7 @@ title: Methodology
 group: performance
 summary: Football framework primer, principles, set pieces, positions, voetbalhandelingen.
 audience: [user, admin]
+views: [methodology]
 module: TT\Modules\Methodology\MethodologyModule
 capability: tt_view_methodology
 order: 90

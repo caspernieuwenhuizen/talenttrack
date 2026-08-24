@@ -3,6 +3,7 @@ title: Scout — het seizoen in acties
 group: basics
 summary: Wat een scout in TalentTrack doet gedurende een lopend seizoen.
 audience: [user]
+views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits]
 order: 34
 ---
 

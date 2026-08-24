@@ -3,6 +3,7 @@ title: Record creation wizards
 group: configuration
 summary: Step-by-step forms that replace the flat create form for new players, teams, evaluations, and goals.
 audience: [user]
+views: [wizard, wizards-admin]
 module: TT\Modules\Wizards\WizardsModule
 order: 10
 ---

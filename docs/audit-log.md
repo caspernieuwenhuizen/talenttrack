@@ -3,6 +3,7 @@ title: Audit log
 group: configuration
 summary: Who changed what, when — including failed logins.
 audience: [admin]
+views: [audit-log]
 capability: tt_view_audit_log
 order: 128
 ---

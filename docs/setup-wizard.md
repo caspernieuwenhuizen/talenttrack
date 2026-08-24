@@ -3,6 +3,7 @@ title: Setup wizard
 group: basics
 summary: The first-run guided installer that hands you off into TalentTrack.
 audience: [admin]
+views: [setup]
 module: TT\Modules\Onboarding\OnboardingModule
 capability: tt_view_setup_wizard
 order: 40

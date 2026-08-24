@@ -3,6 +3,7 @@ title: Blessures
 group: performance
 summary: Gedateerde blessures op de tijdlijn van een speler, van ontstaan tot terugkeer.
 audience: [user]
+views: [injuries]
 module: TT\Modules\Journey\JourneyModule
 order: 85
 ---

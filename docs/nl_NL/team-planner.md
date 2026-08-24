@@ -3,6 +3,7 @@ title: Teamplanner
 group: planning
 summary: De week-tot-week kalender van wat je team doet.
 audience: [user]
+views: [team-planner]
 module: TT\Modules\Planning\PlanningModule
 feature: planning_calendar_view
 order: 10

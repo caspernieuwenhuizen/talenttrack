@@ -3,6 +3,7 @@ title: Spelersaccounts
 group: configuration
 summary: Koppel een spelersdossier aan het inlogaccount dat bij die speler hoort.
 audience: [admin]
+views: [accounts, player-accounts, parent-accounts]
 order: 126
 ---
 

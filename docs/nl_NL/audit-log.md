@@ -3,6 +3,7 @@ title: Auditlog
 group: configuration
 summary: Wie wat wanneer veranderde — inclusief mislukte inlogpogingen.
 audience: [admin]
+views: [audit-log]
 capability: tt_view_audit_log
 order: 128
 ---

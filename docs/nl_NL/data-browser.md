@@ -3,6 +3,7 @@ title: Databrowser
 group: configuration
 summary: Een alleen-lezen venster op de ruwe tabellen, met leesbare kolomnamen.
 audience: [admin]
+views: [data-browser]
 module: TT\Modules\DataBrowser\DataBrowserModule
 capability: tt_view_data_browser
 order: 134

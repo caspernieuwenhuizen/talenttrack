@@ -3,6 +3,7 @@ title: Player Development Plan (PDP)
 group: performance
 summary: Per-season development files, conversation cadence, end-of-season verdict.
 audience: [user]
+views: [pdp, my-pdp]
 module: TT\Modules\Pdp\PdpModule
 capability: tt_view_pdp
 order: 60

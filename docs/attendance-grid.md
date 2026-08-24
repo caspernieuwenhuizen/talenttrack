@@ -3,6 +3,7 @@ title: Attendance grid
 group: match-day
 summary: Record attendance for a whole period in a single spreadsheet-style grid.
 audience: [user]
+views: [attendance-grid]
 module: TT\Modules\Activities\ActivitiesModule
 feature: attendance_grid
 order: 40

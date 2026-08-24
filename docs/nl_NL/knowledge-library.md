@@ -3,6 +3,7 @@ title: Kennisbank
 group: development
 summary: Cursussen voor trainersontwikkeling, geleverd als markdown en gelezen in de app.
 audience: [admin, dev]
+views: [knowledge, course, lesson, my-learning, submission-review]
 module: TT\Modules\Knowledge\KnowledgeModule
 feature: knowledge_courses
 tier: standard
