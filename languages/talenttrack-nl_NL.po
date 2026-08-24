@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-23T20:01:52+00:00\n"
+"POT-Creation-Date: 2026-08-24T04:16:18+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -7301,7 +7301,7 @@ msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:178
 #: src/Modules/Authorization/Admin/ModulesPage.php:91
-#: src/Modules/Documentation/HelpTopics.php:96
+#: src/Modules/Documentation/HelpTopics.php:155
 #: src/Shared/CoreSurfaceRegistration.php:952
 #: src/Shared/CoreSurfaceRegistration.php:967
 #: src/Shared/CoreSurfaceRegistration.php:1869
@@ -9920,7 +9920,7 @@ msgstr "Beheer / configuratie-oppervlak"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:499
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:500
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:501
-#: src/Modules/Documentation/HelpTopics.php:101
+#: src/Modules/Documentation/HelpTopics.php:160
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:655
@@ -10381,7 +10381,7 @@ msgstr "Personen & teams"
 
 # ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
 #: src/Modules/Authorization/Admin/ModulesPage.php:90
-#: src/Modules/Documentation/HelpTopics.php:95
+#: src/Modules/Documentation/HelpTopics.php:154
 #: src/Modules/Measurements/MeasurementsModule.php:82
 #: src/Modules/Measurements/MeasurementsModule.php:104
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
@@ -10397,7 +10397,7 @@ msgstr "Prestaties"
 #: src/Modules/Authorization/Admin/RolesPage.php:495
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:80
 #: src/Modules/DataBrowser/SemanticRegistry.php:142
-#: src/Modules/Documentation/HelpTopics.php:97
+#: src/Modules/Documentation/HelpTopics.php:156
 #: src/Modules/Measurements/MeasurementsModule.php:130
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
@@ -18825,45 +18825,51 @@ msgstr ""
 "Er wordt gewerkt aan je geaccepteerde idee \"%s\". Het schuift door naar "
 "Klaar zodra het is uitgeleverd."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:66
+#: src/Modules/Documentation/Admin/DocumentationPage.php:68
+#: src/Modules/Documentation/Admin/DocumentationPage.php:75
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:541
 #: src/Modules/Stats/Admin/UsageStatsPage.php:361
 #: src/Shared/Admin/BackNavigator.php:145
 #: src/Shared/CoreSurfaceRegistration.php:2100
 #: src/Shared/CoreSurfaceRegistration.php:2285
-#: src/Shared/Frontend/FrontendDocsView.php:47
-#: src/Shared/Frontend/FrontendDocsView.php:48
+#: src/Shared/Frontend/FrontendDocsView.php:40
+#: src/Shared/Frontend/FrontendDocsView.php:41
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:686
 msgid "Help & Docs"
 msgstr "Hulp & documentatie"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:166
-#: src/Shared/Frontend/FrontendDocsView.php:76
+#: src/Modules/Documentation/Admin/DocumentationPage.php:69
+#: src/Shared/Frontend/FrontendDocsView.php:44
+msgid "No documentation topics are available."
+msgstr "Geen documentatieonderwerpen beschikbaar."
+
+#: src/Modules/Documentation/Admin/DocumentationPage.php:175
+#: src/Shared/Frontend/FrontendDocsView.php:69
 msgid "Search topics…"
 msgstr "Zoek onderwerpen…"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:167
+#: src/Modules/Documentation/Admin/DocumentationPage.php:176
 msgid "No matching topics."
 msgstr "Geen passende onderwerpen."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:208
+#: src/Modules/Documentation/Admin/DocumentationPage.php:215
 #: src/Shared/CoreSurfaceRegistration.php:1620
 #: src/Shared/CoreSurfaceRegistration.php:2094
 #: src/Shared/CoreSurfaceRegistration.php:2281
 #: src/Shared/Frontend/CoachDashboardView.php:37
 #: src/Shared/Frontend/DashboardShortcode.php:2183
-#: src/Shared/Frontend/FrontendDocsView.php:105
+#: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
 msgstr "Hulp"
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:257
-#: src/Shared/Frontend/FrontendDocsView.php:139
+#: src/Modules/Documentation/Admin/DocumentationPage.php:264
+#: src/Shared/Frontend/FrontendDocsView.php:131
 msgid "This topic has no content yet."
 msgstr "Dit onderwerp heeft nog geen inhoud."
 
-#: src/Modules/Documentation/Admin/DocumentationPage.php:261
-#: src/Shared/Frontend/FrontendDocsView.php:141
+#: src/Modules/Documentation/Admin/DocumentationPage.php:268
+#: src/Shared/Frontend/FrontendDocsView.php:133
 msgid "This topic is empty."
 msgstr "Dit onderwerp is leeg."
 
@@ -18879,15 +18885,17 @@ msgstr "Beheerder"
 msgid "Dev"
 msgstr "Ontwikkelaar"
 
-#: src/Modules/Documentation/DocsRestController.php:71
+#: src/Modules/Documentation/DocsRestController.php:82
+#: src/Modules/Documentation/DocsRestController.php:94
 msgid "Topic not found."
 msgstr "Onderwerp niet gevonden."
 
-#: src/Modules/Documentation/DocsRestController.php:76
+#: src/Modules/Documentation/DocsRestController.php:89
+#: src/Modules/Documentation/DocsRestController.php:97
 msgid "Not authorised for this topic."
 msgstr "Niet bevoegd voor dit onderwerp."
 
-#: src/Modules/Documentation/HelpTopics.php:94
+#: src/Modules/Documentation/HelpTopics.php:153
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:23
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:44
 #: src/Modules/Wizards/Person/BasicsStep.php:17
@@ -18895,15 +18903,15 @@ msgstr "Niet bevoegd voor dit onderwerp."
 msgid "Basics"
 msgstr "Basis"
 
-#: src/Modules/Documentation/HelpTopics.php:98
+#: src/Modules/Documentation/HelpTopics.php:157
 msgid "Frontend & access"
 msgstr "Frontend & toegang"
 
-#: src/Modules/Documentation/HelpTopics.php:99
+#: src/Modules/Documentation/HelpTopics.php:158
 msgid "Mobile install"
 msgstr "Mobiele installatie"
 
-#: src/Modules/Documentation/HelpTopics.php:100
+#: src/Modules/Documentation/HelpTopics.php:159
 #: src/Shared/CoreSurfaceRegistration.php:1630
 msgid "Developer"
 msgstr "Ontwikkelaar"
@@ -48216,10 +48224,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:40
 msgid "Dismiss for now"
 msgstr "Voor nu sluiten"
-
-#: src/Shared/Frontend/FrontendDocsView.php:51
-msgid "No documentation topics are available."
-msgstr "Geen documentatieonderwerpen beschikbaar."
 
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:38
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:46
