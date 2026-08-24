@@ -27,6 +27,38 @@ use TT\Infrastructure\Query\QueryHelpers;
 final class ParentChildSwitcher {
 
     /**
+     * The `tt_view` slugs that resolve a player subject, and therefore the
+     * only ones a child picker can meaningfully stand in front of.
+     *
+     * #2804 — this list exists because the picker gate had no list. It ran
+     * ahead of its dispatcher's switch and claimed every slug, so a parent
+     * linked to two children met the picker on all thirteen of their
+     * destinations, `my-settings` and `docs` included — surfaces with no
+     * player subject to choose. Canonical here rather than private to the
+     * dispatcher, because the navigation needs the same answer when it
+     * decides which links carry `player_id` forward.
+     *
+     * `teammate` is deliberately absent: it reads `player_id` as the
+     * teammate being viewed, not as the subject of the page.
+     *
+     * @var list<string>
+     */
+    private const SUBJECT_SLUGS = [
+        'my-development', 'overview', 'my-team', 'my-evaluations',
+        'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey',
+        'measurements', 'strava',
+    ];
+
+    /**
+     * Whether `$view_slug` resolves a player subject from the viewer's
+     * children — i.e. whether a child picker in front of it, or a
+     * `player_id` carried into it, means anything.
+     */
+    public static function carriesPlayerSubject( string $view_slug ): bool {
+        return in_array( $view_slug, self::SUBJECT_SLUGS, true );
+    }
+
+    /**
      * Full child-picker screen. Emits the two nav affordances (breadcrumb
      * chain + auto tt_back pill) like any routable view, then a grid of
      * child cards. Each card links back to the same me-view slug scoped to

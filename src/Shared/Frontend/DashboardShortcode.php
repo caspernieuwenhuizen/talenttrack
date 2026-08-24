@@ -674,7 +674,15 @@ class DashboardShortcode {
         // pick one. `teammate` is exempt (it reads player_id as the
         // teammate id, not the subject). The picker is only for the slugs
         // that resolve a subject from the parent's children.
-        if ( $view !== 'teammate' && self::needsChildPicker( $user_id, $player ) ) {
+        // #2804 — the gate must only claim slugs this dispatcher actually
+        // resolves a subject for. It used to run ahead of the switch below
+        // and `return true` for ANY slug, so a parent linked to two children
+        // met the picker on every destination in the product — `my-settings`
+        // and `docs` among them, which have no player subject to pick. The
+        // slug list is canonical on ParentChildSwitcher because the app-shell
+        // navigation needs the same answer.
+        if ( \TT\Shared\Frontend\Components\ParentChildSwitcher::carriesPlayerSubject( $view )
+            && self::needsChildPicker( $user_id, $player ) ) {
             $children = \TT\Infrastructure\Players\ParentChildResolver::children( $user_id );
             \TT\Shared\Frontend\Components\ParentChildSwitcher::renderPickerPage( $view, $children );
             return true;
