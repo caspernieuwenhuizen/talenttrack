@@ -182,11 +182,16 @@
 	 * destination fits in the rail, nothing should be folded and the
 	 * sidebar reads exactly like the design.
 	 *
-	 * The server renders only the active group open, which is the safe
-	 * starting point — on a full academy the list overflows, so that render
-	 * is already correct and nothing moves. This opens the rest back up
-	 * when they do fit. Measuring is one synchronous pass, so the browser
-	 * paints the settled state rather than flashing through it.
+	 * The server renders every group open (#2533), so this only ever closes
+	 * groups, never opens them: it starts from the full list and folds from
+	 * the bottom up until the rail fits, sparing the group holding the
+	 * current view. Measuring is one synchronous pass, so the browser paints
+	 * the settled state rather than flashing through it.
+	 *
+	 * #2803 — the previous wording here claimed the server rendered only the
+	 * active group open, which was #2504's behaviour and had already been
+	 * superseded. Two readers filed bugs against `$is_open = true` on the
+	 * strength of it.
 	 */
 	function fitGroups() {
 		if (userToggledGroups) return;
