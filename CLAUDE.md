@@ -718,6 +718,18 @@ A PR is not ready to merge until **all** of these hold:
       `msgstr` filled in.
 - [ ] `docs/<slug>.md` AND `docs/nl_NL/<slug>.md` updated for any user-
       visible behaviour change.
+- [ ] **`php tools/check-docs.php` passes.** Enforced by the `docs-lint`
+      CI gate (#2551): every doc registered or explicitly dev-only, every
+      `group` / `module` / `feature` / `tier` / `capability` resolving,
+      every routable `?tt_view=` slug claimed by a topic's `views:` or
+      listed in `config/no_help_topic.php`, every cross-reference
+      resolving, no version stamp or issue number added to a reader-facing
+      topic, every file valid UTF-8. Rules in `docs/contributing.md`;
+      label `docs-lint-exempt` for a deliberate exception.
+- [ ] **A new `?tt_view=` route declares its help topic** — add the slug to
+      the serving doc's `views:` front matter, or to
+      `config/no_help_topic.php` with a reason. Skipping both is what left
+      117 of 144 screens opening the wrong help topic.
 - [ ] **Every PR with a user-facing change adds a
       `changelog.d/<issue>-<slug>.md` snippet** (see `changelog.d/README.md`)
       so the release agent can document it. **Enforced by the

@@ -103,5 +103,5 @@ The mothership cannot enforce this — only the install can refuse to send. The 
 
 ## See also
 
-- [`docs/admin-center.md`](admin-center.md) — Admin Center plugin overview (lives in a separate repo).
+- The Admin Center plugin itself, which receives these payloads, is documented in its own repository — it ships and versions separately from TalentTrack.
 - The mothership-side spec at `talenttrack-admin-center/specs/0001-feat-foundation-monitoring.md` — describes how the receiver verifies signatures and renders the dashboard.

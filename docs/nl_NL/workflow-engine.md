@@ -83,5 +83,5 @@ De resterende fases van het epic landden in één release. De vorm blijft hetzel
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — voor de capability-slugs die de motor gebruikt.
-- [Sessies](sessions.md) — wedstrijd-sessies zijn de trigger voor wedstrijdevaluaties.
+- [Activiteiten](activities.md) — activiteiten van het type wedstrijd zijn de trigger voor wedstrijdevaluaties.
 - [Doelen](goals.md) — kwartaaldoelen zijn een van de meegeleverde templates.

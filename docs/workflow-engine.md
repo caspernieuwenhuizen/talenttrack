@@ -83,5 +83,5 @@ The remaining phases of the epic landed in one release. The shape stays the same
 ## See also
 
 - [Roles and permissions](access-control.md) — for the capability slugs the engine uses.
-- [Sessions](sessions.md) — match-type sessions are the trigger for post-match evaluations.
+- [Activities](activities.md) — match-type activities are the trigger for post-match evaluations.
 - [Goals](goals.md) — quarterly goal-setting is one of the shipped templates.
