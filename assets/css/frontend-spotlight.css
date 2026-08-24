@@ -180,6 +180,82 @@
     list-style: none;
 }
 
+/* #2802 — below the tablet breakpoint the field collapses to a 48px icon.
+ * Inline, it was 221-275px of a 361px header: the single largest item in
+ * the actions cluster and the reason the app-shell header both overflowed
+ * sideways and wrapped to three rows.
+ *
+ * The input itself is the 48px target rather than a button that opens one,
+ * so a tap focuses it — and spotlight.js already opens the results list on
+ * `focus`. No new JavaScript, and the field still works with JS off. The
+ * magnifier is positioned over the input with `pointer-events: none` so a
+ * tap anywhere in the box reaches the input beneath it.
+ */
+@media (max-width: 767px) {
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form {
+        flex: 0 0 auto;
+        /* 50, not 48, in both directions: the 1px border is inside the box,
+           so a 48px form gives the input a 46px content box — two pixels
+           under the floor in the dimension nobody thinks to check. */
+        width: 50px;
+        min-height: 50px;
+        padding: 0;
+        justify-content: center;
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form .tt-spotlight-form__icon {
+        position: absolute;
+        inset-inline-start: 50%;
+        inset-block-start: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-input {
+        width: 100%;
+        /* `stretch` rather than a fixed height: the form's 1px border eats
+           into its content box, so a hard 48px left the input measuring 46
+           and two pixels under the floor. Stretching fills whatever the
+           content box actually is. */
+        align-self: stretch;
+        /* Collapsed, the field carries no visible text — the magnifier is
+           the whole affordance. Both come back when it takes focus. */
+        color: transparent;
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-input::placeholder {
+        color: transparent;
+    }
+
+    /* Focused, the field takes the whole bar as an overlay rather than a
+       new row. A new row is not available: the cluster is held `nowrap` so
+       the header stays one line, and `flex: 1 1 100%` inside a nowrap
+       container just overflows it by the width it wanted (measured 81px at
+       360). Covering the bar is also the familiar phone pattern — search
+       takes over the chrome while you are in it, and Escape gives it back. */
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within {
+        position: absolute;
+        inset-inline: 0.9rem;
+        inset-block-start: 50%;
+        transform: translateY(-50%);
+        width: auto;
+        z-index: 2;
+        padding: 0 0.75rem;
+        justify-content: flex-start;
+        /* Opaque so it hides the controls underneath rather than blending
+           into them; the bar's own green keeps it looking part of the bar. */
+        background-color: var(--tt-primary, #0b3d2e);
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-form__icon {
+        position: static;
+        transform: none;
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-input {
+        color: inherit;
+    }
+    .tt-dashboard .tt-dash-actions .tt-spotlight-form:focus-within .tt-spotlight-input::placeholder {
+        color: currentColor;
+        opacity: .65;
+    }
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-spotlight-form {
         /* #2531 — roughly double the 420px the trigger used to cap at. The
