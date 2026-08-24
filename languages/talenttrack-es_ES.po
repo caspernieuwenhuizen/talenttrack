@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-24T04:30:25+00:00\n"
+"POT-Creation-Date: 2026-08-24T20:48:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -2199,6 +2199,7 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:411
 #: src/Modules/DemoData/DemoCoverage.php:1265
+#: src/Modules/Documentation/HelpTopics.php:154
 msgid "Match day"
 msgstr ""
 
@@ -6932,7 +6933,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:178
 #: src/Modules/Authorization/Admin/ModulesPage.php:91
-#: src/Modules/Documentation/HelpTopics.php:155
+#: src/Modules/Documentation/HelpTopics.php:157
 #: src/Shared/CoreSurfaceRegistration.php:952
 #: src/Shared/CoreSurfaceRegistration.php:967
 #: src/Shared/CoreSurfaceRegistration.php:1869
@@ -9416,7 +9417,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:499
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:500
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:501
-#: src/Modules/Documentation/HelpTopics.php:160
+#: src/Modules/Documentation/HelpTopics.php:163
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:655
@@ -9834,7 +9835,7 @@ msgstr ""
 
 # ===== v2.17.0 — Menu groups + bulk archive/delete + isolated print =====
 #: src/Modules/Authorization/Admin/ModulesPage.php:90
-#: src/Modules/Documentation/HelpTopics.php:154
+#: src/Modules/Documentation/HelpTopics.php:156
 #: src/Modules/Measurements/MeasurementsModule.php:82
 #: src/Modules/Measurements/MeasurementsModule.php:104
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
@@ -9850,7 +9851,7 @@ msgstr "Rendimiento"
 #: src/Modules/Authorization/Admin/RolesPage.php:495
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:80
 #: src/Modules/DataBrowser/SemanticRegistry.php:142
-#: src/Modules/Documentation/HelpTopics.php:156
+#: src/Modules/Documentation/HelpTopics.php:158
 #: src/Modules/Measurements/MeasurementsModule.php:130
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:376
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:536
@@ -17448,15 +17449,23 @@ msgstr ""
 msgid "Basics"
 msgstr ""
 
-#: src/Modules/Documentation/HelpTopics.php:157
-msgid "Frontend & access"
-msgstr ""
-
-#: src/Modules/Documentation/HelpTopics.php:158
-msgid "Mobile install"
+#: src/Modules/Documentation/HelpTopics.php:155
+msgid "Planning"
 msgstr ""
 
 #: src/Modules/Documentation/HelpTopics.php:159
+msgid "Operator guide"
+msgstr ""
+
+#: src/Modules/Documentation/HelpTopics.php:160
+msgid "Frontend & access"
+msgstr ""
+
+#: src/Modules/Documentation/HelpTopics.php:161
+msgid "Mobile install"
+msgstr ""
+
+#: src/Modules/Documentation/HelpTopics.php:162
 #: src/Shared/CoreSurfaceRegistration.php:1630
 msgid "Developer"
 msgstr ""
