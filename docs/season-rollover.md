@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Season rollover
+group: planning
+summary: Move whole squads up an age group at the end of a season.
+audience: [admin]
+order: 40
+---
 
 # Season rollover
 

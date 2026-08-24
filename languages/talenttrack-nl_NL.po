@@ -54858,6 +54858,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+#: src/Modules/Documentation/HelpTopics.php:96
+msgid "Planning"
+msgstr "Planning"
+
+#: src/Modules/Documentation/HelpTopics.php:100
+msgid "Operator guide"
+msgstr "Beheerdersgids"
+
 
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "

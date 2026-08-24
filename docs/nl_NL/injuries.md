@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Blessures
+group: performance
+summary: Gedateerde blessures op de tijdlijn van een speler, van ontstaan tot terugkeer.
+audience: [user]
+module: TT\Modules\Journey\JourneyModule
+order: 85
+---
 
 # Blessures
 

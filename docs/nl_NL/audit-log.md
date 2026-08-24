@@ -1,4 +1,11 @@
-<!-- audience: admin -->
+---
+title: Auditlog
+group: configuration
+summary: Wie wat wanneer veranderde — inclusief mislukte inlogpogingen.
+audience: [admin]
+capability: tt_view_audit_log
+order: 128
+---
 
 # Auditlogboek
 

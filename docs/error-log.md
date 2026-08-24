@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Error log
+group: configuration
+summary: Technical failures surfaced in-app instead of only in the server log.
+audience: [admin, dev]
+order: 130
+---
 
 # Error log
 

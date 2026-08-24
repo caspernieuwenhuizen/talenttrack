@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Je wachtwoord opnieuw instellen
+group: basics
+summary: Stel zelf een nieuw wachtwoord in, zonder de schermen van de academie te verlaten.
+audience: [user]
+order: 18
+---
 
 # Je wachtwoord opnieuw instellen
 

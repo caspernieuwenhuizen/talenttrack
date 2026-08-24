@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Security operator guide
+group: operator
+summary: The academy admin's playbook for keeping the install secure.
+audience: [admin]
+order: 10
+---
 
 # Security operator guide
 

@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Match execution
+group: match-day
+summary: 'The phone-first live match surface: line-ups, substitutions and minutes as the game runs.'
+audience: [user]
+module: TT\Modules\MatchExecution\MatchExecutionModule
+order: 20
+---
 
 # Match execution — the live match-day surface
 

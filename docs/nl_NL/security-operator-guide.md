@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Beveiligingsgids voor beheerders
+group: operator
+summary: Het draaiboek van de academiebeheerder om de installatie veilig te houden.
+audience: [admin]
+order: 10
+---
 
 # Beveiliging — handleiding voor de academy admin
 

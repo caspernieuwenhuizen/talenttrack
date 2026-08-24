@@ -1,4 +1,12 @@
-<!-- audience: user -->
+---
+title: Team planner
+group: planning
+summary: The week-by-week calendar of what your team is doing.
+audience: [user]
+module: TT\Modules\Planning\PlanningModule
+feature: planning_calendar_view
+order: 10
+---
 
 # Team planner
 

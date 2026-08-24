@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Seizoensovergang
+group: planning
+summary: Hele selecties aan het eind van het seizoen een leeftijdsgroep laten opschuiven.
+audience: [admin]
+order: 40
+---
 
 # Seizoensovergang
 

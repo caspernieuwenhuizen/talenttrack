@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: Exercise library
+group: performance
+summary: Every drill the academy can build a training from, in one place.
+audience: [user, admin]
+module: TT\Modules\Exercises\ExercisesModule
+order: 95
+---
 
 # Exercise library
 

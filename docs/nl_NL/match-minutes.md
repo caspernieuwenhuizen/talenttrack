@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Speeltijd per leeftijdscategorie
+group: match-day
+summary: Speelduur per leeftijdsgroep, en hoe die de speeltijddoelen bepaalt.
+audience: [admin]
+order: 60
+---
 
 # Wedstrijdminuten per leeftijdscategorie
 

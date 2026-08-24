@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: Wizard nieuwe evaluatie
+group: performance
+summary: De activiteit-eerst route om een hele selectie te beoordelen.
+audience: [user, admin]
+module: TT\Modules\Evaluations\EvaluationsModule
+order: 15
+---
 
 # Nieuwe Evaluatie wizard
 

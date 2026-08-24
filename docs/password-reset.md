@@ -1,4 +1,10 @@
-<!-- audience: user -->
+---
+title: Resetting your password
+group: basics
+summary: Set a new password yourself, without leaving the academy's own screens.
+audience: [user]
+order: 18
+---
 
 # Resetting your password
 

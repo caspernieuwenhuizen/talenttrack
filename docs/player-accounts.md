@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Player accounts
+group: configuration
+summary: Link a player record to the login account that belongs to them.
+audience: [admin]
+order: 126
+---
 
 # Player accounts
 

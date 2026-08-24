@@ -1,4 +1,11 @@
-<!-- audience: operator, developer -->
+---
+title: Records verwijderen
+group: frontend
+summary: 'De archiefcyclus: archiveren, terugzetten, en wat definitief verwijderen echt doet.'
+audience: [admin]
+order: 75
+---
+
 # Records verwijderen — archiveren, herstellen, definitief verwijderen
 
 De meeste records in TalentTrack volgen een **archiveer-levenscyclus**: je

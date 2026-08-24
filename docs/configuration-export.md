@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — Export
+group: configuration
+summary: What the bulk exporters include, and who may run them.
+audience: [admin]
+order: 118
+---
 
 # Configuration — Export configuration
 

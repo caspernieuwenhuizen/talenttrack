@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Wedstrijduitvoering
+group: match-day
+summary: 'Het mobiele scherm tijdens de wedstrijd: opstelling, wissels en speelminuten terwijl je speelt.'
+audience: [user]
+module: TT\Modules\MatchExecution\MatchExecutionModule
+order: 20
+---
 
 # Wedstrijduitvoering — het live scherm op wedstrijddag
 

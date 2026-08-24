@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Wedstrijdvoorbereiding
+group: match-day
+summary: 'Een wedstrijd voorbereiden: selectie, opstelling, taken en het wedstrijdformulier.'
+audience: [user]
+module: TT\Modules\MatchPrep\MatchPrepModule
+order: 10
+---
 
 # Wedstrijdvoorbereiding
 

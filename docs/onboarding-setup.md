@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Setup (first run)
+group: basics
+summary: The flow that walks a new install through its first configuration.
+audience: [user]
+module: TT\Modules\Onboarding\OnboardingModule
+order: 15
+---
 
 # Setup (first-time onboarding)
 

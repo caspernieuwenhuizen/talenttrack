@@ -1,4 +1,11 @@
-<!-- audience: operator, developer -->
+---
+title: Record deletion
+group: frontend
+summary: 'The archive lifecycle: archive, restore, and what permanent delete really does.'
+audience: [admin]
+order: 75
+---
+
 # Record deletion — archive, restore, permanent delete
 
 Most records in TalentTrack follow an **archive lifecycle**: you archive

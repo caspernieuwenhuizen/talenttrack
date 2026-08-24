@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — Seizoenen
+group: configuration
+summary: Leg de seizoenen van de academie vast en kies welk seizoen loopt.
+audience: [admin]
+order: 114
+---
 
 # Configuratie — Seizoenen
 

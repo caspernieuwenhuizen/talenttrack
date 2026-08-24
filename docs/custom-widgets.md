@@ -1,4 +1,12 @@
-<!-- audience: admin, dev -->
+---
+title: Custom widgets
+group: configuration
+summary: Compose dashboard widgets from a data source, columns and a chart type.
+audience: [admin]
+module: TT\Modules\CustomWidgets\CustomWidgetsModule
+feature: custom_widgets
+order: 122
+---
 
 # Custom widgets
 

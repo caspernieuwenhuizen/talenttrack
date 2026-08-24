@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Photo capture — DPIA
+group: operator
+summary: The data protection impact assessment for photo-to-training capture.
+audience: [admin]
+order: 30
+---
 
 # Photo-to-session capture — DPIA template
 

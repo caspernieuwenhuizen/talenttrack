@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: Measurements & testing
+group: performance
+summary: Recorded test values per player over time, and the trends they make.
+audience: [user, admin]
+module: TT\Modules\Measurements\MeasurementsModule
+order: 80
+---
 
 # Measurements & Testing
 

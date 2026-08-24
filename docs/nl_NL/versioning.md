@@ -1,4 +1,11 @@
-<!-- audience: admin -->
+---
+title: Versienummers
+group: configuration
+summary: Hoe je het versienummer van de plugin leest in het updatescherm.
+audience: [admin]
+order: 136
+---
+
 # Versies — hoe lees ik het versienummer van de plug-in?
 
 **Doelgroep:** academiebeheerders die het wp-admin "Plug-in-updates"-paneel bekijken.

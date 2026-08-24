@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Match preparation
+group: match-day
+summary: 'Plan a match: squad, formation, roles and the printed team sheet.'
+audience: [user]
+module: TT\Modules\MatchPrep\MatchPrepModule
+order: 10
+---
 
 # Match preparation
 

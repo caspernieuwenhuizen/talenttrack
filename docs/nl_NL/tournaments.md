@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Toernooien
+group: planning
+summary: 'Dagen met meerdere wedstrijden: één selectie, één speeltijddoel, één planner.'
+audience: [user]
+module: TT\Modules\Tournaments\TournamentsModule
+order: 30
+---
 
 # Toernooien
 

@@ -151,9 +151,12 @@ class HelpTopics {
     public static function groups(): array {
         return [
             'basics'        => __( 'Basics', 'talenttrack' ),
+            'match-day'     => __( 'Match day', 'talenttrack' ),
+            'planning'      => __( 'Planning', 'talenttrack' ),
             'performance'   => __( 'Performance', 'talenttrack' ),
             'analytics'     => __( 'Analytics', 'talenttrack' ),
             'configuration' => __( 'Configuration', 'talenttrack' ),
+            'operator'      => __( 'Operator guide', 'talenttrack' ),
             'frontend'      => __( 'Frontend & access', 'talenttrack' ),
             'mobile'        => __( 'Mobile install', 'talenttrack' ),
             'developer'     => __( 'Developer', 'talenttrack' ),

@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Trainingsplannen
+group: planning
+summary: Bouw een herbruikbare training uit blokken en draai die bij een activiteit.
+audience: [user]
+module: TT\Modules\Training\TrainingModule
+order: 20
+---
 
 # Trainingsplannen
 

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Phone-home telemetry
+group: operator
+summary: What your install sends to the Admin Center, and the privacy boundary around it.
+audience: [admin]
+order: 40
+---
 
 # Phone-home telemetry
 

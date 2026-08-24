@@ -1,4 +1,11 @@
-<!-- audience: admin -->
+---
+title: Versioning
+group: configuration
+summary: How to read the plugin version number in the updates panel.
+audience: [admin]
+order: 136
+---
+
 # Versioning — how to read the plugin version number
 
 **Audience:** club admins reading the wp-admin "Plugin Updates" panel.

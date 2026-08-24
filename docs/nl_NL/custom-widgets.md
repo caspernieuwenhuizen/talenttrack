@@ -1,4 +1,12 @@
-<!-- audience: admin, dev -->
+---
+title: Eigen widgets
+group: configuration
+summary: Stel dashboardwidgets samen uit een gegevensbron, kolommen en een grafiektype.
+audience: [admin]
+module: TT\Modules\CustomWidgets\CustomWidgetsModule
+feature: custom_widgets
+order: 122
+---
 
 # Aangepaste widgets
 

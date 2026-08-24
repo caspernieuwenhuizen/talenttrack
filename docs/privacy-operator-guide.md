@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Privacy operator guide
+group: operator
+summary: Handling personal data — most of which, here, belongs to minors.
+audience: [admin]
+order: 20
+---
 
 # Privacy operator guide
 
