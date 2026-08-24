@@ -92,14 +92,65 @@
 }
 
 /* ---- Actions cluster ---------------------------------------------- */
+/* #2802 — the cluster measured 526px inside a 361px header content box and
+   could not shrink: `min-width` resolved to `auto` and it never wrapped, so
+   every app-shell surface carried a constant overflow floor. `min-width: 0`
+   lets the flex algorithm actually compress it, `flex-wrap` lets it break
+   rather than run off the edge. */
 .tt-dashboard .tt-dash-actions {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     color: #fff;
+    min-width: 0;
+    flex-wrap: wrap;
 }
 .tt-dashboard .tt-dash-version {
     color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* #2802 — the version string and the demo badge are reference information,
+   not controls, and together they took 95px of a 361px header. Neither
+   earns that on a phone: the version is discoverable from Configuration,
+   and demo mode announces itself everywhere else it matters. */
+@media (max-width: 767px) {
+    .tt-dashboard .tt-dash-version,
+    .tt-dashboard .tt-dash-demo-pill {
+        display: none;
+    }
+
+    /* Without this the header wraps the actions cluster onto a second row
+       rather than squeezing the brand, and the sticky bar costs 129px of an
+       844px screen. `nowrap` makes the brand give way instead — it already
+       carries `min-width: 0`, and the academy name already truncates with an
+       ellipsis, so the crest keeps identifying the club either way. */
+    .tt-dashboard .tt-dash-header {
+        flex-wrap: nowrap;
+    }
+
+    /* Same reasoning one level down: the cluster is five 48px controls and
+       cannot usefully shrink, so letting it wrap just moves the second row
+       inside it. Held on one line, the brand absorbs the squeeze instead. */
+    .tt-dashboard .tt-dash-actions {
+        flex-wrap: nowrap;
+        flex: 0 0 auto;
+    }
+
+    /* With the brand absorbing the squeeze, the academy name ellipsised down
+       to a stray "S." — which reads as a rendering fault rather than a
+       shortened name. Hidden outright below the tablet breakpoint: the crest
+       identifies the club, the whole brand block is still the link home, and
+       the link keeps its accessible name from the heading text. */
+    .tt-dashboard .tt-dash-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+    }
 }
 /* #2797 — 48px, not 44. This button is emitted by the shell on every
    surface, so a 4px shortfall missed the tap-target floor 150 times over
