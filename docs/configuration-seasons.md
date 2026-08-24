@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — Seasons
+group: configuration
+summary: Define the academy's seasons and pick the one that is current.
+audience: [admin]
+order: 114
+---
 
 # Configuration — Seasons
 

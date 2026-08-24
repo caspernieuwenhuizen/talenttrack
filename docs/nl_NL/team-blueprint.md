@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Teamblauwdruk
+group: performance
+summary: Opgeslagen opstellingen op basis van een formatiesjabloon, met live chemie-score.
+audience: [user]
+module: TT\Modules\TeamDevelopment\TeamDevelopmentModule
+order: 90
+---
 
 # Teamblauwdruk
 

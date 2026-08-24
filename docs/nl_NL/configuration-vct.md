@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — VCT
+group: configuration
+summary: Leeftijdsprofielen, belastingsplafonds en de regels die de VCT-planner toepast.
+audience: [admin]
+order: 120
+---
 
 # VCT-configuratie
 

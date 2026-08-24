@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — General
+group: configuration
+summary: Academy name, locale, rating scale and the other install-wide settings.
+audience: [admin]
+order: 110
+---
 
 # Configuration — General
 

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Overnemen van een account
+group: configuration
+summary: Bekijk de app als een andere gebruiker om te zien wat die persoon ziet.
+audience: [admin]
+order: 132
+---
 
 # Impersonatie
 

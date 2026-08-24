@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: Metingen & testen
+group: performance
+summary: Vastgelegde testwaarden per speler door de tijd heen, en de trends die daaruit volgen.
+audience: [user, admin]
+module: TT\Modules\Measurements\MeasurementsModule
+order: 80
+---
 
 # Metingen & Testen
 

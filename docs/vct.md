@@ -1,4 +1,11 @@
-<!-- audience: admin -->
+---
+title: VCT — conditioning training
+group: performance
+summary: Age-safe conditioning planning for U10-U14, with workload tracking.
+audience: [admin]
+module: TT\Modules\Vct\VctModule
+order: 105
+---
 
 # VCT — Voetbal Conditionele Training
 

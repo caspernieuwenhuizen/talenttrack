@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Match minutes per age category
+group: match-day
+summary: Match durations per age band, and how they drive playing-time targets.
+audience: [admin]
+order: 60
+---
 
 # Match minutes per age category
 

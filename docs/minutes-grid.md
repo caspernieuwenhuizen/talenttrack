@@ -1,4 +1,12 @@
-<!-- audience: user -->
+---
+title: Minutes grid
+group: match-day
+summary: Record minutes played per player, match by match, in one grid.
+audience: [user]
+module: TT\Modules\Activities\ActivitiesModule
+feature: minutes_grid
+order: 30
+---
 
 # Minutes grid
 

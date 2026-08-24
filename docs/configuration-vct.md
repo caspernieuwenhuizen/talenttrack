@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — VCT
+group: configuration
+summary: Age profiles, workload ceilings and the rules the VCT planner applies.
+audience: [admin]
+order: 120
+---
 
 # VCT configuration
 

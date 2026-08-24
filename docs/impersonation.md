@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Impersonation
+group: configuration
+summary: View the app as another user to reproduce what they are seeing.
+audience: [admin]
+order: 132
+---
 
 # Impersonation
 

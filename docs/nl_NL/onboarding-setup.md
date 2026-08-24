@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Installatie (eerste keer)
+group: basics
+summary: De route die een nieuwe installatie door de eerste configuratie loodst.
+audience: [user]
+module: TT\Modules\Onboarding\OnboardingModule
+order: 15
+---
 
 # Installeren (eerste keer instellen)
 

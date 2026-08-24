@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — Keuzelijsten
+group: configuration
+summary: 'De aanpasbare woordenlijsten: posities, evaluatietypes, blessuresoorten en de rest.'
+audience: [admin]
+order: 112
+---
 
 # Configuratie — Lookups
 

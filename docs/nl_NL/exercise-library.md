@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: Oefeningenbibliotheek
+group: performance
+summary: Elke oefening waaruit de club een training kan opbouwen, op één plek.
+audience: [user, admin]
+module: TT\Modules\Exercises\ExercisesModule
+order: 95
+---
 
 # Oefeningenbibliotheek
 

@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — Algemeen
+group: configuration
+summary: Naam van de academie, taal, beoordelingsschaal en de overige installatiebrede instellingen.
+audience: [admin]
+order: 110
+---
 
 # Configuratie — Algemeen
 

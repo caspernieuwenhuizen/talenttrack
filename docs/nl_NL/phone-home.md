@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Telemetrie naar het Admin Center
+group: operator
+summary: Wat jouw installatie verstuurt, en welke privacygrens de code afdwingt.
+audience: [admin]
+order: 40
+---
 
 # Phone-home telemetrie
 

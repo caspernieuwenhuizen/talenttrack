@@ -1,4 +1,12 @@
-<!-- audience: admin -->
+---
+title: Data browser
+group: configuration
+summary: A read-only window onto the raw tables, with friendly column names.
+audience: [admin]
+module: TT\Modules\DataBrowser\DataBrowserModule
+capability: tt_view_data_browser
+order: 134
+---
 
 # Data Browser
 

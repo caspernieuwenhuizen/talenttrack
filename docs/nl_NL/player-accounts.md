@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Spelersaccounts
+group: configuration
+summary: Koppel een spelersdossier aan het inlogaccount dat bij die speler hoort.
+audience: [admin]
+order: 126
+---
 
 # Spelersaccounts
 

@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Team blueprint
+group: performance
+summary: Saved line-ups built on a formation template, with live chemistry scoring.
+audience: [user]
+module: TT\Modules\TeamDevelopment\TeamDevelopmentModule
+order: 90
+---
 
 # Team blueprint
 

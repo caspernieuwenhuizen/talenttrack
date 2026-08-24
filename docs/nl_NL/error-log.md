@@ -1,4 +1,10 @@
-<!-- audience: admin, dev -->
+---
+title: Foutenlog
+group: configuration
+summary: Technische fouten in de app zichtbaar, in plaats van alleen in het serverlog.
+audience: [admin, dev]
+order: 130
+---
 
 # Foutenlog
 

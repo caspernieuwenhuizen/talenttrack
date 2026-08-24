@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — Export
+group: configuration
+summary: Wat de bulkexports bevatten, en wie ze mag draaien.
+audience: [admin]
+order: 118
+---
 
 # Configuratie — Configuratie exporteren
 

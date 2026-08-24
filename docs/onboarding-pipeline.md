@@ -1,4 +1,11 @@
-<!-- audience: user -->
+---
+title: Onboarding pipeline
+group: configuration
+summary: The recruitment funnel every arriving player passes through.
+audience: [user]
+module: TT\Modules\Prospects\ProspectsModule
+order: 124
+---
 
 # Onboarding pipeline
 

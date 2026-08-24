@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuratie — Profielkaarten
+group: configuration
+summary: Bepaal welke velden op de profielkaart van een speler staan.
+audience: [admin]
+order: 116
+---
 
 # Configuratie — Profielkaarten
 

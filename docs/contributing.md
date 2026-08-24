@@ -52,7 +52,37 @@ The in-product `Help & Docs` page filters its sidebar TOC by the viewer's role:
 
 A doc shows up if any of its declared audiences overlap with the viewer's allowed set.
 
-Direct URL access is not gated — anyone with access to the docs page can read any doc by slug. The audience filter is a UX convenience, not access control.
+### Gating keys — what this install actually runs
+
+Four optional keys hide a topic when the install cannot use the feature it describes. They resolve through `ContentGate`, shared with the `courses/` corpus, in this order:
+
+| Key | Hidden when | Example |
+| --- | --- | --- |
+| `module` | the module is switched off | `module: TT\Modules\Methodology\MethodologyModule` |
+| `feature` | the `FeatureRegistry` toggle is off | `feature: team_chemistry` |
+| `tier` | the licence is below it | `tier: pro` |
+| `capability` | the reader lacks it | `capability: tt_view_data_browser` |
+
+Omit a key and it is not a gate — most topics carry none. Hiding is complete: TOC, search, drawer **and** direct URL. Unlike the audience filter, this *is* access control, so the docs never walk a reader into a screen they cannot open.
+
+An unknown `module` / `feature` value leaves the topic visible rather than silently hiding it — a doc that vanishes on someone else's install is the harder bug to find. That is what makes a typo here invisible at runtime, and why the lint checks these values.
+
+### Dev-only docs opt out
+
+A file with no front matter is invisible to the product. That is the intended state for developer documentation, and the set is fixed — every other file must be registered:
+
+```
+architecture-mobile-first    frontend-shell
+back-navigation              frontend-themes
+branded-404                  i18n-architecture
+contributing                 i18n-audit-2026-05
+dev-tier-rest-port-backlog   index
+frontend-2026-patterns       methodology-authoring
+mobile-patterns              translator-brief
+ui-copy
+```
+
+Adding a file to `docs/` means picking one of two states: front matter, or this list. There is no third. The corpus reached 53 unreachable files (#2548) precisely because a third state — "on disk, registered nowhere, listed nowhere" — was allowed to exist.
 
 CI rejects PRs that add a new doc without front matter.
 

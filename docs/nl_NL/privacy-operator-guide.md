@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Privacygids voor beheerders
+group: operator
+summary: Omgaan met persoonsgegevens — hier grotendeels gegevens van minderjarigen.
+audience: [admin]
+order: 20
+---
 
 # Privacy — handleiding voor de academy admin
 

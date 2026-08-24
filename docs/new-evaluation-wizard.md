@@ -1,4 +1,11 @@
-<!-- audience: user, admin -->
+---
+title: New evaluation wizard
+group: performance
+summary: The activity-first flow for recording evaluations for a whole squad.
+audience: [user, admin]
+module: TT\Modules\Evaluations\EvaluationsModule
+order: 15
+---
 
 # New Evaluation wizard
 

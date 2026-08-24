@@ -1,4 +1,11 @@
-<!-- audience: coach, admin -->
+---
+title: Bulkexports
+group: analytics
+summary: Downloads van hele tabellen en hele seizoenen, tegenover exports per record.
+audience: [user, admin]
+module: TT\Modules\Export\ExportModule
+order: 70
+---
 
 # Bulk-exports
 

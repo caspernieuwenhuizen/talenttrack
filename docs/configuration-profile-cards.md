@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — Profile cards
+group: configuration
+summary: Choose which fields appear on a player's profile card.
+audience: [admin]
+order: 116
+---
 
 # Configuration — Profile cards
 

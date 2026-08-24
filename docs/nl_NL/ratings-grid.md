@@ -1,4 +1,12 @@
-<!-- audience: user -->
+---
+title: Beoordelingsraster
+group: match-day
+summary: Beoordeel een hele selectie vanuit één raster in plaats van speler voor speler.
+audience: [user]
+module: TT\Modules\Activities\ActivitiesModule
+feature: ratings_grid
+order: 50
+---
 
 # Beoordelingsraster
 

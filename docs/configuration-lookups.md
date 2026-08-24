@@ -1,4 +1,10 @@
-<!-- audience: admin -->
+---
+title: Configuration — Lookups
+group: configuration
+summary: 'The editable vocabularies: positions, evaluation types, injury kinds and the rest.'
+audience: [admin]
+order: 112
+---
 
 # Configuration — Lookups
 

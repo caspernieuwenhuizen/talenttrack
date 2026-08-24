@@ -1,4 +1,11 @@
-<!-- audience: coach, admin -->
+---
+title: Bulk exports
+group: analytics
+summary: Whole-table and whole-season downloads, as opposed to per-record exports.
+audience: [user, admin]
+module: TT\Modules\Export\ExportModule
+order: 70
+---
 
 # Bulk exports
 

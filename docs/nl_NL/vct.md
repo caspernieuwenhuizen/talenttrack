@@ -1,4 +1,11 @@
-<!-- audience: admin -->
+---
+title: VCT — voetbalconditionele training
+group: performance
+summary: Leeftijdsveilige conditieplanning voor O10-O14, inclusief belastingsopbouw.
+audience: [admin]
+module: TT\Modules\Vct\VctModule
+order: 105
+---
 
 # VCT — Voetbal Conditionele Training
 
