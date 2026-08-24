@@ -87,7 +87,30 @@ final class FrontendAppNav {
             [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab' ],
             $current ?: home_url( '/' )
         );
-        return (string) add_query_arg( 'tt_view', $slug, $base );
+        $url = (string) add_query_arg( 'tt_view', $slug, $base );
+
+        // #2804 — carry the subject a parent is currently looking at.
+        // Stripping `player_id` above is right for a coach moving between
+        // modules, but for a parent it dropped the only thing that says
+        // which child this is: every tap in the nav and in the thumb bar
+        // landed them back on the child picker. Only for slugs that resolve
+        // a subject, and only when the current request already carries one
+        // the viewer is authorised for — the destination re-checks with
+        // canViewPlayer regardless, so this cannot widen access.
+        // Both ends must be subject-bearing, so this only ever carries a
+        // subject *along* the Me-group, never into it. Without the first
+        // half, a coach sitting on a player detail page would tap "My goals"
+        // in the nav and get that player's goals instead of their own.
+        $current_view = isset( $_GET['tt_view'] ) ? sanitize_key( wp_unslash( $_GET['tt_view'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended — read-only navigation state.
+        if ( ParentChildSwitcher::carriesPlayerSubject( $slug )
+            && ParentChildSwitcher::carriesPlayerSubject( $current_view ) ) {
+            $player_id = isset( $_GET['player_id'] ) ? absint( wp_unslash( $_GET['player_id'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended — read-only navigation state.
+            if ( $player_id > 0 ) {
+                $url = (string) add_query_arg( 'player_id', $player_id, $url );
+            }
+        }
+
+        return $url;
     }
 
     /**
