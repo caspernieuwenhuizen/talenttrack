@@ -1,3 +1,60 @@
+# TalentTrack v4.101.5 — Help topics now follow what the install actually runs. A topic whose module
+
+is switched off, whose feature toggle is off, whose tier is above the
+licence, or whose capability the reader lacks is gone from the table of
+contents, the search box, the help drawer and its own URL — not shown with
+an "unavailable" badge. An academy that turns Methodology off stops seeing
+the Methodology guide; a Free install no longer lists Pro documentation; a
+coach without access to the Data Browser is no longer walked into a
+permission-denied screen by its guide.
+
+Turning anything back on restores its topics on the next page load, and a
+topic that declares none of these keys is unaffected.
+
+# TalentTrack v4.101.5 — The app shell's top bar fits on a phone again (#2802)
+
+With the app shell switched on, the top bar was wider than the screen on
+every single page — the search box, notification bell, demo badge, version
+number, help button and account chip together needed far more room than a
+phone has, so the whole page could be dragged sideways and the bar took up
+two rows.
+
+On a phone the bar is now one row: search collapses to a magnifier that
+opens a full-width field when tapped, and the version number and demo badge
+step aside. The bar went from 127 pixels tall to 69. Desktop is unchanged.
+
+# TalentTrack v4.101.5 — The navigation drawer opens with the navigation in it (#2803)
+
+Opening the menu on a phone showed a list of group headings and nothing
+else — every group arrived collapsed, so an academy admin saw fourteen
+headings and none of the sixty-six destinations behind them. On a small
+phone a player's whole menu sat behind a single closed heading.
+
+The menu now opens with its destinations showing. The fold arrows beside
+each heading are also easier to see.
+
+# TalentTrack v4.101.5 — Parents can move around the app without re-picking their child (#2804)
+
+A parent linked to more than one child was sent back to the "choose a
+child" screen on every single tap — including on their own settings and on
+the help pages, which have nothing to do with a child. Having chosen a
+child, the next tap asked again.
+
+The chooser now appears only where a child actually has to be chosen, and
+once one is chosen the app stays with that child as the parent moves
+between their sections.
+
+# TalentTrack v4.101.5 — Smaller fixes to the app shell on phones (#2805)
+
+Three things in the app shell's phone layout. The menu button in the top
+bar was slightly under a comfortable tap size. The space reserved above the
+bottom bar was one pixel short of the bar itself. And the "get the app on
+your phone" banner took up 337 pixels — around 40 per cent of the screen —
+before any content, because its three buttons each claimed a full row.
+
+The menu button is full size, the bottom bar no longer overlaps, and the
+banner is down to 263 pixels with its buttons sharing rows.
+
 # TalentTrack v4.101.4 — Buttons on a phone are back to a full-size tap target (#2796)
 
 Buttons across the app were rendering 44px tall on a phone instead of the
