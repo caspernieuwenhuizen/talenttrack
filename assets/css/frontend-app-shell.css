@@ -339,16 +339,21 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     color: var(--tt-ink, #0e1a14);
 }
 
+/* #2803 — Option D of the #2504 mockup: the heading is already a full-width
+   row with a divider above and a hover fill, and the whole 48px row is the
+   toggle. What was missing was the chevron reading as an affordance at all —
+   at 0.45rem and 45% opacity it measured 10x10px and was easy to take for
+   decoration. Larger and less faint; still quiet enough not to compete with
+   the destinations, which are what the sidebar is for. */
 .tt-shell-app .tt-shell-nav__group-chev {
     flex: 0 0 auto;
-    width: 0.45rem;
-    height: 0.45rem;
+    width: 0.55rem;
+    height: 0.55rem;
     margin-inline-end: 2px;
     border-right: 2px solid currentColor;
     border-bottom: 2px solid currentColor;
     transform: rotate(45deg);
-    /* Present but quiet until the row is hovered or focused. */
-    opacity: 0.45;
+    opacity: 0.75;
     transition: transform .18s ease, opacity .12s ease;
 }
 

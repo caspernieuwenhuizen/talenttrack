@@ -182,15 +182,30 @@
 	 * destination fits in the rail, nothing should be folded and the
 	 * sidebar reads exactly like the design.
 	 *
-	 * The server renders only the active group open, which is the safe
-	 * starting point — on a full academy the list overflows, so that render
-	 * is already correct and nothing moves. This opens the rest back up
-	 * when they do fit. Measuring is one synchronous pass, so the browser
-	 * paints the settled state rather than flashing through it.
+	 * The server renders every group open (#2533), so this only ever closes
+	 * groups, never opens them: it starts from the full list and folds from
+	 * the bottom up until the rail fits, sparing the group holding the
+	 * current view. Measuring is one synchronous pass, so the browser paints
+	 * the settled state rather than flashing through it.
+	 *
+	 * #2803 — the previous wording here claimed the server rendered only the
+	 * active group open, which was #2504's behaviour and had already been
+	 * superseded. Two readers filed bugs against `$is_open = true` on the
+	 * strength of it.
 	 */
 	function fitGroups() {
 		if (userToggledGroups) return;
 		if (shell.classList.contains('is-rail')) return;
+		/*
+		 * #2803 — the sidebar is the only presentation that must not scroll.
+		 * Below 1024px the nav is an off-canvas drawer that already has
+		 * `overflow-y: auto`, and it is measured while still off-canvas at
+		 * full viewport height — so it always read as overflowing and this
+		 * closed every group. The drawer opened showing 14 headings and zero
+		 * destinations for an admin, and on a 360px phone a player's entire
+		 * navigation sat behind one collapsed "Ik".
+		 */
+		if (window.matchMedia && !window.matchMedia('(min-width: 1024px)').matches) return;
 
 		var scroll = nav.querySelector('.tt-shell-nav__scroll');
 		var groups = Array.prototype.slice.call(nav.querySelectorAll('.tt-shell-nav__group-wrap'));

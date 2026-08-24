@@ -209,10 +209,13 @@ final class FrontendAppNav {
             // works with JS off, is keyboard-operable and announces its own
             // expanded state, so no ARIA of ours to keep in sync.
             //
-            // Open the group holding the current view, closed otherwise —
-            // that keeps the rail short while never hiding where you are. A
-            // group with no label has nothing to collapse behind, so it stays
-            // a plain list.
+            // #2533 superseded #2504's server behaviour: every group renders
+            // open, and folding is something app-shell.js does at the sidebar
+            // breakpoint when the rail runs out of room. The comment that
+            // used to sit here still described #2504's "open only the current
+            // group", which read as a bug in the line below — it is not, and
+            // #2803 was filed against that misreading. A group with no label
+            // has nothing to collapse behind, so it stays a plain list.
             $has_label = $group['label'] !== '';
             $is_open   = true;
 
