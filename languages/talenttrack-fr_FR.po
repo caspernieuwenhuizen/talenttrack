@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-24T04:16:18+00:00\n"
+"POT-Creation-Date: 2026-08-24T04:19:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -41959,7 +41959,7 @@ msgstr ""
 msgid "Collapse navigation"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendAppNav.php:280
+#: src/Shared/Frontend/Components/FrontendAppNav.php:283
 msgid "Open navigation"
 msgstr ""
 
