@@ -3,6 +3,9 @@ title: Cohortbeslissingsbord
 group: analytics
 summary: 'Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, trend, aanwezigheid, POP-gesprekken en eindoordeel per speler.'
 audience: [admin]
+module: TT\Modules\Analytics\AnalyticsModule
+feature: analytics_cohort_board
+capability: tt_view_analytics
 order: 30
 ---
 

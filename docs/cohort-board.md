@@ -3,6 +3,9 @@ title: Cohort decision board
 group: analytics
 summary: 'One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player.'
 audience: [admin]
+module: TT\Modules\Analytics\AnalyticsModule
+feature: analytics_cohort_board
+capability: tt_view_analytics
 order: 30
 ---
 

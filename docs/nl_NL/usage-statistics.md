@@ -3,6 +3,8 @@ title: Gebruiksstatistieken
 group: analytics
 summary: Logins, actieve gebruikers, DAU en evaluatietrends.
 audience: [admin]
+module: TT\Modules\Stats\StatsModule
+capability: tt_view_analytics
 order: 60
 ---
 

@@ -77,10 +77,14 @@
             headers: { 'X-WP-Nonce': NONCE, 'Accept': 'application/json' },
         } )
         .then( function ( r ) {
-            if ( ! r.ok && r.status === 403 ) {
-                // Not authorised — fall back to the default topic once.
+            if ( ! r.ok && ( r.status === 403 || r.status === 404 ) ) {
+                // 403 — the reader lacks the capability for this topic.
+                // 404 — this install does not run what the topic describes,
+                //       or the slug names no topic at all.
+                // Either way the drawer has nothing useful to show for the
+                // requested slug, so fall back to the default topic once.
                 if ( slug !== DEFAULT ) return loadTopic( drawer, DEFAULT );
-                throw new Error( 'forbidden' );
+                throw new Error( 'unavailable' );
             }
             if ( ! r.ok ) throw new Error( 'fetch failed: ' + r.status );
             return r.json();

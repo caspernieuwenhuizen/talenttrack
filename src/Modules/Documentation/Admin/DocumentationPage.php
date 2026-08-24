@@ -34,14 +34,18 @@ class DocumentationPage {
         wp_enqueue_style( 'tt-tokens', TT_PLUGIN_URL . 'assets/css/tokens.css', [], TT_VERSION );
         wp_enqueue_style( 'tt-frontend-docs', TT_PLUGIN_URL . 'assets/css/frontend-docs.css', [ 'tt-tokens' ], TT_VERSION );
 
-        $topics = HelpTopics::all();
-        $groups = HelpTopics::groups();
-
         // #0006 — capability-gated topics. The viewer's allowed audience
         // set is derived from caps (admin / dev / user); if a requested
         // topic falls outside that set we silently fall back to the
         // default rather than render content the user shouldn't see.
         // Sidebar topics outside the allowed set don't render at all.
+        //
+        // #2546 — the same call now also drops topics this install cannot
+        // run: a disabled module, a switched-off feature, a tier above the
+        // licence, or a capability the reader lacks.
+        $topics = HelpTopics::visibleFor( get_current_user_id() );
+        $groups = HelpTopics::groups();
+
         $viewer_audiences = AudienceResolver::allowedFor( get_current_user_id() );
 
         // Audience comes from the same front-matter scan that produced the
@@ -55,11 +59,16 @@ class DocumentationPage {
 
         $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
         $slug = HelpTopics::defaultSlug();
-        if ( isset( $topics[ $requested ] )
-             && AudienceResolver::isVisible( $topic_audiences[ $requested ] ?? [], $viewer_audiences ) ) {
+        if ( isset( $topics[ $requested ] ) ) {
             $slug = $requested;
         }
-        $topic = $topics[ $slug ];
+
+        $topic = $topics[ $slug ] ?? null;
+        if ( $topic === null ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Help & Docs', 'talenttrack' ) . '</h1>';
+            echo '<p>' . esc_html__( 'No documentation topics are available.', 'talenttrack' ) . '</p></div>';
+            return;
+        }
 
         ?>
         <div class="wrap">
@@ -167,15 +176,13 @@ class DocumentationPage {
                     <div class="tt-docs-no-results" id="tt-docs-no-results"><?php esc_html_e( 'No matching topics.', 'talenttrack' ); ?></div>
                     <div id="tt-docs-toc">
                         <?php foreach ( $groups as $gkey => $glabel ) :
-                            $group_topics = array_filter( $topics, function ( $t, $s ) use ( $gkey, $topic_audiences, $viewer_audiences ) {
-                                if ( $t['group'] !== $gkey ) return false;
-                                $aud = $topic_audiences[ $s ] ?? [];
-                                // #0006 — strict cap gate. Topics whose
-                                // audiences don't intersect the viewer's
-                                // allowed set are filtered out entirely
-                                // (TOC + direct URL).
-                                return AudienceResolver::isVisible( $aud, $viewer_audiences );
-                            }, ARRAY_FILTER_USE_BOTH );
+                            // `$topics` is already the gated set — audience,
+                            // module, feature, tier and capability were all
+                            // applied by `visibleFor()` above, for the TOC and
+                            // direct URL access alike.
+                            $group_topics = array_filter( $topics, static function ( $t ) use ( $gkey ) {
+                                return $t['group'] === $gkey;
+                            } );
                             if ( empty( $group_topics ) ) continue;
                             ?>
                             <div class="tt-docs-group" data-group="<?php echo esc_attr( $gkey ); ?>">

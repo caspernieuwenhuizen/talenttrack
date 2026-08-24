@@ -3,6 +3,8 @@ title: Goals as a conversation
 group: frontend
 summary: Chat-style threads on every player goal — coach, player, parent dialogue with notifications, edit window, soft-delete, and audit log.
 audience: [user, admin]
+module: TT\Modules\Goals\GoalsModule
+capability: tt_view_goals
 order: 40
 ---
 

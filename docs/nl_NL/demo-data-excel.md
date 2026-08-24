@@ -3,6 +3,7 @@ title: Demogegevens (Excel)
 group: configuration
 summary: Genereer of importeer een demo-dataset voor sales / training. Excel-sjabloon met auto_key-cross-sheet-links.
 audience: [user]
+module: TT\Modules\DemoData\DemoDataModule
 order: 160
 ---
 

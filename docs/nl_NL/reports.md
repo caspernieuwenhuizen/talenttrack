@@ -3,6 +3,8 @@ title: Rapporten
 group: analytics
 summary: De tegellancher — voortgangsgrafieken, teambeoordelingen, coachactiviteit.
 audience: [user, admin]
+module: TT\Modules\Reports\ReportsModule
+capability: tt_view_reports
 order: 10
 ---
 

@@ -3,6 +3,9 @@ title: Mediabibliotheek
 group: development
 summary: Foto's en video bij spelers, teams en activiteiten — waar bestanden staan, wie ze mag zien, en hoe je het geheel uitzet.
 audience: [admin, dev]
+module: TT\Modules\Media\MediaModule
+feature: media
+capability: tt_view_media
 order: 70
 ---
 

@@ -3,6 +3,7 @@ title: Alerts
 group: performance
 summary: Conditions in your data that need attention — unmarked activities, missing attendance, unevaluated players — surfaced automatically and cleared by fixing them.
 audience: [user, admin]
+module: TT\Modules\Alerts\AlertsModule
 order: 35
 ---
 

@@ -11,10 +11,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   GET /docs              — list of accessible topic slugs + titles
  *   GET /docs/(?P<slug>…)  — rendered HTML body for one topic
  *
- * Capability-gated per #0006: topics whose audience set doesn't
- * intersect the viewer's allowed audiences return 403. The slug
- * pattern is constrained to a-z 0-9 - so it can't escape the docs
- * directory.
+ * The slug pattern is constrained to a-z 0-9 - so it can't escape the
+ * docs directory.
+ *
+ * ## Status codes for a topic the reader cannot open
+ *
+ * The two "no" answers are deliberately different, and the difference is
+ * observable:
+ *
+ *   404 — the install does not have this. A disabled module, a switched-off
+ *         feature, a tier above the licence. Answering 403 here would
+ *         confirm the topic exists on this install, which is the thing
+ *         hiding it was for.
+ *   403 — the topic is here and a colleague can read it; this reader lacks
+ *         the capability. Nothing is leaked by saying so, and pretending
+ *         the topic does not exist would send the reader looking for a
+ *         missing doc rather than asking for access.
+ *
+ * The audience marker keeps its existing 403 — it describes who a topic is
+ * *written for*, not what the install runs.
  */
 class DocsRestController {
 
@@ -48,12 +63,8 @@ class DocsRestController {
     }
 
     public static function list(): \WP_REST_Response {
-        $topics  = HelpTopics::all();
-        $allowed = AudienceResolver::allowedFor( get_current_user_id() );
-
         $out = [];
-        foreach ( $topics as $slug => $t ) {
-            if ( ! AudienceResolver::isVisible( $t['audience'] ?? [], $allowed ) ) continue;
+        foreach ( HelpTopics::visibleFor( get_current_user_id() ) as $slug => $t ) {
             $out[] = [
                 'slug'    => (string) $slug,
                 'title'   => (string) $t['title'],
@@ -71,8 +82,18 @@ class DocsRestController {
             return new \WP_REST_Response( [ 'message' => __( 'Topic not found.', 'talenttrack' ) ], 404 );
         }
 
-        $allowed = AudienceResolver::allowedFor( get_current_user_id() );
+        $user_id = get_current_user_id();
+
+        $allowed = AudienceResolver::allowedFor( $user_id );
         if ( ! AudienceResolver::isVisible( $topics[ $slug ]['audience'] ?? [], $allowed ) ) {
+            return new \WP_REST_Response( [ 'message' => __( 'Not authorised for this topic.', 'talenttrack' ) ], 403 );
+        }
+
+        $verdict = HelpTopics::verdictFor( $slug, $user_id );
+        if ( $verdict->isUnavailable() ) {
+            return new \WP_REST_Response( [ 'message' => __( 'Topic not found.', 'talenttrack' ) ], 404 );
+        }
+        if ( ! $verdict->isAvailable() ) {
             return new \WP_REST_Response( [ 'message' => __( 'Not authorised for this topic.', 'talenttrack' ) ], 403 );
         }
 

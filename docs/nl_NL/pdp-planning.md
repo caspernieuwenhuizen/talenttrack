@@ -3,6 +3,8 @@ title: POP-planning
 group: performance
 summary: Per-team-per-blok matrix van geplande versus uitgevoerde POP-gesprekken. HoD- / coach-oppervlak.
 audience: [user]
+module: TT\Modules\Pdp\PdpModule
+capability: tt_view_pdp_planning
 order: 100
 ---
 

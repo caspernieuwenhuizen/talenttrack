@@ -3,6 +3,9 @@ namespace TT\Modules\Documentation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Shared\Content\ContentGate;
+use TT\Shared\Content\GateVerdict;
+
 /**
  * HelpTopics — the registry of in-product help topics.
  *
@@ -28,6 +31,9 @@ class HelpTopics {
 
     /** Fallback when a topic omits `order:`. Sorts after curated entries. */
     private const DEFAULT_ORDER = 50;
+
+    /** Verdict reason for a slug that names no registered topic. */
+    public const REASON_UNREGISTERED = 'topic_unregistered';
 
     /** @var array<string, array<string, mixed>>|null in-process memo */
     private static $memo = null;
@@ -69,6 +75,59 @@ class HelpTopics {
         set_transient( $key, $topics, self::CACHE_TTL );
         self::$memo = $topics;
         return $topics;
+    }
+
+    /**
+     * The topics one reader can both see and use.
+     *
+     * Two filters, in this order:
+     *
+     * 1. **Audience** — who the topic is written for. Docs-specific, so it
+     *    stays here.
+     * 2. **Liveness** — whether this install runs the thing the topic
+     *    describes, and whether this reader may open it. Delegated to
+     *    `ContentGate`, which resolves the same four keys for the courses
+     *    corpus; two answers to "can this person see this" would drift.
+     *
+     * A topic declaring none of the gating keys behaves exactly as it did
+     * before the gate existed — an absent key is not a gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function visibleFor( int $user_id = 0 ): array {
+        $user_id = $user_id > 0 ? $user_id : get_current_user_id();
+        $viewer  = AudienceResolver::allowedFor( $user_id );
+
+        $visible = [];
+        foreach ( self::all() as $slug => $topic ) {
+            if ( ! AudienceResolver::isVisible( $topic['audience'], $viewer ) ) {
+                continue;
+            }
+            if ( ! ContentGate::isVisible( $topic, $user_id ) ) {
+                continue;
+            }
+            $visible[ $slug ] = $topic;
+        }
+
+        return $visible;
+    }
+
+    /**
+     * Why a reader cannot open a topic, or that they can.
+     *
+     * Callers that need to distinguish "this install does not have it" from
+     * "you specifically may not read it" — the REST controller picks its
+     * status code off this. An unregistered slug reports unavailable rather
+     * than throwing, so a caller can treat "no such topic" and "gated away"
+     * identically when it wants to.
+     */
+    public static function verdictFor( string $slug, int $user_id = 0 ): GateVerdict {
+        $topics = self::all();
+        if ( ! isset( $topics[ $slug ] ) ) {
+            return GateVerdict::unavailable( self::REASON_UNREGISTERED, [ 'slug' => $slug ] );
+        }
+
+        return ContentGate::verdict( $topics[ $slug ], $user_id > 0 ? $user_id : null );
     }
 
     /**

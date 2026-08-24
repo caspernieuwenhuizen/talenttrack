@@ -3,6 +3,9 @@ title: Player comparison
 group: analytics
 summary: Compare up to 4 players side-by-side, cross-team.
 audience: [user]
+module: TT\Modules\Stats\StatsModule
+feature: analytics_player_compare
+tier: standard
 order: 50
 ---
 

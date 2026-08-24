@@ -3,6 +3,9 @@ title: Evaluation coverage
 group: analytics
 summary: Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance.
 audience: [admin]
+module: TT\Modules\Analytics\AnalyticsModule
+feature: analytics_eval_coverage
+capability: tt_view_analytics
 order: 20
 ---
 

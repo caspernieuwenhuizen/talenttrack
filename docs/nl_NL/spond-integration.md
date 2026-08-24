@@ -3,6 +3,8 @@ title: Spond-integratie
 group: configuration
 summary: Alleen-lezen Spond → TalentTrack iCal-sync per team.
 audience: [user]
+module: TT\Modules\Spond\SpondModule
+capability: tt_view_spond
 order: 170
 ---
 

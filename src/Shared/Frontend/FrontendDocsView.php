@@ -3,7 +3,6 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Documentation\AudienceResolver;
 use TT\Modules\Documentation\HelpTopics;
 use TT\Modules\Documentation\Markdown;
 
@@ -24,22 +23,16 @@ class FrontendDocsView extends FrontendViewBase {
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
-        $topics = HelpTopics::all();
+        // `visibleFor()` applies the audience marker and the four liveness
+        // gates together, so a topic this install cannot run is absent from
+        // the TOC, the search index and direct URL access alike — there is
+        // no half-hidden state to fall through.
+        $topics = HelpTopics::visibleFor( $user_id );
         $groups = HelpTopics::groups();
-
-        $viewer_audiences = AudienceResolver::allowedFor( $user_id );
-
-        // Audience comes from the same front-matter scan that produced the
-        // topic list, so building the sidebar no longer re-reads every file.
-        $topic_audiences  = [];
-        foreach ( $topics as $s => $t ) {
-            $topic_audiences[ $s ] = $t['audience'] ?? [];
-        }
 
         $requested = isset( $_GET['topic'] ) ? sanitize_key( (string) $_GET['topic'] ) : '';
         $slug      = HelpTopics::defaultSlug();
-        if ( isset( $topics[ $requested ] )
-             && AudienceResolver::isVisible( $topic_audiences[ $requested ] ?? [], $viewer_audiences ) ) {
+        if ( isset( $topics[ $requested ] ) ) {
             $slug = $requested;
         }
         $topic = $topics[ $slug ] ?? null;
@@ -76,10 +69,9 @@ class FrontendDocsView extends FrontendViewBase {
                 <input type="search" class="tt-docs-fr-search" id="tt-docs-fr-search" placeholder="<?php esc_attr_e( 'Search topics…', 'talenttrack' ); ?>" />
                 <div id="tt-docs-fr-toc">
                     <?php foreach ( $groups as $gkey => $glabel ) :
-                        $group_topics = array_filter( $topics, function ( $t, $s ) use ( $gkey, $topic_audiences, $viewer_audiences ) {
-                            if ( $t['group'] !== $gkey ) return false;
-                            return AudienceResolver::isVisible( $topic_audiences[ $s ] ?? [], $viewer_audiences );
-                        }, ARRAY_FILTER_USE_BOTH );
+                        $group_topics = array_filter( $topics, static function ( $t ) use ( $gkey ) {
+                            return $t['group'] === $gkey;
+                        } );
                         if ( empty( $group_topics ) ) continue;
                         ?>
                         <div class="tt-docs-fr-group" data-group="<?php echo esc_attr( $gkey ); ?>">

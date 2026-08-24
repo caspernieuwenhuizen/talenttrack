@@ -56,7 +56,40 @@ When a module is disabled, **on the next page load**:
 - **wp-admin dashboard tiles + stat cards** for the module's entity hide.
 - A user who lands on `?tt_view=<slug>` for a disabled module's surface (bookmarked link, stale tab) sees a friendly "this section is currently unavailable" notice with a back button — not a 404 or fatal.
 - `MatrixGate::can()` short-circuits any matrix row whose `module_class` is the disabled module — even if a persona has the permission, the entity is unreachable. One auth check, no parallel "is this on?" branch.
+- **Help topics** for the module disappear from Help & Docs — the sidebar, the search box, the help drawer, and direct topic URLs alike. See below.
 - Existing data rows in the module's tables are **untouched** — turning the module back on later restores access to all historical data.
+
+## Help topics follow the switches
+
+A help topic describes a feature. When the install cannot run that feature,
+the topic is not a preview of what you are missing — it is a set of
+instructions for a screen that is not there. So the documentation reads the
+same four switches everything else does:
+
+| Front-matter key | Hidden when |
+| --- | --- |
+| `module:` | the module is off |
+| `feature:` | the feature toggle is off |
+| `tier:` | your licence is below the tier the topic names |
+| `capability:` | you personally lack that capability |
+
+A topic that names none of these is never hidden by this — most are, and
+they behave exactly as they always did.
+
+**Hiding is complete, not cosmetic.** A hidden topic is absent from the
+table of contents, from the search box, from the help drawer, and from its
+own URL. There is no "upgrade to read this" teaser: an academy on Free does
+not see Pro documentation at all. If you want to know what a higher tier
+would give you, that belongs on the licence page, not in the help index.
+
+**It is reversible and immediate.** Turning a module back on restores its
+topics on the next page load. Nothing is cached across the toggle and
+nothing is deleted.
+
+**A typo fails open.** A topic naming a module or feature that does not
+exist stays visible rather than vanishing — a doc that silently disappears
+on someone else's install is the harder bug to find. The docs lint is what
+catches the typo before it ships.
 
 ## Always-on modules
 

@@ -3,6 +3,7 @@ title: Ontwikkelingsbeheer
 group: development
 summary: Ideeën indienen, verfijnen en rechtstreeks vanaf het dashboard naar GitHub promoten.
 audience: [admin, dev]
+module: TT\Modules\Development\DevelopmentModule
 order: 10
 ---
 

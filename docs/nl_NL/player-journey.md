@@ -3,6 +3,8 @@ title: Spelersreis
 group: performance
 summary: Een chronologisch overzicht van het verhaal van elke speler — mijlpalen, evaluaties, blessures, overgangen.
 audience: [user]
+module: TT\Modules\Journey\JourneyModule
+capability: tt_view_player_timeline
 order: 80
 ---
 

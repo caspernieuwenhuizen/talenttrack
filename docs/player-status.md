@@ -3,6 +3,8 @@ title: Player status
 group: performance
 summary: 'Traffic-light status calculation: weights, thresholds, behaviour floor, behaviour + potential capture.'
 audience: [user]
+module: TT\Modules\Players\PlayerStatusModule
+capability: tt_view_player_status
 order: 110
 ---
 
