@@ -125,6 +125,19 @@
 }
 .tt-btn-block { display: block; width: 100%; }
 
+/* #2805 — the install banner measured 337px on a 390x844 screen, sitting
+   above the breadcrumbs and taking a first-time parent's usable content
+   height down to 30%. Its three actions each claimed a full row, because
+   `.tt-dashboard .tt-btn { width: 100% }` applies below 639px. Sized to
+   their labels they flow onto fewer rows instead.
+
+   Here rather than in the component's own inline <style> block: CLAUDE.md
+   §2 forbids adding inline styling in src PHP, and the existing block
+   there is grandfathered rather than a pattern to extend. */
+@media (max-width: 639px) {
+    .tt-dashboard .tt-install-banner .tt-btn { width: auto; }
+}
+
 /* #2793 — visually-hidden label text, the frontend equivalent of WP's
    .screen-reader-text. It lived only in frontend-modules.css (enqueued by
    the Modules view alone) and, card-scoped, in frontend-eval-coverage.css,

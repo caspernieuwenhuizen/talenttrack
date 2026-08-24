@@ -16,8 +16,13 @@
 .tt-dashboard.tt-shell-app {
     /* Reserved so page content can clear the fixed bar. Includes the
        home-indicator inset, which is why it is a calc and not a
-       constant. */
-    --tt-shell-bar-h: calc(56px + env(safe-area-inset-bottom));
+       constant.
+
+       #2805 — 57, not 56: `border-block-start: 1px` below sits outside the
+       56px of content, so the bar renders one pixel taller than the space
+       reserved for it. Twelve of fifty-one surfaces had content boxes
+       intersecting the bar at scroll-bottom because of it. */
+    --tt-shell-bar-h: calc(57px + env(safe-area-inset-bottom));
 }
 
 .tt-shell-app .tt-shell-bar {

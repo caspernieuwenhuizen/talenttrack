@@ -468,12 +468,15 @@ body.admin-bar .tt-dashboard.tt-shell-app {
 }
 
 /* ---- Drawer toggle (header) ---------------------------------------- */
+/* #2805 — 48px, not 44. This is the only way into the navigation below the
+   sidebar breakpoint, so it is the most-tapped control the shell renders
+   and it was under the floor on every app-shell surface. */
 .tt-dashboard .tt-shell-drawer-toggle {
     display: inline-grid;
     place-items: center;
     flex: 0 0 auto;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     margin-inline-end: 0.15rem;
     border: 0;
     border-radius: var(--tt-radius, 8px);
