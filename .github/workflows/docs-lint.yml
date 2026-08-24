@@ -1,0 +1,71 @@
+name: Docs corpus lint
+
+# #2551 (epic #2543) — twenty workflows lint this repository and, until
+# this one, none looked at `docs/`. That is exactly why the corpus reached
+# the state #2543 measured: 53 files unreachable in-product, 38 links
+# bouncing readers into wp-admin, a view→topic map covering 27 of 144
+# screens. Every one of those was a convention written down in
+# `docs/contributing.md` and enforced nowhere.
+#
+# Whole-corpus for the structural rules: the failures that matter most are
+# cross-file (a `views:` entry naming a route a later commit renamed, a
+# cross-reference to a file somebody deleted) and a diff-only scan cannot
+# see them. The voice rules are diff-only, so the existing backlog is
+# grandfathered and only newly-added prose is held to them — the
+# `inline-style-lint` precedent.
+#
+# The `docs-lint-exempt` label is the escape hatch, following
+# `i18n-drift-acceptable` and `rest-test-exempt`. Exemptions are
+# author-approved and visible on the PR rather than silent in-file
+# suppressions.
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'config/no_help_topic.php'
+      - 'src/Modules/Documentation/**'
+      - 'src/Shared/Frontend/DashboardShortcode.php'
+      - 'src/Core/FeatureRegistry.php'
+      - 'tools/check-docs.php'
+      - '.github/workflows/docs-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'config/no_help_topic.php'
+      - 'src/Modules/Documentation/**'
+      - 'src/Shared/Frontend/DashboardShortcode.php'
+      - 'tools/check-docs.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Docs corpus resolves
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: "!contains( github.event.pull_request.labels.*.name, 'docs-lint-exempt' )"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The voice rules diff against the base branch.
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Lint the docs corpus
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_REF="${{ github.base_ref }}"
+            git fetch origin "$BASE_REF" --quiet || true
+            php tools/check-docs.php --base="origin/$BASE_REF"
+          else
+            php tools/check-docs.php
+          fi

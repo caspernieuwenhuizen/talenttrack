@@ -103,5 +103,5 @@ De mothership kan dit niet afdwingen — alleen de install kan weigeren te verst
 
 ## Zie ook
 
-- [`docs/admin-center.md`](admin-center.md) — Admin Center-plugin overzicht (in een aparte repo).
+- De Admin Center-plugin zelf, die deze gegevens ontvangt, is gedocumenteerd in een eigen repository — die wordt los van TalentTrack uitgebracht en geversied.
 - De mothership-spec in `talenttrack-admin-center/specs/0001-feat-foundation-monitoring.md` — beschrijft hoe de ontvanger handtekeningen verifieert en het dashboard rendert.

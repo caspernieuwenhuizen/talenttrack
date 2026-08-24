@@ -84,6 +84,37 @@ ui-copy
 
 Adding a file to `docs/` means picking one of two states: front matter, or this list. There is no third. The corpus reached 53 unreachable files (#2548) precisely because a third state — "on disk, registered nowhere, listed nowhere" — was allowed to exist.
 
+### The gate
+
+`docs-lint.yml` runs `tools/check-docs.php` on any PR touching `docs/**`, the Documentation module, the dispatcher, or the allowlists. Run it locally before pushing:
+
+```
+php tools/check-docs.php                     # structural rules
+php tools/check-docs.php --base=origin/main  # adds the diff-only voice rules
+```
+
+| # | Rule | Scope |
+| --- | --- | --- |
+| 1 | Front matter, or the dev-only allowlist above. No third state. | corpus |
+| 2 | `title` / `group` / `summary` present; `group` is a key of `HelpTopics::groups()`. | corpus |
+| 3 | `audience` present, every value one of the five. | corpus |
+| 4 | Every `views:` slug is routable in the dispatcher. | corpus |
+| 5 | Every routable slug is claimed by a `views:` entry or listed in `config/no_help_topic.php` with a reason. | corpus |
+| 6 | `module` resolves to a class, `feature` to a catalog key, `capability` appears in `src/`, `tier` is free/standard/pro. | corpus |
+| 7 | No `](?page=tt-docs&topic=` — use the relative `<slug>.md` form. | corpus |
+| 8 | No `](?page=` outside an admin-only topic. | corpus |
+| 9 | Every `](<slug>.md)` cross-reference resolves. | corpus |
+| 10 | Every `](?tt_view=<slug>)` names a routable slug. | corpus |
+| 11 | No version stamp or `#NNNN` **added** to a `user` / `player` / `parent` topic. | diff |
+| 12 | No "coming soon" / "planned for" / "in a future release" **added**. | diff |
+| 15 | Every file is valid UTF-8. | corpus |
+
+Rules 13-14 (every reader-facing topic has an `nl_NL` twin with translated `title` and `summary`) land with the translation pass in #2550 — enforcing them before the corpus can pass would just mean an exempt label on every PR.
+
+Rule 15 is the one that is not about documentation. A sweep over the corpus in #2546 used `preg_split('/\R/')` without the `u` modifier; outside Unicode mode PCRE treats `\x85` as a line break, and `\x85` is the third byte of `★` (`E2 98 85`). Two files shipped with fifteen lines of replacement characters, through every other gate in the repo. **When scripting an edit across the corpus, split on `"\n"` after normalising CRLF — never `\R` without `/u`.**
+
+**Exemption**: label the PR `docs-lint-exempt`. The gate is skipped entirely, so the exemption is visible in review rather than buried in a file.
+
 CI rejects PRs that add a new doc without front matter.
 
 ## 2. Translations
