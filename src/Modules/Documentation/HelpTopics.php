@@ -100,7 +100,7 @@ class HelpTopics {
 
         $visible = [];
         foreach ( self::all() as $slug => $topic ) {
-            if ( ! AudienceResolver::isVisible( $topic['audience'] ?? [], $viewer ) ) {
+            if ( ! AudienceResolver::isVisible( $topic['audience'], $viewer ) ) {
                 continue;
             }
             if ( ! ContentGate::isVisible( $topic, $user_id ) ) {
