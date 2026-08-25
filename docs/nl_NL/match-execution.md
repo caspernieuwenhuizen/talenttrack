@@ -205,6 +205,37 @@ doelpunt toevoegen, een minuut corrigeren of er een verwijderen.
 Wedstrijddoelpunten staan los van **Gevolgde spelers**, die individuele
 ontwikkelacties tellen en nooit de stand raken.
 
+### Achteraf een maker invullen
+
+Bij elk doelpunt van ons staat de maker en, als je die hebt vastgelegd, de
+assist. Een doelpunt dat je zonder maker hebt vastgelegd leest **Maker niet
+vastgelegd**; een eigen doelpunt leest **Eigen doelpunt**. Dat zijn
+verschillende feiten en het scherm houdt ze uit elkaar — alleen het eerste
+is iets om nog op te lossen.
+
+Met **Bewerken** aan heeft elk doelpunt van ons een keuzelijst voor maker
+en assist. Stel ze in en tik op **Toekenning opslaan**; het doelpunt komt
+dan op de kaart van die speler te staan. Diezelfde keuzelijst gebruik je om
+een doelpunt te corrigeren dat je destijds aan de verkeerde speler hebt
+toegekend.
+
+Zolang een doelpunt van ons nog geen maker heeft, meldt het onderdeel dat
+boven de lijst. Het is een herinnering, geen blokkade — **je kunt de
+wedstrijd gewoon afsluiten**. Een coach die echt nooit te weten is gekomen
+wie er scoorde moet de wedstrijd kunnen afronden, en een doelpunt zonder
+maker is een betere vastlegging dan helemaal geen doelpunt.
+
+### Wedstrijden van vóór het vastleggen per doelpunt
+
+Een wedstrijd die is vastgelegd voordat doelpunten afzonderlijk werden
+bijgehouden, heeft een stand zonder doelpuntgebeurtenissen erachter. Die
+uitslagen blijven precies zoals ze zijn vastgelegd — er wordt niets
+verzonnen en geen enkele historische uitslag verandert. Wijken de
+opgeslagen stand en de vastgelegde doelpunten van elkaar af, dan meldt de
+nabespreking dat in een korte notitie, zodat het scherm nooit een getal
+presenteert alsof het klopt met een doelpuntenlijst die het niet kan
+verklaren.
+
 ## Minuut- en opstellingscontroles
 
 Het scherm weigert een onmogelijke wissel — je kunt geen speler wisselen

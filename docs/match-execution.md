@@ -183,6 +183,32 @@ either side missed, correct a minute, or remove one. Match goals are
 distinct from **Tracked players**, which count individual development
 actions and never touch the score.
 
+### Filling in a scorer afterwards
+
+Each of our goals shows the scorer and, where you recorded one, the assist.
+A goal you logged without one reads **Scorer not recorded**; an own goal
+reads **Own goal**. Those are different facts and the screen keeps them
+apart — only the first is something to go and fix.
+
+With **Edit** on, every one of our goals carries a scorer and assist
+picker. Set them and tap **Save attribution**; the goal moves onto that
+player's record. The same picker is how you correct a goal you attributed
+to the wrong player at the time.
+
+When any of our goals still has no scorer, the section says so above the
+list. It is a reminder, not a gate — **you can still finalize the match**.
+A coach who genuinely never found out who scored has to be able to close
+the match out, and an unattributed goal is a better record than no goal.
+
+### Matches played before per-goal logging
+
+A match recorded before goals were logged individually has a score with no
+goal events behind it. Those results are kept exactly as they were
+recorded — nothing is invented and no historical result changes. Where the
+stored score and the logged goals disagree, the review says so in a short
+note, so the screen never presents a figure the goal list cannot account
+for as though the two agreed.
+
 ## Minute and roster checks
 
 The screen refuses an impossible substitution — you cannot take off a
