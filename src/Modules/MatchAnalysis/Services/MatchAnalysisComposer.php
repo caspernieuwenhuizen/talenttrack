@@ -189,14 +189,23 @@ final class MatchAnalysisComposer {
             $own    = ! empty( $ge->is_own_goal );
             $ours   = ( (string) ( $ge->team ?? 'home' ) === 'home' );
 
+            // A scorer we cannot name is, for a reader, a scorer we do not
+            // have: the id is set but resolves to no player row — a record
+            // deleted outside the erasure path, or one from another club.
+            // `has_scorer` follows the resolved name rather than the id, so
+            // the readback says "Scorer not recorded" instead of printing an
+            // empty space where a name belongs.
+            $scorer_name = $pid > 0 ? (string) ( $names[ $pid ] ?? '' ) : '';
+            $assist_name = $aid > 0 ? (string) ( $names[ $aid ] ?? '' ) : '';
+
             $out[] = [
                 'minute'      => ( $half === 2 ? $half_length : 0 ) + $minute,
                 'half'        => $half,
                 'team'        => $ours ? 'home' : 'away',
                 'is_own_goal' => $own,
-                'scorer'      => $pid > 0 ? (string) ( $names[ $pid ] ?? '' ) : '',
-                'assist'      => $aid > 0 ? (string) ( $names[ $aid ] ?? '' ) : '',
-                'has_scorer'  => $pid > 0,
+                'scorer'      => $scorer_name,
+                'assist'      => $assist_name,
+                'has_scorer'  => $scorer_name !== '',
             ];
         }
 

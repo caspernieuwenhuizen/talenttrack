@@ -34,6 +34,22 @@ final class MatchAnalysisGoalTimelineTest extends WP_UnitTestCase {
         $wpdb->hide_errors();
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        $this->seedPlayer( self::STRIKER, 'Luuk', 'Vloet' );
+        $this->seedPlayer( self::PLAYMAKER, 'Sam', 'Verhoeven' );
+        $this->seedPlayer( self::DEFENDER, 'Willem', 'Koenen' );
+    }
+
+    private function seedPlayer( int $player_id, string $first, string $last ): void {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'club_id'    => 1,
+            'id'         => $player_id,
+            'team_id'    => self::TEAM_ID,
+            'first_name' => $first,
+            'last_name'  => $last,
+            'status'     => 'active',
+        ] );
     }
 
     /** @return array{prep:?object, exec:?object} */
@@ -95,8 +111,23 @@ final class MatchAnalysisGoalTimelineTest extends WP_UnitTestCase {
 
         $this->assertSame( 'home', $goals[0]['team'] );
         $this->assertTrue( $goals[0]['has_scorer'] );
-        $this->assertNotSame( '', $goals[0]['scorer'] );
-        $this->assertNotSame( '', $goals[0]['assist'] );
+        $this->assertStringContainsString( 'Luuk', $goals[0]['scorer'] );
+        $this->assertStringContainsString( 'Sam', $goals[0]['assist'] );
+    }
+
+    /**
+     * A scorer id that resolves to no player row — a record removed outside
+     * the erasure path, or one belonging to another club — reads as
+     * unattributed rather than as a blank where a name belongs.
+     */
+    public function test_an_unresolvable_scorer_reads_as_unattributed(): void {
+        $seed = $this->seedMatch( 9209 );
+        $this->goal( (int) $seed['exec']->id, 1, 10, 4242 );
+
+        $goals = MatchAnalysisComposer::goalsFor( $seed['prep'], $seed['exec'], new MatchExecutionRepository() );
+
+        $this->assertSame( '', $goals[0]['scorer'] );
+        $this->assertFalse( $goals[0]['has_scorer'], 'a name we cannot resolve is a name we do not have' );
     }
 
     public function test_the_three_states_stay_apart(): void {
