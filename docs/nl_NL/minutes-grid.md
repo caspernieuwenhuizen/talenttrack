@@ -24,25 +24,25 @@ laptop.
 
 - **Rijen zijn je spelers** — de actieve selectie van het gekozen team.
 - **Kolommen zijn wedstrijden** — de wedstrijden van het team in de gekozen
-  periode, oudste links.
+ periode, oudste links.
 - **Elke bewerkbare cel is een minutenveld.** Typ de minuten die een speler in
-  die wedstrijd kreeg en sla op. De kolom **Totaal** rechts telt de minuten
-  van elke speler over de getoonde periode op.
+ die wedstrijd kreeg en sla op. De kolom **Totaal** rechts telt de minuten
+ van elke speler over de getoonde periode op.
 - **Gearceerde cellen** betekenen dat de speler niet in de selectie van die
-  wedstrijd zat, dus er zijn geen minuten vast te leggen. Voeg de speler eerst
-  aan de wedstrijd toe (via aanwezigheid) als dat niet klopt.
+ wedstrijd zat, dus er zijn geen minuten vast te leggen. Voeg de speler eerst
+ aan de wedstrijd toe (via aanwezigheid) als dat niet klopt.
 - Een **"live"**-label op een kolom betekent dat die minuten uit een via het
-  wedstrijdformulier gespeelde wedstrijd komen. Je mag hier toch een waarde
-  corrigeren — je invoer wordt bewaard als correctie die een herberekening
-  overleeft.
+ wedstrijdformulier gespeelde wedstrijd komen. Je mag hier toch een waarde
+ corrigeren — je invoer wordt bewaard als correctie die een herberekening
+ overleeft.
 
 ## Minuten vastleggen
 
 1. Kies het **team** en de **periode** (een snelknop of een eigen datumbereik).
 2. Typ de minuten in elke selectiecel. Laat een veld leeg om het te wissen.
 3. Klik op **Opslaan**. De teller laat zien hoeveel wijzigingen klaarstaan;
-   bewerkte velden krijgen een rand tot je opslaat. Met **Annuleren** verlaat
-   je het scherm zonder op te slaan.
+ bewerkte velden krijgen een rand tot je opslaat. Met **Annuleren** verlaat
+ je het scherm zonder op te slaan.
 
 De minuten die je hier invoert zijn dezelfde cijfers die de minuten-audit en
 het rapport Minuten per team gebruiken, zodat alles blijft kloppen.

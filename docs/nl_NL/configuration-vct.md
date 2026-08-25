@@ -37,14 +37,14 @@ De ene tegel maakt alle drie bereikbaar vanaf één ingang.
 Seizoen en team zijn nu **keuzelijsten** — geen ID's meer intypen.
 
 - **Seizoen** staat standaard op het actieve seizoen van de academie en
-  **laadt vanzelf bij wijziging**: kies een ander seizoen en de weergave
-  herlaadt ervoor. Er is geen aparte "Laden"-knop (alleen zonder
-  JavaScript verschijnt een terugvalknop). Geldt voor de tabbladen
-  Macro-blokken en Teamschema's.
+ **laadt vanzelf bij wijziging**: kies een ander seizoen en de weergave
+ herlaadt ervoor. Er is geen aparte "Laden"-knop (alleen zonder
+ JavaScript verschijnt een terugvalknop). Geldt voor de tabbladen
+ Macro-blokken en Teamschema's.
 - **Team** (tabblad Macro-blokken) is een keuzelijst met bovenaan de
-  optie **Clubstandaard (alle teams)**. De clubstandaard geldt voor elk
-  team; kies een specifiek team om er alleen voor hen een uitzondering te
-  maken.
+ optie **Clubstandaard (alle teams)**. De clubstandaard geldt voor elk
+ team; kies een specifiek team om er alleen voor hen een uitzondering te
+ maken.
 
 ## Macro-blokken bewerken
 
@@ -80,7 +80,7 @@ team). De formulieren erin gebruiken het gedeelde `tt-field`-raster en
 stapelen op 360px tot één kolom. Elk formulier slaat afzonderlijk op
 (instellingen-subformulieren; alleen Opslaan volgens CLAUDE.md §6 (a)).
 
-## Aanvulling per team: VCT-standaardenpaneel (#1088)
+## Aanvulling per team: VCT-standaardenpaneel
 
 Het centrale tabblad Teamschema's bewerkt alle teams in één seizoen
 tegelijk. Het **VCT-paneel op de teamdetailpagina** onderaan

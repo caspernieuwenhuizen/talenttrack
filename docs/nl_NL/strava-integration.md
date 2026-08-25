@@ -53,13 +53,13 @@ Het paneel "Koppelen met Strava" staat op het profiel van de speler (een eigen
 pagina via `?tt_view=strava`, en een tabblad **Strava** op de spelerdetailpagina).
 
 1. Vink het **toestemmingsvinkje** aan — akkoord met het delen van de
-   activiteitsgegevens van de speler (afstand, duur, tempo, hoogtemeters) met de
-   academie. De koppelknop blijft uitgeschakeld totdat het is aangevinkt.
+ activiteitsgegevens van de speler (afstand, duur, tempo, hoogtemeters) met de
+ academie. De koppelknop blijft uitgeschakeld totdat het is aangevinkt.
 2. Klik op **Koppelen met Strava**. Je wordt naar het toestemmingsscherm van
-   Strava gestuurd.
+ Strava gestuurd.
 3. Geef daar akkoord; Strava brengt je terug naar het spelerprofiel met een
-   bevestiging. Activiteiten verschijnen binnen enkele minuten nadat ze zijn
-   vastgelegd.
+ bevestiging. Activiteiten verschijnen binnen enkele minuten nadat ze zijn
+ vastgelegd.
 
 ### Toestemming — wie akkoord geeft, en een vastgelegde kanttekening
 
@@ -102,23 +102,23 @@ via **Configuratie → Koppelingen → Strava-koppeling** (of rechtstreeks via
 `?tt_view=strava-admin`):
 
 1. **Registreer de Strava-appgegevens.** Maak een API-applicatie aan in je
-   Strava-account en plak de **Client ID** en het **Client secret** in het
-   onderdeel *App-gegevens*. Het secret wordt versleuteld opgeslagen, is alleen
-   schrijfbaar en wordt nooit meer getoond — laat het veld leeg om de opgeslagen
-   waarde te behouden. Stel het *Authorization Callback Domain* van de Strava-app
-   in op deze site en de redirect op de callback-URL die op de pagina staat.
+ Strava-account en plak de **Client ID** en het **Client secret** in het
+ onderdeel *App-gegevens*. Het secret wordt versleuteld opgeslagen, is alleen
+ schrijfbaar en wordt nooit meer getoond — laat het veld leeg om de opgeslagen
+ waarde te behouden. Stel het *Authorization Callback Domain* van de Strava-app
+ in op deze site en de redirect op de callback-URL die op de pagina staat.
 2. **Maak het webhookabonnement aan.** De knop **Aanmaken / opnieuw verifiëren**
-   in het onderdeel *Webhookabonnement* registreert het ene academiebrede
-   push-abonnement bij Strava, dat het direct valideert met een
-   challenge-handshake. **Abonnement verwijderen** haalt het weg.
+ in het onderdeel *Webhookabonnement* registreert het ene academiebrede
+ push-abonnement bij Strava, dat het direct valideert met een
+ challenge-handshake. **Abonnement verwijderen** haalt het weg.
 
-   Strava staat slechts **één abonnement per applicatie** toe. De knop mag
-   gerust meerdere keren worden ingedrukt: bestaat er al een abonnement bij
-   Strava (van een eerdere installatie, of waarvan deze installatie het id is
-   kwijtgeraakt), dan neemt de console het over in plaats van een foutmelding
-   te geven. De getoonde status wordt bij elke paginalading afgestemd op de
-   werkelijke staat bij Strava, dus een abonnement dat aan Strava-zijde is
-   verwijderd, verdwijnt hier automatisch.
+ Strava staat slechts **één abonnement per applicatie** toe. De knop mag
+ gerust meerdere keren worden ingedrukt: bestaat er al een abonnement bij
+ Strava (van een eerdere installatie, of waarvan deze installatie het id is
+ kwijtgeraakt), dan neemt de console het over in plaats van een foutmelding
+ te geven. De getoonde status wordt bij elke paginalading afgestemd op de
+ werkelijke staat bij Strava, dus een abonnement dat aan Strava-zijde is
+ verwijderd, verdwijnt hier automatisch.
 
 De tabel **Gekoppelde spelers** op dezelfde console toont elke speler die een
 Strava-account is gaan koppelen — status (gekoppeld, wacht op toestemming,
@@ -151,24 +151,24 @@ per installatie), nooit via een WordPress-sessie.
 ## Hoe het werkt (architectuur)
 
 - **OAuth-koppeling.** De koppelknop maakt een autorisatie-URL met een
-  ondertekende, in tijd beperkte `state` die de koppelende speler bindt (CSRF +
-  identiteitsbinding). De openbare callback verifieert die `state`, wisselt de
-  code server-side in voor tokens en slaat ze op.
+ ondertekende, in tijd beperkte `state` die de koppelende speler bindt (CSRF +
+ identiteitsbinding). De openbare callback verifieert die `state`, wisselt de
+ code server-side in voor tokens en slaat ze op.
 - **Tokens per speler, versleuteld.** De access- en refresh-tokens van elke
-  koppeling worden versleuteld opgeslagen, één rij per speler. Access-tokens
-  verlopen na zes uur; het refresh-token roteert bij elke vernieuwing, en het
-  geroteerde token wordt atomair samen met het nieuwe access-token opgeslagen,
-  zodat een speler nooit wordt buitengesloten door een halve schrijfactie.
+ koppeling worden versleuteld opgeslagen, één rij per speler. Access-tokens
+ verlopen na zes uur; het refresh-token roteert bij elke vernieuwing, en het
+ geroteerde token wordt atomair samen met het nieuwe access-token opgeslagen,
+ zodat een speler nooit wordt buitengesloten door een halve schrijfactie.
 - **Tokenvernieuwing** draait op de hartslag van de workflow-engine (het ene
-  scheduler-knooppunt), plus op aanvraag vlak voor een synchronisatie. Een door
-  Strava geweigerde toegang zet de koppeling op "ingetrokken" zodat de
-  interface om opnieuw koppelen kan vragen.
+ scheduler-knooppunt), plus op aanvraag vlak voor een synchronisatie. Een door
+ Strava geweigerde toegang zet de koppeling op "ingetrokken" zodat de
+ interface om opnieuw koppelen kan vragen.
 - **Webhooksynchronisatie, geen polling.** Strava staat precies één
-  push-abonnement per applicatie toe, dat alle geautoriseerde sporters dekt.
-  Aanmaken / wijzigen / verwijderen van activiteiten en het intrekken van
-  toestemming komen binnen als pushes; TalentTrack haalt de volledige activiteit
-  op met het token van de speler en werkt die bij. Elke speler pollen zou de
-  ratelimieten van Strava overschrijden — webhooks zijn het bedoelde mechanisme.
+ push-abonnement per applicatie toe, dat alle geautoriseerde sporters dekt.
+ Aanmaken / wijzigen / verwijderen van activiteiten en het intrekken van
+ toestemming komen binnen als pushes; TalentTrack haalt de volledige activiteit
+ op met het token van de speler en werkt die bij. Elke speler pollen zou de
+ ratelimieten van Strava overschrijden — webhooks zijn het bedoelde mechanisme.
 
 ---
 

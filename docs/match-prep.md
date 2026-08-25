@@ -27,21 +27,21 @@ The page is laid out as three columns matching the pilot's working
 spreadsheet:
 
 - **Left** — the available roster with three minute counters per row
-  (`min 1e`, `min 2e`, `tot`) and totals at the foot. Minutes auto-
-  derive from `half_length × (on pitch ? 1 : 0)`; editing the
-  **Half length** input at the top updates every row live.
+ (`min 1e`, `min 2e`, `tot`) and totals at the foot. Minutes auto-
+ derive from `half_length × (on pitch ? 1 : 0)`; editing the
+ **Half length** input at the top updates every row live.
 - **Middle** — two half-pitches side by side with a `→` copy button
-  between. Below them, the **Principles** panel (see below), and under
-  that the **Match goals** panel — one full-width
-  *General* box on top, then a 2×2 grid of *Attacking / Defending* and
-  *Set pieces (attack) / Set pieces (defend)*. Each box has four short
-  single-line inputs (bullet-style) — written for the pilot's habit of
-  short rules rather than long paragraphs.
+ between. Below them, the **Principles** panel (see below), and under
+ that the **Match goals** panel — one full-width
+ *General* box on top, then a 2×2 grid of *Attacking / Defending* and
+ *Set pieces (attack) / Set pieces (defend)*. Each box has four short
+ single-line inputs (bullet-style) — written for the pilot's habit of
+ short rules rather than long paragraphs.
 - **Right** — two stacked panels. **Player focus** carries a per-player
-  attention text field, a `!` flag for "this is a specific goal for
-  this player", and a camera icon for "I've appointed a video analyst
-  for this player." **Roles & set pieces** carries six rows — Captain,
-  Corner left / right, Free kick left / right (cross), Penalty.
+ attention text field, a `!` flag for "this is a specific goal for
+ this player", and a camera icon for "I've appointed a video analyst
+ for this player." **Roles & set pieces** carries six rows — Captain,
+ Corner left / right, Free kick left / right (cross), Penalty.
 
 ## Principles — what this match is working on
 
@@ -199,15 +199,15 @@ match-prep screen itself fully usable.
 ## What you can't do here
 
 - Edit the roster (add / remove players from the team) — that's the
-  **Teams** page.
+ **Teams** page.
 - Run the match itself — that's **Match Execution**, the live phone
-  app for the assistant coach. The **Start match** button only becomes
-  active on match day itself — before then it's shown but disabled, with
-  a tooltip naming the date it unlocks ("Available on match day (14
-  Jun)"). This keeps a match from being started early by accident.
+ app for the assistant coach. The **Start match** button only becomes
+ active on match day itself — before then it's shown but disabled, with
+ a tooltip naming the date it unlocks ("Available on match day (14
+ Jun)"). This keeps a match from being started early by accident.
 - Review the match afterwards — that's **Match analysis**, which opens from
-  the same activity once the match has been played. It shows what you
-  planned here next to each phase, and lists the players you flagged with
-  their attention note, so the review answers what you asked for. The camera
-  flag still only marks who was appointed an analyst; what the analyst saw
-  goes in the analysis.
+ the same activity once the match has been played. It shows what you
+ planned here next to each phase, and lists the players you flagged with
+ their attention note, so the review answers what you asked for. The camera
+ flag still only marks who was appointed an analyst; what the analyst saw
+ goes in the analysis.

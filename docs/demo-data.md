@@ -122,14 +122,14 @@ what generation covers. Every `tt_*` table the schema creates appears there
 exactly once, in one of three states:
 
 - **generated** — a producer fills it. The entry names the `entity_type`
-  used for demo tagging, the `category` the operator toggles, the
-  `written_by` producer, and `depends_on` for delete ordering.
+ used for demo tagging, the `category` the operator toggles, the
+ `written_by` producer, and `depends_on` for delete ordering.
 - **planned** — in scope but not written yet; the value is the issue that
-  will write it (epic #2461).
+ will write it (epic #2461).
 - **exempt** — never generated, with the reason stated. Configuration,
-  vocabulary, reference data seeded by migrations, system logs, and anything
-  whose fabrication would be misleading or cause a side effect (a scheduled
-  report would send real email; a Strava connection needs real OAuth tokens).
+ vocabulary, reference data seeded by migrations, system logs, and anything
+ whose fabrication would be misleading or cause a side effect (a scheduled
+ report would send real email; a Strava connection needs real OAuth tokens).
 
 `tools/check-demo-coverage.php` fails when a table is in none of the three
 states, so a migration that adds a table forces a generate-or-exempt
@@ -140,16 +140,16 @@ cascade. Both run in CI on every PR.
 ### Adding a generator
 
 1. Implement `DependentGeneratorInterface` — `category()`, `fromContext()`
-   and `generate()` returning the row count. Tag every inserted row via
-   `DemoBatchRegistry::tag()`; an untagged row is one the wipe can never
-   reach, which leaves a permanent orphan on the operator's install.
+ and `generate()` returning the row count. Tag every inserted row via
+ `DemoBatchRegistry::tag()`; an untagged row is one the wipe can never
+ reach, which leaves a permanent orphan on the operator's install.
 2. Flip the table's manifest entry from `planned` to a generated entry, and
-   add its `entity_type` to the cascade of the category that owns it.
+ add its `entity_type` to the cascade of the category that owns it.
 3. Give the category a `tier`, a `run_order` and, if the Excel workbook has a
-   matching sheet, an `excel_sheet` key.
+ matching sheet, an `excel_sheet` key.
 4. Add a label and hint in `categoryLabel()` / `categoryHint()`. The
-   generate and wipe forms pick the category up from there — neither form
-   needs editing.
+ generate and wipe forms pick the category up from there — neither form
+ needs editing.
 
 `run_order` matters more than it looks. Every dependent generator draws from
 one MT stream seeded once per run, so inserting a generator ahead of an

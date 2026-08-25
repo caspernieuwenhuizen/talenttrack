@@ -23,34 +23,34 @@ A list of every player in your academy, each row showing:
 
 - The player's name and photo (the row anchor) plus team and age group.
 - An **account status**:
-  - **No account** — nobody is linked yet.
-  - **Invited (pending)** — an invitation has been sent but not accepted.
-  - **Linked** — a WordPress account is connected (the account name is shown).
+ - **No account** — nobody is linked yet.
+ - **Invited (pending)** — an invitation has been sent but not accepted.
+ - **Linked** — a WordPress account is connected (the account name is shown).
 
 Filter by status, or search by player name, with the controls above the list.
 
 ## Linking and unlinking
 
 - **Link an existing user.** On a *No account* (or *Invited*) row, pick an
-  account from the **Choose account** dropdown and press **Link**. The
-  dropdown only lists accounts that aren't already connected to another
-  player or to a staff/parent record, so you can't double-book one login.
-  Linking also grants that account the player role.
+ account from the **Choose account** dropdown and press **Link**. The
+ dropdown only lists accounts that aren't already connected to another
+ player or to a staff/parent record, so you can't double-book one login.
+ Linking also grants that account the player role.
 - **Invite instead.** Use **Generate invite / Share invite** on the same
-  row to send the player (or their guardian) a self-service sign-up link.
+ row to send the player (or their guardian) a self-service sign-up link.
 - **Create a new account directly.** On the **Parent accounts** view, the
-  *Create a new parent account* panel provisions a brand-new account
-  (name + email), links it to the chosen player, and emails the person a
-  **"set your password"** link — you never see or set a password. For the
-  rare case where there's no usable email, tick *No usable email* to set a
-  temporary password instead (share it securely). Every direct-create is
-  audit-logged. Inviting remains the low-friction default; direct-create is
-  the admin-convenience path.
+ *Create a new parent account* panel provisions a brand-new account
+ (name + email), links it to the chosen player, and emails the person a
+ **"set your password"** link — you never see or set a password. For the
+ rare case where there's no usable email, tick *No usable email* to set a
+ temporary password instead (share it securely). Every direct-create is
+ audit-logged. Inviting remains the low-friction default; direct-create is
+ the admin-convenience path.
 - **Unlink.** On a *Linked* row, press **Unlink** and confirm. The player
-  record stays; only the connection is removed. The player role is removed
-  from the account **only** if that account isn't also linked to another
-  player or to a staff/parent record — so unlinking a coach who once played
-  doesn't strip their coach access.
+ record stays; only the connection is removed. The player role is removed
+ from the account **only** if that account isn't also linked to another
+ player or to a staff/parent record — so unlinking a coach who once played
+ doesn't strip their coach access.
 
 ## Why one account, one player
 

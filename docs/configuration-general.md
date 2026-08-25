@@ -51,7 +51,7 @@ settings lets you set a friendlier From identity academy-wide:
 
 - **Sender name** — what recipients see as the sender, e.g. *Ajax Academy*.
 - **Sender address** — the From address, e.g. *noreply@academy.example*. It must
-  be a valid email address.
+ be a valid email address.
 
 Both are applied through WordPress's `wp_mail_from` / `wp_mail_from_name` filters,
 so every plugin email picks them up. Leave a field blank to keep the WordPress

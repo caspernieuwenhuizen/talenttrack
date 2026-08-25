@@ -10,7 +10,7 @@ order: 140
 
 # Aangepaste CSS
 
-> Documentatie voor de Custom-CSS-module (#0064) die in v3.64.0 is opgeleverd. Hiermee laat een clubbeheerder TalentTrack er precies uitzien zoals hij wil, ongeacht het actieve WordPress-thema. Tegenhanger van de [Branding](configuration-branding.md)-pagina (#0023), die juist *deferring* naar het thema doet. De twee staan haaks op elkaar — op één surface kan slechts één van beide actief zijn.
+> Documentatie voor de Custom-CSS-module die in v3.64.0 is opgeleverd. Hiermee laat een clubbeheerder TalentTrack er precies uitzien zoals hij wil, ongeacht het actieve WordPress-thema. Tegenhanger van de [Branding](configuration-branding.md)-pagina, die juist *deferring* naar het thema doet. De twee staan haaks op elkaar — op één surface kan slechts één van beide actief zijn.
 
 ## Wat het doet
 
@@ -95,7 +95,7 @@ Coaches, scouts en staf krijgen dit standaard niet. Een club die styling aan een
 
 ## Opslag
 
-De "live" payload zit in `tt_config`, met sleutels `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings` (waar `<surface>` `frontend` of `admin` is). De tabel `tt_custom_css_history` houdt de laatste 10 auto-saves plus benoemde presets bij. Beide zijn `club_id`-scoped per de SaaS-readiness-basis (#0052).
+De "live" payload zit in `tt_config`, met sleutels `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings` (waar `<surface>` `frontend` of `admin` is). De tabel `tt_custom_css_history` houdt de laatste 10 auto-saves plus benoemde presets bij. Beide zijn `club_id`-scoped per de SaaS-readiness-basis.
 
 ## Buiten scope
 

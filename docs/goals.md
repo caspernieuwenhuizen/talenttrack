@@ -53,23 +53,22 @@ Each goal can carry a **progress percentage** and **evidence**. On the goal
 edit form:
 
 - **Progress (%)** — a 0–100 value the coach sets; it drives the progress bar
-  on the player's POP card. Leave it blank to hide the bar.
+ on the player's POP card. Leave it blank to hide the bar.
 - **Evidence (evaluations)** — tick the player's evaluations that evidence the
-  goal. Each linked evaluation shows on the POP card as a scored chip
-  (*Assessment 12 Mar · 6.5*), drawing on the evaluation's date and its
-  overall (average-rating) score.
+ goal. Each linked evaluation shows on the POP card as a scored chip
+ (*Assessment 12 Mar · 6.5*), drawing on the evaluation's date and its
+ overall (average-rating) score.
 
 Evidence is stored independently of the goal's methodology links, so the two
 don't interfere.
 
 ## On the goal detail page
 
-Opening a goal shows, alongside the status, priority, target date, owner and
-description, three fields that were previously only editable but never
-displayed:
+Opening a goal shows the status, priority, target date, owner and description,
+and three more fields:
 
 - **Progress** — the progress percentage as a bar. A goal with no progress set
-  shows a dash (—) rather than a fabricated 0%.
+ shows a dash (—) rather than a fabricated 0%.
 - **Connected principle** — the linked methodology principle, when one is set.
 - **Connected football action** — the linked football action, when one is set.
 

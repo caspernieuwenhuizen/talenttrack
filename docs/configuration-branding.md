@@ -12,13 +12,13 @@ order: 20
 
 The **Configuration** page is where your academy's identity and the plugin's operational knobs live.
 
-## Tile-grid landing (v3.28.0+)
+## Tile-grid landing
 
 Visiting **Configuration** with no `?tab=` parameter shows a tile grid grouped by topic — Lookups & reference data, Branding & display, Authorization, System, Custom data, and Players & bulk actions. Each tile drills into either an in-page tab (the historical 14 lookup + branding + system tabs) or an existing top-level admin page (Custom Fields, Evaluation Categories, Authorization Matrix, Modules, etc.). Old `?page=tt-config&tab=<slug>` bookmarks still resolve.
 
 The tab strip at the top is gone; from any in-page tab use the **← Configuration** link in the page title to return to the tile grid.
 
-## Appearance surface (v4.26.13+)
+## Appearance surface
 
 On the frontend Configuration view, the former **Branding** and **Theme & fonts** tiles are consolidated into a single **Appearance** entry — so every brand colour lives in one place instead of being split across two tiles. Opening Appearance shows one page with stacked sections:
 
@@ -30,7 +30,7 @@ On the frontend Configuration view, the former **Branding** and **Theme & fonts*
 
 No configuration keys changed and there is no data migration — existing values render unchanged. Save + Cancel sit at the bottom of the page. Old `?config_sub=branding` / `?config_sub=theme` deep links still resolve to the Appearance surface.
 
-## Tile appearance (v4.33.0+)
+## Tile appearance
 
 The Appearance surface gains a **Tile appearance** dropdown that sets the size and column density of the tiles shown across the plugin — the dashboard tile grid, Configuration, the Reports launcher and the Teams "Team development" tiles — in one place, academy-wide.
 
@@ -46,7 +46,7 @@ A single shared standard now drives every tile's size and layout (`TileGridStand
 
 **Tile scale:** the older numeric **Tile scale** percentage (set on the wp-admin Configuration page) still works — it is applied as an additional multiplier on top of the chosen preset, so existing overrides keep their effect. When Tile scale is left at 100%, the preset alone governs tile sizing.
 
-### Tile layout (v4.35.0+)
+### Tile layout
 
 Alongside the size dropdown (now labelled **Tile size**), the Appearance surface gains a separate **Tile layout** dropdown. Layout and size are independent axes — any combination is valid (for example Spacious + Stacked).
 
@@ -57,7 +57,7 @@ Alongside the size dropdown (now labelled **Tile size**), the Appearance surface
 
 The layout applies everywhere a tile shows an icon: the dashboard tile grid always, and the Configuration / Reports / Modules tiles whenever a tile carries an icon. Tiles without an icon have no top line to share and render the same in either layout. Stored academy-wide under the `tile_layout` configuration key; default `row`.
 
-### Tile colour scheme (v4.46.0+)
+### Tile colour scheme
 
 Alongside **Tile size** and **Tile layout**, the Appearance surface gains a **Tile colour scheme** dropdown. Colour is a third independent axis — it recolours the dashboard tiles (border, fill and accent) without changing their size or layout, so any combination is valid. The scheme applies to the dashboard tile grid (`.tt-ftile`).
 
@@ -72,9 +72,9 @@ Alongside **Tile size** and **Tile layout**, the Appearance surface gains a **Ti
 
 Stored academy-wide under the `tile_style` configuration key; default `gold-topped`. The colours come from the brand tokens (`--tt-primary`, `--tt-secondary`), so they follow the academy's Primary/Secondary colour choices automatically.
 
-## Full-canvas app & theme isolation (mandatory, v4.45.26+)
+## Full-canvas app & theme isolation (mandatory,)
 
-TalentTrack always renders as a full-canvas app, fully isolated from the active WordPress theme. There is **no opt-out** — full isolation is the contract (#1728). On the page that hosts the `[talenttrack_dashboard]` shortcode:
+TalentTrack always renders as a full-canvas app, fully isolated from the active WordPress theme. There is **no opt-out** — full isolation is the contract. On the page that hosts the `[talenttrack_dashboard]` shortcode:
 
 - the theme's header, footer, sidebar, menus and widgets are not rendered (canvas takeover, since v4.34.0); and
 - **every non-TalentTrack stylesheet is dequeued before the page paints**, so the theme's `style.css` (and any other plugin's CSS) cannot override TalentTrack's palette, typography or layout.
@@ -85,7 +85,7 @@ Earlier releases (v4.34.0–v4.45.25) exposed a **Full-canvas app** checkbox and
 
 The canvas only takes over the page that hosts the `[talenttrack_dashboard]` shortcode; every other page on the site renders through the theme as usual. Print and export pages (match prep, PDP, methodology) are unaffected — they already render as standalone documents with no chrome.
 
-## Frontend Configuration sections (v4.26.16+)
+## Frontend Configuration sections
 
 The frontend Configuration landing groups its tiles into purpose-based sections instead of one flat grid; a section with no visible (permitted) tiles renders no heading:
 

@@ -81,7 +81,7 @@ Archiveer je een team dat nog actieve activiteiten heeft, dan biedt het bevestig
 
 Eenmalig bij het bijwerken: teams die vóór deze wijziging waren gearchiveerd lieten hun activiteiten actief achter. Bij het bijwerken worden die eenmalig opgeruimd, zodat ze niet langer in actieve overzichten staan. Die opruimactie wordt niet ongedaan gemaakt door zo'n team terug te zetten — de activiteiten hoorden al opgeruimd te zijn; zet ze los terug als je ze toch nodig hebt.
 
-## Spelerdossierpagina (v3.79.0)
+## Spelerdossierpagina
 
 De spelerdetailpagina is een dossier met zes tabs: Profiel / Doelen / Evaluaties / Activiteiten / PDP / Stage. Elke tab toont tot 50 records (25 voor activiteiten, 10 voor PDP/Stage), elke record linkt door naar de eigen detailpagina, en broodkruimels vervangen de losse terugknop.
 
@@ -110,7 +110,7 @@ Het spelersdossier is opnieuw opgebouwd als een port van `.local-mockups/player-
 - **Drie responsive vormen.** Mobiel (≤719px) — één kolom, sticky horizontaal-scrollende tabs. Tablet (720-1023px) — één kolom op max 720px, tabs vouwen, Profiel-kaarten 2-koloms, 96px avatar. Desktop (≥1024px) — twee-koloms grid: 320px linkerkolom (Kerngegevens + In één oogopslag verticaal) + flexibele rechterkolom (tabs + actieve sectie). Hero + actierij overspannen beide kolommen. De `.tt-player-detail__rail` en `.tt-player-detail__main` wrappers gebruiken `display: contents` onder 1024px, zodat de kolomhoogtes onafhankelijk blijven op desktop.
 - **Wat eruit blijft.** Er is geen Analytics-tab, en geen inline archiveren of verwijderen op een Evaluaties-rij — destructieve acties leven op de evaluatie-detailpagina.
 
-## Teamdetail — stagespelers (v3.79.0)
+## Teamdetail — stagespelers
 
 De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.
 
@@ -130,6 +130,6 @@ Een knop **Aanpassen** (alleen zichtbaar voor coaches die het team beheren) open
 
 De voorkeur wordt per gebruiker opgeslagen en gelezen/geschreven via `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, zodat een toekomstige niet-WordPress-frontend dezelfde indeling krijgt. Spelers, ouders, beheerders en coaches die niets hebben aangepast zien allemaal de standaard — elke sectie aan.
 
-## Bewerk-rechtenpad (v3.79.0)
+## Bewerk-rechtenpad
 
 De bewerken-knop op de teamdetailpagina en de Teams REST-endpoints (list / get / create / delete) gebruiken nu `AuthorizationService::userCanOrMatrix` in plaats van `current_user_can`. Daardoor passeren ook gebruikers de poort die `tt_edit_teams` via de matrix scope-rij krijgen (functionele rol-bridge), in lijn met het patroon dat al voor tegels en de Activities REST geldt.

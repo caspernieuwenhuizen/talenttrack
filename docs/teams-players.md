@@ -81,7 +81,7 @@ When you archive a team that still has active activities, the confirmation dialo
 
 One-off on upgrade: teams that were archived *before* this shipped left their activities active. Upgrading sweeps those up once, so they stop cluttering live views. That sweep isn't reversed by restoring such a team — its activities were meant to be out of the way already; restore them individually if you need them back.
 
-## Player case page (v3.79.0)
+## Player case page
 
 Player detail is a six-tab case page: Profile / Goals / Evaluations / Activities / PDP / Trials. Each tab shows up to 50 records (25 for activities, 10 for PDP/Trials), every record links through to its detail surface, and breadcrumbs replace the standalone back link.
 
@@ -110,7 +110,7 @@ The player file is rebuilt as a port of `.local-mockups/player-profile/index.htm
 - **Three responsive shapes.** Mobile (≤719px) — single column, sticky horizontal tab scroll. Tablet (720-1023px) — single column at 720px max, tabs flow, Profile cards 2-up, 96px avatar. Desktop (≥1024px) — two-column grid: 320px left rail (Key facts + At a glance vertically) + flex right column (tabs + active pane). Hero + actions span both columns. The `.tt-player-detail__rail` and `.tt-player-detail__main` wrappers use `display: contents` below 1024px so column row heights stay independent on desktop.
 - **What stays out.** There is no Analytics tab, and no inline archive or delete on an Evaluations row — destructive actions live on the evaluation detail page.
 
-## Team detail — trial roster (v3.79.0)
+## Team detail — trial roster
 
 The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
 
@@ -130,6 +130,6 @@ A **Customize** button (visible only to coaches who manage the team) opens a pan
 
 The preference is stored per user and read/written through `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, so a future non-WordPress front end gets the same layout. Players, parents, admins, and coaches who haven't customised all see the default — every section on.
 
-## Edit cap path (v3.79.0)
+## Edit cap path
 
 The team-detail edit button and the Teams REST endpoints (list / get / create / delete) now consult `AuthorizationService::userCanOrMatrix` rather than `current_user_can`. This means a Head of Development granted `tt_edit_teams` via the matrix scope-row layer (functional role bridge) passes the gate too, matching the pattern already used by Tile gating and the Activities REST endpoints.

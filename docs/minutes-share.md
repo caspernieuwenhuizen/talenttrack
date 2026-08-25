@@ -24,13 +24,13 @@ share between them, with anyone under the academy's target flagged.
 Every match the team **played** in the window, at that match's own length.
 
 - **Played** means the same thing it means on the other minutes reports: the
-  activity is completed, its date has passed, or it already carries recorded
-  minutes. A fixture kicking off this evening is not in the denominator, so
-  nobody's share drops on the morning of a match.
+ activity is completed, its date has passed, or it already carries recorded
+ minutes. A fixture kicking off this evening is not in the denominator, so
+ nobody's share drops on the morning of a match.
 - **Its own length** means the match's half length doubled — the value on the
-  match prep if one was set, otherwise the default for the team's age
-  category, otherwise 35 minutes a half. A U9 team on 30-minute halves has
-  600 available over ten matches, not 700.
+ match prep if one was set, otherwise the default for the team's age
+ category, otherwise 35 minutes a half. A U9 team on 30-minute halves has
+ 600 available over ten matches, not 700.
 
 So ten completed 70-minute matches make **700 available minutes**, and a
 player with 350 recorded is on **50%**.
@@ -71,10 +71,10 @@ should not be at the bottom of a scroll.
 ## When the report is empty
 
 - *No matches played in this window* — the denominator is zero, so no share
-  can be worked out. Widen the window.
+ can be worked out. Widen the window.
 - *Matches were played but no minutes are recorded* — the matches are there,
-  the minutes are not. Record them from the activity; **Minutes distribution**
-  shows which matches are missing them.
+ the minutes are not. Record them from the activity; **Minutes distribution**
+ shows which matches are missing them.
 
 ## Through the API
 

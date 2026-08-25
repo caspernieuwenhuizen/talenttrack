@@ -51,7 +51,7 @@ do_action( 'tt_onboarding_completed' );
 do_action( 'tt_onboarding_reset' );
 ```
 
-Toekomstige epics zoals de monetisatie-trial-CTA (#0011) of de back-up-instelwizard (#0013) haken aan deze acties in plaats van de wizard zelf aan te passen.
+Toekomstige epics zoals de monetisatie-trial-CTA of de back-up-instelwizard haken aan deze acties in plaats van de wizard zelf aan te passen.
 
 ## Opslag van status
 

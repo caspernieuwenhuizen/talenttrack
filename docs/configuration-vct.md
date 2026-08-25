@@ -37,13 +37,13 @@ makes all three reachable from one entry point.
 Season and team are now **dropdowns** — no raw ID typing.
 
 - **Season** defaults to the academy's active season and **auto-loads on
-  change**: pick a different season and the view reloads for it. There is
-  no separate "Load" button (a no-script fallback button is shown only
-  when JavaScript is off). Applies to the Macro-blocks and Team schedules
-  tabs.
+ change**: pick a different season and the view reloads for it. There is
+ no separate "Load" button (a no-script fallback button is shown only
+ when JavaScript is off). Applies to the Macro-blocks and Team schedules
+ tabs.
 - **Team** (Macro-blocks tab) is a dropdown with a **Club default (all
-  teams)** option at the top. The club default applies to every team;
-  pick a specific team to edit an override just for them.
+ teams)** option at the top. The club default applies to every team;
+ pick a specific team to edit an override just for them.
 
 ## Editing macro-blocks
 
@@ -76,7 +76,7 @@ profile; the training days for a team). Forms inside use the shared
 `tt-field` grid and stack to a single column at 360px. Each form saves
 on its own (settings sub-forms; Save-only per CLAUDE.md §6 (a)).
 
-## Per-team complement: VCT defaults panel (#1088)
+## Per-team complement: VCT defaults panel
 
 The central Team schedules tab edits every team in one season at once.
 The **team-detail VCT panel** at the bottom of `?tt_view=teams&id=N`

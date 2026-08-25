@@ -25,11 +25,11 @@ Alle vijf sprints staan live:
 - **Motor + schema** — `tt_workflow_tasks`, `tt_workflow_triggers`, `tt_workflow_template_config`, de kolom `parent_user_id` op `tt_players` en de publieke PHP-API (`WorkflowModule::engine()->dispatch(...)`).
 - **Inbox + bel + e-mail + self-diagnostic** — elke gebruiker met `tt_view_own_tasks` ziet zijn taken op `?tt_view=my-tasks`; een discrete bel toont de openstaande teller op het dashboard; bij aanmaak ontvangt de toegewezen persoon een e-mail. Een wp-admin-banner waarschuwt wanneer WP-cron stopt met afvuren (linkt naar [de cron-instellingengids](workflow-engine-cron-setup.md)).
 - **Vijf meegeleverde templates**
-  - **Coach-evaluatie na wedstrijd** — handmatige trigger in v1 (een event-hook abonneert zodra `ActivitiesModule` `tt_activity_completed` afvuurt). Fan-out: één taak per actieve speler op het team voor de hoofdcoach, deadline 72 uur.
-  - **Wekelijkse zelfevaluatie speler** — cron `0 18 * * 0` (zondag 18:00). Eén taak per actieve speler, gerouteerd via het toewijzingsbeleid voor minderjarigen. Deadline 7 dagen.
-  - **Kwartaaldoelen** — cron op de 1e van elke 3e maand. Speler schrijft maximaal drie doelen; bij voltooiing wordt automatisch een goedkeuringstaak voor de coach aangemaakt.
-  - **Doelgoedkeuring** — wordt alleen gespawnd door het kwartaaldoelen-template. Coach keurt elk doel goed / wijzigt / wijst af met optionele notitie. Leest het concept via `parent_task_id`.
-  - **Kwartaalreview Hoofd Opleidingen** — zelfde kwartaalcadens. Eén taak per HoD, deadline 14 dagen. Live-data formulier: toont de afgelopen 90 dagen aan evaluaties / sessies / doelen / taakvoltooiing bij rendering.
+ - **Coach-evaluatie na wedstrijd** — handmatige trigger in v1 (een event-hook abonneert zodra `ActivitiesModule` `tt_activity_completed` afvuurt). Fan-out: één taak per actieve speler op het team voor de hoofdcoach, deadline 72 uur.
+ - **Wekelijkse zelfevaluatie speler** — cron `0 18 * * 0` (zondag 18:00). Eén taak per actieve speler, gerouteerd via het toewijzingsbeleid voor minderjarigen. Deadline 7 dagen.
+ - **Kwartaaldoelen** — cron op de 1e van elke 3e maand. Speler schrijft maximaal drie doelen; bij voltooiing wordt automatisch een goedkeuringstaak voor de coach aangemaakt.
+ - **Doelgoedkeuring** — wordt alleen gespawnd door het kwartaaldoelen-template. Coach keurt elk doel goed / wijzigt / wijst af met optionele notitie. Leest het concept via `parent_task_id`.
+ - **Kwartaalreview Hoofd Opleidingen** — zelfde kwartaalcadens. Eén taak per HoD, deadline 14 dagen. Live-data formulier: toont de afgelopen 90 dagen aan evaluaties / sessies / doelen / taakvoltooiing bij rendering.
 - **HoD-dashboard + admin-configuratie** — `?tt_view=tasks-dashboard` (HoD-overzicht: voltooiingspercentages per template + per coach + lijst van te late taken); `?tt_view=workflow-config` (academy admin: per template aan/uit, cadens en deadline overschrijven, beleidschakelaar voor minderjarigen).
 
 ## Rechten
@@ -65,7 +65,7 @@ De motor leunt op WP-cron voor ingeplande triggers en `wp_mail()` voor notificat
 
 Beide linken naar speciale instelhandleidingen voor hosts waar WP-cron of `wp_mail()` niet werkt.
 
-## Phase 2 + 3 toevoegingen (v3.37.0)
+## Phase 2 + 3 toevoegingen
 
 De resterende fases van het epic landden in één release. De vorm blijft hetzelfde — dezelfde templates, dezelfde inbox, dezelfde adminschermen — maar vier onderdelen zijn nu first-class:
 

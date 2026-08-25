@@ -67,12 +67,12 @@ If you (the only academy admin) get locked out — wrong codes, clock skew, a lo
    define( 'TT_MFA_DISABLE', true );
    ```
 
-   It suppresses MFA *enforcement only* — your enrollment and the persona policy are untouched. Sign in, fix your enrollment from the MFA tab, then **remove the line**; enforcement resumes exactly as it was. While the constant is set, a warning banner shows on every wp-admin page so it can't be silently left on.
+ It suppresses MFA *enforcement only* — your enrollment and the persona policy are untouched. Sign in, fix your enrollment from the MFA tab, then **remove the line**; enforcement resumes exactly as it was. While the constant is set, a warning banner shows on every wp-admin page so it can't be silently left on.
 
 2. **wp-cli commands (for technical operators).**
-   - `wp tt mfa status` — shows the gated personas, whether the kill-switch is active, and per-user enrolled/locked state — diagnose before acting.
-   - `wp tt mfa disable` — sets the persona policy to empty (enforcement off install-wide) and flushes every live MFA challenge, in one call. Enrollment rows stay; re-enable from the MFA tab when recovered.
-   - `wp tt mfa reset <user-id|login|email>` — wipes one user's enrollment row only (they re-enroll on next login); the install-wide policy is untouched.
+ - `wp tt mfa status` — shows the gated personas, whether the kill-switch is active, and per-user enrolled/locked state — diagnose before acting.
+ - `wp tt mfa disable` — sets the persona policy to empty (enforcement off install-wide) and flushes every live MFA challenge, in one call. Enrollment rows stay; re-enable from the MFA tab when recovered.
+ - `wp tt mfa reset <user-id|login|email>` — wipes one user's enrollment row only (they re-enroll on next login); the install-wide policy is untouched.
 
 Prevention is still better than recovery: **keep at least two admin accounts** so an admin can always recover another admin via the operator UI above.
 

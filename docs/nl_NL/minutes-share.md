@@ -25,13 +25,13 @@ Elke wedstrijd die het team in de periode **gespeeld** heeft, met de eigen duur
 van die wedstrijd.
 
 - **Gespeeld** betekent hier hetzelfde als in de andere minutenrapporten: de
-  activiteit is voltooid, de datum is voorbij, of er zijn al minuten
-  vastgelegd. Een wedstrijd die vanavond begint zit niet in de noemer, dus
-  niemands aandeel zakt op de ochtend van een wedstrijd.
+ activiteit is voltooid, de datum is voorbij, of er zijn al minuten
+ vastgelegd. Een wedstrijd die vanavond begint zit niet in de noemer, dus
+ niemands aandeel zakt op de ochtend van een wedstrijd.
 - **Eigen duur** betekent de helftduur maal twee — de waarde op de
-  wedstrijdvoorbereiding als die is ingevuld, anders de standaard voor de
-  leeftijdscategorie van het team, anders 35 minuten per helft. Een O9-team met
-  helften van 30 minuten heeft over tien wedstrijden 600 beschikbaar, geen 700.
+ wedstrijdvoorbereiding als die is ingevuld, anders de standaard voor de
+ leeftijdscategorie van het team, anders 35 minuten per helft. Een O9-team met
+ helften van 30 minuten heeft over tien wedstrijden 600 beschikbaar, geen 700.
 
 Tien voltooide wedstrijden van 70 minuten leveren dus **700 beschikbare
 minuten** op, en een speler met 350 vastgelegde minuten staat op **50%**.
@@ -74,10 +74,10 @@ rapport over gaat, horen niet onderaan een scroll.
 ## Als het rapport leeg is
 
 - *Geen wedstrijden gespeeld in deze periode* — de noemer is nul, dus er valt
-  geen aandeel te berekenen. Verruim de periode.
+ geen aandeel te berekenen. Verruim de periode.
 - *Er zijn wedstrijden gespeeld maar geen minuten vastgelegd* — de wedstrijden
-  zijn er, de minuten niet. Leg ze vast vanuit de activiteit;
-  **Minutenverdeling** laat zien welke wedstrijden ze missen.
+ zijn er, de minuten niet. Leg ze vast vanuit de activiteit;
+ **Minutenverdeling** laat zien welke wedstrijden ze missen.
 
 ## Via de API
 

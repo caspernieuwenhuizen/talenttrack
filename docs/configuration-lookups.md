@@ -63,7 +63,7 @@ Same shape as Edit, but:
 
 Both the Add and Edit views carry a Cancel + Save pair at the bottom (CLAUDE.md §6 contract). Cancel returns to the list view of the same category. A `+ Back to list` ghost button on the left rail does the same thing.
 
-## Data backfill (v4.11.0)
+## Data backfill
 
 In v4.11.0 a one-time migration (`0131_lookup_translation_seeds`) backfills `tt_translations` rows for every existing `tt_lookups` row across the five supported locales:
 
@@ -72,7 +72,7 @@ In v4.11.0 a one-time migration (`0131_lookup_translation_seeds`) backfills `tt_
 
 The migration is idempotent; re-running it has no effect.
 
-### Age-group labels (v4.26.6)
+### Age-group labels
 
 Age groups use the international **U** notation as the canonical internal key (`U7…U23`, `Senior`). On a Dutch site they display with the **O** (Onder) convention — `O7…O23`, `Senioren` — resolved through `tt_translations` like every other lookup label. Migration `0163_seed_age_group_dutch_labels` backfills these Dutch labels on existing installs (INSERT IGNORE, so a club's own edits via the Edit view are never overwritten); fresh installs seed them from `LookupTranslationSeeds`. French, German and Spanish keep the U notation natively, so they carry no override row. Every dashboard surface renders the age-group label through `LookupTranslator`, never the raw `name`.
 
@@ -90,7 +90,7 @@ The Internal key field on a locked row is also disabled — the same Q4 protecti
 
 Every action in this view goes through `/wp-json/talenttrack/v1/lookups/{type}` (POST / PUT / DELETE) with the existing `tt_edit_settings` capability gate. The view is rendered server-side; the JS module composes the network payload and reloads on success. No new REST endpoints; the `/translations/preview` endpoint returns every other installed locale in one bulk response.
 
-## Canonical-language contract (v4.12.0)
+## Canonical-language contract
 
 The going-forward rule: **`tt_lookups.name` is the stable English internal key**. It is never a translated user-visible string. Operator-visible labels live in `tt_translations` and are rendered through `LookupTranslator::name()` (which falls back to `name` only when no translation is registered).
 
@@ -100,7 +100,7 @@ Practical consequences:
 - Existing rows: the Internal key field is read-only. To change it, a code migration is required so every `WHERE name = ...` reference across the codebase is updated atomically.
 - Dashboards never read `tt_lookups.name` directly. They go through `LookupTranslator::name($row)`, which resolves via `tt_translations` for the current locale, then the gettext domain, and only as the last-resort backstop returns the raw `name`.
 
-## Drift review tool (v4.12.0)
+## Drift review tool
 
 Pilot installs that pre-date v4.11.0 may carry mixed-language values in `tt_lookups.name` (some Dutch, some English, some lowercase) because earlier admin workflows let operators type anything into that column. v4.12.0 ships a one-shot review tool to normalise the column without breaking the dashboard.
 

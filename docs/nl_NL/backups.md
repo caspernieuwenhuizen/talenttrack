@@ -16,7 +16,7 @@ TalentTrack heeft een eigen back-upmodule (los van een eventuele algemene WordPr
 
 `Configuratie → Back-ups` (de frontendweergave op `?tt_view=backups`). Zichtbaar voor beheerders en de rol **Head of Development**; de onderliggende capability is `tt_manage_backups`.
 
-## Frontendweergave (#1937)
+## Frontendweergave
 
 Vanaf deze release is de Back-ups-omgeving een frontendweergave op `?tt_view=backups` — zonder omweg via wp-admin. Hij dekt de instellingen, de lijst met opgeslagen back-ups (downloaden / terugzetten / verwijderen), Nu uitvoeren en de volledige `.ttmig`-gegevensmigratie voor export + import. Elke actie loopt via een REST-endpoint met capability-controle en nonce-beveiliging (`tt_manage_backups`); de twee destructieve acties — volledig terugzetten en migratie-import — houden de typ-bevestiging ("RESTORE" / "IMPORT"), weigeren te draaien terwijl je een andere gebruiker impersoneert, en worden in het auditlog vastgelegd (`backup.restored` / `migration.imported`).
 
@@ -77,19 +77,19 @@ Elke back-up is een gzipped-JSON-document met:
 
 De controlesom wordt berekend over alleen de `tables`-subboom — terugzetten verifieert deze voordat de database wordt aangeraakt.
 
-## Gedeeltelijk terugzetten (v3.16.0+)
+## Gedeeltelijk terugzetten
 
 Klik **Gedeeltelijk terugzetten** bij een opgeslagen back-up om specifieke rijen terug te halen zonder alles te overschrijven. De flow:
 
 1. **Scope kiezen** — selecteer een tabel uit de back-up en geef een door komma's gescheiden lijst rij-id's op, of laat de id's leeg om alle rijen uit die tabel mee te nemen. Vink optioneel kindertabellen aan om naar beneden te volgen (bijv. begin bij een speler en neem zijn evaluaties mee).
 2. **Diff bekijken** — voor elke tabel in de berekende sluiting zie je hoeveel rijen *nieuw* zijn (in back-up, niet in DB) en hoeveel *verschillen*. Kies per tabel een actie:
-   - Groen: **Terugzetten** of **Overslaan**.
-   - Geel: **Huidige behouden**, **Overschrijven met back-up**, of **Overslaan**.
+ - Groen: **Terugzetten** of **Overslaan**.
+ - Geel: **Huidige behouden**, **Overschrijven met back-up**, of **Overslaan**.
 3. **Uitvoeren** — verstuur de gekozen acties. Vink eerst **Proefdraai** aan als je de wijzigingen wilt berekenen zonder ze weg te schrijven.
 
 De afhankelijkheidsmap is klein: spelers, teams, evaluaties, beoordelingen, sessies, aanwezigheid, doelen, personen, team-personen, functionele rollen, custom values en categoriegewichten. Een tabel toevoegen is één regel in `BackupDependencyMap::refs()`.
 
-## Pre-bulk-veiligheid + ongedaan maken (v3.16.0+)
+## Pre-bulk-veiligheid + ongedaan maken
 
 Vóór elke wp-admin-bulkactie die meer dan 10 rijen *archiveert* of *definitief verwijdert*, maakt TalentTrack automatisch een veiligheidsmomentopname. De snapshot is een gewone back-up, in metadata gemarkeerd zodat de bewaartermijn apart afgesteld kan worden.
 
@@ -97,19 +97,19 @@ Direct na afloop van de bulkactie verschijnt een melding met de link **Ongedaan 
 
 De drempel van 10 rijen is filterbaar via `tt_backup_bulk_safety_threshold`.
 
-## Datamigratie — export (v4.21.14+)
+## Datamigratie — export
 
 Om gegevens naar een **andere** TalentTrack-installatie te verplaatsen, gebruik je het onderdeel **Datamigratie** op de Back-uppagina. Vink de gegevenssets aan die je meeneemt (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie) en klik op **Exporteren voor migratie** om een `.ttmig`-bestand te downloaden — gzip-JSON, dezelfde structuur als een back-up, met `kind: migration`.
 
 Export bevat alleen gegevens: WordPress-gebruikers en media worden niet meegenomen. Koppelingen tussen installaties (`wp_user_id`) worden bij het importeren bepaald, niet in het bestand opgeslagen.
 
-### Afzonderlijke records achterlaten (v4.26.8+)
+### Afzonderlijke records achterlaten
 
 Naast de selectievakjes per gegevensset heeft elke recordhoudende set (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen) een **Toon N records**-uitklap. Elk record is standaard inbegrepen; haal het vinkje weg bij de records die je wilt achterlaten — handig om testspelers of kladrecords weg te laten voordat je naar een schone installatie migreert. Een record uitsluiten verwijdert ook de onderliggende rijen binnen dezelfde set (bijv. een activiteit uitsluiten verwijdert de bijbehorende aanwezigheidsrijen). "Keuzelijsten & configuratie" blijft alles-of-niets, want dat is referentiegegevens en geen testrecords.
 
 Als je een record uitsluit waarnaar een andere inbegrepen set nog verwijst — bijvoorbeeld een speler uitsluiten maar diens evaluaties behouden — toont een bevestigingsstap die losgekoppelde verwijzingen vóór het downloaden. Je kunt **Toch downloaden** (de afhankelijke records worden geëxporteerd zonder het record waarnaar ze verwijzen) of annuleren en je selectie aanpassen. Zeer grote sets tonen alleen de eerste 500 records in de uitklap; records daarboven zijn altijd inbegrepen.
 
-## Datamigratie — importvoorbeeld (v4.32.1+)
+## Datamigratie — importvoorbeeld
 
 Op de doelinstallatie accepteert het onderdeel **Importeren vanaf een andere installatie** (net onder de exportbediening) een `.ttmig`-bestand. Kies het archief en klik op **Import voorvertonen** om het te inspecteren. Deze stap is **alleen-lezen** — hij valideert het bestand en rapporteert wat erin zit, maar wijzigt niets.
 
@@ -119,7 +119,7 @@ Het voorbeeld toont:
 - **Inhoud** — aantal rijen per gegevensset (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie).
 - **Wat er bij importeren zou gebeuren** — voor de recordsets met een natuurlijke sleutel (Spelers op voornaam + achternaam + geboortedatum, Teams op naam + leeftijdsgroep, Staf op voornaam + achternaam + e‑mail): hoeveel binnenkomende records **overeenkomen met een bestaand record** op deze installatie versus hoeveel **nieuw** zijn. De match gebeurt op stabiele sleutel, niet op id — ids verschillen tussen installaties, dus bronrecord 5 is niet doelrecord 5.
 
-## Datamigratie — een import toepassen (v4.36.0+)
+## Datamigratie — een import toepassen
 
 Vanuit het voorbeeld kun je met **Import configureren** het archief op deze installatie toepassen:
 

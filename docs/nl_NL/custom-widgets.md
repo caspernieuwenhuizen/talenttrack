@@ -73,7 +73,7 @@ Elke opslag / update / archief schrijft een rij naar `tt_audit_log`:
 | `custom_widget.updated` | (idem) |
 | `custom_widget.archived` | (idem) |
 
-De audit is een van de bronnen voor "wie heeft deze widget het laatst gewijzigd?"-onderzoeken; de dashboardeditor zelf wordt ook geaudit (#0060), dus het volledige pad van aangepaste-widget-bewerking tot persona-template-publicatie is reconstrueerbaar.
+De audit is een van de bronnen voor "wie heeft deze widget het laatst gewijzigd?"-onderzoeken; de dashboardeditor zelf wordt ook geaudit, dus het volledige pad van aangepaste-widget-bewerking tot persona-template-publicatie is reconstrueerbaar.
 
 ## Buiten scope (vandaag)
 
@@ -103,12 +103,10 @@ Bronnen moeten ook `requiredCap(): string` implementeren zodat de bron-cap-overe
 
 Binnen `fetch()` MOET de bron scopen op `\TT\Infrastructure\Tenancy\CurrentClub::id()` en demo-modus-scope toepassen. De registry kan dat niet afdwingen — die weet niet welke `tt_*` tabel de bron leest.
 
-## Feature flag
+## Aanzetten
 
-De hele module is opt-in via `tt_custom_widgets_enabled`. Vanaf v3.109.7 (Phase 6 sluit #0078) blijft de vlag standaard **uit** zodat bestaande installaties bij de volgende upgrade niet verrast worden door een nieuwe beheerderspagina; zet hem per club aan met:
+Eigen widgets staan **standaard uit** — de bouwer is een bètascherm, en een academie hoort er bewust voor te kiezen in plaats van na een upgrade een nieuwe pagina aan te treffen.
 
-```
-wp option update tt_custom_widgets_enabled 1
-```
+Zet hem aan via **Toegangsbeheer → Functies**, waar hij *Eigen widgets* heet. Zodra hij aanstaat verschijnt de beheerpagina op TalentTrack → Eigen widgets, registreren de REST-routes zich en krijgt het editorpalet de tegel *Eigen widget*. Weer uitzetten verbergt alle drie; opgeslagen widgets blijven bewaard.
 
-…of zet dezelfde sleutel op `tt_config` per club. Zodra de vlag aanstaat, verschijnt de beheerderspagina op TalentTrack → Aangepaste widgets, registreren de REST-routes zich en krijgt het editor-palet de *Aangepaste widget*-tegel.
+Zie [Modules](modules.md) voor hoe functieschakelaars zich verhouden tot moduleschakelaars.

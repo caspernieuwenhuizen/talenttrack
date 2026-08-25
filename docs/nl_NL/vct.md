@@ -74,7 +74,7 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 ## Eén oefeningenbibliotheek
 
 TalentTrack had **twee** oefeningencatalogi die elkaar niet konden zien: de
-algemene oefeningenbibliotheek en die van VCT. Migratie 0212 (#2494) heeft ze
+algemene oefeningenbibliotheek en die van VCT. Migratie 0212 heeft ze
 samengevoegd. Elke VCT-oefening staat nu in `tt_exercises`, naast de rest van
 de bibliotheek, met behoud van code, categorie, speelwijzethema,
 intensiteitsband, duur- en spelersbereik, leeftijdsvenster en
@@ -83,23 +83,23 @@ wedstrijddag-geschiktheid.
 **Voor de trainer verandert er in deze release niets.** De VCT-sessiewizard,
 de regelengine, de trainersweergave en de afdruk werken precies zoals eerst —
 dezelfde invoer levert dezelfde sessie op. De samenvoeging is voorbereiding op
-de Training-module (#2493), waarin trainers uit één bibliotheek kiezen in
+de Training-module, waarin trainers uit één bibliotheek kiezen in
 plaats van twee catalogi met verschillende velden tegen te komen.
 
 Goed om te weten als je een installatie beheert:
 
 - `tt_vct_exercises` blijft bestaan maar is **leeg**. De tabel wordt niet meer
-  gelezen of geschreven; een latere release verwijdert hem in een eigen
-  migratie.
+ gelezen of geschreven; een latere release verwijdert hem in een eigen
+ migratie.
 - Verplaatste rijen krijgen `source = 'vct'` en behouden hun oorspronkelijke
-  `uuid`, zodat de migratie veilig opnieuw kan draaien.
+ `uuid`, zodat de migratie veilig opnieuw kan draaien.
 - `tt_vct_coaching_points` houdt zijn naam en zijn vertalingen; alleen de
-  verwijzing naar de oefening is bijgewerkt.
+ verwijzing naar de oefening is bijgewerkt.
 - Oefeningen die al in de algemene bibliotheek stonden krijgen de nieuwe
-  kolommen leeg. Ze blijven **buiten** de VCT-sessiegeneratie tot iemand een
-  leeftijdsvenster en een intensiteitsband invult — zonder leeftijdsbereik kan
-  niet worden bepaald of een oefening leeftijdsveilig is, dus de engine kiest
-  hem niet.
+ kolommen leeg. Ze blijven **buiten** de VCT-sessiegeneratie tot iemand een
+ leeftijdsvenster en een intensiteitsband invult — zonder leeftijdsbereik kan
+ niet worden bepaald of een oefening leeftijdsveilig is, dus de engine kiest
+ hem niet.
 
 ## Wat (nog) niet is gelanceerd
 
@@ -116,37 +116,37 @@ Nederlandstalig trainerstool — de interne codes van de regel-engine
 komen nooit op het scherm:
 
 - **Thema-stap** toont één regel focus per tactisch thema (bijv.
-  *Balbezit → balbeheersing, kort passen en als team de bal houden*),
-  zodat een trainer die twijfelt welk thema te kiezen een duidelijke
-  hint krijgt.
+ *Balbezit → balbeheersing, kort passen en als team de bal houden*),
+ zodat een trainer die twijfelt welk thema te kiezen een duidelijke
+ hint krijgt.
 - **Duur-stap** waarschuwt duidelijk wanneer het team geen
-  leeftijdsgroep heeft ingesteld: hij legt uit dat een standaard
-  minutenlimiet wordt gebruikt en verwijst de trainer naar de
-  teaminstellingen voor een op leeftijd afgestemde limiet.
+ leeftijdsgroep heeft ingesteld: hij legt uit dat een standaard
+ minutenlimiet wordt gebruikt en verwijst de trainer naar de
+ teaminstellingen voor een op leeftijd afgestemde limiet.
 - **Wanneer-stap** legt uit dat de leeftijdsgroep en de
-  wedstrijddagcontext (MD) automatisch worden afgeleid uit het team en
-  het seizoensschema bij de volgende stap — de trainer voert die niet
-  zelf in.
+ wedstrijddagcontext (MD) automatisch worden afgeleid uit het team en
+ het seizoensschema bij de volgende stap — de trainer voert die niet
+ zelf in.
 - **Voorbeeld-stap** toont de waarschuwingen van de regel-engine als
-  leesbare zinnen in plaats van ruwe codes. Blokkerende problemen
-  ("deze VCT-training kan nog niet worden opgebouwd") krijgen elk een
-  korte oplossingshint die de trainer vertelt wat te doen — bijvoorbeeld
-  de leeftijdsgroep van het team instellen, een andere datum kiezen of
-  een beheerder vragen een trainingsblauwdruk toe te voegen. De
-  toewijzing van engine-code naar zin + hint staat in
-  [`RuleMessages`](../../src/Modules/Vct/Rules/RuleMessages.php), in de
-  regellaag, zodat de REST-API en de getoonde wizard dezelfde taal
-  spreken.
+ leesbare zinnen in plaats van ruwe codes. Blokkerende problemen
+ ("deze VCT-training kan nog niet worden opgebouwd") krijgen elk een
+ korte oplossingshint die de trainer vertelt wat te doen — bijvoorbeeld
+ de leeftijdsgroep van het team instellen, een andere datum kiezen of
+ een beheerder vragen een trainingsblauwdruk toe te voegen. De
+ toewijzing van engine-code naar zin + hint staat in
+ [`RuleMessages`](../../src/Modules/Vct/Rules/RuleMessages.php), in de
+ regellaag, zodat de REST-API en de getoonde wizard dezelfde taal
+ spreken.
 - **Lege toestanden** zijn zelf op te lossen: als er geen
-  leeftijdsprofielen zijn, legt de configuratieweergave uit wat
-  leeftijdsprofielen doen en dat een academybeheerder ze instelt, zonder
-  migratienummers. De sessieweergave legt uit *waarom* een training geen
-  blokken heeft (geen passende oefeningen voor de gekozen leeftijd, thema
-  en duur) en hoe je dat oplost.
+ leeftijdsprofielen zijn, legt de configuratieweergave uit wat
+ leeftijdsprofielen doen en dat een academybeheerder ze instelt, zonder
+ migratienummers. De sessieweergave legt uit *waarom* een training geen
+ blokken heeft (geen passende oefeningen voor de gekozen leeftijd, thema
+ en duur) en hoe je dat oplost.
 - **Publiceren** zet de tweestapsbevestiging vooraan: publiceren koppelt
-  de training aan een teamactiviteit, en als er op dezelfde datum en
-  tijd al een activiteit bestaat, wordt de trainer gevraagd die te
-  hergebruiken of een nieuwe aan te maken.
+ de training aan een teamactiviteit, en als er op dezelfde datum en
+ tijd al een activiteit bestaat, wordt de trainer gevraagd die te
+ hergebruiken of een nieuwe aan te maken.
 
 De tokens `MD-4 … MD … MD+2` / `NONE` in de MD-contextkiezer van de
 oefeningenbibliotheek zijn bewuste technische periodiseringstokens, geen
@@ -155,17 +155,17 @@ een Engelse, dus ze zijn bewust vrijgesteld van vertaling.
 
 ## Hoe de surfaces met elkaar praten
 
-Een trainer plant een sessie via de wizard (#1084). De wizard leest:
+Een trainer plant een sessie via de wizard. De wizard leest:
 
-- Het VCT-standaardenpaneel van het team (#1088) voor prefill van de basisstap.
-- De oefeningenbibliotheek (#1086) voor slot-kandidaten (op leeftijd + MD + intensiteit gefilterd).
-- De macro-blokken van het HoO (#1087) voor de per-week intensiteitsvermenigvuldiger.
-- De leeftijdsprofielen van het HoO (#1087) voor het sessie-minuten-plafond + intensiteitsband-plafond.
-- Per-speler PHV-vlaggen (#1089) zodat gevlagde spelers `growth_spurt_load_reduction_pct` toegepast krijgen via `WorkloadCapRule`.
+- Het VCT-standaardenpaneel van het team voor prefill van de basisstap.
+- De oefeningenbibliotheek voor slot-kandidaten (op leeftijd + MD + intensiteit gefilterd).
+- De macro-blokken van het HoO voor de per-week intensiteitsvermenigvuldiger.
+- De leeftijdsprofielen van het HoO voor het sessie-minuten-plafond + intensiteitsband-plafond.
+- Per-speler PHV-vlaggen zodat gevlagde spelers `growth_spurt_load_reduction_pct` toegepast krijgen via `WorkloadCapRule`.
 
-De wizard publiceert een `tt_vct_sessions`-rij. De coach-view (#1085) leest die rij + zijn blokken. De PHV-banner op de coach-view (#1085) leest dezelfde `VctPhvFlagsRepository::activeForRoster()` die de WorkloadCapRule gebruikt, zodat sideline-display + engine synchroon blijven.
+De wizard publiceert een `tt_vct_sessions`-rij. De coach-view leest die rij + zijn blokken. De PHV-banner op de coach-view leest dezelfde `VctPhvFlagsRepository::activeForRoster()` die de WorkloadCapRule gebruikt, zodat sideline-display + engine synchroon blijven.
 
-De Configuratie-tegels (#1087) linken naar de HoO VCT-configuratie sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`), zodat de HoO één-tap-entry heeft vanuit het Configuratie-overzicht.
+De Configuratie-tegels linken naar de HoO VCT-configuratie sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`), zodat de HoO één-tap-entry heeft vanuit het Configuratie-overzicht.
 
 ## Speelwijze-thema per week
 

@@ -53,12 +53,12 @@ Elk doel kan een **voortgangspercentage** en **bewijslast** dragen. Op het
 bewerkformulier van het doel:
 
 - **Voortgang (%)** — een waarde van 0–100 die de coach instelt; dit stuurt
-  de voortgangsbalk op de POP-kaart van de speler. Laat leeg om de balk te
-  verbergen.
+ de voortgangsbalk op de POP-kaart van de speler. Laat leeg om de balk te
+ verbergen.
 - **Bewijslast (beoordelingen)** — vink de beoordelingen van de speler aan die
-  het doel onderbouwen. Elke gekoppelde beoordeling verschijnt op de
-  POP-kaart als een scorechip (*Beoordeling 12 mrt · 6.5*), op basis van de
-  datum en de gemiddelde score van de beoordeling.
+ het doel onderbouwen. Elke gekoppelde beoordeling verschijnt op de
+ POP-kaart als een scorechip (*Beoordeling 12 mrt · 6.5*), op basis van de
+ datum en de gemiddelde score van de beoordeling.
 
 Bewijslast wordt los van de methodiekkoppelingen van het doel opgeslagen, dus
 de twee zitten elkaar niet in de weg.
@@ -70,10 +70,10 @@ eigenaar en omschrijving — drie velden getoond die voorheen wel te bewerken
 maar nooit zichtbaar waren:
 
 - **Voortgang** — het voortgangspercentage als balk. Een doel zonder ingestelde
-  voortgang toont een streepje (—) in plaats van een verzonnen 0%.
+ voortgang toont een streepje (—) in plaats van een verzonnen 0%.
 - **Gekoppeld principe** — het gekoppelde methodiekprincipe, wanneer ingesteld.
 - **Gekoppelde voetbalhandeling** — de gekoppelde voetbalhandeling, wanneer
-  ingesteld.
+ ingesteld.
 
 Zowel de coachweergave als de eigen-doelweergave van de speler tonen deze
 velden, zodat coach en speler hetzelfde beeld hebben van waar het doel staat en

@@ -15,33 +15,33 @@ them (soft-delete) and can restore them. A separate, irreversible
 ### Where to find it
 
 - **List views** (players, teams, evaluations, goals, tournaments,
-  holidays): the **Delete permanently** action appears on archived rows —
-  switch to them with the **⋯** button at the end of the filter row —
-  alongside Restore.
+ holidays): the **Delete permanently** action appears on archived rows —
+ switch to them with the **⋯** button at the end of the filter row —
+ alongside Restore.
 - **Detail / editor pages** (trial case, trial track, VCT exercise): a
-  **Delete permanently** button sits beside the page's Archive control.
+ **Delete permanently** button sits beside the page's Archive control.
 
 In every case, if the delete is blocked by a still-referencing record, the
 screen shows the reason (e.g. *"Cannot delete: still referenced by N …"*).
 
-## Referential-integrity-checked delete (#1783)
+## Referential-integrity-checked delete
 
 Permanent delete is **fail-closed**. Before removing a record it scans for
 other records that reference it and then either:
 
 - **cascades** the record's own children (e.g. deleting an evaluation also
-  removes its category ratings; deleting a goal removes its links and its
-  conversation thread),
+ removes its category ratings; deleting a goal removes its links and its
+ conversation thread),
 - **clears** references on rows that outlive the record. For a nullable
-  link the reference is set to empty (e.g. a workflow task that spawned a
-  goal keeps existing, with its goal link cleared); for a required link
-  that can't be empty, the row is instead **re-homed to "unassigned"**
-  (e.g. deleting a team leaves its players in place, no longer assigned to
-  any team), or
+ link the reference is set to empty (e.g. a workflow task that spawned a
+ goal keeps existing, with its goal link cleared); for a required link
+ that can't be empty, the row is instead **re-homed to "unassigned"**
+ (e.g. deleting a team leaves its players in place, no longer assigned to
+ any team), or
 - **blocks** the delete when some other record still references it that is
-  not owned by it. The delete is refused with a message naming what still
-  points at it (e.g. *"Cannot delete: still referenced by 18 players,
-  6 activities. Archive or remove these first."*).
+ not owned by it. The delete is refused with a message naming what still
+ points at it (e.g. *"Cannot delete: still referenced by 18 players,
+ 6 activities. Archive or remove these first."*).
 
 The worst case is a **refused** delete — a permanent delete never silently
 leaves orphaned rows behind.

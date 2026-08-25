@@ -161,9 +161,9 @@ Twee dingen die de verwerkingsverantwoordelijke nog moet invullen, omdat het pro
 
 - **Waarom een foto plus AI?**: coaches leggen trainingen structureel niet handmatig vast na afloop (het "data missed"-probleem uit de specificatie). Zonder deze functie gaat ≥ 40% van de trainingsgegevens definitief verloren.
 - **Minder ingrijpende alternatieven die zijn overwogen**:
-  - De coach typt rechtstreeks in het trainingsformulier → te veel drempel; werkt in de praktijk niet.
-  - Spraakinvoer → overwogen voor v2; uitgesteld volgens specificatie.
-  - Extractie volledig op het toestel (geen cloud-LLM) → op v1-kwaliteitsniveau niet haalbaar; opnieuw bekijken zodra lokale beeldmodellen de kwaliteit van Claude Sonnet 4.x halen.
+ - De coach typt rechtstreeks in het trainingsformulier → te veel drempel; werkt in de praktijk niet.
+ - Spraakinvoer → overwogen voor v2; uitgesteld volgens specificatie.
+ - Extractie volledig op het toestel (geen cloud-LLM) → op v1-kwaliteitsniveau niet haalbaar; opnieuw bekijken zodra lokale beeldmodellen de kwaliteit van Claude Sonnet 4.x halen.
 - **Evenredigheid**: wat de deur uitgaat is de foto die de coach toch al op zijn eigen telefoon maakte, en de server bewaart alleen de gestructureerde extractie — de beeldbytes worden nooit naar schijf geschreven. Of de provider de invoer bewaart, hangt af van het contract van de operator, en vereiste 5 in § 0 vraagt daar bevestiging van.
 
 ## 6. Rechten van betrokkenen

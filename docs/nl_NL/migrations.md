@@ -48,7 +48,7 @@ Je kunt migraties ook handmatig uitvoeren vanaf de pagina **Plug-ins**. Naast de
 
 Alle stappen zijn **idempotent** — migraties draaien terwijl er niets veranderd is, is een no-op.
 
-## Als een migratie mislukt (v4.20.96+)
+## Als een migratie mislukt
 
 Een migratie die een fout geeft (host-specifieke SQL-beperkingen, afwijkend schema, een slechte release) verschuilt zich niet langer achter een succesbanner:
 
@@ -59,7 +59,7 @@ Een migratie die een fout geeft (host-specifieke SQL-beperkingen, afwijkend sche
 
 Blijft de retry mislukken, dan is de fouttekst in de melding precies wat je host of ontwikkelaar nodig heeft — die benoemt het migratiebestand en de exacte SQL-fout.
 
-## Migraties schrijven (standaarden v4.20.116+, dev)
+## Migraties schrijven (standaarden, dev)
 
 Drie regels, afgedwongen via review + CI:
 

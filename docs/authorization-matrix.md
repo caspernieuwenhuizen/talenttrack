@@ -14,7 +14,7 @@ The authorization matrix is the single source of truth for "what can each person
 
 ## Who can edit it, and what they cannot
 
-Since #2654 there are two editors of the same grid, backed by the same writer:
+There are two editors of the same grid, backed by the same writer:
 
 | | Frontend (`?tt_view=matrix`) | wp-admin (`admin.php?page=tt-matrix`) |
 | - | - | - |
@@ -71,7 +71,7 @@ Every edit (grant, revoke, scope change, reset) writes a row to `tt_authorizatio
 | `actor_user_id` | Who clicked save |
 | `note` | "scope: team → global" for scope_change rows |
 
-Until #0021 (the audit log viewer epic) ships, the changelog only renders inside the Matrix admin page. After #0021 lands, these rows fold into the unified audit log.
+The changelog renders inside the Matrix admin page. It is not part of the unified audit log.
 
 ## How to apply changes
 
@@ -110,23 +110,23 @@ Eight personas ship in the seed:
 - `player` — a player viewing their own data (self-scope on most reads).
 - `parent` — a parent of a player (scoped to their child via `tt_player_parents`).
 - `assistant_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 0` for at least one team.
-- `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another. Since #2584 the head coach holds `players [rc, team]` — they can correct a player record on a team they run (position, jersey, preferred foot) without going through an admin. `create_delete` is deliberately withheld: adding or removing a player is a registration act with squad-size, billing and safeguarding consequences, so it stays with `academy_admin`. `assistant_coach` keeps `players [r, team]`, and since both personas share the `tt_coach` WP role, the matrix is the only layer that separates them — which is why the grant lives here and not on the role.
+- `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another. The head coach holds `players [rc, team]` — they can correct a player record on a team they run (position, jersey, preferred foot) without going through an admin. `create_delete` is deliberately withheld: adding or removing a player is a registration act with squad-size, billing and safeguarding consequences, so it stays with `academy_admin`. `assistant_coach` keeps `players [r, team]`, and since both personas share the `tt_coach` WP role, the matrix is the only layer that separates them — which is why the grant lives here and not on the role.
 - `head_of_development` — `tt_head_dev` WP role; oversees the whole academy.
-- `scout` — `tt_scout` WP role; reads players cross-team. Since v4.20.103 (#1378) evaluation reads are scoped to assigned players, and PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
+- `scout` — `tt_scout` WP role; reads players cross-team. Evaluation reads are scoped to assigned players, and PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
 - `team_manager` — new in #0033 Sprint 7; `tt_team_manager` WP role. Logistics for a team (sessions, attendance, invitations) without coaching authority.
 - `academy_admin` — `administrator` or `tt_club_admin` WP role.
 
 A user can hold multiple personas simultaneously (a parent who's also a head coach). The matrix uses the **union** by default — any persona that grants permission wins. The persona switcher in the user menu lets multi-persona users temporarily lens the dashboard to one persona's view; that's a UI lens, not an authorization restriction.
 
-## Tournaments — admin-only in v1 (#0093)
+## Tournaments — admin-only in v1
 
 The Tournament planner ships with two new capabilities — `tt_view_tournaments` and `tt_edit_tournaments`. v1 maps both to `administrator` + `tt_club_admin` only. No other persona (Coach, HoD, Scout, Player, Parent) holds either cap until the persona-expansion follow-up.
 
 The caps are intentionally **not** in `RolesService::VIEW_CAPS` / `EDIT_CAPS` so they don't auto-propagate to HoD via `allViewCapsTrue()`. They live in their own `TOURNAMENTS_CAPS` constant; `ensureCapabilities()` grants them to WP `administrator` and the role definition for `tt_club_admin` lists them explicitly.
 
-### Matrix entity `tournaments` (#1943)
+### Matrix entity `tournaments`
 
-Since #1943 the feature has a matrix entity: `tournaments`. The seed grants **academy_admin `rcd[global]` only** — reproducing the admin-only v1 design above (WP administrators bypass via the matrix administrator-override). No other persona holds a row. `LegacyCapMapper` bridges the raw caps so the existing `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )` call sites resolve through the matrix once it is active:
+The feature has a matrix entity: `tournaments`. The seed grants **academy_admin `rcd[global]` only** — reproducing the admin-only v1 design above (WP administrators bypass via the matrix administrator-override). No other persona holds a row. `LegacyCapMapper` bridges the raw caps so the existing `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )` call sites resolve through the matrix once it is active:
 
 | Raw cap | Matrix tuple |
 | - | - |
@@ -141,7 +141,7 @@ When the persona-expansion ship lands:
 2. Build `AuthorizationService::canViewTournament` / `canEditTournament` with creator / team-coach / global-staff logic (currently they defer to the cap check).
 3. Swap REST `permission_callback`s from cap-only to per-entity checks.
 
-## Matrix entity `exercises` — the drill library (#1944)
+## Matrix entity `exercises` — the drill library
 
 The exercise / drill library (`tt_exercises`, served by `ExercisesRestController` at `/wp-json/talenttrack/v1/exercises`) is club-global: a drill any coach authors is reusable across the whole academy. It is **distinct from `activities`**, which is the per-team session calendar — so the library gets its own matrix entity, `exercises`, rather than borrowing the activities scope.
 
@@ -157,7 +157,7 @@ Both coach personas are seeded deliberately. The raw `tt_manage_exercises` cap i
 
 Migration `0180_authorization_seed_topup_exercises` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `exercises` rows).
 
-## Matrix entity `media` — photographs and video (#2591)
+## Matrix entity `media` — photographs and video
 
 The media library (`tt_media` + `tt_media_links`, epic #2589) gets its own entity. It is not folded into `players`: a photograph of a child is a distinct sensitivity from the player's record, and an academy must be able to grant one without the other.
 
@@ -198,7 +198,7 @@ Access is decided by `MediaVisibilityService`, not by each surface. The rule is 
 
 Migration `0220_authorization_seed_media` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `media` rows).
 
-## Matrix entity `email_compose` — the in-product mailer (#1945)
+## Matrix entity `email_compose` — the in-product mailer
 
 The in-product email composer (`FrontendMailComposeView`, reachable via `?tt_view=mail-compose&person_id=N`) sends through `wp_mail()` and writes an audit row per send. Sending an email is an **act**, not a record — there is no "email entity" to read or edit — so, like `impersonation_action`, it gets a dedicated **action-entity** `email_compose` rather than borrowing an existing data entity.
 
@@ -214,7 +214,7 @@ Both coach personas are seeded deliberately. The raw `tt_send_email` cap is held
 
 Migration `0181_authorization_seed_topup_email_compose` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `email_compose` rows).
 
-## Report generation — `tt_generate_report` is now matrix-bridged (#1946)
+## Report generation — `tt_generate_report` is now matrix-bridged
 
 Report generation (`FrontendReportWizardView`, reachable via `?tt_view=report-wizard`; plus the "Generate report…" button on the player file in `FrontendPlayersManageView`) is gated by the act-cap `tt_generate_report` — distinct from `tt_generate_scout_report`, which bridges to `scout_access:create_delete`. Generating a report is a **create** act, so `tt_generate_report` bridges to `reports:create_delete`:
 
@@ -231,11 +231,11 @@ The raw cap is held today by `administrator` (matrix bypass) + `tt_club_admin` +
 | head_of_development | `reports` / `create_delete` | global |
 | academy_admin | (already held `reports:rcd[global]`) | global |
 
-Both coach personas are seeded — `tt_coach` is the dual-persona trap (#1944): seeding only head_coach would lose generation for assistant coaches. Coaches get `team` scope because per-player team-scope gating already lives in `FrontendReportWizardView`; HoD gets `global` (oversees the whole academy). `change` is deliberately omitted — there is no edit-existing-report surface, only read + generate. `team_manager`, `scout`, `player` and `parent` hold only `reports:read` and gain nothing, so the bridge is **access-preserving** — exactly today's holders keep generation.
+Both coach personas are seeded — `tt_coach` is the dual-persona trap: seeding only head_coach would lose generation for assistant coaches. Coaches get `team` scope because per-player team-scope gating already lives in `FrontendReportWizardView`; HoD gets `global` (oversees the whole academy). `change` is deliberately omitted — there is no edit-existing-report surface, only read + generate. `team_manager`, `scout`, `player` and `parent` hold only `reports:read` and gain nothing, so the bridge is **access-preserving** — exactly today's holders keep generation.
 
 Migration `0182_authorization_seed_topup_report_generation` backfills the three new grants into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `reports:create_delete` rows for head_coach / assistant_coach / head_of_development).
 
-## PDP visibility — one shared decision, frontend and REST (#1923)
+## PDP visibility — one shared decision, frontend and REST
 
 PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Both the rendered files tab (`FrontendPdpManageView`) and every REST surface (`PdpFilesRestController`, `PdpVerdictsRestController`) call `PdpAccess::canSeeFile( $user_id, $player_id )`, so the two sides can no longer answer differently — the cause of the head-coach-vs-HoD divergence in #1758.
 
@@ -254,7 +254,7 @@ The previously login-only PDP REST callbacks were tightened to capability checks
 
 Effective access is unchanged — every actor who could read or edit a PDP before lands on the same answer; the work removed the frontend/REST drift and the role-name compare, it did not widen or narrow any persona.
 
-## Team chemistry — one shared decision, frontend and REST (#1922)
+## Team chemistry — one shared decision, frontend and REST
 
 Team-chemistry and Team-blueprint authorization is decided in a single place: `TT\Modules\TeamDevelopment\TeamChemistryAccess`. The rendered blueprint view (`FrontendTeamBlueprintsView`), the dashboard dispatcher gate for the `team-chemistry` / `team-blueprints` views, the share-link rotation handler, and every REST `permission_callback` on `TeamDevelopmentRestController` all call into it, so the frontend and the REST API can no longer answer differently.
 
@@ -270,7 +270,7 @@ Because the matrix is now the single source of truth, two personas that previous
 
 Personas that keep access: `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
 
-### Remaining blueprint surfaces routed through `TeamChemistryAccess` (#1939)
+### Remaining blueprint surfaces routed through `TeamChemistryAccess`
 
 Two blueprint code paths still resolved authority with the raw `tt_view_team_chemistry` / `tt_manage_team_chemistry` capabilities after #1922; #1939 routes them through `TeamChemistryAccess` too, so the entire blueprint feature now answers from the `team_chemistry` matrix entity:
 
@@ -279,17 +279,17 @@ Two blueprint code paths still resolved authority with the raw `tt_view_team_che
 
 These are enforcement-only re-points — they land on exactly the `team_chemistry` access #1922 established (the same persona table above).
 
-### The wizard entry gate joins them (#2557)
+### The wizard entry gate joins them
 
 One blueprint surface stayed behind: the wizard's *entry* gate. `WizardRegistry::isAvailable()` asks `AuthorizationService::userCanOrMatrix()` for the wizard's `requiredCap()`, and `tt_manage_team_chemistry` is granted only to administrator / head_dev / club_admin and has no `LegacyCapMapper` bridge — so a head coach was denied. The list view had already moved to `TeamChemistryAccess::canManage()` under #1922, so it rendered the "+ New blueprint" button; the entry point behind it then resolved to the empty fallback URL and the button did nothing.
 
 `NewTeamBlueprintWizard` now answers the question itself, through an optional `isAvailableFor( int $user_id ): bool` hook that `WizardRegistry` calls in place of the cap gate when a wizard declares one. It returns `TeamChemistryAccess::canManage()` — the same decision the list view, the editor, `ReviewStep` and the REST writes make. No other wizard declares the hook; the other seven keep the `requiredCap()` path unchanged.
 
-Bridging `tt_manage_team_chemistry` in `LegacyCapMapper` was rejected as the fix: `LegacyCapMapper::evaluate()` resolves through `MatrixGate::canAnyScope()`, which applies the sub-feature toggle. The `team_chemistry` feature is off by default while the blueprint surfaces deliberately survive it being off, so the bridge would have left the button dead on exactly the installs reporting the bug. Granting the raw cap to `tt_coach` was rejected too — assistant coaches share that WP role and the matrix denies them `team_chemistry` (#1060).
+Bridging `tt_manage_team_chemistry` in `LegacyCapMapper` was rejected as the fix: `LegacyCapMapper::evaluate()` resolves through `MatrixGate::canAnyScope()`, which applies the sub-feature toggle. The `team_chemistry` feature is off by default while the blueprint surfaces deliberately survive it being off, so the bridge would have left the button dead on exactly the installs reporting the bug. Granting the raw cap to `tt_coach` was rejected too — assistant coaches share that WP role and the matrix denies them `team_chemistry`.
 
 Effective access change: **head coaches can now create blueprints**, which is what their `team_chemistry [rc, team]` row always said. No other persona's answer moves.
 
-## Act-cap bridges to existing player-status entities (#1939)
+## Act-cap bridges to existing player-status entities
 
 The PlayerStatus "set the potential band" act-cap was matrix-blind while its data-cap sibling was matrix-aware, so the frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) and REST (`PlayerStatusRestController`) could drift. #1939 bridges the act-cap so both surfaces resolve from the same matrix entity:
 
@@ -299,7 +299,7 @@ One sibling act-cap was **deliberately not bridged** under #1939 because doing s
 
 - **`tt_rate_player_behaviour`** was left on native WP capability evaluation under #1939. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it was flagged for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap). The decision landed in #1941.
 
-## Mapping-row bridges + two approved access changes (#1941)
+## Mapping-row bridges + two approved access changes
 
 #1941 (child of #1757) bridges six legacy act-caps to matrix tuples whose entity + activity are **already seeded**, so the frontend and REST surfaces that gate on each cap now resolve from the same `MatrixGate` answer (`current_user_can()` routes through `LegacyCapMapper` when the matrix is active). Four are access-preserving; two carry an approved effective-access change.
 
@@ -326,7 +326,7 @@ Before / after effective access:
 | Head of Development | **no → yes** (gains it) | yes → yes |
 | Academy Admin | yes → yes | yes → yes |
 
-## The all-teams lens resolves from the matrix (#1942)
+## The all-teams lens resolves from the matrix
 
 Several reporting and analytics surfaces show an **academy-wide ("all teams") lens** to senior staff and a **team-scoped lens** to coaches — a Head of Development sees every team's attendance, a head coach sees only the teams they coach. The widener that decides "may this user see beyond their own teams here?" used to be the cap idiom `current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' )`. But `tt_view_all_teams` was never granted to any role, so the real gate was the over-coarse settings capability plus the WordPress-admin bypass — a settings cap standing in for "club-wide read".
 
@@ -348,7 +348,7 @@ Effect on personas (from the shipped seed):
 
 The WordPress settings-admin / administrator path is preserved as a fallback on the rendered surfaces, so an operator running the WP install never loses access while a club's matrix is still dormant. No matrix entity, seed, or migration changed — this is a call-site refactor onto the existing grants.
 
-## Matrix entity `recycle_bin` — permanent deletion (#2020)
+## Matrix entity `recycle_bin` — permanent deletion
 
 The recycle bin (archive → trash → purge) introduces one new matrix entity:
 `recycle_bin`. Managing the bin — viewing trashed rows, restoring them, and
@@ -391,7 +391,7 @@ webhook subscription, connection overview) is seeded for `head_coach` and
 `academy_admin` at `global` scope — migration
 `0191_authorization_seed_topup_strava` backfilled those rows.
 
-`player` holds `strava_integration` `rc[self]` (#2153): Strava is **personal
+`player` holds `strava_integration` `rc[self]`: Strava is **personal
 activity data**, so a player connects their own Strava from their profile and
 can never touch another player's integration. This mirrors the player's
 `my_profile` self grant. Migration

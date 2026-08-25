@@ -14,7 +14,7 @@ order: 128
 
 Een alleen-lezen, gepagineerde weergave van het auditspoor van de academie — elke instellingswijziging en toegang tot gevoelige gegevens die `AuditService` vastlegt in `tt_audit_log`. Het beantwoordt *wie heeft wat wanneer gewijzigd*, zodat een beheerder een configuratiewijziging of een inzage in een gevoelig record kan herleiden tot de gebruiker, het tijdstip en het IP-adres erachter.
 
-De frontend-weergave is de canonieke ingang (#1918); het oudere wp-admin-tabblad (`?page=tt-config&tab=audit`) blijft beschikbaar als terugvaloptie voor gevorderden, maar Configuratie stuurt je daar niet langer naartoe.
+De frontend-weergave is de canonieke ingang; het oudere wp-admin-tabblad (`?page=tt-config&tab=audit`) blijft beschikbaar als terugvaloptie voor gevorderden, maar Configuratie stuurt je daar niet langer naartoe.
 
 ## Toegang
 

@@ -13,11 +13,11 @@ order: 80
 
 Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde modules `register()` en `boot()` niet — hun tegels, REST-routes, beheerpagina's en capabilities verdwijnen totdat ze weer worden ingeschakeld. De toggle is per installatie, dus een multi-tenant deployment heeft een aparte per-tenant-vlag nodig (uitgesteld tot v2 van #0011).
 
-## Frontend-toegang (v4.21.15+)
+## Frontend-toegang
 
 Dezelfde toggle is bereikbaar vanuit de frontend-beheeromgeving via **`?tt_view=modules`** (en een **Modules**-tegel onder Configuratie), afgeschermd met de capability `tt_manage_modules` (standaard beheerder + clubbeheerder) in plaats van een kale admin-only-controle. Hij is ook beschikbaar via REST voor niet-WordPress-frontends: `GET /wp-json/talenttrack/v1/modules` geeft de modules; een `POST` met `{ "class": "...", "enabled": true|false }` schakelt er één om. De wp-adminpagina blijft als fallback voor gevorderden.
 
-## Kaartindeling (v4.29.0+)
+## Kaartindeling
 
 De frontend-Modulespagina toont modules als **kaarten gegroepeerd per categorie** in plaats van een platte lijst. Elke kaart toont een pictogram, een leesbaar label en een korte omschrijving, plus een statuspil — **Kern** (grijs, kan niet worden uitgeschakeld), **On** (groen) of **Off** (gedempt) — en een **Module**-typelabel. De schakelaar rechts schakelt de module in of uit; bij kernmodules staat de schakelaar vast. De bevestigingsdialoog ("herlaad open tabbladen na het opslaan") en de onderliggende REST-contracten zijn ongewijzigd.
 
@@ -133,14 +133,14 @@ Elke module-statuswijziging schrijft een rij naar `tt_module_state` met de `upda
 
 Sommige modules bezitten meerdere losse onderdelen. Met een **functievlag** zet je er één uit terwijl de rest van de module — en de naastgelegen onderdelen — blijft draaien. Dit is fijnmaziger dan de moduleschakelaar: de hele module uitzetten zou onderdelen meenemen die je juist wilt behouden.
 
-### Functieschakelaars per module (`?tt_view=modules`, v4.23.0+)
+### Functieschakelaars per module (`?tt_view=modules`,)
 
 Op de frontend-Modulepagina verschijnt elke functie als een ingesprongen rij (↳) direct onder de bovenliggende module, met een eigen Aan/Uit-schakelaar. Een functie verschijnt alleen zolang de bovenliggende module aanstaat. De functies die **standaard uit** staan:
 
 - **Cohort-overgangen** (Journey-module, standaard **uit**) — de academie­brede zoekopdracht "vind spelers op journey-gebeurtenis + datumbereik" (`?tt_view=cohort-transitions`). Uitzetten verbergt de tegel, de pagina en de REST-route (`/journey/cohort-transitions`). De rest van Journey — spelers­tijdlijn, blessures, safeguarding-notities — blijft volledig beschikbaar.
 - **Teamchemie** (Team Development-module, standaard **uit**) — het formatiebord met voorgestelde XI en chemie-score (`?tt_view=team-chemistry`). Uitzetten verbergt de tegel, de pagina en de chemie-/koppel-/team-fit-REST-routes. De **Teamblauwdruk**-editor — die in dezelfde module zit en dezelfde capability deelt — blijft beschikbaar.
 - **Analytics-verkenner** (Analytics-module, standaard **uit**) — de ad-hoc verkenner voor KPI- en dimensievragen (`?tt_view=analytics`, `explore`, `scheduled-reports`). Zie de sectie hieronder voor wat blijft draaien als hij uitstaat. (Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op dezelfde frontend-Modulepagina als de andere, niet langer alleen op de wp-admin-pagina.)
-- **Eigen widgets** (Eigen widgets-module, standaard **uit**) — de bèta-bouwer voor eigen dashboardwidgets. Uitzetten slaat de hele moduleboot over — geen beheerpagina, geen REST-routes, geen tegel in het editorpalet — precies zoals de oude optie `tt_custom_widgets_enabled`. (Vanaf v4.30.0 is dit een `FeatureRegistry`-functie; de vorige optiewaarde wordt bij de upgrade meegenomen, zodat er niets verandert.)
+- **Eigen widgets** (Eigen widgets-module, standaard **uit**) — de bètabouwer voor eigen dashboardwidgets. Uitzetten slaat de hele moduleboot over: geen beheerpagina, geen REST-routes, geen tegel in het editorpalet. Opgeslagen widgets blijven bewaard en komen terug zodra je hem weer aanzet.
 
 De functies die **standaard aan** staan (ze draaien vandaag al; uitzetten is een opt-out, dus academies die ze willen houden ze zonder iets te doen):
 
@@ -172,7 +172,7 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 - **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op de frontend-Modulepagina naast de andere (de wp-admin-Modulepagina werkt ook nog; beide schrijven dezelfde `tt_feature_state`-rij). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
 
-## Alleen-lezen status voor iedereen (`?tt_view=features`, v4.23.1+)
+## Alleen-lezen status voor iedereen (`?tt_view=features`,)
 
 De Modulepagina is alleen voor beheerders (het is een schrijfvlak). Voor transparantie krijgt elke gebruiker — coach, speler, ouder — een alleen-lezen **Functies**-weergave op **`?tt_view=features`**, bereikbaar via een **Functies**-tegel onder de groep **Over** op het dashboard. Er is geen speciale capability voor nodig.
 
@@ -180,7 +180,7 @@ Het toont elke gebruikersgerichte module met een **Aan / Uit / Altijd aan**-badg
 
 Dezelfde data is via REST beschikbaar op `GET /wp-json/talenttrack/v1/feature-status` (elke ingelogde gebruiker). Alle vormgeving zit in `FeatureStatusService`, zodat de weergave en de API hetzelfde antwoord geven. Alleen modules die de gebruiker daadwerkelijk iets tonen (een tegel of functie bezitten) verschijnen — pure infrastructuurmodules worden weggelaten.
 
-## Uitschakelbaarheid — het contract voor een nieuwe module (#2599)
+## Uitschakelbaarheid — het contract voor een nieuwe module
 
 *Doelgroep: ontwikkelaars.* Alles hierboven gaat over het gebruiken van de schakelaars. Dit gaat over ze eerlijk houden.
 
@@ -191,9 +191,9 @@ Het schakelmechanisme werkte altijd al. Wat ontbrak was iets dat **faalt** wanne
 1. **Elke moduleklasse op schijf staat in `config/modules.php`.** Een module die er wel is maar niet aangemeld, start nooit op en is voor geen enkele beheerder aan te zetten.
 2. **Elke aangemelde module heeft een `ModuleMetadata`-vermelding.** Zonder die vermelding toont de modulepagina een geslugificeerde klassenaam waar een label hoort. Deze controle vond op de dag dat ze geschreven werd vijf modules zonder metadata.
 3. **Elke `?tt_view=`-slug van een tegel heeft een uitschakelaar.** Dat kan op drie manieren, en alleen de derde vraagt om het manifest:
-   1. een `FeatureRegistry`-vermelding claimt de slug in haar `view_slugs`;
-   2. de tegel noemt een `module_class` die een academie kan uitzetten — de moduleschakelaar verbergt hem dan al;
-   3. hij staat in `config/always_on_surfaces.php`, mét reden.
+ 1. een `FeatureRegistry`-vermelding claimt de slug in haar `view_slugs`;
+ 2. de tegel noemt een `module_class` die een academie kan uitzetten — de moduleschakelaar verbergt hem dan al;
+ 3. hij staat in `config/always_on_surfaces.php`, mét reden.
 4. **Geen matrix-entiteit wordt door twee functies geclaimd.** De docblock van de catalogus zegt dit al altijd; niets controleerde het, en een dubbele claim gate't stilletjes ook het scherm van de buur.
 5. **Elke `module_class` van een functie verwijst naar een aangemelde module.** Een functie die een niet-aangemelde klasse noemt, gate't stilletjes niets.
 
