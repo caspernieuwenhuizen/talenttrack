@@ -59,16 +59,22 @@ final class SectionRatingControl {
 
         foreach ( MatchAnalysisEnums::ratings() as $value => $option_label ) {
             $id = 'tt-' . $id_prefix . '-' . sanitize_key( $section_key ) . '-' . sanitize_key( (string) $value );
+            // #2836 — the glyph alone. With five phases on a step the three
+            // words were printed fifteen times, which made the phase name —
+            // the only thing that differs between rows — the smallest text on
+            // the card. The word moves to the accessible name and to the
+            // legend {@see renderLegend()}, so nothing is lost to a screen
+            // reader and the vocabulary is still stated on the page.
             printf(
                 '<input type="radio" class="tt-ma__rating-input" id="%1$s" name="sections[%2$s][rating]" value="%3$s"%4$s />'
-                . '<label class="tt-ma__rating" for="%1$s" data-rating="%3$s">'
-                . '<span class="tt-ma__glyph" aria-hidden="true">%5$s</span> %6$s</label>',
+                . '<label class="tt-ma__rating tt-ma__rating--glyph" for="%1$s" data-rating="%3$s" title="%6$s" aria-label="%6$s">'
+                . '<span class="tt-ma__glyph" aria-hidden="true">%5$s</span></label>',
                 esc_attr( $id ),
                 esc_attr( $section_key ),
                 esc_attr( (string) $value ),
                 checked( $current, (string) $value, false ),
                 esc_html( $glyphs[ (string) $value ] ?? '' ),
-                esc_html( (string) $option_label )
+                esc_attr( (string) $option_label )
             );
         }
 
@@ -87,6 +93,32 @@ final class SectionRatingControl {
         );
 
         echo '</div>';
+    }
+
+    /**
+     * The vocabulary, stated once for a group of sections (#2836).
+     *
+     * The pills carry glyphs alone, so the page has to say somewhere what
+     * ▲ ● ▼ mean. Once, on the line that introduces the phases — not on
+     * every phase, which is the repetition this replaced.
+     *
+     * Rendered by the caller that owns the group heading: the two wizard
+     * steps and the flat surface, each above their own set of phases.
+     */
+    public static function renderLegend(): void {
+        $glyphs = self::glyphs();
+
+        echo '<p class="tt-ma__rating-legend">';
+        foreach ( MatchAnalysisEnums::ratings() as $value => $label ) {
+            printf(
+                '<span class="tt-ma__rating-legend-item" data-rating="%1$s">'
+                . '<span class="tt-ma__glyph" aria-hidden="true">%2$s</span> %3$s</span>',
+                esc_attr( (string) $value ),
+                esc_html( $glyphs[ (string) $value ] ?? '' ),
+                esc_html( (string) $label )
+            );
+        }
+        echo '</p>';
     }
 
     /**

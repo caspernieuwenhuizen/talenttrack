@@ -21,9 +21,14 @@ final class SetPiecesStep implements WizardStepInterface {
     public function render( array $state ): void {
         $prep = TeamFunctionsStep::prepFor( OverallStep::activityId( $state ) );
 
+        // #2836 — same group head as the team-functions step: the glyph
+        // vocabulary stated once, beside the hint.
+        echo '<div class="tt-ma__group-head">';
         echo '<p class="tt-ma__hint">'
             . esc_html__( 'Ours and theirs. If nothing came of them, leave it unrated and move on.', 'talenttrack' )
             . '</p>';
+        \TT\Modules\MatchAnalysis\Frontend\SectionRatingControl::renderLegend();
+        echo '</div>';
 
         foreach ( self::keys() as $key ) {
             SectionStepFields::render( $key, $state, $prep );

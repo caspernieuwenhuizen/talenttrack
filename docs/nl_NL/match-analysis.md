@@ -60,10 +60,18 @@ Een omschakelmoment zegt alleen iets naast de fase waar het uit voortkomt,
 en daarom zijn dit twee ketens en geen lijst van zes.
 
 Elke fase krijgt een oordeel — **Ging goed**, **Wisselend** of **Moet
-beter** — naast de naam, en daaronder maximaal vier korte punten. Beide zijn
-optioneel: een fase die je ongemoeid laat toont simpelweg *Niet beoordeeld*
-en telt als niets, niet als een middelmatige score. Zodra je een oordeel
-hebt gegeven verschijnt er een kleine **Wissen** naast.
+beter** — naast de naam, en daaronder maximaal vier korte punten. De drie
+keuzes staan er als ▲ ● ▼ en niet als woorden: met vijf fasen op één scherm
+stonden dezelfde drie woorden vijftien keer, en dat drukte de fasenamen weg.
+Wat elk teken betekent staat één keer, in een kleine legenda op de regel
+waarmee de fasen beginnen; elke knop noemt zichzelf nog steeds voor een
+schermlezer en bij hoveren. Zowel het oordeel als de punten zijn optioneel:
+een fase die je ongemoeid laat toont simpelweg *Niet beoordeeld* en telt als
+niets, niet als een middelmatige score. Zodra je een oordeel hebt gegeven
+verschijnt er een kleine **Wissen** naast.
+
+Op het afdrukvel en de deelpagina staat het oordeel nog wel voluit — daar
+komt het één keer per fase voor, dus valt er niets weg te drukken.
 
 Waar het wedstrijdplan iets vroeg in die fase, staat dat als **Gepland**,
 zodat je terugkijkt op wat je gevraagd hebt en niet alleen op je geheugen.

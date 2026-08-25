@@ -268,6 +268,13 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
         // list of six.
         $chain_labels = MatchAnalysisEnums::chainLabels();
 
+        // #2836 — the rating pills below carry glyphs alone, so the page
+        // states the vocabulary once, on the line that introduces the
+        // phases, instead of printing the three words on every one of them.
+        echo '<div class="tt-ma__group-head tt-ma__group-head--chains">';
+        SectionRatingControl::renderLegend();
+        echo '</div>';
+
         echo '<div class="tt-ma__chains">';
         foreach ( MatchAnalysisEnums::chains() as $chain => $keys ) {
             echo '<div class="tt-ma__chain">';
