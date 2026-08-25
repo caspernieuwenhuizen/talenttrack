@@ -104,6 +104,13 @@ alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
 is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
 herleid uit de geplande opstelling.
 
+**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra de
+activiteit op **voltooid** staat — niet al zodra de datum is aangebroken. Een
+wedstrijd die vanavond begint, is nog gepland en staat dus niet in de tabel per
+wedstrijd en niet in de KPI's ernaast; hij verschijnt zodra de activiteit
+voltooid is. Activiteiten van vóór het statusveld vallen terug op de kalender:
+die tellen mee zodra hun datum voorbij is.
+
 **Wedstrijden, games en toernooien tellen allemaal mee.** De minutenrapporten
 behandelen wedstrijden, games en toernooien op dezelfde manier — elk is een
 activiteit die minuten oplevert. Een toernooi met één wedstrijd legt minuten

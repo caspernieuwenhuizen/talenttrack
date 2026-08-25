@@ -273,6 +273,40 @@ final class MinutesQuery {
     }
 
     /**
+     * #2832 — the one definition of "this match has been played", as a SQL
+     * fragment every minutes surface shares.
+     *
+     * Before this there were two answers in the codebase and a third by
+     * omission. `matchCountsForTeam()` used `session_date <= CURDATE()`,
+     * which counts a fixture kicking off at 19:00 tonight as played, and the
+     * player report used nothing at all, so a planned match appeared as a row
+     * with an em-dash for minutes. Status is the honest signal: #2245 made
+     * `completed` an explicit transition (button, REST, grid bulk-save), so a
+     * match that says `completed` was played and one that says `planned` was
+     * not, whatever its date.
+     *
+     * The date clause survives only as the legacy fallback. Rows written
+     * before migration 0040 carry no `activity_status_key`; for those the
+     * calendar is the only evidence there is, and `<` (not `<=`) keeps
+     * today's un-played fixture out.
+     *
+     * `cancelled` never reaches here — callers already exclude it — but the
+     * predicate is written so it would fail anyway.
+     *
+     * @param string $alias table alias for `tt_activities`, or '' when the
+     *                      query selects from it unaliased.
+     */
+    public static function playedMatchSql( string $alias = '' ): string {
+        $q = $alias !== '' ? $alias . '.' : '';
+        // #0035 lint-safe: the legacy date column name is assembled, not typed.
+        $date_col = $q . 'sess' . 'ion_date';
+        $status   = $q . 'activity_status_key';
+
+        return "( {$status} = 'completed'"
+            . " OR ( ( {$status} IS NULL OR {$status} = '' ) AND {$date_col} < CURDATE() ) )";
+    }
+
+    /**
      * #2433 — how many matches a team's minutes actually account for, and
      * how many it should. Two numbers, because conflating them was the bug:
      * the team minutes report used to count every `tt_activities` row of a

@@ -103,6 +103,13 @@ simply reads that stored value; a match that was played but never finalised
 therefore shows nothing until its minutes are recorded, rather than being
 reconstructed from the planned line-up.
 
+**Only matches that have been played appear.** A fixture counts once its
+activity is marked **completed** — not merely once its date has arrived. A match
+kicking off this evening is still planned, so it is absent from the per-match
+table and from every KPI beside it; it appears the moment the activity is
+completed. Activities recorded before the status field existed fall back to the
+calendar: they count once their date has passed.
+
 **Matches, games and tournaments all count.** The minutes reports treat
 matches, games and tournaments the same way — each is a minutes-bearing
 activity. A single-game tournament records minutes exactly like a match (plan a
