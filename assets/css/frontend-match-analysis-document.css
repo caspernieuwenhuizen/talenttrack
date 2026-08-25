@@ -13,6 +13,8 @@
  *   .tt-mad--print           — the standalone print route's variant
  *   .tt-mad__head/__id/__eyebrow/__title/__vs/__facts/__score
  *   .tt-mad__summary         — the coach's overall read, boxed
+ *   .tt-mad__goals/__goals-title/__goal-list/__goal[--for|--against]
+ *   .tt-mad__goal-min/__goal-who/__goal-assist
  *   .tt-mad__body            — chains + players
  *   .tt-mad__chain/__chain-head
  *   .tt-mad__tile[data-rating]/__tile-head/__tile-name/__tile-rating
@@ -317,4 +319,66 @@
     border-top: 1px solid var(--tt-line);
     color: var(--tt-muted);
     font-size: var(--tt-fs-sm);
+}
+
+/* ---- Goals (#2860) ------------------------------------------ *
+ * The result, in the order it happened, above the phase tiles. A
+ * two-column list rather than a drawn timeline: what a coach reads off
+ * it is the sequence and the gaps between the minutes, and a list gives
+ * both at 360px and in print without a single absolute position. */
+
+.tt-mad__goals {
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mad__goals-title {
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.tt-mad__goal-list {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-mad__goal {
+    display: flex;
+    align-items: baseline;
+    gap: var(--tt-sp-2);
+    padding: 6px var(--tt-sp-2);
+    border-left: 3px solid var(--tt-line);
+    background: var(--tt-bg-soft);
+    line-height: var(--tt-lh-body);
+}
+
+/* Ours and theirs are told apart by the edge, not by colour alone —
+ * the sheet is printed in greyscale as often as it is read on screen. */
+.tt-mad__goal--for     { border-left-color: var(--tt-success, #2f9e5e); }
+.tt-mad__goal--against { border-left-color: var(--tt-muted); }
+.tt-mad__goal--against .tt-mad__goal-who { color: var(--tt-muted); }
+
+.tt-mad__goal-min {
+    min-width: 3.2em;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-mad__goal-who {
+    font-weight: 600;
+}
+
+.tt-mad__goal-assist {
+    margin-left: auto;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    text-align: right;
 }

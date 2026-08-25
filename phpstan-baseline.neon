@@ -7180,7 +7180,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$id\\.$#"
-			count: 7
+			count: 9
 			path: src/Modules/MatchAnalysis/Services/MatchAnalysisComposer.php
 
 		-

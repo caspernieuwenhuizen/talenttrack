@@ -24838,6 +24838,20 @@ msgstr "Nog geen doelpunten of wissels vastgelegd."
 msgid "Opponent goal"
 msgstr "Doelpunt tegenstander"
 
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:312
+msgid "Scorer not recorded"
+msgstr "Maker niet vastgelegd"
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:305
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
+#: src/Modules/MatchAnalysis/Frontend/MatchAnalysisDocument.php:322
+#, php-format
+msgid "assist %s"
+msgstr "assist %s"
+
 # #1713 — match-execution vertical pitch + Live verloop event log
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:409
 #: src/Modules/MatchExecution/Services/MatchEventFeedService.php:94
