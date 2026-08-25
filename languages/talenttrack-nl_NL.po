@@ -54890,6 +54890,28 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2521
+msgid "Showing only:"
+msgstr "Alleen getoond:"
+
+#. translators: %s = the filter being removed, e.g. a player name or a date range
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2528
+#, php-format
+msgid "Remove filter: %s"
+msgstr "Filter verwijderen: %s"
+
+#. translators: %d = player id
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2487
+#, php-format
+msgid "Player #%d"
+msgstr "Speler #%d"
+
+#. translators: 1: activities attended, 2: activities counted
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:318
+#, php-format
+msgid "(%1$s/%2$s)"
+msgstr "(%1$s/%2$s)"
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."

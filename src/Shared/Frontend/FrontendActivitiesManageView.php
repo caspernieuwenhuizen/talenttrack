@@ -1956,6 +1956,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $reset_args = [ 'tt_view' => 'activities' ];
         if ( ! empty( $_GET['tt_back'] ) ) $reset_args['tt_back'] = (string) $_GET['tt_back'];
 
+        // #2834 — an inbound drill-down says what it narrowed to. The player,
+        // the window and the type arrive as hidden form fields: honoured by
+        // the query, invisible to the reader, so the list looked like an
+        // ordinary list that happened to be short and a coach could not tell
+        // which activities the number they clicked was counted from.
+        self::renderDrillContext( $player_filter, $date_from_override, $date_to_override, $dash_url );
+
         FilterBar::render( [
             'hidden'       => $hidden,
             'active_count' => $active_count,
@@ -2486,6 +2493,79 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * Resolve the localised label for a lookup-backed key. Returns ''
      * when the lookup isn't found.
      */
+    /**
+     * #2834 — the "you arrived here from a report" strip.
+     *
+     * Renders nothing on an ordinary visit. When the URL carries a
+     * `player_id` or an explicit `date_from` / `date_to` — the parameters an
+     * attendance drill-down adds — it names each one as a chip with an × that
+     * clears that constraint alone and leaves the others standing.
+     *
+     * Team and type are deliberately NOT repeated here: those are real
+     * controls in the FilterBar below, and a reader can already see and
+     * change them. These three have no control of their own, which is exactly
+     * why they were invisible.
+     */
+    private static function renderDrillContext( int $player_id, string $date_from, string $date_to, string $dash_url ): void {
+        if ( $player_id <= 0 && $date_from === '' && $date_to === '' ) return;
+
+        // Everything currently on the URL, minus WordPress's own noise, so a
+        // chip's × preserves the rest of the state.
+        $base = [];
+        foreach ( [ 'tt_view', 'team_id', 'activity_type_key', 'period', 'archived', 'include_past', 'show_cancelled', 'tt_back', 'player_id', 'date_from', 'date_to' ] as $key ) {
+            if ( ! empty( $_GET[ $key ] ) ) {
+                $base[ $key ] = sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+            }
+        }
+        $base['tt_view'] = 'activities';
+
+        $chips = [];
+
+        if ( $player_id > 0 ) {
+            $player = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
+            $name   = $player
+                ? \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player )
+                : sprintf( /* translators: %d = player id */ __( 'Player #%d', 'talenttrack' ), $player_id );
+
+            $chips[] = [
+                'label'  => $name,
+                'remove' => add_query_arg( array_diff_key( $base, [ 'player_id' => 1 ] ), $dash_url ),
+            ];
+        }
+
+        if ( $date_from !== '' || $date_to !== '' ) {
+            $window = $date_from !== '' && $date_to !== ''
+                ? sprintf(
+                    /* translators: 1: window start date, 2: window end date */
+                    __( '%1$s – %2$s', 'talenttrack' ),
+                    \TT\Shared\Dates\TTDate::date( $date_from ),
+                    \TT\Shared\Dates\TTDate::date( $date_to )
+                )
+                : \TT\Shared\Dates\TTDate::date( $date_from !== '' ? $date_from : $date_to );
+
+            $chips[] = [
+                'label'  => $window,
+                'remove' => add_query_arg( array_diff_key( $base, [ 'date_from' => 1, 'date_to' => 1 ] ), $dash_url ),
+            ];
+        }
+
+        echo '<div class="tt-act-drill-context">';
+        echo '<span class="tt-act-drill-context__lead">'
+            . esc_html__( 'Showing only:', 'talenttrack' ) . '</span>';
+        foreach ( $chips as $chip ) {
+            echo '<span class="tt-act-drill-context__chip">'
+                . '<span class="tt-act-drill-context__label">' . esc_html( (string) $chip['label'] ) . '</span>'
+                . '<a class="tt-act-drill-context__clear" href="' . esc_url( (string) $chip['remove'] ) . '"'
+                . ' aria-label="' . esc_attr( sprintf(
+                    /* translators: %s = the filter being removed, e.g. a player name or a date range */
+                    __( 'Remove filter: %s', 'talenttrack' ),
+                    (string) $chip['label']
+                ) ) . '">&times;</a>'
+                . '</span>';
+        }
+        echo '</div>';
+    }
+
     private static function lookupLabelByName( string $type, string $name ): string {
         if ( $name === '' ) return '';
         static $cache = [];

@@ -95,6 +95,14 @@
     text-align: right;
     color: var(--tt-ink);
 }
+/* #2834 — the fraction the percentage came from, quieter than the number
+   itself: it explains the figure rather than competing with it. */
+.tt-dashboard .tt-att-bar__of {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
 .tt-dashboard .tt-att-bar .track {
     width: 84px;
     height: 8px;
