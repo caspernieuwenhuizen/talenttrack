@@ -86,6 +86,29 @@ Above the filter bar on every standard report — the team, player and leaderboa
 
 Each chip has a **…** button that opens a small dialog: rename the view, tick **Also replace its filters with the ones set now** to point it at your current filters, or delete it. Renaming keeps the filters; replacing the filters keeps the name. Saving a name you have already used on the same screen is refused — the same name on a different screen, or used by someone else, is fine. Saving, listing and deleting run over the REST API (`GET/POST /filter-presets`, `DELETE /filter-presets/{id}`), gated on the capability of the surface the view belongs to — `tt_view_analytics` for these reports. The retired `/reports/filter-presets` paths still answer for one release. Saved views are no longer reports-only: they are part of the shared filter bar, so any view built on it can offer them.
 
+## Reading the player attendance table
+
+**Present carries its percentage and the fraction behind it** — *33,3% (1/3)*.
+Over three activities a percentage on its own is noise; the fraction says what
+actually happened without any arithmetic.
+
+**Late, Absent, Excused and Injured show the count**, not a percentage. Two
+missed sessions read as **2**. The columns sort numerically, so 2 comes before
+10.
+
+## Drilling into the activities behind a number
+
+The **Activities** count and the at-risk badge both open the activities list,
+narrowed to exactly what the number was counted from: that player, that date
+window, that team — **and the activity type the report is filtered to**. Filter
+the report to *Training* and the drill-down shows trainings, not the team's
+whole calendar.
+
+The list says so when you arrive. Above the filter bar a **Showing only:** strip
+names the player and the date window, each with an **×** that clears that one
+constraint and leaves the rest standing. Team and type appear in the filter bar
+itself, where you can already see and change them.
+
 ## Drilling into a team's players (team report)
 
 On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.

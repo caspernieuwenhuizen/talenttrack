@@ -681,6 +681,57 @@
 .tt-dashboard .tt-act-card-d__body--prewrap { white-space: pre-wrap; }
 .tt-dashboard .tt-act-card-d__muted { color: var(--tt-ink-soft, #5b6e75); }
 
+/* ---- #2834: inbound drill-down context ----------------------
+   "Showing only: <player> · <window>" above the filter bar, when the list
+   was reached from a report. Each chip's × clears that one constraint. */
+.tt-dashboard .tt-act-drill-context {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+.tt-dashboard .tt-act-drill-context__lead {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-act-drill-context__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 0 0 10px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: 999px;
+    background: var(--tt-bg-soft, #f4f6f3);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+}
+/* The chip is the label plus its own dismiss target. The × carries the
+   48px floor on its own so the chip stays compact while the tap area does
+   not — a 48px-tall pill for a one-word filter reads as a button. */
+.tt-dashboard .tt-act-drill-context__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 1rem;
+    line-height: 1;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-drill-context__clear:hover,
+.tt-dashboard .tt-act-drill-context__clear:focus-visible {
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-act-drill-context__clear:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 2px;
+    border-radius: 999px;
+}
+
 /* ---- Principle pills (O / A / V) ----------------------------
    #2831 — moved to assets/css/components/principle-pills.css, so the match
    prep screen and the printed team sheet draw the identical pill rather
