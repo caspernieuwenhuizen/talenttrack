@@ -198,6 +198,21 @@ final class MatchPrepPrintableRenderer {
 
         <div class="tt-mpp-bottom">
             <div class="tt-mpp-bottom-col">
+                <?php
+                // #2831 — the principles this match is working on, above the
+                // goals written against them. Unlinked: on a sheet handed to
+                // an assistant a link is ink, not a destination.
+                $printed_principles = \TT\Modules\Methodology\Services\ActivityPrinciples::forActivity( $activity_id );
+                if ( $printed_principles !== [] ) :
+                    ?>
+                    <?php /* English msgid, unlike the Dutch-literal labels around it — 'Principles' is already in the catalogue and renders "Principes". */ ?>
+                    <h2><?php esc_html_e( 'Principles', 'talenttrack' ); ?></h2>
+                    <div class="tt-mpp-principles">
+                        <?php
+                        echo \TT\Modules\Methodology\Frontend\PrinciplePills::render( $printed_principles, false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the component.
+                        ?>
+                    </div>
+                <?php endif; ?>
                 <h2><?php esc_html_e( 'Wedstrijddoelen', 'talenttrack' ); ?></h2>
                 <table class="tt-mpp-goals-table">
                     <?php
@@ -312,6 +327,14 @@ final class MatchPrepPrintableRenderer {
         h1 { font-size: 16pt; margin: 0 0 4px; }
         h2 { font-size: 12pt; margin: 10px 0 4px; }
         .tt-mpp-meta { color: #5b6e75; font-size: 10pt; margin: 0 0 8px; }
+        /* #2831 — the O/A/V principle pill. The screen's copy lives in
+           assets/css/components/principle-pills.css; this document inlines
+           its CSS, so the three bucket colours appear in both places. */
+        .tt-mpp-principles { margin: 0 0 8px; }
+        .tt-mpp-principles .tt-act-pp { display: inline-block; padding: 3px 7px; border-radius: 6px; font-size: 9pt; font-weight: 600; margin: 0 4px 4px 0; border: 1px solid; line-height: 1.3; }
+        .tt-mpp-principles .tt-act-pp--O { background: #fff3c4; border-color: #e3c75e; color: #7a5a08; }
+        .tt-mpp-principles .tt-act-pp--A { background: #fde9d6; border-color: #f3c79b; color: #8a3b00; }
+        .tt-mpp-principles .tt-act-pp--V { background: #dfeede; border-color: #a8d2a4; color: #1f5a1a; }
         .tt-mpp-pitches { display: table; width: 100%; margin: 0 0 6px; }
         .tt-mpp-pitch { display: table-cell; width: 50%; padding-right: 8px; vertical-align: top; }
         .tt-mpp-pitch:last-child { padding-right: 0; padding-left: 8px; }

@@ -141,6 +141,32 @@
 /* -------------------------------------------------------------------
  * Match goals — promote the whole panel + each goal box to cards.
  * ------------------------------------------------------------------- */
+/* #2831 — what the academy says this match is working on, read from the
+   activity. Sits directly above the goal boxes, which are written against
+   it, and carries the same panel chrome so the two read as one column. */
+.tt-match-prep .tt-mp-principles {
+    border: 1px solid #e3e6e1;
+    border-radius: var(--tt-mp-radius);
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem;
+    margin: 0 0 0.75rem;
+}
+.tt-match-prep .tt-mp-principles__title {
+    margin: 0 0 0.5rem;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+}
+.tt-match-prep .tt-mp-principles__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.tt-match-prep .tt-mp-principles__empty {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.875rem;
+}
+
 .tt-match-prep .tt-mp-goals {
     border: 1px solid #e3e6e1;
     border-radius: var(--tt-mp-radius);

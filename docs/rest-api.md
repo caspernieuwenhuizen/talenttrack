@@ -215,6 +215,32 @@ Same body shape. The handler **only wipes `is_guest = 0` rows** before re-insert
 
 The plan-status keys map to a stored `attendance_status`: `expected` → `present`, `not_coming` → `absent`, `maybe` → `excused` (`excused` is reused so no lookup seed/migration is needed). These rows are written with `record_type = 'expected'` and are wiped/re-inserted **independently** of the `record_type = 'actual'` roster rows above, so recorded attendance and the attendance reports are never touched. `GET /activities/{id}/planned-attendance` returns each expected row's `status`, `plan_status`, and `notes`. Gated on `tt_edit_activities`.
 
+### `GET /activities/{id}/principles` (#2831)
+
+The methodology principles an activity is linked to, read through the same
+domain service the activity detail card, the match-prep screen and the printed
+team sheet compose from — so a non-WordPress front end draws the identical row.
+
+```json
+{
+  "activity_id": 412,
+  "count": 2,
+  "principles": [
+    { "id": 7,  "code": "O3", "title": "Opbouwen van achteruit", "bucket": "O", "label": "O3 · Opbouwen van achteruit" },
+    { "id": 21, "code": "V1", "title": "Druk zetten op de bal",  "bucket": "V", "label": "V1 · Druk zetten op de bal" }
+  ]
+}
+```
+
+`bucket` is the O / A / V colour class the pill uses, derived from the first
+letter of `code`; a consumer that wants its own palette has the `code` it comes
+from. Read-only by design — principles are attached through the
+`activity_principle_ids[]` field on `PUT /activities/{id}`, so this route
+reports what a match is working on rather than offering a second place to
+decide it. Gated on `tt_view_activities`. Returns an empty list (not a 404) for
+an activity with no principles, and for an install running without the
+Methodology module.
+
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json

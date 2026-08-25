@@ -32,7 +32,8 @@ volgen:
   automatisch berekend uit `helftduur × (op veld ? 1 : 0)`; pas je
   **Helftduur** boven aan, dan loopt iedere rij live mee.
 - **Midden** — twee halve velden naast elkaar met een `→`-kopieerknop
-  ertussen. Daaronder de **Wedstrijddoelen**-paneel — bovenaan één
+  ertussen. Daaronder het **Principes**-paneel (zie hieronder), en
+  daaronder het **Wedstrijddoelen**-paneel — bovenaan één
   volledige *Algemeen*-box, daarna een 2×2 grid van *Aanvallen /
   Verdedigen* en *Spelhervattingen / Spelhervattingen*. Iedere box
   heeft vier korte tekstvelden (bullet-stijl) — geschreven voor de
@@ -43,6 +44,25 @@ volgen:
   videoanalist toegewezen aan deze speler." **Rollen &
   standaardsituaties** bevat zes rijen — Aanvoerder, Hoekschop links /
   rechts, Vrije trap links / rechts (voorzet), Strafschop.
+
+## Principes — waar deze wedstrijd over gaat
+
+Boven de doelenvakken staat een alleen-lezen paneel **Principes**: de
+principes waaraan de activiteit gekoppeld is, in dezelfde O / A / V-kleurpills
+als op de activiteitenpagina. Het staat er zodat je de wedstrijddoelen schrijft
+tegen het principe waar het team werkelijk aan werkt, en niet uit je hoofd.
+
+**Principes koppel je op de activiteit, niet hier.** Eén plek die antwoord
+geeft op "waar gaat deze wedstrijd over" is precies waarom het paneel meeleest
+in plaats van opnieuw te laten kiezen — twee kiezers geven vroeg of laat twee
+antwoorden. Heeft een wedstrijd nog geen principes, dan zegt het paneel dat en
+verwijst het rechtstreeks naar het bewerkformulier van de activiteit (alleen
+als je activiteiten mag bewerken). Draait je academie zonder de
+Methodiek-module, dan verschijnt het paneel helemaal niet.
+
+De principes gaan mee in de afdruk. Ze staan op het papieren wedstrijdformulier
+en in de PDF-export, boven de doelen, zodat een assistent die met het formulier
+werkt hetzelfde kader ziet als jij.
 
 ## Spelers op posities zetten
 

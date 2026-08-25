@@ -130,6 +130,20 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
+        // #2831 — the methodology principles an activity is linked to, read
+        // through the same domain service the activity detail card, the match
+        // prep screen and the printed team sheet compose from. Read-only by
+        // design: principles are attached on the activity itself (the
+        // `activity_principle_ids[]` field the PUT already accepts), so this
+        // route reports what a match is working on rather than offering a
+        // second place to decide it.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/principles', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_principles' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/attendance/(?P<id>\d+)', [
             [
                 'methods'             => 'PATCH',
@@ -1760,6 +1774,32 @@ class ActivitiesRestController {
             'activity_id' => $id,
             'count'       => count( $out ),
             'roster'      => $out,
+        ] );
+    }
+
+    /**
+     * #2831 — the methodology principles this activity is linked to.
+     *
+     * Reads `ActivityPrinciples`, the same domain service the activity detail
+     * card, the match-prep screen and the printed team sheet compose from, so
+     * a non-WordPress front end draws the identical row (CLAUDE.md §4). The
+     * `bucket` is the O/A/V colour class the pill uses; a consumer that wants
+     * its own palette has the `code` it is derived from.
+     */
+    public static function get_principles( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+
+        if ( ! self::repo()->activityExists( $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        $principles = \TT\Modules\Methodology\Services\ActivityPrinciples::forActivity( $id );
+
+        return RestResponse::success( [
+            'activity_id' => $id,
+            'count'       => count( $principles ),
+            'principles'  => $principles,
         ] );
     }
 
