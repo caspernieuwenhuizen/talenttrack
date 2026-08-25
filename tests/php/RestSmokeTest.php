@@ -317,13 +317,6 @@ final class RestSmokeTest extends WP_UnitTestCase {
     }
 
     /**
-     * Assert the TalentTrack success envelope shape: `success === true`,
-     * a `data` key, and an empty `errors` array.
-     *
-     * @param mixed $body
-     */
-    /**
-<<<<<<< HEAD
      * #2831 — the principles route answers with the envelope and an empty
      * list for an activity with none linked, rather than a 404. "This match
      * is working on nothing yet" is an answer; a 404 would say the activity
@@ -398,6 +391,12 @@ final class RestSmokeTest extends WP_UnitTestCase {
         $this->assertSame( 404, $res->get_status() );
     }
 
+    /**
+     * Assert the TalentTrack success envelope shape: `success === true`,
+     * a `data` key, and an empty `errors` array.
+     *
+     * @param mixed $body
+     */
     private function assertEnvelopeSuccess( $body ): void {
         $this->assertIsArray( $body, 'response body is the envelope array' );
         $this->assertArrayHasKey( 'success', $body );
