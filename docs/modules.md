@@ -170,13 +170,28 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 - **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). This is a `FeatureRegistry` feature, managed on the frontend Modules page next to the others (the wp-admin Modules page still works too; both write the same `tt_feature_state` row). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. The toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
 
-## Read-only status for everyone (`?tt_view=features`,)
+## The capability catalog for everyone (`?tt_view=features`)
 
-The Modules page is admin-only (it's a write surface). For transparency, every user — coach, player, parent — gets a read-only **Features** view at **`?tt_view=features`**, reachable from a **Features** tile under the **About** group on the dashboard. It needs no special capability.
+The Modules page is admin-only (it's a write surface). Every user — coach, player, parent — gets a read-only **Features** view at **`?tt_view=features`**, reachable from a **Features** tile under the **About** group on the dashboard. It needs no special capability.
 
-It lists each user-facing module with an **On / Off / Always on** badge, a one-line "Provides:" summary (built from the surfaces the module owns), and any sub-feature toggles nested beneath it with their own badge + description. There are no controls — it's a snapshot of what's live. Users who *can* manage modules see a **Manage modules & features** link that jumps to the editable page.
+The page opens with a summary of how much of TalentTrack the academy is running ("Your academy is running 14 of 19 TalentTrack capabilities"), then splits into two sections:
 
-The same data is available over REST at `GET /wp-json/talenttrack/v1/feature-status` (any logged-in user). All the shaping lives in `FeatureStatusService`, so the view and the API return the same answer. Only modules that actually present something to a user (own a tile or a feature) appear — pure-infrastructure modules are omitted.
+- **In use** — what's switched on today.
+- **Available to switch on** — part of TalentTrack, not enabled here yet.
+
+Both sections group their cards by category (Player data, Coaching & development, Planning & match day, and so on), and each card carries the module's icon, its written name and a one-line description of what it's for, an **Includes** line naming the screens it adds, and any sub-features nested beneath it with their own On/Off badge.
+
+There are no controls anywhere on the page and no card links into the management page — it's a catalog, not a second write surface. Users who *can* manage modules see a **Manage modules & features** link in the page header that jumps to the editable page.
+
+Three things are deliberately left out:
+
+- **Always-on core** — authentication, configuration and authorization. They can't be switched off, so listing them as capabilities is noise.
+- **Advanced / developer modules** — the seed-review and custom-widget tooling. Not academy-facing.
+- **Anything under development that isn't switched on.** A module or feature flagged "under development" (see above) while still off is not advertised. One that's flagged *and* already on stays listed under **In use**, carrying its amber pill — its screens are live on the dashboard, so hiding it here would only confuse.
+
+Modules that present nothing to a user (no tile, no feature) never appear, on this page or in the API.
+
+The same catalog is available over REST at `GET /wp-json/talenttrack/v1/feature-catalog` (any logged-in user). The older `GET /wp-json/talenttrack/v1/feature-status` is unchanged and still returns the complete, unfiltered list of modules and features — including always-on and under-development ones — for callers auditing state rather than reading a catalog. All the shaping for both lives in `FeatureStatusService`, so the view and the API return the same answer.
 
 ## Switchability — the contract a new module must satisfy
 

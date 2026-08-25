@@ -107,9 +107,15 @@ php tools/check-docs.php --base=origin/main  # adds the diff-only voice rules
 | 10 | Every `](?tt_view=<slug>)` names a routable slug. | corpus |
 | 11 | No version stamp or `#NNNN` **added** to a `user` / `player` / `parent` topic. | diff |
 | 12 | No "coming soon" / "planned for" / "in a future release" **added**. | diff |
+| 13 | Every `user` / `player` / `parent` / `admin` topic has an `nl_NL` twin. | corpus |
+| 14 | The twin's `title` and `summary` are translated; its `group`, `audience` and `order` match the English. | corpus |
 | 15 | Every file is valid UTF-8. | corpus |
 
-Rules 13-14 (every reader-facing topic has an `nl_NL` twin with translated `title` and `summary`) land with the translation pass in #2550 — enforcing them before the corpus can pass would just mean an exempt label on every PR.
+Rules 13-14 were held back until the translation pass brought the corpus to parity — enforcing them earlier would have meant an exempt label on every PR, which is the same as no rule.
+
+`group`, `audience` and `order` must be *identical* in both files, because they key off one registry entry; only `title` and `summary` are translated. A Dutch `title` identical to the English one is treated as untranslated, since that is nearly always what it means. For the handful of words that genuinely do not change — *Modules* — add them to `$identicalByDesign` in `tools/check-docs.php`, so each one is a decision somebody made rather than a hole in the rule.
+
+`audience: [dev]` topics need no twin: dev docs are English-only by design, and the rule skips them.
 
 Rule 15 is the one that is not about documentation. A sweep over the corpus in #2546 used `preg_split('/\R/')` without the `u` modifier; outside Unicode mode PCRE treats `\x85` as a line break, and `\x85` is the third byte of `★` (`E2 98 85`). Two files shipped with fifteen lines of replacement characters, through every other gate in the repo. **When scripting an edit across the corpus, split on `"\n"` after normalising CRLF — never `\R` without `/u`.**
 

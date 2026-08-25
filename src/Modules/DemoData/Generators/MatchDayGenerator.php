@@ -279,15 +279,31 @@ class MatchDayGenerator implements DependentGeneratorInterface {
         ] );
 
         // Our goals get a scorer from the XI; the opponent's don't.
+        // #2856 — roughly half carry an assist and one in eight has no
+        // scorer at all, so the demo academy shows the states a real match
+        // produces: an attributed goal, a goal nobody could attribute, and
+        // the "needs a scorer" prompt the review raises for the latter.
         for ( $i = 0; $i < $home_goals; $i++ ) {
-            $scorer = (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
+            $unattributed = mt_rand( 1, 8 ) === 1;
+            $scorer = $unattributed ? 0 : (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
+
+            $assist = null;
+            if ( ! $unattributed && count( $starting ) > 1 && mt_rand( 0, 1 ) === 1 ) {
+                do {
+                    $candidate = (int) $starting[ mt_rand( 0, count( $starting ) - 1 ) ];
+                } while ( $candidate === $scorer );
+                $assist = $candidate;
+            }
+
             $exec_repo->logGoalEvent(
                 $execution_id,
                 self::uuid(),
                 $scorer,
                 mt_rand( 1, 2 ),
                 mt_rand( 1, self::HALF_LENGTH ),
-                'home'
+                'home',
+                $assist,
+                false
             );
         }
         for ( $i = 0; $i < $away_goals; $i++ ) {

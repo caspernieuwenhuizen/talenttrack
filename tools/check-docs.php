@@ -84,6 +84,18 @@ $devOnly = [
 
 $noHelpTopic = (array) require $root . '/config/no_help_topic.php';
 
+/**
+ * Front-matter strings that are legitimately the same word in Dutch.
+ *
+ * Rule 14 flags a Dutch `title` or `summary` identical to its English
+ * source, because that is almost always an untranslated file. A handful of
+ * words genuinely do not change. Keeping them here rather than softening
+ * the rule means each one was a decision somebody made.
+ */
+$identicalByDesign = [
+    'Modules',
+];
+
 /** Every routable `?tt_view=` slug, read out of the dispatcher. */
 $routable = ( static function () use ( $root ): array {
     $tokens = token_get_all( (string) file_get_contents( $root . '/src/Shared/Frontend/DashboardShortcode.php' ) );
@@ -166,6 +178,38 @@ foreach ( $files as $path ) {
     }
 
     if ( ! $isLocalised ) $registered[ $slug ] = true;
+
+    // 13-14. translation parity. Deferred out of #2551 until #2550 brought
+    // the corpus to parity — enforcing it before the translation pass would
+    // have meant an exempt label on every PR, which is the same as no rule.
+    if ( ! $isLocalised ) {
+        $aud_now  = DocFrontMatter::list( $data, 'audience' );
+        $needsNl  = (bool) array_intersect( $aud_now, [ 'user', 'player', 'parent', 'admin' ] );
+        $nlPath   = $root . '/docs/nl_NL/' . $slug . '.md';
+
+        if ( $needsNl && ! file_exists( $nlPath ) ) {
+            $note( $rel, 'is reader- or admin-facing but has no docs/nl_NL twin. The install is Dutch; an English-only topic here is a silent gap' );
+        } elseif ( $needsNl ) {
+            $nlData = DocFrontMatter::parse( (string) file_get_contents( $nlPath ) );
+            if ( $nlData === [] ) {
+                $note( "docs/nl_NL/$slug.md", 'has no front matter, so the Dutch TOC falls back to the English title' );
+            } else {
+                foreach ( [ 'title', 'summary' ] as $k ) {
+                    $enV = DocFrontMatter::string( $data, $k );
+                    $nlV = DocFrontMatter::string( $nlData, $k );
+                    if ( $enV === '' || $nlV === '' ) continue;
+                    if ( $enV === $nlV && ! in_array( $enV, $identicalByDesign, true ) ) {
+                        $note( "docs/nl_NL/$slug.md", "$k: is identical to the English (\"$enV\"). Translate it, or add it to \$identicalByDesign in this file if the word is the same in Dutch" );
+                    }
+                }
+                foreach ( [ 'group', 'audience', 'order' ] as $k ) {
+                    if ( DocFrontMatter::string( $data, $k ) !== DocFrontMatter::string( $nlData, $k ) ) {
+                        $note( "docs/nl_NL/$slug.md", "$k: differs from the English twin. These three key off the same registry entry and must match; only title and summary are translated" );
+                    }
+                }
+            }
+        }
+    }
 
     // 2. group
     $group = DocFrontMatter::string( $data, 'group' );

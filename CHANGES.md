@@ -1,7 +1,86 @@
-# TalentTrack v4.102.0 — The Help icon now opens help for the screen you are on. It previously opened
+# TalentTrack v4.103.0 — Every screen now says whether it is meant for a phone (#2807)
 
-"Getting started" on about 117 of the 144 screens, because the mapping was a
-hand-maintained list that covered 27 of them.
+Until now the app had only ever been told about twenty-five of its screens:
+a handful were marked "needs a desktop", three were marked "built for a
+phone", and the remaining hundred and twenty-five were treated as phone-
+friendly by default — not because anyone had decided they were, but because
+nobody had said otherwise.
+
+All 151 screens now carry an explicit answer, each with a sentence saying
+why. Fifty-six screens that a phone could open and shouldn't have — bulk
+grids, permission matrices, imports, integration setup — now say so and
+offer to email the link instead. Twenty-eight are recognised as phone-first
+and get the mobile layout properly. Analytics, Reports and Usage statistics
+open on a phone for the first time.
+
+Academies that would rather their people squint at a desktop layout can
+still switch the whole thing off in Configuration, and tablets are never
+affected.
+
+# TalentTrack v4.103.0 — Goals can carry an assist, and no longer have to name a scorer (#2856)
+
+A logged goal now records who assisted it as well as who scored it, and
+either can be left unrecorded. Until now a goal for our team was refused
+outright unless it named a scorer, which left a coach who did not see the
+final touch — or an own goal, which has no scorer on the side it counts
+for — with nowhere to put it.
+
+The REST surface follows: `POST` and `PATCH /match-execution/{activity}/goal-event`
+accept `assist_player_id` and `is_own_goal`, and the PATCH corrects the
+attribution as well as the minute. The two halves of that payload are
+independent, so correcting a minute cannot silently drop a scorer, and
+attributing a goal cannot reset its minute. A scorer or assist naming
+somebody outside the match squad is refused, as is a player assisting
+their own goal.
+
+Erasing a player now clears them from the goals they were involved in
+rather than deleting those goals. The behaviour was always documented as
+such, but the goal's scorer column is `NOT NULL` and so fell through to a
+cascade delete — which, with the score about to derive from these events,
+would have quietly rewritten the result of a match already played.
+
+Existing goals read back exactly as before: attributed, with no assist.
+
+# TalentTrack v4.103.0 — The **Features** page (`?tt_view=features`) is now a capability catalog rather than a flat list. It opens with a summary of how much of TalentTrack the academy is running, then splits into **In use** and **Available to switch on**, each grouped by category, with every card carrying the module's icon, its written name and a line on what it's for. Always-on core modules and developer tooling no longer clutter the page, and anything marked *under development* that isn't switched on is left out — a feature that's flagged but already live still shows under **In use** with its amber pill. The page stays read-only: no card toggles anything or links into the management page. The catalog is also available over REST at `GET /talenttrack/v1/feature-catalog`; the existing `/feature-status` endpoint is unchanged.
+
+The **Features** page (`?tt_view=features`) is now a capability catalog rather than a flat list. It opens with a summary of how much of TalentTrack the academy is running, then splits into **In use** and **Available to switch on**, each grouped by category, with every card carrying the module's icon, its written name and a line on what it's for. Always-on core modules and developer tooling no longer clutter the page, and anything marked *under development* that isn't switched on is left out — a feature that's flagged but already live still shows under **In use** with its amber pill. The page stays read-only: no card toggles anything or links into the management page. The catalog is also available over REST at `GET /talenttrack/v1/feature-catalog`; the existing `/feature-status` endpoint is unchanged.
+
+# TalentTrack v4.102.1 — Help topics corrected where they described things the product does not do (#2549)
+
+Three topics were telling admins to do impossible things.
+
+**Impersonation** said the audit log is read at a REST endpoint that does not
+exist, and described a cross-club safeguard that is not implemented. It now
+says plainly that every impersonation is logged and that the log has no reader
+surface yet — which is a gap worth knowing about, not one to discover while
+trying to review who looked at a player's record.
+
+**Custom widgets** and **Modules** both told an admin to enable the builder
+with a `wp option update tt_custom_widgets_enabled 1` command. That option was
+replaced by a feature toggle; following the instruction did nothing. Both now
+point at Access control → Features.
+
+Alongside that, the remaining changelog voice is gone from the topics a coach,
+player, parent or academy admin reads: version stamps in headings, issue
+numbers in prose, and "this used to work differently" asides that left a reader
+unable to tell current behaviour from history.
+
+# TalentTrack v4.102.1 — Dutch help topics can no longer go missing unnoticed (#2550)
+
+No user-facing change. The documentation gate now also checks translation
+parity: every topic a coach, player, parent or academy admin can read must have
+a Dutch twin, that twin's title and summary must actually be translated, and
+its group, audience and ordering must match the English.
+
+The corpus was brought to parity earlier in this epic. These two rules are what
+keep it there — before them, a topic could quietly ship English-only and nobody
+would find out until a Dutch coach opened it.
+
+# TalentTrack v4.102.0 — The Help icon opens help for the screen you are on (#2547)
+
+The Help icon previously opened "Getting started" on about 117 of the 144
+screens, because the mapping was a hand-maintained list that covered 27 of
+them.
 
 Each help topic now declares which screens it serves, and the map is derived
 from that — so 142 of the 144 screens resolve to a relevant topic. The
@@ -12,14 +91,14 @@ quietly showing the wrong topic.
 Also fixed: the Workflow screens and the PDP screen opened help on topics that
 did not exist, and fell through to "Getting started".
 
-# TalentTrack v4.102.0 — Forty-two help topics that existed only as files in the repository are now
+# TalentTrack v4.102.0 — Forty-two help topics that existed only in the repository are now readable in the app (#2548)
 
-readable in the app. Match day (match preparation, live match, minutes,
-attendance and ratings grids), Planning (team planner, training plans,
-tournaments, season rollover) and Operator guide (security, privacy, the photo
-DPIA, telemetry) are new sections in Help & Docs; measurements, injuries, the
-exercise library, bulk exports, the data browser, the audit log and the six
-Configuration sub-pages join the existing ones.
+Match day (match preparation, live match, minutes, attendance and ratings
+grids), Planning (team planner, training plans, tournaments, season rollover)
+and Operator guide (security, privacy, the photo DPIA, telemetry) are new
+sections in Help & Docs; measurements, injuries, the exercise library, bulk
+exports, the data browser, the audit log and the six Configuration sub-pages
+join the existing ones.
 
 The three persona guides — head coach, head of development, scout — were
 internal working notes and are now written for the people they are named after:
@@ -55,9 +134,9 @@ The Dutch twins of every help topic rewritten in the same release were rewritten
 alongside them, so the two languages describe the same product rather than
 drifting a release apart.
 
-# TalentTrack v4.102.0 — no-user-facing-change
+# TalentTrack v4.102.0 — A CI gate so the help corpus stops drifting (#2551)
 
-Adds `docs-lint.yml` + `tools/check-docs.php`: a CI gate over the documentation
+No user-facing change. Adds `docs-lint.yml` + `tools/check-docs.php`: a gate over the documentation
 corpus. It checks that every doc is either registered or explicitly dev-only,
 that the front-matter keys resolve to real modules, features, tiers and
 capabilities, that every routable screen is claimed by a help topic or listed
@@ -224,12 +303,12 @@ existing tests assert on are computed by different queries that never touch
 `tt_players` — which is how this survived three rounds of fixes to the numbers
 beside it.
 
-# TalentTrack v4.101.5 — Help topics now follow what the install actually runs. A topic whose module
+# TalentTrack v4.101.5 — Help topics follow what the install actually runs (#2546)
 
-is switched off, whose feature toggle is off, whose tier is above the
-licence, or whose capability the reader lacks is gone from the table of
-contents, the search box, the help drawer and its own URL — not shown with
-an "unavailable" badge. An academy that turns Methodology off stops seeing
+A topic whose module is switched off, whose feature toggle is off, whose tier
+is above the licence, or whose capability the reader lacks is gone from the
+table of contents, the search box, the help drawer and its own URL — not shown
+with an "unavailable" badge. An academy that turns Methodology off stops seeing
 the Methodology guide; a Free install no longer lists Pro documentation; a
 coach without access to the Data Browser is no longer walked into a
 permission-denied screen by its guide.

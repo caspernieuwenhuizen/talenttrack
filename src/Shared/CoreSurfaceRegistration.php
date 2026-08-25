@@ -221,68 +221,36 @@ final class CoreSurfaceRegistration {
     }
 
     /**
-     * #0084 Child 1 — initial mobile classification declarations.
-     * #0084 Child 3 (v3.104.0) — extends with the `native` set + the
-     * remaining desktop_only surfaces that landed after Child 1's
-     * 17-slug seed.
+     * Apply the mobile classification for every routable `?tt_view=` slug.
      *
-     * Other slugs resolve to `viewable` via `MobileSurfaceRegistry`'s
-     * default — backwards-compatible with the existing inventory.
+     * The list itself lives in `config/mobile_surfaces.php` (#2807), one
+     * entry per slug with the class and a sentence saying why. It used to
+     * be two hard-coded arrays here: populated once in #0084 and untouched
+     * through roughly twenty new modules, which is how 125 of 151 surfaces
+     * came to resolve to `viewable` by default rather than by decision.
+     *
+     * Moving it out follows `config/always_on_surfaces.php`, and buys the
+     * same three things: the whole policy is reviewable in one diff, a
+     * build step can check it against the dispatcher, and changing a
+     * surface's class is a one-line edit next to the reason it was given.
+     *
+     * An unreadable or absent file is not fatal — every slug then falls to
+     * `viewable`, which is exactly where they were before any of this.
      */
     private static function registerMobileClasses(): void {
-        $desktop_only = [
-            'configuration',
-            'custom-fields',
-            'eval-categories',
-            'roles',
-            'migrations',
-            'usage-stats',
-            'usage-stats-details',
-            'audit-log',
-            'cohort-transitions',
-            'custom-css',
-            'workflow-config',
-            'team-blueprints',
-            'methodology',
-            'invitations-config',
-            'trial-tracks-editor',
-            'trial-letter-templates-editor',
-            'wizards-admin',
-            // #0084 Child 3 — additional desktop_only routes.
-            'players-import',     // CSV mapping flow — laptop required.
-            // #918 — `onboarding-pipeline` moved out of desktop_only.
-            // Scouts hit the pipeline 5-15x per week from the pitch
-            // (per docs/scout-actions.md action #2); forcing a
-            // device-switch was friction the daily workflow couldn't
-            // bear. The view resolves to `viewable` via
-            // MobileSurfaceRegistry's default — kanban scrolls
-            // horizontally below 480px but no "use desktop" redirect.
-            // A full mobile-first audit (bump to `native`) ships
-            // separately if pilot asks.
-            'reports',            // wizard + multi-column tables.
-            // #0083 Child 3 — analytics dimension explorer.
-            'explore',
-            // #0083 Child 5 — central analytics surface.
-            'analytics',
-            // #0083 Child 6 — scheduled reports management.
-            'scheduled-reports',
-        ];
-        foreach ( $desktop_only as $slug ) {
-            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_DESKTOP_ONLY );
-        }
+        $file = TT_PLUGIN_DIR . 'config/mobile_surfaces.php';
+        if ( ! is_readable( $file ) ) return;
 
-        // #0084 Child 3 — `native` declarations. Coaches reach the
-        // player profile from the sideline ("is this kid match-fit?")
-        // and finish a training via the new-evaluation wizard on a
-        // phone all the time. These surfaces get the mobile pattern
-        // library auto-enqueued.
-        $native = [
-            'players',   // coach player profile
-            'wizard',    // every wizard goes through this aggregator slug
-            'teammate',  // player viewing a teammate's card
-        ];
-        foreach ( $native as $slug ) {
-            \TT\Shared\MobileSurfaceRegistry::register( $slug, \TT\Shared\MobileSurfaceRegistry::CLASS_NATIVE );
+        $map = require $file;
+        if ( ! is_array( $map ) ) return;
+
+        foreach ( $map as $slug => $entry ) {
+            // Tolerate both shapes: [ class, reason ] as written, and a
+            // bare class string, so a hand-edit that drops the reason
+            // still classifies rather than silently falling to viewable.
+            $class = is_array( $entry ) ? ( $entry[0] ?? '' ) : $entry;
+            if ( ! is_string( $class ) || $class === '' ) continue;
+            \TT\Shared\MobileSurfaceRegistry::register( (string) $slug, $class );
         }
     }
 
