@@ -14,7 +14,9 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  * events (team = 'away', no scorer) alongside ours, and the stored away_score
  * derives from their count. Covers: away goal POST (no player), the away score
  * syncing from goal counts, add/remove keeping it in step, the goal-minute
- * PATCH, and the home-goal-needs-a-scorer + finalized guards.
+ * PATCH, and the finalized guard. The home-goal-needs-a-scorer rule this
+ * originally pinned was deliberately reversed by #2856 — see
+ * MatchExecutionGoalAttributionRestTest.
  */
 final class MatchExecutionOpponentGoalRestTest extends WP_UnitTestCase {
 
@@ -115,14 +117,29 @@ final class MatchExecutionOpponentGoalRestTest extends WP_UnitTestCase {
         $this->assertSame( 1, $this->awayScore(), 'removing an opponent goal drops the away score' );
     }
 
-    public function test_home_goal_still_requires_a_scorer(): void {
-        $res = $this->post( 'goal-event', [
-            'event_uuid' => wp_generate_uuid4(),
+    /**
+     * #2856 reversed the #2275 rule. A coach who did not see the final touch
+     * has to be able to record the goal anyway — refusing it only pushed them
+     * onto the free score stepper, which recorded no event at all.
+     */
+    public function test_home_goal_no_longer_requires_a_scorer(): void {
+        $uuid = wp_generate_uuid4();
+        $res  = $this->post( 'goal-event', [
+            'event_uuid' => $uuid,
             'half'       => 1,
             'minute'     => 20,
             'team'       => 'home',
         ] );
-        $this->assertSame( 400, $res->get_status(), 'a home goal without a scorer is rejected' );
+        $this->assertSame( 200, $res->get_status(), 'a home goal without a scorer is accepted' );
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT player_id, team FROM {$wpdb->prefix}tt_match_execution_goal_events WHERE event_uuid = %s",
+            $uuid
+        ) );
+        $this->assertNotNull( $row );
+        $this->assertSame( 'home', (string) $row->team );
+        $this->assertSame( 0, (int) $row->player_id, '0 is the "no scorer recorded" sentinel' );
     }
 
     public function test_goal_minute_patch_is_registered_and_edits_the_minute(): void {

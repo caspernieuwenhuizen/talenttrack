@@ -26,9 +26,14 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *     extensions) which are removed first.
  *
  *   SET NULL — the row is a team/match fact that outlives the player.
- *     tt_match_execution_goal_events.player_id (the match score stays),
+ *     tt_match_execution_goal_events.assist_player_id (the goal stays),
  *     tt_prospects.player_id (the prospect record has its own
  *     retention clock; only the conversion link clears).
+ *
+ *   SET ZERO — same intent, for a NOT NULL column that cannot take a
+ *     NULL. tt_match_execution_goal_events.player_id: the goal, and so
+ *     the match score derived from it, survives the erasure with no
+ *     scorer recorded.
  *
  * The dynamic sweep self-heals as the schema grows: a future table
  * with a player_id column is covered without editing this class.
@@ -54,6 +59,27 @@ class PlayerDeletionCascade {
     private const SET_NULL = [
         'tt_match_execution_goal_events' => true,
         'tt_prospects'                   => true,
+    ];
+
+    /**
+     * #2856 — (table, column) pairs that must be anonymised rather than
+     * nulled, because the column is NOT NULL and the row is a match fact
+     * that outlives the player.
+     *
+     * `tt_match_execution_goal_events.player_id` was always meant to be
+     * cleared, not cascaded — the docblock above has said so since the
+     * class was written — but the SET_NULL branch only fires on a nullable
+     * column, and this one is NOT NULL, so erasing a player silently
+     * deleted their goals with them. Now that the scoreline is derived
+     * from the goal events, that would also rewrite the result of a match
+     * that has already been played.
+     *
+     * `0` is the same "no scorer recorded" sentinel the live goal sheet
+     * writes, so the goal survives, the score is unchanged, and nothing
+     * points at the erased player.
+     */
+    private const SET_ZERO = [
+        'tt_match_execution_goal_events' => [ 'player_id' => true ],
     ];
 
     /**
@@ -166,6 +192,13 @@ class PlayerDeletionCascade {
                         throw new \RuntimeException( "Set-null failed on {$bare}.{$col}: " . $wpdb->last_error );
                     }
                     if ( (int) $n > 0 ) $nulled[ "{$bare}.{$col}" ] = (int) $n;
+                } elseif ( ! empty( self::SET_ZERO[ $bare ][ $col ] ) ) {
+                    $sql = "UPDATE {$p}{$bare} SET {$col} = 0 WHERE {$col} IN ({$ph})";
+                    $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                    if ( $n === false ) {
+                        throw new \RuntimeException( "Set-zero failed on {$bare}.{$col}: " . $wpdb->last_error );
+                    }
+                    if ( (int) $n > 0 ) $nulled[ "{$bare}.{$col}" ] = (int) $n;
                 } else {
                     $sql = "DELETE FROM {$p}{$bare} WHERE {$col} IN ({$ph})";
                     $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
@@ -218,7 +251,12 @@ class PlayerDeletionCascade {
 
     /**
      * All (table, column) pairs in this install referencing a player:
-     * `player_id` or `guest_player_id` on any prefixed `tt_*` table.
+     * `player_id`, `guest_player_id` or `assist_player_id` on any prefixed
+     * `tt_*` table.
+     *
+     * #2856 — `assist_player_id` joined the list when goals gained an
+     * assist. It is nullable and its table is in SET_NULL, so an erased
+     * player's assists clear while the goal itself survives.
      *
      * @return list<array{bare_table:string, column:string, nullable:bool}>
      */
@@ -233,7 +271,7 @@ class PlayerDeletionCascade {
                FROM information_schema.COLUMNS
               WHERE TABLE_SCHEMA = DATABASE()
                 AND TABLE_NAME LIKE %s
-                AND COLUMN_NAME IN ('player_id', 'guest_player_id')",
+                AND COLUMN_NAME IN ('player_id', 'guest_player_id', 'assist_player_id')",
             $pattern
         ) );
 
