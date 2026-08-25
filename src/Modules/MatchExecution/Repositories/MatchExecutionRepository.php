@@ -221,16 +221,62 @@ class MatchExecutionRepository {
      * carry the scorer's `player_id`; the opponent's (`team = 'away'`) have no
      * tracked individual scorer and store `player_id = 0`. Together, the
      * non-reversed goal events make up the scoreline (see {@see goalCountsByTeam}).
+     *
+     * #2856 — a goal no longer needs a scorer. `player_id = 0` means "not
+     * recorded", which a coach who did not see the final touch must be able
+     * to say; the alternative was the free score stepper, which recorded no
+     * event at all. `$is_own_goal` marks a goal put in by the side it counts
+     * against, so an own goal can be attributed without crediting anyone.
+     * An assist is optional and is always one of our players.
      */
-    public function logGoalEvent( int $execution_id, string $event_uuid, int $player_id, int $half, int $minute, string $team = 'home' ): bool {
+    public function logGoalEvent( int $execution_id, string $event_uuid, int $player_id, int $half, int $minute, string $team = 'home', ?int $assist_player_id = null, bool $is_own_goal = false ): bool {
         $team = ( $team === 'away' ) ? 'away' : 'home';
         if ( $execution_id <= 0 || $event_uuid === '' ) return false;
-        if ( $team === 'home' && $player_id <= 0 ) return false; // our goals need a scorer
+        $player_id = max( 0, $player_id );
+        $assist    = ( $assist_player_id !== null && $assist_player_id > 0 ) ? (int) $assist_player_id : null;
+        // A player cannot assist their own goal. The sheet already prevents
+        // it; this is the write path refusing to store the contradiction.
+        if ( $assist !== null && $assist === $player_id ) return false;
+        // `assist_player_id` is nullable and wpdb::prepare() casts a null
+        // placeholder to an empty string, which a BIGINT column silently
+        // stores as 0 — indistinguishable from "player 0". Interpolate the
+        // NULL literal instead; the alternative is an int cast, so nothing
+        // unsanitised reaches the query.
+        $assist_sql = $assist === null ? 'NULL' : (string) $assist;
         $ok = $this->wpdb->query( $this->wpdb->prepare(
             "INSERT IGNORE INTO {$this->t_goals}
-               (event_uuid, club_id, execution_id, team, player_id, half, minute_in_half)
-             VALUES (%s, %d, %d, %s, %d, %d, %d)",
-            $event_uuid, CurrentClub::id(), $execution_id, $team, max( 0, $player_id ), $half, max( 0, $minute )
+               (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+             VALUES (%s, %d, %d, %s, %d, {$assist_sql}, %d, %d, %d)",
+            $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
+            $is_own_goal ? 1 : 0,
+            $half, max( 0, $minute )
+        ) );
+        return $ok !== false;
+    }
+
+    /**
+     * #2856 — correct who a logged goal belongs to. The live sheet lets a
+     * coach save a goal without a scorer so the clock never waits on an
+     * attribution; this is how that gap is closed afterwards, from the
+     * post-match review. Mirrors {@see updateGoalEventMinute} — non-reversed
+     * rows only, club-scoped.
+     *
+     * Passing `null` for the assist clears it, which is deliberate: "I was
+     * wrong about who assisted" needs to be expressible.
+     */
+    public function updateGoalAttribution( string $event_uuid, int $player_id, ?int $assist_player_id, bool $is_own_goal ): bool {
+        if ( $event_uuid === '' ) return false;
+        $player_id = max( 0, $player_id );
+        $assist    = ( $assist_player_id !== null && $assist_player_id > 0 ) ? (int) $assist_player_id : null;
+        if ( $assist !== null && $assist === $player_id ) return false;
+        $assist_sql = $assist === null ? 'NULL' : (string) $assist;
+        $ok = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->t_goals}
+                SET player_id = %d, assist_player_id = {$assist_sql}, is_own_goal = %d
+              WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+            $player_id,
+            $is_own_goal ? 1 : 0,
+            $event_uuid, CurrentClub::id()
         ) );
         return $ok !== false;
     }
@@ -257,6 +303,22 @@ class MatchExecutionRepository {
             $half, max( 0, $minute ), $event_uuid, CurrentClub::id()
         ) );
         return $ok !== false;
+    }
+
+    /**
+     * #2856 — one non-reversed goal event by its client `event_uuid`, or
+     * null. A partial attribution PATCH reads the stored row so the fields
+     * the payload leaves out keep their current values rather than being
+     * reset to nothing.
+     */
+    public function findGoalEvent( string $event_uuid ): ?object {
+        if ( $event_uuid === '' ) return null;
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_goals}
+              WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+            $event_uuid, CurrentClub::id()
+        ) );
+        return $row ?: null;
     }
 
     /**

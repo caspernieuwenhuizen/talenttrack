@@ -25327,8 +25327,12 @@ msgid "Goal-event payload missing required fields."
 msgstr "Doelpunt-payload mist verplichte velden."
 
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
-msgid "A home goal needs a scorer."
-msgstr "Een eigen doelpunt heeft een maker nodig."
+msgid "A player cannot assist their own goal."
+msgstr "Een speler kan zichzelf geen assist geven."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
+msgid "That player is not in this match squad."
+msgstr "Die speler zit niet in deze wedstrijdselectie."
 
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:614
 msgid "Goal update payload missing required fields."
