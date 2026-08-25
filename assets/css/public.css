@@ -434,6 +434,95 @@
     display: block;
 }
 
+/* #2830 — icon-only page action. The label is gone from the button, so
+   nothing is holding it open: the 48px floor has to be declared. The icon
+   margin goes with the label it used to separate. */
+.tt-page-actions__icon-only {
+    min-width: 48px;
+    min-height: 48px;
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+}
+.tt-page-actions__icon-only .tt-page-actions__label { display: none; }
+.tt-page-actions__icon-only .tt-page-actions__icon { margin-right: 0; }
+.tt-page-actions__icon-only .tt-page-actions__icon svg { width: 20px; height: 20px; }
+
+/* #2830 — the `⋯` menu holding the folded-away actions. <details> so it
+   opens on click, Enter and Space with no script; the behaviour file only
+   adds Escape and outside-click, which are conveniences. */
+.tt-page-actions__more {
+    position: relative;
+    display: inline-block;
+}
+.tt-page-actions__more-trigger {
+    min-width: 48px;
+    min-height: 48px;
+    padding-left: 0;
+    padding-right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+}
+/* The disclosure triangle is noise beside a ⋯ glyph that already says
+   "there is more here". Both spellings — WebKit needs its own. */
+.tt-page-actions__more-trigger::-webkit-details-marker { display: none; }
+.tt-page-actions__more-trigger::marker { content: ''; }
+.tt-page-actions__more-trigger .tt-page-actions__icon { margin-right: 0; }
+.tt-page-actions__more-trigger .tt-page-actions__icon svg { width: 20px; height: 20px; }
+.tt-page-actions__more-trigger:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 2px;
+}
+
+/* The menu itself: a column, right-aligned under the trigger, above the
+   page. Each entry is full-width so the whole row is the target. */
+.tt-page-actions__more-menu {
+    position: absolute;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 14rem;
+    margin-top: 6px;
+    padding: 6px;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.18));
+}
+.tt-page-actions__more-menu .tt-btn {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 48px;
+}
+/* Inside the menu an icon-only action gets its words back — there is room
+   for them here, and a column of bare glyphs is a puzzle. */
+.tt-page-actions__more-menu .tt-page-actions__icon-only {
+    min-width: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+    justify-content: flex-start;
+}
+.tt-page-actions__more-menu .tt-page-actions__icon-only .tt-page-actions__label { display: inline; }
+.tt-page-actions__more-menu .tt-page-actions__icon-only .tt-page-actions__icon { margin-right: 8px; }
+
+/* On a phone the menu spans the header slot rather than hanging off the
+   right edge of a 48px trigger. */
+@media (max-width: 480px) {
+    .tt-page-actions__more { position: static; }
+    .tt-page-actions__more-menu {
+        left: 0;
+        right: 0;
+        min-width: 0;
+    }
+}
+
 /* v3.110.53 — destructive button variant for Archive / Delete actions
    on detail pages. Distinct from .tt-btn-secondary so the destructive
    intent is visually obvious. Muted red on white at rest; fills to
