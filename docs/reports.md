@@ -103,12 +103,17 @@ simply reads that stored value; a match that was played but never finalised
 therefore shows nothing until its minutes are recorded, rather than being
 reconstructed from the planned line-up.
 
-**Only matches that have been played appear.** A fixture counts once its
-activity is marked **completed** — not merely once its date has arrived. A match
-kicking off this evening is still planned, so it is absent from the per-match
-table and from every KPI beside it; it appears the moment the activity is
-completed. Activities recorded before the status field existed fall back to the
-calendar: they count once their date has passed.
+**Only matches that have been played appear.** A match counts once any one of
+three things is true: its activity is marked **completed**, its **date has
+passed**, or it already carries **recorded minutes**. So a fixture kicking off
+this evening is absent from the per-match table and from every KPI beside it —
+it is not played until you complete it, record its minutes, or the day ends —
+while a match you played this morning and completed on the touchline counts
+straight away.
+
+The date on its own still counts because completing an activity is a separate,
+deliberate act: a match played last season says *planned* unless somebody
+pressed the button, and it was still played.
 
 **Matches, games and tournaments all count.** The minutes reports treat
 matches, games and tournaments the same way — each is a minutes-bearing
@@ -140,17 +145,29 @@ the dates the numbers actually cover.
 The *Matches recorded* tile counts the matches that **produced recorded
 minutes** — the same matches the player bars below it are built from, so the
 tile can never contradict them. Underneath it sits the honest denominator:
-how many matches were **played** in the window, meaning fixtures dated on or
-before today that were not deleted or cancelled. When the two differ the tile
+how many matches were **played** in the window. When the two differ the tile
 is flagged: *"3 played matches have no minutes"* tells you the gap is a
 recording gap, not an empty season.
 
-Fixtures that are **archived, moved to the recycle bin, cancelled, or dated in
-the future** count towards neither number. A season's fixture list imported in
+**A fixture kicking off tonight is not played yet.** It belongs to neither
+number until you complete it, record its minutes, or the day ends — otherwise
+the report warns you that tonight's match is missing its minutes. Any one of
+the three is enough, which is what lets a match played this morning count
+before the day is out, and what keeps a season of matches nobody ever pressed
+*Complete* on in the denominator where they belong.
+
+Fixtures that are **archived, moved to the recycle bin, cancelled, or not yet
+played** count towards neither number. A season's fixture list imported in
 advance therefore reads as *"0 of 0 played matches recorded"* until the first
 match is played, and *"0 of 19"* once nineteen have been played but none
 recorded — instead of the misleading "19 matches" beside an empty squad that
 earlier versions showed.
+
+**Players who have left count in neither number either.** Minutes recorded
+against a player who has since been archived are excluded from the *Matches
+recorded* tile, exactly as that player is absent from the squad below it. The
+tile and the rows describe one squad; a count the rows cannot explain is worse
+than a smaller one.
 
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.

@@ -104,12 +104,17 @@ alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
 is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
 herleid uit de geplande opstelling.
 
-**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra de
-activiteit op **voltooid** staat — niet al zodra de datum is aangebroken. Een
-wedstrijd die vanavond begint, is nog gepland en staat dus niet in de tabel per
-wedstrijd en niet in de KPI's ernaast; hij verschijnt zodra de activiteit
-voltooid is. Activiteiten van vóór het statusveld vallen terug op de kalender:
-die tellen mee zodra hun datum voorbij is.
+**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra één
+van drie dingen waar is: de activiteit staat op **voltooid**, de **datum is
+voorbij**, of er zijn al **minuten vastgelegd**. Een wedstrijd die vanavond
+begint staat dus niet in de tabel per wedstrijd en niet in de KPI's ernaast —
+hij is niet gespeeld tot je hem voltooit, de minuten vastlegt, of de dag om is
+— terwijl een wedstrijd die je vanochtend speelde en langs de lijn voltooide
+meteen meetelt.
+
+De datum telt op zichzelf mee omdat een activiteit voltooien een aparte,
+bewuste handeling is: een wedstrijd van vorig seizoen staat op *gepland* als
+niemand op de knop heeft gedrukt, en is toch gespeeld.
 
 **Wedstrijden, games en toernooien tellen allemaal mee.** De minutenrapporten
 behandelen wedstrijden, games en toernooien op dezelfde manier — elk is een
@@ -144,18 +149,30 @@ het rapport noemt altijd de datums die de getallen daadwerkelijk beslaan.
 De tegel *Wedstrijden vastgelegd* telt de wedstrijden die **vastgelegde minuten
 hebben opgeleverd** — precies de wedstrijden waaruit de spelerbalken eronder
 zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Daaronder staat de
-eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**, oftewel
-wedstrijden met een datum van vandaag of eerder die niet zijn verwijderd of
-afgelast. Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
+eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**.
+Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
 wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
 vastlegging gaat en niet om een leeg seizoen.
 
-Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of in de toekomst
-gepland** zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen
+**Een wedstrijd die vanavond begint is nog niet gespeeld.** Hij telt voor geen
+van beide getallen mee tot je hem voltooit, de minuten vastlegt, of de dag om
+is — anders waarschuwt het rapport dat de wedstrijd van vanavond minuten mist.
+Eén van de drie is genoeg, en juist daardoor telt een wedstrijd die je
+vanochtend speelde nog dezelfde dag mee, en blijft een seizoen aan wedstrijden
+waar niemand ooit op *Voltooien* heeft gedrukt gewoon in de noemer staan.
+
+Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of nog niet gespeeld**
+zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen
 wedstrijdprogramma leest daarom als *"0 van 0 gespeelde wedstrijden vastgelegd"*
 tot de eerste wedstrijd is gespeeld, en als *"0 van 19"* zodra er negentien
 gespeeld zijn maar nog niets is vastgelegd — in plaats van de misleidende "19
 wedstrijden" naast een lege selectie die eerdere versies toonden.
+
+**Vertrokken spelers tellen evenmin mee.** Minuten die zijn vastgelegd op een
+speler die inmiddels gearchiveerd is, tellen niet mee in de tegel *Wedstrijden
+vastgelegd* — net zoals die speler niet meer in de selectie eronder staat. De
+tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
+verklaren is erger dan een kleiner getal.
 
 Gebruik het rapport **Minutencontrole** (hieronder) om te zien welke spelers bij
 welke wedstrijd minuten missen.
