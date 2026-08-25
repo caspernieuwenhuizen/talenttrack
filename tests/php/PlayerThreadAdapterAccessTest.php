@@ -69,13 +69,20 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
      * A notes-capable user who ALSO holds the tt_parent role must not be
      * denied by the removed role-name exclude (the #1956 fix).
      *
-     * Skipped between #1956 and #1982 on the theory that the matrix
-     * user_has_cap bridge was masking the coach grant with the parent
-     * persona. It was not: the bridge is registered only when
-     * `tt_authorization_active` is set (AuthorizationModule::isMatrixActive),
-     * and the wp-env bootstrap never calls Activator::activate(), which is
-     * the only thing that seeds that flag. Native WP cap resolution decides
-     * here, and it takes the union of both roles' caps.
+     * Skipped between #1956 and #1982 on the theory that the parent persona
+     * was masking the coach grant. The bridge IS active in this suite —
+     * `.wp-env.json` activates the plugin, so `Activator::activate()` seeds
+     * `tt_authorization_active = 1` in the tests database even though
+     * `bootstrap.php` only runs migrations. But the union is not the thing
+     * that was masking anything: `personasFor()` returns every persona and
+     * `MatrixGate` grants on the first that satisfies, so the head_coach
+     * grant survives holding tt_parent.
+     *
+     * What the matrix does require is the scope. The seed grants head_coach
+     * `player_notes [rc, team]`, so the cap is false until the user holds a
+     * live team assignment — hence the fixture below is built before the
+     * capability is asserted, not after. A coach with no team genuinely has
+     * no team-scoped notes access, and that is correct.
      */
     public function test_dual_role_staff_who_is_also_parent_is_not_denied_by_role(): void {
         global $wpdb;
@@ -88,15 +95,10 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
         $user = new \WP_User( $uid );
         $user->add_role( 'tt_parent' );
 
-        $this->assertTrue(
-            user_can( $uid, 'tt_view_player_notes' ),
-            'the tt_coach grant must survive also holding tt_parent'
-        );
-
         // tt_people row links the WP user → a person, and the team scope
-        // row is what coach_owns_player() reads through
-        // get_teams_for_coach(). club_id matters: the join constrains
-        // urs.club_id = t.club_id.
+        // row is what both the matrix's team-scope check and
+        // coach_owns_player() (via get_teams_for_coach) read. club_id
+        // matters: the join constrains urs.club_id = t.club_id.
         $wpdb->insert( "{$p}tt_people", [
             'club_id'    => 1,
             'first_name' => 'Dual',
@@ -115,6 +117,14 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
             'scope_type' => 'team',
             'scope_id'   => self::TEAM_ID,
         ] );
+
+        // Guard: with the team scope in place, the dual-role user holds the
+        // notes cap. If this fails, the adapter assertions below would be
+        // testing the cap gate rather than the role behaviour they name.
+        $this->assertTrue(
+            user_can( $uid, 'tt_view_player_notes' ),
+            'the head_coach player_notes grant must survive also holding tt_parent'
+        );
 
         $adapter = new PlayerThreadAdapter();
 

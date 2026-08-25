@@ -28,6 +28,12 @@ use TT\Modules\Authorization\PersonaResolver;
  * the second means something: if the seed row or the team scope were
  * missing, the pre-condition would fail loudly rather than leaving a
  * green test that asserts nothing.
+ *
+ * The matrix is live in this suite — `.wp-env.json` activates the plugin,
+ * so `Activator::activate()` seeds `tt_authorization_active = 1` in the
+ * tests database even though `bootstrap.php` itself only runs migrations.
+ * That is what makes these assertions exercise the real gate rather than
+ * native WP capability resolution.
  */
 final class PersonaLensAuthorizationTest extends WP_UnitTestCase {
 
