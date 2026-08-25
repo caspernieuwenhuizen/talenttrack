@@ -31,7 +31,8 @@ spreadsheet:
   derive from `half_length × (on pitch ? 1 : 0)`; editing the
   **Half length** input at the top updates every row live.
 - **Middle** — two half-pitches side by side with a `→` copy button
-  between. Below them sits the **Match goals** panel — one full-width
+  between. Below them, the **Principles** panel (see below), and under
+  that the **Match goals** panel — one full-width
   *General* box on top, then a 2×2 grid of *Attacking / Defending* and
   *Set pieces (attack) / Set pieces (defend)*. Each box has four short
   single-line inputs (bullet-style) — written for the pilot's habit of
@@ -41,6 +42,24 @@ spreadsheet:
   this player", and a camera icon for "I've appointed a video analyst
   for this player." **Roles & set pieces** carries six rows — Captain,
   Corner left / right, Free kick left / right (cross), Penalty.
+
+## Principles — what this match is working on
+
+Above the goal boxes sits a read-only **Principles** panel: the methodology
+principles the activity is linked to, in the same O / A / V colour pills the
+activity page uses. It is there so you write the match goals against the
+principle the team is actually working on, rather than from memory.
+
+**You attach principles on the activity, not here.** One place to answer
+"which principle is this match about" is the point of reading it rather than
+picking it again — two pickers would eventually give two answers. When a match
+has none linked, the panel says so and links straight to the activity's edit
+form (only if you can edit activities). If your academy runs without the
+Methodology module the panel does not appear at all.
+
+The principles print. They appear on the paper team sheet and in the PDF
+export, above the goals, so an assistant working from the sheet sees the same
+framing you did.
 
 ## Assigning players to slots
 

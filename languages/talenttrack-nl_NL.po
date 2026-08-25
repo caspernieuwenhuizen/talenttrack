@@ -54872,6 +54872,20 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s: link to the activity, wrapping the words "on the activity".
+#: src/Modules/Methodology/Frontend/PrinciplePills.php:96
+#, php-format
+msgid "No principles are linked to this match — add them %s."
+msgstr "Aan deze wedstrijd zijn nog geen principes gekoppeld — koppel ze %s."
+
+#: src/Modules/Methodology/Frontend/PrinciplePills.php:99
+msgid "on the activity"
+msgstr "op de activiteit"
+
+#: src/Modules/Methodology/Frontend/PrinciplePills.php:103
+msgid "No principles are linked to this match."
+msgstr "Aan deze wedstrijd zijn nog geen principes gekoppeld."
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."

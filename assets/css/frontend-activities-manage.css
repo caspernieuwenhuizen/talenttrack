@@ -681,27 +681,10 @@
 .tt-dashboard .tt-act-card-d__body--prewrap { white-space: pre-wrap; }
 .tt-dashboard .tt-act-card-d__muted { color: var(--tt-ink-soft, #5b6e75); }
 
-/* ---- Principle pills (O / A / V) ---------------------------- */
-.tt-dashboard .tt-act-pp {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin: 0 6px 6px 0;
-    border: 1px solid;
-    text-decoration: none;
-    min-height: 32px;
-    line-height: 1.4;
-    touch-action: manipulation;
-}
-.tt-dashboard .tt-act-pp--O { background: #fff3c4; border-color: #e3c75e; color: #7a5a08; }
-.tt-dashboard .tt-act-pp--A { background: #fde9d6; border-color: #f3c79b; color: #8a3b00; }
-.tt-dashboard .tt-act-pp--V { background: #dfeede; border-color: #a8d2a4; color: #1f5a1a; }
-.tt-dashboard .tt-act-pp:focus-visible {
-    outline: 2px solid var(--tt-accent, #2271b1);
-    outline-offset: 2px;
-}
+/* ---- Principle pills (O / A / V) ----------------------------
+   #2831 — moved to assets/css/components/principle-pills.css, so the match
+   prep screen and the printed team sheet draw the identical pill rather
+   than each redefining it. Enqueued alongside this sheet. */
 
 /* ---- Roster / line-up pills --------------------------------- */
 .tt-dashboard .tt-act-rp {

@@ -59,6 +59,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #2831 — the O/A/V principle pill, shared with match prep and the
+        // printed team sheet.
+        \TT\Modules\Methodology\Frontend\PrinciplePills::enqueue();
         self::$activities_css_enqueued = true;
     }
 
@@ -1130,25 +1133,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * the Methodology module is absent or no principles are linked.
      */
     private static function renderDetailPrinciplesCard( object $session ): void {
-        if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
-            || ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
-        ) {
-            return;
-        }
-        $linked_ids = ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
-            ->principlesForActivity( (int) $session->id );
-        if ( empty( $linked_ids ) ) return;
+        // #2831 — the pivot read, the title resolution and the O/A/V bucket
+        // derivation moved to the domain layer, so match prep and the printed
+        // sheets show the same list rather than each deriving it again.
+        $principles = \TT\Modules\Methodology\Services\ActivityPrinciples::forActivity( (int) $session->id );
+        if ( $principles === [] ) return;
 
-        $repo = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $methodology_url = add_query_arg( [ 'tt_view' => 'methodology', 'mtab' => 'principles' ], $base );
-
-        // §7 (#2304) — the "Methodology" library link and the clickable
-        // principle pills are gated on the methodology view's own guard
-        // (tt_view_methodology) via the CrossViewLinkRegistry. Without it the
-        // linked principles still show (development content), just not as
-        // dead-end links into a library the user can't open.
-        $can_view_meth = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'methodology' );
 
         echo '<div class="tt-act-card-d tt-act-card-d--span2">';
         echo '<div class="tt-act-card-d__head">';
@@ -1159,30 +1151,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         } );
         echo '</div>';
         echo '<div class="tt-act-card-d__body">';
-        foreach ( $linked_ids as $pid ) {
-            $pr = $repo->find( (int) $pid );
-            if ( ! $pr ) continue;
-            $code  = (string) ( $pr->code ?? '' );
-            $title = '';
-            if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
-                $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
-            }
-            $url = add_query_arg(
-                [ 'tt_view' => 'methodology', 'mtab' => 'principles', 'pid' => (int) $pid ],
-                $base
-            );
-            // Bucket colour from code prefix (O / A / V) — methodology scheme.
-            $first = $code !== '' ? strtoupper( $code[0] ) : '';
-            $bucket = in_array( $first, [ 'O', 'A', 'V' ], true ) ? $first : 'O';
-            $label  = $code . ( $title !== '' ? ' · ' . $title : '' );
-            if ( $can_view_meth ) {
-                echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
-                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
-            } else {
-                echo '<span class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '"'
-                    . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</span>';
-            }
-        }
+        echo \TT\Modules\Methodology\Frontend\PrinciplePills::render( $principles ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the component.
         echo '</div>';
         echo '</div>';
     }

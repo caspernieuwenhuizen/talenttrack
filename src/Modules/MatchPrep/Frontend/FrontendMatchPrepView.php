@@ -581,6 +581,27 @@ class FrontendMatchPrepView extends FrontendViewBase {
                         </div>
                     </div>
 
+                    <?php
+                    // #2831 — what the academy says this match is working on,
+                    // read from the activity rather than picked again here.
+                    // Directly above the goals because the goals are written
+                    // against it: the principle is the question, the goal
+                    // boxes are this match's answer to it.
+                    // The empty state always links: this whole view is behind
+                    // `tt_edit_activities` (:207), so anyone reading it can
+                    // edit the activity. The parameter exists for the read-only
+                    // surfaces that share the component.
+                    \TT\Modules\Methodology\Frontend\PrinciplePills::renderBlock(
+                        $activity_id,
+                        __( 'Principles', 'talenttrack' ),
+                        true,
+                        add_query_arg(
+                            [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        )
+                    );
+                    ?>
+
                     <div class="tt-mp-goals">
                         <h2 class="tt-mp-goals-title"><?php esc_html_e( 'Match goals', 'talenttrack' ); ?></h2>
 
@@ -842,6 +863,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome', 'tt-match-prep' ],
             TT_VERSION
         );
+        // #2831 — the O/A/V principle pill, shared with the activity detail
+        // card and the printed team sheet.
+        \TT\Modules\Methodology\Frontend\PrinciplePills::enqueue();
         wp_enqueue_script(
             'tt-match-prep',
             TT_PLUGIN_URL . 'assets/js/frontend-match-prep.js',

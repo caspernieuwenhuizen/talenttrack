@@ -15,6 +15,18 @@ parameters:
     level: 8
     paths:
         - src
+    # #2831 — the plugin constants nearly every enqueue in `src` reads.
+    # `talenttrack.php` is not in `paths`, so PHPStan had never seen them:
+    # every existing use sits in the baseline, and any NEW file that enqueued
+    # a stylesheet failed the gate with "Constant TT_PLUGIN_URL not found".
+    #
+    # Scanning the bootstrap directly only half-works — PHPStan registers a
+    # `define()` whose value it can evaluate, so it picks up the literal
+    # TT_VERSION and skips `plugin_dir_url( __FILE__ )`. The stub declares all
+    # three with literal placeholders; only the names and types matter.
+    scanFiles:
+        - talenttrack.php
+        - tools/phpstan-constants.php
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
     ignoreErrors: []
