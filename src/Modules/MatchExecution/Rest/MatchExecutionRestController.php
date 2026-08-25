@@ -24,7 +24,10 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   POST   /<activity_id>/resume         {half, pause_seconds}
  *   POST   /<activity_id>/score          {home, away}
  *   POST   /<activity_id>/substitution   {event_uuid, half, minute, player_off, player_on}
- *   POST   /<activity_id>/goal-event     {event_uuid, player_id, half, minute}
+ *   POST   /<activity_id>/goal-event     {event_uuid, player_id, half, minute,
+ *                                        team, assist_player_id, is_own_goal}
+ *   PATCH  /<activity_id>/goal-event/<event_uuid>  {half, minute, player_id,
+ *                                        assist_player_id, is_own_goal}
  *   DELETE /<activity_id>/goal-event/<event_uuid>
  *   DELETE /<activity_id>/substitution/<event_uuid>   (#2269 undo)
  *   POST   /<activity_id>/finish
@@ -568,12 +571,13 @@ class MatchExecutionRestController {
         // #2275 — a goal belongs to a team. Ours ('home') carry the scorer;
         // the opponent's ('away') have no tracked individual scorer.
         $team       = ( (string) ( $body['team'] ?? 'home' ) === 'away' ) ? 'away' : 'home';
+        // #2856 — optional attribution. A goal with no scorer is a goal the
+        // coach could not attribute in the moment, not a malformed payload.
+        $assist_id   = (int) ( $body['assist_player_id'] ?? 0 );
+        $is_own_goal = ! empty( $body['is_own_goal'] );
 
         if ( $event_uuid === '' || $half < 1 || $half > 2 ) {
             return RestResponse::error( 'bad_input', __( 'Goal-event payload missing required fields.', 'talenttrack' ), 400 );
-        }
-        if ( $team === 'home' && $player_id <= 0 ) {
-            return RestResponse::error( 'bad_input', __( 'A home goal needs a scorer.', 'talenttrack' ), 400 );
         }
         // #2268 — reject an out-of-range minute (< 0 or > half length + 10
         // stoppage) rather than clamping a fat-fingered value.
@@ -581,8 +585,11 @@ class MatchExecutionRestController {
         $minute_err = self::assertMinuteInRange( $minute, $half_length );
         if ( $minute_err ) return $minute_err;
 
+        $attribution_err = self::assertAttribution( absint( $r['activity_id'] ), $player_id, $assist_id );
+        if ( $attribution_err ) return $attribution_err;
+
         $repo = new MatchExecutionRepository();
-        $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute, $team );
+        $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute, $team, $assist_id > 0 ? $assist_id : null, $is_own_goal );
         // #2275 — the opponent's timed goals now drive the away scoreline.
         if ( $team === 'away' ) $repo->syncAwayScoreFromGoals( $exec_id );
         // #1048 — goal events don't affect minutes_played directly
@@ -598,6 +605,15 @@ class MatchExecutionRestController {
      * #2275 — PATCH /<activity_id>/goal-event/<event_uuid> {half, minute}.
      * Corrects the half + minute of an already-logged goal (ours or the
      * opponent's). Same guards as the substitution PATCH.
+     *
+     * #2856 — also corrects the attribution {player_id, assist_player_id,
+     * is_own_goal}, which is how a goal saved without a scorer gets one
+     * afterwards. The two halves are independent: a payload carrying only
+     * `half` + `minute` leaves the attribution untouched, and one carrying
+     * only attribution keys leaves the timing untouched. That keeps the
+     * pre-existing minute-only PATCH from the review surface working
+     * unchanged, and stops an attribution edit from silently resetting a
+     * corrected minute to 0.
      */
     public static function route_goal_event_update( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
@@ -607,10 +623,17 @@ class MatchExecutionRestController {
 
         $event_uuid = (string) $r['event_uuid'];
         $body   = $r->get_json_params();
+        $has_timing      = array_key_exists( 'half', $body ) || array_key_exists( 'minute', $body );
+        $has_attribution = array_key_exists( 'player_id', $body )
+            || array_key_exists( 'assist_player_id', $body )
+            || array_key_exists( 'is_own_goal', $body );
         $half   = (int) ( $body['half'] ?? 0 );
         $minute = (int) ( $body['minute'] ?? 0 );
 
-        if ( $event_uuid === '' || $half < 1 || $half > 2 ) {
+        if ( $event_uuid === '' || ( ! $has_timing && ! $has_attribution ) ) {
+            return RestResponse::error( 'bad_input', __( 'Goal update payload missing required fields.', 'talenttrack' ), 400 );
+        }
+        if ( $has_timing && ( $half < 1 || $half > 2 ) ) {
             return RestResponse::error( 'bad_input', __( 'Goal update payload missing required fields.', 'talenttrack' ), 400 );
         }
 
@@ -619,13 +642,108 @@ class MatchExecutionRestController {
             return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
         }
 
-        [ $half_length ] = self::prepContext( absint( $r['activity_id'] ) );
-        $minute_err = self::assertMinuteInRange( $minute, $half_length );
-        if ( $minute_err ) return $minute_err;
+        if ( $has_timing ) {
+            [ $half_length ] = self::prepContext( absint( $r['activity_id'] ) );
+            $minute_err = self::assertMinuteInRange( $minute, $half_length );
+            if ( $minute_err ) return $minute_err;
+        }
 
-        $repo->updateGoalEventMinute( $event_uuid, $half, $minute );
+        $out = [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ];
+
+        if ( $has_attribution ) {
+            $existing = $repo->findGoalEvent( $event_uuid );
+            if ( ! $existing ) {
+                return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
+            }
+            // Absent keys keep whatever is already stored, so a partial
+            // payload corrects one field without clearing its siblings.
+            $player_id = array_key_exists( 'player_id', $body )
+                ? (int) $body['player_id']
+                : (int) ( $existing['player_id'] ?? 0 );
+            $assist_id = array_key_exists( 'assist_player_id', $body )
+                ? (int) $body['assist_player_id']
+                : (int) ( $existing['assist_player_id'] ?? 0 );
+            $is_own_goal = array_key_exists( 'is_own_goal', $body )
+                ? ! empty( $body['is_own_goal'] )
+                : ! empty( $existing['is_own_goal'] );
+
+            $attribution_err = self::assertAttribution( absint( $r['activity_id'] ), $player_id, $assist_id );
+            if ( $attribution_err ) return $attribution_err;
+
+            $repo->updateGoalAttribution( $event_uuid, $player_id, $assist_id > 0 ? $assist_id : null, $is_own_goal );
+            $out['player_id']        = $player_id;
+            $out['assist_player_id'] = $assist_id > 0 ? $assist_id : null;
+            $out['is_own_goal']      = $is_own_goal;
+        }
+
+        if ( $has_timing ) {
+            $repo->updateGoalEventMinute( $event_uuid, $half, $minute );
+            $out['half']   = $half;
+            $out['minute'] = $minute;
+        }
+
         self::recomputeIfPendingReview( $repo, $exec_id );
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid, 'half' => $half, 'minute' => $minute ] );
+        return RestResponse::success( $out );
+    }
+
+    /**
+     * #2856 — refuse an attribution that names somebody outside this match's
+     * squad, or that credits the scorer with assisting themselves. `0` is a
+     * valid value for both: it means "not recorded", which the live sheet
+     * writes when the coach could not see who it was.
+     */
+    private static function assertAttribution( int $activity_id, int $player_id, int $assist_id ): ?\WP_REST_Response {
+        if ( $player_id > 0 && $assist_id > 0 && $player_id === $assist_id ) {
+            return RestResponse::error(
+                'bad_input',
+                __( 'A player cannot assist their own goal.', 'talenttrack' ),
+                400
+            );
+        }
+        if ( $player_id <= 0 && $assist_id <= 0 ) return null;
+
+        $squad = self::squadPlayerIds( $activity_id );
+        // An empty squad means the prep carries no roster at all; there is
+        // nothing to validate against, so don't refuse a legitimate write.
+        if ( empty( $squad ) ) return null;
+
+        foreach ( [ $player_id, $assist_id ] as $candidate ) {
+            if ( $candidate > 0 && ! in_array( $candidate, $squad, true ) ) {
+                return RestResponse::error(
+                    'player_not_in_squad',
+                    __( 'That player is not in this match squad.', 'talenttrack' ),
+                    400
+                );
+            }
+        }
+        return null;
+    }
+
+    /**
+     * #2856 — every player the match prep knows about: everyone with an
+     * availability row (whatever their status) plus anyone named in the
+     * lineup. Deliberately wider than the pitch — a goal can be scored by
+     * a player who came on, and an assist credited to one who has since
+     * gone off.
+     *
+     * @return array<int,int>
+     */
+    private static function squadPlayerIds( int $activity_id ): array {
+        $prep_repo = new MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
+        if ( ! $prep ) return [];
+        $prep_id = (int) $prep->id;
+
+        $ids = [];
+        $rows = array_merge(
+            $prep_repo->listAvailability( $prep_id ),
+            $prep_repo->listLineup( $prep_id )
+        );
+        foreach ( $rows as $row ) {
+            $pid = (int) ( $row->player_id ?? 0 );
+            if ( $pid > 0 ) $ids[] = $pid;
+        }
+        return array_values( array_unique( $ids ) );
     }
 
     public static function route_goal_event_delete( \WP_REST_Request $r ): \WP_REST_Response {
