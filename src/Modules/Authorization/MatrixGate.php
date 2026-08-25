@@ -14,8 +14,12 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
  * the apply toggle that lets a club switch to matrix-driven enforcement.
  *
  * Algorithm:
- *   1. Resolve effective personas for the user (active-persona lens or
- *      union — see PersonaResolver::effectivePersonas).
+ *   1. Resolve every persona the user holds — the full union, via
+ *      PersonaResolver::personasFor. Authorization deliberately ignores
+ *      the active-persona choice: that is a presentation lens, and a
+ *      coach who looks at their own child's page as a parent does not
+ *      stop being a coach. Use Impersonation (#0071) to act as another
+ *      role.
  *   2. For each persona, look up the matrix row for
  *      (persona, entity, activity, scope_kind).
  *   3. If `scope_kind` is not `global`, verify the user actually holds
@@ -94,7 +98,7 @@ class MatrixGate {
     private static function resolveAnyScope( int $user_id, string $entity, string $activity ): bool {
         if ( $user_id <= 0 ) return false;
 
-        $personas = PersonaResolver::effectivePersonas( $user_id );
+        $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return false;
 
         $repo = new MatrixRepository();
@@ -144,7 +148,7 @@ class MatrixGate {
         // #1485 — disabled sub-feature: no row grants access.
         if ( self::featureDenies( $entity ) ) return $denied;
 
-        $personas = PersonaResolver::effectivePersonas( $user_id );
+        $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return $denied;
 
         $repo = new MatrixRepository();
@@ -249,7 +253,7 @@ class MatrixGate {
         // #1485 — disabled sub-feature denies the entity outright.
         if ( self::featureDenies( $entity ) ) return false;
 
-        $personas = PersonaResolver::effectivePersonas( $user_id );
+        $personas = PersonaResolver::personasFor( $user_id );
         if ( empty( $personas ) ) return false;
 
         $repo = new MatrixRepository();

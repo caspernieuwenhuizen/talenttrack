@@ -224,6 +224,16 @@ Een klik op Intrekken opent een bevestigingsvenster binnen de app (niet de stand
 
 Hetzelfde bevestigingspatroon wordt overal gebruikt waar een destructieve actie om je akkoord vraagt (een doel verwijderen vanaf het dashboard, een evaluatiecategorie verwijderen, enz.).
 
+## De personawissel verandert wat je ziet, niet wat je mag
+
+Iemand kan meer dan één persona tegelijk hebben. Een trainer met een eigen kind in de academie is het alledaagse geval: die is staflid én ouder, allebei echt, op hetzelfde moment. Met de personawissel op het dashboard kiest zo iemand in welke van die rollen de interface zich kleedt — welke startpagina, welke tegels, welk label op de gebruikerschip.
+
+**Je rechten veranderen er niet door.** Autorisatie kijkt altijd naar élke persona die iemand heeft, en één die toegang geeft is genoeg. Een trainer die de pagina van zijn eigen kind als ouder bekijkt, houdt zijn trainerstoegang tot de rest van de academie; wie terugwisselt, krijgt niets extra's wat hij niet al had.
+
+Dat is belangrijk, want het alternatief faalt geruisloos. Een wissel die ook rechten zou intrekken, haalt de toegang van een trainer op élk scherm weg, houdt die weg over sessies en apparaten heen — de keuze staat immers op het account — en zegt nooit waarom. De trainer merkt alleen dat notities van vorige week verdwenen zijn.
+
+Wil je echt in een andere rol handelen — zien wat een ouder ziet, mét de rechten van een ouder — gebruik dan **Imitatie** (`tt_impersonate_users`) of de **Voorbeeld**-pagina van de matrix. Allebei zijn ze een bewuste keuze, allebei blijven ze zichtbaar zolang ze aanstaan, en allebei stoppen ze wanneer jij ze stopt.
+
 ## Speler-gestuurde ouderzichtbaarheid
 
 Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, POP) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.

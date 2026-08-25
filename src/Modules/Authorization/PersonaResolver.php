@@ -206,9 +206,20 @@ class PersonaResolver {
     }
 
     /**
-     * Effective persona set for a request: the active one if set + valid,
-     * otherwise the full union. MatrixGate calls this — not personasFor()
-     * directly — so the switcher's lens applies automatically.
+     * Effective persona set for *presentation*: the active one if set +
+     * valid, otherwise the full union.
+     *
+     * #1982 — this is not an authorization API. MatrixGate used to call
+     * it, which made the dashboard switcher a permanent capability gate:
+     * a coach whose own child is in the academy, who flipped to `parent`
+     * to look at their child's page, lost every staff capability on
+     * every surface until they flipped back — persisted in user meta, so
+     * across sessions and devices, with no message naming the cause.
+     * MatrixGate now resolves against personasFor() (the full union) and
+     * this stays what its name says: which persona the UI is dressed as.
+     *
+     * To genuinely act as another role, use Impersonation (#0071) or the
+     * matrix Preview page — mechanisms that are visible while they are on.
      *
      * @return string[]
      */
