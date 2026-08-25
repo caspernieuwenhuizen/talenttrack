@@ -54891,6 +54891,107 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Core/FeatureRegistry.php:539
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:111
+#: src/Shared/Frontend/FrontendStandardReportsView.php:43
+msgid "Team · Minutes share"
+msgstr "Team · Minutenaandeel"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:112
+msgid ""
+"What percentage of the minutes the team played did each player get, against "
+"the academy target."
+msgstr ""
+"Welk percentage van de gespeelde minuten kreeg elke speler, afgezet tegen de "
+"norm van de academie."
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php:706
+#, php-format
+msgid "Minutes share — %s"
+msgstr "Minutenaandeel — %s"
+
+#. translators: 1: minimum share percentage, 2: date window
+#: src/Shared/Frontend/FrontendStandardReportsView.php:709
+#, php-format
+msgid "Target: every player plays at least %1$d%% of the available minutes · %2$s"
+msgstr "Norm: elke speler speelt minstens %1$d%% van de beschikbare minuten · %2$s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:739
+msgid "Matches played"
+msgstr "Gespeelde wedstrijden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:744
+msgid "Available minutes / player"
+msgstr "Beschikbare minuten / speler"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:747
+msgid "Median share"
+msgstr "Mediaan aandeel"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:751
+msgctxt "minutes share"
+msgid "Below target"
+msgstr "Onder de norm"
+
+#. translators: %d = the minimum share percentage
+#: src/Shared/Frontend/FrontendStandardReportsView.php:754
+#, php-format
+msgid "Under %d%% of the available minutes"
+msgstr "Minder dan %d%% van de beschikbare minuten"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:755
+msgid "Every player is on target"
+msgstr "Elke speler haalt de norm"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:762
+msgid ""
+"No matches played for this team in this window, so there are no minutes to "
+"share out. Widen the window or check the Activities log."
+msgstr ""
+"Geen wedstrijden gespeeld voor dit team in deze periode, dus er zijn geen "
+"minuten te verdelen. Verruim de periode of controleer het activiteitenlog."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:766
+msgid ""
+"Matches were played but no minutes are recorded for this team yet. Record "
+"them from the activity."
+msgstr ""
+"Er zijn wedstrijden gespeeld, maar voor dit team zijn nog geen minuten "
+"vastgelegd. Leg ze vast vanuit de activiteit."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:772
+msgid ""
+"Lowest share first. The share is of every minute the team played, whether or "
+"not the player was available."
+msgstr ""
+"Laagste aandeel eerst. Het aandeel gaat over elke minuut die het team "
+"speelde, of de speler nu beschikbaar was of niet."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:816
+msgid "below target"
+msgstr "onder de norm"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:2358
+msgid "Minimum share of playing time"
+msgstr "Minimumaandeel speeltijd"
+
+#. translators: %d is the default minimum share percentage.
+#: src/Shared/Frontend/FrontendConfigurationView.php:2373
+#, php-format
+msgid ""
+"The percentage of a team's played minutes every player should reach. The "
+"Minutes share report flags anyone below it. Default %d%%."
+msgstr ""
+"Het percentage van de gespeelde minuten van een team dat elke speler zou "
+"moeten halen. Het rapport Minutenaandeel markeert iedereen daaronder. "
+"Standaard %d%%."
+
+#: src/Infrastructure/REST/TeamsRestController.php:390
+msgid "That player has no recorded minutes for this team in this window."
+msgstr ""
+"Voor deze speler zijn in deze periode geen minuten vastgelegd bij dit team."
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."

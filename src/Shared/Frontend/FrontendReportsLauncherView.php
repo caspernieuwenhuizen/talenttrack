@@ -105,6 +105,16 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Squad load balance — minutes per player with imbalance flag when spread > 30%.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution' ], $base_url ),
             ],
+            // #2835 — the relative figure the rest of the family lacks. The
+            // distribution report answers "is the squad balanced against
+            // itself"; this one answers "did each player get enough of what
+            // was actually on offer".
+            [
+                'slug'  => 'minutes-share',
+                'label' => __( 'Team · Minutes share', 'talenttrack' ),
+                'desc'  => __( 'What percentage of the minutes the team played did each player get, against the academy target.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'minutes-share' ], $base_url ),
+            ],
             // #1592 — attendance reports were only reachable through the
             // flag-gated Analytics surface; surface them here next to the
             // minutes reports. Labels/descriptions reuse the existing
@@ -293,7 +303,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
-            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team', 'minutes-audit' ] ],
+            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-share', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
             [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],

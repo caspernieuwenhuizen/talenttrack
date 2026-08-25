@@ -127,6 +127,11 @@ final class RestSmokeTest extends WP_UnitTestCase {
             // content about a squad, so an anonymous caller gets nothing.
             'GET /activities/1/principles'  => [ 'GET',    '/talenttrack/v1/activities/1/principles' ],
 
+            // #2835 — minutes share. Per-player development data about a
+            // squad; an anonymous caller gets nothing.
+            'GET /teams/1/minutes-share'    => [ 'GET',    '/talenttrack/v1/teams/1/minutes-share' ],
+            'GET /teams/1/minutes-share/1'  => [ 'GET',    '/talenttrack/v1/teams/1/minutes-share/1' ],
+
             // Cross-cutting / admin surfaces.
             'POST /config'                  => [ 'POST',   '/talenttrack/v1/config' ],
             'GET /audit-log'                => [ 'GET',    '/talenttrack/v1/audit-log' ],
@@ -318,6 +323,7 @@ final class RestSmokeTest extends WP_UnitTestCase {
      * @param mixed $body
      */
     /**
+<<<<<<< HEAD
      * #2831 — the principles route answers with the envelope and an empty
      * list for an activity with none linked, rather than a 404. "This match
      * is working on nothing yet" is an answer; a 404 would say the activity
@@ -346,6 +352,47 @@ final class RestSmokeTest extends WP_UnitTestCase {
         wp_set_current_user( $uid );
 
         $req = new WP_REST_Request( 'GET', '/talenttrack/v1/activities/99999999/principles' );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 404, $res->get_status() );
+    }
+
+    /**
+     * #2835 — the minutes-share route answers with the envelope, the target
+     * the academy configured, and an empty squad for a team that has played
+     * nothing. Empty rather than 404: "no minutes to share out yet" is an
+     * answer about a team that exists.
+     */
+    public function test_team_minutes_share_happy_path(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Smoke FC' ] );
+        $team_id = (int) $wpdb->insert_id;
+
+        $req = new WP_REST_Request( 'GET', "/talenttrack/v1/teams/{$team_id}/minutes-share" );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 200, $res->get_status(), 'minutes-share read succeeds' );
+        $body = $res->get_data();
+        $this->assertEnvelopeSuccess( $body );
+        $this->assertSame( $team_id, (int) ( $body['data']['team_id'] ?? 0 ) );
+        $this->assertSame( 0, (int) ( $body['data']['available_minutes'] ?? -1 ) );
+        $this->assertSame( [], $body['data']['players'] ?? null, 'empty squad, not null' );
+        $this->assertGreaterThan( 0, (int) ( $body['data']['target_pct'] ?? 0 ), 'the target travels with the answer' );
+    }
+
+    /** #2835 — a player with no minutes on that team is a 404, not a zero row. */
+    public function test_player_minutes_share_outside_the_squad_is_not_found(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Smoke United' ] );
+        $team_id = (int) $wpdb->insert_id;
+
+        $req = new WP_REST_Request( 'GET', "/talenttrack/v1/teams/{$team_id}/minutes-share/99999999" );
         $res = rest_do_request( $req );
 
         $this->assertSame( 404, $res->get_status() );

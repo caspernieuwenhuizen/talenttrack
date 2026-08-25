@@ -85,6 +85,24 @@ class TeamsRestController {
                 'permission_callback' => $can_edit,
             ],
         ] );
+        // #2835 — what share of the minutes the team played each player got,
+        // and one player's row out of the same answer. Reads the domain
+        // service the Minutes share report composes from, so the rendered
+        // page and a non-WordPress front end cannot disagree (CLAUDE.md §4).
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_minutes_share' ],
+                'permission_callback' => $can_view,
+            ],
+        ] );
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share/(?P<player_id>\d+)', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_player_minutes_share' ],
+                'permission_callback' => $can_view,
+            ],
+        ] );
         // #1470 — archive lifecycle: restore + gated permanent delete.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/restore', [
             [
@@ -290,6 +308,107 @@ class TeamsRestController {
         ) );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
         return RestResponse::success( self::fmtRow( $row ) );
+    }
+
+    /**
+     * #2835 — the squad's share of the minutes the team actually played.
+     *
+     * Window defaults to the rolling twelve months the minutes reports use;
+     * `from` / `to` (Y-m-d) narrow it. Team scope is enforced the same way
+     * the rendered report enforces it — a coach asking for a team outside
+     * their matrix scope gets a 403, not an empty list, because an empty list
+     * would read as "this team played nothing".
+     */
+    public static function get_minutes_share( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+
+        if ( ! self::canReadTeamReports( $id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have access to this team.', 'talenttrack' ), 403 );
+        }
+
+        [ $from, $to ] = self::minutesShareWindow( $r );
+
+        $data = ( new \TT\Modules\Analytics\Reports\MinutesShareQuery() )->forTeam( $id, $from, $to );
+
+        return RestResponse::success( array_merge(
+            [ 'team_id' => $id, 'from' => $from, 'to' => $to ],
+            $data
+        ) );
+    }
+
+    /**
+     * #2835 — one player's row out of the same answer, so a player-facing
+     * client does not have to fetch and filter the whole squad.
+     */
+    public static function get_player_minutes_share( \WP_REST_Request $r ): \WP_REST_Response {
+        $id        = absint( $r['id'] );
+        $player_id = absint( $r['player_id'] );
+        if ( $id <= 0 || $player_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
+        }
+
+        if ( ! self::canReadTeamReports( $id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have access to this team.', 'talenttrack' ), 403 );
+        }
+
+        [ $from, $to ] = self::minutesShareWindow( $r );
+
+        $row = ( new \TT\Modules\Analytics\Reports\MinutesShareQuery() )->forPlayer( $id, $player_id, $from, $to );
+        if ( $row === null ) {
+            return RestResponse::error(
+                'not_in_squad',
+                __( 'That player has no recorded minutes for this team in this window.', 'talenttrack' ),
+                404
+            );
+        }
+
+        return RestResponse::success( array_merge(
+            [ 'team_id' => $id, 'player_id' => $player_id, 'from' => $from, 'to' => $to ],
+            $row
+        ) );
+    }
+
+    /**
+     * #2835 — may this user read a report about this team?
+     *
+     * The same narrowing the rendered report applies: a global `reports`
+     * read (head of development, academy admin, read-only observer) sees any
+     * team; everyone else is confined to the teams their matrix grant names.
+     * Deliberately the `reports` entity rather than `team` — this is a
+     * reporting surface, and the two are not the same right.
+     */
+    private static function canReadTeamReports( int $team_id ): bool {
+        $uid = get_current_user_id();
+        if ( $uid <= 0 || $team_id <= 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return current_user_can( 'tt_view_reports' );
+        }
+
+        if ( \TT\Modules\Authorization\MatrixGate::can( $uid, 'reports', 'read', 'global' ) ) {
+            return true;
+        }
+
+        return \TT\Modules\Authorization\MatrixGate::can( $uid, 'reports', 'read', 'team', $team_id );
+    }
+
+    /**
+     * `from` / `to` off the request, falling back to the rolling twelve
+     * months the minutes reports default to. Anything that is not a Y-m-d
+     * date is ignored rather than 400'd — a client sending junk gets the
+     * default window, which is the same answer the report gives.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function minutesShareWindow( \WP_REST_Request $r ): array {
+        $raw_from = (string) ( $r['from'] ?? '' );
+        $raw_to   = (string) ( $r['to'] ?? '' );
+        $valid    = static fn ( string $d ): bool => (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
+
+        $to   = $valid( $raw_to )   ? $raw_to   : gmdate( 'Y-m-d' );
+        $from = $valid( $raw_from ) ? $raw_from : gmdate( 'Y-m-d', strtotime( $to . ' -12 months' ) );
+
+        return [ $from, $to ];
     }
 
     public static function create_team( \WP_REST_Request $r ) {

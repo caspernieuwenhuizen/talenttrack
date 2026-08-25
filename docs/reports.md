@@ -172,6 +172,15 @@ than a smaller one.
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.
 
+### The relative figure: Minutes share
+
+These two reports answer in absolutes, and one number they cannot give you is
+what share of what was actually on offer each player got. **Team · Minutes
+share** does: every played match's own length summed into a denominator, each
+player's recorded minutes over it, and a configurable target — 30% by default —
+that flags anyone below it. It is documented in full in
+[Minutes share](minutes-share.md).
+
 **Starts (basisplaatsen) count only recorded matches.** A player's *starts* and
 the *% available* figure count only matches that were actually recorded (that
 produced stored minutes) — a match that was planned, with a line-up, but never
