@@ -68,17 +68,64 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
     /**
      * A notes-capable user who ALSO holds the tt_parent role must not be
      * denied by the removed role-name exclude (the #1956 fix).
+     *
+     * Skipped between #1956 and #1982 on the theory that the matrix
+     * user_has_cap bridge was masking the coach grant with the parent
+     * persona. It was not: the bridge is registered only when
+     * `tt_authorization_active` is set (AuthorizationModule::isMatrixActive),
+     * and the wp-env bootstrap never calls Activator::activate(), which is
+     * the only thing that seeds that flag. Native WP cap resolution decides
+     * here, and it takes the union of both roles' caps.
      */
     public function test_dual_role_staff_who_is_also_parent_is_not_denied_by_role(): void {
-        // Skipped pending #1982. In the wp-env suite, player-notes cap
-        // resolution for a user whose roles include tt_parent appears to
-        // resolve to the parent persona (no grant) and deny at the cap
-        // layer, masking any staff grant — so this ALLOW case can't be
-        // exercised deterministically until that behaviour is confirmed
-        // real-bug-vs-intended and the resolution is settled. The #1956
-        // change (removing the PlayerThreadAdapter role-name exclude) is
-        // still covered for non-regression by the denial cases below.
-        $this->markTestSkipped( 'Dual-role staff+parent cap resolution under investigation — see #1982.' );
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $player_id = $this->seed_player_on_team();
+
+        // A coach whose own child is in the academy: both roles at once.
+        $uid  = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $user = new \WP_User( $uid );
+        $user->add_role( 'tt_parent' );
+
+        $this->assertTrue(
+            user_can( $uid, 'tt_view_player_notes' ),
+            'the tt_coach grant must survive also holding tt_parent'
+        );
+
+        // tt_people row links the WP user → a person, and the team scope
+        // row is what coach_owns_player() reads through
+        // get_teams_for_coach(). club_id matters: the join constrains
+        // urs.club_id = t.club_id.
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Dual',
+            'last_name'  => 'Role',
+            'role_type'  => 'coach',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $person_id );
+
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id'    => 1,
+            'person_id'  => $person_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => self::TEAM_ID,
+        ] );
+
+        $adapter = new PlayerThreadAdapter();
+
+        $this->assertTrue(
+            $adapter->canRead( $uid, $player_id ),
+            'a coach who is also a parent must still read notes on a player they coach'
+        );
+        $this->assertTrue(
+            $adapter->canPost( $uid, $player_id ),
+            'a coach who is also a parent must still post notes on a player they coach'
+        );
     }
 
     public function test_pure_parent_is_denied_by_capability(): void {

@@ -233,6 +233,16 @@ The auth contract is **capabilities**, not role names. Every gate — REST `perm
 
 There is one documented exception: `AudienceResolver` legitimately needs to know a user's primary role for audience-routing in report generation. That stays role-aware; everything else uses caps. The role-string compares in `DemoDataCleaner`, `OnboardingHandlers`, `PdpVerdictsRestController`, and one more file are tracked for replacement in #0052 PR-B.
 
+## The persona switcher changes what you see, not what you may do (#1982)
+
+Someone can hold more than one persona at once. A coach whose own child is in the academy is the everyday case: they are staff and a parent, both genuinely, at the same time. The dashboard's persona switcher lets them choose which of those the interface is dressed as — which landing page, which tiles, which label on the user chip.
+
+**It does not change their permissions.** Authorization always resolves against every persona a user holds, and any one of them granting access is enough. A coach who is looking at their child's page as a parent keeps their coach access to the rest of the academy; a coach who switches back has gained nothing they did not already have.
+
+This matters because the alternative fails silently. A switcher that also revoked capabilities would take a coach's access away on every screen, keep it away across sessions and devices because the choice is stored on their account, and never say why — the coach would simply find that notes they wrote last week had disappeared.
+
+To genuinely act as another role — to see what a parent sees, with a parent's permissions — use **Impersonation** (`tt_impersonate_users`) or the matrix **Preview** page. Both are deliberate, both are visible on screen the whole time they are on, and both end when you stop them.
+
 ### Deferred — `tt_user_id` resolver
 
 Player records reference `wp_user_id` directly today. The future SaaS auth model will substitute a portable identity (UUID, JWT subject, …) and `wp_user_id` becomes one of several mappings. The resolver isn't built yet; documented here so the intent isn't lost.
