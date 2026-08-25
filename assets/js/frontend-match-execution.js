@@ -1269,6 +1269,43 @@
         });
     })();
 
+    // --- #2858 — correcting a goal's attribution after the match ---
+    // The live sheet lets a goal be saved with no scorer so the clock is
+    // never waiting on an attribution nobody can make from the touchline.
+    // This is the other end of that: the review is where the gap gets
+    // closed, so the editor sits on the goal rather than behind its own
+    // flow. Reload on success, the same as the sub-minute and away-goal
+    // correctors — the server's derived view is the one worth trusting.
+    root.querySelectorAll('[data-tt-mexec-goal-attr]').forEach(function (box) {
+        var card = box.closest('[data-tt-mexec-home-goal]');
+        var uuid = card && card.getAttribute('data-event-uuid');
+        var scorerSel = box.querySelector('[data-tt-mexec-goal-scorer]');
+        var assistSel = box.querySelector('[data-tt-mexec-goal-assist]');
+        var ownBox    = box.querySelector('[data-tt-mexec-goal-own]');
+        var saveBtn   = box.querySelector('[data-tt-mexec-goal-attr-save]');
+        if (!uuid || !saveBtn) return;
+
+        saveBtn.addEventListener('click', function () {
+            var pid    = scorerSel ? (parseInt(scorerSel.value, 10) || 0) : 0;
+            var assist = assistSel ? (parseInt(assistSel.value, 10) || 0) : 0;
+            if (pid > 0 && assist === pid) {
+                window.alert(i18n.self_assist_error || 'A player cannot assist their own goal.');
+                return;
+            }
+            saveBtn.disabled = true;
+            apiPatch('goal-event/' + uuid, {
+                player_id: pid,
+                assist_player_id: assist,
+                is_own_goal: !!(ownBox && ownBox.checked)
+            }).then(function () {
+                window.location.reload();
+            }).catch(function () {
+                saveBtn.disabled = false;
+                window.alert(i18n.attribution_save_error || 'Could not save the attribution.');
+            });
+        });
+    });
+
     // Late-event forms — add a goal / sub the coach forgot to log live.
     // Client-generated event_uuid keeps the offline-queue replay idempotent.
     (function wireLateEvents() {
@@ -1294,12 +1331,29 @@
         }
 
         wireLateForm(root.querySelector('[data-tt-mexec-late-goal-form]'), 'goal-event', function (f) {
+            // #2858 — a scorer is no longer required. The one thing still
+            // refused is a player assisting themselves, because that is a
+            // mistake rather than a gap.
             var pid = parseInt(f.querySelector('[name="player_id"]').value, 10) || 0;
+            var assistEl = f.querySelector('[name="assist_player_id"]');
+            var assist = assistEl ? (parseInt(assistEl.value, 10) || 0) : 0;
+            var ownEl = f.querySelector('[name="is_own_goal"]');
             var half = parseInt(f.querySelector('[name="half"]').value, 10) || 0;
             var minute = parseInt(f.querySelector('[name="minute"]').value, 10);
-            if (pid <= 0 || (half !== 1 && half !== 2)) return null;
+            if (half !== 1 && half !== 2) return null;
             if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
-            return { event_uuid: uuidv4(), player_id: pid, half: half, minute: minute };
+            if (pid > 0 && assist === pid) {
+                window.alert(i18n.self_assist_error || 'A player cannot assist their own goal.');
+                return null;
+            }
+            return {
+                event_uuid: uuidv4(),
+                player_id: pid,
+                assist_player_id: assist,
+                is_own_goal: !!(ownEl && ownEl.checked),
+                half: half,
+                minute: minute
+            };
         });
 
         wireLateForm(root.querySelector('[data-tt-mexec-late-sub-form]'), 'substitution', function (f) {

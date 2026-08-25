@@ -24781,6 +24781,48 @@ msgstr "Bank en rest van de selectie"
 msgid "Scorer not recorded"
 msgstr "Maker niet vastgelegd"
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:760
+msgctxt "who scored a goal"
+msgid "Scorer"
+msgstr "Maker"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:772
+msgctxt "who created a goal"
+msgid "Assist"
+msgstr "Assist"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:785
+msgctxt "goal put in by the side it counts against"
+msgid "Own goal"
+msgstr "Eigen doelpunt"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:788
+msgid "Save attribution"
+msgstr "Toekenning opslaan"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:745
+#, php-format
+msgid "assist %s"
+msgstr "assist %s"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1216
+msgid "Could not save the attribution."
+msgstr "Kon de toekenning niet opslaan."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:726
+#, php-format
+msgid "%d goal still needs a scorer. Attributing it puts the goal on the player's record."
+msgid_plural "%d goals still need a scorer. Attributing them puts each goal on the player's record."
+msgstr[0] "%d doelpunt heeft nog een maker nodig. Door het toe te kennen komt het op de kaart van de speler te staan."
+msgstr[1] "%d doelpunten hebben nog een maker nodig. Door ze toe te kennen komen ze op de kaart van de speler te staan."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:712
+#, php-format
+msgid "Score recorded as %1$d–%2$d; %3$d goal logged. This match predates per-goal logging — the score is kept as recorded."
+msgid_plural "Score recorded as %1$d–%2$d; %3$d goals logged. This match predates per-goal logging — the score is kept as recorded."
+msgstr[0] "Stand vastgelegd als %1$d–%2$d; %3$d doelpunt geregistreerd. Deze wedstrijd is van vóór het vastleggen per doelpunt — de stand blijft zoals hij is vastgelegd."
+msgstr[1] "Stand vastgelegd als %1$d–%2$d; %3$d doelpunten geregistreerd. Deze wedstrijd is van vóór het vastleggen per doelpunt — de stand blijft zoals hij is vastgelegd."
+
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1124
 msgid "No assist"
 msgstr "Geen assist"

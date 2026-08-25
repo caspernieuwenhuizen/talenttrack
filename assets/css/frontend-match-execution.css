@@ -1921,3 +1921,103 @@
     .tt-mexec-goal-sheet-actions { justify-content: flex-end; }
     .tt-mexec-goal-sheet-actions .tt-btn { flex: 0 0 auto; }
 }
+
+/* ----- #2858 — goal attribution in the review ---------------------- */
+/* An unattributed goal is a goal that counts but is on nobody's record
+ * yet. It reads as a gap to close, not as an error — the coach did the
+ * right thing by logging it at all. */
+.tt-mexec-goal-ev--unattributed { border-left: 3px solid var(--tt-mexec-warn); }
+
+.tt-mexec-goal-ev-assist {
+    color: var(--tt-mexec-ink-soft);
+    font-size: 0.85rem;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.tt-mexec-match-goals-todo,
+.tt-mexec-match-goals-legacy {
+    margin: 0 0 var(--tt-mexec-gap);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+.tt-mexec-match-goals-todo {
+    background: rgba(199, 92, 31, 0.1);
+    border: 1px solid var(--tt-mexec-warn);
+    color: var(--tt-mexec-warn);
+    font-weight: 600;
+}
+/* The legacy note is information, not a call to action: nothing is being
+ * asked of the coach and nothing is wrong with the stored result. */
+.tt-mexec-match-goals-legacy {
+    background: var(--tt-mexec-mute);
+    border: 1px solid var(--tt-mexec-line);
+    color: var(--tt-mexec-ink-soft);
+}
+
+.tt-mexec-goal-attr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--tt-mexec-line);
+}
+.tt-mexec-goal-attr-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 10rem;
+    font-size: 0.8rem;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec-goal-attr-field select {
+    /* 16px floor keeps iOS from zooming when the select takes focus. */
+    font-size: 16px;
+    min-height: var(--tt-mexec-tap-min);
+    padding: 0 8px;
+    border: 1px solid var(--tt-mexec-line);
+    border-radius: 8px;
+    background: var(--tt-mexec-paper);
+    color: var(--tt-mexec-ink);
+    max-width: 100%;
+}
+.tt-mexec-goal-attr-own,
+.tt-mexec-late-event-own {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--tt-mexec-tap-min);
+    font-size: 0.9rem;
+    color: var(--tt-mexec-ink);
+    cursor: pointer;
+}
+.tt-mexec-goal-attr-own input,
+.tt-mexec-late-event-own input {
+    width: 24px;
+    height: 24px;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-attr-save {
+    min-height: var(--tt-mexec-tap-min);
+    padding: 0 14px;
+    border: 1.5px solid var(--tt-mexec-accent);
+    border-radius: 8px;
+    background: var(--tt-mexec-accent);
+    color: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-mexec-goal-attr-save:active { filter: brightness(0.92); }
+.tt-mexec-goal-attr-save:disabled {
+    background: var(--tt-mexec-line);
+    border-color: var(--tt-mexec-line);
+    cursor: not-allowed;
+}

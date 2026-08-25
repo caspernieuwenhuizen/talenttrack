@@ -707,6 +707,25 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                               $mg_home[] = $ge;
                           }
                       }
+
+                      // #2858 — goals of ours that carry no scorer and are not own
+                      // goals. The live sheet lets a coach save one rather than
+                      // stall the clock on an attribution they cannot make, so
+                      // this is the other half of that bargain: a reminder, after
+                      // the whistle, that the goal is not yet on anybody's record.
+                      $mg_unattributed = 0;
+                      foreach ( $mg_home as $ge ) {
+                          if ( (int) $ge->player_id <= 0 && empty( $ge->is_own_goal ) ) $mg_unattributed++;
+                      }
+
+                      // #2858 — a match played before goals were logged individually
+                      // has a stored score with no events behind it. Those results
+                      // are left exactly as recorded; the note exists so the screen
+                      // does not present a figure the goal list cannot account for
+                      // as though the two agreed.
+                      $mg_stored_total = (int) $home_score + (int) $away_score;
+                      $mg_event_total  = count( $goal_events );
+                      $mg_mismatch     = ( $mg_stored_total !== $mg_event_total );
                       ?>
                 <section class="tt-mexec-section tt-mexec-match-goals" aria-label="<?php echo esc_attr_x( 'Match goals', 'scored goals section', 'talenttrack' ); ?>" data-tt-mexec-match-goals>
                     <div class="tt-mexec-section-head">
@@ -726,6 +745,38 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         ) ); ?>
                     </p>
 
+                    <?php if ( $mg_mismatch ) : ?>
+                        <p class="tt-mexec-match-goals-legacy">
+                            <?php echo esc_html( sprintf(
+                                /* translators: 1: home score, 2: away score, 3: number of logged goals */
+                                _n(
+                                    'Score recorded as %1$d–%2$d; %3$d goal logged. This match predates per-goal logging — the score is kept as recorded.',
+                                    'Score recorded as %1$d–%2$d; %3$d goals logged. This match predates per-goal logging — the score is kept as recorded.',
+                                    $mg_event_total,
+                                    'talenttrack'
+                                ),
+                                (int) $home_score,
+                                (int) $away_score,
+                                $mg_event_total
+                            ) ); ?>
+                        </p>
+                    <?php endif; ?>
+
+                    <?php if ( $mg_unattributed > 0 ) : ?>
+                        <p class="tt-mexec-match-goals-todo" data-tt-mexec-goals-todo>
+                            <?php echo esc_html( sprintf(
+                                /* translators: %d: number of goals with no scorer recorded */
+                                _n(
+                                    '%d goal still needs a scorer. Attributing it puts the goal on the player\'s record.',
+                                    '%d goals still need a scorer. Attributing them puts each goal on the player\'s record.',
+                                    $mg_unattributed,
+                                    'talenttrack'
+                                ),
+                                $mg_unattributed
+                            ) ); ?>
+                        </p>
+                    <?php endif; ?>
+
                     <p class="tt-mexec-goals-split tt-mexec-goals-split--home">
                         <?php echo esc_html( sprintf( '%s — %d', $home_abbr, count( $mg_home ) ) ); ?>
                     </p>
@@ -733,12 +784,31 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <p class="tt-mexec-match-goals-empty"><?php esc_html_e( 'No goals logged for our team.', 'talenttrack' ); ?></p>
                     <?php else : ?>
                         <?php foreach ( $mg_home as $ge ) :
-                            $g_pl   = $players_by_id[ (int) $ge->player_id ] ?? null;
-                            $g_half = (int) $ge->half;
-                            $g_min  = (int) $ge->minute_in_half;
+                            $g_uuid   = (string) ( $ge->event_uuid ?? '' );
+                            $g_pid    = (int) $ge->player_id;
+                            $g_assist = (int) ( $ge->assist_player_id ?? 0 );
+                            $g_own    = ! empty( $ge->is_own_goal );
+                            $g_pl     = $players_by_id[ $g_pid ] ?? null;
+                            $g_as_pl  = $players_by_id[ $g_assist ] ?? null;
+                            $g_half   = (int) $ge->half;
+                            $g_min    = (int) $ge->minute_in_half;
                             $g_half_label = $g_half === 2 ? __( '2nd half', 'talenttrack' ) : __( '1st half', 'talenttrack' );
+                            // #2858 — an own goal and a goal nobody attributed are
+                            // different facts, and both used to render as "Our goal".
+                            // A coach reading the review needs to tell "the
+                            // opponent put it in" from "we never wrote down who
+                            // scored" — only the second is something to go and fix.
+                            if ( $g_own ) {
+                                $g_who = _x( 'Own goal', 'goal put in by the side it counts against', 'talenttrack' );
+                            } elseif ( $g_pl ) {
+                                $g_who = QueryHelpers::player_display_name( $g_pl );
+                            } else {
+                                $g_who = __( 'Scorer not recorded', 'talenttrack' );
+                            }
+                            $g_needs_scorer = ( ! $g_own && $g_pid <= 0 );
                             ?>
-                            <div class="tt-mexec-goal-ev tt-mexec-goal-ev--home">
+                            <div class="tt-mexec-goal-ev tt-mexec-goal-ev--home<?php echo $g_needs_scorer ? ' tt-mexec-goal-ev--unattributed' : ''; ?>"
+                                 data-tt-mexec-home-goal data-event-uuid="<?php echo esc_attr( $g_uuid ); ?>">
                                 <div class="tt-mexec-goal-ev-when">
                                     <span class="tt-mexec-goal-ev-min"><?php echo esc_html( sprintf( "%d'", $g_min ) ); ?></span>
                                     <span class="tt-mexec-goal-ev-half"><?php echo esc_html( $g_half_label ); ?></span>
@@ -746,10 +816,54 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                 <div class="tt-mexec-goal-ev-body">
                                     <span class="tt-mexec-goal-ev-dir" aria-hidden="true">⚽</span>
                                     <span class="tt-mexec-goal-ev-team tt-mexec-goal-ev-team--home"><?php echo esc_html( $home_abbr ); ?></span>
-                                    <span class="tt-mexec-goal-ev-who">
-                                        <?php echo esc_html( $g_pl ? QueryHelpers::player_display_name( $g_pl ) : __( 'Our goal', 'talenttrack' ) ); ?>
-                                    </span>
+                                    <span class="tt-mexec-goal-ev-who"><?php echo esc_html( $g_who ); ?></span>
+                                    <?php if ( $g_as_pl ) : ?>
+                                        <span class="tt-mexec-goal-ev-assist">
+                                            <?php echo esc_html( sprintf(
+                                                /* translators: %s: the assisting player's name */
+                                                __( 'assist %s', 'talenttrack' ),
+                                                QueryHelpers::player_display_name( $g_as_pl )
+                                            ) ); ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
+
+                                <?php // The attribution editor. A goal saved without a
+                                      // scorer during the match is only half-recorded
+                                      // until this closes the gap, so it sits on the
+                                      // goal itself rather than behind a separate flow.
+                                      ?>
+                                <?php if ( $is_editable && $g_uuid !== '' ) : ?>
+                                    <div class="tt-mexec-goal-attr tt-mexec-edit-only" data-tt-mexec-goal-attr>
+                                        <label class="tt-mexec-goal-attr-field">
+                                            <span><?php echo esc_html_x( 'Scorer', 'who scored a goal', 'talenttrack' ); ?></span>
+                                            <select data-tt-mexec-goal-scorer>
+                                                <option value="0"<?php selected( $g_pid, 0 ); ?>><?php esc_html_e( 'Scorer not recorded', 'talenttrack' ); ?></option>
+                                                <?php foreach ( $players_by_id as $pid => $pl ) : ?>
+                                                    <option value="<?php echo (int) $pid; ?>"<?php selected( $g_pid, (int) $pid ); ?>>
+                                                        <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </label>
+                                        <label class="tt-mexec-goal-attr-field">
+                                            <span><?php echo esc_html_x( 'Assist', 'who created a goal', 'talenttrack' ); ?></span>
+                                            <select data-tt-mexec-goal-assist>
+                                                <option value="0"<?php selected( $g_assist, 0 ); ?>><?php esc_html_e( 'No assist', 'talenttrack' ); ?></option>
+                                                <?php foreach ( $players_by_id as $pid => $pl ) : ?>
+                                                    <option value="<?php echo (int) $pid; ?>"<?php selected( $g_assist, (int) $pid ); ?>>
+                                                        <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </label>
+                                        <label class="tt-mexec-goal-attr-own">
+                                            <input type="checkbox" data-tt-mexec-goal-own<?php checked( $g_own ); ?> />
+                                            <span><?php echo esc_html_x( 'Own goal', 'goal put in by the side it counts against', 'talenttrack' ); ?></span>
+                                        </label>
+                                        <button type="button" class="tt-mexec-goal-attr-save" data-tt-mexec-goal-attr-save><?php esc_html_e( 'Save attribution', 'talenttrack' ); ?></button>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -999,10 +1113,26 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             <?php esc_html_e( 'Add late goal', 'talenttrack' ); ?>
                         </summary>
                         <form class="tt-mexec-late-event-form" data-tt-mexec-late-goal-form>
+                            <?php // #2858 — the scorer is no longer required here
+                                  // either. A goal added days later is exactly the
+                                  // case where nobody is sure who touched it last,
+                                  // and the form should not be stricter than the
+                                  // live sheet it backs up. ?>
                             <label class="tt-mexec-late-event-field">
-                                <span><?php esc_html_e( 'Player', 'talenttrack' ); ?></span>
-                                <select name="player_id" required>
-                                    <option value=""><?php esc_html_e( '— pick player —', 'talenttrack' ); ?></option>
+                                <span><?php echo esc_html_x( 'Scorer', 'who scored a goal', 'talenttrack' ); ?></span>
+                                <select name="player_id">
+                                    <option value="0"><?php esc_html_e( 'Scorer not recorded', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $picker_players as $pid => $pl ) : ?>
+                                        <option value="<?php echo (int) $pid; ?>">
+                                            <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php echo esc_html_x( 'Assist', 'who created a goal', 'talenttrack' ); ?></span>
+                                <select name="assist_player_id">
+                                    <option value="0"><?php esc_html_e( 'No assist', 'talenttrack' ); ?></option>
                                     <?php foreach ( $picker_players as $pid => $pl ) : ?>
                                         <option value="<?php echo (int) $pid; ?>">
                                             <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
@@ -1022,6 +1152,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                 <input type="number" inputmode="numeric" name="minute"
                                        min="0" max="<?php echo (int) $minute_max; ?>"
                                        placeholder="<?php echo esc_attr( (string) $minute_max ); ?>" required />
+                            </label>
+                            <label class="tt-mexec-late-event-own">
+                                <input type="checkbox" name="is_own_goal" value="1" />
+                                <span><?php echo esc_html_x( 'Own goal', 'goal put in by the side it counts against', 'talenttrack' ); ?></span>
                             </label>
                             <button type="submit" class="tt-mexec-late-event-submit">
                                 <?php esc_html_e( 'Log goal', 'talenttrack' ); ?>
@@ -1265,6 +1399,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 /* translators: %1$s: who scored, %2$d: the minute */
                 'goal_toast_format'   => __( '✓ Goal · %1$s · %2$d\'', 'talenttrack' ),
                 'goal_pick_our_scorer'=> __( 'Which of ours put it in?', 'talenttrack' ),
+                // #2858 — post-match attribution corrections.
+                'self_assist_error'     => __( 'A player cannot assist their own goal.', 'talenttrack' ),
+                'attribution_save_error'=> __( 'Could not save the attribution.', 'talenttrack' ),
                 // #2275 — opponent-goal review affordances.
                 'away_goal_del_confirm' => __( 'Remove this opponent goal? The score updates.', 'talenttrack' ),
                 'away_goal_minute_error'=> __( 'Enter a valid minute.', 'talenttrack' ),
