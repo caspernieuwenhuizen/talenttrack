@@ -901,6 +901,7 @@ class FrontendCustomCssView extends FrontendViewBase {
             'player-status.css',
             'frontend-profile.css',
             'frontend-activities-manage.css',
+            'frontend-features.css',
             'frontend-journey.css',
             'frontend-my-journey.css',
             'frontend-threads.css',
