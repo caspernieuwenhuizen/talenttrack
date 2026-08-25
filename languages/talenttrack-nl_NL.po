@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T20:24:43+00:00\n"
+"POT-Creation-Date: 2026-08-25T20:33:32+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -10474,7 +10474,7 @@ msgstr "Core module — kan niet worden uitgeschakeld."
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
-#: src/Shared/Frontend/FrontendFeaturesView.php:118
+#: src/Shared/Frontend/FrontendFeaturesView.php:268
 #: src/Shared/Frontend/FrontendModulesView.php:296
 msgid "On"
 msgstr "Aan"
@@ -10483,15 +10483,15 @@ msgstr "Aan"
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1184
-#: src/Shared/Frontend/FrontendFeaturesView.php:121
+#: src/Shared/Frontend/FrontendFeaturesView.php:268
 #: src/Shared/Frontend/FrontendModulesView.php:298
 msgid "Off"
 msgstr "Uit"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:155
 #: src/Shared/CoreSurfaceRegistration.php:1554
-#: src/Shared/Frontend/FrontendFeaturesView.php:44
-#: src/Shared/Frontend/FrontendFeaturesView.php:52
+#: src/Shared/Frontend/FrontendFeaturesView.php:86
+#: src/Shared/Frontend/FrontendFeaturesView.php:94
 msgid "Features"
 msgstr "Functies"
 
@@ -12170,7 +12170,7 @@ msgstr ""
 "hieronder en bevestig om toe te passen."
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1193
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:989
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:990
 #: src/Shared/Frontend/FrontendBackupsView.php:442
 msgid "Insert"
 msgstr "Invoegen"
@@ -16177,7 +16177,7 @@ msgid "Delete this snapshot?"
 msgstr "Snapshot verwijderen?"
 
 #. translators: %d = number of classes discovered
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:965
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:966
 #, php-format
 msgid ""
 "%d TalentTrack class found in the bundled stylesheets. Search by typing — "
@@ -16196,24 +16196,24 @@ msgstr[1] ""
 "zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te "
 "prefillen met een startregel voor die klasse."
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:977
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:978
 msgid "Search classes"
 msgstr "Klassen zoeken"
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:978
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:979
 msgid "e.g. card, btn, table…"
 msgstr "bijv. card, btn, table…"
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:993
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:994
 msgid "No matches."
 msgstr "Geen treffers."
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1039
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1040
 msgid "Stuck behind a broken save?"
 msgstr "Vastgelopen door een mislukte save?"
 
 #. translators: %s = safe-mode URL
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1042
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1043
 #, php-format
 msgid ""
 "Open the dashboard with the safe-mode URL: %s — it skips custom CSS so you "
@@ -22872,10 +22872,11 @@ msgstr "Staf opgeleid"
 
 #. translators: 1: how many staff finished, 2: how many staff there are
 #. translators: 1: number of passes, 2: number of attempts
+#. translators: 1: number of capabilities in use, 2: total number of capabilities.
 #: src/Modules/Knowledge/Frontend/LearningReports.php:190
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:433
-#: src/Shared/Frontend/FrontendFeaturesView.php:145
+#: src/Shared/Frontend/FrontendFeaturesView.php:152
 #, php-format
 msgid "%1$d of %2$d"
 msgstr "%1$d van %2$d"
@@ -23793,6 +23794,7 @@ msgid "Resource"
 msgstr "Bron"
 
 #: src/Modules/License/Admin/AccountPage.php:621
+#: src/Shared/Frontend/FrontendFeaturesView.php:115
 #: src/Shared/Frontend/FrontendSeasonsView.php:109
 msgid "In use"
 msgstr "In gebruik"
@@ -45138,7 +45140,7 @@ msgid "Search players in this team…"
 msgstr "Zoek spelers in deze ploeg…"
 
 #: src/Shared/Frontend/Components/DevelopmentPill.php:27
-#: src/Shared/Frontend/Components/DevelopmentPill.php:49
+#: src/Shared/Frontend/Components/DevelopmentPill.php:59
 #: src/Shared/Frontend/FrontendModulesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:330
 #: src/Shared/Frontend/FrontendModulesView.php:361
@@ -45147,7 +45149,7 @@ msgid "Under development"
 msgstr "In ontwikkeling"
 
 #: src/Shared/Frontend/Components/DevelopmentPill.php:28
-#: src/Shared/Frontend/Components/DevelopmentPill.php:48
+#: src/Shared/Frontend/Components/DevelopmentPill.php:58
 msgid "This feature is still being built and may change."
 msgstr "Deze functie wordt nog gebouwd en kan veranderen."
 
@@ -48708,29 +48710,53 @@ msgstr "Geen"
 msgid "optional"
 msgstr "optioneel"
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:50
+#: src/Shared/Frontend/FrontendFeaturesView.php:92
 msgid "Manage modules & features"
 msgstr "Modules & functies beheren"
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:55
-msgid ""
-"Which parts of TalentTrack are switched on for your academy. This is a read-"
-"only overview — ask an administrator to change anything."
-msgstr ""
-"Welke onderdelen van TalentTrack aanstaan voor jouw academie. Dit is een "
-"alleen-lezen overzicht — vraag een beheerder om iets te wijzigen."
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:60
+#: src/Shared/Frontend/FrontendFeaturesView.php:98
 msgid "Nothing to show yet."
 msgstr "Nog niets om te tonen."
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:84
-msgid "Provides:"
-msgstr "Levert:"
+#: src/Shared/Frontend/FrontendFeaturesView.php:116
+msgid "What your academy is running today."
+msgstr "Wat jouw academie vandaag gebruikt."
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:115
-msgid "Always on"
-msgstr "Altijd aan"
+#: src/Shared/Frontend/FrontendFeaturesView.php:125
+msgid "Available to switch on"
+msgstr "Beschikbaar om aan te zetten"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:126
+msgid ""
+"Part of TalentTrack, not switched on for your academy yet. An administrator "
+"can turn these on."
+msgstr ""
+"Onderdeel van TalentTrack, maar nog niet aangezet voor jouw academie. Een "
+"beheerder kan deze aanzetten."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:148
+msgid "Your academy is running"
+msgstr "Jouw academie gebruikt"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:157
+msgid "TalentTrack capabilities"
+msgstr "TalentTrack-functies"
+
+#. translators: %d: number of capabilities not switched on.
+#: src/Shared/Frontend/FrontendFeaturesView.php:167
+#, php-format
+msgid "%d more available to switch on"
+msgid_plural "%d more available to switch on"
+msgstr[0] "Nog %d beschikbaar om aan te zetten"
+msgstr[1] "Nog %d beschikbaar om aan te zetten"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:172
+msgid "Everything available is switched on."
+msgstr "Alles wat beschikbaar is, staat aan."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:232
+msgid "Includes"
+msgstr "Bevat"
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:85
@@ -55046,45 +55072,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:141
-msgid "Your academy is running"
-msgstr "Jouw academie gebruikt"
+#~ msgid ""
+#~ "Which parts of TalentTrack are switched on for your academy. This is a "
+#~ "read-only overview — ask an administrator to change anything."
+#~ msgstr ""
+#~ "Welke onderdelen van TalentTrack aanstaan voor jouw academie. Dit is een "
+#~ "alleen-lezen overzicht — vraag een beheerder om iets te wijzigen."
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:151
-msgid "TalentTrack capabilities"
-msgstr "TalentTrack-functies"
+#~ msgid "Provides:"
+#~ msgstr "Levert:"
 
-#. translators: %d: number of capabilities not switched on.
-#: src/Shared/Frontend/FrontendFeaturesView.php:161
-#, php-format
-msgid "%d more available to switch on"
-msgid_plural "%d more available to switch on"
-msgstr[0] "Nog %d beschikbaar om aan te zetten"
-msgstr[1] "Nog %d beschikbaar om aan te zetten"
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:167
-msgid "Everything available is switched on."
-msgstr "Alles wat beschikbaar is, staat aan."
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:113
-msgid "What your academy is running today."
-msgstr "Wat jouw academie vandaag gebruikt."
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:121
-msgid "Available to switch on"
-msgstr "Beschikbaar om aan te zetten"
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:122
-msgid ""
-"Part of TalentTrack, not switched on for your academy yet. An administrator "
-"can turn these on."
-msgstr ""
-"Onderdeel van TalentTrack, maar nog niet aangezet voor jouw academie. Een "
-"beheerder kan deze aanzetten."
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:232
-msgid "Includes"
-msgstr "Bevat"
+#~ msgid "Always on"
+#~ msgstr "Altijd aan"
 
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "

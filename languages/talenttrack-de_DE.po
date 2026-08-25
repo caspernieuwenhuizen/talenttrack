@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T20:24:43+00:00\n"
+"POT-Creation-Date: 2026-08-25T20:33:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -9926,7 +9926,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
-#: src/Shared/Frontend/FrontendFeaturesView.php:118
+#: src/Shared/Frontend/FrontendFeaturesView.php:268
 #: src/Shared/Frontend/FrontendModulesView.php:296
 msgid "On"
 msgstr "Ein"
@@ -9935,15 +9935,15 @@ msgstr "Ein"
 #: src/Modules/Authorization/Admin/ModulesPage.php:167
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:338
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1184
-#: src/Shared/Frontend/FrontendFeaturesView.php:121
+#: src/Shared/Frontend/FrontendFeaturesView.php:268
 #: src/Shared/Frontend/FrontendModulesView.php:298
 msgid "Off"
 msgstr "Aus"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:155
 #: src/Shared/CoreSurfaceRegistration.php:1554
-#: src/Shared/Frontend/FrontendFeaturesView.php:44
-#: src/Shared/Frontend/FrontendFeaturesView.php:52
+#: src/Shared/Frontend/FrontendFeaturesView.php:86
+#: src/Shared/Frontend/FrontendFeaturesView.php:94
 msgid "Features"
 msgstr ""
 
@@ -11451,7 +11451,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1193
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:989
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:990
 #: src/Shared/Frontend/FrontendBackupsView.php:442
 msgid "Insert"
 msgstr ""
@@ -14988,7 +14988,7 @@ msgid "Delete this snapshot?"
 msgstr ""
 
 #. translators: %d = number of classes discovered
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:965
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:966
 #, php-format
 msgid ""
 "%d TalentTrack class found in the bundled stylesheets. Search by typing — "
@@ -15007,24 +15007,24 @@ msgstr[1] ""
 "zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te "
 "prefillen met een startregel voor die klasse."
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:977
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:978
 msgid "Search classes"
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:978
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:979
 msgid "e.g. card, btn, table…"
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:993
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:994
 msgid "No matches."
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1039
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1040
 msgid "Stuck behind a broken save?"
 msgstr ""
 
 #. translators: %s = safe-mode URL
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1042
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1043
 #, php-format
 msgid ""
 "Open the dashboard with the safe-mode URL: %s — it skips custom CSS so you "
@@ -21227,9 +21227,11 @@ msgstr ""
 
 #. translators: 1: how many staff finished, 2: how many staff there are
 #. translators: 1: number of passes, 2: number of attempts
+#. translators: 1: number of capabilities in use, 2: total number of capabilities.
 #: src/Modules/Knowledge/Frontend/LearningReports.php:190
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:433
+#: src/Shared/Frontend/FrontendFeaturesView.php:152
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
@@ -22070,6 +22072,7 @@ msgid "Resource"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:621
+#: src/Shared/Frontend/FrontendFeaturesView.php:115
 #: src/Shared/Frontend/FrontendSeasonsView.php:109
 msgid "In use"
 msgstr "In Verwendung"
@@ -41972,7 +41975,7 @@ msgid "Search players in this team…"
 msgstr ""
 
 #: src/Shared/Frontend/Components/DevelopmentPill.php:27
-#: src/Shared/Frontend/Components/DevelopmentPill.php:49
+#: src/Shared/Frontend/Components/DevelopmentPill.php:59
 #: src/Shared/Frontend/FrontendModulesView.php:301
 #: src/Shared/Frontend/FrontendModulesView.php:330
 #: src/Shared/Frontend/FrontendModulesView.php:361
@@ -41981,7 +41984,7 @@ msgid "Under development"
 msgstr ""
 
 #: src/Shared/Frontend/Components/DevelopmentPill.php:28
-#: src/Shared/Frontend/Components/DevelopmentPill.php:48
+#: src/Shared/Frontend/Components/DevelopmentPill.php:58
 msgid "This feature is still being built and may change."
 msgstr ""
 
@@ -45202,26 +45205,50 @@ msgstr ""
 msgid "optional"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:50
+#: src/Shared/Frontend/FrontendFeaturesView.php:92
 msgid "Manage modules & features"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:55
-msgid ""
-"Which parts of TalentTrack are switched on for your academy. This is a read-"
-"only overview — ask an administrator to change anything."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendFeaturesView.php:60
+#: src/Shared/Frontend/FrontendFeaturesView.php:98
 msgid "Nothing to show yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:84
-msgid "Provides:"
+#: src/Shared/Frontend/FrontendFeaturesView.php:116
+msgid "What your academy is running today."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendFeaturesView.php:115
-msgid "Always on"
+#: src/Shared/Frontend/FrontendFeaturesView.php:125
+msgid "Available to switch on"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:126
+msgid ""
+"Part of TalentTrack, not switched on for your academy yet. An administrator "
+"can turn these on."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:148
+msgid "Your academy is running"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:157
+msgid "TalentTrack capabilities"
+msgstr ""
+
+#. translators: %d: number of capabilities not switched on.
+#: src/Shared/Frontend/FrontendFeaturesView.php:167
+#, php-format
+msgid "%d more available to switch on"
+msgid_plural "%d more available to switch on"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:172
+msgid "Everything available is switched on."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:232
+msgid "Includes"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
