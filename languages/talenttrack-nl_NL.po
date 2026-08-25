@@ -55039,6 +55039,64 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:50
+msgid "Edit prospect"
+msgstr "Prospect bewerken"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:51
+msgid "You do not have permission to edit prospects."
+msgstr "Je hebt geen rechten om prospects te bewerken."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:63
+msgid "Prospect not found"
+msgstr "Prospect niet gevonden"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:64
+msgid "This prospect does not exist or you do not have access."
+msgstr "Deze prospect bestaat niet of je hebt er geen toegang toe."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:101
+msgid "Parent or guardian"
+msgstr "Ouder of verzorger"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:126
+msgid "Consent"
+msgstr "Toestemming"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:129
+msgid "Consent given on"
+msgstr "Toestemming gegeven op"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:134
+msgid ""
+"The date the parent or guardian agreed. Leave empty if consent has not been "
+"given, or clear it to record that consent was withdrawn."
+msgstr ""
+"De datum waarop de ouder of verzorger akkoord ging. Laat leeg als er geen "
+"toestemming is gegeven, of maak het veld leeg om vast te leggen dat de "
+"toestemming is ingetrokken."
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:139
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:88
+msgid "Edit contact"
+msgstr "Contact bewerken"
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:225
+msgid "Prospect not found."
+msgstr "Prospect niet gevonden."
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:246
+msgid "Invalid prospect id."
+msgstr "Ongeldig prospect-id."
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:272
+msgid "That does not look like an email address."
+msgstr "Dat ziet er niet uit als een e-mailadres."
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:298
+msgid "Consent date must be YYYY-MM-DD."
+msgstr "De toestemmingsdatum moet JJJJ-MM-DD zijn."
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."

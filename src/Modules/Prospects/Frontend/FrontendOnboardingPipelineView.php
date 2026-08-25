@@ -111,6 +111,15 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $has_action = $url !== '' && strpos( $url, 'prospect_id=' ) === false;
         $close_url  = remove_query_arg( 'prospect_id' );
 
+        // #2838 — the correction path. Until this, a prospect logged with
+        // a mistyped email or a consent that arrived late had nowhere to
+        // be fixed, and the focus panel was the closest thing to a record
+        // view. tt_back carries the pipeline URL so Cancel comes back here.
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_prospects' );
+        $edit_url = $can_edit
+            ? RecordLink::detailUrlForWithBack( 'prospect-edit', $focus_pid )
+            : '';
+
         ob_start(); ?>
         <section class="tt-pipeline-focus" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: prospect name */ __( 'Prospect: %s', 'talenttrack' ), $name ) ); ?>">
             <div class="tt-pipeline-focus-head">
@@ -125,9 +134,14 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             <?php if ( $ctx !== '' ) : ?>
                 <p class="tt-pipeline-focus-ctx"><?php echo esc_html( $ctx ); ?></p>
             <?php endif; ?>
-            <?php if ( $has_action ) : ?>
+            <?php if ( $has_action || $can_edit ) : ?>
                 <p class="tt-pipeline-focus-actions">
-                    <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
+                    <?php if ( $has_action ) : ?>
+                        <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                    <?php if ( $can_edit ) : ?>
+                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit contact', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
                 </p>
             <?php endif; ?>
         </section>
