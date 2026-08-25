@@ -34,11 +34,12 @@ tikt in de kop.
 
 Zodra de wedstrijd eindigt, komt hij in **nabespreking**. Dit is de
 volledige controle-en-bewerkstatus: met Bewerken aan kun je **elk gemeten
-gegeven** aanpassen — de **stand** bijstellen, een **wissel toevoegen of
-ongedaan maken**, een **doelpunt toevoegen of ongedaan maken** en de
-**minuten** corrigeren (door het wissellog te herstellen, of via de
-panelen *Laat doelpunt / wissel toevoegen* voor gebeurtenissen die je live
-vergat aan te tikken). Een wissel corrigeren herberekent de minuten, dus de
+gegeven** aanpassen — een **wissel toevoegen of ongedaan maken**, een
+**doelpunt toevoegen of ongedaan maken** en de **minuten** corrigeren (door
+het wissellog te herstellen, of via de panelen *Laat doelpunt / wissel
+toevoegen* voor gebeurtenissen die je live vergat aan te tikken). De stand
+volgt de doelpunten die je toevoegt of ongedaan maakt; je stelt hem niet
+los in. Een wissel corrigeren herberekent de minuten, dus de
 geregistreerde minuten die de rapporten lezen blijven in lijn met wat je
 wijzigt.
 
@@ -46,7 +47,7 @@ Als je klaar bent, tik je op **Wedstrijd afsluiten** om te vergrendelen.
 Een afgesloten wedstrijd is de vastlegging van wat de spelers werkelijk
 deden, dus de live-knoppen blijven vergrendeld en de knop Bewerken
 verdwijnt. (De server dwingt dezelfde vergrendeling af, dus een afgesloten
-wedstrijd weigert wijzigingen aan stand, doelpunten en wissels, ongeacht
+wedstrijd weigert wijzigingen aan doelpunten en wissels, ongeacht
 het scherm.)
 
 Op het scherm na de wedstrijd staat ook **Wedstrijdanalyse schrijven** — het
@@ -58,7 +59,7 @@ voor ogen hebt. Zie *Wedstrijdanalyse*.
 Afsluiten is een bewuste vergrendeling, maar nooit een doodlopende weg. Een
 afgesloten wedstrijd toont de actie **Heropenen voor correcties**. Als je
 erop tikt (er wordt om bevestiging gevraagd) keert de wedstrijd terug naar
-*nabespreking* zodat je elk gegeven kunt corrigeren — stand, wissels,
+*nabespreking* zodat je elk gegeven kunt corrigeren — wissels,
 doelpunten of minuten — en daarna weer kunt afsluiten. Elke heropening
 wordt vastgelegd in het auditlog, en heropenen herberekent de minuten zodat
 de rapporten kloppend blijven.
@@ -78,9 +79,47 @@ ingedrukt om de laatst getelde actie te verwijderen.
 
 Deze tellingen zijn **ontwikkelacties, geen doelpunten**. Ze worden als
 eigen gebeurtenissen met tijdstip vastgelegd en veranderen de stand nooit.
-Doelpunten die de stand bepalen leg je apart vast (de scoreknoppen en de
-lijst *Wedstrijddoelpunten* in de review). Door die twee gescheiden te
+Doelpunten die de stand bepalen leg je apart vast, via de doelpuntknop op
+het scorebord (zie *Een doelpunt vastleggen*). Door die twee gescheiden te
 houden kan een ontwikkeltelling de uitslag niet per ongeluk beïnvloeden.
+
+## Een doelpunt vastleggen
+
+Aan beide kanten van het scorebord staat een **+**-knop. Die verhoogt geen
+getal — hij opent het **doelpuntformulier**, waarmee je elk doelpunt
+vastlegt.
+
+Bij een doelpunt van ons vraagt het formulier **wie scoorde**, met de
+spelers die op dat moment in het veld staan bovenaan en de bank en de rest
+van de selectie achter een schakelaar. Kies de maker en het vraagt **wie de
+assist gaf**; kies een speler, of tik op **Geen assist**. Geef je niet om
+assists, dan is **Doelpunt opslaan** al beschikbaar zodra je de maker hebt
+gekozen — een doelpunt kost dan twee tikken.
+
+De minuut komt uit de wedstrijdklok en de helft uit waar je in de wedstrijd
+bent. Beide zijn in het formulier aan te passen: coaches tikken een
+doelpunt routineus een halve minuut te laat in, en je gebruikt hetzelfde
+formulier om na het laatste fluitsignaal een doelpunt toe te voegen, als de
+klok niet meer vertelt in welke helft het viel.
+
+Onder de spelers staan twee ontsnappingsroutes:
+
+- **Maker niet vastgelegd** — je zag niet wie er als laatste aan de bal
+  was. Het doelpunt telt gewoon, en het reviewscherm herinnert je eraan het
+  later alsnog toe te kennen.
+- **Eigen doelpunt** — aan onze kant is dat de tegenstander die in eigen
+  doel schiet, en dan krijgt niemand van ons de goal op zijn naam. Aan hun
+  kant opent het onze selectie, zodat je kunt aangeven wie van ons het was.
+
+Niets in het formulier is verplicht. Een doelpunt dat je niet kunt
+toekennen is nog steeds een doelpunt, en het met een gat vastleggen is
+beter dan het helemaal niet vastleggen.
+
+**De stand is een weergave van de doelpunten die je hebt vastgelegd** — je
+bewerkt hem niet los, en je kunt hem niet op een getal zetten dat niet
+klopt met de doelpunten. Wil je een doelpunt verwijderen, maak het dan
+ongedaan in het **Live verloop** (zie *Een doelpunt of wissel ongedaan
+maken*); de stand volgt.
 
 ## Wie is eigenaar van de minuten
 
@@ -142,16 +181,19 @@ wie, en hoe lang speelde iedereen?"
 
 ## Doelpunten van de tegenstander
 
-De stand bestaat uit **wedstrijddoelpunten** voor beide teams. Onze doelpunten
-worden per speler vastgelegd (de actie bij gevolgde spelers, of een laat
-doelpunt); die van de tegenstander worden als eigen gebeurtenissen met een
-tijd vastgelegd. Op het nabesprekingsscherm toont het onderdeel
-**Wedstrijddoelpunten** beide — onze doelpunten met de maker, die van de
-tegenstander als "Doelpunt tegenstander" — en met **Bewerken** aan kun je een
-doelpunt van de tegenstander toevoegen (helft + minuut), de minuut corrigeren
-of het verwijderen. De uitstand volgt automatisch het aantal doelpunten van de
-tegenstander. Wedstrijddoelpunten staan los van **Gevolgde spelers**, die
-individuele ontwikkelacties tellen en nooit de stand raken.
+De stand bestaat uit **wedstrijddoelpunten** voor beide teams, en **beide
+kanten worden geteld uit de doelpunten die je vastlegt** — geen van beide
+is een getal dat je met de hand instelt. Onze doelpunten dragen een maker
+en, als je die hebt vastgelegd, een assist; die van de tegenstander zijn
+gebeurtenissen met een tijd en zonder individuele maker, omdat hun selectie
+niet in het systeem staat.
+
+Op het nabesprekingsscherm toont het onderdeel **Wedstrijddoelpunten**
+beide — die van ons met de maker, die van de tegenstander als "Doelpunt
+tegenstander" — en met **Bewerken** aan kun je aan beide kanten een gemist
+doelpunt toevoegen, een minuut corrigeren of er een verwijderen.
+Wedstrijddoelpunten staan los van **Gevolgde spelers**, die individuele
+ontwikkelacties tellen en nooit de stand raken.
 
 ## Minuut- en opstellingscontroles
 

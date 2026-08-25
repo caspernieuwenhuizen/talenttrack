@@ -98,15 +98,15 @@
     flushQueue();
     window.addEventListener('online', flushQueue);
 
-    // --- Score steppers ---
-    root.querySelectorAll('[data-tt-mexec-score]').forEach(function (b) {
+    // --- Goal logging ---
+    // #2857 — the scoreboard buttons open the goal sheet instead of nudging
+    // a number. The old steppers wrote the scoreline straight to the server
+    // with no event behind it, which is why the score and the goal list could
+    // disagree; the score is derived from goal events now, so the only way to
+    // move it is to log or undo a goal.
+    root.querySelectorAll('[data-tt-mexec-log-goal]').forEach(function (b) {
         b.addEventListener('click', function () {
-            var which = b.getAttribute('data-tt-mexec-score');
-            var delta = parseInt(b.getAttribute('data-tt-mexec-delta'), 10) || 0;
-            if (which === 'home') state.home_score = clamp(state.home_score + delta, 0, 99);
-            else state.away_score = clamp(state.away_score + delta, 0, 99);
-            renderScore();
-            api('score', { home: state.home_score, away: state.away_score });
+            openGoalSheet(b.getAttribute('data-tt-mexec-log-goal') === 'away' ? 'away' : 'home');
         });
     });
 
@@ -283,6 +283,311 @@
         });
         btn.addEventListener('pointerleave', function () { clearTimeout(pressTimer); });
     });
+
+    // --- #2857 — the goal sheet ---
+    // Logging a goal is the one thing on this surface that happens while the
+    // coach is watching something else, so the common path is two taps: the
+    // scoreboard button, then the scorer. Save is reachable from the scorer
+    // step, so assists never cost a tap to anybody who does not want them.
+    //
+    // Every field can be left unsaid. "Scorer not recorded" exists because a
+    // coach who did not see the final touch used to have no way to record the
+    // goal at all, and reached for the free score control instead — a number
+    // with no event behind it, which is the drift this epic set out to remove.
+    var goalSheet = root.querySelector('[data-tt-mexec-goal-sheet]');
+    var pendingGoal = null;
+
+    function openGoalSheet(team) {
+        if (!goalSheet || state.state === ST.FINALIZED) return;
+        pendingGoal = {
+            team: team,
+            half: state.half,
+            minute: currentMinute(),
+            player_id: 0,
+            assist_player_id: 0,
+            is_own_goal: false,
+            scorerChosen: team === 'away',   // theirs needs no scorer to be savable
+            scorerLabel: '',
+            title: ''                        // set when a branch needs its own prompt
+        };
+        renderGoalSheet();
+        if (typeof goalSheet.showModal === 'function') goalSheet.showModal();
+        else goalSheet.setAttribute('open', 'open');
+        var minuteInput = goalSheet.querySelector('[data-tt-mexec-goal-minute]');
+        if (minuteInput) minuteInput.value = String(pendingGoal.minute);
+    }
+
+    function closeGoalSheet() {
+        pendingGoal = null;
+        if (!goalSheet) return;
+        if (typeof goalSheet.close === 'function') goalSheet.close();
+        else goalSheet.removeAttribute('open');
+    }
+
+    function goalChip(pid, onPick) {
+        var pl = state.players_by_id[pid];
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tt-mexec-goal-chip';
+        btn.setAttribute('data-player-id', String(pid));
+        if (pl && pl.jersey != null) {
+            var num = document.createElement('span');
+            num.className = 'tt-mexec-goal-chip-num';
+            num.textContent = String(pl.jersey);
+            btn.appendChild(num);
+        }
+        var label = document.createElement('span');
+        label.className = 'tt-mexec-goal-chip-name';
+        label.textContent = name(pid);
+        btn.appendChild(label);
+        btn.addEventListener('click', function () { onPick(pid); });
+        return btn;
+    }
+
+    function fillChips(container, ids, onPick) {
+        if (!container) return;
+        container.textContent = '';
+        ids.forEach(function (pid) { container.appendChild(goalChip(pid, onPick)); });
+    }
+
+    // Everyone in the squad who is not currently on the pitch. Derived live
+    // rather than server-rendered: a substitution moves players between the
+    // two groups, and a sheet opened after one must not show the pitch as it
+    // was at page load.
+    function offPitchIds() {
+        var out = [];
+        Object.keys(state.players_by_id).forEach(function (key) {
+            var pid = parseInt(key, 10);
+            if (pid > 0 && state.on_pitch.indexOf(pid) === -1) out.push(pid);
+        });
+        return out;
+    }
+
+    function renderGoalSheet() {
+        if (!goalSheet || !pendingGoal) return;
+        var isOurs = pendingGoal.team === 'home';
+
+        goalSheet.querySelector('[data-tt-mexec-goal-sheet-title]').textContent =
+            pendingGoal.title
+                ? pendingGoal.title
+                : (isOurs ? (i18n.goal_title_scorer || 'Who scored?')
+                          : (i18n.goal_title_opponent || 'Opponent goal'));
+
+        // Half toggle.
+        Array.prototype.forEach.call(goalSheet.querySelectorAll('[data-tt-mexec-goal-half]'), function (b) {
+            var h = parseInt(b.getAttribute('data-tt-mexec-goal-half'), 10);
+            b.setAttribute('aria-pressed', h === pendingGoal.half ? 'true' : 'false');
+        });
+
+        var onPitchBox = goalSheet.querySelector('[data-tt-mexec-goal-onpitch]');
+        var benchBox   = goalSheet.querySelector('[data-tt-mexec-goal-bench]');
+        var moreBox    = goalSheet.querySelector('[data-tt-mexec-goal-more]');
+        var ownBtn     = goalSheet.querySelector('[data-tt-mexec-goal-own]');
+        var unknownBtn = goalSheet.querySelector('[data-tt-mexec-goal-unknown]');
+
+        // Their goal shows no scorer picker — the opponent's squad is not in
+        // the system. The one exception is one of ours putting it in their own
+        // net, which is worth attributing, so that path opens our picker.
+        var showPicker = isOurs || pendingGoal.is_own_goal;
+        fillChips(onPitchBox, showPicker ? state.on_pitch.slice() : [], pickScorer);
+        fillChips(benchBox, showPicker ? offPitchIds() : [], pickScorer);
+        if (moreBox) moreBox.hidden = !showPicker;
+        if (unknownBtn) unknownBtn.hidden = !isOurs;
+        if (ownBtn) {
+            ownBtn.textContent = isOurs
+                ? (i18n.goal_own_theirs || 'Own goal (theirs)')
+                : (i18n.goal_own_ours || 'Own goal (ours)');
+            ownBtn.setAttribute('aria-pressed', pendingGoal.is_own_goal ? 'true' : 'false');
+        }
+
+        markSelected(onPitchBox, pendingGoal.player_id);
+        markSelected(benchBox, pendingGoal.player_id);
+
+        var saveBtn = goalSheet.querySelector('[data-tt-mexec-goal-save]');
+        if (saveBtn) saveBtn.disabled = !pendingGoal.scorerChosen;
+
+        var err = goalSheet.querySelector('[data-tt-mexec-goal-error]');
+        if (err) { err.hidden = true; err.textContent = ''; }
+    }
+
+    function markSelected(container, pid) {
+        if (!container) return;
+        Array.prototype.forEach.call(container.querySelectorAll('[data-player-id]'), function (b) {
+            var isSel = pid > 0 && parseInt(b.getAttribute('data-player-id'), 10) === pid;
+            b.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+        });
+    }
+
+    function pickScorer(pid) {
+        if (!pendingGoal) return;
+        pendingGoal.player_id = pid;
+        pendingGoal.scorerChosen = true;
+        pendingGoal.scorerLabel = name(pid);
+        // Their own goal by one of ours is fully described once the player is
+        // picked; ours moves on to the assist.
+        if (pendingGoal.team === 'home' && !pendingGoal.is_own_goal) showAssistStep();
+        else renderGoalSheet();
+    }
+
+    function showAssistStep() {
+        if (!goalSheet || !pendingGoal) return;
+        var scorerStep = goalSheet.querySelector('[data-tt-mexec-goal-step="scorer"]');
+        var assistStep = goalSheet.querySelector('[data-tt-mexec-goal-step="assist"]');
+        if (scorerStep) scorerStep.hidden = true;
+        if (assistStep) assistStep.hidden = false;
+
+        goalSheet.querySelector('[data-tt-mexec-goal-sheet-title]').textContent =
+            i18n.goal_title_assist || 'Who assisted?';
+        var sub = goalSheet.querySelector('[data-tt-mexec-goal-assist-sub]');
+        if (sub) {
+            sub.textContent = (i18n.goal_assist_sub || 'Scored by %s')
+                .replace('%s', pendingGoal.scorerLabel);
+        }
+
+        // The scorer cannot assist themselves, so they are simply not offered.
+        var ids = state.on_pitch.concat(offPitchIds()).filter(function (pid) {
+            return pid !== pendingGoal.player_id;
+        });
+        fillChips(goalSheet.querySelector('[data-tt-mexec-goal-assist]'), ids, function (pid) {
+            pendingGoal.assist_player_id = pid;
+            saveGoal();
+        });
+
+        var saveBtn = goalSheet.querySelector('[data-tt-mexec-goal-save]');
+        if (saveBtn) saveBtn.disabled = false;
+    }
+
+    function resetGoalSteps() {
+        if (!goalSheet) return;
+        var scorerStep = goalSheet.querySelector('[data-tt-mexec-goal-step="scorer"]');
+        var assistStep = goalSheet.querySelector('[data-tt-mexec-goal-step="assist"]');
+        if (scorerStep) scorerStep.hidden = false;
+        if (assistStep) assistStep.hidden = true;
+    }
+
+    function saveGoal() {
+        if (!pendingGoal) return;
+        var goal = pendingGoal;
+
+        var minuteInput = goalSheet.querySelector('[data-tt-mexec-goal-minute]');
+        var max = minuteInput ? (parseInt(minuteInput.getAttribute('max'), 10) || (HALF_LENGTH + 10)) : (HALF_LENGTH + 10);
+        var minute = minuteInput ? parseInt(minuteInput.value, 10) : goal.minute;
+        if (isNaN(minute) || minute < 0 || minute > max) {
+            var err = goalSheet.querySelector('[data-tt-mexec-goal-error]');
+            if (err) {
+                err.textContent = i18n.goal_minute_error || 'Enter a minute inside the match.';
+                err.hidden = false;
+            }
+            return;
+        }
+
+        var uuid = uuidv4();
+        closeGoalSheet();
+        resetGoalSteps();
+
+        // Optimistic: the scoreline moves now and is reconciled by the server's
+        // derived value on the next load. A reload mid-match would be hostile,
+        // so the live path never does one.
+        if (goal.team === 'home') state.home_score = clamp(state.home_score + 1, 0, 99);
+        else state.away_score = clamp(state.away_score + 1, 0, 99);
+        renderScore();
+
+        var who = goal.player_id > 0 ? name(goal.player_id) : (i18n.goal_scorer_unknown || 'Scorer not recorded');
+        toast((i18n.goal_toast_format || '✓ Goal · %1$s · %2$d\'')
+            .replace('%1$s', who).replace('%2$d', String(minute)));
+
+        api('goal-event', {
+            event_uuid: uuid,
+            team: goal.team,
+            half: goal.half,
+            minute: minute,
+            player_id: goal.player_id,
+            assist_player_id: goal.assist_player_id,
+            is_own_goal: goal.is_own_goal
+        }).catch(function () {
+            // A queued offline write resolves rather than rejecting, so this
+            // only fires on an outright refusal. Roll the scoreline back —
+            // leaving it inflated would recreate the drift in the other
+            // direction.
+            if (goal.team === 'home') state.home_score = clamp(state.home_score - 1, 0, 99);
+            else state.away_score = clamp(state.away_score - 1, 0, 99);
+            renderScore();
+            window.alert(i18n.goal_save_error || 'Could not save the goal. It has been removed from the score.');
+        });
+    }
+
+    if (goalSheet) {
+        goalSheet.querySelectorAll('[data-tt-mexec-goal-half]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                if (!pendingGoal) return;
+                pendingGoal.half = parseInt(b.getAttribute('data-tt-mexec-goal-half'), 10) === 2 ? 2 : 1;
+                Array.prototype.forEach.call(goalSheet.querySelectorAll('[data-tt-mexec-goal-half]'), function (o) {
+                    o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+                });
+            });
+        });
+
+        var unknownBtn = goalSheet.querySelector('[data-tt-mexec-goal-unknown]');
+        if (unknownBtn) {
+            unknownBtn.addEventListener('click', function () {
+                if (!pendingGoal) return;
+                pendingGoal.player_id = 0;
+                pendingGoal.is_own_goal = false;
+                pendingGoal.scorerChosen = true;
+                saveGoal();
+            });
+        }
+
+        var ownBtn = goalSheet.querySelector('[data-tt-mexec-goal-own]');
+        if (ownBtn) {
+            ownBtn.addEventListener('click', function () {
+                if (!pendingGoal) return;
+                if (pendingGoal.team === 'home') {
+                    // Their own goal. It counts for us and nobody on our side
+                    // gets credit for it.
+                    pendingGoal.is_own_goal = true;
+                    pendingGoal.player_id = 0;
+                    pendingGoal.scorerChosen = true;
+                    saveGoal();
+                } else {
+                    // Ours, into our own net. Worth attributing, so open our
+                    // picker and wait for the player.
+                    pendingGoal.is_own_goal = true;
+                    pendingGoal.scorerChosen = false;
+                    pendingGoal.title = i18n.goal_pick_our_scorer || 'Which of ours put it in?';
+                    renderGoalSheet();
+                }
+            });
+        }
+
+        var noAssistBtn = goalSheet.querySelector('[data-tt-mexec-goal-no-assist]');
+        if (noAssistBtn) {
+            noAssistBtn.addEventListener('click', function () {
+                if (!pendingGoal) return;
+                pendingGoal.assist_player_id = 0;
+                saveGoal();
+            });
+        }
+
+        var saveBtn = goalSheet.querySelector('[data-tt-mexec-goal-save]');
+        if (saveBtn) saveBtn.addEventListener('click', saveGoal);
+
+        var cancelBtn = goalSheet.querySelector('[data-tt-mexec-goal-cancel]');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', function () {
+                closeGoalSheet();
+                resetGoalSteps();
+            });
+        }
+
+        // Escape / backdrop dismissal cancels the whole goal. It deliberately
+        // does NOT mean "no assist" — that is its own button, so a mis-tap
+        // outside the sheet cannot silently commit a goal.
+        goalSheet.addEventListener('cancel', function () {
+            pendingGoal = null;
+            resetGoalSteps();
+        });
+    }
 
     // --- Substitution flow ---
     root.querySelectorAll('[data-tt-mexec-sub-on]').forEach(function (btn) {

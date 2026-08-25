@@ -24764,21 +24764,64 @@ msgstr "Klaar met bewerken"
 msgid "%s score"
 msgstr "%s score"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:305
-msgid "Decrease home score"
-msgstr "Thuisscore verlagen"
-
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:307
-msgid "Increase home score"
-msgstr "Thuisscore verhogen"
+#, php-format
+msgid "Log a goal for %s"
+msgstr "Doelpunt vastleggen voor %s"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:313
-msgid "Decrease away score"
-msgstr "Uitscore verlagen"
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1090
+msgid "Who scored?"
+msgstr "Wie scoorde?"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:315
-msgid "Increase away score"
-msgstr "Uitscore verhogen"
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1112
+msgid "Bench and rest of squad"
+msgstr "Bank en rest van de selectie"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1116
+msgid "Scorer not recorded"
+msgstr "Maker niet vastgelegd"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1124
+msgid "No assist"
+msgstr "Geen assist"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1132
+msgid "Save goal"
+msgstr "Doelpunt opslaan"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1190
+msgid "Who assisted?"
+msgstr "Wie gaf de assist?"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1191
+msgid "Own goal (theirs)"
+msgstr "Eigen doelpunt (van hen)"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1192
+msgid "Own goal (ours)"
+msgstr "Eigen doelpunt (van ons)"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1194
+#, php-format
+msgid "Scored by %s"
+msgstr "Gemaakt door %s"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1196
+msgid "Enter a minute inside the match."
+msgstr "Vul een minuut binnen de wedstrijd in."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1197
+msgid "Could not save the goal. It has been removed from the score."
+msgstr "Kon het doelpunt niet opslaan. Het is uit de stand gehaald."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1199
+#, php-format
+msgid "✓ Goal · %1$s · %2$d'"
+msgstr "✓ Doelpunt · %1$s · %2$d'"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1200
+msgid "Which of ours put it in?"
+msgstr "Wie van ons werkte hem erin?"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:321
 msgid "Match timer"
@@ -25326,11 +25369,11 @@ msgstr "De speler die erin komt, staat al in het veld."
 msgid "Goal-event payload missing required fields."
 msgstr "Doelpunt-payload mist verplichte velden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:570
 msgid "A player cannot assist their own goal."
 msgstr "Een speler kan zichzelf geen assist geven."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:570
 msgid "That player is not in this match squad."
 msgstr "Die speler zit niet in deze wedstrijdselectie."
 

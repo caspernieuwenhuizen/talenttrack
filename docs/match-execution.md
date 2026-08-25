@@ -31,16 +31,17 @@ shown but not editable until you tap **Edit** in the header.
 
 Once the match ends it enters **pending review**. This is the full
 review-and-edit state: with Edit turned on you can adjust **every measured
-datapoint** — bump the **score**, **add or undo a substitution**, **add or
-undo a goal**, and correct **minutes** (by fixing the substitution log, or
-via the *Add late goal / substitution* panels for events you forgot to tap
-live). Correcting a substitution re-runs the minutes calculation, so the
-recorded minutes the reports read stay in step with what you change.
+datapoint** — **add or undo a substitution**, **add or undo a goal**, and
+correct **minutes** (by fixing the substitution log, or via the *Add late
+goal / substitution* panels for events you forgot to tap live). The score
+follows the goals you add or undo; it is not edited on its own.
+Correcting a substitution re-runs the minutes calculation, so the recorded
+minutes the reports read stay in step with what you change.
 
 When you are done, tap **Finalize match** to lock it. A finalized match is
 the record of what the players actually did, so the live controls stay
 locked and the Edit button disappears. (The server enforces the same lock,
-so a finalized match refuses score, goal, and substitution changes
+so a finalized match refuses goal and substitution changes
 regardless of the screen.)
 
 The post-match screen also offers **Write the match analysis** — the moment
@@ -51,7 +52,7 @@ the match ends is the moment you still remember it. See *Match analysis*.
 Finalizing is a deliberate lock, but never a dead-end. A finalized match
 shows a **Re-open for corrections** action. Tapping it (you'll be asked to
 confirm) returns the match to *pending review* so you can correct any
-datapoint — score, subs, goals or minutes — then finalize again. Every
+datapoint — subs, goals or minutes — then finalize again. Every
 re-open is recorded in the audit log, and re-opening re-runs the minutes
 calculation so the reports stay consistent.
 
@@ -68,9 +69,41 @@ note says); long-press to remove the last one you counted.
 
 These tallies are **development actions, not goals**. They are recorded as
 their own timed events and never change the scoreline. Goals that make up
-the score are logged separately (the score steppers, and the *Match goals*
-list in the review). Keeping the two apart means a player's development
+the score are logged separately, through the goal button on the scoreboard
+(see *Logging a goal*). Keeping the two apart means a player's development
 tally can't accidentally inflate the result.
+
+## Logging a goal
+
+Each side of the scoreboard has a **+** button. It doesn't nudge a number —
+it opens the **goal sheet**, which is how every goal gets recorded.
+
+For one of our goals the sheet asks **who scored**, offering the players
+currently on the pitch first, with the bench and the rest of the squad
+behind a toggle. Pick the scorer and it asks **who assisted**; pick an
+assist, or tap **No assist**. If you don't care about assists, **Save goal**
+is available as soon as you've named the scorer, so a goal is two taps.
+
+The minute is filled in from the match clock and the half from where you
+are in the match. Both are editable in the sheet — coaches routinely tap
+half a minute after the ball goes in, and the sheet is also how you add a
+goal after the whistle, when the clock no longer says which half it was.
+
+Two escape hatches sit under the players:
+
+- **Scorer not recorded** — you didn't see who got the final touch. The
+  goal counts, and the review screen will remind you to attribute it later.
+- **Own goal** — on our side this is the opponent putting it into their own
+  net, and nobody on our side is credited. On theirs, it opens our squad so
+  you can say which of ours it was.
+
+Nothing in the sheet is mandatory. A goal you can't attribute is still a
+goal, and recording it with a gap is better than not recording it at all.
+
+**The scoreline is a readout of the goals you've logged** — it is not
+separately editable, and there is no way to set it to a number the goals
+don't add up to. To remove a goal, undo it in the **Live progress** feed
+(see *Undoing a goal or substitution*); the score follows.
 
 ## Who owns the minutes
 
@@ -128,15 +161,17 @@ bench, when did they come on, for whom, and how long did each play?"
 
 ## Opponent goals
 
-The scoreline is made of **match goals** for both teams. Our goals are logged
-per player (the tracked-player action, or a late goal); the opponent's are
-recorded as their own timed events. On the review screen, the **Match goals**
-section lists both — our goals with the scorer, the opponent's as "Opponent
-goal" — and with **Edit** on you can add an opponent goal (half + minute),
-correct its minute, or remove it. The away score follows the count of the
-opponent's goals automatically. Match goals are distinct from **Tracked
-players**, which count individual development actions and never touch the
-score.
+The scoreline is made of **match goals** for both teams, and **both sides
+are counted from the goals you log** — neither score is a number you set
+by hand. Our goals carry a scorer and, where you recorded one, an assist;
+the opponent's are timed events with no individual scorer, since their
+squad isn't in the system.
+
+On the review screen the **Match goals** section lists both — ours with the
+scorer, theirs as "Opponent goal" — and with **Edit** on you can add a goal
+either side missed, correct a minute, or remove one. Match goals are
+distinct from **Tracked players**, which count individual development
+actions and never touch the score.
 
 ## Minute and roster checks
 
