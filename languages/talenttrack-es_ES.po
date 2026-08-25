@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T20:33:32+00:00\n"
+"POT-Creation-Date: 2026-08-25T20:44:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -59,7 +59,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2151
+#: src/Shared/Frontend/DashboardShortcode.php:2156
 #: src/Shared/Frontend/FrontendConfigurationView.php:2866
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -69,7 +69,7 @@ msgstr "Padre / Madre"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2156
+#: src/Shared/Frontend/DashboardShortcode.php:2161
 msgid "Team Manager"
 msgstr ""
 
@@ -145,7 +145,7 @@ msgstr ""
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:232
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:298
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:307
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:208
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:222
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:83
 #: src/Modules/Stats/Admin/PlayerCardView.php:284
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
@@ -172,7 +172,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:202
 #: src/Shared/Frontend/DashboardShortcode.php:235
-#: src/Shared/Frontend/DashboardShortcode.php:2150
+#: src/Shared/Frontend/DashboardShortcode.php:2155
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3263
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3275
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3352
@@ -252,7 +252,7 @@ msgstr "Entrenador"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2154
+#: src/Shared/Frontend/DashboardShortcode.php:2159
 #: src/Shared/Frontend/FrontendConfigurationView.php:2860
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1398,7 +1398,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:82
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:561
-#: src/Shared/Frontend/DashboardShortcode.php:1249
+#: src/Shared/Frontend/DashboardShortcode.php:1254
 msgid "Player not found."
 msgstr ""
 
@@ -1653,9 +1653,9 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Players/Admin/PlayersPage.php:231
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:63
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:266
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:177
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:197
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:68
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:156
@@ -1815,7 +1815,7 @@ msgstr "Fisioterapeuta"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2155
+#: src/Shared/Frontend/DashboardShortcode.php:2160
 #: src/Shared/Frontend/FrontendConfigurationView.php:2864
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1861,9 +1861,9 @@ msgstr "Otro"
 #: src/Modules/People/Admin/PeoplePage.php:201
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:148
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:66
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:263
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:180
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:200
 #: src/Modules/Teams/Admin/TeamsPage.php:107
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:168
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
@@ -1898,7 +1898,7 @@ msgstr "Admin del club"
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2153
+#: src/Shared/Frontend/DashboardShortcode.php:2158
 msgid "Head Coach"
 msgstr "Entrenador principal"
 
@@ -1909,7 +1909,7 @@ msgstr "Entrenador principal"
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2152
+#: src/Shared/Frontend/DashboardShortcode.php:2157
 msgid "Assistant Coach"
 msgstr "Entrenador asistente"
 
@@ -2496,7 +2496,7 @@ msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:52
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:230
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:294
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:308
 msgid "Test training"
 msgstr ""
 
@@ -3061,7 +3061,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:623
 #: src/Modules/Methodology/Admin/MethodologyPage.php:666
 #: src/Modules/Methodology/Admin/MethodologyPage.php:701
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:81
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:243
 #: src/Modules/Wizards/Prospect/IdentityStep.php:99
 msgid "Club"
@@ -3505,8 +3505,8 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:143
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:218
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:233
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:59
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:82
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:84
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:380
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:206
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:246
@@ -6669,17 +6669,18 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:211
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:170
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:228
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:292
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:42
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:47
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:48
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:306
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:44
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:44
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:49
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:50
 #: src/Shared/Modules/ModuleMetadata.php:183
 msgid "Prospects"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:214
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:71
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:81
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:73
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:83
 msgid "Discovered by"
 msgstr ""
 
@@ -6881,7 +6882,8 @@ msgstr ""
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:46
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:46
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:41
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:48
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:43
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:91
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:44
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:69
@@ -6903,11 +6905,11 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:513
 #: src/Shared/Frontend/DashboardShortcode.php:891
 #: src/Shared/Frontend/DashboardShortcode.php:973
-#: src/Shared/Frontend/DashboardShortcode.php:1193
-#: src/Shared/Frontend/DashboardShortcode.php:1202
-#: src/Shared/Frontend/DashboardShortcode.php:1553
-#: src/Shared/Frontend/DashboardShortcode.php:1561
-#: src/Shared/Frontend/DashboardShortcode.php:1569
+#: src/Shared/Frontend/DashboardShortcode.php:1198
+#: src/Shared/Frontend/DashboardShortcode.php:1207
+#: src/Shared/Frontend/DashboardShortcode.php:1558
+#: src/Shared/Frontend/DashboardShortcode.php:1566
+#: src/Shared/Frontend/DashboardShortcode.php:1574
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -6963,7 +6965,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:935
 #: src/Shared/CoreSurfaceRegistration.php:1837
 #: src/Shared/CoreSurfaceRegistration.php:2144
-#: src/Shared/Frontend/DashboardShortcode.php:1831
+#: src/Shared/Frontend/DashboardShortcode.php:1836
 #: src/Shared/Modules/ModuleMetadata.php:341
 msgid "Analytics"
 msgstr ""
@@ -7510,6 +7512,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/Players/Admin/PlayersPage.php:126
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:107
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:241
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:144
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:60
@@ -10784,7 +10787,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2157
+#: src/Shared/Frontend/DashboardShortcode.php:2162
 msgid "Academy Admin"
 msgstr ""
 
@@ -11635,6 +11638,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:94
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:314
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:114
 #: src/Modules/Wizards/Person/BasicsStep.php:34
 #: src/Modules/Wizards/Person/ReviewStep.php:38
 #: src/Shared/Frontend/FrontendMyProfileView.php:296
@@ -13654,6 +13658,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:87
 #: src/Modules/People/Admin/PeoplePage.php:174
 #: src/Modules/People/Admin/PeoplePage.php:317
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:121
 #: src/Modules/Wizards/Person/BasicsStep.php:38
 #: src/Modules/Wizards/Person/ReviewStep.php:42
 #: src/Shared/Frontend/FrontendPeopleManageView.php:182
@@ -13852,7 +13857,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:77
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:79
 #: src/Modules/Wizards/Person/BasicsStep.php:26
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:30
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:45
@@ -13887,7 +13892,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:90
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:76
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
 #: src/Modules/Wizards/Person/BasicsStep.php:30
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:31
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:46
@@ -17429,7 +17434,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:2062
 #: src/Shared/CoreSurfaceRegistration.php:2249
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2191
+#: src/Shared/Frontend/DashboardShortcode.php:2196
 #: src/Shared/Frontend/FrontendDocsView.php:97
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -17947,7 +17952,7 @@ msgid "Group size"
 msgstr ""
 
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:197
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:108
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:126
 msgid "Anyone"
 msgstr ""
 
@@ -19350,7 +19355,7 @@ msgstr "Imprimir"
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:326
 #: src/Shared/Frontend/DashboardShortcode.php:208
-#: src/Shared/Frontend/DashboardShortcode.php:2196
+#: src/Shared/Frontend/DashboardShortcode.php:2201
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:119
 msgid "Close"
 msgstr "Cerrar"
@@ -24990,6 +24995,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:121
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
 #: src/Modules/Pdp/Admin/SeasonsPage.php:163
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:144
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:402
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:322
 #: src/Shared/Frontend/CoachForms.php:127
@@ -29951,8 +29957,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2106
-#: src/Shared/Frontend/DashboardShortcode.php:2107
+#: src/Shared/Frontend/DashboardShortcode.php:2111
+#: src/Shared/Frontend/DashboardShortcode.php:2112
 msgid "Help & docs"
 msgstr ""
 
@@ -30265,19 +30271,19 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:89
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:64
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:66
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:265
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:178
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:198
 #: src/Modules/Wizards/Prospect/IdentityStep.php:120
 msgid "In trial"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:297
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:65
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:311
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:67
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:264
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:179
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:199
 #: src/Modules/Wizards/Prospect/IdentityStep.php:121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:699
 msgid "Joined"
@@ -30855,19 +30861,19 @@ msgstr[1] ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:229
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:134
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:293
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:307
 msgid "Invited"
 msgstr ""
 
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:231
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:295
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:309
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:296
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:310
 msgid "Team offer"
 msgstr ""
 
@@ -32140,7 +32146,7 @@ msgid "Add prospect"
 msgstr ""
 
 #. translators: %s: prospect name
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:115
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:124
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
@@ -32148,82 +32154,127 @@ msgstr ""
 msgid "Prospect: %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:119
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:128
 msgid "(unnamed prospect)"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:123
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:132
 msgid "Back to pipeline"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:130
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:140
 msgid "Open next action"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:212
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:143
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:92
+msgid "Edit contact"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:226
 msgid "Action needed"
 msgstr ""
 
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:331
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:345
 #, php-format
 msgid "born %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:380
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:394
 msgid "Awaiting HoD to send the invite"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:383
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:397
 #, php-format
 msgid "Discovered: %s"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:384
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:398
 msgid "Drafted, not yet handed to HoD"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:387
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:401
 msgid "Invitation sent, awaiting parent"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:389
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:403
 msgid "Awaiting outcome"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:391
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:405
 msgid "In trial group"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:393
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:407
 msgid "Team offer pending"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:395
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:409
 msgid "Promoted to academy"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:43
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:49
+msgid "Edit prospect"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:50
+msgid "You do not have permission to edit prospects."
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:60
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:61
+msgid "Prospect not found"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:62
+msgid "This prospect does not exist or you do not have access."
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:68
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1478
+msgid "Prospect"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:104
+msgid "Parent or guardian"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:129
+msgid "Consent"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:132
+msgid "Consent given on"
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:137
+msgid ""
+"The date the parent or guardian agreed. Leave empty if consent has not been "
+"given, or clear it to record that consent was withdrawn."
+msgstr ""
+
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:45
 msgid "You do not have access to the prospects list."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:54
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:56
 #: src/Shared/Frontend/FrontendPlayersManageView.php:265
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:224
 msgid "Search by name…"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:78
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:80
 msgid "Born"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:80
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:82
 msgid "Discovered"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:85
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:103
 msgid "No prospects match those filters yet."
 msgstr ""
 
@@ -32411,11 +32462,28 @@ msgstr ""
 msgid "Could not record your response. Please try again."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:209
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:218
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:247
+msgid "Prospect not found."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:241
+msgid "Invalid prospect id."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:266
+msgid "That does not look like an email address."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:289
+msgid "Consent date must be YYYY-MM-DD."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:351
 msgid "You must be logged in to log a prospect."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:221
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:363
 msgid ""
 "Could not start the prospect-logging chain. Check the workflow templates are "
 "enabled."
@@ -32673,8 +32741,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:1554
-#: src/Shared/Frontend/DashboardShortcode.php:1562
+#: src/Shared/Frontend/DashboardShortcode.php:1559
+#: src/Shared/Frontend/DashboardShortcode.php:1567
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -34255,7 +34323,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:408
 #: src/Shared/Frontend/DashboardShortcode.php:172
 #: src/Shared/Frontend/DashboardShortcode.php:206
-#: src/Shared/Frontend/DashboardShortcode.php:2201
+#: src/Shared/Frontend/DashboardShortcode.php:2206
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:461
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -34558,7 +34626,7 @@ msgid "You do not have permission to edit this player's attributes."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1248
+#: src/Shared/Frontend/DashboardShortcode.php:1253
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:252
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:255
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -42525,7 +42593,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:196
-#: src/Shared/Frontend/DashboardShortcode.php:2041
+#: src/Shared/Frontend/DashboardShortcode.php:2046
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -42703,92 +42771,92 @@ msgstr ""
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1194
+#: src/Shared/Frontend/DashboardShortcode.php:1199
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1203
+#: src/Shared/Frontend/DashboardShortcode.php:1208
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1570
+#: src/Shared/Frontend/DashboardShortcode.php:1575
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1782
-#: src/Shared/Frontend/DashboardShortcode.php:2175
+#: src/Shared/Frontend/DashboardShortcode.php:1787
+#: src/Shared/Frontend/DashboardShortcode.php:2180
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1833
+#: src/Shared/Frontend/DashboardShortcode.php:1838
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1969
+#: src/Shared/Frontend/DashboardShortcode.php:1974
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1972
+#: src/Shared/Frontend/DashboardShortcode.php:1977
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1975
+#: src/Shared/Frontend/DashboardShortcode.php:1980
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1998
+#: src/Shared/Frontend/DashboardShortcode.php:2003
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2061
+#: src/Shared/Frontend/DashboardShortcode.php:2066
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:2085
+#: src/Shared/Frontend/DashboardShortcode.php:2090
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2125
+#: src/Shared/Frontend/DashboardShortcode.php:2130
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:2132
+#: src/Shared/Frontend/DashboardShortcode.php:2137
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2144
+#: src/Shared/Frontend/DashboardShortcode.php:2149
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2147
+#: src/Shared/Frontend/DashboardShortcode.php:2152
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2171
+#: src/Shared/Frontend/DashboardShortcode.php:2176
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2193
+#: src/Shared/Frontend/DashboardShortcode.php:2198
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2265
+#: src/Shared/Frontend/DashboardShortcode.php:2270
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2266
+#: src/Shared/Frontend/DashboardShortcode.php:2271
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -49029,10 +49097,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1477
 msgid "Recent prospects"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendStandardReportsView.php:1478
-msgid "Prospect"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1513
