@@ -276,31 +276,33 @@ final class MinutesQuery {
      * #2832 — the one definition of "this match has been played", as a SQL
      * fragment every minutes surface shares.
      *
-     * Before this there were two answers in the codebase and a third by
-     * omission. `matchCountsForTeam()` used `session_date <= CURDATE()`,
-     * which counts a fixture kicking off at 19:00 tonight as played, and the
-     * player report used nothing at all, so a planned match appeared as a row
-     * with an em-dash for minutes. Status is the honest signal: #2245 made
-     * `completed` an explicit transition (button, REST, grid bulk-save), so a
-     * match that says `completed` was played and one that says `planned` was
-     * not, whatever its date.
+     * Before this there were two answers and a third by omission.
+     * `matchCountsForTeam()` used `session_date <= CURDATE()`, and the player
+     * report used nothing at all. Three ways in now, and a match needs only
+     * one of them:
      *
-     * The date clause survives only as the legacy fallback. Rows written
-     * before migration 0040 carry no `activity_status_key`; for those the
-     * calendar is the only evidence there is, and `<` (not `<=`) keeps
-     * today's un-played fixture out.
+     *   1. **Its status says `completed`.** #2245 made that an explicit
+     *      transition, so it is the strongest evidence there is — and it lets
+     *      a match played this morning count before the day is out.
+     *   2. **Its date has passed.** Strictly: `<`, not `<=`. This is the
+     *      whole of #2833's bug — a fixture kicking off at 19:00 tonight was
+     *      "played" from midnight, so the team report claimed two played
+     *      matches where one had been played and warned that the other was
+     *      missing its minutes.
+     *   3. **It already carries recorded minutes.** #2407 keeps completion an
+     *      explicit act, so the minutes grid stores minutes without flipping
+     *      the status; minutes are evidence the match happened.
      *
-     * `cancelled` never reaches here — callers already exclude it — but the
-     * predicate is written so it would fail anyway.
+     * Status is deliberately NOT the only gate, tempting as it reads.
+     * Migration 0040 declared the column `NOT NULL DEFAULT 'planned'`, so
+     * every activity says `planned` until somebody presses the button —
+     * including every match played before the status field existed. Gating on
+     * it alone would have emptied the minutes reports for any academy that
+     * records minutes without completing activities, which is most of them.
      *
-     * #2833 — recorded minutes are the third way in, and they have to be.
-     * #2407 keeps completion an explicit act, so a grid bulk-save writes
-     * minutes without flipping the status: on a wizard-off academy a whole
-     * season of matches can carry minutes and still say `planned`. Minutes
-     * are evidence the match happened, so a match that has them is played
-     * whatever its status field says. Without this clause those matches would
-     * have disappeared from the reports the moment status became the gate,
-     * and `recorded` could exceed `played` on the same screen.
+     * `cancelled` never reaches here — callers already exclude it — but note
+     * that clause 2 would otherwise let a cancelled past fixture through, so
+     * do not drop the caller-side exclusion.
      *
      * @param string $alias table alias for `tt_activities`. Must be a real
      *                      alias: the EXISTS clause below joins against it,
@@ -316,7 +318,7 @@ final class MinutesQuery {
         $status   = $q . 'activity_status_key';
 
         return "( {$status} = 'completed'"
-            . " OR ( ( {$status} IS NULL OR {$status} = '' ) AND {$date_col} < CURDATE() )"
+            . " OR {$date_col} < CURDATE()"
             . " OR EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_attendance played_att"
             . "              WHERE played_att.activity_id = {$q}id"
             . "                AND played_att.record_type = 'actual'"

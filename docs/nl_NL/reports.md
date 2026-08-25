@@ -104,12 +104,17 @@ alleen die opgeslagen waarde; een wedstrijd die wel gespeeld maar nooit afgerond
 is, toont daarom niets tot de minuten zijn vastgelegd, in plaats van te worden
 herleid uit de geplande opstelling.
 
-**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra de
-activiteit op **voltooid** staat — niet al zodra de datum is aangebroken. Een
-wedstrijd die vanavond begint, is nog gepland en staat dus niet in de tabel per
-wedstrijd en niet in de KPI's ernaast; hij verschijnt zodra de activiteit
-voltooid is. Activiteiten van vóór het statusveld vallen terug op de kalender:
-die tellen mee zodra hun datum voorbij is.
+**Alleen gespeelde wedstrijden verschijnen.** Een wedstrijd telt mee zodra één
+van drie dingen waar is: de activiteit staat op **voltooid**, de **datum is
+voorbij**, of er zijn al **minuten vastgelegd**. Een wedstrijd die vanavond
+begint staat dus niet in de tabel per wedstrijd en niet in de KPI's ernaast —
+hij is niet gespeeld tot je hem voltooit, de minuten vastlegt, of de dag om is
+— terwijl een wedstrijd die je vanochtend speelde en langs de lijn voltooide
+meteen meetelt.
+
+De datum telt op zichzelf mee omdat een activiteit voltooien een aparte,
+bewuste handeling is: een wedstrijd van vorig seizoen staat op *gepland* als
+niemand op de knop heeft gedrukt, en is toch gespeeld.
 
 **Wedstrijden, games en toernooien tellen allemaal mee.** De minutenrapporten
 behandelen wedstrijden, games en toernooien op dezelfde manier — elk is een
@@ -149,15 +154,12 @@ Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
 wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
 vastlegging gaat en niet om een leeg seizoen.
 
-**Een wedstrijd is gespeeld zodra hij voltooid is**, niet zodra de datum is
-aangebroken. Een wedstrijd die vanavond begint, is nog gepland en telt dus voor
-geen van beide getallen mee tot de activiteit voltooid is — anders waarschuwt
-het rapport dat de wedstrijd van vanavond geen minuten heeft. Twee dingen
-tellen ook als gespeeld: activiteiten van vóór het statusveld, die terugvallen
-op de kalender zodra hun datum voorbij is, en elke wedstrijd waarvoor al
-minuten zijn vastgelegd. Dat laatste is van belang voor academies met de
-begeleide flow uit, waar het minutenraster minuten opslaat zonder de activiteit
-te voltooien: die minuten zijn het bewijs dat de wedstrijd gespeeld is.
+**Een wedstrijd die vanavond begint is nog niet gespeeld.** Hij telt voor geen
+van beide getallen mee tot je hem voltooit, de minuten vastlegt, of de dag om
+is — anders waarschuwt het rapport dat de wedstrijd van vanavond minuten mist.
+Eén van de drie is genoeg, en juist daardoor telt een wedstrijd die je
+vanochtend speelde nog dezelfde dag mee, en blijft een seizoen aan wedstrijden
+waar niemand ooit op *Voltooien* heeft gedrukt gewoon in de noemer staan.
 
 Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of nog niet gespeeld**
 zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen

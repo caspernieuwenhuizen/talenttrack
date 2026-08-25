@@ -208,6 +208,47 @@ final class MinutesMatchCountsTest extends WP_UnitTestCase {
     }
 
     /**
+     * The other side of the same rule: a match played this morning and
+     * completed on the touchline counts today, without waiting for midnight.
+     */
+    public function test_a_match_completed_today_counts_immediately(): void {
+        $team_id = $this->insertTeam( 'U14 this morning' );
+
+        $done = $this->insertMatch( $team_id, gmdate( 'Y-m-d' ) );
+        $this->setActivity( $done, [ 'activity_status_key' => 'completed' ] );
+
+        $counts = ( new MinutesQuery() )->matchCountsForTeam(
+            $team_id,
+            gmdate( 'Y-m-d', strtotime( '-1 month' ) ),
+            gmdate( 'Y-m-d', strtotime( '+1 month' ) )
+        );
+
+        $this->assertSame( 1, $counts['played'] );
+    }
+
+    /**
+     * Migration 0040 declared `activity_status_key NOT NULL DEFAULT
+     * 'planned'`, so a match played last season still says `planned` unless
+     * somebody pressed the button. Gating the denominator on status alone
+     * would have emptied the minutes reports for every academy that records
+     * minutes without completing activities.
+     */
+    public function test_past_fixtures_still_count_while_they_say_planned(): void {
+        $team_id = $this->insertTeam( 'U14 never completed' );
+
+        $this->insertMatch( $team_id, gmdate( 'Y-m-d', strtotime( '-6 months' ) ) );
+        $this->insertMatch( $team_id, gmdate( 'Y-m-d', strtotime( '-5 months' ) ) );
+
+        $counts = ( new MinutesQuery() )->matchCountsForTeam(
+            $team_id,
+            gmdate( 'Y-m-d', strtotime( '-12 months' ) ),
+            gmdate( 'Y-m-d' )
+        );
+
+        $this->assertSame( 2, $counts['played'], 'a past fixture is played whether or not anyone completed it' );
+    }
+
+    /**
      * #2833 — the other half of the contradiction. Minutes recorded against
      * a player who has since been archived were counted by `recorded` and
      * dropped by the squad query beside it, which is how the report showed
