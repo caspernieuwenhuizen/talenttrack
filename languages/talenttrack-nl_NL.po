@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T06:21:31+00:00\n"
+"POT-Creation-Date: 2026-08-25T20:17:56+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1590,7 +1590,7 @@ msgstr "Ouder ontkoppeld."
 #: src/Infrastructure/Players/ParentAccountService.php:206
 #: src/Infrastructure/Players/PlayerAccountService.php:128
 #: src/Infrastructure/Players/PlayerAccountService.php:214
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:289
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:292
 msgid "A player is required."
 msgstr "Een speler is vereist."
 
@@ -2786,9 +2786,9 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:1734
 #: src/Infrastructure/REST/ActivitiesRestController.php:1752
 #: src/Infrastructure/REST/ActivitiesRestController.php:1791
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:162
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:179
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1010
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:165
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:182
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1128
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:73
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
@@ -3409,7 +3409,8 @@ msgstr "Status bijwerken mislukt."
 #: src/Infrastructure/REST/GoalsRestController.php:653
 #: src/Infrastructure/REST/GoalsRestController.php:670
 #: src/Infrastructure/REST/GoalsRestController.php:678
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:619
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:642
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:656
 msgid "Goal not found."
 msgstr "Doel niet gevonden."
 
@@ -25281,106 +25282,107 @@ msgstr "Afronden mislukt:"
 msgid "Could not save:"
 msgstr "Opslaan mislukt:"
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:302
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:305
 msgid "No roster row for this player to override."
 msgstr "Geen selectieregel voor deze speler om te overschrijven."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:335
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:338
 msgid "Tracked-event payload missing required fields."
 msgstr "Verplichte velden ontbreken in de gevolgde-gebeurtenis."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:354
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:357
 msgid "This player is not flagged for tracking in the match plan."
 msgstr "Deze speler is in het wedstrijdplan niet gemarkeerd om te volgen."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:380
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:383
 msgid "That tracked action was not found."
 msgstr "Die gevolgde actie is niet gevonden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:394
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:431
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:397
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:434
 msgid "Half must be 1 or 2."
 msgstr "Helft moet 1 of 2 zijn."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:412
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:415
 msgid "The match can only be started on match day."
 msgstr "De wedstrijd kan alleen op wedstrijddag worden gestart."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:510
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:513
 msgid "Substitution payload missing required fields."
 msgstr "Wissel-payload mist verplichte velden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:513
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:516
 msgid "A player cannot be substituted for themselves."
 msgstr "Een speler kan niet voor zichzelf worden gewisseld."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:536
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:539
 msgid "The player coming off is not currently on the pitch."
 msgstr "De speler die eruit gaat, staat momenteel niet in het veld."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:543
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:546
 msgid "The player coming on is already on the pitch."
 msgstr "De speler die erin komt, staat al in het veld."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:573
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:580
 msgid "Goal-event payload missing required fields."
 msgstr "Doelpunt-payload mist verplichte velden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
-msgid "A player cannot assist their own goal."
-msgstr "Een speler kan zichzelf geen assist geven."
-
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:576
-msgid "That player is not in this match squad."
-msgstr "Die speler zit niet in deze wedstrijdselectie."
-
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:614
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:634
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:637
 msgid "Goal update payload missing required fields."
 msgstr "Doelpuntupdate mist verplichte velden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:684
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:699
+msgid "A player cannot assist their own goal."
+msgstr "Een speler kan zichzelf geen assist geven."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:714
+msgid "That player is not in this match squad."
+msgstr "Die speler zit niet in deze wedstrijdselectie."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:802
 msgid "Substitution update payload missing required fields."
 msgstr "Wisselupdate mist verplichte velden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:689
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:807
 msgid "Substitution not found."
 msgstr "Wissel niet gevonden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:717
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:782
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:846
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:835
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:900
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:964
 msgid "Execution not found."
 msgstr "Uitvoering niet gevonden."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:795
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:913
 msgid "Match must end (state pending_review) before it can be finalized."
 msgstr ""
 "Wedstrijd moet eerst eindigen (status pending_review) voordat deze kan "
 "worden afgerond."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:852
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:970
 msgid "Only a finalized match can be re-opened for corrections."
 msgstr "Alleen een afgesloten wedstrijd kan worden heropend voor correcties."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:859
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:977
 msgid "Could not re-open the match."
 msgstr "Kon de wedstrijd niet heropenen."
 
 #. translators: %d: highest accepted minute (half length + 10 stoppage)
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:924
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1042
 #, php-format
 msgid "Minute must be between 0 and %d."
 msgstr "De minuut moet tussen 0 en %d liggen."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:980
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1098
 msgid "This match is finalized and no longer accepts edits."
 msgstr "Deze wedstrijd is afgerond en accepteert geen wijzigingen meer."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1014
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1132
 msgid "Plan this match first before running execution."
 msgstr "Plan deze wedstrijd eerst voordat je de uitvoering start."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1018
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:1136
 msgid "Could not create the execution row."
 msgstr "Aanmaken van de uitvoeringsregel is mislukt."
 
