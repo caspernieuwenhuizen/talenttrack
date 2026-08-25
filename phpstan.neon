@@ -15,6 +15,14 @@ parameters:
     level: 8
     paths:
         - src
+    # #2831 — the plugin bootstrap defines TT_PLUGIN_URL / TT_VERSION /
+    # TT_PLUGIN_DIR, which nearly every enqueue in `src` reads. It is not in
+    # `paths`, so PHPStan had never seen them: every existing use sits in the
+    # baseline, and any NEW file that enqueues a stylesheet failed the gate
+    # with "Constant TT_PLUGIN_URL not found". `scanFiles` collects the
+    # symbols without analysing the file, which is exactly the fix.
+    scanFiles:
+        - talenttrack.php
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
     ignoreErrors: []

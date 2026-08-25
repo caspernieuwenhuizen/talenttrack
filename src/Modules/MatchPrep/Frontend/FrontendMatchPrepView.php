@@ -587,16 +587,18 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     // Directly above the goals because the goals are written
                     // against it: the principle is the question, the goal
                     // boxes are this match's answer to it.
+                    // The empty state always links: this whole view is behind
+                    // `tt_edit_activities` (:207), so anyone reading it can
+                    // edit the activity. The parameter exists for the read-only
+                    // surfaces that share the component.
                     \TT\Modules\Methodology\Frontend\PrinciplePills::renderBlock(
                         $activity_id,
                         __( 'Principles', 'talenttrack' ),
                         true,
-                        current_user_can( 'tt_edit_activities' )
-                            ? add_query_arg(
-                                [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
-                                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                            )
-                            : null
+                        add_query_arg(
+                            [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        )
                     );
                     ?>
 

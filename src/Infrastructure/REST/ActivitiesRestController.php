@@ -1786,7 +1786,7 @@ class ActivitiesRestController {
      * `bucket` is the O/A/V colour class the pill uses; a consumer that wants
      * its own palette has the `code` it is derived from.
      */
-    public static function get_principles( \WP_REST_Request $r ) {
+    public static function get_principles( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
 

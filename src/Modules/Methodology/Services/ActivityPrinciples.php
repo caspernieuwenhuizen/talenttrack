@@ -60,7 +60,11 @@ final class ActivityPrinciples {
             $code  = (string) ( $row->code ?? '' );
             $title = '';
             if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
-                $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $row->title_json );
+                // `find()` returns a bare stdClass row, so the column is read
+                // defensively: a principle seeded before the multilingual
+                // column existed simply has no title to resolve.
+                $title_json = $row->title_json ?? null; // @phpstan-ignore-line property.notFound
+                $title      = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $title_json );
             }
 
             $out[] = [

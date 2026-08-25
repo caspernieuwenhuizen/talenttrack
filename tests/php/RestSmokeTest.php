@@ -123,6 +123,10 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'DELETE /media/{uuid}'          => [ 'DELETE', '/talenttrack/v1/media/00000000-0000-4000-8000-000000000000' ],
             'GET /players/1/media'          => [ 'GET',    '/talenttrack/v1/players/1/media' ],
 
+            // #2831 — the principles an activity is linked to. Development
+            // content about a squad, so an anonymous caller gets nothing.
+            'GET /activities/1/principles'  => [ 'GET',    '/talenttrack/v1/activities/1/principles' ],
+
             // Cross-cutting / admin surfaces.
             'POST /config'                  => [ 'POST',   '/talenttrack/v1/config' ],
             'GET /audit-log'                => [ 'GET',    '/talenttrack/v1/audit-log' ],
@@ -313,6 +317,40 @@ final class RestSmokeTest extends WP_UnitTestCase {
      *
      * @param mixed $body
      */
+    /**
+     * #2831 — the principles route answers with the envelope and an empty
+     * list for an activity with none linked, rather than a 404. "This match
+     * is working on nothing yet" is an answer; a 404 would say the activity
+     * does not exist, and a client cannot tell the two apart.
+     */
+    public function test_activity_principles_happy_path(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        $activity_id = self::createActivity();
+
+        $req = new WP_REST_Request( 'GET', "/talenttrack/v1/activities/{$activity_id}/principles" );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 200, $res->get_status(), 'principles read succeeds' );
+        $body = $res->get_data();
+        $this->assertEnvelopeSuccess( $body );
+        $this->assertSame( $activity_id, (int) ( $body['data']['activity_id'] ?? 0 ) );
+        $this->assertSame( 0, (int) ( $body['data']['count'] ?? -1 ), 'no principles linked yet' );
+        $this->assertSame( [], $body['data']['principles'] ?? null, 'empty list, not null' );
+    }
+
+    /** #2831 — an unknown activity is a 404, not an empty list. */
+    public function test_activity_principles_unknown_activity_is_not_found(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $uid );
+
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/activities/99999999/principles' );
+        $res = rest_do_request( $req );
+
+        $this->assertSame( 404, $res->get_status() );
+    }
+
     private function assertEnvelopeSuccess( $body ): void {
         $this->assertIsArray( $body, 'response body is the envelope array' );
         $this->assertArrayHasKey( 'success', $body );
@@ -330,6 +368,18 @@ final class RestSmokeTest extends WP_UnitTestCase {
             'first_name' => 'Smoke',
             'last_name'  => 'Tester',
             'status'     => 'active',
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    /** Create a minimal match activity in the current club and return its id. */
+    private static function createActivity(): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_activities', [
+            'club_id'           => 1,
+            'title'             => 'Smoke-test match',
+            'session_date'      => '2026-02-01',
+            'activity_type_key' => 'match',
         ] );
         return (int) $wpdb->insert_id;
     }
