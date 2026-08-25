@@ -161,10 +161,18 @@ final class FeatureCatalogTest extends WP_UnitTestCase {
         $this->assertContains( 'Goals', $overview_labels, 'the audit shape must stay unfiltered' );
     }
 
-    /** @return array{0:string,1:string,2:string}|null module label, feature key, feature label */
+    /**
+     * A module owning at least one sub-feature *and* at least one tile of
+     * its own. The tile matters: a module whose only content is the
+     * feature under test drops out of the catalog entirely once that
+     * feature is hidden — correct behaviour, but it makes the card
+     * impossible to inspect, so this test needs a card that survives.
+     *
+     * @return array{0:string,1:string,2:string}|null module label, feature key, feature label
+     */
     private function firstFeatureKey(): ?array {
         foreach ( $this->entries() as $entry ) {
-            if ( empty( $entry['features'] ) ) continue;
+            if ( empty( $entry['features'] ) || empty( $entry['provides'] ) ) continue;
             $feature = $entry['features'][0];
             return [ $entry['label'], (string) $feature['key'], (string) $feature['label'] ];
         }
