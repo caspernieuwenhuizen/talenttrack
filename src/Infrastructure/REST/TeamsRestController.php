@@ -405,10 +405,17 @@ class TeamsRestController {
         $raw_to   = (string) ( $r['to'] ?? '' );
         $valid    = static fn ( string $d ): bool => (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d );
 
-        $to   = $valid( $raw_to )   ? $raw_to   : gmdate( 'Y-m-d' );
-        $from = $valid( $raw_from ) ? $raw_from : gmdate( 'Y-m-d', strtotime( $to . ' -12 months' ) );
+        $to = $valid( $raw_to ) ? $raw_to : gmdate( 'Y-m-d' );
+        if ( $valid( $raw_from ) ) {
+            return [ $raw_from, $to ];
+        }
 
-        return [ $from, $to ];
+        // `strtotime()` returns false on an unparseable string. `$to` is a
+        // validated Y-m-d by this point, so it cannot — but the fallback keeps
+        // the window honest rather than handing gmdate() a false.
+        $ts = strtotime( $to . ' -12 months' );
+
+        return [ gmdate( 'Y-m-d', $ts !== false ? $ts : time() ), $to ];
     }
 
     public static function create_team( \WP_REST_Request $r ) {

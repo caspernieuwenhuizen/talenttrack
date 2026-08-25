@@ -230,10 +230,14 @@ final class MinutesShareTest extends WP_UnitTestCase {
 
     private function setPrepHalfLength( int $activity_id, int $half ): void {
         global $wpdb;
+        // `uuid` is CHAR(36) NOT NULL UNIQUE with no default, so every prep
+        // row needs its own — inserting without one collides on the empty
+        // string from the second row onwards.
         $wpdb->insert( "{$this->p}tt_match_prep", [
             'club_id'             => $this->club,
             'activity_id'         => $activity_id,
             'half_length_minutes' => $half,
+            'uuid'                => wp_generate_uuid4(),
         ] );
     }
 

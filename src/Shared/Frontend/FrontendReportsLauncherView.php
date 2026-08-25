@@ -113,7 +113,11 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'slug'  => 'minutes-share',
                 'label' => __( 'Team · Minutes share', 'talenttrack' ),
                 'desc'  => __( 'What percentage of the minutes the team played did each player get, against the academy target.', 'talenttrack' ),
-                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'minutes-share' ], $base_url ),
+                // Gated by the launcher's own mechanism, like every sibling
+                // tile here: the `report_*` FeatureRegistry filter below drops
+                // it when the report is switched off, and standard-report
+                // re-checks both the feature and team scope on arrival.
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'minutes-share' ], $base_url ), /* tt-xview-ok */
             ],
             // #1592 — attendance reports were only reachable through the
             // flag-gated Analytics surface; surface them here next to the
@@ -243,7 +247,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout', 'coach-evaluation-quality' ];
             $tiles = array_values( array_filter(
                 $tiles,
-                static fn( array $t ): bool => ! in_array( (string) ( $t['slug'] ?? '' ), $academy_only, true )
+                static fn( array $t ): bool => ! in_array( (string) $t['slug'], $academy_only, true )
             ) );
         }
 
@@ -253,7 +257,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         if ( ! \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
             $tiles = array_values( array_filter(
                 $tiles,
-                static fn( array $t ): bool => (string) ( $t['slug'] ?? '' ) !== 'prospects_logged_per_scout'
+                static fn( array $t ): bool => (string) $t['slug'] !== 'prospects_logged_per_scout'
             ) );
         }
 
@@ -264,7 +268,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         $tiles = array_values( array_filter(
             $tiles,
             static fn( array $t ): bool => \TT\Core\FeatureRegistry::isEnabled(
-                'report_' . str_replace( '-', '_', (string) ( $t['slug'] ?? '' ) )
+                'report_' . str_replace( '-', '_', (string) $t['slug'] )
             )
         ) );
 

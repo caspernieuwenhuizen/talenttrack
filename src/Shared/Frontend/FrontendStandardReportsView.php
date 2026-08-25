@@ -699,7 +699,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         );
         $window_label = self::windowLabel( $bd_from, $bd_to );
         self::renderPageHead(
-            sprintf( /* translators: %s = team name */ __( 'Minutes share — %s', 'talenttrack' ), (string) $team->name ),
+            sprintf(
+                /* translators: %s = team name */
+                __( 'Minutes share — %s', 'talenttrack' ),
+                (string) ( $team->name ?? '' )
+            ),
             sprintf(
                 /* translators: 1: minimum share percentage, 2: date window */
                 __( 'Target: every player plays at least %1$d%% of the available minutes · %2$s', 'talenttrack' ),

@@ -153,7 +153,7 @@ final class MinutesShareQuery {
         // Team · Minutes distribution: attendance on the team's played
         // matches, archived players excluded (#2339, #2833).
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id AS player_id, pl.name, pl.jersey_number,
+            "SELECT pl.id AS player_id, CONCAT( pl.first_name, ' ', pl.last_name ) AS name, pl.jersey_number,
                     COALESCE( SUM( m.match_minutes ), 0 ) AS minutes
                FROM (
                     SELECT att.player_id,
@@ -175,7 +175,7 @@ final class MinutesShareQuery {
                      GROUP BY att.player_id, att.activity_id
                   ) m
                JOIN {$p}tt_players pl ON pl.id = m.player_id AND pl.archived_at IS NULL
-              GROUP BY pl.id, pl.name, pl.jersey_number
+              GROUP BY pl.id, pl.first_name, pl.last_name, pl.jersey_number
               LIMIT 200",
             $club_id, $team_id, $from, $to
         ) );

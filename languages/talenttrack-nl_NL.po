@@ -54968,6 +54968,12 @@ msgstr ""
 "Laagste aandeel eerst. Het aandeel gaat over elke minuut die het team "
 "speelde, of de speler nu beschikbaar was of niet."
 
+#. translators: 1: jersey number, 2: player name
+#: src/Shared/Frontend/FrontendStandardReportsView.php:791
+#, php-format
+msgid "#%1$d %2$s"
+msgstr "#%1$d %2$s"
+
 #: src/Shared/Frontend/FrontendStandardReportsView.php:816
 msgid "below target"
 msgstr "onder de norm"
