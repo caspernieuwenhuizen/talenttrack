@@ -534,6 +534,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // #2158 — count only canonical recorded attendance: actual,
         // non-guest. SUM per (player, activity) so a duplicate attendance
         // row can't fan the JOIN out and double the minutes.
+        // #2832 — and only matches that have actually been played. The query
+        // excluded cancelled fixtures but had no status and no upper date
+        // bound, so a match kicking off tonight appeared as a row with an
+        // em-dash for minutes and counted toward "Matches in roster". The
+        // predicate is MinutesQuery's, shared with the team report so the two
+        // cannot disagree about what "played" means.
+        $played_sql = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key,
                     COALESCE( SUM( att.minutes_played ), 0 ) AS minutes_played
@@ -543,6 +550,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     AND a.trashed_at IS NULL
                     AND a.plan_state <> 'cancelled'
                     AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                    AND {$played_sql}
               WHERE att.player_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
@@ -614,8 +622,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->activity_id );
             echo '<tr>';
             echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</td>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) ( $r->title ?? '—' ) ) . '</a></td>';
-            echo '<td>' . esc_html( (string) ( $r->activity_type_key ?? '' ) ) . '</td>';
+            // #2832 — `.tt-record-link` is the record-reference treatment
+            // every other report uses (#2628 applied it to the test-trend
+            // player names); this one was a bare anchor with default
+            // underline styling in a table of otherwise quiet type.
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $r->title ?? '—' ) ) . '</a></td>';
+            // #2832 — `activity_type_key` is a storage key (`game`,
+            // `tournament`), and it was echoed straight out: a Dutch install
+            // read "game" in an otherwise Dutch table. Resolve it through the
+            // same lookup vocabulary the activities list renders.
+            $type_key   = (string) ( $r->activity_type_key ?? '' );
+            $type_label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type_key );
+            echo '<td>' . esc_html( $type_label !== '' ? $type_label : $type_key ) . '</td>';
             $min = (int) ( $r->minutes_played ?? 0 );
             echo '<td class="num">' . ( $min > 0 ? esc_html( (string) $min ) : '—' ) . '</td>';
             echo '</tr>';
