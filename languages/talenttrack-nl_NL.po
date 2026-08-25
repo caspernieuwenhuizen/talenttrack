@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T06:13:03+00:00\n"
+"POT-Creation-Date: 2026-08-25T06:21:31+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -18950,6 +18950,11 @@ msgstr "Mobiele installatie"
 #: src/Shared/CoreSurfaceRegistration.php:1630
 msgid "Developer"
 msgstr "Ontwikkelaar"
+
+#: src/Modules/Documentation/HelpTopics.php:244
+msgid "This help topic has not been translated yet, so it is shown in English."
+msgstr ""
+"Dit helponderwerp is nog niet vertaald en wordt daarom in het Engels getoond."
 
 #. translators: %s: link text
 #: src/Modules/Documentation/Markdown.php:243
@@ -55033,11 +55038,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Documentation/HelpTopics.php:243
-msgid "This help topic has not been translated yet, so it is shown in English."
-msgstr ""
-"Dit helponderwerp is nog niet vertaald en wordt daarom in het Engels getoond."
 
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
