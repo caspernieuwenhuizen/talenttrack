@@ -331,9 +331,18 @@ krijgt hem **gestippeld**. Kleur en patroon samen houden een volledige
 selectie leesbaar: op het scherm, in een zwart-witafdruk, en voor een
 kleurenblinde lezer.
 
-**De kolom Verschil lezen.** Elk verschil heeft een teken, niet alleen een
-kleur, zodat het rapport ook in zwart-wit en voor een kleurenblinde lezer
-leesbaar blijft:
+**Stap voor stap, en in totaal.** Tussen elk paar datums staat een kolom **Δ**
+met de verandering ten opzichte van het vorige meetmoment; de laatste kolom,
+**Totaal**, beslaat alle meetmomenten die de speler heeft. Bij twee
+meetmomenten zeggen die twee hetzelfde. Vanaf drie niet meer, en daar gaat het
+om: een speler die 2 kg aankwam en 1,5 kg afviel heeft hetzelfde totaal als een
+speler die rustig 0,5 kg aankwam, en alleen de stappen laten het verschil zien.
+Ontbreekt aan één kant van een paar een meting, dan toont de stap `—`; hij
+wordt nooit over het gat heen doorgetrokken naar de meting daarvoor.
+
+**De kolom Verschil lezen.** Elk verschil — elke stap én het totaal — heeft een
+teken, niet alleen een kleur, zodat het rapport ook in zwart-wit en voor een
+kleurenblinde lezer leesbaar blijft:
 
 | Teken | Betekenis |
 | --- | --- |

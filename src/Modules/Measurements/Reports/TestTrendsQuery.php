@@ -159,35 +159,94 @@ final class TestTrendsQuery {
         // non-WordPress front end can pick its own glyph for each state.
         $p['trend']   = null;
 
+        // #2837 — the movement between each pair of adjacent measuring
+        // moments, keyed by the later date of the pair. One overall number
+        // flattens the shape a coach opens this report to see: a player who
+        // gained 2 kg and lost 1,5 kg reads as +0,5 exactly like a player who
+        // gained 0,5 steadily. Computed here rather than in the view so the
+        // REST payload carries it too (CLAUDE.md §4).
+        $p['steps'] = self::stepsBetween( $p['values'] ?? [], $dates, $direction, $has_direction );
+
         if ( count( $present ) < 2 ) return $p;
 
         $delta      = $p['last'] - $p['first'];
         $p['delta'] = $delta;
         $p['pct']   = $p['first'] != 0.0 ? ( $delta / abs( $p['first'] ) ) * 100 : null;
 
-        $magnitude = $p['pct'] !== null ? abs( $p['pct'] ) : 0.0;
+        $state        = self::stateFor( $delta, $p['first'], $direction, $has_direction );
+        $p['trend']   = $state['trend'];
+        $p['verdict'] = $state['verdict'];
+        return $p;
+    }
 
-        // A neutral test has no better or worse: report which way the value
-        // moved and stop there. A move under the flat threshold is 'flat'
-        // either way — "unchanged" is a fact, not a judgement.
+    /**
+     * One entry per adjacent pair of dates that the player has BOTH readings
+     * for, keyed by the later date.
+     *
+     * A gap is a gap: if either side is missing the step is absent, and the
+     * comparison is never quietly stretched across the hole to the reading
+     * before it. The overall change still spans whatever moments exist, which
+     * is a different question and deliberately answered differently.
+     *
+     * @param array<string, mixed> $values date => reading
+     * @param array<int, string>   $dates  every measuring moment, in order
+     * @return array<string, array{delta: float, trend: string}>
+     */
+    private static function stepsBetween( array $values, array $dates, string $direction, bool $has_direction ): array {
+        $steps = [];
+
+        for ( $i = 1; $i < count( $dates ); $i++ ) {
+            $prev_date = $dates[ $i - 1 ];
+            $this_date = $dates[ $i ];
+            if ( ! isset( $values[ $prev_date ], $values[ $this_date ] ) ) continue;
+
+            $prev  = (float) $values[ $prev_date ];
+            $now   = (float) $values[ $this_date ];
+            $delta = $now - $prev;
+
+            $steps[ $this_date ] = [
+                'delta' => $delta,
+                'trend' => self::stateFor( $delta, $prev, $direction, $has_direction )['trend'],
+            ];
+        }
+
+        return $steps;
+    }
+
+    /**
+     * Verdict and display state for one movement, against the reading it is
+     * measured from.
+     *
+     * Shared by the overall change and by every step so the two can never
+     * read a move differently. A neutral test has no better or worse: report
+     * which way the value went and stop there. A move under the flat
+     * threshold is `flat` either way — "unchanged" is a fact, not a judgement.
+     *
+     * @return array{trend: string, verdict: ?string}
+     */
+    private static function stateFor( float $delta, ?float $base, string $direction, bool $has_direction ): array {
+        $pct       = ( $base !== null && $base != 0.0 ) ? ( $delta / abs( $base ) ) * 100 : null;
+        $magnitude = $pct !== null ? abs( $pct ) : 0.0;
+
         if ( ! $has_direction ) {
             if ( $magnitude < self::FLAT_PCT ) {
-                $p['trend'] = 'flat';
-            } else {
-                $p['trend'] = $delta > 0 ? 'rose' : ( $delta < 0 ? 'fell' : 'flat' );
+                return [ 'trend' => 'flat', 'verdict' => null ];
             }
-            return $p;
+            return [
+                'trend'   => $delta > 0 ? 'rose' : ( $delta < 0 ? 'fell' : 'flat' ),
+                'verdict' => null,
+            ];
         }
 
         if ( $magnitude < self::FLAT_PCT ) {
-            $p['verdict'] = 'flat';
-            $p['trend']   = 'flat';
-            return $p;
+            return [ 'trend' => 'flat', 'verdict' => 'flat' ];
         }
-        $better       = $direction === 'lower' ? $delta < 0 : $delta > 0;
-        $p['verdict'] = $better ? 'improved' : 'declined';
-        $p['trend']   = $better ? 'up' : 'down';
-        return $p;
+
+        $better = $direction === 'lower' ? $delta < 0 : $delta > 0;
+        return [
+            'trend'   => $better ? 'up' : 'down',
+            'verdict' => $better ? 'improved' : 'declined',
+        ];
     }
 
     /**
