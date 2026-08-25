@@ -999,6 +999,11 @@ class DashboardShortcode {
             case 'prospects-overview':
                 \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
                 return true;
+            // #2838 — correct the parent contact block + consent state on
+            // a prospect that was already logged.
+            case 'prospect-edit':
+                \TT\Modules\Prospects\Frontend\FrontendProspectEditView::render( $user_id );
+                return true;
             // v3.110.119 — scout's scouting-visit planner.
             case 'scouting-visits':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingPlanView::render( $user_id, $is_admin );

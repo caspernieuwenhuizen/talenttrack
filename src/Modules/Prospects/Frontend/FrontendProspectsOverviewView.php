@@ -5,8 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -80,6 +82,22 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
                 'discovered_at' => [ 'label' => __( 'Discovered',    'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
                 'discovered_by' => [ 'label' => __( 'Discovered by', 'talenttrack' ) ],
                 'status_label'  => [ 'label' => __( 'Status',        'talenttrack' ) ],
+            ],
+            // #2838 — the correction path. `{id}` is a raw template the
+            // list-table JS substitutes per row; tt_back is appended so
+            // Cancel and the back-pill return here rather than to a
+            // hard-coded list.
+            'row_actions' => [
+                'edit' => [
+                    'label' => __( 'Edit contact', 'talenttrack' ),
+                    'cap'   => 'tt_edit_prospects',
+                    'href'  => BackLink::appendTo(
+                        add_query_arg(
+                            [ 'tt_view' => 'prospect-edit', 'id' => '{id}' ],
+                            RecordLink::dashboardUrl()
+                        )
+                    ),
+                ],
             ],
             'default_sort' => [ 'orderby' => 'last_name', 'order' => 'asc' ],
             'empty_state'  => __( 'No prospects match those filters yet.', 'talenttrack' ),
