@@ -149,6 +149,34 @@ elke speler die dag daadwerkelijk speelde). Hoe dan ook belanden de minuten op d
 aanwezigheidsregel en leest elk rapport ze. Een toernooi zonder vastgelegde
 minuten toont nog steeds niets — dezelfde eerlijke nul als een wedstrijd.
 
+### Doelpunten en assists naast de minuten
+
+**Team · Minutenverdeling** heeft naast de minuten de kolommen **Doelpunten
+gemaakt** en **Assists**. Minuten zeggen hoeveel van de wedstrijd een speler
+kreeg; doelpunten en assists zeggen wat hij ermee deed, en die twee van
+verschillende schermen moeten aflezen is precies wat de vergelijking
+tegenhoudt.
+
+Beide worden geteld uit de doelpunten die op het wedstrijduitvoeringsscherm
+zijn vastgelegd, over hetzelfde tijdvak als de rest van de tabel. Een speler
+die niets bijdroeg toont een nul, geen leeg vakje — leeg zou lezen als "niet
+gemeten".
+
+Drie regels zijn goed om te weten, want ze bepalen wiens getal beweegt:
+
+- Een doelpunt dat niemand heeft toegekend telt mee voor de **stand** maar
+  voor **geen enkele speler**. Het hoort bij de wedstrijd totdat iemand de
+  maker invult.
+- Een **eigen doelpunt** telt nooit mee bij de doelpunten van de maker. In
+  eigen doel schieten is geen aanvallende bijdrage.
+- Een **ongedaan gemaakt** doelpunt telt voor niemand.
+
+Dezelfde getallen staan op de spelerskaart zelf — de tegel **Doelpunten
+gemaakt** in de overzichtsstrook, met de assists op de regel eronder. Let op
+de bewoording: de tegel ernaast, kortweg **Doelen**, telt de ontwikkeldoelen
+van een speler. Die twee betekenissen worden overal uit elkaar gehouden waar
+ze elkaar tegenkomen.
+
 ### De minutenrapporten filteren
 
 **Speler · Gespeelde minuten** en **Team · Minutenverdeling** hebben dezelfde

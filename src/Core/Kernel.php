@@ -130,6 +130,7 @@ class Kernel {
         // #2160 — minutes audit / trace-back: per-player per-match
         // breakdown over REST (same hardened MinutesQuery the reports use).
         \TT\Infrastructure\REST\MinutesRestController::init();
+        \TT\Infrastructure\REST\GoalContributionsRestController::init();
         // #2458 — cross-entity search behind the command palette, and
         // read-only record summaries behind the peek panel. Registered here
         // rather than from a module: both span players, teams and

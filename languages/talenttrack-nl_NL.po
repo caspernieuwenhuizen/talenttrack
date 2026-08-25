@@ -8540,6 +8540,24 @@ msgstr "Gem. / wedstrijd"
 msgid "% available"
 msgstr "% beschikbaar"
 
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:230
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:770
+msgctxt "goals scored in matches"
+msgid "Goals scored"
+msgstr "Doelpunten gemaakt"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:231
+msgctxt "who created a goal"
+msgid "Assists"
+msgstr "Assists"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:880
+#, php-format
+msgid "%d assist"
+msgid_plural "%d assists"
+msgstr[0] "%d assist"
+msgstr[1] "%d assists"
+
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:58
 msgid "You do not have permission to manage scheduled reports."
 msgstr "Je hebt geen toegang om geplande rapporten te beheren."
