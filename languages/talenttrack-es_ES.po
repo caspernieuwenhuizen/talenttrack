@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T04:57:20+00:00\n"
+"POT-Creation-Date: 2026-08-25T05:04:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -6395,7 +6395,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
 #: src/Shared/Modules/ModuleMetadata.php:153
-#: src/Shared/Tiles/TileRegistry.php:55
+#: src/Shared/Tiles/TileRegistry.php:95
 msgid "People"
 msgstr "Personas"
 
@@ -9424,7 +9424,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:655
-#: src/Shared/Tiles/TileRegistry.php:57
+#: src/Shared/Tiles/TileRegistry.php:97
 msgid "Development"
 msgstr "Desarrollo"
 
@@ -9845,7 +9845,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:651
 #: src/Shared/CoreSurfaceRegistration.php:1781
 #: src/Shared/CoreSurfaceRegistration.php:2147
-#: src/Shared/Tiles/TileRegistry.php:54
+#: src/Shared/Tiles/TileRegistry.php:94
 msgid "Performance"
 msgstr "Rendimiento"
 
@@ -37129,7 +37129,7 @@ msgstr ""
 
 #: src/Modules/Training/TrainingModule.php:116
 #: src/Shared/CoreSurfaceRegistration.php:663
-#: src/Shared/Tiles/TileRegistry.php:56
+#: src/Shared/Tiles/TileRegistry.php:96
 msgid "Planning & tactics"
 msgstr ""
 
@@ -41180,7 +41180,7 @@ msgid "Drag-and-drop lineups with live chemistry."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:847
-#: src/Shared/Tiles/TileRegistry.php:58
+#: src/Shared/Tiles/TileRegistry.php:98
 msgid "Reference"
 msgstr ""
 
@@ -50772,7 +50772,7 @@ msgid ""
 msgstr ""
 
 #. translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff"
-#: src/Shared/Tiles/TileRegistry.php:318
+#: src/Shared/Tiles/TileRegistry.php:362
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr ""

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-08-25T04:57:20+00:00\n"
+"POT-Creation-Date: 2026-08-25T05:04:48+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -6754,7 +6754,7 @@ msgstr "Ontwikkelplannen"
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
 #: src/Shared/Modules/ModuleMetadata.php:153
-#: src/Shared/Tiles/TileRegistry.php:55
+#: src/Shared/Tiles/TileRegistry.php:95
 msgid "People"
 msgstr "Personen"
 
@@ -9928,7 +9928,7 @@ msgstr "Beheer / configuratie-oppervlak"
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:655
-#: src/Shared/Tiles/TileRegistry.php:57
+#: src/Shared/Tiles/TileRegistry.php:97
 msgid "Development"
 msgstr "Ontwikkeling"
 
@@ -10392,7 +10392,7 @@ msgstr "Personen & teams"
 #: src/Shared/CoreSurfaceRegistration.php:651
 #: src/Shared/CoreSurfaceRegistration.php:1781
 #: src/Shared/CoreSurfaceRegistration.php:2147
-#: src/Shared/Tiles/TileRegistry.php:54
+#: src/Shared/Tiles/TileRegistry.php:94
 msgid "Performance"
 msgstr "Prestaties"
 
@@ -39872,7 +39872,7 @@ msgstr "%s (kopie)"
 
 #: src/Modules/Training/TrainingModule.php:116
 #: src/Shared/CoreSurfaceRegistration.php:663
-#: src/Shared/Tiles/TileRegistry.php:56
+#: src/Shared/Tiles/TileRegistry.php:96
 msgid "Planning & tactics"
 msgstr "Planning & tactiek"
 
@@ -44322,7 +44322,7 @@ msgid "Drag-and-drop lineups with live chemistry."
 msgstr "Sleep opstellingen samen met live chemie."
 
 #: src/Shared/CoreSurfaceRegistration.php:847
-#: src/Shared/Tiles/TileRegistry.php:58
+#: src/Shared/Tiles/TileRegistry.php:98
 msgid "Reference"
 msgstr "Naslag"
 
@@ -54842,7 +54842,7 @@ msgstr ""
 "productie."
 
 #. translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff"
-#: src/Shared/Tiles/TileRegistry.php:318
+#: src/Shared/Tiles/TileRegistry.php:362
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr "%1$s (%2$s)"

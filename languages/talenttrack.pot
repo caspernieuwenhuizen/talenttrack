@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-25T04:57:20+00:00\n"
+"POT-Creation-Date: 2026-08-25T05:04:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -6129,7 +6129,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:675
 #: src/Shared/Modules/ModuleMetadata.php:153
-#: src/Shared/Tiles/TileRegistry.php:55
+#: src/Shared/Tiles/TileRegistry.php:95
 msgid "People"
 msgstr ""
 
@@ -9028,7 +9028,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:142
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:154
 #: src/Shared/CoreSurfaceRegistration.php:655
-#: src/Shared/Tiles/TileRegistry.php:57
+#: src/Shared/Tiles/TileRegistry.php:97
 msgid "Development"
 msgstr ""
 
@@ -9407,7 +9407,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:651
 #: src/Shared/CoreSurfaceRegistration.php:1781
 #: src/Shared/CoreSurfaceRegistration.php:2147
-#: src/Shared/Tiles/TileRegistry.php:54
+#: src/Shared/Tiles/TileRegistry.php:94
 msgid "Performance"
 msgstr ""
 
@@ -35079,7 +35079,7 @@ msgstr ""
 
 #: src/Modules/Training/TrainingModule.php:116
 #: src/Shared/CoreSurfaceRegistration.php:663
-#: src/Shared/Tiles/TileRegistry.php:56
+#: src/Shared/Tiles/TileRegistry.php:96
 msgid "Planning & tactics"
 msgstr ""
 
@@ -38797,7 +38797,7 @@ msgid "Drag-and-drop lineups with live chemistry."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:847
-#: src/Shared/Tiles/TileRegistry.php:58
+#: src/Shared/Tiles/TileRegistry.php:98
 msgid "Reference"
 msgstr ""
 
@@ -47589,7 +47589,7 @@ msgid "Generates sample players and teams for demos and testing — turn off in 
 msgstr ""
 
 #. translators: 1: tile label, 2: short qualifier distinguishing two same-named tiles, e.g. "staff"
-#: src/Shared/Tiles/TileRegistry.php:318
+#: src/Shared/Tiles/TileRegistry.php:362
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr ""
