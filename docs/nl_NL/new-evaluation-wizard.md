@@ -9,7 +9,7 @@ order: 15
 
 # Nieuwe Evaluatie wizard
 
-> Operator + coach referentie voor de activity-first nieuwe-evaluatie wizard opgeleverd in v3.75.0 (#0072).
+> Referentie voor operators en coaches bij de activiteit-eerst nieuwe-evaluatiewizard.
 
 ## Wat het doet
 
@@ -117,19 +117,19 @@ In Configuratie → Lookups → Activity Types heeft elke rij een **Rateable**-c
 
 In Configuratie → Evaluatiecategorieën hebben hoofd-categorieën een **Snelbeoordelen**-vlag (in `meta.quick_rate`). Snelbeoordeel-categorieën verschijnen als één-regel-rij in de beoordeelstap. Niet-snel categorieën leven in het deep-rate-panel (follow-up). Standaard seed: Technisch / Tactisch / Fysiek / Mentaal.
 
-## Autosave (v3.78.0)
+## Automatisch opslaan
 
 Elke wizard-stap slaat nu automatisch op. Terwijl je typt of een veld wijzigt wacht de wizard ~800ms en POST't dan stilletjes je input naar `POST /wp-json/talenttrack/v1/wizards/{slug}/draft`, die de patch in je `tt_wizard_drafts`-rij merget. Een kleine statustekst naast de actie-knoppen toont de toestand — "Autosave klaar" → "Opslaan…" → "Opgeslagen · 14:32".
 
 Tijdens autosave draait er geen validatie; dat is bewust. Half-getypte input is het hele punt. Validatie draait wel bij **Volgende** via het normale submit-pad van de stap. Valt het netwerk weg, dan toont de tekst "Opslaan mislukt" en de volgende typeburst probeert automatisch opnieuw.
 
-## Resume-banner (v3.78.0)
+## Hervat-banner
 
 Wanneer je een wizard heropent met een concept ouder dan ~10 minuten (het cross-session-signaal), verschijnt bovenaan een banner met *"Je bent 2 uur geleden begonnen. Doorgaan waar je gebleven was, of opnieuw beginnen?"* Klik **Doorgaan** om verder te gaan, of **Opnieuw beginnen** om het concept te wissen en vers te starten. Same-session refreshes (binnen 10 minuten) slaan de banner over omdat er niets te hervatten valt.
 
-## Per-speler voortgang bij verzenden (v3.78.0)
+## Voortgang per speler bij verzenden
 
-Review-stap Verzenden POST't nu één rij per evaluatie naar `POST /wp-json/talenttrack/v1/wizards/new-evaluation/insert-row`, met een voortgangsbalk en "Evaluatie 3 van 12 wegschrijven…"-status. Dezelfde DB-rijen als voorheen; het enige verschil is zichtbare feedback tijdens een batch van 12 spelers. Browsers zonder JS vallen terug op het v3.75.0 PHP-only one-shot submit.
+Review-stap Verzenden POST't één rij per evaluatie naar `POST /wp-json/talenttrack/v1/wizards/new-evaluation/insert-row`, met een voortgangsbalk en "Evaluatie 3 van 12 wegschrijven…"-status. Zo toont een batch van twaalf spelers zijn voortgang in plaats van te lijken vast te lopen. Een browser met JavaScript uit valt terug op één PHP-verzending die dezelfde rijen wegschrijft.
 
 ## Wat staat nog op de roadmap
 

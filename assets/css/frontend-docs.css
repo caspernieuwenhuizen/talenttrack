@@ -94,3 +94,16 @@
         transform: none;
     }
 }
+
+/* #2550 — "this topic is only in English". An annotation above the topic,
+   not a warning: the content is still correct, it is simply in the other
+   language. Quiet enough to skip once you have read it, present enough that
+   a Dutch reader is not left wondering. */
+.tt-doc-untranslated {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-left: 3px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}

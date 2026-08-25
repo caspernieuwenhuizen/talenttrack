@@ -99,7 +99,7 @@ Wie activiteiten kan bekijken, kan de planning bekijken. Wie activiteiten kan be
 - **Inline aanmaak-modal** — klikken op `+ Toevoegen` brengt je naar het activiteitenformulier in plaats van een snelaanmaak-dialoog te openen. Het formulier is het canonieke aanmaak-oppervlak.
 - **Meervoudige seizoenskiezer** — het Volledig seizoen-venster pakt altijd `is_current`. Wil je een toekomstig seizoen plannen, zet dan eerst de `is_current` vlag op dat seizoen onder PDP → Seizoenen.
 
-## Sessies herhalen (v4.20.125)
+## Sessies herhalen
 
 Twee snelkoppelingen halen het overtypen uit de weekplanning:
 

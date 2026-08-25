@@ -34,7 +34,7 @@ De pillenbalk verschijnt alleen als er meer dan één persona voor jouw account 
 
 ## Wat is een "widget"?
 
-Elk blok op het dashboard is een widget. Er zijn 15 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel (presets voor trials, scoutrapporten, audit log en aankomende activiteiten — alle vier sinds v3.78.0 op live data), mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip, toegewezen-spelers-grid en **ploegoverzicht-grid**.
+Elk blok op het dashboard is een widget. Er zijn 15 widget-types: navigatietegel, KPI-kaart, KPI-strip, actie-kaart, snelle-acties-paneel, info-kaart, takenlijst-paneel, datatabel (presets voor trials, scoutrapporten, audit log en aankomende activiteiten), mini-spelerslijst, ratingcard-hero, vandaag-eerstvolgende-hero, kind-schakelaar-met-overzicht, systeemstatus-strip, toegewezen-spelers-grid en **ploegoverzicht-grid**.
 
 Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikken vast op een 12-koloms grid op desktop, 6 koloms op tablet en één mobile-priority-gesorteerde kolom op mobiel.
 
@@ -109,7 +109,7 @@ Handig om een herontworpen persona-dashboard één persona tegelijk uit te rolle
 
 ## Databronnen
 
-Elke KPI wordt live berekend op basis van de data van jouw academie. KPI's die afhankelijk zijn van nog niet uitgerolde features (bijv. de status-traffic light uit `#0057`, POP-planningvensters uit `#0054`) tonen een placeholder-streepje (`—`) tot die landen.
+Elke KPI wordt live berekend op basis van de data van jouw academie. Een KPI waarvan de onderliggende functie voor jouw academie uitstaat, toont een streepje (`—`) in plaats van een nul, zodat een lege tegel nooit leest als "er is niets gebeurd".
 
 ## REST API
 
@@ -126,7 +126,7 @@ DELETE /wp-json/talenttrack/v1/me/active-persona                 actieve persona
 
 Een ingelogde gebruiker kan templates lezen voor persona's waarvoor hij in aanmerking komt; de write-endpoints vereisen `tt_edit_persona_templates`.
 
-## Visuele conventies (v3.76.0)
+## Visuele conventies
 
 Het dashboard opent met een subtiele titelkop — persona-naam als paginatitel plus een ondertitel met datum + clubnaam. Persona's zonder hero-widget (Head of Development, Academiebeheerder, Scout) krijgen een dagdeel-groet als prefix; persona's met een hero (speler, ouder, coach, manager) krijgen geen extra groet omdat de hero die functie al vervult.
 
@@ -134,7 +134,7 @@ Tegel-iconen (de gekleurde één-letter-vierkantjes) en de gele plus-cirkel op a
 
 Clubs die sterker visueel onderscheid tussen tegels nodig hebben kunnen via de dashboard-editor een per-tegel-beschrijving toevoegen — typografie leest dan als "label + beschrijving" in plaats van "label + icoon".
 
-## HoD-landing — funnel + 4-ploegenpuls naast elkaar (v3.110.82)
+## HoD-landing — funnel en ploegenpuls naast elkaar
 
 De standaard `head_of_development`-template toont nu de twee parallelle lenzen van de HoD op één scherm — de pols van de bestaande selecties bovenaan en de recruitment-funnel daar direct onder — zodat de meest voorkomende HoD-acties (testtraining-uitnodigingen versturen, uitkomsten registreren, volgende week plannen) met één tik bereikbaar zijn.
 
@@ -142,14 +142,14 @@ Van boven naar onder op de standaardtemplate:
 
 1. **KPI-strip** — actieve spelers, evaluaties deze maand, lopende opkomst-%, open trial-cases, openstaande PDP-verdicten, doel-voltooiings-%.
 2. **Ploegoverzicht-grid + `+ Nieuw trial`-actiekaart** — 4 ploegkaarten, `concern_first`-sortering, 30-dagen-venster.
-3. **Onboarding-pipeline-strip** (XL, volle breedte) — tellingen voor de zes funneltrappen (Prospects · Uitgenodigd · Testtraining · Trialgroep · Teamaanbod · Aangesloten) met stale-badges. Nieuw in v3.110.82.
+3. **Onboarding-pipeline-strip** (XL, volle breedte) — tellingen voor de zes funneltrappen (Prospects · Uitgenodigd · Testtraining · Trialgroep · Teamaanbod · Aangesloten) met stale-badges.
 4. **Komende activiteiten** — gegevens-tabel met de planning van de 4 ploegen.
 5. **Trials die een beslissing nodig hebben** — gegevens-tabel.
 6. **Navigatietegels** — bovenste rij bevat de vier hoogfrequente drill-downs (Onboarding-pipeline · Takendashboard · Spelers · Ploegen); tweede rij bevat de cyclus-/registratie-oppervlakken (Trials · Evaluaties · PDP · Activiteiten); rest ongewijzigd.
 
-Beheerders die vóór v3.110.82 een HoD-template-override hebben gepubliceerd, behouden hun aangepaste lay-out — de wijziging raakt alleen de standaard. Open de dashboard-editor en klik op **Terug naar standaard** om de nieuwe lay-out te zien.
+Dit is de meegeleverde standaard. Een academie die een eigen Hoofd Opleiding-template heeft gepubliceerd, behoudt die lay-out. Open de dashboard-editor en klik op **Terug naar standaard** om de nieuwe lay-out te zien.
 
-## Ploegoverzicht-grid (HoD-landing, v3.76.0)
+## Ploegoverzicht-grid (HoD-landing)
 
 Per-ploeg samenvattingskaarten in een responsief grid. Elke kaart toont ploegnaam, leeftijdscategorie, hoofdtrainer, en twee getallen: gemiddelde evaluatie-rating en opkomstpercentage over een instelbaar venster (standaard 30 dagen). Tikken op een kaart klapt hem inline open en toont de spelersuitsplitsing van die ploeg met opkomst % en rating per speler.
 
@@ -172,7 +172,7 @@ De uitklap-status is per gebruiker, per kaart, opgeslagen in `localStorage` (`tt
 - Wisselen van rol in het gebruikersmenu: [Toegangsbeheer](access-control.md)
 - Volledige tegelcatalogus: [Coachdashboard](coach-dashboard.md)
 
-## Databron-dropdowns (v3.79.0)
+## Databron-dropdowns
 
 De persona-dashboard-editor vroeg vroeger om vrije tekst voor "databron"-waarden bij niet-KPI-widgets — beheerders moesten dus preset-keys uit het hoofd kennen, zoals `audit_log_recent`. Elke widget publiceert nu zijn eigen catalogus en de editor toont een dropdown:
 

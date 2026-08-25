@@ -8,7 +8,7 @@ order: 132
 
 # Impersonatie
 
-> Documentatie voor de gebruiker-impersonatie-functie opgeleverd in v3.72.0 als onderdeel van de #0071-autorisatiematrix-completeness-epic.
+> Documentatie bij het overnemen van een gebruikersaccount.
 
 Native admin-naar-gebruiker impersonatie laat een Academy Admin (de WordPress-`administrator` of iemand met de `tt_club_admin`-rol) tijdelijk overschakelen naar de sessie van een andere gebruiker, zien wat die gebruiker ziet, en weer terugschakelen. Twee echte problemen die dit oplost:
 
@@ -24,7 +24,7 @@ De capability `tt_impersonate_users` is standaard toegekend aan:
 - de WordPress-`administrator`-rol (altijd — supergebruikers houden emergency access)
 - de `tt_club_admin`-rol (Academy Admin in matrix-termen)
 
-**Geen enkele andere persona heeft deze capability.** Specifiek: Head of Development krijgt **geen** impersonatie-rechten — zelfs na de #0071-versmalling van HoD tot een ontwikkelingsgerichte persona, want impersonatie onthult alles over een gebruiker, inclusief content die expliciet voor HoD verborgen is door de matrix (configuratie-data waar ze geen edit-rechten meer op hebben, etc.). Wil een club impersonatie aan een niet-admin-rol delegeren, dan kan dat via de matrix (de cap is matrix-gebrugd), maar standaard is het alleen-admin.
+**Geen enkele andere persona heeft deze capability.** Specifiek: Head of Development krijgt **geen** impersonatie-rechten — zelfs na de versmalling van HoD tot een ontwikkelingsgerichte persona, want impersonatie onthult alles over een gebruiker, inclusief content die expliciet voor HoD verborgen is door de matrix (configuratie-data waar ze geen edit-rechten meer op hebben, etc.). Wil een club impersonatie aan een niet-admin-rol delegeren, dan kan dat via de matrix (de cap is matrix-gebrugd), maar standaard is het alleen-admin.
 
 ## Hoe het werkt
 
@@ -80,10 +80,10 @@ E-mail- en push-notificaties die door de doelgebruiker's acties getriggerd zoude
 
 ## Het auditlog raadplegen
 
-Het log is opvraagbaar via de REST-API op `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated op de `impersonation_log`-matrix-entiteit — Academy Admin RCD, Head of Development R). Een wp-admin-oppervlak voor het log is gepland maar niet in v1; tot dat verschijnt, query het REST-endpoint rechtstreeks met de juiste filters.
+Het log is opvraagbaar via de REST-API op `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated op de `impersonation_log`-matrix-entiteit — Academy Admin RCD, Head of Development R). Er is geen apart scherm voor het log — bevraag het REST-endpoint rechtstreeks met de filters die je nodig hebt.
 
 ## Buiten scope
 
-- Een wp-admin-auditoppervlak voorbij REST (gepland voor follow-up).
+- Een apart scherm voor het auditlog — dat wordt via REST gelezen.
 - Cross-club-impersonatie in multi-tenant-installs (gegate op een `tt_super_admin`-cap die standaard niet wordt toegekend).
 - Automatische her-authenticatie voor 2FA-installs — `wp_set_auth_cookie` slaat de 2FA-uitdaging vandaag over; een `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )`-constante is gereserveerd voor clubs die het nodig hebben.

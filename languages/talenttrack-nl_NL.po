@@ -54891,6 +54891,11 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Documentation/HelpTopics.php:243
+msgid "This help topic has not been translated yet, so it is shown in English."
+msgstr ""
+"Dit helponderwerp is nog niet vertaald en wordt daarom in het Engels getoond."
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."

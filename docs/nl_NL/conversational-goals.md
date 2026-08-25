@@ -42,7 +42,7 @@ Elk publiek bericht stuurt een mail naar elke andere deelnemer — behalve de au
 
 Onderwerp: *Nieuw bericht op het doel van Marcus: "Eerste-balcontact onder druk verbeteren"*. De body toont de auteur, een korte preview en een link terug naar het doel.
 
-Wanneer pushmeldingen volgen (gepland via `#0042`), krijgen deelnemers met een actieve push-abonnement een push in plaats van mail; de rest blijft mail krijgen.
+Deelnemers met een actief push-abonnement krijgen een pushmelding in plaats van de mail; de rest krijgt de mail.
 
 Beheerders kunnen de meldingsuitwaaier helemaal uitzetten door `threads.notify_on_post=0` te zetten in `tt_config`.
 
@@ -82,7 +82,7 @@ DELETE /wp-json/talenttrack/v1/threads/{type}/{id}/messages/{m}   soft-delete
 POST   /wp-json/talenttrack/v1/threads/{type}/{id}/read           expliciete gelezen-marker
 ```
 
-v1 registreert alleen `goal` als thread-type. Toekomstige epics (#0017 trialcases, #0014 scout-rapporten, #0044 POP-gesprekken) registreren hun eigen types.
+`goal` is vandaag het enige geregistreerde thread-type. Andere onderdelen registreren hun eigen type zodra ze gesprekken krijgen.
 
 ## Wat niet in v1 zit
 
@@ -93,7 +93,7 @@ v1 registreert alleen `goal` als thread-type. Toekomstige epics (#0017 trialcase
 - **Bewerken na 5 minuten.** Soft-delete + opnieuw plaatsen is de workflow.
 - **Hard-delete per bericht.** GDPR-verwijdering loopt via het bestaande retentiepad.
 
-## Op de POP-pagina — een gesprek per doel (#1754)
+## Op de POP-pagina — een gesprek per doel
 
 De **POP**-pagina van de speler (Dashboard › Spelers › *speler* › POP) toont
 de leerdoelen als **inklapbare kaarten**. De kop van elke kaart toont de

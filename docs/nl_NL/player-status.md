@@ -24,7 +24,7 @@ Het algoritme markeert. Mensen besluiten. De POP-eindbeoordeling aan het eind va
 
 ## Hoe de kleur wordt bepaald
 
-Standaardmethodiek (per release configureerbaar) weegt vier ingrediënten:
+De meegeleverde methodiek weegt vier ingrediënten:
 
 | Input | Weging | Wat het is |
 | --- | --- | --- |
@@ -33,7 +33,9 @@ Standaardmethodiek (per release configureerbaar) weegt vier ingrediënten:
 | Aanwezigheid | 20% | Aanwezigheidsratio bij trainingen in de laatste 90 dagen |
 | Potentieel | 15% | Verwachting van de trainer over hoever de speler kan reiken |
 
-Een gedragsscore onder 3.0 plafonneert de kleur op oranje, ongeacht de overige scores.
+Een gedragsscore onder het midden van je beoordelingsschaal plafonneert de kleur op oranje, ongeacht de overige scores.
+
+**Dit zijn standaardwaarden, geen vaste regels.** Een academiebeheerder stelt onder **Methodiek spelerstatus** eigen wegingen, eigen oranje- en roodgrenzen en een eigen gedragsplafond in, academiebreed of per leeftijdscategorie. De wegingen moeten samen op 100 uitkomen; het scherm zegt dat en weigert een set op te slaan die dat niet doet. De standaarden hierboven gelden tot je een eigen instelling opslaat, en **Herstellen** zet ze terug.
 
 ## Waar zie je het
 
@@ -45,7 +47,7 @@ Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores 
 
 ## Inputs vastleggen
 
-- **Gedragsobservaties** — de **Gedrag vastleggen**-popover op de hero van het spelersprofiel (geleverd in v4.8.0), of `POST /players/{id}/behaviour-ratings` voor integraties. Een 1-5 score met optionele notitie en gerelateerde activiteit.
+- **Gedragsobservaties** — de **Gedrag vastleggen**-popover op de hero van het spelersprofiel, of `POST /players/{id}/behaviour-ratings` voor integraties. Een 1-5 score met optionele notitie en gerelateerde activiteit.
 - **Potentieel** — `POST /players/{id}/potential` met een van `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. Standaard alleen voor hoofd opleidingen.
 - **Aanwezigheid + evaluaties** — al vastgelegd via de bestaande flows; de calculator leest ze direct.
 

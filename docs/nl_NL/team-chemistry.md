@@ -24,11 +24,11 @@ Elke score op het bord is **uitlegbaar**. Houd de muis boven elk getal om de exa
 
 ## Waar te vinden
 
-Hoofdcoaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*-groep op het dashboard. Kies een team en het bord opent. Toegang volgt de `team_chemistry`-autorisatiematrix (#1922): assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang tot het chemiebord.
+Hoofdcoaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*-groep op het dashboard. Kies een team en het bord opent. Toegang volgt de `team_chemistry`-autorisatiematrix: assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang tot het chemiebord.
 
 Een tweede oppervlak is per speler: elk spelerprofiel heeft een **Beste posities**-kaart die de top drie posities van de speler in de huidige formatie van het team toont, opnieuw met onderbouwing bij hoveren.
 
-## Opmaak (v4.13.0)
+## Opmaak
 
 Het bord staat op desktop in drie kolommen en stapelt op tablet en telefoon:
 

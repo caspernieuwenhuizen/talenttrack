@@ -13,7 +13,7 @@ order: 30
 
 Een **activiteit** is alles wat in de agenda staat — een training, een wedstrijd of een ander evenement (team-buildingdag, clubvergadering, …). Bij elke activiteit registreer je wie er aanwezig was.
 
-## Het activiteitenoverzicht (v4.7.0)
+## Het activiteitenoverzicht
 
 De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groepen lopen van boven naar beneden:
 
@@ -149,7 +149,7 @@ Bij het aanmaken van een activiteit kies je welke spelers worden verwacht — de
 
 Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Zijn er spelers afgemeld, dan toont het paneel een samenvatting zoals *"2 komen niet · 1 misschien"* en wordt elke betrokken speler gemarkeerd. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je in de begeleide voltooiingsflow (**Activiteit voltooien** / **Beoordelen voortzetten**) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde. Het detailscherm houdt een alleen-lezen aanwezigheidssamenvatting bij op voltooide activiteiten.
 
-### De planning aanpassen (v4.71.0)
+### De planning aanpassen
 
 De planning ligt niet vast bij het aanmaken. Bewerk je een activiteit die **nog niet is voltooid**, dan vind je een sectie **Geplande opkomst**: één rij per verwachte speler met een status die je kunt instellen — **Verwacht**, **Komt niet** of **Misschien** — plus een vrij **notitie**veld (bijv. "geappt, geblesseerd"). Opslaan en de planning is bijgewerkt. De link **Planning bewerken** in het detailpaneel brengt je er direct naartoe.
 
@@ -207,10 +207,10 @@ Gearchiveerde activiteiten staan onder het statustabblad **Gearchiveerd** in het
 - Een activiteit **herstellen** — ze keert precies zoals ze was terug naar de actieve tijdlijn. De detailpagina van een gearchiveerde activiteit toont nu ook een knop **Herstellen** in de koptekst (in plaats van Archiveren), zodat je haar met één klik terughaalt zonder in de lijst te zoeken. Een gearchiveerde activiteit is alleen-lezen tot ze is hersteld — de knoppen Bewerken en de wedstrijdacties blijven verborgen tot ze weer actief is.
 - **Definitief verwijderen** — een actie alleen voor beheerders (vereist de rechten *instellingen bewerken*) die de activiteit voorgoed verwijdert. Dit kan niet ongedaan worden gemaakt. Als de activiteit nog gekoppelde gegevens heeft (opkomst, oefeningen, wedstrijdgegevens), wordt het verwijderen geblokkeerd en blijft de activiteit gearchiveerd — herstel haar of verwijder die gegevens eerst. Archiveren is de veilige standaard; definitief verwijderen is de zeldzame uitzondering.
 
-## Geoefende principes (v3.79.0)
+## Geoefende principes
 
 Elke activiteit kan worden gekoppeld aan één of meer methodologie-principes, zodat rapporten kunnen aangeven "hoe vaak hebben we deze periode aan principe X gewerkt?" De multiselect Geoefende principes verschijnt op zowel de publieke Activiteit-pagina als het wp-admin-formulier. De koppeling is optioneel.
 
-## Gastenpaneel in admin (v3.79.0)
+## Gastenpaneel in admin
 
 De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon.

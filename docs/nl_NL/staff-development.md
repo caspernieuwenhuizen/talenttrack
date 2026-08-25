@@ -11,11 +11,11 @@ order: 120
 
 # Stafontwikkeling
 
-De plugin volgt spelers tot in detail. Vanaf v3.58.0 volgt hij **de mensen die die spelers coachen** met dezelfde primitieven — doelen, evaluaties, een persoonlijk ontwikkelingsplan — plus een certificeringsregister dat aan spelerskant geen tegenhanger heeft. De module is opt-in (uit te zetten via wp-admin → Configuratie → Functieschakelaars), maar staat standaard aan voor nieuwe installaties.
+De plugin volgt spelers tot in detail. Hij volgt ook **de mensen die die spelers coachen** met dezelfde primitieven — doelen, evaluaties, een persoonlijk ontwikkelingsplan — plus een certificeringsregister dat aan spelerskant geen tegenhanger heeft. De module is opt-in (uit te zetten via wp-admin → Configuratie → Functieschakelaars), maar staat standaard aan voor nieuwe installaties.
 
 ## Wat je krijgt
 
-Sinds **v4.26.15** staan je vier persoonlijke stafontwikkelingstegels onder de groep **"Mijn"** op het dashboard — dezelfde plek waar een speler zijn eigen ontwikkeling ziet — in plaats van een aparte kop "Stafontwikkeling". Ze zijn afgeschermd op `tt_view_staff_development`, dus een stafmedewerker ziet de stafset en een speler de spelerset. De labels komen overeen met de spelertegels (zonder "staf"-toevoeging):
+Je vier persoonlijke stafontwikkelingstegels staan onder de groep **"Mijn"** op het dashboard — dezelfde plek waar een speler zijn eigen ontwikkeling ziet — in plaats van een aparte kop "Stafontwikkeling". Ze zijn afgeschermd op `tt_view_staff_development`, dus een stafmedewerker ziet de stafset en een speler de spelerset. De labels komen overeen met de spelertegels (zonder "staf"-toevoeging):
 
 - **Mijn POP** — je persoonlijke ontwikkelingsplan. Vier velden: sterke punten, ontwikkelpunten, acties komend kwartaal, en een vrije narratief voor context. Eén rij per (jij, seizoen). Opslaan overschrijft de vorige inhoud — gebruik het narratief voor historie.
 - **Mijn doelen** — persoonlijke ontwikkelingsdoelen. Elk doel heeft een titel, prioriteit, status, optionele einddatum, en een **optionele koppeling aan een certificering** (bv. "UEFA-B halen"). Bij koppeling verschijnt het doel ook op de certificeringentegel zodat het pad van "ik wil dit" → "ik heb dit" zichtbaar blijft.
@@ -39,13 +39,13 @@ Vier templates registreren bij het workflow-systeem bij het opstarten van de mod
 - **Jaarlijkse stafzelfevaluatie** — vuurt op 1 september om 00:00, één taak per niet-gearchiveerd stafmedewerker, deadline 30 dagen.
 - **Top-down staf review** — dezelfde 1-september-cron, toegewezen aan het hoofd ontwikkeling, deadline 60 dagen. Eén taak per stafmedewerker.
 - **Stafcertificering verloopt** — dagelijkse cron om 06:00 loopt `tt_staff_certifications.expires_on` na tegen vier drempels (90 / 60 / 30 / 0 dagen). De engine ontdubbelt op (certificering, drempel) zodat dezelfde rij niet twee keer afgaat. Toegewezen aan de staflid; het hoofd ontwikkeling krijgt CC via het bestaande meldingenkanaal.
-- **POP-review nieuw seizoen** — vuurt wanneer een seizoen op "huidig" wordt gezet (de bestaande actie `tt_pdp_season_set_current` uit #0044). Fan-out: één taak per stafmedewerker, "Werk je POP bij voor het nieuwe seizoen".
+- **POP-review nieuw seizoen** — vuurt wanneer een seizoen op "huidig" wordt gezet (de actie `tt_pdp_season_set_current` uit de POP-cyclusmodule). Fan-out: één taak per stafmedewerker, "Werk je POP bij voor het nieuwe seizoen".
 
 Alle vier gebruiken voorlopig de gedeelde placeholder `StaffStubForm` — de taak afronden brengt je naar de relevante tegel waar je de data via de gewone UI invult. Speciale taakformulieren (rijker dan de placeholder) komen in een vervolg-PR als gebruik daarom vraagt.
 
 ## Wat dit *niet* is
 
-- **Een setup-wizard voor nieuwe staf.** Dat is #0024. Deze module is persoonlijke ontwikkeling voor staf die al een `tt_people`-rij heeft.
+- **Een setup-wizard voor nieuwe staf.** Deze module is persoonlijke ontwikkeling voor staf die al een `tt_people`-rij heeft.
 - **Anonieme evaluaties.** De reviewer wordt op elke evaluatierij vastgelegd.
 - **Documentopslag voor certificeringen.** v1 bewaart een URL naar het document; het document zelf staat op de plek waar je academie zoiets al bewaart.
 - **Vergelijken tussen academies.** Per-club only.

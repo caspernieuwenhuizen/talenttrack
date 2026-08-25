@@ -44,7 +44,7 @@ Bij verzenden:
 - Er wordt een klus naar de Hoofd Ontwikkeling gestuurd om de prospect uit te nodigen voor een testtraining.
 - Je komt terug op de pijplijnpagina, waar het nieuwe kaartje in de kolom **Uitgenodigd** verschijnt.
 
-De wizard is het canonieke startpunt voor "+ Nieuwe prospect" — klikken op de knop maakt niet langer als bijwerking een workflow-klus aan (een regressie die in v3.110.48 is opgelost; voorheen POSTte de klik naar `/prospects/log` en kwam je in een `Prospect inloggen`-klus terecht onder Mijn taken, wat gebruikers verraste en de inschrijving dubbel telde).
+De wizard is het canonieke startpunt voor "+ Nieuwe prospect". Klikken op de knop opent hem en verder niets — er wordt geen workflow-klus als bijwerking aangemaakt.
 
 ## Rechten
 
@@ -65,7 +65,7 @@ Elke prospect hoort in **precies één** kolom. De classifier loopt in deze volg
 5. Heeft een openstaande klus *Uitnodigen voor testtraining* of *Bevestiging testtraining* → **Uitgenodigd**.
 6. Anders (geen openstaande klus, niet gepromoveerd, niet gearchiveerd) → **Prospects**.
 
-De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, dus de getallen op het dashboard kloppen met de kolommen op de standalone pagina. Voor v3.110.48 telde de widget rijen klussen op over templates heen, dus een enkele prospect met zowel een Uitnodig- als een Bevestigingsklus open verscheen tegelijk als 2 in de kolom Uitgenodigd — opgelost.
+De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, dus de getallen op het dashboard kloppen met de kolommen op de standalone pagina. Een prospect telt één keer, in één kolom, hoeveel klussen er ook openstaan.
 
 ## Wat de wizard overslaat
 

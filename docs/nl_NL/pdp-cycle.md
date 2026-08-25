@@ -43,7 +43,7 @@ De dekkingsdata is ook beschikbaar via REST op `GET /wp-json/talenttrack/v1/pdp-
 
 Klik op de **POP**-tegel op *POP aanmaken* in de rij van een speler (of op *Nieuw POP-dossier openen*), kies een speler en klik op *Nieuw POP-dossier openen*. Het dossier wordt aangemaakt met Ã©Ã©n gesprek per cyclus (2, 3 of 4 â€” instelbaar per club, te overschrijven per team). Elk `scheduled_at` wordt evenredig over de start- en einddatum van het seizoen verdeeld.
 
-Voor elk gesprek wordt automatisch een native agenda-item bijgehouden. Zodra de Spond-integratie (#0031) live is, worden dezelfde items naar de Spond-agenda gepusht.
+Voor elk gesprek wordt automatisch een native agenda-item bijgehouden.
 
 ### 2. Voer de gesprekken
 
@@ -64,7 +64,7 @@ Na ondertekening verschijnt het gesprek op het *Mijn POP*-overzicht van de spele
 
 Als het gesprek persoonlijk plaatsvindt, kan de coach die bevestigingen ook op het gespreksformulier vastleggen — *Bevestiging speler vastleggen* / *Bevestiging ouder vastleggen*, elk achter een bevestigingsdialoog. Het legt dezelfde bevestiging vast alsof de speler of ouder er zelf op had geklikt. Bevestig alleen wanneer zij het gesprek daadwerkelijk met u hebben bevestigd.
 
-### Wat de speler ziet: een tijdlijn-eerst Mijn POP (#1990)
+### Wat de speler ziet: een tijdlijn-eerst Mijn POP
 
 *Mijn POP* is de **voorbereidings- en zelfreflectieruimte** van de speler, opgebouwd rond het seizoen als een tijdlijn.
 
@@ -98,7 +98,7 @@ Een doel kan nu gekoppeld worden aan Ã©Ã©n of meer methodische entiteiten:
 
 De koppelingen verschijnen op het spelerprofiel en in de printsjabloon; ze maken queries mogelijk als "alle doelen gekoppeld aan *veerkracht* in de academie" of "elke speler die werkt aan *opbouwen vanaf achteren*".
 
-### Doelen en ontwikkelgesprekken (de "combinatie", #1853)
+### Doelen en ontwikkelgesprekken
 
 Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksformulier vinkt de coach onder **Doelen besproken in dit gesprek** de actieve doelen van de speler aan die zijn behandeld; die koppelingen worden bij het gesprek opgeslagen. Op *Mijn POP* toont een uitgevouwen gespreksmarker vervolgens een lijst **Besproken doelen**, zodat de zelfreflectie van de speler ingaat op de doelen die echt aan bod kwamen - POP en doelen worden zo echt gecombineerd in plaats van naast elkaar te staan. (Een afgesproken actie omzetten in een gloednieuw doel is een geplande vervolgstap; deze stap is het lees-/koppelweefsel.)
 
@@ -120,9 +120,9 @@ Er zijn drie taaktemplates geregistreerd:
 - `POP_conversation_due` â€” herinnert de verantwoordelijke coach wanneer `scheduled_at` van een gesprek nadert.
 - `POP_verdict_due` â€” herinnert het hoofd academie aan het einde van het seizoen.
 
-Beide gebruiken de standaard werkflow- en takenmotor van #0022 â€” dezelfde inbox, dezelfde herinneringsÂ­cadans die je instelt via Configuratie â†’ Werkflow.
+Beide gebruiken de werkflow- en takenmotor â€” dezelfde inbox, dezelfde herinneringsÂ­cadans die je instelt via Configuratie â†’ Werkflow.
 
-### Zelfreflectie-nudge (#1852)
+### Zelfreflectie-nudge
 
 Wanneer het planvenster van een gesprek opent, krijgt de speler een taak **"Bereid je voor op je ontwikkelgesprek"** in *Mijn taken / Werk van vandaag*, met als deadline de gespreksdatum. Erop tikken opent *Mijn POP* bij de zelfreflectie. De sweep die deze taken aanmaakt draait op de planner van de werkflowmotor en is idempotent - precies een taak per gesprek, geen duplicaten. Het derde sjabloon `pdp_self_review` levert deze taak.
 
@@ -134,7 +134,7 @@ Het is een **duwtje, geen poort**:
 
 Aan de coachkant krijgt de gesprekslijst een kolom **Zelfreflectie** met **Klaar / Nog niet** per komend gesprek - alleen ter info, nooit een poort voor het voeren of ondertekenen.
 
-## Cyclusvoortgang + bevestigingsoverzicht (v3.79.0)
+## Cyclusvoortgang en bevestigingen
 
 Op de POP-detailpagina staat de cyclusvoortgang nu als **(X van N ondertekend)** naast de cyclusgrootte, zodat je in één oogopslag ziet hoe ver de cyclus is. Elke gespreksregel laat zien:
 

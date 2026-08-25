@@ -79,7 +79,7 @@ Het tabblad **Speelwijze** toont geanimeerde tactische scènes per fase voor de 
 
 Beweging wordt getekend met gekleurde pijlen: een loopactie, een pass, druk zetten of een dribbel. De speler- en balposities gebruiken dezelfde veldindeling als de formatiediagrammen, zodat beide consistent leesbaar zijn.
 
-Scènes zijn vandaag geleverde inhoud voor de set JO13-1 Hedel en zijn in de app alleen-lezen. Ze kunnen via de REST-API worden aangemaakt en bewerkt (zie de auteursgids); een sleep-en-teken-editor voor scènes is een geplande vervolgstap.
+Scènes zijn vandaag geleverde inhoud voor de set JO13-1 Hedel en zijn in de app alleen-lezen. Ze kunnen via de REST-API worden aangemaakt en bewerkt (zie de auteursgids); er is geen sleep-en-teken-editor voor scènes.
 
 ## Printbare referentiekaart
 

@@ -12,7 +12,7 @@ Wanneer je inlogt als coach kom je op een tegelraster. Elke tegel opent één on
 
 ## Indeling op desktop
 
-*(v4.37.0)* Op een breed scherm (1024px en breder) splitst de sectie **Werk van vandaag** zich in twee kolommen. De werkgroepen lopen links in een vaste volgorde van boven naar beneden — **Prestaties → Personen → Planning & tactiek → Ontwikkeling → Naslag**, gevolgd door eventuele overige groepen (zoals Taken of Analytics). Je persoonlijke snelkoppelingen staan rechts in een vastgezet **Mijn werk**-paneel: compacte rijen met een icoon en een titel, één per persoonlijke tegel, die in beeld blijven terwijl je de linkerkolom scrolt. Op smallere schermen valt alles terug naar één kolom en zakt het **Mijn werk**-paneel naar onderen. De ingeklapte sectie **Setup & beheer** blijft eronder over de volle breedte staan.
+Op een breed scherm (1024px en breder) splitst de sectie **Werk van vandaag** zich in twee kolommen. De werkgroepen lopen links in een vaste volgorde van boven naar beneden — **Prestaties → Personen → Planning & tactiek → Ontwikkeling → Naslag**, gevolgd door eventuele overige groepen (zoals Taken of Analytics). Je persoonlijke snelkoppelingen staan rechts in een vastgezet **Mijn werk**-paneel: compacte rijen met een icoon en een titel, één per persoonlijke tegel, die in beeld blijven terwijl je de linkerkolom scrolt. Op smallere schermen valt alles terug naar één kolom en zakt het **Mijn werk**-paneel naar onderen. De ingeklapte sectie **Setup & beheer** blijft eronder over de volle breedte staan.
 
 ## Tegels die je het meeste gebruikt
 
@@ -33,7 +33,7 @@ Voeg ontwikkelingsdoelen toe voor een speler en volg de voortgang.
 
 ## Planning & tactiek
 
-*(v4.26.14)* De vooruitkijkende planning- en tactiekhulpmiddelen staan in hun eigen groep **Planning & tactiek**, direct na Prestatie — gescheiden van het dagelijkse werk Evaluaties / Activiteiten / Doelen:
+De vooruitkijkende planning- en tactiekhulpmiddelen staan in hun eigen groep **Planning & tactiek**, direct na Prestatie — gescheiden van het dagelijkse werk Evaluaties / Activiteiten / Doelen:
 
 - **Teamplanner** — plan de trainingsweek, principe voor principe.
 - **VCT-sessieontwerper** — bouw een training uit de oefeningenbibliotheek.
@@ -43,7 +43,7 @@ Voeg ontwikkelingsdoelen toe voor een speler en volg de voortgang.
 ## Analytics
 
 ### Podium
-De top-3 van elk team dat je coacht, op één scherm. *(v4.26.14 — hierheen verplaatst vanuit Prestatie naar de groep Analytics, naast Rapporten en Spelersvergelijking.)*
+De top-3 van elk team dat je coacht, op één scherm.
 
 ## Naslag
 

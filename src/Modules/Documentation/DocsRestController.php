@@ -104,11 +104,21 @@ class DocsRestController {
             if ( $source !== '' ) $body = Markdown::render( $source, $slug );
         }
 
+        // #2550 — the in-app help reader consumes this, so the notice has to
+        // travel with the body rather than being added by one surface. The
+        // boolean rides alongside it for a client that would rather render
+        // its own affordance than our paragraph.
+        $untranslated = HelpTopics::isUntranslatedFallback( $slug );
+        if ( $untranslated && $body !== '' ) {
+            $body = HelpTopics::untranslatedNoticeHtml( $slug ) . $body;
+        }
+
         return new \WP_REST_Response( [
-            'slug'  => $slug,
-            'title' => (string) $topics[ $slug ]['title'],
-            'group' => (string) $topics[ $slug ]['group'],
-            'html'  => $body,
+            'slug'         => $slug,
+            'title'        => (string) $topics[ $slug ]['title'],
+            'group'        => (string) $topics[ $slug ]['group'],
+            'html'         => $body,
+            'untranslated' => $untranslated,
         ] );
     }
 }
