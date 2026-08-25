@@ -1,3 +1,50 @@
+# TalentTrack v4.103.0 — Every screen now says whether it is meant for a phone (#2807)
+
+Until now the app had only ever been told about twenty-five of its screens:
+a handful were marked "needs a desktop", three were marked "built for a
+phone", and the remaining hundred and twenty-five were treated as phone-
+friendly by default — not because anyone had decided they were, but because
+nobody had said otherwise.
+
+All 151 screens now carry an explicit answer, each with a sentence saying
+why. Fifty-six screens that a phone could open and shouldn't have — bulk
+grids, permission matrices, imports, integration setup — now say so and
+offer to email the link instead. Twenty-eight are recognised as phone-first
+and get the mobile layout properly. Analytics, Reports and Usage statistics
+open on a phone for the first time.
+
+Academies that would rather their people squint at a desktop layout can
+still switch the whole thing off in Configuration, and tablets are never
+affected.
+
+# TalentTrack v4.103.0 — Goals can carry an assist, and no longer have to name a scorer (#2856)
+
+A logged goal now records who assisted it as well as who scored it, and
+either can be left unrecorded. Until now a goal for our team was refused
+outright unless it named a scorer, which left a coach who did not see the
+final touch — or an own goal, which has no scorer on the side it counts
+for — with nowhere to put it.
+
+The REST surface follows: `POST` and `PATCH /match-execution/{activity}/goal-event`
+accept `assist_player_id` and `is_own_goal`, and the PATCH corrects the
+attribution as well as the minute. The two halves of that payload are
+independent, so correcting a minute cannot silently drop a scorer, and
+attributing a goal cannot reset its minute. A scorer or assist naming
+somebody outside the match squad is refused, as is a player assisting
+their own goal.
+
+Erasing a player now clears them from the goals they were involved in
+rather than deleting those goals. The behaviour was always documented as
+such, but the goal's scorer column is `NOT NULL` and so fell through to a
+cascade delete — which, with the score about to derive from these events,
+would have quietly rewritten the result of a match already played.
+
+Existing goals read back exactly as before: attributed, with no assist.
+
+# TalentTrack v4.103.0 — The **Features** page (`?tt_view=features`) is now a capability catalog rather than a flat list. It opens with a summary of how much of TalentTrack the academy is running, then splits into **In use** and **Available to switch on**, each grouped by category, with every card carrying the module's icon, its written name and a line on what it's for. Always-on core modules and developer tooling no longer clutter the page, and anything marked *under development* that isn't switched on is left out — a feature that's flagged but already live still shows under **In use** with its amber pill. The page stays read-only: no card toggles anything or links into the management page. The catalog is also available over REST at `GET /talenttrack/v1/feature-catalog`; the existing `/feature-status` endpoint is unchanged.
+
+The **Features** page (`?tt_view=features`) is now a capability catalog rather than a flat list. It opens with a summary of how much of TalentTrack the academy is running, then splits into **In use** and **Available to switch on**, each grouped by category, with every card carrying the module's icon, its written name and a line on what it's for. Always-on core modules and developer tooling no longer clutter the page, and anything marked *under development* that isn't switched on is left out — a feature that's flagged but already live still shows under **In use** with its amber pill. The page stays read-only: no card toggles anything or links into the management page. The catalog is also available over REST at `GET /talenttrack/v1/feature-catalog`; the existing `/feature-status` endpoint is unchanged.
+
 # TalentTrack v4.102.1 — Help topics corrected where they described things the product does not do (#2549)
 
 Three topics were telling admins to do impossible things.
