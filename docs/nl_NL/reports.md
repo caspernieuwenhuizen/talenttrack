@@ -144,18 +144,33 @@ het rapport noemt altijd de datums die de getallen daadwerkelijk beslaan.
 De tegel *Wedstrijden vastgelegd* telt de wedstrijden die **vastgelegde minuten
 hebben opgeleverd** — precies de wedstrijden waaruit de spelerbalken eronder
 zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Daaronder staat de
-eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**, oftewel
-wedstrijden met een datum van vandaag of eerder die niet zijn verwijderd of
-afgelast. Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
+eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**.
+Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
 wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
 vastlegging gaat en niet om een leeg seizoen.
 
-Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of in de toekomst
-gepland** zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen
+**Een wedstrijd is gespeeld zodra hij voltooid is**, niet zodra de datum is
+aangebroken. Een wedstrijd die vanavond begint, is nog gepland en telt dus voor
+geen van beide getallen mee tot de activiteit voltooid is — anders waarschuwt
+het rapport dat de wedstrijd van vanavond geen minuten heeft. Twee dingen
+tellen ook als gespeeld: activiteiten van vóór het statusveld, die terugvallen
+op de kalender zodra hun datum voorbij is, en elke wedstrijd waarvoor al
+minuten zijn vastgelegd. Dat laatste is van belang voor academies met de
+begeleide flow uit, waar het minutenraster minuten opslaat zonder de activiteit
+te voltooien: die minuten zijn het bewijs dat de wedstrijd gespeeld is.
+
+Wedstrijden die **gearchiveerd, in de prullenbak, afgelast of nog niet gespeeld**
+zijn, tellen voor geen van beide getallen mee. Een vooraf ingelezen
 wedstrijdprogramma leest daarom als *"0 van 0 gespeelde wedstrijden vastgelegd"*
 tot de eerste wedstrijd is gespeeld, en als *"0 van 19"* zodra er negentien
 gespeeld zijn maar nog niets is vastgelegd — in plaats van de misleidende "19
 wedstrijden" naast een lege selectie die eerdere versies toonden.
+
+**Vertrokken spelers tellen evenmin mee.** Minuten die zijn vastgelegd op een
+speler die inmiddels gearchiveerd is, tellen niet mee in de tegel *Wedstrijden
+vastgelegd* — net zoals die speler niet meer in de selectie eronder staat. De
+tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
+verklaren is erger dan een kleiner getal.
 
 Gebruik het rapport **Minutencontrole** (hieronder) om te zien welke spelers bij
 welke wedstrijd minuten missen.

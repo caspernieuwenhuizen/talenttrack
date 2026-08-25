@@ -293,17 +293,35 @@ final class MinutesQuery {
      * `cancelled` never reaches here — callers already exclude it — but the
      * predicate is written so it would fail anyway.
      *
-     * @param string $alias table alias for `tt_activities`, or '' when the
-     *                      query selects from it unaliased.
+     * #2833 — recorded minutes are the third way in, and they have to be.
+     * #2407 keeps completion an explicit act, so a grid bulk-save writes
+     * minutes without flipping the status: on a wizard-off academy a whole
+     * season of matches can carry minutes and still say `planned`. Minutes
+     * are evidence the match happened, so a match that has them is played
+     * whatever its status field says. Without this clause those matches would
+     * have disappeared from the reports the moment status became the gate,
+     * and `recorded` could exceed `played` on the same screen.
+     *
+     * @param string $alias table alias for `tt_activities`. Must be a real
+     *                      alias: the EXISTS clause below joins against it,
+     *                      and an unqualified `id` would bind to the
+     *                      attendance row inside the subquery instead.
      */
-    public static function playedMatchSql( string $alias = '' ): string {
-        $q = $alias !== '' ? $alias . '.' : '';
+    public static function playedMatchSql( string $alias = 'a' ): string {
+        global $wpdb;
+
+        $q = ( $alias !== '' ? $alias : 'a' ) . '.';
         // #0035 lint-safe: the legacy date column name is assembled, not typed.
         $date_col = $q . 'sess' . 'ion_date';
         $status   = $q . 'activity_status_key';
 
         return "( {$status} = 'completed'"
-            . " OR ( ( {$status} IS NULL OR {$status} = '' ) AND {$date_col} < CURDATE() ) )";
+            . " OR ( ( {$status} IS NULL OR {$status} = '' ) AND {$date_col} < CURDATE() )"
+            . " OR EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_attendance played_att"
+            . "              WHERE played_att.activity_id = {$q}id"
+            . "                AND played_att.record_type = 'actual'"
+            . "                AND played_att.is_guest = 0"
+            . "                AND COALESCE( played_att.minutes_override, played_att.minutes_played, 0 ) > 0 ) )";
     }
 
     /**
@@ -338,10 +356,24 @@ final class MinutesQuery {
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
+        // #2833 — the JOIN onto `tt_players` is what stops this number and the
+        // squad beside it telling different stories. #2339 was supposed to
+        // have converged them, and every predicate below does match the squad
+        // query — except that one, which the squad query carries and this
+        // count did not. Minutes recorded against a player who has since been
+        // archived (or whose row is gone) were therefore counted here and
+        // dropped there, which is how the report could read "1 wedstrijd
+        // vastgelegd" beside "0 spelers in selectie" and an empty-state saying
+        // no minutes had been recorded at all.
+        //
+        // Archived players count in NEITHER number: the report is about the
+        // squad as it stands, and a number the rows beneath it cannot explain
+        // is worse than a smaller one.
         $recorded = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT( DISTINCT att.activity_id )
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
+               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.archived_at IS NULL
               WHERE a.club_id = %d
                 AND a.team_id = %d
                 AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
@@ -356,18 +388,25 @@ final class MinutesQuery {
             $club_id, $team_id, $from, $to
         ) );
 
+        // #2833 — `session_date <= CURDATE()` counted a fixture kicking off at
+        // 19:00 tonight as played, which is where "1 van 2 gespeelde
+        // wedstrijden vastgelegd" came from beside a single played match, and
+        // with it an amber "1 played match has no minutes" warning about a
+        // match nobody had kicked off yet. The shared predicate reads status
+        // instead, and keeps the date only as the legacy fallback (#2832).
+        $played_sql = self::playedMatchSql( 'a' );
         $played = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*)
-               FROM {$p}tt_activities
-              WHERE club_id = %d
-                AND team_id = %d
-                AND LOWER(activity_type_key) IN ( 'match', 'game', 'tournament' )
-                AND {$date_col} BETWEEN %s AND %s
-                AND {$date_col} <= CURDATE()
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND plan_state <> 'cancelled'
-                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )",
+               FROM {$p}tt_activities a
+              WHERE a.club_id = %d
+                AND a.team_id = %d
+                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND a.{$date_col} BETWEEN %s AND %s
+                AND {$played_sql}
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )",
             $club_id, $team_id, $from, $to
         ) );
 

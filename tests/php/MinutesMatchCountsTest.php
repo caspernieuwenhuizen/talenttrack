@@ -181,6 +181,89 @@ final class MinutesMatchCountsTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #2833 — the reported shape: a fixture dated TODAY, kick-off still to
+     * come, status `planned`. The old bound was `session_date <= CURDATE()`,
+     * so it counted, and the report read "1 van 2 gespeelde wedstrijden
+     * vastgelegd" beside a single played match — with an amber warning about
+     * a match nobody had kicked off.
+     */
+    public function test_todays_planned_fixture_is_not_played_yet(): void {
+        $team_id = $this->insertTeam( 'U14 tonight' );
+        $today   = gmdate( 'Y-m-d' );
+
+        $played = $this->insertMatch( $team_id, gmdate( 'Y-m-d', strtotime( '-3 days' ) ) );
+        $this->setActivity( $played, [ 'activity_status_key' => 'completed' ] );
+
+        $tonight = $this->insertMatch( $team_id, $today );
+        $this->setActivity( $tonight, [ 'activity_status_key' => 'planned' ] );
+
+        $counts = ( new MinutesQuery() )->matchCountsForTeam(
+            $team_id,
+            gmdate( 'Y-m-d', strtotime( '-1 month' ) ),
+            gmdate( 'Y-m-d', strtotime( '+1 month' ) )
+        );
+
+        $this->assertSame( 1, $counts['played'], "tonight's fixture is not played until it is completed" );
+    }
+
+    /**
+     * #2833 — the other half of the contradiction. Minutes recorded against
+     * a player who has since been archived were counted by `recorded` and
+     * dropped by the squad query beside it, which is how the report showed
+     * "1 match recorded" above "0 players in selection" and an empty state
+     * saying no minutes had been recorded at all.
+     *
+     * Archived players count in NEITHER number: the report is about the squad
+     * as it stands, and a count the rows beneath it cannot explain is worse
+     * than a smaller one.
+     */
+    public function test_minutes_from_an_archived_player_are_not_recorded(): void {
+        $team_id  = $this->insertTeam( 'U14 archived' );
+        $gone     = $this->insertPlayer( $team_id, 'Left', 'Academy' );
+        $match    = $this->insertMatch( $team_id, '2026-05-20' );
+        $this->insertAttendance( $match, $gone, 'actual', 0, 90 );
+        $this->archivePlayer( $gone );
+
+        $counts = ( new MinutesQuery() )->matchCountsForTeam( $team_id, self::FROM, self::TO );
+
+        $this->assertSame(
+            0,
+            $counts['recorded'],
+            'minutes belonging to an archived player cannot be counted by a report whose squad excludes them'
+        );
+        $this->assertSame( 1, $counts['played'], 'the match itself was still played' );
+    }
+
+    /**
+     * #2833 / #2407 — completion is an explicit act, so a grid bulk-save
+     * writes minutes without flipping the status. Those matches were played,
+     * whatever the status field says, and must stay in the denominator:
+     * otherwise `recorded` would exceed `played` on the same screen.
+     */
+    public function test_minutes_make_a_match_played_even_while_it_says_planned(): void {
+        $team_id   = $this->insertTeam( 'U14 wizard off' );
+        $player_id = $this->insertPlayer( $team_id, 'Grid', 'Entry' );
+
+        $match = $this->insertMatch( $team_id, gmdate( 'Y-m-d' ) );
+        $this->setActivity( $match, [ 'activity_status_key' => 'planned' ] );
+        $this->insertAttendance( $match, $player_id, 'actual', 0, 70 );
+
+        $counts = ( new MinutesQuery() )->matchCountsForTeam(
+            $team_id,
+            gmdate( 'Y-m-d', strtotime( '-1 month' ) ),
+            gmdate( 'Y-m-d', strtotime( '+1 month' ) )
+        );
+
+        $this->assertSame( 1, $counts['recorded'] );
+        $this->assertSame( 1, $counts['played'], 'recorded minutes are evidence the match happened' );
+        $this->assertGreaterThanOrEqual(
+            $counts['recorded'],
+            $counts['played'],
+            'the report reads "N of M recorded" — recorded can never exceed played'
+        );
+    }
+
     public function test_unknown_team_returns_zeroes(): void {
         $counts = ( new MinutesQuery() )->matchCountsForTeam( 0, self::FROM, self::TO );
         $this->assertSame( [ 'recorded' => 0, 'played' => 0 ], $counts );
@@ -230,6 +313,15 @@ final class MinutesMatchCountsTest extends WP_UnitTestCase {
             'minutes_played' => $minutes,
         ] );
         return (int) $wpdb->insert_id;
+    }
+
+    private function archivePlayer( int $player_id ): void {
+        global $wpdb;
+        $wpdb->update(
+            "{$this->p}tt_players",
+            [ 'archived_at' => '2026-06-30 00:00:00' ],
+            [ 'id' => $player_id ]
+        );
     }
 
     /** @param array<string,string> $data */
