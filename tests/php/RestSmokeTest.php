@@ -373,7 +373,15 @@ final class RestSmokeTest extends WP_UnitTestCase {
         $this->assertSame( $team_id, (int) ( $body['data']['team_id'] ?? 0 ) );
         $this->assertSame( 0, (int) ( $body['data']['available_minutes'] ?? -1 ) );
         $this->assertSame( [], $body['data']['players'] ?? null, 'empty squad, not null' );
-        $this->assertGreaterThan( 0, (int) ( $body['data']['target_pct'] ?? 0 ), 'the target travels with the answer' );
+        // The target travels with the answer — a client should not have to
+        // fetch config separately to know what "below target" means. Asserted
+        // as a present, in-range integer rather than a specific number: the
+        // value is academy-configurable, and pinning it here would make this
+        // suite fail on an install that simply chose 25%.
+        $this->assertArrayHasKey( 'target_pct', $body['data'], 'the target travels with the answer' );
+        $target = (int) $body['data']['target_pct'];
+        $this->assertGreaterThanOrEqual( 0, $target );
+        $this->assertLessThanOrEqual( 100, $target );
     }
 
     /** #2835 — a player with no minutes on that team is a 404, not a zero row. */

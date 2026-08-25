@@ -29,6 +29,20 @@ final class MinutesShareTest extends WP_UnitTestCase {
         $this->club = (int) CurrentClub::id();
     }
 
+    /**
+     * Put the target back.
+     *
+     * `ConfigService` caches each key on the instance, and the instance
+     * outlives a test: the DB rollback between tests undoes the row but not
+     * the cache, so a clamped `-5` written here leaked into every later test
+     * in the process — including the REST smoke suite, which read the target
+     * as 0. Writing the default back through the same setter repairs both.
+     */
+    public function tear_down(): void {
+        $this->setConfig( MinutesShareQuery::TARGET_CONFIG_KEY, (string) MinutesShareQuery::DEFAULT_TARGET_PCT );
+        parent::tear_down();
+    }
+
     /** The reviewer's example: 10 × 70 = 700 available, 350 played → 50%. */
     public function test_the_worked_example(): void {
         $team_id = $this->insertTeam( 'U14 example' );
