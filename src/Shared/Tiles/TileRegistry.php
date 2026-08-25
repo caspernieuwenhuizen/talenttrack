@@ -26,6 +26,46 @@ use TT\Modules\Authorization\PersonaResolver;
  * to module-owned `TileRegistry::register()` calls is a follow-up
  * within this epic — until then, both the static and dynamic registries
  * coexist and the renderer concatenates them.
+ *
+ * #2816 — the shape a caller may pass to {@see register()}.
+ *
+ * The `@param` on that method used to describe something older than the
+ * code: it required `slug` and `url`, which no caller passes, and omitted
+ * `view_slug`, `label`, `module_class`, `cap_callback`, `feature`,
+ * `desktop_preferred` and `hide_for_personas`, which nearly all of them do.
+ * Every one of the ~72 registrations therefore failed the level-8 check and
+ * lived in the baseline — where each entry embeds the literal array of its
+ * call site, so editing any field of any tile produced a new unbaselined
+ * error. #2788 hit exactly that renaming one `entity`.
+ *
+ * `register()`'s own `$defaults` is the accurate description of what is
+ * accepted, and this alias follows it. Only `kind` is genuinely required: an
+ * identifier arrives as either `slug` or `view_slug`, and a label as either
+ * `label` or `labels`. A shape cannot express "one of these two", so both
+ * pairs are optional here and the guard clause in `register()` enforces them.
+ *
+ * @phpstan-type TileShape array{
+ *   slug?: string,
+ *   view_slug?: string,
+ *   entity?: string,
+ *   kind: string,
+ *   label?: string,
+ *   labels?: array<string, string>,
+ *   icon?: string,
+ *   color?: string,
+ *   description?: string,
+ *   group?: string,
+ *   order?: int,
+ *   cap?: string,
+ *   cap_callback?: callable|null,
+ *   label_callback?: callable|null,
+ *   color_callback?: callable|null,
+ *   url_callback?: callable|null,
+ *   module_class?: string|null,
+ *   feature?: string,
+ *   desktop_preferred?: bool,
+ *   hide_for_personas?: list<string>
+ * }
  */
 final class TileRegistry {
 
@@ -60,29 +100,24 @@ final class TileRegistry {
     }
 
     /**
-     * @var list<array{
-     *   slug: string, entity: string, kind: string,
-     *   labels: array<string, string>, icon?: string, color?: string,
-     *   url: string|callable, description: string,
-     *   group: string, order: int, cap?: string
-     * }>
+     * Registered tiles, after `register()` has merged its defaults and
+     * normalised `label` into `labels`.
+     *
+     * Deliberately NOT `TileShape`: that describes what a caller may hand
+     * in, and what is stored is the post-merge result — every default key
+     * present, `labels` guaranteed, plus the `*_callback` fields the
+     * renderer resolves lazily. Matches `allRegistered()`, which hands this
+     * array straight out.
+     *
+     * @var list<array<string, mixed>>
      */
     private static array $tiles = [];
 
     /**
-     * @param array{
-     *   slug: string,
-     *   entity?: string,
-     *   kind: string,
-     *   labels: array<string, string>,
-     *   icon?: string,
-     *   color?: string,
-     *   url: string|callable,
-     *   description?: string,
-     *   group: string,
-     *   order?: int,
-     *   cap?: string
-     * } $tile
+     * Declare a tile. See the class docblock for what `TileShape` accepts
+     * and why only `kind` is required.
+     *
+     * @param TileShape $tile
      */
     public static function register( array $tile ): void {
         $defaults = [
@@ -118,7 +153,11 @@ final class TileRegistry {
         if ( ! isset( $tile['labels'] ) || ! is_array( $tile['labels'] ) ) {
             $tile['labels'] = [];
         }
-        if ( isset( $tile['label'] ) && is_string( $tile['label'] ) && $tile['label'] !== '' ) {
+        // The cast rather than an is_string() guard: TileShape declares
+        // `label` a string, so the guard was dead code the type checker
+        // could see through — and a caller who ignores the shape still gets
+        // something sane rather than a fatal.
+        if ( isset( $tile['label'] ) && (string) $tile['label'] !== '' ) {
             if ( ! isset( $tile['labels']['*'] ) ) {
                 $tile['labels']['*'] = $tile['label'];
             }
@@ -193,7 +232,12 @@ final class TileRegistry {
             if ( $label === self::HIDDEN ) continue;
             $rendered = $tile;
             $rendered['label'] = $label;
-            $out[ $tile['kind'] ][] = $rendered;
+            // `register()` already normalises anything unrecognised to
+            // 'work'; narrowing again here is what keeps the return type
+            // honest — the stored tile is array<string,mixed>, so nothing
+            // else guarantees the bucket key is one of the two.
+            $kind = ( $tile['kind'] ?? 'work' ) === 'setup' ? 'setup' : 'work';
+            $out[ $kind ][] = $rendered;
         }
         // Sort each bucket: by group then order then label.
         foreach ( [ 'work', 'setup' ] as $k ) {
