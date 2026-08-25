@@ -211,6 +211,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             (bool) $prep_row
                         ),
                         'href'  => $prep_url,
+                        // #2830 — one of the four on a planned match: it is
+                        // what a coach came here to do. Once the match is
+                        // over the same button reads "view match prep", which
+                        // is reference material, so it folds away.
+                        'overflow' => ! $is_planned,
                     ];
                     // v3.110.216 (#847) — assistant coach live-match
                     // surface. Same gate as match prep (type=match/game
@@ -249,8 +254,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                         );
                         $detail_actions[] = [
-                            'label' => $exec_label,
-                            'href'  => $exec_url,
+                            'label'    => $exec_label,
+                            'href'     => $exec_url,
+                            // #2830 — folded. Starting a match is a real
+                            // action, but it is offered on one day of the
+                            // week and the header is read on all seven.
+                            'overflow' => true,
                         ];
                     }
 
@@ -261,7 +270,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // analysis row per activity cannot say which), so the
                     // action does not render there rather than rendering
                     // and dead-ending — the failure #2686 describes.
-                    if ( \TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer::isReviewable( $session )
+                    // #2830 — and only once the activity itself is completed.
+                    // `isReviewable()` reads *played* as "dated today or
+                    // earlier", which is right for a match that finished this
+                    // morning but also true of one kicking off tonight: the
+                    // header offered "write the match analysis" beside
+                    // "complete activity" on a match nobody had played. The
+                    // status is the answer the rest of this header already
+                    // uses, and the date rule stays underneath it for
+                    // everything else that asks.
+                    if ( $is_completed
+                        && \TT\Modules\MatchAnalysis\Services\MatchAnalysisComposer::isReviewable( $session )
                         && \TT\Shared\Frontend\Components\CrossViewLink::allows( 'match-analysis' ) ) {
                         $has_analysis = ( new \TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository() )
                             ->findByActivity( (int) $session->id );
@@ -289,6 +308,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                     $flat_url,
                                     [ 'activity_id' => (int) $session->id ]
                                 ),
+                            // #2830 — the primary thing to do with a completed
+                            // match. It leads the row.
+                            'primary' => true,
                         ];
                     }
                 }
@@ -327,6 +349,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     $detail_actions[] = [
                         'label' => $run_label,
                         'href'  => $run_url,
+                        // #2830 — same rule as match prep: running the
+                        // training is the point while it is planned; once it
+                        // is over the button reads "view this training" and
+                        // is reference material.
+                        'overflow' => ! $is_planned,
                     ];
                     } // end $run_label !== null
                 }
@@ -420,8 +447,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     ];
                 } else {
                     // Completed or cancelled → Reopen (→ planned).
+                    // #2830 — folded. Undoing a status is a correction, and a
+                    // correction offered as prominently as the thing it
+                    // undoes invites the mistake.
                     $detail_actions[] = [
                         'label'      => __( 'Reopen', 'talenttrack' ),
+                        'overflow'   => true,
                         'data_attrs' => [
                             'tt-archive-rest-path'     => $status_rest,
                             'tt-archive-method'        => 'POST',
@@ -465,6 +496,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         $detail_actions[] = [
                             'label' => $rate_label,
                             'href'  => $rate_url,
+                            // #2830 — folded. On a completed match the row
+                            // carries the analysis and Archive; rating is the
+                            // other half of the write-up and belongs beside
+                            // the grids that do the same job in bulk.
+                            'overflow' => true,
                         ];
                     }
                 }
@@ -480,18 +516,29 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // #2401 — URL building + the gate moved into ActivityGridLink
                 // so this page, the list card and the completion resolver
                 // can't drift apart on either (CLAUDE.md §4).
+                // #2830 — the three grids are a group of related shortcuts
+                // into a bulk surface, not three decisions. They fold into
+                // the overflow menu and render as icons, so they read as one
+                // cluster rather than three text buttons competing with
+                // Complete and Cancel.
                 $grid_uid = get_current_user_id();
                 if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseAttendance( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
-                        'label' => __( 'Attendance grid', 'talenttrack' ),
-                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( (int) $session->id ),
+                        'label'     => __( 'Attendance grid', 'talenttrack' ),
+                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( (int) $session->id ),
+                        'icon'      => \TT\Shared\Icons\IconRenderer::render( 'check', [ 'width' => 20, 'height' => 20 ] ),
+                        'icon_only' => true,
+                        'overflow'  => true,
                     ];
                 }
                 if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true )
                     && \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
-                        'label' => __( 'Minutes grid', 'talenttrack' ),
-                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
+                        'label'     => __( 'Minutes grid', 'talenttrack' ),
+                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
+                        'icon'      => \TT\Shared\Icons\IconRenderer::render( 'clock', [ 'width' => 20, 'height' => 20 ] ),
+                        'icon_only' => true,
+                        'overflow'  => true,
                     ];
                 }
                 // #2414 — the ratings grid for THIS activity (players ×
@@ -501,8 +548,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // had to correct for the attendance path).
                 if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseRatings( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
-                        'label' => __( 'Ratings grid', 'talenttrack' ),
-                        'href'  => \TT\Modules\Activities\Services\ActivityGridLink::ratingsUrl( (int) $session->id ),
+                        'label'     => __( 'Ratings grid', 'talenttrack' ),
+                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::ratingsUrl( (int) $session->id ),
+                        'icon'      => \TT\Shared\Icons\IconRenderer::render( 'rate-card', [ 'width' => 20, 'height' => 20 ] ),
+                        'icon_only' => true,
+                        'overflow'  => true,
                     ];
                 }
                 } // end ! $is_archived && $can_edit_acts (active-only edit actions)
@@ -535,6 +585,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     $detail_actions[] = [
                         'label'   => __( 'Archive', 'talenttrack' ),
                         'variant' => 'danger',
+                        // #2830 — on a planned activity, archiving is not one
+                        // of the four things a coach came here to do, and a
+                        // destructive-looking button beside Complete and
+                        // Cancel is three ways to end an activity in a row.
+                        // On a completed or cancelled one it IS the remaining
+                        // action, so it leads.
+                        'overflow' => $is_planned,
                         'data_attrs' => [
                             'tt-archive-rest-path' => 'activities/' . (int) $session->id,
                             'tt-archive-confirm'   => __( 'Archive this activity? It will be hidden but the data is preserved.', 'talenttrack' ),
@@ -795,6 +852,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $action = [
             'label'      => __( 'Sync team from Spond', 'talenttrack' ),
             'variant'    => 'secondary',
+            // #2830 — a refresh icon in the overflow menu. Re-pulling a
+            // calendar is maintenance: needed occasionally, never the reason
+            // a coach opened the page.
+            'icon'       => \TT\Shared\Icons\IconRenderer::render( 'refresh', [ 'width' => 20, 'height' => 20 ] ),
+            'icon_only'  => true,
+            'overflow'   => true,
             'data_attrs' => [
                 'tt-archive-rest-path'     => 'teams/' . $team_id . '/spond/sync',
                 'tt-archive-method'        => 'POST',

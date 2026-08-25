@@ -108,6 +108,24 @@ Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit
 
 Een **gearchiveerde** activiteit is nog strenger: alles wat wijzigt is verborgen en alleen **Herstellen** blijft over.
 
+### Vier knoppen, en een ⋯ voor de rest
+
+De koptekst zette vroeger elke beschikbare actie op één rij — elf stuks bij een geplande wedstrijd, allemaal even groot, zodat de twee die ertoe deden niet te onderscheiden waren van de zes die ze ondersteunen. Nu staat er waarvoor je gekomen bent, en de rest zit achter een **⋯**-knop op dezelfde rij:
+
+| Status | Op de rij | Achter ⋯ |
+| --- | --- | --- |
+| Gepland | Bewerken · Wedstrijdvoorbereiding (of Training uitvoeren) · Activiteit voltooien · Activiteit annuleren | Wedstrijd starten, de drie rasters, Synchroniseren vanuit Spond, Archiveren |
+| Voltooid | Wedstrijdanalyse · Archiveren | Heropenen, Wedstrijdvoorbereiding bekijken, beoordelen, de drie rasters, Synchroniseren vanuit Spond |
+| Geannuleerd | Archiveren | Heropenen |
+
+Er wordt niets nieuws bereikbaar door het weg te vouwen: elke actie houdt de rechten-, feature- en archiefregels die ze al had, en wat je eerder niet zag, zie je nog steeds niet. Zijn alle weggevouwen acties voor jou verborgen, dan verschijnt de ⋯-knop helemaal niet.
+
+Het menu opent met een klik, met Enter en met de spatiebalk, sluit met Escape of een klik ernaast, en zet je bij het sluiten terug op de ⋯-knop. Op een telefoon beslaat het de breedte van de koptekst in plaats van rechts uit te steken.
+
+**De drie rasters en Synchroniseren vanuit Spond zijn iconen.** *Aanwezigheidsraster*, *Minutenraster* en *Beoordelingsraster* zijn snelkoppelingen naar hetzelfde bulkscherm en geen drie aparte beslissingen, en een Spond-agenda opnieuw ophalen is onderhoud. In de koptekst zouden het vier tekstknoppen zijn die concurreren met Voltooien en Annuleren; in het menu krijgen ze hun woorden terug. Alle vier noemen zichzelf nog steeds voor een schermlezer en bij hoveren.
+
+**De wedstrijdanalyse wacht op voltooien.** Die verscheen voorheen zodra de datum was aangebroken, waardoor een wedstrijd die om zeven uur 's avonds begon *wedstrijdanalyse schrijven* aanbood naast *activiteit voltooien*. Voltooi de activiteit en de knop verschijnt.
+
 **Staan de begeleide wizards uit**, dan heet de knop **Aanwezigheid registreren** en opent hij het [aanwezigheidsraster](attendance-grid.md) op de kolom van die activiteit — op dezelfde plek op de lijstkaart en het detailscherm, en ook de hero **Aanwezigheid registreren** op je dashboard gaat daarheen. Een wedstrijd die je wél live volgt, gaat nog steeds naar Hervatten / Afronden. Omdat één keer opslaan in het raster weken aan sessies kan omvatten, rondt aanwezigheid registreren daar bewust niets af: een geplande activiteit krijgt daarvoor de knop **Markeren als afgerond**, naast Annuleren. Vul eerst de aanwezigheid in en markeer de activiteit daarna als afgerond — met **Heropenen** draai je dat terug.
 
 ### Speelminuten (papieren wedstrijden)

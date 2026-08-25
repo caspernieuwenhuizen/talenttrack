@@ -108,6 +108,24 @@ The detail view also carries **Cancel activity** (on a planned activity) and **R
 
 An **archived** activity is stricter still: everything mutating is hidden and only **Restore** remains.
 
+### Four buttons, and a ⋯ for the rest
+
+The header used to lay every available action out in one row — eleven of them on a planned match, all the same size, so the two that matter were indistinguishable from the six that support them. It now shows what you came to do and folds the rest behind a **⋯** button on the same row:
+
+| Status | On the row | Behind ⋯ |
+| --- | --- | --- |
+| Planned | Edit · Match prep (or Run this training) · Complete activity · Cancel activity | Start match, the three grids, Sync from Spond, Archive |
+| Completed | Match analysis · Archive | Reopen, View match prep, rating, the three grids, Sync from Spond |
+| Cancelled | Archive | Reopen |
+
+Nothing new becomes reachable by being folded away: every action keeps the permission, feature-flag and archived-record rules it already had, and one you could not see before is still not there. If every folded action is hidden for you, the ⋯ button does not appear at all.
+
+The menu opens on click, on Enter and on Space, closes on Escape or a click outside, and returns you to the ⋯ button when it closes. On a phone it spans the width of the header rather than hanging off the right edge.
+
+**The three grids and Sync from Spond are icons.** *Attendance grid*, *Minutes grid* and *Ratings grid* are shortcuts into the same bulk surface rather than three separate decisions, and re-pulling a Spond calendar is maintenance. In the header they would be four text buttons competing with Complete and Cancel; inside the menu they get their words back. Every one of them still names itself to a screen reader and on hover.
+
+**Match analysis waits for completion.** It used to appear as soon as the date arrived, which meant a match kicking off at seven in the evening offered *write the match analysis* beside *complete activity*. Complete the activity and it appears.
+
 **With the guided wizards switched off** the button reads **Mark attendance** instead and opens the [attendance grid](attendance-grid.md) on that activity's own column — same place on the list card and the detail view, and the dashboard's **Mark attendance** hero goes there too. A match that *is* live-tracked still routes to Resume / Finalize. Because a single grid save can cover weeks of sessions, recording attendance there deliberately doesn't complete anything: a planned activity gains a **Mark completed** button for that, next to Cancel. Record attendance first, then mark it completed — **Reopen** undoes it.
 
 ### Match minutes (paper matches)

@@ -127,6 +127,18 @@ abstract class FrontendViewBase {
             TT_VERSION
         );
 
+        // #2830 — Escape + outside-click for the page-header overflow menu.
+        // The menu is a <details>, so it opens and closes without this; the
+        // script only adds what HTML has no answer for. Deferred, ~1KB, and
+        // a no-op on a page with no menu.
+        wp_enqueue_script(
+            'tt-frontend-page-actions',
+            TT_PLUGIN_URL . 'assets/js/frontend-page-actions.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
         self::$assets_enqueued = true;
     }
 
@@ -195,6 +207,37 @@ abstract class FrontendViewBase {
      */
     public static function pageActionsHtml( array $actions ): string {
         if ( empty( $actions ) ) return '';
+
+        // #2830 — actions marked `overflow` render inside a `⋯` menu after
+        // the primary row. The split happens here rather than at the call
+        // site so a caller declares intent ("this one is secondary enough to
+        // fold away") and every surface folds it the same way.
+        $primary_row = [];
+        $overflow    = [];
+        foreach ( $actions as $a ) {
+            if ( ! is_array( $a ) ) continue;
+            if ( ! empty( $a['overflow'] ) ) {
+                $overflow[] = $a;
+            } else {
+                $primary_row[] = $a;
+            }
+        }
+
+        $html = self::pageActionButtonsHtml( $primary_row );
+        if ( $overflow !== [] ) {
+            $html .= self::pageActionsOverflowHtml( $overflow );
+        }
+
+        return $html;
+    }
+
+    /**
+     * The buttons themselves, without the overflow split.
+     *
+     * @param array<int,array<string,mixed>> $actions
+     */
+    private static function pageActionButtonsHtml( array $actions ): string {
+        if ( empty( $actions ) ) return '';
         $html = '';
         foreach ( $actions as $a ) {
             if ( ! is_array( $a ) || empty( $a['label'] ) ) continue;
@@ -215,8 +258,16 @@ abstract class FrontendViewBase {
                 $icon = self::BIN_ICON_SVG;
             }
 
+            // #2830 — `icon_only` drops the visible label at every viewport,
+            // not just on a phone. The label still reaches a screen reader
+            // through the aria-label below and a mouse through `title`; the
+            // 48px floor comes from the CSS, since the text is no longer
+            // holding the button open.
+            $icon_only = ! empty( $a['icon_only'] ) && $icon !== '';
+
             $cls = 'tt-btn tt-btn-' . sanitize_html_class( $variant );
             $cls .= $is_primary ? ' tt-page-actions__primary' : ' tt-page-actions__secondary';
+            if ( $icon_only ) $cls .= ' tt-page-actions__icon-only';
             // v3.110.122 — `is-icon` flag on buttons that carry an icon
             // (any variant, not just primary). Drives the mobile
             // icon-only rendering — see persona-dashboard.css's
@@ -237,6 +288,9 @@ abstract class FrontendViewBase {
             // span hides at ≤767px; screen readers fall through to
             // aria-label).
             $attr_html .= ' aria-label="' . esc_attr( $label ) . '"';
+            // #2830 — an icon-only control has to name itself on hover too;
+            // a glyph a user cannot decode is worse than a long row.
+            if ( $icon_only ) $attr_html .= ' title="' . esc_attr( $label ) . '"';
 
             $inner = '';
             if ( $icon !== '' ) {
@@ -249,6 +303,12 @@ abstract class FrontendViewBase {
                        . ( $is_svg ? $icon : esc_html( $icon ) )
                        . '</span>';
             }
+            // #2830 — the label stays in the DOM even on an icon-only action.
+            // CSS hides it in the header row and shows it again inside the
+            // overflow menu, where there is room and a column of bare glyphs
+            // would be a puzzle. Hiding in CSS rather than omitting also
+            // means the text is still there for anything that ignores the
+            // stylesheet.
             $inner .= '<span class="tt-page-actions__label">' . esc_html( $label ) . '</span>';
 
             if ( $href !== '' ) {
@@ -265,6 +325,41 @@ abstract class FrontendViewBase {
             }
         }
         return $html;
+    }
+
+    /**
+     * #2830 — the `⋯` menu that holds the folded-away actions.
+     *
+     * `<details>` / `<summary>` rather than a scripted popover: it opens on
+     * click, on Enter and on Space with no JavaScript at all, keeps the
+     * trigger focused, and degrades to a plain expanded list if the
+     * behaviour script never loads. The only thing script adds is closing on
+     * Escape and on an outside click, which are conveniences rather than the
+     * mechanism.
+     *
+     * The contents are the same buttons the primary row renders, so an
+     * action's capability gate, confirm text and data attributes behave
+     * identically wherever it lands. Nothing becomes reachable by being
+     * folded away.
+     *
+     * @param array<int,array<string,mixed>> $actions
+     */
+    private static function pageActionsOverflowHtml( array $actions ): string {
+        $buttons = self::pageActionButtonsHtml( $actions );
+        // Every folded action was gated out — render nothing rather than an
+        // empty menu that opens onto white space.
+        if ( $buttons === '' ) return '';
+
+        $label = __( 'More actions', 'talenttrack' );
+        $icon  = \TT\Shared\Icons\IconRenderer::render( 'more-horizontal', [ 'width' => 20, 'height' => 20 ] );
+
+        return '<details class="tt-page-actions__more" data-tt-actions-more>'
+            . '<summary class="tt-btn tt-btn-secondary tt-page-actions__more-trigger"'
+            . ' aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '">'
+            . '<span class="tt-page-actions__icon" aria-hidden="true">' . $icon . '</span>'
+            . '</summary>'
+            . '<div class="tt-page-actions__more-menu">' . $buttons . '</div>'
+            . '</details>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — buttons escaped in pageActionButtonsHtml(), icon is a static asset.
     }
 
     /**
