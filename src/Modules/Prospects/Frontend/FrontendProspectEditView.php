@@ -63,7 +63,7 @@ class FrontendProspectEditView extends FrontendViewBase {
             return;
         }
 
-        $name = trim( (string) $prospect->first_name . ' ' . (string) $prospect->last_name );
+        $name = trim( (string) ( $prospect->first_name ?? '' ) . ' ' . (string) ( $prospect->last_name ?? '' ) );
         if ( $name === '' ) {
             $name = __( 'Prospect', 'talenttrack' );
         }
@@ -75,17 +75,24 @@ class FrontendProspectEditView extends FrontendViewBase {
     }
 
     private static function renderForm( object $prospect ): void {
-        $id = (int) $prospect->id;
+        $id = (int) ( $prospect->id ?? 0 );
 
         // The column is a datetime; the form works in whole days, which
         // is the granularity a consent conversation actually has.
         $consent_raw  = (string) ( $prospect->consent_given_at ?? '' );
         $consent_date = $consent_raw !== '' ? substr( $consent_raw, 0, 10 ) : '';
 
+        // Cancel target: where the user came from when tt_back carries it,
+        // the list otherwise (CLAUDE.md § 6). Not routed through
+        // CrossViewLink deliberately — that helper HIDES a link whose target
+        // the user cannot reach, and a Cancel button that can disappear
+        // strands someone on a half-filled form, which is the exact failure
+        // § 6 exists to prevent. The user reached this form from the list or
+        // the pipeline, so the target is one they just came from.
         $back       = BackLink::resolve();
         $cancel_url = $back !== null
             ? $back['url']
-            : remove_query_arg( [ 'action', 'id' ], add_query_arg( [ 'tt_view' => 'prospects-overview' ] ) );
+            : remove_query_arg( [ 'action', 'id' ], add_query_arg( [ 'tt_view' => 'prospects-overview' ] ) ); /* tt-xview-ok */
         ?>
         <form class="tt-ajax-form"
               data-rest-path="prospects/<?php echo esc_attr( (string) $id ); ?>"
