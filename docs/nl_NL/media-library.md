@@ -114,7 +114,7 @@ webadres dat ze uitserveert. Elke weergave van een foto of video loopt via Talen
 Twee beveiligingen, en het is goed om te weten welke het echte werk doet:
 
 - De map bevat een regel die directe toegang via het web blokkeert. **Op Apache-servers werkt dit. Op nginx-servers doet het niets** — nginx leest
-  die regels niet.
+ die regels niet.
 - De eigen rechtencontrole van TalentTrack draait bij elk verzoek om een bestand, op elke server.
 
 De tweede is de echte grens. De eerste is een nuttige extra waar de server hem respecteert.
@@ -175,7 +175,7 @@ verwijderd hebben, dan gebeurt dat via het tabblad Media van de speler.
 ## Wie de media van een speler mag zien
 
 - **Staf** — trainers, scouts en beheerders — ziet de media van de spelers waar zij verantwoordelijk voor zijn, volgens dezelfde rechten die voor
-  de rest van het spelersdossier gelden.
+ de rest van het spelersdossier gelden.
 - **De speler zelf** en de **ouder of verzorger** zien de media van die speler.
 - Verder niemand. Media gaat nooit van de ene academie naar de andere, en komt niet bij staf zonder toegang tot die speler.
 
@@ -216,9 +216,9 @@ het bestand zelf verwijderd.
 **Mediabewaring** toont wat er klaarstaat, oudste vertrek eerst, met twee keuzes per item:
 
 - **Verwijderen** — haalt het van het dossier van die speler af. Hangt er verder niets meer aan, dan wordt het bestand definitief gewist; de pagina
-  vertelt je wat er gebeurd is.
+ vertelt je wat er gebeurd is.
 - **Bewaren** — houdt het vast, en vraagt waarom. Een zorgmelding, een lopend geschil, een bezwaar. Bewaarde items staan apart met hun reden erbij,
-  want een bewaarbeleid met een onzichtbare lijst uitzonderingen is niet te controleren. Je kunt een bewaard item later terugzetten in de wachtrij.
+ want een bewaarbeleid met een onzichtbare lijst uitzonderingen is niet te controleren. Je kunt een bewaard item later terugzetten in de wachtrij.
 
 Sommige regels staan als **geschat**. Dat betekent dat er geen vertrekdatum van de speler bekend is — meestal omdat hij wegging voordat TalentTrack
 die vastlegde — en dat de datum van de laatste wijziging aan zijn dossier is gebruikt. Dat bepaalt alleen wanneer het item ter beoordeling
@@ -261,13 +261,13 @@ Geen van beide schakelaars verwijdert iets. Weer aanzetten brengt de bestaande m
 ## Voor ontwikkelaars
 
 - Tabellen: `tt_media` (het item) en `tt_media_links` (waar het aan hangt). Beide club-scoped; `tt_media` heeft een `uuid`, en dát is de identiteit
-  die de REST-laag naar buiten brengt — oplopende id's zijn van buitenaf niet adresseerbaar.
+ die de REST-laag naar buiten brengt — oplopende id's zijn van buitenaf niet adresseerbaar.
 - Opslag zit achter `MediaStorageInterface`. `LocalPrivateStorage` is de meegeleverde implementatie. `tt_media.storage_key` is **ondoorzichtig**:
-  geen pad en geen URL, en alleen de adapter die hem geschreven heeft mag hem interpreteren. Registreer een andere adapter via de filter
-  `tt_media_storage_adapters`; bestaande rijen blijven bediend door de adapter die in de rij genoemd staat.
+ geen pad en geen URL, en alleen de adapter die hem geschreven heeft mag hem interpreteren. Registreer een andere adapter via de filter
+ `tt_media_storage_adapters`; bestaande rijen blijven bediend door de adapter die in de rij genoemd staat.
 - De mediamap is standaard `uploads/tt-media/` en is aan te passen via de filter `tt_media_storage_root`. Wijs hem naar een apart volume wanneer
-  groeiende video anders de schijf bedreigt waarop WordPress zelf draait. Een gefilterd pad wordt letterlijk gebruikt en moet dus absoluut en
-  beschrijfbaar zijn.
+ groeiende video anders de schijf bedreigt waarop WordPress zelf draait. Een gefilterd pad wordt letterlijk gebruikt en moet dus absoluut en
+ beschrijfbaar zijn.
 - `MediaIngestService` bepaalt het bestandstype aan de hand van de bytes zelf, nooit aan de hand van de naam, en weigert SVG categorisch.
 - `MediaLinksRepository::unlink()` verwijdert de media én het bestand zodra de laatste koppeling weggaat. Een media-item zonder koppelingen is
-  onbereikbaar en wordt niet bewaard.
+ onbereikbaar en wordt niet bewaard.

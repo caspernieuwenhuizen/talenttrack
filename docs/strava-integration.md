@@ -50,11 +50,11 @@ The "Connect with Strava" panel lives on the player's profile (its own page at
 `?tt_view=strava`, and a **Strava** tab on the player detail view).
 
 1. Tick the **consent checkbox** — agreeing to share the player's activity data
-   (distance, duration, pace, elevation) with the academy. The Connect button
-   stays disabled until it is ticked.
+ (distance, duration, pace, elevation) with the academy. The Connect button
+ stays disabled until it is ticked.
 2. Click **Connect with Strava**. You're sent to Strava's own consent screen.
 3. Approve there, and Strava returns you to the player profile with a
-   confirmation. Activities begin appearing within minutes of being recorded.
+ confirmation. Activities begin appearing within minutes of being recorded.
 
 ### Consent — who agrees, and a recorded caveat
 
@@ -94,22 +94,22 @@ Both one-time steps live on the **Strava integration** console, reached from
 `?tt_view=strava-admin`):
 
 1. **Register the Strava app credentials.** Create an API application in your
-   Strava account and paste its **Client ID** and **Client secret** into the
-   *App credentials* section. The secret is encrypted at rest, write-only, and
-   never shown again — leave the field blank to keep the stored value. Set the
-   Strava app's *Authorization Callback Domain* to this site and its redirect
-   to the callback URL shown on the page.
+ Strava account and paste its **Client ID** and **Client secret** into the
+ *App credentials* section. The secret is encrypted at rest, write-only, and
+ never shown again — leave the field blank to keep the stored value. Set the
+ Strava app's *Authorization Callback Domain* to this site and its redirect
+ to the callback URL shown on the page.
 2. **Create the webhook subscription.** The *Webhook subscription* section's
-   **Create / re-verify** button registers the single academy-wide push
-   subscription with Strava, which validates it immediately with a challenge
-   handshake. **Delete subscription** removes it.
+ **Create / re-verify** button registers the single academy-wide push
+ subscription with Strava, which validates it immediately with a challenge
+ handshake. **Delete subscription** removes it.
 
-   Strava allows only **one subscription per application**. The button is
-   safe to press repeatedly: if a subscription already exists at Strava (from
-   an earlier setup, or one whose id this install lost), the console adopts
-   it instead of erroring. The status shown is reconciled against Strava's
-   real state each time the page loads, so a subscription deleted from
-   Strava's side clears here automatically.
+ Strava allows only **one subscription per application**. The button is
+ safe to press repeatedly: if a subscription already exists at Strava (from
+ an earlier setup, or one whose id this install lost), the console adopts
+ it instead of erroring. The status shown is reconciled against Strava's
+ real state each time the page loads, so a subscription deleted from
+ Strava's side clears here automatically.
 
 The same console's **Connected players** table shows every player who has
 started linking a Strava account — their status (connected, pending consent,
@@ -141,22 +141,22 @@ WordPress session.
 ## How it works (architecture)
 
 - **OAuth connect.** The connect button mints an authorize URL carrying a
-  signed, time-limited `state` that binds the connecting player (CSRF +
-  identity binding). The public callback verifies that `state`, exchanges the
-  code for tokens server-side, and stores them.
+ signed, time-limited `state` that binds the connecting player (CSRF +
+ identity binding). The public callback verifies that `state`, exchanges the
+ code for tokens server-side, and stores them.
 - **Per-player tokens, encrypted.** Each connection's access and refresh tokens
-  are stored encrypted at rest, one row per player. Access tokens expire after
-  six hours; the refresh token rotates on every refresh, and the rotated token
-  is persisted atomically with the new access token so a player is never locked
-  out by a torn write.
+ are stored encrypted at rest, one row per player. Access tokens expire after
+ six hours; the refresh token rotates on every refresh, and the rotated token
+ is persisted atomically with the new access token so a player is never locked
+ out by a torn write.
 - **Token refresh** runs on the workflow engine's heartbeat (the one scheduler
-  chokepoint), plus on demand right before a sync. A grant Strava rejects flips
-  the connection to "revoked" so the UI can prompt a reconnect.
+ chokepoint), plus on demand right before a sync. A grant Strava rejects flips
+ the connection to "revoked" so the UI can prompt a reconnect.
 - **Webhook sync, not polling.** Strava allows exactly one push subscription per
-  application, covering all authorized athletes. Activity create / update /
-  delete and athlete deauthorization arrive as pushes; TalentTrack fetches the
-  full activity with the player's token and upserts it. Polling every player
-  would exceed Strava's rate limits — webhooks are the intended mechanism.
+ application, covering all authorized athletes. Activity create / update /
+ delete and athlete deauthorization arrive as pushes; TalentTrack fetches the
+ full activity with the player's token and upserts it. Polling every player
+ would exceed Strava's rate limits — webhooks are the intended mechanism.
 
 ---
 

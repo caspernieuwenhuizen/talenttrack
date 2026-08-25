@@ -10,7 +10,7 @@ order: 130
 
 When something fails inside TalentTrack — a save that doesn't stick, an import that stops halfway — the plugin logs the technical reason. Historically those entries only went to the server's PHP error log, which most operators can't reach without hosting-panel or SSH access.
 
-From v4.20.119 the plugin also keeps its own bounded error log inside the database, with a viewer in wp-admin.
+The plugin also keeps its own bounded error log inside the database, with a viewer in wp-admin.
 
 ## Where to find it
 

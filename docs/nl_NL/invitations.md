@@ -19,8 +19,8 @@ De plugin genereert een uitnodiging **automatisch** wanneer iemand bij een team 
 - **Spelersuitnodiging** — aangemaakt wanneer een speler aan de teamselectie wordt toegevoegd. De knop "Uitnodiging delen" op de selectierij deelt de link.
 - **Staf-uitnodiging** — aangemaakt wanneer staf aan een team wordt toegewezen via een functionele rol. De knop verschijnt op de toewijzingsrij.
 - **Ouder-uitnodiging** — er is geen selectiestap voor ouders, dus twee oppervlakken:
-  - Auto-prompt bij het toevoegen van een speler (onderdrukt tijdens CSV-bulkimports — na de import verschijnt één batchactie voor de net aangemaakte spelers).
-  - Handmatige knop **Ouder uitnodigen** op het bewerkformulier van de speler, altijd beschikbaar.
+ - Auto-prompt bij het toevoegen van een speler (onderdrukt tijdens CSV-bulkimports — na de import verschijnt één batchactie voor de net aangemaakte spelers).
+ - Handmatige knop **Ouder uitnodigen** op het bewerkformulier van de speler, altijd beschikbaar.
 
 ## Vanaf waar delen
 
@@ -32,7 +32,7 @@ De plugin genereert een uitnodiging **automatisch** wanneer iemand bij een team 
 
 De popover toont de accept-URL, een live preview van het berichtstekst en drie deelknoppen: **WhatsApp** (standaard — opent `wa.me/?text=...`), **E-mail** (opt-in — opent de mailclient van de ontvanger), **Link kopiëren**.
 
-## Automatische e-mail (#1902)
+## Automatische e-mail
 
 Wanneer een uitnodiging wordt aangemaakt **met een e-mailadres**, wordt de accept-link ook **automatisch naar de genodigde gemaild** — de beheerder hoeft niet langer elke link met de hand te versturen. De e-mail gaat via de Comms-module (en wordt dus gelogd zoals elk ander bericht) in de taal van de genodigde, met een "stel je wachtwoord in"-actie en de vervaldatum van de link. Hij is transactioneel: opt-out / stille uren / rate-limits worden overgeslagen, zodat een genodigde zijn uitnodiging nooit wordt onthouden. De WhatsApp- / link-kopiëren-knoppen blijven werken voor gevallen zonder e-mailadres of wanneer de beheerder liever handmatig deelt.
 
@@ -42,9 +42,9 @@ De ontvanger tikt op de link → komt op de accept-invite-route van het dashboar
 
 1. **Account** — recovery-e-mail + wachtwoord (verplicht).
 2. **Rolspecifieke toewijzing**:
-   - Speler → optioneel rugnummer; profiel is al voorgevuld.
-   - Ouder → relatielabel (ouder / moeder / vader / voogd), checkbox voor meldingen.
-   - Staf → bevestiging van rol + team (door de inviter ingesteld; niet bewerkbaar hier).
+ - Speler → optioneel rugnummer; profiel is al voorgevuld.
+ - Ouder → relatielabel (ouder / moeder / vader / voogd), checkbox voor meldingen.
+ - Staf → bevestiging van rol + team (door de inviter ingesteld; niet bewerkbaar hier).
 3. **Versturen** — de plugin maakt de WP-gebruiker aan, voert de koppelstap uit, logt ze in en stuurt ze door naar hun dashboard.
 
 Als de ontvanger **al ingelogd is en het e-mailadres overeenkomt** met de uitnodiging, draait het silent-link-pad: geen volledig formulier, één klik op "Accepteren en doorgaan". Bij een **ouder**-uitnodiging wordt nog steeds om de relatie gevraagd (ouder / moeder / vader / verzorger), zodat een verzorger nooit met een aangenomen rol wordt gekoppeld. Op het volledige acceptatieformulier is het herstel-e-mailadres vooraf ingevuld vanuit de uitnodiging, met een korte uitleg dat het alleen voor wachtwoordherstel wordt gebruikt (en aangepast kan worden).
@@ -65,8 +65,8 @@ Er komt een nieuwe WP-rol `tt_parent` met `read` + `tt_view_parent_dashboard`. O
 
 - **Uitnodigingen** — gepagineerde lijst van elke uitnodiging met filter op status, link-kopie, intrekken (alleen admin / Hoofd Opleidingen / Club Admin).
 - **Berichten** — zes berichtsjablonen (3 rollen × 2 locales — Engels + Nederlands). Elk bewerkbaar als platte tekst met placeholder-validatie. Placeholders:
-  - `{club}`, `{role}`, `{team}`, `{player}`, `{sender}`, `{url}`, `{ttl_days}`
-  - `{url}` is **verplicht** bij opslaan.
+ - `{club}`, `{role}`, `{team}`, `{player}`, `{sender}`, `{url}`, `{ttl_days}`
+ - `{url}` is **verplicht** bij opslaan.
 
 ## Locale-volgorde
 

@@ -31,22 +31,22 @@ zonder een dozijn profielen te openen.
 
 - **Speler** — linkt naar het profiel van de speler.
 - **Status** — de huidige status van de speler, getoond als een gekleurde stip
-  plus het label.
+ plus het label.
 - **Beoordeling** — het voortschrijdend gemiddelde van de algehele beoordeling
-  uit de evaluaties van de speler. Een streepje betekent dat er nog geen
-  beoordeelde evaluaties zijn.
+ uit de evaluaties van de speler. Een streepje betekent dat er nog geen
+ beoordeelde evaluaties zijn.
 - **Trend** — een pijl die de recente beoordelingen van de speler vergelijkt met
-  de eerdere: omhoog, omlaag of stabiel. Spelers met weinig beoordelingshistorie
-  tonen een stabiele pijl.
+ de eerdere: omhoog, omlaag of stabiel. Spelers met weinig beoordelingshistorie
+ tonen een stabiele pijl.
 - **Aanwezigheid** — het aanwezigheidspercentage van de speler over het huidige
-  seizoen. Onder 70% wordt gemarkeerd. Een **(laag)**-markering betekent dat het
-  cijfer op slechts enkele activiteiten is gebaseerd, dus wees voorzichtig.
+ seizoen. Onder 70% wordt gemarkeerd. Een **(laag)**-markering betekent dat het
+ cijfer op slechts enkele activiteiten is gebaseerd, dus wees voorzichtig.
 - **POP-gesprekken** — hoeveel ontwikkelgesprekken er daadwerkelijk met de
-  speler zijn gevoerd.
+ speler zijn gevoerd.
 - **Eindoordeel** — het huidige eindoordeel in het POP-dossier van de speler, of
-  **In behandeling** als er nog geen is ingesteld.
+ **In behandeling** als er nog geen is ingesteld.
 - **POP-dossier** — een directe link naar het POP-dossier van de speler (of om
-  er een te starten als er dit seizoen nog geen is).
+ er een te starten als er dit seizoen nog geen is).
 
 ## Bewust alleen-lezen
 

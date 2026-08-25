@@ -22,7 +22,7 @@ In deze versie doet de overgang per speler precies twee dingen:
 
 1. **De speler naar een doelteam verplaatsen** (bij een promotie), en
 2. **Een gedateerde tijdlijngebeurtenis vastleggen** die de wijziging
-   beschrijft.
+ beschrijft.
 
 Het maakt **geen** seizoensentiteit aan en wijst die ook niet toe, en het
 **archiveert niemand**. Een speler die je als **Vrijgegeven** markeert, krijgt
@@ -42,11 +42,11 @@ spelers naartoe te promoveren, of je laat het op *Geen promotie / blijft*
 staan. Je stelt ook in:
 
 - **Ingangsdatum** — de datum op elke tijdlijngebeurtenis die deze ronde
-  aanmaakt. Standaard is dat de einddatum van het huidige seizoen als die is
-  ingesteld, anders vandaag.
+ aanmaakt. Standaard is dat de einddatum van het huidige seizoen als die is
+ ingesteld, anders vandaag.
 - **Reden** (optioneel) — vrije tekst die wordt toegevoegd aan de samenvatting
-  van vrijgave- en afstudeergebeurtenissen (bijvoorbeeld *Einde seizoen
-  2025/26*).
+ van vrijgave- en afstudeergebeurtenissen (bijvoorbeeld *Einde seizoen
+ 2025/26*).
 
 ### 2. Spelers kiezen
 
@@ -54,10 +54,10 @@ Voor elk gekoppeld team krijg je een lijst met de actieve spelers. Elke
 geselecteerde speler heeft een actie:
 
 - **Promoveren** — naar het gekoppelde doelteam verplaatsen (standaard als het
-  team een doelteam heeft). Legt een gebeurtenis *Leeftijdsgroep gepromoveerd*
-  vast.
+ team een doelteam heeft). Legt een gebeurtenis *Leeftijdsgroep gepromoveerd*
+ vast.
 - **Vrijgeven** — legt een gebeurtenis *Vrijgegeven* vast. De speler **blijft
-  actief**.
+ actief**.
 - **Afstuderen** — legt een gebeurtenis *Afgestudeerd* vast.
 - **Overslaan** — doe niets voor deze speler.
 
@@ -70,21 +70,21 @@ speler — speler, vanaf-team, naar-team, actie en de tijdlijngebeurtenis die
 wordt vastgelegd. Wanneer je bevestigt:
 
 - Wordt er **eerst een volledige back-up gemaakt**. Mislukt de back-up, dan
-  wordt de hele overgang **afgebroken** en wordt er niets gewijzigd.
+ wordt de hele overgang **afgebroken** en wordt er niets gewijzigd.
 - Pas na een geslaagde back-up worden de teamverplaatsingen en
-  tijdlijngebeurtenissen weggeschreven.
+ tijdlijngebeurtenissen weggeschreven.
 - Word je teruggeleid naar een samenvattingsbalk (aantallen gepromoveerd /
-  vrijgegeven / afgestudeerd / overgeslagen). De pagina vernieuwen kan de
-  overgang niet opnieuw uitvoeren.
+ vrijgegeven / afgestudeerd / overgeslagen). De pagina vernieuwen kan de
+ overgang niet opnieuw uitvoeren.
 
 ## REST-API
 
 Dezelfde logica is via REST beschikbaar voor front-ends buiten WordPress:
 
 - `POST /wp-json/talenttrack/v1/season-rollover/plan` — testronde. Geeft de
-  wijzigingenlijst per speler en de aantallen terug zonder iets te wijzigen.
+ wijzigingenlijst per speler en de aantallen terug zonder iets te wijzigen.
 - `POST /wp-json/talenttrack/v1/season-rollover/execute` — voert de overgang
-  uit (eerst back-up) en geeft de aantallen en de back-upbestandsnaam terug.
+ uit (eerst back-up) en geeft de aantallen en de back-upbestandsnaam terug.
 
 Beide vereisen het recht `tt_manage_players`. De aanvraag bevat een object
 `mapping` (`source_team_id` → `target_team_id`), een object `selections`

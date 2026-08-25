@@ -28,22 +28,22 @@ Het scherm bestaat uit drie kolommen die de werksheet van de pilot
 volgen:
 
 - **Links** — de beschikbare selectie met drie minutentellers per rij
-  (`min 1e`, `min 2e`, `tot`) en totalen onderaan. De minuten worden
-  automatisch berekend uit `helftduur × (op veld ? 1 : 0)`; pas je
-  **Helftduur** boven aan, dan loopt iedere rij live mee.
+ (`min 1e`, `min 2e`, `tot`) en totalen onderaan. De minuten worden
+ automatisch berekend uit `helftduur × (op veld ? 1 : 0)`; pas je
+ **Helftduur** boven aan, dan loopt iedere rij live mee.
 - **Midden** — twee halve velden naast elkaar met een `→`-kopieerknop
-  ertussen. Daaronder het **Principes**-paneel (zie hieronder), en
-  daaronder het **Wedstrijddoelen**-paneel — bovenaan één
-  volledige *Algemeen*-box, daarna een 2×2 grid van *Aanvallen /
-  Verdedigen* en *Spelhervattingen / Spelhervattingen*. Iedere box
-  heeft vier korte tekstvelden (bullet-stijl) — geschreven voor de
-  korte regels die de pilot gebruikt.
+ ertussen. Daaronder het **Principes**-paneel (zie hieronder), en
+ daaronder het **Wedstrijddoelen**-paneel — bovenaan één
+ volledige *Algemeen*-box, daarna een 2×2 grid van *Aanvallen /
+ Verdedigen* en *Spelhervattingen / Spelhervattingen*. Iedere box
+ heeft vier korte tekstvelden (bullet-stijl) — geschreven voor de
+ korte regels die de pilot gebruikt.
 - **Rechts** — twee gestapelde panelen. **Doen per speler** bevat per
-  speler een aandachtspunt, een `!`-vlag voor "dit is een specifiek
-  doel voor deze speler", en een camera-icoontje voor "ik heb een
-  videoanalist toegewezen aan deze speler." **Rollen &
-  standaardsituaties** bevat zes rijen — Aanvoerder, Hoekschop links /
-  rechts, Vrije trap links / rechts (voorzet), Strafschop.
+ speler een aandachtspunt, een `!`-vlag voor "dit is een specifiek
+ doel voor deze speler", en een camera-icoontje voor "ik heb een
+ videoanalist toegewezen aan deze speler." **Rollen &
+ standaardsituaties** bevat zes rijen — Aanvoerder, Hoekschop links /
+ rechts, Vrije trap links / rechts (voorzet), Strafschop.
 
 ## Principes — waar deze wedstrijd over gaat
 
@@ -212,17 +212,17 @@ volledig bruikbaar.
 ## Wat hier niet kan
 
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe
-  je op de pagina **Teams**.
+ je op de pagina **Teams**.
 - De wedstrijd zelf draaien — dat is **Match Execution**, de live
-  telefoon-app voor de assistent-coach. De knop **Start match** wordt
-  pas actief op de wedstrijddag zelf — daarvoor is hij wel zichtbaar
-  maar uitgeschakeld, met een tooltip die de datum noemt waarop hij
-  vrijkomt ("Beschikbaar op wedstrijddag (14 jun)"). Zo wordt een
-  wedstrijd niet per ongeluk te vroeg gestart.
+ telefoon-app voor de assistent-coach. De knop **Start match** wordt
+ pas actief op de wedstrijddag zelf — daarvoor is hij wel zichtbaar
+ maar uitgeschakeld, met een tooltip die de datum noemt waarop hij
+ vrijkomt ("Beschikbaar op wedstrijddag (14 jun)"). Zo wordt een
+ wedstrijd niet per ongeluk te vroeg gestart.
 - De wedstrijd achteraf bespreken — dat is de **wedstrijdanalyse**, die
-  je vanaf dezelfde activiteit opent zodra de wedstrijd gespeeld is. Wat
-  je hier plant staat daar naast de bijbehorende fase, en de spelers die
-  je gemarkeerd hebt staan er met hun aandachtspunt bij, zodat de
-  bespreking antwoord geeft op wat je gevraagd hebt. De camera-vlag
-  markeert nog steeds alleen wie er als analist is aangewezen; wat die
-  analist zag hoort in de analyse.
+ je vanaf dezelfde activiteit opent zodra de wedstrijd gespeeld is. Wat
+ je hier plant staat daar naast de bijbehorende fase, en de spelers die
+ je gemarkeerd hebt staan er met hun aandachtspunt bij, zodat de
+ bespreking antwoord geeft op wat je gevraagd hebt. De camera-vlag
+ markeert nog steeds alleen wie er als analist is aangewezen; wat die
+ analist zag hoort in de analyse.

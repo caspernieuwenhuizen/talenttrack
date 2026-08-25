@@ -67,12 +67,12 @@ Als jij (de enige academy admin) buitengesloten raakt — verkeerde codes, kloka
    define( 'TT_MFA_DISABLE', true );
    ```
 
-   Dit onderdrukt alleen de MFA-*handhaving* — je inschrijving en het personabeleid blijven onaangeroerd. Log in, herstel je inschrijving via het MFA-tabblad en **verwijder daarna de regel**; de handhaving hervat precies zoals die was. Zolang de constante actief is, toont elke wp-admin-pagina een waarschuwingsbanner zodat hij niet stilletjes aan kan blijven staan.
+ Dit onderdrukt alleen de MFA-*handhaving* — je inschrijving en het personabeleid blijven onaangeroerd. Log in, herstel je inschrijving via het MFA-tabblad en **verwijder daarna de regel**; de handhaving hervat precies zoals die was. Zolang de constante actief is, toont elke wp-admin-pagina een waarschuwingsbanner zodat hij niet stilletjes aan kan blijven staan.
 
 2. **wp-cli-commando's (voor technische beheerders).**
-   - `wp tt mfa status` — toont de afgedwongen persona's, of de noodschakelaar actief is, en per gebruiker de inschrijvings-/blokkeringsstatus — eerst diagnosticeren, dan handelen.
-   - `wp tt mfa disable` — zet het personabeleid op leeg (handhaving installatiebreed uit) en wist elke lopende MFA-uitdaging, in één aanroep. Inschrijvingsrijen blijven staan; heractiveer via het MFA-tabblad zodra je hersteld bent.
-   - `wp tt mfa reset <user-id|login|e-mail>` — wist alleen de inschrijvingsrij van één gebruiker (die zich bij de volgende login opnieuw inschrijft); het installatiebrede beleid blijft onaangeroerd.
+ - `wp tt mfa status` — toont de afgedwongen persona's, of de noodschakelaar actief is, en per gebruiker de inschrijvings-/blokkeringsstatus — eerst diagnosticeren, dan handelen.
+ - `wp tt mfa disable` — zet het personabeleid op leeg (handhaving installatiebreed uit) en wist elke lopende MFA-uitdaging, in één aanroep. Inschrijvingsrijen blijven staan; heractiveer via het MFA-tabblad zodra je hersteld bent.
+ - `wp tt mfa reset <user-id|login|e-mail>` — wist alleen de inschrijvingsrij van één gebruiker (die zich bij de volgende login opnieuw inschrijft); het installatiebrede beleid blijft onaangeroerd.
 
 Voorkomen blijft beter dan herstellen: **houd minstens twee adminaccounts**, zodat een admin altijd een andere admin via de bovenstaande UI kan herstellen.
 

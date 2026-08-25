@@ -28,8 +28,8 @@ The **PDP** tile opens on a single **player-centric list** for the current seaso
 - If you span **more than one team** (or have global scope), you first pick a team — *"Select a team to see its players."* — so you start scoped rather than facing every player at once. A coach with a single team skips straight to their roster.
 - A summary line at the top reads, for example, *"14 of 18 players have a PDP for the current season (2025/26)."*
 - Each row shows the **player** (linked to their record), their **team**, and a **PDP this season** status:
-  - **Created** — a green *PDP ✓* pill, with conversation progress where available (e.g. *PDP ✓ 1/3*), linking straight to the file.
-  - **Not started** — a grey *Not started* pill plus a **Create PDP** button that opens the create flow pre-filled for that player and team.
+ - **Created** — a green *PDP ✓* pill, with conversation progress where available (e.g. *PDP ✓ 1/3*), linking straight to the file.
+ - **Not started** — a grey *Not started* pill plus a **Create PDP** button that opens the create flow pre-filled for that player and team.
 - **Filters** — team dropdown + player search, scoped the same way as the rest of the app: coaches see only their own teams' players; admins see everyone.
 - **Only players without a PDP** — a one-click toggle to hide everyone who already has a file, so you can work straight through the gaps.
 - The **⋯** button at the end of the filter row (for operators who can unarchive or delete) switches the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
@@ -150,9 +150,9 @@ PDP files have **two** removal paths so destructive cleanup never costs an accid
 
 - **Archive** — soft-delete. The file disappears from the default list, but every row stays in the database. Coaches with edit reach can archive an active file (`Archive` button in the actions column). Admins can flip the *Show archived* toggle on the PDP list and click *Restore* to bring it back. This is the right answer when a player leaves mid-season or the cycle was opened by mistake.
 - **Permanently delete** — irreversible hard-delete. Available only to operators holding the `tt_delete_pdp` capability (admin only by seed). Two entry points: the *Permanently delete PDP* button on the PDP file detail page, **and** a per-row *Delete permanently* action on archived files (flip the *Show archived* toggle on the PDP list — operators with `tt_delete_pdp` see the toggle even without restore reach). Both open the same confirm subview that:
-  - shows a **Cascade summary** — how many conversations / verdicts / calendar links / PDP blocks / goal-link rows will vanish.
-  - requires the operator to **type the player's name** verbatim before the *Permanently delete PDP* button enables (case-insensitive, trim-tolerant).
-  - writes a **pre-delete CSV snapshot** to `wp-content/uploads/tt-pdp-deletes/pdp-<file-id>-<timestamp>.csv` before the cascade runs. The CSV's absolute path is recorded in the `pdp.deleted_with_cascade` audit-log entry alongside the per-table row counts.
-  - runs the five-table cascade inside a single transaction. Any failure rolls the whole thing back; partial state on failure is impossible.
+ - shows a **Cascade summary** — how many conversations / verdicts / calendar links / PDP blocks / goal-link rows will vanish.
+ - requires the operator to **type the player's name** verbatim before the *Permanently delete PDP* button enables (case-insensitive, trim-tolerant).
+ - writes a **pre-delete CSV snapshot** to `wp-content/uploads/tt-pdp-deletes/pdp-<file-id>-<timestamp>.csv` before the cascade runs. The CSV's absolute path is recorded in the `pdp.deleted_with_cascade` audit-log entry alongside the per-table row counts.
+ - runs the five-table cascade inside a single transaction. Any failure rolls the whole thing back; partial state on failure is impossible.
 
 Use *Archive* by default. Reach for *Permanently delete* only for GDPR-erasure, parental-request, or other legitimate data-retention cases. The CSV snapshot is your audit trail — keep it.

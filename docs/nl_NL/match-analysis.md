@@ -160,12 +160,12 @@ lezen. De link opent de analyse alleen-lezen, zonder in te loggen.
 Twee dingen om te weten voordat je hem verstuurt:
 
 - Hij toont de **spelersnotities volledig**, inclusief wie tekortkwam. Het is
-  een stafdocument en dat staat ook op de pagina zelf. De pagina wordt niet
-  door zoekmachines geïndexeerd.
+ een stafdocument en dat staat ook op de pagina zelf. De pagina wordt niet
+ door zoekmachines geïndexeerd.
 - **Iedereen die de link heeft kan meelezen** totdat je hem vervangt.
-  **Link vervangen** maakt een nieuwe URL aan en sluit alle eerdere direct
-  af — gebruik dat als een link verder is gereisd dan de bedoeling was, of
-  als iemand de staf verlaat.
+ **Link vervangen** maakt een nieuwe URL aan en sluit alle eerdere direct
+ af — gebruik dat als een link verder is gereisd dan de bedoeling was, of
+ als iemand de staf verlaat.
 
 ## Opslaan
 
@@ -176,9 +176,9 @@ en delen blijven waar ze zijn.
 ## Wat hier niet kan
 
 - De stand, doelpunten of wissels wijzigen — die horen bij
-  **wedstrijduitvoering**, en een tweede plek om ze in te typen is een
-  tweede plek waar ze fout kunnen staan.
+ **wedstrijduitvoering**, en een tweede plek om ze in te typen is een
+ tweede plek waar ze fout kunnen staan.
 - Een analyse van een training schrijven. Trainingen hebben hun eigen
-  waarnemingen.
+ waarnemingen.
 - De speler zelf iets vertellen. Feedback voor de speler gaat via zijn
-  beoordelingen, waar die geschreven wordt om gelezen te worden.
+ beoordelingen, waar die geschreven wordt om gelezen te worden.

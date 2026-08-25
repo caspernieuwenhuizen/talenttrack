@@ -8,7 +8,6 @@ order: 132
 
 # Impersonation
 
-> Documentation for the user impersonation feature shipped in v3.72.0 as part of the #0071 authorization-matrix-completeness epic.
 
 Native admin-to-user impersonation lets an Academy Admin (the WordPress `administrator` or anyone holding the `tt_club_admin` role) switch into another user's session, see exactly what that user sees, and switch back. Two real problems this solves:
 
@@ -48,7 +47,7 @@ Every impersonation session writes a row to `tt_impersonation_log` with:
 - **actor_ip** / **actor_user_agent** — for forensics
 - **reason** — optional admin-supplied note ("debugging ticket #1247"); empty by default
 
-The log is separate from `tt_authorization_changelog` because they record different domains (matrix-config edits vs authentication events) and conflating them would muddy queries. Both Academy Admin and Head of Development can read the log; only Academy Admin can delete rows.
+The log is separate from `tt_authorization_changelog` because they record different domains (matrix-config edits vs authentication events) and conflating them would muddy queries. Read access is granted to Academy Admin and Head of Development, and deletion to Academy Admin only — though see *Reviewing the log* below: the permissions exist, the screen they were meant to gate does not.
 
 ## Defence in depth
 
@@ -62,7 +61,6 @@ The service rejects with a distinct error code:
 | `self_impersonation` | Actor and target are the same user. |
 | `already_impersonating` | The actor is already inside an impersonation session. Stacking is forbidden. |
 
-In multi-tenant deployments (post-v1), cross-club impersonation requires an explicit `tt_super_admin` cap not granted by default.
 
 ## What you can and can't do during a session
 
@@ -80,10 +78,12 @@ Email and push notifications that would have been triggered by the target user's
 
 ## Reviewing the log
 
-The log is queryable via the REST API at `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated on the `impersonation_log` matrix entity — Academy Admin RCD, Head of Development R). There is no dedicated screen for the log — query the REST endpoint directly with the filters you need.
+Every session is written to the `tt_impersonation_log` table: who impersonated whom, when it started and ended, the IP and user agent, and the reason given.
 
-## Out of scope
+**There is no way to read that log inside TalentTrack yet.** No screen lists it, and there is no REST endpoint for it. Reviewing it today means querying the database directly. If your academy relies on being able to review impersonation after the fact — and if you allow impersonation at all, you should — treat that as a gap rather than an oversight on your part.
 
-- A dedicated screen for the audit log — it is read over REST.
-- Cross-club impersonation in multi-tenant deployments (gated on `tt_super_admin` cap not granted by default).
-- Automatic re-authentication for 2FA installs — `wp_set_auth_cookie` skips the 2FA challenge today; a `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )` constant is reserved for clubs that need it.
+## Limitations
+
+- **The audit log has no reader surface.** As above.
+- **Cross-club impersonation** is not implemented. TalentTrack runs one academy per install today, so there is no cross-club case to gate.
+- **2FA is not re-challenged.** Starting a session signs you in as the target without a second-factor prompt. A `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )` constant is reserved for clubs that need the challenge, but it is not wired up.

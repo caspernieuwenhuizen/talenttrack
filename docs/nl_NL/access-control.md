@@ -11,20 +11,20 @@ order: 50
 
 TalentTrack gebruikt het rechten-systeem van WordPress, plus een eigen overlay van "functionele rollen", om te bepalen wie wat mag. De release v3.0.0 refactorde rechten naar granulaire view/edit-paren, waardoor alleen-lezen rollen nu echt over de hele plug-in heen werken.
 
-## De rechten (v3.0.0+)
+## De rechten
 
 Elk groot onderdeel heeft een **view**-recht en, voor schrijfbare onderdelen, een bijbehorend **edit**-recht:
 
-| Onderdeel    | View-recht            | Edit-recht            |
+| Onderdeel | View-recht | Edit-recht |
 |--------------|-----------------------|-----------------------|
-| Teams        | `tt_view_teams`       | `tt_edit_teams`       |
-| Spelers      | `tt_view_players`     | `tt_edit_players`     |
-| Personen     | `tt_view_people`      | `tt_edit_people`      |
-| Evaluaties   | `tt_view_evaluations` | `tt_edit_evaluations` |
-| Sessies      | `tt_view_activities`    | `tt_edit_activities`    |
-| Doelen       | `tt_view_goals`       | `tt_edit_goals`       |
-| Instellingen | `tt_view_settings`    | `tt_edit_settings`    |
-| Rapporten    | `tt_view_reports`     | *(geen edit-tegenhanger)* |
+| Teams | `tt_view_teams` | `tt_edit_teams` |
+| Spelers | `tt_view_players` | `tt_edit_players` |
+| Personen | `tt_view_people` | `tt_edit_people` |
+| Evaluaties | `tt_view_evaluations` | `tt_edit_evaluations` |
+| Sessies | `tt_view_activities` | `tt_edit_activities` |
+| Doelen | `tt_view_goals` | `tt_edit_goals` |
+| Instellingen | `tt_view_settings` | `tt_edit_settings` |
+| Rapporten | `tt_view_reports` | *(geen edit-tegenhanger)* |
 
 Elke TalentTrack-gebruiker heeft ook het basisrecht `read` van WordPress nodig om te kunnen inloggen.
 
@@ -41,16 +41,16 @@ Daardoor blijft externe code of andere plug-ins die op legacy-rechtennamen contr
 
 ## De vooraf geconfigureerde rollen
 
-| Rol                          | View                  | Edit                                                   |
+| Rol | View | Edit |
 |------------------------------|-----------------------|--------------------------------------------------------|
-| **Hoofd opleiding**          | Alle onderdelen       | Alle onderdelen (incl. Evaluaties, Instellingen)       |
-| **Clubbeheerder**            | Alle onderdelen       | Teams, Spelers, Personen, Sessies, Doelen, Instellingen|
-| **Coach**                    | Alles behalve Instellingen | Evaluaties, Sessies, Doelen                       |
-| **Scout**                    | Teams, Spelers, Evals | Evaluaties                                             |
-| **Staf**                     | Teams, Spelers, Personen | Spelers, Personen                                   |
-| **Speler**                   | Alleen eigen data     | Alleen eigen profiel                                   |
-| **Ouder**                    | Alleen data van kind  | *(geen)*                                               |
-| **Alleen-lezen Waarnemer**   | **Alle onderdelen**   | **Geen**                                               |
+| **Hoofd opleiding** | Alle onderdelen | Alle onderdelen (incl. Evaluaties, Instellingen) |
+| **Clubbeheerder** | Alle onderdelen | Teams, Spelers, Personen, Sessies, Doelen, Instellingen|
+| **Coach** | Alles behalve Instellingen | Evaluaties, Sessies, Doelen |
+| **Scout** | Teams, Spelers, Evals | Evaluaties |
+| **Staf** | Teams, Spelers, Personen | Spelers, Personen |
+| **Speler** | Alleen eigen data | Alleen eigen profiel |
+| **Ouder** | Alleen data van kind | *(geen)* |
+| **Alleen-lezen Waarnemer** | **Alle onderdelen** | **Geen** |
 
 Wijs rollen toe via **Toegangsbeheer → Rollen & Rechten** of de standaard Gebruikersadmin van WordPress.
 
@@ -84,15 +84,15 @@ Functionele rollen zijn clubrollen uit de praktijk (Hoofdcoach, Assistent-coach,
 
 Voorbeeld: je functionele rol "Hoofdcoach" kan gebruikers automatisch de WordPress-rol `tt_coach` toekennen. Dan krijgen ze evaluatierechten automatisch zodra je een persoon aan een team toevoegt als "Hoofdcoach".
 
-Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt_user_role_scopes` (scope_type=`team`, scope_id=het team) zodat de matrix-team-scopecontrole voor die persoon op dat team waar wordt. Bij het verwijderen van de laatste toewijzing voor een (persoon, team)-paar wordt ook de scope-rij verwijderd. Personen met meerdere rollen op hetzelfde team houden één scope-rij totdat de laatste rol wordt ingetrokken. De backfill-migratie `0062_fr_assignment_scope_backfill.php` heeft installaties van vóór deze koppeling rechtgetrokken (#0079).
+Het toewijzen van een persoon via Functionele rollen schrijft ook een rij in `tt_user_role_scopes` (scope_type=`team`, scope_id=het team) zodat de matrix-team-scopecontrole voor die persoon op dat team waar wordt. Bij het verwijderen van de laatste toewijzing voor een (persoon, team)-paar wordt ook de scope-rij verwijderd. Personen met meerdere rollen op hetzelfde team houden één scope-rij totdat de laatste rol wordt ingetrokken. De backfill-migratie `0062_fr_assignment_scope_backfill.php` heeft installaties van vóór deze koppeling rechtgetrokken.
 
-## Tegelzichtbaarheid via aparte entiteiten (#0079)
+## Tegelzichtbaarheid via aparte entiteiten
 
 Dashboardtegels die uitkomen op een coach- of beheerderssurface declareren een tegelspecifieke matrixentiteit (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `scouting_visits_panel`, `holidays_panel`, `wp_admin_portal`) los van de onderliggende data-entiteit (`team`, `players`, `evaluations`, …). De data-entiteiten blijven REST + repository-reads sturen — de dispatcher en de tegel-gate vragen het `*_panel`-entiteit aan, zodat het verlenen van "scout leest teamdata globaal" niet langer een coach-tegel **Mijn teams** op het scoutdashboard plaatst. De dispatcher (`DashboardShortcode`) leest de entiteit uit het tegelregister en raadpleegt `MatrixGate::canAnyScope` voor hetzelfde antwoord als de tegel-gate, zodat de eerdere situatie waarin een tegel rendert maar de bestemming alsnog *"Dit onderdeel is alleen beschikbaar voor coaches en beheerders."* meldt, definitief weg is.
 
-**Scoutbezoeken is het uitgewerkte voorbeeld (#2007).** Een hoofdcoach leest `prospects` op teamniveau met opzet — #0081 gaf hem de instroomtrechter van zijn eigen leeftijdsgroep. De tegel Scoutbezoeken was op diezelfde `prospects`-entiteit gezet om een losstaande 403 op te lossen (#1143), en daarmee zaten de twee aan elkaar vast: de hoofdcoach kreeg de bezoekplanner van de scout er gratis bij, en de `prospects`-toekenning weghalen om die te verbergen zou de trechter hebben meegenomen. De tegel declareert nu `scouting_visits_panel`, geseed als lezen-globaal voor **scout**, **hoofd opleidingen** en **clubbeheerder**, en niet voor de hoofdcoach. De schermen zelf blijven op de prospects-rechten afgeschermd, want dat is de data die ze lezen; de paneelentiteit bepaalt alleen wie het scherm krijgt aangeboden. Migratie `0233` vult de entiteit bij op bestaande installaties — zonder die migratie zou de tegel voor iedereen verdwijnen, omdat de dispatch-gate de live matrix leest en niet het seed-bestand.
+**Scoutbezoeken is het uitgewerkte voorbeeld.** Een hoofdcoach leest `prospects` op teamniveau met opzet — #0081 gaf hem de instroomtrechter van zijn eigen leeftijdsgroep. De tegel Scoutbezoeken was op diezelfde `prospects`-entiteit gezet om een losstaande 403 op te lossen, en daarmee zaten de twee aan elkaar vast: de hoofdcoach kreeg de bezoekplanner van de scout er gratis bij, en de `prospects`-toekenning weghalen om die te verbergen zou de trechter hebben meegenomen. De tegel declareert nu `scouting_visits_panel`, geseed als lezen-globaal voor **scout**, **hoofd opleidingen** en **clubbeheerder**, en niet voor de hoofdcoach. De schermen zelf blijven op de prospects-rechten afgeschermd, want dat is de data die ze lezen; de paneelentiteit bepaalt alleen wie het scherm krijgt aangeboden. Migratie `0233` vult de entiteit bij op bestaande installaties — zonder die migratie zou de tegel voor iedereen verdwijnen, omdat de dispatch-gate de live matrix leest en niet het seed-bestand.
 
-## Kruislinks tussen weergaven — `CrossViewLink` (#2304)
+## Kruislinks tussen weergaven — `CrossViewLink`
 Een in-body navigatie-affordance — een kruislink, tegel of knop die naar een andere `?tt_view=<slug>`-weergave verwijst — moet **verborgen zijn wanneer de huidige gebruiker de doelweergave niet kan bereiken**. Voorheen controleerde elke zo'n link de rechten van het doel inline, en die controles liepen uit de pas met de daadwerkelijke early-return-guard van de doelweergave.
 
 `\TT\Shared\Frontend\Components\CrossViewLink` centraliseert die beslissing. De HTML van de link wordt alleen weggeschreven wanneer de huidige gebruiker slaagt voor de gate van de doel-slug:
@@ -122,7 +122,7 @@ Geef context per link door via `['ctx' => [...]]`; geef een eenmalige expliciete
 
 Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de gedeclareerde entiteit van de tegel op `read` wanneer de matrix actief is, anders toestaan), zodat bestaande interne links blijven werken; de CI-gate `xview-link-lint.yml` laat een PR falen die een **nieuwe** ongegate `tt_view`-kruislink toevoegt in een `src/**/Frontend/**`-bestand. Voor een terechte uitzondering plaats je een afsluitend `/* tt-xview-ok */` op de regel.
 
-## Entiteiten van de instroompijplijn (#0081)
+## Entiteiten van de instroompijplijn
 
 De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzettelijk smal toegangsbereik omdat prospect-gegevens de gevoeligste PII in het systeem zijn (verzameld voordat er een contractuele relatie bestaat — wettelijke grondslag is toestemming):
 
@@ -131,7 +131,7 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
-## Prullenbakbeheer — `tt_manage_recycle_bin` (#2020)
+## Prullenbakbeheer — `tt_manage_recycle_bin`
 
 Definitief verwijderen is de meest destructieve actie in het product en zit
 daarom achter een eigen capability: **`tt_manage_recycle_bin`**. Het regelt
@@ -155,7 +155,7 @@ Dit is de **enige eigenaar van definitief verwijderen**: de oude per-entiteit
 zodat geen verwijderpad zwakker is dan de prullenbak. Zie
 [Prullenbak](recycle-bin.md) voor de bewaartermijn en AVG-grondslag.
 
-## Modulebeheer — `tt_manage_modules` / `module_management` (#2187)
+## Modulebeheer — `tt_manage_modules` / `module_management`
 
 Een hele TalentTrack-module aan- of uitzetten is een beheerder-niveau
 handeling, dus staat het achter een eigen capability, **`tt_manage_modules`**,
@@ -175,7 +175,7 @@ door `current_user_can('tt_manage_modules')`, zodat de matrix beslist.
 `tt_manage_modules` wordt via `LegacyCapMapper` gebrugd naar
 `module_management:create_delete`. Dit is een **eigen** entiteit, los van de
 vooral-lezen `feature_toggles` configuratie-entiteit die het eerder deelde
-(#1941) en van de `module_state` statusweergave: een module aan/uit zetten is
+ en van de `module_state` statusweergave: een module aan/uit zetten is
 een wezenlijk ander recht dan een configuratie-feature-toggle bewerken, en
 moet op een eigen rij door de matrix bestuurbaar zijn. De entiteit is
 geseed **`rcd` globaal aan alleen Academy Admin** — overeenkomend met de ruwe
@@ -190,7 +190,7 @@ IGNORE, beperkt tot de ene entiteit + academy_admin-persona), zodat geen
 enkele beheerder de Modules-pagina verliest bij een upgrade wanneer de matrix
 actief is.
 
-## Strava-koppeling — spelers koppelen hun eigen (#2153)
+## Strava-koppeling — spelers koppelen hun eigen
 
 Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen
 Strava-account koppelen vanaf zijn profiel. Dit wordt geregeld door de
@@ -212,7 +212,7 @@ Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een
 
 De geavanceerde autorisatiepagina's — Autorisatiematrix, Toegangsbeheer activeren, Gebruikers vergelijken, Permission Debug, Permission Chain Debug — staan onder de kop **Toegangsbeheer** in de TalentTrack-zijbalk in wp-admin. Ze verschijnen daar in zowel de oude als de moderne menu-indeling (elke vermelding is afgeschermd op de eigen capability, dus je ziet alleen wat je mag openen). Vanuit de frontend toont het scherm **Rollen & rechten** ze ook onder "Geavanceerde autorisatietools" voor snelle toegang.
 
-**De matrix-editor is geen wp-admin-link meer.** Sinds #2654 heeft die een eigen frontend-scherm onder **Configuratie → Authorisatiematrix** (`?tt_view=matrix`), afgeschermd op de capability `tt_manage_authorization` — toegekend aan administrator en Clubbeheerder — in plaats van op het hebben van een WordPress-administratoraccount. Een academie zonder iemand in wp-admin kan nu zelf een te ruime of te krappe toekenning corrigeren, en dat telt: die toekenningen bepalen wie de evaluaties, notities en medische velden van een speler mag openen.
+**De matrix-editor is geen wp-admin-link.** Die heeft een eigen frontend-scherm onder **Configuratie → Authorisatiematrix** (`?tt_view=matrix`), afgeschermd op de capability `tt_manage_authorization` — toegekend aan administrator en Clubbeheerder — in plaats van op het hebben van een WordPress-administratoraccount. Een academie zonder iemand in wp-admin kan nu zelf een te ruime of te krappe toekenning corrigeren, en dat telt: die toekenningen bepalen wie de evaluaties, notities en medische velden van een speler mag openen.
 
 Een Clubbeheerder die vanaf de frontend werkt, kan de eigen persona-rij niet wijzigen, en ook niet de entiteiten die het rechtenmodel, het databaseschema of de back-ups bepalen; die cellen staan op slot en blijven voorbehouden aan een administrator. De wp-admin-pagina is ongewijzigd en blijft de weg terug als een matrixwijziging de frontend verbergt. In `docs/nl_NL/authorization-matrix.md` staat de volledige tabel met wie wat mag.
 
@@ -224,7 +224,7 @@ Een klik op Intrekken opent een bevestigingsvenster binnen de app (niet de stand
 
 Hetzelfde bevestigingspatroon wordt overal gebruikt waar een destructieve actie om je akkoord vraagt (een doel verwijderen vanaf het dashboard, een evaluatiecategorie verwijderen, enz.).
 
-## De personawissel verandert wat je ziet, niet wat je mag (#1982)
+## De personawissel verandert wat je ziet, niet wat je mag
 
 Iemand kan meer dan één persona tegelijk hebben. Een trainer met een eigen kind in de academie is het alledaagse geval: die is staflid én ouder, allebei echt, op hetzelfde moment. Met de personawissel op het dashboard kiest zo iemand in welke van die rollen de interface zich kleedt — welke startpagina, welke tegels, welk label op de gebruikerschip.
 
@@ -234,11 +234,11 @@ Dat is belangrijk, want het alternatief faalt geruisloos. Een wissel die ook rec
 
 Wil je echt in een andere rol handelen — zien wat een ouder ziet, mét de rechten van een ouder — gebruik dan **Imitatie** (`tt_impersonate_users`) of de **Voorbeeld**-pagina van de matrix. Allebei zijn ze een bewuste keuze, allebei blijven ze zichtbaar zolang ze aanstaan, en allebei stoppen ze wanneer jij ze stopt.
 
-## Speler-gestuurde ouderzichtbaarheid (#1867)
+## Speler-gestuurde ouderzichtbaarheid
 
 Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, POP) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.
 
-## Ouder → kind-koppelmodel (#1993)
+## Ouder → kind-koppelmodel
 
 De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is het **enige gezaghebbende** antwoord op de vraag "welke kinderen heeft deze ouder". `ParentChildResolver` leest deze pivot — afgebakend per club, `status = 'active'`, gesorteerd op meest recente koppeling eerst — en elke afnemer (de kindwisselaar op het dashboard, de me-view-autorisatie, de deelnemersgraaf van doel-threads, de ouder-KPI) roept hem aan, zodat ze het allemaal eens zijn over wie ouder van wie is.
 

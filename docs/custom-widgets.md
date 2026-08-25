@@ -73,7 +73,7 @@ Every save / update / archive writes a row to `tt_audit_log`:
 | `custom_widget.updated` | (same) |
 | `custom_widget.archived` | (same) |
 
-Audit is one of the lookups for "who changed this widget last" investigations; the dashboard editor itself is also audited (#0060), so the full path from custom-widget edit to persona-template publish is reconstructable.
+Audit is one of the lookups for "who changed this widget last" investigations; the dashboard editor itself is also audited, so the full path from custom-widget edit to persona-template publish is reconstructable.
 
 ## Out-of-scope (today)
 
@@ -103,12 +103,10 @@ Sources should also implement `requiredCap(): string` so the renderer's source-c
 
 Inside `fetch()` the source MUST scope to `\TT\Infrastructure\Tenancy\CurrentClub::id()` and apply demo-mode scope. The registry can't enforce that — it doesn't know which `tt_*` table the source reads.
 
-## Feature flag
+## Turning it on
 
-The whole module is opt-in via `tt_custom_widgets_enabled`. As of v3.109.7 (Phase 6 closes #0078) the flag stays **off by default** so existing installs aren't surprised by a new admin page on next upgrade; flip it on per club with:
+Custom widgets are **off by default** — the builder is a beta surface, and an academy should opt into it rather than find a new page after an upgrade.
 
-```
-wp option update tt_custom_widgets_enabled 1
-```
+Switch it on from **Access control → Features**, where it appears as *Custom widgets*. Once it is on, the admin page lights up at TalentTrack → Custom widgets, the REST routes register, and the editor palette gains the *Custom widget* tile. Switching it back off hides all three; saved widgets are kept.
 
-…or set the same key on `tt_config` per club. Once the flag is on, the admin page lights up at TalentTrack → Custom widgets, the REST routes register, and the editor palette gains the *Custom widget* tile.
+See [Modules](modules.md) for how feature toggles relate to module toggles.

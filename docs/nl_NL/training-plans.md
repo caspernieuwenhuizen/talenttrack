@@ -22,9 +22,9 @@ Open de tegel **Training** in de groep **Planning & tactiek**.
 De lijst bevat twee soorten records:
 
 - Een **teamplan** hoort bij één team. Dat is het normale geval: de training
-  die je voor dinsdag maakt.
+ die je voor dinsdag maakt.
 - Een **clubsjabloon** hoort bij geen enkel team. Het is een startvorm —
-  "standaard MD-3, 75 minuten" — die elke trainer kan kopiëren en aanpassen.
+ "standaard MD-3, 75 minuten" — die elke trainer kan kopiëren en aanpassen.
 
 Filter ertussen met het keuzemenu **Soort**. De rest van de lijst werkt zoals
 de andere lijsten in TalentTrack: zoeken op naam, sorteren op kolom en met de
@@ -35,15 +35,15 @@ statuspillen wisselen tussen **Actief** en **Gearchiveerd**.
 Open een plan en je ziet:
 
 - **De kerngetallen** — totale duur, aantal blokken, of het een teamplan of
-  een clubsjabloon is, en het thema waarop het werkt.
+ een clubsjabloon is, en het thema waarop het werkt.
 - **De tijdbalk** — een verhoudingsbalk die laat zien hoe de training over de
-  blokken verdeeld is, met een kleur per bloktype. Diezelfde zes kleuren
-  worden overal in de Training-module gebruikt, zodat je de vorm van een
-  training in één oogopslag herkent.
+ blokken verdeeld is, met een kleur per bloktype. Diezelfde zes kleuren
+ worden overal in de Training-module gebruikt, zodat je de vorm van een
+ training in één oogopslag herkent.
 - **De blokken** — elk op volgorde, met type, duur, de oefening waaruit het
-  put, de organisatie en de coachpunten.
+ put, de organisatie en de coachpunten.
 - **Uitvoeringen van dit plan** — elke training waarvoor dit plan echt is
-  gebruikt.
+ gebruikt.
 
 ## Een plan aanpassen verandert nooit de geschiedenis
 
@@ -79,30 +79,30 @@ seizoensovergang overleeft.
 Druk op **Nieuw plan**. Vier korte vragen, dan een kant-en-klare training:
 
 1. **Wanneer** — het team en de datum. De leeftijdscategorie, het aantal dagen
-   tot de eerstvolgende wedstrijd en waar je in het seizoen zit worden voor je
-   afgeleid.
+ tot de eerstvolgende wedstrijd en waar je in het seizoen zit worden voor je
+ afgeleid.
 2. **Thema** — waar de training over gaat. Bij elke optie staat hoeveel
-   oefeningen je bibliotheek ervoor heeft, zodat je nooit een richting op
-   wordt gestuurd waar niets achter zit.
+ oefeningen je bibliotheek ervoor heeft, zodat je nooit een richting op
+ wordt gestuurd waar niets achter zit.
 3. **Vorm** — hoe lang, en hoeveel spelers je verwacht. Dat aantal komt uit de
-   recente opkomst van dit team en niet uit de selectielijst, want een
-   selectie van zestien zet zelden zestien spelers op het veld. Pas het aan
-   wanneer je het beter weet — een schoolreisje staat niet in de data.
+ recente opkomst van dit team en niet uit de selectielijst, want een
+ selectie van zestien zet zelden zestien spelers op het veld. Pas het aan
+ wanneer je het beter weet — een schoolreisje staat niet in de data.
 4. **Voorstel** — het concept. Ga terug en verander wat je wilt; er wordt
-   niets opgeslagen tot jij dat zegt.
+ niets opgeslagen tot jij dat zegt.
 5. **Controle** — aan welke open doelen van je spelers deze training werkt, en
-   daarna opslaan.
+ daarna opslaan.
 
 ### Wat de generator wel en niet doet
 
 - **Elke oefening komt uit je eigen bibliotheek.** Er wordt niets verzonnen.
 - **Niets gaat boven het intensiteitsplafond van de leeftijdscategorie.** Een
-  JO13-training stelt nooit een oefening voor die zwaarder is dan JO13 toestaat.
+ JO13-training stelt nooit een oefening voor die zwaarder is dan JO13 toestaat.
 - **Dezelfde antwoorden geven altijd dezelfde training.** Er wordt niet geloot.
 - **Een oefening komt nooit twee keer voor in één training.**
 - **Heeft je bibliotheek niets passends voor een onderdeel, dan blijft dat blok
-  leeg en staat erbij waarom** — in plaats van het op te vullen met iets dat
-  er niet bij hoort.
+ leeg en staat erbij waarom** — in plaats van het op te vullen met iets dat
+ er niet bij hoort.
 
 ### Waarom de ene training beter bij je spelers past dan de andere
 
@@ -183,10 +183,10 @@ de selectie een open doel dat aan een principe hangt. Zie hierboven bij
 Onder de blokkenlijst staan twee knoppen:
 
 - **Opslaan als clubsjabloon** maakt een clubbrede kopie zonder team — de
-  training die goed werkte wordt een vertrekpunt waar iedereen op kan
-  voortbouwen.
+ training die goed werkte wordt een vertrekpunt waar iedereen op kan
+ voortbouwen.
 - **Kopiëren naar een nieuw plan** maakt een zelfstandige kopie voor hetzelfde
-  team; de snelste route naar de training van volgende week.
+ team; de snelste route naar de training van volgende week.
 
 Allebei kopiëren ze het **opgeslagen** plan, dus sla je wijzigingen eerst op —
 de knoppen zeggen het als je dat nog niet hebt gedaan.
@@ -219,18 +219,18 @@ onderin waar je duim al is.
 
 - **Start de training** als je begint. Het eerste blok opent met een klok.
 - De klok loopt **op**, tegen de geplande duur van het blok. Er gaat niets
-  vanzelf verder — jij bepaalt wanneer een blok klaar is.
+ vanzelf verder — jij bepaalt wanneer een blok klaar is.
 - **Uitlopen mag.** Het scherm kleurt oranje en zegt hoeveel je uitloopt en
-  wat er wordt vastgelegd als je nu afrondt. Het zeurt niet en het houdt je
-  niet tegen.
+ wat er wordt vastgelegd als je nu afrondt. Het zeurt niet en het houdt je
+ niet tegen.
 - **Blok afronden** legt vast hoe lang het werkelijk duurde en opent het
-  volgende.
+ volgende.
 - **Blok overslaan** legt vast dat het niet is gedaan. Het blok blijft in het
-  plan staan; alleen deze training legt de overslag vast.
+ plan staan; alleen deze training legt de overslag vast.
 - **‹ en ›** verplaatsen je tussen blokken zonder iets vast te leggen, om
-  vooruit te kijken.
+ vooruit te kijken.
 - **Training afronden** sluit de sessie. Blokken die je niet hebt gedaan
-  worden vastgelegd als overgeslagen.
+ worden vastgelegd als overgeslagen.
 
 Aan het eind zie je de totalen: werkelijk getrainde minuten tegen geplande
 minuten, hoeveel blokken je hebt gedaan en hoeveel je hebt overgeslagen.
@@ -266,12 +266,12 @@ herladen van de pagina. Naar binnen lopen kost je niets.
 Twee dingen om te weten:
 
 - **De pagina openen kost nog steeds bereik.** Beschermd is een training die
-  al loopt; je kunt er niet vanaf nul een starten zonder verbinding.
+ al loopt; je kunt er niet vanaf nul een starten zonder verbinding.
 - **Niets wordt dubbel vastgelegd.** Als een wijziging wel verstuurd is maar
-  het antwoord nooit terugkomt, probeert de telefoon het opnieuw — en die
-  tweede poging komt op dezelfde registratie terecht in plaats van een
-  duplicaat te maken. Dat is belangrijk, want deze getallen worden de
-  trainingsminuten van elke speler.
+ het antwoord nooit terugkomt, probeert de telefoon het opnieuw — en die
+ tweede poging komt op dezelfde registratie terecht in plaats van een
+ duplicaat te maken. Dat is belangrijk, want deze getallen worden de
+ trainingsminuten van elke speler.
 
 Lukt het na het herverbinden nog steeds niet — omdat je zo lang weg bent
 geweest dat je login is verlopen — dan blijft de wijziging in de wachtrij in
@@ -286,14 +286,14 @@ Hier werkt de rest van de module naartoe.
 Open een speler en kies het tabblad **Training**.
 
 - **De kerngetallen** — getrainde minuten, hoeveel principes uit de methodiek
-  zijn geraakt van het totaal, en wanneer er voor het laatst is getraind.
+ zijn geraakt van het totaal, en wanneer er voor het laatst is getraind.
 - **Minuten per principe** — elk principe uit je methodiek, met wat deze
-  speler eraan heeft besteed. **De principes die nooit zijn getraind staan er
-  ook bij, bovenaan, gemarkeerd.** Dat is met opzet: een lege regel is het
-  nuttigste op de pagina, en een lijst die ze stilletjes zou weglaten ziet er
-  compleet uit terwijl hij verbergt waarvoor je het tabblad opende.
+ speler eraan heeft besteed. **De principes die nooit zijn getraind staan er
+ ook bij, bovenaan, gemarkeerd.** Dat is met opzet: een lege regel is het
+ nuttigste op de pagina, en een lijst die ze stilletjes zou weglaten ziet er
+ compleet uit terwijl hij verbergt waarvoor je het tabblad opende.
 - **Recente waarnemingen** — wat trainers tijdens trainingen over deze speler
-  hebben genoteerd.
+ hebben genoteerd.
 
 De minuten komen uit trainingen waar de speler ook echt bij was. Aanwezig en
 te laat tellen mee; afgemeld, afwezig en geblesseerd niet. Een overgeslagen
@@ -326,10 +326,10 @@ Tijdens een training toont de weergave langs de lijn iedereen die er is, met
 een schaal onder de naam en een veld voor een notitie.
 
 - Je hoeft niemand een cijfer te geven. Een notitie alleen is een volledige
-  waarneming, en op een natte dinsdag is dat de normale gang van zaken.
+ waarneming, en op een natte dinsdag is dat de normale gang van zaken.
 - Tik nogmaals op een cijfer om het te wissen.
 - De schaal is die van je eigen academie — het bereik en de stapgrootte die je
-  voor evaluaties hebt ingesteld.
+ voor evaluaties hebt ingesteld.
 - Een cijfer buiten dat bereik wordt geweigerd, niet naar binnen afgerond.
 
 Elke waarneming verschijnt meteen op de **Reis** van de speler, met de datum
@@ -403,4 +403,4 @@ app.
 Wat nog volgt:
 
 - een whiteboard fotograferen in plaats van een blad papier, wat een ander
-  soort uitlezen vraagt
+ soort uitlezen vraagt

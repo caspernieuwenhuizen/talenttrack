@@ -17,9 +17,9 @@ TalentTrack draait op drie tiers — **Free**, **Standard** (€399/jr) en **Pro
 - De state machine **30-daagse Standard-trial → 14 dagen alleen-lezen → Free**. Eén klik op de Accountpagina start de trial.
 - **Free-tier-limieten**: 1 team / 25 spelers / onbeperkt evaluaties. Bij het bereiken van de team- of spelerlimiet verschijnt een upgrade-melding in plaats van opslaan.
 - **Drie kerngate's** ingebouwd:
-  - Spelersvergelijking
-  - Rate cards (volledige analyses)
-  - CSV-bulkimport
+ - Spelersvergelijking
+ - Rate cards (volledige analyses)
+ - CSV-bulkimport
 - **Ontwikkelaarsoverride** voor demo-opnames en lokale tests — zie hieronder.
 - De Freemius-SDK-adapter is **standaard slapend** en activeert pas wanneer `TT_FREEMIUS_PRODUCT_ID` en `TT_FREEMIUS_PUBLIC_KEY` zijn gedefinieerd in `wp-config.php`. Tot die tijd draait elke installatie Free (of trial / dev-override indien actief).
 
@@ -36,7 +36,7 @@ TalentTrack draait op drie tiers — **Free**, **Standard** (€399/jr) en **Pro
 | Gedeeltelijk terugzetten + 14-daagse undo | — | ✓ | ✓ |
 | Multi-academie / federatie | — | — | ✓ |
 | Foto-naar-sessie AI (#0016 wanneer geleverd) | — | — | ✓ |
-| Proefspelersmodule (#0017) | — | — | ✓ |
+| Proefspelersmodule | — | — | ✓ |
 | Scout-toegang (#0014 Sprint 5) | — | — | ✓ |
 | S3 / Dropbox / GDrive-back-upbestemmingen | — | — | ✓ |
 
@@ -72,7 +72,7 @@ De override wordt opgeslagen als een 24-uurstransient. Een "🔓 DEV: Pro"-pill 
 
 **Klantinstallaties zien deze code nooit** — zonder de constante is de adminpagina een 404 en negeert `LicenseGate::tier()` de override.
 
-## Accountpagina (v3.90.0)
+## Accountpagina
 
 Klikken op **TalentTrack** in de linker wp-admin-balk leidt nu rechtstreeks naar de Accountpagina. Het oude statistieken-en-tegels-overzicht is verhuisd naar een apart **Dashboard**-submenu en blijft zo één klik verder beschikbaar voor admins die het willen gebruiken.
 

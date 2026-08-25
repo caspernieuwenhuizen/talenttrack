@@ -48,7 +48,7 @@ You can also run migrations any time from the **Plugins** page. Next to the Tale
 
 All steps are **idempotent** — running migrations when nothing has changed is a no-op.
 
-## When a migration fails (v4.20.96+)
+## When a migration fails
 
 A migration that errors (host-specific SQL restrictions, drifted schema, a bad release) no longer hides behind a success banner:
 

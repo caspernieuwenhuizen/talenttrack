@@ -22,9 +22,9 @@ Open the **Training** tile in the **Planning & tactics** group.
 Two kinds of record share the list:
 
 - A **team plan** belongs to one team. It is the normal case: the training
-  you are building for Tuesday.
+ you are building for Tuesday.
 - A **club template** belongs to no team. It is a starting shape — "standard
-  MD-3, 75 minutes" — that any coach can copy and adapt.
+ MD-3, 75 minutes" — that any coach can copy and adapt.
 
 Filter between them with the **Kind** control. Everything else on the list
 behaves the way the other lists in TalentTrack do: search by name, sort by
@@ -35,15 +35,15 @@ column, and switch between **Active** and **Archived** with the status pills.
 Open a plan to see:
 
 - **The key numbers** — total duration, how many blocks, whether it is a team
-  plan or a club template, and the theme it works on.
+ plan or a club template, and the theme it works on.
 - **The time strip** — a proportional bar showing how the training splits
-  across its blocks, colour-coded by block type. The same six colours are
-  used everywhere training appears, so the shape of a training is
-  recognisable at a glance.
+ across its blocks, colour-coded by block type. The same six colours are
+ used everywhere training appears, so the shape of a training is
+ recognisable at a glance.
 - **The blocks** — each one in order with its type, duration, the exercise it
-  draws on, the organisation, and the coaching points.
+ draws on, the organisation, and the coaching points.
 - **Times this plan was run** — every training this plan has actually been
-  used for.
+ used for.
 
 ## Editing a plan never rewrites history
 
@@ -78,28 +78,28 @@ and become club-wide, so a coach's work survives a season rollover.
 Press **New plan**. Four short questions, then a finished session:
 
 1. **When** — the team and the date. The age group, how many days until the
-   next match and where you are in the season are worked out for you.
+ next match and where you are in the season are worked out for you.
 2. **Theme** — what the session is about. Each option shows how many exercises
-   your library can offer for it, so you are never sent down a path with
-   nothing behind it.
+ your library can offer for it, so you are never sent down a path with
+ nothing behind it.
 3. **Shape** — how long, and how many players you expect. The number of
-   players comes from this team's recent attendance rather than its squad
-   list, because a sixteen-player squad rarely puts sixteen on the pitch.
-   Change it whenever you know better — a school trip is not in the data.
+ players comes from this team's recent attendance rather than its squad
+ list, because a sixteen-player squad rarely puts sixteen on the pitch.
+ Change it whenever you know better — a school trip is not in the data.
 4. **Proposal** — the draft. Go back and change anything; nothing is saved
-   until you say so.
+ until you say so.
 5. **Review** — which players' open goals this session works on, then save.
 
 ### What the generator will and will not do
 
 - **Every exercise comes from your library.** Nothing is invented.
 - **Nothing goes above the age group's intensity ceiling.** A U13 session
-  never proposes an exercise harder than U13 allows.
+ never proposes an exercise harder than U13 allows.
 - **The same answers always give the same session.** It is not shuffling.
 - **A drill never appears twice in one session.**
 - **If your library has nothing suitable for part of the session, that block
-  is left blank and says so** rather than being padded out with something
-  that does not fit.
+ is left blank and says so** rather than being padded out with something
+ that does not fit.
 
 ### Why some sessions suit your players better than others
 
@@ -179,9 +179,9 @@ your players better than others* above.
 Two buttons under the block list:
 
 - **Save as club template** makes a club-wide copy with no team on it — the
-  session that worked becomes a starting shape anyone can build from.
+ session that worked becomes a starting shape anyone can build from.
 - **Copy to a new plan** makes an independent copy for the same team, which is
-  the quickest route to next week's session.
+ the quickest route to next week's session.
 
 Both copy the **saved** plan, so save your changes first — the buttons will
 tell you if you have not.
@@ -215,17 +215,17 @@ where your thumb already is.
 
 - **Start the training** when you begin. The first block opens with a timer.
 - The timer counts **up**, against the block's planned length. Nothing moves
-  on by itself — you decide when a block is done.
+ on by itself — you decide when a block is done.
 - **Running over is fine.** The screen turns amber and tells you how far over
-  you are and what the block will be recorded as if you finish now. It does
-  not nag and it does not stop you.
+ you are and what the block will be recorded as if you finish now. It does
+ not nag and it does not stop you.
 - **Finish this block** records how long it actually ran and opens the next.
 - **Skip this block** records that it did not happen. The block stays in the
-  plan; only this training records the skip.
+ plan; only this training records the skip.
 - **‹ and ›** move between blocks without recording anything, for when you
-  want to look ahead.
+ want to look ahead.
 - **Finish the training** closes the session. Blocks you never ran are
-  recorded as skipped.
+ recorded as skipped.
 
 At the end you get the totals: minutes actually trained against minutes
 planned, how many blocks ran, how many were skipped.
@@ -261,11 +261,11 @@ is lost by walking inside.
 Two things worth knowing:
 
 - **Opening the page still needs signal.** What is protected is a session
-  already underway; you cannot start one from nothing with no connection.
+ already underway; you cannot start one from nothing with no connection.
 - **Nothing is recorded twice.** If a change is sent and the reply never comes
-  back, the phone tries again — and the second attempt lands on the same
-  record rather than creating a duplicate. That matters because these numbers
-  become each player's training minutes.
+ back, the phone tries again — and the second attempt lands on the same
+ record rather than creating a duplicate. That matters because these numbers
+ become each player's training minutes.
 
 If a change still cannot be saved after you reconnect — because you were away
 so long that your login expired — it stays queued rather than being thrown
@@ -280,12 +280,12 @@ This is the part the rest of the module exists for.
 Open a player and choose the **Training** tab.
 
 - **The headline numbers** — minutes trained, how many of the club's
-  principles have been touched out of the total, and when they last trained.
+ principles have been touched out of the total, and when they last trained.
 - **Minutes per principle** — every principle in your methodology, with what
-  this player has spent on it. **The principles they have never trained are
-  listed too, at the top, marked.** That is deliberate: an empty row is the
-  most useful thing on the page, and a list that quietly dropped them would
-  look complete while hiding what you opened the tab to find.
+ this player has spent on it. **The principles they have never trained are
+ listed too, at the top, marked.** That is deliberate: an empty row is the
+ most useful thing on the page, and a list that quietly dropped them would
+ look complete while hiding what you opened the tab to find.
 - **Recent observations** — what coaches noted about them during trainings.
 
 The minutes come from trainings the player actually attended. Present and late
@@ -318,10 +318,10 @@ During a training, the sideline view lists everyone who is there with a scale
 under their name and a box for a note.
 
 - You do not have to score anyone. A note on its own is a complete
-  observation, and on a wet Tuesday it is the usual one.
+ observation, and on a wet Tuesday it is the usual one.
 - Tap a number again to clear it.
 - The scale is your academy's own — whatever range and step you have
-  configured for evaluations.
+ configured for evaluations.
 - A score outside that range is refused rather than rounded into it.
 
 Each observation appears on the player's **Journey** timeline straight away,
@@ -393,4 +393,4 @@ the app.
 Still to come:
 
 - photographing a whiteboard rather than a sheet of paper, which needs a
-  different kind of reading
+ different kind of reading

@@ -26,11 +26,11 @@ waar je hem zag, en hoe een ouder te bereiken is.
 Twee velden wegen zwaarder dan de rest:
 
 - **Vindcontext** — waar en onder welke omstandigheden je hem zag. Dit reist met
-  de speler mee zolang hij bij de academie is. Vraagt iemand over twee jaar
-  waarom deze speler werd aangetrokken, dan staat het antwoord hier.
+ de speler mee zolang hij bij de academie is. Vraagt iemand over twee jaar
+ waarom deze speler werd aangetrokken, dan staat het antwoord hier.
 - **Wat je zag** — je werkelijke oordeel. Concreet is meer waard dan aardig:
-  "komt onder druk comfortabel in de halve draai aan de bal" zegt meer dan
-  "goede techniek".
+ "komt onder druk comfortabel in de halve draai aan de bal" zegt meer dan
+ "goede techniek".
 
 Zodra je een prospect vastlegt, komt er automatisch een taak bij het hoofd
 opleiding om hem uit te nodigen voor een testtraining. Je hoeft dus niemand
@@ -84,9 +84,9 @@ echt worden bekeken — in plaats van dat het in jouw hoofd zit.
 Twee dingen die een scout redelijkerwijs verwacht, zijn nog niet gebouwd:
 
 - **Een notitie toevoegen aan een prospect die je al hebt vastgelegd.** Notities
-  worden bij het aanmaken vastgelegd en kunnen daarna niet worden aangevuld.
+ worden bij het aanmaken vastgelegd en kunnen daarna niet worden aangevuld.
 - **Contactgegevens of toestemming van een ouder corrigeren.** De wizard kan
-  alleen aanmaken.
+ alleen aanmaken.
 
 Zolang dat zo is: zet correcties en latere waarnemingen in je bericht aan het
 hoofd opleiding, in plaats van ervan uit te gaan dat het dossier ze meeneemt.

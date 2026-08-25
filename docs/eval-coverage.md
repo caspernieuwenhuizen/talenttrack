@@ -28,7 +28,7 @@ the settings-style editor at the top of the report:
 1. Give the window a **name**.
 2. Pick its **start** and **end** dates.
 3. Add as many rows as you need (one blank row is always offered for the
-   next window). Clear a row's fields to remove that window.
+ next window). Clear a row's fields to remove that window.
 4. Click **Save windows**.
 
 Windows are stored per academy in configuration — there is no separate
@@ -42,10 +42,10 @@ Below the editor, the matrix lists every active player grouped by team,
 with one column per window. Each cell shows:
 
 - **✓ Evaluated** — at least one evaluation landed in that window. Hover
-  the tick to see which coach recorded the most recent one.
+ the tick to see which coach recorded the most recent one.
 - **• Not evaluated** — a gap. The cell is marked with a dot and a
-  "Not evaluated" label (state is conveyed by icon and text, never colour
-  alone).
+ "Not evaluated" label (state is conveyed by icon and text, never colour
+ alone).
 
 A KPI strip across the top totals players, windows, overall coverage
 percentage, and the number of gaps.
@@ -71,9 +71,9 @@ The last strip reports, per team and per window, the share of
 separates two very different situations:
 
 - A team with a low percentage has completed activities but the coach is
-  not recording who attended.
+ not recording who attended.
 - A team showing **No activity** simply had no completed activities in
-  that window — nothing to record.
+ that window — nothing to record.
 
 ## Where this fits
 

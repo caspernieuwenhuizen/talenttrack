@@ -135,16 +135,16 @@ forward over those two seconds. Nothing else is needed to make a scene move.
 The rest of the surface is there for the times dragging is not what you want:
 
 - **Add a marker** — pick a player, opponent, keeper, ball, cone or goal on
-  the left, then tap the pitch. The tool stays selected, so you can place a
-  whole team without going back to the palette.
+ the left, then tap the pitch. The tool stays selected, so you can place a
+ whole team without going back to the palette.
 - **Lines** — pick a line type (pass, dribble, run, shot, press), then tap two
-  markers. The line is drawn between where those two markers *are* at that
-  moment, so it stays right when you reposition either of them later.
+ markers. The line is drawn between where those two markers *are* at that
+ moment, so it stays right when you reposition either of them later.
 - **The timeline** — one row per marker, one diamond per recorded position.
-  Tap a diamond to travel to that moment; drag it sideways to change when it
-  happens.
+ Tap a diamond to travel to that moment; drag it sideways to change when it
+ happens.
 - **Selected marker** — the shirt number, the exact position, and buttons to
-  duplicate or remove.
+ duplicate or remove.
 - **Undo** takes back the last change, up to forty of them. Ctrl+Z works too.
 
 Arrow keys move the selected marker a step at a time, so a scene can be built
@@ -162,7 +162,7 @@ it always looks the same:
 - on the **exercise page**, with play controls;
 - in the **sideline view** while you are running the training;
 - on the **printed A4 sheet** — as a still picture, since paper cannot animate.
-  The still is the scene's final frame.
+ The still is the scene's final frame.
 
 An exercise can hold more than one scene, which is how you show a drill that
 has phases. The first one you draw is the one the three surfaces show; press

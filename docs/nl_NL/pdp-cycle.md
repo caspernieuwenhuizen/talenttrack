@@ -28,8 +28,8 @@ De **POP**-tegel opent op één **spelergerichte lijst** voor het huidige seizoe
 - Bestrijk je **meer dan één team** (of heb je globale scope), dan kies je eerst een team — *"Selecteer een team om de spelers te zien."* — zodat je afgebakend begint in plaats van alle spelers tegelijk te zien. Een coach met één team gaat direct naar de eigen selectie.
 - Bovenaan staat een samenvattingsregel, bijvoorbeeld: *"14 van de 18 spelers hebben een POP voor het huidige seizoen (2025/26)."*
 - Elke rij toont de **speler** (gekoppeld aan het spelerrecord), het **team** en een **POP dit seizoen**-status:
-  - **Aangemaakt** — een groene *POP ✓*-pil, waar mogelijk met gespreksvoortgang (bijv. *POP ✓ 1/3*), die direct naar het dossier linkt.
-  - **Niet gestart** — een grijze *Niet gestart*-pil plus een knop **POP aanmaken** die de aanmaakflow opent, voor­ingevuld voor die speler en dat team.
+ - **Aangemaakt** — een groene *POP ✓*-pil, waar mogelijk met gespreksvoortgang (bijv. *POP ✓ 1/3*), die direct naar het dossier linkt.
+ - **Niet gestart** — een grijze *Niet gestart*-pil plus een knop **POP aanmaken** die de aanmaakflow opent, voor­ingevuld voor die speler en dat team.
 - **Filters** — teamkeuze + zoeken op speler, op dezelfde manier afgebakend als de rest van de app: coaches zien alleen spelers van hun eigen teams; beheerders zien iedereen.
 - **Alleen spelers zonder POP** — een schakelaar met één klik om iedereen te verbergen die al een dossier heeft, zodat je de gaten kunt wegwerken.
 - Met de **⋯**-knop aan het eind van de filterrij (voor wie mag herstellen of verwijderen) schakel je de lijst naar de spelers van wie het POP voor het seizoen **gearchiveerd** is, met per rij **Herstellen** / permanent verwijderen. Dit vervangt het oude aparte tabblad Dossiers — gearchiveerde bestanden staan nu in dezelfde lijst.
@@ -149,9 +149,9 @@ POP-dossiers kennen **twee** verwijderpaden zodat destructief opruimen nooit per
 
 - **Archiveren** — soft-delete. Het dossier verdwijnt uit de standaardlijst, maar elke rij blijft in de database staan. Coaches met bewerkrechten kunnen een actief dossier archiveren (knop *Archiveren* in de actiekolom). Beheerders zetten de schakelaar *Gearchiveerd tonen* aan op de POP-lijst en klikken op *Herstellen* om het dossier terug te halen. Dit is het juiste antwoord wanneer een speler halverwege het seizoen vertrekt of de cyclus per ongeluk is geopend.
 - **Definitief verwijderen** — onomkeerbare hard-delete. Alleen beschikbaar voor operators met de capability `tt_delete_pdp` (standaard alleen voor beheerders). Twee ingangen: de knop *PDP definitief verwijderen* op de detailpagina van het POP-dossier, **en** een actie *Permanent verwijderen* per rij bij gearchiveerde dossiers (zet de schakelaar *Gearchiveerd tonen* aan op de POP-lijst — operators met `tt_delete_pdp` zien deze schakelaar ook zonder herstelrechten). Beide openen dezelfde bevestigingspagina die:
-  - een **cascade-samenvatting** toont — hoeveel gesprekken / eindoordelen / kalenderkoppelingen / POP-blokken / doel-koppelingen er verdwijnen.
-  - vereist dat de operator de **naam van de speler** letterlijk overtypt voordat de knop *PDP definitief verwijderen* actief wordt (hoofdletterongevoelig, met tolerantie voor extra spaties).
-  - een **CSV-momentopname vóór verwijdering** schrijft naar `wp-content/uploads/tt-pdp-deletes/pdp-<dossier-id>-<tijdstempel>.csv` voordat de cascade wordt uitgevoerd. Het absolute pad wordt vastgelegd in de audit-log-entry `pdp.deleted_with_cascade`, samen met de rijaantallen per tabel.
-  - de cascade over vijf tabellen draait binnen één transactie. Elke fout draait alles terug; gedeeltelijke status na een fout is onmogelijk.
+ - een **cascade-samenvatting** toont — hoeveel gesprekken / eindoordelen / kalenderkoppelingen / POP-blokken / doel-koppelingen er verdwijnen.
+ - vereist dat de operator de **naam van de speler** letterlijk overtypt voordat de knop *PDP definitief verwijderen* actief wordt (hoofdletterongevoelig, met tolerantie voor extra spaties).
+ - een **CSV-momentopname vóór verwijdering** schrijft naar `wp-content/uploads/tt-pdp-deletes/pdp-<dossier-id>-<tijdstempel>.csv` voordat de cascade wordt uitgevoerd. Het absolute pad wordt vastgelegd in de audit-log-entry `pdp.deleted_with_cascade`, samen met de rijaantallen per tabel.
+ - de cascade over vijf tabellen draait binnen één transactie. Elke fout draait alles terug; gedeeltelijke status na een fout is onmogelijk.
 
 Gebruik standaard *Archiveren*. Grijp alleen naar *Definitief verwijderen* voor AVG-wisbeleid, ouderverzoeken of andere legitieme bewaartermijn-zaken. Het CSV-bestand is je audit trail — bewaar het.

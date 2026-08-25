@@ -27,24 +27,24 @@ can stop and pick up later from the same place.
 
 1. **Welcome** — a short intro, then **Set up my academy** to begin.
 2. **Academy basics** — academy name, primary colour, season label, and the
-   date format used across the plugin. These appear in the dashboard header,
-   on player cards, and in printed reports. You can change them later under
-   Configuration.
+ date format used across the plugin. These appear in the dashboard header,
+ on player cards, and in printed reports. You can change them later under
+ Configuration.
 3. **First team** — name your first team and pick its age group. Players,
-   evaluations, activities, and goals all attach to a team, so you need at
-   least one. You can **Skip this step** if you would rather add teams
-   later under Teams.
+ evaluations, activities, and goals all attach to a team, so you need at
+ least one. You can **Skip this step** if you would rather add teams
+ later under Teams.
 4. **First admin** — creates a TalentTrack staff record for the signed-in
-   account and links it to your WordPress user, so evaluations, activities,
-   and notifications reference the right person. Tick **Grant me the Club
-   Admin role** (recommended) to give yourself full management access.
+ account and links it to your WordPress user, so evaluations, activities,
+ and notifications reference the right person. Tick **Grant me the Club
+ Admin role** (recommended) to give yourself full management access.
 5. **Dashboard page** — creates the frontend page that hosts the
-   `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so
-   everyone lands on the dashboard when they sign in. If a page with the
-   shortcode already exists it is reused, not duplicated. You can **Skip**
-   this and set the homepage yourself later under Settings → Reading.
+ `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so
+ everyone lands on the dashboard when they sign in. If a page with the
+ shortcode already exists it is reused, not duplicated. You can **Skip**
+ this and set the homepage yourself later under Settings → Reading.
 6. **Done** — a summary of what was set up, with **Go to dashboard** and a
-   **Run again** button.
+ **Run again** button.
 
 ## Stop and resume
 

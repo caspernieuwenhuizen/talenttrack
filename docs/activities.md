@@ -62,12 +62,12 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
 - **Stat strip** — a compact row of the key numbers under the hero. A match shows **Present** (turned up / roster) · **Substitutes** · **Match length**; a training shows **Present** · **Duration**. Numbers with no value are left out. **Present** appears only once the activity is **completed**, matching the Attendance card below it: on a session still marked *Planned* the number would state a turnout that has not happened yet. It counts recorded attendance only — the planned roster on the **Expected attendance** card is a separate list and is never added in.
 - **Facts strip** — four quick facts. A training shows Date · Time · Type · Status; a match day shows Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out.
 - **Cards** — each with a titled header, only the cards that have something to show appear, so the page stays uncluttered:
-  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
-  - **Notes** — the activity's free-text notes.
-  - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
-  - **Expected attendance** — the planned roster (see below).
-  - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row. A collapsible **Show roster** list underneath names each registered player with their status pill (guests tagged), so you can see who had which status without opening the edit form.
-  - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
+ - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
+ - **Notes** — the activity's free-text notes.
+ - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
+ - **Expected attendance** — the planned roster (see below).
+ - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row. A collapsible **Show roster** list underneath names each registered player with their status pill (guests tagged), so you can see who had which status without opening the edit form.
+ - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
 - **Audit footer** — who created and last changed the activity. For an activity imported from Spond it also shows **Team last synced from Spond: <time>** — the team's most recent Spond sync (the timestamp is team-level, not per activity, and the label says so), so you can judge how fresh the imported data is.
 
 If that sync looks stale — the event moved in Spond, or the roster changed — a **Sync team from Spond** button sits in the page header of any Spond-imported activity. It pulls the team's calendar again straight away, so you don't have to wait for the scheduled sync or ask an academy admin. It is a *team-wide* refresh (Spond has no way to re-fetch a single event), so the confirmation says so, and the change you were looking for may land on a different activity in the list. The button appears only for someone who may manage that team's Spond connection — an academy admin for any team, a head coach for their own — and only while the activity is active, not archived.
@@ -110,7 +110,7 @@ An **archived** activity is stricter still: everything mutating is hidden and on
 
 ### Four buttons, and a ⋯ for the rest
 
-The header used to lay every available action out in one row — eleven of them on a planned match, all the same size, so the two that matter were indistinguishable from the six that support them. It now shows what you came to do and folds the rest behind a **⋯** button on the same row:
+The header shows what you came to do and folds everything else behind a **⋯** button on the same row. Which actions sit on the row depends on the activity's status:
 
 | Status | On the row | Behind ⋯ |
 | --- | --- | --- |
@@ -124,7 +124,7 @@ The menu opens on click, on Enter and on Space, closes on Escape or a click outs
 
 **The three grids and Sync from Spond are icons.** *Attendance grid*, *Minutes grid* and *Ratings grid* are shortcuts into the same bulk surface rather than three separate decisions, and re-pulling a Spond calendar is maintenance. In the header they would be four text buttons competing with Complete and Cancel; inside the menu they get their words back. Every one of them still names itself to a screen reader and on hover.
 
-**Match analysis waits for completion.** It used to appear as soon as the date arrived, which meant a match kicking off at seven in the evening offered *write the match analysis* beside *complete activity*. Complete the activity and it appears.
+**Match analysis waits for completion.** *Write the match analysis* appears once you complete the activity, not when the date arrives — there is nothing to review while the match is still being played.
 
 **With the guided wizards switched off** the button reads **Mark attendance** instead and opens the [attendance grid](attendance-grid.md) on that activity's own column — same place on the list card and the detail view, and the dashboard's **Mark attendance** hero goes there too. A match that *is* live-tracked still routes to Resume / Finalize. Because a single grid save can cover weeks of sessions, recording attendance there deliberately doesn't complete anything: a planned activity gains a **Mark completed** button for that, next to Cancel. Record attendance first, then mark it completed — **Reopen** undoes it.
 

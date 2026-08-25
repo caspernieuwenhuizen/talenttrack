@@ -1,7 +1,39 @@
-# TalentTrack v4.102.0 — The Help icon now opens help for the screen you are on. It previously opened
+# TalentTrack v4.102.1 — Help topics corrected where they described things the product does not do (#2549)
 
-"Getting started" on about 117 of the 144 screens, because the mapping was a
-hand-maintained list that covered 27 of them.
+Three topics were telling admins to do impossible things.
+
+**Impersonation** said the audit log is read at a REST endpoint that does not
+exist, and described a cross-club safeguard that is not implemented. It now
+says plainly that every impersonation is logged and that the log has no reader
+surface yet — which is a gap worth knowing about, not one to discover while
+trying to review who looked at a player's record.
+
+**Custom widgets** and **Modules** both told an admin to enable the builder
+with a `wp option update tt_custom_widgets_enabled 1` command. That option was
+replaced by a feature toggle; following the instruction did nothing. Both now
+point at Access control → Features.
+
+Alongside that, the remaining changelog voice is gone from the topics a coach,
+player, parent or academy admin reads: version stamps in headings, issue
+numbers in prose, and "this used to work differently" asides that left a reader
+unable to tell current behaviour from history.
+
+# TalentTrack v4.102.1 — Dutch help topics can no longer go missing unnoticed (#2550)
+
+No user-facing change. The documentation gate now also checks translation
+parity: every topic a coach, player, parent or academy admin can read must have
+a Dutch twin, that twin's title and summary must actually be translated, and
+its group, audience and ordering must match the English.
+
+The corpus was brought to parity earlier in this epic. These two rules are what
+keep it there — before them, a topic could quietly ship English-only and nobody
+would find out until a Dutch coach opened it.
+
+# TalentTrack v4.102.0 — The Help icon opens help for the screen you are on (#2547)
+
+The Help icon previously opened "Getting started" on about 117 of the 144
+screens, because the mapping was a hand-maintained list that covered 27 of
+them.
 
 Each help topic now declares which screens it serves, and the map is derived
 from that — so 142 of the 144 screens resolve to a relevant topic. The
@@ -12,14 +44,14 @@ quietly showing the wrong topic.
 Also fixed: the Workflow screens and the PDP screen opened help on topics that
 did not exist, and fell through to "Getting started".
 
-# TalentTrack v4.102.0 — Forty-two help topics that existed only as files in the repository are now
+# TalentTrack v4.102.0 — Forty-two help topics that existed only in the repository are now readable in the app (#2548)
 
-readable in the app. Match day (match preparation, live match, minutes,
-attendance and ratings grids), Planning (team planner, training plans,
-tournaments, season rollover) and Operator guide (security, privacy, the photo
-DPIA, telemetry) are new sections in Help & Docs; measurements, injuries, the
-exercise library, bulk exports, the data browser, the audit log and the six
-Configuration sub-pages join the existing ones.
+Match day (match preparation, live match, minutes, attendance and ratings
+grids), Planning (team planner, training plans, tournaments, season rollover)
+and Operator guide (security, privacy, the photo DPIA, telemetry) are new
+sections in Help & Docs; measurements, injuries, the exercise library, bulk
+exports, the data browser, the audit log and the six Configuration sub-pages
+join the existing ones.
 
 The three persona guides — head coach, head of development, scout — were
 internal working notes and are now written for the people they are named after:
@@ -55,9 +87,9 @@ The Dutch twins of every help topic rewritten in the same release were rewritten
 alongside them, so the two languages describe the same product rather than
 drifting a release apart.
 
-# TalentTrack v4.102.0 — no-user-facing-change
+# TalentTrack v4.102.0 — A CI gate so the help corpus stops drifting (#2551)
 
-Adds `docs-lint.yml` + `tools/check-docs.php`: a CI gate over the documentation
+No user-facing change. Adds `docs-lint.yml` + `tools/check-docs.php`: a gate over the documentation
 corpus. It checks that every doc is either registered or explicitly dev-only,
 that the front-matter keys resolve to real modules, features, tiers and
 capabilities, that every routable screen is claimed by a help topic or listed
@@ -224,12 +256,12 @@ existing tests assert on are computed by different queries that never touch
 `tt_players` — which is how this survived three rounds of fixes to the numbers
 beside it.
 
-# TalentTrack v4.101.5 — Help topics now follow what the install actually runs. A topic whose module
+# TalentTrack v4.101.5 — Help topics follow what the install actually runs (#2546)
 
-is switched off, whose feature toggle is off, whose tier is above the
-licence, or whose capability the reader lacks is gone from the table of
-contents, the search box, the help drawer and its own URL — not shown with
-an "unavailable" badge. An academy that turns Methodology off stops seeing
+A topic whose module is switched off, whose feature toggle is off, whose tier
+is above the licence, or whose capability the reader lacks is gone from the
+table of contents, the search box, the help drawer and its own URL — not shown
+with an "unavailable" badge. An academy that turns Methodology off stops seeing
 the Methodology guide; a Free install no longer lists Pro documentation; a
 coach without access to the Data Browser is no longer walked into a
 permission-denied screen by its guide.

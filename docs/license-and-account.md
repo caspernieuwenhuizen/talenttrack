@@ -17,9 +17,9 @@ TalentTrack runs on three tiers — **Free**, **Standard** (€399/yr), and **Pr
 - The **30-day Standard trial → 14-day read-only grace → Free** state machine. A single click on the Account page starts the trial.
 - **Free-tier caps**: 1 team / 25 players / unlimited evaluations. Hitting the team or player cap surfaces an upgrade nudge instead of saving.
 - **Three keystone feature gates** wired:
-  - Player comparison view
-  - Rate cards (full analytics)
-  - CSV bulk import
+ - Player comparison view
+ - Rate cards (full analytics)
+ - CSV bulk import
 - **Developer override** for demo recordings and local testing — see below.
 - The Freemius SDK adapter is **dormant by default** and activates only when `TT_FREEMIUS_PRODUCT_ID` and `TT_FREEMIUS_PUBLIC_KEY` are defined in `wp-config.php`. Until then, every install runs Free (or trial / dev override if active).
 
@@ -36,7 +36,7 @@ TalentTrack runs on three tiers — **Free**, **Standard** (€399/yr), and **Pr
 | Backup partial restore + 14-day undo | — | ✓ | ✓ |
 | Multi-academy / federation | — | — | ✓ |
 | Photo-to-session AI (#0016 when ships) | — | — | ✓ |
-| Trial player module (#0017) | — | — | ✓ |
+| Trial player module | — | — | ✓ |
 | Scout access (#0014 Sprint 5) | — | — | ✓ |
 | S3 / Dropbox / GDrive backup destinations | — | — | ✓ |
 
@@ -72,7 +72,7 @@ The override is stored as a 24h transient. A "🔓 DEV: Pro" pill appears in the
 
 **Customer installs never see this code path** — without the constant defined, the admin page 404s and `LicenseGate::tier()` ignores the override.
 
-## Account page (v3.90.0)
+## Account page
 
 Clicking **TalentTrack** in the wp-admin sidebar lands on the Account page. The legacy stats-and-tiles overview moved to a separate **Dashboard** submenu and is still one click away for admins who want it.
 

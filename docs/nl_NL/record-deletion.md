@@ -15,34 +15,34 @@ onomkeerbare **definitieve verwijdering** vereist `tt_edit_settings`.
 ### Waar je het vindt
 
 - **Lijstweergaven** (spelers, teams, beoordelingen, doelen, toernooien,
-  vakanties): de actie **Definitief verwijderen** verschijnt op
-  gearchiveerde rijen — schakel daarnaartoe met de **⋯**-knop aan het eind
-  van de filterrij — naast Herstellen.
+ vakanties): de actie **Definitief verwijderen** verschijnt op
+ gearchiveerde rijen — schakel daarnaartoe met de **⋯**-knop aan het eind
+ van de filterrij — naast Herstellen.
 - **Detail- / bewerkpagina's** (proefdossier, proeftraject, VCT-oefening):
-  een knop **Definitief verwijderen** staat naast de archiveerknop.
+ een knop **Definitief verwijderen** staat naast de archiveerknop.
 
 Als de verwijdering wordt geblokkeerd door een verwijzend record, toont het
 scherm de reden (bijv. *"Kan niet verwijderen: nog gekoppeld aan N …"*).
 
-## Verwijderen met referentiële-integriteitscontrole (#1783)
+## Verwijderen met referentiële-integriteitscontrole
 
 Definitief verwijderen is **fail-closed**. Vóór het verwijderen wordt
 gescand of andere records ernaar verwijzen, en vervolgens wordt:
 
 - de eigen onderliggende data **mee-verwijderd** (een beoordeling
-  verwijderen verwijdert ook de categoriescores; een doel verwijderen
-  verwijdert de koppelingen en het gesprek),
+ verwijderen verwijdert ook de categoriescores; een doel verwijderen
+ verwijdert de koppelingen en het gesprek),
 - de verwijzing **leeggemaakt** bij rijen die het record overleven. Bij een
-  optionele koppeling wordt de verwijzing leeggemaakt (een workflowtaak die
-  een doel aanmaakte blijft bestaan, met de doelkoppeling leeggemaakt); bij
-  een verplichte koppeling die niet leeg mag zijn wordt de rij in plaats
-  daarvan op **"niet toegewezen"** gezet (een team verwijderen laat de
-  spelers staan, niet langer aan een team gekoppeld), of
+ optionele koppeling wordt de verwijzing leeggemaakt (een workflowtaak die
+ een doel aanmaakte blijft bestaan, met de doelkoppeling leeggemaakt); bij
+ een verplichte koppeling die niet leeg mag zijn wordt de rij in plaats
+ daarvan op **"niet toegewezen"** gezet (een team verwijderen laat de
+ spelers staan, niet langer aan een team gekoppeld), of
 - de verwijdering **geblokkeerd** wanneer een ander record er nog naar
-  verwijst dat er geen eigendom van is. De verwijdering wordt geweigerd met
-  een melding van wat er nog naar verwijst (bijv. *"Kan niet verwijderen:
-  nog gekoppeld aan 18 spelers, 6 activiteiten. Archiveer of verwijder die
-  eerst."*).
+ verwijst dat er geen eigendom van is. De verwijdering wordt geweigerd met
+ een melding van wat er nog naar verwijst (bijv. *"Kan niet verwijderen:
+ nog gekoppeld aan 18 spelers, 6 activiteiten. Archiveer of verwijder die
+ eerst."*).
 
 In het slechtste geval wordt een verwijdering **geweigerd** — een
 definitieve verwijdering laat nooit stilzwijgend losgekoppelde rijen achter.

@@ -28,8 +28,8 @@ instellingen-editor boven aan het rapport:
 1. Geef de periode een **naam**.
 2. Kies de **start**- en **einddatum**.
 3. Voeg zoveel rijen toe als nodig (er staat altijd één lege rij klaar
-   voor de volgende periode). Maak de velden van een rij leeg om die
-   periode te verwijderen.
+ voor de volgende periode). Maak de velden van een rij leeg om die
+ periode te verwijderen.
 4. Klik op **Periodes opslaan**.
 
 Periodes worden per academie in de configuratie opgeslagen — er is geen
@@ -43,11 +43,11 @@ Onder de editor toont de matrix elke actieve speler, gegroepeerd per
 team, met één kolom per periode. Elke cel toont:
 
 - **✓ Geëvalueerd** — er viel minstens één evaluatie in die periode.
-  Beweeg over het vinkje om te zien welke coach de meest recente
-  vastlegde.
+ Beweeg over het vinkje om te zien welke coach de meest recente
+ vastlegde.
 - **• Niet geëvalueerd** — een gat. De cel is gemarkeerd met een punt en
-  het label "Niet geëvalueerd" (de status blijkt uit pictogram en tekst,
-  nooit uit kleur alleen).
+ het label "Niet geëvalueerd" (de status blijkt uit pictogram en tekst,
+ nooit uit kleur alleen).
 
 Een KPI-strook boven aan toont het totaal aantal spelers, periodes, het
 totale dekkingspercentage en het aantal gaten.
@@ -73,9 +73,9 @@ activiteiten waarvoor **enige** aanwezigheid is geregistreerd. Dit
 scheidt twee heel verschillende situaties:
 
 - Een team met een laag percentage heeft afgeronde activiteiten, maar de
-  coach registreert niet wie aanwezig was.
+ coach registreert niet wie aanwezig was.
 - Een team met **Geen activiteit** had simpelweg geen afgeronde
-  activiteiten in die periode — er valt niets te registreren.
+ activiteiten in die periode — er valt niets te registreren.
 
 ## Waar dit past
 

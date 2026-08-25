@@ -22,26 +22,26 @@ out on top of it.
 ## The pieces
 
 - **Test (definition)** — a thing you measure (e.g. "Sprint 30m", "Height").
-  Each test belongs to a **category** and has a **value type**, a **unit**,
-  a **recurrence**, and a **direction** (is higher or lower better?).
+ Each test belongs to a **category** and has a **value type**, a **unit**,
+ a **recurrence**, and a **direction** (is higher or lower better?).
 - **Category** — the grouping a test sits under. Seeded with
-  *Anthropometric*, *Physical*, *Technical*, and *Mental*; an admin can edit
-  the list.
+ *Anthropometric*, *Physical*, *Technical*, and *Mental*; an admin can edit
+ the list.
 - **Unit** — the unit of measure. Seeded with proper units (cm, m, kg, g, s,
-  min, reps, level, %, bpm); a test picks one **or** supplies its own custom
-  unit.
+ min, reps, level, %, bpm); a test picks one **or** supplies its own custom
+ unit.
 - **Recurrence** — how often the test should run: annually, twice a year,
-  quarterly, monthly, or ad hoc. This powers "who's due".
+ quarterly, monthly, or ad hoc. This powers "who's due".
 - **Session** — a planned testing moment for one team: one test, one date.
-  Staff enter one value per player against it.
+ Staff enter one value per player against it.
 - **Target** — a per-age-group band (green / amber) for a test. A recorded
-  value is flagged green, amber, or red against the band for the player's
-  age group, respecting the test's direction.
+ value is flagged green, amber, or red against the band for the player's
+ age group, respecting the test's direction.
 - **Status levels** — for the **status** value type only: an operator-defined,
-  ordered set of coloured levels (e.g. *At risk* red, *Watch* amber, *On
-  track* green). A status test records a level per player rather than a
-  number, and the player's latest level shows as a coloured chip on their
-  profile.
+ ordered set of coloured levels (e.g. *At risk* red, *Watch* amber, *On
+ track* green). A status test records a level per player rather than a
+ number, and the player's latest level shows as a coloured chip on their
+ profile.
 
 ## Status tests (a manual player status)
 
@@ -51,23 +51,23 @@ directly. It rides the measurement framework, so it gets dated history and
 profile surfacing for free.
 
 - Choose **A status (coloured levels)** as the value type when creating the
-  test. The wizard then lands you on the test's edit screen.
+ test. The wizard then lands you on the test's edit screen.
 - On the edit screen, define the **status levels** from lowest to highest:
-  each level has a label and a colour picked from a curated palette (green,
-  lime, yellow, amber, orange, red, cyan, blue, grey). Clear a level's label
-  to remove it;
-  the row order is the saved order.
+ each level has a label and a colour picked from a curated palette (green,
+ lime, yellow, amber, orange, red, cyan, blue, grey). Clear a level's label
+ to remove it;
+ the row order is the saved order.
 - Record a status the same way as any other test — *Record measurements*
-  shows a coloured **status picker** per player instead of a number field:
-  a dropdown whose closed control and every open option show the level’s
-  colour square next to its label, sized so the longest label never clips.
-  The picker is fully keyboard- and touch-operable (open with Enter/Space or
-  the arrow keys, move with ↑/↓, type-ahead, Escape to close); with
-  JavaScript off it falls back to a plain native dropdown.
+ shows a coloured **status picker** per player instead of a number field:
+ a dropdown whose closed control and every open option show the level’s
+ colour square next to its label, sized so the longest label never clips.
+ The picker is fully keyboard- and touch-operable (open with Enter/Space or
+ the arrow keys, move with ↑/↓, type-ahead, Escape to close); with
+ JavaScript off it falls back to a plain native dropdown.
 - On the player profile, the latest level appears as a coloured chip in the
-  **Measurements** tab, painted in that level's colour. Status tests have no
-  green/amber target band — their colour comes entirely from the picked
-  level.
+ **Measurements** tab, painted in that level's colour. Status tests have no
+ green/amber target band — their colour comes entirely from the picked
+ level.
 
 Every status change is a dated entry on the player record, so the player's
 status history is queryable and visible over time. A seeded **Player status**
@@ -180,12 +180,12 @@ The head of development (or an academy admin) creates tests with the
 It walks through three steps:
 
 1. **Details** — the category, a name, and the value type (a number, a
-   scale score, pass/fail, or a status with coloured levels).
+ scale score, pass/fail, or a status with coloured levels).
 2. **Unit & recurrence** — the unit (from the unit list or a custom one),
-   whether higher or lower is better, and how often the test runs.
+ whether higher or lower is better, and how often the test runs.
 3. **Targets** — optional per-age-group green and amber bands; a recorded
-   value flags against the band for the player's age group. You can leave
-   these blank and add them later.
+ value flags against the band for the player's age group. You can leave
+ these blank and add them later.
 
 Finishing creates the test and its targets in one go.
 
@@ -197,24 +197,24 @@ up — name, category, unit, direction and cadence — with its **Active** or
 **Inactive** state, and three actions per row:
 
 - **Edit** — open the test in a flat form. You can change the name,
-  category, value type, unit (from the list or a custom one), scale bounds,
-  direction, cadence, the active toggle, and whether the test's results
-  **show on the player profile**, and edit the per-age-group green/amber
-  target bands inline. **Save** commits; **Cancel** takes you back to the
-  list (or to wherever you came from). Pass/fail tests have no target bands.
+ category, value type, unit (from the list or a custom one), scale bounds,
+ direction, cadence, the active toggle, and whether the test's results
+ **show on the player profile**, and edit the per-age-group green/amber
+ target bands inline. **Save** commits; **Cancel** takes you back to the
+ list (or to wherever you came from). Pass/fail tests have no target bands.
 - **Show on the player profile** — a per-test checkbox (on by default). Clear
-  it to keep a test out of the player-profile measurements view while it
-  still records results and appears in the results browser, reports and
-  exports. Useful for internal or experimental tests you don't want to show
-  players and parents yet. Every existing test stays visible after the
-  upgrade.
+ it to keep a test out of the player-profile measurements view while it
+ still records results and appears in the results browser, reports and
+ exports. Useful for internal or experimental tests you don't want to show
+ players and parents yet. Every existing test stays visible after the
+ upgrade.
 - **Activate / Deactivate** — an inactive test stays in the catalogue and
-  keeps its history, but is hidden from the *Record measurements* picker so
-  staff can't log new results against it.
+ keeps its history, but is hidden from the *Record measurements* picker so
+ staff can't log new results against it.
 - **Export Excel** — downloads every recorded result for this test as a
-  formatted `.xlsx` workbook (see below).
+ formatted `.xlsx` workbook (see below).
 - **Archive** — soft-deletes the test into the recycle bin. Nothing is
-  lost; an admin can restore it.
+ lost; an admin can restore it.
 
 ### Exporting a test's results
 
@@ -257,18 +257,18 @@ per player. It answers "how is each player doing on this test, right now?"
 without opening profiles one by one.
 
 1. **Pick a test.** Until you choose one, the grid prompts you to. The
-   picker lists every test in the catalogue, grouped by category.
+ picker lists every test in the catalogue, grouped by category.
 2. **Optionally narrow** by **team**, **age group**, and a **date range**
-   (from / to). The filters re-run the grid when you press *Show*.
+ (from / to). The filters re-run the grid when you press *Show*.
 3. **Read the grid.** One row per player who has a value for the test,
-   showing their **latest value in the window**:
-   - **Status tests** show the level's **colour chip and label** (e.g. a
-     green *On track*), the same colours the player-profile chip uses.
-   - **Numeric and scale tests** show the **value with its unit**, a small
-     **trend arrow** (▲ improved, ▼ declined, ▬ unchanged) versus that
-     player's previous result, and a **flag** — green *on target*, amber
-     *below target*, red *well below target* — against their age-group
-     band.
+ showing their **latest value in the window**:
+ - **Status tests** show the level's **colour chip and label** (e.g. a
+ green *On track*), the same colours the player-profile chip uses.
+ - **Numeric and scale tests** show the **value with its unit**, a small
+ **trend arrow** (▲ improved, ▼ declined, ▬ unchanged) versus that
+ player's previous result, and a **flag** — green *on target*, amber
+ *below target*, red *well below target* — against their age-group
+ band.
 
 The grid is **sortable** (tap a column header on tablet and desktop) and
 every **player name links to their profile**, arriving with a back-pill so
@@ -296,15 +296,15 @@ timeline follows, because a trend only means something in the terms of its
 own test:
 
 - **A test with a direction** (sprint time, jump height) leads with the
-  numbers: a table of each player's value on every measuring moment and
-  their **change**, then **Most improved** and **Fallen back**, and last a
-  **chart** with one line per player over the shared date axis, plus a
-  heavier dashed **squad-average** line so the aggregate never reads as
-  another player.
+ numbers: a table of each player's value on every measuring moment and
+ their **change**, then **Most improved** and **Fallen back**, and last a
+ **chart** with one line per player over the shared date axis, plus a
+ heavier dashed **squad-average** line so the aggregate never reads as
+ another player.
 - **A test with no direction** (height, weight) gets the readings per date —
-  no chart and no ranking, because there is no better or worse to rank. The
-  change is still shown, with a grey ▲ or ▼ saying only which way the value
-  moved.
+ no chart and no ranking, because there is no better or worse to rank. The
+ change is still shown, with a grey ▲ or ▼ saying only which way the value
+ moved.
 
 **Finding your player in the chart.** Every player has their own colour, and
 the same colour appears as a short line in front of their name in the table
@@ -343,10 +343,10 @@ Hovering the indicator (or reading it with a screen reader) gives the word.
 Player names in every table and in the two ranking lists link through to the
 player's record, and show a summary card on hover.
 - **A status test** gets a player × date matrix of levels in their own
-  colours. No lines: levels are named states, not distances.
+ colours. No lines: levels are named states, not distances.
 - **Pass / fail** gets a tick or cross per date, each player's tally, and
-  the **pass rate per round** — the only figure that says something over
-  time without treating two outcomes as a scale.
+ the **pass rate per round** — the only figure that says something over
+ time without treating two outcomes as a scale.
 
 **The change is read in the direction of the test.** On a test where lower
 is better, −0,08 s is an improvement: it shows green, it reads *improved*,
@@ -372,12 +372,12 @@ the management surfaces cross-link so you don't have to return to the
 dashboard:
 
 - *Record measurements* shows a **Manage tests** link beside **+ New test**,
-  so you can jump to editing a test's cadence or bands and come straight
-  back.
+ so you can jump to editing a test's cadence or bands and come straight
+ back.
 - *Manage tests* shows **Record measurements** and **Testing coverage**
-  links at the top of the list.
+ links at the top of the list.
 - *Testing coverage* shows a **Manage tests** link (only for staff who can
-  edit the catalogue).
+ edit the catalogue).
 
 Each link carries a contextual back-pill on arrival, so the destination
 offers a one-click route back to where you came from.

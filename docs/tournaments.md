@@ -20,11 +20,11 @@ Tournaments are admin-only in v1. Academy Admins create and run them; Coaches an
 
 1. Open the **Tournaments** tile and tap **+ New tournament**.
 2. The wizard walks you through five steps:
-   - **Basics** — name, anchor team, start date, optional end date. The tournament's format (7v7 / 9v9 / 11v11) is derived automatically from the anchor team's age group; no manual Format dropdown.
-   - **Formation** — pick a default formation (e.g. `1-3-4-3`) from a radio-card grid. Each card shows a tiny dot glyph of the formation shape. You can override per match later.
-   - **Squad** — tick the players in the squad from the anchor team's roster, and for each one tap chips for the **specific positions** they can play: GK · CB · LB · RB · DM · CM · AM · LW · RW · ST. Defaults are seeded from each player's preferred positions. Trial players appear in the list with a `Trial` badge but are unchecked by default — tap their row to add them. A live count above the list reads "X in squad · Y not picked".
-   - **Matches** — each match is its own card with a sequence circle and a live headline ("vs Den Helder JO13", "Final", "New match — fill in opponent below"). Fields: label, opponent, level, formation override, duration, substitution windows. Subs use a chip editor: type a minute and press Enter or comma to add a chip; Backspace from an empty input pops the last chip; click × to remove. The hint "Values must be 1–N" live-updates as you change the duration. Tap **+ Add another match** to append a blank card; **Remove** drops the card and re-numbers the rest.
-   - **Review** — one card per upstream step with an **Edit** link in the top-right corner that jumps the wizard back to that step (preserving everything you've entered). Then tap **Create tournament**.
+ - **Basics** — name, anchor team, start date, optional end date. The tournament's format (7v7 / 9v9 / 11v11) is derived automatically from the anchor team's age group; no manual Format dropdown.
+ - **Formation** — pick a default formation (e.g. `1-3-4-3`) from a radio-card grid. Each card shows a tiny dot glyph of the formation shape. You can override per match later.
+ - **Squad** — tick the players in the squad from the anchor team's roster, and for each one tap chips for the **specific positions** they can play: GK · CB · LB · RB · DM · CM · AM · LW · RW · ST. Defaults are seeded from each player's preferred positions. Trial players appear in the list with a `Trial` badge but are unchecked by default — tap their row to add them. A live count above the list reads "X in squad · Y not picked".
+ - **Matches** — each match is its own card with a sequence circle and a live headline ("vs Den Helder JO13", "Final", "New match — fill in opponent below"). Fields: label, opponent, level, formation override, duration, substitution windows. Subs use a chip editor: type a minute and press Enter or comma to add a chip; Backspace from an empty input pops the last chip; click × to remove. The hint "Values must be 1–N" live-updates as you change the duration. Tap **+ Add another match** to append a blank card; **Remove** drops the card and re-numbers the rest.
+ - **Review** — one card per upstream step with an **Edit** link in the top-right corner that jumps the wizard back to that step (preserving everything you've entered). Then tap **Create tournament**.
 3. You land on the tournament detail page.
 
 ### Adding a match after creation
@@ -46,10 +46,10 @@ The detail view of a tournament shows:
 - **Facts strip** — team, dates, default formation, squad size, match count.
 - **Matches** — one card per match. Tap **Open planner grid** to expand the per-match lineup grid.
 - **Minutes ticker** — sticky bottom strip on mobile, right sidebar on desktop. Always visible. One card per squad player showing:
-  - A green/amber/red bar with played + scheduled minutes vs the equal-share target.
-  - ⚡ start count.
-  - 🏆 full-match count.
-  - Sort dropdown: **Default / Fewest minutes / Fewest starts / No full matches** so under-served players bubble to the front.
+ - A green/amber/red bar with played + scheduled minutes vs the equal-share target.
+ - ⚡ start count.
+ - 🏆 full-match count.
+ - Sort dropdown: **Default / Fewest minutes / Fewest starts / No full matches** so under-served players bubble to the front.
 
 ## Per-match planner grid
 

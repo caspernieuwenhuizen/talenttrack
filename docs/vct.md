@@ -74,7 +74,7 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 ## One exercise library
 
 TalentTrack used to hold **two** exercise catalogues that could not see each
-other: the general exercise library and VCT's own. Migration 0212 (#2494)
+other: the general exercise library and VCT's own. Migration 0212
 merged them. Every VCT exercise now lives in `tt_exercises` alongside the rest
 of the library, keeping its code, category, tactical theme, intensity band,
 duration and player ranges, age window and match-day suitability flags.
@@ -82,21 +82,21 @@ duration and player ranges, age window and match-day suitability flags.
 **Nothing changes for a coach in this release.** The VCT session wizard, the
 rules engine, the coach view and the print all behave exactly as before — the
 same inputs still produce the same session. The merge is groundwork for the
-Training module (#2493), where coaches browse and build from a single library
+Training module, where coaches browse and build from a single library
 instead of meeting two catalogues with different fields.
 
 Points worth knowing if you administer an install:
 
 - `tt_vct_exercises` is left in place and **empty**. It is no longer read or
-  written. A later release drops it in its own migration.
+ written. A later release drops it in its own migration.
 - Moved rows are marked `source = 'vct'` and keep their original `uuid`, so
-  the migration is safe to re-run.
+ the migration is safe to re-run.
 - `tt_vct_coaching_points` keeps its name and its translations; only its
-  exercise reference was repointed.
+ exercise reference was repointed.
 - Exercises that were already in the general library gain the new columns as
-  empty. They stay **out** of VCT session generation until someone fills in an
-  age window and an intensity band — an exercise with no age range cannot be
-  judged age-safe, so the engine will not pick it.
+ empty. They stay **out** of VCT session generation until someone fills in an
+ age window and an intensity band — an exercise with no age range cannot be
+ judged age-safe, so the engine will not pick it.
 
 ## What's not shipped (parked)
 
@@ -112,32 +112,32 @@ The wizard and coach view are written to read as a finished Dutch-first
 coach tool — the rules engine's internal codes never reach the screen:
 
 - **Theme step** shows a one-line focus per tactical theme (e.g.
-  *Possession → ball control, short passing, and keeping the ball as a
-  team*) so a coach who is unsure which to pick gets a plain cue.
+ *Possession → ball control, short passing, and keeping the ball as a
+ team*) so a coach who is unsure which to pick gets a plain cue.
 - **Duration step** warns clearly when the team has no age group set:
-  it explains it is using a default minutes cap and points the coach to
-  the team settings to set an age-tuned limit.
+ it explains it is using a default minutes cap and points the coach to
+ the team settings to set an age-tuned limit.
 - **When step** explains that the age group and match-day (MD) context
-  are detected automatically from the team and its season schedule on
-  the next step — the coach does not enter them.
+ are detected automatically from the team and its season schedule on
+ the next step — the coach does not enter them.
 - **Preview step** renders the rules engine's warnings as readable
-  sentences instead of raw codes. Blocking problems ("this training
-  can't be built yet") each carry a short resolution hint telling the
-  coach what to do next — for example, set the team's age group, pick a
-  different date, or ask an admin to add a session blueprint. The
-  mapping from engine code to sentence + hint lives in
-  [`RuleMessages`](../src/Modules/Vct/Rules/RuleMessages.php), in the
-  rules layer, so the REST API and the rendered wizard speak the same
-  language.
+ sentences instead of raw codes. Blocking problems ("this training
+ can't be built yet") each carry a short resolution hint telling the
+ coach what to do next — for example, set the team's age group, pick a
+ different date, or ask an admin to add a session blueprint. The
+ mapping from engine code to sentence + hint lives in
+ [`RuleMessages`](../src/Modules/Vct/Rules/RuleMessages.php), in the
+ rules layer, so the REST API and the rendered wizard speak the same
+ language.
 - **Empty states** are self-serviceable: when no age profiles exist,
-  the configuration view explains what age profiles do and that an
-  academy admin sets them up, with no migration numbers. The session
-  view explains *why* a training has no blocks (no suitable exercises
-  for the chosen age, theme, and duration) and how to fix it.
+ the configuration view explains what age profiles do and that an
+ academy admin sets them up, with no migration numbers. The session
+ view explains *why* a training has no blocks (no suitable exercises
+ for the chosen age, theme, and duration) and how to fix it.
 - **Publish** wording front-loads the two-step confirmation: publishing
-  links the training to a team activity, and if one already exists at
-  the same date and time the coach is asked to reuse it or create a new
-  one.
+ links the training to a team activity, and if one already exists at
+ the same date and time the coach is asked to reuse it or create a new
+ one.
 
 The `MD-4 … MD … MD+2` / `NONE` tokens in the exercise library's
 MD-context picker are intentional technical periodisation tokens, not
@@ -146,17 +146,17 @@ one does, so they are deliberately exempt from translation.
 
 ## How the surfaces talk to each other
 
-A coach plans a session via the wizard (#1084). The wizard reads:
+A coach plans a session via the wizard. The wizard reads:
 
-- The team's VCT defaults panel (#1088) for the basis-step prefill (`VctTeamSchedulesRepository::findForTeamSeason`).
-- The exercise library (#1086) for slot candidates (`VctExercisesRepository::findCandidates` filtered by age + MD + intensity).
-- The HoD's macro-blocks (#1087) for the per-week intensity multiplier (`VctMacroBlocksRepository`).
-- The HoD's age-profiles (#1087) for the session-minutes ceiling + intensity-band ceiling (`VctAgeProfilesRepository`).
-- Per-player PHV flags (#1089) so flagged players get `growth_spurt_load_reduction_pct` applied via `WorkloadCapRule`.
+- The team's VCT defaults panel for the basis-step prefill (`VctTeamSchedulesRepository::findForTeamSeason`).
+- The exercise library for slot candidates (`VctExercisesRepository::findCandidates` filtered by age + MD + intensity).
+- The HoD's macro-blocks for the per-week intensity multiplier (`VctMacroBlocksRepository`).
+- The HoD's age-profiles for the session-minutes ceiling + intensity-band ceiling (`VctAgeProfilesRepository`).
+- Per-player PHV flags so flagged players get `growth_spurt_load_reduction_pct` applied via `WorkloadCapRule`.
 
-The wizard publishes a `tt_vct_sessions` row. The coach view (#1085) reads that row + its blocks. The PHV banner on the coach view (#1085) reads the same `VctPhvFlagsRepository::activeForRoster()` the WorkloadCapRule uses, so the sideline display + the engine stay in sync.
+The wizard publishes a `tt_vct_sessions` row. The coach view reads that row + its blocks. The PHV banner on the coach view reads the same `VctPhvFlagsRepository::activeForRoster()` the WorkloadCapRule uses, so the sideline display + the engine stay in sync.
 
-The Configuration tiles (#1087) link into the HoD's VCT configuration sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`) so the HoD has a one-tap entry from the Configuration grid.
+The Configuration tiles link into the HoD's VCT configuration sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`) so the HoD has a one-tap entry from the Configuration grid.
 
 ## Speelwijze theme per week
 

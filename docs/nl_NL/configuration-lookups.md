@@ -63,7 +63,7 @@ Zelfde vorm als Bewerken, maar:
 
 Zowel de Toevoegen- als de Bewerkweergave hebben een Annuleren + Opslaan paar onderaan (CLAUDE.md §6 contract). Annuleren keert terug naar de lijstweergave van dezelfde categorie. Een `+ Terug naar lijst` ghost-knop links doet hetzelfde.
 
-## Data-backfill (v4.11.0)
+## Data-backfill
 
 In v4.11.0 backfilt een eenmalige migratie (`0131_lookup_translation_seeds`) `tt_translations`-rijen voor elke bestaande `tt_lookups`-rij over de vijf ondersteunde locales:
 
@@ -72,7 +72,7 @@ In v4.11.0 backfilt een eenmalige migratie (`0131_lookup_translation_seeds`) `tt
 
 De migratie is idempotent; opnieuw uitvoeren heeft geen effect.
 
-### Leeftijdscategorie-labels (v4.26.6)
+### Leeftijdscategorie-labels
 
 Leeftijdscategorieën gebruiken de internationale **U**-notatie als canonieke interne sleutel (`U7…U23`, `Senior`). Op een Nederlandse site worden ze getoond met de **O**-conventie (Onder) — `O7…O23`, `Senioren` — opgelost via `tt_translations`, net als elk ander lookup-label. Migratie `0163_seed_age_group_dutch_labels` vult deze Nederlandse labels aan op bestaande installaties (INSERT IGNORE, dus eigen bewerkingen van een club via het bewerkscherm worden nooit overschreven); nieuwe installaties seeden ze uit `LookupTranslationSeeds`. Frans, Duits en Spaans houden de U-notatie aan, dus die krijgen geen eigen rij. Elk dashboardscherm rendert het leeftijdscategorie-label via `LookupTranslator`, nooit de ruwe `name`.
 
@@ -90,7 +90,7 @@ Het veld Interne sleutel op een vergrendelde rij is ook uitgeschakeld — dezelf
 
 Elke actie in deze weergave gaat via `/wp-json/talenttrack/v1/lookups/{type}` (POST / PUT / DELETE) met de bestaande `tt_edit_settings` capability-poort. De weergave wordt server-side gerenderd; de JS-module stelt de netwerk-payload samen en herlaadt bij succes. Geen nieuwe REST-endpoints; het `/translations/preview` endpoint retourneert elke andere geïnstalleerde locale in één bulk-respons.
 
-## Canoniek-taal contract (v4.12.0)
+## Canoniek-taal contract
 
 De vooruitgaande regel: **`tt_lookups.name` is de stabiele Engelse interne sleutel**. Het is nooit een vertaalde, voor de gebruiker zichtbare tekst. Voor de gebruiker zichtbare labels staan in `tt_translations` en worden weergegeven via `LookupTranslator::name()` (die alleen op `name` terugvalt wanneer er geen vertaling is geregistreerd).
 
@@ -100,7 +100,7 @@ Praktische gevolgen:
 - Bestaande rijen: het Interne sleutel-veld is alleen-lezen. Om het te wijzigen is een code-migratie nodig, zodat elke `WHERE name = ...` verwijzing in de codebase atomair wordt bijgewerkt.
 - Dashboards lezen `tt_lookups.name` nooit rechtstreeks. Ze gaan via `LookupTranslator::name($row)`, die oplost via `tt_translations` voor de huidige locale, dan via het gettext-domein, en pas als laatste redmiddel de ruwe `name` retourneert.
 
-## Drift-revisietool (v4.12.0)
+## Drift-revisietool
 
 Pilot-installaties van vóór v4.11.0 kunnen waarden in `tt_lookups.name` bevatten in gemengde talen (sommige in het Nederlands, sommige in het Engels, sommige in kleine letters) omdat eerdere admin-workflows toestonden dat operators alles in die kolom typten. v4.12.0 levert een eenmalige revisietool om de kolom te normaliseren zonder het dashboard te breken.
 

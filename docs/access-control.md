@@ -17,20 +17,20 @@ Capabilities are the auth contract. Role names are an implementation detail that
 
 This rule was codified in #0052 PR-B; the only legitimate role-aware reads in the codebase route through `TT\Infrastructure\Security\RoleResolver`. Anything else is a smell — new code that wants to know *is this user an X* should ask *can this user do Y* instead.
 
-## The capabilities (v3.0.0+)
+## The capabilities
 
 Each major area has a **view** capability and, for writeable areas, a matching **edit** capability:
 
-| Area         | View cap              | Edit cap              |
+| Area | View cap | Edit cap |
 |--------------|-----------------------|-----------------------|
-| Teams        | `tt_view_teams`       | `tt_edit_teams`       |
-| Players      | `tt_view_players`     | `tt_edit_players`     |
-| People       | `tt_view_people`      | `tt_edit_people`      |
-| Evaluations  | `tt_view_evaluations` | `tt_edit_evaluations` |
-| Sessions     | `tt_view_activities`    | `tt_edit_activities`    |
-| Goals        | `tt_view_goals`       | `tt_edit_goals`       |
-| Settings     | `tt_view_settings`    | `tt_edit_settings`    |
-| Reports      | `tt_view_reports`     | *(no edit companion)* |
+| Teams | `tt_view_teams` | `tt_edit_teams` |
+| Players | `tt_view_players` | `tt_edit_players` |
+| People | `tt_view_people` | `tt_edit_people` |
+| Evaluations | `tt_view_evaluations` | `tt_edit_evaluations` |
+| Sessions | `tt_view_activities` | `tt_edit_activities` |
+| Goals | `tt_view_goals` | `tt_edit_goals` |
+| Settings | `tt_view_settings` | `tt_edit_settings` |
+| Reports | `tt_view_reports` | *(no edit companion)* |
 
 Every TalentTrack user also needs WordPress's base `read` capability to log in.
 
@@ -47,16 +47,16 @@ This means custom code or plugins checking legacy cap names continue to work wit
 
 ## The pre-built roles
 
-| Role                      | View               | Edit                                                   |
+| Role | View | Edit |
 |---------------------------|--------------------|--------------------------------------------------------|
-| **Head of Development**   | All areas          | All areas (incl. Evaluations, Settings)                |
-| **Club Admin**            | All areas          | Teams, Players, People, Sessions, Goals, Settings      |
-| **Coach**                 | All except Settings| Evaluations, Sessions, Goals                           |
-| **Scout**                 | Teams, Players, Evals | Evaluations                                         |
-| **Staff**                 | Teams, Players, People | Players, People                                    |
-| **Player**                | Own data only      | Own profile only                                       |
-| **Parent**                | Child's data only  | *(none)*                                               |
-| **Read-Only Observer**    | **All areas**      | **None**                                               |
+| **Head of Development** | All areas | All areas (incl. Evaluations, Settings) |
+| **Club Admin** | All areas | Teams, Players, People, Sessions, Goals, Settings |
+| **Coach** | All except Settings| Evaluations, Sessions, Goals |
+| **Scout** | Teams, Players, Evals | Evaluations |
+| **Staff** | Teams, Players, People | Players, People |
+| **Player** | Own data only | Own profile only |
+| **Parent** | Child's data only | *(none)* |
+| **Read-Only Observer** | **All areas** | **None** |
 
 Assign roles via **Access Control → Roles & Permissions** or WordPress's standard Users admin.
 
@@ -90,17 +90,17 @@ Functional roles are club-real roles (Head coach, Assistant coach, Physio) that 
 
 Example: your "Head coach" functional role could automatically grant users the `tt_coach` WordPress role. Then when you assign a person to a team with "Head coach", they get evaluation rights automatically.
 
-Assigning a person via Functional Roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring (#0079).
+Assigning a person via Functional Roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring.
 
-## Tile visibility uses dedicated entities (#0079)
+## Tile visibility uses dedicated entities
 
 Dashboard tiles that resolve to a coach- or admin-only surface declare a tile-specific matrix entity (`team_roster_panel`, `coach_player_list_panel`, `evaluations_panel`, `activities_panel`, `goals_panel`, `podium_panel`, `team_chemistry_panel`, `pdp_panel`, `people_directory_panel`, `scouting_visits_panel`, `holidays_panel`, `wp_admin_portal`) distinct from the underlying data entity (`team`, `players`, `evaluations`, …). The data entities continue to gate REST + repository reads — the dispatcher and tile gate consult the *_panel entity, so granting "scout reads team data globally" no longer puts a coach-side **My teams** tile on the scout's dashboard. The dispatcher (`DashboardShortcode`) reads the entity from the tile registry and asks `MatrixGate::canAnyScope` for the same answer as the tile gate, eliminating the previous case where a tile rendered but the destination view rejected with *"This section is only available for coaches and administrators."*
 
-**The dispatcher also enforces the tile's declared capability (#2570).** The matrix rung above binds only when the tile declares an `entity` *and* the matrix is active. For every other slug the `cap`, `cap_callback` and `hide_for_personas` a tile declares governed the nav and nothing else, so a surface the nav hid stayed reachable by typing its URL — #2569 documents seven views and two REST routes that drifted through exactly that gap. `DashboardShortcode` now calls `TileRegistry::canAccessViewSlug()`, which runs the same `tileVisibleFor()` the nav runs, before dispatching. **A slug with no registered tile fails open**: component sub-views, wizard steps and record detail pages route without tiles of their own, and failing closed would deny every one of them — those keep their own `render()` guards, which is what has always gated them. Views keep their self-gates regardless; this is a second barrier, not a replacement. Where several tiles share a slug, any one granting access is enough, matching what the nav shows.
+**The dispatcher also enforces the tile's declared capability.** The matrix rung above binds only when the tile declares an `entity` *and* the matrix is active. For every other slug the `cap`, `cap_callback` and `hide_for_personas` a tile declares governed the nav and nothing else, so a surface the nav hid stayed reachable by typing its URL — #2569 documents seven views and two REST routes that drifted through exactly that gap. `DashboardShortcode` now calls `TileRegistry::canAccessViewSlug()`, which runs the same `tileVisibleFor()` the nav runs, before dispatching. **A slug with no registered tile fails open**: component sub-views, wizard steps and record detail pages route without tiles of their own, and failing closed would deny every one of them — those keep their own `render()` guards, which is what has always gated them. Views keep their self-gates regardless; this is a second barrier, not a replacement. Where several tiles share a slug, any one granting access is enough, matching what the nav shows.
 
-**Scouting visits is the worked example (#2007).** A head coach reads `prospects` at team scope on purpose — #0081 gave them their own age group's onboarding funnel. The Scouting visits tile had been pointed at that same `prospects` entity to fix an unrelated 403 (#1143), which made the two inseparable: the head coach got the scout's outbound visit planner along with their funnel, and removing the `prospects` grant to hide the one would have taken the other with it. The tile now declares `scouting_visits_panel`, seeded read-global for **scout**, **head of development** and **academy admin** and not for head coach. The views still gate on the prospects caps, because that is the data they read; the panel entity only decides who is offered the surface. Migration `0233` backfills the entity on existing installs — without it the tile would vanish for everyone, since the dispatch gate reads the live matrix rather than the seed file.
+**Scouting visits is the worked example.** A head coach reads `prospects` at team scope on purpose — #0081 gave them their own age group's onboarding funnel. The Scouting visits tile had been pointed at that same `prospects` entity to fix an unrelated 403, which made the two inseparable: the head coach got the scout's outbound visit planner along with their funnel, and removing the `prospects` grant to hide the one would have taken the other with it. The tile now declares `scouting_visits_panel`, seeded read-global for **scout**, **head of development** and **academy admin** and not for head coach. The views still gate on the prospects caps, because that is the data they read; the panel entity only decides who is offered the surface. Migration `0233` backfills the entity on existing installs — without it the tile would vanish for everyone, since the dispatch gate reads the live matrix rather than the seed file.
 
-## Cross-view link gating — `CrossViewLink` (#2304)
+## Cross-view link gating — `CrossViewLink`
 An in-body navigation affordance — a cross-view link, tile, or button that points at another `?tt_view=<slug>` surface — must be **hidden when the current user can't reach its target view**. Previously each such link hand-checked the target's capability inline, and those checks drifted from the destination view's actual early-return guard.
 
 `\TT\Shared\Frontend\Components\CrossViewLink` centralizes the decision. The link's HTML is emitted only when the current user passes the target slug's gate:
@@ -130,7 +130,7 @@ Pass per-link context through `['ctx' => [...]]`; pass an explicit one-off gate 
 
 An unregistered slug falls back to a permissive read check (the tile's declared entity at `read` when the matrix is active, else allow) so pre-existing internal links keep working; the `xview-link-lint.yml` CI gate fails a PR that adds a **new** ungated `tt_view` cross-view link in a `src/**/Frontend/**` file. For a genuine exception, add a trailing `/* tt-xview-ok */` on the line.
 
-## Onboarding-pipeline entities (#0081)
+## Onboarding-pipeline entities
 
 The recruitment funnel introduces two new matrix entities, scoped consent-sensitively because prospect data is the most-sensitive PII the system holds (collected before any contractual relationship, legal basis is consent):
 
@@ -139,7 +139,7 @@ The recruitment funnel introduces two new matrix entities, scoped consent-sensit
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
 
-## Recycle-bin management — `tt_manage_recycle_bin` (#2020)
+## Recycle-bin management — `tt_manage_recycle_bin`
 
 Permanent deletion is the most destructive act in the product, so it lives
 behind its own capability: **`tt_manage_recycle_bin`**. It gates viewing the
@@ -161,7 +161,7 @@ weaker `tt_edit_settings`) are re-gated onto this same capability, so no
 purge path is weaker than the bin. See [Recycle bin](recycle-bin.md) for the
 retention window and GDPR basis.
 
-## Module management — `tt_manage_modules` / `module_management` (#2187)
+## Module management — `tt_manage_modules` / `module_management`
 
 Turning a whole TalentTrack module on or off is an operator-level act, so it
 lives behind its own capability, **`tt_manage_modules`**, and a **dedicated
@@ -180,7 +180,7 @@ so the matrix decides.
 `tt_manage_modules` bridges through `LegacyCapMapper` to
 `module_management:create_delete`. This is a **dedicated** entity, distinct
 from the read-mostly `feature_toggles` config entity it previously shared
-(#1941) and from the `module_state` status view: enabling/disabling a module
+ and from the `module_state` status view: enabling/disabling a module
 is a materially different privilege from editing a config feature-toggle, and
 should be matrix-governable on its own row. The entity is seeded
 **`rcd` global to Academy Admin only** — matching the raw cap holders
@@ -194,7 +194,7 @@ the `module_management` grant onto existing installs (INSERT IGNORE, scoped
 to the one entity + academy_admin persona), so no operator loses the Modules
 page on upgrade when the matrix is active.
 
-## Strava connection — players connect their own (#2153)
+## Strava connection — players connect their own
 
 Strava is personal activity data, so a **player** can connect their own Strava
 account from their profile. This is gated by the matrix entity
@@ -215,7 +215,7 @@ unaffected by the player grant. See
 
 The advanced authorization pages — Authorization Matrix, Activate access control, Compare users, Permission Debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
 
-**The matrix editor is no longer one of those wp-admin links.** Since #2654 it has its own frontend surface at **Configuration → Authorization matrix** (`?tt_view=matrix`), gated on the `tt_manage_authorization` capability — granted to administrator and Club Admin — rather than on holding a WordPress administrator account. An academy with nobody in the WordPress admin can now correct an over-broad or too-narrow grant themselves, which matters because those grants decide who can open a player's evaluations, notes and medical fields.
+**The matrix editor is not one of those wp-admin links.** It has its own frontend surface at **Configuration → Authorization matrix** (`?tt_view=matrix`), gated on the `tt_manage_authorization` capability — granted to administrator and Club Admin — rather than on holding a WordPress administrator account. An academy with nobody in the WordPress admin can now correct an over-broad or too-narrow grant themselves, which matters because those grants decide who can open a player's evaluations, notes and medical fields.
 
 A Club Admin editing from the frontend cannot change their own persona row, nor the entities that govern the permission model, the schema or the backups; those cells are locked and stay administrator-only. The wp-admin page is unchanged and remains the recovery path if a matrix edit hides the frontend. `docs/authorization-matrix.md` has the full table of who may do what.
 
@@ -227,13 +227,13 @@ Clicking Revoke opens an in-app confirmation dialog (not the browser's native po
 
 The same in-app confirm pattern is used wherever a destructive action needs your acknowledgement (deleting a goal from the dashboard, deleting an evaluation category, etc.).
 
-## Capabilities are the contract — role names are an implementation detail (#0052)
+## Capabilities are the contract — role names are an implementation detail
 
 The auth contract is **capabilities**, not role names. Every gate — REST `permission_callback`, view-render guards, repository methods — should answer the question via `current_user_can( 'tt_xxx' )`, never via inspecting `$user->roles` directly. Role names map a default cap bundle to a user; a future SaaS auth backend may not preserve role names at all.
 
 There is one documented exception: `AudienceResolver` legitimately needs to know a user's primary role for audience-routing in report generation. That stays role-aware; everything else uses caps. The role-string compares in `DemoDataCleaner`, `OnboardingHandlers`, `PdpVerdictsRestController`, and one more file are tracked for replacement in #0052 PR-B.
 
-## The persona switcher changes what you see, not what you may do (#1982)
+## The persona switcher changes what you see, not what you may do
 
 Someone can hold more than one persona at once. A coach whose own child is in the academy is the everyday case: they are staff and a parent, both genuinely, at the same time. The dashboard's persona switcher lets them choose which of those the interface is dressed as — which landing page, which tiles, which label on the user chip.
 
@@ -247,11 +247,11 @@ To genuinely act as another role — to see what a parent sees, with a parent's 
 
 Player records reference `wp_user_id` directly today. The future SaaS auth model will substitute a portable identity (UUID, JWT subject, …) and `wp_user_id` becomes one of several mappings. The resolver isn't built yet; documented here so the intent isn't lost.
 
-## Player-controlled parent visibility (#1867)
+## Player-controlled parent visibility
 
 A player can hide individual development sections (evaluations, goals, journey, measurements, PDP) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. Both the rendered views and the section REST reads consult the gate.
 
-## Parent → child link model (#1993)
+## Parent → child link model
 
 The `tt_player_parents` pivot (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is the **single authoritative** answer to "which children does this parent have". `ParentChildResolver` reads this pivot — club-scoped, `status = 'active'`, ordered most-recent link first — and every consumer (the dashboard child switcher, the me-view authorization, the goal-thread participant graph, the parent KPI) calls into it, so they all agree on who is a parent of whom.
 
