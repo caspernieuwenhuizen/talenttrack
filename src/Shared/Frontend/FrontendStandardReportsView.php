@@ -38,6 +38,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     private const REPORTS = [
         'player-minutes-played'        => 'Player · Minutes played',
         'team-minutes-distribution'    => 'Team · Minutes distribution',
+        // #2835 — the relative figure the minutes family was missing: what
+        // share of the minutes the team actually played did each player get.
+        'minutes-share'                => 'Team · Minutes share',
         'team-squad-evaluation-summary' => 'Team · Squad evaluation summary',
         'season-summary'               => 'Season · Summary',
         'season-trial-funnel'          => 'Season · Trial funnel',
@@ -145,6 +148,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         switch ( $slug ) {
             case 'player-minutes-played':        self::renderPlayerMinutesPlayed(); break;
             case 'team-minutes-distribution':    self::renderTeamMinutesDistribution(); break;
+            case 'minutes-share':                self::renderMinutesShare(); break;
             case 'team-squad-evaluation-summary': self::renderSquadEvaluationSummary(); break;
             case 'season-summary':               self::renderSeasonSummary(); break;
             case 'season-trial-funnel':          self::renderSeasonTrialFunnel(); break;
@@ -639,6 +643,187 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
+    }
+
+    // ── #2835 Team · Minutes share ───────────────────────────────────
+
+    /**
+     * What share of the minutes the team actually played did each player get.
+     *
+     * The minutes family reports absolutes everywhere, and 350 minutes looks
+     * fine until you know the team played 700. The one relative figure that
+     * existed — the top-versus-bottom spread on Minutes distribution —
+     * compares players to each other rather than to what was on offer, so a
+     * squad that is uniformly under-played reads as balanced.
+     *
+     * Sorted lowest share first: the report exists to surface who is not
+     * getting on, and they should not be at the bottom of a scroll.
+     */
+    private static function renderMinutesShare(): void {
+        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
+        $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
+        if ( $team === null ) {
+            self::renderHeader( __( 'Team · Minutes share', 'talenttrack' ) );
+            self::renderTeamPicker( 'minutes-share' );
+            return;
+        }
+        // #1187 — scope guard, as on every sibling report: URL-tampering with
+        // a team outside the coach's matrix scope falls through to empty.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( $team_id, $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( __( 'Team · Minutes share', 'talenttrack' ) );
+            self::renderEmpty();
+            return;
+        }
+
+        $win     = self::resolveReportWindow( self::rollingYearWindow() );
+        $bd_from = $win['from'];
+        $bd_to   = $win['to'];
+
+        $data      = ( new \TT\Modules\Analytics\Reports\MinutesShareQuery() )->forTeam( $team_id, $bd_from, $bd_to );
+        $target    = (int) $data['target_pct'];
+        $players   = $data['players'];
+        $available = (int) $data['available_minutes'];
+        $median    = \TT\Modules\Analytics\Reports\MinutesShareQuery::medianShare( $players );
+        $below     = 0;
+        foreach ( $players as $p ) {
+            if ( $p['below_target'] ) $below++;
+        }
+
+        $explore_url = ExplorerUrl::build(
+            'attendance_vs_squad',
+            [ 'team_id' => (string) $team_id, 'date_after' => $bd_from, 'date_before' => $bd_to ],
+            'player_id'
+        );
+        $window_label = self::windowLabel( $bd_from, $bd_to );
+        self::renderPageHead(
+            sprintf(
+                /* translators: %s = team name */
+                __( 'Minutes share — %s', 'talenttrack' ),
+                (string) ( $team->name ?? '' )
+            ),
+            sprintf(
+                /* translators: 1: minimum share percentage, 2: date window */
+                __( 'Target: every player plays at least %1$d%% of the available minutes · %2$s', 'talenttrack' ),
+                $target,
+                $window_label
+            ),
+            $explore_url
+        );
+        self::renderPeriodFilterBar(
+            'minutes-share',
+            $bd_from,
+            $bd_to,
+            $win['period'],
+            [ 'team_id' => $team_id ],
+            __( 'Last 12 months', 'talenttrack' )
+        );
+
+        // The Minutes distribution report is the trace for both numbers: it
+        // names which matches were counted and which are missing minutes.
+        $distribution_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution', 'team_id' => $team_id ],
+            RecordLink::dashboardUrl()
+        ) );
+
+        self::renderKpiStrip( [
+            [
+                'num'   => (string) (int) $data['matches'],
+                'label' => __( 'Matches played', 'talenttrack' ),
+                'href'  => $distribution_url,
+                'cap'   => 'tt_view_reports',
+            ],
+            [ 'num' => (string) $available, 'label' => __( 'Available minutes / player', 'talenttrack' ) ],
+            [
+                'num'   => $median !== null ? number_format_i18n( $median, 1 ) . '%' : '—',
+                'label' => __( 'Median share', 'talenttrack' ),
+            ],
+            [
+                'num'   => (string) $below,
+                // `_x`, not `__`: "Below target" already exists in the
+                // measurements sense (below the age-group band) and reads
+                // "Onder niveau" there. Below a playing-time target is a
+                // different statement about a different thing.
+                'label' => _x( 'Below target', 'minutes share', 'talenttrack' ),
+                'sub'   => $below > 0
+                    /* translators: %d = the minimum share percentage */
+                    ? sprintf( __( 'Under %d%% of the available minutes', 'talenttrack' ), $target )
+                    : __( 'Every player is on target', 'talenttrack' ),
+                'warn'  => $below > 0,
+            ],
+        ] );
+
+        if ( $available <= 0 ) {
+            self::renderEmpty( __( 'No matches played for this team in this window, so there are no minutes to share out. Widen the window or check the Activities log.', 'talenttrack' ) );
+            return;
+        }
+        if ( ! $players ) {
+            self::renderEmpty( __( 'Matches were played but no minutes are recorded for this team yet. Record them from the activity.', 'talenttrack' ) );
+            return;
+        }
+
+        echo '<section class="tt-rep-section">';
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2>'
+            . '<span class="tt-rep-section__hint">' . esc_html__( 'Lowest share first. The share is of every minute the team played, whether or not the player was available.', 'talenttrack' ) . '</span></div>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table">';
+        echo '<thead><tr>'
+            . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Minutes', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Available', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Share', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( $players as $p ) {
+            $player_url = RecordLink::detailUrlForWithBack( 'players', (int) $p['player_id'] );
+            $share      = $p['share_pct'];
+            $name       = (string) $p['name'];
+            if ( $p['jersey_number'] !== null ) {
+                $name = sprintf(
+                    /* translators: 1: jersey number, 2: player name */
+                    __( '#%1$d %2$s', 'talenttrack' ),
+                    (int) $p['jersey_number'],
+                    $name
+                );
+            }
+            echo '<tr>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
+            echo '<td class="num">' . esc_html( (string) (int) $p['minutes'] ) . '</td>';
+            echo '<td class="num">' . esc_html( (string) $available ) . '</td>';
+            echo '<td>' . self::shareBar( $share, $target ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
+        echo '</section>';
+    }
+
+    /**
+     * The share cell: the number, a proportional track, and — below target —
+     * a glyph and the word.
+     *
+     * Colour never carries the flag on its own. These reports are printed and
+     * read by colour-blind coaches; the same rule #2628 settled for the test
+     * trends. Deliberately the same shape as the attendance report's present-%
+     * bar — its rules live in that report's own sheet, so this one carries its
+     * own copy rather than the standard-reports view enqueuing a stylesheet
+     * for one class.
+     */
+    private static function shareBar( ?float $pct, int $target ): string {
+        if ( $pct === null ) {
+            return '<span class="tt-rep-share__none">&mdash;</span>';
+        }
+        $low = $pct < $target;
+        $w   = max( 0, min( 100, (int) round( $pct ) ) );
+
+        $flag = $low
+            ? ' <span class="tt-rep-share__flag"><span aria-hidden="true">&#9660;</span> '
+                . esc_html__( 'below target', 'talenttrack' ) . '</span>'
+            : '';
+
+        return '<span class="tt-rep-share' . ( $low ? ' is-low' : '' ) . '">'
+            . '<span class="tt-rep-share__v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
+            . '<span class="tt-rep-share__track"><i style="width:' . (int) $w . '%;"></i></span>' /* tt-inline-ok */
+            . '</span>' . $flag;
     }
 
     // ── #1091 Team · Minutes distribution ────────────────────────────

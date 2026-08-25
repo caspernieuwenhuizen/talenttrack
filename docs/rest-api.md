@@ -241,6 +241,44 @@ decide it. Gated on `tt_view_activities`. Returns an empty list (not a 404) for
 an activity with no principles, and for an install running without the
 Methodology module.
 
+### `GET /teams/{id}/minutes-share` (#2835)
+
+What share of the minutes the team actually played did each player get. Reads
+the domain service the Minutes share report composes from, so the rendered page
+and a non-WordPress front end cannot disagree.
+
+```json
+{
+  "team_id": 12, "from": "2025-08-25", "to": "2026-08-25",
+  "matches": 10, "available_minutes": 700, "target_pct": 30,
+  "players": [
+    { "player_id": 41, "name": "…", "jersey_number": 9, "minutes": 140, "share_pct": 20.0, "below_target": true },
+    { "player_id": 38, "name": "…", "jersey_number": 4, "minutes": 350, "share_pct": 50.0, "below_target": false }
+  ]
+}
+```
+
+`available_minutes` is the sum of every **played** match's own length (the
+match-prep half length doubled, else the age-group default, else 35 a half) —
+the same "played" predicate the two other minutes reports use, so a fixture
+kicking off tonight is not yet in the denominator. `share_pct` is `null` when
+the team has played nothing: a share of no minutes is undefined, not zero.
+Rows come back lowest share first. `from` / `to` (`YYYY-MM-DD`) narrow the
+window; both default to the rolling twelve months, and anything unparseable
+falls back to that default rather than 400'ing.
+
+`GET /teams/{id}/minutes-share/{player_id}` returns one player's row out of the
+same answer (`minutes`, `share_pct`, `below_target`, plus the team's
+`available_minutes`, `matches` and `target_pct`), so a player-facing client
+need not fetch and filter the whole squad. A player with no recorded minutes on
+that team in the window is a 404 rather than a zero row — they were not in the
+squad, which is different from having played none of it.
+
+Both gate on a `reports` read: global scope sees any team, a team-scoped grant
+only its own, and anything else is a 403 rather than an empty list — an empty
+list would read as "this team played nothing".
+>>>>>>> ca7f4c98 (feat(reports): Minutes share — what percentage of the available minutes each player got (#2835))
+
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json
