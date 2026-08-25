@@ -659,13 +659,13 @@ class MatchExecutionRestController {
             // payload corrects one field without clearing its siblings.
             $player_id = array_key_exists( 'player_id', $body )
                 ? (int) $body['player_id']
-                : (int) $existing->player_id;
+                : (int) ( $existing['player_id'] ?? 0 );
             $assist_id = array_key_exists( 'assist_player_id', $body )
                 ? (int) $body['assist_player_id']
-                : (int) ( $existing->assist_player_id ?? 0 );
+                : (int) ( $existing['assist_player_id'] ?? 0 );
             $is_own_goal = array_key_exists( 'is_own_goal', $body )
                 ? ! empty( $body['is_own_goal'] )
-                : ! empty( $existing->is_own_goal );
+                : ! empty( $existing['is_own_goal'] );
 
             $attribution_err = self::assertAttribution( absint( $r['activity_id'] ), $player_id, $assist_id );
             if ( $attribution_err ) return $attribution_err;
@@ -732,14 +732,15 @@ class MatchExecutionRestController {
         $prep_repo = new MatchPrepRepository();
         $prep      = $prep_repo->findByActivity( $activity_id );
         if ( ! $prep ) return [];
+        $prep_id = (int) $prep->id;
 
         $ids = [];
-        foreach ( $prep_repo->listAvailability( (int) $prep->id ) as $a ) {
-            $pid = (int) $a->player_id;
-            if ( $pid > 0 ) $ids[] = $pid;
-        }
-        foreach ( $prep_repo->listLineup( (int) $prep->id ) as $l ) {
-            $pid = (int) $l->player_id;
+        $rows = array_merge(
+            $prep_repo->listAvailability( $prep_id ),
+            $prep_repo->listLineup( $prep_id )
+        );
+        foreach ( $rows as $row ) {
+            $pid = (int) ( $row->player_id ?? 0 );
             if ( $pid > 0 ) $ids[] = $pid;
         }
         return array_values( array_unique( $ids ) );

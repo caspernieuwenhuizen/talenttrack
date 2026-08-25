@@ -237,20 +237,27 @@ class MatchExecutionRepository {
         // A player cannot assist their own goal. The sheet already prevents
         // it; this is the write path refusing to store the contradiction.
         if ( $assist !== null && $assist === $player_id ) return false;
-        // `assist_player_id` is nullable and wpdb::prepare() casts a null
-        // placeholder to an empty string, which a BIGINT column silently
-        // stores as 0 — indistinguishable from "player 0". Interpolate the
-        // NULL literal instead; the alternative is an int cast, so nothing
-        // unsanitised reaches the query.
-        $assist_sql = $assist === null ? 'NULL' : (string) $assist;
-        $ok = $this->wpdb->query( $this->wpdb->prepare(
-            "INSERT IGNORE INTO {$this->t_goals}
-               (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
-             VALUES (%s, %d, %d, %s, %d, {$assist_sql}, %d, %d, %d)",
-            $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
-            $is_own_goal ? 1 : 0,
-            $half, max( 0, $minute )
-        ) );
+        // Two whole statements rather than one with an interpolated value.
+        // `assist_player_id` is nullable, and wpdb::prepare() casts a null
+        // placeholder to an empty string that a BIGINT column stores as 0 —
+        // indistinguishable from "player 0", which is a real value here.
+        // Writing both out keeps each query a literal string, which is what
+        // the static analyser wants to see too.
+        $ok = $assist === null
+            ? $this->wpdb->query( $this->wpdb->prepare(
+                "INSERT IGNORE INTO {$this->t_goals}
+                   (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+                 VALUES (%s, %d, %d, %s, %d, NULL, %d, %d, %d)",
+                $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
+                $is_own_goal ? 1 : 0, $half, max( 0, $minute )
+            ) )
+            : $this->wpdb->query( $this->wpdb->prepare(
+                "INSERT IGNORE INTO {$this->t_goals}
+                   (event_uuid, club_id, execution_id, team, player_id, assist_player_id, is_own_goal, half, minute_in_half)
+                 VALUES (%s, %d, %d, %s, %d, %d, %d, %d, %d)",
+                $event_uuid, CurrentClub::id(), $execution_id, $team, $player_id,
+                $assist, $is_own_goal ? 1 : 0, $half, max( 0, $minute )
+            ) );
         return $ok !== false;
     }
 
@@ -269,15 +276,22 @@ class MatchExecutionRepository {
         $player_id = max( 0, $player_id );
         $assist    = ( $assist_player_id !== null && $assist_player_id > 0 ) ? (int) $assist_player_id : null;
         if ( $assist !== null && $assist === $player_id ) return false;
-        $assist_sql = $assist === null ? 'NULL' : (string) $assist;
-        $ok = $this->wpdb->query( $this->wpdb->prepare(
-            "UPDATE {$this->t_goals}
-                SET player_id = %d, assist_player_id = {$assist_sql}, is_own_goal = %d
-              WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
-            $player_id,
-            $is_own_goal ? 1 : 0,
-            $event_uuid, CurrentClub::id()
-        ) );
+        // Split for the same reason as {@see logGoalEvent}: clearing the
+        // assist has to write a real NULL, not the 0 a null placeholder
+        // becomes.
+        $ok = $assist === null
+            ? $this->wpdb->query( $this->wpdb->prepare(
+                "UPDATE {$this->t_goals}
+                    SET player_id = %d, assist_player_id = NULL, is_own_goal = %d
+                  WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+                $player_id, $is_own_goal ? 1 : 0, $event_uuid, CurrentClub::id()
+            ) )
+            : $this->wpdb->query( $this->wpdb->prepare(
+                "UPDATE {$this->t_goals}
+                    SET player_id = %d, assist_player_id = %d, is_own_goal = %d
+                  WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
+                $player_id, $assist, $is_own_goal ? 1 : 0, $event_uuid, CurrentClub::id()
+            ) );
         return $ok !== false;
     }
 
@@ -310,15 +324,17 @@ class MatchExecutionRepository {
      * null. A partial attribution PATCH reads the stored row so the fields
      * the payload leaves out keep their current values rather than being
      * reset to nothing.
+     *
+     * @return array<string, mixed>|null
      */
-    public function findGoalEvent( string $event_uuid ): ?object {
+    public function findGoalEvent( string $event_uuid ): ?array {
         if ( $event_uuid === '' ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
             "SELECT * FROM {$this->t_goals}
               WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
             $event_uuid, CurrentClub::id()
-        ) );
-        return $row ?: null;
+        ), ARRAY_A );
+        return is_array( $row ) ? $row : null;
     }
 
     /**
