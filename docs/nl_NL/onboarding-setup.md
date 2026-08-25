@@ -17,7 +17,7 @@ de onderdelen toe te voegen die je had overgeslagen.
 
 Open het via **Configuratie → Installeren**. De tegel opent de
 Installatie-weergave aan de voorkant op `?tt_view=setup` — er is geen
-omleiding naar wp-admin (sinds #1938). Je hebt de rechten **Instellingen
+omleiding naar wp-admin. Je hebt de rechten **Instellingen
 bewerken** (`tt_edit_settings`) nodig om de tegel te zien en de flow uit te
 voeren.
 

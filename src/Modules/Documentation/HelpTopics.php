@@ -207,6 +207,45 @@ class HelpTopics {
     }
 
     /**
+     * #2550 — is this topic being served in English to a reader whose site is
+     * not English?
+     *
+     * `resolvePath()` falls back to `docs/<slug>.md` when there is no
+     * localised twin, which is the right behaviour — an English topic beats
+     * no topic. What was wrong is that it happened silently: a Dutch coach
+     * opened help and got English with nothing to say why, or that the rest
+     * of the corpus is translated, or that this one is worth reporting.
+     *
+     * Returns false for an English site, for a topic that has its
+     * translation, and for an unknown slug.
+     */
+    public static function isUntranslatedFallback( string $slug ): bool {
+        if ( ! isset( self::all()[ $slug ] ) ) return false;
+
+        $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+        $locale = (string) $locale;
+        if ( $locale === '' || strpos( $locale, 'en_' ) === 0 ) return false;
+
+        return ! file_exists( TT_PATH . 'docs/' . $locale . '/' . $slug . '.md' )
+            && file_exists( TT_PATH . 'docs/' . $slug . '.md' );
+    }
+
+    /**
+     * The notice to show above such a topic, or '' when none is needed.
+     *
+     * Deliberately small and factual: it names the situation and stops. An
+     * apology would be noise, and a link to a translation that does not exist
+     * would be worse than the silence it replaces.
+     */
+    public static function untranslatedNoticeHtml( string $slug ): string {
+        if ( ! self::isUntranslatedFallback( $slug ) ) return '';
+
+        return '<p class="tt-doc-untranslated">'
+            . esc_html__( 'This help topic has not been translated yet, so it is shown in English.', 'talenttrack' )
+            . '</p>';
+    }
+
+    /**
      * Default topic slug when none is requested.
      */
     public static function defaultSlug(): string {

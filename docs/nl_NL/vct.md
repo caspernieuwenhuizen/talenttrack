@@ -175,7 +175,7 @@ Stel het thema in op de VCT-configuratietegel (**Configuratie → VCT → Macrob
 
 De gecombineerde cyclus — thema + conditiefase + intensiteit, week voor week — is alleen-lezen zichtbaar op het tabblad **Periodisering** van de methodologiebibliotheek, voor de clubstandaard-kalender van het huidige seizoen.
 
-Een JO13-1 5-weekse speelwijze-referentietemplate wordt als startpunt meegeleverd (opbouw → verdedigen → balbezit → verdedigen → een neutrale week). Het per-week-thema doorvoeren in de VCT-oefeningkeuze is een geplande vervolgstap; vandaag is het thema beschrijvend.
+Een JO13-1 5-weekse speelwijze-referentietemplate wordt als startpunt meegeleverd (opbouw → verdedigen → balbezit → verdedigen → een neutrale week). Het per-week-thema is beschrijvend: het stuurt de VCT-oefeningkeuze niet aan.
 
 ## Privacy
 

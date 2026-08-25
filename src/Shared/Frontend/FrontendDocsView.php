@@ -131,6 +131,10 @@ class FrontendDocsView extends FrontendViewBase {
         if ( $path === null ) return '<p><em>' . esc_html__( 'This topic has no content yet.', 'talenttrack' ) . '</em></p>';
         $source = (string) file_get_contents( $path );
         if ( $source === '' ) return '<p><em>' . esc_html__( 'This topic is empty.', 'talenttrack' ) . '</em></p>';
-        return Markdown::render( $source, $slug );
+
+        // #2550 — say so when the reader is getting the English original
+        // because their locale has no twin. The fallback itself is right;
+        // doing it silently was not.
+        return HelpTopics::untranslatedNoticeHtml( $slug ) . Markdown::render( $source, $slug );
     }
 }

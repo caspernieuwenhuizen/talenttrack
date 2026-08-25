@@ -15,15 +15,15 @@ Draait je club de trainingsplanning + wedstrijden al in **Spond**? Dan haalt Tal
 
 De integratie is **read-only**: Spond blijft de bron voor de planning en RSVP's; TalentTrack blijft de bron voor evaluaties, doelen, aanwezigheid en al het andere.
 
-## Hoe het werkt (vanaf v3.69.0)
+## Hoe het werkt
 
-Spond heeft nooit een iCal-feed gepubliceerd — de URL-flow die oudere TalentTrack-versies aannamen, bestaat dus niet. Vanaf v3.69.0 gebruikt de integratie dezelfde interne JSON-API die de officiële Spond-app gebruikt. In de praktijk: je logt één keer in met een echt Spond-account en TalentTrack gebruikt dat account om events op te halen voor de groepen waar dat account lid van is.
+Spond publiceert geen iCal-feed, er is dus geen agenda-URL om te plakken. De integratie gebruikt de integratie dezelfde interne JSON-API die de officiële Spond-app gebruikt. In de praktijk: je logt één keer in met een echt Spond-account en TalentTrack gebruikt dat account om events op te halen voor de groepen waar dat account lid van is.
 
 ## Instellen
 
 Je hebt **één** Spond-account nodig dat lid is van elke ploeg die je wilt synchroniseren. De meeste clubs hebben hier al een toegewijd trainer-/manager-account voor. Tweestapsverificatie wordt **niet** ondersteund in v1 — schakel die op dit account uit, of gebruik een apart account zonder 2FA.
 
-1. Ga naar **Configuratie → Spond-integratie** (de tegel opent de frontend-Spond-weergave op `?tt_view=spond` — sinds v4.57.0 / #1936 geen wp-admin-omweg meer).
+1. Ga naar **Configuratie → Spond-integratie** (de tegel opent de frontend-Spond-weergave op `?tt_view=spond`).
 2. Vul het Spond-e-mailadres + wachtwoord in en klik **Credentials opslaan**. Het wachtwoord wordt versleuteld bewaard; bij rotatie van WordPress' `AUTH_KEY`-salt wordt het ongeldig en moet je het opnieuw invoeren. Is er al een account verbonden, dan toont de pagina **Verbonden als &lt;e-mail&gt;** en blijft het wachtwoordveld leeg — laat het leeg om het opgeslagen wachtwoord te behouden, of typ een nieuw wachtwoord om het te wijzigen. Het opgeslagen wachtwoord wordt nooit teruggetoond.
 3. Klik **Verbinding testen** om te bevestigen dat Spond de login accepteert. Een groene melding betekent klaar; een mislukte login toont de reden meteen.
 4. Open per TalentTrack-ploeg het team-formulier (of gebruik de nieuwe-team-wizard) en kies de bijbehorende **Spond-groep** uit de dropdown. De dropdown wordt live gevuld met de groepen waar je account lid van is.
@@ -51,7 +51,7 @@ Het sync-window is **30 dagen terug + 180 dagen vooruit** rollend, dus historisc
 - **Nu vernieuwen**-knop op het team-formulier én per team op de Spond-weergave voor een directe sync.
 - **WP-CLI**: `wp tt spond sync` (alle teams) of `wp tt spond sync --team=<id>`.
 
-Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond-integratie** — groen bij ok, rood met de reden bij een mislukking. Sinds v4.20.109 (#1368) tonen ook de dashboards van hoofd opleidingen en beheerder een waarschuwingsbanner wanneer de meest recente geslaagde sync ouder is dan 24 uur of de laatste sync van een gekoppeld team mislukte — zo valt een kapotte sync op waar iemand het daadwerkelijk ziet, niet alleen op deze beheerpagina.
+Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond-integratie** — groen bij ok, rood met de reden bij een mislukking. Ook de dashboards van hoofd opleidingen en beheerder een waarschuwingsbanner wanneer de meest recente geslaagde sync ouder is dan 24 uur of de laatste sync van een gekoppeld team mislukte — zo valt een kapotte sync op waar iemand het daadwerkelijk ziet, niet alleen op deze beheerpagina.
 
 ## Privacy + beveiliging
 
@@ -94,7 +94,7 @@ Verhuist Spond ooit zijn API naar een nieuw adres, dan kan een beheerder TalentT
 - **Per-coach Spond-accounts** — één account per club.
 - **Inbound webhooks** — Spond publiceert die niet; de uurlijkse cron is het model.
 
-## Overstappen vanaf de iCal-flow (vóór v3.69.0)
+## Overstappen vanaf de oude iCal-flow
 
 Heb je eerder iCal-URL's in het team-formulier geplakt? Dan worden die automatisch geleegd door migratie 0052. Verbind opnieuw door op **Configuratie → Spond** je Spond-e-mailadres + wachtwoord in te voeren en per ploeg de groep te kiezen. Bestaande geïmporteerde activiteiten blijven staan en gaan weer updaten zodra een groep is gekoppeld.
 

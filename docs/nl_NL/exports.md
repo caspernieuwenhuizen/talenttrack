@@ -12,7 +12,7 @@ order: 70
 
 Het scherm **Exports** (`?tt_view=exports`) is de centrale plek voor de bulk-exporteurs van de academie — de downloads van hele tabellen / hele seizoenen, in tegenstelling tot de exports per record (een spelersfiche, een scoutingrapport-PDF, een POP) die op het detailscherm van elk record zelf blijven staan waar de bijbehorende id in context is.
 
-## Indeling (v4.26.20+)
+## Indeling
 
 De exporteurs zijn gegroepeerd in doelgerichte secties, en elke exporteur is een ingeklapt accordeonblok zodat de pagina overzichtelijk blijft:
 

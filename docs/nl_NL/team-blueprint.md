@@ -28,9 +28,9 @@ Klik op **Aanmaken** en je komt direct in de editor met lege posities, klaar om 
 
 ## De editor
 
-Herbouwd in v4.6.0 (#972) — schone port van het in-tree prototype `.local-mockups/blueprint-editor/index.html`. Vier regio's:
+De editor bestaat uit vier regio's:
 
-- **Actiebalk** boven de lay-out — één compacte balk die elke actie op topniveau samenbrengt (#1527). De **Formatie**-dropdown blijft links een gelabelde besturing (elke actieve sjabloon uit `tt_formation_templates`). Daarna een rij icoon-knoppen voor de veelgebruikte acties — **Opslaan** (primair), **Wis alle posities**, de **dekkingsheatmap**-schakelaar (alleen selectieplannen) en de **chemie tonen/verbergen**-schakelaar — elk met een tooltip en schermlezer-label. Een opslag-hint toont "Opslaan…" tussen schrijfacties. Alles wat zelden of destructief is zit achter het **⋯ Meer**-menu aan het einde van de balk (Opslaan als…, Deelbare link openen / vernieuwen, de statusovergangen, Blauwdruk verwijderen).
+- **Actiebalk** boven de lay-out — één compacte balk met elke actie op topniveau. De **Formatie**-dropdown blijft links een gelabelde besturing (elke actieve sjabloon uit `tt_formation_templates`). Daarna een rij icoon-knoppen voor de veelgebruikte acties — **Opslaan** (primair), **Wis alle posities**, de **dekkingsheatmap**-schakelaar (alleen selectieplannen) en de **chemie tonen/verbergen**-schakelaar — elk met een tooltip en schermlezer-label. Een opslag-hint toont "Opslaan…" tussen schrijfacties. Alles wat zelden of destructief is zit achter het **⋯ Meer**-menu aan het einde van de balk (Opslaan als…, Deelbare link openen / vernieuwen, de statusovergangen, Blauwdruk verwijderen).
 - **Selectiebalk** — titel `<Team> — selectie (<N>)`, daarna elke actieve speler als versleepbare rij: avatar met initialen + naam + meta-regel (positie, leeftijd, soort voor niet-team-entries). Een `×N`-badge verschijnt naast de naam zodra die speler op één of meer posities in de huidige formatie staat. Onder de lijst opent de knop **+ Voeg gast / aangepaste naam toe** een inline 3-tab-formulier (Ander team / Gast / Aangepast — hieronder beschreven).
 - **Veld** — de posities van de formatie. Elke positie toont een genummerde cirkel (bv. `9` / `ST`) en een drielagige stack er direct onder: **primair / secundair / tertiair** diepte. De tier wordt twee keer gecodeerd — door het cijfer links van elke rij EN door de randkleur (turquoise / amber / grijs) — zodat het diepteschema leesbaar blijft zonder kleur.
 - **Lijnchemie-kop** — `— / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke wijziging.
@@ -44,7 +44,7 @@ Het overflow-menu is een native disclosure: klik (of focus + Enter / Spatie) op 
 - De toegestane **statusovergangen** voor de huidige status (*Delen met staf*, *Terug naar concept*, *Vergrendel*, *Heropenen*).
 - **Blauwdruk verwijderen** — verborgen zodra de blauwdruk vergrendeld is (eerst heropenen).
 
-Elk van deze behoudt zijn eigen bevestiging waar die er was (Vernieuwen, Verwijderen, Wis alles). Aan wat de acties doen is niets veranderd — #1527 heeft ze alleen in één balk samengebracht.
+Vernieuwen, Verwijderen en Wis alles vragen elk eerst om bevestiging.
 
 ### Speler kiezen
 
@@ -115,7 +115,7 @@ Heropenen vereist hetzelfde rechtenniveau als het aanmaken van een blauwdruk, du
 
 ## Rechten
 
-- **Bekijken** — hoofdcoaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord. Toegang volgt de `team_chemistry`-autorisatiematrix (#1922): assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang.
+- **Bekijken** — hoofdcoaches zien blauwdrukken voor teams waarvan ze hoofdcoach zijn; hoofd-academie / academie-admin zien alle teams. Dezelfde scope als het Teamchemie-bord. Toegang volgt de `team_chemistry`-autorisatiematrix: assistent-coaches en alleen-lezen-waarnemers hebben **geen** toegang.
 - **Aanmaken / bewerken / vergrendelen / verwijderen** — afgeschermd op `team_chemistry` **beheer**-autoriteit in de matrix (hoofdcoach op teamscope; hoofd-academie / admin globaal), opgelost via `TeamChemistryAccess` zodat de frontend en REST overeenkomen.
 
 ## Selectie-plan-variant
@@ -129,7 +129,7 @@ De variant ligt vast bij aanmaken.
 
 ### Diepteschema met tiers
 
-Wedstrijdopstelling en selectieplan **delen nu hetzelfde editor-oppervlak** (#953) — elke positie op het veld draagt de primaire / secundaire / tertiaire stack inline. Selectieplan-blauwdrukken leunen zwaarder op het diepteschema, maar een wedstrijdcoach mag prima tier 2 / 3 invullen (handig voor "als A geblesseerd raakt, komt B").
+Wedstrijdopstelling en selectieplan **delen hetzelfde editor-oppervlak** — elke positie op het veld draagt de primaire / secundaire / tertiaire stack inline. Selectieplan-blauwdrukken leunen zwaarder op het diepteschema, maar een wedstrijdcoach mag prima tier 2 / 3 invullen (handig voor "als A geblesseerd raakt, komt B").
 
 Dezelfde speler KAN op twee posities of tiers tegelijk staan — handig voor een veelzijdige speler die primair op één positie staat en secundaire cover op een andere. De `×N`-badge in de selectie houdt het beeld eerlijk.
 
@@ -154,7 +154,7 @@ Chemie scoort alleen de **basiself** — de primaire tier. Tier 2 en 3 zijn diep
 
 Als een positie tier-2 of tier-3 entries heeft maar **geen** tier-1 bezetting, verschijnt boven het veld een waarschuwingsstrip met de betreffende posities — chemie negeert die cellen stilletjes, dus de strip maakt het scoreverlies zichtbaar. Vul tier-1 om ze weer mee te laten tellen.
 
-## Reacties (#0068 Fase 3)
+## Reacties
 
 Elke blauwdruk heeft een eigen discussiethread, bereikbaar via de **Reacties**-tab op de editor. Staf-only — ouders op de deelbare link zien nooit reacties:
 
@@ -163,7 +163,7 @@ Elke blauwdruk heeft een eigen discussiethread, bereikbaar via de **Reacties**-t
 
 Systeemberichten worden automatisch gepost bij elke statusovergang (`Status gewijzigd naar: shared` / `locked` / `draft`). Speler-toewijzingen blijven stil — die zie je terug bij de chemie-refresh.
 
-## Publieke deellink (#0068 Fase 4)
+## Publieke deellink
 
 Het **Deelbare link openen**-item in het **⋯ Meer**-menu van de actiebalk genereert een URL van de vorm:
 
@@ -177,9 +177,9 @@ Iedereen met de URL ziet een alleen-lezen weergave: status-pil + chemie-kop + ve
 
 Het token is een HMAC-SHA256 over `(blueprint_id, uuid, share_token_seed)` met sleutel `wp_salt('auth')` van de installatie. De seed is per blauwdruk en wordt lazy geïnitialiseerd op de uuid van de blauwdruk (cryptografisch willekeurig); vernieuwen vervangt de seed door een verse `wp_generate_password(16)`-waarde.
 
-## Drag-drop op mobiel (#0068 Fase 4)
+## Drag-drop op mobiel
 
-iPads werken prima met HTML5 drag-and-drop; iPhones niet. v3.109.8 levert een touch-fallback:
+iPads werken prima met HTML5 drag-and-drop; iPhones niet, dus er is een touch-fallback:
 
 - **Long-press 300 ms** op een chip in de spelerslijst om hem op te pakken.
 - Sleep de chip op een slot of terug naar de spelerslijst.

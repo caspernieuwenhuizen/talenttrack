@@ -9,7 +9,7 @@ order: 160
 
 # Demodata — Excel-werkboek
 
-> **Migratienotitie (v3.108.0)** — het activiteitentabblad is hernoemd van `Sessions` naar `Activities`. Werkmappen die zijn gemaakt op basis van het v3.107.0-template (of ouder) moeten opnieuw worden gedownload, of het tabblad moet handmatig worden hernoemd naar `Activities`. De importer geeft een duidelijke blokkering op werkmappen met een `Sessions`-tabblad — geen soft-fallback. De interne schema-sleutel blijft `sessions` voor terugcompatibiliteit met code­paden.
+> **Het activiteitentabblad heet `Activities`.** Een oudere werkmap waarvan het tabblad nog `Sessions` heet, moet opnieuw worden gedownload — of hernoem het tabblad met de hand naar `Activities`. Werkmappen op basis van een ouder template (of ouder) moeten opnieuw worden gedownload, of het tabblad moet handmatig worden hernoemd naar `Activities`. De importer geeft een duidelijke blokkering op werkmappen met een `Sessions`-tabblad — geen soft-fallback. De interne schema-sleutel blijft `sessions` voor terugcompatibiliteit met code­paden.
 
 De demodatagenerator bij **Tools → TalentTrack Demo** heeft drie bronnen:
 
@@ -46,7 +46,7 @@ Fouten komen als lijst terug — los ze op in het werkboek, upload opnieuw.
 
 Opnieuw uploaden voegt rijen toe (geen rij-niveau upsert). Om alles te vervangen: gebruik eerst **Wipe demo data** en upload daarna.
 
-## Upload-fouten oplossen (v3.90.1)
+## Upload-fouten oplossen
 
 De upload-route is gehard tegen de "lijkt op een hosting-fout"-faalmodus. Als er iets misgaat krijg je een rode TalentTrack-melding met de werkelijke oorzaak, in plaats van de generieke 500 van de hostingprovider.
 
@@ -60,7 +60,7 @@ De upload-route is gehard tegen de "lijkt op een hosting-fout"-faalmodus. Als er
 
 De daadwerkelijke serverlimieten op jouw installatie staan onder het bestandsveld, zodat je het werkboek vóór de upload op maat kunt brengen.
 
-## Selectief genereren + selectief wissen (v3.90.2)
+## Selectief genereren + selectief wissen
 
 Stap 0.5 ("Wat genereren") op de Demo-data-pagina toont zes vinkjes — drie master-data (ploegen / mensen + WP-gebruikers / spelers) en drie afhankelijke entiteiten (activiteiten / evaluaties / doelen) — standaard allemaal aan. Master-data-schakelaars gelden alleen voor de procedurele bron; bij Excel + hybride runs leest het werkboek de master-data. Schakelaars voor afhankelijke entiteiten gelden voor elke bron, dus je kunt bv. een werkboek met ploegen + spelers uploaden en bovenop dat geen procedurele doelen genereren.
 
