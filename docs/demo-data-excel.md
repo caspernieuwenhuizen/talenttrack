@@ -9,7 +9,7 @@ order: 160
 
 # Demo data — Excel-driven workbook
 
-> **Migration note (v3.108.0)** — the activities sheet was renamed from `Sessions` to `Activities`. Workbooks created against the v3.107.0 or earlier template need to be re-downloaded, or have the sheet manually renamed to `Activities`. The importer emits a clear blocker on workbooks that still carry a `Sessions` sheet — no soft fallback. The schema key inside the importer stays `sessions` for back-compat with internal code paths.
+> **The activities sheet is called `Activities`.** An older workbook whose sheet is still called `Sessions` needs to be re-downloaded, or have the sheet manually renamed to `Activities`. The importer emits a clear blocker on workbooks that still carry a `Sessions` sheet — no soft fallback. The schema key inside the importer stays `sessions` for back-compat with internal code paths.
 
 The demo-data generator at **Tools → TalentTrack Demo** has three sources:
 
@@ -46,7 +46,7 @@ Errors come back as a list — fix them in the workbook, re-upload.
 
 Re-uploading the same workbook adds new rows (no row-level upsert). To wipe-and-replace, use **Wipe demo data** first, then upload.
 
-## Troubleshooting upload errors (v3.90.1)
+## Troubleshooting upload errors
 
 The upload path is hardened against the "looks like a hosting server side error" failure mode. If something goes wrong, you get a red TalentTrack notice naming the actual cause instead of the host's generic 500.
 
@@ -60,7 +60,7 @@ The upload path is hardened against the "looks like a hosting server side error"
 
 The actual server limits on your install are surfaced below the file-picker input so you can size the workbook before uploading.
 
-## Selective generation + selective wipe (v3.90.2)
+## Selective generation + selective wipe
 
 Step 0.5 ("What to generate") on the Demo Data page exposes six checkboxes — three master-data (teams / people + WP users / players) and three dependent-entity (activities / evaluations / goals) — all default ON. Master-data toggles only apply to the procedural source; the workbook drives master data on Excel + hybrid runs. Dependent-entity toggles apply to every source, so you can e.g. upload a teams + players workbook and skip procedural goals on top.
 

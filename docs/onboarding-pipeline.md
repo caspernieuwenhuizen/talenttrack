@@ -44,7 +44,7 @@ On submit:
 - A task is dispatched to the Head of Development to invite the prospect to a test training.
 - You're returned to the pipeline view, where the new card appears in the **Invited** column.
 
-The wizard is the canonical "+ New prospect" entry point — clicking the button no longer creates a workflow task as a side-effect (a regression resolved in v3.110.48; previously the click POSTed to `/prospects/log` and dropped you into a `Log prospect` task in My Tasks, which surprised users and double-counted the entry).
+The wizard is the canonical "+ New prospect" entry point. Clicking the button opens it and nothing else — no workflow task is created as a side effect.
 
 ## Permissions
 
@@ -65,7 +65,7 @@ Each prospect belongs to **exactly one** column. The classifier runs in this ord
 5. Has an open *Invite to test training* or *Confirm test training* task → **Invited**.
 6. Otherwise (no open task, not promoted, not archived) → **Prospects**.
 
-The dashboard widget uses the same classifier for its compact count strip, so the numbers on the dashboard match the columns on the standalone page. Before v3.110.48 the widget summed task rows across templates, so a single prospect with both an Invite and a Confirm task open at once showed as 2 in the Invited column — fixed.
+The dashboard widget uses the same classifier for its compact count strip, so the numbers on the dashboard match the columns on the standalone page. A prospect counts once, in one column, however many tasks are open against them.
 
 ## What the wizard skips
 

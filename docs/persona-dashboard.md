@@ -45,7 +45,7 @@ Each block on the dashboard is a widget. There are 15 widget types:
 | Quick actions panel | A 2×2 grid of action cards (Coach side panel) |
 | Info card | A read-only summary block (coach nudge, pending PDP ack, license status) |
 | Task list panel | Preview of your open workflow tasks |
-| Data table | Compact table with up to 5 rows + see-all link (presets: trials needing decision, recent scout reports, audit log, upcoming activities — all four wired to live data as of v3.78.0) |
+| Data table | Compact table with up to 5 rows + see-all link (presets: trials needing decision, recent scout reports, audit log, upcoming activities) |
 | Mini player list | Horizontal rail of player cards (podium, top movers, recent evaluations) |
 | Rate card hero | Player landing's identity hero |
 | Today / Up next hero | Coach landing hero with action buttons |
@@ -127,7 +127,7 @@ Useful for rolling out a redesigned persona dashboard one persona at a time on a
 
 ## Sources of data
 
-Each KPI is computed live from your academy's data. KPIs that depend on features still in development (e.g., the player-status traffic light from `#0057`, PDP planning windows from `#0054`) render a placeholder dash (`—`) until those land.
+Each KPI is computed live from your academy's data. A KPI whose underlying feature is switched off for your academy renders a placeholder dash (`—`) rather than a zero, so an empty tile never reads as "nothing happened".
 
 ## REST API
 
@@ -144,7 +144,7 @@ DELETE /wp-json/talenttrack/v1/me/active-persona                 clear active pe
 
 A logged-in user can read templates for personas they qualify for; the write endpoints require `tt_edit_persona_templates`.
 
-## Visual conventions (v3.76.0)
+## Visual conventions
 
 The dashboard opens with a subtle title header — persona name as the page title plus a date + club subtitle. Personas without a hero widget (Head of Development, Academy Admin, Scout) get a time-of-day greeting prefix; personas with a hero (player, parent, coach, manager) skip the greeting because the hero already does the welcome.
 
@@ -152,7 +152,7 @@ Tile icons (the coloured one-letter squares) and the yellow plus-circle on actio
 
 Clubs that need stronger visual differentiation between tiles can add a per-tile description in the dashboard editor — typography reads as "label + description" instead of "label + icon."
 
-## HoD landing — funnel + 4-team pulse side-by-side (v3.110.82)
+## HoD landing — funnel and team pulse side by side
 
 The default `head_of_development` template now lays out the HoD's two parallel lenses on the same screen — existing-squad pulse on the left, recruitment funnel below it — so the most-frequent HoD actions (sending test-training invitations, recording outcomes, planning next week's test-trainings) are reachable in one tap.
 
@@ -160,14 +160,14 @@ Top to bottom on the default template:
 
 1. **KPI strip** — active players, evaluations this month, rolling attendance %, open trial cases, PDP verdicts pending, goal completion %.
 2. **Team overview grid + `+ New trial` action card** — 4 team cards, `concern_first` sort, 30-day window.
-3. **Onboarding pipeline strip** (XL, full width) — six-stage funnel counts (Prospects · Invited · Test training · Trial group · Team offer · Joined) with stale badges. New in v3.110.82.
+3. **Onboarding pipeline strip** (XL, full width) — six-stage funnel counts (Prospects · Invited · Test training · Trial group · Team offer · Joined) with stale badges.
 4. **Upcoming activities** data table — 4 teams' forward schedule.
 5. **Trials needing decision** data table.
 6. **Navigation tiles** — top row carries the four highest-frequency drill-downs (Onboarding pipeline · Tasks dashboard · Players · Teams); second row carries cycle / record-keeping surfaces (Trials · Evaluations · PDP · Activities); rest unchanged.
 
-Operators who published a HoD template override before v3.110.82 keep their custom layout — the change updates the ship default only. To pick up the new layout, open the dashboard editor and click **Reset to standard**.
+This is the shipped default. An academy that has published its own Head of Development template keeps that layout; to adopt the default instead, open the dashboard editor and click **Reset to standard**.
 
-## Team overview grid (HoD landing, v3.76.0)
+## Team overview grid (HoD landing)
 
 Per-team summary cards arranged in a responsive grid. Each card shows team name, age group, head coach, and two headline numbers: average evaluation rating and attendance percentage over a configurable window (default 30 days). Tapping a card expands it inline to show the team's player breakdown with each player's attendance % and rating.
 
@@ -190,7 +190,7 @@ The expand/collapse state is per-user, per-card, persisted in `localStorage` (`t
 - Switching roles in the user menu: [Access control](access-control.md)
 - The full tile catalog: [Coach dashboard](coach-dashboard.md)
 
-## Data source dropdowns (v3.79.0)
+## Data source dropdowns
 
 The persona-dashboard editor used to ask for free-text "data source" values for non-KPI widgets — meaning operators had to know preset keys like `audit_log_recent` by heart. Every widget now publishes its own catalogue and the editor renders a dropdown:
 

@@ -99,7 +99,7 @@ If you can see activities you can see the planner. If you can edit activities yo
 - **Inline create modal** — clicking `+ Add` takes you to the activities form rather than opening a quick-create dialog. The form is the canonical create surface.
 - **Multiple-season picker** — the Full season range always picks `is_current`. To plan a future season, set that season's `is_current` flag first under PDP → Seasons.
 
-## Repeating sessions (v4.20.125)
+## Repeating sessions
 
 Two shortcuts remove the re-typing from weekly planning:
 

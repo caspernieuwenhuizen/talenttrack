@@ -24,11 +24,11 @@ Every score on the board is **explainable**. Hover any number to see the exact r
 
 ## Where to find it
 
-Head coaches and head-of-academy users see a **Team chemistry** tile in the *Performance* group on the dashboard. Pick a team and the board opens. Access follows the `team_chemistry` authorization matrix (#1922): assistant coaches and read-only observers do **not** have access to the chemistry board.
+Head coaches and head-of-academy users see a **Team chemistry** tile in the *Performance* group on the dashboard. Pick a team and the board opens. Access follows the `team_chemistry` authorization matrix: assistant coaches and read-only observers do **not** have access to the chemistry board.
 
 A second surface is per-player: every player profile has a **Best fit positions** card listing the player's top three positions in the team's current formation, again with hoverable rationale.
 
-## Layout (v4.13.0)
+## Layout
 
 The board is laid out in three columns on desktop, stacking on tablet and phone:
 

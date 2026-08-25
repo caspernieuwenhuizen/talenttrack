@@ -37,7 +37,7 @@ How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 
 
 Only coaches within your own club are counted — the report is scoped to the current tenant and never surfaces activity from another academy. A coach whose user account has been deleted still appears (their saved evaluations remain in the window) but is labelled **Unknown coach** rather than a raw account number.
 
-## Coach · Evaluation quality (v4.20.123)
+## Coach · Evaluation quality
 
 The head-of-development's evaluation spot-check as a report: one row per coach with their evaluation count, rating count, mean rating, standard deviation, the most-given rating (and what share of all their ratings sits at it), and the date of their last evaluation. Filterable by team and date range.
 
@@ -45,11 +45,11 @@ Rows where the standard deviation is below **0.5** across **10 or more ratings**
 
 Restricted to academy-wide roles (head of development / admin): coaches cannot see each other's statistics. The **Export (CSV)** button downloads the same rows; integrations can read them from `GET /wp-json/talenttrack/v1/reports/coach-evaluation-quality` with the same permission gate.
 
-## Frontend reports + Print/Save as PDF (v3.79.0)
+## Frontend reports + Print/Save as PDF
 
 Team rating averages and Coach activity now render natively on the public dashboard at `?tt_view=reports&type=team_ratings` and `?type=coach_activity` — no more wp-admin tab jump. Each report has a **Print / Save as PDF** button at the top: clicking it opens the browser's print dialog with a stylesheet that strips dashboard chrome, so picking "Save as PDF" produces a clean tabular PDF.
 
-## Player · Progress & radar (v4.20.124)
+## Player · Progress & radar
 
 The legacy wp-admin "Player Progress & Radar" report now renders natively on the dashboard as a standard report (Reports → *Player · Progress & radar*). Same three modes with the same data: **Player Progress** (each selected player's last five evaluations as stacked radar series — leave the selection empty for the top-10 active players), **Player Comparison** (each player's most recent evaluation overlaid on one radar; pick at least two), and **Team Averages** (one radar series per team, averaged per category).
 
@@ -352,7 +352,7 @@ lists; the Trial funnel *Prospects logged* tile opens the prospects list. Every
 drill carries a **← Back to …** hint and is hidden when the viewer lacks the
 destination's capability (§7 hide-don't-tease).
 
-## Player attendance — ranking + at-risk flags (v4.21.36)
+## Player attendance — ranking + at-risk flags
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
@@ -368,7 +368,7 @@ Each player's **Activities** count is a link. Open it to see the actual sessions
 
 The threshold lives in **Configuration → General → Attendance at-risk threshold** (an academy-admin setting). One number, between 1 and 50, drives every at-risk flag: the player attendance report, the attendance leaderboard, and the daily attendance-flag notification all read it. Lower it to catch slips earlier; raise it if your academy only wants to act on persistent absence.
 
-## Attendance leaderboard (v4.27.0)
+## Attendance leaderboard
 
 A dedicated league table reachable from the Reports launcher (*Attendance leaderboard*). It ranks players over the chosen window into two side-by-side tables: **Needs attention** (the lowest attendance %, where at-risk players keep their ⚠ badge) and **Most reliable** (the highest attendance %). By default it shows **all** players in the window; type a number in *How many* to narrow each table to that many rows. Optionally narrow to a single team. Coaches see only their own teams; academy-wide roles see the club.
 

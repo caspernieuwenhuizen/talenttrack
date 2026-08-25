@@ -43,7 +43,7 @@ The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pd
 
 From the **PDP** tile, click *Create PDP* on a player's row (or *Open new PDP file*), pick a player and click *Open new PDP file*. The file is created with one row per conversation in the cycle (2, 3, or 4 — configurable per club, overridable per team) with each `scheduled_at` distributed evenly across the season's start and end dates.
 
-A native calendar entry is written for every conversation. When the Spond integration ships (#0031), the same entries are pushed to the Spond calendar.
+A native calendar entry is written for every conversation.
 
 ### 2. Run the conversations
 
@@ -64,7 +64,7 @@ After sign-off the conversation appears on the player's *My PDP* view (and the p
 
 When the talk happens in person, the coach can also record those acknowledgements on the conversation form — *Record player acknowledgement* / *Record parent acknowledgement*, each behind a confirm dialog. It writes the same acknowledgement as if the player or parent had clicked it themselves. Confirm only when they actually acknowledged the conversation with you.
 
-### What the player sees: a timeline-first My PDP (#1990)
+### What the player sees: a timeline-first My PDP
 
 *My PDP* is the player's **preparation and self-review** space, built around the season as a timeline.
 
@@ -98,9 +98,9 @@ A goal can now link to one or more methodology entities:
 
 The links are surfaced on the player profile and in the print template; they let you query "all goals tied to *resilience* across the academy" or "every player working on *playing out from the back*".
 
-### Goals ↔ development talks (the "combine", #1853)
+### Goals ↔ development talks
 
-A goal can also link to a **development talk**. On the conversation form, the coach ticks **Goals discussed in this talk** from the player's active goals; those links are saved alongside the talk. On *My PDP*, expanding a conversation marker shows a **Goals discussed** list, so the player's self-review reflects on the goals that were actually covered — PDP and goals become genuinely combined rather than sitting side by side. (Turning an agreed action into a brand-new goal is a planned follow-up; this step is the read/link connective tissue.)
+A goal can also link to a **development talk**. On the conversation form, the coach ticks **Goals discussed in this talk** from the player's active goals; those links are saved alongside the talk. On *My PDP*, expanding a conversation marker shows a **Goals discussed** list, so the player's self-review reflects on the goals that were actually covered — PDP and goals become genuinely combined rather than sitting side by side.
 
 ## Print
 
@@ -119,11 +119,11 @@ Three task templates are registered:
 
 - `pdp_conversation_due` — reminds the owning coach as a conversation's `scheduled_at` approaches.
 - `pdp_verdict_due` — reminds the head of academy at season-end.
-- `pdp_self_review` — nudges the **player** to prepare for an upcoming talk (#1852).
+- `pdp_self_review` — nudges the **player** to prepare for an upcoming talk.
 
-All go through the standard #0022 workflow & tasks engine — the same inbox, the same nudge cadence configurable from Configuration → Workflow.
+All go through the workflow & tasks engine — the same inbox, the same nudge cadence configurable from Configuration → Workflow.
 
-### Self-review nudge (#1852)
+### Self-review nudge
 
 When a conversation's planning window opens, the player gets a **"Prepare for your development talk"** task in *My tasks / Today's work*, due on the talk date. Tapping it opens *My PDP* at the self-reflection. The sweep that creates these runs on the workflow engine's own scheduler and is idempotent — exactly one task per conversation, no duplicates.
 
@@ -135,9 +135,9 @@ It is a **nudge, not a gate**:
 
 On the coach side, the conversation list gains a **Self-review** column showing **Done / Not yet** per upcoming talk — visibility only, never a gate on conducting or signing off.
 
-## Cycle progress + ack visibility (v3.79.0)
+## Cycle progress and acknowledgement visibility
 
-The PDP file detail page now shows cycle progress as **(X of N signed off)** next to the cycle size, so you see at a glance how much of the cycle is complete. Each conversation row carries:
+The PDP file detail page shows cycle progress as **(X of N signed off)** next to the cycle size, so you see at a glance how much of the cycle is complete. Each conversation row carries:
 
 - a derived **status** badge (Scheduled / Held / Signed off) instead of three separate date+yes columns
 - an **Acks** column with parent (👤) and player (⚽) acknowledgement icons — `✓` once acked, `·` while pending

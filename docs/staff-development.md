@@ -11,11 +11,11 @@ order: 120
 
 # Staff development
 
-The plugin tracks players in detail. From v3.58.0 it tracks the **people who coach those players** with the same primitives — goals, evaluations, a personal-development plan — plus a certification register that has no player-side equivalent. The module is opt-in (you can disable it under wp-admin → Configuration → Feature toggles), but it ships enabled by default for new installs.
+The plugin tracks players in detail. It tracks the **people who coach those players** with the same primitives — goals, evaluations, a personal-development plan — plus a certification register that has no player-side equivalent. The module is opt-in (you can disable it under wp-admin → Configuration → Feature toggles), but it ships enabled by default for new installs.
 
 ## What you get
 
-As of **v4.26.15** your four personal staff-development tiles live under the **"My"** group on the dashboard — the same place a player sees their own development — instead of a separate "Staff development" heading. They're cap-gated on `tt_view_staff_development`, so a staff member sees the staff set and a player sees the player set. The labels match the player tiles (no "staff" qualifier):
+Your four personal staff-development tiles live under the **"My"** group on the dashboard — the same place a player sees their own development — instead of a separate "Staff development" heading. They're cap-gated on `tt_view_staff_development`, so a staff member sees the staff set and a player sees the player set. The labels match the player tiles (no "staff" qualifier):
 
 - **My PDP** — your personal-development plan. Four fields: strengths, development areas, actions next quarter, and a free-form narrative for context. One row per (you, season). Save updates the same row; the previous content is overwritten, so use the narrative for history.
 - **My goals** — personal-development goals. Each goal has a title, priority, status, optional due date, and an **optional link to a certification** (e.g. "Take UEFA-B"). When linked, the goal appears alongside the certification on the certifications tile so the trail from "I want this" → "I have this" is visible.
@@ -39,13 +39,13 @@ Four templates register with the workflow engine on module boot:
 - **Annual staff self-evaluation** — fires Sept 1 at 00:00, one task per non-archived staff member, 30-day deadline. Form points the user at the My evaluations tile.
 - **Top-down staff review** — same Sept 1 cron, assigned to head-of-development, 60-day deadline. One task per staff member.
 - **Staff certification expiring** — daily 06:00 cron walks `tt_staff_certifications.expires_on` against four threshold windows (90 / 60 / 30 / 0 days). Engine-side dedup prevents the same (cert, threshold) firing twice. Assignee: the staff member who holds the cert; head-of-development is CC'd via the existing notification channel.
-- **Staff PDP season review** — fires when a season is set current (the existing `tt_pdp_season_set_current` action from #0044's PDP cycle module). Fans out one task per staff member: refresh your PDP for the new season.
+- **Staff PDP season review** — fires when a season is set current (the `tt_pdp_season_set_current` action from the PDP cycle module). Fans out one task per staff member: refresh your PDP for the new season.
 
 All four use the shared `StaffStubForm` placeholder for now — completing the task takes the user to the relevant tile, where they fill in the data through the regular UI. Dedicated task forms (richer than the placeholder) ship in a follow-up PR if usage signal warrants the extra surface.
 
 ## What this is *not*
 
-- **A setup wizard for new staff.** That's #0024. This module is personal-development for staff who already have a `tt_people` row.
+- **A setup wizard for new staff.** This module is personal-development for staff who already have a `tt_people` row.
 - **Anonymous evaluations.** The reviewer is recorded on every eval row.
 - **Document storage for certifications.** v1 stores a URL pointing at the document, which lives wherever your academy already keeps such files (Google Drive, OneDrive, file system, etc.).
 - **Cross-academy benchmarking.** Per-club only.

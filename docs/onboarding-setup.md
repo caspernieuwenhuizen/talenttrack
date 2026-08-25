@@ -16,7 +16,7 @@ it as the very first thing you do, or re-run it later to add the bits you
 skipped.
 
 Open it from **Configuration → Setup**. The tile opens the frontend Setup
-view at `?tt_view=setup` — there is no wp-admin bounce (since #1938). You
+view at `?tt_view=setup` — there is no wp-admin bounce. You
 need the **Edit settings** capability (`tt_edit_settings`) to see the tile
 and run the flow.
 
