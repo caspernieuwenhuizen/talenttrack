@@ -1,3 +1,229 @@
+# TalentTrack v4.102.0 — The Help icon now opens help for the screen you are on. It previously opened
+
+"Getting started" on about 117 of the 144 screens, because the mapping was a
+hand-maintained list that covered 27 of them.
+
+Each help topic now declares which screens it serves, and the map is derived
+from that — so 142 of the 144 screens resolve to a relevant topic. The
+remaining two are the help page itself and personal account settings, both
+deliberate. Where help does fall back to the default, it now says so instead of
+quietly showing the wrong topic.
+
+Also fixed: the Workflow screens and the PDP screen opened help on topics that
+did not exist, and fell through to "Getting started".
+
+# TalentTrack v4.102.0 — Forty-two help topics that existed only as files in the repository are now
+
+readable in the app. Match day (match preparation, live match, minutes,
+attendance and ratings grids), Planning (team planner, training plans,
+tournaments, season rollover) and Operator guide (security, privacy, the photo
+DPIA, telemetry) are new sections in Help & Docs; measurements, injuries, the
+exercise library, bulk exports, the data browser, the audit log and the six
+Configuration sub-pages join the existing ones.
+
+The three persona guides — head coach, head of development, scout — were
+internal working notes and are now written for the people they are named after:
+what you actually do across a season, in the order it happens, with Dutch
+translations.
+
+# TalentTrack v4.102.0 — Support docs read as documentation, not release notes (#2549)
+
+Help topics were written in changelog voice: version stamps, issue numbers and
+"used to / now / before" constructions running through prose a coach reads on a
+phone at the side of a pitch. A reader could not tell whether a paragraph
+described how the product works or how it once worked.
+
+Every user-facing topic now describes current behaviour in present tense, with
+the version history left where it belongs — in the changelog. Forward-looking
+claims are resolved rather than softened: the player-status weights turned out
+to be admin-configurable already, and the doc said they would be "in a future
+release".
+
+# TalentTrack v4.102.0 — Dutch help: the DPIA translated, and the English fallback says so (#2550)
+
+The install is Dutch and the help corpus falls back to the English file when a
+topic has no Dutch twin — silently, so a coach got English with nothing to
+explain why. A small line above such a topic now says it has not been
+translated yet. The fallback itself is unchanged: an English topic beats no
+topic.
+
+The photo-capture DPIA is now available in Dutch, which matters because it is a
+document a Dutch academy admin has to read and sign. The English text stays the
+authoritative version and the translation says so.
+
+The Dutch twins of every help topic rewritten in the same release were rewritten
+alongside them, so the two languages describe the same product rather than
+drifting a release apart.
+
+# TalentTrack v4.102.0 — no-user-facing-change
+
+Adds `docs-lint.yml` + `tools/check-docs.php`: a CI gate over the documentation
+corpus. It checks that every doc is either registered or explicitly dev-only,
+that the front-matter keys resolve to real modules, features, tiers and
+capabilities, that every routable screen is claimed by a help topic or listed
+as deliberately unclaimed, that cross-references and deep links point at things
+that exist, that reader-facing topics do not gain version stamps or issue
+numbers, and that every file is valid UTF-8.
+
+Fixed two broken cross-references the gate found on its first run:
+`phone-home.md` linked to a doc that lives in another repository, and
+`workflow-engine.md` linked to `sessions.md`, which was renamed to
+`activities.md`.
+
+# TalentTrack v4.102.0 — TileRegistry declares the shape it actually accepts (#2816)
+
+No user-facing change. `TileRegistry::register()`'s declared array shape
+described an older API — it required `slug` and `url`, which no caller passes,
+and omitted `view_slug`, `label`, `module_class` and five more keys that nearly
+all of them do. Every tile registration in the product therefore failed the
+static-analysis gate and sat in the baseline, where each entry embeds the
+literal array of its call site: editing any field of any tile produced a fresh
+unbaselined error.
+
+The shape now follows the method's own defaults, and 490 baseline lines went
+with it.
+
+# TalentTrack v4.102.0 — Activity detail: four buttons, and a ⋯ for the rest (#2830)
+
+A planned match offered eleven header buttons across two wrapped rows, all the
+same size, so the two that mattered were indistinguishable from the six that
+support them. The header now carries what you came to do — Edit, match prep,
+complete, cancel on a planned activity; the analysis and Archive on a completed
+one — and folds everything else behind a **⋯** menu on the same row.
+
+The three grids and *Sync team from Spond* render as icons: they are shortcuts
+into a bulk surface and a maintenance action, not decisions competing with
+Complete and Cancel. Inside the menu they get their words back, and every one
+still names itself to a screen reader and on hover.
+
+The menu opens on click, Enter and Space with no JavaScript, closes on Escape
+or an outside click, and returns focus to its trigger. Nothing becomes
+reachable by being folded away — every action keeps its capability, feature and
+archived-record rules — and the menu does not render at all when everything in
+it is hidden.
+
+Also: *write the match analysis* no longer appears on a match that has not been
+completed. It read "played" as "dated today or earlier", which offered writing
+up a match that kicked off at seven that evening.
+
+# TalentTrack v4.102.0 — Match prep shows the principles the match is linked to (#2831)
+
+The screen where a coach writes what the team should do on Saturday could not
+see what the academy had decided the team is working on. Match prep now carries
+a read-only **Principles** panel above the goal boxes, showing the activity's
+linked principles in the same O / A / V pills the activity page uses — so the
+goals are written against the principle rather than from memory.
+
+They are read from the activity, not picked again: one place answers "which
+principle is this match about". A match with none linked gets a line saying so,
+linking to the activity's edit form. The principles print, appearing on the
+paper team sheet and in the PDF export above the goals, and a new
+`GET /activities/{id}/principles` returns the same list.
+
+# TalentTrack v4.102.0 — Player · Minutes played: only played matches, translated type, styled link (#2832)
+
+The report listed fixtures that had not been played yet — a match kicking off
+this evening appeared as a row with an em-dash for minutes and counted toward
+"Matches in roster". A match now counts once its activity is marked completed;
+activities recorded before the status field existed fall back to the calendar.
+The rule lives in one place, shared with the team minutes report, so the two
+cannot disagree about what "played" means.
+
+Two smaller fixes in the same table: the Type column showed the raw storage key
+("game", "tournament") instead of the translated activity type, and the match
+name was a bare underlined link rather than the record-link treatment the rest
+of the reports use.
+
+# TalentTrack v4.102.0 — Team · Minutes distribution: what counts as played, and one squad (#2833)
+
+The report counted a fixture kicking off this evening as already played, so a
+team with one played match read "1 of 2 played matches recorded" and carried an
+amber warning that a match nobody had kicked off yet was missing its minutes. A
+match now counts as played once its activity is completed — or, for academies
+with the guided flow switched off, as soon as it carries recorded minutes,
+since those are evidence it happened.
+
+The *Matches recorded* tile and the squad beneath it also disagreed: minutes
+recorded against a player who has since been archived were counted by the tile
+and dropped from the squad, which is how the report could show one recorded
+match above zero players and an empty state claiming no minutes existed at all.
+Both now describe the same squad.
+
+# TalentTrack v4.102.0 — Attendance per player: an honest drill-down, and counts beside the percentages (#2834)
+
+Clicking a player's activity count opened the activities list without the
+report's activity-type filter, so a count of three trainings landed on a list
+that also held matches and meetings — and the list gave no sign it had been
+narrowed at all, because the player and the date window arrived as hidden form
+fields. The type now travels with the drill, and a **Showing only:** strip above
+the filter bar names the player and the window, each with an × that clears that
+one constraint.
+
+The table reads differently too. Present keeps its percentage and gains the
+fraction behind it — *33,3% (1/3)* — because over three activities a percentage
+alone is noise. Late, Absent, Excused and Injured show the count instead: two
+missed sessions read as **2**, and the columns sort numerically.
+
+# TalentTrack v4.102.0 — Minutes share: what percentage of the available minutes did each player get (#2835)
+
+Every minutes report answered in absolutes, and 350 minutes looks fine until
+you know the team played 700. **Team · Minutes share** is the missing relative
+figure: every played match's own length summed into a denominator, each
+player's recorded minutes over it, and the squad ranked lowest share first.
+
+The denominator is every match the team played, not the ones each player was
+available for — a player who missed six weeks injured shows a low share, which
+is the honest number, and shrinking the denominator per player would hide
+exactly the case the report exists to surface. Match length comes from the
+match prep, the age-group default, or 35 minutes a half, so a team on
+30-minute halves gets 600 available over ten matches rather than a flat 700.
+
+Every player should reach a minimum share of the playing time — 30% by default,
+editable under Configuration → Match minutes. Anyone below it is flagged with a
+glyph and the words, never colour alone. `GET /teams/{id}/minutes-share` and
+`GET /teams/{id}/minutes-share/{player_id}` return the same numbers.
+
+# TalentTrack v4.102.0 — Match analysis: rating glyphs with one legend, not fifteen repeated words (#2836)
+
+Writing a match analysis meant reading "Went well · Mixed · Needs work" once
+per phase — fifteen times across the team functions and set pieces — which made
+the phase name the smallest text on the card. The three choices now show as
+▲ ● ▼, sized to the same 48px target, with the vocabulary stated once in a
+small legend on the line that introduces the phases.
+
+Nothing is lost: every button still carries its label as its accessible name
+and as a hover title, the selected one is marked by a ring rather than by
+colour alone, and the printed sheet and share page still write the rating out
+in words.
+
+# TalentTrack v4.102.0 — Test trends: a change between each pair of measuring moments (#2837)
+
+The report carried one change column, last reading versus first. With three or
+more measuring moments that flattened exactly the shape a coach opens it for: a
+player who gained 2 kg and lost 1,5 kg read identically to one who gained 0,5
+steadily.
+
+A Δ column now sits between each pair of dates, carrying the move from the
+previous moment with the same direction-aware glyph the overall column uses;
+the last column is headed **Total** and still spans every moment the player
+has. A missing reading on either side shows as an em dash rather than being
+stretched across the gap. Status and pass/fail reports are unchanged — a step
+between two categorical readings is not a delta.
+
+# TalentTrack v4.102.0 — Team · Minutes distribution and Squad evaluation summary showed an empty squad (#2849)
+
+Both reports listed their players with a query that selected `tt_players.name`
+— a column the table has never had; it carries `first_name` and `last_name`.
+The database rejected the statement, the result came back as nothing, and each
+report rendered an empty squad rather than an error anyone could act on. That
+is what the pilot saw as "1 match recorded, 0 players in selection".
+
+Both queries now build the name from the two real columns. A regression test
+runs each statement and fails on a database error, because the KPI counts that
+existing tests assert on are computed by different queries that never touch
+`tt_players` — which is how this survived three rounds of fixes to the numbers
+beside it.
+
 # TalentTrack v4.101.5 — Help topics now follow what the install actually runs. A topic whose module
 
 is switched off, whose feature toggle is off, whose tier is above the
