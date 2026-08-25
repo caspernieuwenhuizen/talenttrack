@@ -22875,6 +22875,7 @@ msgstr "Staf opgeleid"
 #: src/Modules/Knowledge/Frontend/LearningReports.php:190
 #: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:444
 #: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:433
+#: src/Shared/Frontend/FrontendFeaturesView.php:145
 #, php-format
 msgid "%1$d of %2$d"
 msgstr "%1$d van %2$d"
@@ -55044,6 +55045,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:141
+msgid "Your academy is running"
+msgstr "Jouw academie gebruikt"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:151
+msgid "TalentTrack capabilities"
+msgstr "TalentTrack-functies"
+
+#. translators: %d: number of capabilities not switched on.
+#: src/Shared/Frontend/FrontendFeaturesView.php:161
+#, php-format
+msgid "%d more available to switch on"
+msgid_plural "%d more available to switch on"
+msgstr[0] "Nog %d beschikbaar om aan te zetten"
+msgstr[1] "Nog %d beschikbaar om aan te zetten"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:167
+msgid "Everything available is switched on."
+msgstr "Alles wat beschikbaar is, staat aan."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:113
+msgid "What your academy is running today."
+msgstr "Wat jouw academie vandaag gebruikt."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:121
+msgid "Available to switch on"
+msgstr "Beschikbaar om aan te zetten"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:122
+msgid ""
+"Part of TalentTrack, not switched on for your academy yet. An administrator "
+"can turn these on."
+msgstr ""
+"Onderdeel van TalentTrack, maar nog niet aangezet voor jouw academie. Een "
+"beheerder kan deze aanzetten."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php:232
+msgid "Includes"
+msgstr "Bevat"
 
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "

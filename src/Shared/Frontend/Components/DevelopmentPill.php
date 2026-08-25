@@ -44,6 +44,16 @@ final class DevelopmentPill {
         if ( $slug === '' || ! class_exists( '\\TT\\Core\\DevelopmentFlags' ) ) return '';
         if ( ! \TT\Core\DevelopmentFlags::forViewSlug( $slug ) ) return '';
 
+        return self::badge();
+    }
+
+    /**
+     * #2878 — the badge markup on its own, for a caller that already knows
+     * the thing is flagged and has no `tt_view=` slug to ask about (the
+     * Features catalog holds module and feature rows, not slugs). Keeping
+     * it here means the badge reads the same wherever it appears.
+     */
+    public static function badge(): string {
         return '<span class="tt-tile-dev-badge" title="'
             . esc_attr__( 'This feature is still being built and may change.', 'talenttrack' ) . '">'
             . esc_html__( 'Under development', 'talenttrack' )

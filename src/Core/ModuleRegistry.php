@@ -184,9 +184,10 @@ class ModuleRegistry {
     }
 
     /**
-     * @return list<array{class:string, enabled:bool, always_on:bool}>
+     * @return list<array{class:string, enabled:bool, always_on:bool, under_development:bool}>
      *         Every class declared in `config/modules.php`, with its
-     *         current state and whether it's always-on.
+     *         current state, whether it's always-on, and whether it
+     *         carries the cosmetic under-development flag.
      */
     public static function allWithState(): array {
         $config_file = defined( 'TT_PLUGIN_DIR' ) ? TT_PLUGIN_DIR . 'config/modules.php' : '';
