@@ -108,7 +108,7 @@ serves them. Every view of a photo or video goes through TalentTrack, which chec
 Two guards, and it is worth knowing which one is doing the work:
 
 - The folder carries a rule blocking direct web access. **On Apache servers this works. On nginx servers it does nothing** — nginx does not read
-  those rules.
+ those rules.
 - TalentTrack's own permission check runs on every request for a file, on every server.
 
 The second guard is the real boundary. The first is a helpful extra where the server honours it.
@@ -167,7 +167,7 @@ existing media removed, that is done from the player's Media tab.
 ## Who can see a player's media
 
 - **Staff** — coaches, scouts and administrators — see the media of the players they are responsible for, following the same permissions that
-  govern the rest of a player's record.
+ govern the rest of a player's record.
 - **The player**, and **the player's parent or guardian**, see that player's own media.
 - Nobody else. Media never crosses between academies or into the hands of staff without access to that player.
 
@@ -206,7 +206,7 @@ team, on the training it came from, and on the other players in it. Only when no
 
 - **Remove** — takes it off that player's file. If nothing else is attached to it, the file is deleted for good; the page tells you which happened.
 - **Keep** — holds it, and asks why. A safeguarding matter, an open dispute, an appeal. Held items are listed separately with their reasons, because
-  a retention policy with an invisible list of exceptions is not one anybody can check. You can put a held item back in the queue later.
+ a retention policy with an invisible list of exceptions is not one anybody can check. You can put a held item back in the queue later.
 
 Some rows are marked **estimated**. That means the player has no recorded leaving date — usually because they left before TalentTrack was recording
 those — so the date their record last changed is used instead. It only affects when the item appears for review; nothing is decided on it.
@@ -248,12 +248,12 @@ Neither switch deletes anything. Turning either back on brings the existing medi
 ## For developers
 
 - Tables: `tt_media` (the item) and `tt_media_links` (what it is attached to). Both club-scoped; `tt_media` carries a `uuid`, which is the
-  identity the REST surface exposes — sequential ids are not addressable from outside.
+ identity the REST surface exposes — sequential ids are not addressable from outside.
 - Storage sits behind `MediaStorageInterface`. `LocalPrivateStorage` is the shipped implementation. `tt_media.storage_key` is **opaque**: it is not
-  a path and not a URL, and only the adapter that wrote it may interpret it. Register another adapter through the `tt_media_storage_adapters`
-  filter; existing rows keep being served by the adapter named in the row.
+ a path and not a URL, and only the adapter that wrote it may interpret it. Register another adapter through the `tt_media_storage_adapters`
+ filter; existing rows keep being served by the adapter named in the row.
 - The media root defaults to `uploads/tt-media/` and is filterable via `tt_media_storage_root`. Point it at a separate volume when video growth
-  would otherwise threaten the disk WordPress itself runs on. A filtered path is used verbatim, so it must be absolute and writable.
+ would otherwise threaten the disk WordPress itself runs on. A filtered path is used verbatim, so it must be absolute and writable.
 - `MediaIngestService` decides file type from the file's own bytes, never from its name, and refuses SVG outright.
 - `MediaLinksRepository::unlink()` deletes the media and its file when it removes the last link. A media item attached to nothing is unreachable
-  and is not kept.
+ and is not kept.

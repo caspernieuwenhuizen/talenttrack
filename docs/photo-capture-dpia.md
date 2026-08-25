@@ -37,11 +37,11 @@ Each item is an engineering or decision prerequisite. A signature obtained while
 | # | What is missing | Who closes it |
 | --- | --- | --- |
 | 1 | ✅ **Closed.** There is no longer a default endpoint. The feature refuses to send anything until the operator declares both `TT_VISION_ENDPOINT` and `TT_VISION_DATA_REGION`; until they do, it reports itself unconfigured and callers fall back to manual entry. **What this does not do is verify the declaration** — no plugin can tell whether an endpoint really processes data where its operator says it does. What it guarantees is that the destination is always a choice somebody made, which is the thing a DPIA can honestly record. The declared region string belongs in § 2 below. | Done — the operator still owns the accuracy of the declaration |
-| 2 | ✅ **Closed 2026-08-23: 7 days, and now enforced.** A photograph held on a coach's phone while they are out of range is dropped after seven days, whether or not it has been reviewed (#2735). The window is swept on every load of the capture screen and hourly while it is open, so a phone that was closed for a fortnight drops what it was holding before it can offer it back. The coach is told the photograph expired rather than finding it silently absent. | Done |
+| 2 | ✅ **Closed 2026-08-23: 7 days, and now enforced.** A photograph held on a coach's phone while they are out of range is dropped after seven days, whether or not it has been reviewed. The window is swept on every load of the capture screen and hourly while it is open, so a phone that was closed for a fortnight drops what it was holding before it can offer it back. The coach is told the photograph expired rather than finding it silently absent. | Done |
 | 3 | ✅ **Decided 2026-08-23: consent, Art. 6(1)(a)**, given by the parent or guardian since minors are in scope. § 4 records it. The controller must still name **where** that consent is captured and how it is withdrawn — see the two blanks in § 4. | Decided; two blanks to complete at signing |
 | 4 | ✅ **Decided 2026-08-23: no in-product acknowledgement.** Consent is handled at registration, outside the product. The capture screen states where the photograph goes and nothing more; the placeholder for a first-use panel has been removed from the design rather than left implying something is coming. | Decided — nothing to build |
 | 5 | ✅ **Confirmed 2026-08-23** by the data controller as part of the legal clearance. Re-confirm at each annual refresh and whenever the destination changes. | Done |
-| 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting (#0016). Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
+| 6 | **Provider shootout** — the default provider has never been validated against real coach handwriting. Not a legal blocker, but a signature implies the extraction is fit for the purpose described in § 5. | Engineering |
 | 7 | ⚠️ **Partly closed — read the residual risk.** The extraction prompt now instructs the model to keep player names in the structured `attendance` array and never to write one into any free-text `notes` field or exercise name. **A prompt is a request, not a guarantee**, and a server-side strip against the squad list was considered and deliberately not built. So a name the model transcribes anyway still lands somewhere neither a subject-access export nor an erasure request can reach. Sign only if the DPO accepts that residual risk knowingly. | Instruction shipped; accepting the remainder is a DPO decision |
 
 ## 1. Processing description
@@ -159,9 +159,9 @@ Two things the controller must still complete, because the product cannot know t
 
 - **Why a photo + AI?**: Coaches systematically fail to log sessions manually after training (the "data missed" problem the spec calls out). Without this feature, ≥40% of training data is permanently lost.
 - **Less invasive alternatives considered**:
-  - Coach types directly into the session form → high friction; fails in practice.
-  - Voice capture → considered for v2; deferred per spec.
-  - On-device-only extraction (no cloud LLM) → not feasible at v1 quality bar; revisit when local vision models match Claude Sonnet 4.x quality.
+ - Coach types directly into the session form → high friction; fails in practice.
+ - Voice capture → considered for v2; deferred per spec.
+ - On-device-only extraction (no cloud LLM) → not feasible at v1 quality bar; revisit when local vision models match Claude Sonnet 4.x quality.
 - **Proportionality**: The data sent off-site is the photograph the coach made on a personal phone anyway, and the server keeps only the structured extraction — the image bytes are never written to disk. Whether the provider persists the input depends on the operator's contract with it, which § 0 prerequisite 5 requires confirming.
 
 ## 6. Data subject rights
@@ -212,7 +212,7 @@ Retain one copy in the academy's DPIA register; keep one in the wp-config-adjace
 
 ## Implementation reference
 
-Default configuration (TalentTrack v3.110.40+):
+Default configuration (TalentTrack):
 
 ```php
 // wp-config.php — all four are required; there is no working default

@@ -10,13 +10,12 @@ order: 140
 
 # Custom CSS
 
-> User-spec for the #0064 custom-CSS module shipped in v3.64.0. Lets a club admin make TalentTrack look exactly the way they specify, regardless of what WordPress theme is active. Companion to the [Branding](configuration-branding.md) page (#0023), which goes the *opposite* direction — defer to the active theme. The two are mutually exclusive on the same surface.
 
 ## What it does
 
 A club admin can change colours, fonts, corners, spacing and shadows on the TalentTrack frontend dashboard, on the wp-admin TalentTrack pages, or both. There are three authoring paths plus a four-tab landing surface, all reached at `?tt_view=custom-css` (or via **Configuration → Custom CSS**):
 
-- **Visual settings** (Path C) — pick colours, fonts, weights, corner radius, spacing scale, shadow strength via dropdowns and pickers. Save round-trips into a generated CSS body that lives in the same storage as the other paths. Since v3.75.1 every change is reflected immediately on the editor page itself (live preview); save persists the values so the rest of the dashboard picks them up on the next load.
+- **Visual settings** (Path C) — pick colours, fonts, weights, corner radius, spacing scale, shadow strength via dropdowns and pickers. Save round-trips into a generated CSS body that lives in the same storage as the other paths. Every change is reflected immediately on the editor page itself (live preview); save persists the values so the rest of the dashboard picks them up on the next load.
 - **CSS editor** (Path B) — write CSS by hand. The textarea uses the WordPress code editor (CodeMirror) for syntax highlighting + line numbers. A "Preview in new tab" link opens the dashboard so changes can be seen live.
 - **Upload + templates** (Path A) — drop in a `.css` file, or apply one of three starter templates (Fresh light / Classic football / Minimal — all light-leaning).
 - **History** — the last 10 auto-saves plus any named presets. Click **Revert** to restore an earlier save (which itself becomes a fresh auto-save row, so the revert is undoable).
@@ -43,17 +42,17 @@ The Path C form maps form fields to `--tt-*` CSS custom properties on `.tt-root`
 | Primary | `--tt-primary` | Headline accent — buttons, top tile colour. |
 | Secondary | `--tt-secondary` | Pull-out colour — pills, accent borders. |
 | Accent | `--tt-accent` | Reuses the primary in most templates. |
-| Primary — hover | `--tt-primary-hover` | Hover colour for primary buttons + nav links (since v3.73.0). |
-| Secondary — hover | `--tt-secondary-hover` | Hover colour for secondary buttons (since v3.73.0). |
-| Accent — hover | `--tt-accent-hover` | Hover colour for accented buttons + links (since v3.73.0). |
+| Primary — hover | `--tt-primary-hover` | Hover colour for primary buttons + nav links. |
+| Secondary — hover | `--tt-secondary-hover` | Hover colour for secondary buttons. |
+| Accent — hover | `--tt-accent-hover` | Hover colour for accented buttons + links. |
 | Success | `--tt-success` | Attendance "present", positive trend arrows. |
-| Success — subtle bg | `--tt-success-subtle` | Pale green banner background for success notices (since v3.73.0). |
+| Success — subtle bg | `--tt-success-subtle` | Pale green banner background for success notices. |
 | Info | `--tt-info` | Neutral chips, info banners. |
-| Info — subtle bg | `--tt-info-subtle` | Pale blue banner background for info notices (since v3.73.0). |
+| Info — subtle bg | `--tt-info-subtle` | Pale blue banner background for info notices. |
 | Warning | `--tt-warning` | Amber pill, "review needed" states. |
-| Warning — subtle bg | `--tt-warning-subtle` | Pale amber banner background (since v3.73.0). |
+| Warning — subtle bg | `--tt-warning-subtle` | Pale amber banner background. |
 | Danger | `--tt-danger` | Destructive buttons, "absent" attendance. |
-| Danger — subtle bg | `--tt-danger-subtle` | Pale red banner background (since v3.73.0). |
+| Danger — subtle bg | `--tt-danger-subtle` | Pale red banner background. |
 | Focus ring | `--tt-focus-ring` | Keyboard-focus outline colour. |
 | Background | `--tt-bg` | Page background. |
 | Card surface | `--tt-surface` | Tile / panel / card fill. |
@@ -67,15 +66,15 @@ The Path C form maps form fields to `--tt-*` CSS custom properties on `.tt-root`
 | Corner radius — medium | `--tt-r-md` | Cards, inputs, buttons. 0–32 px. |
 | Corner radius — large | `--tt-r-lg` | Hero cards, modals. 0–40 px. |
 | Spacing scale | `--tt-spacing-scale` | Multiplier on the `--tt-sp-*` scale. 0.6–1.6. |
-| Card shadow — small | `--tt-shadow-sm` | Resting shadow on cards / panels / tiles (since v3.73.0). |
-| Card shadow — medium (hover) | `--tt-shadow-md` | Hover shadow on the same surfaces (since v3.73.0). |
-| Modal / drawer shadow | `--tt-shadow-lg` | Floating overlay shadow (since v3.73.0). |
-| Animation speed | `--tt-motion-duration` | Fast (120ms) / Base (180ms) / Slow (260ms) (since v3.73.0). |
-| Animation curve | `--tt-motion-easing` | Standard / Ease-in / Ease-out / Ease-in-out (since v3.73.0). |
+| Card shadow — small | `--tt-shadow-sm` | Resting shadow on cards / panels / tiles. |
+| Card shadow — medium (hover) | `--tt-shadow-md` | Hover shadow on the same surfaces. |
+| Modal / drawer shadow | `--tt-shadow-lg` | Floating overlay shadow. |
+| Animation speed | `--tt-motion-duration` | Fast (120ms) / Base (180ms) / Slow (260ms). |
+| Animation curve | `--tt-motion-easing` | Standard / Ease-in / Ease-out / Ease-in-out. |
 
 Anything not set falls through to TT's bundled defaults.
 
-Since v3.73.0 the editor groups the controls into eight collapsible accordion sections (Brand colours / Status colours / Surfaces / Text / Typography / Shape + spacing / Shadows / Motion) so the field count stays manageable as the catalogue grows. The legacy single `Shadow strength` field from v3.64 is replaced by three explicit shadow tokens; existing saves continue to render correctly and are normalised to the new shape on next save.
+The editor groups the controls into eight collapsible accordion sections (Brand colours / Status colours / Surfaces / Text / Typography / Shape + spacing / Shadows / Motion) so the field count stays manageable as the catalogue grows. The legacy single `Shadow strength` field from v3.64 is replaced by three explicit shadow tokens; existing saves continue to render correctly and are normalised to the new shape on next save.
 
 ## Starter templates
 
@@ -95,7 +94,7 @@ Coaches, scouts and staff don't get this by default. A club that wants to delega
 
 ## Storage
 
-The "live" payload lives in `tt_config`, keyed `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings` (where `<surface>` is `frontend` or `admin`). The `tt_custom_css_history` table holds the rolling last-10 auto-saves + any named presets. Both are scoped to `club_id` per the SaaS-readiness baseline (#0052).
+The "live" payload lives in `tt_config`, keyed `custom_css.<surface>.css` / `.enabled` / `.version` / `.visual_settings` (where `<surface>` is `frontend` or `admin`). The `tt_custom_css_history` table holds the rolling last-10 auto-saves + any named presets. Both are scoped to `club_id` per the SaaS-readiness baseline.
 
 ## Out of scope
 

@@ -27,28 +27,28 @@ Een stappenbalk bovenaan laat zien waar je bent. Elke stap wordt onderweg
 opgeslagen, zodat je kunt stoppen en later vanaf dezelfde plek verdergaan.
 
 1. **Welkom** — een korte introductie, daarna **Mijn academie instellen** om
-   te beginnen.
+ te beginnen.
 2. **Basisgegevens academie** — academienaam, primaire kleur, seizoenslabel
-   en de datumnotatie die in de hele plugin wordt gebruikt. Deze verschijnen
-   in de dashboardkop, op spelerskaarten en in afgedrukte rapporten. Je kunt
-   ze later aanpassen onder Configuratie.
+ en de datumnotatie die in de hele plugin wordt gebruikt. Deze verschijnen
+ in de dashboardkop, op spelerskaarten en in afgedrukte rapporten. Je kunt
+ ze later aanpassen onder Configuratie.
 3. **Eerste team** — geef je eerste team een naam en kies de
-   leeftijdscategorie. Spelers, evaluaties, activiteiten en doelen hangen
-   allemaal aan een team, dus je hebt er minstens één nodig. Je kunt **Deze
-   stap overslaan** als je liever later teams toevoegt onder Teams.
+ leeftijdscategorie. Spelers, evaluaties, activiteiten en doelen hangen
+ allemaal aan een team, dus je hebt er minstens één nodig. Je kunt **Deze
+ stap overslaan** als je liever later teams toevoegt onder Teams.
 4. **Eerste beheerder** — maakt een TalentTrack-medewerkersrecord aan voor
-   het ingelogde account en koppelt dit aan je WordPress-gebruiker, zodat
-   evaluaties, activiteiten en meldingen naar de juiste persoon verwijzen.
-   Vink **Geef mij de rol Clubbeheerder** (aanbevolen) aan om jezelf volledige
-   beheerstoegang te geven.
+ het ingelogde account en koppelt dit aan je WordPress-gebruiker, zodat
+ evaluaties, activiteiten en meldingen naar de juiste persoon verwijzen.
+ Vink **Geef mij de rol Clubbeheerder** (aanbevolen) aan om jezelf volledige
+ beheerstoegang te geven.
 5. **Dashboardpagina** — maakt de pagina aan de voorkant aan die de
-   `[talenttrack_dashboard]`-shortcode host en stelt deze in als de homepage
-   van de site, zodat iedereen op het dashboard belandt na het inloggen.
-   Bestaat er al een pagina met de shortcode, dan wordt die hergebruikt en
-   niet gedupliceerd. Je kunt dit **Overslaan** en de homepage later zelf
-   instellen onder Instellingen → Lezen.
+ `[talenttrack_dashboard]`-shortcode host en stelt deze in als de homepage
+ van de site, zodat iedereen op het dashboard belandt na het inloggen.
+ Bestaat er al een pagina met de shortcode, dan wordt die hergebruikt en
+ niet gedupliceerd. Je kunt dit **Overslaan** en de homepage later zelf
+ instellen onder Instellingen → Lezen.
 6. **Klaar** — een samenvatting van wat is ingesteld, met **Naar dashboard**
-   en een knop **Opnieuw uitvoeren**.
+ en een knop **Opnieuw uitvoeren**.
 
 ## Stoppen en hervatten
 

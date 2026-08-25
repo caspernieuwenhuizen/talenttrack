@@ -170,12 +170,12 @@ verwijst, op basis van de gekozen formatie (4-3-3, 4-2-3-1, 4-4-2 en de
 andere ondersteunde formaties).
 
 - Een gevulde plek toont het rugnummer van de speler (of het positielabel
-  als er geen nummer is ingesteld) en een korte naam. De korte naam is de
-  **voornaam plus de eerste letter van de achternaam** (bijv. "Daan P."),
-  zoals een trainer een speler langs de lijn noemt; een speler met een naam
-  van één woord wordt ongewijzigd getoond.
+ als er geen nummer is ingesteld) en een korte naam. De korte naam is de
+ **voornaam plus de eerste letter van de achternaam** (bijv. "Daan P."),
+ zoals een trainer een speler langs de lijn noemt; een speler met een naam
+ van één woord wordt ongewijzigd getoond.
 - Een lege plek — een slot zonder speler in de voorbereiding — toont een
-  gestippelde markering met het positielabel.
+ gestippelde markering met het positielabel.
 
 Het veld wordt netjes weergegeven op een telefoon van 360px breed en
 schaalt mee op grotere telefoons en tablets. De posities komen
@@ -189,11 +189,11 @@ wedstrijd in chronologische volgorde. Elke regel toont:
 
 - de **helft en minuut** waarop de gebeurtenis plaatsvond (bijv. `H1 23'`);
 - een **typelabel** met een icoon en tekst — een bal voor een doelpunt, een
-  wisselpijl voor een wissel (het label combineert altijd kleur met een
-  icoon en tekst, zodat het leesbaar blijft voor kleurenblinde gebruikers);
+ wisselpijl voor een wissel (het label combineert altijd kleur met een
+ icoon en tekst, zodat het leesbaar blijft voor kleurenblinde gebruikers);
 - voor doelpunten een **tussenstand** met de stand na dat doelpunt;
 - de betrokken speler — de maker bij een doelpunt, of "{in} in voor {uit}"
-  bij een wissel.
+ bij een wissel.
 
 Het log wordt opgebouwd uit dezelfde doelpunt- en wisselgebeurtenissen die
 het live scherm al vastlegt terwijl je ze tijdens de wedstrijd aantikt (en
@@ -233,22 +233,22 @@ Dezelfde gegevens zijn beschikbaar via de REST-API voor integraties en de
 toekomstige webapp:
 
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/event-feed`
-  — het samengevoegde, chronologische doelpunt- en wisselverloop met
-  tussenstand.
+ — het samengevoegde, chronologische doelpunt- en wisselverloop met
+ tussenstand.
 - `GET /wp-json/talenttrack/v1/match-execution/{activity_id}/pitch-lineup`
-  — de basiself van de eerste helft met positiecoördinaten.
+ — de basiself van de eerste helft met positiecoördinaten.
 - `DELETE /wp-json/talenttrack/v1/match-execution/{activity_id}/substitution/{event_uuid}`
-  — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
-  herberekenen).
+ — een vastgelegde wissel ongedaan maken (soft-delete; de minuten
+ herberekenen).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/reopen`
-  — een afgesloten wedstrijd heropenen voor correcties (terug naar
-  *nabespreking*; vastgelegd in het auditlog).
+ — een afgesloten wedstrijd heropenen voor correcties (terug naar
+ *nabespreking*; vastgelegd in het auditlog).
 - `PATCH /wp-json/talenttrack/v1/match-execution/{activity_id}/minutes`
-  — een minutenoverschrijving per speler instellen (`{player_id, minutes}`)
-  of wissen (`{player_id, minutes: null}`).
+ — een minutenoverschrijving per speler instellen (`{player_id, minutes}`)
+ of wissen (`{player_id, minutes: null}`).
 - `POST /wp-json/talenttrack/v1/match-execution/{activity_id}/tracked-event`
-  en `DELETE .../tracked-event/{event_uuid}` — een gevolgde ontwikkelactie
-  van een gemarkeerde speler vastleggen of ongedaan maken.
+ en `DELETE .../tracked-event/{event_uuid}` — een gevolgde ontwikkelactie
+ van een gemarkeerde speler vastleggen of ongedaan maken.
 
 Alle vereisen de capability `tt_edit_activities`, dezelfde rechten die ook
 het wedstrijduitvoeringsscherm zelf afschermen.

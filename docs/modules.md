@@ -13,11 +13,11 @@ order: 80
 
 Each TalentTrack module can be turned off here. Disabled modules don't `register()` or `boot()` — their tiles, REST routes, admin pages, and capabilities all silently disappear until re-enabled. The toggle is per-install, so a multi-tenant deployment would need a separate per-tenant flag (deferred to v2 of #0011).
 
-## Frontend access (v4.21.15+)
+## Frontend access
 
 The same toggle is reachable from the frontend admin surface at **`?tt_view=modules`** (and via a **Modules** tile under Configuration), gated by the `tt_manage_modules` capability (administrator + academy admin by default) instead of a raw admin-only check. It's also exposed over REST for non-WordPress front ends: `GET /wp-json/talenttrack/v1/modules` lists modules; `POST` with `{ "class": "...", "enabled": true|false }` toggles one. The wp-admin page stays as the power-user fallback.
 
-## Card layout (v4.29.0+)
+## Card layout
 
 The frontend Modules page presents modules as **cards grouped by category** rather than a flat list. Each card shows an icon, a human label and a one-line description, plus a status pill — **Core** (grey, cannot be switched off), **On** (green) or **Off** (muted) — and a **Module** type tag. The switch on the right enables or disables the module; core modules render with the switch locked. The confirm dialog ("reload open tabs after saving") and the underlying REST contracts are unchanged.
 
@@ -131,14 +131,14 @@ Every module-state change writes a row to `tt_module_state` with the `updated_by
 
 Some modules own several distinct surfaces. A **feature flag** switches one of them off while the rest of the module — and its sibling surfaces — keep running. This is finer-grained than the module toggle: disabling the whole module would take down surfaces you want to keep.
 
-### Per-module feature toggles (`?tt_view=modules`, v4.23.0+)
+### Per-module feature toggles (`?tt_view=modules`,)
 
 On the frontend Modules page each feature appears as an indented row (↳) directly beneath its parent module, with its own On/Off switch. A feature only shows while its parent module is on. The features that ship **off by default**:
 
 - **Cohort transitions** (Journey module, default **off**) — the academy-wide "find players by journey event + date range" query (`?tt_view=cohort-transitions`). Turning it off hides its tile, its page, and its REST route (`/journey/cohort-transitions`). The rest of Journey — player timeline, injuries, safeguarding notes — stays fully available.
 - **Team chemistry** (Team Development module, default **off**) — the formation board with suggested XI and chemistry scoring (`?tt_view=team-chemistry`). Turning it off hides its tile, its page, and the chemistry/pairings/team-fit REST routes. The **Team blueprint** editor — which lives in the same module and shares the same capability — stays available.
 - **Analytics explorer** (Analytics module, default **off**) — the ad-hoc explorer for KPI and dimension queries (`?tt_view=analytics`, `explore`, `scheduled-reports`). See the section below for what stays running when it's off. (v4.30.0+ this is a `FeatureRegistry` feature, managed on the same frontend Modules page alongside the others, not only on the wp-admin page.)
-- **Custom widgets** (Custom widgets module, default **off**) — the beta builder for bespoke dashboard widgets. Turning it off skips the whole module boot — no admin page, no REST routes, no editor palette tile — exactly as the old `tt_custom_widgets_enabled` option did. (v4.30.0+ this is a `FeatureRegistry` feature; the prior option value is carried forward on upgrade so nothing changes.)
+- **Custom widgets** (Custom widgets module, default **off**) — the beta builder for bespoke dashboard widgets. Turning it off skips the whole module boot: no admin page, no REST routes, no editor palette tile. Saved widgets are kept and reappear if you switch it back on.
 
 The features that ship **on by default** (they run today; turning them off is an opt-out, so academies that want them keep them with no action):
 
@@ -168,9 +168,9 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 ### Analytics explorer
 
-- **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). As of v4.30.0 this is a `FeatureRegistry` feature, managed on the frontend Modules page next to the others (the wp-admin Modules page still works too; both write the same `tt_feature_state` row). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. As of v4.26.9 the toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
+- **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). This is a `FeatureRegistry` feature, managed on the frontend Modules page next to the others (the wp-admin Modules page still works too; both write the same `tt_feature_state` row). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. The toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
 
-## Read-only status for everyone (`?tt_view=features`, v4.23.1+)
+## Read-only status for everyone (`?tt_view=features`,)
 
 The Modules page is admin-only (it's a write surface). For transparency, every user — coach, player, parent — gets a read-only **Features** view at **`?tt_view=features`**, reachable from a **Features** tile under the **About** group on the dashboard. It needs no special capability.
 
@@ -178,7 +178,7 @@ It lists each user-facing module with an **On / Off / Always on** badge, a one-l
 
 The same data is available over REST at `GET /wp-json/talenttrack/v1/feature-status` (any logged-in user). All the shaping lives in `FeatureStatusService`, so the view and the API return the same answer. Only modules that actually present something to a user (own a tile or a feature) appear — pure-infrastructure modules are omitted.
 
-## Switchability — the contract a new module must satisfy (#2599)
+## Switchability — the contract a new module must satisfy
 
 *Audience: developers.* Everything above describes using the toggles. This describes keeping them honest.
 
@@ -189,9 +189,9 @@ The switching mechanism has always worked. What was missing was anything that **
 1. **Every module class on disk is declared in `config/modules.php`.** A module that exists but is not declared never boots, and no operator can switch it on.
 2. **Every declared module has a `ModuleMetadata` entry.** Without one the modules page shows a slugified class name where a label belongs. This assertion found five modules missing metadata the day it was written.
 3. **Every tile's `?tt_view=` slug has an off-switch.** Three ways to qualify, and only the third needs the manifest:
-   1. a `FeatureRegistry` entry claims the slug in its `view_slugs`;
-   2. the tile names a `module_class` an academy can switch off — the module toggle already hides it;
-   3. it is listed in `config/always_on_surfaces.php` with a reason.
+ 1. a `FeatureRegistry` entry claims the slug in its `view_slugs`;
+ 2. the tile names a `module_class` an academy can switch off — the module toggle already hides it;
+ 3. it is listed in `config/always_on_surfaces.php` with a reason.
 4. **No matrix entity is claimed by two features.** The catalog docblock has always said this MUST hold; nothing checked it, and a duplicate silently gates a sibling surface too.
 5. **Every feature's `module_class` resolves to a declared module.** A feature naming a class that is not registered gates nothing, silently.
 

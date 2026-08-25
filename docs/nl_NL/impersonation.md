@@ -62,7 +62,6 @@ De service weigert met een distincte error-code:
 | `self_impersonation` | Actor en doel zijn dezelfde gebruiker. |
 | `already_impersonating` | De actor zit al in een impersonatie-sessie. Stapelen is verboden. |
 
-In multi-tenant-installs (post-v1) vereist cross-club-impersonatie een expliciete `tt_super_admin`-cap die standaard niet wordt toegekend.
 
 ## Wat je tijdens een sessie wel en niet kunt
 
@@ -80,10 +79,12 @@ E-mail- en push-notificaties die door de doelgebruiker's acties getriggerd zoude
 
 ## Het auditlog raadplegen
 
-Het log is opvraagbaar via de REST-API op `GET /wp-json/talenttrack/v1/impersonation/log` (cap-gated op de `impersonation_log`-matrix-entiteit — Academy Admin RCD, Head of Development R). Er is geen apart scherm voor het log — bevraag het REST-endpoint rechtstreeks met de filters die je nodig hebt.
+Elke sessie wordt weggeschreven in de tabel `tt_impersonation_log`: wie wie overnam, wanneer het begon en eindigde, het IP-adres en de user-agent, en de opgegeven reden.
 
-## Buiten scope
+**Dat log is binnen TalentTrack nog niet te lezen.** Er is geen scherm dat het toont en er is geen REST-endpoint voor. Het raadplegen betekent vandaag rechtstreeks de database bevragen. Leunt jouw academie erop dat overnames achteraf te controleren zijn — en sta je overnemen toe, dan hoort dat zo te zijn — behandel dit dan als een openstaand gat, niet als iets wat jij verkeerd hebt ingesteld.
 
-- Een apart scherm voor het auditlog — dat wordt via REST gelezen.
-- Cross-club-impersonatie in multi-tenant-installs (gegate op een `tt_super_admin`-cap die standaard niet wordt toegekend).
-- Automatische her-authenticatie voor 2FA-installs — `wp_set_auth_cookie` slaat de 2FA-uitdaging vandaag over; een `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )`-constante is gereserveerd voor clubs die het nodig hebben.
+## Beperkingen
+
+- **Het auditlog heeft geen leesscherm.** Zie hierboven.
+- **Cross-club-impersonatie** is niet gebouwd. TalentTrack draait vandaag één academie per installatie, dus er is geen cross-club-situatie om af te schermen.
+- **2FA wordt niet opnieuw gevraagd.** Een sessie starten logt je in als de doelgebruiker zonder tweede factor. Een `define( 'TT_IMPERSONATION_REQUIRES_2FA_REVERIFICATION', true )`-constante is gereserveerd voor clubs die die stap nodig hebben, maar is nog niet aangesloten.

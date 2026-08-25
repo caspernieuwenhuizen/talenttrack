@@ -27,7 +27,7 @@ half (N)**. The full match length — **2 x N** — is shown beside the input as
 type.
 
 - Leave a row **blank** to inherit the global fallback of **35 minutes per
-  half** (70 total).
+ half** (70 total).
 - Values are whole minutes per half, 0-60.
 - The setting is saved as soon as you press **Save match minutes**.
 
@@ -40,11 +40,11 @@ Once set, the per-age-category default is the single source of truth for match
 length. It prefills:
 
 - **Match prep** — a new match prep for a team starts at that team's
-  age-category half length instead of a hardcoded 35.
+ age-category half length instead of a hardcoded 35.
 - **Match completion** — when a match-type activity is marked Completed, the
-  **Match length** field above the attendance table prefills from the same
-  source (an explicit value already saved on the activity or its match prep
-  still wins).
+ **Match length** field above the attendance table prefills from the same
+ source (an explicit value already saved on the activity or its match prep
+ still wins).
 
 In every case the prefilled value remains **editable per match** — last write
 wins. Changing the central default does not rewrite match lengths already
@@ -56,7 +56,7 @@ For a given match, the half length is resolved most-specific first:
 
 1. an explicit per-match value already stored on the activity or its match prep;
 2. the **age-category default** for the team's age group
-   (`match_minutes_by_age_group`);
+ (`match_minutes_by_age_group`);
 3. the global fallback of **35** minutes per half.
 
 ## Recording minutes per player

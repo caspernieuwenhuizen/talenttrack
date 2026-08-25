@@ -46,14 +46,14 @@ De ingebouwde Backup-module van TalentTrack exporteert volgens schema de eigen t
 ## 5b. Media, als de academie foto's of video gaat uploaden
 
 - **Controleer dat de mediamap niet direct wordt uitgeserveerd.** Open `wp-content/uploads/tt-media/` in een browser. Dat hoort geweigerd te
-  worden. TalentTrack schrijft daar een blokkeerregel, maar **die werkt alleen op Apache** — op nginx doet hij niets, en dan is de eigen
-  rechtencontrole van TalentTrack bij elk bestandsverzoek het enige dat de foto van een kind beschermt. Die controle draait altijd, op elke server;
-  de mapregel is een tweede laag waar de server hem respecteert. Draai je nginx en wil je die tweede laag ook, voeg dan een `location`-blok toe dat
-  `/wp-content/uploads/tt-media/` weigert.
+ worden. TalentTrack schrijft daar een blokkeerregel, maar **die werkt alleen op Apache** — op nginx doet hij niets, en dan is de eigen
+ rechtencontrole van TalentTrack bij elk bestandsverzoek het enige dat de foto van een kind beschermt. Die controle draait altijd, op elke server;
+ de mapregel is een tweede laag waar de server hem respecteert. Draai je nginx en wil je die tweede laag ook, voeg dan een `location`-blok toe dat
+ `/wp-content/uploads/tt-media/` weigert.
 - **Spreek de toestemmingstekst af vóór de eerste upload.** Een foto die aan meerdere spelers hangt, is voor al hun gezinnen zichtbaar — zie
-  [Mediabibliotheek](media-library.md). Vertel dat bij aanmelding; laat gezinnen het niet zelf ontdekken.
+ [Mediabibliotheek](media-library.md). Vertel dat bij aanmelding; laat gezinnen het niet zelf ontdekken.
 - **Ken je schijf.** Geüploade video is niet klein en niets ruimt het op. De systeemstatusbalk van de academiebeheerder toont **Media opgeslagen**
-  zodra er iets te melden valt; zet dat af tegen wat de hosting daadwerkelijk biedt.
+ zodra er iets te melden valt; zet dat af tegen wat de hosting daadwerkelijk biedt.
 - Gaat de academie helemaal geen media gebruiken, zet de module dan uit onder Modules in plaats van hem ongebruikt te laten staan.
 
 ## 6. Supportplan voor dag één

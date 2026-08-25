@@ -8,7 +8,6 @@ order: 40
 
 # Phone-home telemetry
 
-> User-spec for the #0065 Admin Center phone-home client shipped in v3.65.0. TalentTrack installs phone home daily plus on three trigger events to a single mothership site that the operator (Casper) runs. The receiver is the separate `talenttrack-admin-center` plugin (its own repo, its own release cadence). This page documents what your install sends, why, and the privacy boundary the code enforces.
 
 ## What it does
 
@@ -67,8 +66,8 @@ JSON over HTTPS, signed with HMAC-SHA256.
 | `license_status` | string / `null` | `active` / `expired` / `trial` / `none` / `null`. |
 | `license_renews_at` | date / `null` | Renewal date if known. |
 | `module_status.spond` | object / `null` | `{ configured, last_sync_status, last_sync_at, events_synced_7d }`. Null when Spond isn't installed. |
-| `module_status.comms` | object / `null` | `{ sends_7d }`. Null when Comms isn't installed (#0066). |
-| `module_status.exports` | object / `null` | `{ runs_7d }`. Null when Export isn't installed (#0063). |
+| `module_status.comms` | object / `null` | `{ sends_7d }`. Null when Comms isn't installed. |
+| `module_status.exports` | object / `null` | `{ runs_7d }`. Null when Export isn't installed. |
 | `feature_flags_enabled` | array | Names of TalentTrack-shipped feature flags currently on. Bounded vocabulary; doesn't leak custom flags. |
 | `custom_caps_in_use` | bool | `true` if any custom (non-TT, non-WP-default) capability is granted on a role. **Boolean only — cap names are not transmitted.** |
 

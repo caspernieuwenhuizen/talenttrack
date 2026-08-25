@@ -138,19 +138,19 @@ bewegen.
 De rest van het scherm is er voor de momenten dat slepen niet is wat je wilt:
 
 - **Markering toevoegen** — kies links een speler, tegenstander, keeper, bal,
-  pion of doel en tik daarna op het veld. Het gereedschap blijft geselecteerd,
-  dus je zet een heel elftal neer zonder telkens terug te gaan.
+ pion of doel en tik daarna op het veld. Het gereedschap blijft geselecteerd,
+ dus je zet een heel elftal neer zonder telkens terug te gaan.
 - **Lijnen** — kies een lijnsoort (pass, dribbel, loopactie, schot, druk
-  zetten) en tik daarna op twee markeringen. De lijn wordt getrokken tussen de
-  plek waar die twee markeringen op dat moment *staan*, dus hij klopt nog
-  steeds als je er later één verplaatst.
+ zetten) en tik daarna op twee markeringen. De lijn wordt getrokken tussen de
+ plek waar die twee markeringen op dat moment *staan*, dus hij klopt nog
+ steeds als je er later één verplaatst.
 - **De tijdlijn** — één rij per markering, één ruitje per vastgelegde positie.
-  Tik op een ruitje om naar dat moment te springen; sleep het opzij om te
-  veranderen wanneer het gebeurt.
+ Tik op een ruitje om naar dat moment te springen; sleep het opzij om te
+ veranderen wanneer het gebeurt.
 - **Geselecteerde markering** — het rugnummer, de precieze positie, en knoppen
-  om te dupliceren of te verwijderen.
+ om te dupliceren of te verwijderen.
 - **Ongedaan maken** neemt de laatste wijziging terug, tot veertig stappen ver.
-  Ctrl+Z werkt ook.
+ Ctrl+Z werkt ook.
 
 Met de pijltjestoetsen verplaats je de geselecteerde markering stap voor stap,
 dus je kunt een scène ook zonder muis opbouwen. Er wordt niets bewaard tot je
@@ -168,7 +168,7 @@ getekend door dezelfde code, zodat hij er altijd hetzelfde uitziet:
 - op de **oefeningpagina**, met afspeelknoppen;
 - in het **veldscherm** terwijl je de training draait;
 - op het **geprinte A4** — als stilstaand beeld, want papier kan niet
-  animeren. Dat beeld is het laatste frame van de scène.
+ animeren. Dat beeld is het laatste frame van de scène.
 
 Een oefening kan meer dan één scène bevatten; zo laat je een oefening met
 fases zien. De eerste die je tekent is de scène die op die drie plekken

@@ -24,13 +24,13 @@ ingeleverd en beoordeeld.
 
 ## Wat er nu is
 
-Alles behalve de statistiekrapportage (#2650):
+Alles behalve de statistiekrapportage:
 
 - het corpusformaat, de parsers en het register
 - de tien interactieve blokken
 - inschrijving, voortgang en afronding
 - de vier gates — module, functie, licentieniveau, rechten — plus opeenvolgende
-  ontgrendeling en cursusvereisten
+ ontgrendeling en cursusvereisten
 - de lezer: bibliotheek, cursus, les en *Mijn leerlijn*
 - toetsen per les, nagekeken op de server
 - praktijkopdrachten, met een inleverstroom en een beoordelingswachtrij
@@ -163,7 +163,7 @@ Elk blok rendert server-side een bruikbare weergave. Het script verbetert die
 weergave; het maakt hem nooit. Een lezer met geblokkeerde JavaScript krijgt
 nog steeds de veldmatentabel, het model en de standaardbelastingmatrix.
 
-### De tussentijdse check (#2738)
+### De tussentijdse check
 
 ```
 ```tt-check answer="B" prompt="Ajax speelde zaterdag. Kan 4v4 op dinsdag?"
@@ -214,7 +214,7 @@ sessietypes staan in `Periodisation`. `tt-zeropoint`, `tt-weekplanner` en
 
 Dat is belangrijker dan het lijkt: een cursus die leert dat 4v4 72 uur vraagt
 naast een planner die bij 48 waarschuwt, is slechter dan elk van de twee
-afzonderlijk. Zodra de Training-module deze getallen nodig heeft (#2493),
+afzonderlijk. Zodra de Training-module deze getallen nodig heeft,
 leest hij ze hier.
 
 De staptabellen zijn uitgeschreven, niet gegenereerd. Ze vormen geen
@@ -281,7 +281,7 @@ ander bestand.
 ### Wanneer is iets afgerond
 
 `CourseCompletionService` bezit die regel, en is de enige plek waar hij staat —
-de lezer, de vergrendeling (#2645) en het overzichtsrapport (#2650) vragen het
+de lezer, de vergrendeling en het overzichtsrapport vragen het
 allemaal daar op in plaats van het zelf te bepalen.
 
 Een **les** is afgerond als aan elke eis uit de front matter is voldaan: altijd
@@ -302,7 +302,7 @@ Twee hooks vuren op de overgang, elk één keer:
 | `tt_knowledge_course_completed` | een inschrijving wordt afgerond |
 | `tt_knowledge_course_reopened` | een afgeronde inschrijving dat niet meer is |
 
-De certificeringsbrug en de methodiekkoppeling (#2649) hangen aan de eerste,
+De certificeringsbrug en de methodiekkoppeling hangen aan de eerste,
 zodat de completion-service niet hoeft te weten wat er daarna gebeurt.
 
 ## De lezer
@@ -454,14 +454,14 @@ licentie zit.
 Gevolgen:
 
 - Niet-beschikbare en geweigerde cursussen zijn **afwezig** in de kennisbank
-  en geven **404**, geen 403 — een 403 bevestigt dat de cursus hier bestaat,
-  en dat is precies wat verbergen moest voorkomen.
+ en geven **404**, geen 403 — een 403 bevestigt dat de cursus hier bestaat,
+ en dat is precies wat verbergen moest voorkomen.
 - Vergrendelde cursussen en lessen blijven **zichtbaar**, met hun oordeel. Een
-  vergrendelde les verbergen laat een cursus korter lijken dan hij is.
+ vergrendelde les verbergen laat een cursus korter lijken dan hij is.
 - De vergrendeling wordt op het **schrijfpad** afgedwongen, niet alleen in de
-  lezer. Een les verbergen heeft geen zin als
-  `PATCH …/progress/{lesson}` hem alsnog als gelezen markeert; die route geeft
-  403 met het oordeel erbij.
+ lezer. Een les verbergen heeft geen zin als
+ `PATCH …/progress/{lesson}` hem alsnog als gelezen markeert; die route geeft
+ 403 met het oordeel erbij.
 
 Twee conventies bewust overgenomen van de registers:
 
@@ -555,7 +555,7 @@ Eerst mentorschap, dan rechten:
 
 1. de mentor van de leerling uit `tt_staff_mentorships`, als die er is
 2. anders niemand — de inzending blijft ongerouteerd en is zichtbaar voor
-   **iedere** houder van `tt_manage_knowledge`
+ **iedere** houder van `tt_manage_knowledge`
 
 Ongerouteerd is een toestand, geen fout. Bij het inleveren willekeurig een
 rechthebbende aanwijzen ziet er in de kolom netter uit en maakt stilzwijgend
@@ -640,15 +640,15 @@ of `DocFrontMatter` raakt. De gate faalt bij:
 - een cursusmap zonder `course.md`, of een manifest dat niet leest
 - een ontbrekende `summary`
 - een `tier` die de License-module niet kent — die lijst wordt uit `FeatureMap`
-  gelezen, niet hier herhaald
+ gelezen, niet hier herhaald
 - een les in `lessons:` zonder bestand, of een les die niet leest
 - een lesbestand op schijf dat `lessons:` niet noemt
 - een `requires:`-slug die geen cursus is, of een cursus die zichzelf vereist
 - een les met `quiz: true` zonder inhoud, ongeldige JSON, geen vragen, een
-  ontbrekende of onhaalbare `pass_mark`, een dubbel vraag-id, een onbekend
-  vraagtype, minder dan twee opties, of een antwoordindex buiten bereik
+ ontbrekende of onhaalbare `pass_mark`, een dubbel vraag-id, een onbekend
+ vraagtype, minder dan twee opties, of een antwoordindex buiten bereik
 - een `tt-check` zonder prompt, met minder dan twee opties, zonder antwoord,
-  met een antwoord dat geen bestaande optie noemt, of zonder uitleg
+ met een antwoord dat geen bestaande optie noemt, of zonder uitleg
 - een vertaalde les zonder canonieke tegenhanger
 
 Lokaal draaien: `php tools/check-courses.php`. De gate heeft geen WordPress
@@ -658,7 +658,7 @@ hij bewaakt.
 ## Afronding wordt een certificaat
 
 Een cursus afronden schrijft een rij in `tt_staff_certifications` — de tabel
-die StaffDevelopment al beheert (#2649). Die ene rij is wat de kennisbank
+die StaffDevelopment al beheert. Die ene rij is wat de kennisbank
 uit haar isolement haalt: de afronding verschijnt op het stafdossier en in het
 PDP van de trainer, de clubbrede vervalrapportage pikt hem op, en de melding
 over verlopende certificaten kan om een opfrisser vragen — zonder dat de
@@ -734,7 +734,7 @@ toewijzen.
 
 ## De statistiekrapportage
 
-Drie invalshoeken in de Reports-module (#2650), bereikbaar via de
+Drie invalshoeken in de Reports-module, bereikbaar via de
 rapportagelauncher en `?tt_view=standard-report&slug=learning-…`:
 
 | Slug | Beantwoordt |
@@ -802,12 +802,12 @@ die aandacht vraagt ook de rij is die opvalt. Getalkolommen staan op
 `tabular-nums`; tabellen scrollen binnen `.tt-table-wrap`, zodat de pagina zelf
 nooit zijwaarts schuift.
 
-De export vertaalt waarden naar mensentaal (#2012): "Nog niemand afgerond" in
+De export vertaalt waarden naar mensentaal: "Nog niemand afgerond" in
 plaats van een lege cel, lestitels in plaats van slugs.
 
 ## Paginabreedte
 
-De lezer is een grid van drie kolommen (#2737). Lopende tekst staat in de
+De lezer is een grid van drie kolommen. Lopende tekst staat in de
 middelste baan op een leesbare maat (`--tt-lesson-measure`, 76ch); alles wat
 eerder een figuur dan een zin is, beslaat alle drie:
 
@@ -837,5 +837,5 @@ beschikbaar blijft voor ander materiaal.
 ## Zie ook
 
 - [Epic #2641](https://github.com/caspernieuwenhuizen/talenttrack/issues/2641)
-  — het volledige plan en de fasering
+ — het volledige plan en de fasering
 - `docs/contributing.md` — doelgroepmarkeringen en de vertaalregel

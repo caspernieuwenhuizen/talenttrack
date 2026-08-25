@@ -16,7 +16,7 @@ TalentTrack ships its own backup module (separate from any general-purpose WordP
 
 `Configuration → Backups` (the frontend view at `?tt_view=backups`). Visible to administrators and the **Head of Development** role; the underlying capability is `tt_manage_backups`.
 
-## Frontend view (#1937)
+## Frontend view
 
 From this release the Backups surface is a frontend view at `?tt_view=backups` — no wp-admin bounce. It covers settings, the stored-backups list (download / restore / delete), Run now, and the full `.ttmig` data migration export + import flow. Each action runs through a capability-gated, nonce-protected REST endpoint (`tt_manage_backups`); the two destructive writes — full restore and migration import — keep the typed-confirmation gate ("RESTORE" / "IMPORT"), refuse to run while you are impersonating another user, and are written to the audit log (`backup.restored` / `migration.imported`).
 
@@ -77,19 +77,19 @@ Each backup is a gzipped JSON document with:
 
 The checksum is computed over the `tables` subtree only — restore verifies it before touching the database.
 
-## Partial restore (v3.16.0+)
+## Partial restore
 
 Click **Partial restore** on any stored backup to bring back specific rows without replacing everything. The flow:
 
 1. **Choose scope** — pick a table from the backup and either a comma-separated list of row IDs or leave the IDs empty to include every row of that table. Optionally tick child tables to follow downward (e.g. start from a player and bring along their evaluations).
 2. **Review diff** — for each table in the resolved closure, see how many rows are *new* (in backup, not currently in DB) and how many *differ*. Pick an action per table:
-   - Green rows: **Restore** or **Skip**.
-   - Yellow rows: **Keep current**, **Overwrite with backup**, or **Skip**.
+ - Green rows: **Restore** or **Skip**.
+ - Yellow rows: **Keep current**, **Overwrite with backup**, or **Skip**.
 3. **Execute** — submits the chosen actions. Tick **Dry run** first if you want to compute the changes without writing.
 
 The dependency map is small: it covers players, teams, evaluations, ratings, sessions, attendance, goals, people, team-people, functional roles, custom values, and category weights. Adding a table is a one-row entry in `BackupDependencyMap::refs()`.
 
-## Pre-bulk safety + undo (v3.16.0+)
+## Pre-bulk safety + undo
 
 Before any wp-admin bulk action that *archives* or *permanently deletes* more than 10 rows, TalentTrack takes an automatic safety snapshot. The snapshot is a regular backup tagged in metadata so retention can be tuned separately.
 
@@ -97,19 +97,19 @@ Right after the bulk operation finishes, an admin notice appears with an **Undo 
 
 The 10-row threshold is filterable via `tt_backup_bulk_safety_threshold`.
 
-## Data migration — export (v4.21.14+)
+## Data migration — export
 
 To move data to a **different** TalentTrack install, use the **Data migration** section on the Backups page. Tick the data sets to include (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration) and click **Export for migration** to download a `.ttmig` archive — gzipped JSON, the same envelope as a backup, stamped `kind: migration`.
 
 Export is data-only: WordPress users and media are not included. Cross-install user links (`wp_user_id`) are resolved at import time, not carried in the file.
 
-### Leaving individual records behind (v4.26.8+)
+### Leaving individual records behind
 
 Beyond the per-data-set checkboxes, each record-bearing set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals) has a **Show N records** expander. Every record is included by default; untick the ones you want to leave behind — handy for dropping test players or scratch records before migrating to a clean install. Excluding a record also drops its child rows in the same set (e.g. excluding an activity drops its attendance rows). "Lookups & configuration" stays all-or-nothing, as it is reference data rather than test records.
 
 If you exclude a record that another included set still references — for example, excluding a player while keeping their evaluations — a confirmation step lists those orphaned dependents before the download. You can **Download anyway** (the dependents export without their referenced record) or cancel and adjust your selection. Very large sets show only the first 500 records in the expander; records beyond that are always included.
 
-## Data migration — import preview (v4.32.1+)
+## Data migration — import preview
 
 On the target install, the **Import from another install** subsection (just below the export controls) accepts a `.ttmig` file. Choose the archive and click **Preview import** to inspect it. This step is **read-only** — it validates the file and reports what it carries, but changes nothing.
 
@@ -119,7 +119,7 @@ The preview shows:
 - **Contents** — row counts per data set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration).
 - **What would happen on import** — for the record sets with a natural key (Players matched on first name + last name + date of birth, Teams on name + age group, Staff on first name + last name + email), how many incoming records **match an existing record** on this install versus how many are **new**. Matching is by stable key, not by id — ids differ between installs, so a source id of 5 is not the target's record 5.
 
-## Data migration — applying an import (v4.36.0+)
+## Data migration — applying an import
 
 From the preview, **Configure import** lets you apply the archive to this install:
 

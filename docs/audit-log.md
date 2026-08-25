@@ -14,7 +14,7 @@ order: 128
 
 A read-only, paginated browser over the academy's audit trail — every settings change and sensitive-data access recorded by `AuditService` in `tt_audit_log`. It answers *who changed what, when*, so an operator can trace a configuration change or a sensitive-record view back to the user, time and IP behind it.
 
-The frontend view is the canonical surface (#1918); the older wp-admin tab (`?page=tt-config&tab=audit`) stays available as a power-user fallback but Configuration no longer bounces you there.
+The frontend view is the canonical surface; the older wp-admin tab (`?page=tt-config&tab=audit`) stays available as a power-user fallback but Configuration no longer bounces you there.
 
 ## Access
 

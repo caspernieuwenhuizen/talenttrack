@@ -14,13 +14,13 @@ niveaus, elk definitiever dan het vorige:
 
 1. **Actief** — de rij is live en verschijnt overal.
 2. **Gearchiveerd** — verborgen in de dagelijkse lijsten, maar volledig
-   herstelbaar. Een speler die de academie verlaat, een afgerond toernooi,
-   een gesloten proefdossier: archiveren bewaart de geschiedenis zonder de
-   actieve weergave te vervuilen.
+ herstelbaar. Een speler die de academie verlaat, een afgerond toernooi,
+ een gesloten proefdossier: archiveren bewaart de geschiedenis zonder de
+ actieve weergave te vervuilen.
 3. **In de prullenbak** — klaargezet om definitief verwijderd te worden. Nog
-   herstelbaar, maar met een klok eraan: een rij in de prullenbak wordt na de
-   bewaartermijn automatisch opgeschoond, of direct als een beheerder de
-   prullenbak leegt.
+ herstelbaar, maar met een klok eraan: een rij in de prullenbak wordt na de
+ bewaartermijn automatisch opgeschoond, of direct als een beheerder de
+ prullenbak leegt.
 
 Deze pagina behandelt het niveau **prullenbak** — waarvoor het dient, wie
 eraan mag komen, hoe lang dingen er blijven en hoe het voldoet aan de
@@ -83,11 +83,11 @@ dagen.
 De termijn is een expliciete **bewaar- / hersteltermijn**, geen toeval:
 
 - Het geeft medewerkers een respijtperiode om een verkeerde verwijdering
-  ongedaan te maken — de meest voorkomende reden dat gegevens uit de
-  prullenbak terugkomen.
+ ongedaan te maken — de meest voorkomende reden dat gegevens uit de
+ prullenbak terugkomen.
 - Het begrenst hoe lang voor verwijdering klaargezette gegevens blijven
-  hangen, zodat de academie niet stilletjes records bewaart die ze besloten
-  heeft te verwijderen.
+ hangen, zodat de academie niet stilletjes records bewaart die ze besloten
+ heeft te verwijderen.
 
 ## Het automatisch opschonen
 
@@ -101,16 +101,16 @@ volgende dagelijkse ronde het.
 Twee dingen zijn van belang aan hoe het opschonen verloopt:
 
 - **Het gebruikt hetzelfde verwijderpad als "Nu verwijderen".** Een
-  automatische opschoning is geen sluiproute die waarborgen omzeilt: hij
-  loopt via precies dezelfde cascade als een handmatige verwijdering, zodat
-  een speler of persoon over elke gekoppelde tabel wordt gewist
-  (evaluaties, doelen, blessures, aanwezigheid, tijdlijngebeurtenissen en de
-  rest) in plaats van losse onderliggende records achter te laten.
+ automatische opschoning is geen sluiproute die waarborgen omzeilt: hij
+ loopt via precies dezelfde cascade als een handmatige verwijdering, zodat
+ een speler of persoon over elke gekoppelde tabel wordt gewist
+ (evaluaties, doelen, blessures, aanwezigheid, tijdlijngebeurtenissen en de
+ rest) in plaats van losse onderliggende records achter te laten.
 - **Het draait onbeheerd, als het systeem.** Omdat er niemand is ingelogd
-  wanneer de taak draait, worden de auditregels die hij schrijft toegeschreven
-  aan het **systeem**, niet aan een persoon — zodat het auditlog nooit
-  suggereert dat een medewerker op verwijderen drukte. De actiesleutels zijn
-  dezelfde `{entity}.purged`-sleutels die een handmatige verwijdering schrijft.
+ wanneer de taak draait, worden de auditregels die hij schrijft toegeschreven
+ aan het **systeem**, niet aan een persoon — zodat het auditlog nooit
+ suggereert dat een medewerker op verwijderen drukte. De actiesleutels zijn
+ dezelfde `{entity}.purged`-sleutels die een handmatige verwijdering schrijft.
 
 De taak rijdt mee op dezelfde achtergrondplanner die de workflow-engine
 gebruikt, dus hij blijft werken zolang geplande taken op de installatie
@@ -155,24 +155,24 @@ opgeschoond.)
 Dit zijn gegevens van minderjarigen, dus de bewaargrondslag is expliciet.
 
 - **Rechtmatige hersteltermijn.** De termijn van 30 dagen is de
-  gedocumenteerde bewaargrondslag voor records in de prullenbak: gegevens die
-  voor verwijdering zijn gemarkeerd maar kort worden bewaard zodat een
-  onbedoelde verwijdering kan worden teruggedraaid. Na de termijn verwijdert
-  het opschonen ze definitief.
+ gedocumenteerde bewaargrondslag voor records in de prullenbak: gegevens die
+ voor verwijdering zijn gemarkeerd maar kort worden bewaard zodat een
+ onbedoelde verwijdering kan worden teruggedraaid. Na de termijn verwijdert
+ het opschonen ze definitief.
 - **Artikel 17 — directe verwijdering.** Wanneer een ouder of voogd het recht
-  op vergetelheid uitoefent en verwijdering *nu* moet gebeuren, leegt een
-  beheerder de prullenbak (of schoont de specifieke rij op) in plaats van de
-  30 dagen af te wachten. "Nu opschonen" is het pad voor directe verwijdering;
-  de bewaartermijn is de standaard, geen ondergrens.
+ op vergetelheid uitoefent en verwijdering *nu* moet gebeuren, leegt een
+ beheerder de prullenbak (of schoont de specifieke rij op) in plaats van de
+ 30 dagen af te wachten. "Nu opschonen" is het pad voor directe verwijdering;
+ de bewaartermijn is de standaard, geen ondergrens.
 - **Overeenstemming met verwijdering.** Elke speler-PII-entiteit die de
-  prullenbak kan bevatten, is geregistreerd in `PlayerDataMap`, het centrale
-  manifest dat de inzage- en verwijdertooling doorloopt. Zo werken een
-  gelijktijdige verwijderrun en de prullenbak over dezelfde set tabellen — de
-  prullenbak kan nooit PII achterlaten die het verwijderpad anders zou
-  weghalen, en andersom. (Let op: enkele entiteiten die in de prullenbak
-  kunnen — teams, toernooien, eigen widgets, geplande rapporten,
-  meting-*definities* — zijn academieconfiguratie, geen speler-PII, en staan
-  terecht niet in `PlayerDataMap`.)
+ prullenbak kan bevatten, is geregistreerd in `PlayerDataMap`, het centrale
+ manifest dat de inzage- en verwijdertooling doorloopt. Zo werken een
+ gelijktijdige verwijderrun en de prullenbak over dezelfde set tabellen — de
+ prullenbak kan nooit PII achterlaten die het verwijderpad anders zou
+ weghalen, en andersom. (Let op: enkele entiteiten die in de prullenbak
+ kunnen — teams, toernooien, eigen widgets, geplande rapporten,
+ meting-*definities* — zijn academieconfiguratie, geen speler-PII, en staan
+ terecht niet in `PlayerDataMap`.)
 
 Voor de volledige AVG-handleiding (inzageverzoeken, de verwijderlevenscyclus
 van een speler die komt en gaat) zie de Privacy-beheerdershandleiding in de
@@ -209,26 +209,26 @@ Het scherm toont elk record in de prullenbak over alle entiteitstypen heen,
 Evaluaties, …). Elke rij toont:
 
 - de **identiteit** van het record (naam of titel, of `Record #<id>` als
-  terugval),
+ terugval),
 - **wie het in de prullenbak zette en wanneer**, en
 - een **dagen-tot-opschoning-badge** die aftelt naar de automatische
-  opschoning. De badge wordt **rood in de laatste week** (7 dagen of minder),
-  zodat een nakende definitieve verwijdering opvalt.
+ opschoning. De badge wordt **rood in de laatste week** (7 dagen of minder),
+ zodat een nakende definitieve verwijdering opvalt.
 
 De prullenbak is **alleen-actie** — je kunt vanaf hier niet doorklikken naar
 een record. Op elke rij staan twee inline-acties:
 
 - **Herstellen** — zet het record terug naar het **archief**-niveau (niet
-  direct naar actief). Het verlaat de prullenbak en verschijnt weer in de
-  Gearchiveerd-lijst van de entiteit.
+ direct naar actief). Het verlaat de prullenbak en verschijnt weer in de
+ Gearchiveerd-lijst van de entiteit.
 - **Nu verwijderen** — schoont het record definitief op. Voordat er iets wordt
-  verwijderd, toont een bevestigingsvenster de **volledige
-  cascadevoorbeeldweergave**: wat wordt verwijderd, welke verwijzingen worden
-  gewist (behouden, niet verwijderd) en — als de opschoning **geblokkeerd** is
-  omdat andere records er nog van afhangen — het afhankelijkheidsrapport. Een
-  geblokkeerde opschoning schrijft niets en laat het record in de prullenbak.
-  "Nu verwijderen" is het handmatige pad voor directe verwijdering (AVG artikel
-  17); het wacht de bewaartermijn niet af.
+ verwijderd, toont een bevestigingsvenster de **volledige
+ cascadevoorbeeldweergave**: wat wordt verwijderd, welke verwijzingen worden
+ gewist (behouden, niet verwijderd) en — als de opschoning **geblokkeerd** is
+ omdat andere records er nog van afhangen — het afhankelijkheidsrapport. Een
+ geblokkeerde opschoning schrijft niets en laat het record in de prullenbak.
+ "Nu verwijderen" is het handmatige pad voor directe verwijdering (AVG artikel
+ 17); het wacht de bewaartermijn niet af.
 
 Als de prullenbak leeg is, meldt het scherm dat in plaats van een lege tabel.
 
@@ -249,10 +249,10 @@ Op een **gearchiveerde** rij zie je twee acties:
 
 - **Herstellen** — zet het record terug in de actieve lijst.
 - **Naar prullenbak** — markeert het record voor definitieve verwijdering.
-  Dit is **omkeerbaar**: het record komt in de prullenbak en kan vandaaruit
-  worden hersteld totdat het wordt opgeschoond. Het vervangt de oude knop
-  "Definitief verwijderen", die gegevens direct vanuit de lijst vernietigde;
-  de echte definitieve verwijdering staat nu alleen nog in de prullenbak.
+ Dit is **omkeerbaar**: het record komt in de prullenbak en kan vandaaruit
+ worden hersteld totdat het wordt opgeschoond. Het vervangt de oude knop
+ "Definitief verwijderen", die gegevens direct vanuit de lijst vernietigde;
+ de echte definitieve verwijdering staat nu alleen nog in de prullenbak.
 
 Voordat het record wordt verplaatst, toont een bevestigingsvenster de
 **volledige cascadevoorbeeldweergave** — elk gekoppeld record dat een latere
@@ -279,16 +279,16 @@ heeft **geen Bewerken-knop**: om een niet-actief record te wijzigen herstel je
 het eerst, daarna bewerk je het.
 
 - Een **gearchiveerd** record toont een amberkleurige banner — "Dit record is
-  gearchiveerd", met wie het archiveerde en wanneer — en maximaal twee acties:
-  **Herstellen** (terug naar de actieve lijst) en **Naar prullenbak**. Omdat het
-  verplaatsen naar de prullenbak alleen voor beheerders is, verschijnt de knop
-  **Naar prullenbak** alleen voor wie die rechten heeft; iedereen anders ziet
-  enkel **Herstellen**.
+ gearchiveerd", met wie het archiveerde en wanneer — en maximaal twee acties:
+ **Herstellen** (terug naar de actieve lijst) en **Naar prullenbak**. Omdat het
+ verplaatsen naar de prullenbak alleen voor beheerders is, verschijnt de knop
+ **Naar prullenbak** alleen voor wie die rechten heeft; iedereen anders ziet
+ enkel **Herstellen**.
 - Een record in de **prullenbak** toont een rode banner — "In de prullenbak —
-  wordt over N dagen verwijderd" — en twee acties: **Terugzetten naar archief**
-  (uit de prullenbak, terug naar de gearchiveerde laag) en **Nu definitief
-  verwijderen**. Beide zijn alleen voor beheerders, dus geen van beide knoppen
-  wordt getoond aan een gebruiker zonder beheerrechten voor de prullenbak.
+ wordt over N dagen verwijderd" — en twee acties: **Terugzetten naar archief**
+ (uit de prullenbak, terug naar de gearchiveerde laag) en **Nu definitief
+ verwijderen**. Beide zijn alleen voor beheerders, dus geen van beide knoppen
+ wordt getoond aan een gebruiker zonder beheerrechten voor de prullenbak.
 
 Een record in de prullenbak is op deze manier alleen bereikbaar voor een
 beheerder die de prullenbak mag beheren. Iedereen anders die de link van zo'n

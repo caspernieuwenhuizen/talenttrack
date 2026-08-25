@@ -27,7 +27,7 @@ voor elke categorie de **minuten per helft (N)** in. De volledige wedstrijdduur
 — **2 x N** — verschijnt naast het invoerveld terwijl je typt.
 
 - Laat een rij **leeg** om de globale terugval van **35 minuten per helft**
-  (70 totaal) over te nemen.
+ (70 totaal) over te nemen.
 - Waarden zijn hele minuten per helft, 0-60.
 - De instelling wordt opgeslagen zodra je op **Wedstrijdminuten opslaan** drukt.
 
@@ -40,12 +40,12 @@ Eenmaal ingesteld is de standaard per leeftijdscategorie de enige bron van
 waarheid voor de wedstrijdduur. De standaard vult alvast in:
 
 - **Wedstrijdvoorbereiding** — een nieuwe wedstrijdvoorbereiding voor een team
-  start op de helft-duur van de leeftijdscategorie van dat team in plaats van een
-  vaste 35.
+ start op de helft-duur van de leeftijdscategorie van dat team in plaats van een
+ vaste 35.
 - **Wedstrijdafronding** — wanneer een wedstrijdactiviteit op Afgerond wordt
-  gezet, wordt het veld **Wedstrijdduur** boven de aanwezigheidstabel vanuit
-  dezelfde bron ingevuld (een expliciete waarde die al op de activiteit of haar
-  wedstrijdvoorbereiding is opgeslagen, wint nog steeds).
+ gezet, wordt het veld **Wedstrijdduur** boven de aanwezigheidstabel vanuit
+ dezelfde bron ingevuld (een expliciete waarde die al op de activiteit of haar
+ wedstrijdvoorbereiding is opgeslagen, wint nog steeds).
 
 In alle gevallen blijft de ingevulde waarde **per wedstrijd aanpasbaar** — de
 laatste invoer wint. Het wijzigen van de centrale standaard herschrijft geen
@@ -57,9 +57,9 @@ Voor een gegeven wedstrijd wordt de helft-duur van meest specifiek naar minst
 specifiek bepaald:
 
 1. een expliciete waarde per wedstrijd die al op de activiteit of haar
-   wedstrijdvoorbereiding is opgeslagen;
+ wedstrijdvoorbereiding is opgeslagen;
 2. de **standaard per leeftijdscategorie** voor de leeftijdsgroep van het team
-   (`match_minutes_by_age_group`);
+ (`match_minutes_by_age_group`);
 3. de globale terugval van **35** minuten per helft.
 
 ## Minuten per speler vastleggen

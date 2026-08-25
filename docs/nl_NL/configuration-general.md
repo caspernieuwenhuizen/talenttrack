@@ -53,7 +53,7 @@ afzenderidentiteit in:
 
 - **Afzendernaam** — wat ontvangers als afzender zien, bijv. *Ajax Academy*.
 - **Afzenderadres** — het From-adres, bijv. *noreply@academy.example*. Dit moet
-  een geldig e-mailadres zijn.
+ een geldig e-mailadres zijn.
 
 Beide worden toegepast via de WordPress-filters `wp_mail_from` /
 `wp_mail_from_name`, zodat elke plugin-e-mail ze oppikt. Laat een veld leeg om

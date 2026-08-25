@@ -14,7 +14,7 @@ De authorisatie­matrix is de centrale bron voor "wat mag elke persona, op welke
 
 ## Wie mag hem bewerken, en wat niet
 
-Sinds #2654 zijn er twee schermen voor hetzelfde raster, met dezelfde schrijver eronder:
+Er zijn twee schermen voor hetzelfde raster, met dezelfde schrijver eronder:
 
 | | Frontend (`?tt_view=matrix`) | wp-admin (`admin.php?page=tt-matrix`) |
 | - | - | - |
@@ -71,7 +71,7 @@ Elke bewerking (toekenning, intrekking, scope-wijziging, reset) schrijft een rij
 | `actor_user_id` | Wie op opslaan klikte |
 | `note` | "scope: team → global" voor scope_change-rijen |
 
-Tot #0021 (de audit-log viewer epic) verschijnt, wordt de changelog alleen weergegeven binnen de Matrix-pagina. Na #0021 gaan deze rijen op in de unieke audit-log.
+De changelog wordt weergegeven binnen de Matrix-pagina. Hij maakt geen deel uit van het gezamenlijke auditlog.
 
 ## Wijzigingen toepassen
 
@@ -110,9 +110,9 @@ Acht persona's worden meegeleverd in de seed:
 - `player` — een speler die eigen data bekijkt (self-scope op de meeste reads).
 - `parent` — een ouder van een speler (scope tot het kind via `tt_player_parents`).
 - `assistant_coach` — een `tt_coach` WP-gebruiker met `tt_team_people.is_head_coach = 0` voor minstens één team.
-- `head_coach` — een `tt_coach` WP-gebruiker met `tt_team_people.is_head_coach = 1` voor minstens één team. Een coach kan beide persona's tegelijk hebben als hij/zij hoofdcoach is van het ene team en assistent van een ander. Sinds #2584 heeft de hoofdcoach `players [rc, team]` — hij/zij kan een spelersrecord van een eigen team corrigeren (positie, rugnummer, voorkeursvoet) zonder tussenkomst van een beheerder. `create_delete` wordt bewust niet gegeven: een speler toevoegen of verwijderen is een registratiehandeling met gevolgen voor selectiegrootte, facturatie en sociale veiligheid, en blijft bij `academy_admin`. `assistant_coach` houdt `players [r, team]`, en omdat beide persona's dezelfde `tt_coach`-WP-rol delen, is de matrix de enige laag die ze uit elkaar houdt — daarom staat deze toekenning daar en niet op de rol.
+- `head_coach` — een `tt_coach` WP-gebruiker met `tt_team_people.is_head_coach = 1` voor minstens één team. Een coach kan beide persona's tegelijk hebben als hij/zij hoofdcoach is van het ene team en assistent van een ander. De hoofdcoach heeft `players [rc, team]` — hij/zij kan een spelersrecord van een eigen team corrigeren (positie, rugnummer, voorkeursvoet) zonder tussenkomst van een beheerder. `create_delete` wordt bewust niet gegeven: een speler toevoegen of verwijderen is een registratiehandeling met gevolgen voor selectiegrootte, facturatie en sociale veiligheid, en blijft bij `academy_admin`. `assistant_coach` houdt `players [r, team]`, en omdat beide persona's dezelfde `tt_coach`-WP-rol delen, is de matrix de enige laag die ze uit elkaar houdt — daarom staat deze toekenning daar en niet op de rol.
 - `head_of_development` — `tt_head_dev` WP-rol; overziet de hele academie.
-- `scout` — `tt_scout` WP-rol; leest spelers over teams heen. Sinds v4.20.103 (#1378) zijn evaluatie-reads beperkt tot toegewezen spelers, en POP-dossiers/-oordelen worden helemaal niet toegekend — selectiebeslissingen zijn geen scouting-input.
+- `scout` — `tt_scout` WP-rol; leest spelers over teams heen. Sinds v4.20.103 zijn evaluatie-reads beperkt tot toegewezen spelers, en POP-dossiers/-oordelen worden helemaal niet toegekend — selectiebeslissingen zijn geen scouting-input.
 - `team_manager` — nieuw in #0033 Sprint 7; `tt_team_manager` WP-rol. Logistiek voor een team (activiteiten, aanwezigheid, uitnodigingen) zonder coachingautoriteit.
 - `academy_admin` — `administrator` of `tt_club_admin` WP-rol.
 
@@ -122,7 +122,7 @@ Een gebruiker kan meerdere persona's tegelijk vasthouden (een ouder die ook hoof
 
 De toernooiplanner levert twee capabilities mee — `tt_view_tournaments` en `tt_edit_tournaments`. In v1 houden alleen `administrator` + `tt_club_admin` (de Academy Admin-persona) ze vast. Geen enkele andere persona (Coach, HoD, Scout, Speler, Ouder) ziet de functie tot de persona-uitbreiding-vervolglevering.
 
-Sinds #1943 heeft de functie een matrix-entiteit: `tournaments`. De seed verleent **alleen academy_admin `rcd[global]`** — dit reproduceert het alleen-beheerder-ontwerp van v1 (WP-administrators passeren via de matrix-administrator-uitzondering). Geen enkele andere persona heeft een rij. `LegacyCapMapper` overbrugt de ruwe capabilities zodat de bestaande `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )`-controlepunten via de matrix worden opgelost zodra die actief is:
+De functie heeft een matrix-entiteit: `tournaments`. De seed verleent **alleen academy_admin `rcd[global]`** — dit reproduceert het alleen-beheerder-ontwerp van v1 (WP-administrators passeren via de matrix-administrator-uitzondering). Geen enkele andere persona heeft een rij. `LegacyCapMapper` overbrugt de ruwe capabilities zodat de bestaande `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )`-controlepunten via de matrix worden opgelost zodra die actief is:
 
 | Ruwe capability | Matrix-tuple |
 | - | - |
@@ -131,7 +131,7 @@ Sinds #1943 heeft de functie een matrix-entiteit: `tournaments`. De seed verleen
 
 `tt_edit_tournaments` dekte historisch bewerken **én** aanmaken **én** verwijderen (er is geen aparte beheer-capability), dus de seed-toekenning is volledig `rcd` — het overbruggen van bewerken naar `change` behoudt de aanmaak/verwijder-dekking omdat de enige begunstigde alle drie de handelingen heeft. De ruwe capability-houders (administrator + `tt_club_admin`) komen netjes overeen met de seed-begunstigde, dus routering via de matrix is **toegangsbehoudend** — geen enkele persona wint of verliest toegang. Migratie `0179_authorization_seed_topup_tournaments` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`).
 
-## Matrix-entiteit `exercises` — de oefeningenbibliotheek (#1944)
+## Matrix-entiteit `exercises` — de oefeningenbibliotheek
 
 De oefeningen-/drilbibliotheek (`tt_exercises`, bediend door `ExercisesRestController` op `/wp-json/talenttrack/v1/exercises`) is clubbreed: een drill die een coach schrijft, is herbruikbaar voor de hele academie. De bibliotheek staat **los van `activities`**, de teamgebonden sessiekalender — daarom krijgt zij een eigen matrix-entiteit, `exercises`, in plaats van de activiteiten-scope te lenen.
 
@@ -147,7 +147,7 @@ Beide coach-persona's worden bewust geseed. De ruwe `tt_manage_exercises`-capabi
 
 Migratie `0180_authorization_seed_topup_exercises` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `exercises`-rijen loopt).
 
-## Matrix-entiteit `media` — foto's en video (#2591)
+## Matrix-entiteit `media` — foto's en video
 
 De mediabibliotheek (`tt_media` + `tt_media_links`, epic #2589) krijgt een eigen entiteit. Zij valt bewust niet onder `players`: een foto van een kind is een andere gevoeligheid dan het spelersdossier, en een academie moet het één kunnen toekennen zonder het ander.
 
@@ -188,7 +188,7 @@ Toegang wordt bepaald door `MediaVisibilityService`, niet per scherm. De regel: 
 
 Migratie `0220_authorization_seed_media` vult de entiteit aan in `tt_authorization_matrix` op bestaande installaties (idempotente `INSERT IGNORE`, uitsluitend over de nieuwe `media`-rijen).
 
-## Matrix-entiteit `email_compose` — de in-product mailer (#1945)
+## Matrix-entiteit `email_compose` — de in-product mailer
 
 De in-product e-mailcomposer (`FrontendMailComposeView`, bereikbaar via `?tt_view=mail-compose&person_id=N`) verstuurt via `wp_mail()` en schrijft per verzending een auditregel weg. Een e-mail versturen is een **handeling**, geen record — er is geen "e-mail-entiteit" om te lezen of te bewerken — dus krijgt zij, net als `impersonation_action`, een eigen **handelings-entiteit** `email_compose` in plaats van een bestaande data-entiteit te lenen.
 
@@ -204,7 +204,7 @@ Beide coach-persona's worden bewust geseed. De ruwe `tt_send_email`-capability i
 
 Migratie `0181_authorization_seed_topup_email_compose` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `email_compose`-rijen loopt).
 
-## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld (#1946)
+## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld
 
 Rapportgeneratie (`FrontendReportWizardView`, bereikbaar via `?tt_view=report-wizard`; plus de knop "Rapport genereren…" op het spelerdossier in `FrontendPlayersManageView`) wordt afgeschermd door de handelings-capability `tt_generate_report` — los van `tt_generate_scout_report`, die naar `scout_access:create_delete` koppelt. Een rapport genereren is een **create**-handeling, dus `tt_generate_report` koppelt naar `reports:create_delete`:
 
@@ -221,11 +221,11 @@ De ruwe capability is vandaag in handen van `administrator` (matrix-uitzondering
 | head_of_development | `reports` / `create_delete` | global |
 | academy_admin | (had al `reports:rcd[global]`) | global |
 
-Beide coach-persona's worden geseed — `tt_coach` is de dubbel-persona-val (#1944): alleen head_coach seeden zou generatie voor assistent-coaches verliezen. Coaches krijgen `team`-scope omdat de per-speler team-scope-afscherming al in `FrontendReportWizardView` zit; HoD krijgt `global` (overziet de hele academie). `change` is bewust weggelaten — er is geen oppervlak om een bestaand rapport te bewerken, alleen lezen + genereren. `team_manager`, `scout`, `player` en `parent` houden enkel `reports:read` en winnen niets, dus de koppeling is **toegangsbehoudend** — precies de huidige houders behouden generatie.
+Beide coach-persona's worden geseed — `tt_coach` is de dubbel-persona-val: alleen head_coach seeden zou generatie voor assistent-coaches verliezen. Coaches krijgen `team`-scope omdat de per-speler team-scope-afscherming al in `FrontendReportWizardView` zit; HoD krijgt `global` (overziet de hele academie). `change` is bewust weggelaten — er is geen oppervlak om een bestaand rapport te bewerken, alleen lezen + genereren. `team_manager`, `scout`, `player` en `parent` houden enkel `reports:read` en winnen niets, dus de koppeling is **toegangsbehoudend** — precies de huidige houders behouden generatie.
 
 Migratie `0182_authorization_seed_topup_report_generation` vult de drie nieuwe rechten op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `reports:create_delete`-rijen voor head_coach / assistant_coach / head_of_development loopt).
 
-## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST (#1923)
+## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST
 
 De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pdp\PdpAccess`. Zowel het gerenderde dossiers-tabblad (`FrontendPdpManageView`) als elke REST-ingang (`PdpFilesRestController`, `PdpVerdictsRestController`) roepen `PdpAccess::canSeeFile( $user_id, $player_id )` aan, zodat beide kanten niet langer verschillend kunnen antwoorden — de oorzaak van het verschil tussen hoofdcoach en HoD in #1758.
 
@@ -244,7 +244,7 @@ De voorheen alleen-ingelogd POP-REST-callbacks zijn aangescherpt naar capability
 
 De effectieve toegang blijft ongewijzigd — iedereen die een POP eerder kon lezen of bewerken krijgt hetzelfde antwoord; het werk verwijderde de frontend/REST-afwijking en de rolnaamvergelijking, het verbreedde of versmalde geen enkele persona.
 
-## Teamchemie — één gedeelde beslissing, frontend en REST (#1922)
+## Teamchemie — één gedeelde beslissing, frontend en REST
 
 Teamchemie- en teamblauwdruk-autorisatie wordt op één plek beslist: `TT\Modules\TeamDevelopment\TeamChemistryAccess`. De gerenderde blauwdrukweergave (`FrontendTeamBlueprintsView`), de dashboard-dispatchercontrole voor de weergaven `team-chemistry` / `team-blueprints`, de deellink-rotatiehandler en elke REST-`permission_callback` op `TeamDevelopmentRestController` roepen deze aan, zodat de frontend en de REST-API niet langer verschillend kunnen antwoorden.
 
@@ -260,7 +260,7 @@ Omdat de matrix nu de enige bron van waarheid is, krijgen twee persona's die voo
 
 Persona's die toegang houden: `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
 
-### Resterende blauwdruk-oppervlakken via `TeamChemistryAccess` (#1939)
+### Resterende blauwdruk-oppervlakken via `TeamChemistryAccess`
 
 Twee blauwdruk-codepaden bepaalden na #1922 hun autoriteit nog met de ruwe capabilities `tt_view_team_chemistry` / `tt_manage_team_chemistry`; #1939 leidt ook deze via `TeamChemistryAccess`, zodat de hele blauwdruk-functie nu antwoordt vanuit de matrixentiteit `team_chemistry`:
 
@@ -269,17 +269,17 @@ Twee blauwdruk-codepaden bepaalden na #1922 hun autoriteit nog met de ruwe capab
 
 Dit zijn handhaving-alleen herverwijzingen — ze landen exact op de `team_chemistry`-toegang die #1922 vestigde (dezelfde personatabel hierboven).
 
-### De toegangspoort van de wizard sluit aan (#2557)
+### De toegangspoort van de wizard sluit aan
 
 Eén blauwdruk-oppervlak bleef achter: de *toegangspoort* van de wizard. `WizardRegistry::isAvailable()` vraagt `AuthorizationService::userCanOrMatrix()` naar de `requiredCap()` van de wizard, en `tt_manage_team_chemistry` is alleen toegekend aan administrator / head_dev / club_admin en heeft geen brug in `LegacyCapMapper` — dus werd een hoofdtrainer geweigerd. De lijstweergave was onder #1922 al overgestapt op `TeamChemistryAccess::canManage()` en toonde dus wél de knop "+ Nieuwe blauwdruk"; het onderliggende toegangspunt loste vervolgens op naar de lege terugval-URL en de knop deed niets.
 
 `NewTeamBlueprintWizard` beantwoordt die vraag nu zelf, via een optionele hook `isAvailableFor( int $user_id ): bool` die `WizardRegistry` aanroept in plaats van de capability-poort zodra een wizard hem declareert. Hij geeft `TeamChemistryAccess::canManage()` terug — dezelfde beslissing die de lijstweergave, de editor, `ReviewStep` en de REST-schrijfacties nemen. Geen enkele andere wizard declareert de hook; de overige zeven houden het ongewijzigde `requiredCap()`-pad.
 
-`tt_manage_team_chemistry` bruggen in `LegacyCapMapper` viel af als oplossing: `LegacyCapMapper::evaluate()` bepaalt via `MatrixGate::canAnyScope()`, die de subfunctie-schakelaar toepast. De functie `team_chemistry` staat standaard uit terwijl de blauwdruk-oppervlakken bewust blijven werken als hij uit staat, dus de brug zou de knop juist dood laten op precies de installaties die de fout melden. De ruwe capability toekennen aan `tt_coach` viel eveneens af — assistent-trainers delen die WP-rol en de matrix weigert hun `team_chemistry` (#1060).
+`tt_manage_team_chemistry` bruggen in `LegacyCapMapper` viel af als oplossing: `LegacyCapMapper::evaluate()` bepaalt via `MatrixGate::canAnyScope()`, die de subfunctie-schakelaar toepast. De functie `team_chemistry` staat standaard uit terwijl de blauwdruk-oppervlakken bewust blijven werken als hij uit staat, dus de brug zou de knop juist dood laten op precies de installaties die de fout melden. De ruwe capability toekennen aan `tt_coach` viel eveneens af — assistent-trainers delen die WP-rol en de matrix weigert hun `team_chemistry`.
 
 Effectieve toegangswijziging: **hoofdtrainers kunnen nu blauwdrukken aanmaken**, wat hun rij `team_chemistry [rc, team]` altijd al zei. Voor geen enkele andere persona verandert het antwoord.
 
-## Handelings-capability-bruggen naar bestaande speler-status-entiteiten (#1939)
+## Handelings-capability-bruggen naar bestaande speler-status-entiteiten
 
 De PlayerStatus-handelings-capability "potentieel-band instellen" was matrix-blind terwijl zijn data-capability-broer matrix-bewust was, waardoor de frontend (`FrontendPlayerDetailView`, `FrontendPlayerStatusCaptureView`) en REST (`PlayerStatusRestController`) konden afwijken. #1939 brugt de handelings-capability zodat beide oppervlakken vanuit dezelfde matrixentiteit antwoorden:
 
@@ -289,7 +289,7 @@ Eén verwante handelings-capability werd onder #1939 **bewust niet gebrugd** omd
 
 - **`tt_rate_player_behaviour`** bleef onder #1939 op de native WP-capability-evaluatie. De ruwe toekenning omvat `tt_assistant_coach`, maar de seed van `player_behaviour_ratings` heeft geen `assistant_coach`-rij (verwijderd door #1060). Brugging zou de assistent-coach-toegang intrekken — een effectieve-toegangswijziging, geen handhaving-alleen herverwijzing — dus werd dit gemarkeerd voor een productbeslissing (de les van #1922: verplaats nooit stilletjes toegang terwijl je "slechts" een capability brugt). De beslissing landde in #1941.
 
-## Mappingrij-bruggen + twee goedgekeurde toegangswijzigingen (#1941)
+## Mappingrij-bruggen + twee goedgekeurde toegangswijzigingen
 
 #1941 (kind van #1757) brugt zes verouderde handelings-capabilities naar matrixtupels waarvan de entiteit + activiteit **al geseed** is, zodat de frontend- en REST-oppervlakken die op elke capability gaten nu vanuit hetzelfde `MatrixGate`-antwoord oplossen (`current_user_can()` loopt via `LegacyCapMapper` wanneer de matrix actief is). Vier zijn toegangsbehoudend; twee dragen een goedgekeurde effectieve-toegangswijziging.
 
@@ -316,7 +316,7 @@ Effectieve toegang voor / na:
 | Head of Development | **nee → ja** (krijgt het) | ja → ja |
 | Academy Admin | ja → ja | ja → ja |
 
-## De alle-teams-lens komt uit de matrix (#1942)
+## De alle-teams-lens komt uit de matrix
 
 Diverse rapportage- en analyse-schermen tonen een **academiebrede ("alle teams") lens** aan senior staf en een **team-gescopete lens** aan coaches — een Head of Development ziet de aanwezigheid van elk team, een hoofdcoach ziet alleen de teams die hij coacht. De verbreder die bepaalt "mag deze gebruiker hier verder kijken dan zijn eigen teams?" was vroeger het capability-idioom `current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' )`. Maar `tt_view_all_teams` werd nooit aan een rol toegekend, dus de echte poort was de te grove instellingen-capability plus de WordPress-admin-bypass — een instellingen-capability die "clubbrede leestoegang" moest voorstellen.
 
@@ -338,7 +338,7 @@ Effect op persona's (uit de geleverde seed):
 
 Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terugval op de gerenderde schermen, zodat een operator die de WP-installatie beheert nooit toegang verliest terwijl de matrix van een club nog sluimert. Er is geen matrix-entiteit, seed of migratie gewijzigd — dit is een call-site-refactor op de bestaande toekenningen.
 
-## Matrix-entiteit `recycle_bin` — definitief verwijderen (#2020)
+## Matrix-entiteit `recycle_bin` — definitief verwijderen
 
 De prullenbak (archiveren → prullenbak → opschonen) introduceert één nieuwe
 matrix-entiteit: `recycle_bin`. De prullenbak beheren — weggegooide rijen
@@ -384,7 +384,7 @@ webhook-abonnement, koppelingenoverzicht) is geseed voor `head_coach` en
 `academy_admin` met `global`-scope — migratie
 `0191_authorization_seed_topup_strava` vulde die rijen op.
 
-`player` heeft `strava_integration` `rc[self]` (#2153): Strava is
+`player` heeft `strava_integration` `rc[self]`: Strava is
 **persoonlijke activiteitsdata**, dus een speler koppelt zijn eigen Strava
 vanaf zijn profiel en kan nooit de koppeling van een andere speler aanraken.
 Dit weerspiegelt het `my_profile` self-recht van de speler. Migratie

@@ -67,8 +67,8 @@ JSON over HTTPS, ondertekend met HMAC-SHA256.
 | `license_status` | string / `null` | `active` / `expired` / `trial` / `none` / `null`. |
 | `license_renews_at` | datum / `null` | Verlengingsdatum indien bekend. |
 | `module_status.spond` | object / `null` | `{ configured, last_sync_status, last_sync_at, events_synced_7d }`. Null als Spond niet is geïnstalleerd. |
-| `module_status.comms` | object / `null` | `{ sends_7d }`. Null als Comms niet is geïnstalleerd (#0066). |
-| `module_status.exports` | object / `null` | `{ runs_7d }`. Null als Export niet is geïnstalleerd (#0063). |
+| `module_status.comms` | object / `null` | `{ sends_7d }`. Null als Comms niet is geïnstalleerd. |
+| `module_status.exports` | object / `null` | `{ runs_7d }`. Null als Export niet is geïnstalleerd. |
 | `feature_flags_enabled` | array | Namen van TalentTrack-eigen feature flags die aanstaan. Beperkt vocabulaire; lekt geen custom-flags. |
 | `custom_caps_in_use` | bool | `true` als een rol een custom (niet-TT, niet-WP-default) capability heeft. **Alleen boolean — cap-namen worden niet meegestuurd.** |
 

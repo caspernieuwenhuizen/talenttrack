@@ -24,13 +24,13 @@ and reviewed.
 
 ## What ships today
 
-Everything except the statistics roll-up (#2650):
+Everything except the statistics roll-up:
 
 - the corpus format, the parsers and the registry
 - the ten interactive blocks
 - enrolment, progress and completion
 - the four gates — module, feature, licence tier, capability — plus sequential
-  unlock and course prerequisites
+ unlock and course prerequisites
 - the reader: library, course, lesson and *My learning*
 - per-lesson quizzes, scored server-side
 - practical assignments, with a submission flow and a reviewer's queue
@@ -159,7 +159,7 @@ Every block renders a usable state server-side. The script upgrades that
 state; it never creates it. A reader with JavaScript blocked still gets the
 pitch table, the model and the default load matrix.
 
-### The inline check (#2738)
+### The inline check
 
 ```
 ```tt-check answer="B" prompt="Ajax speelde zaterdag. Kan 4v4 op dinsdag?"
@@ -210,7 +210,7 @@ values through `wp_localize_script`.
 
 This matters more than it looks: a course that teaches "4v4 needs 72 hours"
 alongside a planner that warns at 48 would be worse than either alone. When
-the Training module needs these numbers (#2493), it reads them from here.
+the Training module needs these numbers, it reads them from here.
 
 The step tables are written out rather than generated. They are not a
 rectangular grid — after 2 × 15 the next step is 3 × 11, not 3 × 10 — and a
@@ -275,7 +275,7 @@ other file.
 ### What counts as complete
 
 `CourseCompletionService` owns the rule, and is the only place that does —
-the reader, the gate (#2645) and the statistics report (#2650) all ask it
+the reader, the gate and the statistics report all ask it
 rather than deciding for themselves.
 
 A **lesson** is complete when every requirement its front matter declares is
@@ -296,7 +296,7 @@ Two hooks fire on the transition, once each:
 | `tt_knowledge_course_completed` | an enrolment reaches completion |
 | `tt_knowledge_course_reopened` | a completed enrolment no longer is |
 
-The certification bridge and the methodology binding (#2649) hang off the
+The certification bridge and the methodology binding hang off the
 first, so the completion service does not have to know what happens next.
 
 ## The reader
@@ -444,13 +444,13 @@ their licence does not include.
 Consequences:
 
 - Unavailable and denied courses are **absent** from the library and return
-  **404**, not 403 — a 403 confirms the course exists here, which is what
-  hiding it was for.
+ **404**, not 403 — a 403 confirms the course exists here, which is what
+ hiding it was for.
 - Locked courses and lessons stay **listed**, with their verdict. Hiding a
-  locked lesson makes a course look shorter than it is.
+ locked lesson makes a course look shorter than it is.
 - The gate is enforced on the **write path**, not only in the reader. Hiding
-  a locked lesson means nothing if `PATCH …/progress/{lesson}` marks it read;
-  that route returns 403 with the verdict attached.
+ a locked lesson means nothing if `PATCH …/progress/{lesson}` marks it read;
+ that route returns 403 with the verdict attached.
 
 Two conventions inherited deliberately from the registries:
 
@@ -541,7 +541,7 @@ Mentorship first, capability second:
 
 1. the learner's mentor from `tt_staff_mentorships`, if they have one
 2. otherwise nobody — the submission stays unrouted and is visible to
-   **every** holder of `tt_manage_knowledge`
+ **every** holder of `tt_manage_knowledge`
 
 Unrouted is a state, not a failure. Picking an arbitrary capability holder at
 submit time would look tidier in the column and would quietly make one person
@@ -619,16 +619,16 @@ module or `DocFrontMatter`. It fails on:
 - a course folder with no `course.md`, or a manifest that does not parse
 - a missing `summary`
 - a `tier` the License module does not define — the list is scraped from
-  `FeatureMap`, not duplicated here
+ `FeatureMap`, not duplicated here
 - a lesson named in `lessons:` with no file, or one that does not parse
 - a lesson file on disk that `lessons:` does not name
 - a `requires:` slug that no course provides, or a course requiring itself
 - a lesson declaring `quiz: true` with no payload, invalid JSON, no questions,
-  a `pass_mark` that is missing or higher than the question count, a duplicate
-  question id, an unknown question type, fewer than two options, or an answer
-  index out of range
+ a `pass_mark` that is missing or higher than the question count, a duplicate
+ question id, an unknown question type, fewer than two options, or an answer
+ index out of range
 - a `tt-check` with no prompt, fewer than two options, no answer, an answer
-  naming an option that does not exist, or no explanation
+ naming an option that does not exist, or no explanation
 - a translated lesson with no canonical counterpart
 
 Run it locally with `php tools/check-courses.php`. It needs no WordPress and
@@ -637,7 +637,7 @@ requires the real parsers, so the gate cannot drift from the runtime it guards.
 ## Completion becomes a certification
 
 Finishing a course writes a row to `tt_staff_certifications` — the table
-StaffDevelopment already owns (#2649). That one row is what stops the library
+StaffDevelopment already owns. That one row is what stops the library
 being an island: the completion appears on the coach's staff record and their
 PDP, the org-wide expiry roll-up picks it up, and the certificate-expiring
 alert can nudge for a refresher, all without the knowledge module knowing any
@@ -709,7 +709,7 @@ different decision from assigning them a course.
 
 ## The statistics report
 
-Three lenses in the Reports module (#2650), reached from the reports launcher
+Three lenses in the Reports module, reached from the reports launcher
 and dispatched through `?tt_view=standard-report&slug=learning-…`:
 
 | Slug | Answers |
@@ -775,12 +775,12 @@ shows a muted zero rather than a green chip, so the row that needs chasing is
 the one that shouts. Numeric columns are `tabular-nums`; tables scroll inside
 `.tt-table-wrap` so the page body never scrolls sideways.
 
-The export humanises on the way out (#2012): "Nobody has finished yet" rather
+The export humanises on the way out: "Nobody has finished yet" rather
 than a blank cell, lesson titles rather than slugs.
 
 ## Page width
 
-The reader is a three-column grid (#2737). Prose sits in the middle track at a
+The reader is a three-column grid. Prose sits in the middle track at a
 readable measure (`--tt-lesson-measure`, 76ch); anything that is a figure
 rather than a sentence spans all three:
 
@@ -810,5 +810,5 @@ while the module stays available for other material.
 ## Related
 
 - [Epic #2641](https://github.com/caspernieuwenhuizen/talenttrack/issues/2641)
-  — the full plan and the wave breakdown
+ — the full plan and the wave breakdown
 - `docs/contributing.md` — audience markers and the Dutch translation rule

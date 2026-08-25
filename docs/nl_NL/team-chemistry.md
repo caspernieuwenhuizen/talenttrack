@@ -99,10 +99,10 @@ Het bord rendert het veld nog steeds in deze leeg-staat — slots worden alleen 
 ## Configuratie
 
 - **Formatie** — kies via de dropdown boven het veld om een andere vorm te bekijken. Zeven sjablonen worden out-of-the-box meegeleverd:
-  - **4-3-3 in vier speelstijl-varianten**: Neutraal / Balbezit / Counter / Press-heavy. Zelfde vorm, verschillende slot-wegingen.
-  - **4-4-2 (Neutraal)**, **3-5-2 (Neutraal)**, **4-2-3-1 (Neutraal)** — andere vormen voor teams die geen 4-3-3 spelen.
+ - **4-3-3 in vier speelstijl-varianten**: Neutraal / Balbezit / Counter / Press-heavy. Zelfde vorm, verschillende slot-wegingen.
+ - **4-4-2 (Neutraal)**, **3-5-2 (Neutraal)**, **4-2-3-1 (Neutraal)** — andere vormen voor teams die geen 4-3-3 spelen.
 
-  De picker is een *probeer-dit-preview*. Om de standaardformatie van een team in te stellen, gebruik je de team-bewerken-pagina (admin of hoofd-academie). Aangepaste sjablonen kunnen vandaag via de REST API worden toegevoegd; een admin-UI volgt later.
+ De picker is een *probeer-dit-preview*. Om de standaardformatie van een team in te stellen, gebruik je de team-bewerken-pagina (admin of hoofd-academie). Aangepaste sjablonen kunnen vandaag via de REST API worden toegevoegd; een admin-UI volgt later.
 - **Stijlmix** — schuiven voor balbezit, counter en press. De drie gewichten moeten samen 100 zijn.
 - **Zijvoorkeur** — instelbaar op het spelerprofiel (links / rechts / centrum). Voegt ±0,2 toe aan fit-scores bij overeenkomst / mismatch tegen een zijgebonden slot.
 

@@ -22,29 +22,29 @@ hierop voort.
 ## De onderdelen
 
 - **Test (definitie)** — iets wat je meet (bijv. "Sprint 30m", "Lengte").
-  Elke test hoort bij een **categorie** en heeft een **waardetype**, een
-  **eenheid**, een **frequentie** en een **richting** (is hoger of lager
-  beter?).
+ Elke test hoort bij een **categorie** en heeft een **waardetype**, een
+ **eenheid**, een **frequentie** en een **richting** (is hoger of lager
+ beter?).
 - **Categorie** — de groep waar een test onder valt. Standaard gevuld met
-  *Antropometrie*, *Fysiek*, *Techniek* en *Mentaal*; een beheerder kan de
-  lijst aanpassen.
+ *Antropometrie*, *Fysiek*, *Techniek* en *Mentaal*; een beheerder kan de
+ lijst aanpassen.
 - **Eenheid** — de meeteenheid. Standaard gevuld met gangbare eenheden (cm,
-  m, kg, g, s, min, herhalingen, niveau, %, bpm); een test kiest er één **of**
-  geeft een eigen, aangepaste eenheid op.
+ m, kg, g, s, min, herhalingen, niveau, %, bpm); een test kiest er één **of**
+ geeft een eigen, aangepaste eenheid op.
 - **Frequentie** — hoe vaak de test moet plaatsvinden: jaarlijks, twee keer
-  per jaar, per kwartaal, maandelijks of ad hoc. Dit voedt "wie is aan de
-  beurt".
+ per jaar, per kwartaal, maandelijks of ad hoc. Dit voedt "wie is aan de
+ beurt".
 - **Sessie** — een gepland testmoment voor één team: één test, één datum. Staf
-  voert per speler één waarde in.
+ voert per speler één waarde in.
 - **Streefwaarde** — een band per leeftijdsgroep (groen / oranje) voor een
-  test. Een geregistreerde waarde krijgt groen, oranje of rood ten opzichte
-  van de band voor de leeftijdsgroep van de speler, rekening houdend met de
-  richting van de test.
+ test. Een geregistreerde waarde krijgt groen, oranje of rood ten opzichte
+ van de band voor de leeftijdsgroep van de speler, rekening houdend met de
+ richting van de test.
 - **Statusniveaus** — alleen voor het waardetype **status**: een door de
-  beheerder ingestelde, geordende reeks gekleurde niveaus (bijv. *Risico*
-  rood, *Aandacht* oranje, *Op koers* groen). Een statustest registreert per
-  speler een niveau in plaats van een getal; het laatste niveau van de speler
-  verschijnt als een gekleurde chip op het profiel.
+ beheerder ingestelde, geordende reeks gekleurde niveaus (bijv. *Risico*
+ rood, *Aandacht* oranje, *Op koers* groen). Een statustest registreert per
+ speler een niveau in plaats van een getal; het laatste niveau van de speler
+ verschijnt als een gekleurde chip op het profiel.
 
 ## Statustests (een handmatige spelersstatus)
 
@@ -54,23 +54,23 @@ genoeg is. Hij gebruikt het metingenraamwerk en krijgt zo automatisch
 gedateerde historie en zichtbaarheid op het profiel.
 
 - Kies **Een status (gekleurde niveaus)** als waardetype bij het aanmaken van
-  de test. De wizard brengt je daarna naar het bewerkscherm van de test.
+ de test. De wizard brengt je daarna naar het bewerkscherm van de test.
 - Stel op het bewerkscherm de **statusniveaus** in van laag naar hoog: elk
-  niveau heeft een label en een kleur uit een vast palet (groen, limoen,
-  geel, amber, oranje, rood, cyaan, blauw, grijs). Maak het label van een niveau
-  leeg om het te verwijderen; de rijvolgorde is de bewaarde volgorde.
+ niveau heeft een label en een kleur uit een vast palet (groen, limoen,
+ geel, amber, oranje, rood, cyaan, blauw, grijs). Maak het label van een niveau
+ leeg om het te verwijderen; de rijvolgorde is de bewaarde volgorde.
 - Registreer een status net als elke andere test — *Metingen vastleggen* toont
-  per speler een gekleurde **statuskiezer** in plaats van een getalveld:
-  een keuzelijst waarvan zowel het gesloten veld als elke optie het
-  kleurvierkant van het niveau naast het label toont, breed genoeg zodat het
-  langste label nooit wordt afgekapt. De kiezer is volledig met toetsenbord en
-  touch te bedienen (openen met Enter/Spatie of de pijltjestoetsen, bewegen
-  met ↑/↓, type-vooruit, Escape om te sluiten); met JavaScript uit valt hij
-  terug op een gewone keuzelijst.
+ per speler een gekleurde **statuskiezer** in plaats van een getalveld:
+ een keuzelijst waarvan zowel het gesloten veld als elke optie het
+ kleurvierkant van het niveau naast het label toont, breed genoeg zodat het
+ langste label nooit wordt afgekapt. De kiezer is volledig met toetsenbord en
+ touch te bedienen (openen met Enter/Spatie of de pijltjestoetsen, bewegen
+ met ↑/↓, type-vooruit, Escape om te sluiten); met JavaScript uit valt hij
+ terug op een gewone keuzelijst.
 - Op het spelersprofiel verschijnt het laatste niveau als een gekleurde chip
-  in het tabblad **Metingen**, in de kleur van dat niveau. Statustests hebben
-  geen groene/oranje streefband — hun kleur komt volledig uit het gekozen
-  niveau.
+ in het tabblad **Metingen**, in de kleur van dat niveau. Statustests hebben
+ geen groene/oranje streefband — hun kleur komt volledig uit het gekozen
+ niveau.
 
 Elke statuswijziging is een gedateerde vermelding op het spelersrecord, zodat
 de statushistorie van de speler in de tijd opvraagbaar en zichtbaar is. Een
@@ -188,13 +188,13 @@ wizard **Nieuwe test** — bereikbaar vanaf het scherm *Metingen
 vastleggen*. De wizard kent drie stappen:
 
 1. **Gegevens** — de categorie, een naam en het type waarde (een getal,
-   een schaalscore, geslaagd/niet of een status met gekleurde niveaus).
+ een schaalscore, geslaagd/niet of een status met gekleurde niveaus).
 2. **Eenheid & frequentie** — de eenheid (uit de lijst of een eigen
-   eenheid), of hoger of lager beter is, en hoe vaak de test plaatsvindt.
+ eenheid), of hoger of lager beter is, en hoe vaak de test plaatsvindt.
 3. **Streefwaarden** — optionele groene en oranje banden per
-   leeftijdsgroep; een geregistreerde waarde krijgt een vlaggetje ten
-   opzichte van de band voor de leeftijdsgroep van de speler. Je kunt deze
-   leeg laten en later toevoegen.
+ leeftijdsgroep; een geregistreerde waarde krijgt een vlaggetje ten
+ opzichte van de band voor de leeftijdsgroep van de speler. Je kunt deze
+ leeg laten en later toevoegen.
 
 Bij voltooien worden de test en de streefwaarden in één keer aangemaakt.
 
@@ -206,27 +206,27 @@ academie heeft ingesteld — naam, categorie, eenheid, richting en frequentie
 — met de status **Actief** of **Inactief**, en drie acties per rij:
 
 - **Bewerken** — opent de test in een plat formulier. Je kunt de naam,
-  categorie, het type waarde, de eenheid (uit de lijst of een eigen
-  eenheid), de schaalgrenzen, de richting, de frequentie, de
-  actief-schakelaar en of de resultaten van de test **op het spelersprofiel
-  worden getoond** wijzigen, en de groene/oranje streefbanden per
-  leeftijdsgroep ter plekke aanpassen. **Opslaan** legt vast; **Annuleren**
-  brengt je terug naar de lijst (of naar waar je vandaan kwam).
-  Geslaagd/niet-tests hebben geen streefbanden.
+ categorie, het type waarde, de eenheid (uit de lijst of een eigen
+ eenheid), de schaalgrenzen, de richting, de frequentie, de
+ actief-schakelaar en of de resultaten van de test **op het spelersprofiel
+ worden getoond** wijzigen, en de groene/oranje streefbanden per
+ leeftijdsgroep ter plekke aanpassen. **Opslaan** legt vast; **Annuleren**
+ brengt je terug naar de lijst (of naar waar je vandaan kwam).
+ Geslaagd/niet-tests hebben geen streefbanden.
 - **Tonen op het spelersprofiel** — een vinkje per test (standaard aan). Zet
-  het uit om een test buiten de metingenweergave op het spelersprofiel te
-  houden terwijl die nog wel resultaten vastlegt en in de resultatenbrowser,
-  rapporten en exports verschijnt. Handig voor interne of experimentele
-  tests die je (nog) niet aan spelers en ouders wilt tonen. Bestaande tests
-  blijven na de upgrade zichtbaar.
+ het uit om een test buiten de metingenweergave op het spelersprofiel te
+ houden terwijl die nog wel resultaten vastlegt en in de resultatenbrowser,
+ rapporten en exports verschijnt. Handig voor interne of experimentele
+ tests die je (nog) niet aan spelers en ouders wilt tonen. Bestaande tests
+ blijven na de upgrade zichtbaar.
 - **Activeren / Deactiveren** — een inactieve test blijft in de catalogus
-  en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
-  *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
-  vastleggen.
+ en behoudt de geschiedenis, maar wordt verborgen in de keuzelijst van
+ *Metingen vastleggen*, zodat staf er geen nieuwe resultaten meer voor kan
+ vastleggen.
 - **Exporteren naar Excel** — downloadt alle vastgelegde resultaten van deze
-  test als een opgemaakt `.xlsx`-bestand (zie hieronder).
+ test als een opgemaakt `.xlsx`-bestand (zie hieronder).
 - **Archiveren** — verplaatst de test naar de prullenbak (soft delete). Er
-  gaat niets verloren; een beheerder kan hem herstellen.
+ gaat niets verloren; een beheerder kan hem herstellen.
 
 ### De resultaten van een test exporteren
 
@@ -270,20 +270,20 @@ geordend per speler. Het beantwoordt de vraag "hoe doet elke speler het nu
 op deze test?" zonder dat je de profielen één voor één hoeft te openen.
 
 1. **Kies een test.** Tot je er een kiest, vraagt het overzicht erom. De
-   keuzelijst toont elke test uit de catalogus, gegroepeerd per categorie.
+ keuzelijst toont elke test uit de catalogus, gegroepeerd per categorie.
 2. **Verfijn eventueel** op **team**, **leeftijdsgroep** en een
-   **periode** (van / tot). De filters herladen het overzicht zodra je op
-   *Toon* drukt.
+ **periode** (van / tot). De filters herladen het overzicht zodra je op
+ *Toon* drukt.
 3. **Lees het overzicht.** Eén rij per speler met een waarde voor de test,
-   met de **laatste waarde in de periode**:
-   - **Statustests** tonen het **kleurvlakje met label** van het niveau
-     (bijv. een groen *Op koers*), dezelfde kleuren als de chip op het
-     spelersprofiel.
-   - **Numerieke en schaaltests** tonen de **waarde met eenheid**, een kleine
-     **trendpijl** (▲ verbeterd, ▼ verslechterd, ▬ gelijk) ten opzichte van
-     het vorige resultaat van die speler, en een **vlag** — groen *op
-     niveau*, oranje *onder niveau*, rood *ruim onder niveau* — tegen de band
-     van hun leeftijdsgroep.
+ met de **laatste waarde in de periode**:
+ - **Statustests** tonen het **kleurvlakje met label** van het niveau
+ (bijv. een groen *Op koers*), dezelfde kleuren als de chip op het
+ spelersprofiel.
+ - **Numerieke en schaaltests** tonen de **waarde met eenheid**, een kleine
+ **trendpijl** (▲ verbeterd, ▼ verslechterd, ▬ gelijk) ten opzichte van
+ het vorige resultaat van die speler, en een **vlag** — groen *op
+ niveau*, oranje *onder niveau*, rood *ruim onder niveau* — tegen de band
+ van hun leeftijdsgroep.
 
 Het overzicht is **sorteerbaar** (tik op een kolomkop op tablet en desktop)
 en elke **spelersnaam linkt naar het profiel**, met een terug-pil zodat je
@@ -312,15 +312,15 @@ spelersverloop volgt, want een verloop betekent alleen iets in de termen
 van de test zelf:
 
 - **Een test met een richting** (sprinttijd, sprongkracht) begint bij de
-  cijfers: een tabel met de waarde van elke speler op elk meetmoment en het
-  **verschil**, daarna **Meest verbeterd** en **Teruggelopen**, en als
-  laatste een **grafiek** met één lijn per speler over de gedeelde datum-as,
-  plus een zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
-  gemiddelde nooit als nóg een speler leest.
+ cijfers: een tabel met de waarde van elke speler op elk meetmoment en het
+ **verschil**, daarna **Meest verbeterd** en **Teruggelopen**, en als
+ laatste een **grafiek** met één lijn per speler over de gedeelde datum-as,
+ plus een zwaardere gestreepte lijn voor het **teamgemiddelde**, zodat het
+ gemiddelde nooit als nóg een speler leest.
 - **Een test zonder richting** (lengte, gewicht) krijgt de metingen per
-  datum — geen grafiek en geen ranglijst, want er is geen beter of slechter
-  om op te ranken. Het verschil wordt wel getoond, met een grijze ▲ of ▼ die
-  alleen zegt welke kant de waarde op ging.
+ datum — geen grafiek en geen ranglijst, want er is geen beter of slechter
+ om op te ranken. Het verschil wordt wel getoond, met een grijze ▲ of ▼ die
+ alleen zegt welke kant de waarde op ging.
 
 **Je speler terugvinden in de grafiek.** Elke speler heeft een eigen kleur,
 en diezelfde kleur staat als kort lijntje vóór de naam in de tabel en in de
@@ -359,11 +359,11 @@ waar lager beter is hoort −0,08 s bij een groene ▲. Beweeg over het teken
 Spelersnamen in elke tabel en in beide ranglijsten linken door naar het
 spelersdossier en tonen een samenvattingskaart als je erover beweegt.
 - **Een statustest** krijgt een matrix speler × datum met de niveaus in hun
-  eigen kleur. Geen lijnen: niveaus zijn benoemde standen, geen afstanden.
+ eigen kleur. Geen lijnen: niveaus zijn benoemde standen, geen afstanden.
 - **Gehaald / niet gehaald** krijgt een vinkje of kruisje per datum, de
-  telling per speler en het **slagingspercentage per ronde** — het enige
-  getal dat over tijd iets zegt zonder twee uitkomsten als schaal te
-  behandelen.
+ telling per speler en het **slagingspercentage per ronde** — het enige
+ getal dat over tijd iets zegt zonder twee uitkomsten als schaal te
+ behandelen.
 
 **Het verschil wordt gelezen in de richting van de test.** Bij een test
 waar lager beter is, is −0,08 s vooruitgang: het staat groen, het leest als
@@ -392,12 +392,12 @@ resultaten doorbladeren) — en de beheerschermen verwijzen naar elkaar,
 zodat je niet terug hoeft naar het dashboard:
 
 - *Metingen vastleggen* toont een link **Tests beheren** naast **+ Nieuwe
-  test**, zodat je snel de frequentie of banden van een test kunt aanpassen
-  en meteen terugkeert.
+ test**, zodat je snel de frequentie of banden van een test kunt aanpassen
+ en meteen terugkeert.
 - *Tests beheren* toont boven aan de lijst de links **Metingen vastleggen**
-  en **Testdekking**.
+ en **Testdekking**.
 - *Testdekking* toont een link **Tests beheren** (alleen voor staf die de
-  catalogus mag bewerken).
+ catalogus mag bewerken).
 
 Elke link draagt bij aankomst een contextuele terug-pil, zodat het
 bestemmingsscherm een terugroute met één klik biedt naar waar je vandaan

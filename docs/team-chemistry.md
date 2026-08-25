@@ -99,10 +99,10 @@ The board still renders the pitch in this empty state — slots are filled by ro
 ## Configuration
 
 - **Formation** — pick from the dropdown above the pitch to preview a different shape. Seven templates ship out of the box:
-  - **4-3-3 in four play-style flavors**: Neutral / Possession / Counter / Press-heavy. Same shape, different per-slot weights.
-  - **4-4-2 (Neutral)**, **3-5-2 (Neutral)**, **4-2-3-1 (Neutral)** — different shapes for teams that don't play 4-3-3.
+ - **4-3-3 in four play-style flavors**: Neutral / Possession / Counter / Press-heavy. Same shape, different per-slot weights.
+ - **4-4-2 (Neutral)**, **3-5-2 (Neutral)**, **4-2-3-1 (Neutral)** — different shapes for teams that don't play 4-3-3.
 
-  The picker is a *try-this preview*. To set a team's default formation, use the team-edit page (admin or head-of-academy). Custom templates can be added via the REST API today; an admin UI lands in a follow-up.
+ The picker is a *try-this preview*. To set a team's default formation, use the team-edit page (admin or head-of-academy). Custom templates can be added via the REST API today; an admin UI lands in a follow-up.
 - **Style blend** — sliders for possession, counter, and press. The three weights must sum to 100.
 - **Side preference** — set on a player's profile (left / right / center). Adds ±0.2 to fit scores when matched / mismatched against a side-specific slot.
 

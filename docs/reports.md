@@ -250,20 +250,20 @@ just without the edit link.
 The surface is a spreadsheet-style matrix:
 
 - **Rows** are the team's game, match and tournament activities in the window
-  (the same set the minutes report counts).
+ (the same set the minutes report counts).
 - **Columns** are the squad — every player who appears on the **attendance** of
-  those games. The squad is resolved from attendance, not from a player's team
-  assignment, so a player who was borrowed for one game still shows up, and a
-  player who left the team but played earlier in the window is not silently
-  dropped.
+ those games. The squad is resolved from attendance, not from a player's team
+ assignment, so a player who was borrowed for one game still shows up, and a
+ player who left the team but played earlier in the window is not silently
+ dropped.
 - **Cells** show the minutes recorded for that player in that game. A green cell
-  is minutes recorded; a red **0** is a player who was in the squad but has no
-  minutes recorded (a gap to chase); a hatched dash is a player who was not in
-  that game's squad.
+ is minutes recorded; a red **0** is a player who was in the squad but has no
+ minutes recorded (a gap to chase); a hatched dash is a player who was not in
+ that game's squad.
 - Each row carries a **row total**, a completeness **status chip** — *Complete*
-  (every squad player has minutes), *Incomplete* (some do, some don't), or *Not
-  recorded* (nothing recorded for the game) — and the bottom **column-total** row
-  sums each player's minutes across the visible games.
+ (every squad player has minutes), *Incomplete* (some do, some don't), or *Not
+ recorded* (nothing recorded for the game) — and the bottom **column-total** row
+ sums each player's minutes across the visible games.
 
 Above the matrix, four **gap KPIs** — *Games*, *Fully recorded*, *Incomplete*,
 *Not recorded* — summarise the window. Each KPI is clickable and filters the
@@ -292,11 +292,11 @@ changed numbers.
 The editor writes through the right path automatically:
 
 - For a match that was prepped and run on the sideline (it has a match-execution),
-  a saved figure sets an **explicit per-player override**. The override lives
-  alongside the value the sub-log derives, so it survives every later recompute
-  and stays correctable even once the match is finalized.
+ a saved figure sets an **explicit per-player override**. The override lives
+ alongside the value the sub-log derives, so it survives every later recompute
+ and stays correctable even once the match is finalized.
 - For a paper match (no match-execution), a saved figure writes the player's
-  recorded minutes directly.
+ recorded minutes directly.
 
 Editing is conservative with match data: an emptied field is an *explicit* clear
 (the override or recorded value is cleared, falling back to any derived figure),
@@ -318,19 +318,19 @@ Every standard report now names the window and the source it drew from, so a
 figure is never a silent guess:
 
 - **Honest empty states.** When a report has nothing to show it says *why* in
-  plain terms — "No matches recorded in this period", "No evaluations recorded
-  for this team in this window", "No prospects logged in this window" — instead
-  of the old generic "adjust a filter" copy (most of these reports have no
-  filter to adjust). The Season summary no longer renders a blank page below
-  its headline tiles when no teams exist.
+ plain terms — "No matches recorded in this period", "No evaluations recorded
+ for this team in this window", "No prospects logged in this window" — instead
+ of the old generic "adjust a filter" copy (most of these reports have no
+ filter to adjust). The Season summary no longer renders a blank page below
+ its headline tiles when no teams exist.
 - **Player · Minutes played** covers the **last 12 months** (stated in the
-  page sub-line, matching the Explorer drill), and when a player has more than
-  50 matches in that window it says *"Showing the 50 most recent matches"* so a
-  longer history is never dropped without notice.
+ page sub-line, matching the Explorer drill), and when a player has more than
+ 50 matches in that window it says *"Showing the 50 most recent matches"* so a
+ longer history is never dropped without notice.
 - **Team · Squad evaluation summary** shows a **Last evaluated** date per
-  player, so a stale row is visible at a glance.
+ player, so a stale row is visible at a glance.
 - **Season summary** per-team match counts ignore soft-archived activities on
-  the join itself (not just in the count), removing a source of inflated joins.
+ the join itself (not just in the count), removing a source of inflated joins.
 
 ### Trial funnel reconciliation
 

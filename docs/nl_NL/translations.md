@@ -13,7 +13,7 @@ order: 130
 
 UI-tekst van de plugin wordt vertaald via het standaard `.po` / `.mo` proces. **Vrije tekst die gebruikers invoeren** — doelen, evaluatienotities, sessiebeschrijvingen, aanwezigheidsnotities — werd dat historisch niet. Een coach die in het Nederlands schrijft en een ouder die in het Frans leest zagen ruwe Nederlandse tekst.
 
-De Translations-laag (#0025) sluit dat gat met een opt-in vertalingscache die op render-time draait.
+De Translations-laag sluit dat gat met een opt-in vertalingscache die op render-time draait.
 
 ## Standaard UIT
 

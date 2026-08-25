@@ -158,12 +158,12 @@ read it. It opens the analysis read-only, without a login.
 Two things to know before you send one:
 
 - It shows the **player notes in full**, including who fell short. It is a
-  staff document, and the page says so on its face. It is not indexed by
-  search engines.
+ staff document, and the page says so on its face. It is not indexed by
+ search engines.
 - **Anyone holding the link can read it** until you replace it.
-  **Replace link** mints a new URL and shuts every previous one
-  immediately — use it when a link has travelled further than you meant, or
-  after someone leaves the staff.
+ **Replace link** mints a new URL and shuts every previous one
+ immediately — use it when a link has travelled further than you meant, or
+ after someone leaves the staff.
 
 ## Saving
 
@@ -174,8 +174,8 @@ actions stay where they are.
 ## What you can't do here
 
 - Change the score, the goals or the substitutions — those belong to
-  **match execution**, and a second place to type them is a second place for
-  them to be wrong.
+ **match execution**, and a second place to type them is a second place for
+ them to be wrong.
 - Write an analysis for a training. Trainings have their own observations.
 - Tell the player something. Player-facing feedback goes through their
-  evaluations, where it is written for them to read.
+ evaluations, where it is written for them to read.

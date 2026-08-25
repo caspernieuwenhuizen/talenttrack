@@ -14,11 +14,11 @@ tiers, each more final than the last:
 
 1. **Active** — the row is live and shows up everywhere.
 2. **Archived** — soft-hidden from day-to-day lists but fully recoverable.
-   A player who leaves the academy, a finished tournament, a closed trial
-   case: archive keeps the history without cluttering the active view.
+ A player who leaves the academy, a finished tournament, a closed trial
+ case: archive keeps the history without cluttering the active view.
 3. **Trashed (recycle bin)** — staged for permanent deletion. Still
-   recoverable, but on a clock: a trashed row is purged automatically after
-   the retention window, or immediately if an admin empties the bin.
+ recoverable, but on a clock: a trashed row is purged automatically after
+ the retention window, or immediately if an admin empties the bin.
 
 This page covers the **recycle bin** tier — what it is for, who can touch it,
 how long things live there, and how it satisfies the academy's GDPR
@@ -75,9 +75,9 @@ fallback.
 The window is an explicit **retention / recovery buffer**, not an accident:
 
 - It gives staff a grace period to undo a mistaken deletion — the most
-  common reason data comes back out of the bin.
+ common reason data comes back out of the bin.
 - It bounds how long staged-for-deletion data lingers, so the academy is not
-  silently hoarding records it has decided to remove.
+ silently hoarding records it has decided to remove.
 
 ## The automatic purge
 
@@ -89,14 +89,14 @@ bin — once a record's countdown reaches zero, the next daily sweep removes it.
 Two things matter about how the purge runs:
 
 - **It uses the same deletion path as "Delete now".** An automatic purge is
-  not a shortcut that bypasses safeguards: it routes through the exact
-  cascade that a manual purge uses, so a player or person is erased across
-  every linked table (evaluations, goals, injuries, attendance, timeline
-  events, and the rest) rather than leaving stranded child records behind.
+ not a shortcut that bypasses safeguards: it routes through the exact
+ cascade that a manual purge uses, so a player or person is erased across
+ every linked table (evaluations, goals, injuries, attendance, timeline
+ events, and the rest) rather than leaving stranded child records behind.
 - **It runs unattended, as the system.** Because no one is logged in when the
-  job runs, the audit entries it writes are attributed to the **system**, not
-  to a person — so the audit log never implies a staff member pressed delete.
-  The action keys are the same `{entity}.purged` keys a manual purge writes.
+ job runs, the audit entries it writes are attributed to the **system**, not
+ to a person — so the audit log never implies a staff member pressed delete.
+ The action keys are the same `{entity}.purged` keys a manual purge writes.
 
 The job rides the same background scheduler the workflow engine uses, so it
 keeps working as long as scheduled tasks run on the install. If scheduled
@@ -137,22 +137,22 @@ players and keeps their development data, and they purge normally.)
 These are minors' records, so the retention basis is explicit.
 
 - **Lawful retention buffer.** The 30-day window is the documented retention
-  basis for trashed records: data that has been marked for deletion but is
-  held briefly so an accidental deletion can be reversed. After the window,
-  the purge removes it for good.
+ basis for trashed records: data that has been marked for deletion but is
+ held briefly so an accidental deletion can be reversed. After the window,
+ the purge removes it for good.
 - **Article 17 — immediate erasure.** When a parent or guardian exercises
-  the right to be forgotten and erasure must happen *now*, an admin empties
-  the bin (or purges the specific row) rather than waiting out the 30 days.
-  "Purge now" is the immediate-erasure path; the retention window is the
-  default, not a floor.
+ the right to be forgotten and erasure must happen *now*, an admin empties
+ the bin (or purges the specific row) rather than waiting out the 30 days.
+ "Purge now" is the immediate-erasure path; the retention window is the
+ default, not a floor.
 - **Scope agreement with erasure.** Every player-PII entity that the bin can
-  hold is registered in `PlayerDataMap`, the central manifest the
-  subject-access and erasure tooling walks. So a concurrent erasure run and
-  the bin operate over the same set of tables — the bin can never strand PII
-  the erasure path would otherwise remove, and vice versa. (Note: a handful
-  of binnable entities — teams, tournaments, custom widgets, scheduled
-  reports, measurement *definitions* — are academy configuration, not
-  player PII, and are correctly absent from `PlayerDataMap`.)
+ hold is registered in `PlayerDataMap`, the central manifest the
+ subject-access and erasure tooling walks. So a concurrent erasure run and
+ the bin operate over the same set of tables — the bin can never strand PII
+ the erasure path would otherwise remove, and vice versa. (Note: a handful
+ of binnable entities — teams, tournaments, custom widgets, scheduled
+ reports, measurement *definitions* — are academy configuration, not
+ player PII, and are correctly absent from `PlayerDataMap`.)
 
 For the full GDPR how-to (subject-access requests, the erasure lifecycle of a
 player joining and leaving), see the Privacy operator guide in the in-product
@@ -188,24 +188,24 @@ The screen lists every trashed record across all binnable entity types,
 Each row shows:
 
 - the record's **identity** (its name or title, or `Record #<id>` as a
-  fallback),
+ fallback),
 - **who binned it and when**, and
 - a **days-until-purge badge** counting down to the automatic purge. The badge
-  turns **red in the final week** (7 days or fewer) so an imminent permanent
-  deletion stands out.
+ turns **red in the final week** (7 days or fewer) so an imminent permanent
+ deletion stands out.
 
 The bin is **action-only** — there is no drill-in to a record from here. Two
 inline actions sit on every row:
 
 - **Restore** — moves the record back to the **archive** tier (not straight to
-  active). It leaves the bin and reappears in the entity's Archived list.
+ active). It leaves the bin and reappears in the entity's Archived list.
 - **Delete now** — permanently purges the record. Before anything is deleted, a
-  confirmation dialog shows the **full cascade preview**: what will be removed,
-  what references will be cleared (kept, not deleted), and — if the purge is
-  **blocked** because other records still depend on it — the dependency report.
-  A blocked purge writes nothing and leaves the record in the bin. "Delete now"
-  is the manual immediate-erasure path (GDPR Article 17); it does not wait out
-  the retention window.
+ confirmation dialog shows the **full cascade preview**: what will be removed,
+ what references will be cleared (kept, not deleted), and — if the purge is
+ **blocked** because other records still depend on it — the dependency report.
+ A blocked purge writes nothing and leaves the record in the bin. "Delete now"
+ is the manual immediate-erasure path (GDPR Article 17); it does not wait out
+ the retention window.
 
 When the bin is empty, the screen says so rather than showing an empty table.
 
@@ -226,10 +226,10 @@ On an **archived** row you see two actions:
 
 - **Restore** — returns the record to the active list.
 - **Move to recycle bin** — stages the record for permanent deletion. This is
-  **reversible**: the record drops into the bin and can be restored from
-  there until it is purged. It replaces the old "Delete permanently" button,
-  which destroyed data immediately from the list; the real permanent purge now
-  lives only inside the bin.
+ **reversible**: the record drops into the bin and can be restored from
+ there until it is purged. It replaces the old "Delete permanently" button,
+ which destroyed data immediately from the list; the real permanent purge now
+ lives only inside the bin.
 
 Before the record moves, a confirmation dialog shows the **full cascade
 preview** — every linked record a later purge would remove, every reference
@@ -254,14 +254,14 @@ carries **no Edit button**: to change a non-active record you restore it first,
 then edit.
 
 - An **archived** record shows an amber banner — "This record is archived",
-  with who archived it and when — and up to two actions: **Restore** (back to
-  the active list) and **Move to recycle bin**. Because moving to the recycle
-  bin is an admin-only operation, the **Move to recycle bin** button appears
-  only for users who hold that capability; everyone else sees just **Restore**.
+ with who archived it and when — and up to two actions: **Restore** (back to
+ the active list) and **Move to recycle bin**. Because moving to the recycle
+ bin is an admin-only operation, the **Move to recycle bin** button appears
+ only for users who hold that capability; everyone else sees just **Restore**.
 - A **trashed** record shows a red banner — "In the recycle bin — deletes in
-  N days" — and two actions: **Restore to archive** (out of the bin, back to
-  the archived tier) and **Delete permanently now**. Both are admin-only, so
-  neither button is shown to a user without recycle-bin management rights.
+ N days" — and two actions: **Restore to archive** (out of the bin, back to
+ the archived tier) and **Delete permanently now**. Both are admin-only, so
+ neither button is shown to a user without recycle-bin management rights.
 
 A trashed record is only reachable this way by an admin who can manage the bin.
 Anyone else who opens a trashed record's link gets the ordinary "not found"

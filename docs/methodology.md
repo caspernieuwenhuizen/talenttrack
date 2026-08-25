@@ -66,7 +66,7 @@ Sub-principes are a first-class entity: they can be listed, created, edited and 
 
 TalentTrack now ships **two** methodologies. Alongside the default **JO14-1 Hedel** (1-4-2-3-1), a second shipped methodology **JO13-1 Hedel** (1-4-3-3) is available. It carries its own vision, formation and position cards, principles, sub-principes, framework primer, phases and learning goals. A team can be pointed at whichever set fits its playing style; the Methodology tabs then show that set's content. Like all shipped content it is read-only — clone an entry to edit your own copy.
 
-The JO13-1 formation now renders its real **1-4-3-3** on both the **Formaties** and **Visie** tabs (previously it fell back to a generic shape because its diagram coordinates were missing).
+The JO13-1 formation renders its real **1-4-3-3** on both the **Formaties** and **Visie** tabs.
 
 ## Tactical scenes (Speelwijze animations)
 

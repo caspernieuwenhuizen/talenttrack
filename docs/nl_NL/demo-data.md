@@ -93,16 +93,16 @@ wat de generator dekt. Elke `tt_*`-tabel die het schema aanmaakt staat daar
 precies één keer, in één van drie toestanden:
 
 - **generated** — er is een producent die hem vult. De regel benoemt het
-  `entity_type` voor de demolabels, de `category` die de beheerder aan- en
-  uitzet, de producent (`written_by`) en `depends_on` voor de
-  verwijdervolgorde.
+ `entity_type` voor de demolabels, de `category` die de beheerder aan- en
+ uitzet, de producent (`written_by`) en `depends_on` voor de
+ verwijdervolgorde.
 - **planned** — hoort erbij, maar is nog niet gebouwd; de waarde is het
-  issue dat hem gaat schrijven (epic #2461).
+ issue dat hem gaat schrijven (epic #2461).
 - **exempt** — wordt nooit gegenereerd, met de reden erbij. Configuratie,
-  vocabulaires, referentiedata uit migraties, systeemlogs, en alles waarvan
-  verzinnen misleidend zou zijn of een neveneffect heeft (een geplande
-  rapportage zou echte e-mail versturen; een Strava-koppeling vereist echte
-  OAuth-tokens).
+ vocabulaires, referentiedata uit migraties, systeemlogs, en alles waarvan
+ verzinnen misleidend zou zijn of een neveneffect heeft (een geplande
+ rapportage zou echte e-mail versturen; een Strava-koppeling vereist echte
+ OAuth-tokens).
 
 `tools/check-demo-coverage.php` faalt zodra een tabel in geen van de drie
 toestanden staat, zodat een migratie die een tabel toevoegt de keuze
@@ -113,17 +113,17 @@ buiten een wiscascade valt. Beide draaien in CI bij elke PR.
 ### Een generator toevoegen
 
 1. Implementeer `DependentGeneratorInterface` — `category()`,
-   `fromContext()` en `generate()` met het aantal rijen. Label elke
-   ingevoegde rij via `DemoBatchRegistry::tag()`; een ongelabelde rij kan de
-   wisfunctie nooit bereiken en blijft permanent achter op de installatie
-   van de beheerder.
+ `fromContext()` en `generate()` met het aantal rijen. Label elke
+ ingevoegde rij via `DemoBatchRegistry::tag()`; een ongelabelde rij kan de
+ wisfunctie nooit bereiken en blijft permanent achter op de installatie
+ van de beheerder.
 2. Zet de regel van de tabel om van `planned` naar een generated-regel, en
-   voeg het `entity_type` toe aan de cascade van de bijbehorende categorie.
+ voeg het `entity_type` toe aan de cascade van de bijbehorende categorie.
 3. Geef de categorie een `tier`, een `run_order` en, als het Excel-werkboek
-   een bijpassend tabblad heeft, een `excel_sheet`.
+ een bijpassend tabblad heeft, een `excel_sheet`.
 4. Voeg een label en toelichting toe in `categoryLabel()` /
-   `categoryHint()`. De formulieren voor genereren en wissen pikken de
-   categorie daar vanzelf op — die hoef je niet aan te passen.
+ `categoryHint()`. De formulieren voor genereren en wissen pikken de
+ categorie daar vanzelf op — die hoef je niet aan te passen.
 
 `run_order` is belangrijker dan het lijkt. Alle afhankelijke generators
 putten uit één MT-stroom die één keer per run wordt geseed, dus een

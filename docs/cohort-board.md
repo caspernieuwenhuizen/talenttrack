@@ -30,21 +30,21 @@ dozen profiles.
 
 - **Player** — links to the player's profile.
 - **Status** — the player's current status, shown as a coloured dot plus its
-  label.
+ label.
 - **Rating** — the player's rolling-average overall rating from their
-  evaluations. A dash means there are no rated evaluations yet.
+ evaluations. A dash means there are no rated evaluations yet.
 - **Trend** — an arrow comparing the player's recent ratings against their
-  earlier ones: up, down, or stable. Players with little rating history show a
-  stable arrow.
+ earlier ones: up, down, or stable. Players with little rating history show a
+ stable arrow.
 - **Attendance** — the player's attendance percentage across the current
-  season. Below 70% is highlighted. A **(low)** marker means the figure is
-  based on only a handful of activities, so treat it with caution.
+ season. Below 70% is highlighted. A **(low)** marker means the figure is
+ based on only a handful of activities, so treat it with caution.
 - **PDP talks** — how many development conversations have actually been
-  conducted for the player.
+ conducted for the player.
 - **Verdict** — the current verdict recorded in the player's PDP file, or
-  **Pending** if none has been set yet.
+ **Pending** if none has been set yet.
 - **PDP file** — a link straight into the player's PDP file (or to start one if
-  none exists this season).
+ none exists this season).
 
 ## Read-only by design
 

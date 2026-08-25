@@ -259,22 +259,22 @@ bevoegdheid zien de volledige matrix, alleen zonder de bewerklink.
 Het scherm is een matrix in spreadsheet-stijl:
 
 - **Rijen** zijn de wedstrijd-, match- en toernooiactiviteiten van het team in de
-  periode (dezelfde set die het minutenrapport telt).
+ periode (dezelfde set die het minutenrapport telt).
 - **Kolommen** zijn de selectie — elke speler die voorkomt op de **aanwezigheid**
-  van die wedstrijden. De selectie wordt bepaald op basis van aanwezigheid, niet
-  op basis van de teamindeling van een speler, zodat een speler die voor één
-  wedstrijd werd geleend toch verschijnt en een speler die het team verliet maar
-  eerder in de periode speelde niet stil wordt weggelaten.
+ van die wedstrijden. De selectie wordt bepaald op basis van aanwezigheid, niet
+ op basis van de teamindeling van een speler, zodat een speler die voor één
+ wedstrijd werd geleend toch verschijnt en een speler die het team verliet maar
+ eerder in de periode speelde niet stil wordt weggelaten.
 - **Cellen** tonen de geregistreerde minuten van die speler in die wedstrijd. Een
-  groene cel is geregistreerde minuten; een rode **0** is een speler die in de
-  selectie zat maar geen geregistreerde minuten heeft (een gat om aan te pakken);
-  een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
-  zat.
+ groene cel is geregistreerde minuten; een rode **0** is een speler die in de
+ selectie zat maar geen geregistreerde minuten heeft (een gat om aan te pakken);
+ een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
+ zat.
 - Elke rij heeft een **rijtotaal**, een **statuschip** voor volledigheid —
-  *Volledig* (elke speler uit de selectie heeft minuten), *Onvolledig* (sommigen
-  wel, sommigen niet) of *Niet geregistreerd* (niets geregistreerd voor de
-  wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
-  over de zichtbare wedstrijden op.
+ *Volledig* (elke speler uit de selectie heeft minuten), *Onvolledig* (sommigen
+ wel, sommigen niet) of *Niet geregistreerd* (niets geregistreerd voor de
+ wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
+ over de zichtbare wedstrijden op.
 
 Boven de matrix vatten vier **gat-KPI's** — *Wedstrijden*, *Volledig
 geregistreerd*, *Onvolledig*, *Niet geregistreerd* — de periode samen. Elke KPI is
@@ -306,12 +306,12 @@ geopend, toont de gewijzigde cijfers.
 De editor kiest automatisch het juiste schrijfpad:
 
 - Voor een wedstrijd die is voorbereid en langs de lijn is gespeeld (met een
-  wedstrijdverloop) legt een opgeslagen cijfer een **expliciete correctie per
-  speler** vast. Die correctie staat naast de waarde die uit het wissellog wordt
-  afgeleid, zodat ze elke latere herberekening overleeft en corrigeerbaar blijft
-  zelfs nadat de wedstrijd is afgerond.
+ wedstrijdverloop) legt een opgeslagen cijfer een **expliciete correctie per
+ speler** vast. Die correctie staat naast de waarde die uit het wissellog wordt
+ afgeleid, zodat ze elke latere herberekening overleeft en corrigeerbaar blijft
+ zelfs nadat de wedstrijd is afgerond.
 - Voor een papieren wedstrijd (zonder wedstrijdverloop) schrijft een opgeslagen
-  cijfer de geregistreerde minuten van de speler rechtstreeks.
+ cijfer de geregistreerde minuten van de speler rechtstreeks.
 
 Het bewerken gaat behoedzaam met wedstrijdgegevens om: een leeggemaakt veld is een
 *expliciete* wissing (de correctie of geregistreerde waarde wordt gewist en valt
@@ -334,22 +334,22 @@ Elk standaardrapport benoemt nu de periode en de bron waaruit het put, zodat een
 cijfer nooit een stille gok is:
 
 - **Eerlijke lege toestanden.** Als een rapport niets te tonen heeft, zegt het
-  in gewone taal *waarom* — "Geen wedstrijden geregistreerd in deze periode",
-  "Geen beoordelingen geregistreerd voor dit team in deze periode", "Geen
-  scoutingskandidaten geregistreerd in deze periode" — in plaats van de oude
-  algemene "pas een filter aan"-tekst (de meeste van deze rapporten hebben geen
-  filter om aan te passen). Het Seizoensoverzicht toont geen lege pagina meer
-  onder de kop-tegels wanneer er geen teams zijn.
+ in gewone taal *waarom* — "Geen wedstrijden geregistreerd in deze periode",
+ "Geen beoordelingen geregistreerd voor dit team in deze periode", "Geen
+ scoutingskandidaten geregistreerd in deze periode" — in plaats van de oude
+ algemene "pas een filter aan"-tekst (de meeste van deze rapporten hebben geen
+ filter om aan te passen). Het Seizoensoverzicht toont geen lege pagina meer
+ onder de kop-tegels wanneer er geen teams zijn.
 - **Speler · Gespeelde minuten** beslaat de **laatste 12 maanden** (vermeld in
-  de subregel van de pagina, gelijk aan de Explorer-drill), en wanneer een
-  speler meer dan 50 wedstrijden in die periode heeft, staat er *"De 50 meest
-  recente wedstrijden worden getoond"* zodat een langere historie nooit
-  ongemerkt wegvalt.
+ de subregel van de pagina, gelijk aan de Explorer-drill), en wanneer een
+ speler meer dan 50 wedstrijden in die periode heeft, staat er *"De 50 meest
+ recente wedstrijden worden getoond"* zodat een langere historie nooit
+ ongemerkt wegvalt.
 - **Team · Teambeoordelingsoverzicht** toont per speler een datum **Laatst
-  beoordeeld**, zodat een verouderde rij in één oogopslag zichtbaar is.
+ beoordeeld**, zodat een verouderde rij in één oogopslag zichtbaar is.
 - **Seizoensoverzicht** telt gearchiveerde activiteiten niet meer mee in de
-  wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
-  waardoor een bron van opgeblazen joins verdwijnt.
+ wedstrijdaantallen per team (op de join zelf, niet alleen in de telling),
+ waardoor een bron van opgeblazen joins verdwijnt.
 
 ### Aansluiting van de trial-trechter
 

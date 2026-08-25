@@ -51,7 +51,7 @@ do_action( 'tt_onboarding_completed' );
 do_action( 'tt_onboarding_reset' );
 ```
 
-Future epics like the monetization trial CTA (#0011) or the backup setup wizard (#0013) attach to these hooks rather than modifying the wizard itself.
+Future epics like the monetization trial CTA or the backup setup wizard attach to these hooks rather than modifying the wizard itself.
 
 ## State storage
 

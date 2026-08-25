@@ -26,11 +26,11 @@ player is, where you saw them, and how to reach a parent.
 Two fields carry more weight than the rest:
 
 - **Discovery context** — where and in what circumstances you saw them. This
-  travels with the player for as long as they are at the academy. In two years,
-  when someone asks why this player was signed, this is the answer.
+ travels with the player for as long as they are at the academy. In two years,
+ when someone asks why this player was signed, this is the answer.
 - **What you saw** — your actual read. Specific beats generous: "comfortable
-  receiving on the half-turn under pressure" is worth more than "good
-  technique".
+ receiving on the half-turn under pressure" is worth more than "good
+ technique".
 
 Logging a prospect automatically raises a task on the head of development to
 invite them to a test training, so you do not need to chase anyone.
@@ -83,9 +83,9 @@ being watched — instead of it living in your head.
 Two things scouts reasonably expect are not built:
 
 - **Adding a follow-up note to a prospect you already logged.** Notes are
-  captured when you create the prospect and cannot be appended to afterwards.
+ captured when you create the prospect and cannot be appended to afterwards.
 - **Correcting parent contact details or consent on an existing prospect.**
-  The wizard is create-only.
+ The wizard is create-only.
 
 Until those exist, put corrections and later observations in the message to the
 head of development rather than assuming the record will carry them. Both are

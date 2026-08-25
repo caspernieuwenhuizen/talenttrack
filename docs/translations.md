@@ -13,7 +13,7 @@ order: 130
 
 The plugin's UI text is translated via the standard `.po` / `.mo` flow. **User-entered free text** — goal titles, evaluation notes, session descriptions, attendance notes — historically wasn't. A coach writing in Dutch and a parent reading in French saw raw Dutch.
 
-The Translations layer (#0025) closes that gap with an opt-in render-time translation cache.
+The Translations layer closes that gap with an opt-in render-time translation cache.
 
 ## Default OFF
 
