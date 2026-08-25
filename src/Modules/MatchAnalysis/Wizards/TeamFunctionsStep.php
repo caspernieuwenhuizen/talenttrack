@@ -22,9 +22,15 @@ final class TeamFunctionsStep implements WizardStepInterface {
     public function render( array $state ): void {
         $prep = self::prepFor( OverallStep::activityId( $state ) );
 
+        // #2836 — hint and legend share the line that introduces the phases,
+        // so the glyph vocabulary is stated once for all four rather than
+        // spelled out on every one of them.
+        echo '<div class="tt-ma__group-head">';
         echo '<p class="tt-ma__hint">'
             . esc_html__( 'Rate what you saw per phase and add the points worth remembering. Leave a phase unrated if there is nothing to say.', 'talenttrack' )
             . '</p>';
+        \TT\Modules\MatchAnalysis\Frontend\SectionRatingControl::renderLegend();
+        echo '</div>';
 
         foreach ( OverallStep::teamFunctionKeys() as $key ) {
             SectionStepFields::render( $key, $state, $prep );

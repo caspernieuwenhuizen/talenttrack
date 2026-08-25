@@ -18,6 +18,9 @@
  *   .tt-ma__planned            — the read-only "Planned …" line from match prep
  *   .tt-ma__ratings            — the rating radio group
  *   .tt-ma__rating-input/.tt-ma__rating  — one rating chip (input is visually hidden)
+ *   .tt-ma__rating--glyph      — that chip with the word removed (#2836)
+ *   .tt-ma__group-head         — hint + legend line above a group of phases
+ *   .tt-ma__rating-legend      — the ▲ ● ▼ vocabulary, stated once
  *   .tt-ma__bullets/.tt-ma__bullet       — the four short-point inputs
  *   .tt-ma__players/.tt-ma__player       — the roster panel
  *   .tt-ma__markers/.tt-ma__marker-input/.tt-ma__marker — per-player marker chips
@@ -313,6 +316,79 @@
 .tt-ma__marker-input:checked + .tt-ma__marker[data-marker=""] {
     background: var(--tt-bg-soft);
     color: var(--tt-ink-soft);
+}
+
+/* ---- #2836: glyph-only ratings + one legend ------------------ */
+
+/* Without its word the pill is a square target, not a lozenge. 48px each
+   way so the tap area survives the text going away. */
+.tt-ma__rating--glyph {
+    min-width: 48px;
+    padding: 0;
+}
+
+/* Selected has to read without colour now that the word is gone: an inset
+   ring plus a heavier border, so a greyscale print and a red/green
+   colour-blind reader both still see which one is set. */
+.tt-ma__rating-input:checked + .tt-ma__rating--glyph {
+    border-width: 2px;
+    box-shadow: inset 0 0 0 2px var(--tt-paper);
+}
+
+.tt-ma__rating--glyph .tt-ma__glyph {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* The line that introduces a group of phases: hint on the left, the glyph
+   vocabulary on the right. Stacks on a phone — the hint is a sentence and
+   squeezing it beside the legend at 360px wins nothing. */
+.tt-ma__group-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--tt-sp-1);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-ma__group-head .tt-ma__hint {
+    margin: 0;
+}
+
+.tt-ma__rating-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-1) var(--tt-sp-3);
+    margin: 0;
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-ma__rating-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1);
+    white-space: nowrap;
+}
+
+.tt-ma__rating-legend-item[data-rating="went_well"]  .tt-ma__glyph { color: var(--tt-success); }
+.tt-ma__rating-legend-item[data-rating="mixed"]      .tt-ma__glyph { color: var(--tt-info); }
+.tt-ma__rating-legend-item[data-rating="needs_work"] .tt-ma__glyph { color: var(--tt-warning); }
+
+@media (min-width: 600px) {
+    .tt-ma__group-head {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--tt-sp-2) var(--tt-sp-4);
+    }
+
+    .tt-ma__group-head .tt-ma__hint {
+        flex: 1 1 20rem;
+        min-width: 0;
+    }
 }
 
 /* ---- Bullets ------------------------------------------------ */

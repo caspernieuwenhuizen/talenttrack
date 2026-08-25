@@ -60,10 +60,17 @@ A transition only means something read next to the phase it comes out of,
 which is why these are two chains rather than one list of six.
 
 Each phase carries a rating — **Went well**, **Mixed** or **Needs work** —
-beside its name, and up to four short points beneath it. Both are optional:
-a phase you leave alone simply shows as *Not rated* and counts as nothing,
-rather than as a middling score. Once you have set a rating, a small
-**Clear** appears next to it.
+beside its name, and up to four short points beneath it. The three choices
+show as ▲ ● ▼ rather than as words: with five phases on a screen the same
+three words printed fifteen times crowded out the phase names. What each
+glyph means is stated once, in a small legend on the line that introduces
+the phases, and every button still names itself to a screen reader and on
+hover. Both the rating and the points are optional: a phase you leave alone
+simply shows as *Not rated* and counts as nothing, rather than as a middling
+score. Once you have set a rating, a small **Clear** appears next to it.
+
+On the printed sheet and the share page the rating is still written out in
+words — there it appears once per phase, so there is nothing to crowd.
 
 Where the match plan asked for something in that phase, it appears as
 **Planned**, so you are reviewing against what you asked for rather than
