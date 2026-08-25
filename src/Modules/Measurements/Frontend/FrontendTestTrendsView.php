@@ -287,16 +287,39 @@ final class FrontendTestTrendsView extends FrontendViewBase {
         echo '<div class="tt-meas-cols">';
         echo '<table>';
         echo '<thead><tr><th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        foreach ( $dates as $d ) {
+        // #2837 — a step column between each pair of dates. The heading is the
+        // delta sign rather than a word: it repeats once per gap, and the row
+        // beneath already says which way each move went.
+        foreach ( $dates as $i => $d ) {
+            if ( $i > 0 ) {
+                echo '<th scope="col" class="tt-meas-cols__step-head"><abbr title="'
+                    . esc_attr__( 'Change since the previous measuring moment', 'talenttrack' )
+                    . '">&#8710;</abbr></th>';
+            }
             echo '<th scope="col">' . esc_html( self::shortDate( $d ) ) . '</th>';
         }
-        echo '<th scope="col">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
+        // #2837 — headed distinctly from the steps, so the last column is not
+        // read as one more of them. It spans every moment the player has.
+        echo '<th scope="col">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         foreach ( (array) $data['players'] as $p ) {
             $swatch = $with_swatch ? SeriesPalette::swatch( $index[ (int) $p['player_id'] ] ?? 0 ) : '';
+            $steps  = isset( $p['steps'] ) && is_array( $p['steps'] ) ? $p['steps'] : [];
             echo '<tr><th scope="row">' . $swatch . self::playerLink( $p ) . '</th>';
-            foreach ( $dates as $d ) {
+            foreach ( $dates as $i => $d ) {
+                if ( $i > 0 ) {
+                    // A gap on either side of the pair is a gap, not a
+                    // comparison stretched across it.
+                    $step = $steps[ $d ] ?? null;
+                    if ( $step === null ) {
+                        echo '<td class="tt-meas-cols__step tt-meas-cols__none">&mdash;</td>';
+                    } else {
+                        echo '<td class="tt-meas-cols__step">'
+                            . TrendGlyph::render( (string) $step['trend'], (float) $step['delta'], $unit )
+                            . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped within the component.
+                    }
+                }
                 if ( isset( $p['values'][ $d ] ) ) {
                     echo '<td>' . esc_html( self::num( (float) $p['values'][ $d ] ) ) . '</td>';
                 } else {

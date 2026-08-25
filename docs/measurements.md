@@ -315,9 +315,18 @@ takes it **dotted**. Colour and pattern together mean a full squad stays
 readable, on screen, in a black-and-white print, and for a colour-blind
 reader.
 
-**Reading the change column.** Every change carries an indicator, not just a
-colour, so the report stays readable in black and white and for a
-colour-blind reader:
+**Step by step, and overall.** Between each pair of dates sits a **Δ** column
+carrying the move from the previous measuring moment; the last column,
+**Total**, spans every moment the player has. With two measuring moments the
+two agree. With three or more they stop agreeing, and that is the point: a
+player who gained 2 kg and lost 1,5 kg has the same total as one who gained
+0,5 steadily, and only the steps tell them apart. Where a reading is missing on
+either side of a pair the step shows `—`; it is never stretched across the gap
+to the reading before it.
+
+**Reading the change column.** Every change — each step and the total — carries
+an indicator, not just a colour, so the report stays readable in black and
+white and for a colour-blind reader:
 
 | Indicator | Meaning |
 | --- | --- |

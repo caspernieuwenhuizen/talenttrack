@@ -171,6 +171,22 @@
 .tt-meas-cols__change { font-weight: 700; }
 .tt-meas-cols__none { color: var(--tt-ink-soft, #6a6d66); }
 
+/* #2837 — the step between two measuring moments. Quieter than the total at
+   the end of the row: there is one per gap, and the eye should still land on
+   the readings themselves first. */
+.tt-meas-cols__step {
+    font-size: 0.75rem;
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-meas-cols__step-head {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-meas-cols__step-head abbr {
+    text-decoration: none;
+    border-bottom: 0;
+    cursor: help;
+}
+
 .tt-meas-cols__caption {
     margin: 0 0 0.5rem;
     font-size: 0.75rem;

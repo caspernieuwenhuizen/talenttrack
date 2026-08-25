@@ -54868,6 +54868,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Measurements/Frontend/FrontendTestTrendsView.php:296
+msgid "Change since the previous measuring moment"
+msgstr "Verandering sinds het vorige meetmoment"
+
 #~ msgid ""
 #~ "Administrator-level tools for inspecting and migrating the authorization "
 #~ "matrix. These open in wp-admin."
